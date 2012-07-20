@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>orangeFunctions &mdash; Exploratory Modeling Workbench</title>
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../index.html" />
+    <link rel="next" title="clusterer" href="clusterer.html" />
+    <link rel="prev" title="prim" href="prim.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../contents.html"><img src="../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="clusterer.html" title="clusterer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="prim.html" title="prim"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../download.html">download </a> &raquo;</li>
+       <li><a href="../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">orangeFunctions</span></tt></a><ul>
+<li><a class="reference internal" href="#tree"><tt class="docutils literal"><span class="pre">tree()</span></tt></a></li>
+<li><a class="reference internal" href="#random-forest-measure-attributes"><tt class="docutils literal"><span class="pre">random_forest_measure_attributes()</span></tt></a></li>
+<li><a class="reference internal" href="#random-forest"><tt class="docutils literal"><span class="pre">random_forest()</span></tt></a></li>
+<li><a class="reference internal" href="#feature-selection"><tt class="docutils literal"><span class="pre">feature_selection()</span></tt></a></li>
+<li><a class="reference internal" href="#build-orange-data"><tt class="docutils literal"><span class="pre">build_orange_data()</span></tt></a></li>
+<li><a class="reference internal" href="#classify"><tt class="docutils literal"><span class="pre">classify()</span></tt></a></li>
+</ul>
+</li>
+</ul>
+  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../RESEARCH/Intro.html">PA SIMULATION LAB</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../BeneluxChapter/Intro.html">BENELUX CHAPTER</a></li>
+      <li><a href="../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-orangeFunctions">
+<span id="orangefunctions"></span><h1><a class="reference internal" href="#module-orangeFunctions" title="orangeFunctions"><tt class="xref py py-mod docutils literal"><span class="pre">orangeFunctions</span></tt></a><a class="headerlink" href="#module-orangeFunctions" title="Permalink to this headline">¶</a></h1>
+<p>This module contains some convenience functions that wrap machine learning
+algorithms implemented in <a class="reference external" href="http://orange.biolab.si/doc/reference/Domain.htm">orange</a></p>
+<p>The current wrappers use default values for the various parameters that can be
+specified. Follow the provided links to the orange functions that are being
+wrapped for more details.</p>
+<p><a class="reference internal" href="#orangeFunctions.build_orange_data" title="orangeFunctions.build_orange_data"><tt class="xref py py-func docutils literal"><span class="pre">build_orange_data()</span></tt></a> can be used as a starting point if one wants to use 
+other algorithms provided by orange.</p>
+<p>Where appropriate, the relevant documentation from orange has been used.</p>
+<p>author: jhkwakkel</p>
+<div class="section" id="tree">
+<h2><a class="reference internal" href="#orangeFunctions.tree" title="orangeFunctions.tree"><tt class="xref py py-func docutils literal"><span class="pre">tree()</span></tt></a><a class="headerlink" href="#tree" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="orangeFunctions.tree">
+<tt class="descclassname">orangeFunctions.</tt><tt class="descname">tree</tt><big>(</big><em>data</em>, <em>classify</em>, <em>sameMajorityPruning=False</em>, <em>mForPruning=0</em>, <em>maxMajority=1</em>, <em>minSubset=0</em>, <em>minExamples=0</em><big>)</big><a class="headerlink" href="#orangeFunctions.tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>make a classification tree using orange</p>
+<p>For more details see <a class="reference external" href="http://orange.biolab.si/doc/modules/orngTree.htm">orange tree</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> &#8211; data from <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt></li>
+<li><strong>classify</strong> &#8211; function for classifying runs</li>
+<li><strong>sameMajorityPruning</strong> &#8211; If true, invokes a bottom-up post-pruning by 
+removing the subtrees of which all leaves 
+classify to the same class (default: False).</li>
+<li><strong>mForPruning</strong> &#8211; If non-zero, invokes an error-based bottom-up 
+post-pruning, where m-estimate is used to estimate 
+class probabilities (default: 0).</li>
+<li><strong>maxMajority</strong> &#8211; Induction stops when the proportion of majority class 
+in the node exceeds the value set by this parameter
+(default: 1.0).</li>
+<li><strong>minSubset</strong> &#8211; Minimal number of examples in non-null leaves 
+(default: 0).</li>
+<li><strong>minExamples</strong> &#8211; Data subsets with less than minExamples examples are 
+not split any further, that is, all leaves in the tree 
+will contain at least that many of examples 
+(default: 0).</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">a classification tree</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>in order to print the results one can for example use <a class="reference external" href="http://www.graphviz.org/">graphiv</a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">orgnTree</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">classify</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">orngTree</span><span class="o">.</span><span class="n">printDot</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s">r&#39;..\..\models\tree.dot&#39;</span><span class="p">,</span> 
+<span class="go">                  leafStr=&quot;%V (%M out of %N)&quot;) </span>
+</pre></div>
+</div>
+<p>this generates a .dot file that can be opened and displayed using graphviz.
+the leafStr keyword argument specifies the format of the string for
+each leaf. See on this also the more detailed discussion on the orange 
+web site.</p>
+<p>At some future state, a convenience function might be added for turning
+a tree into a <a class="reference external" href="http://networkx.lanl.gov/">networkx graph</a>. However, this
+is a possible future addition.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="random-forest-measure-attributes">
+<h2><a class="reference internal" href="#orangeFunctions.random_forest_measure_attributes" title="orangeFunctions.random_forest_measure_attributes"><tt class="xref py py-func docutils literal"><span class="pre">random_forest_measure_attributes()</span></tt></a><a class="headerlink" href="#random-forest-measure-attributes" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="orangeFunctions.random_forest_measure_attributes">
+<tt class="descclassname">orangeFunctions.</tt><tt class="descname">random_forest_measure_attributes</tt><big>(</big><em>data</em>, <em>classify</em><big>)</big><a class="headerlink" href="#orangeFunctions.random_forest_measure_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>performs feature selection using random forests in orange.</p>
+<p>For more details see <a class="reference external" href="http://orange.biolab.si/doc/modules/orngEnsemble.htm">orange ensemble</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> &#8211; data from <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</li>
+<li><strong>classify</strong> &#8211; function for classifying runs.</li>
+<li><strong>nrOfTrees</strong> &#8211; number of trees in the forest (default: 100).</li>
+<li><strong>attributes</strong> &#8211; Number of attributes used in a randomly drawn subset 
+when searching for best attribute to split the node in 
+tree growing. (default: None, and if kept this way, this 
+is turned into square root of attributes in example set)</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sorted list of tuples with uncertainty names and importance values.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="random-forest">
+<h2><a class="reference internal" href="#orangeFunctions.random_forest" title="orangeFunctions.random_forest"><tt class="xref py py-func docutils literal"><span class="pre">random_forest()</span></tt></a><a class="headerlink" href="#random-forest" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="orangeFunctions.random_forest">
+<tt class="descclassname">orangeFunctions.</tt><tt class="descname">random_forest</tt><big>(</big><em>data</em>, <em>classify</em>, <em>nrOfTrees=100</em>, <em>attributes=None</em><big>)</big><a class="headerlink" href="#orangeFunctions.random_forest" title="Permalink to this definition">¶</a></dt>
+<dd><p>make a random forest using orange</p>
+<p>For more details see <a class="reference external" href="http://orange.biolab.si/doc/modules/orngEnsemble.htm">orange ensemble</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> &#8211; data from <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</li>
+<li><strong>classify</strong> &#8211; function for classifying runs.</li>
+<li><strong>nrOfTrees</strong> &#8211; number of trees in the forest (default: 100).</li>
+<li><strong>attributes</strong> &#8211; Number of attributes used in a randomly drawn subset 
+when searching for best attribute to split the node in 
+tree growing (default: None, and if kept this way, this 
+is turned into square root of attributes in 
+example set).</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">an orange random forest.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="feature-selection">
+<h2><a class="reference internal" href="#orangeFunctions.feature_selection" title="orangeFunctions.feature_selection"><tt class="xref py py-func docutils literal"><span class="pre">feature_selection()</span></tt></a><a class="headerlink" href="#feature-selection" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="orangeFunctions.feature_selection">
+<tt class="descclassname">orangeFunctions.</tt><tt class="descname">feature_selection</tt><big>(</big><em>data</em>, <em>classify</em>, <em>k=5</em>, <em>m=100</em><big>)</big><a class="headerlink" href="#orangeFunctions.feature_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>perform feature selection using orange</p>
+<p>For more details see <a class="reference external" href="http://orange.biolab.si/doc/modules/orngFSS.htm">orange feature selection</a> and
+<a class="reference external" href="http://orange.biolab.si/doc/reference/MeasureAttribute.htm">orange measure attribute</a></p>
+<p>the default measure is ReliefF ((MeasureAttribute_relief in Orange).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> &#8211; data from <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</li>
+<li><strong>classify</strong> &#8211; function for classifying runs.</li>
+<li><strong>k</strong> &#8211; the number of neighbors for each example (default 5).</li>
+<li><strong>m</strong> &#8211; number of examples to use, Set to -1 to use all (default 100).</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sorted list of tuples with uncertainty names and reliefF attribute 
+scores.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Orange provides other metrics for feature selection</p>
+<ul class="simple">
+<li>Information Gain</li>
+<li>Gain ratio</li>
+<li>Gini index</li>
+<li>Relevance of attributes</li>
+<li>Costs</li>
+</ul>
+<p>If you want to use any of of these instead of ReliefF, use the code
+supplied here as a template, but modify the measure. That is replace:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">measure</span> <span class="o">=</span> <span class="n">orange</span><span class="o">.</span><span class="n">MeasureAttribute_relief</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>with the measure of choice. See the above provided links for more details.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="build-orange-data">
+<h2><a class="reference internal" href="#orangeFunctions.build_orange_data" title="orangeFunctions.build_orange_data"><tt class="xref py py-func docutils literal"><span class="pre">build_orange_data()</span></tt></a><a class="headerlink" href="#build-orange-data" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="orangeFunctions.build_orange_data">
+<tt class="descclassname">orangeFunctions.</tt><tt class="descname">build_orange_data</tt><big>(</big><em>data</em>, <em>classify</em><big>)</big><a class="headerlink" href="#orangeFunctions.build_orange_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function for turning the data from <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt> into 
+a data object that can be used by the various orange functions.</p>
+<p>For more details see <a class="reference external" href="http://orange.biolab.si/doc/reference/Domain.htm">orange domain</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> &#8211; return from <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</li>
+<li><strong>classify</strong> &#8211; function to be used for determining the class for each 
+run.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="classify">
+<h2><a class="reference internal" href="#orangeFunctions.classify" title="orangeFunctions.classify"><tt class="xref py py-func docutils literal"><span class="pre">classify()</span></tt></a><a class="headerlink" href="#classify" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="orangeFunctions.classify">
+<tt class="descclassname">orangeFunctions.</tt><tt class="descname">classify</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#orangeFunctions.classify" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function for classifying data. This is merely an example 
+implementation. Any user supplied function can be used as long as it
+accepts data and returns a 1-D array of classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; list of dicts, which each dict containing the results for all
+outcomes of interest. This is the results as returned by
+run_experiments</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">1-D array of classes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="clusterer.html" title="clusterer"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="prim.html" title="prim"
+             >previous</a> |</li>
+       <li><a href="../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../download.html">download </a> &raquo;</li>
+       <li><a href="../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

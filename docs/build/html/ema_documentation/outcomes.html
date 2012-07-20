@@ -1,0 +1,183 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outcomes &mdash; Exploratory Modeling Workbench</title>
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../index.html" />
+    <link rel="next" title="samplers" href="samplers.html" />
+    <link rel="prev" title="uncertainties" href="uncertainties.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../contents.html"><img src="../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="samplers.html" title="samplers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="uncertainties.html" title="uncertainties"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../download.html">download </a> &raquo;</li>
+       <li><a href="../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">outcomes</span></tt></a><ul>
+<li><a class="reference internal" href="#outcome"><tt class="docutils literal"><span class="pre">Outcome</span></tt></a></li>
+</ul>
+</li>
+</ul>
+  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../RESEARCH/Intro.html">PA SIMULATION LAB</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../BeneluxChapter/Intro.html">BENELUX CHAPTER</a></li>
+      <li><a href="../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-outcomes">
+<span id="outcomes"></span><h1><a class="reference internal" href="#module-outcomes" title="outcomes"><tt class="xref py py-mod docutils literal"><span class="pre">outcomes</span></tt></a><a class="headerlink" href="#module-outcomes" title="Permalink to this headline">¶</a></h1>
+<p>Created on 24 mei 2011</p>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
+<div class="section" id="outcome">
+<h2><a class="reference internal" href="#outcomes.Outcome" title="outcomes.Outcome"><tt class="xref py py-class docutils literal"><span class="pre">Outcome</span></tt></a><a class="headerlink" href="#outcome" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="outcomes.Outcome">
+<em class="property">class </em><tt class="descclassname">outcomes.</tt><tt class="descname">Outcome</tt><big>(</big><em>name</em>, <em>time=False</em><big>)</big><a class="headerlink" href="#outcomes.Outcome" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outcome class</p>
+<dl class="attribute">
+<dt id="outcomes.Outcome.name">
+<tt class="descname">name</tt><a class="headerlink" href="#outcomes.Outcome.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>name of the outcome</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="outcomes.Outcome.time">
+<tt class="descname">time</tt><a class="headerlink" href="#outcomes.Outcome.time" title="Permalink to this definition">¶</a></dt>
+<dd><p>boolean, indication of outcome is a time series or not</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="outcomes.Outcome.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>name</em>, <em>time=False</em><big>)</big><a class="headerlink" href="#outcomes.Outcome.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>init</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the outcome.</li>
+<li><strong>time</strong> &#8211; Boolean, specifies whether the outcome is a time
+series or not (Default = False).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="samplers.html" title="samplers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="uncertainties.html" title="uncertainties"
+             >previous</a> |</li>
+       <li><a href="../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../download.html">download </a> &raquo;</li>
+       <li><a href="../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>
