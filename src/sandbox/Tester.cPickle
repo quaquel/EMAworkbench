@@ -1,0 +1,9739 @@
+(lp1
+(((dp2
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p3
+cnumpy.core.multiarray
+scalar
+p4
+(cnumpy
+dtype
+p5
+(S'f8'
+I0
+I1
+tRp6
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbS'\xa5\x07\xb9 \xb7_\xb0?'
+tRp7
+sS'environmental performance r5 ini'
+p8
+g4
+(g6
+S'\x8d"\x1aTne\x11@'
+tRp9
+sS'push cost performance r3 ini'
+p10
+g4
+(g6
+S'a\\\xa9\x17\x8e\xba\x1b@'
+tRp11
+sS'environmental performance r8 ini'
+p12
+g4
+(g6
+S"\xac\x8c\xe2\xb0\xb9'\x14@"
+tRp13
+sS'effective LS push emigration ratio[r7]'
+p14
+g4
+(g6
+S'p\xc2\xb6y\x15\xee\xb5?'
+tRp15
+sS'societal performance r6 ini'
+p16
+g4
+(g6
+S'\xbf\x16\xbf\xdb\x1c\x9c!@'
+tRp17
+sS'lookup number evolution birth rate[r5]'
+p18
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp19
+sS'importance sec perf 4 HS push immig'
+p20
+g4
+(g6
+S'\xf7\x9f-\x87\xd9*\x0f@'
+tRp21
+sS'push cost performance r8 ini'
+p22
+g4
+(g6
+S'\x1a \x81\xcb\xaf\xf4\x11@'
+tRp23
+sS'avg T as HS retiree[r8]'
+p24
+g4
+(g6
+S',\x18\x12 K\xc7/@'
+tRp25
+sS'effective HS push emigration ratio[r5]'
+p26
+g4
+(g6
+S'Z\x90\x1e\xf1\x81\\\x8e?'
+tRp27
+sS'importance econ perf 4 HS push immig'
+p28
+g4
+(g6
+S'\x8c\x84\xe5H\xe1\xa9\x0b@'
+tRp29
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p30
+g4
+(g6
+S'\xd6\xd6\xab\xc06\xa7\xbf?'
+tRp31
+sS'societal performance r7 ini'
+p32
+g4
+(g6
+S'\x04\xbd\x15\x85\xa3\xce\x12@'
+tRp33
+sS'degree of HS orientation [r1]'
+p34
+g4
+(g6
+S'\x10u\xdd5\x81\xd1\xab?'
+tRp35
+sS'lookup number evolution HS jobs[r5]'
+p36
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp37
+sS'security performance r4 ini'
+p38
+g4
+(g6
+S'\xa9\x06\xf2\xb0d\x90\x11@'
+tRp39
+sS'effective LS push emigration ratio[r4]'
+p40
+g4
+(g6
+S'\x01\xbf\xaa\x05\x88\xf6\xc1?'
+tRp41
+sS'importance soc perf 4 HS pull immig'
+p42
+g4
+(g6
+S'\xe7\xcbn\xb1\xf6\xe8\x18@'
+tRp43
+sS'lookup number evolution birth rate[r4]'
+p44
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp45
+sS'pull cost performance r5 ini'
+p46
+g4
+(g6
+S'\xbf\x96/\xe8k\x0f\x11@'
+tRp47
+sS'avg T as LS retiree[r1]'
+p48
+g4
+(g6
+S'\xf0\xac\xc7\xa5\x0e\xaf\x03@'
+tRp49
+sS'avg T as HS retiree[r3]'
+p50
+g4
+(g6
+S'\x12p\xfc\xdf$#)@'
+tRp51
+sS'push cost performance r7 ini'
+p52
+g4
+(g6
+S'28\x0f2r\xd1\t@'
+tRp53
+sS'effective HS push emigration ratio[r2]'
+p54
+g4
+(g6
+S'\xa2&\xa7\x016,\x86?'
+tRp55
+sS'economic performance r8 ini'
+p56
+g4
+(g6
+S'D#\r\xbc|& @'
+tRp57
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p58
+g4
+(g6
+S'\x8d\xdeLe+\xcb\xb9?'
+tRp59
+sS'pull cost performance r2 ini'
+p60
+g4
+(g6
+S'.\xdf\xe8c_\x1e\x0b@'
+tRp61
+sS'push cost performance r2 ini'
+p62
+g4
+(g6
+S'R\xdcD\xf4\xb6\xeb\x16@'
+tRp63
+sS'security performance r7 ini'
+p64
+g4
+(g6
+S'\x87\xc8[^\xafr\x16@'
+tRp65
+sS'environmental performance r2 ini'
+p66
+g4
+(g6
+S'rP\xb9\xeaE\x02\x06@'
+tRp67
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p68
+g4
+(g6
+S'\xc6\xf0f\x80dW\xb4?'
+tRp69
+sS'degree of HS orientation [r6]'
+p70
+g4
+(g6
+S'i\xe7\xd0\xd6Z\xa3\xe3?'
+tRp71
+sS'avg T as LS retiree[r4]'
+p72
+g4
+(g6
+S'\xc1\xa9\xe7e\xeb\xde @'
+tRp73
+sS'effective LS push emigration ratio[r1]'
+p74
+g4
+(g6
+S'^CP@\xfew\xb9?'
+tRp75
+sS'importance cost perf 4 HS push immig'
+p76
+g4
+(g6
+S'o\x14\x8b\xc5UF\x11@'
+tRp77
+sS'pull cost performance r8 ini'
+p78
+g4
+(g6
+S'\xae\xa3*\xa1\xb8p\x1f@'
+tRp79
+sS'importance cost perf 4 LS push immig'
+p80
+g4
+(g6
+S'\x1c&\xc4\xcb\xbb\xbe\xf5?'
+tRp81
+sS'avg T as HS retiree[r6]'
+p82
+g4
+(g6
+S'}\xe1\x13\t\x975*@'
+tRp83
+sS'degree of HS orientation [r8]'
+p84
+g4
+(g6
+S'\xaf\xcc\x81\xe9\xee\xe2\xe3?'
+tRp85
+sS'effective HS push emigration ratio[r7]'
+p86
+g4
+(g6
+S'Pp\xf0\x99\xf8\x0f\x94?'
+tRp87
+sS'pull cost performance r3 ini'
+p88
+g4
+(g6
+S'\xc1n&\xf0\xf5\x94\x10@'
+tRp89
+sS'lookup number evolution birth rate[r3]'
+p90
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp91
+sS'push cost performance r5 ini'
+p92
+g4
+(g6
+S'|\xfd\xb8\x9d\x87\xb1\x12@'
+tRp93
+sS'push cost performance r1 ini'
+p94
+g4
+(g6
+S'\xb4\xa5\x05Iu\xc8\x10@'
+tRp95
+sS'economic performance r2 ini'
+p96
+g4
+(g6
+S'\xb5\xf5\xe7\x9b\x91}\x01@'
+tRp97
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p98
+g4
+(g6
+S'\x150\x88\xa5 \xfb\xc0?'
+tRp99
+sS'push cost performance r4 ini'
+p100
+g4
+(g6
+S'iC\xc4tB\x9a\x18@'
+tRp101
+sS'lookup number evolution HS jobs[r7]'
+p102
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp103
+sS'avg T as LS retiree[r7]'
+p104
+g4
+(g6
+S'\xc0\xd5\x927\x10R$@'
+tRp105
+sS'effective LS push emigration ratio[r6]'
+p106
+g4
+(g6
+S'u\x18>dg\xf2\xb7?'
+tRp107
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p108
+g4
+(g6
+S'\xba \xb9\x04\xc0\xb8\xbc?'
+tRp109
+sS'avg T as HS retiree[r1]'
+p110
+g4
+(g6
+S'\xcf\x10\x0e\xe3\xc7\x0c\x02@'
+tRp111
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p112
+g4
+(g6
+S'\xe05\xfb\x0b\x81;\xa7?'
+tRp113
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p114
+g4
+(g6
+S'\xa5+\x92\xa0]#\xc5?'
+tRp115
+sS'security performance r6 ini'
+p116
+g4
+(g6
+S'\x89\x94\xc7\rN\xa7\x19@'
+tRp117
+sS'lookup number evolution birth rate[r2]'
+p118
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp119
+sS'effective HS push emigration ratio[r4]'
+p120
+g4
+(g6
+S'&9\xcfQ\xa7\x8f\x80?'
+tRp121
+sS'security performance r2 ini'
+p122
+g4
+(g6
+S'\xd2\xac\xf8I\xa2b\t@'
+tRp123
+sS'importance econ perf 4 LS pull immig'
+p124
+g4
+(g6
+S'C\xaf\x9e\xe2\xf26\x12@'
+tRp125
+sS'security performance r3 ini'
+p126
+g4
+(g6
+S"\x14\x96x\x8f'\x14\x06@"
+tRp127
+sS'pull cost performance r7 ini'
+p128
+g4
+(g6
+S'&\x1cj\x01\xfb7\x15@'
+tRp129
+sS'security performance r1 ini'
+p130
+g4
+(g6
+S'\xb82\xc6A\x037\x04@'
+tRp131
+sS'lookup number evolution HS jobs[r6]'
+p132
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp133
+sS'security performance r8 ini'
+p134
+g4
+(g6
+S'\xcd\xb9\x91\xe7\xe0\xc2\x1e@'
+tRp135
+sS'degree of HS orientation [r2]'
+p136
+g4
+(g6
+S'9\x88\xedTD\x93\xc1?'
+tRp137
+sS'lookup number evolution HS jobs[r2]'
+p138
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp139
+sS'societal performance r2 ini'
+p140
+g4
+(g6
+S'\xbe\xdb\xac/\xc6\xf4\x10@'
+tRp141
+sS'environmental performance r1 ini'
+p142
+g4
+(g6
+S'\xcd\xe5y\xb2"K\x11@'
+tRp143
+sS'lookup number evolution birth rate[r1]'
+p144
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp145
+sS'avg T as LS retiree[r2]'
+p146
+g4
+(g6
+S'Oi\xc4{\x00\xcf*@'
+tRp147
+sS'importance env perf 4 HS push immig'
+p148
+g4
+(g6
+S'@\xb0\x84\xcaC\xf8\x1f@'
+tRp149
+sS'importance sec perf 4 LS push immig'
+p150
+g4
+(g6
+S'\x88@V\xa3J\xa6\x12@'
+tRp151
+sS'importance sec perf 4 LS pull immig'
+p152
+g4
+(g6
+S'\xb49<+Lu\x00@'
+tRp153
+sS'avg T as HS retiree[r4]'
+p154
+g4
+(g6
+S":\x02b\rjC'@"
+tRp155
+sS'effective HS push emigration ratio[r1]'
+p156
+g4
+(g6
+S'P\xcc\xc9\xde\xf8\x8e\x8d?'
+tRp157
+sS'effective LS push emigration ratio[r8]'
+p158
+g4
+(g6
+S'\x13\x1ac\xf08\x80\xc3?'
+tRp159
+sS'pull cost performance r4 ini'
+p160
+g4
+(g6
+S'y\x0c\xbf\x02\xd9\x12\r@'
+tRp161
+sS'degree of HS orientation [r5]'
+p162
+g4
+(g6
+S'\xdc\x88\xa6\x80\xad\t\xe6?'
+tRp163
+sS'societal performance r3 ini'
+p164
+g4
+(g6
+S'\xe5KFAs\xe1\x16@'
+tRp165
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p166
+g4
+(g6
+S'xl,\xce\xe1\xea\xb8?'
+tRp167
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p168
+g4
+(g6
+S'\x9d\xc6E\xf3\x1co\xab?'
+tRp169
+sS'importance soc perf 4 LS push immig'
+p170
+g4
+(g6
+S'2\xd0M\xf2\xff\xe8\x04@'
+tRp171
+sS'importance env perf 4 HS pull immig'
+p172
+g4
+(g6
+S'\xca\x86\xdd\xda\ti\x08@'
+tRp173
+sS'environmental performance r7 ini'
+p174
+g4
+(g6
+S'\xe0\x92\x1era\xdc\x11@'
+tRp175
+sS'degree of HS orientation [r3]'
+p176
+g4
+(g6
+S'@\x88\xf8\x87{\x1d\xc5?'
+tRp177
+sS'economic performance r3 ini'
+p178
+g4
+(g6
+S'\x9b^a\x14\x83\xe8\x00@'
+tRp179
+sS'importance env perf 4 LS push immig'
+p180
+g4
+(g6
+S'@\x07\x9bP\x96\x1d#@'
+tRp181
+sS'societal performance r4 ini'
+p182
+g4
+(g6
+S'U\xdef\x8c\x11\xdc\x11@'
+tRp183
+sS'importance soc perf 4 HS push immig'
+p184
+g4
+(g6
+S'\xf9\xd85\xecoe @'
+tRp185
+sS'avg T as HS retiree[r7]'
+p186
+g4
+(g6
+S'\x10JR\xeeB\xba\x1e@'
+tRp187
+sS'avg T as LS retiree[r5]'
+p188
+g4
+(g6
+S'\x07\r\x08\x8a\xb6\x80/@'
+tRp189
+sS'effective HS push emigration ratio[r6]'
+p190
+g4
+(g6
+S'`^{6\x81F\x90?'
+tRp191
+sS'pull cost performance r1 ini'
+p192
+g4
+(g6
+S'Q\x13\xbfLE\xd7\xf9?'
+tRp193
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p194
+g4
+(g6
+S'\xed0fE\xa1\x89\xb8?'
+tRp195
+sS'pull cost performance r6 ini'
+p196
+g4
+(g6
+S'\xea\xc0O\xaa\xddv\x1e@'
+tRp197
+sS'importance econ perf 4 HS pull immig'
+p198
+g4
+(g6
+S'\x02\xe2f\x94\r\x0e\x13@'
+tRp199
+sS'importance cost perf 4 LS pull immig'
+p200
+g4
+(g6
+S"HOX'3L\x03@"
+tRp201
+sS'avg T as LS retiree[r6]'
+p202
+g4
+(g6
+S'\x94\xfb\x8a\x15\t\x0f*@'
+tRp203
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p204
+g4
+(g6
+S'\xce\x85\xbbXJ6\xc9?'
+tRp205
+sS'environmental performance r6 ini'
+p206
+g4
+(g6
+S'2\xd5(\xb0\xf0|\x1c@'
+tRp207
+sS'lookup number evolution HS jobs[r8]'
+p208
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp209
+sS'societal performance r5 ini'
+p210
+g4
+(g6
+S'a\xae\xc6\xcd\xc7\x9a\x15@'
+tRp211
+sS'importance soc perf 4 LS pull immig'
+p212
+g4
+(g6
+S'.\x13\xf2\x04\xef\x99\x18@'
+tRp213
+sS'lookup number evolution birth rate[r8]'
+p214
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp215
+sS'lookup number evolution HS jobs[r4]'
+p216
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp217
+sS'avg T as LS retiree[r8]'
+p218
+g4
+(g6
+S'\x12\xf5B\xf6\x08$-@'
+tRp219
+sS'effective LS push emigration ratio[r5]'
+p220
+g4
+(g6
+S'bA\xe11\x1e\xcf\xb3?'
+tRp221
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p222
+g4
+(g6
+S'\xa2\xf8\xc1&\xe8\x98\xb1?'
+tRp223
+sS'partner multiplicator legal immigration'
+p224
+g4
+(g6
+S'\x01\x80\x1ch\xe6\xce\xf8?'
+tRp225
+sS'importance cost perf 4 HS pull immig'
+p226
+g4
+(g6
+S'\x83\x95/6\xb2p\x0f@'
+tRp227
+sS'environmental performance r4 ini'
+p228
+g4
+(g6
+S'\x8f">\x7f\xf9\xc9\xf7?'
+tRp229
+sS'avg T as HS retiree[r2]'
+p230
+g4
+(g6
+S'\xef\x95z\x1b\x8b\xf2$@'
+tRp231
+sS'lookup number evolution birth rate[r7]'
+p232
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp233
+sS'economic performance r7 ini'
+p234
+g4
+(g6
+S'\xd8K\x14\xd3>*\x14@'
+tRp235
+sS'effective HS push emigration ratio[r3]'
+p236
+g4
+(g6
+S'\xf6\xb0\x16\xeb\x8a\xee\x8e?'
+tRp237
+sS'security performance r5 ini'
+p238
+g4
+(g6
+S'\x01\xda\xe2\xee\xe3\xfb\x1e@'
+tRp239
+sS'push cost performance r6 ini'
+p240
+g4
+(g6
+S'\xaekEh\x1ck\x16@'
+tRp241
+sS'degree of HS orientation [r7]'
+p242
+g4
+(g6
+S'\xfe\xe7M\x9f\t\xf2\xe1?'
+tRp243
+sS'effective LS push emigration ratio[r2]'
+p244
+g4
+(g6
+S'\xc2)--\xa9E\xb1?'
+tRp245
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p246
+g4
+(g6
+S'\xe3\x13)\xd5\x82\xaf\xae?'
+tRp247
+sS'importance sec perf 4 HS pull immig'
+p248
+g4
+(g6
+S'\x93\xaa-x\\\xad\x08@'
+tRp249
+sS'lookup number evolution HS jobs[r3]'
+p250
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp251
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p252
+g4
+(g6
+S'\xd6\x0e\x19"o\xf0\xb6?'
+tRp253
+sS'lookup number evolution HS jobs[r1]'
+p254
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp255
+sS'effective HS push emigration ratio[r8]'
+p256
+g4
+(g6
+S',\x0c\xc4\xad/\x98\x88?'
+tRp257
+sS'societal performance r8 ini'
+p258
+g4
+(g6
+S'\xa5\x03Y\xbfYK\x1d@'
+tRp259
+sS'societal performance r1 ini'
+p260
+g4
+(g6
+S'Q\xeb\xba\x1aF\xd1\x07@'
+tRp261
+sS'importance econ perf 4 LS push immig'
+p262
+g4
+(g6
+S'\xeb\x00\xbb\xe1r\xa6\x1e@'
+tRp263
+sS'avg T as LS retiree[r3]'
+p264
+g4
+(g6
+S"q\x0b\xd6J\xa76'@"
+tRp265
+sS'lookup number evolution birth rate[r6]'
+p266
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp267
+sS'economic performance r1 ini'
+p268
+g4
+(g6
+S'\xdd\x0f\xe2 \x83\xfc\x00@'
+tRp269
+sS'economic performance r5 ini'
+p270
+g4
+(g6
+S'\x00\xbe\xa4\t$\x82\x19@'
+tRp271
+sS'importance env perf 4 LS pull immig'
+p272
+g4
+(g6
+S'~|\x88c\x01\x87\x15@'
+tRp273
+sS'environmental performance r3 ini'
+p274
+g4
+(g6
+S'I\xca\xadY\x9c\xaf\x19@'
+tRp275
+sS'avg T as HS retiree[r5]'
+p276
+g4
+(g6
+S'FA\x96\x0b\xb6/-@'
+tRp277
+sS'economic performance r4 ini'
+p278
+g4
+(g6
+S'\xae\xad\xd2\xc3\xa4B\x1e@'
+tRp279
+sS'economic performance r6 ini'
+p280
+g4
+(g6
+S'w,1\x11\x08U!@'
+tRp281
+sS'degree of HS orientation [r4]'
+p282
+g4
+(g6
+S'\xf4\xecOI\xdf@\xd0?'
+tRp283
+sS'effective LS push emigration ratio[r3]'
+p284
+g4
+(g6
+S'O\xe0\xf9\xe2\xcb\xf9\xbe?'
+tRp285
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p286
+g4
+(g6
+S'\x91\xea\x88\xde\x96O\xb6?'
+tRp287
+s(dp288
+S'name'
+p289
+S'None'
+p290
+sS'demo'
+t(dp291
+S'grey pressure on working population[r7]'
+p292
+cnumpy.core.multiarray
+_reconstruct
+p293
+(cnumpy
+ndarray
+p294
+(I0
+tS'b'
+tRp295
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp296
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S"\rz\xab>\xc0'\xa6>\xf4\xed\xa1>\xf0\x94\x9e>\xc3\xf1\x9b>\xf3\xe2\x99>\x1bN\x98>R\x1e\x97>\xf4B\x96>\xa6\xaf\x95>^[\x95>>?\x95>\x0f1\x95>\xa3\x16\x95>^\xf0\x94><\xc9\x94>\xc4\xa1\x94>\xdew\x94>\xf2I\x94>\xdc\x16\x94>\xd2\xdd\x93>[\x9e\x93>\xeaQ\x93>$\xf1\x92>\x0c\x7f\x92>\x80\xfe\x91>$r\x91>f\xdc\x90>t?\x90>J\x9d\x8f>\xac\xf7\x8e>(P\x8e>\x1a\xa8\x8d>\xcf\x01\x8d>\xa6b\x8c>\xe1\xca\x8b>':\x8b>)\xb0\x8a>\x93,\x8a>\xda\xa9\x89>1%\x89>\xf7\x9f\x88>I\x1b\x88>\x0e\x98\x87>\xf3\x16\x87>G\x9d\x86>j3\x86>\x92\xd7\x85>\xd6\x87\x85>\x8aB\x85>+\x06\x85>"
+tbsS'grey pressure on working population[r6]'
+p297
+g293
+(g294
+(I0
+tS'b'
+tRp298
+(I1
+(I51
+tg296
+I00
+S"\x9a\x9fm>\xa6\xdap>\xb9*t>\xe9{w>j\xbez>\xe4\xe5}>\xbdt\x80>\x87\xe1\x81>Z7\x83>%u\x84>\x81\x9a\x85>\xb3\xa7\x86>\x0c\xb8\x87>b\xde\x88>\xc5\x16\x8a>\xc4O\x8b>\xf0\x84\x8c>\xe3\xb5\x8d>T\xe2\x8e>\x14\n\x90>\x02-\x91>\x17K\x92>\xe0l\x93>\xcc\x9c\x94>\xbf\xd7\x95>\xf3\x1a\x97>\xffc\x98>\xda\xb0\x99>\xbc\xff\x9a>'O\x9c>\xd3\x9d\x9d>\xaa\xea\x9e>\xc34\xa0>Hy\xa1>\x18\xaf\xa2>\x03\xd6\xa3>\xe9\xee\xa4>\x9b\xfa\xa5>\xeb\xf9\xa6>\xbc\xf8\xa7>M\xfe\xa8>'\t\xaa>\x16\x18\xab>0*\xac>\xc6>\xad>\xa9H\xae>=0\xaf>\x19\xf8\xaf>\x80\xa3\xb0>a5\xb1>\x90\xb0\xb1>"
+tbsS'total population'
+p299
+g293
+(g294
+(I0
+tS'b'
+tRp300
+(I1
+(I51
+tg296
+I00
+S'\x88\x91\xd1O\xefU\xd4O\xc4\x11\xd7OI\xc4\xd9O\x1am\xdcO*\x0c\xdfO\xb4\xa1\xe1O .\xe4O\x0f\xb2\xe6O6.\xe9Oc\xa3\xebOv\x12\xeeOd|\xf0O9\xe2\xf2O\x02E\xf5O\xb6\xa5\xf7O=\x05\xfaOrd\xfcO!\xc4\xfeO\x8a\x92\x00P\xfe\xc3\x01P\xc5\xf6\x02P,+\x04P\x86a\x05P\x1a\x9a\x06P,\xd5\x07P\xf8\x12\tP\xbaS\nP\xa4\x97\x0bP\xe8\xde\x0cP\xb0)\x0eP&x\x0fPn\xca\x10P\xad \x12P\xffz\x13P\x82\xd9\x14PO<\x16P|\xa3\x17P#\x0f\x19P]\x7f\x1aPB\xf4\x1bP\xe3m\x1dPR\xec\x1eP\xa1o P\xe3\xf7!P)\x85#P}\x17%P\xec\xae&P{K(P4\xed)P\x1f\x94+P'
+tbsS'grey pressure on working population[r4]'
+p301
+g293
+(g294
+(I0
+tS'b'
+tRp302
+(I1
+(I51
+tg296
+I00
+S'\x0e\xdf\x08>\xed\xa1\x12>\x00\xb3\x1b>Q\x19$>I\xdb+>.\xff2>^\x8b9>v\x86?>U\xf7D>\x1c\xe4I>`SN>\xa1LR>\x83\xd0U>\xb0\xe3X>\xe0\x8f[>u\xe2]>\xfb\xe3_>u\x9ba>\x9b\x0fc>\xd1Fd> Ge>5\x16f>\xd9\xb6f>C+g>ayg>\x90\xa6g>\xa8\xb7g>\xf7\xb0g>I\x96g>\x05kg>!2g>6\xeef>\x84\xa1f>wNf>f\xf8e>q\xa0e>TGe>\xad\xedd>\xff\x93d>\xb88d>S\xdbc>\xe5|c>Z\x1ec>o\xc0b>\xbccb>\x9c\nb>s\xb8a>\x88la>\x08&a>D\xe4`>\x9d\xa6`>'
+tbsS'grey pressure on working population[r8]'
+p303
+g293
+(g294
+(I0
+tS'b'
+tRp304
+(I1
+(I51
+tg296
+I00
+S'\x95L\xa1>S\x9a\xa1>\xd0\x0e\xa2>\xc2\x9b\xa2><6\xa3>\xe5\xd5\xa3>rt\xa4>>\r\xa5>\xec\x9c\xa5>9!\xa6>\xb2\x98\xa6>/\x03\xa7>\xe4\xa8\xa7>\xf0\xa0\xa8>J\xd5\xa9>\xb3!\xab>\xb5{\xac>*\xe0\xad>sL\xaf>]\xbe\xb0>\x034\xb2>\xd0\xab\xb3>\xce.\xb5>q\xc7\xb6>\x9eo\xb8>."\xba>\xdc\xda\xbb>\x17\x96\xbd>\xe6P\xbf>\xcc\x08\xc1>\xb7\xbb\xc2>\xeeg\xc4>\x05\x0c\xc6>]\xa5\xc7>B-\xc9>\x8c\xa3\xca>\xe0\x08\xcc>\xd8]\xcd>\x14\xa3\xce>\xc6\xdf\xcf>\xc4\x17\xd1>\x84I\xd2>\xbas\xd3>S\x95\xd4>Q\xad\xd5>\x85\xb6\xd6>\xb1\xa8\xd7>\xdb\x84\xd8>kL\xd9>\xac\x00\xda>\xf3\xa2\xda>'
+tbsS'TIME'
+p305
+g293
+(g294
+(I0
+tS'b'
+tRp306
+(I1
+(I51
+tg296
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p307
+g293
+(g294
+(I0
+tS'b'
+tRp308
+(I1
+(I51
+tg296
+I00
+S'\xe4X\xa4>\rM\xa7>\xedE\xaa>F<\xad>S*\xb0>\x84\x0b\xb3>G\xdc\xb5>\xd9\x99\xb8>$B\xbb>\xc1\xd3\xbd>\xb2M\xc0>L\xaf\xc2>\xd3\xf7\xc4>\xf7&\xc7>\xe0<\xc9>\xe79\xcb>\x84\x1e\xcd>P\xeb\xce>\xf9\xa0\xd0>A@\xd2>\xf8\xc9\xd3>\xef>\xd5>\x05\xa0\xd6>\x14\xee\xd7>\xfd)\xd9>\x93T\xda>\xb3n\xdb>)y\xdc>\xc2t\xdd>@b\xde>cB\xdf>\xdb\x15\xe0>V\xdd\xe0>x\x99\xe1>\xdcJ\xe2>\x14\xf2\xe2>\xab\x8f\xe3>#$\xe4>\xf8\xaf\xe4>\x9a3\xe5>{\xaf\xe5>\xf9#\xe6>u\x91\xe6>J\xf8\xe6>\xc3X\xe7>.\xb3\xe7>\xd3\x07\xe8>\xf2V\xe8>\xc8\xa0\xe8>\x8e\xe5\xe8>s%\xe9>'
+tbsS'grey pressure on working population[r3]'
+p309
+g293
+(g294
+(I0
+tS'b'
+tRp310
+(I1
+(I51
+tg296
+I00
+S"\xa0t\x0f>\xc7~\x1c>~\xbf(>\x9bD4>*\x19?>^FI>W\xd4R>|\xca[>\xd4/d>\xc3\x0el>\xfbps>Q]z>\xede\x80>w]\x83>;\x19\x86>\x16\x9d\x88>\xcd\xec\x8a>\x0b\x0c\x8d>]\xfe\x8e>)\xc7\x90>\xb6i\x92>\x1f\xe9\x93>WH\x95>)\x8a\x96>4\xb1\x97>\xe9\xbf\x98>\x94\xb8\x99>[\x9d\x9a>5p\x9b>\xf72\x9c>P\xe7\x9c>\xcf\x8e\x9d>\xde*\x9e>\xcb\xbc\x9e>\xc6E\x9f>\xe7\xc6\x9f>&A\xa0>j\xb5\xa0>\x84$\xa1>/\x8f\xa1>\x13\xf6\xa1>\xcaY\xa2>\xdf\xba\xa2>\xcf\x19\xa3>\x08w\xa3>\xef\xd2\xa3>\xde-\xa4>'\x88\xa4>\x0f\xe2\xa4>\xd8;\xa5>\xbd\x95\xa5>"
+tbsS'grey pressure on working population[r2]'
+p311
+g293
+(g294
+(I0
+tS'b'
+tRp312
+(I1
+(I51
+tg296
+I00
+S'\x84x\xdc=\x8a\xbf\xfb=k\x85\x0c>\xb2F\x1a>&6\'>\xd1a3>\xdf\xd4>>\xa2\x98I><\xb5S>\x9d3]>\x0b\x1cf>.un>$;v>[o}>(\r\x82>\xe6"\x85>\xe6\xfc\x87>\xdc\x9e\x8a>d\x0c\x8d>\nI\x8f>9X\x91>;=\x93>\xd4\xfa\x94>\x94\x93\x96>\x98\n\x98>\xc1b\x99>\xc5\x9e\x9a>"\xc1\x9b>)\xcc\x9c>\xfb\xc1\x9d>\x92\xa4\x9e>\xb4u\x9f>\x0b7\xa0>#\xea\xa0>\x8f\x90\xa1>\x80+\xa2>\x05\xbc\xa2>\x14C\xa3>\x8f\xc1\xa3>\x088\xa4>\x12\xa7\xa4>m\x0f\xa5>\xceq\xa5>\xd1\xce\xa5>\t\'\xa6>\x1b{\xa6>\xbc\xcb\xa6>-\x19\xa7>\xb2c\xa7>\x84\xab\xa7>\xd9\xf0\xa7>'
+tbstp313
+a(((dp314
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p315
+g4
+(g6
+S'L\x05-\x8c.\x1f\xc5?'
+tRp316
+sS'environmental performance r5 ini'
+p317
+g4
+(g6
+S'\xa5\xff\xc5N3\xc8\x12@'
+tRp318
+sS'push cost performance r3 ini'
+p319
+g4
+(g6
+S'\xfe6\xcf8\xf9\\\x19@'
+tRp320
+sS'environmental performance r8 ini'
+p321
+g4
+(g6
+S'\xf5=Tl\xf4\xe8\x14@'
+tRp322
+sS'effective LS push emigration ratio[r7]'
+p323
+g4
+(g6
+S'\n8\x15D\xc3U\xc4?'
+tRp324
+sS'societal performance r6 ini'
+p325
+g4
+(g6
+S'R\xabq\xe9"\x04\x1f@'
+tRp326
+sS'lookup number evolution birth rate[r5]'
+p327
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp328
+sS'importance sec perf 4 HS push immig'
+p329
+g4
+(g6
+S'\x01\xa9\xff\x10\xa26\t@'
+tRp330
+sS'push cost performance r8 ini'
+p331
+g4
+(g6
+S'\x90\xcb\xbf_Z}\x0b@'
+tRp332
+sS'avg T as HS retiree[r8]'
+p333
+g4
+(g6
+S'\xde\xben\xf8\xac\xb90@'
+tRp334
+sS'effective HS push emigration ratio[r5]'
+p335
+g4
+(g6
+S'\xc3\xf3g\x17\xf7\x10\x90?'
+tRp336
+sS'importance econ perf 4 HS push immig'
+p337
+g4
+(g6
+S'\xd6\r\xc9\xd1\x80\xcc\x14@'
+tRp338
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p339
+g4
+(g6
+S'C\x90\xc89{H\xc9?'
+tRp340
+sS'societal performance r7 ini'
+p341
+g4
+(g6
+S'\x00\x7f\x00\xb4\x01\xad\x11@'
+tRp342
+sS'degree of HS orientation [r1]'
+p343
+g4
+(g6
+S'\xacyz{\xa1\xa8\xb0?'
+tRp344
+sS'lookup number evolution HS jobs[r5]'
+p345
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp346
+sS'security performance r4 ini'
+p347
+g4
+(g6
+S'\x12?\x9c\xab\xc2\x8a\x15@'
+tRp348
+sS'effective LS push emigration ratio[r4]'
+p349
+g4
+(g6
+S'\x9e\xddg\x19o\xb5\xb5?'
+tRp350
+sS'importance soc perf 4 HS pull immig'
+p351
+g4
+(g6
+S'\xaa\xa4\xc8o\x0e`\x12@'
+tRp352
+sS'lookup number evolution birth rate[r4]'
+p353
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp354
+sS'pull cost performance r5 ini'
+p355
+g4
+(g6
+S'\x01{\xda(\xac*\x15@'
+tRp356
+sS'avg T as LS retiree[r1]'
+p357
+g4
+(g6
+S'Gs\x08\xee\x0f~\xff?'
+tRp358
+sS'avg T as HS retiree[r3]'
+p359
+g4
+(g6
+S'S\xcf\xff\xdd\x1c\xa3-@'
+tRp360
+sS'push cost performance r7 ini'
+p361
+g4
+(g6
+S'8oG\t#\x8e\x08@'
+tRp362
+sS'effective HS push emigration ratio[r2]'
+p363
+g4
+(g6
+S'\xdeP\x8e(\x1eH\x82?'
+tRp364
+sS'economic performance r8 ini'
+p365
+g4
+(g6
+S',zT\xfeph @'
+tRp366
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p367
+g4
+(g6
+S'\x8f\xa4W\xad\xa0\xc4\xc6?'
+tRp368
+sS'pull cost performance r2 ini'
+p369
+g4
+(g6
+S'\x14S\xdc\xecE\x95\x13@'
+tRp370
+sS'push cost performance r2 ini'
+p371
+g4
+(g6
+S'X\xe1\\x\xfb\xa8\x1a@'
+tRp372
+sS'security performance r7 ini'
+p373
+g4
+(g6
+S'\xfa\xa5<\x0e\x19\xa2\x10@'
+tRp374
+sS'environmental performance r2 ini'
+p375
+g4
+(g6
+S'\xa7\xa8(\xfcy\xe3\x07@'
+tRp376
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p377
+g4
+(g6
+S'\xda\xa8\xb9\xe5\xcf\xc2\xc3?'
+tRp378
+sS'degree of HS orientation [r6]'
+p379
+g4
+(g6
+S'\xd5\x08r\x97\xb9\xf6\xe5?'
+tRp380
+sS'avg T as LS retiree[r4]'
+p381
+g4
+(g6
+S'f\\\xdf\xd3\xe9\x19&@'
+tRp382
+sS'effective LS push emigration ratio[r1]'
+p383
+g4
+(g6
+S"P\x08\xc4\x07'\xed\xb3?"
+tRp384
+sS'importance cost perf 4 HS push immig'
+p385
+g4
+(g6
+S'R\x02\x15\xa4N\xaf\x12@'
+tRp386
+sS'pull cost performance r8 ini'
+p387
+g4
+(g6
+S'\xc6\x85\xbb\xede\x1a\x19@'
+tRp388
+sS'importance cost perf 4 LS push immig'
+p389
+g4
+(g6
+S'\xc4\xf8\xe5\x00\x81=\x0e@'
+tRp390
+sS'avg T as HS retiree[r6]'
+p391
+g4
+(g6
+S'*\x92\xdc\xb7/D0@'
+tRp392
+sS'degree of HS orientation [r8]'
+p393
+g4
+(g6
+S'v\xfb\x91\x8f\xde\xab\xe4?'
+tRp394
+sS'effective HS push emigration ratio[r7]'
+p395
+g4
+(g6
+S"\xddEl'T\x9c\x92?"
+tRp396
+sS'pull cost performance r3 ini'
+p397
+g4
+(g6
+S'\xaf\xe4\x9b4l\xf8\x10@'
+tRp398
+sS'lookup number evolution birth rate[r3]'
+p399
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp400
+sS'push cost performance r5 ini'
+p401
+g4
+(g6
+S'\x98\x82\x19@Ew\x08@'
+tRp402
+sS'push cost performance r1 ini'
+p403
+g4
+(g6
+S'\xc2\x8c}W\x9d\xfd\x13@'
+tRp404
+sS'economic performance r2 ini'
+p405
+g4
+(g6
+S'\xc9sh\xffkX\x0b@'
+tRp406
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p407
+g4
+(g6
+S'\x8ca\n]\xb1|\x87?'
+tRp408
+sS'push cost performance r4 ini'
+p409
+g4
+(g6
+S'7Y\xdfw\xf2\xa2\x14@'
+tRp410
+sS'lookup number evolution HS jobs[r7]'
+p411
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp412
+sS'avg T as LS retiree[r7]'
+p413
+g4
+(g6
+S'\xaaHCF8\xd0&@'
+tRp414
+sS'effective LS push emigration ratio[r6]'
+p415
+g4
+(g6
+S'C\xbb\xf70\xc4w\xab?'
+tRp416
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p417
+g4
+(g6
+S'J\x89\xd0,8\r\xc6?'
+tRp418
+sS'avg T as HS retiree[r1]'
+p419
+g4
+(g6
+S'\x1eY\xc7\x00\xbc\x01\xf8?'
+tRp420
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p421
+g4
+(g6
+S'\xcdYc\x99\x9b\xe9\xbd?'
+tRp422
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p423
+g4
+(g6
+S'\x14\xa0u\xf8\xc1\r\xae?'
+tRp424
+sS'security performance r6 ini'
+p425
+g4
+(g6
+S'w@\x91@=.\x14@'
+tRp426
+sS'lookup number evolution birth rate[r2]'
+p427
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp428
+sS'effective HS push emigration ratio[r4]'
+p429
+g4
+(g6
+S'Xd3\xbfwHx?'
+tRp430
+sS'security performance r2 ini'
+p431
+g4
+(g6
+S'\xdc\xd4#\xb9;\xa7\t@'
+tRp432
+sS'importance econ perf 4 LS pull immig'
+p433
+g4
+(g6
+S'\x16\xd2\xae\x08\x12\xf3\x0b@'
+tRp434
+sS'security performance r3 ini'
+p435
+g4
+(g6
+S'\xb0\xb7K=I\x9a\x0b@'
+tRp436
+sS'pull cost performance r7 ini'
+p437
+g4
+(g6
+S'\x85\x87\x06\x1d\xceu\x14@'
+tRp438
+sS'security performance r1 ini'
+p439
+g4
+(g6
+S'\xa0\x12\x025k\x90\x01@'
+tRp440
+sS'lookup number evolution HS jobs[r6]'
+p441
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp442
+sS'security performance r8 ini'
+p443
+g4
+(g6
+S'\xb1\xef(,jQ!@'
+tRp444
+sS'degree of HS orientation [r2]'
+p445
+g4
+(g6
+S'\xc6\x99\xbei\xfd\xb9\xc5?'
+tRp446
+sS'lookup number evolution HS jobs[r2]'
+p447
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp448
+sS'societal performance r2 ini'
+p449
+g4
+(g6
+S'\xad\xaej\x87\x0c\xc3\n@'
+tRp450
+sS'environmental performance r1 ini'
+p451
+g4
+(g6
+S'\xbf\xe8\x9bYFP\x10@'
+tRp452
+sS'lookup number evolution birth rate[r1]'
+p453
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp454
+sS'avg T as LS retiree[r2]'
+p455
+g4
+(g6
+S'\x0f\x9c\xc0Al\xde$@'
+tRp456
+sS'importance env perf 4 HS push immig'
+p457
+g4
+(g6
+S'\xf9\x11"\xd7\x01\xc7"@'
+tRp458
+sS'importance sec perf 4 LS push immig'
+p459
+g4
+(g6
+S'\xbfk\x96\x111\xe4\x10@'
+tRp460
+sS'importance sec perf 4 LS pull immig'
+p461
+g4
+(g6
+S"\x82\xd1(']O\xf3?"
+tRp462
+sS'avg T as HS retiree[r4]'
+p463
+g4
+(g6
+S'\xb4\xa2{jj\xec%@'
+tRp464
+sS'effective HS push emigration ratio[r1]'
+p465
+g4
+(g6
+S'\nY\xf4\xb72\xf0\x90?'
+tRp466
+sS'effective LS push emigration ratio[r8]'
+p467
+g4
+(g6
+S'\xdc&\x19\x06\xea\xbb\xb0?'
+tRp468
+sS'pull cost performance r4 ini'
+p469
+g4
+(g6
+S'~\xfe\xea\x7f\xb2\x89\x12@'
+tRp470
+sS'degree of HS orientation [r5]'
+p471
+g4
+(g6
+S'\x1f\xc6\xba\xb7\xac\x7f\xe3?'
+tRp472
+sS'societal performance r3 ini'
+p473
+g4
+(g6
+S'\xc1\xb7\x9e\xbc\xcd\xef\x14@'
+tRp474
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p475
+g4
+(g6
+S'\x96\x1a@\x95\x07\xed\xb6?'
+tRp476
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p477
+g4
+(g6
+S'8\x14\xbd\x1a\x83;\xc4?'
+tRp478
+sS'importance soc perf 4 LS push immig'
+p479
+g4
+(g6
+S'\x0e\xde\xd1\xca\xcf\x88\x12@'
+tRp480
+sS'importance env perf 4 HS pull immig'
+p481
+g4
+(g6
+S'Xo\xf2}\x9b\x91!@'
+tRp482
+sS'environmental performance r7 ini'
+p483
+g4
+(g6
+S'Q\xe1\xe2\xa5A!\n@'
+tRp484
+sS'degree of HS orientation [r3]'
+p485
+g4
+(g6
+S'\x06\x00\xc8@\x90=\xd5?'
+tRp486
+sS'economic performance r3 ini'
+p487
+g4
+(g6
+S'l\x88m[H\xa0\x08@'
+tRp488
+sS'importance env perf 4 LS push immig'
+p489
+g4
+(g6
+S'b\xb9sb\xeeP\n@'
+tRp490
+sS'societal performance r4 ini'
+p491
+g4
+(g6
+S'1\xbc~8CR\x10@'
+tRp492
+sS'importance soc perf 4 HS push immig'
+p493
+g4
+(g6
+S'\xd4<\xbf\x01G\x07\x15@'
+tRp494
+sS'avg T as HS retiree[r7]'
+p495
+g4
+(g6
+S'\xa1\xe8\xf0j\xe9](@'
+tRp496
+sS'avg T as LS retiree[r5]'
+p497
+g4
+(g6
+S'\xb0\x95\xd7\xebl..@'
+tRp498
+sS'effective HS push emigration ratio[r6]'
+p499
+g4
+(g6
+S'\x88\xa4~U$(\x8c?'
+tRp500
+sS'pull cost performance r1 ini'
+p501
+g4
+(g6
+S'\xf9KK\xbc\xe6c\xf6?'
+tRp502
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p503
+g4
+(g6
+S'A\x00d\x9eiw\xc5?'
+tRp504
+sS'pull cost performance r6 ini'
+p505
+g4
+(g6
+S'e\x97D\x8ed\xd8\x1f@'
+tRp506
+sS'importance econ perf 4 HS pull immig'
+p507
+g4
+(g6
+S'Z\xf8\x1ej-\xc5\x0f@'
+tRp508
+sS'importance cost perf 4 LS pull immig'
+p509
+g4
+(g6
+S'{\xb6 k\xde\xae\x10@'
+tRp510
+sS'avg T as LS retiree[r6]'
+p511
+g4
+(g6
+S'>v(6\xb6\x88)@'
+tRp512
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p513
+g4
+(g6
+S'\x08\xecC }7\xb4?'
+tRp514
+sS'environmental performance r6 ini'
+p515
+g4
+(g6
+S'8N)\xfba\x83\x1f@'
+tRp516
+sS'lookup number evolution HS jobs[r8]'
+p517
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp518
+sS'societal performance r5 ini'
+p519
+g4
+(g6
+S'\xdad|\xdb\x7f7\x12@'
+tRp520
+sS'importance soc perf 4 LS pull immig'
+p521
+g4
+(g6
+S'p\x12\x95\xcf\xb1\xb6!@'
+tRp522
+sS'lookup number evolution birth rate[r8]'
+p523
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp524
+sS'lookup number evolution HS jobs[r4]'
+p525
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp526
+sS'avg T as LS retiree[r8]'
+p527
+g4
+(g6
+S'\x01#\xbdo\x9b\xdd/@'
+tRp528
+sS'effective LS push emigration ratio[r5]'
+p529
+g4
+(g6
+S'\xa0Q\xaeC\xe3z\xc8?'
+tRp530
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p531
+g4
+(g6
+S'N5X\xaa\x8f=\xc1?'
+tRp532
+sS'partner multiplicator legal immigration'
+p533
+g4
+(g6
+S'\xfdk\xa5\x9a\x1f\xa1\xf6?'
+tRp534
+sS'importance cost perf 4 HS pull immig'
+p535
+g4
+(g6
+S'\x82$\xfd\x10\xfe\xab\x12@'
+tRp536
+sS'environmental performance r4 ini'
+p537
+g4
+(g6
+S'P\x89\xd1F\xbc\xa2\x04@'
+tRp538
+sS'avg T as HS retiree[r2]'
+p539
+g4
+(g6
+S'\xba\xcd\xe3\xa7\xb1\x11+@'
+tRp540
+sS'lookup number evolution birth rate[r7]'
+p541
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp542
+sS'economic performance r7 ini'
+p543
+g4
+(g6
+S'H\tJP3\x8e\x11@'
+tRp544
+sS'effective HS push emigration ratio[r3]'
+p545
+g4
+(g6
+S'T\xd7?>M\xf4\x84?'
+tRp546
+sS'security performance r5 ini'
+p547
+g4
+(g6
+S'\x82bF\xab\xcej\x1d@'
+tRp548
+sS'push cost performance r6 ini'
+p549
+g4
+(g6
+S'\xd1\xac\r[X\xcb\x17@'
+tRp550
+sS'degree of HS orientation [r7]'
+p551
+g4
+(g6
+S'\xeaf7\xd2\x84\x04\xdf?'
+tRp552
+sS'effective LS push emigration ratio[r2]'
+p553
+g4
+(g6
+S'\xe4\x9a\xe2\xd7W\x96\xc4?'
+tRp554
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p555
+g4
+(g6
+S'\xfb\r\xbc\xf0\xef\xb0\xb3?'
+tRp556
+sS'importance sec perf 4 HS pull immig'
+p557
+g4
+(g6
+S'\xc6\xc8M~_\xe4\x11@'
+tRp558
+sS'lookup number evolution HS jobs[r3]'
+p559
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp560
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p561
+g4
+(g6
+S'}\xcd\x9c\xfb\xda\xb6\xbe?'
+tRp562
+sS'lookup number evolution HS jobs[r1]'
+p563
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp564
+sS'effective HS push emigration ratio[r8]'
+p565
+g4
+(g6
+S'E\x81\xbfT\x1ar\x81?'
+tRp566
+sS'societal performance r8 ini'
+p567
+g4
+(g6
+S"\x82o'\x8a\x138\x1e@"
+tRp568
+sS'societal performance r1 ini'
+p569
+g4
+(g6
+S'\xcf\x94#!\xfb\xce\x04@'
+tRp570
+sS'importance econ perf 4 LS push immig'
+p571
+g4
+(g6
+S'\xec\x0b\xefDF\x0e\x1a@'
+tRp572
+sS'avg T as LS retiree[r3]'
+p573
+g4
+(g6
+S'2\xa5w,b]&@'
+tRp574
+sS'lookup number evolution birth rate[r6]'
+p575
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp576
+sS'economic performance r1 ini'
+p577
+g4
+(g6
+S'^0_\x8d\x11\x01\xfd?'
+tRp578
+sS'economic performance r5 ini'
+p579
+g4
+(g6
+S'J\xe8\x8b\xb2\x83 \x18@'
+tRp580
+sS'importance env perf 4 LS pull immig'
+p581
+g4
+(g6
+S'\xc3\xf0t\x1e\x85\x7f\x01@'
+tRp582
+sS'environmental performance r3 ini'
+p583
+g4
+(g6
+S'\xb8\x87\x9e\x00\xc5\xd2\x1b@'
+tRp584
+sS'avg T as HS retiree[r5]'
+p585
+g4
+(g6
+S'\xed\x10\xf3\x04iV+@'
+tRp586
+sS'economic performance r4 ini'
+p587
+g4
+(g6
+S'k\xed\xabK\x7f\x8e\x1f@'
+tRp588
+sS'economic performance r6 ini'
+p589
+g4
+(g6
+S'\xb7\x10\xc9\xd400\x1c@'
+tRp590
+sS'degree of HS orientation [r4]'
+p591
+g4
+(g6
+S'P\xafh\xceOf\xd1?'
+tRp592
+sS'effective LS push emigration ratio[r3]'
+p593
+g4
+(g6
+S'V8\xacG67\xc2?'
+tRp594
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p595
+g4
+(g6
+S'W\x8f\xe9f/\x1d\xa2?'
+tRp596
+s(dp597
+S'name'
+p598
+S'None'
+p599
+sS'demo'
+t(dp600
+S'grey pressure on working population[r7]'
+p601
+g293
+(g294
+(I0
+tS'b'
+tRp602
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp603
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S'\rz\xab>fO\xab>U`\xab>\x1e\x90\xab>\xf3\xe6\xab>g\x80\xac>eK\xad>\xf89\xae>\x04A\xaf>\x16W\xb0>\xe2t\xb1>5\x95\xb2>\xf1\xc9\xb3>\xc6f\xb5>hc\xb7>K\x1c\xb9>Ec\xba>\xf6@\xbb>\xfc\x03\xbc>U\xbb\xbc>$f\xbd>|\x03\xbe>\xe7\x95\xbe>;#\xbf>\xac\xd4\xbf>.\xff\xc0>c\xce\xc1>\xf8:\xc2>\xe3O\xc2>\x92\x17\xc2>\xe5\x9b\xc1>\x0f\xe6\xc0>\x9a\xfe\xbf>\xdf\xef\xbe>\xa4\xca\xbd>r\x93\xbc>8M\xbb>\xac\xfa\xb9>H\x9e\xb8>.0\xb7>I\xae\xb5>\x87\x1e\xb4>\xee\x85\xb2>\xb3\xe8\xb0>XJ\xaf>\xa8\xb5\xad>\xc29\xac>3\xd4\xaa>=\x82\xa9>lA\xa8>\x89\x0f\xa7>'
+tbsS'grey pressure on working population[r6]'
+p604
+g293
+(g294
+(I0
+tS'b'
+tRp605
+(I1
+(I51
+tg603
+I00
+S'\x9a\x9fm>{+s>\x96\xa9x>\xc7\x08~>R\x9e\x81>.\x1e\x84>\xd7\x80\x86>D\xc4\x88>S\xe7\x8a>\xab\xe9\x8c>w\xcb\x8e>D\x8d\x90>\x040\x92>\x12\xb5\x93>\xba\x1d\x95>\xecj\x96>\x1a\x9e\x97>\xdd\xb8\x98>\xfd\xbc\x99>\x11\xac\x9a>\xa3\x87\x9b>/Q\x9c>(\n\x9d>\xfa\xb3\x9d>\xf6O\x9e>\x8c\x14\x9f>\x03\x8a\xa0>\x86k\xa2>e\x8a\xa4>\x04\xcc\xa6>\x80\x1f\xa9>ry\xab>\xef\xd1\xad>\x9c \xb0>DW\xb2>du\xb4>\x02|\xb6>\x1al\xb8>\xb9F\xba>%\x19\xbc>\xf7\xe7\xbd>^\xae\xbf>>i\xc1>\x8c\x16\xc3>\x08\xb5\xc4>\xef?\xc6>\xac\xaf\xc7>\x03\x05\xc9>\xcb@\xca>\x94c\xcb>\xb8m\xcc>'
+tbsS'total population'
+p606
+g293
+(g294
+(I0
+tS'b'
+tRp607
+(I1
+(I51
+tg603
+I00
+S'\x88\x91\xd1O\x8e\x7f\xd4O\xc9h\xd7O}I\xdaO\xf3\x1f\xddOp\xeb\xdfO\xcf\xab\xe2OQa\xe5O\x7f\x0c\xe8O\x0c\xae\xeaO\xc8F\xedO\x9a\xd7\xefOxa\xf2O:\xe5\xf4O\xa7c\xf7O\xba\xdd\xf9O\xa8T\xfcO\x9e\xc9\xfeO\xd3\x9e\x00P\xd6\xd8\x01PI\x13\x03P\x97N\x04P\'\x8b\x05PX\xc9\x06P\x83\t\x08P\xe4K\tP\xc6\x90\nP\x83\xd8\x0bPv#\rP\x0fr\x0eP\xa3\xc4\x0fPd\x1b\x11P\x98v\x12P\x86\xd6\x13Pz;\x15P\xb8\xa5\x16P\x8c\x15\x18P9\x8b\x19P\t\x07\x1bPB\x89\x1cP-\x12\x1eP\x0e\xa2\x1fP59!P\xe9\xd7"Pt~$P(-&PP\xe4\'P>\xa4)PIm+P\xba?-P\xec\x1b/P'
+tbsS'grey pressure on working population[r4]'
+p608
+g293
+(g294
+(I0
+tS'b'
+tRp609
+(I1
+(I51
+tg603
+I00
+S'\x0e\xdf\x08>\x1b9\x15>\x1d\xc9 >\xdc\x97+>\xfd\xaf5>\x02\x1d?>x\xe4G>\xf8\x0bP>g\x99W>\xc2\x93^>H\x02e>\xfd\xebj>5[p>\x8ccu>Z\x0bz>\xe2?~>N\x01\x81>\xc5\xae\x82>\xee1\x84>V\x8f\x85>=\xca\x86>\xb6\xe5\x87>\x8f\xe5\x88>\xef\xcd\x89>}\xa4\x8a>\\r\x8b>\x13)\x8c>\xd3\xc9\x8c>\x18W\x8d>\x1e\xd3\x8d>\xed?\x8e>\\\x9f\x8e>\x0f\xf3\x8e>\x81<\x8f>\x04}\x8f>\xc6\xb5\x8f>\xd7\xe7\x8f>$\x14\x90>\x81;\x90>\xa9^\x90>C~\x90>\xdf\x9a\x90>\xfe\xb4\x90>\x10\xcd\x90>u\xe3\x90>\x82\xf8\x90>\x82\x0c\x91>\xb7\x1f\x91>V2\x91>\x91D\x91>\x8fV\x91>'
+tbsS'grey pressure on working population[r8]'
+p610
+g293
+(g294
+(I0
+tS'b'
+tRp611
+(I1
+(I51
+tg603
+I00
+S'\x95L\xa1>\t\xc6\xa2>R7\xa5>\x8a\x8d\xa8>\xaf`\xac>\xaa\x1b\xb0>\xf3\xba\xb3>\xf0<\xb7>\xa5\xa0\xba>\xc6\xdd\xbd>\xd5\xec\xc0>\xa3\xcc\xc3>\x875\xc6>n\x11\xc7>\x9d\x87\xc6>c\xae\xc6>\xa2\xfd\xc7>|K\xca>\xe7\xb0\xcc>b\x02\xcf>\xc0B\xd1>\xe9t\xd3>f\x86\xd5>\x99U\xd7>\x9cg\xd8>EQ\xd7>k\x8b\xd5>\x8f\x9e\xd3>E\xbf\xd1>\xa4\x08\xd0>\xa5\x87\xce>OA\xcd> 6\xcc>\x93e\xcb>/\xd1\xca>\x1ar\xca>|A\xca>Q9\xca>@T\xca>\x86\x87\xca>\xcd\xcf\xca>L.\xcb>\x96\xa2\xcb>l+\xcc>+\xc7\xcc>\x01o\xcd>d\x18\xce>\x91\xc3\xce>gq\xcf>\xee"\xd0>\x8c\xd9\xd0>'
+tbsS'TIME'
+p612
+g293
+(g294
+(I0
+tS'b'
+tRp613
+(I1
+(I51
+tg603
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p614
+g293
+(g294
+(I0
+tS'b'
+tRp615
+(I1
+(I51
+tg603
+I00
+S'\xe4X\xa4>\xe2\x89\xa6>\x0b\xc9\xa8>\xe6\x0c\xab>\xe0N\xad>\xf1\x8a\xaf>S\xbd\xb1>,\xe3\xb3>m\xfa\xb5>\x99\xff\xb7>\xd7\xef\xb9>?\xca\xbb>\xbc\x8e\xbd>\xfe=\xbf>.\xd6\xc0>\xb0]\xc2>o\xd5\xc3>\x95<\xc5>m\x95\xc6>F\xe1\xc7>\r!\xc9>\xb4U\xca>\x00{\xcb>2\x89\xcc>M\x80\xcd>Y]\xce>[\xe0\xce>\x00>\xcf>\t\x99\xcf>c\xf9\xcf>\xc8_\xd0>\xcd\xca\xd0>\x8f8\xd1>\t\xa7\xd1>\xfc\x13\xd2>N~\xd2>?\xe5\xd2>8H\xd3>\xd5\xa6\xd3><\x01\xd4>oW\xd4>\x11\xa9\xd4>\xdd\xf5\xd4>\x9d=\xd5>2\x80\xd5>H\xbd\xd5>s\xf4\xd5>\xee%\xd6>\xe8Q\xd6>\x98x\xd6>(\x9a\xd6>'
+tbsS'grey pressure on working population[r3]'
+p616
+g293
+(g294
+(I0
+tS'b'
+tRp617
+(I1
+(I51
+tg603
+I00
+S'\xa0t\x0f>h\xe2\x1c>On)>\xe1$5>\x12\x1b@>\x03jJ>\xaf\x18T>A-]>\x90\xade>U\x9em>\x7f\x04u>\xcb\xe5{>\x9b(\x81>\xe57\x84>\x0c!\x87>!\xc6\x89>\xb1!\x8c>h9\x8e>|!\x90>\xed\xdf\x91>1w\x93>\xdb\xe9\x94>\xe59\x96>Oi\x97>@\x83\x98>I\x9b\x99>\xc3\x84\x9a>\x92A\x9b>?\xd7\x9b>\xd2J\x9c>\xa7\xa0\x9c>\xcc\xdc\x9c>\xcb\x02\x9d>\xb3\x16\x9d>\xcc\x1e\x9d>\xe0\x1c\x9d>!\x12\x9d>\x9e\xff\x9c>K\xe6\x9c>\xff\xc2\x9c>\xc2\x94\x9c>\xbe]\x9c>\xc5\x1f\x9c>b\xdc\x9b>\xd5\x94\x9b>\xd3M\x9b>g\x0e\x9b>\xbb\xd5\x9a>\xbd\xa2\x9a>}t\x9a>\x12J\x9a>'
+tbsS'grey pressure on working population[r2]'
+p618
+g293
+(g294
+(I0
+tS'b'
+tRp619
+(I1
+(I51
+tg603
+I00
+S'\x84x\xdc=f\xf1\xf8=\x17\x84\t>\x0f|\x15>\xc8\x82 >\x8c\xba*>\x0b14>\x08\xf2<>/\x08E>~\x7fL>\xe4bS>2\xbbY>\x97\x98_>\x14\x1fe>SMj>\x9e\xeen>*\x02s>`\x99v>\xb0\xd5y>\xb6\xc2|>\tg\x7f>n\xe4\x80>j\xf8\x81>\xfa\xf3\x82>\xe9\xdc\x83>\xfb\xba\x84>3|\x85>D#\x86>\x05\xb4\x86>\xbe1\x87>#\x9f\x87>\xc4\xfe\x87>\xf9R\x88>\xd1\x9d\x88>\r\xe1\x88>.\x1e\x89>uV\x89>\xf5\x8a\x89>\x90\xbc\x89>\x05\xec\x89>\xf3\x19\x8a>\xddF\x8a>+s\x8a>6\x9f\x8a>D\xcb\x8a>\x8b\xf7\x8a>8$\x8b>kQ\x8b>>\x7f\x8b>\xc2\xad\x8b>\x00\xdd\x8b>'
+tbstp620
+a(((dp621
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p622
+g4
+(g6
+S'\xf0\x9a$78\xa9\xc3?'
+tRp623
+sS'environmental performance r5 ini'
+p624
+g4
+(g6
+S'\x81\x1b\xd1\x03\xa65\x10@'
+tRp625
+sS'push cost performance r3 ini'
+p626
+g4
+(g6
+S'\xe8\x98V}\xb4\xf1\x16@'
+tRp627
+sS'environmental performance r8 ini'
+p628
+g4
+(g6
+S'J6\x85\xd6\xfd:\x16@'
+tRp629
+sS'effective LS push emigration ratio[r7]'
+p630
+g4
+(g6
+S'|{E\xa8S}\xc6?'
+tRp631
+sS'societal performance r6 ini'
+p632
+g4
+(g6
+S'\xf0Sj\xf3\xba> @'
+tRp633
+sS'lookup number evolution birth rate[r5]'
+p634
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp635
+sS'importance sec perf 4 HS push immig'
+p636
+g4
+(g6
+S'\xf7V\xa4.\x07\xb8\xf1?'
+tRp637
+sS'push cost performance r8 ini'
+p638
+g4
+(g6
+S'\xc6\xc3\x1e\x0f\xcb\xe7\x08@'
+tRp639
+sS'avg T as HS retiree[r8]'
+p640
+g4
+(g6
+S'\xa2\xc15\xba\xc2),@'
+tRp641
+sS'effective HS push emigration ratio[r5]'
+p642
+g4
+(g6
+S'z}^\xa2\x0e\xb5\x92?'
+tRp643
+sS'importance econ perf 4 HS push immig'
+p644
+g4
+(g6
+S't\xd8\xb5-\x97\xe9 @'
+tRp645
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p646
+g4
+(g6
+S'\xf1y\xc4\xb4xq\x9a?'
+tRp647
+sS'societal performance r7 ini'
+p648
+g4
+(g6
+S'\xc5\x9b2,\xe9\x18\x0c@'
+tRp649
+sS'degree of HS orientation [r1]'
+p650
+g4
+(g6
+S'>\xaa\xe2\xa0^L\xba?'
+tRp651
+sS'lookup number evolution HS jobs[r5]'
+p652
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp653
+sS'security performance r4 ini'
+p654
+g4
+(g6
+S'\xbe508\x19\x07\x14@'
+tRp655
+sS'effective LS push emigration ratio[r4]'
+p656
+g4
+(g6
+S'x\xd5\xae\xe1p+\xb2?'
+tRp657
+sS'importance soc perf 4 HS pull immig'
+p658
+g4
+(g6
+S'\xfa\xa2\xf9\xdb<\x8d\x00@'
+tRp659
+sS'lookup number evolution birth rate[r4]'
+p660
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp661
+sS'pull cost performance r5 ini'
+p662
+g4
+(g6
+S'\xba\xd8\x0b\xde7\xf4\x11@'
+tRp663
+sS'avg T as LS retiree[r1]'
+p664
+g4
+(g6
+S'fM=\x0b@\xf9\xfb?'
+tRp665
+sS'avg T as HS retiree[r3]'
+p666
+g4
+(g6
+S'\xd2\x98#\xa4\xe4\x96-@'
+tRp667
+sS'push cost performance r7 ini'
+p668
+g4
+(g6
+S'\xf1\xab\x85\x84&\xcc\x0c@'
+tRp669
+sS'effective HS push emigration ratio[r2]'
+p670
+g4
+(g6
+S'`\x83|\xa6P\xcd\x90?'
+tRp671
+sS'economic performance r8 ini'
+p672
+g4
+(g6
+S'\xf2\xaen\\\x90\xc1\x1c@'
+tRp673
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p674
+g4
+(g6
+S'g=\xd5:\x80\x88\xc9?'
+tRp675
+sS'pull cost performance r2 ini'
+p676
+g4
+(g6
+S'\xe6\xfdMa\xd0{\t@'
+tRp677
+sS'push cost performance r2 ini'
+p678
+g4
+(g6
+S'T^\xa1s\xc1\x86\x15@'
+tRp679
+sS'security performance r7 ini'
+p680
+g4
+(g6
+S'\xf6.\xce5\xce\xd5\x13@'
+tRp681
+sS'environmental performance r2 ini'
+p682
+g4
+(g6
+S'\xa4\x0e\xb8gS\x1b\x0b@'
+tRp683
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p684
+g4
+(g6
+S'e+\xbd\xc9\x16\x02\xc1?'
+tRp685
+sS'degree of HS orientation [r6]'
+p686
+g4
+(g6
+S'&4\x1e\x90\xbbk\xe3?'
+tRp687
+sS'avg T as LS retiree[r4]'
+p688
+g4
+(g6
+S'a\xe9\xd8\xe0#\xfb%@'
+tRp689
+sS'effective LS push emigration ratio[r1]'
+p690
+g4
+(g6
+S'\x8c\x84y\xde\xd6\x97\xac?'
+tRp691
+sS'importance cost perf 4 HS push immig'
+p692
+g4
+(g6
+S'\xc04UJ\x1bs\x10@'
+tRp693
+sS'pull cost performance r8 ini'
+p694
+g4
+(g6
+S'\xdb\x0c\x1dB\x07 \x1b@'
+tRp695
+sS'importance cost perf 4 LS push immig'
+p696
+g4
+(g6
+S'\xbe\xb68\xe9\xec\xc8\x05@'
+tRp697
+sS'avg T as HS retiree[r6]'
+p698
+g4
+(g6
+S'8\x9b\x1e\xf9\xd5\x1c-@'
+tRp699
+sS'degree of HS orientation [r8]'
+p700
+g4
+(g6
+S'\x88u/\xbd13\xe5?'
+tRp701
+sS'effective HS push emigration ratio[r7]'
+p702
+g4
+(g6
+S'\x92\xdb\xa7\x13\x98\xf5\x8d?'
+tRp703
+sS'pull cost performance r3 ini'
+p704
+g4
+(g6
+S'\xbaO\xab\x86\xeb\x9b\x17@'
+tRp705
+sS'lookup number evolution birth rate[r3]'
+p706
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp707
+sS'push cost performance r5 ini'
+p708
+g4
+(g6
+S'\xb07\xcb`g\xf4\x13@'
+tRp709
+sS'push cost performance r1 ini'
+p710
+g4
+(g6
+S'\x00s\xdb\x85\xc3Q\x14@'
+tRp711
+sS'economic performance r2 ini'
+p712
+g4
+(g6
+S'\x02V\x1eC\x92\xf7\x0e@'
+tRp713
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p714
+g4
+(g6
+S'@F8\xd0?G\xb8?'
+tRp715
+sS'push cost performance r4 ini'
+p716
+g4
+(g6
+S'2\x82\xd1Q\x1c(\x15@'
+tRp717
+sS'lookup number evolution HS jobs[r7]'
+p718
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp719
+sS'avg T as LS retiree[r7]'
+p720
+g4
+(g6
+S'\x0f\xfb#W\xd1\x92\x1f@'
+tRp721
+sS'effective LS push emigration ratio[r6]'
+p722
+g4
+(g6
+S'3\xf4r\xce8`\xba?'
+tRp723
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p724
+g4
+(g6
+S'\xb1n\xf5\xa7W\x10\xc2?'
+tRp725
+sS'avg T as HS retiree[r1]'
+p726
+g4
+(g6
+S'\xb1\x80\\m\xd2\xe6\x00@'
+tRp727
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p728
+g4
+(g6
+S'\xc0\xbcK\x1e\xa7\xb1\xc5?'
+tRp729
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p730
+g4
+(g6
+S'?r8z\xd5\xa5\xc2?'
+tRp731
+sS'security performance r6 ini'
+p732
+g4
+(g6
+S'\xeb\xa73\xcf\xf0\x1d\x1b@'
+tRp733
+sS'lookup number evolution birth rate[r2]'
+p734
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp735
+sS'effective HS push emigration ratio[r4]'
+p736
+g4
+(g6
+S'\xa2\x9a\xae\xa5Y\x19\x8f?'
+tRp737
+sS'security performance r2 ini'
+p738
+g4
+(g6
+S'\xb5\xbf\x90\x01\xd5s\x04@'
+tRp739
+sS'importance econ perf 4 LS pull immig'
+p740
+g4
+(g6
+S'v\xe7\xc7\xb5(% @'
+tRp741
+sS'security performance r3 ini'
+p742
+g4
+(g6
+S'\x99\x9c\x83{\x8e\xd5\x03@'
+tRp743
+sS'pull cost performance r7 ini'
+p744
+g4
+(g6
+S'\x17\xbc\xaev\xf4\xc5\x17@'
+tRp745
+sS'security performance r1 ini'
+p746
+g4
+(g6
+S'\x95M\x07?fK\xf2?'
+tRp747
+sS'lookup number evolution HS jobs[r6]'
+p748
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp749
+sS'security performance r8 ini'
+p750
+g4
+(g6
+S'+2Ra\xe7\xc2\x1d@'
+tRp751
+sS'degree of HS orientation [r2]'
+p752
+g4
+(g6
+S'\xc0\xcc9\xe4!\xf0\xc8?'
+tRp753
+sS'lookup number evolution HS jobs[r2]'
+p754
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp755
+sS'societal performance r2 ini'
+p756
+g4
+(g6
+S'R\x801\xf4m\xc1\x08@'
+tRp757
+sS'environmental performance r1 ini'
+p758
+g4
+(g6
+S'<Eb\xbd\xc9h\x12@'
+tRp759
+sS'lookup number evolution birth rate[r1]'
+p760
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp761
+sS'avg T as LS retiree[r2]'
+p762
+g4
+(g6
+S'\xc64\xce\xaaf\xef,@'
+tRp763
+sS'importance env perf 4 HS push immig'
+p764
+g4
+(g6
+S':\x10jm\xcb\x1f\x17@'
+tRp765
+sS'importance sec perf 4 LS push immig'
+p766
+g4
+(g6
+S'0\x93=b\x06\xc8\xf9?'
+tRp767
+sS'importance sec perf 4 LS pull immig'
+p768
+g4
+(g6
+S'\xd3\xb4B\t\x1e\x96\x13@'
+tRp769
+sS'avg T as HS retiree[r4]'
+p770
+g4
+(g6
+S'\xda`\xc3\xb3Ce!@'
+tRp771
+sS'effective HS push emigration ratio[r1]'
+p772
+g4
+(g6
+S'mQIvV\r\x83?'
+tRp773
+sS'effective LS push emigration ratio[r8]'
+p774
+g4
+(g6
+S'|_\xc6\xc5\xaa\x14\xb0?'
+tRp775
+sS'pull cost performance r4 ini'
+p776
+g4
+(g6
+S'n\xf1<\x93\xc1\xcc\x10@'
+tRp777
+sS'degree of HS orientation [r5]'
+p778
+g4
+(g6
+S'\xc0\xf3\x0f\xb1\x1c\xb9\xe3?'
+tRp779
+sS'societal performance r3 ini'
+p780
+g4
+(g6
+S'\xbd8\x8e\xb1\xc7G\x14@'
+tRp781
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p782
+g4
+(g6
+S'\xbfp\xc7\xb9\xc7\xbc\xb3?'
+tRp783
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p784
+g4
+(g6
+S'\xd9\x02*\x9d5*\xb5?'
+tRp785
+sS'importance soc perf 4 LS push immig'
+p786
+g4
+(g6
+S'W\x1f/\xf4\x1e\x9d#@'
+tRp787
+sS'importance env perf 4 HS pull immig'
+p788
+g4
+(g6
+S'\xfb\xccK9\xb3\r\x01@'
+tRp789
+sS'environmental performance r7 ini'
+p790
+g4
+(g6
+S'&\xcbi\xc3e\x84\x08@'
+tRp791
+sS'degree of HS orientation [r3]'
+p792
+g4
+(g6
+S'6\xcf\xb3\xbd\xef0\xd1?'
+tRp793
+sS'economic performance r3 ini'
+p794
+g4
+(g6
+S'\xb0\xed\xb6v\x94I\r@'
+tRp795
+sS'importance env perf 4 LS push immig'
+p796
+g4
+(g6
+S'\n\x9e\xad\x98\xfd\x16!@'
+tRp797
+sS'societal performance r4 ini'
+p798
+g4
+(g6
+S'\x90\x9d6\xc1\xda\xee\x10@'
+tRp799
+sS'importance soc perf 4 HS push immig'
+p800
+g4
+(g6
+S'\xc0\x139\xc9\x8f\x8f\x0f@'
+tRp801
+sS'avg T as HS retiree[r7]'
+p802
+g4
+(g6
+S'Z\x18\\\xd5+&$@'
+tRp803
+sS'avg T as LS retiree[r5]'
+p804
+g4
+(g6
+S'\x97\xe9\xdc\x99\x8ft+@'
+tRp805
+sS'effective HS push emigration ratio[r6]'
+p806
+g4
+(g6
+S'\xbc|z\x07\xaf\x02\x8f?'
+tRp807
+sS'pull cost performance r1 ini'
+p808
+g4
+(g6
+S'\x9e\x9b\xad\x1a" \xf1?'
+tRp809
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p810
+g4
+(g6
+S'\x7f\xe8\xd8\xe3[\xcb\xc2?'
+tRp811
+sS'pull cost performance r6 ini'
+p812
+g4
+(g6
+S'v`\xfc\xa3\x0f\x88\x1d@'
+tRp813
+sS'importance econ perf 4 HS pull immig'
+p814
+g4
+(g6
+S'\xcc\xcf\x9e\x14\xb4\xb1\n@'
+tRp815
+sS'importance cost perf 4 LS pull immig'
+p816
+g4
+(g6
+S'\x97\xb2LI\xb6[\xfb?'
+tRp817
+sS'avg T as LS retiree[r6]'
+p818
+g4
+(g6
+S'\xdf6Z$\xd2\xbc,@'
+tRp819
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p820
+g4
+(g6
+S'\xd4y\xb2\xf8\x1c\x04\xba?'
+tRp821
+sS'environmental performance r6 ini'
+p822
+g4
+(g6
+S'\x14_6\xa6\xc3\xbc\x1e@'
+tRp823
+sS'lookup number evolution HS jobs[r8]'
+p824
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp825
+sS'societal performance r5 ini'
+p826
+g4
+(g6
+S'\xb6ZI\xfd\x044\x15@'
+tRp827
+sS'importance soc perf 4 LS pull immig'
+p828
+g4
+(g6
+S'CD\xd7[\x0e\x01\x1d@'
+tRp829
+sS'lookup number evolution birth rate[r8]'
+p830
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp831
+sS'lookup number evolution HS jobs[r4]'
+p832
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp833
+sS'avg T as LS retiree[r8]'
+p834
+g4
+(g6
+S'mxb\x89\xb0\x92*@'
+tRp835
+sS'effective LS push emigration ratio[r5]'
+p836
+g4
+(g6
+S'AE\xe3\xff\x98\xb5\xc2?'
+tRp837
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p838
+g4
+(g6
+S'\xb0-U\x02Sn\xb0?'
+tRp839
+sS'partner multiplicator legal immigration'
+p840
+g4
+(g6
+S"'\x19\xb9?\x06j\xf0?"
+tRp841
+sS'importance cost perf 4 HS pull immig'
+p842
+g4
+(g6
+S'\x9b\x15\xc8\xc0\xc1\x0f\r@'
+tRp843
+sS'environmental performance r4 ini'
+p844
+g4
+(g6
+S'\xefU3\x15\x9a\xed\xf0?'
+tRp845
+sS'avg T as HS retiree[r2]'
+p846
+g4
+(g6
+S"\x92\t){\x16\x0e'@"
+tRp847
+sS'lookup number evolution birth rate[r7]'
+p848
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp849
+sS'economic performance r7 ini'
+p850
+g4
+(g6
+S'\xe8\xca\xa7\x19Y.\x17@'
+tRp851
+sS'effective HS push emigration ratio[r3]'
+p852
+g4
+(g6
+S'\x0be\xd1\x89\xd6gv?'
+tRp853
+sS'security performance r5 ini'
+p854
+g4
+(g6
+S'\x16  \xce\x0cE\x1f@'
+tRp855
+sS'push cost performance r6 ini'
+p856
+g4
+(g6
+S'/\xb3w\t.\x02\x16@'
+tRp857
+sS'degree of HS orientation [r7]'
+p858
+g4
+(g6
+S'e\xfbY3au\xdb?'
+tRp859
+sS'effective LS push emigration ratio[r2]'
+p860
+g4
+(g6
+S'fS\x88W`\xf1\xb9?'
+tRp861
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p862
+g4
+(g6
+S'\xd8;\x9fC\xe2\xf3\xc5?'
+tRp863
+sS'importance sec perf 4 HS pull immig'
+p864
+g4
+(g6
+S'+\xdc\x04\xebh\xc7\xf1?'
+tRp865
+sS'lookup number evolution HS jobs[r3]'
+p866
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp867
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p868
+g4
+(g6
+S'\xda\xa7\xef\x9a(\xc9\xc4?'
+tRp869
+sS'lookup number evolution HS jobs[r1]'
+p870
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp871
+sS'effective HS push emigration ratio[r8]'
+p872
+g4
+(g6
+S';^\xba\x86e\x82\x92?'
+tRp873
+sS'societal performance r8 ini'
+p874
+g4
+(g6
+S'\x10\xf9(\xc7\xc3\x9c\x1b@'
+tRp875
+sS'societal performance r1 ini'
+p876
+g4
+(g6
+S'\xa5\x94\xcd\xf4ci\x04@'
+tRp877
+sS'importance econ perf 4 LS push immig'
+p878
+g4
+(g6
+S'R)\xe5\xa8\t\x0c\x0e@'
+tRp879
+sS'avg T as LS retiree[r3]'
+p880
+g4
+(g6
+S'\xe6#\x9b\xbezB%@'
+tRp881
+sS'lookup number evolution birth rate[r6]'
+p882
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp883
+sS'economic performance r1 ini'
+p884
+g4
+(g6
+S'p\xc93\xabc\x08\xf2?'
+tRp885
+sS'economic performance r5 ini'
+p886
+g4
+(g6
+S'\xd5\x84*\x86OB\x1b@'
+tRp887
+sS'importance env perf 4 LS pull immig'
+p888
+g4
+(g6
+S'M\xd8\xfa\xeb\xd5\x8e\x1c@'
+tRp889
+sS'environmental performance r3 ini'
+p890
+g4
+(g6
+S'\xaf\x94\x0b\x17b\xba\x1a@'
+tRp891
+sS'avg T as HS retiree[r5]'
+p892
+g4
+(g6
+S'\x97\x95Y\xd3n\x8b0@'
+tRp893
+sS'economic performance r4 ini'
+p894
+g4
+(g6
+S'\xa9r\x98\x13\x9cd\x19@'
+tRp895
+sS'economic performance r6 ini'
+p896
+g4
+(g6
+S'@\xfe(&8i @'
+tRp897
+sS'degree of HS orientation [r4]'
+p898
+g4
+(g6
+S'5&\x8dr\xbc#\xbb?'
+tRp899
+sS'effective LS push emigration ratio[r3]'
+p900
+g4
+(g6
+S'\x06\xed\x016\xb9^\xaf?'
+tRp901
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p902
+g4
+(g6
+S'Y\x86\xe7\x9a\xc5\xe6\xc3?'
+tRp903
+s(dp904
+S'name'
+p905
+S'None'
+p906
+sS'demo'
+t(dp907
+S'grey pressure on working population[r7]'
+p908
+g293
+(g294
+(I0
+tS'b'
+tRp909
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp910
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S'\rz\xab>f\xdf\xa5>\xabw\xa1>\xd1\x07\x9e> d\x9b>\xaal\x99>1\x0b\x98>\x1c1\x97>\x92\xd8\x96>-\xda\x96>\x18\xd9\x96>\xbe\xcd\x96>l\xb4\x96>\\\x8a\x96>\x9aM\x96>\xe6\xfc\x95>\x94\x97\x95>z\x1d\x95>\xe0\x8e\x94>f\xec\x93>\xf66\x93>\xbao\x92>\x05\x98\x91>N\xb1\x90>!\xbd\x8f>\x1e\xbd\x8e>\xe7\xb2\x8d>\x17\xa0\x8c>J\x86\x8b>\ng\x8a>\xd2C\x89>\x08\x1e\x88>\xfc\xf6\x86>\xe8\xcf\x85>\xea\xa9\x84>\x06\x86\x83>+e\x82>+H\x81>\xbd/\x80>\n9~>#\x1e|>\xad\x0fz>k\x0ex>\x00\x1bv>\xe75t>\x1c_r>\x9e\x96p>\xb0\xdcn>\x821m>D\x95k>\t\x08j>'
+tbsS'grey pressure on working population[r6]'
+p911
+g293
+(g294
+(I0
+tS'b'
+tRp912
+(I1
+(I51
+tg910
+I00
+S"\x9a\x9fm>\xdd\xces>'Ey>\x06\xfa}>\xa8\xf3\x80>\x97\x83\x82>\xbb\xaa\x83>Ih\x84>\xc1\xbc\x84>G\xc1\x84>\xaa\xce\x84>\x02\t\x85>J|\x85>*+\x86>q\x13\x87>\xca/\x88>\x86z\x89>\xd0\xed\x8a>\xe9\x83\x8c>c7\x8e>@\x03\x90>\xfc\xe2\x91>\xfa\xd2\x93>\x1c\xd0\x95>\x0c\xd7\x97>\xe5\xe4\x99>#\xf7\x9b>\x9d\x0b\x9e>u \xa0>\x114\xa2>\x17E\xa4>^R\xa6>\xf1Z\xa8>\xef]\xaa>oZ\xac>\xeeO\xae>\x0e>\xb0>\x80$\xb2>\x14\x03\xb4>\xe4\xd9\xb5>\xfb\xa8\xb7>9p\xb9>\x87/\xbb>\xe0\xe6\xbc>H\x96\xbe>\x91=\xc0>l\xdc\xc1>\x10s\xc3>\xb7\x01\xc5>\xa1\x88\xc6>\x08\x08\xc8>"
+tbsS'total population'
+p913
+g293
+(g294
+(I0
+tS'b'
+tRp914
+(I1
+(I51
+tg910
+I00
+S'\x88\x91\xd1OSg\xd4O\x034\xd7OY\xf7\xd9O\xb4\xb0\xdcO|_\xdfOJ\x03\xe2O\xf1\x9b\xe4O~)\xe7O6\xac\xe9O\xc6$\xecO\t\x94\xeeO\xdd\xfa\xf0O"Z\xf3O\xb8\xb2\xf5Oz\x05\xf8O:S\xfaO\xc5\x9c\xfcO\xd6\xe2\xfeO\x13\x93\x00P\xaf\xb3\x01P\x8e\xd3\x02P\xf8\xf2\x03P1\x12\x05Px1\x06P\x05Q\x07P\x0eq\x08P\xc2\x91\tPL\xb3\nP\xd4\xd5\x0bP~\xf9\x0cPk\x1e\x0eP\xb8D\x0fP\x80l\x10P\xdb\x95\x11P\xde\xc0\x12P\x9f\xed\x13P.\x1c\x15P\x9cL\x16P\xf7~\x17PK\xb3\x18P\xa6\xe9\x19P\x11"\x1bP\x96\\\x1cP?\x99\x1dP\x19\xd8\x1eP&\x19 Ph\\!P\xe8\xa1"P\xa1\xe9#P\x993%P'
+tbsS'grey pressure on working population[r4]'
+p915
+g293
+(g294
+(I0
+tS'b'
+tRp916
+(I1
+(I51
+tg910
+I00
+S'\x0e\xdf\x08>\xdb|\x14>1m\x1f>_\xb7)>\xa2a3>\xc4q<>\x90\xedD>\x0b\xdbL>c@T>/\x1a[>Y^a>Z\x15g>-Hl>\xba\xffp>\xd9Du>8 y>L\x9a|>4\xbb\x7f>dE\x81>;\x88\x82>\x9c\xa9\x83>\xd4\xac\x84>\xf4\x94\x85>\xd0d\x86>\x03\x1f\x87>\xf4\xc5\x87>\xd1[\x88>\x92\xe2\x88>\x04\\\x89>\xc1\xc9\x89>>-\x8a>\xc1\x87\x8a>r\xda\x8a>U&\x8b>Tl\x8b><\xad\x8b>\xbd\xe9\x8b>t"\x8c>\xeeW\x8c>\xa3\x8a\x8c>\xfc\xba\x8c>S\xe9\x8c>\xf8\x15\x8d>0A\x8d>6k\x8d>>\x94\x8d>t\xbc\x8d>\xfa\xe3\x8d>\xf3\n\x8e>{1\x8e>\xa9W\x8e>'
+tbsS'grey pressure on working population[r8]'
+p917
+g293
+(g294
+(I0
+tS'b'
+tRp918
+(I1
+(I51
+tg910
+I00
+S'\x95L\xa1>\xb6d\xa1>\xdd\xaa\xa1>\xed\x10\xa2>\xfe\x8b\xa2>\x8f\x13\xa3>\x1e\xa1\xa3>\xb4/\xa4>\x94\xbb\xa4>\xd4a\xa5>\x1b`\xa6>\xe7\xa3\xa7>\xba\x17\xa9>7\xaa\xaa>\xdeM\xac>A\xf8\xad>\xc7\xa1\xaf>\xdfD\xb1>}\xdd\xb2>\xc8h\xb4>\xcb\xe4\xb5>HP\xb7>\x91\xaa\xb8>_\xf3\xb9>\xa9*\xbb>\xa2P\xbc>\xabe\xbd>Cj\xbe>\x01_\xbf>\x87D\xc0>\x84\x1b\xc1>\xa9\xe4\xc1>\xa6\xa0\xc2>,P\xc3>\xe3\xf3\xc3>t\x8c\xc4>~\x1a\xc5>\x9c\x9e\xc5>^\x19\xc6>O\x8b\xc6>\xf5\xf4\xc6>\xc7V\xc7>:\xb1\xc7>\xb7\x04\xc8>\xa6Q\xc8>^\x98\xc8>=\xd9\xc8>\x8e\x14\xc9>\xa3J\xc9>\xc2{\xc9>(\xa8\xc9>'
+tbsS'TIME'
+p919
+g293
+(g294
+(I0
+tS'b'
+tRp920
+(I1
+(I51
+tg910
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p921
+g293
+(g294
+(I0
+tS'b'
+tRp922
+(I1
+(I51
+tg910
+I00
+S"\xe4X\xa4>\x13g\xa7>\xea\x11\xaa>,U\xac>\xc1-\xae>\x95\x99\xaf>\xf9\x96\xb0>\xe8$\xb1>5C\xb1>y\xab\xb1>\xd4 \xb3>\xfb&\xb5>\xc3\x81\xb7>G\r\xba>$\xb2\xbc>J`\xbf>\xf3\x0c\xc2>\xbc\xb0\xc4>\x96F\xc7>\x14\xcb\xc9>\xff;\xcc>\xf6\x97\xce>J\xde\xd0>\xba\x0e\xd3>R)\xd5>V.\xd7>@\x1e\xd9>\xa4\xf9\xda>-\xc1\xdc>\x92u\xde>\x92\x17\xe0>\xef\xa7\xe1>e'\xe3>\xb5\x96\xe4>\x98\xf6\xe5>\xc2G\xe7>\xe0\x8a\xe8>\x96\xc0\xe9>\x88\xe9\xea>I\x06\xec>n\x17\xed>y\x1d\xee>\xed\x18\xef>G\n\xf0>\xf7\xf1\xf0>k\xd0\xf1>\n\xa6\xf2>.s\xf3>88\xf4>~\xf5\xf4>L\xab\xf5>"
+tbsS'grey pressure on working population[r3]'
+p923
+g293
+(g294
+(I0
+tS'b'
+tRp924
+(I1
+(I51
+tg910
+I00
+S"\xa0t\x0f>>\t\x1c>\xba\xdf'>\xa3\x053>$\x86=>\x1akG>\xc4\xbdP>}\x87Y>\x92\xd2a>+\x9ai>|\xc4p>\xb4Xw>\xfd^}>\xb0o\x81>\xed\xf0\x83> 7\x86> F\x88>\xb1!\x8a>x\xcd\x8b>\xfbL\x8d>\xa1\xa3\x8e>\xa9\xd4\x8f>+\xe3\x90>\x17\xd2\x91>.\xa4\x92>\x0f\\\x93>)\xfc\x93>\xc1\x86\x94>\xf6\xfd\x94>\xbac\x95>\xe2\xb9\x95>\x14\x02\x96>\xdc=\x96>\x9en\x96>\xa3\x95\x96>\x15\xb4\x96>\x06\xcb\x96>i\xdb\x96>!\xe6\x96>\xf6\xeb\x96>\x9e\xed\x96>\xbe\xeb\x96>\xe6\xe6\x96>\x9e\xdf\x96>V\xd6\x96>z\xcb\x96>f\xbf\x96>n\xb2\x96>\xda\xa4\x96>\xeb\x96\x96>\xdb\x88\x96>"
+tbsS'grey pressure on working population[r2]'
+p925
+g293
+(g294
+(I0
+tS'b'
+tRp926
+(I1
+(I51
+tg910
+I00
+S'\x84x\xdc=;\xd8\xfc=\xd1\xac\r>\xa1\x17\x1c>\x1a\xbf)>\x93\xb16>\xc3\xfaB>\xfc\xa4N>\xdc\xb9Y>j4d>=\x02n>\x86*w>\x15\xb5\x7f>\xd6\xd4\x83>"\x88\x87>(\xf9\x8a>\xbe+\x8e>o#\x91>\xbf\xe3\x93>%p\x96>\x02\xcc\x98>\x9e\xfa\x9a>\xb3\xfe\x9c>\xcb\xda\x9e>\x14\x92\xa0>\x89\'\xa2>\xf4\x9d\xa3>\xf6\xf7\xa4>\xf87\xa6><`\xa7>\xd7r\xa8>\xb4q\xa9>\x93^\xaa>(;\xab>)\t\xac>\xe4\xc9\xac>~~\xad>\x0b(\xae>\x84\xc7\xae>\x8b]\xaf>\xd5\xea\xaf>>p\xb0>\x87\xee\xb0>_f\xb1>g\xd8\xb1>]E\xb2>\x0f\xae\xb2>\xcd\x12\xb3>\xe7s\xb3>\xa1\xd1\xb3>;,\xb4>'
+tbstp927
+a(((dp928
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p929
+g4
+(g6
+S'\x8f\xeek\x03\x9bF\xb7?'
+tRp930
+sS'environmental performance r5 ini'
+p931
+g4
+(g6
+S'm\xa0u\xb1\xbe\xc6\x13@'
+tRp932
+sS'push cost performance r3 ini'
+p933
+g4
+(g6
+S'*\xe37\xb78n\x1a@'
+tRp934
+sS'environmental performance r8 ini'
+p935
+g4
+(g6
+S'\xae\xf5+\x17\x81b\x1b@'
+tRp936
+sS'effective LS push emigration ratio[r7]'
+p937
+g4
+(g6
+S'\xccw<\x8f\xffp\xbc?'
+tRp938
+sS'societal performance r6 ini'
+p939
+g4
+(g6
+S'\x1e;\x98\x89\x11^\x1e@'
+tRp940
+sS'lookup number evolution birth rate[r5]'
+p941
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp942
+sS'importance sec perf 4 HS push immig'
+p943
+g4
+(g6
+S'l\x80\x0e\xc1\xdeR\x01@'
+tRp944
+sS'push cost performance r8 ini'
+p945
+g4
+(g6
+S'\x9f\x94\x95\x03\xb0g\x13@'
+tRp946
+sS'avg T as HS retiree[r8]'
+p947
+g4
+(g6
+S'\x97\xb7\x1d\xcd\xe2H1@'
+tRp948
+sS'effective HS push emigration ratio[r5]'
+p949
+g4
+(g6
+S'vW\x90\xe5\x98yz?'
+tRp950
+sS'importance econ perf 4 HS push immig'
+p951
+g4
+(g6
+S'^\x1d\xe2\xb1d\x1e\r@'
+tRp952
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p953
+g4
+(g6
+S'\x86\xb6T\x8e\xc3~\x93?'
+tRp954
+sS'societal performance r7 ini'
+p955
+g4
+(g6
+S'2\xf9Y\x8cb9\x10@'
+tRp956
+sS'degree of HS orientation [r1]'
+p957
+g4
+(g6
+S"\xa4\x10\xb6\xc7\xf6'\xbf?"
+tRp958
+sS'lookup number evolution HS jobs[r5]'
+p959
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp960
+sS'security performance r4 ini'
+p961
+g4
+(g6
+S'\x0b`\xaf\x85RO\x10@'
+tRp962
+sS'effective LS push emigration ratio[r4]'
+p963
+g4
+(g6
+S"\xe8(\xebZ\x86'\xbd?"
+tRp964
+sS'importance soc perf 4 HS pull immig'
+p965
+g4
+(g6
+S'\xbe\xd3\xb7t\xa8\x1f\x16@'
+tRp966
+sS'lookup number evolution birth rate[r4]'
+p967
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp968
+sS'pull cost performance r5 ini'
+p969
+g4
+(g6
+S'\xc5\x98\x1a\x1b\xd5\x7f\x16@'
+tRp970
+sS'avg T as LS retiree[r1]'
+p971
+g4
+(g6
+S'\x86o\xae.\r_\xfc?'
+tRp972
+sS'avg T as HS retiree[r3]'
+p973
+g4
+(g6
+S'%u0\xbc;N*@'
+tRp974
+sS'push cost performance r7 ini'
+p975
+g4
+(g6
+S'm\xe6z\x90\t\x05\x0f@'
+tRp976
+sS'effective HS push emigration ratio[r2]'
+p977
+g4
+(g6
+S'\xda\xbc\x83\xd7\xd5\x8c\x91?'
+tRp978
+sS'economic performance r8 ini'
+p979
+g4
+(g6
+S'V\x9bd\x95tb!@'
+tRp980
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p981
+g4
+(g6
+S'\x0c\xe0\xd8P+3\xc4?'
+tRp982
+sS'pull cost performance r2 ini'
+p983
+g4
+(g6
+S'O1\xeb\xaf$N\x10@'
+tRp984
+sS'push cost performance r2 ini'
+p985
+g4
+(g6
+S'\xd6iZ\x8c\xd7@\x16@'
+tRp986
+sS'security performance r7 ini'
+p987
+g4
+(g6
+S'\xe3\xf6r\xabZ\xe7\x10@'
+tRp988
+sS'environmental performance r2 ini'
+p989
+g4
+(g6
+S'\x8f\xbb\xc4\xa4\xe3a\x03@'
+tRp990
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p991
+g4
+(g6
+S'@8{\x18t\xed\xc7?'
+tRp992
+sS'degree of HS orientation [r6]'
+p993
+g4
+(g6
+S'\x8a\xbb\x9b\x0c\xad\xd5\xe4?'
+tRp994
+sS'avg T as LS retiree[r4]'
+p995
+g4
+(g6
+S'B\xa7\x01\x05\xb1T#@'
+tRp996
+sS'effective LS push emigration ratio[r1]'
+p997
+g4
+(g6
+S'd\x10@\xca2\x9a\xbe?'
+tRp998
+sS'importance cost perf 4 HS push immig'
+p999
+g4
+(g6
+S'\xf7\x19\x94?a\x06\x07@'
+tRp1000
+sS'pull cost performance r8 ini'
+p1001
+g4
+(g6
+S'\x96\x8e\xc1\x7f\xbd\x13\x1a@'
+tRp1002
+sS'importance cost perf 4 LS push immig'
+p1003
+g4
+(g6
+S'\x82\x01,6\xed"\xf9?'
+tRp1004
+sS'avg T as HS retiree[r6]'
+p1005
+g4
+(g6
+S'3\x81\xc0\x0fi\x86(@'
+tRp1006
+sS'degree of HS orientation [r8]'
+p1007
+g4
+(g6
+S'l\xacu\x82E#\xe6?'
+tRp1008
+sS'effective HS push emigration ratio[r7]'
+p1009
+g4
+(g6
+S'}\t\x80\x85,\xb6\x89?'
+tRp1010
+sS'pull cost performance r3 ini'
+p1011
+g4
+(g6
+S'\xefv*}"\xed\x15@'
+tRp1012
+sS'lookup number evolution birth rate[r3]'
+p1013
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1014
+sS'push cost performance r5 ini'
+p1015
+g4
+(g6
+S'\xe0w\x80DXP\x11@'
+tRp1016
+sS'push cost performance r1 ini'
+p1017
+g4
+(g6
+S'\xf5Y\xe8\xa6*\xf0\x16@'
+tRp1018
+sS'economic performance r2 ini'
+p1019
+g4
+(g6
+S'\xc0\xc6\xe3\xd9\x8e`\x05@'
+tRp1020
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p1021
+g4
+(g6
+S'\x8c\xeal\x80\xda\xf3\xbe?'
+tRp1022
+sS'push cost performance r4 ini'
+p1023
+g4
+(g6
+S'`\xec\xcf\x91\x07\xdb\x18@'
+tRp1024
+sS'lookup number evolution HS jobs[r7]'
+p1025
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1026
+sS'avg T as LS retiree[r7]'
+p1027
+g4
+(g6
+S'\xbb@l\xb0\x9c\xc5!@'
+tRp1028
+sS'effective LS push emigration ratio[r6]'
+p1029
+g4
+(g6
+S'!\xfdI\xb0j\x02\xc5?'
+tRp1030
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p1031
+g4
+(g6
+S'\n\xba\xe1<\xe9\xa8\xb8?'
+tRp1032
+sS'avg T as HS retiree[r1]'
+p1033
+g4
+(g6
+S'\xb7a]\x8fc\x01\xf5?'
+tRp1034
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p1035
+g4
+(g6
+S'\xa2I-\xb8R<\xb1?'
+tRp1036
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p1037
+g4
+(g6
+S'\xa2\xad\xa2\\^#\xc0?'
+tRp1038
+sS'security performance r6 ini'
+p1039
+g4
+(g6
+S'\x14\x84O\x90\xce\xd8\x1b@'
+tRp1040
+sS'lookup number evolution birth rate[r2]'
+p1041
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1042
+sS'effective HS push emigration ratio[r4]'
+p1043
+g4
+(g6
+S'\x18S\x02e\x98\xe3\x89?'
+tRp1044
+sS'security performance r2 ini'
+p1045
+g4
+(g6
+S'\xbcY\x0c\xa0x\xb2\r@'
+tRp1046
+sS'importance econ perf 4 LS pull immig'
+p1047
+g4
+(g6
+S'\x17\xec3\x91\xf8h\x00@'
+tRp1048
+sS'security performance r3 ini'
+p1049
+g4
+(g6
+S'\xfa\xdd{\xafW\x1f\x0f@'
+tRp1050
+sS'pull cost performance r7 ini'
+p1051
+g4
+(g6
+S'\xde\x03\x8dy\xc3\xb6\x16@'
+tRp1052
+sS'security performance r1 ini'
+p1053
+g4
+(g6
+S'&\xef\x86SKe\xfa?'
+tRp1054
+sS'lookup number evolution HS jobs[r6]'
+p1055
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1056
+sS'security performance r8 ini'
+p1057
+g4
+(g6
+S'/=\x0e\xfa2D @'
+tRp1058
+sS'degree of HS orientation [r2]'
+p1059
+g4
+(g6
+S'\x05\xdc\xabZ\x16\xbd\xb4?'
+tRp1060
+sS'lookup number evolution HS jobs[r2]'
+p1061
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1062
+sS'societal performance r2 ini'
+p1063
+g4
+(g6
+S'\xb4\x86\xbd%\xb5/\x0c@'
+tRp1064
+sS'environmental performance r1 ini'
+p1065
+g4
+(g6
+S'\x1a\xe7\xf8m\xad\x1e\x17@'
+tRp1066
+sS'lookup number evolution birth rate[r1]'
+p1067
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1068
+sS'avg T as LS retiree[r2]'
+p1069
+g4
+(g6
+S'\x9e\xd9\xa8m\xa7\xe0%@'
+tRp1070
+sS'importance env perf 4 HS push immig'
+p1071
+g4
+(g6
+S'\x94I\xaf\xb4\x82\x07!@'
+tRp1072
+sS'importance sec perf 4 LS push immig'
+p1073
+g4
+(g6
+S'\xd1{\xfd\xc3\x07\x7f\xf0?'
+tRp1074
+sS'importance sec perf 4 LS pull immig'
+p1075
+g4
+(g6
+S'$D\xd5\xf0\xd6\xed\x11@'
+tRp1076
+sS'avg T as HS retiree[r4]'
+p1077
+g4
+(g6
+S'\xf0\x91O\x93n\xe4\x1c@'
+tRp1078
+sS'effective HS push emigration ratio[r1]'
+p1079
+g4
+(g6
+S'\xcf\x90\xe1_#\x92\x92?'
+tRp1080
+sS'effective LS push emigration ratio[r8]'
+p1081
+g4
+(g6
+S'\x1d\x80e:\x85r\xc1?'
+tRp1082
+sS'pull cost performance r4 ini'
+p1083
+g4
+(g6
+S'\xf9\x08G\xb0&\x98\x13@'
+tRp1084
+sS'degree of HS orientation [r5]'
+p1085
+g4
+(g6
+S'd\x05\xff]r\x1c\xe5?'
+tRp1086
+sS'societal performance r3 ini'
+p1087
+g4
+(g6
+S'+i\x12\xfd\xd6U\x11@'
+tRp1088
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p1089
+g4
+(g6
+S'\xe2l\xa3\x8b\xe83\xb0?'
+tRp1090
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p1091
+g4
+(g6
+S'BV\xde\x97\xcf\xe8\xb3?'
+tRp1092
+sS'importance soc perf 4 LS push immig'
+p1093
+g4
+(g6
+S'\xb5\xfd\x01\xb0\xc4\xeb\x1e@'
+tRp1094
+sS'importance env perf 4 HS pull immig'
+p1095
+g4
+(g6
+S'\x9f\xc4\x8a\xa4\x8f\xf5\x13@'
+tRp1096
+sS'environmental performance r7 ini'
+p1097
+g4
+(g6
+S'\xdci\x04\xaa\x1e)\x0c@'
+tRp1098
+sS'degree of HS orientation [r3]'
+p1099
+g4
+(g6
+S'\xa4\x9d\xa6\r\xb0\xab\xd6?'
+tRp1100
+sS'economic performance r3 ini'
+p1101
+g4
+(g6
+S'\xbf?:\x84o\x9f\x07@'
+tRp1102
+sS'importance env perf 4 LS push immig'
+p1103
+g4
+(g6
+S'\xf2[\xef\x8e@\xb8\x0e@'
+tRp1104
+sS'societal performance r4 ini'
+p1105
+g4
+(g6
+S'\xaa\xe7\xb9!_k\x0c@'
+tRp1106
+sS'importance soc perf 4 HS push immig'
+p1107
+g4
+(g6
+S'\x84\xdc\xd0\xf6sz!@'
+tRp1108
+sS'avg T as HS retiree[r7]'
+p1109
+g4
+(g6
+S'\xec7\xe8\x8c&?&@'
+tRp1110
+sS'avg T as LS retiree[r5]'
+p1111
+g4
+(g6
+S'\xff\x8a3wY\xef+@'
+tRp1112
+sS'effective HS push emigration ratio[r6]'
+p1113
+g4
+(g6
+S'\x13xQ\xc5\xef\r\x94?'
+tRp1114
+sS'pull cost performance r1 ini'
+p1115
+g4
+(g6
+S'|\x00\x83\x15\x01;\xf8?'
+tRp1116
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p1117
+g4
+(g6
+S'\xd2%BK\xfd\xdd\xc8?'
+tRp1118
+sS'pull cost performance r6 ini'
+p1119
+g4
+(g6
+S'R\xf3\xea\xa5o2\x1c@'
+tRp1120
+sS'importance econ perf 4 HS pull immig'
+p1121
+g4
+(g6
+S'\xe4\x98:>.I\x17@'
+tRp1122
+sS'importance cost perf 4 LS pull immig'
+p1123
+g4
+(g6
+S'\xee\xf6E\x96\xd8\x17\x12@'
+tRp1124
+sS'avg T as LS retiree[r6]'
+p1125
+g4
+(g6
+S'\xaf\xaa\x0f\x9f\x17%(@'
+tRp1126
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p1127
+g4
+(g6
+S'4\x9a\x96\x89\x02@\xb7?'
+tRp1128
+sS'environmental performance r6 ini'
+p1129
+g4
+(g6
+S'\x16r\xb3\x04\x89t\x1a@'
+tRp1130
+sS'lookup number evolution HS jobs[r8]'
+p1131
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1132
+sS'societal performance r5 ini'
+p1133
+g4
+(g6
+S'\xb5\xa7=\x1dX\x1b\x11@'
+tRp1134
+sS'importance soc perf 4 LS pull immig'
+p1135
+g4
+(g6
+S'\xecNY\x8b\xd7\x19 @'
+tRp1136
+sS'lookup number evolution birth rate[r8]'
+p1137
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1138
+sS'lookup number evolution HS jobs[r4]'
+p1139
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1140
+sS'avg T as LS retiree[r8]'
+p1141
+g4
+(g6
+S'zpz\x7f\x9f70@'
+tRp1142
+sS'effective LS push emigration ratio[r5]'
+p1143
+g4
+(g6
+S'<8j\xb6\xeb\xed\xc5?'
+tRp1144
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p1145
+g4
+(g6
+S'\xaa\ty\x84\xda}\xb9?'
+tRp1146
+sS'partner multiplicator legal immigration'
+p1147
+g4
+(g6
+S'\x17ah\xfb\xfdL\xfc?'
+tRp1148
+sS'importance cost perf 4 HS pull immig'
+p1149
+g4
+(g6
+S'\n\xdf.6\x9b`\x01@'
+tRp1150
+sS'environmental performance r4 ini'
+p1151
+g4
+(g6
+S'\xd4\xb4\xd9\xa3\xb1m\xfb?'
+tRp1152
+sS'avg T as HS retiree[r2]'
+p1153
+g4
+(g6
+S'g:A(H\x81%@'
+tRp1154
+sS'lookup number evolution birth rate[r7]'
+p1155
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1156
+sS'economic performance r7 ini'
+p1157
+g4
+(g6
+S'\x7fp\x1e9\xd6\x8a\x13@'
+tRp1158
+sS'effective HS push emigration ratio[r3]'
+p1159
+g4
+(g6
+S"\xf1'Mm\xd6\xe0\x90?"
+tRp1160
+sS'security performance r5 ini'
+p1161
+g4
+(g6
+S'\x8dL\x83\x96\x8f\x15!@'
+tRp1162
+sS'push cost performance r6 ini'
+p1163
+g4
+(g6
+S'\xd3\x95\x0c*\x0f\x87\x12@'
+tRp1164
+sS'degree of HS orientation [r7]'
+p1165
+g4
+(g6
+S'\xe4/$\x1d_8\xe1?'
+tRp1166
+sS'effective LS push emigration ratio[r2]'
+p1167
+g4
+(g6
+S'r+P\x94(\xc7\xc1?'
+tRp1168
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p1169
+g4
+(g6
+S'tj\xf3\x899\x8e\xc2?'
+tRp1170
+sS'importance sec perf 4 HS pull immig'
+p1171
+g4
+(g6
+S'`\xff\xbf\x1e2e\x05@'
+tRp1172
+sS'lookup number evolution HS jobs[r3]'
+p1173
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1174
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p1175
+g4
+(g6
+S'\xe0\x8e\x1a\xf2\xec\r\xc1?'
+tRp1176
+sS'lookup number evolution HS jobs[r1]'
+p1177
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1178
+sS'effective HS push emigration ratio[r8]'
+p1179
+g4
+(g6
+S'~\xb6P\xbbZW\x8a?'
+tRp1180
+sS'societal performance r8 ini'
+p1181
+g4
+(g6
+S'\xdbX\xeb\xd819\x1a@'
+tRp1182
+sS'societal performance r1 ini'
+p1183
+g4
+(g6
+S'\xe9\xc9\x06\xf0\xe4\xb7\x01@'
+tRp1184
+sS'importance econ perf 4 LS push immig'
+p1185
+g4
+(g6
+S'\xdc\xd6\xb9\x9e\x08,\x08@'
+tRp1186
+sS'avg T as LS retiree[r3]'
+p1187
+g4
+(g6
+S'\x86?\xd4\x9a\xefn,@'
+tRp1188
+sS'lookup number evolution birth rate[r6]'
+p1189
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1190
+sS'economic performance r1 ini'
+p1191
+g4
+(g6
+S'$Vk\xcb2\xbe\x05@'
+tRp1192
+sS'economic performance r5 ini'
+p1193
+g4
+(g6
+S'\xf1p]\xc0\xd5\xf8\x16@'
+tRp1194
+sS'importance env perf 4 LS pull immig'
+p1195
+g4
+(g6
+S'\xf0\xd4\xd5\x1e\xdc\xce\x0b@'
+tRp1196
+sS'environmental performance r3 ini'
+p1197
+g4
+(g6
+S'\x82\xe6lG\xb8\xf9\x1e@'
+tRp1198
+sS'avg T as HS retiree[r5]'
+p1199
+g4
+(g6
+S'EeO\x07\xa5%/@'
+tRp1200
+sS'economic performance r4 ini'
+p1201
+g4
+(g6
+S'\xaf\xadI\x8d\xaen\x1a@'
+tRp1202
+sS'economic performance r6 ini'
+p1203
+g4
+(g6
+S'u\x11\xff\xef\xdf \x1f@'
+tRp1204
+sS'degree of HS orientation [r4]'
+p1205
+g4
+(g6
+S"0'\x0bB\xe8\xf4\xd1?"
+tRp1206
+sS'effective LS push emigration ratio[r3]'
+p1207
+g4
+(g6
+S']Th\xa2\x0cR\xb5?'
+tRp1208
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p1209
+g4
+(g6
+S'y\xdf\xda\x1e\xf3\xac\xae?'
+tRp1210
+s(dp1211
+S'name'
+p1212
+S'None'
+p1213
+sS'demo'
+t(dp1214
+S'grey pressure on working population[r7]'
+p1215
+g293
+(g294
+(I0
+tS'b'
+tRp1216
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp1217
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S'\rz\xab>\xd8\x8d\xa8>\x92K\xa6>\xbc\x8f\xa4>\xe8\\\xa3>\x80\xc8\xa2>\xa4\xc3\xa2>qG\xa3>\x8dU\xa4>&\x12\xa6>*\x90\xa8>\x04\xc3\xaa>gt\xac>\xa5\xaa\xad>\xdfl\xae>\xe4\xc2\xae>\t\xb5\xae>\x07L\xae>\xcf\x90\xad>h\x8c\xac>\xbfG\xab>\x9f\xcb\xa9>\x18 \xa8>}K\xa6>\x13U\xa4>\x9dD\xa2>m!\xa0>(\xf2\x9d>\xb2\xbc\x9b>+\x86\x99>\xf7R\x97>\xcf&\x95>\xce\x04\x93>\x7f\xef\x90>\xea\xe8\x8e>\xa3\xf2\x8c>\xd8\r\x8b>b;\x89>\xc9{\x87>S\xcf\x85>\x106\x84>\xe0\xaf\x82>\x7f<\x81>\x07\xb7\x7f>\xe0\x18}>c\x9dz>RCx>P\tv>\xec\xeds>\xb9\xefq>9\rp>'
+tbsS'grey pressure on working population[r6]'
+p1218
+g293
+(g294
+(I0
+tS'b'
+tRp1219
+(I1
+(I51
+tg1217
+I00
+S"\x9a\x9fm>\xc5\xefo>T\x02t>\xef\xaay>\xba\x10\x80>\xff'\x83>\x04\x1a\x86>l\xe7\x88>\xb3\x91\x8b>f\x17\x8e>ku\x90>\x8a\xa7\x92>\x83\x8b\x94>\xe4\xc5\x95>\x8b\xa4\x96>k\xc3\x97>\xc3*\x99>\xe0\xbc\x9a>a@\x9c>\xcb\xac\x9d>\xad\x03\x9f>\x89F\xa0>To\xa1>!u\xa2>-T\xa3>\xe0\xfe\xa3>&\x84\xa4>+\xf0\xa4>\x97K\xa5>w\x9c\xa5>\xf5\xe6\xa5>\xeb-\xa6>=s\xa6>m\xb8\xa6>\xc9\xfe\xa6>\xbbE\xa7>\x9e\x8c\xa7>\xe6\xd2\xa7> \x18\xa8>m[\xa8>\xce\x9d\xa8>\xbf\xe0\xa8>1%\xa9>\xbbk\xa9>\xaf\xb4\xa9>\x18\xfb\xa9>\x176\xaa>\xa6g\xaa>\xe2\x91\xaa>\xb7\xb6\xaa>\xd5\xd7\xaa>"
+tbsS'total population'
+p1220
+g293
+(g294
+(I0
+tS'b'
+tRp1221
+(I1
+(I51
+tg1217
+I00
+S"\x88\x91\xd1OcB\xd4O\x08\xef\xd6O\xa2\x91\xd9O\x8d'\xdcO|\xaf\xdeO\xe2(\xe1O\xa2\x93\xe3O\xda\xef\xe5O\xd7=\xe8O\xfe}\xeaO7\xb1\xecO\xdf\xd8\xeeO@\xf6\xf0O\x8a\n\xf3O\xc5\x16\xf5O\xde\x1b\xf7O\xb2\x1a\xf9O\x1a\x14\xfbO\xe1\x08\xfdO\xca\xf9\xfeO\xc6s\x00P\x94i\x01P\xb4^\x02PKS\x03P\x9bG\x04P\x03<\x05P\xae0\x06P\xce%\x07P\x9e\x1b\x08PY\x12\tP8\n\nPv\x03\x0bPN\xfe\x0bP\xf7\xfa\x0cP\xac\xf9\rP\xa8\xfa\x0eP&\xfe\x0fPg\x04\x11P\xa9\r\x12P1\x1a\x13PB*\x14P'>\x15P&V\x16P\x8br\x17P\xa4\x93\x18P\xc1\xb9\x19P2\xe5\x1aPN\x16\x1cPpM\x1dP\xf3\x8a\x1eP"
+tbsS'grey pressure on working population[r4]'
+p1222
+g293
+(g294
+(I0
+tS'b'
+tRp1223
+(I1
+(I51
+tg1217
+I00
+S"\x0e\xdf\x08>\x17\x89\x12>+\x99\x1b>1\x13$>\x05\x02,>bt3>\xc5p:>\x1b\xff@>\xe0(G>\x99\xf7L>\xa4lR>\x95SW>\xac\xae[>,\x8c_>f\xfab>1\x0ff>\xdf\xd4h>\x80Rk>\xe1\x8em>f\x90o>']q>\xd8\xfar>Jjt>(\xacu>\x04\xc8v>W\xc4w>\xb3\xa6x>\xcdsy>\x9d/z>\x80\xddz>C\x80{>E\x1a|>u\xad|>\x13<}>\xb8\xc9}>\x04W~>4\xe4~>\x81q\x7f>\x1f\xff\x7f>QE\x80>\x90\x89\x80>\xd8\xcc\x80>\x94\x0f\x81>\x16R\x81>\x9f\x94\x81>\x84\xd8\x81>\xe7\x1f\x82>[j\x82>t\xb7\x82>\xd5\x06\x83>)X\x83>"
+tbsS'grey pressure on working population[r8]'
+p1224
+g293
+(g294
+(I0
+tS'b'
+tRp1225
+(I1
+(I51
+tg1217
+I00
+S'\x95L\xa1>\xf4\xa7\xa1>:q\xa1>\xdc\xa1\xa0>46\x9f>\xad-\x9d>\xbd\x8a\x9a>KS\x97>\xb6\x90\x93>\xd6O\x8f>G\xef\x8a>\xe6Y\x88>\xa5p\x87>\xa1\xeb\x87>\xa2P\x89>\x95\xf8\x8a>\xac\xc2\x8c>.\xb0\x8e>\xe0\xce\x90>i\x18\x93>\xf7\x83\x95>A\n\x98>\xbe\xbb\x9a>3\xac\x9d>\xae\xce\xa0>,\x1d\xa4>\xab\x85\xa7>\x8e\xfa\xaa>1s\xae>\xf6\xe8\xb1>\xc0V\xb5>\x9f\xb8\xb8>\x86\x0b\xbc>\x81J\xbf>ti\xc2>Vh\xc5>~H\xc8>2\x0b\xcb>\xab\xb1\xcd>AI\xd0>\xcd\xd8\xd2>\x8f]\xd5>\x7f\xd5\xd7>>?\xda>\xe4\x99\xdc>\xd5\xdb\xde>\xd5\xf3\xe0>H\xe3\xe2>6\xac\xe4>\xbfP\xe6>\x17\xd3\xe7>'
+tbsS'TIME'
+p1226
+g293
+(g294
+(I0
+tS'b'
+tRp1227
+(I1
+(I51
+tg1217
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p1228
+g293
+(g294
+(I0
+tS'b'
+tRp1229
+(I1
+(I51
+tg1217
+I00
+S'\xe4X\xa4>@Q\xa7>\xd3Q\xaa>"S\xad>\xd5P\xb0>\x00J\xb3>9>\xb6>F/\xb9>\xb3!\xbc>\x99\x0e\xbf>\x07\xe8\xc1>\x88\x8e\xc4>4\xfc\xc6>\xd41\xc9>E4\xcb>\xc1*\xcd>\xa9\x1e\xcf>\xd0\x0f\xd1>(\xfe\xd2>\xbc\xe9\xd4>\xa3\xd2\xd6>\r\xb9\xd8>\xd2\x7f\xda>\xd1\xfd\xdb>\x855\xdd>\x1c*\xde>\xf7\xfb\xde>C\xbf\xdf>\x06u\xe0>\x0f\x1e\xe1>\x0b\xbb\xe1>\x94L\xe2>-\xd3\xe2>XO\xe3>\x89\xc1\xe3>1*\xe4>\xb5\x89\xe4>}\xe0\xe4>\xe5.\xe5>Nu\xe5>\x06\xb4\xe5>[\xeb\xe5>\x97\x1b\xe6>\xfcD\xe6>\xc3g\xe6> \x84\xe6>E\x9a\xe6>^\xaa\xe6>\x93\xb4\xe6>\x10\xb9\xe6>\xf4\xb7\xe6>'
+tbsS'grey pressure on working population[r3]'
+p1230
+g293
+(g294
+(I0
+tS'b'
+tRp1231
+(I1
+(I51
+tg1217
+I00
+S'\xa0t\x0f>h/\x1e>\x08+,>\xdbt9>\x9e#F>-TR>]\x13^>noi>Cyt>\xf6C\x7f>\xfd\xe9\x84>\xf4\xcf\x89>@L\x8e>/g\x92>\xd5)\x96>\xca\xa5\x99>e\xe1\x9c>\x01\xe0\x9f>\x05\xa5\xa2>\xe43\xa5>\x17\x90\xa7>\x13\xbd\xa9>\xd2\xb9\xab>m\x85\xad>.&\xaf>\xaa\xa1\xb0>\xc6\xfc\xb1>\xc7;\xb3>jb\xb4>\xeas\xb5>!s\xb6>\x86b\xb7>?D\xb8>\xbc\x1a\xb9>\xbe\xe9\xb9>I\xb2\xba>\x06u\xbb>\x922\xbc>z\xeb\xbc>\xf0\x9d\xbd>aI\xbe>\x0b\xef\xbe>\xf3\x8f\xbf>\xed,\xc0>\xa6\xc6\xc0>\xcc_\xc1>\x90\xfc\xc1>\xa9\x9c\xc2>\xa7?\xc3>#\xe5\xc3>\xb5\x8c\xc4>'
+tbsS'grey pressure on working population[r2]'
+p1232
+g293
+(g294
+(I0
+tS'b'
+tRp1233
+(I1
+(I51
+tg1217
+I00
+S'\x84x\xdc=\xca\x83\xf8=\x109\t>z=\x15>\xa0i >d\xd6*>w\x924>\x02\xab=>f,F>^%N>\xd8\x9cU>$k\\>\x94\x93b>\x0c#h>\t&m>\x1f\xaaq>\x05\xbau>b_y>b\xa3|>\xb2\x8e\x7f>\xc4\x14\x81>\xc6=\x82>\x91E\x83>"/\x84>\xd6\xfd\x84>\xba\xb4\x85>bV\x86>,\xe5\x86>ac\x87>\x17\xd3\x87>+6\x88>C\x8e\x88>\xce\xdc\x88>\x1b#\x89>bb\x89>\x8f\x9b\x89>g\xcf\x89>\x9d\xfe\x89>\xc6)\x8a>PQ\x8a>\xa6u\x8a>>\x97\x8a>}\xb6\x8a>\xb8\xd3\x8a>:\xef\x8a>O\t\x8b>G"\x8b>=:\x8b>FQ\x8b>sg\x8b>\xd8|\x8b>'
+tbstp1234
+a(((dp1235
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p1236
+g4
+(g6
+S'\xe4X\xa3xVF\xba?'
+tRp1237
+sS'environmental performance r5 ini'
+p1238
+g4
+(g6
+S'^\x03\xc0\x9d\xcf\xc5\x16@'
+tRp1239
+sS'push cost performance r3 ini'
+p1240
+g4
+(g6
+S'\xf4\xaeL\xef\xeaR\x15@'
+tRp1241
+sS'environmental performance r8 ini'
+p1242
+g4
+(g6
+S'\x8aA\xe0\xbd\x0b\xb2\x16@'
+tRp1243
+sS'effective LS push emigration ratio[r7]'
+p1244
+g4
+(g6
+S'$th\xcb\xabU\xba?'
+tRp1245
+sS'societal performance r6 ini'
+p1246
+g4
+(g6
+S'\x87C#\xff)O\x1c@'
+tRp1247
+sS'lookup number evolution birth rate[r5]'
+p1248
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1249
+sS'importance sec perf 4 HS push immig'
+p1250
+g4
+(g6
+S'\xaa\x7fw4\xa1\xb5\x07@'
+tRp1251
+sS'push cost performance r8 ini'
+p1252
+g4
+(g6
+S'\xba\xe4D\x94\x87\xad\x10@'
+tRp1253
+sS'avg T as HS retiree[r8]'
+p1254
+g4
+(g6
+S'?s\x04\x92\xedT*@'
+tRp1255
+sS'effective HS push emigration ratio[r5]'
+p1256
+g4
+(g6
+S'd\xde\xe2\xc9\xe0\x85\x93?'
+tRp1257
+sS'importance econ perf 4 HS push immig'
+p1258
+g4
+(g6
+S'\xd6XW\xd9\xc8\xf0\x19@'
+tRp1259
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p1260
+g4
+(g6
+S'\x91A\x1e\xa2\xc1|\xb3?'
+tRp1261
+sS'societal performance r7 ini'
+p1262
+g4
+(g6
+S'"HH\xc4\xd9\x89\x11@'
+tRp1263
+sS'degree of HS orientation [r1]'
+p1264
+g4
+(g6
+S'\x02\x94\xfcD|}\xc2?'
+tRp1265
+sS'lookup number evolution HS jobs[r5]'
+p1266
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1267
+sS'security performance r4 ini'
+p1268
+g4
+(g6
+S'\xec\x96q9\xdf\xa6\x15@'
+tRp1269
+sS'effective LS push emigration ratio[r4]'
+p1270
+g4
+(g6
+S'\xa9^A\xc5\x9cm\xc5?'
+tRp1271
+sS'importance soc perf 4 HS pull immig'
+p1272
+g4
+(g6
+S'w\xe8\x96\xe2\xb4\xe2 @'
+tRp1273
+sS'lookup number evolution birth rate[r4]'
+p1274
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1275
+sS'pull cost performance r5 ini'
+p1276
+g4
+(g6
+S't\xac\xa1Y\xf6\xac\x12@'
+tRp1277
+sS'avg T as LS retiree[r1]'
+p1278
+g4
+(g6
+S'\xb6b\xaa\xd3\xe6^\xf0?'
+tRp1279
+sS'avg T as HS retiree[r3]'
+p1280
+g4
+(g6
+S'V/\xbbu\xed]+@'
+tRp1281
+sS'push cost performance r7 ini'
+p1282
+g4
+(g6
+S'\xa5\x94:\xf1P\xcb\x11@'
+tRp1283
+sS'effective HS push emigration ratio[r2]'
+p1284
+g4
+(g6
+S'\x89x\xba\x0fUS\x87?'
+tRp1285
+sS'economic performance r8 ini'
+p1286
+g4
+(g6
+S']_{\x05G\xba!@'
+tRp1287
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p1288
+g4
+(g6
+S'n\x1c\xda\x18\xdeT\xaf?'
+tRp1289
+sS'pull cost performance r2 ini'
+p1290
+g4
+(g6
+S'N\x1f2%\x84\x07\x13@'
+tRp1291
+sS'push cost performance r2 ini'
+p1292
+g4
+(g6
+S'\xd2$K\x93\x7f\x84\x18@'
+tRp1293
+sS'security performance r7 ini'
+p1294
+g4
+(g6
+S'\xcc\xc1Y\xb6w\xaa\x15@'
+tRp1295
+sS'environmental performance r2 ini'
+p1296
+g4
+(g6
+S'\xe1Q|\xfe\xdb$\x0e@'
+tRp1297
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p1298
+g4
+(g6
+S':\xaap\x9fJ\x04\xc4?'
+tRp1299
+sS'degree of HS orientation [r6]'
+p1300
+g4
+(g6
+S'\xda\xecp&S\x1f\xe4?'
+tRp1301
+sS'avg T as LS retiree[r4]'
+p1302
+g4
+(g6
+S'?\x1a2A\xdc\xd9\x1c@'
+tRp1303
+sS'effective LS push emigration ratio[r1]'
+p1304
+g4
+(g6
+S'\xaa\x05\xa7Q.\xa2\xb5?'
+tRp1305
+sS'importance cost perf 4 HS push immig'
+p1306
+g4
+(g6
+S'\xe0Y\xbb\x03\xc1\xfd\x08@'
+tRp1307
+sS'pull cost performance r8 ini'
+p1308
+g4
+(g6
+S'\x13\xf7\xf8\x8a\xfa\x1c\x1e@'
+tRp1309
+sS'importance cost perf 4 LS push immig'
+p1310
+g4
+(g6
+S'\xc0B\x0b\xb8\x9aw\x00@'
+tRp1311
+sS'avg T as HS retiree[r6]'
+p1312
+g4
+(g6
+S'/\xfe"$\xe3\xfe0@'
+tRp1313
+sS'degree of HS orientation [r8]'
+p1314
+g4
+(g6
+S'\xc1\xa8\x97Ad\x90\xe3?'
+tRp1315
+sS'effective HS push emigration ratio[r7]'
+p1316
+g4
+(g6
+S'B\xfa\xb5Q<\xb1\x90?'
+tRp1317
+sS'pull cost performance r3 ini'
+p1318
+g4
+(g6
+S'\xc2Qt03\xe0\x14@'
+tRp1319
+sS'lookup number evolution birth rate[r3]'
+p1320
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1321
+sS'push cost performance r5 ini'
+p1322
+g4
+(g6
+S'\x1d\xee\xc2\xb5\xca\xec\t@'
+tRp1323
+sS'push cost performance r1 ini'
+p1324
+g4
+(g6
+S'\xf3\xc0O,08\x15@'
+tRp1325
+sS'economic performance r2 ini'
+p1326
+g4
+(g6
+S'\xabc\xcd\xd5j\x0b\x08@'
+tRp1327
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p1328
+g4
+(g6
+S'=d\xb6\xb6H\xe2\xb1?'
+tRp1329
+sS'push cost performance r4 ini'
+p1330
+g4
+(g6
+S'~C\xc9\xdf\xa3\xd9\x1a@'
+tRp1331
+sS'lookup number evolution HS jobs[r7]'
+p1332
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1333
+sS'avg T as LS retiree[r7]'
+p1334
+g4
+(g6
+S'\xddN\x99V\x1f\x85#@'
+tRp1335
+sS'effective LS push emigration ratio[r6]'
+p1336
+g4
+(g6
+S'\xd2}\x0f\x8b\xe7\xcb\xc0?'
+tRp1337
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p1338
+g4
+(g6
+S'&f\\$Fj\xb1?'
+tRp1339
+sS'avg T as HS retiree[r1]'
+p1340
+g4
+(g6
+S'\xd2\x04B\x8e\xdf\xfc\xf0?'
+tRp1341
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p1342
+g4
+(g6
+S'\x9ff\x7fF\xb2\xf7\xbf?'
+tRp1343
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p1344
+g4
+(g6
+S'W\x8c\xf6\x947h\xb3?'
+tRp1345
+sS'security performance r6 ini'
+p1346
+g4
+(g6
+S"\xf1\xbe\xf1'^{\x17@"
+tRp1347
+sS'lookup number evolution birth rate[r2]'
+p1348
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1349
+sS'effective HS push emigration ratio[r4]'
+p1350
+g4
+(g6
+S'r#J`\xd76\x90?'
+tRp1351
+sS'security performance r2 ini'
+p1352
+g4
+(g6
+S'\xfe\xa7\xfe\x8d\x9c\x88\x0e@'
+tRp1353
+sS'importance econ perf 4 LS pull immig'
+p1354
+g4
+(g6
+S'9n2\xbcs*!@'
+tRp1355
+sS'security performance r3 ini'
+p1356
+g4
+(g6
+S'\xc9yM\x9b`\xb9\n@'
+tRp1357
+sS'pull cost performance r7 ini'
+p1358
+g4
+(g6
+S'\x8e\x04\xd0e\x81\xc1\x15@'
+tRp1359
+sS'security performance r1 ini'
+p1360
+g4
+(g6
+S'9\xe4\xb9-:\x18\x06@'
+tRp1361
+sS'lookup number evolution HS jobs[r6]'
+p1362
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1363
+sS'security performance r8 ini'
+p1364
+g4
+(g6
+S'\x82D[\x8a\xc2s\x1c@'
+tRp1365
+sS'degree of HS orientation [r2]'
+p1366
+g4
+(g6
+S'\xa83\xfbx\xc1M\xcb?'
+tRp1367
+sS'lookup number evolution HS jobs[r2]'
+p1368
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1369
+sS'societal performance r2 ini'
+p1370
+g4
+(g6
+S'\xa0z-G_\x83\x13@'
+tRp1371
+sS'environmental performance r1 ini'
+p1372
+g4
+(g6
+S'\xd0\x88\xcdKs\x00\x12@'
+tRp1373
+sS'lookup number evolution birth rate[r1]'
+p1374
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1375
+sS'avg T as LS retiree[r2]'
+p1376
+g4
+(g6
+S'6\xf65d\x804(@'
+tRp1377
+sS'importance env perf 4 HS push immig'
+p1378
+g4
+(g6
+S'r\x99J\xb3\\\xea\x12@'
+tRp1379
+sS'importance sec perf 4 LS push immig'
+p1380
+g4
+(g6
+S'\x00;\x95T\xcf\x00\x10@'
+tRp1381
+sS'importance sec perf 4 LS pull immig'
+p1382
+g4
+(g6
+S'\xf6a\xbd\x00t\xed\x03@'
+tRp1383
+sS'avg T as HS retiree[r4]'
+p1384
+g4
+(g6
+S'\x04$\x94\x0b[\xec$@'
+tRp1385
+sS'effective HS push emigration ratio[r1]'
+p1386
+g4
+(g6
+S'\xecI,\xd1\xff\x0e\x80?'
+tRp1387
+sS'effective LS push emigration ratio[r8]'
+p1388
+g4
+(g6
+S'\x98i5\\\xb8 \xc6?'
+tRp1389
+sS'pull cost performance r4 ini'
+p1390
+g4
+(g6
+S'.\xd6\xb3\xf1\xb6\xea\t@'
+tRp1391
+sS'degree of HS orientation [r5]'
+p1392
+g4
+(g6
+S'\x9bUB\x1dQY\xe5?'
+tRp1393
+sS'societal performance r3 ini'
+p1394
+g4
+(g6
+S'"\xfd\x96\x93\xa4<\x13@'
+tRp1395
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p1396
+g4
+(g6
+S'"ELo#\xaf\xc8?'
+tRp1397
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p1398
+g4
+(g6
+S'\xe0\xb8\xaf\x16u{\xc7?'
+tRp1399
+sS'importance soc perf 4 LS push immig'
+p1400
+g4
+(g6
+S'\xd4W\xc2\xb7\xec\xca\x0b@'
+tRp1401
+sS'importance env perf 4 HS pull immig'
+p1402
+g4
+(g6
+S'\xea\x84\xa9*q\xe1\x14@'
+tRp1403
+sS'environmental performance r7 ini'
+p1404
+g4
+(g6
+S'\\\x9f\xe2\xf7\x03\xbd\x10@'
+tRp1405
+sS'degree of HS orientation [r3]'
+p1406
+g4
+(g6
+S'c\xe6\x0fR\xdfy\xc7?'
+tRp1407
+sS'economic performance r3 ini'
+p1408
+g4
+(g6
+S'FP\xce@{}\x05@'
+tRp1409
+sS'importance env perf 4 LS push immig'
+p1410
+g4
+(g6
+S'!01n\xf9\xcf\x16@'
+tRp1411
+sS'societal performance r4 ini'
+p1412
+g4
+(g6
+S'\x04\xf3\x8b\x82\x18\xa2\x13@'
+tRp1413
+sS'importance soc perf 4 HS push immig'
+p1414
+g4
+(g6
+S'q\xb65j\x17y\x03@'
+tRp1415
+sS'avg T as HS retiree[r7]'
+p1416
+g4
+(g6
+S'\x08\xda\x86-\xfeZ!@'
+tRp1417
+sS'avg T as LS retiree[r5]'
+p1418
+g4
+(g6
+S'\xe2\x8ds&\x86\xa7.@'
+tRp1419
+sS'effective HS push emigration ratio[r6]'
+p1420
+g4
+(g6
+S'Kj\xe1N\xe1\xc5\x87?'
+tRp1421
+sS'pull cost performance r1 ini'
+p1422
+g4
+(g6
+S'\x12\xa8=)\xe8\x97\x03@'
+tRp1423
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p1424
+g4
+(g6
+S'@\xfbk\xc7\xcc\xa7\xc0?'
+tRp1425
+sS'pull cost performance r6 ini'
+p1426
+g4
+(g6
+S'\x86\x03\x99\xc5=\xdc @'
+tRp1427
+sS'importance econ perf 4 HS pull immig'
+p1428
+g4
+(g6
+S':\x83\x1d\x0c\x8e\x81"@'
+tRp1429
+sS'importance cost perf 4 LS pull immig'
+p1430
+g4
+(g6
+S'\x94t\xc1\x0c\xa0{\n@'
+tRp1431
+sS'avg T as LS retiree[r6]'
+p1432
+g4
+(g6
+S'Wa\xe3\xc6h\xec.@'
+tRp1433
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p1434
+g4
+(g6
+S'\x82b\x11M!]\xc2?'
+tRp1435
+sS'environmental performance r6 ini'
+p1436
+g4
+(g6
+S'\xb6i\x08\x86\xff\xfd\x1d@'
+tRp1437
+sS'lookup number evolution HS jobs[r8]'
+p1438
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1439
+sS'societal performance r5 ini'
+p1440
+g4
+(g6
+S'\xc6[\x82"\xb2\xbc\x13@'
+tRp1441
+sS'importance soc perf 4 LS pull immig'
+p1442
+g4
+(g6
+S'\x931\x1e\x13\x04z#@'
+tRp1443
+sS'lookup number evolution birth rate[r8]'
+p1444
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1445
+sS'lookup number evolution HS jobs[r4]'
+p1446
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1447
+sS'avg T as LS retiree[r8]'
+p1448
+g4
+(g6
+S'\x1e\x90\xd7\xfdxI)@'
+tRp1449
+sS'effective LS push emigration ratio[r5]'
+p1450
+g4
+(g6
+S'\xc2\xb6\xf3KUn\xc5?'
+tRp1451
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p1452
+g4
+(g6
+S'`2[X\x9e\xec\xc7?'
+tRp1453
+sS'partner multiplicator legal immigration'
+p1454
+g4
+(g6
+S'\xc4\x1bQ\xe8|A\xfb?'
+tRp1455
+sS'importance cost perf 4 HS pull immig'
+p1456
+g4
+(g6
+S'U^CY<\xc3\xf6?'
+tRp1457
+sS'environmental performance r4 ini'
+p1458
+g4
+(g6
+S'Ji\xdb*n\xc3\x05@'
+tRp1459
+sS'avg T as HS retiree[r2]'
+p1460
+g4
+(g6
+S'K\x8dN\x80\xec\x0e/@'
+tRp1461
+sS'lookup number evolution birth rate[r7]'
+p1462
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1463
+sS'economic performance r7 ini'
+p1464
+g4
+(g6
+S'\xd7\xd9\xe1\x95\xd9\x12\x15@'
+tRp1465
+sS'effective HS push emigration ratio[r3]'
+p1466
+g4
+(g6
+S'\xd4\xb5\xcfh\xce\xe6\x8b?'
+tRp1467
+sS'security performance r5 ini'
+p1468
+g4
+(g6
+S'\xb6?\x81d\xf2\x9f @'
+tRp1469
+sS'push cost performance r6 ini'
+p1470
+g4
+(g6
+S'&\x1cg\xd9\xdf\x83\x14@'
+tRp1471
+sS'degree of HS orientation [r7]'
+p1472
+g4
+(g6
+S'\xee+\xca\xaf\xa5\xb2\xe2?'
+tRp1473
+sS'effective LS push emigration ratio[r2]'
+p1474
+g4
+(g6
+S'\xe6\x19()\xf5F\xc9?'
+tRp1475
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p1476
+g4
+(g6
+S'qA!\x88P9\xb7?'
+tRp1477
+sS'importance sec perf 4 HS pull immig'
+p1478
+g4
+(g6
+S'\xb4\x96\x03\x96\xebt\x12@'
+tRp1479
+sS'lookup number evolution HS jobs[r3]'
+p1480
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1481
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p1482
+g4
+(g6
+S'L\x9c\xe9EA\x1a\xad?'
+tRp1483
+sS'lookup number evolution HS jobs[r1]'
+p1484
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1485
+sS'effective HS push emigration ratio[r8]'
+p1486
+g4
+(g6
+S'`\x9d(x\xbby\x84?'
+tRp1487
+sS'societal performance r8 ini'
+p1488
+g4
+(g6
+S'm\x0e\xf3\xd7\xc7i\x1c@'
+tRp1489
+sS'societal performance r1 ini'
+p1490
+g4
+(g6
+S'\xca\x98D\xc26[\x00@'
+tRp1491
+sS'importance econ perf 4 LS push immig'
+p1492
+g4
+(g6
+S'\t$a\xcf\xa5\x80\x16@'
+tRp1493
+sS'avg T as LS retiree[r3]'
+p1494
+g4
+(g6
+S'\xca\x9a\xebq\xf0\xa7$@'
+tRp1495
+sS'lookup number evolution birth rate[r6]'
+p1496
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1497
+sS'economic performance r1 ini'
+p1498
+g4
+(g6
+S'<\x8dB\xe1\xf8\x9e\xf6?'
+tRp1499
+sS'economic performance r5 ini'
+p1500
+g4
+(g6
+S'\xe9\xff\x9b\xb5\xedW\x1a@'
+tRp1501
+sS'importance env perf 4 LS pull immig'
+p1502
+g4
+(g6
+S'\x12\xe7*\x16L\x80!@'
+tRp1503
+sS'environmental performance r3 ini'
+p1504
+g4
+(g6
+S'\xfb\x81\xfa5[U\x18@'
+tRp1505
+sS'avg T as HS retiree[r5]'
+p1506
+g4
+(g6
+S'\xaa\xb4\x0b\x91\xb2\x06*@'
+tRp1507
+sS'economic performance r4 ini'
+p1508
+g4
+(g6
+S'z]\x0f_\xa8\xbd\x1e@'
+tRp1509
+sS'economic performance r6 ini'
+p1510
+g4
+(g6
+S'\x04\x04d\xcc\xb0\x19\x1d@'
+tRp1511
+sS'degree of HS orientation [r4]'
+p1512
+g4
+(g6
+S'G$\x80\x18"\x91\xc2?'
+tRp1513
+sS'effective LS push emigration ratio[r3]'
+p1514
+g4
+(g6
+S'\x06\xf0\x02lF"\xc8?'
+tRp1515
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p1516
+g4
+(g6
+S'\x83\xe4\x94g\x9f\x91\xb3?'
+tRp1517
+s(dp1518
+S'name'
+p1519
+S'None'
+p1520
+sS'demo'
+t(dp1521
+S'grey pressure on working population[r7]'
+p1522
+g293
+(g294
+(I0
+tS'b'
+tRp1523
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp1524
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S'\rz\xab>8\xa2\xa7>\xe0[\xa4>~~\xa1>\xb7\x0c\x9f>\xe4\x1d\x9d>@\x99\x9b>\xbej\x9a>O\x82\x99>\x05\xd1\x98>%K\x98>\xc2\xe8\x97>y\xb9\x97>h\r\x98> \xd8\x98>dy\x99>h\xc3\x99>K\xbe\x99>r\xb8\x99>$\xbf\x99>\x7f\xcf\x99>\xc3\xe6\x99>u\x04\x9a>\xa0+\x9a>\x9cy\x9a>\xb2\xac\x9a>\x00\x8b\x9a>\xc6!\x9a>1}\x99>7\xa8\x98>\xa1\xac\x97>\x1b\x93\x96>3c\x95>H%\x94>\x9e\xe5\x92>\x11\xa7\x91>8k\x90>u3\x8f>\xef\x00\x8e>\xf2\xcd\x8c>\x04\x99\x8b>\xe4e\x8a>}7\x89>\xf8\x0f\x88>\xf6\xf0\x86>\x81\xe0\x85>\xf3\xe6\x84>\x8d\x01\x84>\x95-\x83>\xa5h\x82>\xa2\xb0\x81>'
+tbsS'grey pressure on working population[r6]'
+p1525
+g293
+(g294
+(I0
+tS'b'
+tRp1526
+(I1
+(I51
+tg1524
+I00
+S'\x9a\x9fm>6\xd9s>3\xf7y>\xf4\xe8\x7f>\x18\xd1\x82> \x8d\x85>}%\x88>>\x98\x8a>X\xe4\x8c>\x91\t\x8f>A\x08\x91>,\xe1\x92>\x82\x95\x94>\xed&\x96>\x04\x97\x97>\xf6\xe6\x98>y\x18\x9a>w-\x9b>\x10(\x9c>/\n\x9d>\xa8\xd5\x9d>A\x8c\x9e>\xb9/\x9f>\xbd\xc1\x9f>\x0bS\xa0>\xde\xe5\xa1>\xeaU\xa4>j<\xa7>\x8f_\xaa>\xd1\x9c\xad>\xac\xde\xb0>k\x17\xb4>B>\xb7>\xd5K\xba>\x9d6\xbd>\xc8\xfe\xbf>\x9a\xa5\xc2>O,\xc5>2\x94\xc7>\x8f\xe4\xc9>l\x1f\xcc>~B\xce>\xc5L\xd0>\x1a>\xd2>\xb7\x16\xd4>-\xd6\xd5>\x90{\xd7>\x17\x08\xd9>\xe5|\xda>\xfb\xda\xdb>7#\xdd>'
+tbsS'total population'
+p1527
+g293
+(g294
+(I0
+tS'b'
+tRp1528
+(I1
+(I51
+tg1524
+I00
+S'\x88\x91\xd1O\xee\x00\xd4O?}\xd6O\n\xfc\xd8O\xcax\xdbOv\xf1\xddO<e\xe0O\xf9\xd3\xe2O\xe8=\xe5O\x82\xa3\xe7Ob\x05\xeaO<d\xecO\xcb\xc0\xeeO\xa7\x1b\xf1OIu\xf3Og\xce\xf5O\x08(\xf8O&\x83\xfaO\x94\xe0\xfcO\xf6@\xffOu\xd2\x00P\x7f\x06\x02P\xde<\x03P\xcau\x04Pu\xb1\x05P\xf5\xef\x06P\x801\x08PJv\tP\x9f\xbe\nP\x93\n\x0cP=Z\rP\xbb\xad\x0eP,\x05\x10P\xaf`\x11P]\xc0\x12PP$\x14P\x9e\x8c\x15P\\\xf9\x16P\x9ej\x18Pu\xe0\x19P\xf1Z\x1bP"\xda\x1cP\x17^\x1eP\xed\xe6\x1fP\xa4t!PC\x07#P\xcd\x9e$PJ;&P\xc6\xdc\'PD\x83)P\xcc.+P'
+tbsS'grey pressure on working population[r4]'
+p1529
+g293
+(g294
+(I0
+tS'b'
+tRp1530
+(I1
+(I51
+tg1524
+I00
+S'\x0e\xdf\x08>\xadL\x10>o%\x17>\xa2k\x1d><\'#>\xceb(>\xbb"->\'l1>\xd6D5>\xad\xb38>\xc0\xbf;>\xc8o>>\xdd\xcd@>&\xedB>\x12\xd2D>\xc6gF>\xe9\xaeG>\xe9\xb0H>d\x80I>\xe8$J>7\xa3J>\xad\xffJ>+@K>1kK>\xbe\x88K>\x82\x91K>\xab~K>\x8cTK>\x05\x17K>|\xc9J>\xf3nJ>\t\nJ>\x0e\x9dI>\x00*I>\x97\xb2H>Q8H>t\xbcG>\x12@G>\x17\xc4F>AIF>5\xd0E>yYE>v\xe5D>\x82tD>\xdf\x06D>\xbf\x9cC>H6C>\x90\xd3B>\xa2tB>\x88\x19B>:\xc2A>'
+tbsS'grey pressure on working population[r8]'
+p1531
+g293
+(g294
+(I0
+tS'b'
+tRp1532
+(I1
+(I51
+tg1524
+I00
+S'\x95L\xa1>x\xad\x9f>\xe1h\x9f>\xcaV\xa0>\x0f\xf2\xa1>\xa4\x8b\xa3>\x82\x1e\xa5>\'\xa8\xa6>\xfd&\xa8>\xbc\x90\xa9>_\xdc\xaa>\x89\x08\xac>\xfc\xca\xac>\x83\n\xac>\xec\xfc\xa9>\xa4\xc7\xa8>!\xd9\xa8>\x1b\xfc\xa9> E\xab>\xf3\x88\xac>\xda\xca\xad>k\x0e\xaf>\xc5:\xb0>l"\xb1>\xc7M\xb1>\x18\xb0\xaf>B;\xad>]\x92\xaa>\xa0\x07\xa8>\xa6\xc1\xa5>\xa5\xcf\xa3>g4\xa2>T\xec\xa0>\x0e\xf2\x9f>\x83A\x9f>+\xd0\x9e>`\x94\x9e>\xdf\x85\x9e>\x8a\x9d\x9e>\xf7\xd1\x9e>\x8c\x1e\x9f>F\x81\x9f>m\xf7\x9f>\x08~\xa0>F\x12\xa1>I\xb0\xa1>\xbdS\xa2>E\xfb\xa2>\xd5\xa5\xa3>\x89R\xa4>\xb8\x00\xa5>'
+tbsS'TIME'
+p1533
+g293
+(g294
+(I0
+tS'b'
+tRp1534
+(I1
+(I51
+tg1524
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p1535
+g293
+(g294
+(I0
+tS'b'
+tRp1536
+(I1
+(I51
+tg1524
+I00
+S"\xe4X\xa4>\xdd2\xa6>\xcb\x1e\xa8>\xfc\x13\xaa>\xc9\x0b\xac> \x01\xae>\xab\xef\xaf>\x03\xd4\xb1>\x88\xab\xb3>at\xb5>3-\xb7>\xf1\xd4\xb8>\x17k\xba>\x0e\xf0\xbb>\xa0c\xbd>,\xc4\xbe>f\x11\xc0>\xb4K\xc1>3t\xc2>\x8c\x8b\xc3>O\x92\xc4>\x16\x89\xc5>\xafp\xc6>\x01J\xc7>\xda\x15\xc8>l\xd4\xc8>\x96\x85\xc9>\xfe)\xca>P\xc2\xca>&O\xcb>\x18\xd1\xcb>\xb8H\xcc>\x92\xb6\xcc>'\x1b\xcd>\xfav\xcd>{\xca\xcd>\x1d\x16\xce>GZ\xce>Z\x97\xce>\xb5\xcd\xce>\xaa\xfd\xce>\x8b'\xcf>\xa0K\xcf>1j\xcf>|\x83\xcf>\xc0\x97\xcf>/\xa7\xcf>\x03\xb2\xcf>d\xb8\xcf>\x81\xba\xcf>\x82\xb8\xcf>"
+tbsS'grey pressure on working population[r3]'
+p1537
+g293
+(g294
+(I0
+tS'b'
+tRp1538
+(I1
+(I51
+tg1524
+I00
+S"\xa0t\x0f>\xa9\xd1\x1b>\xc7O'>\xb0\xfc1>\xd1\xec;>I7E>\xc0\xe3M>%\xf9U>\x02~]>5zd>B\xf5j>\x80\xf5p>\xde\x88v>\xc6\xd3{>\xc2l\x80>\x12\xb0\x82>\x05\xaf\x84>\x83o\x86>p\x03\x88>cp\x89>\xe7\xb8\x8a>x\xdf\x8b>\xc2\xe8\x8c>\xb9\xda\x8d>\x99\xbd\x8e>\x0e\x87\x8f>\xcb,\x90>s\xb2\x90>o\x1b\x91>\xe4j\x91>\xb2\xa3\x91>\x84\xc8\x91>\xc7\xdb\x91>\xb4\xdf\x91>Q\xd6\x91>q\xc1\x91>\xbd\xa2\x91>\xb2{\x91>\xa5M\x91>\xce\x19\x91>;\xe1\x90>\xdf\xa4\x90>\x93e\x90>\xfc#\x90>\xae\xe0\x8f>A\x9c\x8f>BW\x8f>+\x12\x8f>j\xcd\x8e>Y\x89\x8e>BF\x8e>"
+tbsS'grey pressure on working population[r2]'
+p1539
+g293
+(g294
+(I0
+tS'b'
+tRp1540
+(I1
+(I51
+tg1524
+I00
+S"\x84x\xdc=\xca\xef\xfb=\xac\x7f\x0c>D\xef\x19>\xc2j&>B\x182>D\x03=>P5G>\xd2\xb6P>\xd0\x91Y>`\xcfa>\x80vi>.\x98p>'_w>\xb4\xc4}>J\xc1\x81>\xc2J\x84>\xd4\x88\x86>}\x8f\x88>\re\x8a>\xc3\x0c\x8c>\xd7\x89\x8d>\xe6\xe0\x8e>\xb9\x16\x90>\xe5/\x91>\xcd'\x92>|\xfc\x92>\xf6\xb2\x93>rO\x94>\x8d\xd5\x94>\x9cH\x95>\x88\xab\x95>\xd7\x00\x96>\xaaJ\x96>\xd4\x8a\x96>\xda\xc2\x96>\n\xf4\x96>{\x1f\x97>\x1bF\x97>\xb4h\x97>\xef\x87\x97>]\xa4\x97>w\xbe\x97>\xa3\xd6\x97>9\xed\x97>\x83\x02\x98>\xbb\x16\x98>\x1a*\x98>\xc9<\x98>\xedN\x98>\xa6`\x98>"
+tbstp1541
+a(((dp1542
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p1543
+g4
+(g6
+S'\xfc\x81\xee\xb3{B\xc8?'
+tRp1544
+sS'environmental performance r5 ini'
+p1545
+g4
+(g6
+S'v\x91\xcfY\x01\x99\x17@'
+tRp1546
+sS'push cost performance r3 ini'
+p1547
+g4
+(g6
+S'\x0e\xce\xf5\x9b\xb5\x9e\x19@'
+tRp1548
+sS'environmental performance r8 ini'
+p1549
+g4
+(g6
+S's\x90`\xdfL\xb8\x18@'
+tRp1550
+sS'effective LS push emigration ratio[r7]'
+p1551
+g4
+(g6
+S'6\xdb\xf4q\xb4\x91\xc8?'
+tRp1552
+sS'societal performance r6 ini'
+p1553
+g4
+(g6
+S'\xa5\x0f6\xfe\x99\xe0 @'
+tRp1554
+sS'lookup number evolution birth rate[r5]'
+p1555
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1556
+sS'importance sec perf 4 HS push immig'
+p1557
+g4
+(g6
+S'F\\-U\x0b\xf4\x12@'
+tRp1558
+sS'push cost performance r8 ini'
+p1559
+g4
+(g6
+S'\xd0\\a\xfd="\x0e@'
+tRp1560
+sS'avg T as HS retiree[r8]'
+p1561
+g4
+(g6
+S'\xe7\xe7\xd4\x16\x8f\xda-@'
+tRp1562
+sS'effective HS push emigration ratio[r5]'
+p1563
+g4
+(g6
+S'\xb3\xa3\x8e6\xce\xea\x84?'
+tRp1564
+sS'importance econ perf 4 HS push immig'
+p1565
+g4
+(g6
+S'd\xa5\x98\xcd\x08w"@'
+tRp1566
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p1567
+g4
+(g6
+S'V\x12l\xb5\xfa\xcd\xc5?'
+tRp1568
+sS'societal performance r7 ini'
+p1569
+g4
+(g6
+S'\xe46\xa7\xce\xd5\xb9\x13@'
+tRp1570
+sS'degree of HS orientation [r1]'
+p1571
+g4
+(g6
+S'\x10\xe0>\xf3  \xb4?'
+tRp1572
+sS'lookup number evolution HS jobs[r5]'
+p1573
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1574
+sS'security performance r4 ini'
+p1575
+g4
+(g6
+S'\x14\x8fu\xb6F\xc8\x11@'
+tRp1576
+sS'effective LS push emigration ratio[r4]'
+p1577
+g4
+(g6
+S'"\xef\xd3\n\xf9\xdd\xc7?'
+tRp1578
+sS'importance soc perf 4 HS pull immig'
+p1579
+g4
+(g6
+S'l-\xd5\x8e>\x90\x06@'
+tRp1580
+sS'lookup number evolution birth rate[r4]'
+p1581
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1582
+sS'pull cost performance r5 ini'
+p1583
+g4
+(g6
+S'l\xcc\xf2\x85\x8f\x9e\x15@'
+tRp1584
+sS'avg T as LS retiree[r1]'
+p1585
+g4
+(g6
+S'\x9c\xec\xe0\xda\x85O\xf3?'
+tRp1586
+sS'avg T as HS retiree[r3]'
+p1587
+g4
+(g6
+S'M\x05\xb6>\x15q%@'
+tRp1588
+sS'push cost performance r7 ini'
+p1589
+g4
+(g6
+S'\xaef\xecK\xf5\xbe\x10@'
+tRp1590
+sS'effective HS push emigration ratio[r2]'
+p1591
+g4
+(g6
+S'@-%)\xe9\x07\x8c?'
+tRp1592
+sS'economic performance r8 ini'
+p1593
+g4
+(g6
+S'=\xf5\xe6\xae\x91\x17\x1d@'
+tRp1594
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p1595
+g4
+(g6
+S'R\xd8N\xb0\xd8d\x87?'
+tRp1596
+sS'pull cost performance r2 ini'
+p1597
+g4
+(g6
+S'\xfc\xed\x9c\xd2\x97\x12\x0e@'
+tRp1598
+sS'push cost performance r2 ini'
+p1599
+g4
+(g6
+S'\xac\xc2\xb2\xb6Le\x1a@'
+tRp1600
+sS'security performance r7 ini'
+p1601
+g4
+(g6
+S'E\x146.\x04m\x15@'
+tRp1602
+sS'environmental performance r2 ini'
+p1603
+g4
+(g6
+S'\x95\xa1\x9c\xf92#\x08@'
+tRp1604
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p1605
+g4
+(g6
+S'\xda\xa3\x88\xfe^F\xbd?'
+tRp1606
+sS'degree of HS orientation [r6]'
+p1607
+g4
+(g6
+S'\xe9\xc1\x01D\xe1\x85\xe5?'
+tRp1608
+sS'avg T as LS retiree[r4]'
+p1609
+g4
+(g6
+S'\xfa\xfd\xb6\xe1+\xfd\x1e@'
+tRp1610
+sS'effective LS push emigration ratio[r1]'
+p1611
+g4
+(g6
+S'\xa68\xaey\x93\x16\xc2?'
+tRp1612
+sS'importance cost perf 4 HS push immig'
+p1613
+g4
+(g6
+S'\x88U2\xbd\xae\xb9\xf8?'
+tRp1614
+sS'pull cost performance r8 ini'
+p1615
+g4
+(g6
+S'p\xdb\x85\xa4\xe5\x02\x1d@'
+tRp1616
+sS'importance cost perf 4 LS push immig'
+p1617
+g4
+(g6
+S'\xcd\xcc0\x08\xce\xa7\x11@'
+tRp1618
+sS'avg T as HS retiree[r6]'
+p1619
+g4
+(g6
+S'{\xd3\xd4\xcc\x1e\x13,@'
+tRp1620
+sS'degree of HS orientation [r8]'
+p1621
+g4
+(g6
+S'x\x00\x81\x87\xba\xc4\xe5?'
+tRp1622
+sS'effective HS push emigration ratio[r7]'
+p1623
+g4
+(g6
+S'\x04\x1f\xe6\xf8!0\x80?'
+tRp1624
+sS'pull cost performance r3 ini'
+p1625
+g4
+(g6
+S'\x1d\xea\x06\x05Z\xd4\x13@'
+tRp1626
+sS'lookup number evolution birth rate[r3]'
+p1627
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1628
+sS'push cost performance r5 ini'
+p1629
+g4
+(g6
+S'>\x8b-\xc5\xad"\r@'
+tRp1630
+sS'push cost performance r1 ini'
+p1631
+g4
+(g6
+S'\xaa\xfbV"I\xf3\x11@'
+tRp1632
+sS'economic performance r2 ini'
+p1633
+g4
+(g6
+S"\xcc'L\xb7S$\n@"
+tRp1634
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p1635
+g4
+(g6
+S'&J\xb4\xdc\xf2\x8a\xc9?'
+tRp1636
+sS'push cost performance r4 ini'
+p1637
+g4
+(g6
+S'&O\r\xbd\xf8\xb6\x16@'
+tRp1638
+sS'lookup number evolution HS jobs[r7]'
+p1639
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1640
+sS'avg T as LS retiree[r7]'
+p1641
+g4
+(g6
+S'\x99\xbfnCd\xb0\x1d@'
+tRp1642
+sS'effective LS push emigration ratio[r6]'
+p1643
+g4
+(g6
+S"B\x1a\xa2\xef\xd2'\xc7?"
+tRp1644
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p1645
+g4
+(g6
+S'\xf0<\xf9\x16\x85\xaf\xc7?'
+tRp1646
+sS'avg T as HS retiree[r1]'
+p1647
+g4
+(g6
+S'\xce\xf1\x88\xaagZ\xfc?'
+tRp1648
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p1649
+g4
+(g6
+S'\x9a\x89;\xd6Pb\xb5?'
+tRp1650
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p1651
+g4
+(g6
+S'\xfa\xeb\x92Q"\xc1\xbb?'
+tRp1652
+sS'security performance r6 ini'
+p1653
+g4
+(g6
+S'\xb5NlZ\xdf4\x15@'
+tRp1654
+sS'lookup number evolution birth rate[r2]'
+p1655
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1656
+sS'effective HS push emigration ratio[r4]'
+p1657
+g4
+(g6
+S'\x11\xd6j\xa0\x8bw\x89?'
+tRp1658
+sS'security performance r2 ini'
+p1659
+g4
+(g6
+S'\x93\xed9\xd3\xc8\x19\x03@'
+tRp1660
+sS'importance econ perf 4 LS pull immig'
+p1661
+g4
+(g6
+S'!\xe4\xc1:\x8a\xf1\x10@'
+tRp1662
+sS'security performance r3 ini'
+p1663
+g4
+(g6
+S'\x94\x15\xb4\xc7\x94\xee\x07@'
+tRp1664
+sS'pull cost performance r7 ini'
+p1665
+g4
+(g6
+S'\xb0\x1c\x80\x16\xfd\xd7\x12@'
+tRp1666
+sS'security performance r1 ini'
+p1667
+g4
+(g6
+S'\x82\x18\xe7\xa1\xb9p\x06@'
+tRp1668
+sS'lookup number evolution HS jobs[r6]'
+p1669
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1670
+sS'security performance r8 ini'
+p1671
+g4
+(g6
+S'\x14>\xb2\x19\x11\x97 @'
+tRp1672
+sS'degree of HS orientation [r2]'
+p1673
+g4
+(g6
+S'\xces\x17\xf1\xed\xfa\xc3?'
+tRp1674
+sS'lookup number evolution HS jobs[r2]'
+p1675
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1676
+sS'societal performance r2 ini'
+p1677
+g4
+(g6
+S'\x90\x89\xeb\xc8\x9c\xd3\x11@'
+tRp1678
+sS'environmental performance r1 ini'
+p1679
+g4
+(g6
+S'\x0e\x1dk\x93\x01\x96\x14@'
+tRp1680
+sS'lookup number evolution birth rate[r1]'
+p1681
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1682
+sS'avg T as LS retiree[r2]'
+p1683
+g4
+(g6
+S'\xd9\x02\x0b\x1a\xa2U+@'
+tRp1684
+sS'importance env perf 4 HS push immig'
+p1685
+g4
+(g6
+S'\xd0\x12C\xc0\xa9@\x0c@'
+tRp1686
+sS'importance sec perf 4 LS push immig'
+p1687
+g4
+(g6
+S'\xfe\xcd\xc4\x83\x16J\x05@'
+tRp1688
+sS'importance sec perf 4 LS pull immig'
+p1689
+g4
+(g6
+S'\x9cu\x0e)b\xe2\x0f@'
+tRp1690
+sS'avg T as HS retiree[r4]'
+p1691
+g4
+(g6
+S'X\x96\xe2\xb8\x187#@'
+tRp1692
+sS'effective HS push emigration ratio[r1]'
+p1693
+g4
+(g6
+S'G\xec\xea\x81\xf5T\x85?'
+tRp1694
+sS'effective LS push emigration ratio[r8]'
+p1695
+g4
+(g6
+S'F\xf1j\xf5L\xea\xc4?'
+tRp1696
+sS'pull cost performance r4 ini'
+p1697
+g4
+(g6
+S'g*|\xb3\x11|\x11@'
+tRp1698
+sS'degree of HS orientation [r5]'
+p1699
+g4
+(g6
+S"nwG\xd6'H\xe6?"
+tRp1700
+sS'societal performance r3 ini'
+p1701
+g4
+(g6
+S'\\\x98\x17+\x80w\x10@'
+tRp1702
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p1703
+g4
+(g6
+S'\xa5\xc9\n\x05L\x9d\xbd?'
+tRp1704
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p1705
+g4
+(g6
+S'\xdcK\x87@\x858\xc9?'
+tRp1706
+sS'importance soc perf 4 LS push immig'
+p1707
+g4
+(g6
+S'\x9dj\x06\xc1\xf5\x9c\x19@'
+tRp1708
+sS'importance env perf 4 HS pull immig'
+p1709
+g4
+(g6
+S'\x86!-\x92\x81\xfd\x1a@'
+tRp1710
+sS'environmental performance r7 ini'
+p1711
+g4
+(g6
+S'B\x07\xf6\x9aN\xed\x0c@'
+tRp1712
+sS'degree of HS orientation [r3]'
+p1713
+g4
+(g6
+S'\xa6\xd2\xd5#\xa8\x97\xcc?'
+tRp1714
+sS'economic performance r3 ini'
+p1715
+g4
+(g6
+S'\xc1\xd3*\x96\x06\x82\x03@'
+tRp1716
+sS'importance env perf 4 LS push immig'
+p1717
+g4
+(g6
+S'R\xe3\xb8Y\xfc\xa3\x13@'
+tRp1718
+sS'societal performance r4 ini'
+p1719
+g4
+(g6
+S'6;\xa9\x80B\xee\x12@'
+tRp1720
+sS'importance soc perf 4 HS push immig'
+p1721
+g4
+(g6
+S'\xa6\xff\xb0![\xda\x1c@'
+tRp1722
+sS'avg T as HS retiree[r7]'
+p1723
+g4
+(g6
+S'\x16\xb7\xc7\xefy%#@'
+tRp1724
+sS'avg T as LS retiree[r5]'
+p1725
+g4
+(g6
+S'\x12\x17\x86AdM-@'
+tRp1726
+sS'effective HS push emigration ratio[r6]'
+p1727
+g4
+(g6
+S'b5\x1b\xa0N\xd2{?'
+tRp1728
+sS'pull cost performance r1 ini'
+p1729
+g4
+(g6
+S'\xce\xf7\x9d\x99\x19\x02\x03@'
+tRp1730
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p1731
+g4
+(g6
+S'\x87\xf5@L\xb6\xa8\xb3?'
+tRp1732
+sS'pull cost performance r6 ini'
+p1733
+g4
+(g6
+S'-\xf1+\xf7\x89\xc9 @'
+tRp1734
+sS'importance econ perf 4 HS pull immig'
+p1735
+g4
+(g6
+S'\x93\x88]:3\xd5\x18@'
+tRp1736
+sS'importance cost perf 4 LS pull immig'
+p1737
+g4
+(g6
+S'\xfc\x1f\xc1\x8a\x85\xf8\xff?'
+tRp1738
+sS'avg T as LS retiree[r6]'
+p1739
+g4
+(g6
+S'x\xd1\xeee\xcb\xb2-@'
+tRp1740
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p1741
+g4
+(g6
+S'P>\xaad\xf3\x94\xc7?'
+tRp1742
+sS'environmental performance r6 ini'
+p1743
+g4
+(g6
+S's\x91\x8b\xeb\xfd\xa7\x1b@'
+tRp1744
+sS'lookup number evolution HS jobs[r8]'
+p1745
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1746
+sS'societal performance r5 ini'
+p1747
+g4
+(g6
+S'\x87\x97+\xa7\xe5\xb2\x12@'
+tRp1748
+sS'importance soc perf 4 LS pull immig'
+p1749
+g4
+(g6
+S'\x04\xe5\xafS)\xaf\x15@'
+tRp1750
+sS'lookup number evolution birth rate[r8]'
+p1751
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1752
+sS'lookup number evolution HS jobs[r4]'
+p1753
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1754
+sS'avg T as LS retiree[r8]'
+p1755
+g4
+(g6
+S'\xe3\n\x82\x9a\x94o,@'
+tRp1756
+sS'effective LS push emigration ratio[r5]'
+p1757
+g4
+(g6
+S'V|cs\xc6E\xba?'
+tRp1758
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p1759
+g4
+(g6
+S'\x10\xe8\x8c\xa2q;\xc2?'
+tRp1760
+sS'partner multiplicator legal immigration'
+p1761
+g4
+(g6
+S'\n\x1a\xae\x84\x95i\xf7?'
+tRp1762
+sS'importance cost perf 4 HS pull immig'
+p1763
+g4
+(g6
+S'\xd5\xd1\x16\xb5\xac\x1f\x04@'
+tRp1764
+sS'environmental performance r4 ini'
+p1765
+g4
+(g6
+S',0\xf3\x9aL\xba\x00@'
+tRp1766
+sS'avg T as HS retiree[r2]'
+p1767
+g4
+(g6
+S'\xc2>1r\xa3i(@'
+tRp1768
+sS'lookup number evolution birth rate[r7]'
+p1769
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1770
+sS'economic performance r7 ini'
+p1771
+g4
+(g6
+S'\xdc\x14Q\xfd\xbdC\x10@'
+tRp1772
+sS'effective HS push emigration ratio[r3]'
+p1773
+g4
+(g6
+S'.q\xe7\x07\\b\x94?'
+tRp1774
+sS'security performance r5 ini'
+p1775
+g4
+(g6
+S'\xe3\x87\x11\xac[\n @'
+tRp1776
+sS'push cost performance r6 ini'
+p1777
+g4
+(g6
+S'\xadn\r\xd8\xb4\x95\x10@'
+tRp1778
+sS'degree of HS orientation [r7]'
+p1779
+g4
+(g6
+S't\x05,3\x93U\xe1?'
+tRp1780
+sS'effective LS push emigration ratio[r2]'
+p1781
+g4
+(g6
+S'\x8a\xad\xfb5\xa3 \xc6?'
+tRp1782
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p1783
+g4
+(g6
+S'0a\x89U+\xc4\xc1?'
+tRp1784
+sS'importance sec perf 4 HS pull immig'
+p1785
+g4
+(g6
+S'z!\xbd:Ck\x01@'
+tRp1786
+sS'lookup number evolution HS jobs[r3]'
+p1787
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1788
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p1789
+g4
+(g6
+S'/i\xfa_m\xdc\xa4?'
+tRp1790
+sS'lookup number evolution HS jobs[r1]'
+p1791
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1792
+sS'effective HS push emigration ratio[r8]'
+p1793
+g4
+(g6
+S'\x92\xe5\xaa\xb7\xe0\x92\x90?'
+tRp1794
+sS'societal performance r8 ini'
+p1795
+g4
+(g6
+S's\x87(=X)\x19@'
+tRp1796
+sS'societal performance r1 ini'
+p1797
+g4
+(g6
+S'~8V\xff\xcc!\t@'
+tRp1798
+sS'importance econ perf 4 LS push immig'
+p1799
+g4
+(g6
+S'Mwwn\xa5\xcf\x13@'
+tRp1800
+sS'avg T as LS retiree[r3]'
+p1801
+g4
+(g6
+S'\x15/\x98\x1ec\x16)@'
+tRp1802
+sS'lookup number evolution birth rate[r6]'
+p1803
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1804
+sS'economic performance r1 ini'
+p1805
+g4
+(g6
+S'\xa33z1\xc4*\xf4?'
+tRp1806
+sS'economic performance r5 ini'
+p1807
+g4
+(g6
+S'\xc7\xe2\x80\xc9\xf1\x16\x14@'
+tRp1808
+sS'importance env perf 4 LS pull immig'
+p1809
+g4
+(g6
+S'\\\xe2\x9a\xe6\x16-\x0e@'
+tRp1810
+sS'environmental performance r3 ini'
+p1811
+g4
+(g6
+S'w\xbdU\xe4\xa2\xcd\x1c@'
+tRp1812
+sS'avg T as HS retiree[r5]'
+p1813
+g4
+(g6
+S'\xd7\x0e\x18\xf3\xdf\xa9/@'
+tRp1814
+sS'economic performance r4 ini'
+p1815
+g4
+(g6
+S'\xd7\xd6H\xa3\xb9,\x1a@'
+tRp1816
+sS'economic performance r6 ini'
+p1817
+g4
+(g6
+S'\x8e\xc1\xba\xb9q\xcc\x1f@'
+tRp1818
+sS'degree of HS orientation [r4]'
+p1819
+g4
+(g6
+S'AN\x95\xd2\xaf\xe3\xcc?'
+tRp1820
+sS'effective LS push emigration ratio[r3]'
+p1821
+g4
+(g6
+S'\xae\xb8D\x93+\xe0\xc5?'
+tRp1822
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p1823
+g4
+(g6
+S'U\xa2\r\n\x89`\xc9?'
+tRp1824
+s(dp1825
+S'name'
+p1826
+S'None'
+p1827
+sS'demo'
+t(dp1828
+S'grey pressure on working population[r7]'
+p1829
+g293
+(g294
+(I0
+tS'b'
+tRp1830
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp1831
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S'\rz\xab>\xfd4\xa5>\xf3\x1d\xa0>\xdd\xf8\x9b>t\xab\x98>O/\x96>\xfek\x94>\xd0R\x93>\x08\xdf\x92>u\xcb\x92>\x13\xac\x92>\xe1{\x92>\x9d7\x92>\xf2\xdc\x91>`j\x91>\x19\xdf\x90>\xec:\x90>1~\x8f>\xac\xa9\x8e>\x89\xbe\x8d>9\xbe\x8c>k\xaa\x8b>\xfe\x84\x8a>\xefO\x89>M\r\x88>3\xbf\x86>\xb1g\x85>\xd7\x08\x84>\x9d\xa4\x82>\xe8<\x81>\xff\xa6\x7f>\x18\xd4|>(\x04z>\xf89w>\x06xt>\x8f\xc0q>\x83\x15o>\x94xl>-\xebi>\x81ng>\x83\x03e>\xf3\xaab>he`>J3^>\x9c\x14\\>&\tZ>\xe2\x10X>\xcc+V>\xd3YT>\xcd\x9aR>p\xeeP>'
+tbsS'grey pressure on working population[r6]'
+p1832
+g293
+(g294
+(I0
+tS'b'
+tRp1833
+(I1
+(I51
+tg1831
+I00
+S'\x9a\x9fm>\xa8\xdeq>"Iu>Z\xd3w>\xfaty>\t)z>\xcc\xedy>#\xc5x>\xc8\xb4v>]zt>\xb5\x7fs>,\xc9s>y7u>\x1d\xbew>]\x04{>\xe1\x8c~>r\x1f\x81>^\x0c\x83>\xdb\r\x85>\xeb\x1d\x87>\x896\x89>\xc8R\x8b>\xdey\x8d>F\xb7\x8f>P\x04\x92>\xdfT\x94>"\xa3\x96>P\xeb\x98>\x95*\x9b>\xdb^\x9d>\x97\x86\x9f>\xb3\xa0\xa1>i\xac\xa3>\xd2\xa8\xa5>I\x94\xa7>\ro\xa9>\x9a9\xab>d\xf4\xac>\xe1\x9f\xae>\xa8=\xb0>\x8a\xce\xb1>lR\xb3>S\xc9\xb4>\\3\xb6>\xb9\x90\xb7>\x1d\xe1\xb8>\x02$\xba> Z\xbb>\x1b\x84\xbc>\x97\xa2\xbd>\x1f\xb6\xbe>'
+tbsS'total population'
+p1834
+g293
+(g294
+(I0
+tS'b'
+tRp1835
+(I1
+(I51
+tg1831
+I00
+S'\x88\x91\xd1O\xa5\x1f\xd4O0\xac\xd6OG6\xd9O}\xbc\xdbO\x82=\xdeOp\xb8\xe0O\xce,\xe3Oz\x9a\xe5O\xa5\x01\xe8O\x18c\xeaO\xca\xbf\xecO\xb2\x18\xefO\xc1n\xf1O\xe8\xc2\xf3O\x0c\x16\xf6O\x0ci\xf8O\xbe\xbc\xfaO\xe6\x11\xfdO=i\xffO\xb8\xe1\x00P\x8f\x10\x02PnA\x03P\x99t\x04PK\xaa\x05P\xc6\xe2\x06PF\x1e\x08P\xee\\\tP\xe8\x9e\nP\\\xe4\x0bPl-\rP<z\x0eP\xee\xca\x0fP\x9c\x1f\x11Pbx\x12P[\xd5\x13P\x9a6\x15P7\x9c\x16PE\x06\x18P\xd5t\x19P\xfa\xe7\x1aP\xc2_\x1cP=\xdc\x1dPx]\x1fP\x89\xe3 P{n"PQ\xfe#P\x15\x93%P\xcf,\'P\x86\xcb(PFo*P'
+tbsS'grey pressure on working population[r4]'
+p1836
+g293
+(g294
+(I0
+tS'b'
+tRp1837
+(I1
+(I51
+tg1831
+I00
+S'\x0e\xdf\x08>]\x04\x11>\xcd\x8e\x18>\xd1\x82\x1f>\xc9\xea%>\xd2\xd3+>\xd7C1>\xd2A6>\xb8\xd5:>\x8f\xf5>>\xdf\x90B>0\xb2E>\xf6cH>E\xb0J>\xd7\xa0L>\xf3>N>]\x93O>V\xa6P>\x8f\x7fQ>"&R>\x99\xa0R>\xf0\xf4R>\x89(S>G@S>\x86@S>\x1d-S>\x91\tS>\xd7\xd8R>\x94\x9dR>\x11ZR>L\x10R>\xf1\xc1Q>tpQ>\r\x1dQ>\xc2\xc8P>mtP>\xbf P>J\xceO>\x84}O>\xc8.O>Z\xe2N>q\x98N>.QN>\xab\x0cN>\xf1\xcaM>\x0c\x8cM>\xf4OM>\xa4\x16M>\n\xe0L>\x17\xacL>\xb8zL>'
+tbsS'grey pressure on working population[r8]'
+p1838
+g293
+(g294
+(I0
+tS'b'
+tRp1839
+(I1
+(I51
+tg1831
+I00
+S'\x95L\xa1>UB\xa1>,O\xa2>>V\xa4>W\xe8\xa6>\xaap\xa9>:\xef\xab>\xf3g\xae>\xc0\xe2\xb0>\x9dC\xb3>\xdbe\xb5>\xddJ\xb7>\x12\xe0\xb8>\xb3\xf5\xb9>G\xc4\xba>\xd1\xc0\xbb>\xa7\xed\xbc>P4\xbe>c}\xbf>\x83\xc5\xc0>\xa0\x0c\xc2>\xafR\xc3>py\xc4>GW\xc5>\xe5\xf4\xc5>\x1al\xc6>\xde\xc7\xc6>\xe6\x0e\xc7>/F\xc7>tq\xc7>x\x93\xc7>N\xae\xc7>~\xc3\xc7>\x19\xd5\xc7>M\xe7\xc7>\xa1\xf9\xc7>>\x0b\xc8>q\x1b\xc8>\xa6)\xc8>\xc32\xc8>\x975\xc8> 3\xc8>",\xc8>2!\xc8>\xbf\x12\xc8>>\x02\xc8>\x9d\xf1\xc7>\x0f\xe0\xc7>\xe1\xcc\xc7>\x85\xb7\xc7>\x80\x9f\xc7>'
+tbsS'TIME'
+p1840
+g293
+(g294
+(I0
+tS'b'
+tRp1841
+(I1
+(I51
+tg1831
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p1842
+g293
+(g294
+(I0
+tS'b'
+tRp1843
+(I1
+(I51
+tg1831
+I00
+S'\xe4X\xa4>~8\xa7>\x90\x87\xa9>\x0fD\xab>\xb7l\xac>\x0f\x01\xad>*\x01\xad>\x18n\xac>\x12J\xab>H\x01\xab>\xc9C\xac>]C\xae>\x89\xad\xb0>|Y\xb3>\xb0\x1e\xb6>\xa1\xde\xb8>i\x91\xbb>\xeb3\xbe>\x03\xc4\xc0>\xf9>\xc3>\xdd\xa2\xc5>\x83\xee\xc7>m"\xca>n?\xcc>\xbfD\xce>\x9e1\xd0>4\x06\xd2>\xd8\xc2\xd3>\x1eh\xd5>\xaf\xf6\xd6>Eo\xd8>\xa2\xd2\xd9>\x90!\xdb>\xd2\\\xdc>%\x85\xdd>U\x9b\xde>\x1c\xa0\xdf>0\x94\xe0>Ex\xe1>\x03M\xe2>\x0c\x13\xe3>\xfb\xca\xe3>_u\xe4>\xc2\x12\xe5>\xaf\xa3\xe5>\xa3(\xe6>\x19\xa2\xe6>\x7f\x10\xe7>Jt\xe7>\xdb\xcd\xe7>\x9d\x1d\xe8>'
+tbsS'grey pressure on working population[r3]'
+p1844
+g293
+(g294
+(I0
+tS'b'
+tRp1845
+(I1
+(I51
+tg1831
+I00
+S'\xa0t\x0f>\x0bg\x1c>{\xa2(>924>\xbb#?>\xa7\x85I>\x08`S>F\xbb\\>\xc8\xa0e>A\x08n>\xf8\xdeu>\x93+}>l\xfa\x81>\xc4 \x85>,\x0c\x88>\xf5\xbf\x8a>d?\x8d>\xb5\x8d\x8f>\x0e\xae\x91>\x7f\xa3\x93>\x01q\x95>o\x19\x97>\x85\x9f\x98>\xde\x05\x9a>\xf4N\x9b>\x18}\x9c>\x8e\x92\x9d>^\x91\x9e>w{\x9f>\xa7R\xa0>\x9a\x18\xa1>\xdc\xce\xa1>\xdbv\xa2>\xe9\x11\xa3>?\xa1\xa3>\xf5%\xa4>\x12\xa1\xa4>\x87\x13\xa5>,~\xa5>\xc7\xe1\xa5>\x0b?\xa6>\x9c\x96\xa6>\x0e\xe9\xa6>\xe96\xa7>\xa8\x80\xa7>\xb6\xc6\xa7>w\t\xa8>GI\xa8>s\x86\xa8>H\xc1\xa8>\x02\xfa\xa8>'
+tbsS'grey pressure on working population[r2]'
+p1846
+g293
+(g294
+(I0
+tS'b'
+tRp1847
+(I1
+(I51
+tg1831
+I00
+S'\x84x\xdc=\xfa\xc1\xfc=\xde~\r>\xef\xb0\x1b>\x0c\x18)>\xba\xd55>6\xf4A>&zM><jX>\xd7\x9db>?\xeck>Vgt>\x1f |>D\x93\x81>\xb1\xc4\x84>;\xab\x87>LM\x8a>\xd7\xb0\x8c>V\xdb\x8e>\xdc\xd1\x90>\x12\x99\x92>B5\x94>Y\xaa\x95>\xec\xfb\x96>C-\x98>UA\x99>\xcf:\x9a>\x1c\x1c\x9b>\x89\xe7\x9b>.\x9f\x9c>\xf1D\x9d>\x85\xda\x9d>ra\x9e>\x18\xdb\x9e>\xb6H\x9f>h\xab\x9f>2\x04\xa0>\xfaS\xa0>\x93\x9b\xa0>\xb8\xdb\xa0>\x19\x15\xa1>OH\xa1>\xe6u\xa1>^\x9e\xa1>,\xc2\xa1>\xb8\xe1\xa1>a\xfd\xa1>\x7f\x15\xa2>`*\xa2>N<\xa2>\x8cK\xa2>'
+tbstp1848
+a(((dp1849
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p1850
+g4
+(g6
+S'\x1b\xf63`\xaf/\xbf?'
+tRp1851
+sS'environmental performance r5 ini'
+p1852
+g4
+(g6
+S'\xcc\x91\xf7\x9d\xd2\x05\x14@'
+tRp1853
+sS'push cost performance r3 ini'
+p1854
+g4
+(g6
+S'\x1a0=\x1f|D\x18@'
+tRp1855
+sS'environmental performance r8 ini'
+p1856
+g4
+(g6
+S'\xdf\xe2\rU\xb6!\x1b@'
+tRp1857
+sS'effective LS push emigration ratio[r7]'
+p1858
+g4
+(g6
+S'\x80~24\xb3\xba\xc2?'
+tRp1859
+sS'societal performance r6 ini'
+p1860
+g4
+(g6
+S'qy/\xf2\x913\x1f@'
+tRp1861
+sS'lookup number evolution birth rate[r5]'
+p1862
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1863
+sS'importance sec perf 4 HS push immig'
+p1864
+g4
+(g6
+S'\xd9\xb78d)|\x11@'
+tRp1865
+sS'push cost performance r8 ini'
+p1866
+g4
+(g6
+S'\xec?ls_\xae\t@'
+tRp1867
+sS'avg T as HS retiree[r8]'
+p1868
+g4
+(g6
+S'PaZ\xd8\x9b}*@'
+tRp1869
+sS'effective HS push emigration ratio[r5]'
+p1870
+g4
+(g6
+S'v\xe2.\xbb\xd4\xa1\x89?'
+tRp1871
+sS'importance econ perf 4 HS push immig'
+p1872
+g4
+(g6
+S'M\x86R9U\x0f\x01@'
+tRp1873
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p1874
+g4
+(g6
+S'\xbb\x87\x0f\xfa\x8b\xd2\xb5?'
+tRp1875
+sS'societal performance r7 ini'
+p1876
+g4
+(g6
+S'\x9f\xb7e\xebg\x13\r@'
+tRp1877
+sS'degree of HS orientation [r1]'
+p1878
+g4
+(g6
+S'-\xc4\x15\xb2\x95\xd9\xbd?'
+tRp1879
+sS'lookup number evolution HS jobs[r5]'
+p1880
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1881
+sS'security performance r4 ini'
+p1882
+g4
+(g6
+S'\xdb\x01m\x82\xbb\x1f\x17@'
+tRp1883
+sS'effective LS push emigration ratio[r4]'
+p1884
+g4
+(g6
+S'A\x0c\x1b\xb5\x9cj\xc1?'
+tRp1885
+sS'importance soc perf 4 HS pull immig'
+p1886
+g4
+(g6
+S'\xc7XG\xca\x9e4\x10@'
+tRp1887
+sS'lookup number evolution birth rate[r4]'
+p1888
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1889
+sS'pull cost performance r5 ini'
+p1890
+g4
+(g6
+S'\x96\x85o\xa9\xd5w\x14@'
+tRp1891
+sS'avg T as LS retiree[r1]'
+p1892
+g4
+(g6
+S'vd\xe0X\x1d5\xf8?'
+tRp1893
+sS'avg T as HS retiree[r3]'
+p1894
+g4
+(g6
+S"\x9f\xde\xc9\x81\xc2\xac'@"
+tRp1895
+sS'push cost performance r7 ini'
+p1896
+g4
+(g6
+S'4\xd1\xee\xe9}o\x13@'
+tRp1897
+sS'effective HS push emigration ratio[r2]'
+p1898
+g4
+(g6
+S'\xc8n]\xe9\xf6\xb8\x8d?'
+tRp1899
+sS'economic performance r8 ini'
+p1900
+g4
+(g6
+S'\x94\x17~\xfc\xd8\xc8\x1d@'
+tRp1901
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p1902
+g4
+(g6
+S'ma\xb9yw[\xc0?'
+tRp1903
+sS'pull cost performance r2 ini'
+p1904
+g4
+(g6
+S'\x109\x0b)x\xd4\x11@'
+tRp1905
+sS'push cost performance r2 ini'
+p1906
+g4
+(g6
+S'\x1f\xd7\xcd\xdb%\x98\x17@'
+tRp1907
+sS'security performance r7 ini'
+p1908
+g4
+(g6
+S'\x9f\x9a\xc2\xc6\x97A\x12@'
+tRp1909
+sS'environmental performance r2 ini'
+p1910
+g4
+(g6
+S'\x0eH`;\x8b\xa0\x0c@'
+tRp1911
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p1912
+g4
+(g6
+S'y\xc8\xda\x99\x9bH\xba?'
+tRp1913
+sS'degree of HS orientation [r6]'
+p1914
+g4
+(g6
+S'\x82+~k\x99\xca\xe4?'
+tRp1915
+sS'avg T as LS retiree[r4]'
+p1916
+g4
+(g6
+S'Z[\xcf\x87K\xe4!@'
+tRp1917
+sS'effective LS push emigration ratio[r1]'
+p1918
+g4
+(g6
+S'W[\xd4\x94\xddA\xc6?'
+tRp1919
+sS'importance cost perf 4 HS push immig'
+p1920
+g4
+(g6
+S'A,X\xf6$%\xf5?'
+tRp1921
+sS'pull cost performance r8 ini'
+p1922
+g4
+(g6
+S'\x9b\xaf|\xcf\r\xba\x1c@'
+tRp1923
+sS'importance cost perf 4 LS push immig'
+p1924
+g4
+(g6
+S'\nyF\xce\xc9?\x13@'
+tRp1925
+sS'avg T as HS retiree[r6]'
+p1926
+g4
+(g6
+S'\xc0\xd5&\x03<\x02.@'
+tRp1927
+sS'degree of HS orientation [r8]'
+p1928
+g4
+(g6
+S'\xcc\xda3\xbd&O\xe4?'
+tRp1929
+sS'effective HS push emigration ratio[r7]'
+p1930
+g4
+(g6
+S't\x980\x86\xa1\xcd\x85?'
+tRp1931
+sS'pull cost performance r3 ini'
+p1932
+g4
+(g6
+S'\xaf\xb33\xbc\xf0\x99\x14@'
+tRp1933
+sS'lookup number evolution birth rate[r3]'
+p1934
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1935
+sS'push cost performance r5 ini'
+p1936
+g4
+(g6
+S'e\x15\x9d\xde\xa1\xad\x10@'
+tRp1937
+sS'push cost performance r1 ini'
+p1938
+g4
+(g6
+S'L\x13N\xb4\xda\x92\x17@'
+tRp1939
+sS'economic performance r2 ini'
+p1940
+g4
+(g6
+S'\xf8\xa8rUy\x91\x07@'
+tRp1941
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p1942
+g4
+(g6
+S'po+\xd5\x12\x06\xa7?'
+tRp1943
+sS'push cost performance r4 ini'
+p1944
+g4
+(g6
+S'\xec\x8ezp\x92\x1e\x1a@'
+tRp1945
+sS'lookup number evolution HS jobs[r7]'
+p1946
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1947
+sS'avg T as LS retiree[r7]'
+p1948
+g4
+(g6
+S'\x9a\xf5\xe1\x8e\xa9W#@'
+tRp1949
+sS'effective LS push emigration ratio[r6]'
+p1950
+g4
+(g6
+S':\x19+\xca(p\xb3?'
+tRp1951
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p1952
+g4
+(g6
+S'l\xc4N\x92\xdc\x0f\xc5?'
+tRp1953
+sS'avg T as HS retiree[r1]'
+p1954
+g4
+(g6
+S'\x87w\x91S\xc5Z\x06@'
+tRp1955
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p1956
+g4
+(g6
+S'.5#\x11.E\xc2?'
+tRp1957
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p1958
+g4
+(g6
+S'\xbf\xa1\xd1}r\x9a\xbf?'
+tRp1959
+sS'security performance r6 ini'
+p1960
+g4
+(g6
+S'\xd3\xc3I$\xb7\x16\x19@'
+tRp1961
+sS'lookup number evolution birth rate[r2]'
+p1962
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp1963
+sS'effective HS push emigration ratio[r4]'
+p1964
+g4
+(g6
+S'w\xd9\x12\x9b\xcb\x18\x94?'
+tRp1965
+sS'security performance r2 ini'
+p1966
+g4
+(g6
+S'\t\xd3\x951D\xb5\x0c@'
+tRp1967
+sS'importance econ perf 4 LS pull immig'
+p1968
+g4
+(g6
+S'o\x1c\x1f\xd5%c\x18@'
+tRp1969
+sS'security performance r3 ini'
+p1970
+g4
+(g6
+S'Y\xc6#\xff.\xe6\x00@'
+tRp1971
+sS'pull cost performance r7 ini'
+p1972
+g4
+(g6
+S'\xf5DZ\xbc\x18H\x12@'
+tRp1973
+sS'security performance r1 ini'
+p1974
+g4
+(g6
+S'\xa8L\x11\xb6EQ\xf9?'
+tRp1975
+sS'lookup number evolution HS jobs[r6]'
+p1976
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1977
+sS'security performance r8 ini'
+p1978
+g4
+(g6
+S'\x05X\x95\xa8\xa4y\x1f@'
+tRp1979
+sS'degree of HS orientation [r2]'
+p1980
+g4
+(g6
+S'7\xf2o\xd7\xdf\xe1\xb8?'
+tRp1981
+sS'lookup number evolution HS jobs[r2]'
+p1982
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp1983
+sS'societal performance r2 ini'
+p1984
+g4
+(g6
+S'`[\xce\x8c\x92,\x13@'
+tRp1985
+sS'environmental performance r1 ini'
+p1986
+g4
+(g6
+S'\x15\x83X\x07w\xaf\x15@'
+tRp1987
+sS'lookup number evolution birth rate[r1]'
+p1988
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp1989
+sS'avg T as LS retiree[r2]'
+p1990
+g4
+(g6
+S'{\x14\xdc\xad\x89\x8e)@'
+tRp1991
+sS'importance env perf 4 HS push immig'
+p1992
+g4
+(g6
+S'\x8e\xe5\x88zl\xf8\x0c@'
+tRp1993
+sS'importance sec perf 4 LS push immig'
+p1994
+g4
+(g6
+S'\x82\xa1\xa39\xf9t\x01@'
+tRp1995
+sS'importance sec perf 4 LS pull immig'
+p1996
+g4
+(g6
+S'o/\x14\xe3nE\x05@'
+tRp1997
+sS'avg T as HS retiree[r4]'
+p1998
+g4
+(g6
+S'\xfc\xa3\xeb)"\xee)@'
+tRp1999
+sS'effective HS push emigration ratio[r1]'
+p2000
+g4
+(g6
+S'\xe0\x13-\xe2\xb1s\x93?'
+tRp2001
+sS'effective LS push emigration ratio[r8]'
+p2002
+g4
+(g6
+S'\xe3m\xc4\x9f\x05G\xbc?'
+tRp2003
+sS'pull cost performance r4 ini'
+p2004
+g4
+(g6
+S'J\xa7\xbb\x12$\xc3\x08@'
+tRp2005
+sS'degree of HS orientation [r5]'
+p2006
+g4
+(g6
+S'\x8cc\xd3\x0f\xa0\xa1\xe4?'
+tRp2007
+sS'societal performance r3 ini'
+p2008
+g4
+(g6
+S'\xa9\x1b\xfa\x18O\xe8\x12@'
+tRp2009
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p2010
+g4
+(g6
+S'\xdeHZaDh\xc1?'
+tRp2011
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p2012
+g4
+(g6
+S'\xa2\xc6\x98b\x02\x9b\xbb?'
+tRp2013
+sS'importance soc perf 4 LS push immig'
+p2014
+g4
+(g6
+S'\x1e\xd39\xf9l\xb7!@'
+tRp2015
+sS'importance env perf 4 HS pull immig'
+p2016
+g4
+(g6
+S'\xb8\xcb\xf3\x99aO\x10@'
+tRp2017
+sS'environmental performance r7 ini'
+p2018
+g4
+(g6
+S'\xfa\x8c\xb9i\x1c2\x11@'
+tRp2019
+sS'degree of HS orientation [r3]'
+p2020
+g4
+(g6
+S'*=\x0f\xaf&\xa2\xcf?'
+tRp2021
+sS'economic performance r3 ini'
+p2022
+g4
+(g6
+S'\x91\x9c\x87Zv#\x03@'
+tRp2023
+sS'importance env perf 4 LS push immig'
+p2024
+g4
+(g6
+S'\xfd\xc7t\x17,\x94\x19@'
+tRp2025
+sS'societal performance r4 ini'
+p2026
+g4
+(g6
+S'\x06D%y\xdec\x0e@'
+tRp2027
+sS'importance soc perf 4 HS push immig'
+p2028
+g4
+(g6
+S'7l\xfdI\xf4\xb2\x18@'
+tRp2029
+sS'avg T as HS retiree[r7]'
+p2030
+g4
+(g6
+S'FK[0j\x9d"@'
+tRp2031
+sS'avg T as LS retiree[r5]'
+p2032
+g4
+(g6
+S'\x97p+\xea}\x190@'
+tRp2033
+sS'effective HS push emigration ratio[r6]'
+p2034
+g4
+(g6
+S'y*^\x99\xfb\xedt?'
+tRp2035
+sS'pull cost performance r1 ini'
+p2036
+g4
+(g6
+S'\xb6\xee,\xe5U\xd4\x05@'
+tRp2037
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p2038
+g4
+(g6
+S'\x88\x82 \xc7\x04\xc6\xb6?'
+tRp2039
+sS'pull cost performance r6 ini'
+p2040
+g4
+(g6
+S'w\x8fg0\x84\x94!@'
+tRp2041
+sS'importance econ perf 4 HS pull immig'
+p2042
+g4
+(g6
+S'p;l\x8c\xb7h\x1d@'
+tRp2043
+sS'importance cost perf 4 LS pull immig'
+p2044
+g4
+(g6
+S'K\x11\x04\x7f\x15\xd3\xf5?'
+tRp2045
+sS'avg T as LS retiree[r6]'
+p2046
+g4
+(g6
+S'\xe3\xa4K\x06\xbeR0@'
+tRp2047
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p2048
+g4
+(g6
+S'\x99\xb3\x19UOV\xbf?'
+tRp2049
+sS'environmental performance r6 ini'
+p2050
+g4
+(g6
+S'\xeb\xcc\x9b\x9aB\x19\x1a@'
+tRp2051
+sS'lookup number evolution HS jobs[r8]'
+p2052
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2053
+sS'societal performance r5 ini'
+p2054
+g4
+(g6
+S"\xaa'\xa3\xb7\xf5\xbc\x10@"
+tRp2055
+sS'importance soc perf 4 LS pull immig'
+p2056
+g4
+(g6
+S'\x9e\xf5\xe9\xa2\xd8\xc1\x13@'
+tRp2057
+sS'lookup number evolution birth rate[r8]'
+p2058
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2059
+sS'lookup number evolution HS jobs[r4]'
+p2060
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2061
+sS'avg T as LS retiree[r8]'
+p2062
+g4
+(g6
+S'\x16\x1d\x81\xb2\xbf6+@'
+tRp2063
+sS'effective LS push emigration ratio[r5]'
+p2064
+g4
+(g6
+S'\x9e\xfa\xe80I\x07\xc0?'
+tRp2065
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p2066
+g4
+(g6
+S'g_\xa4o\xd5A\xc6?'
+tRp2067
+sS'partner multiplicator legal immigration'
+p2068
+g4
+(g6
+S'Nw\x00\x80-\x14\xfd?'
+tRp2069
+sS'importance cost perf 4 HS pull immig'
+p2070
+g4
+(g6
+S'/\xf3\xdb@\x90\xe7\x08@'
+tRp2071
+sS'environmental performance r4 ini'
+p2072
+g4
+(g6
+S']\x07\xd8c\xb4\xb5\xf3?'
+tRp2073
+sS'avg T as HS retiree[r2]'
+p2074
+g4
+(g6
+S'\x92\xab\xb9\x0b\xee\xd9(@'
+tRp2075
+sS'lookup number evolution birth rate[r7]'
+p2076
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2077
+sS'economic performance r7 ini'
+p2078
+g4
+(g6
+S'\xf0\x0c\xa8\x0b\xb9\x82\x17@'
+tRp2079
+sS'effective HS push emigration ratio[r3]'
+p2080
+g4
+(g6
+S'\xc2\xc8\x84)\x06@{?'
+tRp2081
+sS'security performance r5 ini'
+p2082
+g4
+(g6
+S'h\r\x8e$\xcd\xd5!@'
+tRp2083
+sS'push cost performance r6 ini'
+p2084
+g4
+(g6
+S'\xde\xff!.\xf5S\x15@'
+tRp2085
+sS'degree of HS orientation [r7]'
+p2086
+g4
+(g6
+S'`\x9f\x96\x1d\xfc\xac\xdd?'
+tRp2087
+sS'effective LS push emigration ratio[r2]'
+p2088
+g4
+(g6
+S"#9>\rL'\xb5?"
+tRp2089
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p2090
+g4
+(g6
+S'\x94\\z\xb6\xfc\x96\xc8?'
+tRp2091
+sS'importance sec perf 4 HS pull immig'
+p2092
+g4
+(g6
+S'>\x81\x85+\xe6B\x10@'
+tRp2093
+sS'lookup number evolution HS jobs[r3]'
+p2094
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2095
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p2096
+g4
+(g6
+S'\xaa\xceH\xbe\x8e\xf2\x81?'
+tRp2097
+sS'lookup number evolution HS jobs[r1]'
+p2098
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2099
+sS'effective HS push emigration ratio[r8]'
+p2100
+g4
+(g6
+S'&\x17`\x9azz\x8f?'
+tRp2101
+sS'societal performance r8 ini'
+p2102
+g4
+(g6
+S'\x88*Q\x1c\xf7\xbc\x1f@'
+tRp2103
+sS'societal performance r1 ini'
+p2104
+g4
+(g6
+S'\x9e\rr\xda\x11\x9c\x0f@'
+tRp2105
+sS'importance econ perf 4 LS push immig'
+p2106
+g4
+(g6
+S'\xbf\xed\x7f\x04%[\x1c@'
+tRp2107
+sS'avg T as LS retiree[r3]'
+p2108
+g4
+(g6
+S'U\x1b\x90\xb7\xab\x10*@'
+tRp2109
+sS'lookup number evolution birth rate[r6]'
+p2110
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2111
+sS'economic performance r1 ini'
+p2112
+g4
+(g6
+S'\x93\xe9\x04\xc7\xc2b\x04@'
+tRp2113
+sS'economic performance r5 ini'
+p2114
+g4
+(g6
+S'M\x93\x8ba\x9a\x15\x16@'
+tRp2115
+sS'importance env perf 4 LS pull immig'
+p2116
+g4
+(g6
+S'8H\xce\x98\x9b\x98 @'
+tRp2117
+sS'environmental performance r3 ini'
+p2118
+g4
+(g6
+S'WD\x86w\xf3F\x1f@'
+tRp2119
+sS'avg T as HS retiree[r5]'
+p2120
+g4
+(g6
+S'\xde[\xc2\xeb\x1c\xb61@'
+tRp2121
+sS'economic performance r4 ini'
+p2122
+g4
+(g6
+S'T<2I\x03h\x1b@'
+tRp2123
+sS'economic performance r6 ini'
+p2124
+g4
+(g6
+S'\xc5\x98\t\xbd\n\x16 @'
+tRp2125
+sS'degree of HS orientation [r4]'
+p2126
+g4
+(g6
+S'2\xa7\xad$\xaa\x81\xc5?'
+tRp2127
+sS'effective LS push emigration ratio[r3]'
+p2128
+g4
+(g6
+S'/4\xc8\xd8\x8a\x06\xc4?'
+tRp2129
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p2130
+g4
+(g6
+S'\xaas\xe3\xca\xcf\x9d\xc1?'
+tRp2131
+s(dp2132
+S'name'
+p2133
+S'None'
+p2134
+sS'demo'
+t(dp2135
+S'grey pressure on working population[r7]'
+p2136
+g293
+(g294
+(I0
+tS'b'
+tRp2137
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp2138
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S'\rz\xab>K\'\xa7><\xb5\xa3>C\xf5\xa0>b\xd5\x9e>rU\x9d>\xb3e\x9c>t\xff\x9b>7&\x9c>\xb4\xf3\x9c>\x1c\xe9\x9d>\x8f\xaf\x9e>\x1aG\x9f>^\xb0\x9f>~\xec\x9f>\x0c\xfd\x9f>\x03\xe4\x9f>\xac\xa3\x9f>\x9e>\x9f>\x9f\xb7\x9e>\xa1\x11\x9e>\xabO\x9d>\xd2t\x9c>+\x84\x9b>\xc1\x80\x9a>\x85m\x99>QM\x98>\xd9"\x97>\xa5\xf0\x95>\x15\xb9\x94>V~\x93>eB\x92>\x0c\x07\x91>\xe3\xcd\x8f>W\x98\x8e>\xa0g\x8d>\xce<\x8c>\xc4\x18\x8b>B\xfc\x89>\xe2\xe7\x88>\x1d\xdc\x87>Q\xd9\x86>\xbf\xdf\x85>\x92\xef\x84>\xdf\x08\x84>\xaa+\x83>\xe9W\x82>\x82\x8d\x81>Q\xcc\x80>+\x14\x80>\xaf\xc9~>'
+tbsS'grey pressure on working population[r6]'
+p2139
+g293
+(g294
+(I0
+tS'b'
+tRp2140
+(I1
+(I51
+tg2138
+I00
+S'\x9a\x9fm>%Es>P\x8az>a\xab\x81>\x14u\x86>\x0c\x15\x8b>\xc5\x8d\x8f>E\xe5\x93>K%\x98>\x96C\x9c>\xce\x19\xa0>U\x9d\xa3>\xa3\xb0\xa6>\xb4\x00\xa9>\xa3\xdb\xaa>\\\xf7\xac>\xd2`\xaf>\x81\xfa\xb1>\xca\x94\xb4>\xc7(\xb7>\x8c\xb7\xb9> B\xbc>\xa8\xa2\xbe>f\xa3\xc0>wI\xc2>q\xa6\xc3>\xf7\xcd\xc4>\xb6\xcd\xc5>P\xb0\xc6>\xd4}\xc7>Q<\xc8>\\\xf0\xc8>g\x9d\xc9>CH\xca>1\xfb\xca>~\xb5\xcb>zu\xcc>\xb39\xcd>\xe6\x00\xce>!\xc2\xce>\xb6y\xcf>Z*\xd0>\x1c\xd6\xd0>\x8e~\xd1>\xd5$\xd2>>\xcd\xd2>\xe9}\xd3>i5\xd4>S\xf2\xd4>e\xb3\xd5>\x86w\xd6>'
+tbsS'total population'
+p2141
+g293
+(g294
+(I0
+tS'b'
+tRp2142
+(I1
+(I51
+tg2138
+I00
+S'\x88\x91\xd1O\\`\xd4O\x04"\xd7O\x97\xd8\xd9O\x91\x84\xdcO\xb0%\xdfO\x8f\xbb\xe1O\xdaE\xe4Ob\xc4\xe6O\x107\xe9O,\x9e\xebO\xa5\xfa\xedO\x88M\xf0O\xd5\x97\xf2O~\xda\xf4Ol\x16\xf7OsL\xf9O\\}\xfbO\xe3\xa9\xfdO\xac\xd2\xffO)\xfc\x00P\xad\r\x02P \x1e\x03P\xb4-\x04P\xa5<\x05P*K\x06PLY\x07P\x1bg\x08P\xabt\tP\x0e\x82\nPO\x8f\x0bPx\x9c\x0cP\x8c\xa9\rP\x90\xb6\x0eP\x81\xc3\x0fP\\\xd0\x10P\x1a\xdd\x11P\xb1\xe9\x12P\x19\xf6\x13PC\x02\x15P#\x0e\x16P\xa9\x19\x17P\xc3$\x18Pa/\x19Pn9\x1aP\xdaB\x1bP\x91K\x1cP~S\x1dP\x8cZ\x1eP\xa9`\x1fP\xc0e P'
+tbsS'grey pressure on working population[r4]'
+p2143
+g293
+(g294
+(I0
+tS'b'
+tRp2144
+(I1
+(I51
+tg2138
+I00
+S'\x0e\xdf\x08>\\\xcc\x13>!\xef\x1d>\x19R\'>\xf9\x060>6"8>\xdc\xab?>?\xacF>\x16,M>\xbd5S>\x94\xa0X>\xdb^]>`~a>\xa0\x0ce>\xa4\x16h>\xf4\xa8j>\x84\xcfl>\xa4\x95n>\xed\x05p>I*q>\xe5\x0br>-\xb3r>\xd9\'s>\xe2ps>\x9e\x94s>\xae\x98s>*\x82s>\x85Us>\xbb\x16s>A\xc9r>#pr>\x01\x0er>$\xa5q>~7q>\xbc\xc6p>FTp>F\xe1o>\xc0no>\x81\xfdn>5\x8en>a!n>v\xb7m>\xc5Pm>\x88\xedl>\xf3\x8dl>\x192l>\x14\xdak>\xe3\x85k>\x835k>\xe9\xe8j>\x00\xa0j>'
+tbsS'grey pressure on working population[r8]'
+p2145
+g293
+(g294
+(I0
+tS'b'
+tRp2146
+(I1
+(I51
+tg2138
+I00
+S'\x95L\xa1>\x03\xcb\x9e>6\xfe\x9b>R\xe1\x98> r\x95>\x01\xb1\x91>\x97\xa0\x8d>\x00F\x89>\xc1\xa8\x84>\xff\xb9\x7f>w\xb9x>l\xeat>\xdb\x87s>\xb23t>\x9b=v>\xc2\xc0x>;\x87{>\x95\x88~>\x15\xe6\x80>O\xa0\x82>\xd9i\x84>o;\x86>;"\x88>\xbd1\x8a>)a\x8c>\xde\xa5\x8e>\\\xef\x90>=3\x93>\x12m\x95>\x95\x99\x97>e\xb6\x99>\xcd\xc1\x9b>\x9d\xba\x9d>N\x9f\x9f>\xb5l\xa1>K#\xa3>\xe8\xc3\xa4>dO\xa6>\x92\xc6\xa7>\xdc,\xa9>\xee\x83\xaa>\\\xcb\xab>\x00\x03\xad>\xdd*\xae>\x1eC\xaf>\xe1J\xb0>\xb1@\xb1>\xa6%\xb2>\xda\xfa\xb2>U\xc1\xb3>\nz\xb4>'
+tbsS'TIME'
+p2147
+g293
+(g294
+(I0
+tS'b'
+tRp2148
+(I1
+(I51
+tg2138
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p2149
+g293
+(g294
+(I0
+tS'b'
+tRp2150
+(I1
+(I51
+tg2138
+I00
+S'\xe4X\xa4>\xeau\xa8>@\x95\xac>\x1c\xb1\xb0>\xae\xc8\xb4>\xdb\xe1\xb8>\xb5\x03\xbd>g;\xc1>v\x9f\xc5>\xad"\xca>\xa0a\xce>k3\xd2>f\x99\xd5>M\x95\xd8>\xce2\xdb>C\xd2\xdd>\xaf\x8a\xe0>A[\xe3>2C\xe6>\xc0A\xe9>\x1eV\xec>u\x7f\xef>\xd6t\xf2>w\xcf\xf4>\xe8\x93\xf6>\x8b\xc8\xf7>\xc2\xbc\xf8>{\xa0\xf9>\ru\xfa>\x82;\xfb>\xad\xf4\xfb>B\xa1\xfc>\xd9A\xfd>\x08\xd7\xfd>ca\xfe>P\xe1\xfe>7W\xff>|\xc3\xff>@\x13\x00?K@\x00?\x10i\x00?\xbb\x8d\x00?~\xae\x00?\x84\xcb\x00?\xf6\xe4\x00?\x00\xfb\x00?\xc5\r\x01?n\x1d\x01?\x1c*\x01?\xf53\x01?\x19;\x01?'
+tbsS'grey pressure on working population[r3]'
+p2151
+g293
+(g294
+(I0
+tS'b'
+tRp2152
+(I1
+(I51
+tg2138
+I00
+S"\xa0t\x0f>3\x05\x1d>\x1d\xda)>P\xff5>\xea\x83A>\\yL>q\xe9V>\xe7\xde`>kfj>\xd4\x92s>\x04<|>\xbd$\x82>\x1f\xe1\x85>\xa8V\x89>\xd5\x88\x8c>'{\x8f>\x151\x92>\x13\xae\x94>\x87\xf5\x96>\xca\n\x99>!\xf1\x9a>\xb8\xab\x9c>\xa0=\x9e>\xd2\xa9\x9f>\x1e\xf3\xa0>7\x1c\xa2>\xaf'\xa3>\xee\x17\xa4>?\xef\xa4>\xc2\xaf\xa5>x[\xa6>=\xf4\xa6>\xcc{\xa7>\xbf\xf3\xa7>\x90]\xa8>\xa0\xba\xa8>,\x0c\xa9>_S\xa9>D\x91\xa9>\xd1\xc6\xa9>\xe8\xf4\xa9>V\x1c\xaa>\xd4=\xaa>\nZ\xaa>\x93q\xaa>\xf6\x84\xaa>\xb2\x94\xaa>8\xa1\xaa>\xec\xaa\xaa>)\xb2\xaa>B\xb7\xaa>"
+tbsS'grey pressure on working population[r2]'
+p2153
+g293
+(g294
+(I0
+tS'b'
+tRp2154
+(I1
+(I51
+tg2138
+I00
+S'\x84x\xdc=O\x1b\xfb=-\xd7\x0b>t3\x19>\xd7\xbd%>\xa0\x911>\x0b\xbd<>\xe3LG>,MQ>\xd9\xcbZ>\x19\x98c>\x85\x9dk>\xe5\xe9r>j\x8ay>\xc0\x8b\x7f>\n}\x82>}\xf0\x84>\xbf%\x87>\x11"\x89>`\xea\x8a>M\x83\x8c>2\xf1\x8d>\x178\x8f>\xbc[\x90>\x8b_\x91>\x80F\x92>s\x13\x93>%\xc9\x93>\x1dj\x94>\xa7\xf8\x94>\xd2v\x95>v\xe6\x95>:I\x96>\x96\xa0\x96>\xda\xed\x96>12\x97>\xa4n\x97>#\xa4\x97>\x80\xd3\x97>u\xfd\x97>\xac"\x98>\xb7C\x98>\x19a\x98>G{\x98>\xab\x92\x98>\xa0\xa7\x98>z\xba\x98>\x81\xcb\x98>\xf6\xda\x98>\x13\xe9\x98>\x0e\xf6\x98>'
+tbstp2155
+a(((dp2156
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p2157
+g4
+(g6
+S'\x0e\xb0\x903NS\xc0?'
+tRp2158
+sS'environmental performance r5 ini'
+p2159
+g4
+(g6
+S'\xb7\x15o\xbd\x8d\x19\x12@'
+tRp2160
+sS'push cost performance r3 ini'
+p2161
+g4
+(g6
+S'\x07\xad!p\x13\x8b\x17@'
+tRp2162
+sS'environmental performance r8 ini'
+p2163
+g4
+(g6
+S'\xdaQ\x11\xfa\xadN\x1a@'
+tRp2164
+sS'effective LS push emigration ratio[r7]'
+p2165
+g4
+(g6
+S'\xac0k\xcc}\xf5\xc0?'
+tRp2166
+sS'societal performance r6 ini'
+p2167
+g4
+(g6
+S"@'\xc9R1\x02\x1d@"
+tRp2168
+sS'lookup number evolution birth rate[r5]'
+p2169
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2170
+sS'importance sec perf 4 HS push immig'
+p2171
+g4
+(g6
+S'\xf2\x81\\\r/2\r@'
+tRp2172
+sS'push cost performance r8 ini'
+p2173
+g4
+(g6
+S'\xff\x90c\xbf\x1c\xaa\x0f@'
+tRp2174
+sS'avg T as HS retiree[r8]'
+p2175
+g4
+(g6
+S'\x15\xe8\xd0\xf7\xe2\x82.@'
+tRp2176
+sS'effective HS push emigration ratio[r5]'
+p2177
+g4
+(g6
+S'z\xa7\x81?<\x0b\x7f?'
+tRp2178
+sS'importance econ perf 4 HS push immig'
+p2179
+g4
+(g6
+S' \x80\x83\xc9\xc5\x88\x17@'
+tRp2180
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p2181
+g4
+(g6
+S',\xfa\x1fR&\xf5\xc3?'
+tRp2182
+sS'societal performance r7 ini'
+p2183
+g4
+(g6
+S'\xc1\xca\x855\xfc\x0b\t@'
+tRp2184
+sS'degree of HS orientation [r1]'
+p2185
+g4
+(g6
+S'\xca\xc0\x85\xff\xe7\xb8\xb4?'
+tRp2186
+sS'lookup number evolution HS jobs[r5]'
+p2187
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2188
+sS'security performance r4 ini'
+p2189
+g4
+(g6
+S'\x14\x9f-\xa4\x19\xbb\x12@'
+tRp2190
+sS'effective LS push emigration ratio[r4]'
+p2191
+g4
+(g6
+S':&\xc5\xdd\xff\x96\xae?'
+tRp2192
+sS'importance soc perf 4 HS pull immig'
+p2193
+g4
+(g6
+S':\n\x80\x88}\xfe\x1c@'
+tRp2194
+sS'lookup number evolution birth rate[r4]'
+p2195
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2196
+sS'pull cost performance r5 ini'
+p2197
+g4
+(g6
+S'\xba:\xf9\xcd\x87F\x17@'
+tRp2198
+sS'avg T as LS retiree[r1]'
+p2199
+g4
+(g6
+S'\xd0U\xa3\xd4j\xa5\x02@'
+tRp2200
+sS'avg T as HS retiree[r3]'
+p2201
+g4
+(g6
+S'S\xcf\x12U\xf7\xe5$@'
+tRp2202
+sS'push cost performance r7 ini'
+p2203
+g4
+(g6
+S'k\xc3]\xf8e\xc1\x12@'
+tRp2204
+sS'effective HS push emigration ratio[r2]'
+p2205
+g4
+(g6
+S'U]\xae`\x9a5}?'
+tRp2206
+sS'economic performance r8 ini'
+p2207
+g4
+(g6
+S'\xac\xbb\xf6:)i\x1f@'
+tRp2208
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p2209
+g4
+(g6
+S'\xc2\xcd=a\xc2W\xa0?'
+tRp2210
+sS'pull cost performance r2 ini'
+p2211
+g4
+(g6
+S'*\x84\xaf\xd3S\xd6\x0b@'
+tRp2212
+sS'push cost performance r2 ini'
+p2213
+g4
+(g6
+S'\x104M\xad\x9a\xc8\x1b@'
+tRp2214
+sS'security performance r7 ini'
+p2215
+g4
+(g6
+S'\x1b\x081+}2\x14@'
+tRp2216
+sS'environmental performance r2 ini'
+p2217
+g4
+(g6
+S'A{:\xcb\xccv\x02@'
+tRp2218
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p2219
+g4
+(g6
+S'n)\x0e\x97\xfc\xe7\xb6?'
+tRp2220
+sS'degree of HS orientation [r6]'
+p2221
+g4
+(g6
+S'S-\x1f\xd3\xcaO\xe5?'
+tRp2222
+sS'avg T as LS retiree[r4]'
+p2223
+g4
+(g6
+S'T\xe2\xbd\xe1\xfc\xce#@'
+tRp2224
+sS'effective LS push emigration ratio[r1]'
+p2225
+g4
+(g6
+S'\xa6\xe3\xd1\xa6\x85\xef\xc0?'
+tRp2226
+sS'importance cost perf 4 HS push immig'
+p2227
+g4
+(g6
+S'l\xe8\x1eh\xe7O\x01@'
+tRp2228
+sS'pull cost performance r8 ini'
+p2229
+g4
+(g6
+S'\xc0\t\xc8\x12\x8e\xec\x1b@'
+tRp2230
+sS'importance cost perf 4 LS push immig'
+p2231
+g4
+(g6
+S'\xa0\x0c:\xc1e\x13\x02@'
+tRp2232
+sS'avg T as HS retiree[r6]'
+p2233
+g4
+(g6
+S'\x88\x9a{^\x1e20@'
+tRp2234
+sS'degree of HS orientation [r8]'
+p2235
+g4
+(g6
+S'\x16\xa9\xf2>\x0b\xbf\xe5?'
+tRp2236
+sS'effective HS push emigration ratio[r7]'
+p2237
+g4
+(g6
+S'\x199\xc0\xd2G\xee\x86?'
+tRp2238
+sS'pull cost performance r3 ini'
+p2239
+g4
+(g6
+S'\xb2\xe5\x1bu\x81\xea\x16@'
+tRp2240
+sS'lookup number evolution birth rate[r3]'
+p2241
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2242
+sS'push cost performance r5 ini'
+p2243
+g4
+(g6
+S'p\xec\xb7\x93t{\x0f@'
+tRp2244
+sS'push cost performance r1 ini'
+p2245
+g4
+(g6
+S'\xcc\x1b\xdcR\xa3o\x12@'
+tRp2246
+sS'economic performance r2 ini'
+p2247
+g4
+(g6
+S'\xf2^9\xb9\xc0\xba\x04@'
+tRp2248
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p2249
+g4
+(g6
+S'nz\x8fXI\xf7\xc5?'
+tRp2250
+sS'push cost performance r4 ini'
+p2251
+g4
+(g6
+S'\xdc\xf3U\xcd^S\x1b@'
+tRp2252
+sS'lookup number evolution HS jobs[r7]'
+p2253
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2254
+sS'avg T as LS retiree[r7]'
+p2255
+g4
+(g6
+S'\xff\xcb\xa4(\x06\xd3 @'
+tRp2256
+sS'effective LS push emigration ratio[r6]'
+p2257
+g4
+(g6
+S'@svdWk\xc9?'
+tRp2258
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p2259
+g4
+(g6
+S'\xcaJ\xe9\xf7\xd5\xdb\xab?'
+tRp2260
+sS'avg T as HS retiree[r1]'
+p2261
+g4
+(g6
+S'*\xb5\xbbF\x97\xb2\xff?'
+tRp2262
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p2263
+g4
+(g6
+S'\t\x05\xa8\n\x01H\xc9?'
+tRp2264
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p2265
+g4
+(g6
+S'$\xee\x13\x08\x1d\xfc\xb7?'
+tRp2266
+sS'security performance r6 ini'
+p2267
+g4
+(g6
+S'^\x98\xd4\xf2.\x08\x17@'
+tRp2268
+sS'lookup number evolution birth rate[r2]'
+p2269
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2270
+sS'effective HS push emigration ratio[r4]'
+p2271
+g4
+(g6
+S'@\xb8{\xf9_w\x85?'
+tRp2272
+sS'security performance r2 ini'
+p2273
+g4
+(g6
+S'1\xdcG\xd4\xc7#\x07@'
+tRp2274
+sS'importance econ perf 4 LS pull immig'
+p2275
+g4
+(g6
+S'(\x03!\xc2\xde\x8c\x1c@'
+tRp2276
+sS'security performance r3 ini'
+p2277
+g4
+(g6
+S'Vz\xd6\xd7\xbe\x85\x08@'
+tRp2278
+sS'pull cost performance r7 ini'
+p2279
+g4
+(g6
+S'\xed;F\xb2\xdeU\x11@'
+tRp2280
+sS'security performance r1 ini'
+p2281
+g4
+(g6
+S'\xe2\x1e\xc4v\x8c\xbd\xfd?'
+tRp2282
+sS'lookup number evolution HS jobs[r6]'
+p2283
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2284
+sS'security performance r8 ini'
+p2285
+g4
+(g6
+S'#\xda!\x8b\x9a\t\x1d@'
+tRp2286
+sS'degree of HS orientation [r2]'
+p2287
+g4
+(g6
+S'\xe7q{\xe2\x17\xea\xbb?'
+tRp2288
+sS'lookup number evolution HS jobs[r2]'
+p2289
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2290
+sS'societal performance r2 ini'
+p2291
+g4
+(g6
+S"$\xc0'\xd3\x82\xcd\x0e@"
+tRp2292
+sS'environmental performance r1 ini'
+p2293
+g4
+(g6
+S'\x10\x04\x1e\xa6\x8c\xfe\x17@'
+tRp2294
+sS'lookup number evolution birth rate[r1]'
+p2295
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2296
+sS'avg T as LS retiree[r2]'
+p2297
+g4
+(g6
+S'x*H\xe9\xe6,%@'
+tRp2298
+sS'importance env perf 4 HS push immig'
+p2299
+g4
+(g6
+S'J\x8e\x9c\x91\xb8A\x1d@'
+tRp2300
+sS'importance sec perf 4 LS push immig'
+p2301
+g4
+(g6
+S'&\xe0\xf0\xc0\xc1j\n@'
+tRp2302
+sS'importance sec perf 4 LS pull immig'
+p2303
+g4
+(g6
+S',*\x96\xfc\x91V\r@'
+tRp2304
+sS'avg T as HS retiree[r4]'
+p2305
+g4
+(g6
+S'Ex*q\xe4\xc1(@'
+tRp2306
+sS'effective HS push emigration ratio[r1]'
+p2307
+g4
+(g6
+S'Z\xfc\x96\xe0n/\x87?'
+tRp2308
+sS'effective LS push emigration ratio[r8]'
+p2309
+g4
+(g6
+S'\xa88\xdd<\x86)\xb8?'
+tRp2310
+sS'pull cost performance r4 ini'
+p2311
+g4
+(g6
+S'\xe6\x1f\x81\xfd\xa3~\x0e@'
+tRp2312
+sS'degree of HS orientation [r5]'
+p2313
+g4
+(g6
+S'T\x86p\xb1H\x1b\xe4?'
+tRp2314
+sS'societal performance r3 ini'
+p2315
+g4
+(g6
+S'\x86\xe0\x9b\xf7\xf6_\x17@'
+tRp2316
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p2317
+g4
+(g6
+S'\x99>\xdf\xe6\xa8\xa4\xc5?'
+tRp2318
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p2319
+g4
+(g6
+S'\x81\xc9\xc3\x89+\xfd\xbc?'
+tRp2320
+sS'importance soc perf 4 LS push immig'
+p2321
+g4
+(g6
+S'\xa6\x1f\ni \xc5\x1c@'
+tRp2322
+sS'importance env perf 4 HS pull immig'
+p2323
+g4
+(g6
+S'Q\x03\x8aXb\xe2\x1c@'
+tRp2324
+sS'environmental performance r7 ini'
+p2325
+g4
+(g6
+S'wX\xf02X\xc9\x0f@'
+tRp2326
+sS'degree of HS orientation [r3]'
+p2327
+g4
+(g6
+S'\xd298\x97\xfe\xf1\xd2?'
+tRp2328
+sS'economic performance r3 ini'
+p2329
+g4
+(g6
+S'\xba\xca\n\x9b\xe5\x94\x0f@'
+tRp2330
+sS'importance env perf 4 LS push immig'
+p2331
+g4
+(g6
+S'\x7f\xbc\x04T\xa6\x12\x02@'
+tRp2332
+sS'societal performance r4 ini'
+p2333
+g4
+(g6
+S'K>M\xdd\xdd\x8b\x08@'
+tRp2334
+sS'importance soc perf 4 HS push immig'
+p2335
+g4
+(g6
+S'a\xce\xddR.\x8b\x06@'
+tRp2336
+sS'avg T as HS retiree[r7]'
+p2337
+g4
+(g6
+S"\xef\x05\x9a|\x95h'@"
+tRp2338
+sS'avg T as LS retiree[r5]'
+p2339
+g4
+(g6
+S'qI\xb71\ny)@'
+tRp2340
+sS'effective HS push emigration ratio[r6]'
+p2341
+g4
+(g6
+S'\x89D\xc0\x00$g\x82?'
+tRp2342
+sS'pull cost performance r1 ini'
+p2343
+g4
+(g6
+S'cb\x9bA\xb4\xd0\xfd?'
+tRp2344
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p2345
+g4
+(g6
+S'2\x7f\xf6\xa8\x1f\x13\xb0?'
+tRp2346
+sS'pull cost performance r6 ini'
+p2347
+g4
+(g6
+S'\xfff\xab1y\xd9\x1d@'
+tRp2348
+sS'importance econ perf 4 HS pull immig'
+p2349
+g4
+(g6
+S'\xb1\xaf\xb3\xb5\xbbt\x00@'
+tRp2350
+sS'importance cost perf 4 LS pull immig'
+p2351
+g4
+(g6
+S'\xd5\x1d\xef\x86\xef\xbe\x07@'
+tRp2352
+sS'avg T as LS retiree[r6]'
+p2353
+g4
+(g6
+S'\x83\x12c\xb50\xa7/@'
+tRp2354
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p2355
+g4
+(g6
+S'ND\x90\xae\x8e5\xc1?'
+tRp2356
+sS'environmental performance r6 ini'
+p2357
+g4
+(g6
+S'+l\xe8\xd8/\x1d\x18@'
+tRp2358
+sS'lookup number evolution HS jobs[r8]'
+p2359
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2360
+sS'societal performance r5 ini'
+p2361
+g4
+(g6
+S'\xbd\xc4\x9e5\x96\xce\x16@'
+tRp2362
+sS'importance soc perf 4 LS pull immig'
+p2363
+g4
+(g6
+S'L\xe4&\x89\x81\x02\x10@'
+tRp2364
+sS'lookup number evolution birth rate[r8]'
+p2365
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2366
+sS'lookup number evolution HS jobs[r4]'
+p2367
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2368
+sS'avg T as LS retiree[r8]'
+p2369
+g4
+(g6
+S'>\x83]\xa6A\xb8-@'
+tRp2370
+sS'effective LS push emigration ratio[r5]'
+p2371
+g4
+(g6
+S'\xe6\xc9\xa3-\xae\xb0\xb5?'
+tRp2372
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p2373
+g4
+(g6
+S'\xb7\x84\x91\xec\t\t\xbf?'
+tRp2374
+sS'partner multiplicator legal immigration'
+p2375
+g4
+(g6
+S'\xda\x04X\x82[\x89\xf5?'
+tRp2376
+sS'importance cost perf 4 HS pull immig'
+p2377
+g4
+(g6
+S'\x9f\xf9Y\xd7\xe6\xce\xf2?'
+tRp2378
+sS'environmental performance r4 ini'
+p2379
+g4
+(g6
+S' \xfb\xc4\xa0)*\x07@'
+tRp2380
+sS'avg T as HS retiree[r2]'
+p2381
+g4
+(g6
+S'\xba\x1b\x1e\x17\xab\x0b.@'
+tRp2382
+sS'lookup number evolution birth rate[r7]'
+p2383
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2384
+sS'economic performance r7 ini'
+p2385
+g4
+(g6
+S'\xda\xee\xd8jT\x00\x16@'
+tRp2386
+sS'effective HS push emigration ratio[r3]'
+p2387
+g4
+(g6
+S'\xb9_\xd2&J\xc6\x92?'
+tRp2388
+sS'security performance r5 ini'
+p2389
+g4
+(g6
+S'HX;\x1a\xc1h!@'
+tRp2390
+sS'push cost performance r6 ini'
+p2391
+g4
+(g6
+S',h+\xfb\xb2R\x13@'
+tRp2392
+sS'degree of HS orientation [r7]'
+p2393
+g4
+(g6
+S'\xed\x93j\x88\xbdn\xe0?'
+tRp2394
+sS'effective LS push emigration ratio[r2]'
+p2395
+g4
+(g6
+S'\xb4\x86M`\x10\xe0\xbe?'
+tRp2396
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p2397
+g4
+(g6
+S'o48(J\xe1\xbf?'
+tRp2398
+sS'importance sec perf 4 HS pull immig'
+p2399
+g4
+(g6
+S'M\xed\xfc\x16H\xe2\xfb?'
+tRp2400
+sS'lookup number evolution HS jobs[r3]'
+p2401
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2402
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p2403
+g4
+(g6
+S'\xc8Jf\xb6\xc9\xb2\xc3?'
+tRp2404
+sS'lookup number evolution HS jobs[r1]'
+p2405
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2406
+sS'effective HS push emigration ratio[r8]'
+p2407
+g4
+(g6
+S'\x1dRt"M\x19\x94?'
+tRp2408
+sS'societal performance r8 ini'
+p2409
+g4
+(g6
+S'\xf2\xa1\xcd\xf4qA\x18@'
+tRp2410
+sS'societal performance r1 ini'
+p2411
+g4
+(g6
+S'\xe9SB\xef\x9b\xd3\r@'
+tRp2412
+sS'importance econ perf 4 LS push immig'
+p2413
+g4
+(g6
+S'\xb2Q\xcf\xc1\xd3\xda!@'
+tRp2414
+sS'avg T as LS retiree[r3]'
+p2415
+g4
+(g6
+S'\xf0vn\xe2\x95\x91+@'
+tRp2416
+sS'lookup number evolution birth rate[r6]'
+p2417
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2418
+sS'economic performance r1 ini'
+p2419
+g4
+(g6
+S'\xe9\x87\xc9{]\xfa\xfb?'
+tRp2420
+sS'economic performance r5 ini'
+p2421
+g4
+(g6
+S'\xeb\xd3U\x84\xe9\x9b\x17@'
+tRp2422
+sS'importance env perf 4 LS pull immig'
+p2423
+g4
+(g6
+S'\x92\x80MR.\xd7"@'
+tRp2424
+sS'environmental performance r3 ini'
+p2425
+g4
+(g6
+S'\xfab\x13\xfb\x1d\xbd\x1d@'
+tRp2426
+sS'avg T as HS retiree[r5]'
+p2427
+g4
+(g6
+S'|5\x96GIE1@'
+tRp2428
+sS'economic performance r4 ini'
+p2429
+g4
+(g6
+S'\xe3\xf0\xe3\x9d\x11X\x18@'
+tRp2430
+sS'economic performance r6 ini'
+p2431
+g4
+(g6
+S'^%q\xb4o\xe0!@'
+tRp2432
+sS'degree of HS orientation [r4]'
+p2433
+g4
+(g6
+S'\xe0\x9a\x11\xb0=\xcb\xc0?'
+tRp2434
+sS'effective LS push emigration ratio[r3]'
+p2435
+g4
+(g6
+S'\x14\x97-\xe9\xc8\x15\xc1?'
+tRp2436
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p2437
+g4
+(g6
+S'%\x03z\xa8\xf2A\xba?'
+tRp2438
+s(dp2439
+S'name'
+p2440
+S'None'
+p2441
+sS'demo'
+t(dp2442
+S'grey pressure on working population[r7]'
+p2443
+g293
+(g294
+(I0
+tS'b'
+tRp2444
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp2445
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S'\rz\xab>,\x07\xa8>\xf6\x87\xa5>r\xcd\xa3>\xf6\xb4\xa2>@%\xa2>\xa5\x0c\xa2>\xf8_\xa2>\xad\xe7\xa2>\x88k\xa3>\xa3\xe4\xa3>vM\xa4>\xab\xa1\xa4>\xea\xdd\xa4>\xc5\xff\xa4>\x8a\x05\xa5>;\xee\xa4>j\xb9\xa4>)g\xa4>\xfd\xf7\xa3>\xc2l\xa3>\xa4\xc6\xa2>\r\x07\xa2>\x92/\xa1>\xf5A\xa0>\x0c@\x9f>\xc1+\x9e>\x02\x07\x9d>\xbd\xd3\x9b>\xd9\x93\x9a>4I\x99>\x97\xf5\x97>\xbc\x9a\x96>?:\x95>\xa8\xd5\x93>an\x92>\xbd\x05\x91>\xec\x9c\x8f>\x0f5\x8e>\x18\xcf\x8c>\xf3k\x8b>i\x0c\x8a>)\xb1\x88>\xd2Z\x87>\xe5\t\x86>\xd5\xbe\x84>\x03z\x83>\xb9;\x82>7\x04\x81>[\xa7\x7f>yT}>'
+tbsS'grey pressure on working population[r6]'
+p2446
+g293
+(g294
+(I0
+tS'b'
+tRp2447
+(I1
+(I51
+tg2445
+I00
+S"\x9a\x9fm>\x19\xe6t>\xcb\x00|>\xe7p\x81>v\xbf\x84>l\xe8\x87>`\xe9\x8a>\xe3\xc0\x8d>n\x94\x90>\xbd\x86\x93>\x1c\x8f\x96>\x12\xa4\x99>\xd9\xbd\x9c>A\xd6\x9f>&\xe8\xa2>q\xed\xa5>\n\xe3\xa8>\x18\xc7\xab>I\x98\xae>\xb6U\xb1>\xce\xfe\xb3>I\x93\xb6>Z\x14\xb9>\xb5\x83\xbb>=\xe1\xbd>\xfc,\xc0>(f\xc2>\x89\x8c\xc4>\x94\xa0\xc6>\xcd\xa2\xc8>\xc8\x93\xca>\x1at\xcc>bD\xce>;\x05\xd0>7\xb7\xd1>\xf4Z\xd3>\x12\xf1\xd4>,z\xd6>\xc9\xf6\xd7>\x8eg\xd9>\xfc\xcc\xda>\x8d'\xdc>\xb0w\xdd>\xd9\xbd\xde>t\xfa\xdf>\xde-\xe1>nX\xe2>\x81z\xe3>s\x94\xe4>\x92\xa6\xe5>+\xb1\xe6>"
+tbsS'total population'
+p2448
+g293
+(g294
+(I0
+tS'b'
+tRp2449
+(I1
+(I51
+tg2445
+I00
+S'\x88\x91\xd1Olw\xd4O\xc0P\xd7O\xbf\x1b\xdaO_\xd7\xdcO"\x83\xdfO\xe9\x1e\xe2O\xdc\xaa\xe4Oi\'\xe7Og\x95\xe9O\xce\xf5\xebO\xa4I\xeeO\xf5\x91\xf0O\xce\xcf\xf2O<\x04\xf5OF0\xf7O\xe8T\xf9O\x1es\xfbO\xd2\x8b\xfdO\xe6\x9f\xffO\x1a\xd8\x00P\xc3\xde\x01PP\xe4\x02P\x1c\xe9\x03P\x80\xed\x04P\xd0\xf1\x05PZ\xf6\x06Pu\xfb\x07Py\x01\tP\x9e\x08\nP#\x11\x0bPJ\x1b\x0cPW\'\rP\x8b5\x0eP)F\x0fPtY\x10P\xaeo\x11P\x17\x89\x12P\n\xa6\x13P!\xc7\x14Pe\xec\x15P\xf3\x15\x17P\nD\x18P\xeev\x19P\xeb\xae\x1aPP\xec\x1bPo/\x1dP\x99x\x1eP"\xc8\x1fPb\x1e!P\xb3{"P'
+tbsS'grey pressure on working population[r4]'
+p2450
+g293
+(g294
+(I0
+tS'b'
+tRp2451
+(I1
+(I51
+tg2445
+I00
+S'\x0e\xdf\x08>[\x9d\x14>\x98\x9b\x1f>W\xe4)>\xb4\x803>6y<>i\xd6D>=\xa1L>=\xd1S>\xda]Z>_P`>)\xb2e>\xb2\x8cj>q\xe9n>\xca\xd1r>\xeeNv>\xdciy>@+|>b\x9b~>\x14a\x80>\x80S\x81>r(\x82>)\xe3\x82>\xa5\x86\x83>\xa6\x15\x84>\xb9\x92\x84>)\x00\x85>\x0e`\x85>K\xb4\x85>\x93\xfe\x85>m@\x86>1{\x86>\x1a\xb0\x86>6\xe0\x86>{\x0c\x87>\xbc5\x87>\xb8\\\x87>\x11\x82\x87>T\xa6\x87>\xed\xc9\x87>2\xed\x87>\x8b\x10\x88>L4\x88>\xc4X\x88>4~\x88>\xd7\xa4\x88>\xda\xcc\x88>b\xf6\x88>\x90!\x89>}N\x89>;}\x89>'
+tbsS'grey pressure on working population[r8]'
+p2452
+g293
+(g294
+(I0
+tS'b'
+tRp2453
+(I1
+(I51
+tg2445
+I00
+S'\x95L\xa1>:\x1c\xa1>\xca\x98\xa0>\xe9\xbb\x9f>8\x81\x9e>J\xe6\x9c>\x96\xea\x9a>r\x8f\x98>\xabb\x96>u\xde\x94>\xf3\xeb\x93>\xb3s\x93>rb\x93>\x1a\xa8\x93>Q6\x94>\xa8\xf9\x94>\xa8\xe7\x95>5\xf9\x96>.(\x98>Bo\x99>\xd0\xc9\x9a>\xd03\x9c>\n\xaf\x9d>2?\x9f>I\xe0\xa0>\xc7\x8e\xa2>]C\xa4>\xf1\xf8\xa5>u\xad\xa7>1_\xa9>\xad\x0c\xab>\xab\xb4\xac>\x1eV\xae>\x0e\xf0\xaf>p\x81\xb1>\xb7\t\xb3>w\x88\xb4>L\xfd\xb5>\xe1g\xb7>$\xc8\xb8>\xdc\x1d\xba>\xb5h\xbb>m\xa8\xbc>\xcd\xdc\xbd>\xb1\x05\xbf>\xe5"\xc0>94\xc1>\xb59\xc2>h3\xc3>a!\xc4>\xb6\x03\xc5>'
+tbsS'TIME'
+p2454
+g293
+(g294
+(I0
+tS'b'
+tRp2455
+(I1
+(I51
+tg2445
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p2456
+g293
+(g294
+(I0
+tS'b'
+tRp2457
+(I1
+(I51
+tg2445
+I00
+S"\xe4X\xa4>(j\xa7>e\x8c\xaa>6\xba\xad>\xa9\xf0\xb0>|/\xb4>Sy\xb7>m\xd4\xba>\xcc8\xbe>\xbcu\xc1>\xc4o\xc4>\x95'\xc7>-\x9e\xc9>\xd5\xd4\xcb>\x03\xd2\xcd>\xf5\xc7\xcf>m\xc2\xd1>\xd1\xc0\xd3>\x96\xc2\xd5>C\xc7\xd7>g\xce\xd9>\x8c\xd7\xdb>\x82\xbd\xdd>dL\xdf>`\x87\xe0>br\xe1>\x850\xe2>K\xd9\xe2>Bp\xe3>(\xf8\xe3>\x1as\xe4>\xbd\xe2\xe4>TH\xe5>f\xa5\xe5>\xbf\xfc\xe5>>N\xe6>\x8f\x99\xe6>i\xde\xe6>\x91\x1c\xe7>mR\xe7>b\x7f\xe7>\x11\xa4\xe7>\xf5\xc0\xe7>q\xd6\xe7>\xcb\xe4\xe7>\xe9\xec\xe7>\xed\xef\xe7>n\xed\xe7>\r\xe5\xe7>\x82\xd6\xe7>\x92\xc1\xe7>"
+tbsS'grey pressure on working population[r3]'
+p2458
+g293
+(g294
+(I0
+tS'b'
+tRp2459
+(I1
+(I51
+tg2445
+I00
+S"\xa0t\x0f>\x95\xd1\x1c>\x0c\x89)>\x17\xa55>\xc7-A>+*L>\xf5\xa0V>\x18\x99`>\xcc\x0bj>\x91\xf0r>HL{>\xeb\x91\x81>$>\x85>^\xad\x88>6\xe2\x8b>W\xdf\x8e>u\xa7\x91>?=\x94>j\xa3\x96>\xa3\xdc\x98>\x8c\xeb\x9a>\xba\xd2\x9c>\xae\x94\x9e>\xd63\xa0>\x86\xb2\xa1>\xff\x12\xa3>cW\xa4>\xb7\x81\xa5>\xea\x93\xa6>\xca\x8f\xa7>\x0fw\xa8>LK\xa9>\x02\x0e\xaa>\x95\xc0\xaa>Nd\xab>c\xfa\xab>\xee\x83\xac>\xf9\x01\xad>qu\xad>=\xdf\xad>'@\xae>\xec\x98\xae>:\xea\xae>\xad4\xaf>\xdax\xaf>E\xb7\xaf>h\xf0\xaf>\xb4$\xb0>\x8dT\xb0>O\x80\xb0>N\xa8\xb0>"
+tbsS'grey pressure on working population[r2]'
+p2460
+g293
+(g294
+(I0
+tS'b'
+tRp2461
+(I1
+(I51
+tg2445
+I00
+S'\x84x\xdc=97\xf9=\xf1\xf0\t>\xbdW\x16>}\xe4!>\xfe\xa6,>\xcf\xab6>\xc7\xfc?>x\x8fH>G]P>crW>\x90\xda]>>\xa1c>\x8b\xd1h>Tvm>\x1b\x9aq>\x0eGu>\xfa\x86x><c{>\xbb\xe4}>\xf2\t\x80>Q\xfc\x80>0\xcd\x81>\x02\x80\x82>\xf7\x17\x83>\xfa\x97\x83>\xc1\x02\x84>\xbcZ\x84>\x05\xa2\x84>\x97\xda\x84>S\x06\x85>\xec&\x85>\xec=\x85>\xacL\x85>YT\x85>\x03V\x85>\x93R\x85>\xd7J\x85>~?\x85>&1\x85>S \x85>y\r\x85>\xf9\xf8\x84>+\xe3\x84>U\xcc\x84>\xb4\xb4\x84>{\x9c\x84>\xd6\x83\x84>\xe9j\x84>\xd1Q\x84>\xa78\x84>'
+tbstp2462
+a(((dp2463
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p2464
+g4
+(g6
+S'\xce\xab\xd5F\x86\x16\xc7?'
+tRp2465
+sS'environmental performance r5 ini'
+p2466
+g4
+(g6
+S'\xdd\xec\xe8n\x07\x1c\x16@'
+tRp2467
+sS'push cost performance r3 ini'
+p2468
+g4
+(g6
+S'\x8d=\xb2N\xa3_\x14@'
+tRp2469
+sS'environmental performance r8 ini'
+p2470
+g4
+(g6
+S'B\x9e\x98\xc7\x94\x97\x19@'
+tRp2471
+sS'effective LS push emigration ratio[r7]'
+p2472
+g4
+(g6
+S'm:\xd9:\x9f\xb4\xb1?'
+tRp2473
+sS'societal performance r6 ini'
+p2474
+g4
+(g6
+S'\x1c\x7f\xbb\xce\xa1r!@'
+tRp2475
+sS'lookup number evolution birth rate[r5]'
+p2476
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2477
+sS'importance sec perf 4 HS push immig'
+p2478
+g4
+(g6
+S'<\x84\xd1\xde\x12\xb2\xf7?'
+tRp2479
+sS'push cost performance r8 ini'
+p2480
+g4
+(g6
+S'}t\xb8\xd0\xed\xed\x10@'
+tRp2481
+sS'avg T as HS retiree[r8]'
+p2482
+g4
+(g6
+S'2$\x1fXo\xda(@'
+tRp2483
+sS'effective HS push emigration ratio[r5]'
+p2484
+g4
+(g6
+S'+\xa6 6Gj\x87?'
+tRp2485
+sS'importance econ perf 4 HS push immig'
+p2486
+g4
+(g6
+S'\xde{=\xe2\xf3\xa2\x1e@'
+tRp2487
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p2488
+g4
+(g6
+S'\x86\xb5\xd8\xe0|U\xbb?'
+tRp2489
+sS'societal performance r7 ini'
+p2490
+g4
+(g6
+S'\x01B|\r?\x17\x0b@'
+tRp2491
+sS'degree of HS orientation [r1]'
+p2492
+g4
+(g6
+S'\x18\xd2\xdf\x96\x8d\xb5\xc0?'
+tRp2493
+sS'lookup number evolution HS jobs[r5]'
+p2494
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2495
+sS'security performance r4 ini'
+p2496
+g4
+(g6
+S'.xKc\xdc\xe8\x17@'
+tRp2497
+sS'effective LS push emigration ratio[r4]'
+p2498
+g4
+(g6
+S'e\xdd\xda\x08\xc7?\xba?'
+tRp2499
+sS'importance soc perf 4 HS pull immig'
+p2500
+g4
+(g6
+S'\x1eG\xe5D\xe9\x18#@'
+tRp2501
+sS'lookup number evolution birth rate[r4]'
+p2502
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2503
+sS'pull cost performance r5 ini'
+p2504
+g4
+(g6
+S"\x8b\x93'\x07\x0cU\x10@"
+tRp2505
+sS'avg T as LS retiree[r1]'
+p2506
+g4
+(g6
+S'9\xb5=\xea7g\xf6?'
+tRp2507
+sS'avg T as HS retiree[r3]'
+p2508
+g4
+(g6
+S"\x88\x1a\xeb]jm'@"
+tRp2509
+sS'push cost performance r7 ini'
+p2510
+g4
+(g6
+S'2\x98\xe5\xf7\xd6k\x11@'
+tRp2511
+sS'effective HS push emigration ratio[r2]'
+p2512
+g4
+(g6
+S'm\xb9\x15c\xb9\xf5\x92?'
+tRp2513
+sS'economic performance r8 ini'
+p2514
+g4
+(g6
+S'n\xeb/\xcf\xa5\x16!@'
+tRp2515
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p2516
+g4
+(g6
+S'\x16W&\x1c\x15:\xb4?'
+tRp2517
+sS'pull cost performance r2 ini'
+p2518
+g4
+(g6
+S'\x977\xf8\xb0\x82O\x11@'
+tRp2519
+sS'push cost performance r2 ini'
+p2520
+g4
+(g6
+S'\xe1m\xdd\xda\x12\x0e\x14@'
+tRp2521
+sS'security performance r7 ini'
+p2522
+g4
+(g6
+S'\xca\xdct\x1b{u\x17@'
+tRp2523
+sS'environmental performance r2 ini'
+p2524
+g4
+(g6
+S'&#\xc1W\x8f\x0f\x00@'
+tRp2525
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p2526
+g4
+(g6
+S'\x8f\x93:&\xc3Q\xc6?'
+tRp2527
+sS'degree of HS orientation [r6]'
+p2528
+g4
+(g6
+S'%\xd1\xcb~Vh\xe4?'
+tRp2529
+sS'avg T as LS retiree[r4]'
+p2530
+g4
+(g6
+S'\xf3\x131\r\x9a\xd8$@'
+tRp2531
+sS'effective LS push emigration ratio[r1]'
+p2532
+g4
+(g6
+S'\xc0\xfa\xe1\xf9\x04\xa2\xc5?'
+tRp2533
+sS'importance cost perf 4 HS push immig'
+p2534
+g4
+(g6
+S'*A\x82\xd0T^\x0e@'
+tRp2535
+sS'pull cost performance r8 ini'
+p2536
+g4
+(g6
+S'|\x11\xbe\x9a\x16\x8f\x1e@'
+tRp2537
+sS'importance cost perf 4 LS push immig'
+p2538
+g4
+(g6
+S'v(\xe6\x0ebp\t@'
+tRp2539
+sS'avg T as HS retiree[r6]'
+p2540
+g4
+(g6
+S'\xcc\x92\x1f1\xcd\x8d1@'
+tRp2541
+sS'degree of HS orientation [r8]'
+p2542
+g4
+(g6
+S'\xc8y\xa2a\xaf[\xe3?'
+tRp2543
+sS'effective HS push emigration ratio[r7]'
+p2544
+g4
+(g6
+S'H\xfdAp"\xd4u?'
+tRp2545
+sS'pull cost performance r3 ini'
+p2546
+g4
+(g6
+S'\xb9<4\xd3\xb8\x13\x13@'
+tRp2547
+sS'lookup number evolution birth rate[r3]'
+p2548
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2549
+sS'push cost performance r5 ini'
+p2550
+g4
+(g6
+S'\x88\x83\xd2\x89C\xe0\x11@'
+tRp2551
+sS'push cost performance r1 ini'
+p2552
+g4
+(g6
+S'\xbf\xbcw\xd0\x83\xab\x15@'
+tRp2553
+sS'economic performance r2 ini'
+p2554
+g4
+(g6
+S'f>\xa0\xc9\x8b\x99\x02@'
+tRp2555
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p2556
+g4
+(g6
+S'o\xda\xc1qNT\xc4?'
+tRp2557
+sS'push cost performance r4 ini'
+p2558
+g4
+(g6
+S'\xefP\x99\x8aIz\x17@'
+tRp2559
+sS'lookup number evolution HS jobs[r7]'
+p2560
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2561
+sS'avg T as LS retiree[r7]'
+p2562
+g4
+(g6
+S'\xb0\xeb\x0b\x85p\xcd\x1f@'
+tRp2563
+sS'effective LS push emigration ratio[r6]'
+p2564
+g4
+(g6
+S'\x14\xcblj\x1d5\xc2?'
+tRp2565
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p2566
+g4
+(g6
+S'\x84*P\xb0\x16\x8c\xb6?'
+tRp2567
+sS'avg T as HS retiree[r1]'
+p2568
+g4
+(g6
+S'2\xab\x02\xe2?`\x03@'
+tRp2569
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p2570
+g4
+(g6
+S'\xbc\xddA\xe6\xa6!\x94?'
+tRp2571
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p2572
+g4
+(g6
+S'\x1c\xcfmj\xf9w\xc8?'
+tRp2573
+sS'security performance r6 ini'
+p2574
+g4
+(g6
+S'\x85uuW\x98\x8e\x18@'
+tRp2575
+sS'lookup number evolution birth rate[r2]'
+p2576
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2577
+sS'effective HS push emigration ratio[r4]'
+p2578
+g4
+(g6
+S';P\xb1I\xc6\xe4\x91?'
+tRp2579
+sS'security performance r2 ini'
+p2580
+g4
+(g6
+S'\x90\x1be@lb\x00@'
+tRp2581
+sS'importance econ perf 4 LS pull immig'
+p2582
+g4
+(g6
+S'2P\xa3\xbc\x9f\xbe\x15@'
+tRp2583
+sS'security performance r3 ini'
+p2584
+g4
+(g6
+S'\xa2`\xb75:\x9f\x01@'
+tRp2585
+sS'pull cost performance r7 ini'
+p2586
+g4
+(g6
+S'\x06`\x8d\xb7\xfb\xce\x13@'
+tRp2587
+sS'security performance r1 ini'
+p2588
+g4
+(g6
+S'\xc6\x03\x1e@r\xa6\xf3?'
+tRp2589
+sS'lookup number evolution HS jobs[r6]'
+p2590
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2591
+sS'security performance r8 ini'
+p2592
+g4
+(g6
+S'T\x92\x8b\xde\xe0\x9a!@'
+tRp2593
+sS'degree of HS orientation [r2]'
+p2594
+g4
+(g6
+S'&\xdc\xc0\xc3\xf0.\xc0?'
+tRp2595
+sS'lookup number evolution HS jobs[r2]'
+p2596
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2597
+sS'societal performance r2 ini'
+p2598
+g4
+(g6
+S'\x8c$`\x88\x06\xd6\r@'
+tRp2599
+sS'environmental performance r1 ini'
+p2600
+g4
+(g6
+S'\x1f\xbf\xe6>\x92D\x15@'
+tRp2601
+sS'lookup number evolution birth rate[r1]'
+p2602
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2603
+sS'avg T as LS retiree[r2]'
+p2604
+g4
+(g6
+S"\x00'a\x83\xbe\xeb&@"
+tRp2605
+sS'importance env perf 4 HS push immig'
+p2606
+g4
+(g6
+S'`\x19\x95\xbe\xe3\xf2\x01@'
+tRp2607
+sS'importance sec perf 4 LS push immig'
+p2608
+g4
+(g6
+S'U\xa7\xc48\xd3\xea\x02@'
+tRp2609
+sS'importance sec perf 4 LS pull immig'
+p2610
+g4
+(g6
+S'\x993\xa1)\xcf\xdc\t@'
+tRp2611
+sS'avg T as HS retiree[r4]'
+p2612
+g4
+(g6
+S'\xc2\x8a>0\xcf\x83"@'
+tRp2613
+sS'effective HS push emigration ratio[r1]'
+p2614
+g4
+(g6
+S'\xec\xd3\x99%\xf0\xecv?'
+tRp2615
+sS'effective LS push emigration ratio[r8]'
+p2616
+g4
+(g6
+S'\xf6*i\xa8\xad\x91\xb9?'
+tRp2617
+sS'pull cost performance r4 ini'
+p2618
+g4
+(g6
+S'[x\xbc\xec)\xac\x11@'
+tRp2619
+sS'degree of HS orientation [r5]'
+p2620
+g4
+(g6
+S'\x02\xe0\x97:P^\xe4?'
+tRp2621
+sS'societal performance r3 ini'
+p2622
+g4
+(g6
+S'\xf0\xde\xedh\\\xff\x15@'
+tRp2623
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p2624
+g4
+(g6
+S'\xa6\xbfO]\x87\xc7\xc2?'
+tRp2625
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p2626
+g4
+(g6
+S'\x84\xa5\x8b\xf4\x1e\x85\xc3?'
+tRp2627
+sS'importance soc perf 4 LS push immig'
+p2628
+g4
+(g6
+S'k\x89\xfe\x81\x80&\x11@'
+tRp2629
+sS'importance env perf 4 HS pull immig'
+p2630
+g4
+(g6
+S'\xac\xc8\xe1@v\x94#@'
+tRp2631
+sS'environmental performance r7 ini'
+p2632
+g4
+(g6
+S'Pv\xe5F2\x19\x13@'
+tRp2633
+sS'degree of HS orientation [r3]'
+p2634
+g4
+(g6
+S'4\xc7B$\xcf\xa2\xc2?'
+tRp2635
+sS'economic performance r3 ini'
+p2636
+g4
+(g6
+S'\xda\xee<\xa5B\x83\x0b@'
+tRp2637
+sS'importance env perf 4 LS push immig'
+p2638
+g4
+(g6
+S'E\xc9\xdd\xf1\xda\x16\x1e@'
+tRp2639
+sS'societal performance r4 ini'
+p2640
+g4
+(g6
+S'z\xdd \x1c\xeb\xaa\t@'
+tRp2641
+sS'importance soc perf 4 HS push immig'
+p2642
+g4
+(g6
+S'l\x01\xfc\x86\xc2\x94"@'
+tRp2643
+sS'avg T as HS retiree[r7]'
+p2644
+g4
+(g6
+S'P82\xf5\xa8\x89\x1d@'
+tRp2645
+sS'avg T as LS retiree[r5]'
+p2646
+g4
+(g6
+S'1\xb4ae-\x95(@'
+tRp2647
+sS'effective HS push emigration ratio[r6]'
+p2648
+g4
+(g6
+S'P\xba\x0b\xac\xb0\xbb\x91?'
+tRp2649
+sS'pull cost performance r1 ini'
+p2650
+g4
+(g6
+S'\x81\x98:A\xa2i\x06@'
+tRp2651
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p2652
+g4
+(g6
+S'\xe4\xc5\x9eMc\xfa\xc6?'
+tRp2653
+sS'pull cost performance r6 ini'
+p2654
+g4
+(g6
+S'\xa0\xbbj\x05\xf7U @'
+tRp2655
+sS'importance econ perf 4 HS pull immig'
+p2656
+g4
+(g6
+S'\x13\xe6Kf\xcf\xc5 @'
+tRp2657
+sS'importance cost perf 4 LS pull immig'
+p2658
+g4
+(g6
+S'\xabv\x08\x85\x1f~\x13@'
+tRp2659
+sS'avg T as LS retiree[r6]'
+p2660
+g4
+(g6
+S'\x86\xe1[[\xdf\xf2+@'
+tRp2661
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p2662
+g4
+(g6
+S'\x90\x1b\x99\xdd\x86\xb1\xab?'
+tRp2663
+sS'environmental performance r6 ini'
+p2664
+g4
+(g6
+S'\x1aP\x92@\xe0{\x1d@'
+tRp2665
+sS'lookup number evolution HS jobs[r8]'
+p2666
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2667
+sS'societal performance r5 ini'
+p2668
+g4
+(g6
+S'\x86P>Q\xb3\xa8\x14@'
+tRp2669
+sS'importance soc perf 4 LS pull immig'
+p2670
+g4
+(g6
+S'r\x12\x05\xf6\xb9\n\x07@'
+tRp2671
+sS'lookup number evolution birth rate[r8]'
+p2672
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2673
+sS'lookup number evolution HS jobs[r4]'
+p2674
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2675
+sS'avg T as LS retiree[r8]'
+p2676
+g4
+(g6
+S'\xb92\xe4\xd9\xc7\x1a/@'
+tRp2677
+sS'effective LS push emigration ratio[r5]'
+p2678
+g4
+(g6
+S'\x98\xf4\xfb^\xea\xac\xae?'
+tRp2679
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p2680
+g4
+(g6
+S'\xa0\xdc\xda\x86\xedD\xc4?'
+tRp2681
+sS'partner multiplicator legal immigration'
+p2682
+g4
+(g6
+S'\x1a\\u\xc9\x83\xd6\xf1?'
+tRp2683
+sS'importance cost perf 4 HS pull immig'
+p2684
+g4
+(g6
+S']\x18\xb4I\xbc\xd7\x10@'
+tRp2685
+sS'environmental performance r4 ini'
+p2686
+g4
+(g6
+S'\xb4\xd1#}\x02/\x02@'
+tRp2687
+sS'avg T as HS retiree[r2]'
+p2688
+g4
+(g6
+S'\xee_@;\xc3$,@'
+tRp2689
+sS'lookup number evolution birth rate[r7]'
+p2690
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2691
+sS'economic performance r7 ini'
+p2692
+g4
+(g6
+S'vUy\x9e\xbd\xc9\x12@'
+tRp2693
+sS'effective HS push emigration ratio[r3]'
+p2694
+g4
+(g6
+S'\xd5\x83\x9dQ\xc8\xc0\x80?'
+tRp2695
+sS'security performance r5 ini'
+p2696
+g4
+(g6
+S';>\xb1\xf9\x066\x1c@'
+tRp2697
+sS'push cost performance r6 ini'
+p2698
+g4
+(g6
+S'\xc6\xba\x83\xe3X\xa8\x11@'
+tRp2699
+sS'degree of HS orientation [r7]'
+p2700
+g4
+(g6
+S'\xd3\xc0\xf7\xdf\xb7[\xdd?'
+tRp2701
+sS'effective LS push emigration ratio[r2]'
+p2702
+g4
+(g6
+S'4\xb8\xde\xdc\xd8\x0b\xc3?'
+tRp2703
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p2704
+g4
+(g6
+S'\xd0`\xb2\n\xc2\xe7\xbb?'
+tRp2705
+sS'importance sec perf 4 HS pull immig'
+p2706
+g4
+(g6
+S'\xc7\xc5\xf7\xa9E1\r@'
+tRp2707
+sS'lookup number evolution HS jobs[r3]'
+p2708
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2709
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p2710
+g4
+(g6
+S'\xba,\xc5\x89\xec\x7f\xb2?'
+tRp2711
+sS'lookup number evolution HS jobs[r1]'
+p2712
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2713
+sS'effective HS push emigration ratio[r8]'
+p2714
+g4
+(g6
+S'\xa9F_\xb2\x15\x16\x80?'
+tRp2715
+sS'societal performance r8 ini'
+p2716
+g4
+(g6
+S'i\xb1\xb9\x10\xdf\n\x1b@'
+tRp2717
+sS'societal performance r1 ini'
+p2718
+g4
+(g6
+S'\xaf\ns\x9d\x8c \x0c@'
+tRp2719
+sS'importance econ perf 4 LS push immig'
+p2720
+g4
+(g6
+S'|\x8c\x02\xeeE\x9f#@'
+tRp2721
+sS'avg T as LS retiree[r3]'
+p2722
+g4
+(g6
+S"\xd1\xd4\x98\xcd\xc1\xc4'@"
+tRp2723
+sS'lookup number evolution birth rate[r6]'
+p2724
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2725
+sS'economic performance r1 ini'
+p2726
+g4
+(g6
+S'\xc9\xac\xcf\x9e\x19l\x07@'
+tRp2727
+sS'economic performance r5 ini'
+p2728
+g4
+(g6
+S'nY\xb4l\xc1\x87\x1a@'
+tRp2729
+sS'importance env perf 4 LS pull immig'
+p2730
+g4
+(g6
+S'!}<\x0cRD\x14@'
+tRp2731
+sS'environmental performance r3 ini'
+p2732
+g4
+(g6
+S'\xb3\xeaJ\xfb\x11\x01\x19@'
+tRp2733
+sS'avg T as HS retiree[r5]'
+p2734
+g4
+(g6
+S'Io\t=\xde\xb8+@'
+tRp2735
+sS'economic performance r4 ini'
+p2736
+g4
+(g6
+S'+\xd3\x9f9<\xd3\x1c@'
+tRp2737
+sS'economic performance r6 ini'
+p2738
+g4
+(g6
+S' \xa4\x14\xb4\x80\xee @'
+tRp2739
+sS'degree of HS orientation [r4]'
+p2740
+g4
+(g6
+S'\xa8Sh\x0bl\xfe\xca?'
+tRp2741
+sS'effective LS push emigration ratio[r3]'
+p2742
+g4
+(g6
+S'fsF\x0b\x8am\xba?'
+tRp2743
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p2744
+g4
+(g6
+S'\xef8f\xd5S\x9f\x87?'
+tRp2745
+s(dp2746
+S'name'
+p2747
+S'None'
+p2748
+sS'demo'
+t(dp2749
+S'grey pressure on working population[r7]'
+p2750
+g293
+(g294
+(I0
+tS'b'
+tRp2751
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp2752
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S"\rz\xab>\x1d7\xa3>\xc5T\x9c>\x0f\x8e\x96>\t\xbd\x91>\xa7\xcb\x8d>\xc3\x94\x8a>\x86\xfb\x87>\xd6\xe9\x85>\xaeX\x84>xG\x83>\\\xb5\x82>\x8eJ\x82>\x01\xcc\x81>\x92:\x81>g\x97\x80>\xc6\xc7\x7f>*C~>\\\xa4|>\xe3\xeez>^&y>mNw>\x99ju>R~s>\xdf\x8cq>T\x99o>\x87\xa6m>\x0e\xb7k>A\xcdi>4\xebg>\xb6\x12f>XEd>f\x84b>\xfb\xd0`>\xef+_>\xeb\x95]>h\x0f\\>\xb5\x98Z>\xfc1Y>B\xdbW>t\x94V>`]U>\xc85T>O\x1dS>\x93\x13R>'\x18Q>\x9b*P>hJO>\xf9vN>\xce\xafM>]\xf4L>"
+tbsS'grey pressure on working population[r6]'
+p2753
+g293
+(g294
+(I0
+tS'b'
+tRp2754
+(I1
+(I51
+tg2752
+I00
+S'\x9a\x9fm>[\xbau>V\xb0~>f:\x84>\xc6H\x89>^+\x8e>\x9c\xe2\x92>\xbcp\x97>\x1d\xd9\x9b>\x02\x14\xa0>\x86\x16\xa4>\x8b\xdb\xa7>\xbf3\xab>\x05\xa8\xad>b\x83\xaf>\xce\xa6\xb1>{4\xb4>\xa6\x12\xb7>\x17\xf0\xb9>\xc1\xbe\xbc>\xf1\x7f\xbf>\xef4\xc2>\xc1\xbf\xc4>t\xf5\xc6>\xd5\xca\xc8>E\x1c\xca>\x85\x0c\xcb>\x83\xbb\xcb>\xfb@\xcc>\xb7\xae\xcc>\xde\x11\xcd>\x12t\xcd>,\xdc\xcd>DO\xce>\xed\xcf\xce>\x88\\\xcf>_\xf3\xcf>\xef\x92\xd0>\xde9\xd1>\x94\xe8\xd1>\x8d\xa5\xd2>4v\xd3>\xa9]\xd4>\x8c]\xd5>\x99v\xd6>\xac\x93\xd7>Y\x8d\xd8>#h\xd9>\xe5)\xda>\x8e\xd8\xda>Bz\xdb>'
+tbsS'total population'
+p2755
+g293
+(g294
+(I0
+tS'b'
+tRp2756
+(I1
+(I51
+tg2752
+I00
+S"\x88\x91\xd1OLN\xd4O\x9b\xfa\xd6O`\x97\xd9O\x15$\xdcO\xce\x9f\xdeO\xae\t\xe1O\x1fa\xe3O\xcc\xa5\xe5O\x98\xd7\xe7O\x92\xf6\xe9O\xe7\x02\xecO\xf4\xfc\xedOi\xe5\xefO\xfe\xbc\xf1OQ\x84\xf3O\xe9;\xf5O@\xe4\xf6O\xc0}\xf8O\xc7\x08\xfaO\xa8\x85\xfbO\xa8\xf4\xfcO\xfeU\xfeO\xdb\xa9\xffO4x\x00P\xdf\x14\x01P\xf5\xaa\x01P\x96:\x02P\xae\xc3\x02P'F\x03P\xf0\xc1\x03P\xf86\x04P+\xa5\x04Pu\x0c\x05P\xbcl\x05P\xe5\xc5\x05P\xd6\x17\x06Pnb\x06P\x92\xa5\x06P#\xe1\x06P\x04\x15\x07P\x15A\x07P9e\x07PO\x81\x07P:\x95\x07P\xdb\xa0\x07P\x12\xa4\x07P\xc1\x9e\x07P\xcd\x90\x07P\x16z\x07P\x88Z\x07P"
+tbsS'grey pressure on working population[r4]'
+p2757
+g293
+(g294
+(I0
+tS'b'
+tRp2758
+(I1
+(I51
+tg2752
+I00
+S'\x0e\xdf\x08>\xe7\x18\x14>h\x9b\x1e>-n(>\xd8\x9a1>\\,:>X)B>\xd4\x98I>\x80\x82P>\xfc\xedV>\xdb\xe3\\>\xf8mb>\xba~g>\x1e\x11l>40p>N\xecs>\x02Ow>\xc1_z>\xb5%}>\xad\xa7\x7f>\x0e\xf6\x80>\x8a\xfc\x81>V\xe8\x82>#\xba\x83>Iu\x84>\xd6\x1c\x85>v\xb3\x85>\xa0;\x86>k\xb7\x86>\xbe(\x87>?\x91\x87>a\xf2\x87>jM\x88>\xbf\xa3\x88>\x90\xf7\x88>\x7fI\x89>\xf4\x99\x89>K\xe9\x89>\xd67\x8a>b\x84\x8a>y\xce\x8a>\xc7\x16\x8b>\xdf]\x8b>7\xa4\x8b>1\xea\x8b>\x831\x8c>\xc9|\x8c>\xa9\xcb\x8c>\xbf\x1d\x8d>\xb2r\x8d>3\xca\x8d>'
+tbsS'grey pressure on working population[r8]'
+p2759
+g293
+(g294
+(I0
+tS'b'
+tRp2760
+(I1
+(I51
+tg2752
+I00
+S"\x95L\xa1>\xf6@\xa0>\xd6\x0c\x9f>d\xa9\x9d>\x89\x11\x9c>lA\x9a>\xa66\x98>^\xf0\x95>!o\x93>\xe8\xb4\x90>\xca\xc4\x8d>\xc3\xa4\x8a>\x86I\x88>\x04=\x87>\xa5\x12\x87>\x16\x19\x87>L-\x87>2T\x87>\xf3\xa8\x87>\n(\x88>\xf7\xc8\x88>\xbd\x84\x89>\x19n\x8a>\x95\x9c\x8b>\xf4\x06\x8d>\xb3\xae\x8e>\xe4\x7f\x90>\x14j\x92>;a\x94>?\\\x96>CT\x98>\x17D\x9a>\xce'\x9c>\xf7\xf9\x9d>\xd3\xae\x9f>\xf9F\xa1>O\xc4\xa2>\x96(\xa4>\x85u\xa5>?\xb8\xa6>\xe4\xf5\xa7>`*\xa9>\xe7R\xaa>\xa5m\xab>ty\xac>=r\xad>\xb7Q\xae>\xe1\x18\xaf>\xce\xc8\xaf>`b\xb0>f\xe6\xb0>"
+tbsS'TIME'
+p2761
+g293
+(g294
+(I0
+tS'b'
+tRp2762
+(I1
+(I51
+tg2752
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p2763
+g293
+(g294
+(I0
+tS'b'
+tRp2764
+(I1
+(I51
+tg2752
+I00
+S'\xe4X\xa4>%\xc2\xa5>\x11C\xa7>+\xd2\xa8>\xe6g\xaa>h\xfe\xab>\xfa\x90\xad>\n\x1c\xaf>\xf3\x9c\xb0>\x1d\x12\xb2>kz\xb3>\xf4\xd4\xb4>\xb7\x1f\xb6>yY\xb7>-\x82\xb8>\xf2\x99\xb9>\x0e\xa1\xba>\xe3\x97\xbb>\xe2~\xbc>hV\xbd>\xdb\x1e\xbe>\xb9\xd8\xbe>\x83\x84\xbf>\xcf"\xc0>3\xb4\xc0>I9\xc1>\xa7\xb2\xc1>\xed \xc2>\xb3\x84\xc2>\x89\xde\xc2>\x03/\xc3>\xa8v\xc3>\xff\xb5\xc3>\x87\xed\xc3>\xba\x1d\xc4>\nG\xc4>\xe7i\xc4>\xbb\x86\xc4>\xe3\x9d\xc4>\xbe\xaf\xc4>\xa6\xbc\xc4>\xe9\xc4\xc4>\xda\xc8\xc4>\xc0\xc8\xc4>\xe0\xc4\xc4>|\xbd\xc4>\xd2\xb2\xc4>\x1e\xa5\xc4>\x95\x94\xc4>l\x81\xc4>\xd2k\xc4>'
+tbsS'grey pressure on working population[r3]'
+p2765
+g293
+(g294
+(I0
+tS'b'
+tRp2766
+(I1
+(I51
+tg2752
+I00
+S"\xa0t\x0f>uZ\x1c>\xa1{(>J\xe53>\x02\xa9>>\xa0\xdaH>-\x83R>t\xab[>j\\d>\x06\x9el>5yt>\xad\xf8{>\x85y\x81>!\xa9\x84>\xcc\x91\x87>\xd9?\x8a>\x86\xb8\x8c>\x0c\xff\x8e>\x9a\x16\x91>N\x02\x93>0\xc5\x94>0b\x96>\xb9\xd8\x97>\xeb'\x99>`T\x9a>Db\x9b>PU\x9c>\xf20\x9d>#\xf8\x9d>\x8e\xad\x9e>\x98S\x9f>[\xec\x9f>\xb4y\xa0>\xd1\xfd\xa0>(|\xa1>\xac\xf5\xa1>\xfcj\xa2>\xa6\xdc\xa2>-K\xa3>\xb7\xb4\xa3>\xa0\x18\xa4>\nx\xa4>\xed\xd3\xa4>\x15-\xa5>,\x84\xa5>\xdd\xdb\xa5>;8\xa6>\xdf\x98\xa6>O\xfd\xa6>\x17e\xa7>\xd1\xcf\xa7>"
+tbsS'grey pressure on working population[r2]'
+p2767
+g293
+(g294
+(I0
+tS'b'
+tRp2768
+(I1
+(I51
+tg2752
+I00
+S'\x84x\xdc=\x93\x14\xfa=G\xc4\n>\xcc\x85\x17>\xbfi#>9\x89.>#\xf18>\x8d\xacB>c\xc5K>\xffHT>(D\\>\x11\xbfc>\x06\x9ej>\xf2\xd6p>\x00wv>\xd4\x8a{>:\x0f\x80>\xa1\x1e\x82>\x02\xf9\x83>i\xa3\x85>\x90"\x87>\xdaz\x88>R\xb0\x89>\xb8\xc6\x8a>x\xc1\x8b>\xb3\xa3\x8c>Ap\x8d>\xa2)\x8e>\x00\xd2\x8e>\x7fk\x8f>\x1e\xf8\x8f>\xa1y\x90>\x9f\xf1\x90>\x80a\x91>~\xca\x91>\xaf-\x92>\x08\x8c\x92>_\xe6\x92>l=\x93>\xd5\x91\x93>+\xe4\x93>\xea4\x94>{\x84\x94>@\xd3\x94>\x8a!\x95>\xa0o\x95>\xc2\xbd\x95>%\x0c\x96>\xfaZ\x96>g\xaa\x96>\x91\xfa\x96>'
+tbstp2769
+a(((dp2770
+S'fraction of jobless LS adults willing to emigrate[r3]'
+p2771
+g4
+(g6
+S'\x961v\xf5\x03\x17\xb2?'
+tRp2772
+sS'environmental performance r5 ini'
+p2773
+g4
+(g6
+S'\xfbQ\x15\x88\xf3I\x15@'
+tRp2774
+sS'push cost performance r3 ini'
+p2775
+g4
+(g6
+S'{y\xc9\xe7\xd7\x1c\x16@'
+tRp2776
+sS'environmental performance r8 ini'
+p2777
+g4
+(g6
+S'D\xb4@\x15mR\x17@'
+tRp2778
+sS'effective LS push emigration ratio[r7]'
+p2779
+g4
+(g6
+S'\xa2\xf1n\xe5\xb4\xe4\xac?'
+tRp2780
+sS'societal performance r6 ini'
+p2781
+g4
+(g6
+S'V\xe3)\xbcdo @'
+tRp2782
+sS'lookup number evolution birth rate[r5]'
+p2783
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2784
+sS'importance sec perf 4 HS push immig'
+p2785
+g4
+(g6
+S'<\xa4F\x1e\xd5\xd6\x02@'
+tRp2786
+sS'push cost performance r8 ini'
+p2787
+g4
+(g6
+S'\xa5<2\xac!m\x12@'
+tRp2788
+sS'avg T as HS retiree[r8]'
+p2789
+g4
+(g6
+S'\x8c&\x08\xd8J{1@'
+tRp2790
+sS'effective HS push emigration ratio[r5]'
+p2791
+g4
+(g6
+S'\xd2@\xaa\xcf\xfcR\x81?'
+tRp2792
+sS'importance econ perf 4 HS push immig'
+p2793
+g4
+(g6
+S'3\xed\xb2v\x10\xfc\x1c@'
+tRp2794
+sS'fraction of jobless HS adults willing to emigrate[r6]'
+p2795
+g4
+(g6
+S'o\x91\x9b\x92?T\xac?'
+tRp2796
+sS'societal performance r7 ini'
+p2797
+g4
+(g6
+S'\xe4\xc2\x96\x9a\xbf\xb6\x0f@'
+tRp2798
+sS'degree of HS orientation [r1]'
+p2799
+g4
+(g6
+S'\x96\xb6\x01Q\xfcZ\xb8?'
+tRp2800
+sS'lookup number evolution HS jobs[r5]'
+p2801
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2802
+sS'security performance r4 ini'
+p2803
+g4
+(g6
+S'\xdd\x9b\x8f\x04\x1f\xfe\x13@'
+tRp2804
+sS'effective LS push emigration ratio[r4]'
+p2805
+g4
+(g6
+S'\xbe\x11\xe5\\\xfa\n\xc7?'
+tRp2806
+sS'importance soc perf 4 HS pull immig'
+p2807
+g4
+(g6
+S'1\xae9\xf3\xc6\x94\x1f@'
+tRp2808
+sS'lookup number evolution birth rate[r4]'
+p2809
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2810
+sS'pull cost performance r5 ini'
+p2811
+g4
+(g6
+S'\x0c\x11\xb0hA\xa0\x13@'
+tRp2812
+sS'avg T as LS retiree[r1]'
+p2813
+g4
+(g6
+S'\x10\x87\xe8\xdfnn\x01@'
+tRp2814
+sS'avg T as HS retiree[r3]'
+p2815
+g4
+(g6
+S'\x1aLI\x1e\xcf\xc0/@'
+tRp2816
+sS'push cost performance r7 ini'
+p2817
+g4
+(g6
+S'\xac\xb9\x1a\xb5\xf9\xaf\r@'
+tRp2818
+sS'effective HS push emigration ratio[r2]'
+p2819
+g4
+(g6
+S'\xf70\x1fd\xff\xabv?'
+tRp2820
+sS'economic performance r8 ini'
+p2821
+g4
+(g6
+S'\x81?U\x93\x9f\xe5\x1e@'
+tRp2822
+sS'fraction of jobless LS adults willing to emigrate[r8]'
+p2823
+g4
+(g6
+S'\xce\x95f%\xac\xd4\xbc?'
+tRp2824
+sS'pull cost performance r2 ini'
+p2825
+g4
+(g6
+S'\x0b\x93\xdb\x17a<\x0f@'
+tRp2826
+sS'push cost performance r2 ini'
+p2827
+g4
+(g6
+S'\xe0c\xea\\\x0bh\x19@'
+tRp2828
+sS'security performance r7 ini'
+p2829
+g4
+(g6
+S'W\x05\xccqm\xda\x12@'
+tRp2830
+sS'environmental performance r2 ini'
+p2831
+g4
+(g6
+S'\xce\xdaN\xce\xcbZ\x0f@'
+tRp2832
+sS'fraction of jobless HS adults willing to emigrate[r7]'
+p2833
+g4
+(g6
+S's5\x02~\xbf\x0b\xaf?'
+tRp2834
+sS'degree of HS orientation [r6]'
+p2835
+g4
+(g6
+S'\x9d\xe9\xb8X\xdcF\xe6?'
+tRp2836
+sS'avg T as LS retiree[r4]'
+p2837
+g4
+(g6
+S'}\x85\xbb\x84\xea\x00 @'
+tRp2838
+sS'effective LS push emigration ratio[r1]'
+p2839
+g4
+(g6
+S'\x1c\x12\x11WM\xef\xc7?'
+tRp2840
+sS'importance cost perf 4 HS push immig'
+p2841
+g4
+(g6
+S'_\xd5\xc4hT&\x04@'
+tRp2842
+sS'pull cost performance r8 ini'
+p2843
+g4
+(g6
+S'S \xa1F\xe4,\x18@'
+tRp2844
+sS'importance cost perf 4 LS push immig'
+p2845
+g4
+(g6
+S'\xb8\xd9y\t\x12F\x10@'
+tRp2846
+sS'avg T as HS retiree[r6]'
+p2847
+g4
+(g6
+S'\xc3\x1c\xc2\xd4\ro*@'
+tRp2848
+sS'degree of HS orientation [r8]'
+p2849
+g4
+(g6
+S'\xb1\x9e\xf716\x04\xe5?'
+tRp2850
+sS'effective HS push emigration ratio[r7]'
+p2851
+g4
+(g6
+S'\xdd\xb5\xf6\x9f\x8a\x12\x81?'
+tRp2852
+sS'pull cost performance r3 ini'
+p2853
+g4
+(g6
+S'k\xf7\xa3\xf6<\xa2\x11@'
+tRp2854
+sS'lookup number evolution birth rate[r3]'
+p2855
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2856
+sS'push cost performance r5 ini'
+p2857
+g4
+(g6
+S'\x06\xa7\x0b\xdb\x96\xb8\x0c@'
+tRp2858
+sS'push cost performance r1 ini'
+p2859
+g4
+(g6
+S'o>\x84\x9cbd\x11@'
+tRp2860
+sS'economic performance r2 ini'
+p2861
+g4
+(g6
+S'\x1dm\x14DmK\r@'
+tRp2862
+sS'fraction of jobless LS adults willing to emigrate[r5]'
+p2863
+g4
+(g6
+S'/\xa4\xf7\xd7\x1a\x86\xa1?'
+tRp2864
+sS'push cost performance r4 ini'
+p2865
+g4
+(g6
+S'\x9a\xa5\x988m\x10\x16@'
+tRp2866
+sS'lookup number evolution HS jobs[r7]'
+p2867
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2868
+sS'avg T as LS retiree[r7]'
+p2869
+g4
+(g6
+S'\x04d\xdc\xcb<\r&@'
+tRp2870
+sS'effective LS push emigration ratio[r6]'
+p2871
+g4
+(g6
+S'\n\xb0\x97\xf60\x90\xbd?'
+tRp2872
+sS'fraction of jobless LS adults willing to emigrate[r2]'
+p2873
+g4
+(g6
+S"\x96]'\x93\xc4\x98\xc1?"
+tRp2874
+sS'avg T as HS retiree[r1]'
+p2875
+g4
+(g6
+S'\xb3b7x\xa9\x15\x07@'
+tRp2876
+sS'fraction of jobless HS adults willing to emigrate[r8]'
+p2877
+g4
+(g6
+S'\x9b\x05\xf2\xfb\xcc\xcd\xa3?'
+tRp2878
+sS'fraction of jobless HS adults willing to emigrate[r1]'
+p2879
+g4
+(g6
+S'\xb4f\x0f\xbbF\x9a\xc6?'
+tRp2880
+sS'security performance r6 ini'
+p2881
+g4
+(g6
+S'\xbb\x83\t\xe4\x9a\xd8\x15@'
+tRp2882
+sS'lookup number evolution birth rate[r2]'
+p2883
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2884
+sS'effective HS push emigration ratio[r4]'
+p2885
+g4
+(g6
+S'\xb1\xa1\x0b~f\x1d~?'
+tRp2886
+sS'security performance r2 ini'
+p2887
+g4
+(g6
+S'\x84N3\xac[6\x06@'
+tRp2888
+sS'importance econ perf 4 LS pull immig'
+p2889
+g4
+(g6
+S'\xd7*\xca\xf1\x97\xa3"@'
+tRp2890
+sS'security performance r3 ini'
+p2891
+g4
+(g6
+S'\x12\x00*\xd1z\xe5\x0c@'
+tRp2892
+sS'pull cost performance r7 ini'
+p2893
+g4
+(g6
+S'b\xb5\x87c\xa2J\x10@'
+tRp2894
+sS'security performance r1 ini'
+p2895
+g4
+(g6
+S'\x88\xd8\xe5>\n\xe6\x02@'
+tRp2896
+sS'lookup number evolution HS jobs[r6]'
+p2897
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2898
+sS'security performance r8 ini'
+p2899
+g4
+(g6
+S'\x12\x0fO\xa5R\xe6 @'
+tRp2900
+sS'degree of HS orientation [r2]'
+p2901
+g4
+(g6
+S'(\x8b\n\xdc\x0c\x8b\xca?'
+tRp2902
+sS'lookup number evolution HS jobs[r2]'
+p2903
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2904
+sS'societal performance r2 ini'
+p2905
+g4
+(g6
+S'\xba\xff\xe1\xd9SY\x10@'
+tRp2906
+sS'environmental performance r1 ini'
+p2907
+g4
+(g6
+S'\xad\x1c\x9d\xc7\x13F\x13@'
+tRp2908
+sS'lookup number evolution birth rate[r1]'
+p2909
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp2910
+sS'avg T as LS retiree[r2]'
+p2911
+g4
+(g6
+S'\x87\xe5\x8ee@\x8b(@'
+tRp2912
+sS'importance env perf 4 HS push immig'
+p2913
+g4
+(g6
+S'\xef/*Y\x8a;\x1a@'
+tRp2914
+sS'importance sec perf 4 LS push immig'
+p2915
+g4
+(g6
+S'\xa8\xb7\xeb,`\xb7\x0c@'
+tRp2916
+sS'importance sec perf 4 LS pull immig'
+p2917
+g4
+(g6
+S'r"\t\x8a\xd7\xc7\xfc?'
+tRp2918
+sS'avg T as HS retiree[r4]'
+p2919
+g4
+(g6
+S'\x0c\x1aF\xc9\x8e; @'
+tRp2920
+sS'effective HS push emigration ratio[r1]'
+p2921
+g4
+(g6
+S'\x0c\xb8DP\xccK\x8b?'
+tRp2922
+sS'effective LS push emigration ratio[r8]'
+p2923
+g4
+(g6
+S'\x86\xc2\x80\xb1m\xf9\xc8?'
+tRp2924
+sS'pull cost performance r4 ini'
+p2925
+g4
+(g6
+S'r\xe4\x93b\xf5\x9a\x0b@'
+tRp2926
+sS'degree of HS orientation [r5]'
+p2927
+g4
+(g6
+S'\xb1"\x8cJ\xb6\xb6\xe5?'
+tRp2928
+sS'societal performance r3 ini'
+p2929
+g4
+(g6
+S'\xe2\xf2\xee\x15\xad\xb9\x11@'
+tRp2930
+sS'fraction of jobless LS adults willing to emigrate[r7]'
+p2931
+g4
+(g6
+S'\x06\xa3r\xbb[\xd5\xc5?'
+tRp2932
+sS'fraction of jobless HS adults willing to emigrate[r2]'
+p2933
+g4
+(g6
+S'0\xc1\xba2\x99.\xc1?'
+tRp2934
+sS'importance soc perf 4 LS push immig'
+p2935
+g4
+(g6
+S'\xda\x9d\x9d\x0e\xd7\xdd\x16@'
+tRp2936
+sS'importance env perf 4 HS pull immig'
+p2937
+g4
+(g6
+S'\xba\x8e\x06/\x95\x9a @'
+tRp2938
+sS'environmental performance r7 ini'
+p2939
+g4
+(g6
+S'\x89|$\xcaQ\xe7\x13@'
+tRp2940
+sS'degree of HS orientation [r3]'
+p2941
+g4
+(g6
+S'\x03\x12/\x1arS\xd3?'
+tRp2942
+sS'economic performance r3 ini'
+p2943
+g4
+(g6
+S'UD\x9b\x0c\xb6\xf6\t@'
+tRp2944
+sS'importance env perf 4 LS push immig'
+p2945
+g4
+(g6
+S'b8\xe4~6w @'
+tRp2946
+sS'societal performance r4 ini'
+p2947
+g4
+(g6
+S'P\x13\xd8\x14d\xe5\x0e@'
+tRp2948
+sS'importance soc perf 4 HS push immig'
+p2949
+g4
+(g6
+S'O\xf0\xd3\x97\x15\xac\x12@'
+tRp2950
+sS'avg T as HS retiree[r7]'
+p2951
+g4
+(g6
+S'\x17\x88,\x84\xce\xc5)@'
+tRp2952
+sS'avg T as LS retiree[r5]'
+p2953
+g4
+(g6
+S'H@aZC]*@'
+tRp2954
+sS'effective HS push emigration ratio[r6]'
+p2955
+g4
+(g6
+S'0\x9f\xf0ta\xcb\x85?'
+tRp2956
+sS'pull cost performance r1 ini'
+p2957
+g4
+(g6
+S'O\xf2\xfd\xad\xd8\x81\x00@'
+tRp2958
+sS'fraction of jobless HS adults willing to emigrate[r3]'
+p2959
+g4
+(g6
+S'CZ\x80\xdc\x03P\xbc?'
+tRp2960
+sS'pull cost performance r6 ini'
+p2961
+g4
+(g6
+S'\xf2\xadE\xef\xb5\xa9!@'
+tRp2962
+sS'importance econ perf 4 HS pull immig'
+p2963
+g4
+(g6
+S'\x95\xa9coL\xf3 @'
+tRp2964
+sS'importance cost perf 4 LS pull immig'
+p2965
+g4
+(g6
+S'NX\xe5?\\\x87\x0c@'
+tRp2966
+sS'avg T as LS retiree[r6]'
+p2967
+g4
+(g6
+S'\xf5>c\x04\xe0\n+@'
+tRp2968
+sS'fraction of jobless LS adults willing to emigrate[r4]'
+p2969
+g4
+(g6
+S'\xa0r\x9d\xd2\xf2~\xc5?'
+tRp2970
+sS'environmental performance r6 ini'
+p2971
+g4
+(g6
+S'\xe7\xa6\xb2\xde\xe6u\x19@'
+tRp2972
+sS'lookup number evolution HS jobs[r8]'
+p2973
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\xf0?'
+tRp2974
+sS'societal performance r5 ini'
+p2975
+g4
+(g6
+S'\xd5l`\xd8\xa44\x17@'
+tRp2976
+sS'importance soc perf 4 LS pull immig'
+p2977
+g4
+(g6
+S'\xe4\xcfq4\xb2\xeb\x00@'
+tRp2978
+sS'lookup number evolution birth rate[r8]'
+p2979
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2980
+sS'lookup number evolution HS jobs[r4]'
+p2981
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2982
+sS'avg T as LS retiree[r8]'
+p2983
+g4
+(g6
+S'\xe0\x07\x00\xeaS\xb5(@'
+tRp2984
+sS'effective LS push emigration ratio[r5]'
+p2985
+g4
+(g6
+S'8\x86\xc4^M\x1c\xbf?'
+tRp2986
+sS'fraction of jobless LS adults willing to emigrate[r1]'
+p2987
+g4
+(g6
+S'hX\xd3\xeb\xc1g\xb5?'
+tRp2988
+sS'partner multiplicator legal immigration'
+p2989
+g4
+(g6
+S'\xad\xb2r0n\x0b\xf3?'
+tRp2990
+sS'importance cost perf 4 HS pull immig'
+p2991
+g4
+(g6
+S'Z\xa9h\xa8\xc6\xce\x05@'
+tRp2992
+sS'environmental performance r4 ini'
+p2993
+g4
+(g6
+S'\xde  x\x98\xe0\xfd?'
+tRp2994
+sS'avg T as HS retiree[r2]'
+p2995
+g4
+(g6
+S'\x17ag[\x19\x9f,@'
+tRp2996
+sS'lookup number evolution birth rate[r7]'
+p2997
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp2998
+sS'economic performance r7 ini'
+p2999
+g4
+(g6
+S'\xea\x98\xd3\xec\x05\x06\x12@'
+tRp3000
+sS'effective HS push emigration ratio[r3]'
+p3001
+g4
+(g6
+S'\xe09\xbe{qy\x89?'
+tRp3002
+sS'security performance r5 ini'
+p3003
+g4
+(g6
+S'|\x91\xe0\x07\xad\xd7\x1d@'
+tRp3004
+sS'push cost performance r6 ini'
+p3005
+g4
+(g6
+S'\x93I\x0c\x97\xaf\xd8\x10@'
+tRp3006
+sS'degree of HS orientation [r7]'
+p3007
+g4
+(g6
+S'(\xddW0\xcb\xc5\xda?'
+tRp3008
+sS'effective LS push emigration ratio[r2]'
+p3009
+g4
+(g6
+S'\x0eR\rj\rH\xae?'
+tRp3010
+sS'fraction of jobless HS adults willing to emigrate[r4]'
+p3011
+g4
+(g6
+S'T\xff\xba\x8d\xe7\xce\xc4?'
+tRp3012
+sS'importance sec perf 4 HS pull immig'
+p3013
+g4
+(g6
+S'\xb8\xe9:\x82I\x95\x02@'
+tRp3014
+sS'lookup number evolution HS jobs[r3]'
+p3015
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x08@'
+tRp3016
+sS'fraction of jobless LS adults willing to emigrate[r6]'
+p3017
+g4
+(g6
+S'\xe2\xae\x1d\xe1\xc1\xb1\xc7?'
+tRp3018
+sS'lookup number evolution HS jobs[r1]'
+p3019
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp3020
+sS'effective HS push emigration ratio[r8]'
+p3021
+g4
+(g6
+S'W\x8e\xf2N\xf5\xa7t?'
+tRp3022
+sS'societal performance r8 ini'
+p3023
+g4
+(g6
+S'T\xf0\x8a\tP\xa6\x1e@'
+tRp3024
+sS'societal performance r1 ini'
+p3025
+g4
+(g6
+S'Bym\x1c\xed\xe2\t@'
+tRp3026
+sS'importance econ perf 4 LS push immig'
+p3027
+g4
+(g6
+S'+V\xae6OO\x04@'
+tRp3028
+sS'avg T as LS retiree[r3]'
+p3029
+g4
+(g6
+S'\xe2\xf2G\x92z\xdd*@'
+tRp3030
+sS'lookup number evolution birth rate[r6]'
+p3031
+g4
+(g6
+S'\x00\x00\x00\x00\x00\x00\x00@'
+tRp3032
+sS'economic performance r1 ini'
+p3033
+g4
+(g6
+S'\x8a\xdcqW\x02&\x03@'
+tRp3034
+sS'economic performance r5 ini'
+p3035
+g4
+(g6
+S'\x05\xb0oNT\x00\x15@'
+tRp3036
+sS'importance env perf 4 LS pull immig'
+p3037
+g4
+(g6
+S'H\xcf\xd9P(\x92\x18@'
+tRp3038
+sS'environmental performance r3 ini'
+p3039
+g4
+(g6
+S'\xc1@A\xaa>\x9f\x1c@'
+tRp3040
+sS'avg T as HS retiree[r5]'
+p3041
+g4
+(g6
+S'\x96\xca\xa4lw\xfb(@'
+tRp3042
+sS'economic performance r4 ini'
+p3043
+g4
+(g6
+S"g!\xfe\x1b\xdf'\x1c@"
+tRp3044
+sS'economic performance r6 ini'
+p3045
+g4
+(g6
+S'P\xd1\xa0@\xc8:\x1e@'
+tRp3046
+sS'degree of HS orientation [r4]'
+p3047
+g4
+(g6
+S'\xd3\xd9\x0cr\xe3+\xc8?'
+tRp3048
+sS'effective LS push emigration ratio[r3]'
+p3049
+g4
+(g6
+S'\x0b\x07\xbdc\x03\xd3\xb0?'
+tRp3050
+sS'fraction of jobless HS adults willing to emigrate[r5]'
+p3051
+g4
+(g6
+S'W5_\xc6\xa7o\xc5?'
+tRp3052
+s(dp3053
+S'name'
+p3054
+S'None'
+p3055
+sS'demo'
+t(dp3056
+S'grey pressure on working population[r7]'
+p3057
+g293
+(g294
+(I0
+tS'b'
+tRp3058
+(I1
+(I51
+tg5
+(S'f4'
+I0
+I1
+tRp3059
+(I3
+S'<'
+NNNI-1
+I-1
+I0
+tbI00
+S'\rz\xab>\xf6\r\xaa>\xd3N\xa9>\x9e\x17\xa9>\x00M\xa9>"\xdb\xa9>>\xb4\xaa>\xc4\xcf\xab>\x15*\xad>\xe3\xb3\xae>\xa5*\xb0>\xc0\x81\xb1>\xb4\xb6\xb2>\xce\xc7\xb3>\x14\xb5\xb4>L\x87\xb5>\xac?\xb6>w\xdd\xb6>Y`\xb7>Y\xc8\xb7>\xd3\x15\xb8>\\I\xb8>.^\xb8>AN\xb8>\x8c\x1c\xb8>\x0c\xcc\xb7>\xb5_\xb7>d\xda\xb6>\xde>\xb6>\xcd\x8f\xb5>\xb7\xcf\xb4>\xfc\x00\xb4>\xdb%\xb3>\x88A\xb2>rZ\xb1>\xfeq\xb0>\xe7\x88\xaf>\xd9\x9f\xae>f\xb7\xad>\x8d\xca\xac>\xd9\xd6\xab>2\xde\xaa>N\xe2\xa9>\xab\xe4\xa8>\x9b\xe6\xa7>u\xee\xa6>\x13\x06\xa6>d,\xa5>\x13`\xa4>\xeb\x9f\xa3>\xc9\xea\xa2>'
+tbsS'grey pressure on working population[r6]'
+p3060
+g293
+(g294
+(I0
+tS'b'
+tRp3061
+(I1
+(I51
+tg3059
+I00
+S"\x9a\x9fm>8\x0fr>\x0c\xcbu>h\xc7x>\x9a\xfbz>\xeaa|>\xa6\xf7|>\x1c\xbd|>\xa4\xb5{>\xb5)z>-py>\xe7\x9by>\xc5\x88z>T\x16|>\xe2&~>NJ\x80>l\xa5\x81>\xad\x1d\x83>\xf3\xac\x84>\nN\x86>}\xfc\x87>\x82\xb4\x89>\xadv\x8b>\xadD\x8d>\x88\x1a\x8f>\xe0\xf4\x90>\xd9\xd0\x92>\x17\xac\x94>\x98\x84\x96>\xb6X\x98>\x12'\x9a>\x89\xee\x9b>/\xae\x9d>\x83d\x9f>\xd4\r\xa1>\xe2\xa9\xa2>\xdd8\xa4>\x00\xbb\xa5>\x920\xa7>\xd4\x9d\xa8>O\x05\xaa>mf\xab>\xca\xc0\xac>\x1b\x14\xae>/`\xaf>\xec\xa0\xb0>\x1c\xcf\xb1>\xbc\xeb\xb2>\xfc\xf7\xb3>\x02\xf5\xb4>\xeb\xe3\xb5>"
+tbsS'total population'
+p3062
+g293
+(g294
+(I0
+tS'b'
+tRp3063
+(I1
+(I51
+tg3059
+I00
+S'\x88\x91\xd1OSE\xd4O\xb2\xe4\xd6OJp\xd9OU\xe8\xdbO\xf3L\xdeOE\x9e\xe0O\x81\xdc\xe2O\xf2\x07\xe5O\xf7 \xe7O4(\xe9Oz\x1e\xebO\x92\x04\xedO5\xdb\xeeO\x12\xa3\xf0O\xc2\\\xf2O\xcf\x08\xf4O\xb3\xa7\xf5O\xd29\xf7O\x88\xbf\xf8O\x199\xfaO\xbd\xa6\xfbO\x9d\x08\xfdO\xd9^\xfeO}\xa9\xffOHt\x00P\x08\x0e\x01P\xf3\xa1\x01P\x000\x02P\x1f\xb8\x02P;:\x03P@\xb6\x03P ,\x04P\xbc\x9b\x04P\xee\x04\x05P\x97g\x05P\x94\xc3\x05P\xc4\x18\x06P\x05g\x06P2\xae\x06P+\xee\x06P\xcb&\x07P\xeeW\x07Pr\x81\x07P2\xa3\x07P\n\xbd\x07P\xde\xce\x07P\x87\xd8\x07P\xe5\xd9\x07P\xd5\xd2\x07P8\xc3\x07P'
+tbsS'grey pressure on working population[r4]'
+p3064
+g293
+(g294
+(I0
+tS'b'
+tRp3065
+(I1
+(I51
+tg3059
+I00
+S'\x0e\xdf\x08>\t\xd0\x10>56\x18>7\x14\x1f>\xe8m%>2H+>\xfb\xa80>\xf9\x965>\x9f\x19:>\xfd4>>l\xdaA>\xb9\x10E>\t\xe2G>\x13XJ>\x1c|L>\xe1VN>\x98\xf0O>\xe3PQ>\xce~R>\xd2\x80S>\xd4\\T>%\x18U>\x95\xb7U>l?V>y\xb3V>\x19\x17W>?mW>\x86\xb8W>%\xfbW>\x117X>\xf5mX>=\xa1X> \xd2X>\xa2\x01Y>\x9d0Y>\xca_Y>\xbf\x8fY>\xf2\xc0Y>\xcc\xf3Y>\x99(Z>\x9a_Z>\xfa\x98Z>\xdd\xd4Z>a\x13[>\x90T[>|\x98[>\x1f\xdf[>\x83(\\>\x9et\\>q\xc3\\>\xee\x14]>'
+tbsS'grey pressure on working population[r8]'
+p3066
+g293
+(g294
+(I0
+tS'b'
+tRp3067
+(I1
+(I51
+tg3059
+I00
+S'\x95L\xa1>\x92#\xa2>\t\x1d\xa3>\xdd+\xa4>\xf0E\xa5>\x88c\xa6>\xcb~\xa7>[\x93\xa8>\x14\x9e\xa9>\x99\xb1\xaa>]$\xac>\x07\xe3\xad>~\xd5\xaf>&\xea\xb1>\x82\x13\xb4>|E\xb6>\xb1x\xb8>\xf5\xa7\xba>Q\xcf\xbc>\xc9\xeb\xbe>\x19\xfb\xc0>\x9b\xfb\xc2>\xd7\xec\xc4>\xb6\xce\xc6>S\xa0\xc8>\x0fa\xca>\x9c\x10\xcc>\xda\xae\xcd>\xd6;\xcf>\xb8\xb7\xd0>\xc5"\xd2>T}\xd3>\xc9\xc7\xd4>\x81\x02\xd6>\xa5-\xd7>\xbdI\xd8>VW\xd9>\x01W\xda>II\xdb>\x00/\xdc>\xce\x08\xdd>\x1b\xd7\xdd>P\x9a\xde>\xd0R\xdf>\x02\x01\xe0>\x0c\xa5\xe0>\xf8>\xe1>?\xcf\xe1>RV\xe2>\xa8\xd4\xe2>\xaaJ\xe3>'
+tbsS'TIME'
+p3068
+g293
+(g294
+(I0
+tS'b'
+tRp3069
+(I1
+(I51
+tg3059
+I00
+S'\x00@\xfbD\x00`\xfbD\x00\x80\xfbD\x00\xa0\xfbD\x00\xc0\xfbD\x00\xe0\xfbD\x00\x00\xfcD\x00 \xfcD\x00@\xfcD\x00`\xfcD\x00\x80\xfcD\x00\xa0\xfcD\x00\xc0\xfcD\x00\xe0\xfcD\x00\x00\xfdD\x00 \xfdD\x00@\xfdD\x00`\xfdD\x00\x80\xfdD\x00\xa0\xfdD\x00\xc0\xfdD\x00\xe0\xfdD\x00\x00\xfeD\x00 \xfeD\x00@\xfeD\x00`\xfeD\x00\x80\xfeD\x00\xa0\xfeD\x00\xc0\xfeD\x00\xe0\xfeD\x00\x00\xffD\x00 \xffD\x00@\xffD\x00`\xffD\x00\x80\xffD\x00\xa0\xffD\x00\xc0\xffD\x00\xe0\xffD\x00\x00\x00E\x00\x10\x00E\x00 \x00E\x000\x00E\x00@\x00E\x00P\x00E\x00`\x00E\x00p\x00E\x00\x80\x00E\x00\x90\x00E\x00\xa0\x00E\x00\xb0\x00E\x00\xc0\x00E'
+tbsS'grey pressure on working population[r5]'
+p3070
+g293
+(g294
+(I0
+tS'b'
+tRp3071
+(I1
+(I51
+tg3059
+I00
+S'\xe4X\xa4>#C\xa5>\xd2M\xa6>\xc7n\xa7>\xf1\x9d\xa8>\xe4\xd4\xa9>\x88\x0e\xab>\xdcF\xac>\xc1z\xad>\xae\xa7\xae>\x00\xcb\xaf>6\xe3\xb0>X\xef\xb1>\xba\xee\xb2>\xf3\xe0\xb3>\xdb\xc5\xb4>k\x9d\xb5>\xc5g\xb6>&%\xb7>\xe0\xd5\xb7>Xz\xb8>\xf9\x12\xb9>>\xa0\xb9>\xa4"\xba>\xaf\x9a\xba>\xdb\x08\xbb>\xacm\xbb>\xa2\xc9\xbb>9\x1d\xbc>\xedh\xbc>1\xad\xbc>w\xea\xbc>*!\xbd>\xb3Q\xbd>q|\xbd>\xc3\xa1\xbd>\x00\xc2\xbd>z\xdd\xbd>\x82\xf4\xbd>a\x07\xbe>[\x16\xbe>\xb4!\xbe>\xa6)\xbe>m.\xbe>=0\xbe>L/\xbe>\xc5+\xbe>\xdc%\xbe>\xb4\x1d\xbe>{\x13\xbe>W\x07\xbe>'
+tbsS'grey pressure on working population[r3]'
+p3072
+g293
+(g294
+(I0
+tS'b'
+tRp3073
+(I1
+(I51
+tg3059
+I00
+S'\xa0t\x0f>W\x18\x1e>B\x02,>u@9>H\xdeE>\xa5\xe5Q>\x02`]>&Wh>\xfd\xd5r>\x1d\xda|>\x19\x1c\x83>8x\x87>(\x85\x8b>\xa7F\x8f>\x0f\xc1\x92>i\xfd\x95>\xc7\xff\x98>\xc1\xca\x9b>\xfb`\x9e> \xc5\xa0>\xd4\xf9\xa2>\xbe\x01\xa5>b\xdc\xa6>\xbd\x88\xa8>\xb6\n\xaa>\xfee\xab>\r\x9e\xac>\x18\xb6\xad>\x1b\xb1\xae>\xd8\x91\xaf>\xe0Z\xb0>\x88\x0e\xb1>\xf9\xae\xb1>\xbf>\xb2>\xe0\xc1\xb2>\xc69\xb3>f\xa7\xb3>\xb3\x0b\xb4>\x84g\xb4>\xe3\xb8\xb4>(\xff\xb4>\xc9;\xb5>\x0fp\xb5>\x1c\x9d\xb5>\xf0\xc3\xb5>\x01\xe8\xb5>\x8d\x0e\xb6>T7\xb6>\xf4a\xb6>\x0b\x8e\xb6>E\xbb\xb6>'
+tbsS'grey pressure on working population[r2]'
+p3074
+g293
+(g294
+(I0
+tS'b'
+tRp3075
+(I1
+(I51
+tg3059
+I00
+S'\x84x\xdc=\xabL\xfb=7\x10\x0c>\xdc\x94\x19>\\H&>`:2>\xb4w=>)\x0bH>\x17\xfeQ>WR[>u\xecc>\xb2\xd2k>\x9d\x10s>\x89\xb1y>y\xc0\x7f>\x10\xa4\x82>o)\x85>Xu\x87>\x8b\x8c\x89>\x96s\x8b>\xc3.\x8d>\x1e\xc2\x8e>p1\x90>@\x80\x91>\xd0\xb1\x92>)\xc9\x93>\x0e\xc9\x94>\x0c\xb4\x95>t\x8c\x96>dT\x97>\xc8\r\x98>Z\xba\x98>\x9e[\x99>\xe9\xf2\x99>\x80\x81\x9a>\x94\x08\x9b>5\x89\x9b>S\x04\x9c>\xc5z\x9c>I\xed\x9c>\x88\\\x9d>\x14\xc9\x9d>p3\x9e>\x10\x9c\x9e>X\x03\x9f>\xa1i\x9f><\xcf\x9f>o4\xa0>t\x99\xa0>\x85\xfe\xa0>\xd1c\xa1>'
+tbstp3076
+a.

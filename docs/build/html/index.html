@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>EMA Workbench documentation &mdash; Exploratory Modeling Workbench</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="#" />
+    <link rel="next" title="Exploratory Modelling &amp; Analysis (EMA) Workbench" href="contents.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="contents.html"><img src="_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="contents.html" title="Exploratory Modelling &amp; Analysis (EMA) Workbench"
+             accesskey="N">next</a> |</li>
+       <li><a href="contents.html">home</a>|&nbsp;</li>
+       <li><a href="tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="download.html">download </a> &raquo;</li>
+       <li><a href="#">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">EMA Workbench documentation</a><ul>
+<li><a class="reference internal" href="#user-guide">User Guide</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#ema-modules">EMA Modules</a><ul>
+<li><a class="reference internal" href="#analysis">Analysis</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#core-classes-and-functions">Core classes and functions</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#connectors">Connectors</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../RESEARCH/Intro.html">PA SIMULATION LAB</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../BeneluxChapter/Intro.html">BENELUX CHAPTER</a></li>
+      <li><a href="../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ema-workbench-documentation">
+<h1>EMA Workbench documentation<a class="headerlink" href="#ema-workbench-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="user-guide">
+<h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contents.html">Exploratory Modelling &amp; Analysis (EMA) Workbench</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contents.html#description">Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contents.html#workbench-content">Workbench Content</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contents.html#exploratory-modeling-and-analysis-ema">Exploratory Modeling and Analysis (EMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html#a-simple-model-in-python">A simple model in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html#a-simple-model-in-vensim">A simple model in Vensim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html#a-simple-model-in-excel">A simple model in Excel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html#a-more-elaborate-example-mexican-flu">A more elaborate example: Mexican Flu</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#mexican-flu-the-basic-model">Mexican Flu: the basic model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#mexican-flu-policies">Mexican Flu: policies</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vensim-tips-and-tricks.html">Vensim Tips and Tricks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vensim-tips-and-tricks.html#dealing-with-lookups">Dealing with lookups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vensim-tips-and-tricks.html#handling-policies">Handling policies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vensim-tips-and-tricks.html#debugging-a-model">Debugging a model</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul class="simple">
+<li><a class="reference external" href="gallery.html">Gallery</a></li>
+</ul>
+</div>
+<div class="section" id="ema-modules">
+<h2>EMA Modules<a class="headerlink" href="#ema-modules" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="analysis">
+<h3>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/graphs.html"><tt class="docutils literal"><span class="pre">Graphs</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs.html#lines"><tt class="docutils literal"><span class="pre">lines()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs.html#envelopes"><tt class="docutils literal"><span class="pre">envelopes()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs.html#multiplot-scatter"><tt class="docutils literal"><span class="pre">multiplot_scatter()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs.html#multiplot-lines"><tt class="docutils literal"><span class="pre">multiplot_lines()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs.html#multiplot-density"><tt class="docutils literal"><span class="pre">multiplot_density()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs.html#helper-functions">helper functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/interactive_graphs.html"><tt class="docutils literal"><span class="pre">interactive_graphs</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/interactive_graphs.html#make-interactive-plot"><tt class="docutils literal"><span class="pre">make_interactive_plot()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/interactive_graphs.html#make-lines"><tt class="docutils literal"><span class="pre">make_lines()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/interactive_graphs.html#abstractscreen"><tt class="docutils literal"><span class="pre">AbstractScreen</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/interactive_graphs.html#interactivemultiplot"><tt class="docutils literal"><span class="pre">InteractiveMultiplot</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/graphs3d.html"><tt class="docutils literal"><span class="pre">graphs3d</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs3d.html#envelopes3d"><tt class="docutils literal"><span class="pre">envelopes3d()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs3d.html#envelopes3d-group-by"><tt class="docutils literal"><span class="pre">envelopes3d_group_by()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs3d.html#lines3d"><tt class="docutils literal"><span class="pre">lines3d()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/graphs3d.html#scatter3d"><tt class="docutils literal"><span class="pre">scatter3d()</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/prim.html"><tt class="docutils literal"><span class="pre">prim</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/prim.html#perform-prim"><tt class="docutils literal"><span class="pre">perform_prim()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/prim.html#write-prim-to-stdout"><tt class="docutils literal"><span class="pre">write_prim_to_stdout()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/prim.html#show-boxes-individually"><tt class="docutils literal"><span class="pre">show_boxes_individually()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/prim.html#show-boxes-together"><tt class="docutils literal"><span class="pre">show_boxes_together()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/prim.html#def-obj-func"><tt class="docutils literal"><span class="pre">def_obj_func()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/prim.html#test-obj-func"><tt class="docutils literal"><span class="pre">test_obj_func()</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/orangeFunctions.html"><tt class="docutils literal"><span class="pre">orangeFunctions</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/orangeFunctions.html#tree"><tt class="docutils literal"><span class="pre">tree()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/orangeFunctions.html#random-forest-measure-attributes"><tt class="docutils literal"><span class="pre">random_forest_measure_attributes()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/orangeFunctions.html#random-forest"><tt class="docutils literal"><span class="pre">random_forest()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/orangeFunctions.html#feature-selection"><tt class="docutils literal"><span class="pre">feature_selection()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/orangeFunctions.html#build-orange-data"><tt class="docutils literal"><span class="pre">build_orange_data()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/orangeFunctions.html#classify"><tt class="docutils literal"><span class="pre">classify()</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/clusterer.html"><tt class="docutils literal"><span class="pre">clusterer</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/clusterer.html#distance-gonenc"><tt class="docutils literal"><span class="pre">distance_gonenc()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/clusterer.html#distance-mse"><tt class="docutils literal"><span class="pre">distance_mse()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/clusterer.html#distance-sse"><tt class="docutils literal"><span class="pre">distance_sse()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/clusterer.html#distance-triangle"><tt class="docutils literal"><span class="pre">distance_triangle()</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/scenario_discovery.html"><tt class="docutils literal"><span class="pre">scenario_discovery</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/scenario_discovery.html#calculate-sd-metrics"><tt class="docutils literal"><span class="pre">calculate_sd_metrics()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/scenario_discovery.html#make-boxes"><tt class="docutils literal"><span class="pre">make_boxes()</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/scenario_discovery.html#find-branches"><tt class="docutils literal"><span class="pre">find_branches()</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="core-classes-and-functions">
+<h3>Core classes and functions<a class="headerlink" href="#core-classes-and-functions" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/model.html"><tt class="docutils literal"><span class="pre">model</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/model.html#modelstructureinterface"><tt class="docutils literal"><span class="pre">ModelStructureInterface</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/model.html#simplemodelensemble"><tt class="docutils literal"><span class="pre">SimpleModelEnsemble</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/uncertainties.html"><tt class="docutils literal"><span class="pre">uncertainties</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/uncertainties.html#abstractuncertainty"><tt class="docutils literal"><span class="pre">AbstractUncertainty</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/uncertainties.html#parameteruncertainty"><tt class="docutils literal"><span class="pre">ParameterUncertainty</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/uncertainties.html#categoricaluncertainty"><tt class="docutils literal"><span class="pre">CategoricalUncertainty</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/outcomes.html"><tt class="docutils literal"><span class="pre">outcomes</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/outcomes.html#outcome"><tt class="docutils literal"><span class="pre">Outcome</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/samplers.html"><tt class="docutils literal"><span class="pre">samplers</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/samplers.html#sampler"><tt class="docutils literal"><span class="pre">Sampler</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/samplers.html#lhssampler"><tt class="docutils literal"><span class="pre">LHSSampler</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/samplers.html#montecarlosampler"><tt class="docutils literal"><span class="pre">MonteCarloSampler</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/samplers.html#fullfactorialsampler"><tt class="docutils literal"><span class="pre">FullFactorialSampler</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/EMAlogging.html"><tt class="docutils literal"><span class="pre">EMAlogging</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/EMAlogging.html#nullhandler"><tt class="docutils literal"><span class="pre">NullHandler</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/EMAlogging.html#tlssmtphandler"><tt class="docutils literal"><span class="pre">TlsSMTPHandler</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/EMAparallel.html"><tt class="docutils literal"><span class="pre">EMAparallel</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/EMAexceptions.html"><tt class="docutils literal"><span class="pre">EMAexceptions</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/util.html"><tt class="docutils literal"><span class="pre">util</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/util.html#abstractcallback"><tt class="docutils literal"><span class="pre">AbstractCallback</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/util.html#defaultcallback"><tt class="docutils literal"><span class="pre">DefaultCallback</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="connectors">
+<h3>Connectors<a class="headerlink" href="#connectors" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/vensim.html"><tt class="docutils literal"><span class="pre">Vensim</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/vensim.html#vensimmodelstructureinterface"><tt class="docutils literal"><span class="pre">VensimModelStructureInterface</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ema_documentation/excel.html"><tt class="docutils literal"><span class="pre">Excel</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ema_documentation/excel.html#excelmodelstructureinterface"><tt class="docutils literal"><span class="pre">ExcelModelStructureInterface</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+<li><a class="reference internal" href="ema_documentation/glossary.html#glossary"><em>Glossary</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="contents.html" title="Exploratory Modelling &amp; Analysis (EMA) Workbench"
+             >next</a> |</li>
+       <li><a href="contents.html">home</a>|&nbsp;</li>
+       <li><a href="tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="download.html">download </a> &raquo;</li>
+       <li><a href="#">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

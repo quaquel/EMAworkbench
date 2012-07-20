@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>prim &mdash; Exploratory Modeling Workbench</title>
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../index.html" />
+    <link rel="next" title="orangeFunctions" href="orangeFunctions.html" />
+    <link rel="prev" title="graphs3d" href="graphs3d.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../contents.html"><img src="../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="orangeFunctions.html" title="orangeFunctions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="graphs3d.html" title="graphs3d"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../download.html">download </a> &raquo;</li>
+       <li><a href="../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">prim</span></tt></a><ul>
+<li><a class="reference internal" href="#perform-prim"><tt class="docutils literal"><span class="pre">perform_prim()</span></tt></a></li>
+<li><a class="reference internal" href="#write-prim-to-stdout"><tt class="docutils literal"><span class="pre">write_prim_to_stdout()</span></tt></a></li>
+<li><a class="reference internal" href="#show-boxes-individually"><tt class="docutils literal"><span class="pre">show_boxes_individually()</span></tt></a></li>
+<li><a class="reference internal" href="#show-boxes-together"><tt class="docutils literal"><span class="pre">show_boxes_together()</span></tt></a></li>
+<li><a class="reference internal" href="#def-obj-func"><tt class="docutils literal"><span class="pre">def_obj_func()</span></tt></a></li>
+<li><a class="reference internal" href="#test-obj-func"><tt class="docutils literal"><span class="pre">test_obj_func()</span></tt></a></li>
+</ul>
+</li>
+</ul>
+  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../RESEARCH/Intro.html">PA SIMULATION LAB</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../BeneluxChapter/Intro.html">BENELUX CHAPTER</a></li>
+      <li><a href="../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-prim">
+<span id="prim"></span><h1><a class="reference internal" href="#module-prim" title="prim"><tt class="xref py py-mod docutils literal"><span class="pre">prim</span></tt></a><a class="headerlink" href="#module-prim" title="Permalink to this headline">¶</a></h1>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
+<p class="rubric">example of use</p>
+<p>We provide here an extended example of how <a class="reference internal" href="#module-prim" title="prim"><tt class="xref py py-mod docutils literal"><span class="pre">prim</span></tt></a> can be used. As 
+a starting point we use the cPickle file generated and saved in 
+the tutorial on the Flu model. We use prim to find whether there are 
+one or more subspaces of the uncertainty space that result
+in a high number of deaths for the &#8216;no policy&#8217; runs.</p>
+<p>To this end, we need to make our own <tt class="xref py py-func docutils literal"><span class="pre">classify()</span></tt>. This function should 
+extract from the results, those related to the deceased population and 
+classify them into two distinct classes:</p>
+<div class="math">
+<p><img src="../_images/math/7ae9d0ef11355fb03db36c8a698c964b99686f08.png" alt="f(x)=\begin{cases} 
+         1, &amp;\text{if $x &gt; 1000000$;}\\
+         0, &amp;\text{otherwise.}
+      \end{cases}" /></p>
+</div><p>Here, <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> is the endstate of &#8216;deceased population region 1&#8217;.</p>
+<p>A second thing that needs to be done is to extract from the saved results only
+those results belonging to &#8216;no policy&#8217;. To this end, we can use logical 
+indexing. That is, we can use <a class="reference external" href="http://www.scipy.org/Tentative_NumPy_Tutorial#head-0dffc419afa7d77d51062d40d2d84143db8216c2">boolean arrays</a> 
+for indexing. In our case, we can get the logical index in a straightforward 
+way.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">logicalIndex</span> <span class="o">=</span> <span class="n">experiments</span><span class="p">[</span><span class="s">&#39;policy&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;no policy&#39;</span>
+</pre></div>
+</div>
+<p>We can now use this index to modify the loaded results to only include 
+the experiments and results we want. The modified results can than be
+used as input for prim.</p>
+<p>Together, this results in the following script:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">analysis.prim</span> <span class="kn">as</span> <span class="nn">prim</span>
+<span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">load_results</span>
+<span class="kn">import</span> <span class="nn">expWorkbench.EMAlogging</span> <span class="kn">as</span> <span class="nn">EMAlogging</span>
+ 
+<span class="c">#perform_prim logs information to the logger</span>
+<span class="n">EMAlogging</span><span class="o">.</span><span class="n">log_to_stderr</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">EMAlogging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c">#get the output for deceased population</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;deceased population region 1&#39;</span><span class="p">]</span>
+    
+    <span class="c">#make an empty array of length equal to number of cases </span>
+    <span class="n">classes</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c">#if deceased population is higher then 1.000.000 people, classify as 1 </span>
+    <span class="n">classes</span><span class="p">[</span><span class="n">result</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1000000</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="k">return</span> <span class="n">classes</span>
+
+<span class="c">#load data</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">load_results</span><span class="p">(</span><span class="s">r&#39;../analysis/1000 flu cases.cPickle&#39;</span><span class="p">)</span>
+<span class="n">experiments</span><span class="p">,</span> <span class="n">results</span> <span class="o">=</span> <span class="n">results</span>
+
+<span class="c">#extract results for 1 policy</span>
+<span class="n">logicalIndex</span> <span class="o">=</span> <span class="n">experiments</span><span class="p">[</span><span class="s">&#39;policy&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;no policy&#39;</span>
+<span class="n">newExperiments</span> <span class="o">=</span> <span class="n">experiments</span><span class="p">[</span> <span class="n">logicalIndex</span> <span class="p">]</span>
+<span class="n">newResults</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">newResults</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="n">logicalIndex</span><span class="p">]</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="p">(</span><span class="n">newExperiments</span><span class="p">,</span> <span class="n">newResults</span><span class="p">)</span>
+
+<span class="c">#perform prim on modified results tuple</span>
+<span class="n">boxes</span> <span class="o">=</span> <span class="n">prim</span><span class="o">.</span><span class="n">perform_prim</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">classify</span><span class="p">,</span> 
+                                    <span class="n">threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> 
+                                    <span class="n">threshold_type</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                    <span class="n">pasting</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c">#print prim to std_out</span>
+<span class="n">prim</span><span class="o">.</span><span class="n">write_prim_to_stdout</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
+
+<span class="c">#visualize</span>
+<span class="n">prim</span><span class="o">.</span><span class="n">show_boxes_individually</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+<span class="n">prim</span><span class="o">.</span><span class="n">show_boxes_together</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>which generates the following figures.</p>
+<div class="figure align-center">
+<img alt="../_images/boxes_individually.png" src="../_images/boxes_individually.png" />
+</div>
+<div class="figure align-center">
+<img alt="../_images/boxes_together.png" src="../_images/boxes_together.png" />
+</div>
+<div class="section" id="perform-prim">
+<h2><a class="reference internal" href="#prim.perform_prim" title="prim.perform_prim"><tt class="xref py py-func docutils literal"><span class="pre">perform_prim()</span></tt></a><a class="headerlink" href="#perform-prim" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="prim.perform_prim">
+<tt class="descclassname">prim.</tt><tt class="descname">perform_prim</tt><big>(</big><em>results</em>, <em>classify</em>, <em>peel_alpha=0.05</em>, <em>paste_alpha=0.05</em>, <em>mass_min=0.05</em>, <em>threshold=None</em>, <em>pasting=True</em>, <em>threshold_type=1</em>, <em>obj_func=&lt;function def_obj_func at 0x04702870&gt;</em><big>)</big><a class="headerlink" href="#prim.perform_prim" title="Permalink to this definition">¶</a></dt>
+<dd><p>perform Patient Rule Induction Method (PRIM). This function performs 
+the PRIM algorithm on the data. It uses a Python implementation of PRIM
+inspired by the <a class="reference external" href="http://www.oga-lab.net/RGM2/func.php?rd_id=prim:prim-package">R</a> 
+algorithm. Compared to the R version, the Python version is data type aware. 
+That is, real valued, ordinal, and categorical data are treated 
+differently. Moreover, the pasting phase of PRIM in the R algorithm is
+not consistent with the literature. The Python version is.</p>
+<p>the PRIM algorithm tries to find subspaces of the input space that share
+some characteristic in the output space. The characteristic that the 
+current implementation looks at is the mean of the results. Thus, the 
+output space is 1-D, and the characteristic is assumed to be continuous.</p>
+<p>As a work around, to deal with classes, the user can supply a classify 
+function. This function should return a binary classification 
+(i.e. 1 or 0). Then, the mean of the box is indicative of the concentration 
+of cases of class 1. That is, if the specified threshold is say 0.8 and the 
+threshold_type is 1, PRIM looks for subspaces of the input space that 
+contains at least 80% cases of class 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>results</strong> &#8211; the return from <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</li>
+<li><strong>classify</strong> &#8211; either a string denoting the outcome of interest to use
+or a function. In case of a string and time series data, 
+the end state is used.</li>
+<li><strong>peel_alpha</strong> &#8211; parameter controlling the peeling stage (default = 0.05).</li>
+<li><strong>paste_alpha</strong> &#8211; parameter controlling the pasting stage (default = 0.05).</li>
+<li><strong>mass_min</strong> &#8211; minimum mass of a box (default = 0.05).</li>
+<li><strong>threshold</strong> &#8211; the threshold of the output space that boxes should meet.</li>
+<li><strong>pasting</strong> &#8211; perform pasting stage (default=True)</li>
+<li><strong>threshold_type</strong> &#8211; If 1, the boxes should go above the threshold, if -1
+the boxes should go below the threshold, if 0, the 
+algorithm looks for both +1 and -1.</li>
+<li><strong>obj_func</strong> &#8211; The objective function to use. Default is 
+<a class="reference internal" href="#prim.def_obj_func" title="prim.def_obj_func"><tt class="xref py py-func docutils literal"><span class="pre">def_obj_func()</span></tt></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of PRIM objects.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>for each box, the scenario discovery metrics <em>coverage</em> and <em>density</em> 
+are also calculated:</p>
+<div class="math">
+<p><img src="../_images/math/db19e4a934869420a11470063fec4eac3e81fff6.png" alt="coverage=\frac
+            {{\displaystyle\sum_{y_{i}\in{B}}y_{i}{'}}}
+            {{\displaystyle\sum_{y_{i}\in{B^I}}y_{i}{'}}}" /></p>
+</div><p>where <img class="math" src="../_images/math/a699ea43cab43dbe1226e4c2c3cc36f66071a78f.png" alt="y_{i}{'}=1"/> if <img class="math" src="../_images/math/6954150d666f6f51bdbe40b87e5147a7ed6dced4.png" alt="x_{i}\in{B}"/> and <img class="math" src="../_images/math/f42ef470df79bd07754a79fa02f1d5ead7040f42.png" alt="y_{i}{'}=0"/>
+otherwise.</p>
+<div class="math">
+<p><img src="../_images/math/bb237cc461e3d6a93f2515a7173e6827f2ae3d8e.png" alt="density=\frac
+            {{\displaystyle\sum_{y_{i}\in{B}}y_{i}{'}}}
+            {{\displaystyle\left|{y_{i}}\right|\in{B}}}" /></p>
+</div><p>where <img class="math" src="../_images/math/a699ea43cab43dbe1226e4c2c3cc36f66071a78f.png" alt="y_{i}{'}=1"/> if <img class="math" src="../_images/math/6954150d666f6f51bdbe40b87e5147a7ed6dced4.png" alt="x_{i}\in{B}"/> and <img class="math" src="../_images/math/f42ef470df79bd07754a79fa02f1d5ead7040f42.png" alt="y_{i}{'}=0"/>
+otherwise, and <img class="math" src="../_images/math/633e43d02116a1084ce50e55f4ea9aa902cc1dd9.png" alt="{\displaystyle\left|{y_{i}}\right|\in{B}}"/> is the
+cardinality of <img class="math" src="../_images/math/8061ee572c06de48dfc2c0d05e4c23da64bcd74a.png" alt="y_{i}"/>.</p>
+<p>Density is the ratio of the cases of interest in a box to the 
+total number of cases in that box. <em>density</em> is identical to the mean
+in case of a binary classification.  For more detail on these metrics see 
+<a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S004016250900105X">Bryant and Lempert (2010)</a></p>
+<p class="rubric">references to relevant papers </p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.springerlink.com/content/x3gpv05t34620878/">original PRIM paper</a></li>
+<li><a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S095741740700231X">paper on ordinal data and PRIM</a></li>
+</ul>
+<p><strong>ema application</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="http://mansci.journal.informs.org/content/52/4/514">Lempert et al. (2006)</a></li>
+<li><a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S0959378006000896#ref_bib19">Groves and Lempert (2007)</a></li>
+<li><a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S004016250900105X">Bryant and Lempert (2010)</a></li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="write-prim-to-stdout">
+<h2><a class="reference internal" href="#prim.write_prim_to_stdout" title="prim.write_prim_to_stdout"><tt class="xref py py-func docutils literal"><span class="pre">write_prim_to_stdout()</span></tt></a><a class="headerlink" href="#write-prim-to-stdout" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="prim.write_prim_to_stdout">
+<tt class="descclassname">prim.</tt><tt class="descname">write_prim_to_stdout</tt><big>(</big><em>boxes</em>, <em>uv=</em><span class="optional">[</span><span class="optional">]</span>, <em>filter=True</em><big>)</big><a class="headerlink" href="#prim.write_prim_to_stdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summary function for printing the results of prim to stdout (typically
+the console). This function first prints an overview of the boxes,
+specifying their mass and mean. Mass specifies the fraction of cases in 
+the box, mean specifies the average of the cases.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>boxes</strong> &#8211; the prim boxes as returned by <a class="reference internal" href="#prim.perform_prim" title="prim.perform_prim"><tt class="xref py py-func docutils literal"><span class="pre">perform_prim()</span></tt></a></li>
+<li><strong>uv</strong> &#8211; the uncertainties to show in the plot. Defaults to an empty list,
+meaning all the uncertainties will be shown. If the list is not
+empty only the uncertainties specified in uv will be plotted.</li>
+<li><strong>filter</strong> &#8211; boolean, if True, the uncertainties for which all the boxes
+equal the size of the dump box are not visualized 
+(default=True)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>if one wants to print these results to a file, the easiest way is to
+redirect stdout:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="show-boxes-individually">
+<h2><a class="reference internal" href="#prim.show_boxes_individually" title="prim.show_boxes_individually"><tt class="xref py py-func docutils literal"><span class="pre">show_boxes_individually()</span></tt></a><a class="headerlink" href="#show-boxes-individually" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="prim.show_boxes_individually">
+<tt class="descclassname">prim.</tt><tt class="descname">show_boxes_individually</tt><big>(</big><em>boxes</em>, <em>results</em>, <em>uv=</em><span class="optional">[</span><span class="optional">]</span>, <em>filter=True</em><big>)</big><a class="headerlink" href="#prim.show_boxes_individually" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions visually shows the size of a list of prim boxes. Each
+box is a single plot.  The dump box is not shown. The size of the
+boxes is normalized, where 0 is the lowest sampled value for each
+uncertainty and 1 is the highest sampled value for each uncertainty. This
+is visualized using a light grey background.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>boxes</strong> &#8211; the list of prim objects as returned by <a class="reference internal" href="#prim.perform_prim" title="prim.perform_prim"><tt class="xref py py-func docutils literal"><span class="pre">perform_prim()</span></tt></a>.</li>
+<li><strong>results</strong> &#8211; the results as returned by <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt></li>
+<li><strong>uv</strong> &#8211; the uncertainties to show in the plot. Defaults to an empty list,
+meaning all the uncertainties will be shown. If the list is not
+empty only the uncertainties specified in uv will be plotted.</li>
+<li><strong>filter</strong> &#8211; boolean, if True, the uncertainties for which all the boxes
+equal the size of the dump box are not visualized 
+(default=True)</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">a <a class="reference external" href="http://matplotlib.sourceforge.net/api/figure_api.html">figure</a> instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="show-boxes-together">
+<h2><a class="reference internal" href="#prim.show_boxes_together" title="prim.show_boxes_together"><tt class="xref py py-func docutils literal"><span class="pre">show_boxes_together()</span></tt></a><a class="headerlink" href="#show-boxes-together" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="prim.show_boxes_together">
+<tt class="descclassname">prim.</tt><tt class="descname">show_boxes_together</tt><big>(</big><em>boxes</em>, <em>results</em>, <em>uv=</em><span class="optional">[</span><span class="optional">]</span>, <em>filter=True</em><big>)</big><a class="headerlink" href="#prim.show_boxes_together" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions visually shows the size of a list of prim boxes. 
+Each box has its own color. The dump box is not shown. The size of the
+boxes is normalized, where 0 is the lowest sampled value for each
+uncertainty and 1 is the highest sampled value for each uncertainty. his
+is visualized using a light grey background.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>boxes</strong> &#8211; the list of prim objects as returned by <a class="reference internal" href="#prim.perform_prim" title="prim.perform_prim"><tt class="xref py py-func docutils literal"><span class="pre">perform_prim()</span></tt></a>.</li>
+<li><strong>results</strong> &#8211; the results as returnd by <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt></li>
+<li><strong>uv</strong> &#8211; the uncertainties to show in the plot. Defaults to an empty list,
+meaning all the uncertainties will be shown. If the list is not
+empty only the uncertainties specified in uv will be plotted.</li>
+<li><strong>filter</strong> &#8211; boolean, if True, the uncertainties for which all the boxes
+equal the size of the dump box are not visualized 
+(default=True)</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><p>a <a class="reference external" href="http://matplotlib.sourceforge.net/api/figure_api.html">figure</a> instance</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="def-obj-func">
+<h2><a class="reference internal" href="#prim.def_obj_func" title="prim.def_obj_func"><tt class="xref py py-func docutils literal"><span class="pre">def_obj_func()</span></tt></a><a class="headerlink" href="#def-obj-func" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="prim.def_obj_func">
+<tt class="descclassname">prim.</tt><tt class="descname">def_obj_func</tt><big>(</big><em>old_y</em>, <em>new_y</em><big>)</big><a class="headerlink" href="#prim.def_obj_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default objective function used by PRIM. In the default implementation
+in peeling and pasting, PRIM selects the box that maximizes the average 
+value of new_y. This function is called for each candidate box to calculate
+its average value:</p>
+<div class="math">
+<p><img src="../_images/math/e8bd34e93409d3b85876f415d1ec5ae751e4e645.png" alt="obj = \text{ave} [y_{i}\mid x_{i}\in{B-b}]" /></p>
+</div><p>where <img class="math" src="../_images/math/4057e591f8ab22b023330aad59c4c81d7328bf46.png" alt="B-b"/> is the set of candidate new boxes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>old_y</strong> &#8211; the y&#8217;s belonging to the old box</li>
+<li><strong>new_y</strong> &#8211; the y&#8217;s belonging to the new box</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="test-obj-func">
+<h2><a class="reference internal" href="#prim.test_obj_func" title="prim.test_obj_func"><tt class="xref py py-func docutils literal"><span class="pre">test_obj_func()</span></tt></a><a class="headerlink" href="#test-obj-func" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="prim.test_obj_func">
+<tt class="descclassname">prim.</tt><tt class="descname">test_obj_func</tt><big>(</big><em>y_old</em>, <em>y_new</em><big>)</big><a class="headerlink" href="#prim.test_obj_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>A test objective function to be used instead of the default objective
+function.</p>
+<div class="math">
+<p><img src="../_images/math/37b89d1fd44d02e459ab8c8264b07dd6233991dc.png" alt="obj = \frac
+     {\text{ave} [y_{i}\mid x_{i}\in{B-b}] - \text{ave} [y\mid x\in{B}]}
+     {|n(y_{i})-n(y)|}" /></p>
+</div><p>where <img class="math" src="../_images/math/4057e591f8ab22b023330aad59c4c81d7328bf46.png" alt="B-b"/> is the set of candidate new boxes, <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> the old box 
+and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/> are the y values belonging to the old box. <img class="math" src="../_images/math/eb9a6804c1efbc1d8483ba0392d02727c5cbc232.png" alt="n(y_{i})"/> 
+and <img class="math" src="../_images/math/1bf6f8659e49cbb0d9797ad231748f0b3d58062f.png" alt="n(y)"/> are the cardinality of <img class="math" src="../_images/math/8061ee572c06de48dfc2c0d05e4c23da64bcd74a.png" alt="y_{i}"/> and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/> 
+respectively. So, this objective function looks for the difference between
+the mean of the old box and the new box, divided by the change in the 
+number of data points in the box. This objective function offsets a problem 
+in case of categorical data where the normal objective function often 
+results in boxes mainly based on the categorical data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>old_y</strong> &#8211; the y&#8217;s belonging to the old box</li>
+<li><strong>new_y</strong> &#8211; the y&#8217;s belonging to the new box</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="orangeFunctions.html" title="orangeFunctions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="graphs3d.html" title="graphs3d"
+             >previous</a> |</li>
+       <li><a href="../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../download.html">download </a> &raquo;</li>
+       <li><a href="../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>
