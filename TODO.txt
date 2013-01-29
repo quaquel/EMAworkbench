@@ -1,0 +1,101 @@
+-------------
+Major changes
+-------------
+ - Test code coverage
+ - prepare for switching to Python 3. Switch to python 3 is conditioned
+   on when enthough switches to Python 3. 	
+ - Assess benefits of switching to PANDAS as basic data structure
+	* pandas looks promising, is a better version of structured array
+	* can easily use pytables and hdf5 for storing data on disk. This means
+	  that it becomes doable to make a lot more runs and even analyze them 
+	  without having to keep all the results in active memory. This also 
+	  obviates the need to use a database with the associated issues of mapping
+	  the ema data structures to a database. 
+	* problem with pandas is that it still requires all the data in memory.
+	  It is therefore more sensible to use pytables directly. This can also
+	  be used for some of the data provenenace issues via the metadata that
+	  one can store in a hdf5 file.  
+ - Data provenance questions
+ - Optimization
+    * only Maximin left
+ - Hearn’s method
+ - investigate an interactive version of PRIM analogous to the one provided
+   in the scenario discovery toolkit for R
+ - change signature on uncertainties to name, range,
+ - using union of uncertainties instead of intersection in case of multiple
+   model structures (or make it a user supplied keyword argument to select 
+   the behavior you want). 
+   * the implementation of the union is not trivial. In particular,
+     how do we filter the resulting cases to exclude the parameters that do not
+     exist in a given model. A possible solution would be to add a filter 
+     method inside the perform_experiments which is called in case of the union 
+     with the case and the model_interface, then through a simple operation
+     you could remove the values for those uncertainties that do not exist in
+     the given model structure. The only remaining issue is then the callback.
+     Here there should be nans in case of a parameter not existing in a given
+     model structure. 
+   * a better solution is to first do a pass over all the uncertainties. Throw
+     an exception if an uncertainty with the same name has a different range.
+     from there we can use the names as basis for identity. Next, we make a set
+     of lists, with all possible combinations of model structures and then the
+     uncertainties that belong to that list. So in case of 3 models
+     
+     ====== =============
+     models uncertainties
+     ====== =============
+     A B C  []
+     A B	[]
+     A C	[]
+     B C	[]
+     A		[]
+     B		[]
+     C		[]
+     ====== =============
+     
+     does als dict, en gewoon over de modellen loopen en met een defaultdict
+     werken. Als de onzekerheid al genoemd is toevoegen van model naam aan 
+     lijst anders nieuwe lijst. Vervolgens moet je deze dict als het ware
+     omdraaien waarbij de onzekerheden in een lijst komen en de keys zijn
+     zoals in de tabel hierboven. Next, voor elk lijstje een latin hypercube.
+     Dan in de perform_experiments, voor de model structuur de relevante 
+     lijstjes bij elkaar pakken zodat je de juiste variabelen hebt. Dit
+     laat alleen nog een probleem over in de callback. Hier moeten we
+     er voor zorgen dat er nans komen te staan als een onzekerheid niet 
+     voorkomt in een experiment. 
+ - check use of tempfile library for multiprocessing instead of the copying
+   and deleting of files as done now. It appears that tempfiles are auto 
+   deleted when the parent process is killed. This removes the problem of 
+   removing directories etc. if the process is killed from within eclipse.
+ - reimplement plotting3d to make it concistent with the new plotting 
+   implementation. In this reimplementation, we should switch to the 
+   matplotlib 3d stuff, which is good enough for what we try to do.  
+  
+-------------
+Minor changes
+-------------
+ - remove dependency on orange and switch to scikits.learn
+ - Add connectors for netlogo and repast
+ - Have more than one outcome of interest in PRIM
+ - Rewrite regret_analysis to work with the new data structure
+ - modify lines3d and scatter3d to have a group by option
+ - there appear to be various chaco related problems in more recent versions of
+   epd... To what extent to we want to maintain the interactive plotting 
+   functionality?
+   * apparently, Erik, Willem use it frequently...
+ - rework all the examples to be up to date.
+ - implement some way of specifying files that can be ignored when
+   copying working directories under parallel
+ - visualizing prim boxes is now based on a sorting on how restricted the 
+   dimensions are. To allow cross comparison in case of show_boxes_individually,
+   the sorting is based on the first box. We could also modify this so 
+   that each box is sorted in its own way. Cross comparing boxes, is however
+   then more difficult.  
+ - optimization breaks if population is empty, happens only with very small
+   population size
+ - prim breaks if the dumpbox contains all the data. 
+ - prim should stop finding new boxes if the number of remaining points of
+   interest is lower than required threshold for a minimum mass box.
+ - the lookup of whether a particular experiment has already been run in
+   case of the optimization does not scale very well. This should be done
+   in a more intelligent way. We should profile the code to figure out where
+   the bottleneck is exactly. 
