@@ -10,7 +10,7 @@
 #    Jan Kwakkel copied this file and included it in the exploratory 
 #    modelling workbench. Perhaps at some future date, ParallelEMA will be
 #    made compatible with the 2.7 or later version of pool.py
-
+SVN_ID = '$Id: pool.py 818 2012-04-26 14:50:33Z jhkwakkel $'
 __all__ = ['Pool']
 
 #

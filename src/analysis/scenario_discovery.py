@@ -63,8 +63,7 @@ def calculate_sd_metrics(boxes, y, threshold, threshold_type):
     
     where :math:`y_{i}{'}=1` if :math:`x_{i}\in{B}` and :math:`y_{i}{'}=0`
     otherwise, and :math:`{\displaystyle\left|{y_{i}}\right|\in{B}}` is the
-    cardinality of :math:`y_{i}`.
-    
+    cardinality of :math:`y_{i}`.    
         
     Density is the ratio of the cases of interest in a box to the 
     total number of cases in that box. *density* is identical to the mean

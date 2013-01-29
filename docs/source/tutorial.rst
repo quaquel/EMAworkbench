@@ -1,3 +1,7 @@
+.. meta::
+   :description: Tutorials for using the exploratory modeling workbench with
+                 models in Python, Excel, and Vensim.
+
 *********
 Tutorials
 *********
@@ -281,7 +285,7 @@ more elaborate description of the model, see `Pruyt & Hamarat (2010) <http://www
 .. figure:: /ystatic/flu-model.png
    :align: center
    
-Given the various uncertainites about the exact characteristics of the flu, 
+Given the various uncertainties about the exact characteristics of the flu, 
 including its fatality rate, the contact rate, the susceptability of the 
 population, etc. the flu case is an ideal candiate for EMA. One can use
 EMA to explore the kinds of dynamics that can occur, identify undesirable
@@ -298,7 +302,7 @@ We are interessted in two outcomes:
  
  * **deceased population region 1**: the total number of deaths over the 
    duration of the simulation.
- * **peak infected fraction**: the fraction of the populaton that is infected.
+ * **peak infected fraction**: the fraction of the population that is infected.
  
 These are added to :attr:`self.outcomes`. `time` is set to True, meaning we want
 their values over the entire run.
@@ -378,18 +382,18 @@ for a series of experiments and save these results. One can then use these
 saved results in various analysis scripts. ::
 
    from expWorkbench.util import save_results
-   save_results(results, model.workingDirectory+r'\1000 runs.cPickle')
+   save_results(results, model.workingDirectory+r'\1000 runs.bz2')
 
 The above code snippet shows how we can use :func:`~util.save_results` for
 saving the results of our experiments. :func:`~util.save_results` stores the results
-using `cPickle <http://docs.python.org/library/pickle.html>`_. It is 
-recommended to use :func:`~util.save_results`, instead of using `cPickle <http://docs.python.org/library/pickle.html>`_ 
-directly, to guarantee cross-platform useability of the stored results. That is,
-one can generate the results  on say Windows, but still open them on say 
-MacOs.  The extensions `.cPickle` is strictly speaking not necessary, any file
-extension can be used, but it is found convenient to easily identify saved 
-results. 
-
+using `cPickle <http://docs.python.org/library/pickle.html>`_ and 
+`bz2`<http://docs.python.org/2/library/bz2.html>`_. It is 
+recommended to use :func:`~util.save_results`, instead of using 
+`cPickle <http://docs.python.org/library/pickle.html>`_ directly, to guarantee 
+cross-platform useability of the stored results. That is, one can generate the 
+results  on say Windows, but still open them on say MacOs.  The extensions 
+`.bz2` is strictly speaking not necessary, any file extension can be used, but 
+it is found convenient to easily identify saved results. 
 
 
 =====================

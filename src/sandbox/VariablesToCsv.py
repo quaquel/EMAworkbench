@@ -10,8 +10,8 @@ import csv
 from expWorkbench.vensimDLLwrapper import get_varnames, get_varattrib
 from expWorkbench.vensim import load_model
 
-vensimRootName = r'C:\models\KOPER'
-vensimFileName = r'\20110808_WL_Auping_Kopermodel_2_ESDMA'            # The name of the vensim model of interest
+vensimRootName = r'D:\Workspace\EMAProjects\models\WILLEM\Tantalum'
+vensimFileName = r'\20120611 WL Auping Tantalum model'            # The name of the vensim model of interest
 vensimExtension = r'.vpm'
 csvFileName = vensimFileName+'.csv'                                   # The name of the csv file
 csvArray = ['Nr', 'Name', 'Equation', 'Unit', 'Comments', 'Type', 'Float', 'Int']   # The order of the elements in the array of every row
@@ -20,7 +20,6 @@ secondLine = ['Model title',vensimFileName]
 thirdLine = ['Time unit','Year']                                       # Write here the time unit of the model (or can it be found in the model?)
 blank = ''
 lineNumber = 1
-randomString = 'Delay everything till tomorrow'
 
 attributeNames = ['Units', 'Comment', 'Equation', 'Causes', 'Uses', 'Initial causes', 
                   'Active causes', 'Subscripts', 'Combination Subscripts', 'Minimum value', 

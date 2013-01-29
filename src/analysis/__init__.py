@@ -1,6 +1,11 @@
-import graphs
-import graphs3d
+#import graphs
+#import graphs3d
 import interactive_graphs
-import orangeFunctions
+import orange_functions
 import prim
 import scenario_discovery
+import b_and_w_plotting
+import plotting
+import plotting_util
+import pairs_plotting 
+import pca_prim

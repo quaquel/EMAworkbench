@@ -10,22 +10,22 @@ a reworking of the cluster. The distance metrics have now their own .py file.
 The metrics available are currently stored in the distance_functions 
 dictionary.
 
-
 '''
 from __future__ import division
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import fcluster, linkage, dendrogram, inconsistent
+from scipy.spatial.distance import squareform
+import numpy as np
 
 from expWorkbench.EMAlogging import info
 from expWorkbench import EMAError
-from distance_gonenc import distance_gonenc #@UnresolvedImport
-from distance_willem import distance_willem #@UnresolvedImport
-from distance_triangle import distance_triangle #@UnresolvedImport
-from distance_sse import distance_sse #@UnresolvedImport
-from distance_mse import distance_mse #@UnresolvedImport
+from clusterCode.distance_gonenc import distance_gonenc
+from clusterCode.distance_willem import distance_willem
+from clusterCode.distance_triangle import distance_triangle
+from clusterCode.distance_sse import distance_sse
+from clusterCode.distance_mse import distance_mse
 
-
-import clusterPlotter as plotter
+from clusterCode import clusterPlotter as plotter
 
 distance_functions = {'gonenc': distance_gonenc,
                       'willem': distance_willem,
@@ -69,17 +69,32 @@ def cluster(data,
     :param plotCluster: Boolean, true if you want to plot clusters.
     :param groupPlot: Boolean, if true plot clusters in a single window, 
                       else the clusters are plotted in separate windows.
-    :rtype: A tuple containing the list of distances, the cluster allocation, 
+    :rtype: A tuple containing the list of distances, the list of clusters (a Cluster object for each cluster), 
             and a list of logged distance metrics for each time series.     
     
     The remainder of the arguments are passed on to the specified distance 
-    function. See the distance functions for details on these parameters.
+    function.
     
+    Gonenc Distance:
+    
+    * 'distance': String that specifies the distance to be used. 
+                  Options: bmd (default), mse, sse
+    * 'filter?': Boolean that specifies whether the data series will be 
+                 filtered (for bmd distance)
+    * 'slope filter': A float number that specifies the filtering threshold 
+                     for the slope (for every data point if change__in_the_
+                     outcome/average_value_of_the_outcome < threshold, 
+                     consider slope = 0) (for bmd distance)
+    * 'curvature filter': A float number that specifies the filtering 
+                          threshold for the curvature (for every data point if 
+                          change__in_the_slope/average_value_of_the_slope < 
+                          threshold, consider curvature = 0) (for bmd distance)
+    * 'no of sisters': 50 (for bmd distance)
+
     '''
     
     global varName 
     varName = outcome
-    
     data = data[1][outcome]
     
     # Construct a list with distances. This list is the upper triange
@@ -87,7 +102,6 @@ def cluster(data,
     dRow, runLogs = construct_distances(data, distance, **kwargs)
     info('finished distances')
     
-
     # Allocate individual runs into clusters using hierarchical agglomerative 
     # clustering. clusterSetup is a dictionary that customizes the clustering 
     # algorithm to be used.
@@ -98,26 +112,84 @@ def cluster(data,
                                     cMethod=cMethod,
                                     cValue=cValue)
     
-#    if 'Plot type' in clusterSetup.keys():
-#        if clusterSetup['Plot type'] == 'multi-window':
-#            groupPlot = False
-#        elif clusterSetup['Plot type'] == 'single-window':
-#            groupPlot = True
-#        else:
-#            groupPlot = False
-#    else:
-#        groupPlot = False
-    
-    # Plots the clusters, unless it is specified not to be done in the setup
-#    if 'plotClusters?' in clusterSetup.keys():
-#        if clusterSetup['plotClusters?']:
-#            plotClusters(groupPlot, runLogs)
-#        else:
-#            pass
+    info("tranforming to list of clusters")
+    clusters = make_data_structure(clusters, dRow, runLogs)
+
     if plotClusters:
         plot_clusters(groupPlot, runLogs)
     
-    return dRow, clusters, runLogs, z
+    return dRow, clusters, z
+
+def make_data_structure(clusters, distRow, runLogs):
+    nr_clusters = np.max(clusters)
+    cluster_list = []
+    for i in range(1, nr_clusters+1):
+        info("starting with cluster %s" %i)
+        #determine the indices for cluster i
+        indices = np.where(clusters==i)[0]
+        
+        drow_indices = np.zeros((indices.shape[0]**2-indices.shape[0])/2, dtype=int)
+        s = 0
+        #get the indices for the distance for the runs in the cluster
+        for q in range(indices.shape[0]):
+            for r in range(q+1, indices.shape[0]):
+                b = indices[q]
+                a = indices[r]
+                
+                drow_indices[s] = get_drow_index(indices[r],
+                                                 indices[q], 
+                                                 clusters.shape[0])
+                s+=1
+        
+        #get the distance for the runs in the cluster
+        dist_clust = distRow[drow_indices]
+        
+        #make a distance matrix
+        dist_matrix = squareform(dist_clust)
+
+        #sum across the rows
+        row_sum = dist_matrix.sum(axis=0)
+        
+        #get the index of the result with the lowest sum of distances
+        min_cIndex = row_sum.argmin()
+    
+        # convert this cluster specific index back to the overall cluster list 
+        # of indices
+        originalIndices = np.where(clusters==i)
+        originalIndex = originalIndices[0][min_cIndex]
+
+        print originalIndex
+
+        a = list(np.where(clusters==i)[0])
+        a = [int(entry) for entry in a]
+        
+        cluster = Cluster(i, 
+                          np.where(clusters==i)[0], 
+                          originalIndex,
+                          [runLogs[entry] for entry in a],
+                          dist_clust)
+        cluster_list.append(cluster)
+    return cluster_list
+
+def get_drow_index(i,j, size):
+    '''
+    Get the index in the distance row for the distance between i and j.
+    
+    :param i; result i
+    :param j: result j
+    :param size: the number of results
+    
+    ...note:: i > j
+    
+    '''
+    assert i > j
+
+    index = 0
+    for q in range(size-j, size):
+        index += q
+    index = index+(i-(1*j))-1
+
+    return index
 
 def construct_distances(data, distance='gonenc', **kwargs):
     """ 
@@ -160,7 +232,7 @@ def flatcluster(dRow, runLogs,
 
     z = linkage(dRow, interClusterDistance)
     inc = inconsistent(z)
-    print inc
+    #print inc
     
     if plotDendrogram:
         plotdendrogram(z)
@@ -182,10 +254,17 @@ def flatcluster(dRow, runLogs,
     print len(runLogs)
     for i, log in enumerate(runLogs):
         log[0]['Cluster'] = str(clusters[i])
+    
+
     return z, clusters, runLogs
            
 def plotdendrogram(z):
-    dendrogram(z)
+    
+    dendrogram(z,
+               truncate_mode='lastp',
+               show_leaf_counts=True,
+               show_contracted=True
+               )
     plt.show()
 
 def plot_clusters(groupPlot, runLogs):
@@ -225,15 +304,52 @@ def callGroupPlotter(data):
     plt.setVarName(varName)
     plt.configure_traits()  
 
+
+class Cluster(object):
+    '''
+    Contains information about a data-series cluster, as well as some methods to help analyzing a cluster.
+    Basic attributes of a cluster (e.g. c) object are as follows;
+     
+     * c.no : Cluster number/index
+     * c.indices : Original indices of the dataseries that are in cluster c
+     * c.sample : Original index of the dataseries that is the representative of cluster c (i.e. median element of the cluster)
+     * c.size : Number of elements (i.e. dataseries) in the cluster c
+    '''
+
+    def __init__(self, 
+                 cluster_no, 
+                 all_ds_indices, 
+                 sample_ds_index,
+                 runLogs,
+                 dist_clust):
+        '''
+        Constructor
+        '''
+        self.no = cluster_no
+        self.indices = all_ds_indices
+        self.sample = int(sample_ds_index)
+        self.size = self.indices.size
+        self.runLogs = runLogs
+        self.distances = dist_clust
+        
+        
+    def error(self):
+        return self.sample
+
 if __name__ == '__main__':
     from expWorkbench import load_results
+    results = load_results('../sandbox/cluster/datasets/PatternSet_Basics.cPickle')
     
-    experiments, results = load_results('100 flu cases.cPickle')
-    data = results['deceased population region 1'][experiments['policy']=='no policy']
-    distances = construct_distances(data)
-
-
-
-
+    
+    distance, liste, obekler, kosulog, zet = cluster(results, 'outcome',cMethod='distance', cValue=1, groupPlot=True, plotDendrogram=False)
+    
+    #clusters = np.array([3, 1, 2, 2, 1,2])
+    #dRow = np.array([1,2,3,6,2,1,0,3,9,6,2,1,3,2,1])
+    #samples = pick_cSamples(clusters, dRow)
+    #print "ornekler", samples
+ 
+    
+        
+    
 
 

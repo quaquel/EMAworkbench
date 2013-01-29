@@ -8,11 +8,6 @@ effectively a reimplementation of the translation of PRIM from R to Python.
 Compared to that translation, this implementation is completely based on 
 recursion. Moreover, the paste and peel methods now look analogous. 
 
-planned enhancements:
- - modify peel and paste to handle ordinal and categorical data appropriately
- - add sdtoolkit coverage and support metrics
- 
-
 '''
 from __future__ import division
 import numpy as np
@@ -21,6 +16,7 @@ from scipy.stats.mstats import mquantiles
 from operator import itemgetter
 
 from expWorkbench.EMAlogging import info
+from types import StringType, FloatType, IntType
 
 class Prim(object):
     def __init__(self, 
@@ -81,6 +77,55 @@ def perform_prim(x,
     
     return boxes
 
+def perform_prim_specific(x,
+                 y,
+                 box_init = None,
+                 peel_alpha = 0.05,
+                 paste_alpha = 0.05,
+                 mass_min = 0.05,
+                 threshold = None,
+                 pasting = False,
+                 threshold_type = 1,
+                 cases_of_interest = None,
+                 obj_func = None):
+    if threshold==None:
+        threshold = np.mean(y)
+   
+    k_max = np.ceil(1/mass_min)
+    k_max = int(k_max)
+    info("max number of boxes: %s" %(k_max))
+    
+    if box_init == None:
+        box_init = make_box(x)
+    else:
+        #else, identify all points in initial box, rest is discarded
+        logical =  in_box(x, box_init)
+        x = x[logical]
+        y = y[logical]
+
+    n = y.shape[0]
+    y = y * threshold_type
+    
+    boxes = find_boxes(x, y, box_init, 
+                       peel_alpha, paste_alpha, mass_min, 
+                       np.min(y)-0.1*np.abs(np.min(y)), 
+                       pasting, 0, k_max, n, cases_of_interest, obj_func)
+    
+    # adjust for negative hdr  
+    exps = []
+    for box in boxes:
+        box.y = threshold_type*box.y
+        box.y_mean = threshold_type*box.y_mean
+        exps.append(box.x)
+    # the list of found boxes has the dump box as first element
+    # we need to reverse the ordering to get the correct order in which
+    # the boxes have been found
+    boxes.reverse()
+    exps.reverse()
+    boxes = prim_hdr(boxes, threshold, threshold_type)
+    
+    return boxes, exps
+
 def prim_hdr(prims,
              threshold,
              threshold_type):
@@ -117,7 +162,8 @@ def prim_hdr(prims,
             x_temp = np.append(x_temp, entry.x, axis=0) 
             y_temp = np.append(y_temp, entry.y, axis=0)
 
-    dump_box = Prim(x_temp, y_temp, prims[-1].box, 
+
+    dump_box = Prim(x_temp, y_temp, make_box(x_temp), 
                         y_temp.shape[0]/n)
         
     final_list.append(dump_box)
@@ -209,9 +255,9 @@ def find_boxes(x_remaining,
         prim_object = Prim(x_inside, y_inside, new_box, box_mass)
         coverage = (n * prim_object.y_mean * prim_object.box_mass)/cases_of_interest
         info("Found box %s: y_mean=%s, mass=%s, coverage=%s" % (k, 
-                                                                prim_object.y_mean, 
+                                                                abs(prim_object.y_mean), #because of threshold_type == -1, y can become negative
                                                                 prim_object.box_mass,
-                                                                coverage))
+                                                                abs(coverage)))
         info("%s points in new box" % (y_inside.shape[0]))
         box_init = make_box(x_remaining)
         boxes = find_boxes(x_remaining_temp, y_remaining_temp, 
@@ -275,6 +321,7 @@ def peel(x,
 
 def categoryPeel(x,y, n, name,box, obj_func):
     entries = box[name][0]
+
     
     if len(entries) > 1:
         peels = []
@@ -283,12 +330,24 @@ def categoryPeel(x,y, n, name,box, obj_func):
             peel = copy.deepcopy(entries)
             peel.discard(entry)
             temp_box[name][:] = peel
-            logical = x[name] != entry
             
+            if type(list(entries)[0]) not in (StringType, FloatType, IntType):
+                bools = []                
+                for element in list(x[name]):
+                    if element != entry:
+                        bools.append(True)
+                    else:
+                        bools.append(False)
+                logical = np.asarray(bools, dtype=bool)
+            else:
+                logical = x[name] != entry
+
             if y[logical].shape[0] != 0:
                 obj = obj_func(y, y[logical])
             else:
                 obj = 0
+            
+            
             box_vol = vol_box(temp_box)
             box_mass = y[logical].shape[0]/n
             box_vol = box_mass
@@ -593,11 +652,17 @@ def compare(a, b):
     '''compare two boxes, return true if identical, false otherwise'''
     dtypesDesc = a.dtype.descr
     logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
-    for entry in dtypesDesc:
+    for i, entry in enumerate(dtypesDesc):
         name = entry[0]
-        logical = logical &\
-                  (a[name][0] == b[name][0]) &\
-                  (a[name][1] == b[name][1])
+        
+        test_1a = a[name][0]
+        test_1b = b[name][0]
+        test_1 = (a[name][0] == b[name][0])
+        test_2 = (a[name][1] == b[name][1])
+        
+        logical[i] = logical[i] &\
+                    (a[name][0] == b[name][0]) &\
+                    (a[name][1] == b[name][1])
     return logical
 
 
@@ -626,7 +691,16 @@ def in_box(x, box):
                 entries = box[name][0]
                 logical = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
                 for i,entry in enumerate(entries):
-                    logical[:, i] = x[name] == entry
+                    if type(list(entries)[0]) not in (StringType, FloatType, IntType):
+                        bools = []                
+                        for element in list(x[name]):
+                            if element == entry:
+                                bools.append(True)
+                            else:
+                                bools.append(False)
+                        logical[:, i] = np.asarray(bools, dtype=bool)
+                    else:
+                        logical[:, i] = x[name] == entry
                 logical = np.any(logical, axis=1)
                 x_box_ind = x_box_ind & logical
             else:

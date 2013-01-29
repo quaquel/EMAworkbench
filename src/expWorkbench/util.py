@@ -8,22 +8,28 @@ This module provides various convenience functions and classes.
 '''
 from __future__ import division
 import numpy as np
+np = np
 import cPickle
 import os
+import bz2
 import math
 
+from deap import creator, base
+
 from EMAlogging import info, debug, warning
-import EMAlogging
 from expWorkbench.uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER
+from expWorkbench import EMAError                                       ,\
+    EMAlogging
 
-
-
+SVN_ID = '$Id: util.py 1104 2013-01-24 16:43:50Z wlauping $'
 __all__ = ['AbstractCallback',
            'DefaultCallback',
            'load_results',
            'save_results',
+           'save_optimization_results',
+           'load_optimization_results',
            'transform_old_cPickle_to_new_cPickle',
            'experiments_to_cases',
            'merge_results']
@@ -31,15 +37,19 @@ __all__ = ['AbstractCallback',
 class AbstractCallback(object):
     '''
     Base class from which different call back classes can be derived.
-    Callback is responisble for storing the results of the runs.
+    Callback is responsible for storing the results of the runs.
     
     '''
     
     i = 0
-    
+    reporting_interval = 100
     results = []
     
-    def __init__(self, uncertainties, outcomes, nrOfExperiments):
+    def __init__(self, 
+                 uncertainties, 
+                 outcomes,
+                 nrOfExperiments,
+                 reporting_interval=100):
         '''
         
         :param uncertainties: list of :class:`~uncertianties.AbstractUncertainty` 
@@ -48,10 +58,10 @@ class AbstractCallback(object):
         :param nrOfExperiments: the total number of runs
         
         '''
-        
+        self.reporting_interval = reporting_interval
         pass    
     
-    def callback(self, case, policy, name, result ):
+    def __call__(self, case, policy, name, result):
         '''
         Method responsible for storing results. The implementation in this
         class only keeps track of how many runs have been completed and 
@@ -67,8 +77,16 @@ class AbstractCallback(object):
         self.i+=1
         debug(str(self.i)+" cases completed")
         
-        if self.i % 100 == 0:
+        if self.i % self.reporting_interval == 0:
             info(str(self.i)+" cases completed")
+
+    def get_results(self):
+        """
+        method for retrieving the results. Called after all experiments have 
+        been completed
+        """
+        self.results
+        
 
 class OldCallback(AbstractCallback):
     """ 
@@ -81,15 +99,12 @@ class OldCallback(AbstractCallback):
     them to a text file
     """
     
-    def callback(self, case, policy, name, result ):
+    def __call__(self, case, policy, name, result ):
         super(OldCallback, self).callback(case, policy, name, result)
         
         a = (case, policy, name)
         b = (a, result)
         self.results.append(b)
-        
-        return self.results
-
 
 class DefaultCallback(AbstractCallback):
     """ 
@@ -108,7 +123,15 @@ class DefaultCallback(AbstractCallback):
     names = None   
     results = {}
     
-    def __init__(self, uncs, outcomes, nrOfExperiments):
+    def __init__(self, 
+                 uncs, 
+                 outcomes, 
+                 nrOfExperiments, 
+                 reporting_interval=100):
+        super(DefaultCallback, self).__init__(uncs, 
+                                              outcomes, 
+                                              nrOfExperiments, 
+                                              reporting_interval)
         self.i = 0
         self.cases = None
         self.policies = None
@@ -134,9 +157,16 @@ class DefaultCallback(AbstractCallback):
             self.dtypes.append((name, dataType))
         self.dtypes.append(('model', object))
         self.dtypes.append(('policy', object))
-        
-        
-        self.cases = np.empty((nrOfExperiments,), dtype=self.dtypes)
+        try:
+            self.cases = np.empty((nrOfExperiments,), dtype=self.dtypes)
+        except ValueError:
+            names_seen = set()
+            for entry in self.dtypes:
+                if entry[0] in names_seen:
+                    EMAlogging.warning("uncertainty %s occurs more then once" %(entry[0]))
+                else:
+                    names_seen.add(entry[0])
+            raise EMAError(str(ValueError))
         self.nrOfExperiments = nrOfExperiments
         
 
@@ -152,17 +182,23 @@ class DefaultCallback(AbstractCallback):
             try:
                 self.results[outcome][self.i-1, :] = result[outcome]
             except KeyError:
-                shapeResults = result[outcome].shape
-                if len(shapeResults) >0:
-                    ncol = shapeResults[0] 
-                else:
-                    ncol= 1
+
+                try:
+                    shapeResults = result[outcome].shape
+                    if len(shapeResults) >0:
+                        ncol = shapeResults[0] 
+                    else:
+                        ncol= 1
+                except AttributeError:
+                    #apparently the outcome is not an array but a scalar
+                    ncol=1
+            
                 
                 self.results[outcome] = np.empty((self.nrOfExperiments, ncol))
                 self.results[outcome][self.i-1, :] = result[outcome]
         
     
-    def callback(self, case, policy, name, result ):
+    def __call__(self, case, policy, name, result ):
         '''
         Method responsible for storing results. This method calls 
         :meth:`super` first, thus utilizing the logging provided there
@@ -179,7 +215,7 @@ class DefaultCallback(AbstractCallback):
         
         '''
         
-        super(DefaultCallback, self).callback(case, policy, name, result)
+        super(DefaultCallback, self).__call__(case, policy, name, result)
                    
         #store the case
         self.__store_case(case, name, policy.get('name'), )
@@ -187,64 +223,80 @@ class DefaultCallback(AbstractCallback):
         #store results
         self.__store_result(result)
         
+        
+    def get_results(self):
         return self.cases, self.results
 
 
-def load_results(file):
+def load_results(file_name, zipped=True):
     '''
-    load the specified cPickle file. the file is assumed to be saves
+    load the specified bz2 file. the file is assumed to be saves
     using save_results.
     
     :param file: the path of the file
+    :param zipped: load the pickled data from a zip file if True
     :return: the unpickled results
     :raises: IOError if file not found
     
     '''
     results = None
-    file = os.path.abspath(file)
+    file_name = os.path.abspath(file_name)
+    debug("loading "+file_name)
     try:
-        results = cPickle.load(open(file, 'rb'))
-    except IOError as error:
-        warning(file + " not found")
+        if zipped:
+            file_handle = bz2.BZ2File(file_name, 'rb')
+        else:
+            file_handle = open(file_name, 'rb')
+        
+        results = cPickle.load(file_handle)
+    except IOError:
+        warning(file_name + " not found")
         raise
     
     return results
     
 
-def save_results(results, file):
+def save_results(results, file_name, zipped=True):
     '''
-    save the results to the specified cPickle file. To facilitate transfer
+    save the results to the specified bz2 file. To facilitate transfer
     across different machines. the files are saved in binary format
         
     see also: http://projects.scipy.org/numpy/ticket/1284
 
     :param results: the return of run_experiments
     :param file: the path of the file
+    :param zipped: save the pickled data to a zip file if True
     :raises: IOError if file not found
 
     '''
-
-    debug("saving results to: " + os.path.abspath(file))
+    file_name = os.path.abspath(file_name)
+    debug("saving results to: " + file_name)
     try:
-        cPickle.dump(results, open(file, 'wb'), protocol=2)
+        if zipped:
+            file_name = bz2.BZ2File(file_name, 'wb')
+        else:
+            file_name = open(file_name, 'wb')
+
+        
+        cPickle.dump(results, file_name, protocol=2)
     except IOError:
-        warning(os.path.abspath(file) + " not found")
+        warning(os.path.abspath(file_name) + " not found")
         raise
         
 
 
-def results_to_tab(results, file):
+def results_to_tab(results, file_name):
     '''
     writes old style results to tab seperated
     '''
     
     fields = results[0][0][0].keys()
     outcomes = results[0][1].keys()
-    file = open(file, 'w')
-    [file.write(field + "\t") for field in fields]
-    file.write("policy\tmodel\t")
-    [file.write(field + "\t") for field in outcomes]
-    file.write("\n")
+    file_handle = open(file_name, 'w')
+    [file_handle.write(field + "\t") for field in fields]
+    file_handle.write("policy\tmodel\t")
+    [file_handle.write(field + "\t") for field in outcomes]
+    file_handle.write("\n")
     
     for result in results:
         experiment = result[0]
@@ -255,17 +307,17 @@ def results_to_tab(results, file):
         
         
         for field in fields:
-            file.write(str(case[field])+"\t")
-        file.write(policy+"\t")
-        file.write(model+"\t")
+            file_handle.write(str(case[field])+"\t")
+        file_handle.write(policy+"\t")
+        file_handle.write(model+"\t")
         for field in outcomes:
-            file.write(str(outcome[field][-1])+"\t")
+            file_handle.write(str(outcome[field][-1])+"\t")
         
-        file.write("\n")
+        file_handle.write("\n")
 
 
-def transform_old_cPickle_to_new_cPickle(file):
-    data = cPickle.load(open(file, 'r'))
+def transform_old_cPickle_to_new_cPickle(file_name):
+    data = cPickle.load(open(file_name, 'r'))
     
     uncertainties = []
     dtypes= []
@@ -346,10 +398,56 @@ def experiments_to_cases(experiments):
     
     return cases
 
+def experiments_to_cases_prim(experiments, designs):
+    '''
+    
+    This function transform a structured experiments array into a list
+    of case dicts. This can then for example be used as an argument for 
+    running :meth:`~model.SimpleModelEnsemble.perform_experiments`.
+    
+    :param experiments: a structured array containing experiments
+    :return: a list of case dicts.
+    
+    '''
+    #get the names of the uncertainties
+    uncertainties = [entry[0] for entry in designs.dtype.descr]
+    
+    #remove policy and model, leaving only the case related uncertainties
+    try:
+        uncertainties.pop(uncertainties.index('policy'))
+        uncertainties.pop(uncertainties.index('model'))
+    except:
+        pass
+    
+    #make list of of tuples of tuples
+    cases = []
+    for i in range(len(experiments)):
+        case = []
+        j = 0
+        for uncertainty in uncertainties:
+            entry = (uncertainty, experiments[i][j])
+            j += 1
+            case.append(entry)
+        cases.append(tuple(case))
+    
+    #remove duplicate cases, reason for using tuples before
+    cases = set(cases)
+    
+    #cast back to list of dicts
+    tempcases = []
+    for case in cases:
+        tempCase = {}
+        for entry in case:
+            tempCase[entry[0]] = entry[1]
+        tempcases.append(tempCase)
+    cases = tempcases
+    
+    return cases
+
 def merge_results(results1, results2, downsample=None):
     '''
     convenience function for merging the return from 
-    :meth:`~model.SimpleModelEnsemble.perform_experiments`.
+    :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
     
     The function merges results2 with results1. For the experiments,
     it generates an empty array equal to the size of the sum of the 
@@ -399,86 +497,68 @@ def merge_results(results1, results2, downsample=None):
         
         i = old_value.shape[0]+new_value.shape[0]
         j = old_value.shape[1]
-        slice = 1
+        slice_value = 1
         if downsample:
             j = int(math.ceil(j/downsample))
-            slice = downsample
+            slice_value = downsample
             
         merged_value = np.empty((i,j))
         debug("merged shape: %s" % merged_value.shape)
         
-        merged_value[0:old_value.shape[0], :] = old_value[:, ::slice]
-        merged_value[old_value.shape[0]::, :] = new_value[:, ::slice]
+        merged_value[0:old_value.shape[0], :] = old_value[:, ::slice_value]
+        merged_value[old_value.shape[0]::, :] = new_value[:, ::slice_value]
 
         merged_res[key] = merged_value
     
     mr = (merged_exp, merged_res)
     return mr  
 
-#==============================================================================
-#functional test
-#==============================================================================
-def test_save_and_load():
-    import matplotlib.pyplot as plt
-
-    from expWorkbench.EMAlogging import log_to_stderr, INFO
-    from expWorkbench.model import SimpleModelEnsemble
-    from examples.FLUvensimExample import FluModel
-    from analysis.graphs import lines
+def load_optimization_results(file_name, weights, zipped=True):
+    '''
+    load the specified bz2 file. the file is assumed to be saves
+    using save_results.
     
-    log_to_stderr(level= INFO)
+    :param file: the path of the file
+    :param zipped: load the pickled data from a zip file if True
+    :return: the unpickled results
+    :raises: IOError if file not found
+    :raises: EMAError if weights are not correct
+    
+    '''
+    creator.create("Fitness", base.Fitness, weights=weights)
+    creator.create("Individual", dict, 
+                   fitness=creator.Fitness) #@UndefinedVariable
+    
+    file_name = os.path.abspath(file_name)
+    debug("loading "+file_name)
+    try:
+        if zipped:
+            file_name = bz2.BZ2File(file_name, 'rb')
+        else:
+            file_name = open(file_name, 'rb')
         
-    model = FluModel(r'..\..\models\flu', "fluCase")
-    ensemble = SimpleModelEnsemble()
-#    ensemble.parallel = True
-    ensemble.set_model_structure(model)
+        results = cPickle.load(file_name)
+        
+        if results[0].weights != weights:
+            raise EMAError("weights are %s, should be %s" % (weights, results[0].weights))
+    except IOError:
+        warning(file_name + " not found")
+        raise
     
-    policies = [{'name': 'no policy',
-                 'file': r'\FLUvensimV1basecase.vpm'},
-                {'name': 'static policy',
-                 'file': r'\FLUvensimV1static.vpm'},
-                {'name': 'adaptive policy',
-                 'file': r'\FLUvensimV1dynamic.vpm'}
-                ]
-    ensemble.add_policies(policies)
-    
-    results = ensemble.perform_experiments(10)
-    file = r'C:\eclipse\workspace\EMA workbench\models\results.cPickle'
-    save_results(results, file)
-    
-    results = load_results(file)
-   
-    lines(results)
-    plt.show()
-   
+    return results
 
-def test_transform_data():
-    results = transform_old_cPickle_to_new_cPickle(r'C:\workspace\EMA workbench\src\sandbox\100Flu.cPickle')
-    
-    from analysis.graphs import lines
-    import matplotlib.pyplot as plt
-    
-    lines(results)
-    plt.show()
+def save_optimization_results(results, file_name, zipped=True):
+    '''
+    save the results to the specified bz2 file. To facilitate transfer
+    across different machines. the files are saved in binary format
+        
+    see also: http://projects.scipy.org/numpy/ticket/1284
 
+    :param results: the return of run_experiments
+    :param file: the path of the file
+    :param zipped: save the pickled data to a zip file if True
+    :raises: IOError if file not found
 
-def test_experiments_to_cases():
-    from examples.FLUvensimExample import FluModel
-    from expWorkbench.model import SimpleModelEnsemble
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
-    
-    data = load_results(r'../analysis/1000 flu cases.cPickle')
-    experiments, results = data
-    cases = experiments_to_cases(experiments)
-    
-    model = FluModel(r'..\..\models\flu', "fluCase")
-    ensemble = SimpleModelEnsemble()
-    ensemble.set_model_structure(model)
-    ensemble.perform_experiments(cases)
-    
+    '''
 
-if __name__ == '__main__':
-#    test_save_and_load()
-#    test_transform_data()
-    test_experiments_to_cases()
-    
+    save_results(results, file_name, zipped=zipped) 

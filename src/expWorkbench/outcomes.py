@@ -4,7 +4,7 @@ Created on 24 mei 2011
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
-
+SVN_ID = '$Id: outcomes.py 1104 2013-01-24 16:43:50Z wlauping $'
 __all__ = ['Outcome',
            'TIME']
 
@@ -34,3 +34,9 @@ class Outcome(object):
         self.name = name
         self.time = time
     
+    def __eq__ (self, other):
+        comparison = [all(hasattr(self, key) == hasattr(other, key) and
+                          getattr(self, key) == getattr(other, key) for key 
+                          in self.__dict__.keys())]
+        comparison.append(self.__class__ == other.__class__)
+        return all(comparison)

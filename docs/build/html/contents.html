@@ -3,13 +3,18 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="A python library for exploratory modeling and analysis for supporting model based decision making under deep uncertainty" name="description" />
+<meta content="exploratory modeling, deep uncertainty, robust decision making, vensim, python" name="keywords" />
+
+    <title>Exploratory Modelling and Analysis (EMA) Workbench &mdash; Exploratory Modeling Workbench</title>
     
-    <title>Exploratory Modelling &amp; Analysis (EMA) Workbench &mdash; Exploratory Modeling Workbench</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -61,8 +66,7 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Exploratory Modelling &amp; Analysis (EMA) Workbench</a><ul>
-<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#">Exploratory Modelling and Analysis (EMA) Workbench</a><ul>
 <li><a class="reference internal" href="#workbench-content">Workbench Content</a><ul>
 <li><a class="reference internal" href="#simulation-control">Simulation Control</a></li>
 <li><a class="reference internal" href="#analysis">Analysis</a></li>
@@ -78,10 +82,10 @@
   <li>
     <ul>
         
-      <li><a href="../RESEARCH/Intro.html">PA SIMULATION LAB</a><a class="reference internal" href="#description"></a></li>
-      <li><a href="../ema-workbench/contents.html">EMA Workbench</a></li>
-      <li><a href="../BeneluxChapter/Intro.html">BENELUX CHAPTER</a></li>
-      <li><a href="../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
     </ul>
   </li>
   </ul>
@@ -106,22 +110,33 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="exploratory-modelling-analysis-ema-workbench">
-<span id="exploratory-modelling-analysis-workbench"></span><span id="contents"></span><h1>Exploratory Modelling &amp; Analysis (EMA) Workbench<a class="headerlink" href="#exploratory-modelling-analysis-ema-workbench" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="exploratory-modelling-and-analysis-ema-workbench">
+<span id="exploratory-modelling-analysis-workbench"></span><span id="contents"></span><h1>Exploratory Modelling and Analysis (EMA) Workbench<a class="headerlink" href="#exploratory-modelling-and-analysis-ema-workbench" title="Permalink to this headline">¶</a></h1>
 <p>Exploratory Modeling and Analysis (EMA) is a research methodology that uses
 computational experiments to analyze complex and uncertain systems
-(Bankes, 1993, 1994). EMA can be understood as searching or sampling over an
-ensemble of models that are plausible, given a priori knowledge or are
-otherwise of interest. This ensemble may often be large or infinite in size.
-Consequently, the central challenge of exploratory modeling is the design of
-search or sampling strategies that support valid conclusions or reliable
-insights based on a limited number of computational experiments.</p>
+(<a class="reference external" href="http://www.jstor.org/stable/10.2307/171847">Bankes, 1993</a>).That is,
+exploratory modeling aims at offering computational decision support for
+decision making under <a class="reference external" href="http://inderscience.metapress.com/content/y77p3q512x475523/">deep uncertainty</a>
+and <a class="reference external" href="http://en.wikipedia.org/wiki/Robust_decision_making">Robust decision making</a>.</p>
+<p>The EMA workbench is aimed at providing support for doing EMA on models
+developed in various modelling packages and environments. Currently, we focus
+on offering support for doing EMA on models developed in
+<a class="reference external" href="http://www.vensim.com/">Vensim</a>, Excel, and Python. Future plans include
+support for <a class="reference external" href="http://ccl.northwestern.edu/netlogo/">Netlogo</a>
+and <a class="reference external" href="http://repast.sourceforge.net/">Repast</a>. The EMA workbench offers support
+for designing experiments, performing the experiments - including support for
+parallel processing-, and analysing the results. A key design principle is that
+people should be able to perform EMA on normal computers, instead of having
+to take recourse to a HPC.</p>
+<p>The Exploratory Modeling and Analysis (EMA) Workbench is an evolving set of
+tools and methods. It evolved out of code written by Jan Kwakkel for his PhD
+research. The EMA workbench is implemented in Python and relies on
+<a class="reference external" href="http://numpy.scipy.org/">Numpy and Scipy</a>.</p>
 <blockquote>
 <div><ul>
-<li><p class="first"><a class="reference internal" href="#exploratory-modelling-analysis-workbench"><em>Exploratory Modelling &amp; Analysis (EMA) Workbench</em></a></p>
+<li><p class="first"><a class="reference internal" href="#exploratory-modelling-analysis-workbench"><em>Exploratory Modelling and Analysis (EMA) Workbench</em></a></p>
 <blockquote>
 <div><ul class="simple">
-<li><a class="reference internal" href="#description"><em>Description</em></a></li>
 <li><a class="reference internal" href="#workbench-content"><em>Workbench Content</em></a><ul>
 <li><a class="reference internal" href="#simulation-control"><em>Simulation Control</em></a></li>
 <li><a class="reference internal" href="#analysis"><em>Analysis</em></a></li>
@@ -135,27 +150,15 @@ insights based on a limited number of computational experiments.</p>
 </li>
 </ul>
 </div></blockquote>
-<div class="section" id="description">
-<span id="id1"></span><h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>The Ema Workbench is an evolving set of tools and methods to support model
-(bothstructure and behaviour) analysis. It evolved out of code written by Jan
-Kwakkel for his PhD research. It is now a joint project of a set of people
-actively taking a role in the EmaGroup.The workbench is aimed at providing
-support for doing EMA on models developed in various modelling packages and
-environments. It offers support for designing experiments, performing the
-experiments - including support for parallel processing-, and analysing the
-results. A key design principle is that people should be able to perform EMA on
-normal computers, instead of having to take recourse to a HPC.</p>
-</div>
 <div class="section" id="workbench-content">
-<span id="id2"></span><h2>Workbench Content<a class="headerlink" href="#workbench-content" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Workbench Content<a class="headerlink" href="#workbench-content" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="simulation-control">
-<span id="id3"></span><h3>Simulation Control<a class="headerlink" href="#simulation-control" title="Permalink to this headline">¶</a></h3>
+<span id="id2"></span><h3>Simulation Control<a class="headerlink" href="#simulation-control" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Vensim controller (<a class="reference internal" href="ema_documentation/vensim.html#module-vensim" title="vensim"><tt class="xref py py-mod docutils literal"><span class="pre">vensim</span></tt></a>): This enables controlling (e.g. setting
+<li>Vensim controller (<a class="reference internal" href="ema_documentation/expWorkbench/vensim.html#module-vensim" title="vensim"><tt class="xref py py-mod docutils literal"><span class="pre">vensim</span></tt></a>): This enables controlling (e.g. setting
 parameters, simulation setup, run, get output, etc.) a simulation model that
 is built in Vensim software, and conducting an EMA study based on this model.</li>
-<li>Excel controller (<a class="reference internal" href="ema_documentation/excel.html#module-excel" title="excel"><tt class="xref py py-mod docutils literal"><span class="pre">excel</span></tt></a>): This enables controlling models build in
+<li>Excel controller (<a class="reference internal" href="ema_documentation/expWorkbench/excel.html#module-excel" title="excel"><tt class="xref py py-mod docutils literal"><span class="pre">excel</span></tt></a>): This enables controlling models build in
 Excel.</li>
 <li>NetLogo controller (Status: Planned, Related module: None, Contact: Gonenc
 Yucel): This enables controlling (e.g. setting parameters, simulation setup,
@@ -165,21 +168,21 @@ and conducting an EMA study based on this model.</li>
 </ul>
 </div>
 <div class="section" id="analysis">
-<span id="id4"></span><h3>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h3>
+<span id="id3"></span><h3>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h3>
 <ul>
-<li><p class="first">Patient Rule Induction Method (<a class="reference internal" href="ema_documentation/prim.html#module-prim" title="prim"><tt class="xref py py-mod docutils literal"><span class="pre">prim</span></tt></a>)</p>
+<li><p class="first">Patient Rule Induction Method (<a class="reference internal" href="ema_documentation/analysis/prim.html#module-prim" title="prim"><tt class="xref py py-mod docutils literal"><span class="pre">prim</span></tt></a>)</p>
 </li>
-<li><p class="first">Feature Selection (<a class="reference internal" href="ema_documentation/orangeFunctions.html#module-orangeFunctions" title="orangeFunctions"><tt class="xref py py-mod docutils literal"><span class="pre">orangeFunctions</span></tt></a>)</p>
+<li><p class="first">Feature Selection (<tt class="xref py py-mod docutils literal"><span class="pre">orangeFunctions</span></tt>)</p>
 </li>
-<li><p class="first">Classification Trees (<a class="reference internal" href="ema_documentation/orangeFunctions.html#module-orangeFunctions" title="orangeFunctions"><tt class="xref py py-mod docutils literal"><span class="pre">orangeFunctions</span></tt></a>)</p>
+<li><p class="first">Classification Trees (<tt class="xref py py-mod docutils literal"><span class="pre">orangeFunctions</span></tt>)</p>
 </li>
-<li><p class="first">Random Forrests (<a class="reference internal" href="ema_documentation/orangeFunctions.html#module-orangeFunctions" title="orangeFunctions"><tt class="xref py py-mod docutils literal"><span class="pre">orangeFunctions</span></tt></a>)</p>
+<li><p class="first">Random Forrests (<tt class="xref py py-mod docutils literal"><span class="pre">orangeFunctions</span></tt>)</p>
 </li>
 <li><p class="first">Self organizing maps (status: planned)</p>
 </li>
 <li><p class="first">Stochastic Neighbor Embedding (status: planned)</p>
 </li>
-<li><p class="first">Behaviour clustering (<tt class="xref py py-mod docutils literal"><span class="pre">clustererV2</span></tt>): This analysis feature automatically
+<li><p class="first">Behaviour clustering (<a class="reference internal" href="ema_documentation/analysis/clusterer.html#module-clusterer" title="clusterer"><tt class="xref py py-mod docutils literal"><span class="pre">clusterer</span></tt></a>): This analysis feature automatically
 allocates output behaviours that are similar in characteristics to groups
 (i.e. clusters). &#8216;Similarity&#8217; between dynamic behaviours is defined using
 distance functions, and the feature can operate using different distance
@@ -203,11 +206,11 @@ on their differences in these three features.</li>
 </ul>
 </div>
 <div class="section" id="visualization">
-<span id="id5"></span><h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>lines, envelopes, multiplot graphs (<a class="reference internal" href="ema_documentation/graphs.html#module-graphs" title="graphs"><tt class="xref py py-mod docutils literal"><span class="pre">graphs</span></tt></a>)</li>
-<li>envelopes3d (<a class="reference internal" href="ema_documentation/graphs3d.html#module-graphs3d" title="graphs3d"><tt class="xref py py-mod docutils literal"><span class="pre">graphs3d</span></tt></a>)</li>
-<li>Interactive plots (<a class="reference internal" href="ema_documentation/interactive_graphs.html#module-interactive_graphs" title="interactive_graphs"><tt class="xref py py-mod docutils literal"><span class="pre">interactive_graphs</span></tt></a>):</li>
+<li>lines, envelopes, multiplot graphs (<tt class="xref py py-mod docutils literal"><span class="pre">graphs</span></tt>)</li>
+<li>envelopes3d (<tt class="xref py py-mod docutils literal"><span class="pre">graphs3d</span></tt>)</li>
+<li>Interactive plots (<a class="reference internal" href="ema_documentation/analysis/interactive_graphs.html#module-interactive_graphs" title="interactive_graphs"><tt class="xref py py-mod docutils literal"><span class="pre">interactive_graphs</span></tt></a>):</li>
 <li>regret analysis along the lines of Lempert et al. (2003) Shaping the next 100
 years. (status: beta, related module: regret.py Contact: Jan Kwakkel)</li>
 </ul>
@@ -216,6 +219,14 @@ years. (status: beta, related module: regret.py Contact: Jan Kwakkel)</li>
 </div>
 <div class="section" id="exploratory-modeling-and-analysis-ema">
 <span id="exploratory-modeling-and-analysis"></span><h1>Exploratory Modeling and Analysis (EMA)<a class="headerlink" href="#exploratory-modeling-and-analysis-ema" title="Permalink to this headline">¶</a></h1>
+<p>Exploratory Modeling and Analysis (EMA) is a research methodology that uses
+computational experiments to analyze complex and uncertain systems
+(Bankes, 1993, 1994). EMA can be understood as searching or sampling over an
+ensemble of models that are plausible, given a priori knowledge or are
+otherwise of interest. This ensemble may often be large or infinite in size.
+Consequently, the central challenge of exploratory modeling is the design of
+search or sampling strategies that support valid conclusions or reliable
+insights based on a limited number of computational experiments.</p>
 <p>EMA can be contrasted with the use of models to predict system behavior,
 where models are built by consolidating known facts into a single package
 (Hodges, 1991). When experimentally validated, this single model can be used
@@ -292,8 +303,8 @@ over the ensemble of models that are plausible given a priori knowledge.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, J.H. Kwakkel.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

@@ -16,6 +16,8 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+#print os.path.abspath('../../src/expWorkbench')
+
 sys.path.append(os.path.abspath('../../src'))
 sys.path.append(os.path.abspath('../../src/analysis'))
 sys.path.append(os.path.abspath('../../src/analysis/clusterCode'))
@@ -24,6 +26,8 @@ sys.path.append(os.path.abspath('../../src/expWorkbench'))
 sys.path.append(os.path.abspath('../../src/sandbox'))
 sys.path.append(os.path.abspath('../../docs/sphinxext'))
 #sys.path.append(r'C:/Python27/Lib/site-packages/matplotlib/sphinxext')
+
+
 
 # -- General configuration -----------------------------------------------------
 
@@ -55,7 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'EMA workbench'
-copyright = u'2011, J.H. Kwakkel'
+copyright = u'2011-2012, J.H. Kwakkel'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

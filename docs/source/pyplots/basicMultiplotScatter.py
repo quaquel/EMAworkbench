@@ -6,8 +6,8 @@ Created on 26 sep. 2011
 import matplotlib.pyplot as plt
 
 from expWorkbench import load_results
-from analysis.graphs import multiplot_scatter
+from analysis.pairs_plotting import pairs_scatter
 
-data = load_results(r'../../../src/analysis/1000 flu cases.cPickle')
-fig = multiplot_scatter(data, column='policy', legend=True)
+data = load_results(r'../../../src/analysis/1000 flu cases.cPickle', zipped=False)
+fig = pairs_scatter(data, group_by='policy', legend=True)
 plt.show()

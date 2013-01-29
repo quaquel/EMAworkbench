@@ -3,10 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. meta::
+   :description: The index of the full documentaton of the exploratory modeling
+                 workbench
+
 ***************************
 EMA Workbench documentation
 ***************************
 
+.. htmlonly::
+
+    :Release: |version|
+    :Date: |today|
 
 User Guide
 ==========
@@ -19,6 +27,7 @@ User Guide
    ../../download.rst
    ../../ema_documentation/glossary.rst
    ../../vensim-tips-and-tricks.rst
+   ../../gallery/index.rst
    
 .. only:: html
 
@@ -34,13 +43,18 @@ Analysis
 .. toctree::
    :maxdepth: 2
    
-   ../../ema_documentation/graphs.rst
-   ../../ema_documentation/interactive_graphs.rst
-   ../../ema_documentation/graphs3d.rst
-   ../../ema_documentation/prim.rst
-   ../../ema_documentation/orangeFunctions.rst
-   ../../ema_documentation/clusterer.rst
-   ../../ema_documentation/scenario_discovery.rst
+   ../../ema_documentation/analysis/plotting.rst
+   ../../ema_documentation/analysis/b_and_w_plotting.rst
+   ../../ema_documentation/analysis/pairs_plotting.rst
+   ../../ema_documentation/analysis/plotting_util.rst
+   ../../ema_documentation/analysis/interactive_graphs.rst
+   ../../ema_documentation/analysis/graphs3d.rst
+   ../../ema_documentation/analysis/prim.rst
+   ../../ema_documentation/analysis/pca_prim.rst
+   ../../ema_documentation/analysis/orange_functions.rst
+   ../../ema_documentation/analysis/clusterer.rst
+   ../../ema_documentation/analysis/scenario_discovery.rst
+   ../../ema_documentation/analysis/optimization_plots.rst
 
 
 Core classes and functions
@@ -49,14 +63,17 @@ Core classes and functions
 .. toctree::
    :maxdepth: 2
    
-   ../../ema_documentation/model.rst
-   ../../ema_documentation/uncertainties.rst
-   ../../ema_documentation/outcomes.rst
-   ../../ema_documentation/samplers.rst
-   ../../ema_documentation/EMAlogging.rst
-   ../../ema_documentation/EMAparallel.rst
-   ../../ema_documentation/EMAexceptions.rst
-   ../../ema_documentation/util.rst
+   ../../ema_documentation/expWorkbench/model.rst
+   ../../ema_documentation/expWorkbench/model_ensemble.rst
+   ../../ema_documentation/expWorkbench/uncertainties.rst
+   ../../ema_documentation/expWorkbench/outcomes.rst
+   ../../ema_documentation/expWorkbench/samplers.rst
+   ../../ema_documentation/expWorkbench/EMAlogging.rst
+   ../../ema_documentation/expWorkbench/ema_parallel.rst
+   ../../ema_documentation/expWorkbench/ema_exceptions.rst
+   ../../ema_documentation/expWorkbench/ema_optimization.rst
+   ../../ema_documentation/expWorkbench/optimization_callbacks.rst
+   ../../ema_documentation/expWorkbench/util.rst
 
 
 Connectors
@@ -64,8 +81,8 @@ Connectors
 .. toctree::
    :maxdepth: 2
 
-   ../../ema_documentation/vensim.rst
-   ../../ema_documentation/excel.rst
+   ../../ema_documentation/expWorkbench/vensim.rst
+   ../../ema_documentation/expWorkbench/excel.rst
 
 
 Indices and tables

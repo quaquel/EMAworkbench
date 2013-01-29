@@ -10,13 +10,14 @@ from __future__ import division
 import numpy as np
 import scipy.stats.kde as kde 
 
-import mayavi.mlab as mlab
+from enthought.mayavi import mlab
+mlab = mlab
 
 from expWorkbench.EMAlogging import log_to_stderr, INFO, info
 from expWorkbench import EMAError
 import expWorkbench
 from expWorkbench.util import load_results
-from analysis.graphs import __discretesize
+from analysis.plotting_util import make_continuous_grouping_specifiers
 
 __all__ = ['envelopes3d', 'lines3d', 'scatter3d', 'envelopes3d_group_by']
 
@@ -222,7 +223,7 @@ def envelopes3d(results,
     generates the following mayavi scene. It can be further edited using the 
     mayavi pipeline
     
-    .. figure:: ../ystatic/envelopes3d.png
+    .. figure:: ../../ystatic/envelopes3d.png
     
     
     '''
@@ -398,7 +399,7 @@ def envelopes3d_group_by(results,
         if discretesize:
             categories = discretesize(experiments[groupBy])
         else:
-            categories = __discretesize(experiments[groupBy])
+            categories = make_continuous_grouping_specifiers(experiments[groupBy])
     else:
         categories = set(experiments[groupBy])
         
@@ -505,6 +506,6 @@ def test_scatter3d():
 if __name__ == '__main__':
     log_to_stderr(level= INFO)
 #    test_envelopes3d()
-    test_envelopes3d_group_by()
+#    test_envelopes3d_group_by()
 #    test_lines3d()
 #    test_scatter3d()

@@ -13,7 +13,7 @@ from expWorkbench.EMAlogging import info
 
 def ssedist(d1,d2):
     d = ((d1-d2)**2).sum()
-    print d
+#    print d
     return d
 
 def distance_sse(data):
@@ -27,9 +27,6 @@ def distance_sse(data):
     
     SSE distance equals to the square of Euclidian distance, which is a commonly used distance metric in time series comparisons.
     '''
-    
-    
-    
     
     runLogs = []
     #Generates the feature vectors for all the time series that are contained in numpy array data
