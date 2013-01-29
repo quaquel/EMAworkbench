@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>orangeFunctions &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="next" title="clusterer" href="clusterer.html" />
+    <link rel="prev" title="principal components prim" href="pca_prim.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="clusterer.html" title="clusterer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pca_prim.html" title="principal components prim"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">orangeFunctions</span></tt></a><ul>
+<li><a class="reference internal" href="#tree"><tt class="docutils literal"><span class="pre">tree()</span></tt></a></li>
+<li><a class="reference internal" href="#random-forest-measure-attributes"><tt class="docutils literal"><span class="pre">random_forest_measure_attributes()</span></tt></a></li>
+<li><a class="reference internal" href="#random-forest"><tt class="docutils literal"><span class="pre">random_forest()</span></tt></a></li>
+<li><a class="reference internal" href="#feature-selection"><tt class="docutils literal"><span class="pre">feature_selection()</span></tt></a></li>
+<li><a class="reference internal" href="#build-orange-data"><tt class="docutils literal"><span class="pre">build_orange_data()</span></tt></a></li>
+<li><a class="reference internal" href="#classify"><tt class="docutils literal"><span class="pre">classify()</span></tt></a></li>
+</ul>
+</li>
+</ul>
+  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="orangefunctions">
+<h1><tt class="xref py py-mod docutils literal"><span class="pre">orangeFunctions</span></tt><a class="headerlink" href="#orangefunctions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="tree">
+<h2><tt class="xref py py-func docutils literal"><span class="pre">tree()</span></tt><a class="headerlink" href="#tree" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="random-forest-measure-attributes">
+<h2><tt class="xref py py-func docutils literal"><span class="pre">random_forest_measure_attributes()</span></tt><a class="headerlink" href="#random-forest-measure-attributes" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="random-forest">
+<h2><tt class="xref py py-func docutils literal"><span class="pre">random_forest()</span></tt><a class="headerlink" href="#random-forest" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="feature-selection">
+<h2><tt class="xref py py-func docutils literal"><span class="pre">feature_selection()</span></tt><a class="headerlink" href="#feature-selection" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="build-orange-data">
+<h2><tt class="xref py py-func docutils literal"><span class="pre">build_orange_data()</span></tt><a class="headerlink" href="#build-orange-data" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="classify">
+<h2><tt class="xref py py-func docutils literal"><span class="pre">classify()</span></tt><a class="headerlink" href="#classify" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="clusterer.html" title="clusterer"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pca_prim.html" title="principal components prim"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

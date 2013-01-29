@@ -1,0 +1,197 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="Simple illustration of using graphs.lines applied to the mexican flu results." name="description" />
+<meta content="exploratory modeling, robust decision making, deep uncertainty, vensim, python," name="keywords" />
+
+    <title>advanced lines &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../index.html" />
+    <link rel="up" title="EMA workbench examples" href="index.html" />
+    <link rel="next" title="Clusterer illustration" href="cluster_example.html" />
+    <link rel="prev" title="Basic envelope" href="basic_envelope.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../contents.html"><img src="../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cluster_example.html" title="Clusterer illustration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="basic_envelope.html" title="Basic envelope"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../download.html">download </a> &raquo;</li>
+       <li><a href="../index.html">documentation </a> &raquo;</li>
+       
+
+          <li><a href="index.html" accesskey="U">EMA workbench examples</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="advanced-lines">
+<span id="id1"></span><h1>advanced lines<a class="headerlink" href="#advanced-lines" title="Permalink to this headline">¶</a></h1>
+<div class="figure">
+<img alt="../_images/advanced_lines.png" src="../_images/advanced_lines.png" />
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on 16 okt. 2012</span>
+
+<span class="sd">@author: localadmin</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">load_results</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">analysis.plotting</span> <span class="kn">import</span> <span class="n">lines</span>
+<span class="kn">from</span> <span class="nn">analysis</span> <span class="kn">import</span> <span class="n">plotting</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">load_results</span><span class="p">(</span><span class="s">r&#39;.\data\2000 flu cases no policy.bz2&#39;</span><span class="p">)</span>
+
+
+<span class="n">experiments</span><span class="p">,</span> <span class="n">outcomes</span> <span class="o">=</span> <span class="n">results</span>
+
+<span class="c"># get indices with of worst runs in terms of deaths and max fraction of </span>
+<span class="c"># population that is ill at any given point in time</span>
+<span class="n">deaths</span> <span class="o">=</span> <span class="n">outcomes</span><span class="p">[</span><span class="s">&#39;deceased population region 1&#39;</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">outcomes</span><span class="p">[</span><span class="s">&#39;infected fraction R1&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">deaths</span> <span class="o">=</span> <span class="p">[(</span><span class="n">deaths</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">deaths</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+<span class="n">deaths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">deaths</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">death_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">death</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">death</span> <span class="ow">in</span> <span class="n">deaths</span><span class="p">]</span>
+
+<span class="n">peak</span> <span class="o">=</span> <span class="p">[(</span><span class="n">peak</span> <span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">peak</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+<span class="n">peak</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">peak</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">peak_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">element</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">peak</span><span class="p">]</span>
+
+<span class="c"># combine the top 20 of both</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">death_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
+<span class="p">[</span><span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">peak_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">20</span><span class="p">]]</span>
+
+<span class="c"># how much can we nest....</span>
+<span class="c"># we first do the set to remove duplicates, next we cast it to a list</span>
+<span class="c"># so we can sort it. The sorting might be superfluous. </span>
+<span class="n">indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">indices</span><span class="p">)))</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+
+<span class="c">#lets modify the default time label</span>
+<span class="n">plotting</span><span class="o">.</span><span class="n">TIME_LABEL</span> <span class="o">=</span> <span class="s">&quot;Time (months)&quot;</span>
+
+<span class="c"># visualize the results on top of an envelope</span>
+<span class="c"># do not show titles for the axes</span>
+<span class="n">lines</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> 
+      <span class="n">experiments_to_show</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span> 
+      <span class="n">show_envelope</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+      <span class="n">titles</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;./pictures/advanced_lines.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cluster_example.html" title="Clusterer illustration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="basic_envelope.html" title="Basic envelope"
+             >previous</a> |</li>
+       <li><a href="../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../download.html">download </a> &raquo;</li>
+       <li><a href="../index.html">documentation </a> &raquo;</li>
+       
+
+          <li><a href="index.html" >EMA workbench examples</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

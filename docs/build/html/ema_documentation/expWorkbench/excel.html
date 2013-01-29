@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Excel &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="prev" title="Vensim" href="vensim.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vensim.html" title="Vensim"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-excel">
+<span id="excel"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">Excel</span></tt><a class="headerlink" href="#module-excel" title="Permalink to this headline">¶</a></h1>
+<p>Created on 19 sep. 2011</p>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
+<p>This module provides a base class that can be used to perform EMA on 
+Excel models. It relies on <a class="reference external" href="http://python.net/crew/mhammond/win32/Downloads.html">win32com</a></p>
+<dl class="class">
+<dt id="excel.ExcelModelStructureInterface">
+<em class="property">class </em><tt class="descclassname">excel.</tt><tt class="descname">ExcelModelStructureInterface</tt><big>(</big><em>workingDirectory</em>, <em>name</em><big>)</big><a class="headerlink" href="#excel.ExcelModelStructureInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for connecting the EMA workbench to models in Excel. To 
+automate this connection as much as possible. This implementation relies
+on naming cells in Excel. These names can then be used here as names
+for the uncertainties and the outcomes. See e.g. <a class="reference external" href="http://spreadsheets.about.com/od/exceltips/qt/named_range.htm">this site</a>
+for details on naming cells and sets of cells.</p>
+<p>The provided implementation here does work with <tt class="xref py py-mod docutils literal"><span class="pre">ParallelEMA</span></tt>.</p>
+<dl class="method">
+<dt id="excel.ExcelModelStructureInterface.cleanup">
+<tt class="descname">cleanup</tt><big>(</big><big>)</big><a class="headerlink" href="#excel.ExcelModelStructureInterface.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>cleaning up prior to finishing performing experiments. This 
+will close the workbook and close Excel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="excel.ExcelModelStructureInterface.model_init">
+<tt class="descname">model_init</tt><big>(</big><em>policy</em>, <em>kwargs</em><big>)</big><a class="headerlink" href="#excel.ExcelModelStructureInterface.model_init" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>policy</strong> &#8211; policy to be run, in the default implementation, this
+argument is ignored. Extent <a class="reference internal" href="#excel.ExcelModelStructureInterface.model_init" title="excel.ExcelModelStructureInterface.model_init"><tt class="xref py py-meth docutils literal"><span class="pre">model_init()</span></tt></a> to
+specify how this argument should be used.</li>
+<li><strong>kwargs</strong> &#8211; keyword arguments to be used by <a class="reference internal" href="#excel.ExcelModelStructureInterface.model_init" title="excel.ExcelModelStructureInterface.model_init"><tt class="xref py py-meth docutils literal"><span class="pre">model_init()</span></tt></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="excel.ExcelModelStructureInterface.reset_model">
+<tt class="descname">reset_model</tt><big>(</big><big>)</big><a class="headerlink" href="#excel.ExcelModelStructureInterface.reset_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for reseting the model to its initial state before runModel 
+was called</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="excel.ExcelModelStructureInterface.run_model">
+<tt class="descname">run_model</tt><big>(</big><em>case</em><big>)</big><a class="headerlink" href="#excel.ExcelModelStructureInterface.run_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for running an instantiated model structures. This 
+implementation assumes that the names of the uncertainties correspond
+to the name of the cells in Excel. See e.g. <a class="reference external" href="http://spreadsheets.about.com/od/exceltips/qt/named_range.htm">this site</a> 
+for details or use Google and search on &#8216;named range&#8217;. One of the 
+requirements on the names is that the cannot contains spaces.</p>
+<p>For the extraction of results, the same approach is used. That is, 
+this implementation assumes that the name of a <a class="reference internal" href="outcomes.html#outcomes.Outcome" title="outcomes.Outcome"><tt class="xref py py-class docutils literal"><span class="pre">Outcome</span></tt></a>
+instance corresponds to the name of a cell, or set of cells.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>case</strong> &#8211; dictionary with arguments for running the model</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="excel.ExcelModelStructureInterface.sheet">
+<tt class="descname">sheet</tt><em class="property"> = None</em><a class="headerlink" href="#excel.ExcelModelStructureInterface.sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the sheet on which one want to set values</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="excel.ExcelModelStructureInterface.wb">
+<tt class="descname">wb</tt><em class="property"> = None</em><a class="headerlink" href="#excel.ExcelModelStructureInterface.wb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference to the workbook. This attribute is <cite>None</cite> untill
+model_init has been invoked.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="excel.ExcelModelStructureInterface.workbook">
+<tt class="descname">workbook</tt><em class="property"> = None</em><a class="headerlink" href="#excel.ExcelModelStructureInterface.workbook" title="Permalink to this definition">¶</a></dt>
+<dd><p>relative path to workbook</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="excel.ExcelModelStructureInterface.xl">
+<tt class="descname">xl</tt><em class="property"> = None</em><a class="headerlink" href="#excel.ExcelModelStructureInterface.xl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference to the Excel application. This attribute is <cite>None</cite> untill
+model_init has been invoked.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vensim.html" title="Vensim"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>util &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="next" title="Vensim" href="vensim.html" />
+    <link rel="prev" title="optimization_callbacks" href="optimization_callbacks.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vensim.html" title="Vensim"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="optimization_callbacks.html" title="optimization_callbacks"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-util">
+<span id="util"></span><h1><a class="reference internal" href="#module-util" title="util"><tt class="xref py py-mod docutils literal"><span class="pre">util</span></tt></a><a class="headerlink" href="#module-util" title="Permalink to this headline">¶</a></h1>
+<p>Created on 13 jan. 2011</p>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
+<p>This module provides various convenience functions and classes.</p>
+<dl class="class">
+<dt id="util.AbstractCallback">
+<em class="property">class </em><tt class="descclassname">util.</tt><tt class="descname">AbstractCallback</tt><big>(</big><em>uncertainties</em>, <em>outcomes</em>, <em>nrOfExperiments</em>, <em>reporting_interval=100</em><big>)</big><a class="headerlink" href="#util.AbstractCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class from which different call back classes can be derived.
+Callback is responsible for storing the results of the runs.</p>
+<dl class="method">
+<dt id="util.AbstractCallback.get_results">
+<tt class="descname">get_results</tt><big>(</big><big>)</big><a class="headerlink" href="#util.AbstractCallback.get_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>method for retrieving the results. Called after all experiments have 
+been completed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="util.DefaultCallback">
+<em class="property">class </em><tt class="descclassname">util.</tt><tt class="descname">DefaultCallback</tt><big>(</big><em>uncs</em>, <em>outcomes</em>, <em>nrOfExperiments</em>, <em>reporting_interval=100</em><big>)</big><a class="headerlink" href="#util.DefaultCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>default callback system
+callback can be used in performExperiments as a means for specifying 
+the way in which the results should be handled. If no callback is 
+specified, this default implementation is used. This one can be 
+overwritten or replaced with a callback of your own design. For 
+example if you prefer to store the result in a database or write 
+them to a text file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="util.load_results">
+<tt class="descclassname">util.</tt><tt class="descname">load_results</tt><big>(</big><em>file_name</em>, <em>zipped=True</em><big>)</big><a class="headerlink" href="#util.load_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>load the specified bz2 file. the file is assumed to be saves
+using save_results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file</strong> &#8211; the path of the file</li>
+<li><strong>zipped</strong> &#8211; load the pickled data from a zip file if True</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the unpickled results</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">IOError if file not found</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="util.save_results">
+<tt class="descclassname">util.</tt><tt class="descname">save_results</tt><big>(</big><em>results</em>, <em>file_name</em>, <em>zipped=True</em><big>)</big><a class="headerlink" href="#util.save_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>save the results to the specified bz2 file. To facilitate transfer
+across different machines. the files are saved in binary format</p>
+<p>see also: <a class="reference external" href="http://projects.scipy.org/numpy/ticket/1284">http://projects.scipy.org/numpy/ticket/1284</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>results</strong> &#8211; the return of run_experiments</li>
+<li><strong>file</strong> &#8211; the path of the file</li>
+<li><strong>zipped</strong> &#8211; save the pickled data to a zip file if True</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">IOError if file not found</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="util.experiments_to_cases">
+<tt class="descclassname">util.</tt><tt class="descname">experiments_to_cases</tt><big>(</big><em>experiments</em><big>)</big><a class="headerlink" href="#util.experiments_to_cases" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function transform a structured experiments array into a list
+of case dicts. This can then for example be used as an argument for 
+running <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>experiments</strong> &#8211; a structured array containing experiments</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of case dicts.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="util.merge_results">
+<tt class="descclassname">util.</tt><tt class="descname">merge_results</tt><big>(</big><em>results1</em>, <em>results2</em>, <em>downsample=None</em><big>)</big><a class="headerlink" href="#util.merge_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>convenience function for merging the return from 
+<tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</p>
+<p>The function merges results2 with results1. For the experiments,
+it generates an empty array equal to the size of the sum of the 
+experiments. As dtype is uses the dtype from the experiments in results1.
+The function assumes that the ordering of dtypes and names is identical in
+both results.</p>
+<p>A typical use case for this function is in combination with 
+<a class="reference internal" href="#util.experiments_to_cases" title="util.experiments_to_cases"><tt class="xref py py-func docutils literal"><span class="pre">experiments_to_cases()</span></tt></a>. Using <a class="reference internal" href="#util.experiments_to_cases" title="util.experiments_to_cases"><tt class="xref py py-func docutils literal"><span class="pre">experiments_to_cases()</span></tt></a>
+one extracts the cases from a first set of experiments. One then
+performs these cases on a different model or policy, and then one wants to
+merge these new results with the old result for further analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>results1</strong> &#8211; first results to be merged</li>
+<li><strong>results2</strong> &#8211; second results to be merged</li>
+<li><strong>downsample</strong> &#8211; should be an integer, will be used in slicing the results
+in order to avoid memory problems.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the merged results</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vensim.html" title="Vensim"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="optimization_callbacks.html" title="optimization_callbacks"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

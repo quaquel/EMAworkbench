@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>model_ensemble &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="next" title="uncertainties" href="uncertainties.html" />
+    <link rel="prev" title="model" href="model.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="uncertainties.html" title="uncertainties"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="model.html" title="model"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-model_ensemble">
+<span id="model-ensemble"></span><h1><a class="reference internal" href="#module-model_ensemble" title="model_ensemble"><tt class="xref py py-mod docutils literal"><span class="pre">model_ensemble</span></tt></a><a class="headerlink" href="#module-model_ensemble" title="Permalink to this headline">¶</a></h1>
+<p>Created on 23 dec. 2010</p>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
+<dl class="class">
+<dt id="model_ensemble.ModelEnsemble">
+<em class="property">class </em><tt class="descclassname">model_ensemble.</tt><tt class="descname">ModelEnsemble</tt><big>(</big><em>sampler=&lt;expWorkbench.samplers.LHSSampler object at 0x0E03D950&gt;</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>One of the two main classes for performing EMA. The ensemble class is 
+responsible for running experiments on one or more model structures across
+one or more policies, and returning the results.</p>
+<p>The sampling is delegated to a sampler instance.
+The storing or results is delegated to a callback instance</p>
+<p>the class has an attribute &#8216;parallel&#8217; that specifies whether the 
+experiments are to be run in parallel or not. By default, &#8216;parallel&#8217; is 
+False.</p>
+<p class="rubric">an illustration of use</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">UserSpecifiedModelInterface</span><span class="p">(</span><span class="s">r&#39;working directory&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ensemble</span> <span class="o">=</span> <span class="n">SimpleModelEnsemble</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ensemble</span><span class="o">.</span><span class="n">set_model_structure</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ensemble</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="bp">True</span> <span class="c">#parallel processing is turned on</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">perform_experiments</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="c">#perform 1000 experiments</span>
+</pre></div>
+</div>
+<p>In this example, a 1000 experiments will be carried out in parallel on 
+the user specified model interface. The uncertainties are retrieved from 
+model.uncertainties and the outcomes are assumed to be specified in
+model.outcomes.</p>
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.add_model_structure">
+<tt class="descname">add_model_structure</tt><big>(</big><em>ms</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.add_model_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a model structure to the list of model structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ms</strong> &#8211; a <a class="reference internal" href="model.html#model.ModelStructureInterface" title="model.ModelStructureInterface"><tt class="xref py py-class docutils literal"><span class="pre">ModelStructureInterface</span></tt></a> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.add_model_structures">
+<tt class="descname">add_model_structures</tt><big>(</big><em>mss</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.add_model_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>add a collection of model structures to the list of model structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mss</strong> &#8211; a collection of <a class="reference internal" href="model.html#model.ModelStructureInterface" title="model.ModelStructureInterface"><tt class="xref py py-class docutils literal"><span class="pre">ModelStructureInterface</span></tt></a> 
+instances</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.add_policies">
+<tt class="descname">add_policies</tt><big>(</big><em>policies</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.add_policies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add policies, policies should be a collection of policies.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>policies</strong> &#8211; policies to be added, every policy should be a 
+dict with at  least a name.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.add_policy">
+<tt class="descname">add_policy</tt><big>(</big><em>policy</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.add_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a policy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>policy</strong> &#8211; policy to be added, policy should be a dict with at 
+least a name.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.continue_robust_optimization">
+<tt class="descname">continue_robust_optimization</tt><big>(</big><em>cases=None</em>, <em>nr_of_generations=10</em>, <em>pop=None</em>, <em>stats_callback=None</em>, <em>policy_levers=None</em>, <em>obj_function=None</em>, <em>crossover_rate=0.5</em>, <em>mutation_rate=0.02</em>, <em>reporting_interval=100</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.continue_robust_optimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Continue the robust optimization from a previously saved state. To 
+make this work, one should save the return from 
+perform_robust_optimization. The typical use case for this method is
+to manually track convergence of the optimization after a number of 
+specified generations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cases</strong> &#8211; In case of Latin Hypercube sampling and Monte Carlo 
+sampling, cases specifies the number of cases to
+generate. In case of Full Factorial sampling,
+cases specifies the resolution to use for sampling
+continuous uncertainties. Alternatively, one can supply
+a list of dicts, where each dicts contains a case.
+That is, an uncertainty name as key, and its value.</li>
+<li><strong>nr_of_generations</strong> &#8211; the number of generations for which the 
+GA will be run</li>
+<li><strong>pop</strong> &#8211; the last ran population, returned 
+by perform_robust_optimization</li>
+<li><strong>stats_callback</strong> &#8211; the NSGA2StatisticsCallback instance returned
+by perform_robust_optimization</li>
+<li><strong>reporting_interval</strong> &#8211; parameter for specifying the frequency with
+which the callback reports the progress.
+(Default is 100)</li>
+<li><strong>policy_levers</strong> &#8211; A dictionary with model parameter names as key
+and a dict as value. The dict should have two 
+fields: &#8216;type&#8217; and &#8216;values. Type is either
+list or range, and determines the appropriate
+allele type. Values are the parameters to 
+be used for the specific allele.</li>
+<li><strong>obj_function</strong> &#8211; the objective function used by the optimization</li>
+<li><strong>crossover_rate</strong> &#8211; crossover rate for the GA</li>
+<li><strong>mutation_rate</strong> &#8211; mutation_rate for the GA</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There is some tricky stuff involved in loading
+the stats_callback via cPickle. cPickle requires that the 
+classes in the pickle file exist. The individual class used 
+by deap is generated dynamicly. Loading the cPickle should 
+thus be preceded by reinstantiating the correct individual.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.determine_intersecting_uncertainties">
+<tt class="descname">determine_intersecting_uncertainties</tt><big>(</big><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.determine_intersecting_uncertainties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method for determining the uncertainties shared across
+multiple uncertainties</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="model_ensemble.ModelEnsemble.parallel">
+<tt class="descname">parallel</tt><em class="property"> = False</em><a class="headerlink" href="#model_ensemble.ModelEnsemble.parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>boolean for turning parallel on (default is False)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.perform_experiments">
+<tt class="descname">perform_experiments</tt><big>(</big><em>cases</em>, <em>callback=&lt;class 'expWorkbench.util.DefaultCallback'&gt;</em>, <em>reporting_interval=100</em>, <em>model_kwargs={}</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.perform_experiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method responsible for running the experiments on a structure. In case 
+of multiple model structures, the outcomes are set to the intersection 
+of the sets of outcomes of the various models.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cases</strong> &#8211; In case of Latin Hypercube sampling and Monte Carlo 
+sampling, cases specifies the number of cases to
+generate. In case of Full Factorial sampling,
+cases specifies the resolution to use for sampling
+continuous uncertainties. Alternatively, one can supply
+a list of dicts, where each dicts contains a case.
+That is, an uncertainty name as key, and its value.</li>
+<li><strong>callback</strong> &#8211; Class that will be called after finishing a 
+single experiment,</li>
+<li><strong>reporting_interval</strong> &#8211; parameter for specifying the frequency with
+which the callback reports the progress.
+(Default is 100)</li>
+<li><strong>model_kwargs</strong> &#8211; dictionary of keyword arguments to be passed to 
+model_init</li>
+<li><strong>kwargs</strong> &#8211; generic keyword arguments to pass on to callback</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a <a class="reference external" href="http://docs.scipy.org/doc/numpy/user/basics.rec.html">structured numpy array</a> 
+containing the experiments, and a dict with the names of the 
+outcomes as keys and an numpy array as value.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">suggested use</p>
+<p>In general, analysis scripts require both the structured array of the 
+experiments and the dictionary of arrays containing the results. The 
+recommended use is the following:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">perform_experiments</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="c">#recommended use</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">experiments</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">perform_experiments</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="c">#will work fine</span>
+</pre></div>
+</div>
+<p>The latter option will work fine, but most analysis scripts require 
+to wrap it up into a tuple again:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="n">experiments</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Another reason for the recommended use is that you can save this tuple
+directly:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">expWorkbench.util</span> <span class="kn">as</span> <span class="nn">util</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">util</span><span class="o">.</span><span class="n">save_results</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">file</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.perform_outcome_optimization">
+<tt class="descname">perform_outcome_optimization</tt><big>(</big><em>reporting_interval=100</em>, <em>obj_function=None</em>, <em>weights=()</em>, <em>nr_of_generations=100</em>, <em>pop_size=100</em>, <em>crossover_rate=0.5</em>, <em>mutation_rate=0.02</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.perform_outcome_optimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method responsible for performing outcome optimization. The 
+optimization will be performed over the intersection of the 
+uncertainties in case of multiple model structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>reporting_interval</strong> &#8211; parameter for specifying the frequency with
+which the callback reports the progress.
+(Default is 100)</li>
+<li><strong>obj_function</strong> &#8211; the objective function used by the optimization</li>
+<li><strong>weights</strong> &#8211; tuple of weights on the various outcomes of the 
+objective function. Use the constants MINIMIZE and 
+MAXIMIZE.</li>
+<li><strong>nr_of_generations</strong> &#8211; the number of generations for which the 
+GA will be run</li>
+<li><strong>pop_size</strong> &#8211; the population size for the GA</li>
+<li><strong>crossover_rate</strong> &#8211; crossover rate for the GA</li>
+<li><strong>mutation_rate</strong> &#8211; mutation_rate for the GA</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.perform_robust_optimization">
+<tt class="descname">perform_robust_optimization</tt><big>(</big><em>cases</em>, <em>reporting_interval=100</em>, <em>obj_function=None</em>, <em>policy_levers={}</em>, <em>weights=()</em>, <em>nr_of_generations=100</em>, <em>pop_size=100</em>, <em>crossover_rate=0.5</em>, <em>mutation_rate=0.02</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.perform_robust_optimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method responsible for performing robust optimization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cases</strong> &#8211; In case of Latin Hypercube sampling and Monte Carlo 
+sampling, cases specifies the number of cases to
+generate. In case of Full Factorial sampling,
+cases specifies the resolution to use for sampling
+continuous uncertainties. Alternatively, one can supply
+a list of dicts, where each dicts contains a case.
+That is, an uncertainty name as key, and its value.</li>
+<li><strong>reporting_interval</strong> &#8211; parameter for specifying the frequency with
+which the callback reports the progress.
+(Default is 100)</li>
+<li><strong>obj_function</strong> &#8211; the objective function used by the optimization</li>
+<li><strong>policy_levers</strong> &#8211; A dictionary with model parameter names as key
+and a dict as value. The dict should have two 
+fields: &#8216;type&#8217; and &#8216;values. Type is either
+list or range, and determines the appropriate
+allele type. Values are the parameters to 
+be used for the specific allele.</li>
+<li><strong>weights</strong> &#8211; tuple of weights on the various outcomes of the 
+objective function. Use the constants MINIMIZE and 
+MAXIMIZE.</li>
+<li><strong>nr_of_generations</strong> &#8211; the number of generations for which the 
+GA will be run</li>
+<li><strong>pop_size</strong> &#8211; the population size for the GA</li>
+<li><strong>crossover_rate</strong> &#8211; crossover rate for the GA</li>
+<li><strong>mutation_rate</strong> &#8211; mutation_rate for the GA</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="model_ensemble.ModelEnsemble.processes">
+<tt class="descname">processes</tt><em class="property"> = None</em><a class="headerlink" href="#model_ensemble.ModelEnsemble.processes" title="Permalink to this definition">¶</a></dt>
+<dd><p>In case of parallel computing, the number of
+processes to be spawned. Default is None, meaning
+that the number of processes will be equal to the
+number of available cores.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model_ensemble.ModelEnsemble.set_model_structure">
+<tt class="descname">set_model_structure</tt><big>(</big><em>modelStructure</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.set_model_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the model structure. This function wraps the model structure
+in a tuple, limiting the number of model structures to 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>modelStructure</strong> &#8211; a <a class="reference internal" href="model.html#model.ModelStructureInterface" title="model.ModelStructureInterface"><tt class="xref py py-class docutils literal"><span class="pre">ModelStructureInterface</span></tt></a> 
+instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="uncertainties.html" title="uncertainties"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="model.html" title="model"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

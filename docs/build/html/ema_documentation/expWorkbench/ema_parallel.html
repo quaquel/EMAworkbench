@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ema_parallel &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="next" title="ema_exceptions" href="ema_exceptions.html" />
+    <link rel="prev" title="EMAlogging" href="EMAlogging.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ema_exceptions.html" title="ema_exceptions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="EMAlogging.html" title="EMAlogging"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-ema_parallel">
+<span id="ema-parallel"></span><h1><a class="reference internal" href="#module-ema_parallel" title="ema_parallel"><tt class="xref py py-mod docutils literal"><span class="pre">ema_parallel</span></tt></a><a class="headerlink" href="#module-ema_parallel" title="Permalink to this headline">¶</a></h1>
+<p>Created on 21 dec. 2010</p>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
+<p>calculator pool 
+adapted from  the pool provided in multiprocessing. This version is based 
+on the python 2.6 version.</p>
+<p>multiprocessing logging ideas based on code examples found on StackTrace:
+<a class="reference external" href="http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python">http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python</a></p>
+<p>the implementation here allows the user to not be bothered with many of the 
+details of multiprocessing. For example, logging will work the same regardless 
+of whether multiprocessing is used. The process class here modifies 
+the _logger in EMAlogging to refer to the logger for its particular subprocess</p>
+<dl class="class">
+<dt id="ema_parallel.CalculatorPool">
+<em class="property">class </em><tt class="descclassname">ema_parallel.</tt><tt class="descname">CalculatorPool</tt><big>(</big><em>modelStructureInterfaces</em>, <em>processes=None</em>, <em>kwargs=None</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a pool of processes that handles the parallel 
+calculation heavily derived from the standard pool provided with the 
+multiprocessing library</p>
+<dl class="method">
+<dt id="ema_parallel.CalculatorPool.apply_async">
+<tt class="descname">apply_async</tt><big>(</big><em>case</em>, <em>policy</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool.apply_async" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asynchronous equivalent of <cite>apply()</cite> builtin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ema_parallel.CalculatorPool.runExperiments">
+<tt class="descname">runExperiments</tt><big>(</big><em>cases</em>, <em>policies</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool.runExperiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>convenient function to wrap around the apply assync function</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ema_exceptions.html" title="ema_exceptions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="EMAlogging.html" title="EMAlogging"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
