@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>scenario_discovery &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="next" title="optimization_plots" href="optimization_plots.html" />
+    <link rel="prev" title="clusterer" href="clusterer.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="optimization_plots.html" title="optimization_plots"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="clusterer.html" title="clusterer"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-scenario_discovery">
+<span id="scenario-discovery"></span><h1><a class="reference internal" href="#module-scenario_discovery" title="scenario_discovery"><tt class="xref py py-mod docutils literal"><span class="pre">scenario_discovery</span></tt></a><a class="headerlink" href="#module-scenario_discovery" title="Permalink to this headline">¶</a></h1>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
+<p>This module contains helper functions related to scenario discovery. These
+functions can be used to transform a classification tree into a list of 
+boxes, identical to those returned by the PRIM algorithm. There are also
+functions here for calculating the scenario discovery metrics <em>coverage</em> and
+<em>density</em>.</p>
+<dl class="function">
+<dt id="scenario_discovery.calculate_sd_metrics">
+<tt class="descclassname">scenario_discovery.</tt><tt class="descname">calculate_sd_metrics</tt><big>(</big><em>boxes</em>, <em>y</em>, <em>threshold</em>, <em>threshold_type</em><big>)</big><a class="headerlink" href="#scenario_discovery.calculate_sd_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for calculating the coverage and density scenario discovery
+metrics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>boxes</strong> &#8211; A list of PRIM boxes.</li>
+<li><strong>y</strong> &#8211; The y vector used in generating the boxes. This is typically 
+the return from a classify function.</li>
+<li><strong>threshold</strong> &#8211; the threshold of the output space that boxes should meet.</li>
+<li><strong>threshold_type</strong> &#8211; If 1, the boxes should go above the threshold, if -1
+the boxes should go below the threshold, if 0, the 
+algorithm looks for both +1 and -1.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The list of PRIM boxes with coverage and density added to
+each box as additional attribute.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Coverage and density are given below:</p>
+<div class="math">
+<p><span class="math">coverage=\frac
+            {{\displaystyle\sum_{y_{i}\in{B}}y_{i}{'}}}
+            {{\displaystyle\sum_{y_{i}\in{B^I}}y_{i}{'}}}</span></p>
+</div><p>where <span class="math">y_{i}{'}=1</span> if <span class="math">x_{i}\in{B}</span> and <span class="math">y_{i}{'}=0</span>
+otherwise.</p>
+<p>Coverage is the ratio of cases of interest in a box to the total number
+of cases of interests. It thus provides insight into which fraction of 
+cases of interest is in a particular box.</p>
+<div class="math">
+<p><span class="math">density=\frac
+            {{\displaystyle\sum_{y_{i}\in{B}}y_{i}{'}}}
+            {{\displaystyle\left|{y_{i}}\right|\in{B}}}</span></p>
+</div><p>where <span class="math">y_{i}{'}=1</span> if <span class="math">x_{i}\in{B}</span> and <span class="math">y_{i}{'}=0</span>
+otherwise, and <span class="math">{\displaystyle\left|{y_{i}}\right|\in{B}}</span> is the
+cardinality of <span class="math">y_{i}</span>.</p>
+<p>Density is the ratio of the cases of interest in a box to the 
+total number of cases in that box. <em>density</em> is identical to the mean
+in case of a binary classification.  For more detail on these metrics see 
+<a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S004016250900105X">Bryant and Lempert (2010)</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scenario_discovery.make_boxes">
+<tt class="descclassname">scenario_discovery.</tt><tt class="descname">make_boxes</tt><big>(</big><em>tree</em>, <em>data</em>, <em>classify</em>, <em>threshold</em><big>)</big><a class="headerlink" href="#scenario_discovery.make_boxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that turns a classification tree into prim boxes, including
+the scenario discovery metrics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> &#8211; the return from <tt class="xref py py-func docutils literal"><span class="pre">orangeFunctions.tree()</span></tt>.</li>
+<li><strong>data</strong> &#8211; the return from <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</li>
+<li><strong>classify</strong> &#8211; the classify function used in making the tree.</li>
+<li><strong>threshold</strong> &#8211; the minimum mean that the boxes should meet.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of prim boxes.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scenario_discovery.find_branches">
+<tt class="descclassname">scenario_discovery.</tt><tt class="descname">find_branches</tt><big>(</big><em>node</em>, <em>vars</em><big>)</big><a class="headerlink" href="#scenario_discovery.find_branches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursive function for finding branches in a tree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>node</strong> &#8211; The node from which you want to find branches.</li>
+<li><strong>vars</strong> &#8211; The variables found so far and their limits.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of branches. Each branch is in turn a list, starting
+from the distribution in the leaf, back to the root of the tree. 
+For each split in the tree, it gives the name of the variable,
+and the split condition. The split condition is given as a string.
+So. A branch is given from the bottom up.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">example of use</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">orangeFunctions</span><span class="o">.</span><span class="n">tree</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">classify_function</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">startNode</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">tree</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">branches</span> <span class="o">=</span> <span class="n">find_branches</span><span class="p">(</span><span class="n">startNode</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;root&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">])</span> 
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="optimization_plots.html" title="optimization_plots"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="clusterer.html" title="clusterer"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

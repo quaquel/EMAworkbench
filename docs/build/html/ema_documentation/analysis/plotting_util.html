@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>plotting util &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="next" title="interactive_graphs" href="interactive_graphs.html" />
+    <link rel="prev" title="pairs plotting" href="pairs_plotting.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="interactive_graphs.html" title="interactive_graphs"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pairs_plotting.html" title="pairs plotting"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-plotting_util">
+<span id="plotting-util"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">plotting</span> <span class="pre">util</span></tt><a class="headerlink" href="#module-plotting_util" title="Permalink to this headline">¶</a></h1>
+<p>Created on 22 jul. 2012</p>
+<p>&#64;author: localadmin</p>
+<dl class="data">
+<dt id="plotting_util.COLOR_LIST">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">COLOR_LIST</tt><em class="property"> = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'b', 'g', 'r', 'c', 'm', 'y', 'k']</em><a class="headerlink" href="#plotting_util.COLOR_LIST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter controlling whether tight layout from matplotlib should be used</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="plotting_util.TIGHT">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">TIGHT</tt><em class="property"> = False</em><a class="headerlink" href="#plotting_util.TIGHT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default key for time</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.determine_kde">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">determine_kde</tt><big>(</big><em>data</em>, <em>size_kde=1000</em>, <em>ymin=None</em>, <em>ymax=None</em><big>)</big><a class="headerlink" href="#plotting_util.determine_kde" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function responsible for performing a KDE</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.determine_time_dimension">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">determine_time_dimension</tt><big>(</big><em>outcomes</em><big>)</big><a class="headerlink" href="#plotting_util.determine_time_dimension" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>outcomes</strong> &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.do_titles">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">do_titles</tt><big>(</big><em>ax</em>, <em>titles</em>, <em>outcome</em><big>)</big><a class="headerlink" href="#plotting_util.do_titles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for setting the title on an ax</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> &#8211; the ax on which to set the title</li>
+<li><strong>titles</strong> &#8211; a dict which maps outcome names to titles</li>
+<li><strong>outcome</strong> &#8211; the outcome plotted in the ax.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.do_ylabels">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">do_ylabels</tt><big>(</big><em>ax</em>, <em>ylabels</em>, <em>outcome</em><big>)</big><a class="headerlink" href="#plotting_util.do_ylabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for setting the y labels on an ax</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> &#8211; the ax on which to set the y label</li>
+<li><strong>titles</strong> &#8211; a dict which maps outcome names to y labels</li>
+<li><strong>outcome</strong> &#8211; the outcome plotted in the ax.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.filter_scalar_outcomes">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">filter_scalar_outcomes</tt><big>(</big><em>outcomes</em><big>)</big><a class="headerlink" href="#plotting_util.filter_scalar_outcomes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function that removes non time series outcomes from all the 
+outcomes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>outcomes</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the filtered outcomes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.group_results">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">group_results</tt><big>(</big><em>experiments</em>, <em>outcomes</em>, <em>group_by</em>, <em>grouping_specifiers</em><big>)</big><a class="headerlink" href="#plotting_util.group_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function that takes the experiments and results and returns a list 
+based on groupings. Each element in the dictionary contains the experiments 
+and results for a particular group, the key is the grouping specifier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>experiments</strong> &#8211; </li>
+<li><strong>outcomes</strong> &#8211; </li>
+<li><strong>group_by</strong> &#8211; The column in the experiments array to which the 
+grouping specifiers apply. If the name is&#8217;index&#8217;
+it is assumed that the grouping specifiers are valid
+indices for numpy.ndarray .</li>
+<li><strong>grouping_specifiers</strong> &#8211; An iterable of grouping specifiers. A grouping 
+specifier is a unique identifier in case of grouping by 
+categorical uncertainties. It is a tuple in case of 
+grouping by a parameter uncertainty. In this cose, the code
+treats the tuples as half open intervals, apart from the 
+last entry, which is treated as closed on both sides.  
+In case of &#8216;index&#8217;, the iterable should be a dictionary 
+with the name for each group as key and the value being a 
+valid index for numpy.ndarray.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary with the experiments and results for each group, the
+the grouping specifier is used as key</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>..note:: In case of grouping by parameter uncertainty, the list of </dt>
+<dd>grouping specifiers is sorted. The traversal assumes half open
+intervals, where the upper limit of each interval is open, except 
+for the last interval which is closed.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.make_continuous_grouping_specifiers">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">make_continuous_grouping_specifiers</tt><big>(</big><em>array</em>, <em>nr_of_groups=5</em><big>)</big><a class="headerlink" href="#plotting_util.make_continuous_grouping_specifiers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for discretesizing a continuous array. By default, the 
+array is split into 5 equally wide intervals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>array</strong> &#8211; a 1-d array that is to be turned into discrete intervals.</li>
+<li><strong>nr_of_groups</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of tuples with the lower and upper bound of the intervals.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">this code only produces intervals. <a class="reference internal" href="#plotting_util.group_results" title="plotting_util.group_results"><tt class="xref py py-func docutils literal"><span class="pre">group_results()</span></tt></a> uses
+these intervals in half-open fashion, apart from the last 
+interval: [a, b), [b,c), [c,d]. That is, both the end point
+and the start point of the range of the continuous array are 
+included.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.make_grid">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">make_grid</tt><big>(</big><em>outcomes_to_show</em>, <em>density=None</em><big>)</big><a class="headerlink" href="#plotting_util.make_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for making the grid that specifies the size and location
+of the various axes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outcomes_to_show</strong> &#8211; the list of outcomes to show</li>
+<li><strong>density</strong> &#8211; boolean, whether to show density or not</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.make_legend">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">make_legend</tt><big>(</big><em>categories</em>, <em>figure</em>, <em>ncol=3</em>, <em>legend_type='line'</em><big>)</big><a class="headerlink" href="#plotting_util.make_legend" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>categories</strong> &#8211; </li>
+<li><strong>figure</strong> &#8211; </li>
+<li><strong>legend_type</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.plot_envelope">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">plot_envelope</tt><big>(</big><em>ax</em>, <em>j</em>, <em>time</em>, <em>value</em>, <em>fill</em><big>)</big><a class="headerlink" href="#plotting_util.plot_envelope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function, responsible for plotting an envelope.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> &#8211; </li>
+<li><strong>j</strong> &#8211; </li>
+<li><strong>time</strong> &#8211; </li>
+<li><strong>time</strong> &#8211; </li>
+<li><strong>value</strong> &#8211; </li>
+<li><strong>fill</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.plot_histogram">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">plot_histogram</tt><big>(</big><em>ax</em>, <em>values</em>, <em>log=False</em><big>)</big><a class="headerlink" href="#plotting_util.plot_histogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function, responsible for plotting a histogram</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> &#8211; </li>
+<li><strong>values</strong> &#8211; </li>
+<li><strong>log</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.plot_kde">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">plot_kde</tt><big>(</big><em>ax</em>, <em>kde_x</em>, <em>kde_y</em>, <em>j</em>, <em>log=False</em><big>)</big><a class="headerlink" href="#plotting_util.plot_kde" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function, responsible for plotting a KDE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> &#8211; the axes on which to plot the kde</li>
+<li><strong>kde_x</strong> &#8211; the x values of the kde</li>
+<li><strong>kde_y</strong> &#8211; the y values of the kde</li>
+<li><strong>j</strong> &#8211; the index of the group being shown</li>
+<li><strong>log</strong> &#8211; boolean, whether to log scale the data are not</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.prepare_data">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">prepare_data</tt><big>(</big><em>results</em>, <em>outcomes_to_show=None</em>, <em>group_by=None</em>, <em>grouping_specifiers=None</em>, <em>filter_scalar=True</em><big>)</big><a class="headerlink" href="#plotting_util.prepare_data" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>results</strong> &#8211; the results to visualize</li>
+<li><strong>outcomes_to_show</strong> &#8211; </li>
+<li><strong>group_by</strong> &#8211; </li>
+<li><strong>grouping_specifiers</strong> &#8211; </li>
+<li><strong>filter_scalar</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.prepare_pairs_data">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">prepare_pairs_data</tt><big>(</big><em>results</em>, <em>outcomes_to_show=None</em>, <em>group_by=None</em>, <em>grouping_specifiers=None</em>, <em>point_in_time=-1</em>, <em>filter_scalar=True</em><big>)</big><a class="headerlink" href="#plotting_util.prepare_pairs_data" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>results</strong> &#8211; </li>
+<li><strong>outcomes_to_show</strong> &#8211; </li>
+<li><strong>group_by</strong> &#8211; </li>
+<li><strong>grouping_specifiers</strong> &#8211; </li>
+<li><strong>point_in_time</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.simple_density">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">simple_density</tt><big>(</big><em>density</em>, <em>value</em>, <em>ax_d</em>, <em>ax</em>, <em>loc=-1</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#plotting_util.simple_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function, responsible for producing a density plot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>density</strong> &#8211; type of density</li>
+<li><strong>value</strong> &#8211; the data for which to calculate the density</li>
+<li><strong>ax_d</strong> &#8211; </li>
+<li><strong>ax</strong> &#8211; </li>
+<li><strong>kwargs</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotting_util.simple_kde">
+<tt class="descclassname">plotting_util.</tt><tt class="descname">simple_kde</tt><big>(</big><em>outcomes</em>, <em>outcomes_to_show</em>, <em>colormap</em>, <em>log</em>, <em>minima</em>, <em>maxima</em><big>)</big><a class="headerlink" href="#plotting_util.simple_kde" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for generating a density heatmap over time</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outcomes</strong> &#8211; </li>
+<li><strong>outcomes_to_show</strong> &#8211; </li>
+<li><strong>colormap</strong> &#8211; </li>
+<li><strong>log</strong> &#8211; </li>
+<li><strong>minima</strong> &#8211; </li>
+<li><strong>maxima</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="interactive_graphs.html" title="interactive_graphs"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pairs_plotting.html" title="pairs plotting"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
