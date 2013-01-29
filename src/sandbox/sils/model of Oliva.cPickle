@@ -1,0 +1,1527 @@
+ccopy_reg
+_reconstructor
+p1
+(cnetworkx.classes.digraph
+DiGraph
+p2
+c__builtin__
+object
+p3
+NtRp4
+(dp5
+S'node'
+p6
+(dp7
+S'on office service capacity'
+p8
+(dp9
+sS'time per order'
+p10
+(dp11
+sS'effect of qp on to'
+p12
+(dp13
+sS'Fatigue A'
+p14
+(dp15
+sS'Desired To'
+p16
+(dp17
+sS'Cust Perception Of Quality'
+p18
+(dp19
+sS'vacancies correction'
+p20
+(dp21
+sS'Emp Perception Of Quality'
+p22
+(dp23
+sS'Experienced Personnel'
+p24
+(dp25
+sS'FINAL TIME'
+p26
+(dp27
+sS'T TO ACUMM WI A'
+p28
+(dp29
+sS'T TO ACUMM WI E'
+p30
+(dp31
+sS'TIME STEP'
+p32
+(dp33
+sS'MIN PROCESSING TPO'
+p34
+(dp35
+sS'initial perception of quality'
+p36
+(dp37
+sS'Vacancies'
+p38
+(dp39
+sS'Perceived Labor Productivity'
+p40
+(dp41
+sS'effective labor fraction'
+p42
+(dp43
+sS'average productivity of labor'
+p44
+(dp45
+sS'T FOR EMP TO PERCEIVE'
+p46
+(dp47
+sS'potential order fulfillment'
+p48
+(dp49
+sS'T TO CANCEL VACANCIES'
+p50
+(dp51
+sS'Emp Quality Expectation'
+p52
+(dp53
+sS'OMEGA E'
+p54
+(dp55
+sS'OMEGA C'
+p56
+(dp57
+sS'FT ON TO GRAPH'
+p58
+(dp59
+sS'Fatigue E'
+p60
+(dp61
+sS'production ratio'
+p62
+(dp63
+sS'net overtime gain'
+p64
+(dp65
+sS'replacement rate'
+p66
+(dp67
+sS'TTUP'
+p68
+(dp69
+sS'indicated quality standard'
+p70
+(dp71
+sS'T FOR TURNOVER'
+p72
+(dp73
+sS'service capacity'
+p74
+(dp75
+sS'INITIAL FE'
+p76
+(dp77
+sS'dto chg'
+p78
+(dp79
+sS'INITIAL FA'
+p80
+(dp81
+sS'GAMMA'
+p82
+(dp83
+sS'T TO ADJUST CE'
+p84
+(dp85
+sS'CUSTOMER ords'
+p86
+(dp87
+sS'NWD'
+p88
+(dp89
+sS'DESIRED DELIVERY DELAY'
+p90
+(dp91
+sS'total labor'
+p92
+(dp93
+sS'turnover rate'
+p94
+(dp95
+sS'customer orders'
+p96
+(dp97
+sS'T TO ADJUST LABOR'
+p98
+(dp99
+sS'HIRING DELAY'
+p100
+(dp101
+sS'labor order rate'
+p102
+(dp103
+sS'effect of wp on to'
+p104
+(dp105
+sS'quality pressure'
+p106
+(dp107
+sS'effect of qp on turnover'
+p108
+(dp109
+sS'absenteeism'
+p110
+(dp111
+sS'T FOR MGMT TO PERCEIVE'
+p112
+(dp113
+sS'Cust Service Expectations'
+p114
+(dp115
+sS'work intensity'
+p116
+(dp117
+sS'T TO ADJUST QS'
+p118
+(dp119
+sS'Rookies'
+p120
+(dp121
+sS'delivered quality'
+p122
+(dp123
+sS'PER'
+p124
+(dp125
+sS'indicated labor order rate'
+p126
+(dp127
+sS'TTDN'
+p128
+(dp129
+sS'indicated customer service expectations'
+p130
+(dp131
+sS'ROOKIES EFFECTIVENESS'
+p132
+(dp133
+sS'HWE'
+p134
+(dp135
+sS'work pressure'
+p136
+(dp137
+sS'avg delivery delay'
+p138
+(dp139
+sS'a customer ords'
+p140
+(dp141
+sS'INITIAL VACANCIES'
+p142
+(dp143
+sS'desired vacancies'
+p144
+(dp145
+sS'BETA'
+p146
+(dp147
+sS'Time'
+p148
+(dp149
+sS'INITIAL EXPERIENCED PERSONNEL'
+p150
+(dp151
+sS'desired hiring'
+p152
+(dp153
+sS'INITIAL DTO'
+p154
+(dp155
+sS'T TO ADJUST DL'
+p156
+(dp157
+sS'hiring rate'
+p158
+(dp159
+sS'MIN RESIDENCE T FOR AN ORDER'
+p160
+(dp161
+sS'NTA'
+p162
+(dp163
+sS'INITIAL ROOKIES'
+p164
+(dp165
+sS'experience rate'
+p166
+(dp167
+sS'effect of fatigue on prod'
+p168
+(dp169
+sS'T FOR EXPERIENCE'
+p170
+(dp171
+sS'CUST EXPECTATION REFERENCE'
+p172
+(dp173
+sS'INITIAL QS'
+p174
+(dp175
+sS't to adjust dto'
+p176
+(dp177
+sS'SAVEPER'
+p178
+(dp179
+sS'FRAC EP FOR TRAINING'
+p180
+(dp181
+sS'turnover fraction'
+p182
+(dp183
+sS'INITIAL TIME'
+p184
+(dp185
+sS'order fulfillment'
+p186
+(dp187
+sS'Desired Labor'
+p188
+(dp189
+sS'FP ON PRD GRAPH'
+p190
+(dp191
+sS'Mgmt Perception Of Quality'
+p192
+(dp193
+sS'INITIAL P ELF'
+p194
+(dp195
+sS'a absenteeism'
+p196
+(dp197
+sS'T TO PERCEIVE CUST REPORT ON QUALITY'
+p198
+(dp199
+sS'Mgmt Quality Goal'
+p200
+(dp201
+sS'TPO ON DQ GRAPH'
+p202
+(dp203
+sS'desired service capacity'
+p204
+(dp205
+sS'labor correction'
+p206
+(dp207
+sS'effect of fatigue on turnover'
+p208
+(dp209
+sS'QP ON TO GRAPH'
+p210
+(dp211
+sS'T TO PERCEIVE LP'
+p212
+(dp213
+sS'case load'
+p214
+(dp215
+sS'ALPHA'
+p216
+(dp217
+sS'Service Backlog'
+p218
+(dp219
+ssS'graph'
+p220
+(dp221
+sS'succ'
+p222
+(dp223
+g8
+(dp224
+g74
+(dp225
+ssg10
+(dp226
+g176
+(dp227
+sg122
+(dp228
+sg48
+(dp229
+sg78
+(dp230
+sg130
+(dp231
+ssg12
+(dp232
+g10
+(dp233
+ssg14
+(dp234
+g208
+(dp235
+ssg16
+(dp236
+g176
+(dp237
+sg204
+(dp238
+sg78
+(dp239
+sg10
+(dp240
+ssg18
+(dp241
+sg20
+(dp242
+g126
+(dp243
+ssg22
+(dp244
+g106
+(dp245
+sg70
+(dp246
+sg108
+(dp247
+ssg24
+(dp248
+g94
+(dp249
+sg42
+(dp250
+sg92
+(dp251
+ssg26
+(dp252
+sg28
+(dp253
+g14
+(dp254
+ssg30
+(dp255
+g60
+(dp256
+ssg32
+(dp257
+sg34
+(dp258
+g10
+(dp259
+ssg36
+(dp260
+g22
+(dp261
+sg192
+(dp262
+sg18
+(dp263
+ssg38
+(dp264
+g102
+(dp265
+sg158
+(dp266
+sg20
+(dp267
+ssg40
+(dp268
+g188
+(dp269
+ssg42
+(dp270
+g74
+(dp271
+ssg44
+(dp272
+sg46
+(dp273
+g22
+(dp274
+ssg48
+(dp275
+g186
+(dp276
+ssg50
+(dp277
+g102
+(dp278
+ssg52
+(dp279
+g106
+(dp280
+ssg54
+(dp281
+g70
+(dp282
+ssg56
+(dp283
+g130
+(dp284
+ssg58
+(dp285
+g208
+(dp286
+ssg60
+(dp287
+g168
+(dp288
+ssg62
+(dp289
+sg64
+(dp290
+sg66
+(dp291
+g152
+(dp292
+ssg68
+(dp293
+g176
+(dp294
+ssg70
+(dp295
+g52
+(dp296
+ssg72
+(dp297
+g94
+(dp298
+ssg74
+(dp299
+g44
+(dp300
+sg48
+(dp301
+sg40
+(dp302
+sg136
+(dp303
+ssg76
+(dp304
+g60
+(dp305
+ssg78
+(dp306
+g16
+(dp307
+ssg80
+(dp308
+g14
+(dp309
+ssg82
+(dp310
+g12
+(dp311
+ssg84
+(dp312
+g114
+(dp313
+ssg86
+(dp314
+g96
+(dp315
+ssg88
+(dp316
+g86
+(dp317
+ssg90
+(dp318
+g204
+(dp319
+sg218
+(dp320
+ssg92
+(dp321
+g214
+(dp322
+sg182
+(dp323
+sg206
+(dp324
+sg40
+(dp325
+sg44
+(dp326
+sg66
+(dp327
+sg8
+(dp328
+ssg94
+(dp329
+g66
+(dp330
+sg24
+(dp331
+sg182
+(dp332
+ssg96
+(dp333
+g62
+(dp334
+sg218
+(dp335
+ssg98
+(dp336
+g206
+(dp337
+sg20
+(dp338
+ssg100
+(dp339
+g158
+(dp340
+sg144
+(dp341
+ssg102
+(dp342
+g38
+(dp343
+ssg104
+(dp344
+g10
+(dp345
+ssg106
+(dp346
+g12
+(dp347
+ssg108
+(dp348
+g94
+(dp349
+ssg110
+(dp350
+g8
+(dp351
+ssg112
+(dp352
+g192
+(dp353
+ssg114
+(dp354
+g122
+(dp355
+ssg116
+(dp356
+g64
+(dp357
+sg14
+(dp358
+sg48
+(dp359
+sg60
+(dp360
+ssg118
+(dp361
+g52
+(dp362
+ssg120
+(dp363
+g92
+(dp364
+sg42
+(dp365
+sg166
+(dp366
+ssg122
+(dp367
+g22
+(dp368
+sg192
+(dp369
+sg18
+(dp370
+ssg124
+(dp371
+g110
+(dp372
+ssg126
+(dp373
+g102
+(dp374
+ssg128
+(dp375
+g176
+(dp376
+ssg130
+(dp377
+g114
+(dp378
+ssg132
+(dp379
+g42
+(dp380
+ssg134
+(dp381
+g188
+(dp382
+sg8
+(dp383
+sg40
+(dp384
+sg110
+(dp385
+ssg136
+(dp386
+g116
+(dp387
+sg104
+(dp388
+ssg138
+(dp389
+sg140
+(dp390
+g96
+(dp391
+ssg142
+(dp392
+g38
+(dp393
+ssg144
+(dp394
+g20
+(dp395
+ssg146
+(dp396
+g116
+(dp397
+ssg148
+(dp398
+g96
+(dp399
+sg110
+(dp400
+ssg150
+(dp401
+g24
+(dp402
+ssg152
+(dp403
+g126
+(dp404
+sg144
+(dp405
+ssg154
+(dp406
+g16
+(dp407
+sg36
+(dp408
+ssg156
+(dp409
+g188
+(dp410
+ssg158
+(dp411
+g38
+(dp412
+sg120
+(dp413
+ssg160
+(dp414
+g186
+(dp415
+ssg162
+(dp416
+g110
+(dp417
+ssg164
+(dp418
+g120
+(dp419
+ssg166
+(dp420
+g24
+(dp421
+sg120
+(dp422
+ssg168
+(dp423
+g64
+(dp424
+sg74
+(dp425
+ssg170
+(dp426
+g166
+(dp427
+ssg172
+(dp428
+g36
+(dp429
+sg130
+(dp430
+ssg174
+(dp431
+g52
+(dp432
+ssg176
+(dp433
+g78
+(dp434
+ssg178
+(dp435
+sg180
+(dp436
+g42
+(dp437
+ssg182
+(dp438
+sg184
+(dp439
+g148
+(dp440
+ssg186
+(dp441
+g62
+(dp442
+sg218
+(dp443
+sg138
+(dp444
+ssg188
+(dp445
+g206
+(dp446
+sg66
+(dp447
+ssg190
+(dp448
+g168
+(dp449
+ssg192
+(dp450
+sg194
+(dp451
+g40
+(dp452
+ssg196
+(dp453
+g110
+(dp454
+ssg198
+(dp455
+g18
+(dp456
+ssg200
+(dp457
+g70
+(dp458
+ssg202
+(dp459
+g122
+(dp460
+sg36
+(dp461
+ssg204
+(dp462
+g188
+(dp463
+sg136
+(dp464
+ssg206
+(dp465
+g152
+(dp466
+ssg208
+(dp467
+g94
+(dp468
+ssg210
+(dp469
+g108
+(dp470
+ssg212
+(dp471
+g40
+(dp472
+ssg214
+(dp473
+sg216
+(dp474
+g104
+(dp475
+ssg218
+(dp476
+g214
+(dp477
+sg204
+(dp478
+sg186
+(dp479
+sg138
+(dp480
+sssS'edge'
+p481
+g223
+sS'pred'
+p482
+(dp483
+g8
+(dp484
+S'HWE'
+p485
+g383
+sS'absenteeism'
+p486
+g351
+sS'total labor'
+p487
+g328
+ssg10
+(dp488
+S'Desired To'
+p489
+g240
+sS'MIN PROCESSING TPO'
+p490
+g259
+sS'effect of qp on to'
+p491
+g233
+sS'effect of wp on to'
+p492
+g345
+ssg12
+(dp493
+S'quality pressure'
+p494
+g347
+sS'GAMMA'
+p495
+g311
+ssg14
+(dp496
+S'T TO ACUMM WI A'
+p497
+g254
+sS'work intensity'
+p498
+g358
+sS'INITIAL FA'
+p499
+g309
+ssg16
+(dp500
+S'INITIAL DTO'
+p501
+g407
+sS'dto chg'
+p502
+g307
+ssg18
+(dp503
+S'delivered quality'
+p504
+g370
+sS'T TO PERCEIVE CUST REPORT ON QUALITY'
+p505
+g456
+sS'initial perception of quality'
+p506
+g263
+ssg20
+(dp507
+S'Vacancies'
+p508
+g267
+sS'T TO ADJUST LABOR'
+p509
+g338
+sS'desired vacancies'
+p510
+g395
+ssg22
+(dp511
+S'delivered quality'
+p512
+g368
+sS'T FOR EMP TO PERCEIVE'
+p513
+g274
+sS'initial perception of quality'
+p514
+g261
+ssg24
+(dp515
+S'INITIAL EXPERIENCED PERSONNEL'
+p516
+g402
+sS'turnover rate'
+p517
+g331
+sS'experience rate'
+p518
+g421
+ssg26
+(dp519
+sg28
+(dp520
+sg30
+(dp521
+sg32
+(dp522
+sg34
+(dp523
+sg36
+(dp524
+S'INITIAL DTO'
+p525
+g408
+sS'CUST EXPECTATION REFERENCE'
+p526
+g429
+sS'TPO ON DQ GRAPH'
+p527
+g461
+ssg38
+(dp528
+S'labor order rate'
+p529
+g343
+sS'hiring rate'
+p530
+g412
+sS'INITIAL VACANCIES'
+p531
+g393
+ssg40
+(dp532
+S'T TO PERCEIVE LP'
+p533
+g472
+sS'total labor'
+p534
+g325
+sS'HWE'
+p535
+g384
+sS'INITIAL P ELF'
+p536
+g452
+sS'service capacity'
+p537
+g302
+ssg42
+(dp538
+S'FRAC EP FOR TRAINING'
+p539
+g437
+sS'ROOKIES EFFECTIVENESS'
+p540
+g380
+sS'Experienced Personnel'
+p541
+g250
+sS'Rookies'
+p542
+g365
+ssg44
+(dp543
+S'total labor'
+p544
+g326
+sS'service capacity'
+p545
+g300
+ssg46
+(dp546
+sg48
+(dp547
+S'work intensity'
+p548
+g359
+sS'time per order'
+p549
+g229
+sS'service capacity'
+p550
+g301
+ssg50
+(dp551
+sg52
+(dp552
+S'indicated quality standard'
+p553
+g296
+sS'T TO ADJUST QS'
+p554
+g362
+sS'INITIAL QS'
+p555
+g432
+ssg54
+(dp556
+sg56
+(dp557
+sg58
+(dp558
+sg60
+(dp559
+S'INITIAL FE'
+p560
+g305
+sS'work intensity'
+p561
+g360
+sS'T TO ACUMM WI E'
+p562
+g256
+ssg62
+(dp563
+S'customer orders'
+p564
+g334
+sS'order fulfillment'
+p565
+g442
+ssg64
+(dp566
+S'work intensity'
+p567
+g357
+sS'effect of fatigue on prod'
+p568
+g424
+ssg66
+(dp569
+S'Desired Labor'
+p570
+g447
+sS'turnover rate'
+p571
+g330
+sS'total labor'
+p572
+g327
+ssg68
+(dp573
+sg70
+(dp574
+S'Mgmt Quality Goal'
+p575
+g458
+sS'OMEGA E'
+p576
+g282
+sS'Emp Perception Of Quality'
+p577
+g246
+ssg72
+(dp578
+sg74
+(dp579
+S'on office service capacity'
+p580
+g225
+sS'effective labor fraction'
+p581
+g271
+sS'effect of fatigue on prod'
+p582
+g425
+ssg76
+(dp583
+sg78
+(dp584
+S't to adjust dto'
+p585
+g434
+sS'Desired To'
+p586
+g239
+sS'time per order'
+p587
+g230
+ssg80
+(dp588
+sg82
+(dp589
+sg84
+(dp590
+sg86
+(dp591
+S'NWD'
+p592
+g317
+ssg88
+(dp593
+sg90
+(dp594
+sg92
+(dp595
+S'Experienced Personnel'
+p596
+g251
+sS'Rookies'
+p597
+g364
+ssg94
+(dp598
+S'effect of fatigue on turnover'
+p599
+g468
+sS'effect of qp on turnover'
+p600
+g349
+sS'Experienced Personnel'
+p601
+g249
+sS'T FOR TURNOVER'
+p602
+g298
+ssg96
+(dp603
+S'a customer ords'
+p604
+g391
+sS'CUSTOMER ords'
+p605
+g315
+sS'Time'
+p606
+g399
+ssg98
+(dp607
+sg100
+(dp608
+sg102
+(dp609
+S'T TO CANCEL VACANCIES'
+p610
+g278
+sS'Vacancies'
+p611
+g265
+sS'indicated labor order rate'
+p612
+g374
+ssg104
+(dp613
+S'ALPHA'
+p614
+g475
+sS'work pressure'
+p615
+g388
+ssg106
+(dp616
+S'Emp Quality Expectation'
+p617
+g280
+sS'Emp Perception Of Quality'
+p618
+g245
+ssg108
+(dp619
+S'QP ON TO GRAPH'
+p620
+g470
+sS'Emp Perception Of Quality'
+p621
+g247
+ssg110
+(dp622
+S'NTA'
+p623
+g417
+sS'HWE'
+p624
+g385
+sS'PER'
+p625
+g372
+sS'a absenteeism'
+p626
+g454
+sS'Time'
+p627
+g400
+ssg112
+(dp628
+sg114
+(dp629
+S'T TO ADJUST CE'
+p630
+g313
+sS'indicated customer service expectations'
+p631
+g378
+ssg116
+(dp632
+S'work pressure'
+p633
+g387
+sS'BETA'
+p634
+g397
+ssg118
+(dp635
+sg120
+(dp636
+S'INITIAL ROOKIES'
+p637
+g419
+sS'hiring rate'
+p638
+g413
+sS'experience rate'
+p639
+g422
+ssg122
+(dp640
+S'Cust Service Expectations'
+p641
+g355
+sS'TPO ON DQ GRAPH'
+p642
+g460
+sS'time per order'
+p643
+g228
+ssg124
+(dp644
+sg126
+(dp645
+S'desired hiring'
+p646
+g404
+sS'vacancies correction'
+p647
+g243
+ssg128
+(dp648
+sg130
+(dp649
+S'CUST EXPECTATION REFERENCE'
+p650
+g430
+sS'time per order'
+p651
+g231
+sS'OMEGA C'
+p652
+g284
+ssg132
+(dp653
+sg134
+(dp654
+sg136
+(dp655
+S'desired service capacity'
+p656
+g464
+sS'service capacity'
+p657
+g303
+ssg138
+(dp658
+S'Service Backlog'
+p659
+g480
+sS'order fulfillment'
+p660
+g444
+ssg140
+(dp661
+sg142
+(dp662
+sg144
+(dp663
+S'desired hiring'
+p664
+g405
+sS'HIRING DELAY'
+p665
+g341
+ssg146
+(dp666
+sg148
+(dp667
+S'INITIAL TIME'
+p668
+g440
+ssg150
+(dp669
+sg152
+(dp670
+S'labor correction'
+p671
+g466
+sS'replacement rate'
+p672
+g292
+ssg154
+(dp673
+sg156
+(dp674
+sg158
+(dp675
+S'Vacancies'
+p676
+g266
+sS'HIRING DELAY'
+p677
+g340
+ssg160
+(dp678
+sg162
+(dp679
+sg164
+(dp680
+sg166
+(dp681
+S'T FOR EXPERIENCE'
+p682
+g427
+sS'Rookies'
+p683
+g366
+ssg168
+(dp684
+S'FP ON PRD GRAPH'
+p685
+g449
+sS'Fatigue E'
+p686
+g288
+ssg170
+(dp687
+sg172
+(dp688
+sg174
+(dp689
+sg176
+(dp690
+S'TTUP'
+p691
+g294
+sS'Desired To'
+p692
+g237
+sS'time per order'
+p693
+g227
+sS'TTDN'
+p694
+g376
+ssg178
+(dp695
+sg180
+(dp696
+sg182
+(dp697
+S'turnover rate'
+p698
+g332
+sS'total labor'
+p699
+g323
+ssg184
+(dp700
+sg186
+(dp701
+S'MIN RESIDENCE T FOR AN ORDER'
+p702
+g415
+sS'Service Backlog'
+p703
+g479
+sS'potential order fulfillment'
+p704
+g276
+ssg188
+(dp705
+S'desired service capacity'
+p706
+g463
+sS'HWE'
+p707
+g382
+sS'Perceived Labor Productivity'
+p708
+g269
+sS'T TO ADJUST DL'
+p709
+g410
+ssg190
+(dp710
+sg192
+(dp711
+S'delivered quality'
+p712
+g369
+sS'T FOR MGMT TO PERCEIVE'
+p713
+g353
+sS'initial perception of quality'
+p714
+g262
+ssg194
+(dp715
+sg196
+(dp716
+sg198
+(dp717
+sg200
+(dp718
+sg202
+(dp719
+sg204
+(dp720
+S'DESIRED DELIVERY DELAY'
+p721
+g319
+sS'Desired To'
+p722
+g238
+sS'Service Backlog'
+p723
+g478
+ssg206
+(dp724
+S'Desired Labor'
+p725
+g446
+sS'T TO ADJUST LABOR'
+p726
+g337
+sS'total labor'
+p727
+g324
+ssg208
+(dp728
+S'Fatigue A'
+p729
+g235
+sS'FT ON TO GRAPH'
+p730
+g286
+ssg210
+(dp731
+sg212
+(dp732
+sg214
+(dp733
+S'Service Backlog'
+p734
+g477
+sS'total labor'
+p735
+g322
+ssg216
+(dp736
+sg218
+(dp737
+S'DESIRED DELIVERY DELAY'
+p738
+g320
+sS'customer orders'
+p739
+g335
+sS'order fulfillment'
+p740
+g443
+sssS'adj'
+p741
+g223
+sb.

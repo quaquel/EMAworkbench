@@ -1,0 +1,1560 @@
+ccopy_reg
+_reconstructor
+p1
+(cnetworkx.classes.digraph
+DiGraph
+p2
+c__builtin__
+object
+p3
+NtRp4
+(dp5
+S'node'
+p6
+(dp7
+S'new cumulatively extracted'
+p8
+(dp9
+sS'returns to scale lookup'
+p10
+(dp11
+sS'exogenously planned extraction capacity'
+p12
+(dp13
+sS'TIME STEP'
+p14
+(dp15
+sS'decommissioning recycling capacity'
+p16
+(dp17
+sS'relative price substitute'
+p18
+(dp19
+sS'year restriction extraction for West'
+p20
+(dp21
+sS'Cumulatively Lost'
+p22
+(dp23
+sS'shortage price effect'
+p24
+(dp25
+sS'initial recycling capacity under construction'
+p26
+(dp27
+sS'loss unprofitable extraction capacity'
+p28
+(dp29
+sS'FINAL TIME'
+p30
+(dp31
+sS'production'
+p32
+(dp33
+sS'specific intensity economic growth'
+p34
+(dp35
+sS'initial annual supply'
+p36
+(dp37
+sS'Extraction Capacity Under Construction'
+p38
+(dp39
+sS'Intrinsic Annual Demand'
+p40
+(dp41
+sS'order extraction capacity delay'
+p42
+(dp43
+sS'substitution losses'
+p44
+(dp45
+sS'relative market price'
+p46
+(dp47
+sS'lost'
+p48
+(dp49
+sS'new cumulatively recycled'
+p50
+(dp51
+sS'economic growth rate'
+p52
+(dp53
+sS'unrestricted supply available to West'
+p54
+(dp55
+sS'planned extraction capacity'
+p56
+(dp57
+sS'amount of unrestricted supply from extraction'
+p58
+(dp59
+sS'initial recycling infrastructure'
+p60
+(dp61
+sS'initial extraction capacity under construction'
+p62
+(dp63
+sS'intrinsic demand change'
+p64
+(dp65
+sS'average construction time extraction capacity'
+p66
+(dp67
+sS'fraction of maximum extraction capacity used'
+p68
+(dp69
+sS'Cumulatively Recycled'
+p70
+(dp71
+sS'Cumulatively Extracted'
+p72
+(dp73
+sS'approximated learning effect lookup'
+p74
+(dp75
+sS'order recycling capacity delay'
+p76
+(dp77
+sS'average recycling cost'
+p78
+(dp79
+sS'order in goods delay'
+p80
+(dp81
+sS'shortage price effect lookup'
+p82
+(dp83
+sS'maximum extraction'
+p84
+(dp85
+sS'initial in goods'
+p86
+(dp87
+sS'maximum amount recyclable'
+p88
+(dp89
+sS'supply demand ratio'
+p90
+(dp91
+sS'average construction time recycling capacity'
+p92
+(dp93
+sS'desired extraction capacity'
+p94
+(dp95
+sS'desired recycling'
+p96
+(dp97
+sS'#economic growth rate#'
+p98
+(dp99
+sS'#relative price last year>DELAY1I>LV1#'
+p100
+(dp101
+sS'exogenously planned recycling capacity'
+p102
+(dp103
+sS'normal profit margin'
+p104
+(dp105
+sS'recycling'
+p106
+(dp107
+sS'extraction cost lookup'
+p108
+(dp109
+sS'In Goods'
+p110
+(dp111
+sS'initial average recycling cost'
+p112
+(dp113
+sS'approximated learning effect'
+p114
+(dp115
+sS'planned recycling capacity'
+p116
+(dp117
+sS'extraction'
+p118
+(dp119
+sS'price elasticity of demand'
+p120
+(dp121
+sS'Installed Recycling Capacity'
+p122
+(dp123
+sS'relative energy cost'
+p124
+(dp125
+sS'recycling fraction'
+p126
+(dp127
+sS'relative energy intensity recycling lookup'
+p128
+(dp129
+sS'price elasticity of demand losses'
+p130
+(dp131
+sS'Time'
+p132
+(dp133
+sS'loss unprofitable recycling capacity'
+p134
+(dp135
+sS'year restriction recycling for West'
+p136
+(dp137
+sS'profitability extraction'
+p138
+(dp139
+sS'Supply'
+p140
+(dp141
+sS'effective fraction recycled of supplied'
+p142
+(dp143
+sS'#relative price last year>DELAY1I#'
+p144
+(dp145
+sS'#exogenously planned recycling capacity#'
+p146
+(dp147
+sS'average lifetime extraction capacity'
+p148
+(dp149
+sS'#specific intensity economic growth#'
+p150
+(dp151
+sS'produced of intrinsically demanded'
+p152
+(dp153
+sS'relative price substitute lookup'
+p154
+(dp155
+sS'initial annual demand'
+p156
+(dp157
+sS'initial cumulatively recycled'
+p158
+(dp159
+sS'SAVEPER'
+p160
+(dp161
+sS'relative price last year'
+p162
+(dp163
+sS'returns to scale'
+p164
+(dp165
+sS'INITIAL TIME'
+p166
+(dp167
+sS'initial extraction infrastructure'
+p168
+(dp169
+sS'relative energy cost lookup'
+p170
+(dp171
+sS'amount of unrestricted supply from recycling'
+p172
+(dp173
+sS'decommissioning extraction capacity'
+p174
+(dp175
+sS'Real Annual Demand'
+p176
+(dp177
+sS'initial cumulative amount extracted'
+p178
+(dp179
+sS'relative energy intensity recycling'
+p180
+(dp181
+sS'Recycling Capacity Under Construction'
+p182
+(dp183
+sS'commissioning recycling capacity'
+p184
+(dp185
+sS'absolute recycling loss fraction'
+p186
+(dp187
+sS'gap between desired and constrained recycling capacity'
+p188
+(dp189
+sS'profitability recycling'
+p190
+(dp191
+sS'constrained desired recycling capacity'
+p192
+(dp193
+sS'average lifetime in goods'
+p194
+(dp195
+sS'commissioning extraction capacity'
+p196
+(dp197
+sS'economic demand growth'
+p198
+(dp199
+sS'relative attractiveness recycling'
+p200
+(dp201
+sS'Installed Extraction Capacity'
+p202
+(dp203
+sS'average extraction costs'
+p204
+(dp205
+sS'average lifetime recycling capacity'
+p206
+(dp207
+ssS'graph'
+p208
+(dp209
+sS'succ'
+p210
+(dp211
+g8
+(dp212
+g72
+(dp213
+ssg10
+(dp214
+g164
+(dp215
+ssg12
+(dp216
+g56
+(dp217
+ssg14
+(dp218
+g160
+(dp219
+ssg16
+(dp220
+g122
+(dp221
+ssg18
+(dp222
+g44
+(dp223
+ssg20
+(dp224
+g54
+(dp225
+ssg22
+(dp226
+sg24
+(dp227
+g46
+(dp228
+ssg26
+(dp229
+g182
+(dp230
+ssg28
+(dp231
+g174
+(dp232
+sg202
+(dp233
+ssg30
+(dp234
+sg32
+(dp235
+g48
+(dp236
+sg140
+(dp237
+sg152
+(dp238
+sg106
+(dp239
+sg96
+(dp240
+sg110
+(dp241
+ssg34
+(dp242
+g198
+(dp243
+sg64
+(dp244
+ssg36
+(dp245
+g140
+(dp246
+ssg38
+(dp247
+g196
+(dp248
+ssg40
+(dp249
+g152
+(dp250
+sg64
+(dp251
+ssg42
+(dp252
+g196
+(dp253
+ssg44
+(dp254
+g176
+(dp255
+ssg46
+(dp256
+g138
+(dp257
+sg162
+(dp258
+sg44
+(dp259
+sg144
+(dp260
+sg100
+(dp261
+sg190
+(dp262
+sg130
+(dp263
+ssg48
+(dp264
+g110
+(dp265
+sg22
+(dp266
+ssg50
+(dp267
+g70
+(dp268
+ssg52
+(dp269
+g198
+(dp270
+sg64
+(dp271
+ssg54
+(dp272
+sg56
+(dp273
+g38
+(dp274
+sg196
+(dp275
+ssg58
+(dp276
+g54
+(dp277
+ssg60
+(dp278
+g122
+(dp279
+sg182
+(dp280
+ssg62
+(dp281
+g38
+(dp282
+ssg64
+(dp283
+g40
+(dp284
+ssg66
+(dp285
+g38
+(dp286
+sg196
+(dp287
+ssg68
+(dp288
+g8
+(dp289
+sg118
+(dp290
+ssg70
+(dp291
+g114
+(dp292
+ssg72
+(dp293
+g204
+(dp294
+ssg74
+(dp295
+g114
+(dp296
+ssg76
+(dp297
+g184
+(dp298
+ssg78
+(dp299
+g46
+(dp300
+sg190
+(dp301
+sg200
+(dp302
+ssg80
+(dp303
+g106
+(dp304
+sg48
+(dp305
+ssg82
+(dp306
+g24
+(dp307
+ssg84
+(dp308
+g8
+(dp309
+sg118
+(dp310
+ssg86
+(dp311
+g110
+(dp312
+ssg88
+(dp313
+g126
+(dp314
+sg192
+(dp315
+ssg90
+(dp316
+g24
+(dp317
+ssg92
+(dp318
+g184
+(dp319
+sg182
+(dp320
+ssg94
+(dp321
+g56
+(dp322
+ssg96
+(dp323
+g126
+(dp324
+sg188
+(dp325
+sg192
+(dp326
+ssg98
+(dp327
+sg100
+(dp328
+sg102
+(dp329
+g116
+(dp330
+ssg104
+(dp331
+g46
+(dp332
+ssg106
+(dp333
+g50
+(dp334
+sg110
+(dp335
+sg142
+(dp336
+sg54
+(dp337
+sg140
+(dp338
+ssg108
+(dp339
+g204
+(dp340
+ssg110
+(dp341
+g88
+(dp342
+sg106
+(dp343
+sg48
+(dp344
+ssg112
+(dp345
+g78
+(dp346
+ssg114
+(dp347
+g78
+(dp348
+ssg116
+(dp349
+g184
+(dp350
+sg182
+(dp351
+ssg118
+(dp352
+g54
+(dp353
+sg142
+(dp354
+sg140
+(dp355
+ssg120
+(dp356
+g130
+(dp357
+ssg122
+(dp358
+g16
+(dp359
+sg164
+(dp360
+sg126
+(dp361
+sg116
+(dp362
+sg134
+(dp363
+ssg124
+(dp364
+g78
+(dp365
+sg204
+(dp366
+ssg126
+(dp367
+g106
+(dp368
+sg48
+(dp369
+ssg128
+(dp370
+g180
+(dp371
+ssg130
+(dp372
+g176
+(dp373
+ssg132
+(dp374
+g34
+(dp375
+sg180
+(dp376
+sg124
+(dp377
+sg52
+(dp378
+sg54
+(dp379
+sg18
+(dp380
+sg102
+(dp381
+ssg134
+(dp382
+g16
+(dp383
+sg122
+(dp384
+ssg136
+(dp385
+g54
+(dp386
+ssg138
+(dp387
+g28
+(dp388
+sg56
+(dp389
+ssg140
+(dp390
+g32
+(dp391
+sg90
+(dp392
+ssg142
+(dp393
+g46
+(dp394
+ssg144
+(dp395
+sg146
+(dp396
+sg148
+(dp397
+g174
+(dp398
+sg38
+(dp399
+ssg150
+(dp400
+sg152
+(dp401
+sg154
+(dp402
+g18
+(dp403
+ssg156
+(dp404
+g40
+(dp405
+sg176
+(dp406
+ssg158
+(dp407
+g70
+(dp408
+sg114
+(dp409
+ssg160
+(dp410
+sg162
+(dp411
+g130
+(dp412
+ssg164
+(dp413
+g78
+(dp414
+ssg166
+(dp415
+g132
+(dp416
+ssg168
+(dp417
+g38
+(dp418
+sg202
+(dp419
+ssg170
+(dp420
+g124
+(dp421
+ssg172
+(dp422
+g54
+(dp423
+ssg174
+(dp424
+g202
+(dp425
+ssg176
+(dp426
+g94
+(dp427
+sg96
+(dp428
+sg44
+(dp429
+sg32
+(dp430
+sg90
+(dp431
+sg130
+(dp432
+sg198
+(dp433
+ssg178
+(dp434
+g72
+(dp435
+sg204
+(dp436
+ssg180
+(dp437
+g78
+(dp438
+ssg182
+(dp439
+g184
+(dp440
+ssg184
+(dp441
+g122
+(dp442
+sg182
+(dp443
+ssg186
+(dp444
+g88
+(dp445
+ssg188
+(dp446
+g94
+(dp447
+ssg190
+(dp448
+g116
+(dp449
+sg134
+(dp450
+ssg192
+(dp451
+g188
+(dp452
+sg116
+(dp453
+ssg194
+(dp454
+g88
+(dp455
+sg106
+(dp456
+sg48
+(dp457
+ssg196
+(dp458
+g38
+(dp459
+sg202
+(dp460
+ssg198
+(dp461
+g176
+(dp462
+ssg200
+(dp463
+g94
+(dp464
+sg96
+(dp465
+ssg202
+(dp466
+g174
+(dp467
+sg28
+(dp468
+sg84
+(dp469
+sg56
+(dp470
+ssg204
+(dp471
+g46
+(dp472
+sg138
+(dp473
+sg200
+(dp474
+ssg206
+(dp475
+g16
+(dp476
+sg182
+(dp477
+sssS'edge'
+p478
+g211
+sS'pred'
+p479
+(dp480
+g8
+(dp481
+S'maximum extraction'
+p482
+g309
+sS'fraction of maximum extraction capacity used'
+p483
+g289
+ssg10
+(dp484
+sg12
+(dp485
+sg14
+(dp486
+sg16
+(dp487
+S'Installed Recycling Capacity'
+p488
+g359
+sS'loss unprofitable recycling capacity'
+p489
+g383
+sS'average lifetime recycling capacity'
+p490
+g476
+ssg18
+(dp491
+S'relative price substitute lookup'
+p492
+g403
+sS'Time'
+p493
+g380
+ssg20
+(dp494
+sg22
+(dp495
+S'lost'
+p496
+g266
+ssg24
+(dp497
+S'shortage price effect lookup'
+p498
+g307
+sS'supply demand ratio'
+p499
+g317
+ssg26
+(dp500
+sg28
+(dp501
+S'profitability extraction'
+p502
+g388
+sS'Installed Extraction Capacity'
+p503
+g468
+ssg30
+(dp504
+sg32
+(dp505
+S'Real Annual Demand'
+p506
+g430
+sS'Supply'
+p507
+g391
+ssg34
+(dp508
+S'Time'
+p509
+g375
+ssg36
+(dp510
+sg38
+(dp511
+S'average construction time extraction capacity'
+p512
+g286
+sS'commissioning extraction capacity'
+p513
+g459
+sS'initial extraction capacity under construction'
+p514
+g282
+sS'average lifetime extraction capacity'
+p515
+g399
+sS'planned extraction capacity'
+p516
+g274
+sS'initial extraction infrastructure'
+p517
+g418
+ssg40
+(dp518
+S'initial annual demand'
+p519
+g405
+sS'intrinsic demand change'
+p520
+g284
+ssg42
+(dp521
+sg44
+(dp522
+S'relative price substitute'
+p523
+g223
+sS'relative market price'
+p524
+g259
+sS'Real Annual Demand'
+p525
+g429
+ssg46
+(dp526
+S'average recycling cost'
+p527
+g300
+sS'normal profit margin'
+p528
+g332
+sS'effective fraction recycled of supplied'
+p529
+g394
+sS'shortage price effect'
+p530
+g228
+sS'average extraction costs'
+p531
+g472
+ssg48
+(dp532
+S'production'
+p533
+g236
+sS'order in goods delay'
+p534
+g305
+sS'In Goods'
+p535
+g344
+sS'average lifetime in goods'
+p536
+g457
+sS'recycling fraction'
+p537
+g369
+ssg50
+(dp538
+S'recycling'
+p539
+g334
+ssg52
+(dp540
+S'Time'
+p541
+g378
+ssg54
+(dp542
+S'recycling'
+p543
+g337
+sS'year restriction extraction for West'
+p544
+g225
+sS'year restriction recycling for West'
+p545
+g386
+sS'extraction'
+p546
+g353
+sS'amount of unrestricted supply from recycling'
+p547
+g423
+sS'amount of unrestricted supply from extraction'
+p548
+g277
+sS'Time'
+p549
+g379
+ssg56
+(dp550
+S'desired extraction capacity'
+p551
+g322
+sS'profitability extraction'
+p552
+g389
+sS'exogenously planned extraction capacity'
+p553
+g217
+sS'Installed Extraction Capacity'
+p554
+g470
+ssg58
+(dp555
+sg60
+(dp556
+sg62
+(dp557
+sg64
+(dp558
+S'Intrinsic Annual Demand'
+p559
+g251
+sS'specific intensity economic growth'
+p560
+g244
+sS'economic growth rate'
+p561
+g271
+ssg66
+(dp562
+sg68
+(dp563
+sg70
+(dp564
+S'new cumulatively recycled'
+p565
+g268
+sS'initial cumulatively recycled'
+p566
+g408
+ssg72
+(dp567
+S'initial cumulative amount extracted'
+p568
+g435
+sS'new cumulatively extracted'
+p569
+g213
+ssg74
+(dp570
+sg76
+(dp571
+sg78
+(dp572
+S'relative energy intensity recycling'
+p573
+g438
+sS'relative energy cost'
+p574
+g365
+sS'initial average recycling cost'
+p575
+g346
+sS'returns to scale'
+p576
+g414
+sS'approximated learning effect'
+p577
+g348
+ssg80
+(dp578
+sg82
+(dp579
+sg84
+(dp580
+S'Installed Extraction Capacity'
+p581
+g469
+ssg86
+(dp582
+sg88
+(dp583
+S'absolute recycling loss fraction'
+p584
+g445
+sS'In Goods'
+p585
+g342
+sS'average lifetime in goods'
+p586
+g455
+ssg90
+(dp587
+S'Real Annual Demand'
+p588
+g431
+sS'Supply'
+p589
+g392
+ssg92
+(dp590
+sg94
+(dp591
+S'gap between desired and constrained recycling capacity'
+p592
+g447
+sS'Real Annual Demand'
+p593
+g427
+sS'relative attractiveness recycling'
+p594
+g464
+ssg96
+(dp595
+S'production'
+p596
+g240
+sS'Real Annual Demand'
+p597
+g428
+sS'relative attractiveness recycling'
+p598
+g465
+ssg98
+(dp599
+sg100
+(dp600
+S'relative market price'
+p601
+g261
+ssg102
+(dp602
+S'Time'
+p603
+g381
+ssg104
+(dp604
+sg106
+(dp605
+S'production'
+p606
+g239
+sS'order in goods delay'
+p607
+g304
+sS'In Goods'
+p608
+g343
+sS'average lifetime in goods'
+p609
+g456
+sS'recycling fraction'
+p610
+g368
+ssg108
+(dp611
+sg110
+(dp612
+S'production'
+p613
+g241
+sS'recycling'
+p614
+g335
+sS'lost'
+p615
+g265
+sS'initial in goods'
+p616
+g312
+ssg112
+(dp617
+sg114
+(dp618
+S'Cumulatively Recycled'
+p619
+g292
+sS'approximated learning effect lookup'
+p620
+g296
+sS'initial cumulatively recycled'
+p621
+g409
+ssg116
+(dp622
+S'exogenously planned recycling capacity'
+p623
+g330
+sS'Installed Recycling Capacity'
+p624
+g362
+sS'profitability recycling'
+p625
+g449
+sS'constrained desired recycling capacity'
+p626
+g453
+ssg118
+(dp627
+S'maximum extraction'
+p628
+g310
+sS'fraction of maximum extraction capacity used'
+p629
+g290
+ssg120
+(dp630
+sg122
+(dp631
+S'decommissioning recycling capacity'
+p632
+g221
+sS'initial recycling infrastructure'
+p633
+g279
+sS'commissioning recycling capacity'
+p634
+g442
+sS'loss unprofitable recycling capacity'
+p635
+g384
+ssg124
+(dp636
+S'relative energy cost lookup'
+p637
+g421
+sS'Time'
+p638
+g377
+ssg126
+(dp639
+S'maximum amount recyclable'
+p640
+g314
+sS'Installed Recycling Capacity'
+p641
+g361
+sS'desired recycling'
+p642
+g324
+ssg128
+(dp643
+sg130
+(dp644
+S'relative price last year'
+p645
+g412
+sS'price elasticity of demand'
+p646
+g357
+sS'relative market price'
+p647
+g263
+sS'Real Annual Demand'
+p648
+g432
+ssg132
+(dp649
+S'INITIAL TIME'
+p650
+g416
+ssg134
+(dp651
+S'Installed Recycling Capacity'
+p652
+g363
+sS'profitability recycling'
+p653
+g450
+ssg136
+(dp654
+sg138
+(dp655
+S'relative market price'
+p656
+g257
+sS'average extraction costs'
+p657
+g473
+ssg140
+(dp658
+S'extraction'
+p659
+g355
+sS'initial annual supply'
+p660
+g246
+sS'recycling'
+p661
+g338
+sS'production'
+p662
+g237
+ssg142
+(dp663
+S'extraction'
+p664
+g354
+sS'recycling'
+p665
+g336
+ssg144
+(dp666
+S'relative market price'
+p667
+g260
+ssg146
+(dp668
+sg148
+(dp669
+sg150
+(dp670
+sg152
+(dp671
+S'Intrinsic Annual Demand'
+p672
+g250
+sS'production'
+p673
+g238
+ssg154
+(dp674
+sg156
+(dp675
+sg158
+(dp676
+sg160
+(dp677
+S'TIME STEP'
+p678
+g219
+ssg162
+(dp679
+S'relative market price'
+p680
+g258
+ssg164
+(dp681
+S'returns to scale lookup'
+p682
+g215
+sS'Installed Recycling Capacity'
+p683
+g360
+ssg166
+(dp684
+sg168
+(dp685
+sg170
+(dp686
+sg172
+(dp687
+sg174
+(dp688
+S'loss unprofitable extraction capacity'
+p689
+g232
+sS'average lifetime extraction capacity'
+p690
+g398
+sS'Installed Extraction Capacity'
+p691
+g467
+ssg176
+(dp692
+S'substitution losses'
+p693
+g255
+sS'economic demand growth'
+p694
+g462
+sS'initial annual demand'
+p695
+g406
+sS'price elasticity of demand losses'
+p696
+g373
+ssg178
+(dp697
+sg180
+(dp698
+S'relative energy intensity recycling lookup'
+p699
+g371
+sS'Time'
+p700
+g376
+ssg182
+(dp701
+S'initial recycling capacity under construction'
+p702
+g230
+sS'initial recycling infrastructure'
+p703
+g280
+sS'commissioning recycling capacity'
+p704
+g443
+sS'planned recycling capacity'
+p705
+g351
+sS'average construction time recycling capacity'
+p706
+g320
+sS'average lifetime recycling capacity'
+p707
+g477
+ssg184
+(dp708
+S'order recycling capacity delay'
+p709
+g298
+sS'average construction time recycling capacity'
+p710
+g319
+sS'planned recycling capacity'
+p711
+g350
+sS'Recycling Capacity Under Construction'
+p712
+g440
+ssg186
+(dp713
+sg188
+(dp714
+S'desired recycling'
+p715
+g325
+sS'constrained desired recycling capacity'
+p716
+g452
+ssg190
+(dp717
+S'average recycling cost'
+p718
+g301
+sS'relative market price'
+p719
+g262
+ssg192
+(dp720
+S'maximum amount recyclable'
+p721
+g315
+sS'desired recycling'
+p722
+g326
+ssg194
+(dp723
+sg196
+(dp724
+S'planned extraction capacity'
+p725
+g275
+sS'average construction time extraction capacity'
+p726
+g287
+sS'Extraction Capacity Under Construction'
+p727
+g248
+sS'order extraction capacity delay'
+p728
+g253
+ssg198
+(dp729
+S'specific intensity economic growth'
+p730
+g243
+sS'Real Annual Demand'
+p731
+g433
+sS'economic growth rate'
+p732
+g270
+ssg200
+(dp733
+S'average recycling cost'
+p734
+g302
+sS'average extraction costs'
+p735
+g474
+ssg202
+(dp736
+S'decommissioning extraction capacity'
+p737
+g425
+sS'loss unprofitable extraction capacity'
+p738
+g233
+sS'commissioning extraction capacity'
+p739
+g460
+sS'initial extraction infrastructure'
+p740
+g419
+ssg204
+(dp741
+S'initial cumulative amount extracted'
+p742
+g436
+sS'Cumulatively Extracted'
+p743
+g294
+sS'extraction cost lookup'
+p744
+g340
+sS'relative energy cost'
+p745
+g366
+ssg206
+(dp746
+ssS'adj'
+p747
+g211
+sb.

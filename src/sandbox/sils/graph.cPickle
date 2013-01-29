@@ -1,0 +1,246 @@
+ccopy_reg
+_reconstructor
+p1
+(cnetworkx.classes.digraph
+DiGraph
+p2
+c__builtin__
+object
+p3
+NtRp4
+(dp5
+S'node'
+p6
+(dp7
+S'exponential effect on death'
+p8
+(dp9
+sS'INITIAL TIME'
+p10
+(dp11
+sS'alcohol per cell'
+p12
+(dp13
+sS'effect of alcohol on deaths'
+p14
+(dp15
+sS'TIME STEP'
+p16
+(dp17
+sS'Cells'
+p18
+(dp19
+sS'division time'
+p20
+(dp21
+sS'multiplier effect on births'
+p22
+(dp23
+sS'FINAL TIME'
+p24
+(dp25
+sS'SAVEPER'
+p26
+(dp27
+sS'cell births'
+p28
+(dp29
+sS'alcohol generation'
+p30
+(dp31
+sS'Time'
+p32
+(dp33
+sS'effect of alcohol on births'
+p34
+(dp35
+sS'lifetime'
+p36
+(dp37
+sS'addition effect on births'
+p38
+(dp39
+sS'cell deaths'
+p40
+(dp41
+sS'Alcohol'
+p42
+(dp43
+ssS'graph'
+p44
+(dp45
+sS'succ'
+p46
+(dp47
+g8
+(dp48
+g14
+(dp49
+ssg10
+(dp50
+g32
+(dp51
+ssg12
+(dp52
+g30
+(dp53
+ssg14
+(dp54
+g40
+(dp55
+ssg16
+(dp56
+g26
+(dp57
+ssg18
+(dp58
+g40
+(dp59
+sg28
+(dp60
+sg30
+(dp61
+ssg20
+(dp62
+g28
+(dp63
+ssg22
+(dp64
+g34
+(dp65
+ssg24
+(dp66
+sg26
+(dp67
+sg28
+(dp68
+g18
+(dp69
+ssg30
+(dp70
+g42
+(dp71
+ssg32
+(dp72
+sg34
+(dp73
+g28
+(dp74
+ssg36
+(dp75
+g40
+(dp76
+ssg38
+(dp77
+g34
+(dp78
+ssg40
+(dp79
+g18
+(dp80
+ssg42
+(dp81
+g34
+(dp82
+sg14
+(dp83
+sssS'edge'
+p84
+g47
+sS'pred'
+p85
+(dp86
+g8
+(dp87
+sg10
+(dp88
+sg12
+(dp89
+sg14
+(dp90
+S'exponential effect on death'
+p91
+g49
+sS'Alcohol'
+p92
+g83
+ssg16
+(dp93
+sg18
+(dp94
+S'cell births'
+p95
+g69
+sS'cell deaths'
+p96
+g80
+ssg20
+(dp97
+sg22
+(dp98
+sg24
+(dp99
+sg26
+(dp100
+S'TIME STEP'
+p101
+g57
+ssg28
+(dp102
+S'effect of alcohol on births'
+p103
+g74
+sS'Cells'
+p104
+g60
+sS'division time'
+p105
+g63
+ssg30
+(dp106
+S'Cells'
+p107
+g61
+sS'alcohol per cell'
+p108
+g53
+ssg32
+(dp109
+S'INITIAL TIME'
+p110
+g51
+ssg34
+(dp111
+S'multiplier effect on births'
+p112
+g65
+sS'Alcohol'
+p113
+g82
+sS'addition effect on births'
+p114
+g78
+ssg36
+(dp115
+sg38
+(dp116
+sg40
+(dp117
+S'lifetime'
+p118
+g76
+sS'Cells'
+p119
+g59
+sS'effect of alcohol on deaths'
+p120
+g55
+ssg42
+(dp121
+S'alcohol generation'
+p122
+g71
+sssS'adj'
+p123
+g47
+sb.

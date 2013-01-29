@@ -1,0 +1,40 @@
+The documentation needs to be completed and made consistent with the code.
+ 
+pairs_envelopes idea can be executed through non_dominated sorting. Each 
+combination of two outcome indicators produces a set of coordinates. In case
+of minimizing both, and through non_dominated sorting, we find the lower limit
+of points. By maximizing both, we find the upper limit of points. We can then 
+generate a shape that goes through all these points. This shape then specifies
+the outcomes space exhaustively. Testing of this idea can be through plotting
+the lines as well, this can easily confirm all falsify any implementation.
+For the non-dominated sorting, we could probably lift the code from DEAP, 
+rather then using my current implementation. If runtime were to become an 
+issue, Cython can come to the rescue. 
+
+in the generic util package, we should add a filter function that produces
+a result tuple given a column in the experiments array and a list of one 
+or more values for this column/an interval in this column.
+
+The conversion to black and white for scatter plots should be based on 
+different markers rather than grey scaling as is done now.
+
+The black and white conversion code can be made more elegant. There is 
+duplicate code now.
+
+ * make a comparison plot where we subtract the kde's of two policies. This 
+   shows the difference in performance over time between two policies
+ 
+ * make a lines plot where color coding indicates whether a run is better or 
+   worse compared to another run
+   
+ * set the y view limits based on time, in some cases the auto-scaling creates
+   white space
+
+ * let the density axis share its y-axis with its associated time-series plot
+ 
+ * the use of annotations or decorators would potentially simplify the plotting
+   code substantially. All data preparation could be handled through
+   a decorator 
+   
+ * Implement a text wrapper for the plotting functions,
+   e.g. http://stackoverflow.com/questions/4018860/text-box-in-matplotlib
