@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 
 from analysis.pairs_plotting import pairs_lines, pairs_scatter, pairs_density
 from expWorkbench.util import load_results
-import expWorkbench.EMAlogging as logging
+from expWorkbench import ema_logging
 
 SVN_ID = '$Id: flu_multiplot.py 1056 2012-12-14 11:23:14Z jhkwakkel $'
 
-logging.log_to_stderr(level=logging.DEFAULT_LEVEL)
+ema_logging.log_to_stderr(level=ema_logging.DEFAULT_LEVEL)
 
 #load the data
 experiments, outcomes = load_results(r'.\data\100 flu cases no policy.bz2')

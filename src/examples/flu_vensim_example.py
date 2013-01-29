@@ -9,9 +9,9 @@ is the same as used in fluExample
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 from expWorkbench import ModelEnsemble, ParameterUncertainty,\
-                         Outcome
+                         Outcome, save_results
 from expWorkbench.vensim import VensimModelStructureInterface 
-import expWorkbench.EMAlogging as logging
+from expWorkbench import ema_logging
 
 SVN_ID = '$Id: flu_vensim_example.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
 
@@ -71,11 +71,11 @@ class FluModel(VensimModelStructureInterface):
         try:
             self.modelFile = policy['file']
         except KeyError:
-            logging.warning("key 'file' not found in policy")
+            ema_logging.warning("key 'file' not found in policy")
         super(FluModel, self).model_init(policy, kwargs)
         
 if __name__ == "__main__":
-    logging.log_to_stderr(logging.DEBUG)
+    ema_logging.log_to_stderr(ema_logging.INFO)
         
     model = FluModel(r'..\..\models\flu', "fluCase")
     ensemble = ModelEnsemble()
@@ -93,6 +93,6 @@ if __name__ == "__main__":
 
     ensemble.parallel = True #turn on parallel processing
 
-    results = ensemble.perform_experiments(10)
+    results = ensemble.perform_experiments(1000)
     
-#    save_results(results, r'./data/1000 flu cases.bz2')
+    save_results(results, r'./data/1000 flu cases.bz2')

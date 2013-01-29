@@ -11,7 +11,7 @@ import numpy as np
 import random 
 from deap.tools import HallOfFame, isDominated
 
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
 SVN_ID = '$Id: ema_optimization.py 1065 2012-12-19 15:50:03Z jhkwakkel $'
 

@@ -20,7 +20,7 @@ from collections import defaultdict
 
 from ema_parallel import CalculatorPool
 
-from expWorkbench.EMAlogging import info, warning, exception, debug
+from expWorkbench.ema_logging import info, warning, exception, debug
 from expWorkbench.ema_exceptions import CaseError, EMAError
 
 from expWorkbench.ema_optimization import NSGA2StatisticsCallback,\

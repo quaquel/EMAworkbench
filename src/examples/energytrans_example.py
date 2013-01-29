@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from expWorkbench import ModelEnsemble, CategoricalUncertainty,\
                          ParameterUncertainty, Outcome
-import expWorkbench.EMAlogging as logging
+from expWorkbench import ema_logging
 from expWorkbench.vensim import VensimModelStructureInterface
 
 from analysis.plotting import envelopes
@@ -133,7 +133,7 @@ class EnergyTrans(VensimModelStructureInterface):
         try:
             self.modelFile = policy['file']
         except KeyError:
-            logging.warning("key 'file' not found in policy")
+            ema_logging.warning("key 'file' not found in policy")
         super(EnergyTrans, self).model_init(policy, kwargs)
 
     def run_model(self, case):
@@ -149,7 +149,7 @@ class EnergyTrans(VensimModelStructureInterface):
 
 
 if __name__ == "__main__":
-    logger = logging.log_to_stderr(logging.INFO)
+    logger = ema_logging.log_to_stderr(ema_logging.INFO)
     model = EnergyTrans(r'..\..\models\EnergyTrans', "ESDMAElecTrans")
     model.step = 4 #reduce data to be stored
     ensemble = ModelEnsemble()

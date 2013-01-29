@@ -12,7 +12,7 @@ is the same as used in fluExample
 from expWorkbench import ModelEnsemble, ParameterUncertainty,\
                          Outcome, save_results
 from expWorkbench.vensim import VensimModelStructureInterface 
-import expWorkbench.EMAlogging as logging
+from expWorkbench import ema_logging
 
 SVN_ID = '$Id: flu_vensim_no_policy_example.py 1085 2013-01-21 18:04:51Z jhkwakkel $'
 
@@ -67,7 +67,7 @@ class FluModel(VensimModelStructureInterface):
                          
         
 if __name__ == "__main__":
-    logging.log_to_stderr(logging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
         
     model = FluModel(r'..\..\models\flu', "fluCase")
     ensemble = ModelEnsemble()

@@ -12,7 +12,7 @@ This excel file implements a simple predator prey model.
 '''
 from expWorkbench import ModelEnsemble, ParameterUncertainty,\
                          Outcome, save_results
-import expWorkbench.EMAlogging as EMAlogging
+from expWorkbench import ema_logging
 
 from expWorkbench.excel import ExcelModelStructureInterface
 
@@ -48,7 +48,7 @@ class ExcelModel(ExcelModelStructureInterface):
     
 
 if __name__ == "__main__":    
-    logger = EMAlogging.log_to_stderr(level=EMAlogging.INFO)
+    logger = ema_logging.log_to_stderr(level=ema_logging.INFO)
     
     model = ExcelModel(r"..\..\models\excelModel", "predatorPrey")
     

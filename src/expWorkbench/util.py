@@ -16,12 +16,11 @@ import math
 
 from deap import creator, base
 
-from EMAlogging import info, debug, warning
+from ema_logging import info, debug, warning
 from expWorkbench.uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER
-from expWorkbench import EMAError                                       ,\
-    EMAlogging
+from expWorkbench import EMAError
 
 SVN_ID = '$Id: util.py 1104 2013-01-24 16:43:50Z wlauping $'
 __all__ = ['AbstractCallback',
