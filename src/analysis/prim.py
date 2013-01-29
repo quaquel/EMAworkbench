@@ -39,15 +39,15 @@ used as input for prim.
 
 Together, this results in the following script: 
     
-.. literalinclude:: ../../../src/examples/primFluExample.py
+.. literalinclude:: ../../../../src/examples/primFluExample.py
    :linenos:
 
 which generates the following figures.
 
-.. figure:: ../ystatic/boxes_individually.png
+.. figure:: ../../ystatic/boxes_individually.png
    :align:  center
 
-.. figure:: ../ystatic/boxes_together.png
+.. figure:: ../../ystatic/boxes_together.png
    :align:  center
 
 
@@ -60,11 +60,11 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import time
 
-from expWorkbench.EMAexceptions import EMAError
+from expWorkbench.ema_exceptions import EMAError
 import analysis.primCode.primDataTypeAware as recursivePrim
 from analysis.scenario_discovery import calculate_sd_metrics
 from expWorkbench.EMAlogging import log_to_stderr, INFO, info, debug
-from examples.FLUvensimExample import FluModel
+from examples.flu_vensim_example import FluModel
 import expWorkbench
 
 
@@ -238,7 +238,7 @@ def perform_prim(results,
             y = results
             
         count = np.zeros(y.shape)
-        count[y*threshold_type > threshold] = 1
+        count[y*threshold_type > threshold*threshold_type] = 1
         cases_of_interest = np.sum(count)
         info("number of cases of interest is %d" % (np.sum(count)))
     elif callable(classify):
@@ -301,9 +301,10 @@ def __filter(boxes, uncertainties=[]):
                 names.append(name)
                 break
     a = set(uv) -set(names)
-
+    a = list(a)
+    a.sort()
     string_list = ", ".join(a)
-
+    
     info(string_list + " are not not visualized because they are not restricted")
     
     uv = names
@@ -401,11 +402,7 @@ def show_boxes_individually(boxes, results, uv=[], filter=True):
     #determine minima and maxima
     boxes = __normalize(boxes, experiments)
     
-
-    
-    uncertainties = []
-    for entry in experiments.dtype.descr:
-        uncertainties.append(entry[0])
+    uncertainties = sort_uncertainities(experiments, boxes[0], boxes[-1])
 
     #iterate over uncertainties
     if filter:
@@ -449,6 +446,30 @@ def show_boxes_individually(boxes, results, uv=[], filter=True):
     
     return figure
 
+def sort_uncertainities(experiments, box, dump_box):
+    uncertainties = []
+    
+    for entry in experiments.dtype.descr:
+        uncertainties.append(entry[0])
+
+    size_restricted_dimensions = []
+    for uncertainty in uncertainties:
+        value = box.dtype.fields.get(uncertainty)[0]
+        if value == 'object':
+            tot_nr_categories = len(dump_box[uncertainty][0])
+            length = len(box[uncertainty][0])/tot_nr_categories
+            
+        else:
+            interval = box[uncertainty]
+            length = interval[1]-interval[0]
+
+        size_restricted_dimensions.append((length, uncertainty))
+     
+    sorted_uncertainties = sorted(size_restricted_dimensions)
+    sorted_uncertainties = [entry[1] for entry in sorted_uncertainties]
+    return sorted_uncertainties
+
+
 def show_boxes_together(boxes, results, uv=[], filter=True):
     '''
     
@@ -478,9 +499,11 @@ def show_boxes_together(boxes, results, uv=[], filter=True):
     dump_box = boxes[-1]
     boxes = boxes[0:-1]
     
-    uncertainties = []
-    for entry in experiments.dtype.descr:
-        uncertainties.append(entry[0])
+    uncertainties = sort_uncertainities(experiments, boxes[0], dump_box)
+    
+#    uncertainties = []
+#    for entry in experiments.dtype.descr:
+#        uncertainties.append(entry[0])
 
     if not uv:
         uv = uncertainties
@@ -549,7 +572,7 @@ def show_boxes_together(boxes, results, uv=[], filter=True):
     
     ax.set_ylabel('normalized uncertainty bandwidth', 
                rotation=90, 
-               fontsize=8)     
+               fontsize=12)     
     return figure
 
 def __normalize(boxes, experiments):

@@ -4,26 +4,45 @@
    contain the root `toctree` directive.
 
 
+.. meta::
+   :description: A python library for exploratory modeling and analysis for 
+                 supporting model based decision making under deep uncertainty
+   :keywords: exploratory modeling, deep uncertainty, robust decision making,
+              vensim, python
+
 .. _contents:
 
 .. _exploratory-modelling-analysis-workbench:
 
-************************************************
-Exploratory Modelling & Analysis (EMA) Workbench
-************************************************
+**************************************************
+Exploratory Modelling and Analysis (EMA) Workbench
+**************************************************
 
 Exploratory Modeling and Analysis (EMA) is a research methodology that uses 
 computational experiments to analyze complex and uncertain systems 
-(Bankes, 1993, 1994). EMA can be understood as searching or sampling over an 
-ensemble of models that are plausible, given a priori knowledge or are 
-otherwise of interest. This ensemble may often be large or infinite in size. 
-Consequently, the central challenge of exploratory modeling is the design of 
-search or sampling strategies that support valid conclusions or reliable 
-insights based on a limited number of computational experiments.
+(`Bankes, 1993 <http://www.jstor.org/stable/10.2307/171847>`_).That is, 
+exploratory modeling aims at offering computational decision support for 
+decision making under `deep uncertainty <http://inderscience.metapress.com/content/y77p3q512x475523/>`_ 
+and `Robust decision making <http://en.wikipedia.org/wiki/Robust_decision_making>`_.  
+
+The EMA workbench is aimed at providing support for doing EMA on models 
+developed in various modelling packages and environments. Currently, we focus 
+on offering support for doing EMA on models developed in 
+`Vensim <http://www.vensim.com/>`_, Excel, and Python. Future plans include
+support for `Netlogo <http://ccl.northwestern.edu/netlogo/>`_ 
+and `Repast <http://repast.sourceforge.net/>`_. The EMA workbench offers support 
+for designing experiments, performing the experiments - including support for 
+parallel processing-, and analysing the results. A key design principle is that 
+people should be able to perform EMA on normal computers, instead of having 
+to take recourse to a HPC.
+
+The Exploratory Modeling and Analysis (EMA) Workbench is an evolving set of 
+tools and methods. It evolved out of code written by Jan Kwakkel for his PhD 
+research. The EMA workbench is implemented in Python and relies on 
+`Numpy and Scipy <http://numpy.scipy.org/>`_.   
 
  * :ref:`exploratory-modelling-analysis-workbench`
- 
-    * :ref:`description`
+
     * :ref:`workbench-content`
  
       * :ref:`simulation-control`
@@ -31,22 +50,6 @@ insights based on a limited number of computational experiments.
       * :ref:`visualization`
 
  * :ref:`exploratory-modeling-and-analysis`
- 
-.. _description:
-
-===========
-Description
-===========
-
-The Ema Workbench is an evolving set of tools and methods to support model 
-(bothstructure and behaviour) analysis. It evolved out of code written by Jan 
-Kwakkel for his PhD research. It is now a joint project of a set of people 
-actively taking a role in the EmaGroup.The workbench is aimed at providing 
-support for doing EMA on models developed in various modelling packages and 
-environments. It offers support for designing experiments, performing the 
-experiments - including support for parallel processing-, and analysing the 
-results. A key design principle is that people should be able to perform EMA on 
-normal computers, instead of having to take recourse to a HPC.
 
 .. _workbench-content:
 
@@ -82,7 +85,7 @@ Analysis
 * Random Forrests (:mod:`orangeFunctions`)
 * Self organizing maps (status: planned)
 * Stochastic Neighbor Embedding (status: planned)
-* Behaviour clustering (:mod:`clustererV2`): This analysis feature automatically 
+* Behaviour clustering (:mod:`clusterer`): This analysis feature automatically 
   allocates output behaviours that are similar in characteristics to groups 
   (i.e. clusters). 'Similarity' between dynamic behaviours is defined using 
   distance functions, and the feature can operate using different distance 
@@ -116,6 +119,14 @@ Visualization
 ***************************************
 Exploratory Modeling and Analysis (EMA)
 ***************************************
+Exploratory Modeling and Analysis (EMA) is a research methodology that uses 
+computational experiments to analyze complex and uncertain systems 
+(Bankes, 1993, 1994). EMA can be understood as searching or sampling over an 
+ensemble of models that are plausible, given a priori knowledge or are 
+otherwise of interest. This ensemble may often be large or infinite in size. 
+Consequently, the central challenge of exploratory modeling is the design of 
+search or sampling strategies that support valid conclusions or reliable 
+insights based on a limited number of computational experiments.
 
 EMA can be contrasted with the use of models to predict system behavior, 
 where models are built by consolidating known facts into a single package 

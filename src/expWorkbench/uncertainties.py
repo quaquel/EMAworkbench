@@ -8,9 +8,12 @@ types of uncertainties.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
+import numpy as np
+
 from sets import ImmutableSet
+from expWorkbench.ema_exceptions import EMAError
 
-
+SVN_ID = '$Id: uncertainties.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
 __all__ = ['AbstractUncertainty',
            'ParameterUncertainty',
            'CategoricalUncertainty'
@@ -37,8 +40,8 @@ class AbstractUncertainty(object):
     #: the name of the uncertainty
     name = None
     
-    #: the datatype of the uncertainty
-    dtype = None    
+#    #: the datatype of the uncertainty
+#    dtype = None    
     
     #: a string denoting the type of distribution to be used in sampling
     dist = None
@@ -60,12 +63,16 @@ class AbstractUncertainty(object):
         ''' get values'''
         return self.values
 
-    def identity(self):
-        '''
-        helper method that returns the elements that define an uncertainty.  
-        '''
-        
-        return (self.name, self.values[0], self.values[1])
+    def __eq__ (self, other):
+        comparison = [all(hasattr(self, key) == hasattr(other, key) and
+                          getattr(self, key) == getattr(other, key) for key 
+                          in self.__dict__.keys())]
+        comparison.append(self.__class__ == other.__class__)
+        return all(comparison)
+
+
+    def __str__(self):
+        return self.name
 
 class ParameterUncertainty(AbstractUncertainty ):
     """
@@ -102,6 +109,8 @@ class ParameterUncertainty(AbstractUncertainty ):
         
         self.type = "parameter"
         
+        if len(values) != 2:
+            raise EMAError("length of values for %s incorrect " % name)
 
         # self.dist should be a string. This string should be a key     
         # in the distributions dictionary 
@@ -147,7 +156,8 @@ class CategoricalUncertainty(ParameterUncertainty):
         '''
         self.categories = values
         values = (0, len(values)-1)
-        default = self.invert(default)
+        if default != None:
+            default = self.invert(default)
         
         self.default = default
         super(CategoricalUncertainty, self).__init__(values, 
@@ -161,12 +171,8 @@ class CategoricalUncertainty(ParameterUncertainty):
         return self.categories[param]
     
     def invert(self, name):
-        ''' transform a categoy to an integer'''
+        ''' transform a category to an integer'''
         return self.categories.index(name)
-
-    def identity(self):
-        categories = ImmutableSet(self.categories)
-        return (self.name, categories)
 
 #==============================================================================
 # test functions

@@ -10,7 +10,6 @@ from __future__ import division
 import random
 import numpy as np
 
-from expWorkbench import EMAError
 from expWorkbench.EMAlogging import info
 
 
@@ -26,8 +25,6 @@ def distance_same_length(series1, series2, wDim1, wDim2):
                   feature vectors (i.e. Curvature).
     
     '''
-    error = 0
-    length = len(series1[0])
     
     error = np.square(series1-series2)
     error = np.array([wDim1, wDim2])[np.newaxis].T * error
@@ -51,11 +48,10 @@ def distance_different_lenght(series1, series2, wDim1, wDim2, sisterCount):
     
     # TODO Check why the initial value of error is different for the two 
     # distance methods?
-    error = 10000000
     
     length1 = series1.shape[1]
     length2 = series2.shape[1]
-    toAdd = abs(length1-length2)
+#    toAdd = abs(length1-length2)
     
     if length1>length2:
         shortFV = series2

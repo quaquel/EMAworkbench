@@ -1,20 +1,5 @@
 #!/usr/bin/env python
 """
-This file is part of the EMA workbench.
-
-EMA workbench is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-EMA workbench is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with EMA workbench.  If not, see <http://www.gnu.org/licenses/>.  
-
 Draws some x-y line and scatter plots. On the left hand plot:
  - Left-drag pans the plot.
  - Mousewheel up and down zooms the plot in and out.

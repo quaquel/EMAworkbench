@@ -22,7 +22,7 @@ def classify(data):
     return classes
 
 #load data
-results = load_results(r'../../../src/analysis/1000 flu cases.cPickle')
+results = load_results(r'../../../src/analysis/1000 flu cases.cPickle', zipped=False)
 experiments, results = results
 
 #extract results for 1 policy

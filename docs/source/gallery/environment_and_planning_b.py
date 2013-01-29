@@ -12,4 +12,4 @@ ax = fig.add_axes([0,0,1,1],
                   yticks=[])
 
 ax.imshow(im)
-plt.savefig("environment_and_planning_b.png", dpi=75)
+plt.savefig("./pictures/environment_and_planning_b.png", dpi=75)

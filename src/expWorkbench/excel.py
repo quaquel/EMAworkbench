@@ -13,8 +13,10 @@ import win32com.client
 from win32com.universal import com_error
 
 import EMAlogging 
-from EMAexceptions import EMAError
+from ema_exceptions import EMAError
 from model import ModelStructureInterface
+
+SVN_ID = '$Id: excel.py 1027 2012-11-21 19:56:50Z jhkwakkel $'
 
 class ExcelModelStructureInterface(ModelStructureInterface):
     '''
@@ -84,7 +86,7 @@ class ExcelModelStructureInterface(ModelStructureInterface):
         #find right sheet
         try:
             sheet = self.wb.Sheets(self.sheet)
-        except Exception as e:
+        except Exception :
             EMAlogging.warning("com error: sheet not found")
             self.cleanup()
             raise

@@ -21,8 +21,8 @@ import vensimDLLwrapper
 import EMAlogging
 from model import ModelStructureInterface
 from outcomes import Outcome
-from EMAexceptions import CaseError, EMAWarning 
-
+from ema_exceptions import CaseError, EMAWarning 
+SVN_ID = '$Id: vensim.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
 __all__ = ['be_quiet',
            'load_model',
            'read_cin_file',
@@ -209,6 +209,11 @@ class VensimModelStructureInterface(ModelStructureInterface):
         super(VensimModelStructureInterface, self).__init__(workingDirectory, 
                                                             name)
         self.outcomes.append(Outcome('TIME' , time=True))
+        
+        self.outcomes = list(self.outcomes)
+        
+        EMAlogging.debug("vensim interface init completed")
+        
 
     def model_init(self, policy, kwargs):
         """
@@ -239,7 +244,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
             if savePer > 0:
                 timeStep = savePer
             
-            self.runLength = (finalTime - initialTime)/timeStep +1
+            self.runLength = int((finalTime - initialTime)/timeStep +1)
         except VensimWarning:
             raise EMAWarning(str(VensimWarning))
     
@@ -280,7 +285,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
         EMAlogging.debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
         try:
             run_simulation(self.workingDirectory+self.resultFile)
-        except VensimError as e:
+        except VensimError:
             raise
 
         results = {}
@@ -293,6 +298,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
             EMAlogging.debug("successfully retrieved data for %s" %output.name)
             if not result == []:
                 if result.shape[0] != self.runLength:
+                    got = result.shape[0]
                     a = np.zeros((self.runLength))
                     a[0:result.shape[0]] = result
                     result = a
@@ -306,9 +312,11 @@ class VensimModelStructureInterface(ModelStructureInterface):
                 results[output.name] = result
             except ValueError as e:
                 print "what"
+                raise e
         self.output = results   
         if error:
-            raise CaseError("run not completed", case)  
+            raise CaseError("run not completed, got %s, expected %s" %
+                            (got, self.runLength), case)  
    
     def reset_model(self):
         """

@@ -43,6 +43,22 @@ def perform_prim(x,
                  threshold = None,
                  pasting = False,
                  threshold_type = 1):
+    '''
+    
+    :param x: a 2-d array containing the features (rows are observations) 
+    :param y: a 1-d array of class scores (discrete or continuous)
+    :param peel_alpha: parameter controlling the peeling stage (default = 0.05). 
+    :param paste_alpha: parameter controlling the pasting stage (default = 0.05).
+    :param mass_min: minimum mass of a box (default = 0.05). 
+    :param threshold: the threshold of the output space that boxes should meet. 
+    :param pasting: perform pasting stage (default=True) 
+    :param threshold_type: If 1, the boxes should go above the threshold, if -1
+                           the boxes should go below the threshold, if 0, the 
+                           algorithm looks for both +1 and -1.
+    :return: a list of PRIM objects.
+    
+    '''
+    
     if threshold==None:
         threshold = np.mean(y)
    

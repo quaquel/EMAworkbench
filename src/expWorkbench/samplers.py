@@ -15,9 +15,9 @@ import itertools
 import scipy.stats as stats
 import numpy as np 
 
-from EMAlogging import info, warning
+from expWorkbench.EMAlogging import info, warning
 from uncertainties import CategoricalUncertainty
-
+SVN_ID = '$Id: samplers.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
 __all__ = ['LHSSampler',
            'MonteCarloSampler',
            'FullFactorialSampler',
@@ -56,7 +56,7 @@ class Sampler(object):
         '''
         raise NotImplementedError
     
-    def generate_design(self, uncertainties, size):
+    def generate_samples(self, uncertainties, size):
         '''
         The main method of :class: `~sampler.Sampler` and its 
         children. This will call the sample method for each of the 
@@ -67,24 +67,52 @@ class Sampler(object):
                                and :class:`~uncertainties.CategoricalUncertainty`
                                instances.
         :param size: the number of samples to generate.
-        :rtype: tuple with the designs as the first entry and the names
-                of the uncertainties as the second entry.
+        :rtype: dict with the uncertainty.name as key, and the sample as value
         '''
         
-        designs = []
+        samples = {}
 
         for uncertainty in uncertainties:
             #range in uncertainty gives lower and upper bound
-            cases = self.sample(uncertainty.dist, uncertainty.params, size) 
+            sample = self.sample(uncertainty.dist, uncertainty.params, size) 
             
             if type(uncertainty) == CategoricalUncertainty:
-                cases = [uncertainty.transform(int(case)) for case in cases]
-                cases = np.asarray(cases)
+                # TODO look into numpy ufunc
+                sample = [uncertainty.transform(int(entry)) for entry in sample]
+            elif uncertainty.dist=='integer':
+                sample = [int(entry) for entry in sample]
+#                cases = np.asarray(cases)
             
-            designs.append(cases)
+            samples[uncertainty.name] = sample
         
-        designs = zip(*designs)
-        return (designs, [uncertainty.name for uncertainty in uncertainties])
+        return samples
+
+    def generate_designs(self,  sampled_uncertainties):
+        '''
+        This method provides an alternative implementation to the default 
+        implementation provided by :class:`~sampler.Sampler`. This
+        version returns a full factorial design across the uncertainties. 
+        
+        :param sampled_uncertainties: a list of sampled uncertainties, as 
+                                      the values return by generate_samples
+        :rtype: a generator object that yields the designs resulting from
+                combining the uncertainties
+        
+        '''
+        designs = itertools.izip(*sampled_uncertainties) 
+        return designs
+
+    def deterimine_nr_of_designs(self, sampled_uncertainties):
+        '''
+        Helper function for determining the number of experiments that will
+        be generated given the sampled uncertainties.
+        
+        :param sampled_uncertainties: a list of sampled uncertainties, as 
+                              the values return by generate_samples
+        
+        '''
+        
+        return len(sampled_uncertainties.values()[0])
 
 class LHSSampler(Sampler):
     """
@@ -166,40 +194,27 @@ class FullFactorialSampler(Sampler):
     
     '''
     
-    #: max number of designs that is allowed (Default 50.000).
-    max_designs = 50000
-    
     def __init__(self):
         super(FullFactorialSampler, self).__init__()
        
-    def generate_design(self,  uncertainties, size):
+    def generate_samples(self,  uncertainties, size):
         '''
-        This method provides an alternative implementation to the default 
-        implementation provided by :class:`~sampler.Sampler`. This
-        version returns a full factorial design across the uncertainties. 
+        The main method of :class: `~sampler.Sampler` and its 
+        children. This will call the sample method for each of the 
+        uncertainties and return the resulting samples 
         
         :param uncertainties: a collection of 
                                :class:`~uncertainties.ParameterUncertainty` 
                                and :class:`~uncertainties.CategoricalUncertainty`
                                instances.
-        :param size: the resolution to use for :class:`~uncertainties.ParameterUncertainty`
-                     instances. For instances of :class:`~uncertainties.CategoricalUncertainty`,
-                     the categories are used.
-        :rtype: tuple with the designs as the first entry and the names
-                of the uncertainties as the second entry.
+        :param size: the number of samples to generate.
+        :rtype: dict with the uncertainty.name as key, and the sample as value
         
-        .. note:: The current implementation has a hard coded limit to the 
-                  number of designs possible. This is set to 50.000 designs. 
-                  If one want to go beyond this, set `self.max_designs` to
-                  a higher value.
         
         '''
+                
         
-        def get_combos(branches):
-            return itertools.product(*branches)
-        
-        categories = []
-        totalDesigns = 1
+        samples = {}
         for uncertainty in uncertainties:
             if type(uncertainty) == CategoricalUncertainty:
                 category = uncertainty.categories
@@ -212,17 +227,38 @@ class FullFactorialSampler(Sampler):
                     category = set(category)
                     category = [int(entry) for entry in category]
                     category = sorted(category)
-            totalDesigns *= len(category)
-            categories.append(category)
+            samples[uncertainty] = category
         
-        if totalDesigns > self.max_designs:
-            warning("full factorial design results in %s designs"\
-                    % totalDesigns)
-            raise Exception('too many designs')
-        else:
-            info("full factorial design results in %s designs"\
-                 % totalDesigns)    
+        return samples
+       
+    def generate_designs(self,  sampled_uncertainties):
+        '''
+        This method provides an alternative implementation to the default 
+        implementation provided by :class:`~sampler.Sampler`. This
+        version returns a full factorial design across the uncertainties. 
         
-        designs = itertools.product(*categories)
-        return (designs, [uncertainty.name for uncertainty in uncertainties])
-  
+        :param sampled_uncertainties: a list of sampled uncertainties, as 
+                                      the values return by generate_samples
+        :rtype: a generator object that yields the designs resulting from
+                combining the uncertainties      
+        
+        '''
+        designs = itertools.product(*sampled_uncertainties)
+        return designs
+
+
+    def deterimine_nr_of_designs(self, sampled_uncertainties):
+        '''
+        Helper function for determining the number of experiments that will
+        be generated given the sampled uncertainties.
+        
+        :param sampled_uncertainties: a list of sampled uncertainties, as 
+                              the values return by generate_samples
+        
+        '''
+        nr_designs = 1
+        for value in sampled_uncertainties.itervalues():
+            nr_designs *= len(value)
+        return nr_designs
+        
+          

@@ -18,8 +18,8 @@ Typically, the dll can be found in ../AppData/Local/Vensim/vendll32.dll
 import ctypes 
 import numpy as np
 
-from EMAexceptions import EMAError, EMAWarning
-
+from ema_exceptions import EMAError, EMAWarning
+SVN_ID = '$Id: vensimDLLwrapper.py 1027 2012-11-21 19:56:50Z jhkwakkel $'
 #==============================================================================
 # vensim warning and vensim error 
 #==============================================================================
@@ -252,22 +252,21 @@ def get_varattrib(varname, attribute):
     15 for the main group of a variable
     
     ''' 
-    
-    buffer = ctypes.create_string_buffer("", 10)
+    buf = ctypes.create_string_buffer("", 10)
     maxBuf = ctypes.c_int(10)
     
     bufferlength = vensim.vensim_get_varattrib(varname, 
                                                attribute, 
-                                               buffer, 
+                                               buf, 
                                                maxBuf)
     if bufferlength == -1:
         raise VensimWarning("variable not found")
     
-    buffer = ctypes.create_string_buffer("", int(bufferlength))
+    buf = ctypes.create_string_buffer("", int(bufferlength))
     maxBuf = ctypes.c_int(int(bufferlength))       
-    vensim.vensim_get_varattrib(varname, attribute, buffer, maxBuf)
+    vensim.vensim_get_varattrib(varname, attribute, buf, maxBuf)
     
-    result = repr(buffer.raw)
+    result = repr(buf.raw)
     result = result.strip()
     result = result.rstrip("'")
     result = result.lstrip("'")

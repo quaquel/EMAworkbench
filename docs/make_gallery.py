@@ -28,18 +28,16 @@ import matplotlib.image
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-sys.path.append(r'C:\workspace\EMA-workbench\src')
-sys.path.append(r'C:\eclipse\workspace\EMA-workbench\src')
+sys.path.append(os.path.abspath('../src'))
+sys.path.append(os.path.abspath('../src/analysis'))
 
-examples_source_dir = './source/gallery'
-examples_dir = 'gallery/rst'
-template_dir = 'source/ytemplates'
-static_dir = 'source/gallery/pictures'
+examples_source_dir = '.\source\gallery'
+examples_dir = 'gallery'
+template_dir = 'source\ytemplates'
+static_dir_thumb = r'build\html\_static'
+static_dir_fig = r'build\html\_images'
 pwd=os.getcwd()
 rows = []
-
-if not os.path.exists(static_dir):
-    os.makedirs(static_dir)
 
 os.chdir(examples_source_dir)
 all_examples=sorted(glob.glob("*.py"))
@@ -48,14 +46,20 @@ all_examples=sorted(glob.glob("*.py"))
 stale_examples=[]
 for example in all_examples:
     png=example.replace('py','png')                             
-    png_static=os.path.join(pwd,static_dir,png)
+    png_static=os.path.join(pwd, static_dir_fig, png)
+    
+#    print png_static, example
+#    print os.stat(png_static).st_mtime, os.stat(example).st_mtime
+#    print (not os.path.exists(png_static))
+#    print os.stat(png_static).st_mtime < os.stat(example).st_mtime
     if (not os.path.exists(png_static) or 
         os.stat(png_static).st_mtime < os.stat(example).st_mtime):
         stale_examples.append(example)
 
 for example in stale_examples:
     print example,
-    png=example.replace('py','png')                             
+    png=example.replace('py','png')
+                                 
     matplotlib.pyplot.figure(figsize=(6,6))
     stdout=sys.stdout
     sys.stdout=open('nul','w')
@@ -68,7 +72,8 @@ for example in stale_examples:
         sys.stdout.write(" FAIL: %s\n"%strerr)
         continue
     matplotlib.pyplot.clf()
-    im=matplotlib.image.imread(png)
+    im=matplotlib.image.imread("./pictures/"+png)
+    
     fig = Figure(figsize=(2.5, 2.5))
     canvas = FigureCanvas(fig)
     ax = fig.add_axes([0,0,1,1], 
@@ -80,9 +85,11 @@ for example in stale_examples:
 
     ax.imshow(im, aspect='auto', resample=True, interpolation='bilinear')
     thumbfile=png.replace(".png","_thumb.png")
-    fig.savefig(thumbfile)
-    shutil.copy(thumbfile,os.path.join(pwd,static_dir,thumbfile))
-    shutil.copy(png,os.path.join(pwd,static_dir,png))
+    fig.savefig("./pictures/"+thumbfile, dpi=75)
+
+#    print os.path.join(pwd,static_dir,thumbfile) 
+    shutil.copy("./pictures/"+thumbfile,os.path.join(pwd,static_dir,thumbfile))
+#    shutil.copy(png,os.path.join(pwd,static_dir,png))
 
 for example in all_examples:
     png=example.replace('py','png') 
@@ -99,4 +106,7 @@ os.chdir(pwd)
 fh = open(os.path.join(template_dir,'gallery.html'), 'w')
 fh.write(template%'\n'.join(rows))
 fh.close()
+
+#from make_examples_rst import main
+#main(examples_source_dir, examples_source_dir)
 

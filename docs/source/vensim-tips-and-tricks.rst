@@ -1,3 +1,7 @@
+.. meta::
+   :description: Tips and tricks for using the exploratory modeling workbench
+                 in combination with Vensim.
+
 **********************
 Vensim Tips and Tricks
 **********************
@@ -45,7 +49,7 @@ described using a sigmoid function. The basic sigmoid is:
 
 .. math::
    
-   P(t) = \frac{1}{1+e^{t}}
+   P(t) = \frac{1}{1+e^{-t}}
  
 This generates an S-shaped curve between 0 and 1, with 
 :math:`P(0)=\frac{1}{2}`. However, suppose that our relation is uncertain,
@@ -58,7 +62,7 @@ Suppose we call these uncertainties :math:`\alpha` for the upper bound,
 
 .. math::
    
-   P(t) = (\alpha+\beta) * \frac{1}{1+e^{t-\gamma}} + \beta
+   P(t) = (\alpha-\beta) * \frac{1}{1+e^{-t-\gamma}} + \beta
 
 We can implement this function easily in Python. ::
 
@@ -66,13 +70,13 @@ We can implement this function easily in Python. ::
         return (alpha+beta) * 1/(1+exp(t-gamma)) +beta
         
 If we now add alpha, beta, and gamma as :class:`~uncertainties.ParameterUncertainty` 
-instances to :attr:`self.uncertainties`::
+instances to :attr:`self.uncertainties`. ::
 
    self.uncertainties.append(ParameterUncertainty((0.8,1.2), 'alpha')
    self.uncertainties.append(ParameterUncertainty((-1.2,-0.8), 'beta')
    self.uncertainties.append(ParameterUncertainty((4.75,5,25), 'gamma')
 
-and override :meth:`run_model` ::
+and override :meth:`run_model`.  ::
 
    def run_model(self, case):
       #get lookup related uncertainties
@@ -81,12 +85,13 @@ and override :meth:`run_model` ::
       gamma = case.pop('gamma')
       
       #make a new lookup
-      newLookup = = [(t, sigmoid(t, alpha, beta, gamma) for t in range(-10, 10)]
+      newLookup = [(t, sigmoid(t, alpha, beta, gamma) for t in range(-10, 10)]
       
       #add the new lookup to the case
       case['name of lookup'] = newLookup
       
       super(self, ClassName).run_model(case)
+      
        
 Here, we first pop the three lookup relation uncertainties from the case dict.
 We use these to generate a lookup with the specified sigmoid function. We
@@ -110,7 +115,9 @@ for doing it: using alternative Vensim models and setting policy specific
 parameters on a default model. 
 
 
-.. note :: In both examples, we assume that we are dealing with a single 
+.. note:: 
+
+   In both examples, we assume that we are dealing with a single 
    :class:`~vensim.VensimModelStructureInterface`. If there are model structure 
    uncertainties and we are using multiple different 
    :class:`~vensim.VensimModelStructureInterface` instances, these approaches 
@@ -198,10 +205,10 @@ the error. It is of course possible to set all the parameters by hand, however
 this becomes annoying on larger models, or if one has to do it multiple times.
 Since the Vensim DLL does not have a way to save a model, we cannot use
 the DLL. Instead, we can use the fact that one can save a Vensim model as a
-text file. By changing the requires parameters in this text file via the 
+text file. By changing the required parameters in this text file via the 
 workbench, we can then open the modified model in Vensim and spot the error.
 
-The following scripts can be used for this purpose.
+The following script can be used for this purpose.
 
 .. literalinclude:: ../../src/examples/modelDebugger.py
    :linenos:
