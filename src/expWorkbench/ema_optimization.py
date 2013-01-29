@@ -61,7 +61,7 @@ def make_name(ind):
     try:
         keys.pop(keys.index('name'))
     except ValueError:
-        EMAlogging.debug("value error in make name, field 'name' not in list")
+        ema_logging.debug("value error in make name, field 'name' not in list")
     
     name = ""
     for key in keys:
@@ -385,7 +385,7 @@ class NSGA2StatisticsCallback(object):
             kargs[name] = "[%s]" % ", ".join(map(self.precision.format, function(hof)))
         line = line.format(**kargs)
         line = "generation %s: " %gen + line
-        EMAlogging.info(line)
+        ema_logging.info(line)
 
     def __call__(self, population):
         self.change.append(self.hall_of_fame.update(population))

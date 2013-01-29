@@ -12,7 +12,7 @@ import numpy as np
 import win32com.client
 from win32com.universal import com_error
 
-import EMAlogging 
+import ema_logging 
 from ema_exceptions import EMAError
 from model import ModelStructureInterface
 
@@ -57,16 +57,16 @@ class ExcelModelStructureInterface(ModelStructureInterface):
         
         if not self.xl:
             try:
-                EMAlogging.debug("trying to start Excel")
+                ema_logging.debug("trying to start Excel")
                 self.xl = win32com.client.Dispatch("Excel.Application")
-                EMAlogging.debug("Excel started") 
+                ema_logging.debug("Excel started") 
             
-                EMAlogging.debug("trying to open workbook")
+                ema_logging.debug("trying to open workbook")
                 self.wb = self.xl.Workbooks.Open(self.workingDirectory + self.workbook)
-                EMAlogging.debug("workbook opened")
+                ema_logging.debug("workbook opened")
             except com_error as e:
                 raise EMAError(str(e))
-        EMAlogging.debug(self.workingDirectory)
+        ema_logging.debug(self.workingDirectory)
        
     def run_model(self, case):
         """
@@ -87,7 +87,7 @@ class ExcelModelStructureInterface(ModelStructureInterface):
         try:
             sheet = self.wb.Sheets(self.sheet)
         except Exception :
-            EMAlogging.warning("com error: sheet not found")
+            ema_logging.warning("com error: sheet not found")
             self.cleanup()
             raise
         
@@ -96,7 +96,7 @@ class ExcelModelStructureInterface(ModelStructureInterface):
             try:
                 sheet.Range(key).Value = value 
             except com_error:
-                EMAlogging.warning("com error: no cell(s) named %s found" % key,)
+                ema_logging.warning("com error: no cell(s) named %s found" % key,)
 
         #get results
         results = {}
@@ -110,7 +110,7 @@ class ExcelModelStructureInterface(ModelStructureInterface):
                     output = np.array(output)
                 results[outcome.name] = output
             except com_error:
-                EMAlogging.warning("com error: no cell(s) named %s found" % outcome.name,)
+                ema_logging.warning("com error: no cell(s) named %s found" % outcome.name,)
         self.output = results
     
     def reset_model(self):
@@ -128,7 +128,7 @@ class ExcelModelStructureInterface(ModelStructureInterface):
                 
         '''
         
-        EMAlogging.debug("cleaning up")
+        ema_logging.debug("cleaning up")
         if self.wb:
             self.wb.Close(False)
             del self.wb

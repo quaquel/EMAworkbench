@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 
 from sandbox.workbench_core_revision.uncertainties import ParameterUncertainty
 
-from expWorkbench import Outcome, save_results, EMAlogging
+from expWorkbench import Outcome, save_results, ema_logging
 from expWorkbench.vensim import VensimModelStructureInterface 
-import expWorkbench.EMAlogging as logging
+import expWorkbench.ema_logging as logging
 from analysis.plotting import lines
 
 
@@ -103,7 +103,7 @@ def run_test(ensemble, cases):
         results = ensemble.perform_experiments(cases, reporting_interval=1000)
         timing.append(time.time()-start_time)
     for entry in timing:
-        EMAlogging.info(str(entry))
+        ema_logging.info(str(entry))
 
 def test_new_code(cases):
     from sandbox.workbench_core_revision.model_ensemble import ModelEnsemble
@@ -111,7 +111,7 @@ def test_new_code(cases):
     ensemble = ModelEnsemble()
     ensemble.set_model_structure(model)
     
-    EMAlogging.info('------------- New Code -------------')
+    ema_logging.info('------------- New Code -------------')
     
     run_test(ensemble,cases)
     del ensemble, model
@@ -122,7 +122,7 @@ def test_old_code(cases):
     ensemble = ModelEnsemble()
     ensemble.set_model_structure(model)
     
-    EMAlogging.info('------------- Old Code -------------')
+    ema_logging.info('------------- Old Code -------------')
     run_test(ensemble, cases)
     del ensemble, model
 

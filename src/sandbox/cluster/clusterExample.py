@@ -10,9 +10,9 @@ import cPickle
 from some_cluster_tests import cluster as cluster1, flatcluster, plotClusters
 
 from expWorkbench import load_results
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
-EMAlogging.log_to_stderr(EMAlogging.INFO)
+ema_logging.log_to_stderr(ema_logging.INFO)
 
 clusterSetup = {}
 clusterSetup['plotClusters?'] = True

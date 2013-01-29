@@ -9,12 +9,14 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 
+from expWorkbench import ema_logging, vensim, load_results, ModelEnsemble
+
+from expWorkbench.ema_logging import debug
 from expWorkbench.uncertainties import CategoricalUncertainty, ParameterUncertainty
-from expWorkbench import EMAlogging, vensim, save_results, load_results
 from expWorkbench.vensim import VensimModelStructureInterface, VensimError
 from expWorkbench.outcomes import Outcome
 from expWorkbench.ema_exceptions import CaseError 
-from expWorkbench import ModelEnsemble
+
 
 from analysis import prim
 
@@ -157,9 +159,9 @@ class EnergyTrans(VensimModelStructureInterface):
             
         for key, value in case.items():
             vensim.set_value(key, value)
-        EMAlogging.debug("model parameters set successfully")
+        debug("model parameters set successfully")
         
-        EMAlogging.debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
+        debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
         try:
             vensim.run_simulation(self.workingDirectory+self.resultFile)
         except VensimError:
@@ -168,11 +170,10 @@ class EnergyTrans(VensimModelStructureInterface):
         results = {}
         error = False
         for output in self.outcomes:
-            EMAlogging.debug("getting data for %s" %output.name)
+            debug("getting data for %s" %output.name)
             result = vensim.get_data(self.workingDirectory+self.resultFile, 
                               output.name 
                               )
-            EMAlogging.debug("successfully retrieved data for %s" %output.name)
             if not result == []:
                 if result.shape[0] != self.runLength:
                     a = np.zeros((self.runLength))
@@ -213,7 +214,7 @@ def classify(data):
     return classes
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     model = EnergyTrans(r"..\..\models\EnergyTrans", "ESDMAElecTrans")
        
     ensemble = ModelEnsemble()

@@ -5,7 +5,7 @@ Created on Jun 26, 2012
 '''
 from expWorkbench import Outcome, save_results
 from modelEnsemble import ModelEnsemble
-import expWorkbench.EMAlogging as logging
+import expWorkbench.ema_logging as logging
 from uncertainties import ParameterUncertainty, CategoricalUncertainty, LookupUncertainty
 
 from vensim import VensimModelStructureInterface

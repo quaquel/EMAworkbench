@@ -300,7 +300,7 @@ def RunFluModel(x11,x12,x21,x22,x31,x32,x41,x51,x52,x61,x62,x71,x72,x81,x82,x91,
 
         
 if __name__ == "__main__":
-    import expWorkbench.EMAlogging as logging
+    import expWorkbench.ema_logging as logging
     np.random.seed(150) #set the seed for replication purposes
     logging.log_to_stderr(logging.INFO)
     

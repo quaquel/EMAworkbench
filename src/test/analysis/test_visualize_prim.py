@@ -6,7 +6,7 @@ Created on Sep 3, 2012
 import numpy as np
 import matplotlib.pyplot as plt
 
-from expWorkbench import load_results, EMAlogging
+from expWorkbench import load_results, ema_logging
 from analysis import  prim
 
 def classify(data):
@@ -18,7 +18,7 @@ def classify(data):
     return classes
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     results = load_results(r'prim data 100 cases.cPickle')
     boxes = prim.perform_prim(results, 

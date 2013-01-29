@@ -21,7 +21,7 @@ from scipy.cluster.hierarchy import fcluster, linkage, dendrogram, inconsistent
 import clusterPlotter as plotter
 import clusteringDistances as distances
 import expWorkbench.util as util
-from expWorkbench.EMAlogging import info, debug
+from expWorkbench.ema_logging import info, debug
 
 # Global variables
 runLogs = []

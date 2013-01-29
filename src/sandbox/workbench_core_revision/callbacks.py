@@ -10,9 +10,9 @@ np = np
 from threading import Lock
 
 
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
-from expWorkbench.EMAlogging import info, debug
+from expWorkbench.ema_logging import info, debug
 from uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER
@@ -162,7 +162,7 @@ class DefaultCallback(AbstractCallback):
             try:
                 outcome_res = result[outcome]
             except KeyError:
-                EMAlogging.debug("%s not in msi" % outcome)
+                ema_logging.debug("%s not in msi" % outcome)
             else:
                 try:
                     self.results[outcome][self.i-1, ] = outcome_res

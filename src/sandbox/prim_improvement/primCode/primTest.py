@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from analysis.primCode.copyOldPrim import *
 from recursivePrim import perform_prim
 from analysis import graphs
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
 __all__ = []
 
@@ -181,7 +181,7 @@ def test_combine():
     pass
 
 def test_box():
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     x = np.loadtxt(r'quasiflow x.txt')
     y = np.loadtxt(r'quasiflow y.txt')

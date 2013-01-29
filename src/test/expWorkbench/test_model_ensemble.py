@@ -8,7 +8,7 @@ import numpy as np
 from expWorkbench.model_ensemble import ModelEnsemble, UNION, INTERSECTION,\
                                         experiment_generator 
 from expWorkbench import LHSSampler
-from expWorkbench import ModelStructureInterface, EMAlogging
+from expWorkbench import ModelStructureInterface, ema_logging
 from expWorkbench import ParameterUncertainty
 from expWorkbench.outcomes import Outcome
 
@@ -163,11 +163,11 @@ def test_perform_experiments():
     ensemble.parallel=True
     ensemble.add_model_structures([model_a, model_b, model_c])
     
-    EMAlogging.info('------------- union of uncertainties -------------')
+    ema_logging.info('------------- union of uncertainties -------------')
     
     ensemble.perform_experiments(10, which_uncertainties=UNION, reporting_interval=1 )
     
-    EMAlogging.info('------------- intersection of uncertainties -------------')
+    ema_logging.info('------------- intersection of uncertainties -------------')
     ensemble.perform_experiments(10, which_uncertainties=INTERSECTION, reporting_interval=1)
 
 def test_experiment_generator():
@@ -201,7 +201,7 @@ def test_experiment_generator():
     print len(experiments)
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
 #    test_determine_intersecting_uncertainties()
 #    test_generate_samples()
     test_perform_experiments()

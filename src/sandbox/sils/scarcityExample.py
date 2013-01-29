@@ -9,7 +9,7 @@ import numpy as np
 from math import exp
 import copy
 
-import expWorkbench.EMAlogging as EMAlogging
+import expWorkbench.ema_logging as ema_logging
 #from expWorkbench import ModelEnsemble
 from expWorkbench import vensim
 from expWorkbench import vensimDLLwrapper as venDLL
@@ -287,7 +287,7 @@ def run_interval(model,loop_index,interval,VOI,edges,ind_cons,
         # In other words set the uncertainties to the same value as in
         # those experiments.
         time = vensim.get_val(r'TIME')
-        EMAlogging.debug(time)
+        ema_logging.debug(time)
         
         if time ==(2000+step*interval[0]) and not loop_turned_off:
             loop_turned_off = True
@@ -437,7 +437,7 @@ def perform_loop_knockout():
                            ['average extraction costs', 'profitability extraction']]
     
 #    CONSTRUCTING THE ENSEMBLE AND SAVING THE RESULTS
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     results = load_results(r'base.cPickle')
 
 #    GETTING OUT THOSE BEHAVIOURS AND EXPERIMENT SETTINGS
@@ -491,8 +491,8 @@ def perform_loop_knockout():
                                   cases_of_interest[beh_no])
             
             if serie.shape != rmp.shape:
-                EMAlogging.info('Loop %s created a floating point error' % (loop_index))
-                EMAlogging.info('Caused by trying to switch %s' % (unique_edges[loop_index-1]))
+                ema_logging.info('Loop %s created a floating point error' % (loop_index))
+                ema_logging.info('Caused by trying to switch %s' % (unique_edges[loop_index-1]))
                 
             if serie.shape == rmp.shape:
                 ax.plot(x,serie,'b')

@@ -10,9 +10,9 @@ import time
 from clustererV2 import cluster
 
 from expWorkbench import load_results
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
-EMAlogging.log_to_stderr(EMAlogging.INFO)
+ema_logging.log_to_stderr(ema_logging.INFO)
 
 
 data = load_results(r'C:\workspace\ema_hacking\models\cPickle\result4500copperBottumUp.cPickle')

@@ -10,7 +10,7 @@ from analysis.plotting import *
 from analysis.plotting_util import make_continuous_grouping_specifiers,\
                           filter_scalar_outcomes,\
                           group_results
-from expWorkbench import load_results, EMAlogging
+from expWorkbench import load_results, ema_logging
 from analysis.b_and_w_plotting import set_fig_to_bw
 
 from analysis.pairs_plotting import pairs_scatter,\
@@ -337,7 +337,7 @@ def test_multiple_densities():
     plt.show()
 
 if __name__ == '__main__':
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
 #    test_lines()
 #    test_envelopes()
 #    test_kde_over_time()

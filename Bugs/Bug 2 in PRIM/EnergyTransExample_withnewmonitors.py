@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 from expWorkbench.model import SimpleModelEnsemble
 from expWorkbench import CategoricalUncertainty, ParameterUncertainty, \
                          save_results, Outcome, load_results, vensim, \
-                         EMAlogging
+                         ema_logging
 
-import expWorkbench.EMAlogging as logging
+import expWorkbench.ema_logging as logging
 from expWorkbench.vensim import VensimModelStructureInterface
 from analysis.graphs import lines, envelopes
 
@@ -156,9 +156,9 @@ class EnergyTrans(VensimModelStructureInterface):
             
         for key, value in case.items():
             vensim.set_value(key, value)
-        EMAlogging.debug("model parameters set successfully")
+        ema_logging.debug("model parameters set successfully")
         
-        EMAlogging.debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
+        ema_logging.debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
         try:
             vensim.run_simulation(self.workingDirectory+self.resultFile)
         except VensimError as e:
@@ -167,11 +167,11 @@ class EnergyTrans(VensimModelStructureInterface):
         results = {}
         error = False
         for output in self.outcomes:
-            EMAlogging.debug("getting data for %s" %output.name)
+            ema_logging.debug("getting data for %s" %output.name)
             result = vensim.get_data(self.workingDirectory+self.resultFile, 
                               output.name 
                               )
-            EMAlogging.debug("successfully retrieved data for %s" %output.name)
+            ema_logging.debug("successfully retrieved data for %s" %output.name)
             if not result == []:
                 if result.shape[0] != self.runLength:
                     a = np.zeros((self.runLength))

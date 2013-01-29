@@ -17,7 +17,7 @@ import copy
 from scipy.stats.mstats import mquantiles #@UnresolvedImport
 from operator import itemgetter
 
-from expWorkbench.EMAlogging import info
+from expWorkbench.ema_logging import info
 from types import StringType, FloatType, IntType
 
 from analysis.scenario_discovery import calculate_sd_metrics

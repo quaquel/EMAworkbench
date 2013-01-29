@@ -4,7 +4,7 @@ Created on 28 sep. 2011
 @author: localadmin
 '''
 from expWorkbench import ParameterUncertainty, Outcome, ModelEnsemble,\
-                         EMAlogging, ModelStructureInterface
+                         ema_logging, ModelStructureInterface
 
 class ParallelTestEMA(ModelStructureInterface):
     '''
@@ -27,11 +27,11 @@ class ParallelTestEMA(ModelStructureInterface):
     def run_model(self, case):
         """Method for running an instantiated model structure """
         self.output[self.outcomes[0].name] =  case['x1']*case['x2']+case['x3']
-        EMAlogging.info("run model called")
+        ema_logging.info("run model called")
 
 
 if __name__ == '__main__':
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     model = ParallelTestEMA(None, 'simpleModel') 
     ensemble = ModelEnsemble() 

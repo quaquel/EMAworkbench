@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import ConnectionPatch
 from types import StringType
 
-from expWorkbench.EMAlogging import debug 
+from expWorkbench.ema_logging import debug 
 from expWorkbench import EMAError
 from plotting_util import prepare_data, COLOR_LIST, simple_kde,\
                          determine_kde, make_grid, make_legend, plot_envelope,\

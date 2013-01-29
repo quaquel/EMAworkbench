@@ -7,7 +7,7 @@ from __future__ import division
 import matplotlib.pyplot as plt
 import numpy as np
 
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 from analysis.optimization_plots import graph_errorbars_raw, graph_pop_heatmap_raw
 
 
@@ -33,7 +33,7 @@ class TestModel(ModelStructureInterface):
         
 
 def outcome_optimize():
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
  
     model = TestModel("", 'simpleModel') #instantiate the model
     ensemble = ModelEnsemble() #instantiate an ensemble
@@ -55,7 +55,7 @@ def outcome_optimize():
     plt.show()
     
 def robust_optimize():
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
  
     model = TestModel("", 'simpleModel') #instantiate the model
     ensemble = ModelEnsemble() #instantiate an ensemble
@@ -79,7 +79,7 @@ def robust_optimize():
 
 
 def maxmin_optimize():
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
  
     model = TestModel("", 'simpleModel') #instantiate the model
     ensemble = ModelEnsemble() #instantiate an ensemble

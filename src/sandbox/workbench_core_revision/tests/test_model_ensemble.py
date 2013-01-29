@@ -9,7 +9,7 @@ from sandbox.workbench_core_revision.model_ensemble import ModelEnsemble, UNION,
                                                    experiment_generator 
 from sandbox.workbench_core_revision.samplers import LHSSampler
 
-from expWorkbench import ModelStructureInterface, EMAlogging
+from expWorkbench import ModelStructureInterface, ema_logging
 
 from sandbox.workbench_core_revision.uncertainties import ParameterUncertainty, CategoricalUncertainty
 
@@ -168,11 +168,11 @@ def test_perform_experiments():
     ensemble.parallel=True
     ensemble.add_model_structures([model_a, model_b, model_c])
     
-    EMAlogging.info('------------- union of uncertainties -------------')
+    ema_logging.info('------------- union of uncertainties -------------')
     
     ensemble.perform_experiments(10, which_uncertainties=UNION, reporting_interval=1 )
     
-    EMAlogging.info('------------- intersection of uncertainties -------------')
+    ema_logging.info('------------- intersection of uncertainties -------------')
     ensemble.perform_experiments(10, which_uncertainties=INTERSECTION, reporting_interval=1)
 
 def test_experiment_generator():
@@ -206,7 +206,7 @@ def test_experiment_generator():
     print len(experiments)
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
 #    test_determine_intersecting_uncertainties()
 #    test_generate_samples()
     test_perform_experiments()

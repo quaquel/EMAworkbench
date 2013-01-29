@@ -15,7 +15,7 @@ import itertools
 import scipy.stats as stats
 import numpy as np 
 
-from expWorkbench.EMAlogging import info, warning
+from expWorkbench.ema_logging import info, warning
 from uncertainties import CategoricalUncertainty
 SVN_ID = '$Id: samplers.py 884 2012-09-03 12:51:19Z chamarat $'
 __all__ = ['LHSSampler',
