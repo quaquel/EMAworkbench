@@ -1,0 +1,19 @@
+---------------------------
+bug in graphs.py
+---------------------------
+In case of a mix of outcomes, some of which are time dependent and some are 
+not, all the graphs will fail.  
+
+---------------------------
+Bug 1 in PRIM
+---------------------------
+Although the filter is supposed to filter out the uncertainties for which all 
+the boxes equal the size of the dump box, there is a problem for categorical 
+uncertainties. When PRIM is done, it visualizes some categorical uncertainties
+with all possible categories.
+
+---------------------------
+bug/error in graphs3D
+---------------------------
+It appears the 3d plotting does not work correctly anymore. It might be due to
+changes in the enthought distribution.
