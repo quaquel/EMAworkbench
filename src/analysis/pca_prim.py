@@ -16,7 +16,7 @@ from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
 
-from expWorkbench import load_results, EMAlogging
+from expWorkbench import load_results, ema_logging
 from analysis import prim
 from expWorkbench.ema_exceptions import EMAError
 
@@ -212,7 +212,7 @@ def perform_pca_prim(results,
 
 
 if __name__ =='__main__':
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     def copper_crises_rule(outcomes):
         '''

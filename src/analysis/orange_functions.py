@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 import orange, orngTree, orngEnsemble, orngFSS #@UnresolvedImport
 
-from expWorkbench.EMAlogging import log_to_stderr, INFO, info
+from expWorkbench.ema_logging import log_to_stderr, INFO, info
 
 __all__ = ['build_orange_data', 
            'random_forest', 

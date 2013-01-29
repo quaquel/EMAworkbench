@@ -18,15 +18,13 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import ConnectionPatch
 from types import StringType
 
-from expWorkbench.EMAlogging import debug 
+from expWorkbench.ema_logging import debug, warning
 from expWorkbench.ema_exceptions import EMAError
 from plotting_util import prepare_data, COLOR_LIST, simple_kde,\
                          determine_kde, make_grid, make_legend, plot_envelope,\
                          plot_kde, plot_histogram, simple_density, do_titles,\
                          do_ylabels, TIME
 import plotting_util
-from expWorkbench import EMAlogging
-
 
 
 __all__ = ['lines', 'envelopes', 'kde_over_time', 'ENVELOPE', 'LINES', 
@@ -198,7 +196,7 @@ def group_by_envelopes(outcomes,
         try:
             plot_envelope(ax, j, time, value,fill)
         except ValueError:
-            EMAlogging.warning("value error when plotting for %s" % (key))
+            warning("value error when plotting for %s" % (key))
             raise
     
         if density=='kde':

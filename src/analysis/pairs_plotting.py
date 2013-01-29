@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec 
 import matplotlib.cm as cm
 
-from expWorkbench.EMAlogging import debug, info
+from expWorkbench.ema_logging import debug, info
 
 from plotting_util import prepare_pairs_data, make_legend, COLOR_LIST
 
