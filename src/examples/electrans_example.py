@@ -6,7 +6,8 @@ Created on 23 dec. 2010
 import os
 import jpype
 
-import expWorkbench.EMAlogging as logging
+from expWorkbench import ema_logging
+from expWorkbench.ema_logging import debug, warning
 from expWorkbench import ModelStructureInterface, ModelEnsemble,\
     ParameterUncertainty
 
@@ -102,31 +103,31 @@ class ElectTransEMA(ModelStructureInterface):
         if not jpype.isJVMStarted():
             classpath = r'-Djava.class.path=C:\workspace\ElectTransEMA\bin;C:\workspace\Repast3.1\bin;C:\workspace\Repast3.1\lib\asm.jar;C:\workspace\Repast3.1\lib\beanbowl.jar;C:\workspace\Repast3.1\lib\colt.jar;C:\workspace\Repast3.1\lib\commons-collections.jar;C:\workspace\Repast3.1\lib\commons-logging.jar;C:\workspace\Repast3.1\lib\geotools_repast.jar;C:\workspace\Repast3.1\lib\ibis.jar;C:\workspace\Repast3.1\lib\jakarta-poi.jar;C:\workspace\Repast3.1\lib\jep-2.24.jar;C:\workspace\Repast3.1\lib\jgap.jar;C:\workspace\Repast3.1\lib\jh.jar;C:\workspace\Repast3.1\lib\jmf.jar;C:\workspace\Repast3.1\lib\jode-1.1.2-pre1.jar;C:\workspace\Repast3.1\lib\log4j-1.2.8.jar;C:\workspace\Repast3.1\lib\joone.jar;C:\workspace\Repast3.1\lib\JTS.jar;C:\workspace\Repast3.1\lib\junit.jar;C:\workspace\Repast3.1\lib\OpenForecast-0.4.0.jar;C:\workspace\Repast3.1\lib\openmap.jar;C:\workspace\Repast3.1\lib\plot.jar;C:\workspace\Repast3.1\lib\ProActive.jar;C:\workspace\Repast3.1\lib\trove.jar;C:\workspace\Repast3.1\lib\violinstrings-1.0.2.jar;C:\workspace\Repast3.1\repast.jar'
             jpype.startJVM(r'C:\Program Files (x86)\Java\jdk1.6.0_22\jre\bin\client\jvm.dll', classpath)
-            logging.debug("jvm started")
+            debug("jvm started")
         
         
-        logging.debug("trying to find package")
+        debug("trying to find package")
         try:
             modelPackage = jpype.JPackage("org").electTransEma
         except RuntimeError as inst:
-            logging.debug("exception " + repr(type(inst))+" " + str(inst))
+            debug("exception " + repr(type(inst))+" " + str(inst))
         except TypeError as inst:
-            logging.debug("TypeEror " +" " + str(inst))
+            debug("TypeEror " +" " + str(inst))
         except Exception as inst:
-            logging.debug("exception " + repr(type(inst))+" " + str(inst))
+            debug("exception " + repr(type(inst))+" " + str(inst))
     
         else:
-            logging.debug("modelPackage found")
+            debug("modelPackage found")
             self.modelInterfaceClass = modelPackage.ElectTransInterface
-            logging.debug("class found")
+            debug("class found")
             
             try:
                 directory = self.workingDirectory.replace("\\", "/")
                 
                 self.modelInterface = self.modelInterfaceClass(directory)
-                logging.debug("class loaded succesfully")
+                debug("class loaded succesfully")
             except TypeError as inst:
-                logging.warning("failure to instantiate the model")
+                warning("failure to instantiate the model")
                 raise inst
         
     
@@ -147,7 +148,7 @@ class ElectTransEMA(ModelStructureInterface):
        
 if __name__ == '__main__':
     
-    logger = logging.log_to_stderr(logging.DEBUG)
+    logger = ema_logging.log_to_stderr(ema_logging.DEBUG)
 #    emailHander = logging.TlsSMTPHandler(("smtp.gmail.com", 587), 
 #                                         'quaquel@gmail.com', 
 #                                         ['j.h.kwakkel@tudelft.nl'], 

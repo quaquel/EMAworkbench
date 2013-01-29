@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 from analysis.clusterer import cluster
 
 from expWorkbench import load_results
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
 SVN_ID = '$Id: cluster_example.py 1056 2012-12-14 11:23:14Z jhkwakkel $'
 
-EMAlogging.log_to_stderr(EMAlogging.INFO)
+ema_logging.log_to_stderr(ema_logging.INFO)
 
 #load the data
 data = load_results(r'..\examples\100 flu cases no policy.cPickle')

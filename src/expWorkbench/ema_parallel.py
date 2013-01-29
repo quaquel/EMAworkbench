@@ -31,9 +31,10 @@ from multiprocessing import Queue, Process, cpu_count, current_process,\
                             TimeoutError
 from multiprocessing.util import Finalize
 
-from expWorkbench import EMAlogging
-from expWorkbench.pool import RUN, Pool, TERMINATE
-from expWorkbench.EMAlogging import debug, exception, info, warning
+from pool import RUN, Pool, TERMINATE
+from ema_logging import debug, exception, info, warning, NullHandler, formatter
+import ema_logging                  
+                                     
 from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
 
 SVN_ID = '$Id: ema_parallel.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
@@ -84,7 +85,7 @@ def worker(inqueue,
         # policy
         if not msi_initialization_dict.has_key((policy['name'], msi)):
             try:
-                EMAlogging.debug("invoking model init")
+                debug("invoking model init")
                 msis[msi].model_init(copy.deepcopy(policy), copy.deepcopy(model_kwargs))
             except (EMAError, NotImplementedError) as inst:
                 exception(inst)
@@ -153,8 +154,8 @@ class CalculatorPool(Pool):
         info("nr of processes is "+str(processes))
 
         self.log_queue = Queue()
-        h = EMAlogging.NullHandler()
-        logging.getLogger(EMAlogging.LOGGER_NAME).addHandler(h)
+        h = NullHandler()
+        logging.getLogger(ema_logging.LOGGER_NAME).addHandler(h)
         
         # This thread will read from the subprocesses and write to the
         # main log's handlers.
@@ -195,12 +196,13 @@ class CalculatorPool(Pool):
 
             w = LoggingProcess(
                 self.log_queue,
-                level = logging.getLogger(EMAlogging.LOGGER_NAME)\
+                level = logging.getLogger(ema_logging.LOGGER_NAME)\
                                           .getEffectiveLevel(),
                                           target=worker,
                                           args=(self._inqueue, 
                                                 self._outqueue, 
-                                                msis 
+                                                msis,
+                                                kwargs 
                                                 )
                                           )
             self._pool.append(w)
@@ -217,8 +219,8 @@ class CalculatorPool(Pool):
                                         args=(self._taskqueue, 
                                               self._quick_put, 
                                               self._outqueue, 
-                                              self._pool, 
-                                              self.log_queue)
+                                              self._pool
+                                              )
                                         )
         self._task_handler.daemon = True
         self._task_handler._state = RUN
@@ -252,7 +254,7 @@ class CalculatorPool(Pool):
                                     exitpriority=15
                                     )
         
-        EMAlogging.info("pool has been set up")
+        info("pool has been set up")
 
     def run_experiments(self, experiments, callback):
         """
@@ -279,7 +281,7 @@ class CalculatorPool(Pool):
         event.wait()
      
     @staticmethod
-    def _handle_tasks(taskqueue, put, outqueue, pool, log_queue):
+    def _handle_tasks(taskqueue, put, outqueue, pool):
         thread = threading.current_thread()
 
         for taskseq, set_length in iter(taskqueue.get, None):
@@ -400,7 +402,7 @@ class CalculatorPool(Pool):
                         working_dirs,
                         ):
 
-        EMAlogging.info("terminating pool")
+        info("terminating pool")
         
         # this is guaranteed to only be called once
         debug('finalizing pool')
@@ -441,7 +443,7 @@ class CalculatorPool(Pool):
         
         for directory in working_dirs:
             directory = os.path.dirname(directory)
-            EMAlogging.debug("deleting "+str(directory))
+            debug("deleting "+str(directory))
             shutil.rmtree(directory)
 
 
@@ -574,7 +576,7 @@ class LogQueueReader(threading.Thread):
                 record = self.queue.get()
                 # get the logger for this record
                 if record is None:
-                    EMAlogging.debug("none received")
+                    debug("none received")
                     break
                 
                 logger = logging.getLogger(record.name)
@@ -602,9 +604,9 @@ class LoggingProcess(Process):
 
     def _setupLogger(self):
         # create the logger to use.
-        logger = logging.getLogger(EMAlogging.LOGGER_NAME+'.subprocess')
-        EMAlogging.LOGGER_NAME = EMAlogging.LOGGER_NAME+'.subprocess'
-        EMAlogging._logger = logger
+        logger = logging.getLogger(ema_logging.LOGGER_NAME+'.subprocess')
+        ema_logging.LOGGER_NAME+'.subprocess'
+        _logger = logger
         
         # The only handler desired is the SubProcessLogHandler.  If any others
         # exist, remove them. In this case, on Unix and Linux the StreamHandler
@@ -617,7 +619,7 @@ class LoggingProcess(Process):
     
         # add the handler
         handler = SubProcessLogHandler(self.queue)
-        handler.setFormatter(EMAlogging.formatter)
+        handler.setFormatter(formatter)
         logger.addHandler(handler)
 
         # On Windows, the level will not be inherited.  Also, we could just

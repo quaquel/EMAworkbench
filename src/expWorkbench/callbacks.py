@@ -10,9 +10,9 @@ np = np
 from threading import Lock
 
 
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
-from expWorkbench.EMAlogging import info, debug
+from expWorkbench.ema_logging import info, debug
 from uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER

@@ -8,7 +8,7 @@ from __future__ import division
 import abc
 import os
 
-from EMAlogging import debug
+from ema_logging import debug
 from ema_exceptions import EMAError
 SVN_ID = '$Id: model.py 1027 2012-11-21 19:56:50Z jhkwakkel $'
 __all__ = ['ModelStructureInterface']

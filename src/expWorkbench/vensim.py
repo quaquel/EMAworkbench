@@ -18,7 +18,7 @@ from vensimDLLwrapper import command, get_val
 from vensimDLLwrapper import VensimError, VensimWarning
 import vensimDLLwrapper 
 
-import EMAlogging
+from ema_logging import debug, info, warning
 from model import ModelStructureInterface
 from outcomes import Outcome
 from ema_exceptions import CaseError, EMAWarning 
@@ -58,11 +58,11 @@ def load_model(file):
     .. note: only works for .vpm files
     
     '''
-    EMAlogging.debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|"+file)
+    debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|"+file)
     try:
         command(r"SPECIAL>LOADMODEL|"+file)
     except VensimWarning as w:
-        EMAlogging.warning(str(w))
+        warning(str(w))
         raise VensimError("vensim file not found")
 
 def read_cin_file(file):
@@ -73,11 +73,11 @@ def read_cin_file(file):
     :exception: raises a :class:`~EMAExceptions.VensimWarning` if the cin file
                 cannot be read.
     '''
-    EMAlogging.debug("executing COMMAND: SIMULATE>READCIN|"+file)
+    debug("executing COMMAND: SIMULATE>READCIN|"+file)
     try:
         command(r"SIMULATE>READCIN|"+file)
     except VensimWarning as w:
-        EMAlogging.debug(str(w))
+        debug(str(w))
         raise w
 
 def set_value(variable, value):
@@ -101,7 +101,7 @@ def set_value(variable, value):
         try:
             command(r"SIMULATE>SETVAL|"+variable+"="+str(value))
         except VensimWarning:
-            EMAlogging.warning('variable: \'' +variable+'\' not found')
+            warning('variable: \'' +variable+'\' not found')
 
 
 def run_simulation(file):
@@ -117,12 +117,12 @@ def run_simulation(file):
     '''
 
     try:
-        EMAlogging.debug(" executing COMMAND: SIMULATE>RUNNAME|"+file+"|O")
+        debug(" executing COMMAND: SIMULATE>RUNNAME|"+file+"|O")
         command("SIMULATE>RUNNAME|"+file+"|O")
-        EMAlogging.debug(r"MENU>RUN|o")
+        debug(r"MENU>RUN|o")
         command(r"MENU>RUN|o")
     except VensimWarning as w:
-        EMAlogging.warning((str(w)))
+        warning((str(w)))
         raise VensimError(str(w))
         
 
@@ -143,7 +143,7 @@ def get_data(filename, varname, step=1):
     try:
         vval, tval = vensimDLLwrapper.get_data(filename, varname)    
     except VensimWarning as w:
-        EMAlogging.warning(str(w))
+        warning(str(w))
         
     return vval
 
@@ -212,7 +212,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
         
         self.outcomes = list(self.outcomes)
         
-        EMAlogging.debug("vensim interface init completed")
+        debug("vensim interface init completed")
         
 
     def model_init(self, policy, kwargs):
@@ -231,7 +231,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
         """
 
         load_model(self.workingDirectory+self.modelFile) #load the model
-        EMAlogging.debug("model initialized successfully")
+        debug("model initialized successfully")
 
         be_quiet() # minimize the screens that are shown
         
@@ -274,15 +274,15 @@ class VensimModelStructureInterface(ModelStructureInterface):
             try:
                 read_cin_file(self.workingDirectory+self.cinFile)
             except VensimWarning as w:
-                EMAlogging.debug(str(w))
+                debug(str(w))
             else:
-                EMAlogging.debug("cin file read successfully")
+                debug("cin file read successfully")
             
         for key, value in case.items():
             set_value(key, value)
-        EMAlogging.debug("model parameters set successfully")
+        debug("model parameters set successfully")
         
-        EMAlogging.debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
+        debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
         try:
             run_simulation(self.workingDirectory+self.resultFile)
         except VensimError:
@@ -291,11 +291,11 @@ class VensimModelStructureInterface(ModelStructureInterface):
         results = {}
         error = False
         for output in self.outcomes:
-            EMAlogging.debug("getting data for %s" %output.name)
+            debug("getting data for %s" %output.name)
             result = get_data(self.workingDirectory+self.resultFile, 
                               output.name 
                               )
-            EMAlogging.debug("successfully retrieved data for %s" %output.name)
+            debug("successfully retrieved data for %s" %output.name)
             if not result == []:
                 if result.shape[0] != self.runLength:
                     got = result.shape[0]

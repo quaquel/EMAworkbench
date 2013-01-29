@@ -6,9 +6,10 @@ Created on 24 jan. 2011
 from math import exp
 import matplotlib.pyplot as plt
 
-from expWorkbench import ModelEnsemble, ParameterUncertainty, Outcome
+from expWorkbench import ModelEnsemble, ParameterUncertainty, Outcome,\
+                         ema_logging
 from expWorkbench.vensim import VensimModelStructureInterface
-import expWorkbench.EMAlogging as EMAlogging
+
 from analysis import plotting
 
 SVN_ID = '$Id: salinization_example.py 1056 2012-12-14 11:23:14Z jhkwakkel $'
@@ -120,7 +121,7 @@ def runModelStandAlone():
 
 
 def perform_experiments():
-    logger = EMAlogging.log_to_stderr(level=EMAlogging.INFO)
+    ema_logging.log_to_stderr(level=ema_logging.INFO)
     model = SalinizationModel(r"C:\workspace\EMA-workbench\models\salinization", "verzilting")
     model.step = 4
     

@@ -8,9 +8,8 @@ It's main purpose is to test the parallel processing functionality
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 '''
-from expWorkbench import ModelEnsemble, ParameterUncertainty, Outcome 
-import expWorkbench.EMAlogging as EMAlogging
-
+from expWorkbench import ModelEnsemble, ParameterUncertainty, Outcome,\
+                         ema_logging 
 from expWorkbench.vensim import VensimModelStructureInterface
 
 SVN_ID = '$Id: vensim_example.py 1055 2012-12-14 10:56:51Z jhkwakkel $'
@@ -34,7 +33,7 @@ class VensimExampleModel(VensimModelStructureInterface):
 
 if __name__ == "__main__":
     #turn on logging
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     #instantiate a model
     vensimModel = VensimExampleModel(r"..\..\models\vensim example", "simpleModel")

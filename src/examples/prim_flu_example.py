@@ -2,13 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import analysis.prim as prim
-from expWorkbench import load_results
-import expWorkbench.EMAlogging as EMAlogging
+from expWorkbench import load_results, ema_logging
  
 SVN_ID = '$Id: prim_flu_example.py 1056 2012-12-14 11:23:14Z jhkwakkel $'
  
 #perform_prim logs information to the logger
-EMAlogging.log_to_stderr(level=EMAlogging.INFO)
+ema_logging.log_to_stderr(level=ema_logging.INFO)
 
 def classify(data):
     #get the output for deceased population
