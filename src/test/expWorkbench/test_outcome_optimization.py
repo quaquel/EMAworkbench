@@ -7,7 +7,7 @@ from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
 
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 from examples.flu_vensim_example import FluModel
 
 from expWorkbench import ModelEnsemble, MAXIMIZE
@@ -22,7 +22,7 @@ def obj_function_multi(results):
     return np.max(outcome_1), outcome_2[-1]
 
 def test_optimization():
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     model = FluModel(r'..\data', "fluCase")
     ensemble = ModelEnsemble()

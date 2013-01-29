@@ -5,13 +5,13 @@ Created on Mar 15, 2012
 '''
 
 from analysis import clusterer
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
 from expWorkbench import ModelEnsemble
 from test.scarcity_example import ScarcityModel
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     model = ScarcityModel(r'..\..\src\test', "fluCase")
        
     ensemble = ModelEnsemble()

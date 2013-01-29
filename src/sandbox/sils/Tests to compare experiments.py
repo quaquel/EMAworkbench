@@ -1,6 +1,6 @@
 def test_experiment_from_cases_vs_stored_on_non_game():
 #    CONSTRUCTING THE ENSEMBLE AND SAVING THE RESULTS
-    EMAlogging.log_to_stderr(EMAlogging.DEBUG)
+    ema_logging.log_to_stderr(ema_logging.DEBUG)
     results = load_results(r'base.cPickle')
 
     runs = [526,781,911,988,10,780,740,943,573,991]
@@ -38,7 +38,7 @@ def test_experiment_from_cases_vs_stored_on_non_game():
 
 def test_experiment_from_cases_vs_stored_1():
 #    CONSTRUCTING THE ENSEMBLE AND SAVING THE RESULTS
-    EMAlogging.log_to_stderr(EMAlogging.DEBUG)
+    ema_logging.log_to_stderr(ema_logging.DEBUG)
     results = load_results(r'base.cPickle')
 
     runs = [526,781,911,988,10,780,740,943,573,991]
@@ -87,7 +87,7 @@ def test_experiment_from_cases_vs_stored_1():
 
 def test_experiment_from_cases_vs_stored():
 #    CONSTRUCTING THE ENSEMBLE AND SAVING THE RESULTS
-    EMAlogging.log_to_stderr(EMAlogging.DEBUG)
+    ema_logging.log_to_stderr(ema_logging.DEBUG)
     results = load_results(r'base.cPickle')
 
     runs = [526,781,911,988,10,780,740,943,573,991]

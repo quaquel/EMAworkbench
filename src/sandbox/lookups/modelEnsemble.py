@@ -14,14 +14,14 @@ import expWorkbench.samplers as samplers
 import expWorkbench.util as util
 
 from expWorkbench.EMAparallel import CalculatorPool
-from expWorkbench.EMAlogging import info, warning, exception
+from expWorkbench.ema_logging import info, warning, exception
 from expWorkbench.EMAexceptions import CaseError, EMAError, EMAParallelError
 from expWorkbench.uncertainties import INTEGER , CategoricalUncertainty
 
 from expWorkbench.optimizationCallbacks import StatisticsCallback
 from expWorkbench.EMAoptimization import RobustOptimizationPopulation, BaseEMAPopulation,\
     EMAGA, OutcomeOptimizationPopulation, MaximinOptimizationPopulation
-from expWorkbench import EMAoptimization, EMAlogging
+from expWorkbench import EMAoptimization, ema_logging
 
 
 SVN_ID = '$Id: modelEnsemble.py 889 2012-09-11 19:32:32Z jhkwakkel $'
@@ -402,8 +402,8 @@ class ModelEnsemble(object):
 #
 #        # perform optimization, print every 10 generations
 #        # ideally, we intercept these messages and redirect them to
-#        # EMAlogging.
-#        EMAlogging.info("starting optimization")
+#        # ema_logging.
+#        ema_logging.info("starting optimization")
 #        ga.evolve()
 #        
 #        # return results for best fit

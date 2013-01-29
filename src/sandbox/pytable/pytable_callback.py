@@ -13,11 +13,11 @@ import inspect
 from tables.exceptions import NoSuchNodeError
 
 from expWorkbench.util import AbstractCallback
-from expWorkbench.EMAlogging import warning
+from expWorkbench.ema_logging import warning
 from expWorkbench.uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 from expWorkbench.EMAexceptions import EMAError
 
 
@@ -111,7 +111,7 @@ class HDF5Callback(AbstractCallback):
         try:
             self.h5file = tables.openFile(filename=fileName,mode='r+')
         except IOError as e:
-            EMAlogging.warning("file %s does not exist, a new file is created" %fileName)
+            ema_logging.warning("file %s does not exist, a new file is created" %fileName)
             create_hdf5_ema__project(fileName=fileName)
             self.h5file = tables.openFile(filename=fileName, 
                                          mode='r+', 

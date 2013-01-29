@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 from analysis.clusterer import cluster
 
 from expWorkbench import load_results
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
-EMAlogging.log_to_stderr(EMAlogging.INFO)
+ema_logging.log_to_stderr(ema_logging.INFO)
 
 #load the data
 data = load_results(r'..\gallery\data\100 flu cases no policy.cPickle')

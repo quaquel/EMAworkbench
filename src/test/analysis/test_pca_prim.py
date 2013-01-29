@@ -6,11 +6,11 @@ Created on 18 Oct 2012
 import numpy as np
 import matplotlib.pyplot as plt
 
-from expWorkbench import load_results, EMAlogging
+from expWorkbench import load_results, ema_logging
 from analysis import prim
 from analysis import pca_prim
 
-EMAlogging.log_to_stderr(EMAlogging.INFO)
+ema_logging.log_to_stderr(ema_logging.INFO)
 
 def classify(data):
     #get the output for deceased population

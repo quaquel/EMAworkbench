@@ -13,7 +13,7 @@ import matplotlib as mpl
 import matplotlib.gridspec as gridspec 
 import matplotlib.cm as cm
 
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 from types import StringType, DictType, ListType
 from expWorkbench.EMAexceptions import EMAError
 
@@ -295,7 +295,7 @@ def determine_kde(data,
         kde_x = kde.gaussian_kde(data)
         kde_x = kde_x.evaluate(kde_y)
     except np.linalg.LinAlgError as e:
-        EMAlogging.warning(e)
+        ema_logging.warning(e)
         kde_x = np.zeros(kde_y.shape)
     
     return kde_x, kde_y
@@ -314,7 +314,7 @@ def filter_scalar_outcomes(outcomes):
     for key, value in outcomes.items():
         if len(value.shape) <2:
             outcomes_to_remove.append(key)
-            EMAlogging.info("%s not shown because it is not time series data"\
+            ema_logging.info("%s not shown because it is not time series data"\
                             %key)
     [outcomes.pop(entry) for entry in outcomes_to_remove]
     return outcomes
@@ -339,7 +339,7 @@ def determine_time_dimension(outcomes):
                 time =  np.arange(0, outcomes.values()[0].shape[1])
                 break
     if time==None:
-        EMAlogging.info("no time dimension found in results")
+        ema_logging.info("no time dimension found in results")
     return time, outcomes    
 
 def group_results(experiments, outcomes, group_by, grouping_specifiers):
@@ -580,7 +580,7 @@ def do_titles(ax, titles, outcome):
             try:
                 ax.set_title(titles[outcome])
             except KeyError:
-                EMAlogging.warning("key error in do_titles, no title provided for `%s`" % (outcome))
+                ema_logging.warning("key error in do_titles, no title provided for `%s`" % (outcome))
                 ax.set_title(outcome)
 
 def do_ylabels(ax, ylabels, outcome):
@@ -601,7 +601,7 @@ def do_ylabels(ax, ylabels, outcome):
             try:
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
-                EMAlogging.warning("key error in do_ylabels, no ylabel provided for `%s`" % (outcome))
+                ema_logging.warning("key error in do_ylabels, no ylabel provided for `%s`" % (outcome))
                 ax.set_ylabel(outcome)    
 
 def make_grid(outcomes_to_show, density=None):

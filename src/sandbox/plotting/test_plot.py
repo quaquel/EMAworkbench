@@ -5,10 +5,10 @@ Created on 19 nov. 2012
 '''
 import matplotlib.pyplot as plt
 
-from expWorkbench import load_results, EMAlogging
+from expWorkbench import load_results, ema_logging
 from plotting import envelopes
 
-EMAlogging.log_to_stderr(EMAlogging.DEBUG)
+ema_logging.log_to_stderr(ema_logging.DEBUG)
 
 results = load_results(r'../../test/data/1000 flu cases no policy.cPickle')
 

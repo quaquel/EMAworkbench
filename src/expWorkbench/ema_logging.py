@@ -14,7 +14,7 @@ import multiprocessing.util
 from logging.handlers import SMTPHandler
 from logging import Handler, DEBUG, INFO
 
-SVN_ID = '$Id: EMAlogging.py 818 2012-04-26 14:50:33Z jhkwakkel $'
+SVN_ID = '$Id: ema_logging.py 818 2012-04-26 14:50:33Z jhkwakkel $'
 
 __all__ =['debug',
           'info',

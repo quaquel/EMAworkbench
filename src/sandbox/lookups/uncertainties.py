@@ -370,8 +370,8 @@ class LookupUncertainty(AbstractUncertainty):
 # test functions
 #==============================================================================
 #def test_uncertainties():
-#    import EMAlogging
-#    EMAlogging.log_to_stderr(EMAlogging.INFO)
+#    import ema_logging
+#    ema_logging.log_to_stderr(ema_logging.INFO)
 #    params = [
 ##              CategoricalUncertainty(('1', '5',  '10'), 
 ##                                        "blaat", 

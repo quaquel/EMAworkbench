@@ -162,7 +162,7 @@ class DefaultCallback(AbstractCallback):
             names_seen = set()
             for entry in self.dtypes:
                 if entry[0] in names_seen:
-                    EMAlogging.warning("uncertainty %s occurs more then once" %(entry[0]))
+                    ema_logging.warning("uncertainty %s occurs more then once" %(entry[0]))
                 else:
                     names_seen.add(entry[0])
             raise EMAError(str(ValueError))

@@ -20,7 +20,7 @@ import copy
 from scipy.stats.mstats import mquantiles
 from operator import itemgetter
 
-from expWorkbench.EMAlogging import info, debug
+from expWorkbench.ema_logging import info, debug
 
 class Prim(object):
     def __init__(self, 

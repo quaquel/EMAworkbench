@@ -8,7 +8,7 @@ from __future__ import division
 import numpy as np
 from math import exp
 
-from expWorkbench import ModelEnsemble, EMAlogging
+from expWorkbench import ModelEnsemble, ema_logging
 
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty
 from expWorkbench.vensim import VensimModelStructureInterface
@@ -162,7 +162,7 @@ def determineBehavior(value):
 
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     model = ScarcityModel(r'..\data', "scarcity")
     

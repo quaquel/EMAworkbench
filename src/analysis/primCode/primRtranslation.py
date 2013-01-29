@@ -8,7 +8,7 @@ import numpy as np
 import copy
 from scipy.stats.mstats import mquantiles
 
-from expWorkbench.EMAlogging import info, debug
+from expWorkbench.ema_logging import info, debug
 
 # TODO
 # test code met random numbers shows boxes inside each other (without apparent

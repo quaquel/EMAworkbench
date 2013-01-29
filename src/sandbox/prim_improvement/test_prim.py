@@ -9,7 +9,7 @@ import numpy as np
 np=np
 import matplotlib.pyplot as plt
 
-from expWorkbench import load_results, EMAlogging
+from expWorkbench import load_results, ema_logging
 from mpl_toolkits.axes_grid1 import host_subplot
 
 import prim
@@ -34,7 +34,7 @@ def classify_flu(data):
 
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
 
     results = load_results(r'./data/energy trans 1000 experiments.bz2')
   

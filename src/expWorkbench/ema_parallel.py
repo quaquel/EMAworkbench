@@ -13,7 +13,7 @@ http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiproc
 the implementation here allows the user to not be bothered with many of the 
 details of multiprocessing. For example, logging will work the same regardless 
 of whether multiprocessing is used. The process class here modifies 
-the _logger in EMAlogging to refer to the logger for its particular subprocess
+the _logger in ema_logging to refer to the logger for its particular subprocess
 
 '''
 import itertools
@@ -594,7 +594,7 @@ class LoggingProcess(Process):
     in order to log from the subprocesses.
     
     Adapted from code found `online <http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python>`_
-    to fit into the :mod:`EMAlogging` scheme.
+    to fit into the :mod:`ema_logging` scheme.
     """
     
     def __init__(self, queue, level= None, target=None, args=()):

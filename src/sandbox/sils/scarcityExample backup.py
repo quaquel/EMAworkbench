@@ -8,7 +8,7 @@ from __future__ import division
 import numpy as np
 from math import exp
 
-import expWorkbench.EMAlogging as EMAlogging
+import expWorkbench.ema_logging as ema_logging
 from expWorkbench import ModelEnsemble
 from expWorkbench import vensim
 from expWorkbench import vensimDLLwrapper as venDLL
@@ -298,7 +298,7 @@ def plot_intervals(behaviour,intervals):
 if __name__ == "__main__":
     
 #    CONSTRUCTING THE ENSEMBLE AND SAVING THE RESULTS
-    EMAlogging.log_to_stderr(EMAlogging.DEBUG)
+    ema_logging.log_to_stderr(ema_logging.DEBUG)
 #    
 #    model = ScarcityModel(r'D:\tbm-g367\workspace\EMA workbench\src\sandbox\sils',"scarcity")
 #    

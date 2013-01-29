@@ -11,7 +11,7 @@ in shaping the next one hundred years.
 '''
 import numpy as np
 from expWorkbench.uncertaintySpace import FullFactorialSampler
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 
 #==============================================================================
 #
@@ -248,7 +248,7 @@ def perform_regret_analysis(results,
 #            print a
             regretPlot[i, j] = np.max(a)
         except KeyError as e:
-            EMAlogging.exception('case not found')
+            ema_logging.exception('case not found')
             raise e
     return regretPlot    
 

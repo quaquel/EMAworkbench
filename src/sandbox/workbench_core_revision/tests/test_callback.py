@@ -8,7 +8,7 @@ import numpy as np
 
 from callbacks import DefaultCallback
 from uncertainties import ParameterUncertainty
-from expWorkbench import Outcome, EMAlogging
+from expWorkbench import Outcome, ema_logging
 
 def test_callback_initalization():
     
@@ -29,35 +29,35 @@ def test_callback_store_results():
     name = "test"
 
     # case 1 scalar shape = (1)
-    EMAlogging.debug('----------- case 1 -----------')
+    ema_logging.debug('----------- case 1 -----------')
     callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
     result = {outcomes[0].name: 1}
     callback(case, policy, name, result)
     
     results = callback.get_results()
     for key, value in results[1].iteritems():
-        EMAlogging.debug("\n" + str(key) + "\n" + str(value))
+        ema_logging.debug("\n" + str(key) + "\n" + str(value))
 
     # case 2 time series shape = (1, nr_time_steps)
-    EMAlogging.debug('----------- case 2 -----------')
+    ema_logging.debug('----------- case 2 -----------')
     callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
     result = {outcomes[0].name: np.random.rand(10)}
     callback(case, policy, name, result)
     
     results = callback.get_results()
     for key, value in results[1].iteritems():
-        EMAlogging.debug("\n" + str(key) + "\n" + str(value))
+        ema_logging.debug("\n" + str(key) + "\n" + str(value))
 
 
     # case 2 maps etc. shape = (x,y)
-    EMAlogging.debug('----------- case 3 -----------')
+    ema_logging.debug('----------- case 3 -----------')
     callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
     result = {outcomes[0].name: np.random.rand(2,2)}
     callback(case, policy, name, result)
     
     results = callback.get_results()
     for key, value in results[1].iteritems():
-        EMAlogging.debug("\n" + str(key) + "\n" + str(value))
+        ema_logging.debug("\n" + str(key) + "\n" + str(value))
 
 
 def test_callback_call_intersection():
@@ -83,7 +83,7 @@ def test_callback_call_union():
     # union unc, union outcomes
     
     # case 1 union unc, intersection outcomes
-#    EMAlogging.debug('----------- case 1 -----------')
+#    ema_logging.debug('----------- case 1 -----------')
 #    nr_experiments = 10
 #    uncs = [ParameterUncertainty((0,1), "a"),
 #           ParameterUncertainty((0,1), "b")]
@@ -103,10 +103,10 @@ def test_callback_call_union():
 #        callback(case, policy, name, result)
 #    
 #    results = callback.get_results()
-#    EMAlogging.debug("\n"+str(results[0]))
+#    ema_logging.debug("\n"+str(results[0]))
 
     
-    EMAlogging.debug('----------- case 2 -----------')
+    ema_logging.debug('----------- case 2 -----------')
 #    nr_experiments = 10
 #    uncs = [ParameterUncertainty((0,1), "a"),
 #           ParameterUncertainty((0,1), "b")]
@@ -129,7 +129,7 @@ def test_callback_call_union():
 
 
   
-    EMAlogging.debug('----------- case 3 -----------')
+    ema_logging.debug('----------- case 3 -----------')
     nr_experiments = 10
     uncs = [ParameterUncertainty((0,1), "a"),
            ParameterUncertainty((0,1), "b")]
@@ -151,12 +151,12 @@ def test_callback_call_union():
         callback(case, policy, name, result)
     
     results = callback.get_results()
-    EMAlogging.debug("\n"+str(results[0]))
+    ema_logging.debug("\n"+str(results[0]))
     for key, value in results[1].iteritems():
-        EMAlogging.debug("\n" + str(key) + "\n" + str(value))   
+        ema_logging.debug("\n" + str(key) + "\n" + str(value))   
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.DEBUG)
+    ema_logging.log_to_stderr(ema_logging.DEBUG)
 #    test_callback_initalization()
 #    test_callback_store_results()
 #    test_callback_call_intersection()

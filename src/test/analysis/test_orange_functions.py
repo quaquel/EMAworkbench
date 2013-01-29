@@ -5,7 +5,7 @@ Created on 21 nov. 2012
 '''
 import numpy as np
 
-from expWorkbench.EMAlogging import log_to_stderr, INFO
+from expWorkbench.ema_logging import log_to_stderr, INFO
 from analysis.orange_functions import tree, random_forest, feature_selection,\
                                      random_forest_measure_attributes
 from expWorkbench import ModelEnsemble

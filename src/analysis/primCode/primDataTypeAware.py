@@ -15,7 +15,7 @@ import copy
 from scipy.stats.mstats import mquantiles
 from operator import itemgetter
 
-from expWorkbench.EMAlogging import info
+from expWorkbench.ema_logging import info
 from types import StringType, FloatType, IntType
 
 class Prim(object):

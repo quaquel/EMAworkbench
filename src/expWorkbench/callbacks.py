@@ -162,7 +162,7 @@ class DefaultCallback(AbstractCallback):
             try:
                 outcome_res = result[outcome]
             except KeyError:
-                EMAlogging.debug("%s not in msi" % outcome)
+                ema_logging.debug("%s not in msi" % outcome)
             else:
                 try:
                     self.results[outcome][self.i-1, ] = outcome_res

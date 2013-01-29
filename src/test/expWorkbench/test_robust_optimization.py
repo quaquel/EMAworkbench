@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from expWorkbench.uncertainties import CategoricalUncertainty, ParameterUncertainty
-from expWorkbench import EMAlogging, vensim
+from expWorkbench import ema_logging, vensim
 from expWorkbench.vensim import VensimModelStructureInterface, VensimError
 from expWorkbench.outcomes import Outcome
 from expWorkbench.ema_exceptions import CaseError 
@@ -158,9 +158,9 @@ class EnergyTrans(VensimModelStructureInterface):
             
         for key, value in case.items():
             vensim.set_value(key, value)
-        EMAlogging.debug("model parameters set successfully")
+        ema_logging.debug("model parameters set successfully")
         
-        EMAlogging.debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
+        ema_logging.debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
         try:
             vensim.run_simulation(self.workingDirectory+self.resultFile)
         except VensimError:
@@ -169,11 +169,11 @@ class EnergyTrans(VensimModelStructureInterface):
         results = {}
         error = False
         for output in self.outcomes:
-            EMAlogging.debug("getting data for %s" %output.name)
+            ema_logging.debug("getting data for %s" %output.name)
             result = vensim.get_data(self.workingDirectory+self.resultFile, 
                               output.name 
                               )
-            EMAlogging.debug("successfully retrieved data for %s" %output.name)
+            ema_logging.debug("successfully retrieved data for %s" %output.name)
             if not result == []:
                 if result.shape[0] != self.runLength:
                     a = np.zeros((self.runLength))
@@ -212,7 +212,7 @@ def obj_func(outcomes):
     return value,
 
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     model = EnergyTrans(r"..\data", "ESDMAElecTrans")
        
     ensemble = ModelEnsemble()

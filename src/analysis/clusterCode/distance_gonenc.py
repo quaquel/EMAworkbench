@@ -10,7 +10,7 @@ from __future__ import division
 import random
 import numpy as np
 
-from expWorkbench.EMAlogging import info
+from expWorkbench.ema_logging import info
 
 
 def distance_same_length(series1, series2, wDim1, wDim2):

@@ -6,7 +6,7 @@ Created on Nov 8, 2011
 from __future__ import division
 import numpy as np
 
-from expWorkbench.EMAlogging import info
+from expWorkbench.ema_logging import info
 
 
 def get_trend(timeSeries, trendThold):

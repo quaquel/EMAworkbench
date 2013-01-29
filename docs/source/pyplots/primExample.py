@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 
 import analysis.prim as prim
 from expWorkbench import load_results
-import expWorkbench.EMAlogging as EMAlogging
+import expWorkbench.ema_logging as ema_logging
  
 #perform_prim logs information to the logger
-EMAlogging.log_to_stderr(level=EMAlogging.INFO)
+ema_logging.log_to_stderr(level=ema_logging.INFO)
 
 def classify(data):
     #get the output for deceased population

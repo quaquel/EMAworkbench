@@ -9,7 +9,7 @@ Created on Dec 19, 2011
 import numpy as np
 
 from expWorkbench import EMAError
-from expWorkbench.EMAlogging import info
+from expWorkbench.ema_logging import info
 
 def msedist(d1,d2):
     sse = ((d1-d2)**2).sum()

@@ -13,7 +13,7 @@ http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiproc
 the implementation here allows the user to not be bothered with many of the 
 details of multiprocessing. For example, logging will work the same regardless 
 of whether multiprocessing is used. The process class here modifies 
-the _logger in EMAlogging to refer to the logger for its particular subprocess
+the _logger in ema_logging to refer to the logger for its particular subprocess
 
 '''
 import itertools
@@ -31,9 +31,9 @@ from multiprocessing import Queue, Process, cpu_count, current_process,\
                             TimeoutError
 from multiprocessing.util import Finalize
 
-from expWorkbench import EMAlogging
+from expWorkbench import ema_logging
 from expWorkbench.pool import RUN, Pool, TERMINATE
-from expWorkbench.EMAlogging import debug, exception, info, warning
+from expWorkbench.ema_logging import debug, exception, info, warning
 from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
 
 SVN_ID = '$Id: ema_parallel.py 1027 2012-11-21 19:56:50Z jhkwakkel $'
@@ -87,7 +87,7 @@ def worker(inqueue,
         # policy
         if not msi_initialization_dict.has_key((policy['name'], msi)):
             try:
-                EMAlogging.debug("invoking model init")
+                ema_logging.debug("invoking model init")
                 msis[msi].model_init(copy.deepcopy(policy), copy.deepcopy(model_kwargs))
             except (EMAError, NotImplementedError) as inst:
                 exception(inst)
@@ -158,8 +158,8 @@ class CalculatorPool(Pool):
         info("nr of processes is "+str(processes))
 
         self.log_queue = Queue()
-        h = EMAlogging.NullHandler()
-        logging.getLogger(EMAlogging.LOGGER_NAME).addHandler(h)
+        h = ema_logging.NullHandler()
+        logging.getLogger(ema_logging.LOGGER_NAME).addHandler(h)
         
         # This thread will read from the subprocesses and write to the
         # main log's handlers.
@@ -201,7 +201,7 @@ class CalculatorPool(Pool):
 
             w = LoggingProcess(
                 self.log_queue,
-                level = logging.getLogger(EMAlogging.LOGGER_NAME)\
+                level = logging.getLogger(ema_logging.LOGGER_NAME)\
                                           .getEffectiveLevel(),
                                           target=worker,
                                           args=(self._inqueue, 
@@ -258,7 +258,7 @@ class CalculatorPool(Pool):
                                     exitpriority=15
                                     )
         
-        EMAlogging.info("pool has been set up")
+        ema_logging.info("pool has been set up")
 
     def run_experiments(self, experiments, callback):
         """
@@ -406,7 +406,7 @@ class CalculatorPool(Pool):
                         working_dirs,
                         ):
 
-        EMAlogging.info("terminating pool")
+        ema_logging.info("terminating pool")
         
         # this is guaranteed to only be called once
         debug('finalizing pool')
@@ -447,7 +447,7 @@ class CalculatorPool(Pool):
         
         for directory in working_dirs:
             directory = os.path.dirname(directory)
-            EMAlogging.debug("deleting "+str(directory))
+            ema_logging.debug("deleting "+str(directory))
             shutil.rmtree(directory)
 
 
@@ -580,7 +580,7 @@ class LogQueueReader(threading.Thread):
                 record = self.queue.get()
                 # get the logger for this record
                 if record is None:
-                    EMAlogging.debug("none received")
+                    ema_logging.debug("none received")
                     break
                 
                 logger = logging.getLogger(record.name)
@@ -598,7 +598,7 @@ class LoggingProcess(Process):
     in order to log from the subprocesses.
     
     Adapted from code found `online <http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python>`_
-    to fit into the :mod:`EMAlogging` scheme.
+    to fit into the :mod:`ema_logging` scheme.
     """
     
     def __init__(self, queue, level= None, target=None, args=()):
@@ -608,9 +608,9 @@ class LoggingProcess(Process):
 
     def _setupLogger(self):
         # create the logger to use.
-        logger = logging.getLogger(EMAlogging.LOGGER_NAME+'.subprocess')
-        EMAlogging.LOGGER_NAME = EMAlogging.LOGGER_NAME+'.subprocess'
-        EMAlogging._logger = logger
+        logger = logging.getLogger(ema_logging.LOGGER_NAME+'.subprocess')
+        ema_logging.LOGGER_NAME = ema_logging.LOGGER_NAME+'.subprocess'
+        ema_logging._logger = logger
         
         # The only handler desired is the SubProcessLogHandler.  If any others
         # exist, remove them. In this case, on Unix and Linux the StreamHandler
@@ -623,7 +623,7 @@ class LoggingProcess(Process):
     
         # add the handler
         handler = SubProcessLogHandler(self.queue)
-        handler.setFormatter(EMAlogging.formatter)
+        handler.setFormatter(ema_logging.formatter)
         logger.addHandler(handler)
 
         # On Windows, the level will not be inherited.  Also, we could just

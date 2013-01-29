@@ -13,7 +13,7 @@ from expWorkbench.uncertainties import ParameterUncertainty
 from expWorkbench.model_ensemble import ModelEnsemble
 from expWorkbench import Outcome
 from expWorkbench.vensim import VensimModelStructureInterface 
-import expWorkbench.EMAlogging as EMAlogging
+import expWorkbench.ema_logging as ema_logging
 
 
 class FluModel(VensimModelStructureInterface):
@@ -71,11 +71,11 @@ class FluModel(VensimModelStructureInterface):
         try:
             self.modelFile = policy['file']
         except KeyError:
-            EMAlogging.warning("key 'file' not found in policy")
+            ema_logging.warning("key 'file' not found in policy")
         super(FluModel, self).model_init(policy, kwargs)
         
 if __name__ == "__main__":
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
         
     model = FluModel(r'..\..\models\flu', "fluCase")
     ensemble = ModelEnsemble()
@@ -96,4 +96,4 @@ if __name__ == "__main__":
     import time
     start_time = time.time()
     results = ensemble.perform_experiments(1000)
-    EMAlogging.info(str(time.time()-start_time))
+    ema_logging.info(str(time.time()-start_time))

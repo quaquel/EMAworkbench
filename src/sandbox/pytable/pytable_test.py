@@ -10,7 +10,7 @@ import os
 
 from examples.FLUvensimExample import FluModel
 from examples.EnergyTransExample import EnergyTrans
-from expWorkbench import ModelEnsemble, EMAlogging, ModelStructureInterface
+from expWorkbench import ModelEnsemble, ema_logging, ModelStructureInterface
 from pytable_callback import *
 
 
@@ -107,7 +107,7 @@ def test_save_results():
 
 
 if __name__ == '__main__':
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     test_multiple_models()
 #    test_save_results()
 #    test_inspect()

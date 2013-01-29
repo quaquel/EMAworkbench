@@ -26,7 +26,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
-from expWorkbench import util, EMAlogging
+from expWorkbench import util, ema_logging
 
 #from analysis.graphs import envelopes, lines
 from analysis.plotting import envelopes, lines
@@ -38,7 +38,7 @@ from analysis.pairs_plotting import pairs_scatter, pairs_density
 from matplotlib.pyplot import pie
 #from sandbox.optimizationJan.model import ModelEnsemble
 
-EMAlogging.log_to_stderr(level=EMAlogging.INFO)
+ema_logging.log_to_stderr(level=ema_logging.INFO)
 
 print "loading results..."
 file_name = r'..\..\cPickle\WILLEM\Tantalum\Tantalum1000policy_analysis.cPickle'
@@ -930,8 +930,8 @@ def y_limits(outcome_of_interest):
     return ymin, ymax, log_space
 
 if __name__ =='__main__':
-    EMAlogging.log_to_stderr(EMAlogging.INFO)                # DEFAULT_LEVEL of INFO
-#    mp.log_to_stderr(EMAlogging.DEBUG)
+    ema_logging.log_to_stderr(ema_logging.INFO)                # DEFAULT_LEVEL of INFO
+#    mp.log_to_stderr(ema_logging.DEBUG)
     ## Interface --------------------------------------------------------------------
     analysis = True            # When analysis is False, no analysis is performed, but tests are possible
     automate = False
@@ -1012,7 +1012,7 @@ if __name__ =='__main__':
                 policiesString = ""
                 ### Figure generation process
                 if automate:
-            #        mp.log_to_stderr(EMAlogging.DEBUG)
+            #        mp.log_to_stderr(ema_logging.DEBUG)
                     print 'Automatic generation of figures...'
                     jobs = []
                     figure_save = True
