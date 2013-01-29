@@ -63,7 +63,7 @@ import time
 from expWorkbench.ema_exceptions import EMAError
 import analysis.primCode.primDataTypeAware as recursivePrim
 from analysis.scenario_discovery import calculate_sd_metrics
-from expWorkbench.EMAlogging import log_to_stderr, INFO, info, debug
+from expWorkbench.ema_logging import log_to_stderr, INFO, info, debug
 from examples.flu_vensim_example import FluModel
 import expWorkbench
 

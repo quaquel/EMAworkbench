@@ -13,7 +13,7 @@ import scipy.stats.kde as kde
 from enthought.mayavi import mlab
 mlab = mlab
 
-from expWorkbench.EMAlogging import log_to_stderr, INFO, info
+from expWorkbench.ema_logging import log_to_stderr, INFO, info
 from expWorkbench import EMAError
 import expWorkbench
 from expWorkbench.util import load_results

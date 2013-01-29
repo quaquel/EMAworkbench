@@ -17,7 +17,7 @@ from scipy.cluster.hierarchy import fcluster, linkage, dendrogram, inconsistent
 from scipy.spatial.distance import squareform
 import numpy as np
 
-from expWorkbench.EMAlogging import info
+from expWorkbench.ema_logging import info
 from expWorkbench import EMAError
 from clusterCode.distance_gonenc import distance_gonenc
 from clusterCode.distance_willem import distance_willem
