@@ -1,0 +1,4 @@
+example shows that prim continues to peel even after hitting a density of 1. 
+This is a waste of time and interpretatbility. Should prim not only continue
+peeling if the new box has a objective function score better than the current
+one?

@@ -1,0 +1,1555 @@
+{UTF-8}
+desired extraction capacity=
+	Real Annual Demand*(1-relative attractiveness recycling)+gap between desired and constrained recycling capacity
+	~	t/Year
+	~		|
+
+Recycling Capacity Under Construction= INTEG (
+	planned recycling capacity*switch cons loop 18+ (1-switch cons loop 18)*repr planned recycling capacity
+	-commissioning recycling capacity,
+		MAX(initial recycling infrastructure/average lifetime recycling capacity*average construction time recycling capacity\
+		,initial recycling capacity under construction))
+	~	t/Year
+	~		|
+
+switch cons loop 20=
+	1
+	~	
+	~		|
+
+repr Real Annual Demand= INTEG (
+	economic demand growth-price elasticity of demand losses-value cons loop 15,
+		initial annual demand)
+	~	
+	~		|
+
+switch cons loop 15=
+	1
+	~	
+	~		|
+
+switch cons loop 16=
+	1
+	~	
+	~		|
+
+switch cons loop 17=
+	1
+	~	
+	~		|
+
+switch cons loop 18=
+	1
+	~	
+	~		|
+
+relative market price=
+	shortage price effect * (average extraction costs*(1-effective fraction recycled of supplied\
+		) + average recycling cost*effective fraction recycled of supplied) * (1+normal profit margin\
+		)
+	~	Dmnl
+	~		|
+
+value cons loop 18=
+	10000
+	~	
+	~		|
+
+repr planned recycling capacity=
+	MAX(profitability recycling,0)*MAX(constrained desired recycling capacity-value cons loop 18\
+		,0) + exogenously planned recycling capacity
+	~	
+	~		|
+
+value cons loop 20=
+	1
+	~	
+	~		|
+
+Extraction Capacity Under Construction= INTEG (
+	switch cons loop 16*planned extraction capacity + (1-switch cons loop 16)*repr planned extraction capacity
+	-commissioning extraction capacity,
+		MAX(initial extraction infrastructure/average lifetime extraction capacity*average construction time extraction capacity
+		
+		,initial extraction capacity under construction))
+	~	t/Year
+	~		|
+
+commissioning extraction capacity=
+	DELAY N(switch cons loop 17*planned extraction capacity+(1-switch cons loop 17)*repr planned extraction capacity\
+		, average construction time extraction capacity, Extraction Capacity Under Construction
+	
+	/average construction time extraction capacity
+	
+	, INTEGER(order extraction capacity delay))
+	~	t/Year/Year
+	~	input,delay time, initial value, order)
+	|
+
+commissioning recycling capacity=
+	DELAY N(planned recycling capacity*switch cons loop 19+(1-switch cons loop 19)*repr planned recycling capacity\
+		, average construction time recycling capacity, Recycling Capacity Under Construction\
+		/average construction time recycling capacity, INTEGER(order recycling capacity delay\
+		))
+	~	t/Year/Year
+	~		|
+
+supply demand ratio=
+	switch cons loop 2*Supply/(switch cons loop 15*Real Annual Demand+(1-switch cons loop 15\
+		)*repr Real Annual Demand)+(1-switch cons loop 2)*repr Supply/Real Annual Demand
+	~	Dmnl
+	~		|
+
+value cons loop 15=
+	0
+	~	
+	~		|
+
+repr planned extraction capacity=
+	MAX(profitability extraction, 0)*MAX(desired extraction capacity-value cons loop 16,\
+		0) + exogenously planned extraction capacity
+	~	
+	~		|
+
+switch cons loop 19=
+	1
+	~	
+	~		|
+
+value cons loop 16=
+	110000
+	~	
+	~		|
+
+repr relative market price=
+	(MIN(switch cons loop 5,switch cons loop 6)*shortage price effect+value cons loop 5*\
+		(1-MIN(switch cons loop 5,switch cons loop 6)) * ((average extraction costs*switch cons loop 20\
+		+(1-switch cons loop 20)*value cons loop 20)*(1-effective fraction recycled of supplied\
+		)) + average recycling cost*effective fraction recycled of supplied) * (1+normal profit margin\
+		)
+	~	
+	~		|
+
+switch cons loop 8=
+	1
+	~	
+	~		|
+
+loss unprofitable extraction capacity=
+	(switch cons loop 7*Installed Extraction Capacity+(1-switch cons loop 7)*repr Installed Extraction Capacity\
+		)*(-MIN(profitability extraction,0))
+	~	t/Year/Year
+	~		|
+
+profitability extraction=
+	switch cons loop 6*((relative market price-average extraction costs)/average extraction costs\
+		)
+	+ ( 1-switch cons loop 6)*((repr relative market price-average extraction costs)/average extraction costs\
+		)
+	~	
+	~		|
+
+switch cons loop 1=
+	1
+	~	
+	~		|
+
+switch cons loop 10=
+	1
+	~	
+	~		|
+
+recycling=
+	DELAY N(recycling fraction*production,
+	
+	average lifetime in goods,
+	
+	(recycling fraction*In Goods/average lifetime in goods)*switch cons loop 1+(1-switch cons loop 1\
+		)*(recycling fraction*repr In Goods/average lifetime in goods),
+	
+	INTEGER(order in goods delay))
+	~	t/Year
+	~	(input,delay time, initial value, order)
+	|
+
+switch cons loop 12=
+	1
+	~	
+	~		|
+
+recycling fraction=
+	MIN(MIN((switch cons loop 8*desired recycling+(1-switch cons loop 8)*repr desired recycling\
+		),(Installed Recycling Capacity*(MAX(switch cons loop 3,switch cons loop 12))+(1-(MAX\
+		(switch cons loop 3,switch cons loop 12)))*repr Installed Recycling Capacity))/maximum amount recyclable\
+		,1)
+	~	Dmnl
+	~		|
+
+relative attractiveness recycling=
+	(1-switch cons loop 4)*(1/repr average recycling cost)/(1/repr average recycling cost\
+		+1/average extraction costs) + switch cons loop 4*((1/average recycling cost)/(1/average recycling cost\
+		+1/average extraction costs))
+	~	Dmnl
+	~		|
+
+switch cons loop 2=
+	1
+	~	
+	~		|
+
+switch cons loop 3=
+	1
+	~	
+	~		|
+
+switch cons loop 4=
+	1
+	~	
+	~	Loop on = 1, loop off = 0
+	|
+
+switch cons loop 5=
+	1
+	~	
+	~		|
+
+switch cons loop 6=
+	1
+	~	
+	~		|
+
+constrained desired recycling capacity=
+	MIN(desired recycling*switch cons loop 9+(1-switch cons loop 9)*repr desired recycling\
+		,maximum amount recyclable)
+	~	t/Year
+	~		|
+
+switch cons loop 7=
+	1
+	~	
+	~		|
+
+relative price last year=
+	DELAY1I(relative market price*switch cons loop 5+(1-switch cons loop 5)*repr relative market price\
+		, 1, relative market price*switch cons loop 5+(1-switch cons loop 5)*repr relative market price\
+		)
+	~	Dmnl
+	~	MIN(MAX(1/(DELAY1I(relative price, 1, relative price)),0),1)
+	|
+
+repr average recycling cost=
+	approximated learning effect*initial average recycling cost*relative energy cost*relative energy intensity recycling\
+		*(1-value cons loop 4)
+	~	
+	~		|
+
+repr desired recycling=
+	Real Annual Demand*relative attractiveness recycling + (Real Annual Demand-value cons loop 8\
+		)
+	~	
+	~		|
+
+repr In Goods= INTEG (
+	production-lost-value cons loop 1,
+		initial in goods)
+	~	
+	~		|
+
+repr Installed Extraction Capacity= INTEG (
+	commissioning extraction capacity+decommissioning extraction capacity-value cons loop 7\
+		,
+		initial extraction infrastructure)
+	~	
+	~		|
+
+repr Installed Recycling Capacity= INTEG (
+	commissioning recycling capacity-
+	(switch cons loop 3*decommissioning recycling capacity+(1-switch cons loop 3)*value cons loop 3\
+		)-
+	(switch cons loop 12*loss unprofitable recycling capacity+(1-switch cons loop 12)*value cons loop 12\
+		),
+		initial recycling infrastructure)
+	~	
+	~		|
+
+repr profitability recycling=
+	(relative market price-value cons loop 13)/value cons loop 13
+	~	
+	~		|
+
+repr recycling=
+	DELAY N((switch cons loop 14*recycling fraction+(1-switch cons loop 14)*value cons loop 14\
+		)*(production*MAX(switch cons loop 10,switch cons loop 11)+(1-MAX(switch cons loop 10\
+		,switch cons loop 11))*value cons loop 10),average lifetime in goods,(switch cons loop 14\
+		*recycling fraction+(1-switch cons loop 14)*value cons loop 14)*(switch cons loop 1\
+		*In Goods+(1-switch cons loop 1)*repr In Goods)/average lifetime in goods,INTEGER(order in goods delay\
+		))
+	~	
+	~		|
+
+effective fraction recycled of supplied=
+	(switch cons loop 11*recycling+(1-switch cons loop 11)*repr recycling)/(((switch cons loop 11\
+		*recycling+(1-switch cons loop 11)*repr recycling))+extraction)
+	~	Dmnl
+	~		|
+
+repr Supply= INTEG (
+	extraction-production+value cons loop 2,
+		initial annual supply)
+	~	
+	~		|
+
+value cons loop 5=
+	1
+	~	
+	~		|
+
+value cons loop 7=
+	0
+	~	
+	~		|
+
+value cons loop 8=
+	100000
+	~	
+	~		|
+
+switch cons loop 11=
+	1
+	~	
+	~		|
+
+value cons loop 13=
+	1.99739
+	~	
+	~		|
+
+switch cons loop 13=
+	1
+	~	
+	~		|
+
+switch cons loop 9=
+	1
+	~	
+	~		|
+
+value cons loop 1=
+	14258.7
+	~	
+	~		|
+
+value cons loop 10=
+	100000
+	~	
+	~		|
+
+switch cons loop 14=
+	1
+	~	
+	~		|
+
+value cons loop 12=
+	3861.46
+	~	
+	~		|
+
+value cons loop 4=
+	0.00130382
+	~	
+	~		|
+
+value cons loop 3=
+	0
+	~	
+	~		|
+
+value cons loop 2=
+	14258.7
+	~	
+	~		|
+
+loss unprofitable recycling capacity=
+	Installed Recycling Capacity* (-MIN((switch cons loop 13*profitability recycling+(1-\
+		switch cons loop 13)*repr profitability recycling),0))
+	~	t/Year/Year
+	~		|
+
+new cumulatively recycled=
+	recycling*MIN(switch cons loop 10,switch cons loop 14)+(1-MIN(switch cons loop 10,switch cons loop 14\
+		))*repr recycling
+	~	t/Year
+	~		|
+
+value cons loop 14=
+	0.107143
+	~	
+	~		|
+
+lost= 
+	DELAY N((1-recycling fraction)*production, average lifetime in goods , (1-recycling fraction\
+		)*In Goods/average lifetime in goods, INTEGER(order in goods delay))
+	~	t/Year
+	~		|
+
+order in goods delay=
+	1
+	~	Dmnl
+	~		|
+
+order extraction capacity delay=
+	1
+	~	Dmnl
+	~	BETWEEN 0.5 and 10.49
+	|
+
+shortage price effect=
+	shortage price effect lookup(supply demand ratio)
+	~	Dmnl
+	~	Er wordt hier verondersteld dat een buffer van 10% leidt tot een normale \
+		prijs
+	|
+
+relative energy cost=
+	relative energy cost lookup(Time)
+	~	Dmnl
+	~		|
+
+relative energy cost lookup(
+	[(2000,0)-(2100,10)],(2000,1),(2100,10))
+	~	
+	~		|
+
+relative energy intensity recycling=
+	relative energy intensity recycling lookup(Time)
+	~	Dmnl
+	~		|
+
+average extraction costs=
+	extraction cost lookup(Cumulatively Extracted-initial cumulative amount extracted)*relative energy cost
+	~	
+	~		|
+
+returns to scale lookup(
+	(0,0),(168196,0.0219298),(302752,0.0789474),(446483,0.197368),(568807,0.333333),(660550\
+		,0.407895),(782875,0.45614),(1e+06,0.5))
+	~	Dmnl
+	~		|
+
+relative energy intensity recycling lookup(
+	[(2000,0)-(2100,1)],(2000,1),(2100,0.8))
+	~	Dmnl
+	~		|
+
+relative price substitute=
+	relative price substitute lookup(Time)
+	~	Dmnl
+	~		|
+
+shortage price effect lookup(
+	(0,20),(0.5,5),(1.1,1),(2,0.5),(10,0.1))
+	~	
+	~		|
+
+returns to scale=
+	returns to scale lookup(Installed Recycling Capacity)
+	~	Dmnl
+	~		|
+
+initial extraction infrastructure=
+	110000
+	~	t/Year
+	~		|
+
+order recycling capacity delay=
+	1
+	~	Dmnl
+	~	BETWEEN 0.5 and 10.49 then INTEGER
+	|
+
+substitution losses=
+	IF THEN ELSE(relative market price > relative price substitute, (relative market price\
+		-relative price substitute)/relative market price * Real Annual Demand, 0)
+	~	
+	~		|
+
+average recycling cost=
+	approximated learning effect*initial average recycling cost*relative energy cost*relative energy intensity recycling\
+		*(1-returns to scale)
+	~	Dmnl
+	~	([(2000,0)-(2050,10)],(2000,4),(2010,2),(2020,1.5),(2030,1),(2040,0.95),(20\
+		50,0.9) )
+	|
+
+normal profit margin=
+	0.1
+	~	Dmnl
+	~		|
+
+year restriction recycling for West=
+	2020
+	~	
+	~		|
+
+amount of unrestricted supply from extraction=
+	35000
+	~	t/Year
+	~		|
+
+amount of unrestricted supply from recycling=
+	100000
+	~	t/Year
+	~		|
+
+approximated learning effect=
+	approximated learning effect lookup(Cumulatively Recycled-initial cumulatively recycled\
+		)
+	~	Dmnl
+	~		|
+
+approximated learning effect lookup(
+	[(-1,0)-(1e+07,1)],(-1,1),(0,1),(1e+06,0.95),(2e+06,0.8),(3e+06,0.6),(4e+06,0.5),(5e+06\
+		,0.45),(1e+07,0.45))
+	~	
+	~		|
+
+planned extraction capacity=
+	MAX(profitability extraction, 0)*MAX(desired extraction capacity-Installed Extraction Capacity\
+		,0) + exogenously planned extraction capacity
+	~	
+	~	MAX(profitability extraction, 0)*MAX(MIN(desired extraction-Installed \
+		Extraction Capacity, Installed Extraction Capacity/average construction \
+		time extraction capacity),0)
+	|
+
+exogenously planned extraction capacity=
+	0
+	~	
+	~	([(0,0)-(2100,10)],(2000,0),(2050,0) )
+	|
+
+intrinsic demand change=
+	economic growth rate*Intrinsic Annual Demand*specific intensity economic growth
+	~	t/Year/Year
+	~		|
+
+unrestricted supply available to West=
+	IF THEN ELSE( Time>year restriction extraction for West, amount of unrestricted supply from extraction\
+		, extraction)+ IF THEN ELSE( Time>year restriction recycling for West, amount of unrestricted supply from recycling\
+		, recycling)
+	~	t/Year
+	~		|
+
+initial extraction capacity under construction=
+	10000
+	~	t/Year
+	~		|
+
+relative price substitute lookup(
+	[(2000,0)-(2100,20)],(2000,5),(2020,10),(2050,15),(2100,20))
+	~	Dmnl
+	~		|
+
+economic demand growth=
+	Real Annual Demand*economic growth rate*specific intensity economic growth
+	~	t/Year/Year
+	~		|
+
+specific intensity economic growth= WITH LOOKUP (
+	Time,
+		([(2000,0)-(2050,10)],(2000,1),(2010,2),(2040,2),(2050,1) ))
+	~	Dmnl
+	~	([(2000,0)-(2050,10)],(2000,1),(2010,2),(2040,2),(2050,1) )
+	|
+
+Cumulatively Lost= INTEG (
+	lost,
+		0)
+	~	t
+	~		|
+
+exogenously planned recycling capacity= WITH LOOKUP (
+	Time,
+		([(0,0)-(2100,10)],(2000,0),(2050,0) ))
+	~	t/Year
+	~		|
+
+Real Annual Demand= INTEG (
+	economic demand growth-substitution losses-price elasticity of demand losses,
+		initial annual demand)
+	~	t/Year
+	~		|
+
+year restriction extraction for West=
+	2010
+	~	Year
+	~		|
+
+planned recycling capacity=
+	MAX(profitability recycling, 0)*MAX(constrained desired recycling capacity-Installed Recycling Capacity\
+		,0) + exogenously planned recycling capacity
+	~	t/Year
+	~	IF THEN ELSE(profitability extraction > 0, MAX(MIN(desired \
+		extraction-Installed Extraction Capacity, Installed Extraction \
+		Capacity/average construction time extraction capacity),0), 0)
+	|
+
+initial recycling capacity under construction=
+	10000
+	~	t/Year
+	~		|
+
+desired recycling=
+	Real Annual Demand*relative attractiveness recycling + (Real Annual Demand-production\
+		)
+	~	t/Year
+	~		|
+
+maximum extraction=
+	Installed Extraction Capacity
+	~	t/Year
+	~		|
+
+extraction=
+	maximum extraction*fraction of maximum extraction capacity used
+	~	t/Year
+	~	MIN(X,Annual Demand-recycled)
+	|
+
+extraction cost lookup(
+	[(0,0)-(8e+06,100)],(0,1),(2e+06,2),(3.156e+06,4.82456),(4e+06,10),(4.917e+06,17.5439\
+		),(5.994e+06,35.5263),(6.875e+06,58.3333),(7.486e+06,78.5088),(8e+06,100))
+	~	
+	~	(0,1),(2000,2),(4000,10),(8000,100)
+	|
+
+price elasticity of demand losses=
+	-price elasticity of demand*Real Annual Demand*(1/relative market price-1/relative price last year\
+		)/(1/relative price last year)
+	~	t/Year/Year
+	~		|
+
+gap between desired and constrained recycling capacity=
+	desired recycling-constrained desired recycling capacity
+	~	
+	~		|
+
+fraction of maximum extraction capacity used=
+	1
+	~	Dmnl
+	~		|
+
+price elasticity of demand=
+	0.2
+	~	1/Year
+	~		|
+
+new cumulatively extracted=
+	maximum extraction*fraction of maximum extraction capacity used
+	~	t/Year
+	~		|
+
+produced of intrinsically demanded=
+	production/Intrinsic Annual Demand
+	~	
+	~		|
+
+production=
+	MIN(Supply,Real Annual Demand)
+	~	t/Year
+	~		|
+
+average construction time extraction capacity=
+	5
+	~	Year
+	~		|
+
+average construction time recycling capacity=
+	5
+	~	Year
+	~		|
+
+average lifetime extraction capacity=
+	30
+	~	Year
+	~		|
+
+Installed Recycling Capacity= INTEG (
+	commissioning recycling capacity-decommissioning recycling capacity-loss unprofitable recycling capacity\
+		,
+		initial recycling infrastructure)
+	~	t/Year
+	~		|
+
+average lifetime recycling capacity=
+	30
+	~	Year
+	~		|
+
+Installed Extraction Capacity= INTEG (
+	commissioning extraction capacity-decommissioning extraction capacity-loss unprofitable extraction capacity\
+		,
+		initial extraction infrastructure)
+	~	t/Year
+	~		|
+
+Cumulatively Recycled= INTEG (
+	new cumulatively recycled,
+		initial cumulatively recycled)
+	~	t
+	~		|
+
+decommissioning extraction capacity=
+	MAX(Installed Extraction Capacity/average lifetime extraction capacity-loss unprofitable extraction capacity\
+		,0)
+	~	t/Year/Year
+	~		|
+
+decommissioning recycling capacity=
+	MAX(Installed Recycling Capacity/average lifetime recycling capacity-loss unprofitable recycling capacity\
+		,0)
+	~	t/Year/Year
+	~		|
+
+profitability recycling=
+	(relative market price- average recycling cost)/average recycling cost
+	~	Dmnl
+	~		|
+
+initial recycling infrastructure=
+	10000
+	~	t/Year
+	~		|
+
+initial average recycling cost=
+	2
+	~	Dmnl
+	~		|
+
+initial cumulatively recycled=
+	100000
+	~	t
+	~		|
+
+initial cumulative amount extracted=
+	4e+06
+	~	t
+	~		|
+
+Cumulatively Extracted= INTEG (
+	new cumulatively extracted,
+		initial cumulative amount extracted)
+	~	t
+	~		|
+
+absolute recycling loss fraction=
+	0.3
+	~	Dmnl
+	~		|
+
+Intrinsic Annual Demand= INTEG (
+	intrinsic demand change,
+		initial annual demand)
+	~	t/Year
+	~		|
+
+maximum amount recyclable=
+	In Goods/average lifetime in goods*(1-absolute recycling loss fraction)
+	~	t/Year
+	~		|
+
+average lifetime in goods=
+	15
+	~	Year
+	~		|
+
+economic growth rate= WITH LOOKUP (
+	Time,
+		([(2000,-0.4)-(2050,0.4)],(2000,0.03),(2008,0.03),(2009,-0.3),(2010,0.2),(2011,0.03\
+		),(2050,0.03) ))
+	~	1/Year
+	~	([(2000,-0.4)-(2050,0.4)],(2000,0.03),(2008,0.03),(2009,-0.3),(2010,0.2),(2\
+		011,0.03),(2050,0.03) )
+	|
+
+In Goods= INTEG (
+	production-lost-recycling,
+		initial in goods)
+	~	t
+	~		|
+
+initial annual demand=
+	100000
+	~	t
+	~		|
+
+initial annual supply=
+	110000
+	~	t
+	~		|
+
+initial in goods=
+	2e+06
+	~	t
+	~		|
+
+Supply= INTEG (
+	extraction+recycling-production,
+		initial annual supply)
+	~	t
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 2050
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 2000
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.0625
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Dashboard
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|72,72,80,0
+10,1,initial annual demand,128,146,69,15,8,131,0,0,0,0,0,0
+10,2,initial annual supply,129,288,68,14,8,131,0,0,0,0,0,0
+10,3,economic growth rate,130,166,69,10,8,131,0,0,0,0,0,0
+10,4,initial in goods,113,313,51,13,8,131,0,0,0,0,0,0
+10,5,average lifetime in goods,142,338,80,11,8,131,0,0,0,0,0,0
+10,6,absolute recycling loss fraction,161,832,99,12,8,131,0,0,0,0,0,0
+10,7,shortage price effect,128,232,68,10,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+10,8,price elasticity of demand,141,207,83,12,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+10,9,Time,102,581,26,11,8,2,1,1,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,10,supply demand ratio,491,524,53,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,11,10,7,0,1,0,0,0,64,0,-1--1--1,,1|(309,377)|
+10,12,Intrinsic Annual Demand,190,699,54,19,8,2,1,1,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,13,production,190,699,44,11,8,2,1,1,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,14,initial extraction infrastructure,155,390,94,13,8,131,0,0,0,0,0,0
+10,15,initial cumulative amount extracted,173,577,113,12,8,131,0,0,0,0,0,0
+10,16,average construction time extraction capacity,196,467,137,12,8,131,0,0,0,0,0,0
+10,17,average lifetime extraction capacity,169,417,107,13,8,131,0,0,0,0,0,0
+10,18,fraction of maximum extraction capacity used,198,493,143,11,8,131,0,0,0,0,0,0
+10,19,relative energy cost,127,361,63,12,8,131,0,0,0,0,0,0
+10,20,extraction cost lookup,128,521,68,11,8,131,0,0,0,0,0,0
+10,21,initial extraction capacity under construction,195,441,134,12,8,131,0,0,0,0,0,0
+10,22,Time,706,255,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,23,initial recycling infrastructure,153,634,95,10,8,131,0,0,0,0,0,0
+10,24,initial cumulatively recycled,152,807,86,9,8,131,0,0,0,0,0,0
+10,25,average construction time recycling capacity,196,702,137,12,8,131,0,0,0,0,0,0
+10,26,average lifetime recycling capacity,167,656,105,12,8,131,0,0,0,0,0,0
+10,27,initial average recycling cost,151,728,86,11,8,131,0,0,0,0,0,0
+10,28,relative energy intensity recycling,172,755,106,12,8,131,0,0,0,0,0,0
+10,29,initial recycling capacity under construction,197,679,137,11,8,131,0,0,0,0,0,0
+10,30,Cumulatively Recycled,953,433,46,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,31,Time,894,247,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+12,32,525034,752,453,372,339,3,188,0,0,1,0,0,0
+produced_of_demanded
+12,33,1639234,1507,453,375,339,3,188,0,0,1,0,0,0
+prices
+10,34,exogenously planned recycling capacity,182,856,122,13,8,131,0,0,0,0,0,0
+10,35,exogenously planned extraction capacity,188,602,123,12,8,131,0,0,0,0,0,0
+10,36,Time,180,858,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,37,36,34,0,1,0,0,0,64,0,-1--1--1,,1|(179,859)|
+10,38,Time,184,630,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,39,relative price substitute lookup,138,255,73,11,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+10,40,specific intensity economic growth,168,186,109,12,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+10,41,Time,468,637,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,42,Time,379,362,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,43,approximated learning effect lookup,178,783,112,11,8,131,0,0,-1,0,0,0
+10,44,normal profit margin,131,121,66,13,8,131,0,0,0,0,0,0
+10,45,Time,130,195,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,46,45,3,0,0,0,0,0,64,0,-1--1--1,,1|(130,187)|
+10,47,Time,168,217,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,48,47,40,0,0,0,0,0,64,0,-1--1--1,,1|(168,209)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Demand Supply
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|72,72,100,0
+10,1,Supply,181,215,40,20,3,3,0,4,0,0,0,0,0-0-0,0-255-0,|12||0-0-0
+10,2,relative market price,-401,259,47,19,8,3,0,6,0,0,0,0,0-0-0,0-255-0,|12||128-0-128
+1,3,4,1,4,0,0,22,0,0,0,-1--1--1,,1|(186,262)|
+11,4,540,186,296,8,6,33,3,0,0,2,0,0,0
+10,5,extraction,146,296,32,11,40,3,0,0,-1,0,0,0
+1,6,7,1,100,0,0,22,0,0,0,-1--1--1,,1|(147,176)|
+11,7,1900,147,152,8,6,33,3,0,0,2,0,0,0
+10,8,production,104,152,35,11,40,3,0,0,-1,0,0,0
+10,9,initial annual demand,-219,42,39,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+10,10,initial annual supply,190,177,40,16,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+10,11,economic growth rate,-291,-4,55,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+10,12,Time,1529,343,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,13,1,8,1,0,0,0,0,64,0,-1--1--1,,1|(117,188)|
+10,14,In Goods,184,79,40,20,3,3,0,0,0,0,0,0
+1,15,7,14,4,0,0,22,0,0,0,-1--1--1,,1|(147,122)|
+1,16,17,14,100,0,0,22,0,0,0,-1--1--1,,1|(182,34)|
+11,17,1308,182,4,8,6,33,3,0,0,2,0,0,0
+10,18,lost,161,4,13,11,40,3,0,0,-1,0,0,0
+1,19,21,1,4,0,0,22,0,0,0,-1--1--1,,1|(260,221)|
+1,20,21,14,100,0,0,22,0,0,0,-1--1--1,,4|(305,152)|(305,152)|(305,79)|(264,79)|
+11,21,1644,305,221,6,8,34,3,0,0,1,0,0,0
+10,22,recycling,305,240,29,11,40,3,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-128-255
+1,23,10,1,0,0,0,0,0,64,1,-1--1--1,,1|(190,189)|
+10,24,initial in goods,181,115,25,15,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+1,25,24,14,0,0,0,0,0,64,1,-1--1--1,,1|(182,106)|
+10,26,recycling fraction,428,-75,53,11,8,131,0,0,0,0,0,0
+1,27,26,17,1,0,0,0,0,64,0,-1--1--1,,1|(292,-63)|
+10,28,average lifetime in goods,499,135,29,24,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,29,28,17,1,0,0,0,0,64,0,-1--1--1,,1|(340,14)|
+10,30,maximum amount recyclable,347,-14,56,19,8,3,0,0,0,0,0,0
+1,31,28,30,1,0,0,0,0,64,0,-1--1--1,,1|(440,20)|
+1,32,30,26,1,0,0,0,0,64,0,-1--1--1,,1|(399,-41)|
+1,33,14,30,1,0,0,0,0,64,0,-1--1--1,,1|(265,49)|
+10,34,absolute recycling loss fraction,515,-31,30,27,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,35,34,30,0,0,0,0,0,64,0,-1--1--1,,1|(450,-24)|
+10,36,effective fraction recycled of supplied,-587,354,64,19,8,3,0,0,0,0,0,0
+1,37,36,2,1,0,0,0,0,64,0,-1--1--1,,1|(-484,291)|
+10,38,recycling,-710,408,38,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,39,extraction,-659,449,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,40,38,36,1,0,0,0,0,64,0,-1--1--1,,1|(-652,371)|
+1,41,39,36,1,0,0,0,0,64,0,-1--1--1,,1|(-636,403)|
+10,42,Intrinsic Annual Demand,-268,-195,40,20,3,3,17,0,0,0,0,0
+12,43,48,-439,-198,10,8,0,3,1,0,-1,0,0,0
+1,44,46,42,4,17,0,22,0,0,0,-1--1--1,,1|(-339,-198)|
+1,45,46,43,100,1,0,22,0,0,0,-1--1--1,,1|(-406,-198)|
+11,46,48,-376,-198,6,8,34,3,1,0,1,0,0,0
+10,47,intrinsic demand change,-376,-179,52,19,40,3,1,0,-1,0,0,0
+1,48,11,47,0,1,0,0,0,64,0,-1--1--1,,1|(-331,-85)|
+1,49,42,47,1,17,0,0,0,64,0,-1--1--1,,1|(-328,-147)|
+1,50,9,42,0,0,0,0,0,64,1,-1--1--1,,1|(-242,-69)|
+12,51,48,186,348,10,8,0,3,0,0,-1,0,0,0
+1,52,4,51,100,0,0,22,0,0,0,-1--1--1,,1|(186,321)|
+10,53,shortage price effect,-219,423,45,19,8,3,0,6,0,0,0,0,0-0-0,255-255-128,|12||255-0-0
+1,54,53,2,1,0,0,0,0,64,0,-1--1--1,,1|(-318,365)|
+10,55,average recycling cost,-522,455,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,56,55,2,1,0,0,0,0,64,0,-1--1--1,,1|(-494,347)|
+10,57,produced of intrinsically demanded,-1,-123,70,19,8,3,0,7,0,2,0,0,255-128-0,0-255-0,|12||0-128-0
+1,58,8,57,0,1,0,0,0,64,0,-1--1--1,,1|(55,25)|
+1,59,42,57,0,17,0,0,0,64,0,-1--1--1,,1|(-157,-164)|
+10,60,supply demand ratio,-53,396,48,19,8,3,0,4,0,0,0,0,0-0-0,0-255-0,|12||0-0-0
+1,61,1,60,1,0,0,0,0,64,0,-1--1--1,,1|(101,296)|
+10,62,Real Annual Demand,-150,72,40,20,3,3,0,4,0,0,0,0,0-0-0,0-255-0,|12||0-0-0
+12,63,48,-349,72,10,8,0,3,0,0,-1,0,0,0
+1,64,66,63,4,0,0,22,0,0,0,-1--1--1,,1|(-305,75)|
+1,65,66,62,100,0,0,22,0,0,0,-1--1--1,,1|(-225,75)|
+11,66,48,-265,75,6,8,34,3,0,0,1,0,0,0
+10,67,price elasticity of demand losses,-265,102,54,19,40,3,0,2,-1,0,0,0,0-0-0,0-0-0,|12||255-0-0
+12,68,48,-152,-77,10,8,0,3,0,0,-1,0,0,0
+1,69,71,62,4,0,0,22,0,0,0,-1--1--1,,1|(-153,26)|
+1,70,71,68,100,0,0,22,0,0,0,-1--1--1,,1|(-153,-40)|
+11,71,48,-153,-5,8,6,33,3,0,0,4,0,0,0
+10,72,economic demand growth,-87,-5,58,19,40,3,0,0,-1,0,0,0
+1,73,62,67,1,0,0,0,0,64,0,-1--1--1,,1|(-186,107)|
+10,74,relative price last year,-476,177,55,8,8,3,0,0,0,0,0,0
+1,75,62,72,1,0,0,0,0,64,0,-1--1--1,,1|(-94,32)|
+1,76,11,71,0,0,0,0,0,64,0,-1--1--1,,1|(-206,-5)|
+1,77,9,62,0,0,0,0,0,64,1,-1--1--1,,1|(-192,53)|
+1,78,62,60,1,0,0,0,0,64,0,-1--1--1,,1|(-61,219)|
+1,79,62,8,1,0,0,0,0,64,0,-1--1--1,,1|(-12,79)|
+10,80,price elasticity of demand,-403,100,54,19,8,3,0,6,0,0,0,0,0-0-0,255-255-128,|12||255-0-0
+1,81,80,67,0,0,0,0,0,64,0,-1--1--1,,1|(-341,100)|
+1,82,2,74,1,0,0,0,0,64,0,-1--1--1,,1|(-443,230)|
+10,83,average extraction costs,-610,507,55,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,84,maximum extraction,88,454,36,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,85,fraction of maximum extraction capacity used,130,516,81,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,86,84,5,0,0,0,0,0,64,0,-1--1--1,,1|(115,377)|
+1,87,85,5,0,0,0,0,0,64,0,-1--1--1,,1|(137,408)|
+10,88,average extraction costs,-434,419,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,89,88,2,1,0,0,0,0,64,0,-1--1--1,,1|(-432,340)|
+1,90,2,67,1,0,0,0,0,64,0,-1--1--1,,1|(-349,165)|
+1,91,74,67,1,0,0,0,0,64,0,-1--1--1,,1|(-328,128)|
+1,92,28,22,1,0,0,0,0,64,0,-1--1--1,,1|(429,214)|
+1,93,26,22,1,0,0,0,0,64,0,-1--1--1,,1|(464,96)|
+10,94,desired recycling,362,-151,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,95,94,26,0,0,0,0,0,64,0,-1--1--1,,1|(393,-114)|
+10,96,Installed Recycling Capacity,285,-165,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,97,96,26,0,0,0,0,0,64,0,-1--1--1,,1|(356,-119)|
+1,98,60,53,1,0,0,0,0,64,0,-1--1--1,,1|(-128,417)|
+10,99,Cumulatively Lost,176,-77,43,19,3,131,0,0,0,0,0,0
+1,100,17,99,4,0,0,22,0,0,0,-1--1--1,,1|(182,-30)|
+10,101,unrestricted supply available to West,309,329,60,19,8,3,0,0,0,0,0,0
+1,102,4,101,0,0,0,0,0,64,0,-1--1--1,,1|(214,303)|
+10,103,amount of unrestricted supply from recycling,271,427,71,19,8,3,0,0,0,0,0,0
+10,104,amount of unrestricted supply from extraction,210,392,71,19,8,3,0,0,0,0,0,0
+1,105,104,101,0,0,0,0,0,64,0,-1--1--1,,1|(253,364)|
+10,106,year restriction extraction for West,374,369,61,19,8,3,0,0,0,0,0,0
+1,107,106,101,1,0,0,0,0,64,0,-1--1--1,,1|(339,349)|
+10,108,Time,400,339,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,109,108,101,0,1,0,0,0,64,0,-1--1--1,,1|(377,338)|
+1,110,103,101,0,0,0,0,0,64,0,-1--1--1,,1|(286,384)|
+10,111,year restriction recycling for West,335,397,58,19,8,3,0,0,-1,0,0,0
+1,112,111,101,0,0,0,0,0,64,0,-1--1--1,,1|(324,369)|
+1,113,22,101,0,0,0,0,0,64,0,-1--1--1,,1|(306,273)|
+12,114,48,-171,188,10,8,0,3,0,0,-1,0,0,0
+1,115,117,114,4,0,0,22,0,0,0,-1--1--1,,1|(-165,169)|
+1,116,117,62,100,0,0,22,0,0,0,-1--1--1,,1|(-165,119)|
+11,117,48,-165,153,8,6,33,3,0,0,4,0,0,0
+10,118,substitution losses,-101,153,56,11,40,131,0,0,-1,0,0,0
+1,119,62,118,0,0,0,0,0,64,0,-1--1--1,,1|(-127,110)|
+10,120,relative price substitute lookup,-227,306,54,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,121,2,117,1,0,0,0,0,64,0,-1--1--1,,1|(-281,160)|
+1,122,120,295,1,0,0,0,0,64,0,-1--1--1,,1|(-226,267)|
+10,123,specific intensity economic growth,-280,-52,55,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,124,123,71,0,0,0,0,0,64,0,-1--1--1,,1|(-202,-22)|
+10,125,Time,-379,-52,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,126,123,47,0,1,0,0,0,64,0,-1--1--1,,1|(-324,-109)|
+10,127,normal profit margin,-333,435,41,19,8,3,0,0,0,0,0,0
+1,128,127,2,1,0,0,0,0,64,0,-1--1--1,,1|(-378,355)|
+10,129,Time,-291,34,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,130,129,11,0,0,0,0,0,64,0,-1--1--1,,1|(-291,26)|
+10,131,Time,-280,-14,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,132,131,123,0,0,0,0,0,64,0,-1--1--1,,1|(-280,-22)|
+10,133,initial extraction infrastructure,1076,260,49,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+10,134,average extraction costs,1132,-63,58,19,8,3,0,6,0,0,0,0,0-0-0,255-255-128,|12||255-0-0
+10,135,Cumulatively Extracted,1324,-17,43,21,3,131,0,0,0,0,0,0
+12,136,48,1321,66,10,8,0,3,0,0,-1,0,0,0
+1,137,139,135,4,0,0,22,0,0,0,-1--1--1,,1|(1323,16)|
+1,138,139,136,100,0,0,22,0,0,0,-1--1--1,,1|(1323,49)|
+11,139,48,1323,35,8,6,33,3,0,0,4,0,0,0
+10,140,new cumulatively extracted,1379,35,48,22,40,131,0,0,-1,0,0,0
+10,141,initial cumulative amount extracted,1323,-57,55,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+1,142,141,135,0,0,0,0,0,64,1,-1--1--1,,1|(1323,-38)|
+10,143,desired extraction capacity,605,34,57,19,8,3,0,0,0,0,0,0
+10,144,profitability extraction,919,1,36,19,8,3,0,0,0,0,0,0
+10,145,Extraction Capacity Under Construction,880,198,42,29,3,131,0,0,0,0,0,0
+10,146,Installed Extraction Capacity,1093,199,39,25,3,131,0,4,0,0,0,0,0-0-0,0-255-0,|12||0-0-0
+12,147,48,712,193,10,8,0,3,0,0,-1,0,0,0
+1,148,150,145,4,0,0,22,0,0,0,-1--1--1,,1|(803,194)|
+1,149,150,147,100,0,0,22,0,0,0,-1--1--1,,1|(739,194)|
+11,150,48,763,194,6,8,34,3,0,0,1,0,0,0
+10,151,planned extraction capacity,763,213,58,19,40,3,0,0,-1,0,0,0
+1,152,154,146,4,0,0,22,0,0,0,-1--1--1,,1|(1025,191)|
+1,153,154,145,100,0,0,22,0,0,0,-1--1--1,,1|(953,191)|
+11,154,748,991,191,6,8,34,3,0,0,1,0,0,0
+10,155,commissioning extraction capacity,991,218,60,19,40,3,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-128-255
+12,156,48,1276,185,10,8,0,3,0,0,-1,0,0,0
+1,157,159,156,4,0,0,22,0,0,0,-1--1--1,,1|(1236,186)|
+1,158,159,146,100,0,0,22,0,0,0,-1--1--1,,1|(1163,186)|
+11,159,48,1201,186,6,8,34,3,0,0,1,0,0,0
+10,160,decommissioning extraction capacity,1201,213,60,19,40,3,0,0,-1,0,0,0
+10,161,average construction time extraction capacity,990,315,75,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+10,162,average lifetime extraction capacity,1260,270,60,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,163,162,160,0,0,0,0,0,64,0,-1--1--1,,1|(1235,246)|
+1,164,146,159,1,0,0,0,0,64,0,-1--1--1,,1|(1166,166)|
+12,165,48,1121,42,10,8,0,3,0,0,-1,0,0,0
+1,166,168,165,4,0,0,22,0,0,0,-1--1--1,,1|(1119,80)|
+1,167,168,146,100,0,0,22,0,0,0,-1--1--1,,1|(1119,148)|
+11,168,48,1119,117,8,6,33,3,0,0,4,0,0,0
+10,169,loss unprofitable extraction capacity,1187,117,60,19,40,3,0,0,-1,0,0,0
+1,170,144,168,1,0,0,0,0,64,0,-1--1--1,,1|(1034,44)|
+1,171,146,168,1,0,0,0,0,64,0,-1--1--1,,1|(1096,138)|
+1,172,133,146,0,0,0,0,0,64,1,-1--1--1,,1|(1081,239)|
+1,173,169,159,0,0,0,0,0,64,0,-1--1--1,,1|(1193,151)|
+1,174,146,150,1,0,0,0,0,64,0,-1--1--1,,1|(882,147)|
+1,175,143,150,1,0,0,0,0,64,0,-1--1--1,,1|(669,66)|
+1,176,144,150,1,0,0,0,0,64,0,-1--1--1,,1|(826,63)|
+1,177,199,143,1,0,0,0,0,64,0,-1--1--1,,1|(645,246)|
+1,178,146,181,1,0,0,0,0,64,0,-1--1--1,,1|(1337,320)|
+1,179,134,144,1,0,0,0,0,64,0,-1--1--1,,1|(1019,-46)|
+1,180,62,143,1,0,0,0,0,64,0,-1--1--1,,1|(232,-208)|
+10,181,maximum extraction,1396,296,32,19,8,3,0,0,0,0,0,0
+1,182,181,140,1,0,0,0,0,64,0,-1--1--1,,1|(1460,118)|
+10,183,fraction of maximum extraction capacity used,1360,127,77,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,184,183,140,0,0,0,0,0,64,0,-1--1--1,,1|(1367,89)|
+10,185,relative market price,918,-61,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,186,185,144,0,0,0,0,0,64,0,-1--1--1,,1|(918,-37)|
+10,187,relative energy cost,1179,-139,46,19,8,3,0,0,0,0,0,0
+10,188,extraction cost lookup,1045,-142,47,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,189,268,143,1,0,0,0,0,64,0,-1--1--1,,1|(547,232)|
+1,190,161,145,0,0,0,0,0,64,1,-1--1--1,,1|(944,266)|
+1,191,162,145,0,0,0,0,0,64,1,-1--1--1,,1|(1067,233)|
+1,192,133,145,0,0,0,0,0,64,1,-1--1--1,,1|(981,230)|
+10,193,initial extraction capacity under construction,766,297,78,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+1,194,193,145,0,0,0,0,0,64,1,-1--1--1,,1|(811,257)|
+10,195,exogenously planned extraction capacity,646,139,66,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,196,195,151,1,0,0,0,0,64,0,-1--1--1,,1|(721,151)|
+10,197,desired recycling,729,557,54,19,8,3,0,0,0,0,0,0
+10,198,average recycling cost,1087,484,55,19,8,3,0,6,0,0,0,0,0-0-0,255-255-128,|12||255-0-0
+10,199,relative attractiveness recycling,834,474,68,19,8,3,0,0,0,0,0,0
+1,200,199,197,1,0,0,0,0,64,0,-1--1--1,,1|(777,505)|
+10,201,initial recycling infrastructure,1113,693,46,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+10,202,approximated learning effect,1331,541,44,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-0
+10,203,Cumulatively Recycled,1404,666,43,21,3,131,0,0,0,0,0,0
+12,204,48,1416,773,10,8,0,3,0,0,-1,0,0,0
+1,205,207,203,4,0,0,22,0,0,0,-1--1--1,,1|(1415,706)|
+1,206,207,204,100,0,0,22,0,0,0,-1--1--1,,1|(1415,751)|
+11,207,48,1415,732,8,6,33,3,0,0,2,0,0,0
+10,208,new cumulatively recycled,1353,732,54,19,40,3,0,0,-1,0,0,0
+10,209,initial cumulatively recycled,1445,616,42,23,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+1,210,209,203,0,0,0,0,0,64,1,-1--1--1,,1|(1428,637)|
+1,211,203,202,1,0,0,0,0,64,0,-1--1--1,,1|(1380,598)|
+1,212,209,202,1,0,0,0,0,64,0,-1--1--1,,1|(1388,571)|
+10,213,profitability recycling,937,566,36,19,8,131,0,0,0,0,0,0
+10,214,Recycling Capacity Under Construction,878,745,44,29,3,131,0,0,0,0,0,0
+10,215,Installed Recycling Capacity,1082,744,42,28,3,131,0,4,0,0,0,0,0-0-0,0-255-0,|12||0-0-0
+1,216,217,214,4,0,0,22,0,0,0,-1--1--1,,1|(795,735)|
+11,217,1404,750,735,6,8,34,3,0,0,1,0,0,0
+10,218,planned recycling capacity,750,762,55,19,40,3,0,0,-1,0,0,0
+1,219,221,215,4,0,0,22,0,0,0,-1--1--1,,1|(1010,731)|
+1,220,221,214,100,0,0,22,0,0,0,-1--1--1,,1|(945,731)|
+11,221,252,974,731,6,8,34,3,0,0,1,0,0,0
+10,222,commissioning recycling capacity,974,758,57,19,40,3,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-128-255
+1,223,224,215,100,0,0,22,0,0,0,-1--1--1,,1|(1152,733)|
+11,224,300,1187,733,6,8,34,3,0,0,1,0,0,0
+10,225,decommissioning recycling capacity,1187,760,57,19,40,3,0,0,-1,0,0,0
+10,226,average construction time recycling capacity,883,691,72,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,227,226,221,1,0,0,0,0,64,0,-1--1--1,,1|(940,716)|
+10,228,average lifetime recycling capacity,1188,823,57,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,229,228,225,0,0,0,0,0,64,0,-1--1--1,,1|(1187,798)|
+1,230,215,224,1,0,0,0,0,64,0,-1--1--1,,1|(1153,712)|
+12,231,48,1107,589,10,8,0,3,0,0,-1,0,0,0
+1,232,234,231,4,0,0,22,0,0,0,-1--1--1,,1|(1105,627)|
+1,233,234,215,100,0,0,22,0,0,0,-1--1--1,,1|(1105,693)|
+11,234,48,1105,664,8,6,33,3,0,0,4,0,0,0
+10,235,loss unprofitable recycling capacity,1173,664,57,19,40,3,0,0,-1,0,0,0
+1,236,213,234,1,0,0,0,0,64,0,-1--1--1,,1|(1041,608)|
+1,237,215,234,1,0,0,0,0,64,0,-1--1--1,,1|(1076,688)|
+1,238,201,215,0,0,0,0,0,64,1,-1--1--1,,1|(1104,708)|
+1,239,201,214,0,0,0,0,0,64,1,-1--1--1,,1|(1001,717)|
+1,240,235,224,0,0,0,0,0,64,0,-1--1--1,,1|(1179,698)|
+1,241,215,217,1,0,0,0,0,64,0,-1--1--1,,1|(864,681)|
+1,242,213,217,1,0,0,0,0,64,0,-1--1--1,,1|(838,602)|
+10,243,relative market price,842,533,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,244,243,213,1,0,0,0,0,64,0,-1--1--1,,1|(901,537)|
+1,245,197,265,1,0,0,0,0,64,0,-1--1--1,,1|(724,600)|
+10,246,initial average recycling cost,1386,482,44,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,247,246,198,1,0,0,0,0,64,0,-1--1--1,,1|(1237,472)|
+1,248,198,213,1,0,0,0,0,64,0,-1--1--1,,1|(1018,521)|
+1,249,202,198,1,0,0,0,0,64,0,-1--1--1,,1|(1195,497)|
+10,250,relative energy intensity recycling,1369,388,56,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-192-255
+1,251,250,198,1,0,0,0,0,64,0,-1--1--1,,1|(1234,433)|
+10,252,production,601,517,44,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,253,252,197,0,0,0,0,0,64,0,-1--1--1,,1|(648,531)|
+10,254,Real Annual Demand,680,466,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,255,254,197,0,0,0,0,0,64,0,-1--1--1,,1|(700,505)|
+10,256,recycling,1320,813,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,257,average extraction costs,823,398,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,258,257,199,1,0,0,0,0,64,0,-1--1--1,,1|(825,431)|
+10,259,maximum amount recyclable,609,687,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,260,256,208,1,0,0,0,0,64,0,-1--1--1,,1|(1339,790)|
+12,261,48,696,735,10,8,0,3,0,0,-1,0,0,0
+1,262,217,261,100,0,0,22,0,0,0,-1--1--1,,1|(725,735)|
+12,263,48,1270,731,10,8,0,3,0,0,-1,0,0,0
+1,264,224,263,4,0,0,22,0,0,0,-1--1--1,,1|(1226,733)|
+10,265,constrained desired recycling capacity,723,627,62,19,8,3,0,0,0,0,0,0
+1,266,265,217,1,0,0,0,0,64,0,-1--1--1,,1|(734,708)|
+1,267,259,265,0,0,0,0,0,64,0,-1--1--1,,1|(659,660)|
+10,268,gap between desired and constrained recycling capacity,549,433,80,28,8,3,0,0,0,0,0,0
+1,269,197,268,0,0,0,0,0,64,0,-1--1--1,,1|(651,503)|
+1,270,265,268,1,0,0,0,0,64,0,-1--1--1,,1|(572,618)|
+1,271,226,214,0,0,0,0,0,64,1,-1--1--1,,1|(883,706)|
+1,272,228,214,0,0,0,0,0,64,1,-1--1--1,,1|(1033,784)|
+10,273,initial recycling capacity under construction,721,821,74,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+1,274,273,214,0,0,0,0,0,64,1,-1--1--1,,1|(790,787)|
+10,275,relative energy cost,1244,538,51,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,276,275,198,0,0,0,0,0,64,0,-1--1--1,,1|(1174,513)|
+10,277,exogenously planned recycling capacity,571,791,66,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,278,277,218,0,0,0,0,0,64,0,-1--1--1,,1|(659,776)|
+10,279,Time,571,829,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,280,279,277,0,1,0,0,0,64,0,-1--1--1,,1|(571,821)|
+10,281,approximated learning effect lookup,1497,507,70,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,282,281,202,0,0,0,0,0,64,0,-1--1--1,,1|(1407,524)|
+10,283,returns to scale,1047,560,48,11,8,3,0,6,0,0,0,0,0-0-0,255-192-128,|12||255-0-255
+1,284,215,283,1,0,0,0,0,64,0,-1--1--1,,1|(1012,641)|
+1,285,283,198,1,0,0,0,0,64,0,-1--1--1,,1|(1065,520)|
+10,286,Time,-160,276,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,287,286,295,0,0,0,0,0,64,0,-1--1--1,,1|(-178,257)|
+1,288,151,155,1,0,0,0,0,64,0,-1--1--1,,1|(875,257)|
+10,289,order extraction capacity delay,927,281,51,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+10,290,shortage price effect lookup,-220,522,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,291,290,53,0,0,0,0,0,64,0,-1--1--1,,1|(-220,479)|
+1,292,218,222,1,0,0,0,0,64,0,-1--1--1,,1|(871,814)|
+10,293,order recycling capacity delay,973,699,48,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,294,293,222,0,0,0,0,0,64,1,-1--1--1,,1|(973,721)|
+10,295,relative price substitute,-212,221,41,19,8,3,0,0,0,0,0,0
+1,296,295,117,1,0,0,0,0,64,0,-1--1--1,,1|(-192,179)|
+1,297,161,155,0,0,0,0,0,64,0,-1--1--1,,1|(990,273)|
+10,298,returns to scale lookup,1204,564,48,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,299,298,283,0,0,0,0,0,64,0,-1--1--1,,1|(1132,562)|
+10,300,relative energy cost lookup,1313,-176,61,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,301,300,187,0,0,0,0,0,64,0,-1--1--1,,1|(1245,-157)|
+10,302,Time,1296,-141,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,303,302,187,0,0,0,0,0,64,0,-1--1--1,,1|(1254,-140)|
+1,304,135,134,0,0,0,0,0,64,0,-1--1--1,,1|(1242,-36)|
+1,305,188,134,0,0,0,0,0,64,0,-1--1--1,,1|(1082,-107)|
+1,306,141,134,0,0,0,0,0,64,0,-1--1--1,,1|(1235,-59)|
+1,307,187,134,0,0,0,0,0,64,0,-1--1--1,,1|(1159,-106)|
+10,308,relative energy intensity recycling lookup,1546,388,73,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,309,308,250,0,0,0,0,0,64,0,-1--1--1,,1|(1456,388)|
+1,310,12,250,0,0,0,0,0,64,0,-1--1--1,,1|(1470,359)|
+10,311,order in goods delay,245,260,47,19,8,3,0,0,0,0,0,0
+1,312,7,21,1,0,0,0,0,64,0,-1--1--1,,1|(192,150)|
+1,313,8,18,1,0,0,0,0,64,0,-1--1--1,,1|(105,66)|
+1,314,311,18,0,0,0,0,0,64,1,-1--1--1,,1|(203,134)|
+1,315,214,221,1,0,0,0,0,64,1,-1--1--1,,1|(920,701)|
+1,316,14,18,0,0,0,0,0,64,1,-1--1--1,,1|(173,43)|
+10,317,value cons loop 4,1170,365,44,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,318,repr average recycling cost,1108,422,36,14,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,319,317,318,1,0,0,0,0,64,0,-1--1--1,,1|(1125,382)|
+1,320,318,199,1,0,0,0,0,64,0,-1--1--1,,1|(970,424)|
+1,321,275,318,1,0,0,0,0,64,0,-1--1--1,,1|(1190,468)|
+1,322,202,318,1,0,0,0,0,64,0,-1--1--1,,1|(1235,465)|
+1,323,246,318,1,0,0,0,0,64,0,-1--1--1,,1|(1253,429)|
+1,324,250,318,1,0,0,0,0,64,0,-1--1--1,,1|(1231,395)|
+1,325,198,199,1,0,0,0,0,64,0,-1--1--1,,1|(970,455)|
+10,326,switch cons loop 4,971,382,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,327,326,199,1,0,0,0,0,64,0,-1--1--1,,1|(898,411)|
+10,328,value cons loop 1,354,64,52,12,8,131,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,329,repr In Goods,375,126,40,20,3,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,330,328,329,0,0,0,0,0,64,0,-1--1--1,,1|(360,84)|
+10,331,switch cons loop 1,363,194,46,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,332,331,21,0,0,0,0,0,64,1,-1--1--1,,1|(334,207)|
+1,333,329,21,0,0,0,0,0,64,1,-1--1--1,,1|(338,175)|
+1,334,17,329,0,0,0,0,0,64,0,-1--1--1,,1|(260,53)|
+1,335,7,329,0,0,0,0,0,64,0,-1--1--1,,1|(238,141)|
+1,336,24,329,0,0,0,0,0,64,1,-1--1--1,,1|(263,119)|
+1,337,14,22,0,0,0,0,0,64,1,-1--1--1,,1|(243,158)|
+1,338,311,22,0,0,0,0,0,64,1,-1--1--1,,1|(277,249)|
+10,339,value cons loop 2,38,193,46,10,8,131,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,340,repr Supply,77,255,40,20,3,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,341,339,340,0,0,0,0,0,64,0,-1--1--1,,1|(50,213)|
+1,342,10,340,0,0,0,0,0,64,1,-1--1--1,,1|(141,210)|
+1,343,7,340,0,0,0,0,0,64,0,-1--1--1,,1|(120,190)|
+1,344,4,340,0,0,0,0,0,64,0,-1--1--1,,1|(154,283)|
+1,345,340,60,0,0,0,0,0,64,0,-1--1--1,,1|(16,320)|
+10,346,switch cons loop 2,-1,451,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,347,346,60,0,0,0,0,0,64,0,-1--1--1,,1|(-18,433)|
+10,348,repr Installed Recycling Capacity,1105,912,40,20,3,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,349,value cons loop 3,1222,902,44,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,350,222,348,0,0,0,0,0,64,0,-1--1--1,,1|(1033,829)|
+1,351,349,348,0,0,0,0,0,64,0,-1--1--1,,1|(1168,905)|
+10,352,repr Installed Recycling Capacity,496,-143,54,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,353,352,26,1,0,0,0,0,64,0,-1--1--1,,1|(432,-87)|
+10,354,switch cons loop 3,1152,990,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,355,repr relative market price,-539,265,33,14,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,356,value cons loop 5,-632,241,44,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,357,355,74,0,0,0,0,0,64,0,-1--1--1,,1|(-510,223)|
+1,358,356,355,0,0,0,0,0,64,0,-1--1--1,,1|(-593,250)|
+1,359,36,355,0,0,0,0,0,64,0,-1--1--1,,1|(-565,313)|
+1,360,88,355,0,0,0,0,0,64,0,-1--1--1,,1|(-485,345)|
+1,361,127,355,0,0,0,0,0,64,0,-1--1--1,,1|(-435,351)|
+1,362,55,355,0,0,0,0,0,64,0,-1--1--1,,1|(-530,364)|
+10,363,switch cons loop 5,-586,160,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,364,363,74,0,0,0,0,0,64,0,-1--1--1,,1|(-541,166)|
+10,365,repr relative market price,825,-59,36,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,366,365,144,0,0,0,0,0,64,0,-1--1--1,,1|(861,-35)|
+10,367,switch cons loop 6,810,-4,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,368,367,144,0,0,0,0,0,64,0,-1--1--1,,1|(863,-2)|
+10,369,repr Installed Extraction Capacity,1017,120,40,20,3,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,370,value cons loop 7,993,49,44,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,371,370,369,0,0,0,0,0,64,0,-1--1--1,,1|(1000,71)|
+1,372,133,369,0,0,0,0,0,64,1,-1--1--1,,1|(1049,196)|
+1,373,154,369,0,0,0,0,0,64,0,-1--1--1,,1|(998,169)|
+1,374,159,369,0,0,0,0,0,64,0,-1--1--1,,1|(1133,161)|
+1,375,369,168,0,0,0,0,0,64,0,-1--1--1,,1|(1077,118)|
+10,376,switch cons loop 7,1187,61,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,377,376,169,0,0,0,0,0,64,0,-1--1--1,,1|(1187,76)|
+10,378,repr desired recycling,631,580,55,8,8,3,0,0,0,0,0,0
+10,379,value cons loop 8,558,536,44,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,380,379,378,0,0,0,0,0,64,0,-1--1--1,,1|(588,554)|
+1,381,254,378,1,0,0,0,0,64,0,-1--1--1,,1|(633,570)|
+1,382,199,378,1,0,0,0,0,64,0,-1--1--1,,1|(731,505)|
+10,383,repr desired recycling,475,-203,34,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,384,383,26,1,0,0,0,0,64,0,-1--1--1,,1|(438,-153)|
+10,385,switch cons loop 8,377,-210,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,386,385,26,0,0,0,0,0,64,0,-1--1--1,,1|(399,-150)|
+1,387,378,265,0,0,0,0,0,64,0,-1--1--1,,1|(659,594)|
+10,388,switch cons loop 9,797,591,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,389,388,265,0,0,0,0,0,64,0,-1--1--1,,1|(777,600)|
+10,390,repr recycling,447,241,36,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,391,value cons loop 10,385,284,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,392,391,390,0,0,0,0,0,64,0,-1--1--1,,1|(409,266)|
+1,393,28,390,0,0,0,0,0,64,0,-1--1--1,,1|(472,189)|
+1,394,26,390,0,0,0,0,0,64,0,-1--1--1,,1|(436,77)|
+10,395,repr recycling,1407,834,42,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,396,switch cons loop 10,1440,805,50,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,397,repr recycling,-729,367,42,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,398,switch cons loop 11,-707,300,50,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,399,398,36,0,0,0,0,0,64,0,-1--1--1,,1|(-665,318)|
+1,400,397,36,0,0,0,0,0,64,0,-1--1--1,,1|(-675,362)|
+10,401,value cons loop 12,1225,867,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,402,401,348,0,0,0,0,0,64,0,-1--1--1,,1|(1181,883)|
+1,403,225,348,1,0,0,0,0,64,0,-1--1--1,,1|(1109,890)|
+1,404,235,348,1,0,0,0,0,64,0,-1--1--1,,1|(1096,819)|
+10,405,switch cons loop 3,565,-111,54,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,406,405,26,0,0,0,0,0,64,0,-1--1--1,,1|(508,-96)|
+10,407,switch cons loop 12,1015,977,50,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,408,407,348,0,0,0,0,0,64,0,-1--1--1,,1|(1045,954)|
+1,409,354,348,0,0,0,0,0,64,0,-1--1--1,,1|(1136,962)|
+1,410,201,348,0,0,0,0,0,64,1,-1--1--1,,1|(1109,795)|
+10,411,switch cons loop 12,269,-118,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,412,411,26,0,0,0,0,0,64,0,-1--1--1,,1|(335,-99)|
+10,413,repr profitability recycling,939,622,43,14,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,414,value cons loop 13,843,656,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,415,414,413,0,0,0,0,0,64,0,-1--1--1,,1|(875,644)|
+1,416,413,234,0,0,0,0,0,64,0,-1--1--1,,1|(1032,644)|
+1,417,243,413,0,0,0,0,0,64,0,-1--1--1,,1|(887,575)|
+10,418,switch cons loop 13,942,659,50,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,419,418,234,1,0,0,0,0,64,0,-1--1--1,,1|(1096,664)|
+10,420,value cons loop 14,542,201,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,421,420,390,0,0,0,0,0,64,0,-1--1--1,,1|(500,218)|
+10,422,switch cons loop 14,468,302,50,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,423,switch cons loop 10,533,264,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,424,switch cons loop 11,502,280,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,425,422,390,0,0,0,0,0,64,0,-1--1--1,,1|(459,278)|
+1,426,424,390,0,0,0,0,0,64,0,-1--1--1,,1|(480,264)|
+1,427,423,390,0,0,0,0,0,64,0,-1--1--1,,1|(496,254)|
+1,428,7,390,0,0,0,0,0,64,0,-1--1--1,,1|(280,191)|
+1,429,311,390,0,0,0,0,0,64,1,-1--1--1,,1|(344,250)|
+10,430,switch cons loop 14,1366,906,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,431,14,390,0,0,0,0,0,64,1,-1--1--1,,1|(319,162)|
+1,432,331,390,0,0,0,0,0,64,1,-1--1--1,,1|(398,214)|
+1,433,329,390,0,0,0,0,0,64,1,-1--1--1,,1|(410,183)|
+1,434,430,208,0,0,0,0,0,64,0,-1--1--1,,1|(1360,831)|
+1,435,395,208,0,0,0,0,0,64,0,-1--1--1,,1|(1386,794)|
+1,436,396,208,0,0,0,0,0,64,0,-1--1--1,,1|(1408,778)|
+10,437,repr Real Annual Demand,-24,121,40,20,3,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,438,72,437,0,0,0,0,0,64,0,-1--1--1,,1|(-60,51)|
+1,439,67,437,1,0,0,0,0,64,0,-1--1--1,,1|(-149,97)|
+1,440,437,60,1,0,0,0,0,64,0,-1--1--1,,1|(-11,249)|
+10,441,value cons loop 15,-13,39,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,442,441,437,0,0,0,0,0,64,0,-1--1--1,,1|(-17,67)|
+1,443,9,437,0,0,0,0,0,64,1,-1--1--1,,1|(-129,77)|
+10,444,switch cons loop 15,-113,328,50,8,8,3,0,0,0,0,0,0
+1,445,444,60,0,0,0,0,0,64,0,-1--1--1,,1|(-93,351)|
+10,446,repr planned extraction capacity,828,121,48,14,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,447,value cons loop 16,921,80,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,448,447,446,0,0,0,0,0,64,0,-1--1--1,,1|(887,94)|
+1,449,195,446,0,0,0,0,0,64,0,-1--1--1,,1|(739,129)|
+1,450,143,446,0,0,0,0,0,64,0,-1--1--1,,1|(715,77)|
+1,451,144,446,0,0,0,0,0,64,0,-1--1--1,,1|(875,57)|
+1,452,446,145,0,0,0,0,0,64,0,-1--1--1,,1|(844,146)|
+1,453,446,154,0,0,0,0,0,64,0,-1--1--1,,1|(916,158)|
+10,454,switch cons loop 16,807,260,50,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,455,switch cons loop 17,828,277,50,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,456,454,145,0,0,0,0,0,64,0,-1--1--1,,1|(825,244)|
+1,457,455,155,0,0,0,0,0,64,0,-1--1--1,,1|(887,255)|
+1,458,145,155,0,0,0,0,0,64,1,-1--1--1,,1|(919,204)|
+1,459,289,155,0,0,0,0,0,64,1,-1--1--1,,1|(953,254)|
+10,460,repr planned recycling capacity,880,847,47,14,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+10,461,value cons loop 18,875,893,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,462,265,460,1,0,0,0,0,64,0,-1--1--1,,1|(660,793)|
+1,463,277,460,1,0,0,0,0,64,0,-1--1--1,,1|(700,864)|
+10,464,profitability recycling,762,904,34,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,465,464,460,0,0,0,0,0,64,0,-1--1--1,,1|(814,878)|
+1,466,461,460,0,0,0,0,0,64,0,-1--1--1,,1|(875,879)|
+1,467,460,214,0,0,0,0,0,64,0,-1--1--1,,1|(879,810)|
+1,468,460,222,1,0,0,0,0,64,0,-1--1--1,,1|(939,812)|
+10,469,switch cons loop 18,811,836,50,8,8,3,0,0,0,0,0,0
+10,470,switch cons loop 19,971,851,50,8,8,3,0,0,0,0,0,0
+1,471,469,214,0,0,0,0,0,64,0,-1--1--1,,1|(831,806)|
+1,472,470,222,0,0,0,0,0,64,0,-1--1--1,,1|(971,816)|
+10,473,value cons loop 20,-671,271,47,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,474,473,355,0,0,0,0,0,64,0,-1--1--1,,1|(-604,267)|
+10,475,switch cons loop 5,-647,213,54,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,476,switch cons loop 6,-618,193,54,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,477,475,355,0,0,0,0,0,64,0,-1--1--1,,1|(-605,232)|
+1,478,476,355,0,0,0,0,0,64,0,-1--1--1,,1|(-587,221)|
+1,479,53,355,0,0,0,0,0,64,0,-1--1--1,,1|(-378,344)|
+10,480,switch cons loop 20,-726,249,50,8,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|U|255-128-0
+1,481,480,355,0,0,0,0,0,64,0,-1--1--1,,1|(-630,256)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Extraction Capacity
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|72,72,80,0
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Recycling Capacity
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|72,72,80,0
+10,1,desired recycling,432,263,54,19,8,3,0,0,0,0,0,0
+10,2,average recycling cost,877,188,55,19,8,3,0,6,0,0,0,0,0-0-0,255-255-128,|12||255-0-0
+10,3,relative attractiveness recycling,488,189,68,19,8,3,0,0,0,0,0,0
+1,4,2,3,1,0,0,0,0,64,0,-1--1--1,,1|(705,134)|
+1,5,3,1,1,0,0,0,0,64,0,-1--1--1,,1|(457,221)|
+10,6,initial recycling infrastructure,724,530,46,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+10,7,approximated learning effect,1034,247,44,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-0
+10,8,Cumulatively Recycled,1107,372,43,21,3,131,0,0,0,0,0,0
+12,9,48,1119,479,10,8,0,3,0,0,-1,0,0,0
+1,10,12,8,4,0,0,22,0,0,0,-1--1--1,,1|(1118,412)|
+1,11,12,9,100,0,0,22,0,0,0,-1--1--1,,1|(1118,457)|
+11,12,48,1118,438,8,6,33,3,0,0,2,0,0,0
+10,13,new cumulatively recycled,1056,438,54,19,40,3,0,0,-1,0,0,0
+10,14,initial cumulatively recycled,1148,322,42,23,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+1,15,14,8,0,0,0,0,0,64,1,-1--1--1,,1|(1131,343)|
+1,16,8,7,1,0,0,0,0,64,0,-1--1--1,,1|(1083,304)|
+1,17,14,7,1,0,0,0,0,64,0,-1--1--1,,1|(1091,277)|
+10,18,profitability recycling,622,276,36,19,8,131,0,0,0,0,0,0
+10,19,Recycling Capacity Under Construction,581,451,44,29,3,131,0,0,0,0,0,0
+10,20,Installed Recycling Capacity,785,450,42,28,3,131,0,0,0,0,0,0
+1,21,22,19,4,0,0,22,0,0,0,-1--1--1,,1|(498,441)|
+11,22,1404,453,441,6,8,34,3,0,0,1,0,0,0
+10,23,planned recycling capacity,453,468,55,19,40,3,0,0,-1,0,0,0
+1,24,26,20,4,0,0,22,0,0,0,-1--1--1,,1|(713,437)|
+1,25,26,19,100,0,0,22,0,0,0,-1--1--1,,1|(648,437)|
+11,26,252,677,437,6,8,34,3,0,0,1,0,0,0
+10,27,commissioning recycling capacity,677,473,57,19,40,3,0,0,-1,0,0,0
+1,28,29,20,100,0,0,22,0,0,0,-1--1--1,,1|(855,439)|
+11,29,300,890,439,6,8,34,3,0,0,1,0,0,0
+10,30,decommissioning recycling capacity,890,466,57,19,40,3,0,0,-1,0,0,0
+10,31,average construction time recycling capacity,580,536,72,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,32,19,26,1,0,0,0,0,64,1,-1--1--1,,1|(645,415)|
+1,33,31,27,1,0,0,0,0,64,0,-1--1--1,,1|(647,483)|
+10,34,average lifetime recycling capacity,891,529,57,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,35,34,30,0,0,0,0,0,64,0,-1--1--1,,1|(890,504)|
+1,36,20,29,1,0,0,0,0,64,0,-1--1--1,,1|(856,418)|
+12,37,48,810,295,10,8,0,3,0,0,-1,0,0,0
+1,38,40,37,4,0,0,22,0,0,0,-1--1--1,,1|(808,333)|
+1,39,40,20,100,0,0,22,0,0,0,-1--1--1,,1|(808,399)|
+11,40,48,808,370,8,6,33,3,0,0,4,0,0,0
+10,41,loss unprofitable recycling capacity,876,370,57,19,40,3,0,0,-1,0,0,0
+1,42,18,40,1,0,0,0,0,64,0,-1--1--1,,1|(737,313)|
+1,43,20,40,1,0,0,0,0,64,0,-1--1--1,,1|(779,394)|
+1,44,6,20,0,0,0,0,0,64,1,-1--1--1,,1|(746,500)|
+1,45,6,19,0,0,0,0,0,64,1,-1--1--1,,1|(663,496)|
+1,46,41,29,0,0,0,0,0,64,0,-1--1--1,,1|(882,404)|
+1,47,20,22,1,0,0,0,0,64,0,-1--1--1,,1|(567,387)|
+1,48,18,22,1,0,0,0,0,64,0,-1--1--1,,1|(532,315)|
+10,49,relative market price,622,201,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,50,49,18,0,0,0,0,0,64,0,-1--1--1,,1|(622,231)|
+1,51,1,72,1,0,0,0,0,64,0,-1--1--1,,1|(427,306)|
+10,52,initial average recycling cost,1029,158,44,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,53,52,2,0,0,0,0,0,64,0,-1--1--1,,1|(965,170)|
+1,54,2,18,1,0,0,0,0,64,0,-1--1--1,,1|(763,221)|
+10,55,Time,276,159,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,56,7,2,1,0,0,0,0,64,0,-1--1--1,,1|(953,192)|
+10,57,relative energy intensity recycling,1000,112,56,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,58,57,2,0,0,0,0,0,64,0,-1--1--1,,1|(944,146)|
+10,59,production,320,226,44,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,60,59,1,0,0,0,0,0,64,0,-1--1--1,,1|(358,238)|
+10,61,Real Annual Demand,313,256,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,62,61,1,0,0,0,0,0,64,0,-1--1--1,,1|(360,258)|
+10,63,recycling,786,496,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,64,average extraction costs,685,83,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,65,64,3,1,0,0,0,0,64,0,-1--1--1,,1|(588,107)|
+10,66,maximum amount recyclable,369,400,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,67,63,13,1,0,0,0,0,64,0,-1--1--1,,1|(891,564)|
+12,68,48,399,441,10,8,0,3,0,0,-1,0,0,0
+1,69,22,68,100,0,0,22,0,0,0,-1--1--1,,1|(428,441)|
+12,70,48,973,437,10,8,0,3,0,0,-1,0,0,0
+1,71,29,70,4,0,0,22,0,0,0,-1--1--1,,1|(929,439)|
+10,72,constrained desired recycling capacity,426,333,62,19,8,3,0,0,0,0,0,0
+1,73,72,22,1,0,0,0,0,64,0,-1--1--1,,1|(437,414)|
+1,74,66,72,0,0,0,0,0,64,0,-1--1--1,,1|(392,371)|
+10,75,gap between desired and constrained recycling capacity,267,307,80,28,8,3,0,0,0,0,0,0
+1,76,1,75,0,0,0,0,0,64,0,-1--1--1,,1|(369,279)|
+1,77,72,75,0,0,0,0,0,64,0,-1--1--1,,1|(362,322)|
+1,78,31,19,0,0,0,0,0,64,1,-1--1--1,,1|(580,505)|
+1,79,34,19,0,0,0,0,0,64,1,-1--1--1,,1|(736,490)|
+10,80,initial recycling capacity under construction,424,527,74,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-192
+1,81,80,19,0,0,0,0,0,64,1,-1--1--1,,1|(493,493)|
+10,82,relative energy cost,863,115,66,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,83,82,2,0,0,0,0,0,64,0,-1--1--1,,1|(868,144)|
+10,84,exogenously planned recycling capacity,274,497,66,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,85,84,23,0,0,0,0,0,64,0,-1--1--1,,1|(362,482)|
+10,86,Time,274,535,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,87,86,84,0,1,0,0,0,64,0,-1--1--1,,1|(274,527)|
+10,88,approximated learning effect lookup,882,253,70,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0
+1,89,88,7,0,0,0,0,0,64,0,-1--1--1,,1|(964,250)|
+10,90,returns to scale,750,266,48,11,8,3,0,6,0,0,0,0,0-0-0,255-192-128,|12||255-0-255
+1,91,20,90,1,0,0,0,0,64,0,-1--1--1,,1|(715,347)|
+1,92,90,2,1,0,0,0,0,64,0,-1--1--1,,1|(811,220)|
+10,93,repr average recycling cost,488,222,40,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,94,93,3,0,0,0,0,0,64,0,-1--1--1,,1|(488,215)|
+10,95,switch cons loop 4,488,222,54,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,96,95,3,0,0,0,0,0,64,0,-1--1--1,,1|(488,218)|
+10,97,repr recycling,1056,471,42,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,98,97,13,0,0,0,0,0,64,0,-1--1--1,,1|(1056,467)|
+10,99,switch cons loop 10,1056,471,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,100,99,13,0,0,0,0,0,64,0,-1--1--1,,1|(1056,467)|
+10,101,switch cons loop 14,1056,471,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,102,101,13,0,0,0,0,0,64,0,-1--1--1,,1|(1056,467)|
+10,103,repr planned recycling capacity,581,494,50,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,104,103,19,0,0,0,0,0,64,0,-1--1--1,,1|(581,480)|
+10,105,switch cons loop 18,581,494,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,106,105,19,0,0,0,0,0,64,0,-1--1--1,,1|(581,490)|
+10,107,order recycling capacity delay,677,506,43,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,108,107,27,0,0,0,0,0,64,1,-1--1--1,,1|(677,499)|
+1,109,23,27,0,0,0,0,0,64,0,-1--1--1,,1|(557,469)|
+10,110,repr planned recycling capacity,677,506,50,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,111,110,27,0,0,0,0,0,64,0,-1--1--1,,1|(677,499)|
+10,112,switch cons loop 19,677,506,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,113,112,27,0,0,0,0,0,64,0,-1--1--1,,1|(677,502)|
+10,114,repr profitability recycling,876,403,46,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,115,114,41,0,0,0,0,0,64,0,-1--1--1,,1|(876,396)|
+10,116,switch cons loop 13,876,403,57,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,117,116,41,0,0,0,0,0,64,0,-1--1--1,,1|(876,399)|
+10,118,relative energy intensity recycling lookup,1000,145,47,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,119,118,57,0,0,0,0,0,64,0,-1--1--1,,1|(1000,134)|
+10,120,Time,1000,145,21,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,121,120,57,0,0,0,0,0,64,0,-1--1--1,,1|(1000,141)|
+10,122,repr desired recycling,426,366,34,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,123,122,72,0,0,0,0,0,64,0,-1--1--1,,1|(426,359)|
+10,124,switch cons loop 9,426,366,54,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,125,124,72,0,0,0,0,0,64,0,-1--1--1,,1|(426,362)|
+10,126,returns to scale lookup,750,291,42,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,127,126,90,0,0,0,0,0,64,0,-1--1--1,,1|(750,277)|
+///---\\\
+:GRAPH produced_of_demanded
+:TITLE produced_of_demanded
+:SCALE
+:VAR produced of intrinsically demanded
+:Y-MIN 0
+:Y-MAX 1
+:SCALE
+:VAR Real Annual Demand
+:Y-MAX 800000
+:VAR production
+:VAR recycling
+:VAR extraction
+
+:GRAPH prices
+:TITLE prices
+:Y-DIV 10
+:SCALE
+:VAR relative market price
+:Y-MAX 30
+:VAR average recycling cost
+:VAR average extraction costs
+:VAR shortage price effect
+:L<%^E!@
+1:Base consecutive.vdf
+9:Loop 2 off
+22:$,Dollar,Dollars,$s
+22:Hour,Hours
+22:Month,Months
+22:Person,People,Persons
+22:Unit,Units
+22:Week,Weeks
+22:Year,Years
+22:Day,Days
+23:0
+18:MCmetals.vsc
+20:MCmetals.lst
+15:0,0,0,1,0,0
+19:100,1
+27:2,
+34:0,
+4:Time
+5:average construction time extraction capacity
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:0
+41:0
+24:2000
+25:2050
+26:2050
