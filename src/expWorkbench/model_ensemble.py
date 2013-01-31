@@ -36,9 +36,6 @@ from samplers import FullFactorialSampler, LHSSampler
 from uncertainties import ParameterUncertainty, CategoricalUncertainty
 from callbacks import DefaultCallback
 
-
-SVN_ID = '$Id: model_ensemble.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
-
 __all__ = ['ModelEnsemble', 'MINIMIZE', 'MAXIMIZE']
 
 MINIMIZE = -1.0

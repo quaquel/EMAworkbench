@@ -7,12 +7,13 @@ This module provides various convenience functions and classes.
 
 '''
 from __future__ import division
-import numpy as np
-np = np
+
 import cPickle
 import os
 import bz2
 import math
+
+import numpy as np
 
 from deap import creator, base
 
@@ -22,7 +23,6 @@ from expWorkbench.uncertainties import CategoricalUncertainty,\
                                        INTEGER
 from expWorkbench import EMAError
 
-SVN_ID = '$Id: util.py 1104 2013-01-24 16:43:50Z wlauping $'
 __all__ = ['AbstractCallback',
            'DefaultCallback',
            'load_results',

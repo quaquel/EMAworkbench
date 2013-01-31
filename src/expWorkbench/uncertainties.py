@@ -8,12 +8,8 @@ types of uncertainties.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
-import numpy as np
-
-from sets import ImmutableSet
 from expWorkbench.ema_exceptions import EMAError
 
-SVN_ID = '$Id: uncertainties.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
 __all__ = ['AbstractUncertainty',
            'ParameterUncertainty',
            'CategoricalUncertainty'
@@ -22,9 +18,6 @@ __all__ = ['AbstractUncertainty',
 INTEGER = 'integer'
 UNIFORM = 'uniform'
 
-#==============================================================================
-# uncertainty classes
-#==============================================================================
 class AbstractUncertainty(object):
     '''
     :class:`AbstractUncertainty` provides a template for specifying different

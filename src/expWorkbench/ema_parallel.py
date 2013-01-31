@@ -26,7 +26,6 @@ import cStringIO
 import copy
 import os
 import time
-
 from multiprocessing import Queue, Process, cpu_count, current_process,\
                             TimeoutError
 from multiprocessing.util import Finalize
@@ -37,9 +36,7 @@ import ema_logging
                                      
 from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
 
-SVN_ID = '$Id: ema_parallel.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
 __all__ = ['CalculatorPool']
-
 
 def worker(inqueue, 
            outqueue, 

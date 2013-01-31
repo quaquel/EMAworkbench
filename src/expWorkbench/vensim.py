@@ -14,15 +14,15 @@ from __future__ import division
 import types
 import numpy as np
 
-from vensimDLLwrapper import command, get_val
-from vensimDLLwrapper import VensimError, VensimWarning
-import vensimDLLwrapper 
-
 from ema_logging import debug, info, warning
 from model import ModelStructureInterface
 from outcomes import Outcome
 from ema_exceptions import CaseError, EMAWarning 
-SVN_ID = '$Id: vensim.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
+
+from vensimDLLwrapper import command, get_val
+from vensimDLLwrapper import VensimError, VensimWarning
+import vensimDLLwrapper 
+
 __all__ = ['be_quiet',
            'load_model',
            'read_cin_file',
@@ -32,9 +32,6 @@ __all__ = ['be_quiet',
            'VensimModelStructureInterface']
 
 
-#==============================================================================
-#python  functions for frequently used commands in the vensim DLL wrapper
-#==============================================================================
 def be_quiet():
     '''
     this allows you to turn off the work in progress dialog that Vensim 
@@ -326,9 +323,3 @@ class VensimModelStructureInterface(ModelStructureInterface):
       
         self.output = None
         self.resultFile =r'\Current.vdf'
-
-#==============================================================================
-#functional test
-#==============================================================================
-if __name__=='__main__':
-    pass

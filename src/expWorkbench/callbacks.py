@@ -17,8 +17,6 @@ from uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER
 
-SVN_ID = '$Id: util.py 1071 2013-01-12 12:52:23Z jhkwakkel $'
-
 __all__ = ['AbstractCallback',
            'DefaultCallback'
           ]

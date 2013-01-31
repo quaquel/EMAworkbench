@@ -15,18 +15,13 @@ import itertools
 import scipy.stats as stats
 import numpy as np 
 
-from expWorkbench.ema_logging import info, warning
 from uncertainties import CategoricalUncertainty
-SVN_ID = '$Id: samplers.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
+
 __all__ = ['LHSSampler',
            'MonteCarloSampler',
            'FullFactorialSampler',
            'Sampler']
 
-#==============================================================================
-# sampler classes
-#==============================================================================
-   
 class Sampler(object):
     '''
     base class from which different samplers can be derived
