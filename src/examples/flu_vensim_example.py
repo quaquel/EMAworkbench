@@ -9,11 +9,8 @@ is the same as used in fluExample
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 from expWorkbench import ModelEnsemble, ParameterUncertainty,\
-                         Outcome, save_results
+                         Outcome, save_results, ema_logging
 from expWorkbench.vensim import VensimModelStructureInterface 
-from expWorkbench import ema_logging
-
-SVN_ID = '$Id: flu_vensim_example.py 1113 2013-01-27 14:21:16Z jhkwakkel $'
 
 class FluModel(VensimModelStructureInterface):
 

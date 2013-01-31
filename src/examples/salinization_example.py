@@ -9,14 +9,11 @@ import matplotlib.pyplot as plt
 from expWorkbench import ModelEnsemble, ParameterUncertainty, Outcome,\
                          ema_logging
 from expWorkbench.vensim import VensimModelStructureInterface
-
 from analysis import plotting
 
-SVN_ID = '$Id: salinization_example.py 1056 2012-12-14 11:23:14Z jhkwakkel $'
 
 class SalinizationModel(VensimModelStructureInterface):
     modelFile = r'\verzilting 2.vpm'
-#    modelFile = r'\verzilting with desertification.vpm'
     
     #outcomes
     outcomes = [Outcome('population', time=True),

@@ -10,11 +10,8 @@ is the same as used in fluExample
 '''
 
 from expWorkbench import ModelEnsemble, ParameterUncertainty,\
-                         Outcome, save_results
+                         Outcome, save_results, ema_logging
 from expWorkbench.vensim import VensimModelStructureInterface 
-from expWorkbench import ema_logging
-
-SVN_ID = '$Id: flu_vensim_no_policy_example.py 1085 2013-01-21 18:04:51Z jhkwakkel $'
 
 class FluModel(VensimModelStructureInterface):
     #base case model

@@ -22,7 +22,6 @@ from expWorkbench import ModelStructureInterface, ModelEnsemble,\
                          
 from analysis.plotting import lines, KDE                         
 
-SVN_ID = '$Id: flu_example.py 1082 2013-01-15 07:51:52Z jhkwakkel $'
 
 class MexicanFlu(ModelStructureInterface):
 

@@ -9,10 +9,7 @@ import matplotlib.pyplot as plt
 
 from analysis.clusterer import cluster
 
-from expWorkbench import load_results
-from expWorkbench import ema_logging
-
-SVN_ID = '$Id: cluster_example.py 1056 2012-12-14 11:23:14Z jhkwakkel $'
+from expWorkbench import load_results, ema_logging
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 
@@ -58,5 +55,3 @@ for i in range(1, cValue+1):
     ax.plot(data[1]["TIME"].T, values.T, )
 
 plt.show()
-
-

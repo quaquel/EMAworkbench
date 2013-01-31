@@ -24,7 +24,6 @@ To be able to debug the Vensim model, a few steps are needed:
     6.  Vensim tells you about your critical mistake
 
 '''
-SVN_ID = '$Id: model_debugger.py 1055 2012-12-14 10:56:51Z jhkwakkel $'
 
 fileSpecifyingError = ""
 
