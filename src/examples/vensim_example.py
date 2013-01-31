@@ -12,8 +12,6 @@ from expWorkbench import ModelEnsemble, ParameterUncertainty, Outcome,\
                          ema_logging 
 from expWorkbench.vensim import VensimModelStructureInterface
 
-SVN_ID = '$Id: vensim_example.py 1055 2012-12-14 10:56:51Z jhkwakkel $'
-
 class VensimExampleModel(VensimModelStructureInterface):
     '''
     example of the most simple case of doing EMA on

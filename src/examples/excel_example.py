@@ -10,16 +10,12 @@ This excel file implements a simple predator prey model.
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from expWorkbench import ModelEnsemble, ParameterUncertainty,\
-                         Outcome, save_results
-from expWorkbench import ema_logging
-
-from expWorkbench.excel import ExcelModelStructureInterface
-
-from analysis.plotting import lines
 import matplotlib.pyplot as plt
 
-SVN_ID = '$Id: excel_example.py 1056 2012-12-14 11:23:14Z jhkwakkel $'
+from expWorkbench import ModelEnsemble, ParameterUncertainty,\
+                         Outcome, ema_logging
+from expWorkbench.excel import ExcelModelStructureInterface
+from analysis.plotting import lines
 
 class ExcelModel(ExcelModelStructureInterface):
     

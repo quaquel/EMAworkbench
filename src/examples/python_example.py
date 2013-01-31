@@ -9,8 +9,6 @@ It's main purpose has been to test the parallel processing functionality
 from expWorkbench import ModelEnsemble, ModelStructureInterface,\
                          ParameterUncertainty, Outcome
 
-SVN_ID = '$Id: python_example.py 1055 2012-12-14 10:56:51Z jhkwakkel $'
-
 class SimplePythonModel(ModelStructureInterface):
     '''
     This class represents a simple example of how one can extent the basic

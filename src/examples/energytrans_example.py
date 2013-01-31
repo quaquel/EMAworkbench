@@ -9,13 +9,9 @@ Created on 3 feb. 2011
 import matplotlib.pyplot as plt
 
 from expWorkbench import ModelEnsemble, CategoricalUncertainty,\
-                         ParameterUncertainty, Outcome
-from expWorkbench import ema_logging
+                         ParameterUncertainty, Outcome, ema_logging
 from expWorkbench.vensim import VensimModelStructureInterface
-
 from analysis.plotting import envelopes
-
-SVN_ID = '$Id: energytrans_example.py 1056 2012-12-14 11:23:14Z jhkwakkel $'
 
 class EnergyTrans(VensimModelStructureInterface):
     modelFile = r'\CESUN_adaptive.vpm'
