@@ -16,13 +16,10 @@ Typically, the dll can be found in ../AppData/Local/Vensim/vendll32.dll
 
 '''
 import ctypes 
+
 import numpy as np
 
 from ema_exceptions import EMAError, EMAWarning
-SVN_ID = '$Id: vensimDLLwrapper.py 1027 2012-11-21 19:56:50Z jhkwakkel $'
-#==============================================================================
-# vensim warning and vensim error 
-#==============================================================================
 
 class VensimWarning(EMAWarning):
     '''
@@ -30,12 +27,10 @@ class VensimWarning(EMAWarning):
     '''
     pass
 
-
 class VensimError(EMAError):
     '''
     base Vensim error
     '''
-    
     pass
 
 
@@ -45,10 +40,6 @@ except WindowsError:
     raise VensimError("vensim dll not found")
 
 
-
-#==============================================================================
-#python wraparround functions for the vensim DLL
-#==============================================================================
 def be_quiet(quietflag):
     '''
     this allows you to turn off the work in progress dialog that Vensim 
@@ -274,7 +265,6 @@ def get_varattrib(varname, attribute):
     result = [varname for varname in result if len(varname) != 0]
     
     return result
-     
 
 def get_varnames(filter = '*', vartype = 0):
     '''

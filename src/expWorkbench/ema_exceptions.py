@@ -6,7 +6,7 @@ Created on 31 mei 2011
 Exceptions and warning used internally by the EMA workbench. In line with 
 advice given in `PEP 8 <http://www.python.org/dev/peps/pep-0008/>`_.
 '''
-SVN_ID = '$Id: ema_exceptions.py 1027 2012-11-21 19:56:50Z jhkwakkel $'
+
 __all__ = ['EMAError',
            'EMAWarning',
            'CaseError',

@@ -4,7 +4,7 @@ Created on 24 mei 2011
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
-SVN_ID = '$Id: outcomes.py 1104 2013-01-24 16:43:50Z wlauping $'
+
 __all__ = ['Outcome',
            'TIME']
 

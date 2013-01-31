@@ -16,8 +16,6 @@ import ema_logging
 from ema_exceptions import EMAError
 from model import ModelStructureInterface
 
-SVN_ID = '$Id: excel.py 1027 2012-11-21 19:56:50Z jhkwakkel $'
-
 class ExcelModelStructureInterface(ModelStructureInterface):
     '''
     
