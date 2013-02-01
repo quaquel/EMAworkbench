@@ -517,8 +517,8 @@ class ModelEnsemble(object):
         toolbox = base.Toolbox()
         
         # Attribute generator
-        shared_uncertainties, uns = self.determine_intersecting_uncertainties()
-        del uns
+        od = self.__determine_unique_attributes('uncertainties')[0]
+        shared_uncertainties = od[tuple([msi.name for msi in self._msis])]
 
         #make a dictionary with the shared uncertainties and their range
         uncertainty_dict = {}
