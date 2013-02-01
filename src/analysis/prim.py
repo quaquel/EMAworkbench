@@ -53,19 +53,17 @@ which generates the following figures.
 
 '''
 from __future__ import division
-import numpy as np
 from types import StringType
 from sys import stdout
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 import time
 
-from expWorkbench.ema_exceptions import EMAError
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+from expWorkbench import EMAError, info, debug
 import analysis.primCode.primDataTypeAware as recursivePrim
 from analysis.scenario_discovery import calculate_sd_metrics
-from expWorkbench.ema_logging import log_to_stderr, INFO, info, debug
-from examples.flu_vensim_example import FluModel
-import expWorkbench
 
 
 __all__ = ['perform_prim', 'write_prim_to_stdout', 'show_boxes_individually',
@@ -628,18 +626,4 @@ def __normalize(boxes, experiments):
                 temp_box[name][1] = a[i]*box[name][1] + b[i]
         temp_boxes.append(temp_box)
     boxes= temp_boxes
-    return boxes
-
-if __name__ == '__main__':
-    log_to_stderr(level= INFO)
-    
-    model = FluModel(r'..\..\models\flu', "fluCase")
-    results = expWorkbench.util.load_results(r'1000 flu cases.cPickle')
-    boxes = perform_prim(results, 
-                         classify=model.outcomes[1].name, 
-                         threshold_type=1,
-                         threshold=0.8)
-    write_prim_to_stdout(boxes)
-    show_boxes_individually(boxes, results)
-    plt.show()  
-    
+    return boxes   

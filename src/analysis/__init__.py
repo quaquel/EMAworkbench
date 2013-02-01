@@ -1,4 +1,3 @@
-#import graphs
 #import graphs3d
 import interactive_graphs
 import orange_functions

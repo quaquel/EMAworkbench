@@ -1,7 +1,8 @@
 '''
-Created on 18 sep. 2012
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-@author: localadmin
+This module provides R style pairs plotting functionality.
+
 '''
 import numpy as np
 
@@ -95,7 +96,8 @@ def pairs_lines(results,
             if i==j: 
                 color = 'white'
             simple_pairs_lines(ax, data1, data2, color)
-        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show)
+        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, 
+                             outcomes_to_show)
             
 
     return figure, axes_dict
@@ -189,8 +191,8 @@ def pairs_density(results,
         axes_dicts = {}
         figures = []
         for key, value in outcomes.items():
-            figure, axes_dict = simple_pairs_density(value, outcomes_to_show, log, 
-                                       colormap, gridsize, ylabels,
+            figure, axes_dict = simple_pairs_density(value, outcomes_to_show, 
+                                       log, colormap, gridsize, ylabels,
                                        extents=extents, title=key)
             axes_dicts[key] = axes_dict
             figures.append(figure)
@@ -310,7 +312,8 @@ def simple_pairs_density(outcomes,
             ax.hexbin(x_data,y_data, bins=bins, gridsize=gridsize, 
                       cmap=cm.__dict__[colormap], edgecolor='black', 
                       linewidths=1, extent=extent, mincnt=1)
-        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show)
+        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, 
+                             outcomes_to_show)
 
 
             
@@ -408,7 +411,8 @@ def pairs_scatter(results,
                 edgecolor = 'white'
             ax.scatter(x_data, y_data, 
                        facecolor=facecolor, edgecolor=edgecolor)
-        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show)
+        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, 
+                             outcomes_to_show)
 
     return figure, axes_dict
 

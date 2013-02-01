@@ -1,13 +1,15 @@
 '''
-Created on 22 jul. 2012
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-@author: localadmin
+
+
 '''
 from __future__ import division
+from types import StringType, DictType, ListType
+import copy
+
 import numpy as np
 import scipy.stats.kde as kde
-import copy
-from types import StringType, DictType, ListType
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
