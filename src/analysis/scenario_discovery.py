@@ -10,9 +10,10 @@ functions here for calculating the scenario discovery metrics *coverage* and
 
 '''
 from __future__ import division
-import numpy as np
 import copy
 from types import StringType
+
+import numpy as np
 
 from analysis.primCode.primDataTypeAware import make_box, Prim, in_box,\
                                                 prim_hdr

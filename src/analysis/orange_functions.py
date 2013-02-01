@@ -1,5 +1,7 @@
 '''
 
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 This module contains some convenience functions that wrap machine learning
 algorithms implemented in `orange <http://orange.biolab.si/doc/reference/Domain.htm>`_
 
@@ -12,15 +14,13 @@ other algorithms provided by orange.
 
 Where appropriate, the relevant documentation from orange has been used. 
 
-author: jhkwakkel
 '''
 from __future__ import division
 import numpy as np
-import matplotlib.pyplot as plt
 
 import orange, orngTree, orngEnsemble, orngFSS #@UnresolvedImport
 
-from expWorkbench.ema_logging import log_to_stderr, INFO, info
+from expWorkbench.ema_logging import info
 
 __all__ = ['build_orange_data', 
            'random_forest', 
@@ -59,7 +59,8 @@ def build_orange_data(data,classify):
         dtype = dtype[0].name
         if dtype == 'int' or dtype =='object':
             attribute = ENUM(name)
-            [attribute.addValue(str(value)) for value in set(experiments[name].tolist())]
+            [attribute.addValue(str(value)) for value in\
+                                            set(experiments[name].tolist())]
         else:
             attribute = FLOAT(name, startValue = np.min(experiments[name]), 
                               endValue = np.max(experiments[name]))
@@ -104,7 +105,8 @@ def random_forest(data, classify, nrOfTrees=100, attributes=None):
     #do the random forest
     #see http://orange.biolab.si/doc/modules/orngEnsemble.htm for details
     info("executing random forest")
-    measure = orngEnsemble.MeasureAttribute_randomForests(trees=nrOfTrees, attributes=attributes)
+    measure = orngEnsemble.MeasureAttribute_randomForests(trees=nrOfTrees, 
+                                                        attributes=attributes)
     
     return measure
 
@@ -300,9 +302,3 @@ def tree(data,
 #        ax.scatter(x, y, c=colors[c]) 
 #    
 #    return figure
-    
-
-
-
-
-

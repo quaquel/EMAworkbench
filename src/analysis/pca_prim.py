@@ -1,7 +1,6 @@
 '''
-Created on May 7, 2012
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
  a more generic 'user friendly' implementation of the pca prim combi discussed 
  in the envsoft manuscript D-12-00217: 
@@ -16,9 +15,8 @@ from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
 
-from expWorkbench import load_results, ema_logging
+from expWorkbench import load_results, ema_logging, EMAError
 from analysis import prim
-from expWorkbench.ema_exceptions import EMAError
 
 def determine_rotation(experiments):
     '''
@@ -211,121 +209,125 @@ def perform_pca_prim(results,
     return rotation_matrix, row_names, column_names, rotated_experiments, boxes
 
 
-if __name__ =='__main__':
-    ema_logging.log_to_stderr(ema_logging.INFO)
-    
-    def copper_crises_rule(outcomes):
-        '''
-        classify results into crises or not
-        
-        rule is change in real copper price larger than factor 2
-        '''
-        outcome = outcomes['Real price of copper']
-        change = np.abs(outcome[:, 1::]/outcome[:, 0:-1])
-        classes = np.zeros(outcome.shape[0])
-        classes[np.max(change, axis=1)>2] = 1
-        return classes
-    
-    def restrict_to_after_2010(results):
-        logical =  results[1]['TIME'][0,:]>2010
-        for key, value in results[1].items():
-            value = value.T[logical]
-            value = value.T
-            results[1][key] = value
-        return results
 
-    top_down_subsets = {'Capacity': ['Initial mining capacity in preparation',    
-                                     'Initial refining capacity',    
-                                     'Average smelting capacity permit term',    
-                                     'Average mine lifetime',    
-                                     'Initial mining capacity'],    
-                        'Capacity (development)': ['Initial copper price',    
-                                                   'Long term profit period',    
-                                                   'Maximum increase deep sea mine capacity',    
-                                                   'Deep sea capital investment fraction',    
-                                                   'Initial long term profit forecast'],    
-                        'Demand': ['Normalisation value GDP',    
-                                   'Start GDP per capita',    
-                                   'Long term copper price elasticity',    
-                                   'Amplification factor of relative price effect',    
-                                   'Amplification factor of intrinsic demand',    
-                                   'Initial value long term effect intrinsic demand',    
-                                   'Base economic growth',    
-                                   'Long term increase demand due to intrinsic demand'],    
-                        'Marginal costs':['Influence of technology on copper mining energy costs',    
-                                          'Power for oregrades'],    
-                        'Price':['Price amplifying factor',    
-                                 'Production time'],    
-                        'Recycling/Supply':['Copper score during treatment',    
-                                            'Percentage of primary scrap'],    
-                        'Substitute':['GDP growth difference amplifier',    
-                                      'Initial value of long term effect substitution'],    
-                        'Supply':['Switch forecast capacity',    
-                                  'One year',    
-                                  'Initial inventories of refined copper',    
-                                  'Minimum usage smelting and refining capacity']}    
-
-    bottom_up_subsets = {'Capacity':['Average mine lifetime',
-                                     'Initial used deep sea capacity',
-                                     'Initial used mining capacity',
-                                     'Average mine permit term',
-                                     'Initial deep sea mining capacity',
-                                     'Average lifetime of copper mills',
-                                     'Average lifetime of deep sea capacity',
-#                                     'Delay order deep sea',
-                                     'Initial deep sea capacity in preparation',
-                                     'Initial preparation of refining capacity'],
-                        'Capacity (development)':['Maximum increase deep sea mine capacity',
-                                                  'Maximum increase mine and smelter capacity',
-                                                  'Initial deep sea long term profit',
-                                                  'Production costs deep sea copper',
-                                                  'Capital investment fraction',
-                                                  'Switch forecast and historical data for capacity',
-                                                  'Initial long term profit forecast'],
-                        'Demand':['Long term increase demand due to intrinsic demand',
-                                  'Amplification factor of relative price effect',
-                                  'Initial value long term effect price',
-                                  'Start GDP per capita',
-                                  'Base economic growth',
-                                  'Long term effect on demand period',
-                                  'Cu in vehicles BEV',
-                                  'Cu in vehicles cityBEV',
-                                  'Amplification factor of intrinsic demand',
-                                  'Number of cars in 2000',
-                                  'Goal for copper in infrastructure 2050',
-                                  'Growth of copper in architecture',
-                                  'Switch new cars',
-                                  'Long term effect intrinsic demand period',
-                                  'Long term copper price elasticity',
-                                  'Switch World population'],
-                        'Marginal costs':['Transport costs of copper',
-                                          'GDP growth difference amplifier energy'],
-                        'Price':['Price amplifying factor',
-                                 'Production time'],
-                        'Recycling':['Initial use grade for WaterTreatment',
-                                     'Initial value global copper in scrap StationaryElectromotors',
-                                     'Average lifetime of copper in use Architecture',
-                                     'Percentage copper recovered from scrap',
-                                     'Average lifetime of copper in use OtherUse',
-                                     'Collection rate copper products Automotive',
-                                     'Collection rate copper products WaterTreatment',
-                                     'Copper score during treatment EnergyInfrastructure',
-                                     'Initial value global copper in scrap OtherUse',
-                                     'Initial total copper in use',
-                                     'Copper score during treatment WaterTreatment'],
-                        'Substitute':['Long term effect of substitution period',
-                                      'Substitution threshold StationaryElectromotors',
-                                      'Substitution threshold OtherUse',
-                                      'Initial price of aluminium',
-                                      'Amplification factor for substitution'],
-                        'Supply':['Part of resource base seabased',
-                                  'One year',
-                                  'Minimum usage smelting and refining capacity',
-                                  'Threshold for junior companies to start deep sea reserve base development']}
-
-
-
-    #retrieve results
+#
+# TODO the code below should be turned into an example of pca prim 
+#
+#if __name__ =='__main__':
+#    ema_logging.log_to_stderr(ema_logging.INFO)
+#    
+#    def copper_crises_rule(outcomes):
+#        '''
+#        classify results into crises or not
+#        
+#        rule is change in real copper price larger than factor 2
+#        '''
+#        outcome = outcomes['Real price of copper']
+#        change = np.abs(outcome[:, 1::]/outcome[:, 0:-1])
+#        classes = np.zeros(outcome.shape[0])
+#        classes[np.max(change, axis=1)>2] = 1
+#        return classes
+#    
+#    def restrict_to_after_2010(results):
+#        logical =  results[1]['TIME'][0,:]>2010
+#        for key, value in results[1].items():
+#            value = value.T[logical]
+#            value = value.T
+#            results[1][key] = value
+#        return results
+#
+#    top_down_subsets = {'Capacity': ['Initial mining capacity in preparation',    
+#                                     'Initial refining capacity',    
+#                                     'Average smelting capacity permit term',    
+#                                     'Average mine lifetime',    
+#                                     'Initial mining capacity'],    
+#                        'Capacity (development)': ['Initial copper price',    
+#                                                   'Long term profit period',    
+#                                                   'Maximum increase deep sea mine capacity',    
+#                                                   'Deep sea capital investment fraction',    
+#                                                   'Initial long term profit forecast'],    
+#                        'Demand': ['Normalisation value GDP',    
+#                                   'Start GDP per capita',    
+#                                   'Long term copper price elasticity',    
+#                                   'Amplification factor of relative price effect',    
+#                                   'Amplification factor of intrinsic demand',    
+#                                   'Initial value long term effect intrinsic demand',    
+#                                   'Base economic growth',    
+#                                   'Long term increase demand due to intrinsic demand'],    
+#                        'Marginal costs':['Influence of technology on copper mining energy costs',    
+#                                          'Power for oregrades'],    
+#                        'Price':['Price amplifying factor',    
+#                                 'Production time'],    
+#                        'Recycling/Supply':['Copper score during treatment',    
+#                                            'Percentage of primary scrap'],    
+#                        'Substitute':['GDP growth difference amplifier',    
+#                                      'Initial value of long term effect substitution'],    
+#                        'Supply':['Switch forecast capacity',    
+#                                  'One year',    
+#                                  'Initial inventories of refined copper',    
+#                                  'Minimum usage smelting and refining capacity']}    
+#
+#    bottom_up_subsets = {'Capacity':['Average mine lifetime',
+#                                     'Initial used deep sea capacity',
+#                                     'Initial used mining capacity',
+#                                     'Average mine permit term',
+#                                     'Initial deep sea mining capacity',
+#                                     'Average lifetime of copper mills',
+#                                     'Average lifetime of deep sea capacity',
+##                                     'Delay order deep sea',
+#                                     'Initial deep sea capacity in preparation',
+#                                     'Initial preparation of refining capacity'],
+#                        'Capacity (development)':['Maximum increase deep sea mine capacity',
+#                                                  'Maximum increase mine and smelter capacity',
+#                                                  'Initial deep sea long term profit',
+#                                                  'Production costs deep sea copper',
+#                                                  'Capital investment fraction',
+#                                                  'Switch forecast and historical data for capacity',
+#                                                  'Initial long term profit forecast'],
+#                        'Demand':['Long term increase demand due to intrinsic demand',
+#                                  'Amplification factor of relative price effect',
+#                                  'Initial value long term effect price',
+#                                  'Start GDP per capita',
+#                                  'Base economic growth',
+#                                  'Long term effect on demand period',
+#                                  'Cu in vehicles BEV',
+#                                  'Cu in vehicles cityBEV',
+#                                  'Amplification factor of intrinsic demand',
+#                                  'Number of cars in 2000',
+#                                  'Goal for copper in infrastructure 2050',
+#                                  'Growth of copper in architecture',
+#                                  'Switch new cars',
+#                                  'Long term effect intrinsic demand period',
+#                                  'Long term copper price elasticity',
+#                                  'Switch World population'],
+#                        'Marginal costs':['Transport costs of copper',
+#                                          'GDP growth difference amplifier energy'],
+#                        'Price':['Price amplifying factor',
+#                                 'Production time'],
+#                        'Recycling':['Initial use grade for WaterTreatment',
+#                                     'Initial value global copper in scrap StationaryElectromotors',
+#                                     'Average lifetime of copper in use Architecture',
+#                                     'Percentage copper recovered from scrap',
+#                                     'Average lifetime of copper in use OtherUse',
+#                                     'Collection rate copper products Automotive',
+#                                     'Collection rate copper products WaterTreatment',
+#                                     'Copper score during treatment EnergyInfrastructure',
+#                                     'Initial value global copper in scrap OtherUse',
+#                                     'Initial total copper in use',
+#                                     'Copper score during treatment WaterTreatment'],
+#                        'Substitute':['Long term effect of substitution period',
+#                                      'Substitution threshold StationaryElectromotors',
+#                                      'Substitution threshold OtherUse',
+#                                      'Initial price of aluminium',
+#                                      'Amplification factor for substitution'],
+#                        'Supply':['Part of resource base seabased',
+#                                  'One year',
+#                                  'Minimum usage smelting and refining capacity',
+#                                  'Threshold for junior companies to start deep sea reserve base development']}
+#
+#
+#
+#    #retrieve results
 #    results = load_results(r'..\..\models\JAN\pickles\copper revision\\result_2500_runs_TopDown_31_uncertainties.cPickle')
 #    results = restrict_to_after_2010(results)
 #    rotation_matrix, row_names, column_names, boxes = perform_pca_prim(results, 
@@ -336,40 +338,40 @@ if __name__ =='__main__':
 #                              exclude=['policy', 'model', 'Delay order deep sea'],
 #                              subsets=bottom_up_subsets,
 #                              threshold=0.7)    
-   
-    results = load_results(r'..\..\models\JAN\pickles\copper revision\\result_2500_runs_BottomUp_57_uncertainties.cPickle')
-    results = restrict_to_after_2010(results)
-    rotation_matrix, row_names, column_names, boxes = perform_pca_prim(results, 
-                              classify=copper_crises_rule,
-                              exclude=['policy', 'model','Delay order deep sea'])
+#   
+#    results = load_results(r'..\..\models\JAN\pickles\copper revision\\result_2500_runs_BottomUp_57_uncertainties.cPickle')
+#    results = restrict_to_after_2010(results)
+#    rotation_matrix, row_names, column_names, boxes = perform_pca_prim(results, 
+#                              classify=copper_crises_rule,
+#                              exclude=['policy', 'model','Delay order deep sea'])
 #    rotation_matrix, row_names, column_names, boxes = perform_pca_prim(results, 
 #                              classify=copper_crises_rule,
 #                              exclude=['policy', 'model', 'Delay order deep sea'],
 #                              subsets=bottom_up_subsets,
 #                              threshold=0.7)    
-    
+#    
 #    results = load_results(r'..\..\models\JAN\pickles\copper revision\results_5000_bothModels.cPickle')
 #    results = restrict_to_after_2010(results)
-    
-    # perform PCA prim
-
-    for entry in row_names:
-        print entry
-        
-    for entry in column_names:
-        print entry
-    np.savetxt('rotation matrix.txt', rotation_matrix, delimiter=',')
-    
-    import pylab as p
-    p.matshow(rotation_matrix)
-    p.show()
-    
-
-    # perform prim in the usual way unrotated for comparison
+#    
+#    # perform PCA prim
+#
+#    for entry in row_names:
+#        print entry
+#        
+#    for entry in column_names:
+#        print entry
+#    np.savetxt('rotation matrix.txt', rotation_matrix, delimiter=',')
+#    
+#    import pylab as p
+#    p.matshow(rotation_matrix)
+#    p.show()
+#    
+#
+#     perform prim in the usual way unrotated for comparison
 #    boxes2 = prim.perform_prim(results, 
 #                      copper_crises_rule, 
 #                      threshold=0.8)
 #    prim.show_boxes_together(boxes2, results)
 #    prim.write_prim_to_stdout(boxes2)
-    
-    plt.show()
+#    
+#    plt.show()

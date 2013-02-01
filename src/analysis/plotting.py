@@ -1,5 +1,5 @@
 """
-
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
 this module provides functions for generating some basic figures. The code can
@@ -11,12 +11,11 @@ rely on `matplotlib <http://matplotlib.sourceforge.net/>`_,
 """
 from __future__ import division
 import copy
-import numpy as np
-np=np
-import matplotlib.pyplot as plt
-
-from matplotlib.patches import ConnectionPatch
 from types import StringType
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import ConnectionPatch
 
 from expWorkbench.ema_logging import debug, warning
 from expWorkbench.ema_exceptions import EMAError
