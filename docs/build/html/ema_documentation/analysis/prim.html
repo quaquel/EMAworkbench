@@ -107,11 +107,11 @@ in a high number of deaths for the &#8216;no policy&#8217; runs.</p>
 extract from the results, those related to the deceased population and 
 classify them into two distinct classes:</p>
 <div class="math">
-<p><span class="math">f(x)=\begin{cases} 
+<p><img src="../../_images/math/7ae9d0ef11355fb03db36c8a698c964b99686f08.png" alt="f(x)=\begin{cases} 
          1, &amp;\text{if $x &gt; 1000000$;}\\
          0, &amp;\text{otherwise.}
-      \end{cases}</span></p>
-</div><p>Here, <span class="math">x</span> is the endstate of &#8216;deceased population region 1&#8217;.</p>
+      \end{cases}"/></p>
+</div><p>Here, <img class="math" src="../../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> is the endstate of &#8216;deceased population region 1&#8217;.</p>
 <p>A second thing that needs to be done is to extract from the saved results only
 those results belonging to &#8216;no policy&#8217;. To this end, we can use logical 
 indexing. That is, we can use <a class="reference external" href="http://www.scipy.org/Tentative_NumPy_Tutorial#head-0dffc419afa7d77d51062d40d2d84143db8216c2">boolean arrays</a> 
@@ -133,7 +133,7 @@ used as input for prim.</p>
 </div>
 <dl class="function">
 <dt id="prim.perform_prim">
-<tt class="descclassname">prim.</tt><tt class="descname">perform_prim</tt><big>(</big><em>results</em>, <em>classify</em>, <em>peel_alpha=0.05</em>, <em>paste_alpha=0.05</em>, <em>mass_min=0.05</em>, <em>threshold=None</em>, <em>pasting=True</em>, <em>threshold_type=1</em>, <em>obj_func=&lt;function def_obj_func at 0x04B0B9B0&gt;</em><big>)</big><a class="headerlink" href="#prim.perform_prim" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">prim.</tt><tt class="descname">perform_prim</tt><big>(</big><em>results</em>, <em>classify</em>, <em>peel_alpha=0.05</em>, <em>paste_alpha=0.05</em>, <em>mass_min=0.05</em>, <em>threshold=None</em>, <em>pasting=True</em>, <em>threshold_type=1</em>, <em>obj_func=&lt;function def_obj_func at 0x0E3630F0&gt;</em><big>)</big><a class="headerlink" href="#prim.perform_prim" title="Permalink to this definition">¶</a></dt>
 <dd><p>perform Patient Rule Induction Method (PRIM). This function performs 
 the PRIM algorithm on the data. It uses a Python implementation of PRIM
 inspired by the <a class="reference external" href="http://www.oga-lab.net/RGM2/func.php?rd_id=prim:prim-package">R</a> 
@@ -181,18 +181,18 @@ algorithm looks for both +1 and -1.</li>
 <p>for each box, the scenario discovery metrics <em>coverage</em> and <em>density</em> 
 are also calculated:</p>
 <div class="math">
-<p><span class="math">coverage=\frac
+<p><img src="../../_images/math/db19e4a934869420a11470063fec4eac3e81fff6.png" alt="coverage=\frac
             {{\displaystyle\sum_{y_{i}\in{B}}y_{i}{'}}}
-            {{\displaystyle\sum_{y_{i}\in{B^I}}y_{i}{'}}}</span></p>
-</div><p>where <span class="math">y_{i}{'}=1</span> if <span class="math">x_{i}\in{B}</span> and <span class="math">y_{i}{'}=0</span>
+            {{\displaystyle\sum_{y_{i}\in{B^I}}y_{i}{'}}}"/></p>
+</div><p>where <img class="math" src="../../_images/math/a699ea43cab43dbe1226e4c2c3cc36f66071a78f.png" alt="y_{i}{'}=1"/> if <img class="math" src="../../_images/math/6954150d666f6f51bdbe40b87e5147a7ed6dced4.png" alt="x_{i}\in{B}"/> and <img class="math" src="../../_images/math/f42ef470df79bd07754a79fa02f1d5ead7040f42.png" alt="y_{i}{'}=0"/>
 otherwise.</p>
 <div class="math">
-<p><span class="math">density=\frac
+<p><img src="../../_images/math/bb237cc461e3d6a93f2515a7173e6827f2ae3d8e.png" alt="density=\frac
             {{\displaystyle\sum_{y_{i}\in{B}}y_{i}{'}}}
-            {{\displaystyle\left|{y_{i}}\right|\in{B}}}</span></p>
-</div><p>where <span class="math">y_{i}{'}=1</span> if <span class="math">x_{i}\in{B}</span> and <span class="math">y_{i}{'}=0</span>
-otherwise, and <span class="math">{\displaystyle\left|{y_{i}}\right|\in{B}}</span> is the
-cardinality of <span class="math">y_{i}</span>.</p>
+            {{\displaystyle\left|{y_{i}}\right|\in{B}}}"/></p>
+</div><p>where <img class="math" src="../../_images/math/a699ea43cab43dbe1226e4c2c3cc36f66071a78f.png" alt="y_{i}{'}=1"/> if <img class="math" src="../../_images/math/6954150d666f6f51bdbe40b87e5147a7ed6dced4.png" alt="x_{i}\in{B}"/> and <img class="math" src="../../_images/math/f42ef470df79bd07754a79fa02f1d5ead7040f42.png" alt="y_{i}{'}=0"/>
+otherwise, and <img class="math" src="../../_images/math/633e43d02116a1084ce50e55f4ea9aa902cc1dd9.png" alt="{\displaystyle\left|{y_{i}}\right|\in{B}}"/> is the
+cardinality of <img class="math" src="../../_images/math/8061ee572c06de48dfc2c0d05e4c23da64bcd74a.png" alt="y_{i}"/>.</p>
 <p>Density is the ratio of the cases of interest in a box to the 
 total number of cases in that box. <em>density</em> is identical to the mean
 in case of a binary classification.  For more detail on these metrics see 

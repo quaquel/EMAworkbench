@@ -54,7 +54,6 @@ Analysis
    ../../ema_documentation/analysis/orange_functions.rst
    ../../ema_documentation/analysis/clusterer.rst
    ../../ema_documentation/analysis/scenario_discovery.rst
-   ../../ema_documentation/analysis/optimization_plots.rst
 
 
 The Core of the Workbench
@@ -68,11 +67,11 @@ The Core of the Workbench
    ../../ema_documentation/expWorkbench/uncertainties.rst
    ../../ema_documentation/expWorkbench/outcomes.rst
    ../../ema_documentation/expWorkbench/samplers.rst
-   ../../ema_documentation/expWorkbench/EMAlogging.rst
+   ../../ema_documentation/expWorkbench/callbacks.rst
+   ../../ema_documentation/expWorkbench/ema_logging.rst
    ../../ema_documentation/expWorkbench/ema_parallel.rst
    ../../ema_documentation/expWorkbench/ema_exceptions.rst
    ../../ema_documentation/expWorkbench/ema_optimization.rst
-   ../../ema_documentation/expWorkbench/optimization_callbacks.rst
    ../../ema_documentation/expWorkbench/util.rst
 
 

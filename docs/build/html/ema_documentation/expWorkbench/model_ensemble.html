@@ -100,7 +100,7 @@
 <p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
 <dl class="class">
 <dt id="model_ensemble.ModelEnsemble">
-<em class="property">class </em><tt class="descclassname">model_ensemble.</tt><tt class="descname">ModelEnsemble</tt><big>(</big><em>sampler=&lt;expWorkbench.samplers.LHSSampler object at 0x0E03D950&gt;</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">model_ensemble.</tt><tt class="descname">ModelEnsemble</tt><big>(</big><em>sampler=&lt;samplers.LHSSampler object at 0x0EB259F0&gt;</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble" title="Permalink to this definition">¶</a></dt>
 <dd><p>One of the two main classes for performing EMA. The ensemble class is 
 responsible for running experiments on one or more model structures across
 one or more policies, and returning the results.</p>
@@ -234,10 +234,22 @@ thus be preceded by reinstantiating the correct individual.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="model_ensemble.ModelEnsemble.determine_intersecting_uncertainties">
-<tt class="descname">determine_intersecting_uncertainties</tt><big>(</big><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.determine_intersecting_uncertainties" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper method for determining the uncertainties shared across
-multiple uncertainties</p>
+<dt id="model_ensemble.ModelEnsemble.determine_uncertainties">
+<tt class="descname">determine_uncertainties</tt><big>(</big><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.determine_uncertainties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method for determining the unique uncertainties and how
+the uncertainties are shared across multiple model structure 
+interfaces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An overview dictionary which shows which uncertainties are
+used by which model structure interface, or interfaces, and
+a dictionary with the unique uncertainties across all the 
+model structure interfaces, with the name as key.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -248,7 +260,7 @@ multiple uncertainties</p>
 
 <dl class="method">
 <dt id="model_ensemble.ModelEnsemble.perform_experiments">
-<tt class="descname">perform_experiments</tt><big>(</big><em>cases</em>, <em>callback=&lt;class 'expWorkbench.util.DefaultCallback'&gt;</em>, <em>reporting_interval=100</em>, <em>model_kwargs={}</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.perform_experiments" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">perform_experiments</tt><big>(</big><em>cases</em>, <em>callback=&lt;class 'callbacks.DefaultCallback'&gt;</em>, <em>reporting_interval=100</em>, <em>model_kwargs={}</em>, <em>which_uncertainties='intersection'</em>, <em>which_outcomes='intersection'</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#model_ensemble.ModelEnsemble.perform_experiments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method responsible for running the experiments on a structure. In case 
 of multiple model structures, the outcomes are set to the intersection 
 of the sets of outcomes of the various models.</p>
@@ -271,6 +283,16 @@ which the callback reports the progress.
 (Default is 100)</li>
 <li><strong>model_kwargs</strong> &#8211; dictionary of keyword arguments to be passed to 
 model_init</li>
+<li><strong>which_uncertainties</strong> &#8211; keyword argument for controlling whether,
+in case of multiple model structure 
+interfaces, the intersection or the union
+of uncertainties should be used. 
+(Default is intersection).</li>
+<li><strong>which_uncertainties</strong> &#8211; keyword argument for controlling whether,
+in case of multiple model structure 
+interfaces, the intersection or the union
+of outcomes should be used. 
+(Default is intersection).</li>
 <li><strong>kwargs</strong> &#8211; generic keyword arguments to pass on to callback</li>
 </ul>
 </td>
@@ -300,6 +322,13 @@ directly:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">expWorkbench.util</span> <span class="kn">as</span> <span class="nn">util</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">util</span><span class="o">.</span><span class="n">save_results</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">file</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The current implementation has a hard coded limit to the 
+number of designs possible. This is set to 50.000 designs. 
+If one want to go beyond this, set <cite>self.max_designs</cite> to
+a higher value.</p>
 </div>
 </dd></dl>
 

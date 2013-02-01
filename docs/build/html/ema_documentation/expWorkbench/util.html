@@ -27,7 +27,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
     <link rel="next" title="Vensim" href="vensim.html" />
-    <link rel="prev" title="optimization_callbacks" href="optimization_callbacks.html" /> 
+    <link rel="prev" title="ema_optimization" href="ema_optimization.html" /> 
   </head>
   <body>
 
@@ -48,7 +48,7 @@
           <a href="vensim.html" title="Vensim"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="optimization_callbacks.html" title="optimization_callbacks"
+          <a href="ema_optimization.html" title="ema_optimization"
              accesskey="P">previous</a> |</li>
        <li><a href="../../contents.html">home</a>|&nbsp;</li>
        <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
@@ -175,6 +175,58 @@ across different machines. the files are saved in binary format</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="util.save_optimization_results">
+<tt class="descclassname">util.</tt><tt class="descname">save_optimization_results</tt><big>(</big><em>results</em>, <em>file_name</em>, <em>zipped=True</em><big>)</big><a class="headerlink" href="#util.save_optimization_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>save the results to the specified bz2 file. To facilitate transfer
+across different machines. the files are saved in binary format</p>
+<p>see also: <a class="reference external" href="http://projects.scipy.org/numpy/ticket/1284">http://projects.scipy.org/numpy/ticket/1284</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>results</strong> &#8211; the return of run_experiments</li>
+<li><strong>file</strong> &#8211; the path of the file</li>
+<li><strong>zipped</strong> &#8211; save the pickled data to a zip file if True</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">IOError if file not found</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="util.load_optimization_results">
+<tt class="descclassname">util.</tt><tt class="descname">load_optimization_results</tt><big>(</big><em>file_name</em>, <em>weights</em>, <em>zipped=True</em><big>)</big><a class="headerlink" href="#util.load_optimization_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>load the specified bz2 file. the file is assumed to be saves
+using save_results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file</strong> &#8211; the path of the file</li>
+<li><strong>zipped</strong> &#8211; load the pickled data from a zip file if True</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the unpickled results</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><p class="first">IOError if file not found</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">EMAError if weights are not correct</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="util.experiments_to_cases">
 <tt class="descclassname">util.</tt><tt class="descname">experiments_to_cases</tt><big>(</big><em>experiments</em><big>)</big><a class="headerlink" href="#util.experiments_to_cases" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function transform a structured experiments array into a list
@@ -247,7 +299,7 @@ in order to avoid memory problems.</li>
           <a href="vensim.html" title="Vensim"
              >next</a> |</li>
         <li class="right" >
-          <a href="optimization_callbacks.html" title="optimization_callbacks"
+          <a href="ema_optimization.html" title="ema_optimization"
              >previous</a> |</li>
        <li><a href="../../contents.html">home</a>|&nbsp;</li>
        <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>

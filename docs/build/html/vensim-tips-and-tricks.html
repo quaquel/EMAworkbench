@@ -144,17 +144,17 @@ case dict.</p>
 <p>Suppose that the lookup specifies some <cite>S</cite>-shaped relation that can be
 described using a sigmoid function. The basic sigmoid is:</p>
 <div class="math">
-<p><span class="math">P(t) = \frac{1}{1+e^{-t}}</span></p>
+<p><img src="_images/math/75a77235afffc15264ef0654b44ea723d56fc22a.png" alt="P(t) = \frac{1}{1+e^{-t}}"/></p>
 </div><p>This generates an S-shaped curve between 0 and 1, with
-<span class="math">P(0)=\frac{1}{2}</span>. However, suppose that our relation is uncertain,
-but runs from arround -1 to arround +1 and <span class="math">P(t)=0</span> is also uncertain,
+<img class="math" src="_images/math/a2a4d0f5ea555d0aec5c244e26581ece1b206498.png" alt="P(0)=\frac{1}{2}"/>. However, suppose that our relation is uncertain,
+but runs from arround -1 to arround +1 and <img class="math" src="_images/math/20dbcb2aeafc6fb59c59b3489dec6e9496a75510.png" alt="P(t)=0"/> is also uncertain,
 but is thought to be roughly 5, we can now modify the basic sigmoid by adding
 three parameters to it that allows us to explore these three uncertainties.
-Suppose we call these uncertainties <span class="math">\alpha</span> for the upper bound,
-<span class="math">\beta</span> for the lower bound, and <span class="math">\gamma</span> for the value where
-<span class="math">P(t)=0</span>.</p>
+Suppose we call these uncertainties <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> for the upper bound,
+<img class="math" src="_images/math/fdb63b9e51abe6bbb16acfb5d7b773ddbb5bf4a8.png" alt="\beta"/> for the lower bound, and <img class="math" src="_images/math/66981fa3920210c6ad8dbe5e968783d5dd7520c3.png" alt="\gamma"/> for the value where
+<img class="math" src="_images/math/20dbcb2aeafc6fb59c59b3489dec6e9496a75510.png" alt="P(t)=0"/>.</p>
 <div class="math">
-<p><span class="math">P(t) = (\alpha-\beta) * \frac{1}{1+e^{-t-\gamma}} + \beta</span></p>
+<p><img src="_images/math/e866e948e82719fd5855fd5be9ebfd386c91faaa.png" alt="P(t) = (\alpha-\beta) * \frac{1}{1+e^{-t-\gamma}} + \beta"/></p>
 </div><p>We can implement this function easily in Python.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">alpha</span><span class="o">+</span><span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">exp</span><span class="p">(</span><span class="n">t</span><span class="o">-</span><span class="n">gamma</span><span class="p">))</span> <span class="o">+</span><span class="n">beta</span>

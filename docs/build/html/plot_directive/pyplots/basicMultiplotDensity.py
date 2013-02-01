@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from analysis.graphs import multiplot_scatter, multiplot_density, multiplot_lines
+from analysis._plotting import pairs_scatter, pairs_density, pairs_lines
 from expWorkbench.util import load_results
 
 #load the data
-experiments, results = load_results(r'../../../src/analysis/1000 flu cases.cPickle')
+experiments, results = load_results(r'../../../src/analysis/1000 flu cases.cPickle', zipped=False)
 
 #transform the results to the required format
 newResults = {}
@@ -26,5 +26,5 @@ for key, value in results.items():
         logicalIndex = value.T==np.max(value, axis=1)
         newResults['time of max'] = time[logicalIndex.T]
 
-multiplot_density((experiments, newResults))
+pairs_density((experiments, newResults))
 plt.show() 
