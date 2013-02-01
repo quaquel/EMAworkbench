@@ -96,6 +96,7 @@
             
   <div class="section" id="module-plotting">
 <span id="plotting"></span><h1><a class="reference internal" href="#module-plotting" title="plotting"><tt class="xref py py-mod docutils literal"><span class="pre">plotting</span></tt></a><a class="headerlink" href="#module-plotting" title="Permalink to this headline">¶</a></h1>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
 <p>this module provides functions for generating some basic figures. The code can
 be used as is, or serve as an example for writing your own code. These plots
 rely on <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a>, 
@@ -240,13 +241,20 @@ if density is <cite>True</cite>.</p>
 </div>
 <p>will show an envelope for three three different policies, for all the 
 outcomes of interest.</p>
-[<a href="#id3"><span class="problematic" id="id4">`source code &lt;../../plot_directive/pyplots\basicEnvelope.py&gt;`__</span></a>]<p>Exception occurred rendering plot.</p>
+<p>[<a class="reference external" href="../../plot_directive/pyplots/basicEnvelope.py">source code</a>, <a class="reference external" href="../../plot_directive/pyplots/basicEnvelope.hires.png">hires.png</a>, <a class="reference external" href="../../plot_directive/pyplots/basicEnvelope.pdf">pdf</a>]</p>
+<div class="figure">
+<img alt="../../_images/basicEnvelope.png" src="../../_images/basicEnvelope.png" />
+<p class="caption">while</p>
+</div>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">envelopes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s">&#39;policy&#39;</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;static policy&#39;</span><span class="p">,</span> <span class="s">&#39;adaptive policy&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>will only show results for the two specified policies, ignoring any results 
 associated with &#8216;no policy&#8217;.</p>
-[<a href="#id3"><span class="problematic" id="id5">`source code &lt;../../plot_directive/pyplots\basicEnvelope2.py&gt;`__</span></a>]<p>Exception occurred rendering plot.</p>
+<p>[<a class="reference external" href="../../plot_directive/pyplots/basicEnvelope2.py">source code</a>, <a class="reference external" href="../../plot_directive/pyplots/basicEnvelope2.hires.png">hires.png</a>, <a class="reference external" href="../../plot_directive/pyplots/basicEnvelope2.pdf">pdf</a>]</p>
+<div class="figure">
+<img alt="../../_images/basicEnvelope2.png" src="../../_images/basicEnvelope2.png" />
+</div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">the current implementation is limited to seven different 
@@ -285,12 +293,6 @@ specifiers should be an iterable.</li>
 <dt>TODO:: a colorbar boolean should be added. This controls whether a</dt>
 <dd>colorbar is shown for each axes.</dd>
 </dl>
-</dd></dl>
-
-<dl class="data">
-<dt id="plotting.HIST">
-<tt class="descclassname">plotting.</tt><tt class="descname">HIST</tt><em class="property"> = 'hist'</em><a class="headerlink" href="#plotting.HIST" title="Permalink to this definition">¶</a></dt>
-<dd><p>Default label for the time axis</p>
 </dd></dl>
 
 <dl class="function">

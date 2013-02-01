@@ -27,7 +27,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
     <link rel="next" title="ema_exceptions" href="ema_exceptions.html" />
-    <link rel="prev" title="EMAlogging" href="EMAlogging.html" /> 
+    <link rel="prev" title="ema_logging" href="ema_logging.html" /> 
   </head>
   <body>
 
@@ -48,7 +48,7 @@
           <a href="ema_exceptions.html" title="ema_exceptions"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="EMAlogging.html" title="EMAlogging"
+          <a href="ema_logging.html" title="ema_logging"
              accesskey="P">previous</a> |</li>
        <li><a href="../../contents.html">home</a>|&nbsp;</li>
        <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
@@ -106,23 +106,24 @@ on the python 2.6 version.</p>
 <p>the implementation here allows the user to not be bothered with many of the 
 details of multiprocessing. For example, logging will work the same regardless 
 of whether multiprocessing is used. The process class here modifies 
-the _logger in EMAlogging to refer to the logger for its particular subprocess</p>
+the _logger in ema_logging to refer to the logger for its particular subprocess</p>
 <dl class="class">
 <dt id="ema_parallel.CalculatorPool">
-<em class="property">class </em><tt class="descclassname">ema_parallel.</tt><tt class="descname">CalculatorPool</tt><big>(</big><em>modelStructureInterfaces</em>, <em>processes=None</em>, <em>kwargs=None</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ema_parallel.</tt><tt class="descname">CalculatorPool</tt><big>(</big><em>msis</em>, <em>processes=None</em>, <em>kwargs=None</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class representing a pool of processes that handles the parallel 
 calculation heavily derived from the standard pool provided with the 
 multiprocessing library</p>
 <dl class="method">
 <dt id="ema_parallel.CalculatorPool.apply_async">
-<tt class="descname">apply_async</tt><big>(</big><em>case</em>, <em>policy</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool.apply_async" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">apply_async</tt><big>(</big><em>experiment</em>, <em>callback</em>, <em>event</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool.apply_async" title="Permalink to this definition">¶</a></dt>
 <dd><p>Asynchronous equivalent of <cite>apply()</cite> builtin</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="ema_parallel.CalculatorPool.runExperiments">
-<tt class="descname">runExperiments</tt><big>(</big><em>cases</em>, <em>policies</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool.runExperiments" title="Permalink to this definition">¶</a></dt>
-<dd><p>convenient function to wrap around the apply assync function</p>
+<dt id="ema_parallel.CalculatorPool.run_experiments">
+<tt class="descname">run_experiments</tt><big>(</big><em>experiments</em>, <em>callback</em><big>)</big><a class="headerlink" href="#ema_parallel.CalculatorPool.run_experiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>starts a feeder thread that will add the experiments to the 
+task queue</p>
 </dd></dl>
 
 </dd></dl>
@@ -148,7 +149,7 @@ multiprocessing library</p>
           <a href="ema_exceptions.html" title="ema_exceptions"
              >next</a> |</li>
         <li class="right" >
-          <a href="EMAlogging.html" title="EMAlogging"
+          <a href="ema_logging.html" title="ema_logging"
              >previous</a> |</li>
        <li><a href="../../contents.html">home</a>|&nbsp;</li>
        <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>

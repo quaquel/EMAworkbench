@@ -113,9 +113,9 @@
 <span class="kn">from</span> <span class="nn">analysis.clusterer</span> <span class="kn">import</span> <span class="n">cluster</span>
 
 <span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">load_results</span>
-<span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">EMAlogging</span>
+<span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">ema_logging</span>
 
-<span class="n">EMAlogging</span><span class="o">.</span><span class="n">log_to_stderr</span><span class="p">(</span><span class="n">EMAlogging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">ema_logging</span><span class="o">.</span><span class="n">log_to_stderr</span><span class="p">(</span><span class="n">ema_logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 <span class="c">#load the data</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">load_results</span><span class="p">(</span><span class="s">r&#39;..\gallery\data\100 flu cases no policy.bz2&#39;</span><span class="p">)</span>

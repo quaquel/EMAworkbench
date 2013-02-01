@@ -6,10 +6,10 @@ Created on 26 sep. 2011
 import matplotlib.pyplot as plt
 
 from expWorkbench import load_results
-from analysis.graphs import envelopes
+from analysis.plotting import envelopes
 
-data = load_results(r'../../../src/analysis/1000 flu cases.cPickle')
+data = load_results(r'../../../src/analysis/1000 flu cases.cPickle', zipped=False)
 fig = envelopes(data, 
-                column='policy', 
-                categories=['static policy', 'adaptive policy'])
+                group_by='policy', 
+                grouping_specifiers=['static policy', 'adaptive policy'])
 plt.show()

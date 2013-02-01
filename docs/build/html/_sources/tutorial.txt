@@ -115,7 +115,7 @@ invoing the :meth:`perform_experiments`.
 
 .. rubric:: The complete code:
 
-.. literalinclude:: ../../src/examples/pythonExample.py
+.. literalinclude:: ../../src/examples/python_example.py
    :linenos:
 
 .. _A-simple-model-in-Vensim:
@@ -212,7 +212,7 @@ to the INFO level, which in most cases is sufficient. For more details see
 
 .. rubric:: The complete code
 
-.. literalinclude:: ../../src/examples/vensimExample.py
+.. literalinclude:: ../../src/examples/vensim_example.py
    :linenos:
 
 .. _A-simple-model-in-Excel:
@@ -231,7 +231,7 @@ the decimal seperator and thousands seperator are set correctly in Excel. This
 can be checked via file > options > advanced. These seperators should follow
 the `anglo saxon convention <http://en.wikipedia.org/wiki/Decimal_mark>`_. 
 
-.. literalinclude:: ../../src/examples/excelExample.py
+.. literalinclude:: ../../src/examples/excel_example.py
    :linenos:
 
 The example is relatively straight forward. We add multiple 
@@ -336,7 +336,7 @@ normal contact rate region 2                             10             200
 
 Together, this results in the following code:
 
-.. literalinclude:: ../../src/examples/FLUVensimNoPolicyExample.py
+.. literalinclude:: ../../src/examples/flu_vensim_no_policy_example.py
    :linenos:
 
 We can now instantiate the model, instantiate an ensemble, and set the model on 
@@ -382,18 +382,18 @@ for a series of experiments and save these results. One can then use these
 saved results in various analysis scripts. ::
 
    from expWorkbench.util import save_results
-   save_results(results, model.workingDirectory+r'\1000 runs.cPickle')
+   save_results(results, model.workingDirectory+r'\1000 runs.bz2')
 
 The above code snippet shows how we can use :func:`~util.save_results` for
 saving the results of our experiments. :func:`~util.save_results` stores the results
-using `cPickle <http://docs.python.org/library/pickle.html>`_. It is 
-recommended to use :func:`~util.save_results`, instead of using `cPickle <http://docs.python.org/library/pickle.html>`_ 
-directly, to guarantee cross-platform useability of the stored results. That is,
-one can generate the results  on say Windows, but still open them on say 
-MacOs.  The extensions `.cPickle` is strictly speaking not necessary, any file
-extension can be used, but it is found convenient to easily identify saved 
-results. 
-
+using `cPickle <http://docs.python.org/library/pickle.html>`_ and 
+`bz2`<http://docs.python.org/2/library/bz2.html>`_. It is 
+recommended to use :func:`~util.save_results`, instead of using 
+`cPickle <http://docs.python.org/library/pickle.html>`_ directly, to guarantee 
+cross-platform useability of the stored results. That is, one can generate the 
+results  on say Windows, but still open them on say MacOs.  The extensions 
+`.bz2` is strictly speaking not necessary, any file extension can be used, but 
+it is found convenient to easily identify saved results. 
 
 
 =====================
@@ -447,7 +447,7 @@ add this list of policies to the ensemble. ::
 We can now proceed in the same way as before, and perform a series of
 experiments. Together, this results in the following code:
 
-.. literalinclude:: ../../src/examples/FLUVensimExample.py
+.. literalinclude:: ../../src/examples/flu_vensim_example.py
    :linenos:
 
 comparison of results
@@ -459,7 +459,7 @@ But using :func:`multiplot`. It shows for the three different policies
 their behavior on the total number of deaths, the hight of the heighest peak
 of the pandemic, and the point in time at which this peak was reached. 
 
-.. literalinclude:: ../../src/examples/fluMultiplot.py
+.. literalinclude:: ../../src/examples/flu_multiplot.py
    :linenos:
 
 .. rubric:: no policy
