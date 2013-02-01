@@ -1,6 +1,6 @@
 ******************
-:mod:`EMAparallel`
+:mod:`ema_logging`
 ******************
 
-.. automodule:: EMAparallel
+.. automodule:: ema_logging
    :members:
