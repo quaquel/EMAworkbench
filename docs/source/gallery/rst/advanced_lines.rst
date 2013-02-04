@@ -10,6 +10,6 @@
 advanced lines
 **************
 
-.. figure:: ./pictures/advanced_lines.png
+.. figure:: ../pictures/advanced_lines.png
 
-.. literalinclude:: ./advanced_lines.py
+.. literalinclude:: ../advanced_lines.py

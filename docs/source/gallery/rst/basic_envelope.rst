@@ -10,6 +10,6 @@
 Basic envelope
 **************
 
-.. figure:: ./pictures/basic_envelope.png
+.. figure:: ../pictures/basic_envelope.png
 
-.. literalinclude:: ./basic_envelope.py
+.. literalinclude:: ../basic_envelope.py

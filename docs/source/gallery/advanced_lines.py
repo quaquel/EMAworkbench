@@ -12,7 +12,6 @@ from analysis import plotting
 
 results = load_results(r'.\data\2000 flu cases no policy.bz2')
 
-
 experiments, outcomes = results
 
 # get indices with of worst runs in terms of deaths and max fraction of 

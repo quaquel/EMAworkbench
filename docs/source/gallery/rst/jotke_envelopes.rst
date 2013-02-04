@@ -58,7 +58,7 @@ this paints a rather grim picture for the potential of a transition towards a
 more sustainable energy generation system. 
 
 
-.. figure:: ./pictures/jotke_envelopes.png
+.. figure:: ../pictures/jotke_envelopes.png
    :align:  center
 
-.. literalinclude:: ./jotke_envelopes.py
+.. literalinclude:: ../jotke_envelopes.py
