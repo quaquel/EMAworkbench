@@ -1,0 +1,159 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="Simple illustration of using graphs.envelopes applied to the mexican flu data." name="description" />
+<meta content="exploratory modeling, robust decision making, deep uncertainty, vensim, python," name="keywords" />
+
+    <title>Basic envelope &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="up" title="EMA workbench examples" href="index.html" />
+    <link rel="next" title="advanced lines" href="advanced_lines.html" />
+    <link rel="prev" title="EMA workbench examples" href="index.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced_lines.html" title="advanced lines"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="EMA workbench examples"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+
+          <li><a href="index.html" accesskey="U">EMA workbench examples</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="basic-envelope">
+<span id="id1"></span><h1>Basic envelope<a class="headerlink" href="#basic-envelope" title="Permalink to this headline">¶</a></h1>
+<div class="figure">
+<img alt="../../_images/basic_envelope.png" src="../../_images/basic_envelope.png" />
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on 26 sep. 2011</span>
+
+<span class="sd">@author: jhkwakkel</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">expWorkbench.util</span> <span class="kn">import</span> <span class="n">load_results</span>
+<span class="kn">from</span> <span class="nn">analysis.plotting</span> <span class="kn">import</span> <span class="n">envelopes</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">load_results</span><span class="p">(</span><span class="s">r&#39;./data/2000 flu cases no policy.bz2&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes_dict</span> <span class="o">=</span> <span class="n">envelopes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="s">&#39;policy&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;./pictures/basic_envelope.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced_lines.html" title="advanced lines"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="EMA workbench examples"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+
+          <li><a href="index.html" >EMA workbench examples</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
