@@ -1,8 +1,22 @@
+.. meta::
+   :description: Exploratory modeling workbench example based on 'Assessing the 
+                 Efficacy of Dynamic Adaptive Planning of Infrastructure', to
+                 appear in Environment and Planning B.
+   :keywords: exploratory modeling, deep uncertainty, dynamic adaptive policy
+              making, airport, python, Excel
+
+.. _Assessing-the-Efficacy-of-Dynamic-Adaptive-Planning-of-Infrastructure:
+
 =====================================================================
 Assessing the Efficacy of Dynamic Adaptive Planning of Infrastructure
 =====================================================================
 
-<some info about the paper, co-authors, journal, links etc>
+**J.H. Kwakkel, W.E. Walker, and V.A.W.J. Marchau**
+
+This paper is available online at *Environment and Planning B*
+
+**Link:** http://www.envplan.com/abstract.cgi?id=b37151
+
 
 --------
 Abstract
@@ -60,7 +74,7 @@ adaptive plan.
 
 ----------------------------
 Interpretation of the figure
-----------------------------   
+----------------------------
 
 Grayscale is used to indicate the value of the performance difference. If this 
 value is below 0, the static plan is *better* than the adaptive plan. 

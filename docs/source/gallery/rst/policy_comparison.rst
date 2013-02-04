@@ -108,7 +108,7 @@ where the runs are mainly concentrated.
 
 
 
-.. figure:: ./pictures/policy_comparison.png
+.. figure:: ../pictures/policy_comparison.png
    :align: center
 
 ----------------------------
@@ -130,4 +130,4 @@ expensive.
 Source Code
 -----------
 
-.. literalinclude:: ./policy_comparison.py
+.. literalinclude:: ../policy_comparison.py

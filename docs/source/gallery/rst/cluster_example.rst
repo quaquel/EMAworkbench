@@ -10,6 +10,6 @@
 Clusterer illustration
 **********************
 
-.. figure:: ./pictures/cluster_example.png
+.. figure:: ../pictures/cluster_example.png
 
-.. literalinclude:: ./cluster_example.py
+.. literalinclude:: ../cluster_example.py
