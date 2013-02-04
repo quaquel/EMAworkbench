@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="Simple illustration of using the time series clustering, applied to the mexican flu data" name="description" />
+<meta content="exploratory modeling, deep uncertainty, vensim, python, time series clustering" name="keywords" />
+
+    <title>Clusterer illustration &mdash; Exploratory Modeling Workbench</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.01',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Exploratory Modeling Workbench" href="../../index.html" />
+    <link rel="up" title="EMA workbench examples" href="index.html" />
+    <link rel="next" title="Assessing the Efficacy of Dynamic Adaptive Planning of Infrastructure" href="environment_and_planning_b.html" />
+    <link rel="prev" title="advanced lines" href="advanced_lines.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../contents.html"><img src="../../_static/logo.png" border="0" alt="ema workbench"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="environment_and_planning_b.html" title="Assessing the Efficacy of Dynamic Adaptive Planning of Infrastructure"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="advanced_lines.html" title="advanced lines"
+             accesskey="P">previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+
+          <li><a href="index.html" accesskey="U">EMA workbench examples</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">  <h4>Other Sub Sites</h4>
+  <ul>
+  <li>
+    <ul>
+        
+      <li><a href="../../RESEARCH/Intro.html">PA Simulation Lab</a><a class="reference internal" href="#description"></a></li>
+      <li><a href="../../ema-workbench/contents.html">EMA Workbench</a></li>
+      <li><a href="../../BeneluxChapter/Intro.html">Benelux Chapter</a></li>
+      <li><a href="../../HPSIG/Intro.html">Health Policy SIG</a><a class="reference internal" href="#visualization"></a></li>
+    </ul>
+  </li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="clusterer-illustration">
+<span id="id1"></span><h1>Clusterer illustration<a class="headerlink" href="#clusterer-illustration" title="Permalink to this headline">¶</a></h1>
+<div class="figure">
+<img alt="../../_images/cluster_example.png" src="../../_images/cluster_example.png" />
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Sep 8, 2011</span>
+
+<span class="sd">@author: gonengyucel, jhkwakkel</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">analysis.clusterer</span> <span class="kn">import</span> <span class="n">cluster</span>
+
+<span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">load_results</span>
+<span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">ema_logging</span>
+
+<span class="n">ema_logging</span><span class="o">.</span><span class="n">log_to_stderr</span><span class="p">(</span><span class="n">ema_logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c">#load the data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">load_results</span><span class="p">(</span><span class="s">r&#39;..\gallery\data\100 flu cases no policy.bz2&#39;</span><span class="p">)</span>
+
+<span class="c"># specify the number of desired clusters</span>
+<span class="c"># note: the meaning of cValue is tied to the value for cMethod</span>
+<span class="n">cValue</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c">#perform cluster analysis</span>
+<span class="n">dRow</span><span class="p">,</span> <span class="n">clusters</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">cluster</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> 
+                            <span class="n">outcome</span><span class="o">=</span><span class="s">&#39;deceased population region 1&#39;</span><span class="p">,</span> 
+                            <span class="n">distance</span><span class="o">=</span><span class="s">&#39;gonenc&#39;</span><span class="p">,</span> 
+                            <span class="n">interClusterDistance</span><span class="o">=</span><span class="s">&#39;complete&#39;</span><span class="p">,</span> 
+                            <span class="n">cMethod</span> <span class="o">=</span> <span class="s">&#39;maxclust&#39;</span><span class="p">,</span>
+                            <span class="n">cValue</span> <span class="o">=</span> <span class="n">cValue</span><span class="p">,</span>
+                            <span class="n">plotDendrogram</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
+                            <span class="n">plotClusters</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
+                            <span class="n">groupPlot</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                            <span class="n">sisterCount</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                            <span class="n">tHoldCurvature</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+                            <span class="n">tHoldSlope</span> <span class="o">=</span> <span class="mf">0.1</span>
+                            <span class="p">)</span>
+
+<span class="c">#the plotting</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+<span class="c">#for each cluster</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clusters</span><span class="p">):</span>
+    <span class="c">#get the data</span>
+    <span class="n">values</span>  <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;deceased population region 1&#39;</span><span class="p">]</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">cluster</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+
+    <span class="c">#some index mangling to get correct index for ax</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cValue</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;1&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    
+    <span class="c">#make an ax</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    
+    <span class="c">#plot data</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;TIME&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;./pictures/cluster_example.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="environment_and_planning_b.html" title="Assessing the Efficacy of Dynamic Adaptive Planning of Infrastructure"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="advanced_lines.html" title="advanced lines"
+             >previous</a> |</li>
+       <li><a href="../../contents.html">home</a>|&nbsp;</li>
+       <li><a href="../../tutorial.html">tutorial </a> |&nbsp;</li>
+       <li><a href="../../gallery.html">gallery </a> |&nbsp;</li>
+       <li><a href="../../download.html">download </a> &raquo;</li>
+       <li><a href="../../index.html">documentation </a> &raquo;</li>
+       
+
+          <li><a href="index.html" >EMA workbench examples</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2012, J.H. Kwakkel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
