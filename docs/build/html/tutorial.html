@@ -219,10 +219,10 @@ code snippet</p>
 3
 4
 5
-6</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">SimpleModelEnsemble</span>
+6</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">expWorkbench</span> <span class="kn">import</span> <span class="n">ModelEnsemble</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SimplePythonModel</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">&#39;simpleModel&#39;</span><span class="p">)</span> <span class="c">#instantiate the model</span>
-<span class="n">ensemble</span> <span class="o">=</span> <span class="n">SimpleModelEnsemble</span><span class="p">()</span> <span class="c">#instantiate an ensemble</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">ModelEnsemble</span><span class="p">()</span> <span class="c">#instantiate an ensemble</span>
 <span class="n">ensemble</span><span class="o">.</span><span class="n">set_model_structure</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="c">#set the model on the ensemble</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">perform_experiments</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="c">#generate 1000 cases</span>
 </pre></div>
@@ -230,7 +230,7 @@ code snippet</p>
 <p>Here, we instantiate the model first. Instantiating a model requires two
 arguments: a working directory, and a name. The latter is required, the first
 is not. Our model does not have a working directory, so we pass <cite>None</cite>. Next
-we instantiate a <tt class="xref py py-class docutils literal"><span class="pre">SimpleModelEnsemble</span></tt> and add the model to it.
+we instantiate a <tt class="xref py py-class docutils literal"><span class="pre">ModelEnsemble</span></tt> and add the model to it.
 This class handles the generation of the experimetns, the executing of the
 experiments, and the storing of the results. We perform the experiments by
 invoing the <tt class="xref py py-meth docutils literal"><span class="pre">perform_experiments()</span></tt>.</p>
@@ -406,13 +406,13 @@ perform EMA on the simple Vensim model.</p>
 15
 16
 17</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#turn on logging</span>
-<span class="n">EMAlogging</span><span class="o">.</span><span class="n">log_to_stderr</span><span class="p">(</span><span class="n">EMAlogging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">ema_logging</span><span class="o">.</span><span class="n">log_to_stderr</span><span class="p">(</span><span class="n">ema_logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 <span class="c">#instantiate a model</span>
 <span class="n">vensimModel</span> <span class="o">=</span> <span class="n">VensimExampleModel</span><span class="p">(</span><span class="s">r&quot;..\..\models\vensim example&quot;</span><span class="p">,</span> <span class="s">&quot;simpleModel&quot;</span><span class="p">)</span>
 
 <span class="c">#instantiate an ensemble</span>
-<span class="n">ensemble</span> <span class="o">=</span> <span class="n">SimpleModelEnsemble</span><span class="p">()</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">ModelEnsemble</span><span class="p">()</span>
 
 <span class="c">#set the model on the ensemble</span>
 <span class="n">ensemble</span><span class="o">.</span><span class="n">set_model_structure</span><span class="p">(</span><span class="n">vensimModel</span><span class="p">)</span>
@@ -425,11 +425,11 @@ perform EMA on the simple Vensim model.</p>
 </pre></div>
 </td></tr></table></div>
 <p>In the first line, we turn on the logging functionality provided by
-<tt class="xref py py-mod docutils literal"><span class="pre">EMAlogging</span></tt>. This is highly recommended, for we can get much more insight
+<a class="reference internal" href="ema_documentation/expWorkbench/ema_logging.html#module-ema_logging" title="ema_logging"><tt class="xref py py-mod docutils literal"><span class="pre">ema_logging</span></tt></a>. This is highly recommended, for we can get much more insight
 into what is going on: how the simulations are progressing, whether there
 are any warnings or errors, etc. For normal runs, we can set the level
 to the INFO level, which in most cases is sufficient. For more details see
-<tt class="xref py py-mod docutils literal"><span class="pre">EMAlogging</span></tt>.</p>
+<a class="reference internal" href="ema_documentation/expWorkbench/ema_logging.html#module-ema_logging" title="ema_logging"><tt class="xref py py-mod docutils literal"><span class="pre">ema_logging</span></tt></a>.</p>
 <p class="rubric">The complete code</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
@@ -978,8 +978,8 @@ instances.</p>
 the ensemble, as seen below. Just as witht the simple Vensim model, we first
 start the logging and direct it to the stream specified in <a class="reference external" href="http://docs.python.org/library/sys.html">sys.stderr</a>.
 Which, if we are working with <a class="reference external" href="http://www.eclipse.org/">Eclipse</a> is the console.
-Assuming we have imported <tt class="xref py py-class docutils literal"><span class="pre">SimpleModelEnsemble</span></tt> and
-<tt class="xref py py-mod docutils literal"><span class="pre">EMAlogging</span></tt>, we can do the following</p>
+Assuming we have imported <tt class="xref py py-class docutils literal"><span class="pre">ModelEnsemble</span></tt> and
+<a class="reference internal" href="ema_documentation/expWorkbench/ema_logging.html#module-ema_logging" title="ema_logging"><tt class="xref py py-mod docutils literal"><span class="pre">ema_logging</span></tt></a>, we can do the following</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -992,7 +992,7 @@ Assuming we have imported <tt class="xref py py-class docutils literal"><span cl
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">FluModel</span><span class="p">(</span><span class="s">r&#39;..\..\models\flu&#39;</span><span class="p">,</span> <span class="s">&quot;fluCase&quot;</span><span class="p">)</span>
 
-<span class="n">ensemble</span> <span class="o">=</span> <span class="n">SimpleModelEnsemble</span><span class="p">()</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">ModelEnsemble</span><span class="p">()</span>
 <span class="n">ensemble</span><span class="o">.</span><span class="n">set_model_structure</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 <span class="n">ensemble</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="bp">True</span>
 
@@ -1001,14 +1001,14 @@ Assuming we have imported <tt class="xref py py-class docutils literal"><span cl
 </td></tr></table></div>
 <p>We now have generated a 1000 cases and can proceed to analyse the results using
 various analysis scripts. As a first step, one can look at the individual runs
-using a line plot using <tt class="xref py py-func docutils literal"><span class="pre">lines()</span></tt>. See <tt class="xref py py-mod docutils literal"><span class="pre">graphs</span></tt> for some
+using a line plot using <tt class="xref py py-func docutils literal"><span class="pre">lines()</span></tt>. See <a class="reference internal" href="ema_documentation/analysis/plotting.html#module-plotting" title="plotting"><tt class="xref py py-mod docutils literal"><span class="pre">plotting</span></tt></a> for some
 more visualizations using results from performing EMA on <tt class="xref py py-class docutils literal"><span class="pre">FluModel</span></tt>.</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
 5</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">analysis.graphs</span> <span class="kn">import</span> <span class="n">lines</span>
+<span class="kn">from</span> <span class="nn">analysis.plotting</span> <span class="kn">import</span> <span class="n">lines</span>
 
 <span class="n">figure</span> <span class="o">=</span> <span class="n">lines</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c">#show lines, and end state density</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span> <span class="c">#show figure</span>
@@ -1032,7 +1032,7 @@ saved results in various analysis scripts.</p>
 <p>The above code snippet shows how we can use <a class="reference internal" href="ema_documentation/expWorkbench/util.html#util.save_results" title="util.save_results"><tt class="xref py py-func docutils literal"><span class="pre">save_results()</span></tt></a> for
 saving the results of our experiments. <a class="reference internal" href="ema_documentation/expWorkbench/util.html#util.save_results" title="util.save_results"><tt class="xref py py-func docutils literal"><span class="pre">save_results()</span></tt></a> stores the results
 using <a class="reference external" href="http://docs.python.org/library/pickle.html">cPickle</a> and
-<a href="#id10"><span class="problematic" id="id11">`bz2`&lt;http://docs.python.org/2/library/bz2.html&gt;`_</span></a>. It is
+<a class="reference external" href="http://docs.python.org/2/library/bz2.html">bz2</a>. It is
 recommended to use <a class="reference internal" href="ema_documentation/expWorkbench/util.html#util.save_results" title="util.save_results"><tt class="xref py py-func docutils literal"><span class="pre">save_results()</span></tt></a>, instead of using
 <a class="reference external" href="http://docs.python.org/library/pickle.html">cPickle</a> directly, to guarantee
 cross-platform useability of the stored results. That is, one can generate the
@@ -1074,7 +1074,7 @@ file based on the policy. After this, we call the super.</p>
 </pre></div>
 </td></tr></table></div>
 <p>Now, our model can react to different policies, but we still have to
-add these policies to <tt class="xref py py-class docutils literal"><span class="pre">SimpleModelEnsemble</span></tt>. We therefore make
+add these policies to <tt class="xref py py-class docutils literal"><span class="pre">ModelEnsemble</span></tt>. We therefore make
 a list of policies. Each entry in the list is a <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>, with a
 &#8216;name&#8217; field and a &#8216;file&#8217; field. The name specifies the name
 of the policy, and the file specified the model file to be used. We
@@ -1296,7 +1296,7 @@ experiments. Together, this results in the following code:</p>
 <h3>comparison of results<a class="headerlink" href="#comparison-of-results" title="Permalink to this headline">¶</a></h3>
 <p>Using the following script, we reproduce figures similar to the 3D figures
 in <a class="reference external" href="http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf">Pruyt &amp; Hamarat (2010)</a>.
-But using <tt class="xref py py-func docutils literal"><span class="pre">multiplot()</span></tt>. It shows for the three different policies
+But using <tt class="xref py py-func docutils literal"><span class="pre">pairs_scatter()</span></tt>. It shows for the three different policies
 their behavior on the total number of deaths, the hight of the heighest peak
 of the pandemic, and the point in time at which this peak was reached.</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
@@ -1428,7 +1428,7 @@ of the pandemic, and the point in time at which this peak was reached.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2011-2012, J.H. Kwakkel.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
