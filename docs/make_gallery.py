@@ -87,8 +87,8 @@ for example in stale_examples:
     thumbfile=png.replace(".png","_thumb.png")
     fig.savefig("./pictures/"+thumbfile, dpi=75)
 
-#    print os.path.join(pwd,static_dir,thumbfile) 
-    shutil.copy("./pictures/"+thumbfile,os.path.join(pwd,static_dir,thumbfile))
+#    print os.path.join(pwd,static_dir_thumb,thumbfile) 
+    shutil.copy("./pictures/"+thumbfile,os.path.join(pwd,static_dir_thumb,thumbfile))
 #    shutil.copy(png,os.path.join(pwd,static_dir,png))
 
 for example in all_examples:
@@ -96,7 +96,8 @@ for example in all_examples:
     thumbfile=png.replace(".png","_thumb.png")
     
     basename, ext = os.path.splitext(example)
-    link = '%s/%s.html'%(examples_dir, basename)
+    link = '%s/rst/%s.html'%(examples_dir, basename)
+#    print link
     
     loc = os.path.join('_static',thumbfile)
     loc = loc.replace('\\', '/')

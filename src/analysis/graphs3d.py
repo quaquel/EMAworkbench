@@ -10,8 +10,7 @@ from __future__ import division
 import numpy as np
 import scipy.stats.kde as kde 
 
-from enthought.mayavi import mlab
-mlab = mlab
+from mayavi import mlab
 
 from expWorkbench.ema_logging import log_to_stderr, INFO, info
 from expWorkbench import EMAError
