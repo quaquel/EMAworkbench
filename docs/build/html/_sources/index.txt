@@ -27,7 +27,7 @@ User Guide
    ../../download.rst
    ../../ema_documentation/glossary.rst
    ../../vensim-tips-and-tricks.rst
-   ../../gallery/index.rst
+   ../../gallery/rst/index.rst
    
 .. only:: html
 
