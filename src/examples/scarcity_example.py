@@ -5,7 +5,6 @@ Created on 8 mrt. 2011
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 from __future__ import division
-import numpy as np
 from math import exp
 
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome,\
@@ -111,5 +110,5 @@ if __name__ == "__main__":
     ensemble.set_model_structure(model)
     ensemble.parallel = True
     results = ensemble.perform_experiments(1000)
-    save_results(results, r'.\data\scarciy 1000.bz2')
+    save_results(results, r'.\data\scarcity 1000.bz2')
 
