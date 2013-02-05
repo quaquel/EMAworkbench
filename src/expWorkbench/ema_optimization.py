@@ -324,13 +324,16 @@ class NSGA2StatisticsCallback(object):
                  nr_of_generations=None,
                  crossover_rate=None, 
                  mutation_rate=None,
-                 pop_size=None):
+                 pop_size=None,
+                 caching=False):
         '''
         
         :param weights: the weights on the outcomes
         :param nr_of_generations: the number of generations
         :param crossover_rate: the crossover rate
         :param mutation_rate: the mutation rate
+        :param caching: parameter controling wether a list of tried solutions
+                        should be kept
         
         
         '''
@@ -339,8 +342,9 @@ class NSGA2StatisticsCallback(object):
             self.hall_of_fame = ParetoFront(similar=compare)
         else:
             self.hall_of_fame = HallOfFame(pop_size)
-            
-        self.tried_solutions = TriedSolutions()
+
+        if caching:            
+            self.tried_solutions = TriedSolutions() 
         self.change = []
         
         self.weights = weights
@@ -391,4 +395,9 @@ class NSGA2StatisticsCallback(object):
         
         for entry in population:
             self.stats.append(entry.fitness.values)
-            self.tried_solutions[entry] = entry
+        
+        for entry in population:
+            try:
+                self.tried_solutions[entry] = entry
+            except AttributeError:
+                break
