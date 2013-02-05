@@ -37,8 +37,11 @@ Glossary
       An experiment is a complete specification for a run. It specifies the 
       case, the name of the policy, and the name of the model.
    policy
-      
+      a policy is by definition an object with a name attribute. So,
+      policy['name'] most return the name of the policy
    result
-      
+      the combination of an experiment and the associated outcomes for the
+      experiment
    outcome
-      
+      the data of interest produced by a model given an experiment
+

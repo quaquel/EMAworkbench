@@ -99,32 +99,6 @@
 <p>Created on 13 jan. 2011</p>
 <p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
 <p>This module provides various convenience functions and classes.</p>
-<dl class="class">
-<dt id="util.AbstractCallback">
-<em class="property">class </em><tt class="descclassname">util.</tt><tt class="descname">AbstractCallback</tt><big>(</big><em>uncertainties</em>, <em>outcomes</em>, <em>nrOfExperiments</em>, <em>reporting_interval=100</em><big>)</big><a class="headerlink" href="#util.AbstractCallback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class from which different call back classes can be derived.
-Callback is responsible for storing the results of the runs.</p>
-<dl class="method">
-<dt id="util.AbstractCallback.get_results">
-<tt class="descname">get_results</tt><big>(</big><big>)</big><a class="headerlink" href="#util.AbstractCallback.get_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>method for retrieving the results. Called after all experiments have 
-been completed</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="util.DefaultCallback">
-<em class="property">class </em><tt class="descclassname">util.</tt><tt class="descname">DefaultCallback</tt><big>(</big><em>uncs</em>, <em>outcomes</em>, <em>nrOfExperiments</em>, <em>reporting_interval=100</em><big>)</big><a class="headerlink" href="#util.DefaultCallback" title="Permalink to this definition">¶</a></dt>
-<dd><p>default callback system
-callback can be used in performExperiments as a means for specifying 
-the way in which the results should be handled. If no callback is 
-specified, this default implementation is used. This one can be 
-overwritten or replaced with a callback of your own design. For 
-example if you prefer to store the result in a database or write 
-them to a text file</p>
-</dd></dl>
-
 <dl class="function">
 <dt id="util.load_results">
 <tt class="descclassname">util.</tt><tt class="descname">load_results</tt><big>(</big><em>file_name</em>, <em>zipped=True</em><big>)</big><a class="headerlink" href="#util.load_results" title="Permalink to this definition">¶</a></dt>
@@ -312,7 +286,7 @@ in order to avoid memory problems.</li>
     </div>
     <div class="footer">
         &copy; Copyright 2011-2012, J.H. Kwakkel.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
