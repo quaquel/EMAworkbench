@@ -172,10 +172,6 @@ def pairs_density(results,
     :rtype: a `figure <http://matplotlib.sourceforge.net/api/figure_api.html>`_ instance
             and a dict with the individual axes.
     
-    .. rubric:: an example of use
-    
-    .. plot:: ../docs/source/pyplots/basicMultiplotDensity.py
-    
     '''
     debug("generating pairwise density plot")
     

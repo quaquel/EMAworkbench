@@ -46,13 +46,14 @@ all_examples=sorted(glob.glob("*.py"))
 stale_examples=[]
 for example in all_examples:
     png=example.replace('py','png')                             
-    png_static=os.path.join(pwd, static_dir_fig, png)
-    
-#    print png_static, example
+    png_static = os.path.join(pwd, static_dir_fig, png)
+    png_static_thumb = os.path.join(pwd, static_dir_thumb, png.replace(".png","_thumb.png"))
+#    print png_static, png_static_thumb, example
 #    print os.stat(png_static).st_mtime, os.stat(example).st_mtime
 #    print (not os.path.exists(png_static))
 #    print os.stat(png_static).st_mtime < os.stat(example).st_mtime
     if (not os.path.exists(png_static) or 
+        not os.path.exists(png_static_thumb) or 
         os.stat(png_static).st_mtime < os.stat(example).st_mtime):
         stale_examples.append(example)
 

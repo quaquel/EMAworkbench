@@ -39,7 +39,7 @@ used as input for prim.
 
 Together, this results in the following script: 
     
-.. literalinclude:: ../../../../src/examples/primFluExample.py
+.. literalinclude:: ../../../../src/examples/prim_flu_example.py
    :linenos:
 
 which generates the following figures.
