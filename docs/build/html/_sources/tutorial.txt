@@ -97,10 +97,10 @@ the following::
 Having implemented this model, we can now do EMA by executing the following
 code snippet ::
    
-   from expWorkbench import SimpleModelEnsemble
+   from expWorkbench import ModelEnsemble
 
    model = SimplePythonModel(None, 'simpleModel') #instantiate the model
-   ensemble = SimpleModelEnsemble() #instantiate an ensemble
+   ensemble = ModelEnsemble() #instantiate an ensemble
    ensemble.set_model_structure(model) #set the model on the ensemble
    results = ensemble.perform_experiments(1000) #generate 1000 cases
 
@@ -108,7 +108,7 @@ code snippet ::
 Here, we instantiate the model first. Instantiating a model requires two 
 arguments: a working directory, and a name. The latter is required, the first
 is not. Our model does not have a working directory, so we pass `None`. Next
-we instantiate a :class:`~model.SimpleModelEnsemble` and add the model to it.
+we instantiate a :class:`~model_ensemblel.ModelEnsemble` and add the model to it.
 This class handles the generation of the experimetns, the executing of the
 experiments, and the storing of the results. We perform the experiments by
 invoing the :meth:`perform_experiments`. 
@@ -185,13 +185,13 @@ working directory, the outcomes, and the uncertainties- we are now able to
 perform EMA on the simple Vensim model. ::
 
     #turn on logging
-    EMAlogging.log_to_stderr(EMAlogging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     #instantiate a model
     vensimModel = VensimExampleModel(r"..\..\models\vensim example", "simpleModel")
     
     #instantiate an ensemble
-    ensemble = SimpleModelEnsemble()
+    ensemble = ModelEnsemble()
     
     #set the model on the ensemble
     ensemble.set_model_structure(vensimModel)
@@ -204,11 +204,11 @@ perform EMA on the simple Vensim model. ::
 
 
 In the first line, we turn on the logging functionality provided by 
-:mod:`EMAlogging`. This is highly recommended, for we can get much more insight
+:mod:`ema_logging`. This is highly recommended, for we can get much more insight
 into what is going on: how the simulations are progressing, whether there
 are any warnings or errors, etc. For normal runs, we can set the level
 to the INFO level, which in most cases is sufficient. For more details see
-:mod:`EMAlogging`. 
+:mod:`ema_logging`. 
 
 .. rubric:: The complete code
 
@@ -343,14 +343,14 @@ We can now instantiate the model, instantiate an ensemble, and set the model on
 the ensemble, as seen below. Just as witht the simple Vensim model, we first 
 start the logging and direct it to the stream specified in `sys.stderr <http://docs.python.org/library/sys.html>`_.
 Which, if we are working with `Eclipse <http://www.eclipse.org/>`_ is the console. 
-Assuming we have imported :class:`~model.SimpleModelEnsemble` and 
-:mod:`EMAlogging`, we can do the following ::
+Assuming we have imported :class:`~model_ensemblel.ModelEnsemble` and 
+:mod:`ema_logging`, we can do the following ::
 
    EMALogging.log_to_stderr(level=EMALogging.INFO)
    
    model = FluModel(r'..\..\models\flu', "fluCase")
    
-   ensemble = SimpleModelEnsemble()
+   ensemble = ModelEnsemble()
    ensemble.set_model_structure(model)
    ensemble.parallel = True
    
@@ -358,11 +358,11 @@ Assuming we have imported :class:`~model.SimpleModelEnsemble` and
 
 We now have generated a 1000 cases and can proceed to analyse the results using
 various analysis scripts. As a first step, one can look at the individual runs
-using a line plot using :func:`~graphs.lines`. See :mod:`graphs` for some
+using a line plot using :func:`~graphs.lines`. See :mod:`plotting` for some
 more visualizations using results from performing EMA on :class:`FluModel`. ::
 
    import matplotlib.pyplot as plt 
-   from analysis.graphs import lines
+   from analysis.plotting import lines
    
    figure = lines(results, density=True) #show lines, and end state density
    plt.show() #show figure
@@ -387,7 +387,7 @@ saved results in various analysis scripts. ::
 The above code snippet shows how we can use :func:`~util.save_results` for
 saving the results of our experiments. :func:`~util.save_results` stores the results
 using `cPickle <http://docs.python.org/library/pickle.html>`_ and 
-`bz2`<http://docs.python.org/2/library/bz2.html>`_. It is 
+`bz2 <http://docs.python.org/2/library/bz2.html>`_. It is 
 recommended to use :func:`~util.save_results`, instead of using 
 `cPickle <http://docs.python.org/library/pickle.html>`_ directly, to guarantee 
 cross-platform useability of the stored results. That is, one can generate the 
@@ -428,7 +428,7 @@ file based on the policy. After this, we call the super. ::
         super(FluModel, self).model_init(policy, kwargs)
 
 Now, our model can react to different policies, but we still have to 
-add these policies to :class:`SimpleModelEnsemble`. We therefore make 
+add these policies to :class:`ModelEnsemble`. We therefore make 
 a list of policies. Each entry in the list is a :class:`dict`, with a 
 'name' field and a 'file' field. The name specifies the name
 of the policy, and the file specified the model file to be used. We 
@@ -455,7 +455,7 @@ comparison of results
 
 Using the following script, we reproduce figures similar to the 3D figures
 in `Pruyt & Hamarat (2010) <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf>`_. 
-But using :func:`multiplot`. It shows for the three different policies 
+But using :func:`pairs_scatter`. It shows for the three different policies 
 their behavior on the total number of deaths, the hight of the heighest peak
 of the pandemic, and the point in time at which this peak was reached. 
 

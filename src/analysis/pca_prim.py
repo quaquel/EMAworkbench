@@ -2,13 +2,14 @@
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
- a more generic 'user friendly' implementation of the pca prim combi discussed 
- in the envsoft manuscript D-12-00217: 
- Dalal, S., Han, B., Lempert, R., Jayjocks, A., Hackbarth, A. 
- Improving Scneario Discovery using Orhogonal Rotations.
 
- this implementation can cope with subsets that are rotated jointly. This 
- implementation is data type aware, so categorical variables are not rotated. 
+a more generic 'user friendly' implementation of the pca prim combi discussed 
+in the envsoft manuscript D-12-00217: 
+Dalal, S., Han, B., Lempert, R., Jayjocks, A., Hackbarth, A. 
+Improving Scneario Discovery using Orhogonal Rotations.
+
+this implementation can cope with subsets that are rotated jointly. This 
+implementation is data type aware, so categorical variables are not rotated. 
 
 '''
 from __future__ import division

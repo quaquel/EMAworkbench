@@ -96,6 +96,13 @@
             
   <div class="section" id="module-pca_prim">
 <span id="principal-components-prim"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">principal</span> <span class="pre">components</span> <span class="pre">prim</span></tt><a class="headerlink" href="#module-pca_prim" title="Permalink to this headline">¶</a></h1>
+<p><em>Code author: jhkwakkel &lt;j.h.kwakkel (at) tudelft (dot) nl&gt;</em></p>
+<p>a more generic &#8216;user friendly&#8217; implementation of the pca prim combi discussed 
+in the envsoft manuscript D-12-00217: 
+Dalal, S., Han, B., Lempert, R., Jayjocks, A., Hackbarth, A. 
+Improving Scneario Discovery using Orhogonal Rotations.</p>
+<p>this implementation can cope with subsets that are rotated jointly. This 
+implementation is data type aware, so categorical variables are not rotated.</p>
 <dl class="function">
 <dt id="pca_prim.assert_dtypes">
 <tt class="descclassname">pca_prim.</tt><tt class="descname">assert_dtypes</tt><big>(</big><em>keys</em>, <em>dtypes</em><big>)</big><a class="headerlink" href="#pca_prim.assert_dtypes" title="Permalink to this definition">¶</a></dt>
@@ -119,7 +126,7 @@ a dtype object as value.</p>
 
 <dl class="function">
 <dt id="pca_prim.perform_pca_prim">
-<tt class="descclassname">pca_prim.</tt><tt class="descname">perform_pca_prim</tt><big>(</big><em>results, classify, exclude=['model', 'policy'], subsets={}, peel_alpha=0.05, paste_alpha=0.05, mass_min=0.05, threshold=None, pasting=True, threshold_type=1, obj_func=&lt;function def_obj_func at 0x095086B0&gt;</em><big>)</big><a class="headerlink" href="#pca_prim.perform_pca_prim" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pca_prim.</tt><tt class="descname">perform_pca_prim</tt><big>(</big><em>results, classify, exclude=['model', 'policy'], subsets={}, peel_alpha=0.05, paste_alpha=0.05, mass_min=0.05, threshold=None, pasting=True, threshold_type=1, obj_func=&lt;function def_obj_func at 0x0E5797B0&gt;</em><big>)</big><a class="headerlink" href="#pca_prim.perform_pca_prim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform (un)constrained PCA-PRIM. The cases of interest are identified. 
 Next, the experiments are rotated to the eigen space of the covariance 
 matrix of the experiments of interest.</p>
@@ -213,7 +220,7 @@ the rotated_experiments, and the boxes found by prim</p>
     </div>
     <div class="footer">
         &copy; Copyright 2011-2012, J.H. Kwakkel.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

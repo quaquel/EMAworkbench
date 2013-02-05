@@ -726,15 +726,18 @@ class ModelEnsemble(object):
             #apply mutation
             toolbox.mutate(child1, mutation_rate, allele_dict, keys, 0.05)
             toolbox.mutate(child2, mutation_rate, allele_dict, keys, 0.05)
-            
+
             for entry in (child1, child2):
-                try:
-                    ind = stats_callback.tried_solutions[entry]
-                except KeyError:
-                    del entry.fitness.values
-                    continue
-                
-                entry.fitness = ind.fitness 
+                del entry.fitness.values
+            
+#            for entry in (child1, child2):
+#                try:
+#                    ind = stats_callback.tried_solutions[entry]
+#                except KeyError:
+#                    del entry.fitness.values
+#                    continue
+#                
+#                entry.fitness = ind.fitness 
        
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
