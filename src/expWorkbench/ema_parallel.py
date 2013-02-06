@@ -111,7 +111,7 @@ def worker(inqueue,
         debug("trying to retrieve output")
         result = msi.retrieve_output()
         
-        result = (True, (case, policy, msi.name, result))
+        result = (True, (experiment, policy, msi.name, result))
         msi.reset_model()
         
         debug("trying to reset model")
