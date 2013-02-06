@@ -39,7 +39,7 @@ used as input for prim.
 
 Together, this results in the following script: 
     
-.. literalinclude:: ../../../../src/examples/prim_flu_example.py
+.. literalinclude:: ../../../../src/examples/primFluExample.py
    :linenos:
 
 which generates the following figures.
@@ -53,17 +53,19 @@ which generates the following figures.
 
 '''
 from __future__ import division
+import numpy as np
 from types import StringType
 from sys import stdout
-import time
-
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import time
 
-from expWorkbench import EMAError, info, debug
-import analysis.primCode.primDataTypeAware as recursivePrim
+from expWorkbench.ema_exceptions import EMAError
+import primCode.primDataTypeAware as recursivePrim
 from analysis.scenario_discovery import calculate_sd_metrics
+from expWorkbench.ema_logging import log_to_stderr, INFO, info, debug
+from examples.flu_vensim_example import FluModel
+import expWorkbench
 
 
 __all__ = ['perform_prim', 'write_prim_to_stdout', 'show_boxes_individually',
@@ -76,10 +78,10 @@ COLOR_LIST = ['g',
               'y',
               'k']
 
-def def_obj_func(old_y, new_y):
+def orig_obj_func(old_y, new_y):
     r'''
         
-    The default objective function used by PRIM. In the default implementation
+    The original objective function used by PRIM. In the default implementation
     in peeling and pasting, PRIM selects the box that maximizes the average 
     value of new_y. This function is called for each candidate box to calculate
     its average value:
@@ -99,10 +101,11 @@ def def_obj_func(old_y, new_y):
     return np.mean(new_y)
 
 
-def test_obj_func(y_old, y_new):
+def def_obj_func(y_old, y_new):
     r'''
-    A test objective function to be used instead of the default objective
-    function.     
+    the default objective function used by prim, instead of the original
+    objective function, this function can cope with continous, integer, and
+    categorical uncertainties.      
     
     .. math::
         
@@ -308,7 +311,7 @@ def __filter(boxes, uncertainties=[]):
     uv = names
     return uv
 
-def write_prim_to_stdout(boxes, uv=[], filter=True):
+def write_prim_to_stdout(boxes, uv=[], screen=True):
     '''
     Summary function for printing the results of prim to stdout (typically
     the console). This function first prints an overview of the boxes,
@@ -319,7 +322,7 @@ def write_prim_to_stdout(boxes, uv=[], filter=True):
     :param uv: the uncertainties to show in the plot. Defaults to an empty list,
                meaning all the uncertainties will be shown. If the list is not
                empty only the uncertainties specified in uv will be plotted. 
-    :param filter: boolean, if True, the uncertainties for which all the boxes
+    :param screen: boolean, if True, the uncertainties for which all the boxes
                    equal the size of the dump box are not visualized 
                    (default=True)
 
@@ -332,7 +335,7 @@ def write_prim_to_stdout(boxes, uv=[], filter=True):
     prims = boxes
     boxes = [element.box for element in boxes]
     
-    if filter:
+    if screen:
         uv=__filter(boxes,uv)
     else:
         uv = [entry[0] for entry in boxes[0].dtype.descr]
@@ -374,7 +377,7 @@ def write_prim_to_stdout(boxes, uv=[], filter=True):
             stdout.write(str(element)+'\t')
         stdout.write("\n")
 
-def show_boxes_individually(boxes, results, uv=[], filter=True):
+def show_boxes_individually(boxes, results, uv=[], screen=True):
     '''
     
     This functions visually shows the size of a list of prim boxes. Each
@@ -388,7 +391,7 @@ def show_boxes_individually(boxes, results, uv=[], filter=True):
     :param uv: the uncertainties to show in the plot. Defaults to an empty list,
                meaning all the uncertainties will be shown. If the list is not
                empty only the uncertainties specified in uv will be plotted. 
-    :param filter: boolean, if True, the uncertainties for which all the boxes
+    :param screen: boolean, if True, the uncertainties for which all the boxes
                    equal the size of the dump box are not visualized 
                    (default=True)
     :rtype: a `figure <http://matplotlib.sourceforge.net/api/figure_api.html>`_ instance
@@ -403,7 +406,7 @@ def show_boxes_individually(boxes, results, uv=[], filter=True):
     uncertainties = sort_uncertainities(experiments, boxes[0], boxes[-1])
 
     #iterate over uncertainties
-    if filter:
+    if screen:
         uv = __filter(boxes, uncertainties)
     else:
         uv = uncertainties
@@ -468,7 +471,7 @@ def sort_uncertainities(experiments, box, dump_box):
     return sorted_uncertainties
 
 
-def show_boxes_together(boxes, results, uv=[], filter=True):
+def show_boxes_together(boxes, results, uv=[], screen=True):
     '''
     
     This functions visually shows the size of a list of prim boxes. 
@@ -517,7 +520,7 @@ def show_boxes_together(boxes, results, uv=[], filter=True):
     for name in uncertainties:
         if name in uv:
             show_uncertainty = True
-            if filter:
+            if screen:
                 show_uncertainty=False
                 #determine whether to show
                 for box in boxes:
@@ -626,4 +629,18 @@ def __normalize(boxes, experiments):
                 temp_box[name][1] = a[i]*box[name][1] + b[i]
         temp_boxes.append(temp_box)
     boxes= temp_boxes
-    return boxes   
+    return boxes
+
+if __name__ == '__main__':
+    log_to_stderr(level= INFO)
+    
+    model = FluModel(r'..\..\models\flu', "fluCase")
+    results = expWorkbench.util.load_results(r'1000 flu cases.cPickle')
+    boxes = perform_prim(results, 
+                         classify=model.outcomes[1].name, 
+                         threshold_type=1,
+                         threshold=0.8)
+    write_prim_to_stdout(boxes)
+    show_boxes_individually(boxes, results)
+    plt.show()  
+    

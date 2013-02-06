@@ -11,8 +11,10 @@ recursion. Moreover, the paste and peel methods now look analogous.
 '''
 from __future__ import division
 import numpy as np
+np=np
+
 import copy
-from scipy.stats.mstats import mquantiles
+from scipy.stats.mstats import mquantiles #@UnresolvedImport
 from operator import itemgetter
 
 from expWorkbench.ema_logging import info
@@ -24,11 +26,40 @@ class Prim(object):
                  y,
                  box,
                  box_mass):
-        self.x = x
-        self.y = y
+        
+        
+        self.p_and_p_trajectory = {"boxes":[],
+                                   "mass":[],
+                                   "mean":[],
+                                   "density":[],
+                                   "coverage":[],
+                                   "restricted_dim":[]
+                                   }
+        self.update(x, y, box, box_mass)
+        
+    def update(self, x, y, box, box_mass):
+        self.x=x
+        self.y=y
         self.y_mean = np.mean(y)
-        self.box = box
-        self.box_mass = box_mass
+        self.box=box
+        self.box_mass=box_mass
+        
+        self.p_and_p_trajectory["boxes"].append(self.box)
+        self.p_and_p_trajectory["mass"].append(self.box_mass)
+        self.p_and_p_trajectory["mean"].append(self.y_mean)
+        
+        #determine number of resticted dimension
+        logical = compare(self.box_init, self.box)
+        res_dim = np.sum(np.ones(logical.shape)[logical==False])
+        self.p_and_p_trajectory["restricted_dim"].append(res_dim)
+
+        #calculate sd metrics
+        coi = np.sum(self.y[(self.y*self.threshold_type) >= (self.threshold_type *self.threshold)])
+        self.coverage = coi/self.t_coi
+        self.density = coi/self.y.shape[0]
+        self.p_and_p_trajectory["coverage"].append(self.coverage)
+        self.p_and_p_trajectory["density"].append(self.density)
+
 
 def perform_prim(x,
                  y,
@@ -48,14 +79,20 @@ def perform_prim(x,
     k_max = int(k_max)
     info("max number of boxes: %s" %(k_max))
     
+    Prim.t_coi = np.sum(y[(y*threshold_type) >= (threshold_type *threshold)])
+    Prim.threshold = threshold
+    Prim.threshold_type = threshold_type
+    
     if box_init == None:
         box_init = make_box(x)
+        Prim.box_init = box_init
+        box_init = Prim(x, y, box_init, 1)
     else:
         #else, identify all points in initial box, rest is discarded
         logical =  in_box(x, box_init)
         x = x[logical]
         y = y[logical]
-
+    
     n = y.shape[0]
     y = y * threshold_type
     
@@ -76,55 +113,6 @@ def perform_prim(x,
     boxes = prim_hdr(boxes, threshold, threshold_type)
     
     return boxes
-
-def perform_prim_specific(x,
-                 y,
-                 box_init = None,
-                 peel_alpha = 0.05,
-                 paste_alpha = 0.05,
-                 mass_min = 0.05,
-                 threshold = None,
-                 pasting = False,
-                 threshold_type = 1,
-                 cases_of_interest = None,
-                 obj_func = None):
-    if threshold==None:
-        threshold = np.mean(y)
-   
-    k_max = np.ceil(1/mass_min)
-    k_max = int(k_max)
-    info("max number of boxes: %s" %(k_max))
-    
-    if box_init == None:
-        box_init = make_box(x)
-    else:
-        #else, identify all points in initial box, rest is discarded
-        logical =  in_box(x, box_init)
-        x = x[logical]
-        y = y[logical]
-
-    n = y.shape[0]
-    y = y * threshold_type
-    
-    boxes = find_boxes(x, y, box_init, 
-                       peel_alpha, paste_alpha, mass_min, 
-                       np.min(y)-0.1*np.abs(np.min(y)), 
-                       pasting, 0, k_max, n, cases_of_interest, obj_func)
-    
-    # adjust for negative hdr  
-    exps = []
-    for box in boxes:
-        box.y = threshold_type*box.y
-        box.y_mean = threshold_type*box.y_mean
-        exps.append(box.x)
-    # the list of found boxes has the dump box as first element
-    # we need to reverse the ordering to get the correct order in which
-    # the boxes have been found
-    boxes.reverse()
-    exps.reverse()
-    boxes = prim_hdr(boxes, threshold, threshold_type)
-    
-    return boxes, exps
 
 def prim_hdr(prims,
              threshold,
@@ -208,23 +196,23 @@ def find_boxes(x_remaining,
     
     info("%s points remaining" % (y_remaining.shape[0]))
     
-    new_box = peel(x_remaining, y_remaining, box_init, peel_alpha, 
+    new_box = peel(x_remaining, y_remaining, copy.copy(box_init), peel_alpha, 
                    mass_min, threshold, n, obj_func)
 
     info("peeling completed")
 
     if pasting:
-        logical = in_box(x_remaining, new_box)
+        logical = in_box(x_remaining, new_box.box)
         x_inside = x_remaining[logical]
         y_inside = y_remaining[logical]
 
         new_box = paste(x_inside, y_inside, x_remaining, y_remaining, 
-                           box_init, new_box, paste_alpha, mass_min, 
+                           copy.copy(box_init), new_box, paste_alpha, mass_min, 
                            threshold, n, obj_func)
         info("pasting completed")
 
     
-    logical = in_box(x_remaining, new_box)
+    logical = in_box(x_remaining, new_box.box)
     x_inside = x_remaining[logical]
     y_inside = y_remaining[logical]
     box_mass = y_inside.shape[0]/n
@@ -235,42 +223,28 @@ def find_boxes(x_remaining,
 
     if (y_remaining_temp.shape[0] != 0) &\
        (k < k_max) &\
-       (equal(box_init, new_box)==False):
+       (equal(box_init.box, new_box.box)==False):
 
-#        #some debugging stuff
-#
-#        name = 'total productivity growth main switch'
-#        print "new box"
-#        print new_box[name][0]
-#        print "data"
-#        
-#        for entry in set(x_remaining_temp[name]):
-#            
-#            nr =  x_remaining_temp[x_remaining_temp[name]==entry].shape[0]
-#            print "%s\t%s" %(entry, nr)
-#        
-#        #end of debugging stuff
-
-        # make a primObject
-        prim_object = Prim(x_inside, y_inside, new_box, box_mass)
-        coverage = (n * prim_object.y_mean * prim_object.box_mass)/cases_of_interest
+        coverage = (n * new_box.y_mean * new_box.box_mass)/cases_of_interest
         info("Found box %s: y_mean=%s, mass=%s, coverage=%s" % (k, 
-                                                                abs(prim_object.y_mean), #because of threshold_type == -1, y can become negative
-                                                                prim_object.box_mass,
+                                                                abs(new_box.y_mean), #because of threshold_type == -1, y can become negative
+                                                                new_box.box_mass,
                                                                 abs(coverage)))
         info("%s points in new box" % (y_inside.shape[0]))
         box_init = make_box(x_remaining)
+        box_init = Prim(x_remaining, y_remaining, box_init, x_remaining.shape[0]/n)
+        
         boxes = find_boxes(x_remaining_temp, y_remaining_temp, 
                            box_init, peel_alpha, paste_alpha, mass_min, 
-                           threshold, 
-                           pasting, k, k_max, n, cases_of_interest, obj_func)
-        boxes.append(prim_object)
+                           threshold, pasting, k, k_max, n, cases_of_interest, 
+                           obj_func)
+        boxes.append(new_box)
         return boxes
     else:
         info("Bump "+str(k)+" includes all remaining data")
         #make dump box
         box_mass = y_remaining.shape[0]/n
-        dump_box = Prim(x_remaining, y_remaining, box_init, box_mass)
+        dump_box = Prim(x_remaining, y_remaining, box_init.box, box_mass)
         return [dump_box]
 
 def peel(x,
@@ -281,7 +255,23 @@ def peel(x,
          threshold,
          n, 
          obj_func):
-    ''' Peeling stage of PRIM '''
+    '''
+    Peeling stage of PRIM 
+    
+    :param x: structured array of independent variables
+    :param y: array of the independend variable
+    :param box: box limits
+    :param peel_alpha: param that controls the amount of data that is removed
+                       in a single peel
+    :param mass_min: the minimum mass that should be left inside the box
+    :param threshold:
+    :param n: the total number of data points
+    :param obj_func: the objective function to be used in selecting the 
+                     new box from a set of candidate peel boxes
+    
+    returns a tuple (mean, volume, box)
+    '''
+
     mass_old = y.shape[0]/n
    
     #identify all possible peels
@@ -291,14 +281,14 @@ def peel(x,
             name = entry[0]
             value = x.dtype.fields.get(entry[0])[0] 
             if value == 'object':
-                peels = categoryPeel(x, y, n, name, box, obj_func)
+                peels = categoryPeel(x, y, n, name, box.box, obj_func)
                 [possible_peels.append(p) for p in peels]
             elif value == 'int':
-                possible_peels.append(discretePeel(x, y, n, name, peel_alpha, box, 'lower', obj_func))
-                possible_peels.append(discretePeel(x, y, n, name, peel_alpha, box, 'upper', obj_func))
+                possible_peels.append(discretePeel(x, y, n, name, peel_alpha, box.box, 'lower', obj_func))
+                possible_peels.append(discretePeel(x, y, n, name, peel_alpha, box.box, 'upper', obj_func))
             else:
-                possible_peels.append(realPeel(x, y, n, name, peel_alpha, box, 'lower', obj_func))
-                possible_peels.append(realPeel(x, y, n, name, peel_alpha, box, 'upper', obj_func))
+                possible_peels.append(realPeel(x, y, n, name, peel_alpha, box.box, 'lower', obj_func))
+                possible_peels.append(realPeel(x, y, n, name, peel_alpha, box.box, 'upper', obj_func))
     
     possible_peels.sort(key=itemgetter(0,1), reverse=True)
     obj, box_vol, box_new, logical = possible_peels[0]
@@ -314,14 +304,14 @@ def peel(x,
        (x_new.shape[0] != 0):
         # if best peel leaves remaining data
         # call peel again with updated box, x, and y
-        return peel(x_new, y_new, box_new, peel_alpha, mass_min, threshold, n, obj_func)
+        box.update(x_new, y_new, box_new, mass_new)
+        return peel(x_new, y_new, box, peel_alpha, mass_min, threshold, n, obj_func)
     else:
         #else return received box
         return box
 
 def categoryPeel(x,y, n, name,box, obj_func):
     entries = box[name][0]
-
     
     if len(entries) > 1:
         peels = []
@@ -346,7 +336,6 @@ def categoryPeel(x,y, n, name,box, obj_func):
                 obj = obj_func(y, y[logical])
             else:
                 obj = 0
-            
             
             box_vol = vol_box(temp_box)
             box_mass = y[logical].shape[0]/n
@@ -443,7 +432,7 @@ def realPeel(x,y,n,name,peel_alpha, box,direction, obj_func):
     temp_box[name][i] = box_peel
     box_mass = y[logical].shape[0]/n
     box_vol = box_mass
-#    box_vol = vol_box(temp_box)
+
     return (obj, box_vol, temp_box, logical)
 
 def paste(x,
@@ -470,14 +459,14 @@ def paste(x,
         value = x.dtype.fields.get(entry[0])[0]
         
         if value == 'object':
-            peels = categoryPaste(x_init, y_init, y, name, box,n, obj_func)
+            peels = categoryPaste(x_init, y_init, y, name, box.box,n, obj_func)
             [possible_pastes.append(p) for p in peels]
         elif value == 'int':
-            possible_pastes.append(discretePaste(x_init, y_init, y, name, box, box_init, paste_alpha, n, 'lower', obj_func))
-            possible_pastes.append(discretePaste(x_init, y_init, y, name, box, box_init, paste_alpha, n, 'upper', obj_func))
+            possible_pastes.append(discretePaste(x_init, y_init, y, name, box.box, box_init.box, paste_alpha, n, 'lower', obj_func))
+            possible_pastes.append(discretePaste(x_init, y_init, y, name, box.box, box_init.box, paste_alpha, n, 'upper', obj_func))
         else:
-            possible_pastes.append(realPaste(x_init, y_init, y, name, box, box_init, paste_alpha, n, 'lower', obj_func))
-            possible_pastes.append(realPaste(x_init, y_init, y, name, box, box_init, paste_alpha, n, 'upper', obj_func))
+            possible_pastes.append(realPaste(x_init, y_init, y, name, box.box, box_init.box, paste_alpha, n, 'lower', obj_func))
+            possible_pastes.append(realPaste(x_init, y_init, y, name, box.box, box_init.box, paste_alpha, n, 'upper', obj_func))
 
     #break ties by choosing box with largest mass                 
     possible_pastes.sort(key=itemgetter(0,1), reverse=True)
@@ -488,10 +477,12 @@ def paste(x,
     y_mean_new = np.mean(y_new)
     
     
+    
     if (y_mean_new > threshold) & (mass_new >= mass_min) &\
        (y_mean_new >= y_mean) & (mass_new > mass):
         
-        return paste(x_new, y_new, x_init, y_init, box_init,box_new, paste_alpha,
+        box.update(x_new, y_new, box_new, mass_new)
+        return paste(x_new, y_new, x_init, y_init, box_init,box, paste_alpha,
                      mass_min, threshold,n, obj_func)
     else:
         return box
@@ -654,12 +645,7 @@ def compare(a, b):
     logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
-        
-        test_1a = a[name][0]
-        test_1b = b[name][0]
-        test_1 = (a[name][0] == b[name][0])
-        test_2 = (a[name][1] == b[name][1])
-        
+       
         logical[i] = logical[i] &\
                     (a[name][0] == b[name][0]) &\
                     (a[name][1] == b[name][1])
@@ -707,63 +693,3 @@ def in_box(x, box):
                 x_box_ind = x_box_ind & (box[name][0] <= x[name] )&\
                                         (x[name] <= box[name][1])                
     return x_box_ind
-
-
-#def in_box(x, box):
-#    '''
-#     Find points of x that are in a single box
-#
-#    alternative implementation which is suprisingly slower than the above
-#
-#     Parameters
-#     x - data matrix
-#     box_paste ranges - matrix of min and max values which define a box 
-#     d - dimension of data
-#    
-#     Returns
-#     Data points which lie within the box
-#    '''
-#
-#    #identify by data type
-#    objs = []
-#    other = []
-#    for entry in x.dtype.descr:
-#        name = entry[0]
-#        value = x.dtype.fields.get(entry[0])[0]
-#        if value==float:
-#            other.append(name)
-#        else:
-#            objs.append(name)
-#    
-#    #create a view on the data that contains only float dtype
-#    float_box = box[other].view(float).reshape(2, len(other))
-#    float_in_x = x[other].view(float).reshape(x.shape[0], len(other))
-#    
-#    #given these views, figure out which data points are inside the box
-#    float_x_in_box = np.all( (float_in_x >= float_box[0,:][:, np.newaxis].T) &\
-#                             (float_in_x <= float_box[1,:][:, np.newaxis].T),axis=1 )
-#    
-#    encompasing_box = make_box(x)
-#    x_box_ind = float_x_in_box
-#    for entry in objs:
-#        name = entry
-#        value = x.dtype.fields.get(name)[0]
-#        
-#        #test whether box is different from encompassing box
-#        if np.any(box[name] != encompasing_box[name]):
-#            if value == 'object':
-#                entries = box[name][0]
-#                logical = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
-#                for i,entry in enumerate(entries):
-#                    logical[:, i] = x[name] == entry
-#                logical = np.any(logical, axis=1)
-#                x_box_ind = x_box_ind & logical
-#            else:
-#                x_box_ind = x_box_ind & (box[name][0] <= x[name] )&\
-#                                        (x[name] <= box[name][1])   
-#    x_box_ind = x_box_ind & float_x_in_box
-#    
-#    return x_box_ind
-
-
-       
