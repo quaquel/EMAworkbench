@@ -36,7 +36,7 @@ from samplers import FullFactorialSampler, LHSSampler
 from uncertainties import ParameterUncertainty, CategoricalUncertainty
 from callbacks import DefaultCallback
 
-__all__ = ['ModelEnsemble', 'MINIMIZE', 'MAXIMIZE']
+__all__ = ['ModelEnsemble', 'MINIMIZE', 'MAXIMIZE', 'UNION', 'INTERSECTION']
 
 MINIMIZE = -1.0
 MAXIMIZE = 1.0
