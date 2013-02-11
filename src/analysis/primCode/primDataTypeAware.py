@@ -232,7 +232,7 @@ def find_boxes(x_remaining,
                                                                 abs(coverage)))
         info("%s points in new box" % (y_inside.shape[0]))
         box_init = make_box(x_remaining)
-        box_init = Prim(x_remaining, y_remaining, box_init, x_remaining.shape[0]/n)
+        box_init = Prim(x_remaining_temp, y_remaining_temp, box_init, x_remaining_temp.shape[0]/n)
         
         boxes = find_boxes(x_remaining_temp, y_remaining_temp, 
                            box_init, peel_alpha, paste_alpha, mass_min, 
