@@ -1,0 +1,22 @@
+wish list/ requirements
+=======================
+
+ * stop running if it is clear that the remaining data will end up in the 
+   dump box anyway
+ * interactive mode where the peeling and pasting trajectory for the first
+   box is given, user makes a choice, algorithm than redos pasting from there
+   before moving to finding a new box. User should also be able to say that 
+   the algorithm can stop
+ * good visualizations (show boxes, and show peeling trajectory)
+ * good tables for peeling trajectory and box limits
+ * default only show relevant uncertainties, and sort them based on how 
+   restricted they are (after normalizing)
+ * box init should be based on uncertainty limits, thus model interface is
+   a argument for prim
+ * try to use pandas internally, paving the way for moving to pandas in the 
+   future
+ * use new style obj_function by default and keep using classify
+ * investigate multiple classes by using e.g. gini impurity in obj function
+ * much clearer error handling in case of no box being found, or, in case of 
+   using a classify, the number of cases of interest is either very large 
+   or small. 
