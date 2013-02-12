@@ -403,7 +403,7 @@ def show_boxes_individually(boxes, results, uv=[], screen=True):
     #determine minima and maxima
     boxes = __normalize(boxes, experiments)
     
-    uncertainties = sort_uncertainities(experiments, boxes[0], boxes[-1])
+    uncertainties = sort_uncertainties(experiments, boxes[0], boxes[-1])
 
     #iterate over uncertainties
     if screen:
@@ -447,7 +447,7 @@ def show_boxes_individually(boxes, results, uv=[], screen=True):
     
     return figure
 
-def sort_uncertainities(experiments, box, dump_box):
+def sort_uncertainties(experiments, box, dump_box):
     uncertainties = []
     
     for entry in experiments.dtype.descr:
@@ -500,7 +500,7 @@ def show_boxes_together(boxes, results, uv=[], screen=True):
     dump_box = boxes[-1]
     boxes = boxes[0:-1]
     
-    uncertainties = sort_uncertainities(experiments, boxes[0], dump_box)
+    uncertainties = sort_uncertainties(experiments, boxes[0], dump_box)
     
 #    uncertainties = []
 #    for entry in experiments.dtype.descr:
