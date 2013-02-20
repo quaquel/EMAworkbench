@@ -20,3 +20,4 @@ wish list/ requirements
  * much clearer error handling in case of no box being found, or, in case of 
    using a classify, the number of cases of interest is either very large 
    or small. 
+ * redo the visualize, but then in rotated form and force an aspect ratio on it

@@ -61,22 +61,19 @@ import matplotlib as mpl
 import time
 
 from expWorkbench.ema_exceptions import EMAError
-import primCode.primDataTypeAware as recursivePrim
-from analysis.scenario_discovery import calculate_sd_metrics
 from expWorkbench.ema_logging import log_to_stderr, INFO, info, debug
-from examples.flu_vensim_example import FluModel
 import expWorkbench
+from analysis.plotting_util import COLOR_LIST
+from analysis.scenario_discovery import calculate_sd_metrics
+from analysis.primCode.primDataTypeAware import compare
+from examples.flu_vensim_example import FluModel
+import primCode.primDataTypeAware as recursivePrim
+
 
 
 __all__ = ['perform_prim', 'write_prim_to_stdout', 'show_boxes_individually',
            'show_boxes_together']
 
-COLOR_LIST = ['g',
-              'r',
-              'm',
-              'c',
-              'y',
-              'k']
 
 def orig_obj_func(old_y, new_y):
     r'''
@@ -311,7 +308,7 @@ def __filter(boxes, uncertainties=[]):
     uv = names
     return uv
 
-def write_prim_to_stdout(boxes, uv=[], screen=True):
+def write_prim_to_stdout(boxes, experiments, uv=[], screen=True):
     '''
     Summary function for printing the results of prim to stdout (typically
     the console). This function first prints an overview of the boxes,
@@ -319,6 +316,8 @@ def write_prim_to_stdout(boxes, uv=[], screen=True):
     the box, mean specifies the average of the cases. 
     
     :param boxes: the prim boxes as returned by :func:`perform_prim`
+    :param experiments: the experiments that form the basis for the prim 
+                        analysis
     :param uv: the uncertainties to show in the plot. Defaults to an empty list,
                meaning all the uncertainties will be shown. If the list is not
                empty only the uncertainties specified in uv will be plotted. 
@@ -332,50 +331,77 @@ def write_prim_to_stdout(boxes, uv=[], screen=True):
 
         sys.stdout = open(file.txt, 'w')
     '''
-    prims = boxes
-    boxes = [element.box for element in boxes]
+
     
     if screen:
-        uv=__filter(boxes,uv)
+        uv=__filter( [element.box for element in boxes],uv)
     else:
         uv = [entry[0] for entry in boxes[0].dtype.descr]
     
+    # give the logging some time in case you are logging to console
     time.sleep(1)
-  
-    print '           \tmass\tmean\tcoverage\tdensity'
-    for i, entry in enumerate(prims[0:-1]):
-        print ' box %s:\t%s\t%s\t%s\t%s' %(i+1, 
-                                                entry.box_mass, 
-                                                entry.y_mean,
-                                                entry.coverage,
-                                                entry.density)
-    print 'rest box    :\t%s\t%s\t%s\t%s' %(prims[-1].box_mass, 
-                                            prims[-1].y_mean,
-                                            prims[-1].coverage,
-                                            prims[-1].density)
-    
-    print "box limits"
-    stdout.write("  \t  ")
-    
-    uncertainties=uv
-    
-    for uncertainty in uncertainties:
-        stdout.write(uncertainty+"\t")
-    stdout.write("\n")        
+
+    keys = ['mean', 'mass', 'coverage', 'density', 'restricted_dim']
+    print "{0:<10}{1:>10}{2:>10}{3:>10}{4:>10}{5:>10}".format('box', 'mean', 'mass', 'coverage', 'density', 'res dim')
     for i, box in enumerate(boxes):
-        print "box %s:" % str(i+1)
+        input = {key:box.p_and_p_trajectory[key][-1] for key in keys}
         
-        stdout.write("min:\t") 
-     
-        for name in uncertainties: 
-            element = box[name][0]
-            stdout.write(str(element)+'\t')
+        if i < len(boxes)-1:
+            box_name = 'box {}'.format(i+1)
+        else:
+            box_name = 'rest box'
+
+        row = "{0:<10}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}".format(box_name,**input)
+        print row
+    
+    
+    logical = np.ones((len(boxes[0].box_init.dtype.descr),), dtype=bool)
+    for box in boxes[0:-1]:
+        boxlims = box.p_and_p_trajectory['boxes'][-1]
+        logical = logical & compare(box.box_init, boxlims)
+    uv = np.asarray([entry[0] for entry in boxlims.dtype.descr])[logical==False]
+    
+    normed = __normalize([box.box for box in boxes], experiments)
+    sorted_uv = sort_uncertainties(experiments, normed[0], normed[-1])
+    uv = [entry for entry in sorted_uv if entry in uv]
+    
+    
+    print "\n"
+
+    # make the headers of the limits table
+    # first header is box names
+    # second header is min and max
+    elements_1 = ["{0:<60}".format("uncertainty")]
+    elements_2 = ["{0:<60}".format("")]
+    for i in range(len(boxes)):
+        if i < len(boxes)-1:
+            box_name = 'box {}'.format(i+1)
+        else:
+            box_name = 'rest box'        
         
-        stdout.write("\nmax:\t")
-        for name in uncertainties:
-            element = box[name][1] 
-            stdout.write(str(element)+'\t')
-        stdout.write("\n")
+        elements_1.append("{0:>26}{1:>6}".format("{}".format(box_name),""))
+        elements_2.append("{0:>20}{1:>12}".format("min", "max"))
+    line = "".join(elements_1)
+    print line
+    line = "".join(elements_2)
+    print line
+    
+    # fill the limits in for each uncertainty and each box
+    for u in uv:
+        elements = ["{0:<60}".format(u)]
+    
+        for box in boxes:
+            data_type =  box.box[u].dtype
+            if data_type == np.float64:
+                elements.append("{0:>20.2f} -{1:>10.2f}".format(*box.box[u]))
+            elif data_type == np.int32:
+                elements.append("{0:>20} -{1:>10}".format(*box.box[u]))            
+            else:
+                elements.append("{0:>32}".format(box.box[u][0]))
+        line = "".join(elements)
+        print line
+    print "\n\n"   
+
 
 def show_boxes_individually(boxes, results, uv=[], screen=True):
     '''
@@ -631,16 +657,16 @@ def __normalize(boxes, experiments):
     boxes= temp_boxes
     return boxes
 
-if __name__ == '__main__':
-    log_to_stderr(level= INFO)
-    
-    model = FluModel(r'..\..\models\flu', "fluCase")
-    results = expWorkbench.util.load_results(r'1000 flu cases.cPickle')
-    boxes = perform_prim(results, 
-                         classify=model.outcomes[1].name, 
-                         threshold_type=1,
-                         threshold=0.8)
-    write_prim_to_stdout(boxes)
-    show_boxes_individually(boxes, results)
-    plt.show()  
+#if __name__ == '__main__':
+#    log_to_stderr(level= INFO)
+#    
+#    model = FluModel(r'..\..\models\flu', "fluCase")
+#    results = expWorkbench.util.load_results(r'1000 flu cases.cPickle')
+#    boxes = perform_prim(results, 
+#                         classify=model.outcomes[1].name, 
+#                         threshold_type=1,
+#                         threshold=0.8)
+#    write_prim_to_stdout(boxes)
+#    show_boxes_individually(boxes, results)
+#    plt.show()  
     
