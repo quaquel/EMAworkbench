@@ -603,6 +603,7 @@ class LoggingProcess(Process):
         # create the logger to use.
         logger = logging.getLogger(ema_logging.LOGGER_NAME+'.subprocess')
         ema_logging.LOGGER_NAME+'.subprocess'
+        ema_logging._logger = logger
         _logger = logger
         
         # The only handler desired is the SubProcessLogHandler.  If any others

@@ -110,13 +110,14 @@ def perform_prim(x,
     # we need to reverse the ordering to get the correct order in which
     # the boxes have been found
     boxes.reverse()
-    boxes = prim_hdr(boxes, threshold, threshold_type)
+    boxes = prim_hdr(boxes, threshold, threshold_type, box_init)
     
     return boxes
 
 def prim_hdr(prims,
              threshold,
-             threshold_type):
+             threshold_type,
+             box_init):
     '''
     Highest density region for PRIM boxes
     
@@ -150,8 +151,7 @@ def prim_hdr(prims,
             x_temp = np.append(x_temp, entry.x, axis=0) 
             y_temp = np.append(y_temp, entry.y, axis=0)
 
-
-    dump_box = Prim(x_temp, y_temp, make_box(x_temp), 
+    dump_box = Prim(x_temp, y_temp, box_init, 
                         y_temp.shape[0]/n)
         
     final_list.append(dump_box)
