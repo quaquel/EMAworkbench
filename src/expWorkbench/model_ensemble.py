@@ -274,7 +274,7 @@ class ModelEnsemble(object):
                                     processes=self.processes,
                                     kwargs=model_kwargs)
 
-    def __generate_experiments(self, sampled_unc):
+    def _generate_experiments(self, sampled_unc):
         '''
         Helper method for turning the sampled uncertainties into actual
         complete experiments, including the model structure interface and the 
