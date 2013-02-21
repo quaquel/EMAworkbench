@@ -54,7 +54,10 @@ class Prim(object):
         self.p_and_p_trajectory["restricted_dim"].append(res_dim)
 
         #calculate sd metrics
-        coi = np.sum(self.y[(self.y*self.threshold_type) >= (self.threshold_type *self.threshold)])
+        if self.threshold_type==1:
+            coi = np.sum(np.abs(self.y[(self.y) >= (self.threshold)]))
+        else:
+            coi = np.sum(np.abs(self.y[(self.y) <= (self.threshold)]))
         self.coverage = coi/self.t_coi
         self.density = coi/self.y.shape[0]
         self.p_and_p_trajectory["coverage"].append(self.coverage)
@@ -74,12 +77,18 @@ def perform_prim(x,
                  obj_func = None):
     if threshold==None:
         threshold = np.mean(y)
+
+    n = y.shape[0]
+    y = y * threshold_type
    
     k_max = np.ceil(1/mass_min)
     k_max = int(k_max)
     info("max number of boxes: %s" %(k_max))
     
-    Prim.t_coi = np.sum(y[(y*threshold_type) >= (threshold_type *threshold)])
+    if threshold_type==1:
+        Prim.t_coi  = np.sum(np.abs(y[(y) >= (threshold)]))
+    else:
+        Prim.t_coi  = np.sum(np.abs(y[(y) <= (threshold)]))
     Prim.threshold = threshold
     Prim.threshold_type = threshold_type
     
@@ -93,12 +102,11 @@ def perform_prim(x,
         x = x[logical]
         y = y[logical]
     
-    n = y.shape[0]
-    y = y * threshold_type
+
     
     boxes = find_boxes(x, y, box_init, 
                        peel_alpha, paste_alpha, mass_min, 
-                       np.min(y)-0.1*np.abs(np.min(y)), 
+                       threshold, 
                        pasting, 0, k_max, n, cases_of_interest, obj_func)
     
     # adjust for negative hdr  
@@ -110,7 +118,7 @@ def perform_prim(x,
     # we need to reverse the ordering to get the correct order in which
     # the boxes have been found
     boxes.reverse()
-    boxes = prim_hdr(boxes, threshold, threshold_type, box_init)
+    boxes = prim_hdr(boxes, threshold, threshold_type, Prim.box_init)
     
     return boxes
 
@@ -194,6 +202,9 @@ def find_boxes(x_remaining,
     '''
     k+=1
     
+    overall_threshold = copy.deepcopy(threshold)
+    threshold = np.min(y_remaining)-0.1*np.abs(np.min(y_remaining))
+    
     info("%s points remaining" % (y_remaining.shape[0]))
     
     new_box = peel(x_remaining, y_remaining, copy.copy(box_init), peel_alpha, 
@@ -223,7 +234,8 @@ def find_boxes(x_remaining,
 
     if (y_remaining_temp.shape[0] != 0) &\
        (k < k_max) &\
-       (equal(box_init.box, new_box.box)==False):
+       (equal(box_init.box, new_box.box)==False)&\
+       (np.sum(y_remaining_temp) * mass_min >= overall_threshold):
 
         coverage = (n * new_box.y_mean * new_box.box_mass)/cases_of_interest
         info("Found box %s: y_mean=%s, mass=%s, coverage=%s" % (k, 
@@ -237,7 +249,7 @@ def find_boxes(x_remaining,
         
         boxes = find_boxes(x_remaining_temp, y_remaining_temp, 
                            box_init, peel_alpha, paste_alpha, mass_min, 
-                           threshold, pasting, k, k_max, n, cases_of_interest, 
+                           overall_threshold, pasting, k, k_max, n, cases_of_interest, 
                            obj_func)
         boxes.append(new_box)
         return boxes
