@@ -37,5 +37,5 @@ def test_write_to_std_out(results):
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-    results = load_results(r'../data/1000 flu cases no policy.cPickle', zipped=False)
+    results = load_results(r'../data/1000 flu cases no policy.bz2')
     test_write_to_std_out(results)
