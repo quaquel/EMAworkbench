@@ -376,7 +376,7 @@ class ModelEnsemble(object):
             sampled_unc, unc_dict = self._generate_samples(cases, which_uncertainties)
             nr_of_exp =self.sampler.deterimine_nr_of_designs(sampled_unc)\
                       *len(self._policies)*len(self._msis)
-            experiments = self.__generate_experiments(sampled_unc)
+            experiments = self._generate_experiments(sampled_unc)
         elif type(cases) == types.ListType:
             # TODO, don't know what this should look like until the\
             # default case of generating experiments the normal way is working 
@@ -389,7 +389,7 @@ class ModelEnsemble(object):
             unc_names = cases[0].keys()
             sampled_unc = {name:[] for name in unc_names}
             nr_of_exp = len(cases)*len(self._policies)*len(self._msis)
-            experiments = self.__generate_experiments(cases)
+            experiments = self._generate_experiments(cases)
         else:
             raise EMAError("unknown type for cases")
         uncertainties = [unc_dict[unc] for unc in sorted(sampled_unc)]
