@@ -368,36 +368,41 @@ def write_prim_to_stdout(boxes, experiments, uv=[], screen=True):
     
     print "\n"
 
+    # fill the limits in for each uncertainty and each box
+    # determine the length of the uncertainty names to align these properly
+    #
+    length = max([len(u) for u in uv])
+    length = length
+
     # make the headers of the limits table
     # first header is box names
     # second header is min and max
-    elements_1 = ["{0:<60}".format("uncertainty")]
-    elements_2 = ["{0:<60}".format("")]
+    elements_1 = ["{0:<{1}}".format("uncertainty", length)]
+    elements_2 = ["{0:<{1}}".format("", length)]
     for i in range(len(boxes)):
         if i < len(boxes)-1:
             box_name = 'box {}'.format(i+1)
         else:
             box_name = 'rest box'        
         
-        elements_1.append("{0:>26}{1:>6}".format("{}".format(box_name),""))
-        elements_2.append("{0:>20}{1:>12}".format("min", "max"))
+        elements_1.append("{0:>16}{1:>6}".format("{}".format(box_name),""))
+        elements_2.append("{0:>10}{1:>12}".format("min", "max"))
     line = "".join(elements_1)
     print line
     line = "".join(elements_2)
     print line
     
-    # fill the limits in for each uncertainty and each box
     for u in uv:
-        elements = ["{0:<60}".format(u)]
+        elements = ["{0:<{1}}".format(u, length)]
     
         for box in boxes:
             data_type =  box.box[u].dtype
             if data_type == np.float64:
-                elements.append("{0:>20.2f} -{1:>10.2f}".format(*box.box[u]))
+                elements.append("{0:>10.2f} -{1:>10.2f}".format(*box.box[u]))
             elif data_type == np.int32:
-                elements.append("{0:>20} -{1:>10}".format(*box.box[u]))            
+                elements.append("{0:>10} -{1:>10}".format(*box.box[u]))            
             else:
-                elements.append("{0:>32}".format(box.box[u][0]))
+                elements.append("{0:>22}".format(box.box[u][0]))
         line = "".join(elements)
         print line
     print "\n\n"   
