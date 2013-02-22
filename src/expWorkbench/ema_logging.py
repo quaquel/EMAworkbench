@@ -117,8 +117,8 @@ def get_logger():
     import logging
     
     if not _logger:
-            _logger = logging.getLogger(LOGGER_NAME)
-            _logger.addHandler(NullHandler())
+        _logger = logging.getLogger(LOGGER_NAME)
+        _logger.addHandler(NullHandler())
 
     return _logger
 
