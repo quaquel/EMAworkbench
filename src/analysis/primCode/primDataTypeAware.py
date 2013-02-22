@@ -286,6 +286,8 @@ def peel(x,
     '''
 
     mass_old = y.shape[0]/n
+    
+    print np.sum(y), mass_old
    
     #identify all possible peels
     possible_peels = []
@@ -305,6 +307,9 @@ def peel(x,
     
     possible_peels.sort(key=itemgetter(0,1), reverse=True)
     obj, box_vol, box_new, logical = possible_peels[0]
+#    print len(possible_peels)
+#    for entry in possible_peels:
+#        print entry[0], np.sum(y[entry[-1]])
     
     x_new = x[logical]
     y_new = y[logical]
