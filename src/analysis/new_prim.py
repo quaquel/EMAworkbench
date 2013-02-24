@@ -14,7 +14,7 @@ from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
 
 from analysis.plotting_util import make_legend
-from expWorkbench import info
+from expWorkbench import info, debug
 
 DEFAULT = 'default'
 ABOVE = 1
@@ -220,20 +220,18 @@ class Prim(object):
         '''
         
         # TODO here we should assess the state of the algorithm
-        # that is, go over all the identifed PrimBoxes, get there last
+        # that is, go over all the identified PrimBoxes, get there last
         # entry and update yi_remaining in light of this
         
         info("{} points remaining".format(self.yi_remaining.shape[0]))
         info("{} cases of interest remaining".format(self.determine_coi(self.yi_remaining)))
         
-        box = PrimBox(self, self.box_init, self.yi_remaining)
+        # make a new box
+        box = PrimBox(self, self.box_init, self.yi_remaining[:])
         
+        #  perform peeling phase
         new_box = self.__peel(box)
-        
-#        new_box = peel(x_remaining, y_remaining, copy.copy(box_init), peel_alpha, 
-#                       mass_min, threshold, n, obj_func)
-    
-        info("peeling completed")
+        debug("peeling completed")
     
 #        if pasting:
 #            logical = in_box(x_remaining, new_box.box)
@@ -246,6 +244,13 @@ class Prim(object):
 #            info("pasting completed")
         
         self.boxes.append(new_box)
+        
+        #for updating yi_remaining, we need the complement of 
+        #the indices that go into the box
+        #nicest way to do this is via logical indexing.
+        c_ind = self.yi_remaining==self.yi_remaining
+        c_ind[new_box.yi] = False
+        self.yi_remaining = self.yi_remaining[c_ind]        
         
         return new_box
 
@@ -381,33 +386,33 @@ class Prim(object):
        
         #identify all possible peels
         possible_peels = []
-        
         for entry in x.dtype.descr:
             u = entry[0]
             dtype = x.dtype.fields.get(u)[0].name
-            peels = self.__peels[dtype](self, box, u)
+            peels = self.__peels[dtype](self, box, u, x)
             [possible_peels.append(entry) for entry in peels] 
 
-        possible_peels.sort(key=itemgetter(0,1), reverse=True)
-        entry = possible_peels[0]
-        box_new, indices, a_tmp = entry[2:]
+        # determine the scores for each peel in order
+        # to identify the next candidate box
+        scores = []
+        for entry in possible_peels:
+            i, box_lim = entry
+            obj = self.obj_func(self, y,  self.y[i])
+            non_res_dim = len(x.dtype.descr)-\
+                          self.determine_restricted_dims(box_lim)
+            score = (obj, non_res_dim, box_lim, i)
+            scores.append(score)
+
+        scores.sort(key=itemgetter(0,1), reverse=True)
+        entry = scores[0]
+        box_new, indices = entry[2:]
         
         # this should only result in an update to yi_remaining
         # first as a temp / new, and if we continue, update yi_remaining
         mass_new = self.y[indices].shape[0]/self.n
         
-        # what is the function of the fist condition?
-        # self.threshold makes no sense here
-        # second condition checks whether we are not peeling to much
-        # third criterion makes sure that data actually has been removed
-        # fourth criterion makes sure that the box is not empty
-        # again this is rather silly given mass_min, unless mass_min==0
-        # which would again be nonsensical
         if (mass_new >= self.mass_min) &\
            (mass_new < mass_old):
-            # if best peel leaves remaining data
-            # call peel again with updated box, x, and y
-            self.yi_remaining = indices
             box.update(box_new, indices)
             return self.__peel(box)
         else:
@@ -415,7 +420,7 @@ class Prim(object):
             return box
     
     
-    def __real_peel(self, box, u):
+    def __real_peel(self, box, u, x):
         '''
         
         returns two candidate new boxes, peel along upper and lower dimension
@@ -428,8 +433,6 @@ class Prim(object):
         
         '''
         
-        x = self.x[box.yi]
-        y = self.y[box.yi]
 
         peels = []
         for direction in ['upper', 'lower']:
@@ -448,21 +451,13 @@ class Prim(object):
             if direction=='upper':
                 logical = x[u] <= box_peel
                 indices = box.yi[logical]
-        
-            obj = self.obj_func(self, y,  self.y[indices])
             temp_box = copy.deepcopy(box.box_lims[-1])
             temp_box[u][i] = box_peel
-            res_dim = self.determine_restricted_dims(temp_box)
-            
-            non_res_dim = len(x.dtype.descr)-res_dim
-
-            a_tmp = np.sum(self.y[indices])
-                        
-            peels.append((obj, non_res_dim, temp_box, indices,a_tmp))
+            peels.append((indices, temp_box))
     
         return peels
     
-    def __discrete_peel(self, box, u):
+    def __discrete_peel(self, box, u, x):
         '''
         
         returns two candidate new boxes, peel along upper and lower dimension
@@ -474,29 +469,67 @@ class Prim(object):
 
         
         '''
-        print u
-        pass
+
+        peels = []
+        for direction in ['upper', 'lower']:
+            peel_alpha = self.peel_alpha
+        
+            i=0
+            if direction=='upper':
+                peel_alpha = 1-self.peel_alpha
+                i=1
+            
+            box_peel = mquantiles(x[u], [peel_alpha], alphap=self.alpha, 
+                                  betap=self.beta)[0]
+            box_peel = int(box_peel)
+
+            # determine logical associated with peel value            
+            if direction=='lower':
+                if box_peel == box.box_lims[-1][u][i]:
+                    logical = (x[u] > box.box_lims[-1][u][i]) &\
+                              (x[u] <= box.box_lims[-1][u][i+1])
+                else:
+                    logical = (x[u] >= box_peel) &\
+                              (x[u] <= box.box_lims[-1][u][i+1])
+            if direction=='upper':
+                if box_peel == box.box_lims[-1][u][i]:
+                    logical = (x[u] < box.box_lims[-1][u][i]) &\
+                              (x[u] >= box.box_lims[-1][u][i-1])
+                else:
+                    logical = (x[u] <= box_peel) &\
+                              (x[u] >= box.box_lims[-1][u][i-1])
+
+            # determine value of new limit given logical
+            if x[logical].shape[0] == 0:
+                new_limit = np.min(x[u])
+            else:
+                new_limit = np.min(x[u][logical])            
+            
+            indices= box.yi[logical] 
+            temp_box = copy.deepcopy(box.box_lims[-1])
+            temp_box[u][i] = new_limit
+            peels.append((indices, temp_box))
     
-    def __categorical_peel(self, box, u):
+        return peels
+    
+    def __categorical_peel(self, box, u, x):
         '''
         
         returns one candidate new box
         
         :param box: a PrimBox instance
         :param u: the uncertainty for which to peel
+        :param x: the x in box
         :returns: one boxlims, associated value of obj_fucntion, 
                   nr_restricted_dims
         
         '''
         entries = box.box_lims[-1][u][0]
-
-        x = self.x[box.yi]
-        y = self.y[box.yi]
         
         if len(entries) > 1:
             peels = []
             for entry in entries:
-                temp_box = np.copy(box)
+                temp_box = np.copy(box.box_lims[-1])
                 peel = copy.deepcopy(entries)
                 peel.discard(entry)
                 temp_box[u][:] = peel
@@ -511,33 +544,163 @@ class Prim(object):
                     logical = np.asarray(bools, dtype=bool)
                 else:
                     logical = x[u] != entry
-    
-                if y[logical].shape[0] != 0:
-                    obj = self.obj_func(self, y, y[logical])
-                else:
-                    obj = 0
-               
-                res_dim = self.determine_restricted_dims(temp_box)
                 indices = box.yi[logical]
-                non_res_dim = len(x.dtype.descr)-res_dim
-                
-                peels.append((obj, non_res_dim, temp_box, indices))
+                peels.append((indices,  temp_box))
             return peels
         else:
             # no peels possible, return empty list
             return []
 
 
-    def __paste(self):
+    def __paste(self, box):
         '''
         
         Executates the pasting phase of the PRIM. Delegates pasting to data 
         type specific helper methods.
         
         '''
+        mass = self.y.shape[0]/self.n
+        y_mean = np.mean(self.y)
         
+        possible_pastes = []
+        for entry in self.x.dtype.descr:
+            u = entry[0]
+            dtype = self.x.dtype.fields.get(u)[0].name
+            pastes = self.__pastes[dtype](self, box, u)
+            [possible_pastes.append(entry) for entry in pastes] 
         
+        print "blaat"
+    
+#        #break ties by choosing box with largest mass                 
+#        possible_pastes.sort(key=itemgetter(0,1), reverse=True)
+        obj, mass_new, box_new = possible_pastes[0]
+        logical = self.in_box(box_new)
+        x_new = self.x[self.yi_remaining][logical]
+        y_new = self.y[[self.yi_remaining]][logical]
+        y_mean_new = np.mean(y_new)
+#       
+        if (y_mean_new > self.threshold) &\
+           (mass_new >= self.mass_min) &\
+           (y_mean_new >= y_mean) &\
+           (mass_new > mass):
+            
+            box.update(x_new, y_new, box_new, mass_new)
+            return self.__paste(box)
+        else:
+            return box
+
+    def __real_paste(self, u, box):
+       
+        box_diff = self.box_init[u][1]-self.box_init[u][0]
+        
+        box_paste = np.copy(box.box_lims[-1])
+        test_box = np.copy(box.box_lims[-1])
+    
+        pa = self.paste_alpha * box.yi.shape[0]
+    
+        pastes = []
+        for direction in ['upper', 'lower']:
+            if direction == 'lower':
+                i = 0
+                box_diff = -1*box_diff
+                test_box[u][1] = test_box[u][i]
+                test_box[u][i] = self.box_init[u][i]
+                logical = self.in_box(test_box)
+                data = self.x[self.yi_remaining][logical][u]
+                
+                if data.shape[0] > 0:
+                    b = (data.shape[0]-pa)/data.shape[0]
+                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
+                                             betap=self.beta)[0]
+            elif direction == 'upper':
+                i = 1
+                test_box[u][0] = test_box[u][i]
+                test_box[u][i] = self.box_init[u][i]
+                logical = self.in_box(test_box)
+                data = self.x[self.yi_remaining][logical][u]
+                
+                if data.shape[0] > 0:
+                    b = (pa)/data.shape[0]
+                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
+                                             betap=self.beta)[0]
+            box_paste[u][i] = paste_value
+            indices = self.in_box(box_paste)
+            pastes.append(indices, box_paste)
+    
+        return pastes        
+    
+    def __discrete_paste(self, x_init,y_init, y, name,
+                  box,box_init, paste_alpha, n, direction, obj_func):
         pass
+#        box_diff = box_init[name][1]-box_init[name][0]
+#        if direction == 'lower':
+#            i = 0
+#            paste_alpha = 1-paste_alpha
+#            box_diff = -1*box_diff
+#        if direction == 'upper':
+#            i = 1
+#        
+#        box_paste = np.copy(box)
+#        y_paste = y
+#        test_box = np.copy(box)
+#      
+#        if direction == 'lower':
+#            test_box[name][i+1] = test_box[name][i]
+#            test_box[name][i] = box_init[name][i]
+#            logical = in_box(x_init, test_box)
+#            data = x_init[logical][name]
+#            if data.shape[0] > 0:
+#                a = paste_alpha * y.shape[0]
+#                b = (data.shape[0]-a)/data.shape[0]
+#                paste_value = mquantiles(data, [b], alphap=1/3, betap=1/3)[0]
+#                paste_value = int(round(paste_value))
+#                box_paste[name][i] = paste_value
+#                logical = in_box(x_init, box_paste)
+#                y_paste = y_init[logical]
+#        
+#        if direction == 'upper':
+#            test_box[name][i-1] = test_box[name][i]
+#            test_box[name][i] = box_init[name][i]
+#            logical = in_box(x_init, test_box)
+#            data = x_init[logical][name]
+#            if data.shape[0] > 0:
+#                a = paste_alpha * y.shape[0]
+#                b = a/data.shape[0]
+#                paste_value = mquantiles(data, [b], alphap=1/3, betap=1/3)[0]
+#                paste_value = int(round(paste_value))
+#                box_paste[name][i] = paste_value
+#                logical = in_box(x_init, box_paste)
+#                y_paste = y_init[logical]
+#    
+#        # y means of pasted boxes
+#        obj = obj_func(y,  y_paste)
+#        
+#        # mass of pasted boxes
+#        mass_paste = y_init[logical].shape[0]/n
+#    
+#        return (obj, mass_paste, box_paste)
+    
+    def __categorical_paste(self, x_init,y_init, y, name, box,n, obj_func):
+        pass
+#        c_in_b = box[name][0]
+#        c_t = set(x_init[name])
+#        
+#        if len(c_in_b) < len(c_t):
+#            pastes = []
+#            possible_cs = c_t - c_in_b
+#            for entry in possible_cs:
+#                temp_box = np.copy(box)
+#                paste = copy.deepcopy(c_in_b)
+#                paste.add(entry)
+#                temp_box[name][:] = paste
+#                logical = in_box(x_init, box)
+#                obj = obj_func(y,  y_init[logical])
+#                mass_paste = y_init[logical].shape[0]/n
+#                pastes.append((obj, mass_paste, temp_box))
+#            return pastes
+#        else:
+#            # no pastes possible, return empty list
+#            return []
     
     def __def_obj_func(self, y_old, y_new):
         r'''
@@ -574,12 +737,12 @@ class Prim(object):
 
 
     __peels = {'object': __categorical_peel,
-               'int': __discrete_peel,
+               'int32': __discrete_peel,
                'float64': __real_peel}
 
-#    __paste = {'object': __categorical_paste,
-#               'int': __discrete_paste,
-#               'float': __real_paste}
+    __pastes = {'object': __categorical_paste,
+               'int32': __discrete_paste,
+               'float64': __real_paste}
 
     # dict with the various objective functions available
     __obj_functions = {DEFAULT : __def_obj_func}    
