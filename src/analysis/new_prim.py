@@ -52,12 +52,10 @@ class PrimBox(object):
         
         update the box to the provided box limits.
         
-        what should be updated?
         
-        add to peeling trajectory
-        update indices in box
-        update all metrics
-        
+        :param box_lims: the new box_lims
+        :param indices: the indices of y that are inside the box
+      
         '''
         self.yi = indices
         
@@ -131,6 +129,8 @@ class Prim(object):
     alpha = 1/3
     beta = 1/3
     
+    message = "{} point remaining, containing {} cases of interest"
+    
     def __init__(self, 
                  results,
                  classify, 
@@ -139,7 +139,6 @@ class Prim(object):
                  paste_alpha = 0.05,
                  mass_min = 0.05, 
                  threshold = None, 
-                 pasting=True, 
                  threshold_type=ABOVE):
         '''
         
@@ -150,7 +149,6 @@ class Prim(object):
         :param paste_alpha: parameter controlling the pasting stage (default = 0.05).
         :param mass_min: minimum mass of a box (default = 0.05). 
         :param threshold: the threshold of the output space that boxes should meet. 
-        :param pasting: perform pasting stage (default=True) 
         :param threshold_type: If 1, the boxes should go above the threshold, if -1
                                the boxes should go below the threshold, if 0, the 
                                algorithm looks for both +1 and -1.
@@ -158,7 +156,7 @@ class Prim(object):
                          :func:`def_obj_func`
         :raises: PrimException if data resulting from classify is not a 
                  1-d array. 
-        :raises: TypeError if classify is not a string or a callable function
+        :raises: TypeError if classify is not a string or a callable.
                      
         '''
         
@@ -180,7 +178,6 @@ class Prim(object):
         self.peel_alpha = peel_alpha
         self.mass_min = mass_min
         self.threshold = threshold 
-        self.pasting = pasting 
         self.threshold_type = threshold_type
         self.obj_func = self.__obj_functions[obj_function]
        
@@ -222,34 +219,33 @@ class Prim(object):
         '''
         # set the indices
         self.__update_yi_remaining()
-
-        info("{} points remaining".format(self.yi_remaining.shape[0]))
-        info("{} cases of interest remaining".format(self.determine_coi(self.yi_remaining)))
         
-        # make a new box
+        # log how much data and how many coi are remaining
+        info(self.message.format(self.yi_remaining.shape[0],
+                                 self.determine_coi(self.yi_remaining)))
+        
+        # make a new box that contains all the remaining data points
         box = PrimBox(self, self.box_init, self.yi_remaining[:])
+        self.boxes.append(box)
         
         #  perform peeling phase
-        new_box = self.__peel(box)
+        box = self.__peel(box)
         debug("peeling completed")
-    
-#        if pasting:
-#            logical = in_box(x_remaining, new_box.box)
-#            x_inside = x_remaining[logical]
-#            y_inside = y_remaining[logical]
-#    
-#            new_box = paste(x_inside, y_inside, x_remaining, y_remaining, 
-#                               copy.copy(box_init), new_box, paste_alpha, mass_min, 
-#                               threshold, n, obj_func)
-#            info("pasting completed")
+        self.__update_yi_remaining()
+
+        # perform pasting phase        
+        box = self.__paste(box)
+        debug("pasting completed")
+        self.__update_yi_remaining()
+
+#        __paste(x_inside, y_inside, x_remaining, y_remaining, 
+#                           copy.copy(box_init), new_box, paste_alpha, mass_min, 
+#                           threshold, n, obj_func)
         
-        # TODO check if box meets critiria, otherwise, return a 
+        # TODO check if box meets criteria, otherwise, return a 
         # dumpbox, and log that there is no box possible anymore
         
-        self.boxes.append(new_box)
-        self.__update_yi_remaining()
-        
-        return new_box
+        return box
 
 
     def compare(self, a, b):
@@ -382,19 +378,10 @@ class Prim(object):
         
         '''
         Peeling stage of PRIM 
-        
-        :param x: structured array of independent variables
-        :param y: array of the independend variable
+
         :param box: box limits
-        :param peel_alpha: param that controls the amount of data that is removed
-                           in a single peel
-        :param mass_min: the minimum mass that should be left inside the box
-        :param threshold:
-        :param n: the total number of data points
-        :param obj_func: the objective function to be used in selecting the 
-                         new box from a set of candidate peel boxes
         
-        returns a tuple (mean, volume, box)
+        
         '''
     
         mass_old = box.yi.shape[0]/self.n
@@ -445,12 +432,9 @@ class Prim(object):
         
         :param box: a PrimBox instance
         :param u: the uncertainty for which to peel
-        :returns: two box_lims, associated value of obj_fuction, 
-                  nr_restricted_dims
-        
+        :returns: two box lims and the associated indices
         
         '''
-        
 
         peels = []
         for direction in ['upper', 'lower']:
@@ -482,8 +466,7 @@ class Prim(object):
         
         :param box: a PrimBox instance
         :param u: the uncertainty for which to peel
-        :returns: two boxlims, associated value of obj_fucntion, 
-                  nr_restricted_dims
+        :returns: two box lims and the associated indices
 
         
         '''
@@ -533,13 +516,14 @@ class Prim(object):
     def __categorical_peel(self, box, u, x):
         '''
         
-        returns one candidate new box
+        returns candidate new boxes for each possible removal of a single 
+        category. So. if the box[u] is a categorical variable with 4 
+        categories, this method will return 4 boxes. 
         
         :param box: a PrimBox instance
         :param u: the uncertainty for which to peel
-        :param x: the x in box
-        :returns: one boxlims, associated value of obj_fucntion, 
-                  nr_restricted_dims
+        :returns: box lims and the associated indices
+        
         
         '''
         entries = box.box_lims[-1][u][0]
@@ -573,10 +557,15 @@ class Prim(object):
     def __paste(self, box):
         '''
         
-        Executates the pasting phase of the PRIM. Delegates pasting to data 
+        Executes the pasting phase of the PRIM. Delegates pasting to data 
         type specific helper methods.
         
+        TODO paste should only be done over the restricted dimensions, 
+        remainder can be ignored
+        
         '''
+        
+        
         mass = self.y.shape[0]/self.n
         y_mean = np.mean(self.y)
         
@@ -607,8 +596,17 @@ class Prim(object):
         else:
             return box
 
-    def __real_paste(self, u, box):
+    def __real_paste(self, box, u):
+        '''
+        
+        returns two candidate new boxes, pasted along upper and lower dimension
+        
+        :param box: a PrimBox instance
+        :param u: the uncertainty for which to paste
+        :returns: two box lims and the associated indices
        
+        '''
+
         box_diff = self.box_init[u][1]-self.box_init[u][0]
         
         box_paste = np.copy(box.box_lims[-1])
@@ -623,9 +621,62 @@ class Prim(object):
                 box_diff = -1*box_diff
                 test_box[u][1] = test_box[u][i]
                 test_box[u][i] = self.box_init[u][i]
-                logical = self.in_box(test_box)
-                data = self.x[self.yi_remaining][logical][u]
+                indices = self.in_box(test_box)
+                data = self.x[indices][u]
                 
+                paste_value = self.box_init[u][i]
+                if data.shape[0] > 0:
+                    b = (data.shape[0]-pa)/data.shape[0]
+                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
+                                             betap=self.beta)[0]
+                
+                    
+            elif direction == 'upper':
+                i = 1
+                test_box[u][0] = test_box[u][i]
+                test_box[u][i] = self.box_init[u][i]
+                indices = self.in_box(test_box)
+                data = self.x[indices][u]
+                
+                paste_value = self.box_init[u][i]
+                if data.shape[0] > 0:
+                    b = (pa)/data.shape[0]
+                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
+                                             betap=self.beta)[0]
+           
+            box_paste[u][i] = paste_value
+            indices = self.in_box(box_paste) # gaat nu mis omdat yi al geupdate is
+            pastes.append((indices, box_paste))
+    
+        return pastes        
+    
+    def __discrete_paste(self, box, u):
+        '''
+        
+        returns two candidate new boxes, pasted along upper and lower dimension
+        
+        :param box: a PrimBox instance
+        :param u: the uncertainty for which to paste
+        :returns: two box lims and the associated indices
+       
+        '''        
+        box_diff = self.box_init[u][1]-self.box_init[u][0]
+        
+        box_paste = np.copy(box.box_lims[-1])
+        test_box = np.copy(box.box_lims[-1])
+    
+        pa = self.paste_alpha * box.yi.shape[0]
+    
+        pastes = []
+        for direction in ['upper', 'lower']:
+            if direction == 'lower':
+                i = 0
+                box_diff = -1*box_diff
+                test_box[u][1] = test_box[u][i]
+                test_box[u][i] = self.box_init[u][i]
+                indices = self.in_box(test_box)
+                data = self.x[indices][u]
+                paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
                     b = (data.shape[0]-pa)/data.shape[0]
                     paste_value = mquantiles(data, [b], alphap=self.alpha, 
@@ -634,72 +685,25 @@ class Prim(object):
                 i = 1
                 test_box[u][0] = test_box[u][i]
                 test_box[u][i] = self.box_init[u][i]
-                logical = self.in_box(test_box)
-                data = self.x[self.yi_remaining][logical][u]
+                indices = self.in_box(test_box)
+                data = self.x[indices][u]
+                paste_value = self.box_init[u][i]
                 
                 if data.shape[0] > 0:
                     b = (pa)/data.shape[0]
                     paste_value = mquantiles(data, [b], alphap=self.alpha, 
                                              betap=self.beta)[0]
+            
+            paste_value = np.int(paste_value)
             box_paste[u][i] = paste_value
             indices = self.in_box(box_paste)
-            pastes.append(indices, box_paste)
+            pastes.append((indices, box_paste))
     
-        return pastes        
+        return pastes    
+        
     
-    def __discrete_paste(self, x_init,y_init, y, name,
-                  box,box_init, paste_alpha, n, direction, obj_func):
-        pass
-#        box_diff = box_init[name][1]-box_init[name][0]
-#        if direction == 'lower':
-#            i = 0
-#            paste_alpha = 1-paste_alpha
-#            box_diff = -1*box_diff
-#        if direction == 'upper':
-#            i = 1
-#        
-#        box_paste = np.copy(box)
-#        y_paste = y
-#        test_box = np.copy(box)
-#      
-#        if direction == 'lower':
-#            test_box[name][i+1] = test_box[name][i]
-#            test_box[name][i] = box_init[name][i]
-#            logical = in_box(x_init, test_box)
-#            data = x_init[logical][name]
-#            if data.shape[0] > 0:
-#                a = paste_alpha * y.shape[0]
-#                b = (data.shape[0]-a)/data.shape[0]
-#                paste_value = mquantiles(data, [b], alphap=1/3, betap=1/3)[0]
-#                paste_value = int(round(paste_value))
-#                box_paste[name][i] = paste_value
-#                logical = in_box(x_init, box_paste)
-#                y_paste = y_init[logical]
-#        
-#        if direction == 'upper':
-#            test_box[name][i-1] = test_box[name][i]
-#            test_box[name][i] = box_init[name][i]
-#            logical = in_box(x_init, test_box)
-#            data = x_init[logical][name]
-#            if data.shape[0] > 0:
-#                a = paste_alpha * y.shape[0]
-#                b = a/data.shape[0]
-#                paste_value = mquantiles(data, [b], alphap=1/3, betap=1/3)[0]
-#                paste_value = int(round(paste_value))
-#                box_paste[name][i] = paste_value
-#                logical = in_box(x_init, box_paste)
-#                y_paste = y_init[logical]
-#    
-#        # y means of pasted boxes
-#        obj = obj_func(y,  y_paste)
-#        
-#        # mass of pasted boxes
-#        mass_paste = y_init[logical].shape[0]/n
-#    
-#        return (obj, mass_paste, box_paste)
-    
-    def __categorical_paste(self, x_init,y_init, y, name, box,n, obj_func):
-        pass
+    def __categorical_paste(self, box, u):
+        return []
 #        c_in_b = box[name][0]
 #        c_t = set(x_init[name])
 #        
