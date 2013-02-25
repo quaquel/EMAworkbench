@@ -156,9 +156,15 @@ class PrimTestCase(unittest.TestCase):
     def test_find_boxes(self):
         prim = new_prim.Prim(self.results, self.classify, 
                              threshold=0.8)
-        box = prim.find_box()
+        box_1 = prim.find_box()
         
-        after_find = box.yi.shape[0] + prim.yi_remaining.shape[0]
+        after_find = box_1.yi.shape[0] + prim.yi_remaining.shape[0]
+        self.assertEqual(after_find, prim.y.shape[0])
+        
+        box_2 = prim.find_box()
+        after_find = box_1.yi.shape[0] +\
+                     box_2.yi.shape[0] +\
+                     prim.yi_remaining.shape[0]
         self.assertEqual(after_find, prim.y.shape[0])
         
 #        box.write_ppt_stdout()

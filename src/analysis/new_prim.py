@@ -183,21 +183,23 @@ class Prim(object):
         self.pasting = pasting 
         self.threshold_type = threshold_type
         self.obj_func = self.__obj_functions[obj_function]
-        
+       
         # set the indices
-        self.yi_remaining = np.arange(0, self.y.shape[0])
-        
+        self.yi = np.arange(0, self.y.shape[0])
+       
         # how many data points do we have
-        self.n = self.yi_remaining.shape[0]
+        self.n = self.y.shape[0]
         
         # how many cases of interest do we have?
-        self.t_coi = self.determine_coi(self.yi_remaining)
+        self.t_coi = self.determine_coi(self.yi)
         
         # initial box that contains all data
         self.box_init = self.make_box(self.x)
     
         # make a list in which the identified boxes can be put
         self.boxes = []
+        
+        self.__update_yi_remaining()
     
     def perform_pca(self):
         '''
@@ -218,11 +220,9 @@ class Prim(object):
         
         
         '''
-        
-        # TODO here we should assess the state of the algorithm
-        # that is, go over all the identified PrimBoxes, get there last
-        # entry and update yi_remaining in light of this
-        
+        # set the indices
+        self.__update_yi_remaining()
+
         info("{} points remaining".format(self.yi_remaining.shape[0]))
         info("{} cases of interest remaining".format(self.determine_coi(self.yi_remaining)))
         
@@ -243,14 +243,11 @@ class Prim(object):
 #                               threshold, n, obj_func)
 #            info("pasting completed")
         
-        self.boxes.append(new_box)
+        # TODO check if box meets critiria, otherwise, return a 
+        # dumpbox, and log that there is no box possible anymore
         
-        #for updating yi_remaining, we need the complement of 
-        #the indices that go into the box
-        #nicest way to do this is via logical indexing.
-        c_ind = self.yi_remaining==self.yi_remaining
-        c_ind[new_box.yi] = False
-        self.yi_remaining = self.yi_remaining[c_ind]        
+        self.boxes.append(new_box)
+        self.__update_yi_remaining()
         
         return new_box
 
@@ -353,6 +350,27 @@ class Prim(object):
                 box[name][0] = np.min(x[name], axis=0) 
                 box[name][1] = np.max(x[name], axis=0)    
         return box  
+    
+#    def __getattr__(self, name):
+#        # TODO intercept gets on self.yi_remaining, call an update prior
+#        # to returning the value
+   
+    def __update_yi_remaining(self):
+        '''
+        
+        Update yi_remaining in light of the state of the boxes associated
+        with this prim instance.
+        
+        
+        '''
+        
+        # set the indices
+        yi_remaining = self.yi
+        
+        logical = yi_remaining == yi_remaining
+        for box in self.boxes:
+            logical[box.yi] = False
+        self.yi_remaining = yi_remaining[logical]
     
     def __peel(self, box):
         '''
