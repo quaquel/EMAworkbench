@@ -91,6 +91,32 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box.coverage[0]==1)
         self.assertTrue(box.density[0]==2/3)
 
+
+    def test_restricted_dimension(self):
+        x = np.random.rand(10, )
+        x = np.asarray(x, dtype=[('a', np.float),
+                                 ('b', np.float)])
+        y = np.random.randint(0,2, (10,)).astype(int)
+        y = {'y': np.random.randint(0,2, (10,)).astype(int)}
+        
+        prim = new_prim.Prim((x,y), 'y')
+        
+        # all dimensions the same
+        b = prim.box_init
+        u = prim.determine_restricted_dims(b)
+        
+        self.assertEqual(len(u), 0)
+        
+       
+        # dimensions 1 different and dimension 2 the same
+        b = np.array([(1,1),
+                      (0,1)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float)])
+        u = prim.determine_restricted_dims(b)
+        
+        self.assertEqual(len(u), 2)
+
     def test_compare(self):
         prim = new_prim.Prim(self.results, self.classify)
         
@@ -154,22 +180,26 @@ class PrimTestCase(unittest.TestCase):
                           faulty_classify)
         
     def test_find_boxes(self):
-        prim = new_prim.Prim(self.results, self.classify, 
+        results = load_results(r'../data/1000 flu cases no policy.bz2')
+        classify = flu_classify
+        
+        
+        prim = new_prim.Prim(results, classify, 
                              threshold=0.8)
         box_1 = prim.find_box()
         
         after_find = box_1.yi.shape[0] + prim.yi_remaining.shape[0]
         self.assertEqual(after_find, prim.y.shape[0])
         
-        box_2 = prim.find_box()
-        after_find = box_1.yi.shape[0] +\
-                     box_2.yi.shape[0] +\
-                     prim.yi_remaining.shape[0]
-        self.assertEqual(after_find, prim.y.shape[0])
+#        box_2 = prim.find_box()
+#        after_find = box_1.yi.shape[0] +\
+#                     box_2.yi.shape[0] +\
+#                     prim.yi_remaining.shape[0]
+#        self.assertEqual(after_find, prim.y.shape[0])
         
-#        box.write_ppt_stdout()
-#        box.show_ppt()
-#        plt.show()
+        box_1.write_ppt_stdout()
+        box_1.show_ppt()
+        plt.show()
 #       try and perform a peel and then check if the indices of the box and
 #       the yi_remaining in prim combined reproduce the data
 

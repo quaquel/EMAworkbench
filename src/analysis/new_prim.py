@@ -71,7 +71,7 @@ class PrimBox(object):
         
         # determine the nr. of restricted dimensions
         # box_lims[0] is the initial box, box_lims[-1] is the latest box
-        self.res_dim.append(self.prim.determine_restricted_dims(self.box_lims[-1]))
+        self.res_dim.append(self.prim.determine_nr_restricted_dims(self.box_lims[-1]))
         
     def show_ppt(self):
         '''
@@ -231,7 +231,7 @@ class Prim(object):
         #  perform peeling phase
         box = self.__peel(box)
         debug("peeling completed")
-        self.__update_yi_remaining()
+        
 
         # perform pasting phase        
         box = self.__paste(box)
@@ -255,7 +255,6 @@ class Prim(object):
         logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
         for i, entry in enumerate(dtypesDesc):
             name = entry[0]
-           
             logical[i] = logical[i] &\
                         (a[name][0] == b[name][0]) &\
                         (a[name][1] == b[name][1])
@@ -320,7 +319,7 @@ class Prim(object):
         
         return coi
     
-    def determine_restricted_dims(self, box_lims):
+    def determine_nr_restricted_dims(self, box_lims):
         '''
         
         determine the number of restriced dimensions of a box given
@@ -330,10 +329,23 @@ class Prim(object):
         
         '''
     
-        dims = np.ones((len(box_lims.dtype.descr),))
+        return self.determine_restricted_dims(box_lims).shape[0]
+    
+    def determine_restricted_dims(self, box_lims):
+        '''
+        
+        determine which dimensions of the given box are restricted compared 
+        to compared to the initial box that contains all the data
+        
+        :param box_lims: 
+        
+        '''
+    
         logical = self.compare(self.box_init, box_lims)
-        dims = dims[logical==False]
-        return np.sum(dims)
+        u = np.asarray([entry[0] for entry in self.x.dtype.descr], 
+                       dtype=object)
+        dims = u[logical==False]
+        return dims
     
     def make_box(self, x):
         box = np.zeros((2, ), x.dtype)
@@ -404,7 +416,7 @@ class Prim(object):
             i, box_lim = entry
             obj = self.obj_func(self, y,  self.y[i])
             non_res_dim = len(x.dtype.descr)-\
-                          self.determine_restricted_dims(box_lim)
+                          self.determine_nr_restricted_dims(box_lim)
             score = (obj, non_res_dim, box_lim, i)
             scores.append(score)
 
@@ -416,8 +428,13 @@ class Prim(object):
         # first as a temp / new, and if we continue, update yi_remaining
         mass_new = self.y[indices].shape[0]/self.n
         
+        
+        score_old = np.mean(self.y[box.yi])
+        score_new = np.mean(self.y[indices])
+        
         if (mass_new >= self.mass_min) &\
-           (mass_new < mass_old):
+           (mass_new < mass_old) &\
+           (score_new > score_old):
             box.update(box_new, indices)
             return self.__peel(box)
         else:
@@ -566,34 +583,44 @@ class Prim(object):
         '''
         
         
-        mass = self.y.shape[0]/self.n
-        y_mean = np.mean(self.y)
+        x = self.x[self.yi_remaining]
+        y = self.y[self.yi_remaining]
+        
+        mass_old = box.yi.shape[0]/self.n
+        
+        res_dim = self.determine_restricted_dims(box.box_lims[-1])
         
         possible_pastes = []
-        for entry in self.x.dtype.descr:
-            u = entry[0]
+        for u in res_dim:
             dtype = self.x.dtype.fields.get(u)[0].name
             pastes = self.__pastes[dtype](self, box, u)
             [possible_pastes.append(entry) for entry in pastes] 
         
-        print "blaat"
-    
-#        #break ties by choosing box with largest mass                 
-#        possible_pastes.sort(key=itemgetter(0,1), reverse=True)
-        obj, mass_new, box_new = possible_pastes[0]
-        logical = self.in_box(box_new)
-        x_new = self.x[self.yi_remaining][logical]
-        y_new = self.y[[self.yi_remaining]][logical]
-        y_mean_new = np.mean(y_new)
-#       
-        if (y_mean_new > self.threshold) &\
-           (mass_new >= self.mass_min) &\
-           (y_mean_new >= y_mean) &\
-           (mass_new > mass):
-            
-            box.update(x_new, y_new, box_new, mass_new)
+        # determine the scores for each peel in order
+        # to identify the next candidate box
+        scores = []
+        for entry in possible_pastes:
+            i, box_lim = entry
+            obj = self.obj_func(self, y,  self.y[i])
+            non_res_dim = len(x.dtype.descr)-\
+                          self.determine_nr_restricted_dims(box_lim)
+            score = (obj, non_res_dim, box_lim, i)
+            scores.append(score)
+
+        scores.sort(key=itemgetter(0,1), reverse=True)
+        entry = scores[0]
+        box_new, indices = entry[2:]
+        
+        # this should only result in an update to yi_remaining
+        # first as a temp / new, and if we continue, update yi_remaining
+        mass_new = self.y[indices].shape[0]/self.n
+        
+        if (mass_new >= self.mass_min) &\
+           (mass_new > mass_old):
+            box.update(box_new, indices)
             return self.__paste(box)
         else:
+            #else return received box
             return box
 
     def __real_paste(self, box, u):
@@ -608,14 +635,13 @@ class Prim(object):
         '''
 
         box_diff = self.box_init[u][1]-self.box_init[u][0]
-        
-        box_paste = np.copy(box.box_lims[-1])
-        test_box = np.copy(box.box_lims[-1])
-    
         pa = self.paste_alpha * box.yi.shape[0]
     
         pastes = []
         for direction in ['upper', 'lower']:
+            box_paste = np.copy(box.box_lims[-1])
+            test_box = np.copy(box.box_lims[-1])
+            
             if direction == 'lower':
                 i = 0
                 box_diff = -1*box_diff
@@ -645,7 +671,8 @@ class Prim(object):
                                              betap=self.beta)[0]
            
             box_paste[u][i] = paste_value
-            indices = self.in_box(box_paste) # gaat nu mis omdat yi al geupdate is
+            indices = self.in_box(box_paste)
+            
             pastes.append((indices, box_paste))
     
         return pastes        
@@ -661,14 +688,13 @@ class Prim(object):
        
         '''        
         box_diff = self.box_init[u][1]-self.box_init[u][0]
-        
-        box_paste = np.copy(box.box_lims[-1])
-        test_box = np.copy(box.box_lims[-1])
-    
         pa = self.paste_alpha * box.yi.shape[0]
     
         pastes = []
         for direction in ['upper', 'lower']:
+            box_paste = np.copy(box.box_lims[-1])
+            test_box = np.copy(box.box_lims[-1])
+            
             if direction == 'lower':
                 i = 0
                 box_diff = -1*box_diff
@@ -676,27 +702,30 @@ class Prim(object):
                 test_box[u][i] = self.box_init[u][i]
                 indices = self.in_box(test_box)
                 data = self.x[indices][u]
+                
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
                     b = (data.shape[0]-pa)/data.shape[0]
                     paste_value = mquantiles(data, [b], alphap=self.alpha, 
                                              betap=self.beta)[0]
+                
+                    
             elif direction == 'upper':
                 i = 1
                 test_box[u][0] = test_box[u][i]
                 test_box[u][i] = self.box_init[u][i]
                 indices = self.in_box(test_box)
                 data = self.x[indices][u]
-                paste_value = self.box_init[u][i]
                 
+                paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
                     b = (pa)/data.shape[0]
                     paste_value = mquantiles(data, [b], alphap=self.alpha, 
                                              betap=self.beta)[0]
-            
-            paste_value = np.int(paste_value)
-            box_paste[u][i] = paste_value
+           
+            box_paste[u][i] = int(paste_value)
             indices = self.in_box(box_paste)
+            
             pastes.append((indices, box_paste))
     
         return pastes    
