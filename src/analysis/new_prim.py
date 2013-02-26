@@ -45,7 +45,19 @@ class PrimBox(object):
         TODO: ideally, this should invoke a paste attempt.
         
         '''
-        pass
+        
+
+        self.yi = self.prim.in_box(self.box_lims[i])
+        
+        y = self.prim.y[self.yi]
+
+        i = i+1 
+        self.box_lims[0:i]
+        self.mean[0:i]
+        self.mass[0:i]
+        self.coverage[0:i]
+        self.density[0:i]
+        self.res_dim[0:i]
 
     def update(self, box_lims, indices):
         '''
@@ -129,7 +141,7 @@ class Prim(object):
     alpha = 1/3
     beta = 1/3
     
-    message = "{} point remaining, containing {} cases of interest"
+    message = "{0} point remaining, containing {1} cases of interest"
     
     def __init__(self, 
                  results,
@@ -231,7 +243,6 @@ class Prim(object):
         #  perform peeling phase
         box = self.__peel(box)
         debug("peeling completed")
-        
 
         # perform pasting phase        
         box = self.__paste(box)
@@ -433,8 +444,7 @@ class Prim(object):
         score_new = np.mean(self.y[indices])
         
         if (mass_new >= self.mass_min) &\
-           (mass_new < mass_old) &\
-           (score_new > score_old):
+           (mass_new < mass_old):
             box.update(box_new, indices)
             return self.__peel(box)
         else:
