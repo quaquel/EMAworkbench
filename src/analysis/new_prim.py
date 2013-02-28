@@ -191,7 +191,7 @@ class Prim(object):
         self.mass_min = mass_min
         self.threshold = threshold 
         self.threshold_type = threshold_type
-        self.obj_func = self.__obj_functions[obj_function]
+        self.obj_func = self._obj_functions[obj_function]
        
         # set the indices
         self.yi = np.arange(0, self.y.shape[0])
@@ -208,7 +208,7 @@ class Prim(object):
         # make a list in which the identified boxes can be put
         self.boxes = []
         
-        self.__update_yi_remaining()
+        self._update_yi_remaining()
     
     def perform_pca(self):
         '''
@@ -230,7 +230,7 @@ class Prim(object):
         
         '''
         # set the indices
-        self.__update_yi_remaining()
+        self._update_yi_remaining()
         
         # log how much data and how many coi are remaining
         info(self.message.format(self.yi_remaining.shape[0],
@@ -241,15 +241,15 @@ class Prim(object):
         self.boxes.append(box)
         
         #  perform peeling phase
-        box = self.__peel(box)
+        box = self._peel(box)
         debug("peeling completed")
 
         # perform pasting phase        
-        box = self.__paste(box)
+        box = self._paste(box)
         debug("pasting completed")
-        self.__update_yi_remaining()
+        self._update_yi_remaining()
 
-#        __paste(x_inside, y_inside, x_remaining, y_remaining, 
+#        _paste(x_inside, y_inside, x_remaining, y_remaining, 
 #                           copy.copy(box_init), new_box, paste_alpha, mass_min, 
 #                           threshold, n, obj_func)
         
@@ -370,11 +370,11 @@ class Prim(object):
                 box[name][1] = np.max(x[name], axis=0)    
         return box  
     
-#    def __getattr__(self, name):
+#    def _getattr_(self, name):
 #        # TODO intercept gets on self.yi_remaining, call an update prior
 #        # to returning the value
    
-    def __update_yi_remaining(self):
+    def _update_yi_remaining(self):
         '''
         
         Update yi_remaining in light of the state of the boxes associated
@@ -391,7 +391,7 @@ class Prim(object):
             logical[box.yi] = False
         self.yi_remaining = yi_remaining[logical]
     
-    def __peel(self, box):
+    def _peel(self, box):
         '''
         
         Executes the peeling phase of the PRIM algorithm. Delegates peeling
@@ -417,7 +417,7 @@ class Prim(object):
         for entry in x.dtype.descr:
             u = entry[0]
             dtype = x.dtype.fields.get(u)[0].name
-            peels = self.__peels[dtype](self, box, u, x)
+            peels = self._peels[dtype](self, box, u, x)
             [possible_peels.append(entry) for entry in peels] 
 
         # determine the scores for each peel in order
@@ -446,13 +446,13 @@ class Prim(object):
         if (mass_new >= self.mass_min) &\
            (mass_new < mass_old):
             box.update(box_new, indices)
-            return self.__peel(box)
+            return self._peel(box)
         else:
             #else return received box
             return box
     
     
-    def __real_peel(self, box, u, x):
+    def _real_peel(self, box, u, x):
         '''
         
         returns two candidate new boxes, peel along upper and lower dimension
@@ -486,7 +486,7 @@ class Prim(object):
     
         return peels
     
-    def __discrete_peel(self, box, u, x):
+    def _discrete_peel(self, box, u, x):
         '''
         
         returns two candidate new boxes, peel along upper and lower dimension
@@ -540,7 +540,7 @@ class Prim(object):
     
         return peels
     
-    def __categorical_peel(self, box, u, x):
+    def _categorical_peel(self, box, u, x):
         '''
         
         returns candidate new boxes for each possible removal of a single 
@@ -581,7 +581,7 @@ class Prim(object):
             return []
 
 
-    def __paste(self, box):
+    def _paste(self, box):
         '''
         
         Executes the pasting phase of the PRIM. Delegates pasting to data 
@@ -603,7 +603,7 @@ class Prim(object):
         possible_pastes = []
         for u in res_dim:
             dtype = self.x.dtype.fields.get(u)[0].name
-            pastes = self.__pastes[dtype](self, box, u)
+            pastes = self._pastes[dtype](self, box, u)
             [possible_pastes.append(entry) for entry in pastes] 
         
         # determine the scores for each peel in order
@@ -628,12 +628,12 @@ class Prim(object):
         if (mass_new >= self.mass_min) &\
            (mass_new > mass_old):
             box.update(box_new, indices)
-            return self.__paste(box)
+            return self._paste(box)
         else:
             #else return received box
             return box
 
-    def __real_paste(self, box, u):
+    def _real_paste(self, box, u):
         '''
         
         returns two candidate new boxes, pasted along upper and lower dimension
@@ -687,7 +687,7 @@ class Prim(object):
     
         return pastes        
     
-    def __discrete_paste(self, box, u):
+    def _discrete_paste(self, box, u):
         '''
         
         returns two candidate new boxes, pasted along upper and lower dimension
@@ -741,7 +741,7 @@ class Prim(object):
         return pastes    
         
     
-    def __categorical_paste(self, box, u):
+    def _categorical_paste(self, box, u):
         return []
 #        c_in_b = box[name][0]
 #        c_t = set(x_init[name])
@@ -763,7 +763,7 @@ class Prim(object):
 #            # no pastes possible, return empty list
 #            return []
     
-    def __def_obj_func(self, y_old, y_new):
+    def _def_obj_func(self, y_old, y_new):
         r'''
         the default objective function used by prim, instead of the original
         objective function, this function can cope with continuous, integer, and
@@ -797,13 +797,13 @@ class Prim(object):
 
 
 
-    __peels = {'object': __categorical_peel,
-               'int32': __discrete_peel,
-               'float64': __real_peel}
+    _peels = {'object': _categorical_peel,
+               'int32': _discrete_peel,
+               'float64': _real_peel}
 
-    __pastes = {'object': __categorical_paste,
-               'int32': __discrete_paste,
-               'float64': __real_paste}
+    _pastes = {'object': _categorical_paste,
+               'int32': _discrete_paste,
+               'float64': _real_paste}
 
     # dict with the various objective functions available
-    __obj_functions = {DEFAULT : __def_obj_func}    
+    _obj_functions = {DEFAULT : _def_obj_func}    

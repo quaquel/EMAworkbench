@@ -256,7 +256,8 @@ def make_legend(categories,
     labels = []
     for i, category in enumerate(categories):
         if legend_type == 'line':    
-            artist = plt.Line2D([0,1], [0,1], color=COLOR_LIST[i], alpha=1)
+            artist = plt.Line2D([0,1], [0,1], color=COLOR_LIST[i], 
+                                alpha=0.3)
         elif legend_type == 'scatter':
             marker_obj = mpl.markers.MarkerStyle('o')
             path = marker_obj.get_path().transformed(
