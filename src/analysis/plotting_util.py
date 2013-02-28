@@ -345,7 +345,7 @@ def determine_time_dimension(outcomes):
         values = iter(outcomes.values())
         for value in values:
             if len(value.shape)==2:
-                time =  np.arange(0, outcomes.values()[0].shape[1])
+                time =  np.arange(0, value.shape[1])
                 break
     if time==None:
         info("no time dimension found in results")
