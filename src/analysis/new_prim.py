@@ -20,6 +20,57 @@ DEFAULT = 'default'
 ABOVE = 1
 BELOW = -1
 
+
+def _write_boxes_to_stdout(box_lims, uncertainties):
+    '''
+    
+    write the lims for the uncertainties for each box lim to stdout
+    
+    :param box_lims: list of box_lims
+    :param uncertainties: list of of uncertainties
+    
+    '''
+
+    # fill the limits in for each uncertainty and each box
+    # determine the length of the uncertainty names to align these properly
+    #
+    length = max([len(u) for u in uncertainties])
+    length = max((length, len('uncertainty')))
+
+    # make the headers of the limits table
+    # first header is box names
+    # second header is min and max
+    elements_1 = ["{0:<{1}}".format("uncertainty", length)]
+    elements_2 = ["{0:<{1}}".format("", length)]
+    for i in range(len(box_lims)):
+        if i < len(box_lims)-1:
+            box_name = 'box {}'.format(i+1)
+        else:
+            box_name = 'rest box'        
+        
+        elements_1.append("{0:>16}{1:>6}".format("{}".format(box_name),""))
+        elements_2.append("{0:>10}{1:>12}".format("min", "max"))
+    line = "".join(elements_1)
+    print line
+    line = "".join(elements_2)
+    print line
+    
+    for u in uncertainties:
+        elements = ["{0:<{1}}".format(u, length)]
+    
+        for box in box_lims:
+            data_type =  box[u].dtype
+            if data_type == np.float64:
+                elements.append("{0:>10.2f} -{1:>10.2f}".format(*box[u]))
+            elif data_type == np.int32:
+                elements.append("{0:>10} -{1:>10}".format(*box[u]))            
+            else:
+                elements.append("{0:>22}".format(box[u][0]))
+        line = "".join(elements)
+        print line
+    print "\n\n"
+
+
 class PrimBox(object):
     
     def __init__(self, prim, box_lims, indices):
@@ -49,15 +100,17 @@ class PrimBox(object):
 
         self.yi = self.prim.in_box(self.box_lims[i])
         
-        y = self.prim.y[self.yi]
-
         i = i+1 
-        self.box_lims[0:i]
-        self.mean[0:i]
-        self.mass[0:i]
-        self.coverage[0:i]
-        self.density[0:i]
-        self.res_dim[0:i]
+        self.box_lims = self.box_lims[0:i]
+        self.mean = self.mean[0:i]
+        self.mass = self.mass[0:i]
+        self.coverage = self.coverage[0:i]
+        self.density = self.density[0:i]
+        self.res_dim = self.res_dim[0:i]
+        
+        # after select, try to paste
+        self.prim._paste(self)
+       
 
     def update(self, box_lims, indices):
         '''
@@ -128,11 +181,11 @@ class PrimBox(object):
                      'restricted_dim': self.res_dim[i]}
             row = "{0:<5}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}".format(i,**input)
             print row
-        
-        pass 
+
 
 class PrimException(Exception):
     pass
+
 
 class Prim(object):
 
@@ -247,17 +300,30 @@ class Prim(object):
         # perform pasting phase        
         box = self._paste(box)
         debug("pasting completed")
-        self._update_yi_remaining()
-
-#        _paste(x_inside, y_inside, x_remaining, y_remaining, 
-#                           copy.copy(box_init), new_box, paste_alpha, mass_min, 
-#                           threshold, n, obj_func)
+#        self._update_yi_remaining()
         
+        message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
+        message = message.format(box.mean[-1],
+                                 box.mass[-1],
+                                 box.coverage[-1],
+                                 box.density[-1],
+                                 box.res_dim[-1])
+
         # TODO check if box meets criteria, otherwise, return a 
         # dumpbox, and log that there is no box possible anymore
-        
-        return box
-
+        if (self.threshold_type==ABOVE) &\
+           (box.mean[-1] >= self.threshold):
+            info(message)
+            return box
+        elif (self.threshold_type==BELOW) &\
+           (box.mean[-1] <= self.threshold):
+            info(message)
+            return box
+        else:
+            # make a dump box
+            info('box does not meet threshold criteria, returning dump box')
+            box = PrimBox(self, self.box_init, self.yi_remaining[:])
+            return box
 
     def compare(self, a, b):
         '''compare two boxes, for each dimension return True if the
@@ -373,6 +439,35 @@ class Prim(object):
 #    def _getattr_(self, name):
 #        # TODO intercept gets on self.yi_remaining, call an update prior
 #        # to returning the value
+   
+    def write_boxes_to_stdout(self):
+        
+        # determine the uncertainties that are being restricted
+        # in one or more boxes
+        unc = set()
+        for box in self.boxes:
+            us  = self.determine_restricted_dims(box.box_lims[-1]).tolist()
+            unc = unc.union(us)
+
+        # normalize the range for the first box
+        box_range = np.zeros((len(unc), 2))
+        box_lim = self.boxes[0].box_lims[-1]
+        for i, u in enumerate(us):
+            dtype = box_lim.dtype.fields[u][0]
+            if dtype ==np.dtype(object):
+                lower, upper = [0, len(box_lim[u][0])]
+            else:
+                lower, upper = box_lim[u]
+            box_lim[i, :] = lower, upper
+        
+        print box_range
+        print "blaat"
+        
+        # sort based on the normalization
+        
+        # write to std_out
+        
+        
    
     def _update_yi_remaining(self):
         '''
@@ -636,7 +731,8 @@ class Prim(object):
     def _real_paste(self, box, u):
         '''
         
-        returns two candidate new boxes, pasted along upper and lower dimension
+        returns two candidate new boxes, pasted along upper and lower 
+        dimension
         
         :param box: a PrimBox instance
         :param u: the uncertainty for which to paste
@@ -690,7 +786,8 @@ class Prim(object):
     def _discrete_paste(self, box, u):
         '''
         
-        returns two candidate new boxes, pasted along upper and lower dimension
+        returns two candidate new boxes, pasted along upper and lower 
+        dimension
         
         :param box: a PrimBox instance
         :param u: the uncertainty for which to paste
@@ -742,26 +839,36 @@ class Prim(object):
         
     
     def _categorical_paste(self, box, u):
-        return []
-#        c_in_b = box[name][0]
-#        c_t = set(x_init[name])
-#        
-#        if len(c_in_b) < len(c_t):
-#            pastes = []
-#            possible_cs = c_t - c_in_b
-#            for entry in possible_cs:
-#                temp_box = np.copy(box)
-#                paste = copy.deepcopy(c_in_b)
-#                paste.add(entry)
-#                temp_box[name][:] = paste
-#                logical = in_box(x_init, box)
-#                obj = obj_func(y,  y_init[logical])
-#                mass_paste = y_init[logical].shape[0]/n
-#                pastes.append((obj, mass_paste, temp_box))
-#            return pastes
-#        else:
-#            # no pastes possible, return empty list
-#            return []
+        '''
+        
+        Return a list of pastes, equal to the number of classes currently
+        not on the box lim. 
+        
+        :param box: a PrimBox instance
+        :param u: the uncertainty for which to paste
+        :returns: a list of indices and box lims 
+        
+        
+        '''
+        box_lim = box.box_lims[-1]
+        
+        c_in_b = box_lim[u][0]
+        c_t = self.box_init[u][0]
+        
+        if len(c_in_b) < len(c_t):
+            pastes = []
+            possible_cs = c_t - c_in_b
+            for entry in possible_cs:
+                box_paste = np.copy(box_lim)
+                paste = copy.deepcopy(c_in_b)
+                paste.add(entry)
+                box_paste[u][:] = paste
+                indices = self.in_box(box_paste)
+                pastes.append((indices, box_paste))
+            return pastes
+        else:
+            # no pastes possible, return empty list
+            return []
     
     def _def_obj_func(self, y_old, y_new):
         r'''

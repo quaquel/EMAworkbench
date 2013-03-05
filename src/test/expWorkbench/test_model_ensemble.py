@@ -165,7 +165,7 @@ def test_perform_experiments():
     
     ema_logging.info('------------- union of uncertainties -------------')
     
-    ensemble.perform_experiments(10, which_uncertainties=UNION, reporting_interval=1 )
+    results = ensemble.perform_experiments(10, which_uncertainties=UNION, reporting_interval=1 )
     
     ema_logging.info('------------- intersection of uncertainties -------------')
     ensemble.perform_experiments(10, which_uncertainties=INTERSECTION, reporting_interval=1)
