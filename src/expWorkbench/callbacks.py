@@ -148,14 +148,14 @@ class DefaultCallback(AbstractCallback):
         self.nr_experiments = nr_experiments
         
 
-    def __store_case(self, case, model, policy):
+    def _store_case(self, case, model, policy):
         case = [case.get(key) for key in self.uncertainties]
         case.append(model)
         case.append(policy)
         case = tuple(case)
         self.cases[self.i-1] = case
             
-    def __store_result(self, result):
+    def _store_result(self, result):
         for outcome in self.outcomes:
             try:
                 outcome_res = result[outcome]
@@ -196,10 +196,10 @@ class DefaultCallback(AbstractCallback):
         self.lock.acquire()
                            
         #store the case
-        self.__store_case(case, name, policy.get('name'), )
+        self._store_case(case, name, policy.get('name'), )
         
         #store results
-        self.__store_result(result)
+        self._store_result(result)
         
         self.lock.release()
         
