@@ -37,6 +37,28 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
     length = max([len(u) for u in uncertainties])
     length = max((length, len('uncertainty')))
 
+    # determine size of values in box_lims
+    # this should be based on the integers and floats only
+    
+    box = box_lims[-1]
+    size = 0
+    for u in uncertainties:
+        data_type =  box[u].dtype
+        if data_type == np.float64:
+            size = max(size, 
+                       len("{:>.2f}".format(box[u][0])), 
+                       len("{:>.2f}".format(box[u][1])))
+        elif data_type == np.int32:
+            size = max(size, 
+                       len("{:>.2}".format(box[u][0])), 
+                       len("{:>.2}".format(box[u][1])))   
+        elif data_type == np.object:
+            s = len("{}".format(box[u][0]))
+            s = int(s/2)-4
+            size = max(size,
+                       s)
+    size = size+4
+
     # make the headers of the limits table
     # first header is box names
     # second header is min and max
@@ -48,8 +70,8 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
         else:
             box_name = 'rest box'        
         
-        elements_1.append("{0:>16}{1:>6}".format("{}".format(box_name),""))
-        elements_2.append("{0:>10}{1:>12}".format("min", "max"))
+        elements_1.append("{0:>{2}}{1:>{3}}".format("{}".format(box_name),"", size+4, size-2))
+        elements_2.append("{0:>{2}}{1:>{3}}".format("min", "max",size,size+2))
     line = "".join(elements_1)
     print line
     line = "".join(elements_2)
@@ -61,11 +83,19 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
         for box in box_lims:
             data_type =  box[u].dtype
             if data_type == np.float64:
-                elements.append("{0:>10.2f} -{1:>10.2f}".format(*box[u]))
+                data = list(box[u])
+                data.append(size)
+                data.append(size)
+                
+                elements.append("{0:>{2}.2f} -{1:>{3}.2f}".format(*data))
             elif data_type == np.int32:
-                elements.append("{0:>10} -{1:>10}".format(*box[u]))            
+                data = list(box[u])
+                data.append(size)
+                data.append(size)                
+                
+                elements.append("{0:>{2}} -{1:>{3}}".format(*data))            
             else:
-                elements.append("{0:>22}".format(box[u][0]))
+                elements.append("{0:>{1}}".format(box[u][0], size*2+2))
         line = "".join(elements)
         print line
     print "\n\n"
@@ -346,10 +376,11 @@ class Prim(object):
         '''
         x = self.x[self.yi_remaining]
         logical = np.ones(x.shape[0], dtype=np.bool)
+        res_dim = self.determine_restricted_dims(box)
     
-        for entry in x.dtype.descr:
-            name = entry[0]
-            value = x.dtype.fields.get(entry[0])[0]
+        for entry in res_dim:
+            name = entry
+            value = x.dtype.fields.get(name)[0]
             
             if value == 'object':
                 entries = box[name][0]
@@ -560,24 +591,28 @@ class Prim(object):
 
         peels = []
         for direction in ['upper', 'lower']:
-            peel_alpha = self.peel_alpha
-        
-            i=0
-            if direction=='upper':
-                peel_alpha = 1-self.peel_alpha
-                i=1
             
-            box_peel = mquantiles(x[u], [peel_alpha], alphap=self.alpha, 
-                                  betap=self.beta)[0]
-            if direction=='lower':
-                logical = x[u] >= box_peel
-                indices = box.yi[logical]
-            if direction=='upper':
-                logical = x[u] <= box_peel
-                indices = box.yi[logical]
-            temp_box = copy.deepcopy(box.box_lims[-1])
-            temp_box[u][i] = box_peel
-            peels.append((indices, temp_box))
+            if not np.any(np.isnan(x[u])):
+                peel_alpha = self.peel_alpha
+            
+                i=0
+                if direction=='upper':
+                    peel_alpha = 1-self.peel_alpha
+                    i=1
+                
+                box_peel = mquantiles(x[u], [peel_alpha], alphap=self.alpha, 
+                                      betap=self.beta)[0]
+                if direction=='lower':
+                    logical = x[u] >= box_peel
+                    indices = box.yi[logical]
+                if direction=='upper':
+                    logical = x[u] <= box_peel
+                    indices = box.yi[logical]
+                temp_box = copy.deepcopy(box.box_lims[-1])
+                temp_box[u][i] = box_peel
+                peels.append((indices, temp_box))
+            else:
+                return []
     
         return peels
     
