@@ -170,9 +170,9 @@ class VensimModelStructureInterface(ModelStructureInterface):
     '''
     
     #: attribute that can be set when one wants to load a cin file
-    cinFile = None
+    cin_file = None
     
-    modelFile = None
+    model_file = None
     '''
     The path to the vensim model to be loaded.
     
@@ -189,21 +189,21 @@ class VensimModelStructureInterface(ModelStructureInterface):
     step = 1 
 
     
-    def __init__(self, workingDirectory, name):
+    def __init__(self, working_dir, name):
         """interface to the model
         
-        :param workingDirectory: workingDirectory for the model. 
+        :param working_dir: working_dir for the model. 
         :param name: name of the modelInterface. The name should contain only
                      alphanumerical characters. 
         
-        .. note:: Anything that is relative to `self.workingDirectory`
+        .. note:: Anything that is relative to `self.working_dir`
                   should be specified in `model_init` and not
                   in `__init__`. Otherwise, the code will not work when running
                   it in parallel. The reason for this is that the working
                   directory is being updated by parallelEMA to the worker's 
                   separate working directory prior to calling `model_init`.
         """
-        super(VensimModelStructureInterface, self).__init__(workingDirectory, 
+        super(VensimModelStructureInterface, self).__init__(working_dir, 
                                                             name)
         self.outcomes.append(Outcome('TIME' , time=True))
         
@@ -215,10 +215,10 @@ class VensimModelStructureInterface(ModelStructureInterface):
     def model_init(self, policy, kwargs):
         """
         Init of the model, The provided implementation here assumes
-        that `self.modelFile`  is set correctly. In case of using different
+        that `self.model_file`  is set correctly. In case of using different
         vensim models for different policies, it is recomended to extent
         this method, extract the model file from the policy dict, set 
-        `self.modelFile` to this file and then call this implementation through
+        `self.model_file` to this file and then call this implementation through
         calling `super`.
         
         :param policy: a dict specifying the policy. In this 
@@ -227,7 +227,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
                        this argument is ignored.
         """
 
-        load_model(self.workingDirectory+self.modelFile) #load the model
+        load_model(self.working_dir+self.model_file) #load the model
         debug("model initialized successfully")
 
         be_quiet() # minimize the screens that are shown
@@ -255,8 +255,8 @@ class VensimModelStructureInterface(ModelStructureInterface):
         uncertainties to lookup values in the extension of this method, 
         then call this one using super with the updated case dict.
         
-        if you want to use cinFiles, set the cinFile, or cinFiles in
-        the extension of this method to `self.cinFile`.
+        if you want to use cin_files, set the cin_file, or cin_files in
+        the extension of this method to `self.cin_file`.
         
         :param case: the case to run
         
@@ -267,9 +267,9 @@ class VensimModelStructureInterface(ModelStructureInterface):
         
         """
                 
-        if self.cinFile:
+        if self.cin_file:
             try:
-                read_cin_file(self.workingDirectory+self.cinFile)
+                read_cin_file(self.working_dir+self.cin_file)
             except VensimWarning as w:
                 debug(str(w))
             else:
@@ -279,9 +279,9 @@ class VensimModelStructureInterface(ModelStructureInterface):
             set_value(key, value)
         debug("model parameters set successfully")
         
-        debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
+        debug("run simulation, results stored in " + self.working_dir+self.resultFile)
         try:
-            run_simulation(self.workingDirectory+self.resultFile)
+            run_simulation(self.working_dir+self.resultFile)
         except VensimError:
             raise
 
@@ -289,7 +289,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
         error = False
         for output in self.outcomes:
             debug("getting data for %s" %output.name)
-            result = get_data(self.workingDirectory+self.resultFile, 
+            result = get_data(self.working_dir+self.resultFile, 
                               output.name 
                               )
             debug("successfully retrieved data for %s" %output.name)

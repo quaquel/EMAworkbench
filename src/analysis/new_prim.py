@@ -378,8 +378,7 @@ class Prim(object):
         logical = np.ones(x.shape[0], dtype=np.bool)
         res_dim = self.determine_restricted_dims(box)
     
-        for entry in res_dim:
-            name = entry
+        for name in res_dim:
             value = x.dtype.fields.get(name)[0]
             
             if value == 'object':
