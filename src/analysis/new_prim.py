@@ -102,6 +102,10 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
 
 
 class PrimBox(object):
+
+    stats_format = "{0:<5}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}"
+    stats_header = "{0:<5}{1:>10}{2:>10}{3:>10}{4:>10}{5:>10}".format('box', 
+                              'mean', 'mass', 'coverage', 'density', 'res dim')
     
     def __init__(self, prim, box_lims, indices):
         self.prim = prim
@@ -202,15 +206,20 @@ class PrimBox(object):
         
         '''
 
-        print "{0:<5}{1:>10}{2:>10}{3:>10}{4:>10}{5:>10}".format('box', 'mean', 'mass', 'coverage', 'density', 'res dim')
+        print self.stats_header
         for i in range(len(self.box_lims)):
-            input = {'mean': self.mean[i], 
+            stats = {'mean': self.mean[i], 
                      'mass': self.mass[i], 
                      'coverage': self.coverage[i], 
                      'density': self.density[i], 
-                     'restricted_dim': self.res_dim[i]}
-            row = "{0:<5}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}".format(i,**input)
+                     'restricted_dim': self.res_dim[i]}            
+            
+            row = self._format_stats(i, stats)
             print row
+
+    def _format_stats(self, nr, stats):
+        row = self.stats_format.format(nr,**stats)
+        return row
 
 
 class PrimException(Exception):
@@ -302,7 +311,7 @@ class Prim(object):
         
         '''
         
-        pass
+        raise NotImplementedError()
     
     def find_box(self):
         '''
@@ -315,13 +324,16 @@ class Prim(object):
         # set the indices
         self._update_yi_remaining()
         
+        if self.yi_remaining.shape[0] == 0:
+            info("no data remaining")
+            return
+        
         # log how much data and how many coi are remaining
         info(self.message.format(self.yi_remaining.shape[0],
                                  self.determine_coi(self.yi_remaining)))
         
         # make a new box that contains all the remaining data points
         box = PrimBox(self, self.box_init, self.yi_remaining[:])
-        self.boxes.append(box)
         
         #  perform peeling phase
         box = self._peel(box)
@@ -330,7 +342,6 @@ class Prim(object):
         # perform pasting phase        
         box = self._paste(box)
         debug("pasting completed")
-#        self._update_yi_remaining()
         
         message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
         message = message.format(box.mean[-1],
@@ -339,20 +350,21 @@ class Prim(object):
                                  box.density[-1],
                                  box.res_dim[-1])
 
-        # TODO check if box meets criteria, otherwise, return a 
-        # dumpbox, and log that there is no box possible anymore
         if (self.threshold_type==ABOVE) &\
            (box.mean[-1] >= self.threshold):
             info(message)
+            self.boxes.append(box)
             return box
         elif (self.threshold_type==BELOW) &\
            (box.mean[-1] <= self.threshold):
             info(message)
+            self.boxes.append(box)
             return box
         else:
             # make a dump box
             info('box does not meet threshold criteria, returning dump box')
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
+            self.boxes.append(box)
             return box
 
     def compare(self, a, b):
@@ -471,33 +483,118 @@ class Prim(object):
 #        # to returning the value
    
     def write_boxes_to_stdout(self):
+        '''
         
+        Write the stats and box limits of the identified boxes to standard 
+        out. It will  write all the box lims and the inital box as rest box. 
+        The uncertainties will be sorted based on how restricted they are
+        in the first box. 
+        
+        '''
+      
+        print self.boxes[0].stats_header
+        i = -1
+        
+        boxes = self.boxes
+        if not np.all(self.compare(boxes[-1].box_lims[-1], self.box_init)):
+            self._update_yi_remaining()
+            box = PrimBox(self, self.box_init, self.yi_remaining[:])
+            boxes.append(box)
+        
+        for nr, box in enumerate(boxes):
+            nr +=1
+            if nr == len(boxes):
+                nr = 'rest'
+            
+            stats = {'mean': box.mean[i], 
+                    'mass': box.mass[i], 
+                    'coverage': box.coverage[i], 
+                    'density': box.density[i], 
+                    'restricted_dim': box.res_dim[i]}
+            print box._format_stats(nr, stats)   
+
+        print "\n"
+        _write_boxes_to_stdout(*self._get_sorted_box_lims())
+        
+    
+    def show_boxes(self, together=True):
+        '''
+        
+        visualize the boxes.
+        
+        :param together: if true, all boxes will be shown in a single figure,
+                         if false boxes will be shown in individual figures
+        
+        '''
+        
+        box_lims, uncs = self._get_sorted_box_lims()
+
+        
+        # normalize box_lim in het geval van een non obj unc
+        # anders punten gebruiken, via een sort op een lijst versie van de
+        # set van waarden
+                
+        if together:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            
+            for u in uncs:
+                dtype = self.box_init[u].dtype
+                if dtype == object:
+                    pass
+                else:
+                    pass
+            
+        else:
+            pass
+        
+        raise NotImplementedError
+   
+   
+    def _get_sorted_box_lims(self):
+
         # determine the uncertainties that are being restricted
         # in one or more boxes
         unc = set()
         for box in self.boxes:
             us  = self.determine_restricted_dims(box.box_lims[-1]).tolist()
             unc = unc.union(us)
+        unc = np.asarray(list(unc))
 
         # normalize the range for the first box
-        box_range = np.zeros((len(unc), 2))
         box_lim = self.boxes[0].box_lims[-1]
-        for i, u in enumerate(us):
+        nbl = self._normalize(box_lim, unc)
+        box_size = nbl[:,1]-nbl[:,0]
+        
+        # sort the uncertainties based on the normalized size of the 
+        # restricted dimensions
+        unc = unc[np.argsort(box_size)]
+        box_lims = [box.box_lims[-1] for box in self.boxes]
+
+        if not np.all(self.compare(box_lims[-1], self.box_init)):
+            box_lims.append(self.box_init)
+        
+        return box_lims, unc
+
+    def _normalize(self, box_lim, unc):
+        
+        # normalize the range for the first box
+        box_lim = self.boxes[0].box_lims[-1]
+        norm_box_lim = np.zeros((len(unc), box_lim.shape[0]))
+        for i, u in enumerate(unc):
             dtype = box_lim.dtype.fields[u][0]
             if dtype ==np.dtype(object):
-                lower, upper = [0, len(box_lim[u][0])]
+                nu = len(box_lim[u][0])/ len(self.box_init[u][0])
+                nl = 0
             else:
                 lower, upper = box_lim[u]
-            box_lim[i, :] = lower, upper
-        
-        print box_range
-        print "blaat"
-        
-        # sort based on the normalization
-        
-        # write to std_out
-        
-        
+                dif = (self.box_init[u][1]-self.box_init[u][0])
+                a = 1/dif
+                b = -1 * self.box_init[u][0] / dif
+                nl = a * lower + b
+                nu = a * upper + b
+            norm_box_lim[i, :] = nl, nu
+        return norm_box_lim
    
     def _update_yi_remaining(self):
         '''
@@ -560,14 +657,8 @@ class Prim(object):
         entry = scores[0]
         box_new, indices = entry[2:]
         
-        # this should only result in an update to yi_remaining
-        # first as a temp / new, and if we continue, update yi_remaining
         mass_new = self.y[indices].shape[0]/self.n
-        
-        
-        score_old = np.mean(self.y[box.yi])
-        score_new = np.mean(self.y[indices])
-        
+       
         if (mass_new >= self.mass_min) &\
            (mass_new < mass_old):
             box.update(box_new, indices)
@@ -716,11 +807,8 @@ class Prim(object):
         Executes the pasting phase of the PRIM. Delegates pasting to data 
         type specific helper methods.
         
-        TODO paste should only be done over the restricted dimensions, 
-        remainder can be ignored
-        
+     
         '''
-        
         
         x = self.x[self.yi_remaining]
         y = self.y[self.yi_remaining]
@@ -750,8 +838,6 @@ class Prim(object):
         entry = scores[0]
         box_new, indices = entry[2:]
         
-        # this should only result in an update to yi_remaining
-        # first as a temp / new, and if we continue, update yi_remaining
         mass_new = self.y[indices].shape[0]/self.n
         
         if (mass_new >= self.mass_min) &\
@@ -907,8 +993,8 @@ class Prim(object):
     def _def_obj_func(self, y_old, y_new):
         r'''
         the default objective function used by prim, instead of the original
-        objective function, this function can cope with continuous, integer, and
-        categorical uncertainties.      
+        objective function, this function can cope with continuous, integer, 
+        and categorical uncertainties.      
         
         .. math::
             
@@ -916,12 +1002,13 @@ class Prim(object):
                  {\text{ave} [y_{i}\mid x_{i}\in{B-b}] - \text{ave} [y\mid x\in{B}]}
                  {|n(y_{i})-n(y)|}
         
-        where :math:`B-b` is the set of candidate new boxes, :math:`B` the old box 
-        and :math:`y` are the y values belonging to the old box. :math:`n(y_{i})` 
-        and :math:`n(y)` are the cardinality of :math:`y_{i}` and :math:`y` 
-        respectively. So, this objective function looks for the difference between
-        the mean of the old box and the new box, divided by the change in the 
-        number of data points in the box. This objective function offsets a problem 
+        where :math:`B-b` is the set of candidate new boxes, :math:`B` 
+        the old box and :math:`y` are the y values belonging to the old 
+        box. :math:`n(y_{i})` and :math:`n(y)` are the cardinality of 
+        :math:`y_{i}` and :math:`y` respectively. So, this objective 
+        function looks for the difference between  the mean of the old 
+        box and the new box, divided by the change in the  number of 
+        data points in the box. This objective function offsets a problem 
         in case of categorical data where the normal objective function often 
         results in boxes mainly based on the categorical data.  
         
