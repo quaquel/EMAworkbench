@@ -40,10 +40,6 @@ def scarcity_classify(outcomes):
 
 
 class PrimTestCase(unittest.TestCase):
-#    def setUp(self):
-#        self.results = load_results(r'../data/scarcity 1000.bz2')
-#        self.classify = scarcity_classify
-
     def test_prim_init(self):
         self.results = load_results(r'../data/1000 flu cases no policy.bz2')
         self.classify = flu_classify        
@@ -98,7 +94,6 @@ class PrimTestCase(unittest.TestCase):
         x = np.random.rand(10, )
         x = np.asarray(x, dtype=[('a', np.float),
                                  ('b', np.float)])
-        y = np.random.randint(0,2, (10,)).astype(int)
         y = {'y': np.random.randint(0,2, (10,)).astype(int)}
         
         prim = new_prim.Prim((x,y), 'y')
@@ -187,24 +182,18 @@ class PrimTestCase(unittest.TestCase):
     def test_write_boxes_to_stdout(self):
         results = load_results(r'../data/1000 flu cases no policy.bz2')
         classify = flu_classify
-        
+
+#        results = load_results(r'../data/scarcity 1000.bz2')
+#        classify = scarcity_classify
+                
         prim = new_prim.Prim(results, classify, 
-                             threshold=0.8)
-        box_1 = prim.find_box()
+                             threshold=0.7)
+        prim.find_box()
+        prim.find_box()
+        
+        print "\n"
         prim.write_boxes_to_stdout()   
         
-
-#    def test_write_boxes_to_stdout(self):
-#        dtype = [('a', np.float),('b', np.object)]
-#        box_lims1 = np.array([(0, set(['a','b'])),
-#                        (1, set(['a','b']))], dtype=dtype )
-#        box_lims2 = np.array([(0, set(['a',])),
-#                                (1, set(['a',]))], dtype=dtype )
-#        
-#        new_prim._write_boxes_to_stdout([box_lims1,
-#                                         box_lims2], ['b','a'])
-
-
     def test_select(self):
         results = load_results(r'../data/1000 flu cases no policy.bz2')
         classify = flu_classify
@@ -305,18 +294,6 @@ class PrimTestCase(unittest.TestCase):
                 
                 self.assertEquals(indices.shape[0], 10)
                 self.assertEqual(box_lims[u][0], set(['a','b']))
-                
-        
-
-        
-def test_prim():
-    results = load_results(r'../data/1000 flu cases no policy.bz2')
-    from analysis import prim
-    
-    #perform prim on modified results tuple
-    boxes = prim.perform_prim(results, flu_classify, threshold=0.8, 
-                              threshold_type=1, pasting=True)
-
 
 if __name__ == '__main__':
 #    ema_logging.log_to_stderr(ema_logging.INFO)    
