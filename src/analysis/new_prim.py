@@ -12,8 +12,9 @@ import numpy as np
 from scipy.stats.mstats import mquantiles #@UnresolvedImport
 from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
-from analysis.plotting_util import make_legend
+from analysis.plotting_util import make_legend, COLOR_LIST
 from expWorkbench import info, debug
 
 DEFAULT = 'default'
@@ -100,6 +101,30 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
         print line
     print "\n\n"
 
+
+def _setup_figure(uncs):
+    '''
+    
+    helper function for creating the basic layout for the figures that
+    show the box lims.
+    
+    '''
+    nr_unc = len(uncs)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    # create the shaded grey background
+    rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc+1.5,
+                                 alpha=0.25,  
+                                 facecolor="#C0C0C0",
+                                 edgecolor="#C0C0C0")
+    ax.add_patch(rect)
+    ax.set_xlim(xmin=-0.2, xmax=1.2)
+    ax.set_ylim(ymin= -0.5, ymax=nr_unc-0.5)
+    ax.yaxis.set_ticks([y for y in range(nr_unc)])
+    ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
+    ax.set_yticklabels(uncs[::-1]) 
+    return fig, ax
 
 class PrimBox(object):
 
@@ -528,29 +553,45 @@ class Prim(object):
         
         '''
         
+        # get the sorted box lims
         box_lims, uncs = self._get_sorted_box_lims()
 
-        
-        # normalize box_lim in het geval van een non obj unc
-        # anders punten gebruiken, via een sort op een lijst versie van de
-        # set van waarden
-                
+        # normalize the box lims
+        norm_box_lims =  [self._normalize(box_lim, uncs) for 
+                                                        box_lim in box_lims]
+                        
         if together:
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
+            fig, ax = _setup_figure(uncs)
             
-            for u in uncs:
+            for i, u in enumerate(uncs):
+                # we want to have the most restricted dimension
+                # at the top of the figure
+                xi = len(uncs) - i - 1
+                
                 dtype = self.box_init[u].dtype
-                if dtype == object:
-                    pass
-                else:
-                    pass
+                for j, box_lim in enumerate(norm_box_lims):
+                    y = xi-j*0.1
+                    
+                    if dtype == object:
+                        elements = sorted(list(self.box_init[u][0]))
+                        max_value = (len(elements)-1)
+                        box_lim = box_lims[j]
+                        x = [elements.index(entry) for entry in 
+                             box_lim[u][0]]
+                        x = [entry/max_value for entry in x]
+                        y = [y] * len(x)
+                        
+                        ax.scatter(x,y,  edgecolor=COLOR_LIST[j],
+                                   facecolor=COLOR_LIST[j])
+                        
+                    else:
+                        ax.plot(box_lim[i], (y, y),
+                                COLOR_LIST[j])
             
         else:
             pass
         
-        raise NotImplementedError
-   
+        return fig
    
     def _get_sorted_box_lims(self):
 
@@ -580,8 +621,8 @@ class Prim(object):
     def _normalize(self, box_lim, unc):
         
         # normalize the range for the first box
-        box_lim = self.boxes[0].box_lims[-1]
         norm_box_lim = np.zeros((len(unc), box_lim.shape[0]))
+        
         for i, u in enumerate(unc):
             dtype = box_lim.dtype.fields[u][0]
             if dtype ==np.dtype(object):
