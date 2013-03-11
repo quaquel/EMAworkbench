@@ -15,7 +15,7 @@ from expWorkbench.vensim import VensimModelStructureInterface
 from expWorkbench.outcomes import Outcome
 
 class ScarcityModel(VensimModelStructureInterface):
-    modelFile = r'\MetalsEMA.vpm'
+    model_file = r'\MetalsEMA.vpm'
         
     outcomes = [Outcome('relative market price', time=True),
                 Outcome('supply demand ratio', time=True),

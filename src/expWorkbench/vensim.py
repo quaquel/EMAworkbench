@@ -181,7 +181,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
     '''
     
     #: default name of the results file (default: 'Current.vdf')
-    resultFile = r'\Current.vdf'
+    result_file = r'\Current.vdf'
 
     #: attribute used for getting a slice of the results array instead of the
     #: full array. This can cut down the amount of data saved. Alternatively,
@@ -189,21 +189,21 @@ class VensimModelStructureInterface(ModelStructureInterface):
     step = 1 
 
     
-    def __init__(self, working_dir, name):
+    def __init__(self, working_directory, name):
         """interface to the model
         
-        :param working_dir: working_dir for the model. 
+        :param working_directory: working_directory for the model. 
         :param name: name of the modelInterface. The name should contain only
                      alphanumerical characters. 
         
-        .. note:: Anything that is relative to `self.working_dir`
+        .. note:: Anything that is relative to `self.working_directory`
                   should be specified in `model_init` and not
                   in `__init__`. Otherwise, the code will not work when running
                   it in parallel. The reason for this is that the working
                   directory is being updated by parallelEMA to the worker's 
                   separate working directory prior to calling `model_init`.
         """
-        super(VensimModelStructureInterface, self).__init__(working_dir, 
+        super(VensimModelStructureInterface, self).__init__(working_directory, 
                                                             name)
         self.outcomes.append(Outcome('TIME' , time=True))
         
@@ -227,7 +227,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
                        this argument is ignored.
         """
 
-        load_model(self.working_dir+self.model_file) #load the model
+        load_model(self.working_directory+self.model_file) #load the model
         debug("model initialized successfully")
 
         be_quiet() # minimize the screens that are shown
@@ -269,7 +269,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
                 
         if self.cin_file:
             try:
-                read_cin_file(self.working_dir+self.cin_file)
+                read_cin_file(self.working_directory+self.cin_file)
             except VensimWarning as w:
                 debug(str(w))
             else:
@@ -279,9 +279,9 @@ class VensimModelStructureInterface(ModelStructureInterface):
             set_value(key, value)
         debug("model parameters set successfully")
         
-        debug("run simulation, results stored in " + self.working_dir+self.resultFile)
+        debug("run simulation, results stored in " + self.working_directory+self.result_file)
         try:
-            run_simulation(self.working_dir+self.resultFile)
+            run_simulation(self.working_directory+self.result_file)
         except VensimError:
             raise
 
@@ -289,7 +289,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
         error = False
         for output in self.outcomes:
             debug("getting data for %s" %output.name)
-            result = get_data(self.working_dir+self.resultFile, 
+            result = get_data(self.working_directory+self.result_file, 
                               output.name 
                               )
             debug("successfully retrieved data for %s" %output.name)
@@ -322,4 +322,4 @@ class VensimModelStructureInterface(ModelStructureInterface):
         """
       
         self.output = None
-        self.resultFile =r'\Current.vdf'
+        self.result_file =r'\Current.vdf'

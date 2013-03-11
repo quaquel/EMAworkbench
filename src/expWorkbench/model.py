@@ -38,22 +38,22 @@ class ModelStructureInterface(object):
     #: results, this should be a dict with the names of the outcomes as key
     output = {}
 
-    workingDirectory = None
+    working_directory = None
     
-    def __init__(self, workingDirectory, name):
+    def __init__(self, working_directory, name):
         """
         interface to the model
         
-        :param workingDirectory: workingDirectory for the model. 
+        :param working_directory: working_directory for the model. 
         :param name: name of the modelInterface. The name should contain only
                      alphanumerical characters. 
         """
         self.name=None
-        self.workingDirectory=None
+        self.working_directory=None
         
         super(ModelStructureInterface, self).__init__()
-        if workingDirectory:
-            self.set_working_directory(workingDirectory)
+        if working_directory:
+            self.set_working_directory(working_directory)
     
         if not name.isalnum():
             raise EMAError("name of model should only contain alpha numerical\
@@ -143,4 +143,4 @@ class ModelStructureInterface(object):
         wd = os.path.abspath(wd)
         debug('setting working directory to '+ wd)
         
-        self.workingDirectory = wd
+        self.working_directory = wd

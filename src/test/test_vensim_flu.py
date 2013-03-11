@@ -10,15 +10,13 @@ is the same as used in fluExample
 '''
 
 from expWorkbench.uncertainties import ParameterUncertainty
-from expWorkbench.model_ensemble import ModelEnsemble
 from expWorkbench import Outcome
 from expWorkbench.vensim import VensimModelStructureInterface 
-import expWorkbench.ema_logging as ema_logging
 
 
 class FluModel(VensimModelStructureInterface):
     #base case model
-    modelFile = r'\FLUvensimV1basecase.vpm'
+    model_file = r'\FLUvensimV1basecase.vpm'
         
     #outcomes
     outcomes = [Outcome('deceased population region 1', time=True),
@@ -65,35 +63,3 @@ class FluModel(VensimModelStructureInterface):
         ParameterUncertainty((10, 200), 
                              "normal contact rate region 2")]
                          
-    def model_init(self, policy, kwargs):
-        '''initializes the model'''
-        
-        try:
-            self.modelFile = policy['file']
-        except KeyError:
-            ema_logging.warning("key 'file' not found in policy")
-        super(FluModel, self).model_init(policy, kwargs)
-        
-if __name__ == "__main__":
-    ema_logging.log_to_stderr(ema_logging.INFO)
-        
-    model = FluModel(r'..\..\models\flu', "fluCase")
-    ensemble = ModelEnsemble()
-    ensemble.set_model_structure(model)
-    
-    #add policies
-    policies = [{'name': 'no policy',
-                 'file': r'\FLUvensimV1basecase.vpm'},
-                {'name': 'static policy',
-                 'file': r'\FLUvensimV1static.vpm'},
-                {'name': 'adaptive policy',
-                 'file': r'\FLUvensimV1dynamic.vpm'}
-                ]
-    ensemble.add_policies(policies)
-
-    ensemble.parallel = True #turn on parallel processing
-
-    import time
-    start_time = time.time()
-    results = ensemble.perform_experiments(1000)
-    ema_logging.info(str(time.time()-start_time))

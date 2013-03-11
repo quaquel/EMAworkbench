@@ -132,6 +132,15 @@ def log_to_stderr(level=None):
     import logging
 
     logger = get_logger()
+    
+    # avoid creation of multiple stream handlers for logging to console
+    for entry in logger.handlers:
+        if (isinstance(entry, logging.StreamHandler)) and\
+           (entry.formatter._fmt == multiprocessing.util.DEFAULT_LOGGING_FORMAT):
+            if level:
+                logger.setLevel(level)
+            return _logger
+    
     formatter = logging.Formatter(multiprocessing.util.DEFAULT_LOGGING_FORMAT)
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)

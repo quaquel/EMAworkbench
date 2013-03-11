@@ -165,137 +165,7 @@ class ModelEnsemble(object):
                   model structure interfaces, with the name as key. 
         
         '''
-        return self.__determine_unique_attributes('uncertainties')
-
-    
-    def __determine_unique_attributes(self, attribute):
-        '''
-        Helper method for determining the unique values on attributes of model 
-        interfaces, and how these values are shared across multiple model 
-        structure interfaces. The working assumption is that this function 
-        
-        :param attribute: the attribute to check on the msi
-        :returns: An overview dictionary which shows which uncertainties are
-                  used by which model structure interface, or interfaces, and
-                  a dictionary with the unique uncertainties across all the 
-                  model structure interfaces, with the name as key. 
-        
-        '''    
-        # check whether uncertainties exist with the same name 
-        # but different other attributes
-        element_dict = {}
-        overview_dict = {}
-        for msi in self._msis:
-            elements = getattr(msi, attribute)
-            for element in elements:
-                if element_dict.has_key(element.name):
-                    if element==element_dict[element.name]:
-                        overview_dict[element.name].append(msi)
-                    else:
-                        raise EMAError("%s `%s` is shared but has different state" 
-                                       % (element.__class__.__name__, 
-                                          element.name))
-                else:
-                    element_dict[element.name]= element
-                    overview_dict[element.name] = [msi]
-        
-        temp_overview = defaultdict(list)
-        for key, value in overview_dict.iteritems():
-            temp_overview[tuple([msi.name for msi in value])].append(element_dict[key])  
-        overview_dict = temp_overview
-        
-        return overview_dict, element_dict 
-     
-    def _determine_outcomes(self):
-        '''
-        Helper method for determining the unique outcomes and how
-        the outcomes are shared across multiple model structure 
-        interfaces.
-        
-        :returns: An overview dictionary which shows which uncertainties are
-                  used by which model structure interface, or interfaces, and
-                  a dictionary with the unique uncertainties across all the 
-                  model structure interfaces, with the name as key. 
-        
-        '''    
-        return self.__determine_unique_attributes('outcomes')
-        
-    
-    def _generate_samples(self, nr_of_samples, which_uncertainties):
-        '''
-        number of cases specifies the number of cases to generate in case
-        of Monte Carlo and Latin Hypercube sampling.
-        
-        In case of full factorial sampling nr_of_cases specifies the resolution 
-        on non categorical uncertainties.
-        
-        In case of multiple model structures, the uncertainties over
-        which to explore is the intersection of the sets of uncertainties of
-        the model interface instances.
-        
-        :param nr_of_samples: The number of samples to generate for the 
-                              uncertainties. In case of mc and lhs sampling,
-                              the number of samples is generated. In case of 
-                              ff sampling, the number of samples is interpreted
-                              as the upper limit for the resolution to use.
-        :returns: a dict with the samples uncertainties and a dict
-                  with the unique uncertainties. The first dict containsall the 
-                  unique uncertainties. The dict has the uncertainty name as 
-                  key and the values are the generated samples. The second dict
-                  has the name as key and an instance of the associated 
-                  uncertainty as value.
-        
-        '''
-        overview_dict, unc_dict = self.determine_uncertainties()
-        
-        if which_uncertainties==UNION:
-            if isinstance(self.sampler, FullFactorialSampler):
-                raise EMAError("full factorial sampling cannot be combined with exploring the union of uncertainties")
-            
-            sampled_unc = self.sampler.generate_samples(unc_dict.values(), 
-                                                   nr_of_samples)
-        elif which_uncertainties==INTERSECTION:
-            uncertainties = overview_dict[tuple([msi.name for msi in self._msis])]
-            unc_dict = {key.name:unc_dict[key.name] for key in uncertainties}
-            uncertainties = [unc_dict[unc.name] for unc in uncertainties]
-            sampled_unc = self.sampler.generate_samples(unc_dict.values(), 
-                                                   nr_of_samples)
-        else:
-            raise ValueError("incompatible value for which_uncertainties")
-        
-        return sampled_unc, unc_dict
-    
-    def __make_pool(self, model_kwargs):
-        '''
-        helper method for generating the pool in case of running in parallel.
-        '''
-        
-        self._pool = CalculatorPool(self._msis, 
-                                    processes=self.processes,
-                                    kwargs=model_kwargs)
-
-    def _generate_experiments(self, sampled_unc):
-        '''
-        Helper method for turning the sampled uncertainties into actual
-        complete experiments, including the model structure interface and the 
-        policy. The actual generation is delegated to the experiments_generator 
-        function, which returns a generator. In this way, not all the 
-        experiments are kept in memory, but they are generated only when 
-        needed.
-        
-        :param sampled_unc: the sampled uncertainty dictionary
-        :returns: a generator object that yields the experiments
-        
-        '''
-        if isinstance(sampled_unc, list):
-            return experiment_generator_predef_cases(copy.deepcopy(sampled_unc),\
-                                                     self._msis,\
-                                                     self._policies,)
-        
-        return experiment_generator(sampled_unc, self._msis,\
-                                   self._policies, self.sampler)
-
-
+        return self._determine_unique_attributes('uncertainties')
 
     def perform_experiments(self, 
                            cases,
@@ -395,7 +265,7 @@ class ModelEnsemble(object):
         uncertainties = [unc_dict[unc] for unc in sorted(sampled_unc)]
 
         # identify the outcomes that are to be included
-        overview_dict, element_dict = self.__determine_unique_attributes("outcomes")
+        overview_dict, element_dict = self._determine_unique_attributes("outcomes")
         if which_outcomes==UNION:
             outcomes = element_dict.keys()
         elif which_outcomes==INTERSECTION:
@@ -418,7 +288,7 @@ class ModelEnsemble(object):
             info("preparing to perform experiment in parallel")
             
             if not self._pool:
-                self.__make_pool(model_kwargs)
+                self._make_pool(model_kwargs)
             info("starting to perform experiments in parallel")
 
             self._pool.run_experiments(experiments, callback)
@@ -479,6 +349,216 @@ class ModelEnsemble(object):
         
         return results
 
+    def perform_robust_optimization(self, 
+                                    cases,
+                                    reporting_interval=100,
+                                    obj_function=None,
+                                    policy_levers={},
+                                    weights = (),
+                                    nr_of_generations=100,
+                                    pop_size=100,
+                                    crossover_rate=0.5, 
+                                    mutation_rate=0.02,
+                                    caching=False,
+                                    **kwargs):
+        """
+        Method responsible for performing robust optimization.
+        
+        :param cases: In case of Latin Hypercube sampling and Monte Carlo 
+                      sampling, cases specifies the number of cases to
+                      generate. In case of Full Factorial sampling,
+                      cases specifies the resolution to use for sampling
+                      continuous uncertainties. Alternatively, one can supply
+                      a list of dicts, where each dicts contains a case.
+                      That is, an uncertainty name as key, and its value. 
+        :param reporting_interval: parameter for specifying the frequency with
+                                   which the callback reports the progress.
+                                   (Default is 100) 
+        :param obj_function: the objective function used by the optimization
+        :param policy_levers: A dictionary with model parameter names as key
+                              and a dict as value. The dict should have two 
+                              fields: 'type' and 'values. Type is either
+                              list or range, and determines the appropriate
+                              allele type. Values are the parameters to 
+                              be used for the specific allele. 
+        :param weights: tuple of weights on the various outcomes of the 
+                        objective function. Use the constants MINIMIZE and 
+                        MAXIMIZE.
+        :param nr_of_generations: the number of generations for which the 
+                                  GA will be run
+        :param pop_size: the population size for the GA
+        :param crossover_rate: crossover rate for the GA
+        :param mutation_rate: mutation_rate for the GA
+        :param caching: keep track of tried solutions. This is memory 
+                intensive, so should be used sparingly. Defaults to
+                False. 
+
+        
+        """
+        evaluate_population = functools.partial(evaluate_population_robust, 
+                                                cases=cases)
+
+        #create a class for the individual
+        creator.create("Fitness", base.Fitness, weights=weights)
+        creator.create("Individual", dict, 
+                       fitness=creator.Fitness) #@UndefinedVariable
+
+        toolbox = base.Toolbox()
+        
+        # Attribute generator
+        keys = sorted(policy_levers.keys())
+        attr_list = []
+        low = []
+        high = []
+        for key in keys:
+            value = policy_levers[key]
+
+            type_allele = value['type'] 
+            value = value['values']
+            if type_allele=='range':
+                toolbox.register(key, random.uniform, value[0], value[1])
+                attr_list.append(getattr(toolbox, key))
+                low.append(value[0])
+                high.append(value[1])
+            elif type_allele=='list':
+                toolbox.register(key, random.choice, value)
+                attr_list.append(getattr(toolbox, key))
+                low.append(0)
+                high.append(len(value)-1)
+            else:
+                raise EMAError("unknown allele type: possible types are range and list")
+
+        return self._run_optimization(toolbox, generate_individual_robust, 
+                                       evaluate_population, attr_list, keys, 
+                                       obj_function, pop_size, 
+                                       reporting_interval, weights, 
+                                       nr_of_generations, crossover_rate, 
+                                       mutation_rate, policy_levers, 
+                                       caching, **kwargs)
+        
+    def continue_robust_optimization(self,
+                                     cases=None,
+                                     nr_of_generations=10,
+                                     pop=None,
+                                     stats_callback=None,
+                                     policy_levers=None,
+                                     obj_function=None,
+                                     crossover_rate=0.5,
+                                     mutation_rate=0.02,
+                                     reporting_interval=100,
+                                     **kwargs):
+        '''
+        Continue the robust optimization from a previously saved state. To 
+        make this work, one should save the return from 
+        perform_robust_optimization. The typical use case for this method is
+        to manually track convergence of the optimization after a number of 
+        specified generations. 
+        
+        :param cases: In case of Latin Hypercube sampling and Monte Carlo 
+                      sampling, cases specifies the number of cases to
+                      generate. In case of Full Factorial sampling,
+                      cases specifies the resolution to use for sampling
+                      continuous uncertainties. Alternatively, one can supply
+                      a list of dicts, where each dicts contains a case.
+                      That is, an uncertainty name as key, and its value. 
+        :param nr_of_generations: the number of generations for which the 
+                                  GA will be run
+        :param pop: the last ran population, returned 
+                    by perform_robust_optimization
+        :param stats_callback: the NSGA2StatisticsCallback instance returned
+                               by perform_robust_optimization
+        :param reporting_interval: parameter for specifying the frequency with
+                                   which the callback reports the progress.
+                                   (Default is 100) 
+        :param policy_levers: A dictionary with model parameter names as key
+                              and a dict as value. The dict should have two 
+                              fields: 'type' and 'values. Type is either
+                              list or range, and determines the appropriate
+                              allele type. Values are the parameters to 
+                              be used for the specific allele. 
+
+        :param obj_function: the objective function used by the optimization
+        :param crossover_rate: crossover rate for the GA
+        :param mutation_rate: mutation_rate for the GA
+        
+        .. note:: There is some tricky stuff involved in loading
+                  the stats_callback via cPickle. cPickle requires that the 
+                  classes in the pickle file exist. The individual class used 
+                  by deap is generated dynamicly. Loading the cPickle should 
+                  thus be preceded by reinstantiating the correct individual. 
+        
+        
+        '''
+        # figure out whether we are doing single or multi-objective 
+        # optimization
+        single_obj = True
+        if len(creator.Fitness.weights) >1:  #@UndefinedVariable
+            single_obj=False
+
+        evaluate_population = functools.partial(evaluate_population_robust, 
+                                                cases=cases)
+
+        # deduce from stats if caching was being used
+        try:
+            if stats_callback.tried_solutions:
+                caching=True
+        except AttributeError:
+            caching = False
+        
+        # set up the toolbox
+        toolbox = base.Toolbox()
+        
+        # Attribute generator
+        keys = sorted(policy_levers.keys())
+        attr_list = []
+        low = []
+        high = []
+        for key in keys:
+            value = policy_levers[key]
+
+            type_allele = value['type'] 
+            value = value['values']
+            if type_allele=='range':
+                toolbox.register(key, random.uniform, value[0], value[1])
+                attr_list.append(getattr(toolbox, key))
+                low.append(value[0])
+                high.append(value[1])
+            elif type_allele=='list':
+                toolbox.register(key, random.choice, value)
+                attr_list.append(getattr(toolbox, key))
+                low.append(0)
+                high.append(len(value)-1)
+            else:
+                raise EMAError("unknown allele type: possible types are range and list")
+    
+        # Operator registering
+        toolbox.register("evaluate", obj_function)
+        toolbox.register("crossover", tools.cxOnePoint)
+       
+        if single_obj:
+            toolbox.register("select", tools.selTournament)
+        else:       
+            toolbox.register("select", tools.selNSGA2)
+        toolbox.register("mutate", mut_polynomial_bounded)
+
+        # generate population
+        # for some stupid reason, DEAP demands a multiple of four for 
+        # population size in case of NSGA-2 
+        debug("Start of evolution")
+
+        # Begin the generational process
+        for gen in range(nr_of_generations):
+            pop = self._run_geneneration(pop, crossover_rate, mutation_rate, 
+                                          toolbox, reporting_interval, 
+                                          policy_levers, evaluate_population, 
+                                          keys, single_obj, caching, 
+                                          **kwargs) 
+            stats_callback(pop)
+            stats_callback.log_stats(gen)             
+        info("-- End of (successful) evolution --")                
+
+        return stats_callback, pop
+
     def perform_outcome_optimization(self, 
                                     reporting_interval=100,
                                     obj_function=None,
@@ -487,6 +567,7 @@ class ModelEnsemble(object):
                                     pop_size=100,
                                     crossover_rate=0.5, 
                                     mutation_rate=0.02,
+                                    caching=False,
                                     **kwargs
                                     ):
         """
@@ -506,7 +587,9 @@ class ModelEnsemble(object):
         :param pop_size: the population size for the GA
         :param crossover_rate: crossover rate for the GA
         :param mutation_rate: mutation_rate for the GA
-
+        :param caching: keep track of tried solutions. This is memory 
+                        intensive, so should be used sparingly. Defaults to
+                        False. 
        
         """
 
@@ -517,7 +600,7 @@ class ModelEnsemble(object):
         toolbox = base.Toolbox()
         
         # Attribute generator
-        od = self.__determine_unique_attributes('uncertainties')[0]
+        od = self._determine_unique_attributes('uncertainties')[0]
         shared_uncertainties = od[tuple([msi.name for msi in self._msis])]
 
         #make a dictionary with the shared uncertainties and their range
@@ -560,18 +643,150 @@ class ModelEnsemble(object):
                 raise EMAError("unknown allele type: possible types are range and list")
             levers[key] = specification
 
-        return self.__run_optimization(toolbox, generate_individual_outcome, 
+        return self._run_optimization(toolbox, generate_individual_outcome, 
                                        evaluate_population_outcome, attr_list, 
                                        keys, obj_function, pop_size, 
                                        reporting_interval, weights, 
                                        nr_of_generations, crossover_rate, 
-                                       mutation_rate, levers, **kwargs)
+                                       mutation_rate, levers, caching, 
+                                       **kwargs)
 
-    def __run_optimization(self, toolbox, generate_individual, 
+    
+    def _determine_unique_attributes(self, attribute):
+        '''
+        Helper method for determining the unique values on attributes of model 
+        interfaces, and how these values are shared across multiple model 
+        structure interfaces. The working assumption is that this function 
+        
+        :param attribute: the attribute to check on the msi
+        :returns: An overview dictionary which shows which uncertainties are
+                  used by which model structure interface, or interfaces, and
+                  a dictionary with the unique uncertainties across all the 
+                  model structure interfaces, with the name as key. 
+        
+        '''    
+        # check whether uncertainties exist with the same name 
+        # but different other attributes
+        element_dict = {}
+        overview_dict = {}
+        for msi in self._msis:
+            elements = getattr(msi, attribute)
+            for element in elements:
+                if element_dict.has_key(element.name):
+                    if element==element_dict[element.name]:
+                        overview_dict[element.name].append(msi)
+                    else:
+                        raise EMAError("%s `%s` is shared but has different state" 
+                                       % (element.__class__.__name__, 
+                                          element.name))
+                else:
+                    element_dict[element.name]= element
+                    overview_dict[element.name] = [msi]
+        
+        temp_overview = defaultdict(list)
+        for key, value in overview_dict.iteritems():
+            temp_overview[tuple([msi.name for msi in value])].append(element_dict[key])  
+        overview_dict = temp_overview
+        
+        return overview_dict, element_dict 
+     
+    def _determine_outcomes(self):
+        '''
+        Helper method for determining the unique outcomes and how
+        the outcomes are shared across multiple model structure 
+        interfaces.
+        
+        :returns: An overview dictionary which shows which uncertainties are
+                  used by which model structure interface, or interfaces, and
+                  a dictionary with the unique uncertainties across all the 
+                  model structure interfaces, with the name as key. 
+        
+        '''    
+        return self._determine_unique_attributes('outcomes')
+        
+    
+    def _generate_samples(self, nr_of_samples, which_uncertainties):
+        '''
+        number of cases specifies the number of cases to generate in case
+        of Monte Carlo and Latin Hypercube sampling.
+        
+        In case of full factorial sampling nr_of_cases specifies the resolution 
+        on non categorical uncertainties.
+        
+        In case of multiple model structures, the uncertainties over
+        which to explore is the intersection of the sets of uncertainties of
+        the model interface instances.
+        
+        :param nr_of_samples: The number of samples to generate for the 
+                              uncertainties. In case of mc and lhs sampling,
+                              the number of samples is generated. In case of 
+                              ff sampling, the number of samples is interpreted
+                              as the upper limit for the resolution to use.
+        :returns: a dict with the samples uncertainties and a dict
+                  with the unique uncertainties. The first dict containsall the 
+                  unique uncertainties. The dict has the uncertainty name as 
+                  key and the values are the generated samples. The second dict
+                  has the name as key and an instance of the associated 
+                  uncertainty as value.
+        
+        '''
+        overview_dict, unc_dict = self.determine_uncertainties()
+        
+        if which_uncertainties==UNION:
+            if isinstance(self.sampler, FullFactorialSampler):
+                raise EMAError("full factorial sampling cannot be combined with exploring the union of uncertainties")
+            
+            sampled_unc = self.sampler.generate_samples(unc_dict.values(), 
+                                                   nr_of_samples)
+        elif which_uncertainties==INTERSECTION:
+            uncertainties = overview_dict[tuple([msi.name for msi in self._msis])]
+            unc_dict = {key.name:unc_dict[key.name] for key in uncertainties}
+            uncertainties = [unc_dict[unc.name] for unc in uncertainties]
+            sampled_unc = self.sampler.generate_samples(unc_dict.values(), 
+                                                   nr_of_samples)
+        else:
+            raise ValueError("incompatible value for which_uncertainties")
+        
+        return sampled_unc, unc_dict
+    
+    def _make_pool(self, model_kwargs):
+        '''
+        helper method for generating the pool in case of running in parallel.
+        '''
+        
+        self._pool = CalculatorPool(self._msis, 
+                                    processes=self.processes,
+                                    kwargs=model_kwargs)
+
+    def _generate_experiments(self, sampled_unc):
+        '''
+        Helper method for turning the sampled uncertainties into actual
+        complete experiments, including the model structure interface and the 
+        policy. The actual generation is delegated to the experiments_generator 
+        function, which returns a generator. In this way, not all the 
+        experiments are kept in memory, but they are generated only when 
+        needed.
+        
+        :param sampled_unc: the sampled uncertainty dictionary
+        :returns: a generator object that yields the experiments
+        
+        '''
+        if isinstance(sampled_unc, list):
+            return experiment_generator_predef_cases(copy.deepcopy(sampled_unc),\
+                                                     self._msis,\
+                                                     self._policies,)
+        
+        return experiment_generator(sampled_unc, self._msis,\
+                                   self._policies, self.sampler)
+
+
+
+
+    def _run_optimization(self, toolbox, generate_individual, 
                            evaluate_population, attr_list, keys, obj_function, 
                            pop_size, reporting_interval, weights, 
                            nr_of_generations, crossover_rate, mutation_rate,
-                           levers, **kwargs):
+                           levers, caching, **kwargs):
         '''
         Helper function that runs the actual optimization
                 
@@ -641,23 +856,25 @@ class ModelEnsemble(object):
                                     nr_of_generations=nr_of_generations,
                                     crossover_rate=crossover_rate, 
                                     mutation_rate=mutation_rate, 
-                                    pop_size=pop_size)
+                                    pop_size=pop_size, 
+                                    caching=caching)
         stats_callback(pop)
         stats_callback.log_stats(0)
 
         # Begin the generational process
         for gen in range(nr_of_generations):
-            pop = self.__run_geneneration(pop, crossover_rate, mutation_rate, 
+            pop = self._run_geneneration(pop, crossover_rate, mutation_rate, 
                                           toolbox, reporting_interval, levers, 
                                           evaluate_population, keys, 
-                                          single_obj, stats_callback, **kwargs)
+                                          single_obj, stats_callback, 
+                                          caching, **kwargs)
             stats_callback(pop)
             stats_callback.log_stats(gen)    
         info("-- End of (successful) evolution --")
 
         return stats_callback, pop        
 
-    def __run_geneneration(self,
+    def _run_geneneration(self,
                           pop,
                           crossover_rate,
                           mutation_rate,
@@ -668,6 +885,7 @@ class ModelEnsemble(object):
                           keys,
                           single_obj,
                           stats_callback,
+                          caching,
                           **kwargs):
         '''
         
@@ -730,14 +948,15 @@ class ModelEnsemble(object):
             for entry in (child1, child2):
                 del entry.fitness.values
             
-#            for entry in (child1, child2):
-#                try:
-#                    ind = stats_callback.tried_solutions[entry]
-#                except KeyError:
-#                    del entry.fitness.values
-#                    continue
-#                
-#                entry.fitness = ind.fitness 
+            if caching:
+                for entry in (child1, child2):
+                    try:
+                        ind = stats_callback.tried_solutions[entry]
+                    except KeyError:
+                        del entry.fitness.values
+                        continue
+                    
+                    entry.fitness = ind.fitness 
        
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
@@ -751,201 +970,6 @@ class ModelEnsemble(object):
 
         return pop
 
-    def perform_robust_optimization(self, 
-                                    cases,
-                                    reporting_interval=100,
-                                    obj_function=None,
-                                    policy_levers={},
-                                    weights = (),
-                                    nr_of_generations=100,
-                                    pop_size=100,
-                                    crossover_rate=0.5, 
-                                    mutation_rate=0.02,
-                                    **kwargs):
-        """
-        Method responsible for performing robust optimization.
-        
-        :param cases: In case of Latin Hypercube sampling and Monte Carlo 
-                      sampling, cases specifies the number of cases to
-                      generate. In case of Full Factorial sampling,
-                      cases specifies the resolution to use for sampling
-                      continuous uncertainties. Alternatively, one can supply
-                      a list of dicts, where each dicts contains a case.
-                      That is, an uncertainty name as key, and its value. 
-        :param reporting_interval: parameter for specifying the frequency with
-                                   which the callback reports the progress.
-                                   (Default is 100) 
-        :param obj_function: the objective function used by the optimization
-        :param policy_levers: A dictionary with model parameter names as key
-                              and a dict as value. The dict should have two 
-                              fields: 'type' and 'values. Type is either
-                              list or range, and determines the appropriate
-                              allele type. Values are the parameters to 
-                              be used for the specific allele. 
-        :param weights: tuple of weights on the various outcomes of the 
-                        objective function. Use the constants MINIMIZE and 
-                        MAXIMIZE.
-        :param nr_of_generations: the number of generations for which the 
-                                  GA will be run
-        :param pop_size: the population size for the GA
-        :param crossover_rate: crossover rate for the GA
-        :param mutation_rate: mutation_rate for the GA
-
-        
-        """
-        evaluate_population = functools.partial(evaluate_population_robust, 
-                                                cases=cases)
-
-        #create a class for the individual
-        creator.create("Fitness", base.Fitness, weights=weights)
-        creator.create("Individual", dict, 
-                       fitness=creator.Fitness) #@UndefinedVariable
-
-        toolbox = base.Toolbox()
-        
-        # Attribute generator
-        keys = sorted(policy_levers.keys())
-        attr_list = []
-        low = []
-        high = []
-        for key in keys:
-            value = policy_levers[key]
-
-            type_allele = value['type'] 
-            value = value['values']
-            if type_allele=='range':
-                toolbox.register(key, random.uniform, value[0], value[1])
-                attr_list.append(getattr(toolbox, key))
-                low.append(value[0])
-                high.append(value[1])
-            elif type_allele=='list':
-                toolbox.register(key, random.choice, value)
-                attr_list.append(getattr(toolbox, key))
-                low.append(0)
-                high.append(len(value)-1)
-            else:
-                raise EMAError("unknown allele type: possible types are range and list")
-
-        return self.__run_optimization(toolbox, generate_individual_robust, 
-                                       evaluate_population, attr_list, keys, 
-                                       obj_function, pop_size, 
-                                       reporting_interval, weights, 
-                                       nr_of_generations, crossover_rate, 
-                                       mutation_rate, policy_levers, **kwargs)
-        
-    def continue_robust_optimization(self,
-                                     cases=None,
-                                     nr_of_generations=10,
-                                     pop=None,
-                                     stats_callback=None,
-                                     policy_levers=None,
-                                     obj_function=None,
-                                     crossover_rate=0.5,
-                                     mutation_rate=0.02,
-                                     reporting_interval=100,
-                                     **kwargs):
-        '''
-        Continue the robust optimization from a previously saved state. To 
-        make this work, one should save the return from 
-        perform_robust_optimization. The typical use case for this method is
-        to manually track convergence of the optimization after a number of 
-        specified generations. 
-        
-        :param cases: In case of Latin Hypercube sampling and Monte Carlo 
-                      sampling, cases specifies the number of cases to
-                      generate. In case of Full Factorial sampling,
-                      cases specifies the resolution to use for sampling
-                      continuous uncertainties. Alternatively, one can supply
-                      a list of dicts, where each dicts contains a case.
-                      That is, an uncertainty name as key, and its value. 
-        :param nr_of_generations: the number of generations for which the 
-                                  GA will be run
-        :param pop: the last ran population, returned 
-                    by perform_robust_optimization
-        :param stats_callback: the NSGA2StatisticsCallback instance returned
-                               by perform_robust_optimization
-        :param reporting_interval: parameter for specifying the frequency with
-                                   which the callback reports the progress.
-                                   (Default is 100) 
-        :param policy_levers: A dictionary with model parameter names as key
-                              and a dict as value. The dict should have two 
-                              fields: 'type' and 'values. Type is either
-                              list or range, and determines the appropriate
-                              allele type. Values are the parameters to 
-                              be used for the specific allele. 
-
-        :param obj_function: the objective function used by the optimization
-        :param crossover_rate: crossover rate for the GA
-        :param mutation_rate: mutation_rate for the GA
-        
-        .. note:: There is some tricky stuff involved in loading
-                  the stats_callback via cPickle. cPickle requires that the 
-                  classes in the pickle file exist. The individual class used 
-                  by deap is generated dynamicly. Loading the cPickle should 
-                  thus be preceded by reinstantiating the correct individual. 
-        
-        
-        '''
-        # figure out whether we are doing single or multi-objective 
-        # optimization
-        single_obj = True
-        if len(creator.Fitness.weights) >1:  #@UndefinedVariable
-            single_obj=False
-
-        evaluate_population = functools.partial(evaluate_population_robust, 
-                                                cases=cases)
-
-        toolbox = base.Toolbox()
-        
-        # Attribute generator
-        keys = sorted(policy_levers.keys())
-        attr_list = []
-        low = []
-        high = []
-        for key in keys:
-            value = policy_levers[key]
-
-            type_allele = value['type'] 
-            value = value['values']
-            if type_allele=='range':
-                toolbox.register(key, random.uniform, value[0], value[1])
-                attr_list.append(getattr(toolbox, key))
-                low.append(value[0])
-                high.append(value[1])
-            elif type_allele=='list':
-                toolbox.register(key, random.choice, value)
-                attr_list.append(getattr(toolbox, key))
-                low.append(0)
-                high.append(len(value)-1)
-            else:
-                raise EMAError("unknown allele type: possible types are range and list")
-    
-        # Operator registering
-        toolbox.register("evaluate", obj_function)
-        toolbox.register("crossover", tools.cxOnePoint)
-       
-        if single_obj:
-            toolbox.register("select", tools.selTournament)
-        else:       
-            toolbox.register("select", tools.selNSGA2)
-        toolbox.register("mutate", mut_polynomial_bounded)
-
-        # generate population
-        # for some stupid reason, DEAP demands a multiple of four for 
-        # population size in case of NSGA-2 
-        debug("Start of evolution")
-
-        # Begin the generational process
-        for gen in range(nr_of_generations):
-            pop = self.__run_geneneration(pop, crossover_rate, mutation_rate, 
-                                          toolbox, reporting_interval, 
-                                          policy_levers, evaluate_population, 
-                                          keys, single_obj, **kwargs) 
-            stats_callback(pop)
-            stats_callback.log_stats(gen)             
-        info("-- End of (successful) evolution --")                
-
-        return stats_callback, pop
 
 def experiment_generator_predef_cases(designs, model_structures, policies):
     '''

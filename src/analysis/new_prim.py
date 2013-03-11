@@ -495,7 +495,7 @@ class Prim(object):
         print self.boxes[0].stats_header
         i = -1
         
-        boxes = self.boxes
+        boxes = self.boxes[:]
         if not np.all(self.compare(boxes[-1].box_lims[-1], self.box_init)):
             self._update_yi_remaining()
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
@@ -515,6 +515,7 @@ class Prim(object):
 
         print "\n"
         _write_boxes_to_stdout(*self._get_sorted_box_lims())
+
         
     
     def show_boxes(self, together=True):

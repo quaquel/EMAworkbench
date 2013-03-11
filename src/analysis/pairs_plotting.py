@@ -322,6 +322,7 @@ def pairs_scatter(results,
                   ylabels = {},
                   legend=True,
                   point_in_time=-1,
+                  filter_scalar=True,
                   **kwargs):
     '''
     
@@ -347,6 +348,8 @@ def pairs_scatter(results,
     :param point_in_time: the point in time at which the scatter is to be made.
                           If None is provided, the end states are used. 
                           point_in_time should be a valid value on time
+    :param filter_scalar: boolean, remove the non-time-series outcomes.  
+                          Defaults to True.
     :rtype: a `figure <http://matplotlib.sourceforge.net/api/figure_api.html>`_ instance
             and a dict with the individual axes.
     
@@ -360,7 +363,7 @@ def pairs_scatter(results,
    
     prepared_data = prepare_pairs_data(results, outcomes_to_show, group_by, 
                                        grouping_specifiers, point_in_time,
-                                       filter_scalar=False)
+                                       filter_scalar)
     outcomes, outcomes_to_show, grouping_labels = prepared_data
    
     grid = gridspec.GridSpec(len(outcomes_to_show), len(outcomes_to_show))                             

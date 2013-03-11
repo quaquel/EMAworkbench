@@ -179,17 +179,17 @@ class CalculatorPool(Pool):
             
             #setup working directories for parallelEMA
             for msi in msis:
-                if msi.workingDirectory != None:
+                if msi.working_directory != None:
                     if workerRoot == None:
-                        workerRoot = os.path.dirname(os.path.abspath(msis[0].workingDirectory))
+                        workerRoot = os.path.dirname(os.path.abspath(msis[0].working_directory))
                     
-                    workingDirectory = os.path.join(workerRoot, workerName, msi.name)
+                    working_directory = os.path.join(workerRoot, workerName, msi.name)
                     
-                    working_dirs.append(workingDirectory)
-                    shutil.copytree(msi.workingDirectory, 
-                                    workingDirectory, 
+                    working_dirs.append(working_directory)
+                    shutil.copytree(msi.working_directory, 
+                                    working_directory, 
                                     ignore = ignore_function)
-                    msi.set_working_directory(workingDirectory)
+                    msi.set_working_directory(working_directory)
 
             w = LoggingProcess(
                 self.log_queue,
