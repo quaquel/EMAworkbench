@@ -179,20 +179,37 @@ class PrimTestCase(unittest.TestCase):
         self.assertRaises(new_prim.PrimException, new_prim.Prim, results, 
                           faulty_classify)
 
-    def test_write_boxes_to_stdout(self):
-        results = load_results(r'../data/1000 flu cases no policy.bz2')
-        classify = flu_classify
+#    def test_write_boxes_to_stdout(self):
+#        results = load_results(r'../data/1000 flu cases no policy.bz2')
+#        classify = flu_classify
+#
+##        results = load_results(r'../data/scarcity 1000.bz2')
+##        classify = scarcity_classify
+#                
+#        prim = new_prim.Prim(results, classify, 
+#                             threshold=0.7)
+#        prim.find_box()
+#        prim.find_box()
+#        
+#        print "\n"
+#        prim.write_boxes_to_stdout()   
 
-#        results = load_results(r'../data/scarcity 1000.bz2')
-#        classify = scarcity_classify
+    def test_show_boxes(self):
+#        results = load_results(r'../data/1000 flu cases no policy.bz2')
+#        classify = flu_classify
+
+        results = load_results(r'../data/scarcity 1000.bz2')
+        classify = scarcity_classify
                 
         prim = new_prim.Prim(results, classify, 
                              threshold=0.7)
         prim.find_box()
         prim.find_box()
         
-        print "\n"
-        prim.write_boxes_to_stdout()   
+        prim.write_boxes_to_stdout()
+        
+        prim.show_boxes()   
+        plt.show()
         
     def test_select(self):
         results = load_results(r'../data/1000 flu cases no policy.bz2')
