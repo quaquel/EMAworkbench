@@ -14,7 +14,7 @@ from expWorkbench.vensim import VensimModelStructureInterface
 from analysis.plotting import envelopes
 
 class EnergyTrans(VensimModelStructureInterface):
-    modelFile = r'\CESUN_adaptive.vpm'
+    model_file = r'\CESUN_adaptive.vpm'
     
     #outcomes    
     outcomes = [Outcome('total fraction new technologies' , time=True),  

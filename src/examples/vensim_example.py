@@ -20,7 +20,7 @@ class VensimExampleModel(VensimModelStructureInterface):
     '''
     #note that this reference to the model should be relative
     #this relative path will be combined with the workingDirectory
-    modelFile = r'\model.vpm'
+    model_file = r'\model.vpm'
 
     #specify outcomes
     outcomes = [Outcome('a', time=True)]

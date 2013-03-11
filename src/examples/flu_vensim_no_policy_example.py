@@ -15,7 +15,7 @@ from expWorkbench.vensim import VensimModelStructureInterface
 
 class FluModel(VensimModelStructureInterface):
     #base case model
-    modelFile = r'\FLUvensimV1basecase.vpm'
+    model_file = r'\FLUvensimV1basecase.vpm'
         
     #outcomes
     outcomes = [Outcome('deceased population region 1', time=True),

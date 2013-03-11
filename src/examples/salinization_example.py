@@ -13,7 +13,7 @@ from analysis import plotting
 
 
 class SalinizationModel(VensimModelStructureInterface):
-    modelFile = r'\verzilting 2.vpm'
+    model_file = r'\verzilting 2.vpm'
     
     #outcomes
     outcomes = [Outcome('population', time=True),
