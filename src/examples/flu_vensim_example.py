@@ -15,7 +15,7 @@ from expWorkbench.vensim import VensimModelStructureInterface
 class FluModel(VensimModelStructureInterface):
 
     #base case model
-    modelFile = r'\FLUvensimV1basecase.vpm'
+    model_file = r'\FLUvensimV1basecase.vpm'
         
     #outcomes
     outcomes = [Outcome('deceased population region 1', time=True),
@@ -66,7 +66,7 @@ class FluModel(VensimModelStructureInterface):
         '''initializes the model'''
         
         try:
-            self.modelFile = policy['file']
+            self.model_file = policy['file']
         except KeyError:
             ema_logging.warning("key 'file' not found in policy")
         super(FluModel, self).model_init(policy, kwargs)

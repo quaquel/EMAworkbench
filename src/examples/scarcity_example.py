@@ -12,7 +12,7 @@ from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome,\
 from expWorkbench.vensim import VensimModelStructureInterface
 
 class ScarcityModel(VensimModelStructureInterface):
-    modelFile = r'\MetalsEMA.vpm'
+    model_file = r'\MetalsEMA.vpm'
         
     outcomes = [Outcome('relative market price', time=True),
                 Outcome('supply demand ratio', time=True),
