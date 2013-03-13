@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from expWorkbench import ModelEnsemble, CategoricalUncertainty,\
                          ParameterUncertainty, Outcome, ema_logging
-from expWorkbench.vensim import VensimModelStructureInterface
+from connectors.vensim import VensimModelStructureInterface
 from analysis.plotting import envelopes
 
 class EnergyTrans(VensimModelStructureInterface):

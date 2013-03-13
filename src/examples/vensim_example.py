@@ -10,7 +10,7 @@ It's main purpose is to test the parallel processing functionality
 '''
 from expWorkbench import ModelEnsemble, ParameterUncertainty, Outcome,\
                          ema_logging 
-from expWorkbench.vensim import VensimModelStructureInterface
+from connectors.vensim import VensimModelStructureInterface
 
 class VensimExampleModel(VensimModelStructureInterface):
     '''
