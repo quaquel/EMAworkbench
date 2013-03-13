@@ -9,7 +9,7 @@ from math import exp
 
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome,\
                          ema_logging, ModelEnsemble, save_results
-from expWorkbench.vensim import VensimModelStructureInterface
+from connectors.vensim import VensimModelStructureInterface
 
 class ScarcityModel(VensimModelStructureInterface):
     model_file = r'\MetalsEMA.vpm'
