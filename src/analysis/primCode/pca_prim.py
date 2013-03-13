@@ -17,7 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from expWorkbench import load_results, ema_logging, EMAError
-from analysis import prim
+import old_prim as prim
 
 def determine_rotation(experiments):
     '''

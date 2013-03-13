@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 from analysis.plotting_util import make_legend, COLOR_LIST
-from expWorkbench import info, debug
+from expWorkbench import info, debug, EMAError
 
 DEFAULT = 'default'
 ABOVE = 1
@@ -327,16 +327,91 @@ class Prim(object):
         
         self._update_yi_remaining()
     
-    def perform_pca(self):
+    def perform_pca(self, subsets=None, exclude=None):
         '''
+        
+        WARNING:: code still needs to be tested!!!
         
         Pre-process the data by performing a pca based rotation on it. 
         This effectively turns the algorithm into PCA-PRIM as described
         in the envsoft paper
         
+        :param subsets: optional kwarg, expects a dictionary with group name 
+                        as key and a list of uncertainty names as values. 
+                        If this is used, a constrained PCA-PRIM is executed
+                        **note:** the list of uncertainties should not 
+                        contain categorical uncertainties. 
+        :param exclude: optional kwarg, the uncertainties that should be 
+                        excluded. TODO: from what?
+        
         '''
         
-        raise NotImplementedError()
+        #transform experiments to numpy array
+        dtypes = self.x.dtype.fields
+        object_dtypes = [key for key, value in dtypes.items() if value[0]==np.dtype(object)]
+        
+        #get experiments of interest
+        # TODO this assumes binary classification!!!!!!!
+        logical = self.y==1
+        
+        # if no subsets are provided all uncertainties with non dtype object are
+        # in the same subset, the name of this is r, for rotation
+        if not subsets:
+            subsets = {"r":[key for key, value in dtypes.items() if value[0].name!=np.dtype(object)]}
+        
+        # remove uncertainties that are in exclude and check whether 
+        # uncertainties occur in more then one subset
+        seen = set()
+        for key, value in subsets.items():
+            value = set(value) - set(exclude)
+            subsets[key] = list(value)
+            if (seen & value):
+                raise EMAError("uncertainty occurs in more then one subset")
+            else:
+                seen = seen | set(value)
+        
+        #prepare the dtypes for the new rotated experiments recarray
+        new_dtypes = []
+        for key, value in subsets.items():
+            self._assert_dtypes(value, dtypes)
+            
+            # the names of the rotated columns are based on the group name 
+            # and an index
+            [new_dtypes.append(("%s_%s" % (key, i), float)) for i in range(len(value))]
+        
+        #add the uncertainties with object dtypes to the end
+        included_object_dtypes = set(object_dtypes)-set(exclude)
+        [new_dtypes.append((name, object)) for name in included_object_dtypes ]
+        
+        #make a new empty recarray
+        rotated_experiments = np.recarray((self.x.shape[0],),dtype=new_dtypes)
+        
+        #put the uncertainties with object dtypes already into the new recarray 
+        for name in included_object_dtypes :
+            rotated_experiments[name] = self.x[name]
+        
+        #iterate over the subsets, rotate them, and put them into the new recarray
+        shape = 0
+        for key, value in subsets.items():
+            shape += len(value) 
+        rotation_matrix = np.zeros((shape,shape))
+        column_names = []
+        row_names = []
+        
+        j = 0
+        for key, value in subsets.items():
+            data = self._rotate_subset(value, self._x, logical)
+            subset_rotation_matrix, subset_experiments = data 
+            rotation_matrix[j:j+len(value), j:j+len(value)] = subset_rotation_matrix
+            [row_names.append(entry) for entry in value]
+            j += len(value)
+            
+            for i in range(len(value)):
+                name = "%s_%s" % (key, i)
+                rotated_experiments[name] = subset_experiments[:,i]
+                [column_names.append(name)]
+        
+        self.x = rotated_experiments
     
     def find_box(self):
         '''
@@ -1093,7 +1168,70 @@ class Prim(object):
                 obj = (mean_new-mean_old)/(y_new.shape[0]-y_old.shape[0])
         return obj
 
+    def _assert_dtypes(self, keys, dtypes):
+        '''
+        helper fucntion that checks whether none of the provided keys has
+        a dtype object as value.
+        '''
+        
+        for key in keys:
+            if dtypes[key][0] == np.dtype(object):
+                raise EMAError("%s has dtype object and can thus not be rotated" %key)
+        return True
 
+    def _rotate_subset(self, value, orig_experiments, logical): 
+        '''
+        rotate a subset
+        
+        :param value:
+        :param orig_experiment:
+        :param logical:
+        
+        '''
+        
+         
+        list_dtypes = [(name, "<f8") for name in value]
+        
+        #cast everything to float
+        subset_experiments = orig_experiments[value].astype(list_dtypes).view('<f8').reshape(orig_experiments.shape[0], len(value))
+    
+        #normalize the data
+        mean = np.mean(subset_experiments,axis=0)
+        std = np.std(subset_experiments, axis=0)
+        std[std==0] = 1 #in order to avoid a devision by zero
+        subset_experiments = (subset_experiments - mean)/std
+        
+        #get the experiments of interest
+        experiments_of_interest = subset_experiments[logical]
+        
+        #determine the rotation
+        rotation_matrix =  self._determine_rotation(experiments_of_interest)
+        
+        #apply the rotation
+        subset_experiments = np.dot(subset_experiments,rotation_matrix)
+        return rotation_matrix, subset_experiments
+
+    def _determine_rotation(self, experiments):
+        '''
+        Determine the rotation for the specified experiments
+        
+        :param experiments:
+        
+        '''
+        
+        covariance = np.cov(experiments.T)
+        eigen_vals, eigen_vectors = np.linalg.eig(covariance)
+    
+        indices = np.argsort(eigen_vals)
+        indices = indices[::-1]
+        eigen_vectors = eigen_vectors[:,indices]
+        eigen_vals = eigen_vals[indices]
+        
+        #make the eigen vectors unit length
+        for i in range(eigen_vectors.shape[1]):
+            eigen_vectors[:,i] / np.linalg.norm(eigen_vectors[:,i]) * np.sqrt(eigen_vals[i])
+            
+        return eigen_vectors
 
     _peels = {'object': _categorical_peel,
                'int32': _discrete_peel,

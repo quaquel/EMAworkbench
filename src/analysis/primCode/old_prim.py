@@ -55,20 +55,16 @@ which generates the following figures.
 from __future__ import division
 import numpy as np
 from types import StringType
-from sys import stdout
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import time
 
 from expWorkbench.ema_exceptions import EMAError
-from expWorkbench.ema_logging import log_to_stderr, INFO, info, debug
-import expWorkbench
+from expWorkbench.ema_logging import info, debug
 from analysis.plotting_util import COLOR_LIST
 from analysis.scenario_discovery import calculate_sd_metrics
 from analysis.primCode.primDataTypeAware import compare
-from examples.flu_vensim_example import FluModel
-import primCode.primDataTypeAware as recursivePrim
-
+import primDataTypeAware as recursivePrim
 
 
 __all__ = ['perform_prim', 'write_prim_to_stdout', 'show_boxes_individually',
@@ -344,14 +340,14 @@ def write_prim_to_stdout(boxes, experiments, uv=[], screen=True):
     keys = ['mean', 'mass', 'coverage', 'density', 'restricted_dim']
     print "{0:<10}{1:>10}{2:>10}{3:>10}{4:>10}{5:>10}".format('box', 'mean', 'mass', 'coverage', 'density', 'res dim')
     for i, box in enumerate(boxes):
-        input = {key:box.p_and_p_trajectory[key][-1] for key in keys}
+        data = {key:box.p_and_p_trajectory[key][-1] for key in keys}
         
         if i < len(boxes)-1:
             box_name = 'box {}'.format(i+1)
         else:
             box_name = 'rest box'
 
-        row = "{0:<10}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}".format(box_name,**input)
+        row = "{0:<10}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}".format(box_name,**data)
         print row
     
     
