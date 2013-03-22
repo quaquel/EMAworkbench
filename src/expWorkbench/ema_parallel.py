@@ -60,6 +60,7 @@ def worker(inqueue,
             del msi
 
     msis = {msi.name: msi for msi in model_interfaces}
+    msi_initialization_dict = {}
 
     while 1:
         try:
@@ -74,7 +75,7 @@ def worker(inqueue,
 
         job, i, experiment = task
 
-        msi_initialization_dict = {}
+        
         policy = experiment.pop('policy')
         msi = experiment.pop('model')
         
