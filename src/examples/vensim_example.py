@@ -47,3 +47,5 @@ if __name__ == "__main__":
     
     #perform experiments
     result = ensemble.perform_experiments(1000)
+    
+    print "blaat"

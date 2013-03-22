@@ -51,8 +51,8 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
                        len("{:>.2f}".format(box[u][1])))
         elif data_type == np.int32:
             size = max(size, 
-                       len("{:>.2}".format(box[u][0])), 
-                       len("{:>.2}".format(box[u][1])))   
+                       len("{:>}".format(box[u][0])), 
+                       len("{:>}".format(box[u][1])))   
         elif data_type == np.object:
             s = len("{}".format(box[u][0]))
             s = int(s/2)-4
@@ -288,7 +288,7 @@ class Prim(object):
         :raises: TypeError if classify is not a string or a callable.
                      
         '''
-        
+        assert threshold!=None
         self.x = results[0]
         
         # determine y
@@ -462,7 +462,7 @@ class Prim(object):
             return box
         else:
             # make a dump box
-            info('box does not meet threshold criteria, returning dump box')
+            info('box does not meet threshold criteria, value is {}, returning dump box'.format(box.mean[-1]))
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self.boxes.append(box)
             return box
@@ -648,24 +648,24 @@ class Prim(object):
                 # at the top of the figure
                 xi = len(uncs) - i - 1
                 
-                for j, box_lim in enumerate(norm_box_lims):
-                    self._plot_unc(xi, i, j, box_lim, u, ax)
+                for j, norm_box_lim in enumerate(norm_box_lims):
+                    self._plot_unc(xi, i, j, norm_box_lim, box_lims[j], u, ax)
            
             plt.tight_layout()
             return fig
         else:
             figs = []
-            for j, box_lim in enumerate(norm_box_lims):
+            for j, norm_box_lim in enumerate(norm_box_lims):
                 fig, ax = _setup_figure(uncs)
                 figs.append(fig)
                 for i, u in enumerate(uncs):
                     xi = len(uncs) - i - 1
-                    self._plot_unc(xi, i, j, box_lim, u, ax)
+                    self._plot_unc(xi, i, j, norm_box_lim, box_lims[j], u, ax)
         
                 plt.tight_layout()
             return figs
    
-    def _plot_unc(self, xi, i, j, box_lim, u, ax):
+    def _plot_unc(self, xi, i, j, norm_box_lim, box_lim, u, ax):
         '''
         
         :param xi: the row at which to plot
@@ -683,9 +683,9 @@ class Prim(object):
         if dtype == object:
             elements = sorted(list(self.box_init[u][0]))
             max_value = (len(elements)-1)
-            box_lim = box_lim[j]
+            box_lim = box_lim[u][0]
             x = [elements.index(entry) for entry in 
-                 box_lim[u][0]]
+                 box_lim]
             x = [entry/max_value for entry in x]
             y = [y] * len(x)
             
@@ -693,7 +693,7 @@ class Prim(object):
                        facecolor=COLOR_LIST[j])
             
         else:
-            ax.plot(box_lim[i], (y, y),
+            ax.plot(norm_box_lim[i], (y, y),
                     COLOR_LIST[j])
    
     def _get_sorted_box_lims(self):
@@ -792,7 +792,7 @@ class Prim(object):
         scores = []
         for entry in possible_peels:
             i, box_lim = entry
-            obj = self.obj_func(self, y,  self.y[i])
+            obj = self.obj_func(self, self.y[box.yi],  self.y[i])
             non_res_dim = len(x.dtype.descr)-\
                           self.determine_nr_restricted_dims(box_lim)
             score = (obj, non_res_dim, box_lim, i)
@@ -973,7 +973,7 @@ class Prim(object):
         scores = []
         for entry in possible_pastes:
             i, box_lim = entry
-            obj = self.obj_func(self, y,  self.y[i])
+            obj = self.obj_func(self, self.y[box.yi],  self.y[i])
             non_res_dim = len(x.dtype.descr)-\
                           self.determine_nr_restricted_dims(box_lim)
             score = (obj, non_res_dim, box_lim, i)

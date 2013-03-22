@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from expWorkbench import ema_logging, load_results
-from analysis import new_prim
+from analysis import prim
 
 
 def flu_classify(data):
@@ -51,25 +51,25 @@ class PrimTestCase(unittest.TestCase):
         outcomes['death toll'] = outcomes['deceased population region 1'][:, -1]
         results = experiments, outcomes
         threshold = 10000
-        prim = new_prim.Prim(results, classify='death toll', 
-                             threshold_type=new_prim.ABOVE, threshold=threshold)
+        prim_obj = prim.Prim(results, classify='death toll', 
+                             threshold_type=prim.ABOVE, threshold=threshold)
         
         value = np.ones((experiments.shape[0],))
         value = value[outcomes['death toll'] >= threshold].shape[0]
-        self.assertTrue(prim.t_coi==value)
+        self.assertTrue(prim_obj.t_coi==value)
                 
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or lower  than the threshold
         threshold = 1000
-        prim = new_prim.Prim(results, classify='death toll', 
-                             threshold_type=new_prim.BELOW, 
+        prim_obj = prim.Prim(results, classify='death toll', 
+                             threshold_type=prim.BELOW, 
                              threshold=threshold)
         
         value = np.ones((experiments.shape[0],))
         value = value[outcomes['death toll'] <= threshold].shape[0]
-        self.assertTrue(prim.t_coi==value)
+        self.assertTrue(prim_obj.t_coi==value)
         
-        new_prim.Prim(self.results, self.classify, threshold=new_prim.ABOVE)
+        prim.Prim(self.results, self.classify, threshold=prim.ABOVE)
 
     def test_box(self):
         x = np.array([(0,1,2),
@@ -80,9 +80,9 @@ class PrimTestCase(unittest.TestCase):
                             ('c', np.float)])
         y = {'y':np.array([0,1,2])}
         
-        prim = new_prim.Prim((x,y), 'y', threshold=0.5)
-        box_lims = prim.make_box(x)
-        box = new_prim.PrimBox(prim, box_lims, [0,1,2])
+        prim_obj = prim.Prim((x,y), 'y', threshold=0.5)
+        box_lims = prim_obj.make_box(x)
+        box = prim.PrimBox(prim_obj, box_lims, [0,1,2])
         
         # some test on the box
         self.assertTrue(box.res_dim[0]==0)
@@ -96,11 +96,11 @@ class PrimTestCase(unittest.TestCase):
                                  ('b', np.float)])
         y = {'y': np.random.randint(0,2, (10,)).astype(int)}
         
-        prim = new_prim.Prim((x,y), 'y')
+        prim_obj = prim.Prim((x,y), 'y', threshold=0.8)
         
         # all dimensions the same
-        b = prim.box_init
-        u = prim.determine_restricted_dims(b)
+        b = prim_obj.box_init
+        u = prim_obj.determine_restricted_dims(b)
         
         self.assertEqual(len(u), 0)
         
@@ -110,7 +110,7 @@ class PrimTestCase(unittest.TestCase):
                       (0,1)], 
                      dtype=[('a', np.float),
                             ('b', np.float)])
-        u = prim.determine_restricted_dims(b)
+        u = prim_obj.determine_restricted_dims(b)
         
         self.assertEqual(len(u), 2)
 
@@ -118,7 +118,7 @@ class PrimTestCase(unittest.TestCase):
         self.results = load_results(r'../data/scarcity 1000.bz2')
         self.classify = scarcity_classify
         
-        prim = new_prim.Prim(self.results, self.classify)
+        prim_obj = prim.Prim(self.results, self.classify, threshold=0.8)
         
         # all dimensions the same
         a = np.array([(0,1),
@@ -130,7 +130,7 @@ class PrimTestCase(unittest.TestCase):
                      dtype=[('a', np.float),
                             ('b', np.float)])
         
-        self.assertTrue(np.all(prim.compare(a,b)))
+        self.assertTrue(np.all(prim_obj.compare(a,b)))
         
         # all dimensions different
         a = np.array([(0,1),
@@ -141,7 +141,7 @@ class PrimTestCase(unittest.TestCase):
                       (0,0)], 
                      dtype=[('a', np.float),
                             ('b', np.float)])
-        test = prim.compare(a,b)==False
+        test = prim_obj.compare(a,b)==False
         self.assertTrue(np.all(test))
         
         # dimensions 1 different and dimension 2 the same
@@ -153,31 +153,32 @@ class PrimTestCase(unittest.TestCase):
                       (0,1)], 
                      dtype=[('a', np.float),
                             ('b', np.float)])
-        test = prim.compare(a,b)
+        test = prim_obj.compare(a,b)
         test = (test[0]==False) & (test[1]==True)
         self.assertTrue(test)
 
     def test_in_box(self):
         results = load_results(r'../data/1000 flu cases no policy.bz2')
-        prim = new_prim.Prim(results, flu_classify)
+        prim_obj = prim.Prim(results, flu_classify, threshold=0.8)
         
-        box = prim.make_box(results[0])
+        box = prim_obj.make_box(results[0])
         # I need an encompassing box
         # the shape[0] of the return should be equal to experiment.shape[0]
         # assuming that the box is an encompassing box
-        self.assertEqual(prim.in_box(box).shape[0], results[0].shape[0])
+        self.assertEqual(prim_obj.in_box(box).shape[0], results[0].shape[0])
     
     def test_prim_init_exception(self):
         results = load_results(r'../data/1000 flu cases no policy.bz2')
-        self.assertRaises(new_prim.PrimException, 
-                          new_prim.Prim,
+        self.assertRaises(prim.PrimException, 
+                          prim.Prim,
                           results, 
-                          'deceased population region 1')
+                          'deceased population region 1', 
+                          threshold=0.8)
         
         def faulty_classify(outcomes):
             return outcomes['deceased population region 1'][:, 0:10]
-        self.assertRaises(new_prim.PrimException, new_prim.Prim, results, 
-                          faulty_classify)
+        self.assertRaises(prim.PrimException, prim.Prim, results, 
+                          faulty_classify, threshold=0.8)
 
 #    def test_write_boxes_to_stdout(self):
 #        results = load_results(r'../data/1000 flu cases no policy.bz2')
@@ -186,7 +187,7 @@ class PrimTestCase(unittest.TestCase):
 ##        results = load_results(r'../data/scarcity 1000.bz2')
 ##        classify = scarcity_classify
 #                
-#        prim = new_prim.Prim(results, classify, 
+#        prim = prim.Prim(results, classify, 
 #                             threshold=0.7)
 #        prim.find_box()
 #        prim.find_box()
@@ -201,23 +202,23 @@ class PrimTestCase(unittest.TestCase):
         results = load_results(r'../data/scarcity 1000.bz2')
         classify = scarcity_classify
                 
-        prim = new_prim.Prim(results, classify, 
+        prim_obj = prim.Prim(results, classify, 
                              threshold=0.7)
-        prim.find_box()
-        prim.find_box()
+        prim_obj.find_box()
+        prim_obj.find_box()
         
-        prim.write_boxes_to_stdout()
+        prim_obj.write_boxes_to_stdout()
         
-        prim.show_boxes()   
+        prim_obj.show_boxes()   
         plt.show()
         
     def test_select(self):
         results = load_results(r'../data/1000 flu cases no policy.bz2')
         classify = flu_classify
         
-        prim = new_prim.Prim(results, classify, 
+        prim_obj = prim.Prim(results, classify, 
                              threshold=0.8)
-        box = prim.find_box()
+        box = prim_obj.find_box()
         sb = 27
         box.select(sb)
         
@@ -229,21 +230,21 @@ class PrimTestCase(unittest.TestCase):
         classify = flu_classify
         
         
-        prim = new_prim.Prim(results, classify, 
+        prim_obj = prim.Prim(results, classify, 
                              threshold=0.8)
-        box_1 = prim.find_box()
-        prim._update_yi_remaining()
+        box_1 = prim_obj.find_box()
+        prim_obj._update_yi_remaining()
         
-        after_find = box_1.yi.shape[0] + prim.yi_remaining.shape[0]
-        self.assertEqual(after_find, prim.y.shape[0])
+        after_find = box_1.yi.shape[0] + prim_obj.yi_remaining.shape[0]
+        self.assertEqual(after_find, prim_obj.y.shape[0])
         
-        box_2 = prim.find_box()
-        prim._update_yi_remaining()
+        box_2 = prim_obj.find_box()
+        prim_obj._update_yi_remaining()
         
         after_find = box_1.yi.shape[0] +\
                      box_2.yi.shape[0] +\
-                     prim.yi_remaining.shape[0]
-        self.assertEqual(after_find, prim.y.shape[0])
+                     prim_obj.yi_remaining.shape[0]
+        self.assertEqual(after_find, prim_obj.y.shape[0])
         
 #        box_1.write_ppt_stdout()
 #        box_1.show_ppt()
@@ -264,14 +265,14 @@ class PrimTestCase(unittest.TestCase):
         results = x,y
         classify = 'y'
         
-        prim  = new_prim.Prim(results, classify, threshold=0.8)
+        prim_obj  = prim.Prim(results, classify, threshold=0.8)
         box_lims = np.array([(0, set(['a','b'])),
                         (1, set(['a','b']))], dtype=dtype )
-        box = new_prim.PrimBox(prim, box_lims, prim.yi)
+        box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
         
         u = 'b'
         x = x
-        peels = prim._categorical_peel(box, u, x)
+        peels = prim_obj._categorical_peel(box, u, x)
         
         self.assertEquals(len(peels), 2)
         
@@ -293,16 +294,16 @@ class PrimTestCase(unittest.TestCase):
             results = x,y
             classify = 'y'
             
-            prim  = new_prim.Prim(results, classify, threshold=0.8)
+            prim_obj  = prim.Prim(results, classify, threshold=0.8)
             box_lims = np.array([(0, set(['a',])),
                             (1, set(['a',]))], dtype=dtype )
             
             yi = np.where(x['b']=='a')
             
-            box = new_prim.PrimBox(prim, box_lims, yi)
+            box = prim.PrimBox(prim_obj, box_lims, yi)
             
             u = 'b'
-            pastes = prim._categorical_paste(box, u)
+            pastes = prim_obj._categorical_paste(box, u)
             
             self.assertEquals(len(pastes), 1)
             
