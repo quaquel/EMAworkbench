@@ -7,7 +7,6 @@ import jpype
 import os
 
 from expWorkbench import debug
-from jpype._jpackage import JPackage
 
 __all__ = ['NetLogoException',
            'NetLogoLink']
@@ -183,6 +182,3 @@ class NetLogoLink():
             return results.getResultAsDoubleArray() 
         else:
             raise NetLogoException("unknown datatype")
-        
-        
-                             

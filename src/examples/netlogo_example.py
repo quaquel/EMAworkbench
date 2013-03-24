@@ -20,6 +20,8 @@ class PredatorPrey(NetLogoModeStructureInterface):
     uncertainties = [ParameterUncertainty((1, 99), "grass-regrowth-time"),
                      ParameterUncertainty((1, 250), "initial-number-sheep"),
                      ParameterUncertainty((1, 250), "initial-number-wolves"),
+                     ParameterUncertainty((1, 20), "sheep-reproduce"),
+                     ParameterUncertainty((1, 20), "wolf-reproduce"),
                      CategoricalUncertainty(("true", "true"), "grass?") 
                      ]
     
@@ -42,10 +44,10 @@ if __name__ == "__main__":
     ensemble.set_model_structure(vensimModel)
     
     #run in parallel, if not set, FALSE is assumed
-#    ensemble.parallel = True
+    ensemble.parallel = True
     
     #perform experiments
-    results = ensemble.perform_experiments(10)
+    results = ensemble.perform_experiments(100)
 
-    plotting.envelopes(results, density=plotting.KDE)
+    plotting.lines(results, density=plotting.KDE)
     plt.show()

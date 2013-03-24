@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from expWorkbench import ModelEnsemble, ParameterUncertainty,\
                          Outcome, ema_logging
-from expWorkbench.excel import ExcelModelStructureInterface
+from connectors.excel import ExcelModelStructureInterface
 from analysis.plotting import lines
 
 class ExcelModel(ExcelModelStructureInterface):
