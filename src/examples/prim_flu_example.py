@@ -32,15 +32,15 @@ for key, value in results.items():
 results = (newExperiments, newResults)
 
 #perform prim on modified results tuple
-boxes = prim.perform_prim(results, classify, 
-                                    threshold=0.8, 
-                                    threshold_type=1,
-                                    pasting=True)
+
+prim = prim.Prim(results, classify, threshold=0.8, threshold_type=1)
+box_1 = prim.find_box()
+box_2 = prim.find_box()
 
 #print prim to std_out
-prim.write_prim_to_stdout(boxes)
+prim.write_boxes_to_stdout()
 
-#visualize
-prim.show_boxes_individually(boxes, results)
-prim.show_boxes_together(boxes, results)
+##visualize
+prim.show_boxes()
+prim.show_boxes(together=False)
 plt.show()

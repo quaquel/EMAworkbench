@@ -4,15 +4,12 @@ Created on 15 mrt. 2013
 @author: localadmin
 '''
 import jpype
-import csv
-import collections
 import os
 
 import numpy as np
 
-from expWorkbench import ModelStructureInterface, info, warning, debug,\
-                         EMAError, EMAWarning
-from expWorkbench.ema_exceptions import CaseError
+from expWorkbench import ModelStructureInterface, warning, debug,\
+                         EMAError
 import pyNetLogo
 
 NETLOGO_HOME = r'C:/Program Files (x86)/NetLogo 5.0.3'

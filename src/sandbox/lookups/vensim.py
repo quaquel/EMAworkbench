@@ -14,14 +14,14 @@ from __future__ import division
 import types
 import numpy as np
 
-from expWorkbench.vensimDLLwrapper import command, get_val
-from expWorkbench.vensimDLLwrapper import VensimError, VensimWarning
-import expWorkbench.vensimDLLwrapper as vensimDLLwrapper
+from connectors.vensimDLLwrapper import command, get_val, VensimError,\
+                                        VensimWarning
+import connectors.vensimDLLwrapper as vensimDLLwrapper
 
 import expWorkbench.ema_logging as ema_logging
 from expWorkbench.model import ModelStructureInterface
 from expWorkbench.outcomes import Outcome
-from expWorkbench.EMAexceptions import CaseError, EMAWarning 
+from expWorkbench.ema_exceptions import CaseError, EMAWarning 
 SVN_ID = '$Id: vensim.py 847 2012-06-27 09:39:52Z jhkwakkel $'
 __all__ = ['be_quiet',
            'load_model',

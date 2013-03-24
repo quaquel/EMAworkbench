@@ -13,15 +13,13 @@ import copy
 import expWorkbench.samplers as samplers
 import expWorkbench.util as util
 
-from expWorkbench.EMAparallel import CalculatorPool
+from expWorkbench.ema_parallel import CalculatorPool
+from expWorkbench.callbacks import DefaultCallback
 from expWorkbench.ema_logging import info, warning, exception
-from expWorkbench.EMAexceptions import CaseError, EMAError, EMAParallelError
+from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
 from expWorkbench.uncertainties import INTEGER , CategoricalUncertainty
 
-from expWorkbench.optimizationCallbacks import StatisticsCallback
-from expWorkbench.EMAoptimization import RobustOptimizationPopulation, BaseEMAPopulation,\
-    EMAGA, OutcomeOptimizationPopulation, MaximinOptimizationPopulation
-from expWorkbench import EMAoptimization, ema_logging
+from expWorkbench import ema_optimization, ema_logging
 
 
 SVN_ID = '$Id: modelEnsemble.py 889 2012-09-11 19:32:32Z jhkwakkel $'
@@ -214,7 +212,7 @@ class ModelEnsemble(object):
 
     def perform_experiments(self, 
                            cases,
-                           callback = util.DefaultCallback,
+                           callback = DefaultCallback,
                            reporting_interval=100,
                            modelKwargs = {},
                            **kwargs):
