@@ -340,7 +340,7 @@ class ModelEnsemble(object):
                 msi.reset_model()
                 
                 debug("trying to reset model")
-                callback(case, policy, msi.name, result)
+                callback(experiment, policy, msi.name, result)
                 
             cleanup(self._msis)
        

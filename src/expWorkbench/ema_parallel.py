@@ -74,7 +74,6 @@ def worker(inqueue,
             break
 
         job, i, experiment = task
-
         
         policy = experiment.pop('policy')
         msi = experiment.pop('model')
