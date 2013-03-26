@@ -13,12 +13,14 @@ import decimal
 
 
 from sets import ImmutableSet
-from expWorkbench.EMAexceptions import EMAError
-from expWorkbench import vensimDLLwrapper 
+from expWorkbench.ema_exceptions import EMAError
+from connectors import vensimDLLwrapper 
+
 SVN_ID = '$Id: uncertainties.py 818 2012-04-26 14:50:33Z jhkwakkel $'
 __all__ = ['AbstractUncertainty',
            'ParameterUncertainty',
            'CategoricalUncertainty'
+           'LookupUncertainty'
            ]
 
 INTEGER = 'integer'
@@ -193,14 +195,20 @@ class LookupUncertainty(AbstractUncertainty):
     def __init__(self, values, name, type, model_int, ymin, ymax):
         '''
         
-        :param values: the values for specifying the uncertainty from which to sample.
+            :param values: the values for specifying the uncertainty from which to sample.
                        If 'type' is "categories", a set of alternative lookup functions to be entered as tuples of x,y points.
                            Example definition: 
                            LookupUncertainty([[(0.0, 0.05), (0.25, 0.15), (0.5, 0.4), (0.75, 1), (1, 1.25)], 
                                                      [(0.0, 0.1), (0.25, 0.25), (0.5, 0.75), (1, 1.25)],
                                                      [(0.0, 0.0), (0.1, 0.2), (0.3, 0.6), (0.6, 0.9), (1, 1.25)]], "TF3", 'categories', self )
-                       If 'type' is "hearne", a list of ranges for each parameter. 
-                           Currently, double extreme piecewise linear functions with variable end points are used to distort the lookup functions.
+                       if 'type' is "hearne1", a list of ranges for each parameter 
+                           Single-extreme piecewise functions
+                           m: maximum deviation from l of the distortion function
+                           p: the point that this occurs
+                           l: lower end point
+                           u: upper end point
+                       If 'type' is "hearne2", a list of ranges for each parameter. 
+                           Double extreme piecewise linear functions with variable end points are used to distort the lookup functions.
                            These functions are defined by 6 parameters, being m1, m2, p1, p2, l and u; and the uncertainty ranges for these 6 parameters should 
                            be given as the values of this lookup uncertainty if Hearne's method is chosen. The meaning of these parameters is simply:
                            m1: maximum deviation (peak if positive, bottom if negative) of the distortion function from l in the first segment
@@ -234,16 +242,21 @@ class LookupUncertainty(AbstractUncertainty):
         model_interface = model_int
         self.y_min = ymin
         self.y_max = ymax
-        self.x, self.y = self.get_initial_lookup(self.name)
-        self.x_min = min(self.x)
-        self.x_max = max(self.x)
         
         if self.type == "categories":
 
             model_interface.uncertainties.append(CategoricalUncertainty(range(len(values)), "c-"+self.name))
             model_interface.lookup_uncertainties.append(self)  
             
-        elif self.type == "hearne":
+        elif self.type == "hearne1":
+            model_interface.uncertainties.append(ParameterUncertainty(values[0], "m-"+self.name))
+            model_interface.uncertainties.append(ParameterUncertainty(values[1], "p-"+self.name))
+            model_interface.uncertainties.append(ParameterUncertainty(values[2], "l-"+self.name))
+            model_interface.uncertainties.append(ParameterUncertainty(values[3], "u-"+self.name))
+            model_interface.lookup_uncertainties.append(self)  
+        
+        elif self.type == "hearne2":
+
             
             # add the various relevant uncertainties to the list
             model_interface.uncertainties.append(ParameterUncertainty(values[0], "m1-"+self.name))
@@ -254,8 +267,7 @@ class LookupUncertainty(AbstractUncertainty):
             model_interface.uncertainties.append(ParameterUncertainty(values[5], "u-"+self.name))
 
             # add myself to list of lookup uncertainties
-            model_interface.lookup_uncertainties.append(self)           
-          
+            model_interface.lookup_uncertainties.append(self) 
         
         elif self.type == "approximation":
             # add the various relevant uncertainties to the list
@@ -294,12 +306,13 @@ class LookupUncertainty(AbstractUncertainty):
         xT = True
         for i in list2:
             if xT:
-               x.append(i)
-               xT = False
+                x.append(i)
+                xT = False
             else:
                 y.append(i)
                 xT = True
         return (x, y)
+    
     def logistic_function(self, t, A, K, B, Q, M):
         decimal.getcontext().prec = 3
         ex = exp(-B) 
@@ -307,14 +320,24 @@ class LookupUncertainty(AbstractUncertainty):
         return res
         
     def transform(self, case):
-                #here you implement a transform function for each type
-        if self.type == "hearne":
+        
+        if not self.x:
+            # first time transform is called
+            self.x, self.y = self.get_initial_lookup(self.name)
+            self.x_min = min(self.x)
+            self.x_max = max(self.x)
+        
+        #here you implement a transform function for each type
+        if self.type == "hearne2":
             m1 = case['m1-'+self.name]
             m2 = case['m2-'+self.name]
             p1 = case['p1-'+self.name]
             p2 = case['p2-'+self.name]
             l = case['l-'+self.name]
             u = case['u-'+self.name]
+
+            for char in ['m1-', 'm2-', 'p1-', 'p2-', 'l-', 'u-']:
+                case.pop(char+self.name)
             
             distortion_function = []
             for i in self.x:
@@ -330,6 +353,26 @@ class LookupUncertainty(AbstractUncertainty):
                 new_lookup.append((self.x[i], max(min(distortion_function[i]*self.y[i], self.y_max), self.y_min)))
             return new_lookup
         
+        elif self.type == "hearne1":
+            m = case['m-'+self.name]
+            p = case['p-'+self.name]
+            l = case['l-'+self.name]
+            u = case['u-'+self.name]
+
+            for char in ['m-', 'p-', 'l-', 'u-']:
+                case.pop(char+self.name)
+            
+            distortion_function = []
+            for i in self.x:
+                if i < p:
+                    distortion_function.append(l + ((m/(p-self.x_min))*i))
+                else:
+                    distortion_function.append(l + m - ((m+l-u)*(i-p)/(self.x_min-p)))
+            new_lookup = []
+            for i in range(len(self.x)):
+                new_lookup.append((self.x[i], max(min(distortion_function[i]*self.y[i], self.y_max), self.y_min)))
+            return new_lookup
+        
         elif self.type == "categories":
             return self.values[case['c-'+self.name]] 
         
@@ -339,6 +382,10 @@ class LookupUncertainty(AbstractUncertainty):
             B = case['B-'+self.name]
             Q = case['Q-'+self.name]
             M = case['M-'+self.name]
+            
+            for char in ['A-', 'K-', 'B-', 'Q-', 'M-']:
+                case.pop(char+self.name)
+            
             new_lookup = []
             if self.x_max > 10:
                 for i in range(int(self.x_min), int(self.x_max+1)):
@@ -370,8 +417,8 @@ class LookupUncertainty(AbstractUncertainty):
 # test functions
 #==============================================================================
 #def test_uncertainties():
-#    import ema_logging
-#    ema_logging.log_to_stderr(ema_logging.INFO)
+#    import EMAlogging
+#    EMAlogging.log_to_stderr(EMAlogging.INFO)
 #    params = [
 ##              CategoricalUncertainty(('1', '5',  '10'), 
 ##                                        "blaat", 
