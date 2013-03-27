@@ -361,14 +361,15 @@ class Prim(object):
         
         # remove uncertainties that are in exclude and check whether 
         # uncertainties occur in more then one subset
-        seen = set()
-        for key, value in subsets.items():
-            value = set(value) - set(exclude)
-            subsets[key] = list(value)
-            if (seen & value):
-                raise EMAError("uncertainty occurs in more then one subset")
-            else:
-                seen = seen | set(value)
+        if exclude:
+            seen = set()
+            for key, value in subsets.items():
+                value = set(value) - set(exclude)
+                if (seen & value):
+                    raise EMAError("uncertainty occurs in more then one subset")
+                else:
+                    seen = seen | value
+                subsets[key] = list(value)
         
         #prepare the dtypes for the new rotated experiments recarray
         new_dtypes = []
@@ -380,14 +381,15 @@ class Prim(object):
             [new_dtypes.append(("%s_%s" % (key, i), float)) for i in range(len(value))]
         
         #add the uncertainties with object dtypes to the end
-        included_object_dtypes = set(object_dtypes)-set(exclude)
-        [new_dtypes.append((name, object)) for name in included_object_dtypes ]
+        if exclude:
+            object_dtypes = set(object_dtypes)-set(exclude)
+        [new_dtypes.append((name, object)) for name in object_dtypes ]
         
         #make a new empty recarray
         rotated_experiments = np.recarray((self.x.shape[0],),dtype=new_dtypes)
         
         #put the uncertainties with object dtypes already into the new recarray 
-        for name in included_object_dtypes :
+        for name in object_dtypes :
             rotated_experiments[name] = self.x[name]
         
         #iterate over the subsets, rotate them, and put them into the new recarray
@@ -400,7 +402,7 @@ class Prim(object):
         
         j = 0
         for key, value in subsets.items():
-            data = self._rotate_subset(value, self._x, logical)
+            data = self._rotate_subset(value, self.x, logical)
             subset_rotation_matrix, subset_experiments = data 
             rotation_matrix[j:j+len(value), j:j+len(value)] = subset_rotation_matrix
             [row_names.append(entry) for entry in value]
@@ -412,6 +414,7 @@ class Prim(object):
                 [column_names.append(name)]
         
         self.x = rotated_experiments
+        self.box_init = self.make_box(self.x)
     
     def find_box(self):
         '''
