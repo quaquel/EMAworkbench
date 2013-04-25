@@ -95,18 +95,23 @@ def test_lines():
 #                  group_by='policy',
 #                  grouping_specifiers = 'basic policy'
 #                  )
-#
+
 #    lines(results, 
-#                  experiments_to_show=np.arange(0,600, 2),
-#                  group_by='policy',
-#                  density='hist'
-#                  )
-#
+#          experiments_to_show=np.arange(0,600, 2),
+#          group_by='policy',
+#          density='hist'
+#          )
 #    lines(results, 
-#              experiments_to_show=np.arange(0,600, 2),
-#              group_by='policy',
-#              density='kde'
-#              )
+#          experiments_to_show=np.arange(0,600, 2),
+#          group_by='policy',
+#          density='kde'
+#          )
+#    lines(results, 
+#          experiments_to_show=np.arange(0,600, 2),
+#          group_by='policy',
+#          density='box plot'
+#          )
+
 #
 #    lines(results, 
 #              group_by='index',
@@ -130,12 +135,20 @@ def test_lines():
 #                log=True,
 #                grouping_specifiers=['no policy', 'adaptive policy']
 #                )
+#    lines(results, 
+#                experiments_to_show=np.arange(0,600, 30),
+#                group_by='policy',
+#                density='box plot',
+#                show_envelope=True,
+#                log=True,
+#                grouping_specifiers=['no policy', 'adaptive policy']
+#                )
 
-    set_fig_to_bw(lines(results, 
-              experiments_to_show=np.arange(0,600, 20),
-              group_by='policy',
-              density='kde'
-              )[0])      
+#    set_fig_to_bw(lines(results, 
+#              experiments_to_show=np.arange(0,600, 20),
+#              group_by='policy',
+#              density='kde'
+#              )[0])      
 #   
 #    experiments, outcomes = results
 #    new_outcomes = {}
@@ -191,26 +204,30 @@ def test_envelopes():
 #          ylabels={'total fraction new technologies': 'a'})
     
     #no grouping no density
-    envelopes(results, 
-              density=None,
-              title=None)
+#    envelopes(results, 
+#              title=None)
 #    set_fig_to_bw(envelopes(results, density=None)[0])
     
     #no grouping, with density
 #    envelopes(results, density='kde')
 #    envelopes(results, density='hist')
+    envelopes(results, density='box plot')
 #    set_fig_to_bw(envelopes(results, density='kde')[0])
+
     
 #    # grouping and density kde
+#    envelopes(results, 
+#              group_by='policy',
+#              density='kde',
+#              log=True)
     envelopes(results, 
               group_by='policy',
-              density='kde',
-              log=True)
-    envelopes(results, 
-              group_by='policy',
-              density='kde',
-              log=True,
-              grouping_specifiers=['no policy', 'adaptive policy'])
+              density='box plot')
+#    envelopes(results, 
+#              group_by='policy',
+#              density='kde',
+#              log=True,
+#              grouping_specifiers=['no policy', 'adaptive policy'])
     
 #    envelopes(results, 
 #              group_by='policy',
@@ -338,12 +355,12 @@ def test_multiple_densities():
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-#    test_lines()
+    test_lines()
 #    test_envelopes()
 #    test_kde_over_time()
 #    test_multiple_densities()
 
-    test_pairs_scatter()
+#    test_pairs_scatter()
 #    test_pairs_lines()
 #    test_pairs_density()
 
