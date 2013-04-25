@@ -62,6 +62,7 @@ LINES = 'lines'
 ENV_LIN = "env_lin"
 KDE = 'kde'
 HIST = 'hist'
+BOXPLOT = 'box plot'
 
 #see http://matplotlib.sourceforge.net/users/customizing.html for details
 #mpl.rcParams['savefig.dpi'] = 600
@@ -131,7 +132,7 @@ def plot_histogram(ax, values, log=False):
     if not log:
         ax.set_xticks([0, ax.get_xbound()[1]])
     return a
-    
+  
 def plot_kde(ax, kde_x, kde_y, j, log=False):
     '''
     
@@ -159,6 +160,10 @@ def plot_kde(ax, kde_x, kde_y, j, log=False):
         labels =["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
         ax.set_xticklabels(labels)
 
+def plot_boxplots(ax, values, group_labels=None, log=False):
+    ax.boxplot(values)
+    if group_labels:
+        ax.set_xticklabels(group_labels, rotation='vertical')
 
 def simple_density(density, value, ax_d, ax, loc=-1, **kwargs):
     '''
@@ -174,11 +179,16 @@ def simple_density(density, value, ax_d, ax, loc=-1, **kwargs):
     
     '''
     
-    if density=='kde':
+    if density==KDE:
         kde_x, kde_y = determine_kde(value[:,loc])
         plot_kde(ax_d, kde_x, kde_y, 0, **kwargs)
-    elif density=='hist':
-        plot_histogram(ax_d, value[:,-1], **kwargs)
+    elif density==HIST:
+        plot_histogram(ax_d, value[:,-1], log=kwargs.get('log'))
+    elif density==BOXPLOT:
+        plot_boxplots(ax_d, value[:,-1], log=kwargs.get('log'))
+    else:
+        raise EMAError("unknown density plot type")
+        
     ax_d.get_yaxis().set_view_interval(
                  ax.get_yaxis().get_view_interval()[0],
                  ax.get_yaxis().get_view_interval()[1]) 

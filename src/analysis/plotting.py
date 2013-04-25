@@ -22,7 +22,7 @@ from expWorkbench.ema_exceptions import EMAError
 from plotting_util import prepare_data, COLOR_LIST, simple_kde,\
                          determine_kde, make_grid, make_legend, plot_envelope,\
                          plot_kde, plot_histogram, simple_density, do_titles,\
-                         do_ylabels, TIME
+                         do_ylabels, TIME, plot_boxplots
 import plotting_util
 
 
@@ -135,11 +135,10 @@ def envelopes(results,
         
         ax_d= None
         if density:
-            ax_d = figure.add_subplot(grid[i,1])
+            ax_d = figure.add_subplot(grid[i,1], sharey=ax)
             axes_dict[outcome_to_plot+"_density"] = ax_d
     
         if group_by:
-#            group_labels = sorted(outcomes.keys())
             group_by_envelopes(outcomes,outcome_to_plot, time, density,
                                ax, ax_d, fill, grouping_labels, **kwargs)
         else:
@@ -210,9 +209,14 @@ def group_by_envelopes(outcomes,
             # of values
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]
             plot_histogram(ax_d, values, **kwargs)
+        if density=='box plot':
+            values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]
+            plot_boxplots(ax_d, values, group_labels, **kwargs)
+        
         ax_d.get_yaxis().set_view_interval(
                      ax.get_yaxis().get_view_interval()[0],
                      ax.get_yaxis().get_view_interval()[1])
+        
 
 
 def single_envelope(outcomes,
@@ -336,14 +340,13 @@ def lines(results,
         
         ax_d= None
         if density:
-            ax_d = figure.add_subplot(grid[i,1])
+            ax_d = figure.add_subplot(grid[i,1], sharey=ax)
             axes_dict[outcome_to_plot+"_density"] = ax_d
             
             for tl in ax_d.get_yticklabels():
                 tl.set_visible(False)
     
         if group_by:
-#            group_by_labels = sorted(outcomes.keys())
             group_by_lines(outcomes,outcome_to_plot, time, density,
                            ax, ax_d, grouping_labels, **kwargs)
         else:
@@ -444,7 +447,7 @@ def plot_lines_with_envelopes(results,
         
         ax_d= None
         if density:
-            ax_d = figure.add_subplot(grid[i,1])
+            ax_d = figure.add_subplot(grid[i,1], sharey=ax)
             axes_dict[outcome_to_plot+"_density"] = ax_d
             
             for tl in ax_d.get_yticklabels():
@@ -469,6 +472,11 @@ def plot_lines_with_envelopes(results,
                     values = [full_outcomes[key][outcome_to_plot][:,-1]\
                                                     for key in grouping_labels]
                     plot_histogram(ax_d, values, **kwargs)
+
+                if density=='box plot':
+                    values = [full_outcomes[key][outcome_to_plot][:,-1]\
+                                                    for key in grouping_labels]
+                    plot_boxplots(ax_d, values, grouping_labels, **kwargs)
                
                 ax_d.get_yaxis().set_view_interval(
                              ax.get_yaxis().get_view_interval()[0],
@@ -529,6 +537,11 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
         if density=='hist':
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_by_labels]
             plot_histogram(ax_d, values, **kwargs)
+        if density=='box plot':
+            values = [outcomes[key][outcome_to_plot][:,-1]\
+                                            for key in group_by_labels]
+            plot_boxplots(ax_d, values, group_by_labels, **kwargs)        
+        
         ax_d.get_yaxis().set_view_interval(
                      ax.get_yaxis().get_view_interval()[0],
                      ax.get_yaxis().get_view_interval()[1])
