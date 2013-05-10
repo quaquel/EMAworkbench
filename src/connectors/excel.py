@@ -58,7 +58,7 @@ class ExcelModelStructureInterface(ModelStructureInterface):
                 ema_logging.debug("Excel started") 
             
                 ema_logging.debug("trying to open workbook")
-                self.wb = self.xl.Workbooks.Open(self.workingDirectory + self.workbook)
+                self.wb = self.xl.Workbooks.Open(self.working_directory + self.workbook)
                 ema_logging.debug("workbook opened")
             except com_error as e:
                 raise EMAError(str(e))
