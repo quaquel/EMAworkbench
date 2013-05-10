@@ -62,7 +62,7 @@ class ExcelModelStructureInterface(ModelStructureInterface):
                 ema_logging.debug("workbook opened")
             except com_error as e:
                 raise EMAError(str(e))
-        ema_logging.debug(self.workingDirectory)
+        ema_logging.debug(self.working_directory)
        
     def run_model(self, case):
         """
