@@ -8,11 +8,10 @@ from __future__ import division
 import numpy as np
 from math import exp
 
-from expWorkbench import ModelEnsemble, ema_logging
-
+from expWorkbench import ModelEnsemble, ema_logging, Outcome
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty
-from expWorkbench.vensim import VensimModelStructureInterface
-from expWorkbench.outcomes import Outcome
+
+from connectors.vensim import VensimModelStructureInterface
 
 class ScarcityModel(VensimModelStructureInterface):
     model_file = r'\MetalsEMA.vpm'
