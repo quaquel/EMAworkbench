@@ -14,7 +14,7 @@ from __future__ import division
 import types
 import numpy as np
 
-from expWorkbench import debug, info, warning, ModelStructureInterface,\
+from expWorkbench import debug, warning, ModelStructureInterface,\
                          Outcome, CaseError, EMAWarning 
 
 from vensimDLLwrapper import command, get_val
@@ -294,9 +294,10 @@ class VensimModelStructureInterface(ModelStructureInterface):
             if not result == []:
                 if result.shape[0] != self.runLength:
                     got = result.shape[0]
-                    a = np.zeros((self.runLength))
-                    a[0:result.shape[0]] = result
-                    result = a
+                    data = np.empty((self.runLength))
+                    data = np.NAN
+                    data[0:result.shape[0]] = result
+                    result = data
                     error = True
 
             if not output.time:
