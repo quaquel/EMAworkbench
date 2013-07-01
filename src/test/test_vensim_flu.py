@@ -11,8 +11,7 @@ is the same as used in fluExample
 
 from expWorkbench.uncertainties import ParameterUncertainty
 from expWorkbench import Outcome
-from expWorkbench.vensim import VensimModelStructureInterface 
-
+from connectors.vensim import VensimModelStructureInterface 
 
 class FluModel(VensimModelStructureInterface):
     #base case model
