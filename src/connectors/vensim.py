@@ -42,7 +42,7 @@ def be_quiet():
     vensimDLLwrapper.be_quiet(2)
     
 
-def load_model(file):
+def load_model(file_name):
     '''
     load the model 
     
@@ -53,14 +53,14 @@ def load_model(file):
     .. note: only works for .vpm files
     
     '''
-    debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|"+file)
+    debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|"+file_name)
     try:
-        command(r"SPECIAL>LOADMODEL|"+file)
+        command(r"SPECIAL>LOADMODEL|"+file_name)
     except VensimWarning as w:
         warning(str(w))
         raise VensimError("vensim file not found")
 
-def read_cin_file(file):
+def read_cin_file(file_name):
     '''
     read a .cin file
     
@@ -68,9 +68,9 @@ def read_cin_file(file):
     :exception: raises a :class:`~EMAExceptions.VensimWarning` if the cin file
                 cannot be read.
     '''
-    debug("executing COMMAND: SIMULATE>READCIN|"+file)
+    debug("executing COMMAND: SIMULATE>READCIN|"+file_name)
     try:
-        command(r"SIMULATE>READCIN|"+file)
+        command(r"SIMULATE>READCIN|"+file_name)
     except VensimWarning as w:
         debug(str(w))
         raise w
@@ -99,7 +99,7 @@ def set_value(variable, value):
             warning('variable: \'' +variable+'\' not found')
 
 
-def run_simulation(file):
+def run_simulation(file_name):
     ''' 
     Convenient function to run a model and store the results of the run in 
     the specified .vdf file. The specified output file will be overwritten 
@@ -112,8 +112,8 @@ def run_simulation(file):
     '''
 
     try:
-        debug(" executing COMMAND: SIMULATE>RUNNAME|"+file+"|O")
-        command("SIMULATE>RUNNAME|"+file+"|O")
+        debug(" executing COMMAND: SIMULATE>RUNNAME|"+file_name+"|O")
+        command("SIMULATE>RUNNAME|"+file_name+"|O")
         debug(r"MENU>RUN|o")
         command(r"MENU>RUN|o")
     except VensimWarning as w:
@@ -295,7 +295,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
                 if result.shape[0] != self.runLength:
                     got = result.shape[0]
                     data = np.empty((self.runLength))
-                    data = np.NAN
+                    data[:] = np.NAN
                     data[0:result.shape[0]] = result
                     result = data
                     error = True
