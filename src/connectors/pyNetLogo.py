@@ -55,8 +55,14 @@ class NetLogoLink():
             # format jars in right format for starting java virtual machine
             jars = ";".join(jars)
             jarpath = '-Djava.class.path={}'.format(jars)
-            jvm_dll = NETLOGO_HOME + r'/jre/bin/client/jvm.dll'            
+            jvm_dll = NETLOGO_HOME + r'/jre/bin/client/jvm.dll'    
+            
+            
+            cwd = os.getcwd()
+            os.chdir(NETLOGO_HOME)
             jpype.startJVM(jvm_dll, jarpath, "-Xmx1024m")
+            os.chdir(cwd)
+            
             debug("jvm started")
         
         gui = jpype.java.lang.Boolean(gui)
