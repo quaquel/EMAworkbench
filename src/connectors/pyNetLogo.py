@@ -61,6 +61,8 @@ class NetLogoLink():
             os.chdir(NETLOGO_HOME)
             jpype.startJVM(jvm_dll, jarpath)
             os.chdir(cwd)
+            cwd = jpype.java.lang.System.getProperty("user.dir");
+            print cwd 
             
             debug("jvm started")
         
