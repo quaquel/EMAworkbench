@@ -12,9 +12,9 @@ from expWorkbench import ModelStructureInterface, warning, debug,\
                          EMAError
 import pyNetLogo
 
-NETLOGO_HOME = r'C:/Program Files (x86)/NetLogo 5.0.3'
+NETLOGO_HOME = r'C:/Program Files (x86)/NetLogo 5.0.4'
 
-class NetLogoModeStructureInterface(ModelStructureInterface):
+class NetLogoModelStructureInterface(ModelStructureInterface):
     model_file = None
     run_length = None
     command_format = "set {0} {1}"
