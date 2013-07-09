@@ -35,7 +35,7 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
     
     #instantiate a model
-    vensimModel = PredatorPrey( r"C:\git\EMAworkbench\models\predatorPreyNetlogo", "simpleModel")
+    vensimModel = PredatorPrey( r"..\..\models\predatorPreyNetlogo", "simpleModel")
     
     #instantiate an ensemble
     ensemble = ModelEnsemble()

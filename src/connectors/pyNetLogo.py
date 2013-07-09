@@ -57,10 +57,9 @@ class NetLogoLink():
             jarpath = '-Djava.class.path={}'.format(jars)
             jvm_dll = NETLOGO_HOME + r'/jre/bin/client/jvm.dll'    
             
-            
             cwd = os.getcwd()
             os.chdir(NETLOGO_HOME)
-            jpype.startJVM(jvm_dll, jarpath, "-Xmx1024m")
+            jpype.startJVM(jvm_dll, jarpath)
             os.chdir(cwd)
             
             debug("jvm started")
