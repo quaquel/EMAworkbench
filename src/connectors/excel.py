@@ -23,7 +23,7 @@ class ExcelModelStructureInterface(ModelStructureInterface):
     for the uncertainties and the outcomes. See e.g. `this site <http://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
     for details on naming cells and sets of cells. 
     
-    The provided implementation here does work with :mod:`ParallelEMA`.
+    The provided implementation here does work with :mod:`parallel_ema`.
     
     '''
     
@@ -56,12 +56,11 @@ class ExcelModelStructureInterface(ModelStructureInterface):
                 ema_logging.debug("trying to start Excel")
                 self.xl = win32com.client.Dispatch("Excel.Application")
                 ema_logging.debug("Excel started") 
-            
-                ema_logging.debug("trying to open workbook")
-                self.wb = self.xl.Workbooks.Open(self.working_directory + self.workbook)
-                ema_logging.debug("workbook opened")
             except com_error as e:
                 raise EMAError(str(e))
+        ema_logging.debug("trying to open workbook")
+        self.wb = self.xl.Workbooks.Open(self.working_directory + self.workbook)
+        ema_logging.debug("workbook opened")
         ema_logging.debug(self.working_directory)
        
     def run_model(self, case):
