@@ -20,7 +20,7 @@ from expWorkbench import info, debug, EMAError
 DEFAULT = 'default'
 ABOVE = 1
 BELOW = -1
-
+PRECISION = '.2f'
 
 def _write_boxes_to_stdout(box_lims, uncertainties):
     '''
@@ -31,6 +31,8 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
     :param uncertainties: list of of uncertainties
     
     '''
+
+
 
     # fill the limits in for each uncertainty and each box
     # determine the length of the uncertainty names to align these properly
@@ -47,8 +49,8 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
         data_type =  box[u].dtype
         if data_type == np.float64:
             size = max(size, 
-                       len("{:>.2f}".format(box[u][0])), 
-                       len("{:>.2f}".format(box[u][1])))
+                       len("{:>{}}".format(box[u][0], PRECISION)), 
+                       len("{:>{}}".format(box[u][1], PRECISION)))
         elif data_type == np.int32:
             size = max(size, 
                        len("{:>}".format(box[u][0])), 
@@ -87,8 +89,9 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
                 data = list(box[u])
                 data.append(size)
                 data.append(size)
+                data.append(PRECISION)
                 
-                elements.append("{0:>{2}.2f} -{1:>{3}.2f}".format(*data))
+                elements.append("{0:>{2}{4}} -{1:>{3}{4}}".format(*data))
             elif data_type == np.int32:
                 data = list(box[u])
                 data.append(size)
