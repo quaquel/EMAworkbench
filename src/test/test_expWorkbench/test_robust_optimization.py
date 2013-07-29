@@ -4,19 +4,17 @@ Created on Mar 1, 2012
 @author: jhkwakkel
 '''
 from __future__ import division
-import cPickle
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from expWorkbench.uncertainties import CategoricalUncertainty, ParameterUncertainty
-from expWorkbench import ema_logging, vensim
-from expWorkbench.vensim import VensimModelStructureInterface, VensimError
+from expWorkbench import ema_logging
+from connectors import vensim
+from connectors.vensim import VensimModelStructureInterface, VensimError
 from expWorkbench.outcomes import Outcome
 from expWorkbench.ema_exceptions import CaseError 
 
 from expWorkbench import ModelEnsemble, MAXIMIZE, save_optimization_results
-
 
 class EnergyTrans(VensimModelStructureInterface):
     modelFile = r'\CESUN_optimized_new.vpm'
@@ -232,7 +230,6 @@ if __name__ == "__main__":
                                                nr_of_generations=100,
                                                pop_size=10,
                                                crossover_rate=0.5, 
-                                               mutation_rate=0.02,
-                                               mutationRate=0.01
+                                               mutation_rate=0.02
                                                )
     save_optimization_results((stats_callback, pop), '../data/robust test.bz2')
