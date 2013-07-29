@@ -5,14 +5,14 @@ Created on 20 mrt. 2013
 '''
 import matplotlib.pyplot as plt
 
-from connectors.netlogo import NetLogoModeStructureInterface
+from connectors.netlogo import NetLogoModelStructureInterface
 
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome,\
                          ModelEnsemble, ema_logging
 from analysis import plotting
 
 
-class PredatorPrey(NetLogoModeStructureInterface):
+class PredatorPrey(NetLogoModelStructureInterface):
     model_file = r"\Wolf Sheep Predation.nlogo"
     
     run_length = 1000

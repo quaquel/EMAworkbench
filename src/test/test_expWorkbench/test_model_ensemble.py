@@ -12,7 +12,7 @@ from expWorkbench import ModelStructureInterface, ema_logging
 from expWorkbench import ParameterUncertainty
 from expWorkbench.outcomes import Outcome
 
-class Dummy_interface(ModelStructureInterface):
+class DummyInterface(ModelStructureInterface):
     
     def model_init(self, policy, kwargs):
         pass
@@ -24,9 +24,9 @@ class Dummy_interface(ModelStructureInterface):
 
 def test_generate_samples():
     # everything shared
-    model_a = Dummy_interface(None, "A")
-    model_b = Dummy_interface(None, "B")
-    model_c = Dummy_interface(None, "C")
+    model_a = DummyInterface(None, "A")
+    model_b = DummyInterface(None, "B")
+    model_c = DummyInterface(None, "C")
     
     # let's add some uncertainties to this
     shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
@@ -57,8 +57,8 @@ def test_generate_samples():
 def test_determine_intersecting_uncertainties():
     
 #    # let's make some interfaces
-#    model_a = Dummy_interface(None, "A")
-#    model_b = Dummy_interface(None, "B")
+#    model_a = DummyInterface(None, "A")
+#    model_b = DummyInterface(None, "B")
 #    
 #    # let's add some uncertainties to this
 #    shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
@@ -75,9 +75,9 @@ def test_determine_intersecting_uncertainties():
 
     
     # everything shared
-    model_a = Dummy_interface(None, "A")
-    model_b = Dummy_interface(None, "B")
-    model_c = Dummy_interface(None, "C")
+    model_a = DummyInterface(None, "A")
+    model_b = DummyInterface(None, "B")
+    model_c = DummyInterface(None, "C")
     
     # let's add some uncertainties to this
     shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
@@ -120,8 +120,8 @@ def test_determine_intersecting_uncertainties():
 
 def test_perform_experiments():
 #    # let's make some interfaces
-#    model_a = Dummy_interface(None, "A")
-#    model_b = Dummy_interface(None, "B")
+#    model_a = DummyInterface(None, "A")
+#    model_b = DummyInterface(None, "B")
 #    
 #    # let's add some uncertainties to this
 #    shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
@@ -138,9 +138,9 @@ def test_perform_experiments():
 
     
     # everything shared
-    model_a = Dummy_interface(None, "A")
-    model_b = Dummy_interface(None, "B")
-    model_c = Dummy_interface(None, "C")
+    model_a = DummyInterface(None, "A")
+    model_b = DummyInterface(None, "B")
+    model_c = DummyInterface(None, "C")
     
     # let's add some uncertainties to this
     shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
@@ -181,8 +181,8 @@ def test_experiment_generator():
     sampled_unc = sampler.generate_samples(uncertainties, 10)
     
     # everything shared
-    model_a = Dummy_interface(None, "A")
-    model_b = Dummy_interface(None, "B")
+    model_a = DummyInterface(None, "A")
+    model_b = DummyInterface(None, "B")
     
     model_a.uncertainties = [shared_abc_1, shared_abc_2, unique_a]
     model_b.uncertainties = [shared_abc_1, shared_abc_2, unique_b]

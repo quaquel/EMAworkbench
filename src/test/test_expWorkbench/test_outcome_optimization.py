@@ -5,7 +5,6 @@ Created on Feb 28, 2012
 '''
 from __future__ import division
 import numpy as np
-import matplotlib.pyplot as plt
 
 from expWorkbench import ema_logging
 from test.test_vensim_flu import FluModel

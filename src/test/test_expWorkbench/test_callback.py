@@ -5,9 +5,8 @@ Created on 22 Jan 2013
 '''
 import random
 import numpy as np
-
-from expWorkbench import DefaultCallback, ParameterUncertainty, ema_logging,\
-                         Outcome
+from expWorkbench.callbacks import DefaultCallback
+from expWorkbench import ParameterUncertainty, ema_logging, Outcome
 from expWorkbench.ema_logging import debug
 
 def test_callback_initalization():
