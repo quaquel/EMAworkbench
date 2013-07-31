@@ -221,8 +221,8 @@ class VensimModelStructureInterface(ModelStructureInterface):
         that `self.model_file`  is set correctly. In case of using different
         vensim models for different policies, it is recomended to extent
         this method, extract the model file from the policy dict, set 
-        `self.model_file` to this file and then call this implementation through
-        calling `super`.
+        `self.model_file` to this file and then call this implementation 
+        through calling `super`.
         
         :param policy: a dict specifying the policy. In this 
                        implementation, this argument is ignored. 
@@ -236,24 +236,25 @@ class VensimModelStructureInterface(ModelStructureInterface):
         be_quiet() # minimize the screens that are shown
         
         try:
-            initialTime  = get_val('INITIAL TIME')
-            finalTime = get_val('FINAL TIME')
-            timeStep = get_val('TIME STEP')
-            savePer = get_val('SAVEPER')
+            initial_time  = get_val('INITIAL TIME')
+            final_time = get_val('FINAL TIME')
+            time_step = get_val('TIME STEP')
+            save_per = get_val('SAVEPER')
              
-            if savePer > 0:
-                timeStep = savePer
+            if save_per > 0:
+                time_step = save_per
             
-            self.runLength = int((finalTime - initialTime)/timeStep +1)
+            self.runLength = int((final_time - initial_time)/time_step +1)
         except VensimWarning:
             raise EMAWarning(str(VensimWarning))
         
-    def delete_lookup_uncertainties(self):
+    def _delete_lookup_uncertainties(self):
         '''
         deleting lookup uncertainties from the uncertainty list 
         '''
         self.lookup_uncertainties = self.lookup_uncertainties[:]
-        self.uncertainties = [x for x in self.uncertainties if x not in self.lookup_uncertainties]
+        self.uncertainties = [x for x in self.uncertainties if x not in 
+                              self.lookup_uncertainties]
     
     def run_model(self, case):
         """
@@ -294,7 +295,8 @@ class VensimModelStructureInterface(ModelStructureInterface):
             set_value(key, value)
         ema_logging.debug("model parameters set successfully")
         
-        ema_logging.debug("run simulation, results stored in " + self.working_directory+self.result_file)
+        ema_logging.debug("run simulation, results stored in {}".format(
+                                    self.working_directory+self.result_file))
         try:
             run_simulation(self.working_directory+self.result_file)
         except VensimError:
@@ -305,9 +307,9 @@ class VensimModelStructureInterface(ModelStructureInterface):
         for output in self.outcomes:
             ema_logging.debug("getting data for %s" %output.name)
             result = get_data(self.working_directory+self.result_file, 
-                              output.name 
-                              )
-            ema_logging.debug("successfully retrieved data for %s" %output.name)
+                              output.name )
+            ema_logging.debug("successfully retrieved data for {}".format(
+                                                                  output.name))
             if not result == []:
                 if result.shape[0] != self.runLength:
                     got = result.shape[0]
@@ -327,20 +329,14 @@ class VensimModelStructureInterface(ModelStructureInterface):
                 raise e
         self.output = results   
         if error:
-            raise CaseError("run not completed, got %s, expected %s" %
-                            (got, self.runLength), case)  
+            raise CaseError("run not completed, got {}, expected {}" .format(
+                            got, self.runLength), case)
    
     def reset_model(self):
         """
-        Method for reseting the model to its initial state before runModel 
-        was called
+        Method for reseting the model to its initial state before run_model 
+        was called.
         """
       
         self.output = None
         self.result_file =r'\Current.vdf'
-
-#==============================================================================
-#functional test
-#==============================================================================
-if __name__=='__main__':
-    pass

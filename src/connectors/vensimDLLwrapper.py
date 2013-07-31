@@ -16,6 +16,7 @@ Typically, the dll can be found in ../AppData/Local/Vensim/vendll32.dll
 
 '''
 import ctypes 
+import sys
 
 import numpy as np
 
@@ -37,8 +38,9 @@ class VensimError(EMAError):
 try:
     vensim = ctypes.windll.vendll32
 except WindowsError:
+    sys.stderr.write("vensim dll not found, vensim functionality not available\n")
     warning("vensim dll not found, vensim functionality not available")
-
+del sys
 
 def be_quiet(quietflag):
     '''
@@ -68,10 +70,10 @@ def command(command):
     execute a command, for details see chapter 5.
     '''
     
-    returnValue = vensim.vensim_command(command)
-    if returnValue == 0:
+    return_val = vensim.vensim_command(command)
+    if return_val == 0:
         raise VensimWarning("command failed "+command)
-    return returnValue
+    return return_val
 
 def continue_simulation(num_inter):
     '''
@@ -81,21 +83,21 @@ def continue_simulation(num_inter):
                       during the continuation
     '''
     
-    returnValue = vensim.vensim_continue_simulation(num_inter)
-    if returnValue == -1:
+    return_val = vensim.vensim_continue_simulation(num_inter)
+    if return_val == -1:
         raise VensimWarning("floating point error has occurred")
     
-    return returnValue
+    return return_val
 
 def finish_simulation():
     '''
     completes a simulation started with start simulation
     '''
     
-    returnValue = vensim.vensim_finish_simulation()
-    if returnValue == 0:
+    return_val = vensim.vensim_finish_simulation()
+    if return_val == 0:
         raise VensimWarning("failure to finish simulation")
-    return returnValue
+    return return_val
     
 def get_data(filename, varname, tname = "Time"):
     ''' 
@@ -114,21 +116,21 @@ def get_data(filename, varname, tname = "Time"):
     tval = (ctypes.c_float * 1)()  
     maxn = ctypes.c_int(0)
     
-    returnValue = vensim.vensim_get_data(filename, 
+    return_val = vensim.vensim_get_data(filename, 
                                          varname, 
                                          tname, 
                                          vval, 
                                          tval, 
                                          maxn)
     
-    if returnValue == 0:
+    if return_val == 0:
         raise VensimWarning("variable "+varname+" not found in dataset")
     
-    vval = (ctypes.c_float * int(returnValue))()  
-    tval = (ctypes.c_float * int(returnValue))()  
-    maxn = ctypes.c_int(int(returnValue))
+    vval = (ctypes.c_float * int(return_val))()  
+    tval = (ctypes.c_float * int(return_val))()  
+    maxn = ctypes.c_int(int(return_val))
     
-    returnValue = vensim.vensim_get_data(filename,\
+    return_val = vensim.vensim_get_data(filename,\
                                          varname,\
                                          tname,\
                                          vval,\
@@ -212,8 +214,8 @@ def get_val(name):
     
     '''
     value = ctypes.c_float(0)
-    returnValue = vensim.vensim_get_val(name, ctypes.byref(value))
-    if returnValue == 0:
+    return_val = vensim.vensim_get_val(name, ctypes.byref(value))
+    if return_val == 0:
         raise VensimWarning("variable not found")
     
     return value.value
@@ -378,11 +380,11 @@ def start_simulation(loadfirst, game, overwrite):
                       
     '''
     
-    returnValue =vensim.vensim_start_simulation(loadfirst, game, overwrite)
-    if returnValue == 0:
+    return_val =vensim.vensim_start_simulation(loadfirst, game, overwrite)
+    if return_val == 0:
         raise VensimWarning("simulation not started")
     
-    return returnValue
+    return return_val
 
 def synthesim_vals(offset, tval, varval):
     ''' 
