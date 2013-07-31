@@ -1,2 +1,0 @@
-investigate the use of Rtrees for multidimensional clustering prior to 
-scenario discovery.
