@@ -93,7 +93,7 @@ class ParameterUncertainty(AbstractUncertainty ):
         :param default: optional argument for providing a default value
         
         '''
-        if len(values!=2):
+        if len(values)!=2:
             raise ValueError("too many values to unpack")
         if (values[0] >= values[1]):
             raise ValueError("upper limit is not larger than lower limit")
