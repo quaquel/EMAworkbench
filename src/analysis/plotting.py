@@ -154,7 +154,11 @@ def envelopes(results,
         do_titles(ax, titles, outcome_to_plot)
         
     if legend and group_by:
-        make_legend(grouping_labels, figure)
+        if fill:
+            make_legend(grouping_labels, figure, alpha=0.3, 
+                        legend_type=plotting_util.PATCH)
+        else:
+            make_legend(grouping_labels, figure, legend_type=plotting_util.LINE)
     
     if plotting_util.TIGHT:
         grid.tight_layout(figure)
@@ -204,7 +208,7 @@ def group_by_envelopes(outcomes,
     if density:
         if density=='hist':
             # rather nasty indexing going on here, outcomes[key] returns
-            # a tuple, hence the[1] to get the dictonary with outcomes
+            # a tuple, hence the[1] to get the dictionary with outcomes
             # out of this, we need the right outcome, and the final column
             # of values
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]

@@ -32,7 +32,7 @@ _logger = None
 LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
 
-formatter = multiprocessing.util.DEFAULT_LOGGING_FORMAT
+LOG_FORMAT = multiprocessing.util.DEFAULT_LOGGING_FORMAT
 
 def debug(msg, *args):
     '''
@@ -119,6 +119,7 @@ def get_logger():
     if not _logger:
         _logger = logging.getLogger(LOGGER_NAME)
         _logger.addHandler(NullHandler())
+        _logger.setLevel(DEBUG)
 
     return _logger
 
@@ -130,26 +131,27 @@ def log_to_stderr(level=None):
     
     '''
     import logging
+    
+    if not level:
+        level = DEFAULT_LEVEL
 
     logger = get_logger()
+    
     
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
         if (isinstance(entry, logging.StreamHandler)) and\
-           (entry.formatter._fmt == multiprocessing.util.DEFAULT_LOGGING_FORMAT):
-            if level:
-                logger.setLevel(level)
-            return _logger
+           (entry.formatter._fmt == LOG_FORMAT):
+                return logger
     
-    formatter = logging.Formatter(multiprocessing.util.DEFAULT_LOGGING_FORMAT)
+    formatter = logging.Formatter(LOG_FORMAT)
     handler = logging.StreamHandler()
+    handler.setLevel(level)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.propagate = False
 
-    if level:
-        logger.setLevel(level)
-    return _logger
+    return logger
 
 class NullHandler(Handler):
     '''

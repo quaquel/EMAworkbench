@@ -31,7 +31,7 @@ from multiprocessing import Queue, Process, cpu_count, current_process,\
 from multiprocessing.util import Finalize
 
 from pool import RUN, Pool, TERMINATE
-from ema_logging import debug, exception, info, warning, NullHandler, formatter
+from ema_logging import debug, exception, info, warning, NullHandler, LOG_FORMAT
 import ema_logging                  
                                      
 from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
@@ -617,7 +617,7 @@ class LoggingProcess(Process):
     
         # add the handler
         handler = SubProcessLogHandler(self.queue)
-        handler.setFormatter(formatter)
+        handler.setFormatter(LOG_FORMAT)
         logger.addHandler(handler)
 
         # On Windows, the level will not be inherited.  Also, we could just
