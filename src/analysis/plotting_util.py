@@ -55,14 +55,17 @@ Default key for time
 '''
 TIME = "TIME"
 
-
-
 ENVELOPE = 'envelope'
 LINES = 'lines'
 ENV_LIN = "env_lin"
 KDE = 'kde'
 HIST = 'hist'
 BOXPLOT = 'box plot'
+
+# used for legend
+LINE = 'line'
+PATCH = 'patch'
+SCATTER = 'scatter'
 
 #see http://matplotlib.sourceforge.net/users/customizing.html for details
 #mpl.rcParams['savefig.dpi'] = 600
@@ -96,6 +99,8 @@ def plot_envelope(ax, j, time, value, fill):
     color = COLOR_LIST[j]
     
     if fill:
+        ax.plot(time, minimum, color=color, alpha=0.3)
+        ax.plot(time, maximum, color=color, alpha=0.3)
         ax.fill_between(time, 
                         minimum,
                         maximum,
@@ -154,6 +159,8 @@ def plot_kde(ax, kde_x, kde_y, j, log=False):
     if log:
         ax.set_xscale('log')
     else:
+        maximum = ax.get_xaxis().get_view_interval()[1]
+        
         ax.set_xticks([int(0), 
                       ax.get_xaxis().
                       get_view_interval()[1]])
@@ -251,7 +258,8 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
 def make_legend(categories,
                 figure,
                 ncol=3,
-                legend_type='line'):
+                legend_type=LINE,
+                alpha=1):
     '''
     
     
@@ -265,10 +273,10 @@ def make_legend(categories,
     some_identifiers = []
     labels = []
     for i, category in enumerate(categories):
-        if legend_type == 'line':    
+        if legend_type == LINE:    
             artist = plt.Line2D([0,1], [0,1], color=COLOR_LIST[i], 
-                                alpha=0.3)
-        elif legend_type == 'scatter':
+                                alpha=0.3) #TODO
+        elif legend_type == SCATTER:
             marker_obj = mpl.markers.MarkerStyle('o')
             path = marker_obj.get_path().transformed(
                              marker_obj.get_transform())
@@ -277,6 +285,9 @@ def make_legend(categories,
                                         facecolors = COLOR_LIST[i],
                                         edgecolors = 'k',
                                         offsets = (0,0))
+        elif legend_type == PATCH:
+            artist = plt.Rectangle((0,0), 1,1, edgecolor=COLOR_LIST[i],
+                                   facecolor=COLOR_LIST[i], alpha=alpha)
 
         some_identifiers.append(artist)
         

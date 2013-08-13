@@ -11,13 +11,13 @@ from types import ListType
 __all__ = ['set_fig_to_bw']
 
 COLORMAP = {
-    'b': {'marker': None, 'dash': (None,None), 'fill':'0.1'},
-    'g': {'marker': None, 'dash': [5,5], 'fill':'0.25'},
-    'r': {'marker': None, 'dash': [5,3,1,3], 'fill':'0.4'},
-    'c': {'marker': None, 'dash': [1,3], 'fill':'0.55'},
-    'm': {'marker': None, 'dash': [5,2,5,2,5,10], 'fill':'0.7'},
-    'y': {'marker': None, 'dash': [5,3,1,2,1,10], 'fill':'0.85'},
-    'k': {'marker': 'o', 'dash': (None,None), 'fill':'0.1'} #[1,2,1,10]}
+    'b': {'marker': None, 'dash': (None,None), 'fill':'0.1', 'hatch':'/'},
+    'g': {'marker': None, 'dash': [5,5], 'fill':'0.25', 'hatch':'\\'},
+    'r': {'marker': None, 'dash': [5,3,1,3], 'fill':'0.4', 'hatch':'|'},
+    'c': {'marker': None, 'dash': [1,3], 'fill':'0.55', 'hatch':'-'},
+    'm': {'marker': None, 'dash': [5,2,5,2,5,10], 'fill':'0.7', 'hatch':'o'},
+    'y': {'marker': None, 'dash': [5,3,1,2,1,10], 'fill':'0.85', 'hatch':'O'},
+    'k': {'marker': 'o', 'dash': (None,None), 'fill':'0.1', 'hatch':'.'} 
         }
 
 MARKERSIZE = 3
@@ -41,6 +41,7 @@ def set_ax_lines_bw(ax):
             line.set_color('black')
             line.set_dashes(COLORMAP[orig_color]['dash'])
             line.set_marker(COLORMAP[orig_color]['marker'])
+            line.set_alpha(1)
             line.set_markersize(MARKERSIZE)
 
 def set_ax_patches_bw(ax):
@@ -79,17 +80,31 @@ def set_ax_polycollections_to_bw(ax):
     
     """        
     
-    color_converter = ColorConverter()
-    colors = {}
-    for key, value in color_converter.colors.items():
-        colors[value] = key    
+#    color_converter = ColorConverter()
+#    colors = {}
+#    for key, value in color_converter.colors.items():
+#        colors[value] = key    
+#    for polycollection in ax.collections:
+#        rgb_orig = polycollection._facecolors_original
+#        if rgb_orig in COLORMAP.keys():
+#            new_color = color_converter.to_rgba(COLORMAP[rgb_orig]['fill'])
+#            a = np.asarray([new_color])
+#            polycollection.update({'facecolors' : a}) 
+#            polycollection.update({'edgecolors' : 'black'}) 
     for polycollection in ax.collections:
         rgb_orig = polycollection._facecolors_original
-        if rgb_orig in COLORMAP.keys():
-            new_color = color_converter.to_rgba(COLORMAP[rgb_orig]['fill'])
-            a = np.asarray([new_color])
-            polycollection.update({'facecolors' : a}) 
-            polycollection.update({'edgecolors' : 'black'}) 
+
+        
+        polycollection.update({'facecolors' : 'none'}) 
+        polycollection.update({'edgecolors' : 'white'}) 
+        polycollection.update({'alpha':1})
+        
+        for path in polycollection.get_paths():
+            p1 = mpl.patches.PathPatch(path, fc="none", 
+                                       hatch=COLORMAP[rgb_orig]['hatch'])
+            ax.add_patch(p1)
+            p1.set_zorder(polycollection.get_zorder()-0.1)
+
 
 def set_legend_to_bw(leg):
     """
@@ -116,6 +131,13 @@ def set_legend_to_bw(leg):
                 origColor = colors[rgb_orig]
                 new_color = color_converter.to_rgba(COLORMAP[origColor]['fill'])
                 element._facecolors = np.array((new_color,))
+            elif isinstance(element, mpl.patches.Rectangle):
+                rgb_orig = color_converter.to_rgb(element._facecolor)
+                c = colors[rgb_orig]
+                element.update({'alpha':1})
+                element.update({'facecolor':'none'})
+                element.update({'edgecolor':'black'})
+                element.update({'hatch':COLORMAP[c]['hatch']})
             else:
                 line = element
                 origColor = line.get_color()
