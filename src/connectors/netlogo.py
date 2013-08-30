@@ -12,8 +12,6 @@ from expWorkbench import ModelStructureInterface, warning, debug,\
                          EMAError
 import pyNetLogo
 
-NETLOGO_HOME = r'C:/Program Files (x86)/NetLogo 5.0.4'
-
 class NetLogoModelStructureInterface(ModelStructureInterface):
     model_file = None
     run_length = None

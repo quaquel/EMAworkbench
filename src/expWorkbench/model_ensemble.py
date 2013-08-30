@@ -8,6 +8,7 @@ Created on 23 dec. 2010
 from __future__ import division
 import random
 
+
 from deap import base
 from deap import creator
 from deap import tools
