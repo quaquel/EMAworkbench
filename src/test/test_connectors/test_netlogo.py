@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome,\
                          ema_logging
-from connectors.netlogo import NetLogoModeStructureInterface
+from connectors.netlogo import NetLogoModelStructureInterface
 
 
-class PredatorPrey(NetLogoModeStructureInterface):
+class PredatorPrey(NetLogoModelStructureInterface):
     model_file = r"\Wolf Sheep Predation.nlogo"
     
     run_length = 1000

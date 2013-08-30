@@ -792,6 +792,9 @@ class Prim(object):
             dtype = x.dtype.fields.get(u)[0].name
             peels = self._peels[dtype](self, box, u, x)
             [possible_peels.append(entry) for entry in peels] 
+        if not possible_peels:
+            # there is no peel identified, so return box
+            return box
 
         # determine the scores for each peel in order
         # to identify the next candidate box
@@ -973,7 +976,10 @@ class Prim(object):
             dtype = self.x.dtype.fields.get(u)[0].name
             pastes = self._pastes[dtype](self, box, u)
             [possible_pastes.append(entry) for entry in pastes] 
-        
+        if not possible_pastes:
+            # there is no peel identified, so return box
+            return box
+    
         # determine the scores for each peel in order
         # to identify the next candidate box
         scores = []
