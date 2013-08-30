@@ -11,7 +11,7 @@ from expWorkbench import debug
 __all__ = ['NetLogoException',
            'NetLogoLink']
 
-NETLOGO_HOME = r'C:/Program Files (x86)/NetLogo 5.0.4'
+NETLOGO_HOME = r'/Applications/NetLogo 5.0.4'
 PYNETLOGO_HOME = os.path.dirname(os.path.abspath(__file__))
 
 class NetLogoException(Exception):
@@ -53,13 +53,16 @@ class NetLogoLink():
                     PYNETLOGO_HOME + r'/external_files/netlogoLink.jar']
             
             # format jars in right format for starting java virtual machine
+            # TODO the use of the jre here is only relevant under windows 
+            # apparently
             jars = ";".join(jars)
             jarpath = '-Djava.class.path={}'.format(jars)
             jvm_dll = NETLOGO_HOME + r'/jre/bin/client/jvm.dll'    
             
             cwd = os.getcwd()
             os.chdir(NETLOGO_HOME)
-            jpype.startJVM(jvm_dll, jarpath)
+#             jpype.startJVM(jvm_dll, jarpath)
+            jpype.startJVM(jpype.getDefaultJVMPath(), jarpath)
             os.chdir(cwd)
             cwd = jpype.java.lang.System.getProperty("user.dir");
             

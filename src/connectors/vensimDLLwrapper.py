@@ -22,6 +22,11 @@ import numpy as np
 
 from expWorkbench import warning, EMAError, EMAWarning
 
+try:
+    WindowsError
+except NameError:
+    WindowsError = None
+
 class VensimWarning(EMAWarning):
     '''
     base vensim warning
@@ -37,7 +42,7 @@ class VensimError(EMAError):
 
 try:
     vensim = ctypes.windll.vendll32
-except WindowsError:
+except (WindowsError, AttributeError):
     sys.stderr.write("vensim dll not found, vensim functionality not available\n")
     warning("vensim dll not found, vensim functionality not available")
 del sys
