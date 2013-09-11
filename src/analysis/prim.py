@@ -416,6 +416,7 @@ class Prim(object):
                 rotated_experiments[name] = subset_experiments[:,i]
                 [column_names.append(name)]
         
+        self.rotation_matrix = rotation_matrix
         self.x = rotated_experiments
         self.box_init = self.make_box(self.x)
     
