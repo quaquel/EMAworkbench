@@ -7,6 +7,8 @@ import numpy as np
 from matplotlib.colors import ColorConverter
 import matplotlib as mpl
 from types import ListType
+from matplotlib.collections import PolyCollection, PathCollection
+from expWorkbench.ema_exceptions import EMAError
 
 __all__ = ['set_fig_to_bw']
 
@@ -21,6 +23,8 @@ COLORMAP = {
         }
 
 MARKERSIZE = 3
+HATCHING = 'hatching'
+GREYSCALE = 'grey_scale'
 
 def set_ax_lines_bw(ax):
     """
@@ -65,7 +69,7 @@ def set_ax_patches_bw(ax):
         
         patch._facecolor = new_color
 
-def set_ax_polycollections_to_bw(ax):
+def set_ax_collections_to_bw(ax, style):
     """
     Take each polycollection in the axes, ax, and convert the face color to be 
     suitable for black and white viewing.
@@ -73,40 +77,56 @@ def set_ax_polycollections_to_bw(ax):
     :param ax: The ax of which the polycollection needs to be transformed to 
                B&W.
     
-    TODO:: this function has a misleading name for it transforms all collection 
-    types. We need to make a decision on whether we can transform collections 
-    in general or parcel it out to separate functions for each collection 
-    class.
-    
     """        
-    
-#    color_converter = ColorConverter()
-#    colors = {}
-#    for key, value in color_converter.colors.items():
-#        colors[value] = key    
-#    for polycollection in ax.collections:
-#        rgb_orig = polycollection._facecolors_original
-#        if rgb_orig in COLORMAP.keys():
-#            new_color = color_converter.to_rgba(COLORMAP[rgb_orig]['fill'])
-#            a = np.asarray([new_color])
-#            polycollection.update({'facecolors' : a}) 
-#            polycollection.update({'edgecolors' : 'black'}) 
-    for polycollection in ax.collections:
-        rgb_orig = polycollection._facecolors_original
+    for collection in ax.collections:
+        try:
+            _collection_converter[collection.__class__](collection, ax, style)
+        except KeyError:
+            raise EMAError("converter for {} not implemented").format(collection.__class__)
+ 
+def _set_ax_polycollection_to_bw(collection, ax, style):
 
+    if style==GREYSCALE:
+
+        color_converter = ColorConverter()
+        for polycollection in ax.collections:
+            rgb_orig = polycollection._facecolors_original
+            if rgb_orig in COLORMAP.keys():
+                new_color = color_converter.to_rgba(COLORMAP[rgb_orig]['fill'])
+                a = np.asarray([new_color])
+                polycollection.update({'facecolors' : a}) 
+                polycollection.update({'edgecolors' : 'black'}) 
+    elif style==HATCHING:
+        rgb_orig = collection._facecolors_original
+        collection.update({'facecolors' : 'none'}) 
+        collection.update({'edgecolors' : 'white'}) 
+        collection.update({'alpha':1})
         
-        polycollection.update({'facecolors' : 'none'}) 
-        polycollection.update({'edgecolors' : 'white'}) 
-        polycollection.update({'alpha':1})
-        
-        for path in polycollection.get_paths():
+        for path in collection.get_paths():
             p1 = mpl.patches.PathPatch(path, fc="none", 
                                        hatch=COLORMAP[rgb_orig]['hatch'])
             ax.add_patch(p1)
-            p1.set_zorder(polycollection.get_zorder()-0.1)
+            p1.set_zorder(collection.get_zorder()-0.1)
+
+def _set_ax_pathcollection_to_bw(collection, ax, style):
+        color_converter = ColorConverter()
+        colors = {}
+        for key, value in color_converter.colors.items():
+            colors[value] = key    
+
+        rgb_orig = collection._facecolors_original
+        rgb_orig = [color_converter.to_rgb(row) for row in rgb_orig]
+        color = [colors.get(entry) for entry in rgb_orig]
+        new_color = [color_converter.to_rgba(COLORMAP[entry]['fill']) for entry in color]
+        new_color = np.asarray(new_color)
+        collection.update({'facecolors' : new_color}) 
+        collection.update({'edgecolors' : 'black'}) 
 
 
-def set_legend_to_bw(leg):
+_collection_converter = {PathCollection: _set_ax_pathcollection_to_bw,
+                         PolyCollection: _set_ax_polycollection_to_bw}
+
+def set_legend_to_bw(leg, style):
     """
     Takes the figure legend and converts it to black and white. Note that
     it currently only converts lines to black and white, other artist 
@@ -134,10 +154,16 @@ def set_legend_to_bw(leg):
             elif isinstance(element, mpl.patches.Rectangle):
                 rgb_orig = color_converter.to_rgb(element._facecolor)
                 c = colors[rgb_orig]
-                element.update({'alpha':1})
-                element.update({'facecolor':'none'})
-                element.update({'edgecolor':'black'})
-                element.update({'hatch':COLORMAP[c]['hatch']})
+                
+                if style==HATCHING:
+                    element.update({'alpha':1})
+                    element.update({'facecolor':'none'})
+                    element.update({'edgecolor':'black'})
+                    element.update({'hatch':COLORMAP[c]['hatch']})
+                elif style==GREYSCALE:
+                    element.update({'facecolor':COLORMAP[c]['fill']})
+                    element.update({'edgecolor':COLORMAP[c]['fill']})
+
             else:
                 line = element
                 origColor = line.get_color()
@@ -146,11 +172,11 @@ def set_legend_to_bw(leg):
                 line.set_marker(COLORMAP[origColor]['marker'])
                 line.set_markersize(MARKERSIZE)
 
-def set_ax_legend_to_bw(ax):
+def set_ax_legend_to_bw(ax, style):
     legend = ax.legend_
-    set_legend_to_bw(legend)
+    set_legend_to_bw(legend, style)
 
-def set_fig_to_bw(fig):
+def set_fig_to_bw(fig, style=HATCHING):
     """
     TODO it would be nice if for lines you can select either markers, gray 
     scale, or simple black
@@ -163,12 +189,17 @@ def set_fig_to_bw(fig):
     derived from and expanded for my use from:
     http://stackoverflow.com/questions/7358118/matplotlib-black-white-colormap-with-dashes-dots-etc
     
+    
+    :param fig: the figure to transform to black and white
+    :param style: parameter controlling how polycollections are transformed.
+                  Options are HATCHING and GREYSCALE.  
+    
     """
     for ax in fig.get_axes():
         set_ax_lines_bw(ax)
         set_ax_patches_bw(ax)
-        set_ax_polycollections_to_bw(ax)
-        set_ax_legend_to_bw(ax)
+        set_ax_collections_to_bw(ax, style)
+        set_ax_legend_to_bw(ax, style)
         
-    set_legend_to_bw(fig.legends)
+    set_legend_to_bw(fig.legends, style)
     
