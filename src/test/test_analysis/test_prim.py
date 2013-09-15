@@ -71,6 +71,41 @@ class PrimTestCase(unittest.TestCase):
         
         prim.Prim(self.results, self.classify, threshold=prim.ABOVE)
 
+    def test_prim_init_select(self):
+        self.results = load_results(r'../data/1000 flu cases no policy.bz2')
+        self.classify = flu_classify        
+        
+        experiments, outcomes = self.results
+        
+        unc = experiments.dtype.descr
+        
+        # test initialization, including t_coi calculation in case of searching
+        # for results equal to or higher than the threshold
+        outcomes['death toll'] = outcomes['deceased population region 1'][:, -1]
+        results = experiments, outcomes
+        threshold = 10000
+        prim_obj = prim.Prim(results, classify='death toll', 
+                             threshold_type=prim.ABOVE, threshold=threshold,
+                             inc_unc=unc)
+        
+        value = np.ones((experiments.shape[0],))
+        value = value[outcomes['death toll'] >= threshold].shape[0]
+        self.assertTrue(prim_obj.t_coi==value)
+                
+        # test initialization, including t_coi calculation in case of searching
+        # for results equal to or lower  than the threshold
+        threshold = 1000
+        prim_obj = prim.Prim(results, classify='death toll', 
+                             threshold_type=prim.BELOW, 
+                             threshold=threshold)
+        
+        value = np.ones((experiments.shape[0],))
+        value = value[outcomes['death toll'] <= threshold].shape[0]
+        self.assertTrue(prim_obj.t_coi==value)
+        
+        prim.Prim(self.results, self.classify, threshold=prim.ABOVE)
+
+
     def test_box(self):
         x = np.array([(0,1,2),
                       (2,5,6),

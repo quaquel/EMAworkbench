@@ -2,6 +2,10 @@
 Created on 22 feb. 2013
 
 @author: localadmin
+
+
+TODO: some of the code might be simplifed building on numpy.lib.recfunctions
+
 '''
 from __future__ import division
 from types import StringType, FloatType, IntType
@@ -9,6 +13,7 @@ from operator import itemgetter
 import copy
 
 import numpy as np
+import numpy.lib.recfunctions as recfunctions
 from scipy.stats.mstats import mquantiles #@UnresolvedImport
 from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
@@ -224,7 +229,7 @@ class PrimBox(object):
         fig = plt.gcf()
         
         make_legend(['mean', 'mass', 'coverage', 'density', 'restricted_dim'],
-                    fig, ncol=5)
+                    fig, ncol=5, alpha=1)
         return fig
     
     def write_ppt_stdout(self):
@@ -271,7 +276,8 @@ class Prim(object):
                  paste_alpha = 0.05,
                  mass_min = 0.05, 
                  threshold = None, 
-                 threshold_type=ABOVE):
+                 threshold_type=ABOVE,
+                 incl_unc=[]):
         '''
         
         :param results: the return from :meth:`perform_experiments`.
@@ -286,15 +292,20 @@ class Prim(object):
                                algorithm looks for both +1 and -1.
         :param obj_func: The objective function to use. Default is 
                          :func:`def_obj_func`
+        :param incl_unc: optional argument, should be a list of uncertainties
+                         that are to be included in the prim analysis. 
         :raises: PrimException if data resulting from classify is not a 
                  1-d array. 
         :raises: TypeError if classify is not a string or a callable.
                      
         '''
         assert threshold!=None
-        self.x = results[0]
-        
-        # determine y
+        if not incl_unc:
+            self.x = results[0]
+        else:
+            drop_names = set(recfunctions.get_names(results[0].dtype))-set(incl_unc)
+            self.x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)
+
         if type(classify)==StringType:
             self.y = results[1][classify]
         elif callable(classify):
@@ -355,7 +366,7 @@ class Prim(object):
         
         #get experiments of interest
         # TODO this assumes binary classification!!!!!!!
-        logical = self.y==1
+        logical = self.y>=self.threshold
         
         # if no subsets are provided all uncertainties with non dtype object are
         # in the same subset, the name of this is r, for rotation
@@ -417,6 +428,7 @@ class Prim(object):
                 [column_names.append(name)]
         
         self.rotation_matrix = rotation_matrix
+        self.column_names = column_names
         self.x = rotated_experiments
         self.box_init = self.make_box(self.x)
     
@@ -568,7 +580,7 @@ class Prim(object):
         '''
     
         logical = self.compare(self.box_init, box_lims)
-        u = np.asarray([entry[0] for entry in self.x.dtype.descr], 
+        u = np.asarray(recfunctions.get_names(box_lims.dtype), 
                        dtype=object)
         dims = u[logical==False]
         return dims
@@ -1201,13 +1213,13 @@ class Prim(object):
         :param logical:
         
         '''
-        
-         
         list_dtypes = [(name, "<f8") for name in value]
         
         #cast everything to float
-        subset_experiments = orig_experiments[value].astype(list_dtypes).view('<f8').reshape(orig_experiments.shape[0], len(value))
-    
+        drop_names = set(recfunctions.get_names(orig_experiments.dtype)) -set(value)
+        orig_subset = recfunctions.drop_fields(orig_experiments, drop_names, asrecarray=True)
+        subset_experiments = orig_subset.astype(list_dtypes).view('<f8').reshape(orig_experiments.shape[0], len(value))
+ 
         #normalize the data
         mean = np.mean(subset_experiments,axis=0)
         std = np.std(subset_experiments, axis=0)
@@ -1231,8 +1243,8 @@ class Prim(object):
         :param experiments:
         
         '''
-        
         covariance = np.cov(experiments.T)
+        
         eigen_vals, eigen_vectors = np.linalg.eig(covariance)
     
         indices = np.argsort(eigen_vals)
