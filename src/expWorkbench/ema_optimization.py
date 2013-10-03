@@ -297,6 +297,8 @@ class ParetoFront(HallOfFame):
             has_twin = False
             to_remove = []
             for i, hofer in enumerate(self):    # hofer = hall of famer
+                # replace with  np.any(nd.fitness.wvalues < hofer.fitness.wvalues)
+                
                 if isDominated(ind.fitness.wvalues, hofer.fitness.wvalues):
                     is_dominated = True
                     break
@@ -479,7 +481,6 @@ class NSGA2StatisticsCallback(object):
         for entry in self.hall_of_fame:
             a.append(entry.fitness.values)
         return np.asarray(a)
-            
     
     def std(self, hof):
         return np.std(hof, axis=0)
