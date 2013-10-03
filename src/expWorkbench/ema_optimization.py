@@ -338,6 +338,9 @@ class EpsilonParetoFront(HallOfFame):
         
         removed = 0
         added = 0
+        e_progress = 0
+        
+        same_box = False
         
         while i < size:
             i += 1
@@ -351,7 +354,7 @@ class EpsilonParetoFront(HallOfFame):
                 continue
             if a_dom_b:
                 # a dominates b
-                return removed, added
+                return removed, added, e_progress
             if b_dom_a:
                 # b dominates a
                 self.remove(i)
@@ -365,8 +368,10 @@ class EpsilonParetoFront(HallOfFame):
                 d_solution = np.sum((sol_values-box_left_corner)**2) 
                 d_archive = np.sum((arc_sol_values-box_left_corner)**2)
                 
+                same_box = True
+                
                 if d_archive < d_solution:
-                    return removed, added
+                    return removed, added, e_progress
                 else:
                     self.remove(i)
                     removed +=1
@@ -377,8 +382,10 @@ class EpsilonParetoFront(HallOfFame):
         # non dominated solution
         self.insert(solution)
         added +=1
+        if not same_box:
+            e_progress += 1
         
-        return removed, added
+        return removed, added, e_progress
     
     def update(self, population):
         """
@@ -394,7 +401,7 @@ class EpsilonParetoFront(HallOfFame):
         added = 0
         removed = 0
         for ind in population:
-            ind_rem, ind_add = self.sort_individual(ind)
+            ind_rem, ind_add, e_prog = self.sort_individual(ind)
             added += ind_add
             removed += ind_rem            
             
@@ -417,7 +424,7 @@ class EpsilonParetoFront(HallOfFame):
 #            if not is_dominated and not has_twin:
 #                self.insert(ind)
 #                added+=1
-        return added, removed
+        return added, removed, e_prog
 
 class NSGA2StatisticsCallback(object):
     '''
