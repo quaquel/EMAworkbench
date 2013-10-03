@@ -222,7 +222,7 @@ class FullFactorialSampler(Sampler):
                     category = set(category)
                     category = [int(entry) for entry in category]
                     category = sorted(category)
-            samples[uncertainty] = category
+            samples[uncertainty.name] = category
         
         return samples
        
