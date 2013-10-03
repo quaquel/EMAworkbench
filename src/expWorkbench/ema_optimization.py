@@ -7,7 +7,9 @@ an optimization.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
+from __future__ import division
 import numpy as np
+import numpy.lib.recfunctions as recfunctions
 import random 
 
 from deap.tools import HallOfFame, isDominated
@@ -113,21 +115,20 @@ def evaluate_population_outcome(population, ri, toolbox, ensemble):
     # standaard alle models en alle policies toevoegen en dan pas 
     # je index opvragen
     # Dit levert wel 2 extra geneste loops op... 
+    
+    experiments = recfunctions.drop_fields(experiments,\
+                                           drop_names=['model', 'policy'], 
+                                           asrecarray = True)    
     ordering = [entry[0] for entry in experiments.dtype.descr]
-    #dit zou in de listexpresion via filter moeten kunnen
-    ordering.pop(ordering.index('model')) 
-    #dit zou in de listexpresion via filter moeten kunnen
-    ordering.pop(ordering.index('policy')) 
     
-    indices = {}
-    experiments = experiments[ordering].tolist()
-    for i in range(len(experiments)):
-        experiment = tuple(experiments[i])
-        indices[experiment] = i
+    experiments = experiments.tolist()
+    indices = {tuple(experiments[i]):i for i in range(len(experiments))}
     
+    # we need to map the outcomes of the experiments back to the 
+    # correct individual
     for member in population:
-        a = tuple([member[entry] for entry in ordering])
-        associated_index = indices[a]
+        index = tuple([member[entry] for entry in ordering])
+        associated_index = indices[index]
         
         member_outcomes = {}
         for key, value in outcomes.items():
@@ -313,6 +314,111 @@ class ParetoFront(HallOfFame):
                 added+=1
         return added, removed
 
+class EpsilonParetoFront(HallOfFame):
+    """
+    
+    an implementation of epsilon non-dominated sorting as discussed in 
+    
+    Deb et al. (2005)
+    
+    """
+    def __init__(self, eps):
+        self.eps = eps
+        HallOfFame.__init__(self, None)
+
+    def dominates(self, option_a, option_b):
+        option_a = np.floor(option_a/self.eps)
+        option_b = np.floor(option_b/self.eps)
+        return np.any(option_a<option_b)
+    
+    def sort_individual(self, solution):
+        sol_values = -1 * np.asarray(solution.fitness.wvalues) # we assume minimization here for the time being
+        i = -1
+        size = len(self.items) - 1
+        
+        removed = 0
+        added = 0
+        
+        while i < size:
+            i += 1
+            archived_solution = self[i]
+            arc_sol_values = -1*np.asarray(archived_solution.fitness.wvalues)  # we assume minimization here for the time being
+    
+            a_dom_b = self.dominates(arc_sol_values, sol_values)
+            b_dom_a = self.dominates(sol_values, arc_sol_values)
+            if a_dom_b & b_dom_a:
+                # non domination between a and b
+                continue
+            if a_dom_b:
+                # a dominates b
+                return removed, added
+            if b_dom_a:
+                # b dominates a
+                self.remove(i)
+                removed +=1
+                i -= 1
+                size -= 1
+                continue
+            if (not a_dom_b) & (not b_dom_a):
+                # same box, use solution closes to lower left corner
+                box_left_corner = np.floor(sol_values/self.eps)*self.eps
+                d_solution = np.sum((sol_values-box_left_corner)**2) 
+                d_archive = np.sum((arc_sol_values-box_left_corner)**2)
+                
+                if d_archive < d_solution:
+                    return removed, added
+                else:
+                    self.remove(i)
+                    removed +=1
+                    i -= 1
+                    size -= 1
+                    continue
+        
+        # non dominated solution
+        self.insert(solution)
+        added +=1
+        
+        return removed, added
+    
+    def update(self, population):
+        """
+        
+        Update the epsilon Pareto front hall of fame with the *population* by adding 
+        the individuals from the population that are not dominated by the hall
+        of fame. If any individual in the hall of fame is dominated it is
+        removed.
+        
+        :param population: A list of individual with a fitness attribute to
+                           update the hall of fame with.
+        """
+        added = 0
+        removed = 0
+        for ind in population:
+            ind_rem, ind_add = self.sort_individual(ind)
+            added += ind_add
+            removed += ind_rem            
+            
+#            is_dominated = False
+#            has_twin = False
+#            to_remove = []
+#            for i, hofer in enumerate(self):    # hofer = hall of famer
+#                if isDominated(ind.fitness.wvalues, hofer.fitness.wvalues):
+#                    is_dominated = True
+#                    break
+#                elif isDominated(hofer.fitness.wvalues, ind.fitness.wvalues):
+#                    to_remove.append(i)
+#                elif ind.fitness == hofer.fitness and self.similar(ind, hofer):
+#                    has_twin = True
+#                    break
+#            
+#            for i in reversed(to_remove):       # Remove the dominated hofer
+#                self.remove(i)
+#                removed+=1
+#            if not is_dominated and not has_twin:
+#                self.insert(ind)
+#                added+=1
+        return added, removed
+
 class NSGA2StatisticsCallback(object):
     '''
     Helper class for tracking statistics about the progression of the 
@@ -337,9 +443,13 @@ class NSGA2StatisticsCallback(object):
         
         
         '''
+        ema_logging.warning("currently testing epsilong based domination")
+        
         self.stats = []
         if len(weights)>1:
-            self.hall_of_fame = ParetoFront(similar=compare)
+#            self.hall_of_fame = ParetoFront(similar=compare)
+            a = [1e-9]*len(weights)
+            self.hall_of_fame = EpsilonParetoFront(np.asarray(a))
         else:
             self.hall_of_fame = HallOfFame(pop_size)
 
