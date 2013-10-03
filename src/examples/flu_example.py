@@ -25,7 +25,6 @@ from analysis.plotting import lines, KDE
 
 class MexicanFlu(ModelStructureInterface):
 
-
     uncertainties = [ParameterUncertainty((0, 0.5), "x11"), #k1
                      ParameterUncertainty((0, 0.5), "x12"), #k2
                      ParameterUncertainty((0.0001, 0.1), "x21"), #k3
