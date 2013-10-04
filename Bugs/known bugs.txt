@@ -1,45 +1,3 @@
----------------------------
-bug in graphs.py
----------------------------
-In case of a mix of outcomes, some of which are time dependent and some are 
-not. all the graphs will fail.  
-
----------------------------
-Bug 1 in PRIM
----------------------------
-Although the filter is supposed to filter out the uncertainties for which all 
-the boxes equal the size of the dump box, there is a problem for categorical 
-uncertainties. When PRIM is done, it visualizes some categorical uncertainties
-with all possible categories.
-
----------------------------
-Bug 2 in PRIM
----------------------------
-The problem is about an unhashable array type for a categorical uncertainty of 
-Switch preferences. You can find this categorical uncertainty between
-Line 103 and 133 of the file "EnergyTransExample_withnewmonitors.py"
-PRIM code should be modified in order to handle different array types. 
-
->> solution:
-the peeling and in_box are modified for the categorical data type. In case
-of float, int, or string categories, logical indexing on the column is used.
-Otherwise, the column is cast to a traditional python list over which you
-iterate. This is a bit of a cumbersome solution, but will work for now.
-
----------------------------------------------------------------
-bug in combining categorical uncertainty with vensim and tables
----------------------------------------------------------------
-in case of a categorical uncertainty, where the possibilities are listed in 
-table format (so a list of tuples), you can get an error with vensim. The 
-category is cast to an numpy array in when generating cases. The set_value
-in vensim.py however expects a list of tuples. The most elegant solution 
-appears to be to work with arrays all the way. This however breaks some 
-backward compatibility. For know, the easy quick fix is to transform the array
-back to the list of tuples in run_model, prior to invoking the super. 
-
->> solution:
-I removed the casting to array in the samper.
-
 ------------------------------------------------------------
 bug/feature in case of using a constant as outcome in vensim
 ------------------------------------------------------------
@@ -51,7 +9,3 @@ The underlying cause is that the .vdf file does not have time serries results
 for constants. In turn, the get_value returns an array with shape==1, this is
 lower than the expected length of the array, causing the caseError to be 
 raised.
-
- 
-
-
