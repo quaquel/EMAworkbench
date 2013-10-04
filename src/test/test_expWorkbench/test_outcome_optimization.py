@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 
 from expWorkbench import ema_logging
 from test.test_vensim_flu import FluModel
-
 from expWorkbench import ModelEnsemble, MAXIMIZE
+
 
 def obj_function_single(results):
     outcome = results['infected fraction R1']
@@ -33,9 +33,9 @@ def test_optimization():
     stats_callback, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
                                                     reporting_interval=100, 
                                                     weights=(MAXIMIZE, MAXIMIZE),
-                                                    pop_size=100,
-                                                    nr_of_generations=20,
-                                                    crossover_rate=0.5,
+                                                    pop_size=1000,          
+                                                    nr_of_generations=100,
+                                                    crossover_rate=0.8,
                                                     mutation_rate=0.05,
                                                     caching=False)
     
@@ -59,13 +59,15 @@ def test_optimization():
     ax = fig.add_subplot(111)
     ax.plot(added, label='added')
     ax.plot(removed, label='removed')
-    ax.set_ylabel("deceased population")
-    ax.set_xlabel("infected fraction")
+    ax.set_ylabel("changes")
+    ax.set_xlabel("generation")
     ax.legend(loc='best')
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(e_progress, label='$\epsilon$ progress')   
+    ax.set_ylabel('$\epsilon$ progress')
+    ax.set_xlabel("generation")
     
     plt.show()
 
