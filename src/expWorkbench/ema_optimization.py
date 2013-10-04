@@ -400,10 +400,12 @@ class EpsilonParetoFront(HallOfFame):
         """
         added = 0
         removed = 0
+        e_prog = 0
         for ind in population:
-            ind_rem, ind_add, e_prog = self.sort_individual(ind)
+            ind_rem, ind_add, ind_e_prog = self.sort_individual(ind)
             added += ind_add
-            removed += ind_rem            
+            removed += ind_rem    
+            e_prog = ind_e_prog        
             
 #            is_dominated = False
 #            has_twin = False
