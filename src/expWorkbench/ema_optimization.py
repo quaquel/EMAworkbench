@@ -407,7 +407,7 @@ class EpsilonParetoFront(HallOfFame):
             ind_rem, ind_add, ind_e_prog = self.sort_individual(ind)
             added += ind_add
             removed += ind_rem    
-            e_prog = ind_e_prog        
+            e_prog += ind_e_prog        
             
 #            is_dominated = False
 #            has_twin = False
