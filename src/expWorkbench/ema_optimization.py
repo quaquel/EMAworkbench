@@ -327,6 +327,7 @@ class EpsilonParetoFront(HallOfFame):
     def __init__(self, eps):
         self.eps = eps
         HallOfFame.__init__(self, None)
+        self.update = self._init_update
 
     def dominates(self, option_a, option_b):
         option_a = np.floor(option_a/self.eps)
@@ -335,6 +336,7 @@ class EpsilonParetoFront(HallOfFame):
     
     def sort_individual(self, solution):
         sol_values = -1 * np.asarray(solution.fitness.wvalues) # we assume minimization here for the time being
+        sol_values = sol_values/self.normalize
         i = -1
         size = len(self.items) - 1
         
@@ -348,6 +350,7 @@ class EpsilonParetoFront(HallOfFame):
             i += 1
             archived_solution = self[i]
             arc_sol_values = -1*np.asarray(archived_solution.fitness.wvalues)  # we assume minimization here for the time being
+            arc_sol_values = arc_sol_values/self.normalize
     
             a_dom_b = self.dominates(arc_sol_values, sol_values)
             b_dom_a = self.dominates(sol_values, arc_sol_values)
@@ -389,7 +392,25 @@ class EpsilonParetoFront(HallOfFame):
         
         return removed, added, e_progress
     
-    def update(self, population):
+    def _init_update(self, population):
+        '''
+        only called in the first iteration, used for
+        determining normalization valuess
+        '''
+        values = []
+        for entry in population:
+            values.append(entry.fitness.wvalues)
+        values = np.asarray(values)
+        values = -1*values # we minimize
+        maxima = np.max(values, axis=0)
+        minima = np.min(values, axis=0)
+        self.normalize = np.max(np.abs(values), axis=0)
+
+        self.update = self._update
+        return self.update(population)
+        
+    
+    def _update(self, population):
         """
         
         Update the epsilon Pareto front hall of fame with the *population* by adding 
@@ -408,26 +429,6 @@ class EpsilonParetoFront(HallOfFame):
             added += ind_add
             removed += ind_rem    
             e_prog += ind_e_prog        
-            
-#            is_dominated = False
-#            has_twin = False
-#            to_remove = []
-#            for i, hofer in enumerate(self):    # hofer = hall of famer
-#                if isDominated(ind.fitness.wvalues, hofer.fitness.wvalues):
-#                    is_dominated = True
-#                    break
-#                elif isDominated(hofer.fitness.wvalues, ind.fitness.wvalues):
-#                    to_remove.append(i)
-#                elif ind.fitness == hofer.fitness and self.similar(ind, hofer):
-#                    has_twin = True
-#                    break
-#            
-#            for i in reversed(to_remove):       # Remove the dominated hofer
-#                self.remove(i)
-#                removed+=1
-#            if not is_dominated and not has_twin:
-#                self.insert(ind)
-#                added+=1
         return added, removed, e_prog
 
 class NSGA2StatisticsCallback(object):
@@ -454,13 +455,13 @@ class NSGA2StatisticsCallback(object):
         
         
         '''
-        ema_logging.warning("currently testing epsilong based domination")
+       
         
         self.stats = []
         if len(weights)>1:
-#            self.hall_of_fame = ParetoFront(similar=compare)
-            a = [1e-9]*len(weights)
-            self.hall_of_fame = EpsilonParetoFront(np.asarray(a))
+#             self.hall_of_fame = ParetoFront(similar=compare)
+            self.hall_of_fame = EpsilonParetoFront(np.asarray([1e-5]*len(weights)))
+            ema_logging.warning("currently testing epsilon based domination")
         else:
             self.hall_of_fame = HallOfFame(pop_size)
 
