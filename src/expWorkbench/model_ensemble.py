@@ -30,7 +30,7 @@ from expWorkbench.ema_optimization import NSGA2StatisticsCallback,\
                                           generate_individual_outcome,\
                                           generate_individual_robust,\
                                           evaluate_population_robust,\
-                                          closest_multiple_of_four
+                                          closest_multiple_of_four, NSGA2
 
 
 from samplers import FullFactorialSampler, LHSSampler
@@ -561,6 +561,7 @@ class ModelEnsemble(object):
         return stats_callback, pop
 
     def perform_outcome_optimization(self, 
+                                     algorithm = NSGA2,
                                     reporting_interval=100,
                                     obj_function=None,
                                     weights = (),
@@ -594,12 +595,6 @@ class ModelEnsemble(object):
        
         """
 
-        #create a class for the individual
-        creator.create("Fitness", base.Fitness, weights=weights)
-        creator.create("Individual", dict, 
-                       fitness=creator.Fitness) #@UndefinedVariable
-        toolbox = base.Toolbox()
-        
         # Attribute generator
         od = self._determine_unique_attributes('uncertainties')[0]
         shared_uncertainties = od[tuple([msi.name for msi in self._msis])]
@@ -610,47 +605,41 @@ class ModelEnsemble(object):
                 uncertainty_dict[uncertainty.name] = uncertainty
         keys = sorted(uncertainty_dict.keys())
         
-        attr_list = []
         levers = {}
-        low = []
-        high = []
         for key in keys:
             specification = {}
             uncertainty = uncertainty_dict[key]
             value = uncertainty.values
-            
+             
             if isinstance(uncertainty, CategoricalUncertainty):
                 value = uncertainty.categories
-                toolbox.register(key, random.choice, value)
-                attr_list.append(getattr(toolbox, key))
-                low.append(0)
-                high.append(len(value)-1)
                 specification["type"]='list'
                 specification['values']=value
             elif isinstance(uncertainty, ParameterUncertainty):
                 if uncertainty.dist=='integer':
-                    toolbox.register(key, random.randint, value[0], value[1])
                     specification["type"]='range int'
                 else:
-                    toolbox.register(key, random.uniform, value[0], value[1])
                     specification["type"]='range float'
-                attr_list.append(getattr(toolbox, key))
-                low.append(value[0])
-                high.append(value[1])
-                
                 specification['values']=value
-                
+                 
             else:
                 raise EMAError("unknown allele type: possible types are range and list")
             levers[key] = specification
+        
+        algorithm = NSGA2(weights, levers)
 
-        return self._run_optimization(toolbox, generate_individual_outcome, 
-                                       evaluate_population_outcome, attr_list, 
-                                       keys, obj_function, pop_size, 
-                                       reporting_interval, weights, 
-                                       nr_of_generations, crossover_rate, 
-                                       mutation_rate, levers, caching, 
-                                       **kwargs)
+        return self._run_optimization(generate_individual_outcome,
+                                      evaluate_population_outcome,
+                                      weights=weights,
+                                      levers=levers,
+                                      algorithm=algorithm, 
+                                      obj_function=obj_function, 
+                                      pop_size=pop_size, 
+                                      reporting_interval=reporting_interval, 
+                                      nr_of_generations=nr_of_generations, 
+                                      crossover_rate=crossover_rate, 
+                                      mutation_rate=mutation_rate, **kwargs)
+
 
     
     def _determine_unique_attributes(self, attribute):
@@ -783,11 +772,14 @@ class ModelEnsemble(object):
 
 
 
-    def _run_optimization(self, toolbox, generate_individual, 
-                           evaluate_population, attr_list, keys, obj_function, 
-                           pop_size, reporting_interval, weights, 
-                           nr_of_generations, crossover_rate, mutation_rate,
-                           levers, caching, **kwargs):
+    def _run_optimization(self, generate_individual, 
+                           evaluate_population,algorithm=None, 
+                           obj_function=None,
+                           weights=None, levers=None, 
+                           pop_size=None, reporting_interval=None, 
+                           nr_of_generations=None, crossover_rate=None, 
+                           mutation_rate=None,
+                           **kwargs):
         '''
         Helper function that runs the actual optimization
                 
@@ -811,166 +803,68 @@ class ModelEnsemble(object):
                        info used in mutation.
         
         '''
-        # figure out whether we are doing single or multi-objective 
-        # optimization
-        #TODO raise error if not specified
-        single_obj = True
-        if len(weights) >1: 
-            single_obj=False
-        
-        # Structure initializers
-        toolbox.register("individual", 
-                         generate_individual, 
-                         creator.Individual, #@UndefinedVariable
-                         attr_list, keys=keys) 
-        toolbox.register("population", tools.initRepeat, list, 
-                         toolbox.individual)
-    
-        # Operator registering
-        toolbox.register("evaluate", obj_function)
-        toolbox.register("crossover", tools.cxOnePoint)
-        toolbox.register("mutate", mut_polynomial_bounded)
-       
-        if single_obj:
-            toolbox.register("select", tools.selTournament)
-        else:
-            toolbox.register("select", tools.selNSGA2)
+#         # figure out whether we are doing single or multi-objective 
+#         # optimization
+#         #TODO raise error if not specified
+#         single_obj = True
+#         if len(weights) >1: 
+#             single_obj=False
+#         
+#         # Structure initializers
+#         toolbox.register("individual", 
+#                          generate_individual, 
+#                          creator.Individual, #@UndefinedVariable
+#                          attr_list, keys=keys) 
+#         toolbox.register("population", tools.initRepeat, list, 
+#                          toolbox.individual)
+#     
+#         # Operator registering
+#         toolbox.register("evaluate", obj_function)
+#         toolbox.register("crossover", tools.cxOnePoint)
+#         toolbox.register("mutate", mut_polynomial_bounded)
+#        
+#         if single_obj:
+#             toolbox.register("select", tools.selTournament)
+#         else:
+#             toolbox.register("select", tools.selNSGA2)
+# 
+#         # generate population
+#         # for some stupid reason, DEAP demands a multiple of four for 
+#         # population size in case of NSGA-2 
+#         pop_size = closest_multiple_of_four(pop_size)
+#         info("population size restricted to %s " % (pop_size))
+#         pop = toolbox.population(pop_size)
+#         
+#         debug("Start of evolution")
+#         
+#         # Evaluate the entire population
+#         evaluate_population(pop, reporting_interval, toolbox, self)
+#         
+#         if not single_obj:
+#             # This is just to assign the crowding distance to the individuals
+#             tools.assignCrowdingDist(pop)
+#     
+#         #some statistics logging
+#         stats_callback = NSGA2StatisticsCallback(weights=weights,
+#                                     nr_of_generations=nr_of_generations,
+#                                     crossover_rate=crossover_rate, 
+#                                     mutation_rate=mutation_rate, 
+#                                     pop_size=pop_size, 
+#                                     caching=caching)
+#         stats_callback(pop)
+#         stats_callback.log_stats(0)
 
-        # generate population
-        # for some stupid reason, DEAP demands a multiple of four for 
-        # population size in case of NSGA-2 
-        pop_size = closest_multiple_of_four(pop_size)
-        info("population size restricted to %s " % (pop_size))
-        pop = toolbox.population(pop_size)
-        
-        debug("Start of evolution")
-        
-        # Evaluate the entire population
-        evaluate_population(pop, reporting_interval, toolbox, self)
-        
-        if not single_obj:
-            # This is just to assign the crowding distance to the individuals
-            tools.assignCrowdingDist(pop)
-    
-        #some statistics logging
-        stats_callback = NSGA2StatisticsCallback(weights=weights,
-                                    nr_of_generations=nr_of_generations,
-                                    crossover_rate=crossover_rate, 
-                                    mutation_rate=mutation_rate, 
-                                    pop_size=pop_size, 
-                                    caching=caching)
-        stats_callback(pop)
-        stats_callback.log_stats(0)
+        algorithm = NSGA2(weights, levers, generate_individual, obj_function, 
+                          pop_size, evaluate_population, nr_of_generations, 
+                          crossover_rate, mutation_rate, reporting_interval,
+                          self)
 
         # Begin the generational process
         for gen in range(nr_of_generations):
-            pop = self._run_geneneration(pop, crossover_rate, mutation_rate, 
-                                          toolbox, reporting_interval, levers, 
-                                          evaluate_population, keys, 
-                                          single_obj, stats_callback, 
-                                          caching, **kwargs)
-            stats_callback(pop)
-            stats_callback.log_stats(gen)    
+            pop = algorithm.get_population()
         info("-- End of (successful) evolution --")
 
-        return stats_callback, pop        
-
-    def _run_geneneration(self,
-                          pop,
-                          crossover_rate,
-                          mutation_rate,
-                          toolbox,
-                          reporting_interval,
-                          allele_dict,
-                          evaluate_population,
-                          keys,
-                          single_obj,
-                          stats_callback,
-                          caching,
-                          **kwargs):
-        '''
-        
-        Helper function for runing a single generation.
-        
-        :param pop:
-        :param crossover_rate:
-        :param mutation_rate:
-        :param toolbox:
-        :param reporting_interval:
-        :param allele_dict:
-        :param evaluate_population:
-        :param keys:
-        :param single_obj:
-        
-        
-        '''
-        # Variate the population
-        pop_size = len(pop)
-        a = pop[0:closest_multiple_of_four(len(pop))]
-        if single_obj:
-            offspring = toolbox.select(pop, pop_size, min(pop_size, 10))
-        else:
-            offspring = tools.selTournamentDCD(a, len(pop))
-        offspring = [toolbox.clone(ind) for ind in offspring]
-        
-        no_name=False
-        for child1, child2 in zip(offspring[::2], offspring[1::2]):
-            # Apply crossover 
-            if random.random() < crossover_rate:
-                keys = sorted(child1.keys())
-                
-                try:
-                    keys.pop(keys.index("name"))
-                except ValueError:
-                    no_name = True
-                
-                child1_temp = [child1[key] for key in keys]
-                child2_temp = [child2[key] for key in keys]
-                toolbox.crossover(child1_temp, child2_temp)
-
-                if not no_name:
-                    for child, child_temp in zip((child1, child2), 
-                                             (child1_temp,child2_temp)):
-                        name = ""
-                        for key, value in zip(keys, child_temp):
-                            child[key] = value
-                            name += " "+str(child[key])
-                        child['name'] = name 
-                else:
-                    for child, child_temp in zip((child1, child2), 
-                                             (child1_temp,child2_temp)):
-                        for key, value in zip(keys, child_temp):
-                            child[key] = value
-                
-            #apply mutation
-            toolbox.mutate(child1, mutation_rate, allele_dict, keys, 0.05)
-            toolbox.mutate(child2, mutation_rate, allele_dict, keys, 0.05)
-
-            for entry in (child1, child2):
-                del entry.fitness.values
-            
-            if caching:
-                for entry in (child1, child2):
-                    try:
-                        ind = stats_callback.tried_solutions[entry]
-                    except KeyError:
-                        del entry.fitness.values
-                        continue
-                    
-                    entry.fitness = ind.fitness 
-       
-        # Evaluate the individuals with an invalid fitness
-        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        evaluate_population(invalid_ind, reporting_interval, toolbox, self)
-
-        # Select the next generation population
-        if single_obj:
-            pop = offspring
-        else:
-            pop = toolbox.select(pop + offspring, pop_size)
-
-        return pop
-
+        return algorithm.stats_callback, pop        
 
 def experiment_generator_predef_cases(designs, model_structures, policies):
     '''

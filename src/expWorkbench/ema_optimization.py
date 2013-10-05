@@ -14,7 +14,15 @@ import random
 
 from deap.tools import HallOfFame, isDominated
 
+from deap import base
+from deap import creator
+from deap import tools
+
 from expWorkbench import ema_logging
+from expWorkbench import debug, info
+
+import abc
+from expWorkbench.ema_exceptions import EMAError
 
 __all__ = ["mut_polynomial_bounded",
            "NSGA2StatisticsCallback",
@@ -202,6 +210,8 @@ def mut_polynomial_bounded(individual, eta, policy_levers, keys, indpb):
                 individual[key] = random.choice(value)
     return individual,
 
+
+
 def compare(ind1, ind2):
     '''
     Helper function for comparing to individuals. Returns True if all fields
@@ -229,31 +239,162 @@ def closest_multiple_of_four(number):
     return number - number % 4
 
 
-class TriedSolutions():
-    '''
-    Helper class to keep track of all solution that have been tried. It is 
-    essentially a dict where the key is the individual. Given that individual
-    is unhashable, we use make_name to obtain a string representation of the 
-    individual. Currently, make_name only sorts the keys at the highest level
-    of the dict. Lover level dicts are not sorted, so their is no guarantee
-    that in such a situation the fact that two individuals are identical is
-    being detected.
-    '''
+class AbstractOptimizationAlgorithm():
     
-    tried_solutions = dict()
+    __metaclass__ = abc.ABCMeta
     
-    def __getitem__(self, ind):
-        return self.tried_solutions[make_name(ind)]
+    def __init__(self):
+        pass
     
-    def __setitem__(self, ind, value):
-        self.tried_solutions[make_name(ind)] = value
+    @abc.abstractmethod
+    def get_population(self):
+        pass
+
+class NSGA2():
+    
+    
+    def __init__(self, weights, levers, generate_individual, obj_function,
+                 pop_size, evaluate_population, nr_of_generations, 
+                 crossover_rate,mutation_rate, reporting_interval,
+                 ensemble):
+        self.archive = ParetoFront(similar=compare)
+#         self.archive = EpsilonParetoFront(np.asarray([1e-5]*len(weights)))
+        self.evaluate_population = evaluate_population
+        self.levers = levers
+        self.reporting_interval = reporting_interval
+        self.ensemble = ensemble
         
-    def values(self):
-        return self.tried_solutions.values()
+        #create a class for the individual
+        creator.create("Fitness", base.Fitness, weights=weights)
+        creator.create("Individual", dict, 
+                       fitness=creator.Fitness) #@UndefinedVariable
+        self.toolbox = base.Toolbox()
+        self.levers =levers
     
-    def keys(self):
-        return self.tried_solutions.keys()
+        attr_list = []
+        low = []
+        high = []
+        keys = []
+        for key, value in levers.iteritems():
+            lever_type = value['type']
+            values = value['values']
+            keys.append(key)
+            
+            if lever_type=='list':
+                self.toolbox.register(key, random.choice, values)
+                attr_list.append(getattr(self.toolbox, key))
+                low.append(0)
+                high.append(len(value)-1)
+            else:
+                if lever_type == 'range int':
+                    self.toolbox.register(key, random.randint, 
+                                          values[0], values[1])
+                elif lever_type == 'range float':
+                    self.toolbox.register(key, random.uniform, 
+                                          value[0], value[1])
+                else:
+                    raise EMAError("unknown allele type: possible types are range and list")
+      
+                attr_list.append(getattr(self.toolbox, key))
+                low.append(value[0])
+                high.append(value[1])
+                
+        # Structure initializers
+        self.toolbox.register("individual", 
+                         generate_individual, 
+                         creator.Individual, #@UndefinedVariable
+                         attr_list, keys=keys) 
+        self.toolbox.register("population", tools.initRepeat, list, 
+                         self.toolbox.individual)
+    
+        # Operator registering
+        self.toolbox.register("evaluate", obj_function)
+        self.toolbox.register("crossover", tools.cxOnePoint)
+        self.toolbox.register("mutate", mut_polynomial_bounded)
+       
+        self.toolbox.register("select", tools.selNSGA2)
+
+        # generate population
+        # for some stupid reason, DEAP demands a multiple of four for 
+        # population size in case of NSGA-2 
+        self.pop_size = closest_multiple_of_four(pop_size)
+        info("population size restricted to %s " % (pop_size))
         
+        self.pop = self.toolbox.population(pop_size)
+        
+        debug("Start of evolution")
+        
+        # Evaluate the entire population
+        self.evaluate_population(self.pop, self.reporting_interval, self.toolbox, 
+                                 self.ensemble)
+
+        # This is just to assign the crowding distance to the individuals
+        tools.assignCrowdingDist(self.pop)
+    
+        #some statistics logging
+        self.stats_callback = NSGA2StatisticsCallback(weights=weights,
+                                    nr_of_generations=nr_of_generations,
+                                    crossover_rate=crossover_rate, 
+                                    mutation_rate=mutation_rate, 
+                                    pop_size=pop_size, archive=self.archive)
+        self.stats_callback(self.pop)
+        self.stats_callback.log_stats(0)
+    
+    def get_population(self):
+        pop_size = len(self.pop)
+        a = self.pop[0:closest_multiple_of_four(len(self.pop))]
+        
+        offspring = tools.selTournamentDCD(a, len(self.pop))
+        offspring = [self.toolbox.clone(ind) for ind in offspring]
+        
+        no_name=False
+        for child1, child2 in zip(offspring[::2], offspring[1::2]):
+            # Apply crossover 
+            if random.random() < self.crossover_rate:
+                keys = sorted(child1.keys())
+                
+                try:
+                    keys.self.pop(keys.index("name"))
+                except ValueError:
+                    no_name = True
+                
+                child1_temp = [child1[key] for key in keys]
+                child2_temp = [child2[key] for key in keys]
+                self.toolbox.crossover(child1_temp, child2_temp)
+
+                if not no_name:
+                    for child, child_temp in zip((child1, child2), 
+                                             (child1_temp,child2_temp)):
+                        name = ""
+                        for key, value in zip(keys, child_temp):
+                            child[key] = value
+                            name += " "+str(child[key])
+                        child['name'] = name 
+                else:
+                    for child, child_temp in zip((child1, child2), 
+                                             (child1_temp,child2_temp)):
+                        for key, value in zip(keys, child_temp):
+                            child[key] = value
+                
+            #apply mutation
+            self.toolbox.mutate(child1, self.mutation_rate, self.levers, keys, 0.05)
+            self.toolbox.mutate(child2, self.mutation_rate, self.levers, keys, 0.05)
+
+            for entry in (child1, child2):
+                del entry.fitness.values
+            
+       
+        # Evaluate the individuals with an invalid fitness
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        self.evaluate_population(self.pop, self.reporting_interval, self.toolbox, 
+                                 self.ensemble)
+
+        # Select the next generation population
+        self.pop = self.toolbox.select(self.pop + offspring, pop_size)
+        self.stats_callback(self.pop)
+        self.stats_callback.log_stats(0)
+        return self.pop
+
 
 class ParetoFront(HallOfFame):
     """The Pareto front hall of fame contains all the non-dominated individuals
@@ -402,8 +543,6 @@ class EpsilonParetoFront(HallOfFame):
             values.append(entry.fitness.wvalues)
         values = np.asarray(values)
         values = -1*values # we minimize
-        maxima = np.max(values, axis=0)
-        minima = np.min(values, axis=0)
         self.normalize = np.max(np.abs(values), axis=0)
 
         self.update = self._update
@@ -443,7 +582,7 @@ class NSGA2StatisticsCallback(object):
                  crossover_rate=None, 
                  mutation_rate=None,
                  pop_size=None,
-                 caching=False):
+                 archive=None):
         '''
         
         :param weights: the weights on the outcomes
@@ -458,15 +597,12 @@ class NSGA2StatisticsCallback(object):
        
         
         self.stats = []
-        if len(weights)>1:
-#             self.hall_of_fame = ParetoFront(similar=compare)
-            self.hall_of_fame = EpsilonParetoFront(np.asarray([1e-5]*len(weights)))
-            ema_logging.warning("currently testing epsilon based domination")
-        else:
-            self.hall_of_fame = HallOfFame(pop_size)
 
-        if caching:            
-            self.tried_solutions = TriedSolutions() 
+        self.hall_of_fame = archive
+        ema_logging.warning("currently testing epsilon based domination")
+
+
+
         self.change = []
         
         self.weights = weights
