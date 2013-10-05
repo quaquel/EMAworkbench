@@ -620,13 +620,10 @@ class ModelEnsemble(object):
                     specification["type"]='range int'
                 else:
                     specification["type"]='range float'
-                specification['values']=value
-                 
+                specification['values']=value     
             else:
                 raise EMAError("unknown allele type: possible types are range and list")
             levers[key] = specification
-        
-        algorithm = NSGA2(weights, levers)
 
         return self._run_optimization(generate_individual_outcome,
                                       evaluate_population_outcome,
@@ -854,7 +851,7 @@ class ModelEnsemble(object):
 #         stats_callback(pop)
 #         stats_callback.log_stats(0)
 
-        algorithm = NSGA2(weights, levers, generate_individual, obj_function, 
+        algorithm = algorithm(weights, levers, generate_individual, obj_function, 
                           pop_size, evaluate_population, nr_of_generations, 
                           crossover_rate, mutation_rate, reporting_interval,
                           self)

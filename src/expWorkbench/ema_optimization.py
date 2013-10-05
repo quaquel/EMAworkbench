@@ -46,7 +46,7 @@ def generate_individual_outcome(icls, attr_list, keys):
     
     '''
     ind = icls()
-    for key, attr in zip(sorted(keys), attr_list):
+    for key, attr in zip(keys, attr_list):
         ind[key] = attr()
     return ind
 
@@ -239,108 +239,118 @@ def closest_multiple_of_four(number):
     return number - number % 4
 
 
-class AbstractOptimizationAlgorithm():
+class AbstractOptimizationAlgorithm(object):
     
     __metaclass__ = abc.ABCMeta
     
-    def __init__(self):
-        pass
-    
-    @abc.abstractmethod
-    def get_population(self):
-        pass
-
-class NSGA2():
-    
-    
-    def __init__(self, weights, levers, generate_individual, obj_function,
-                 pop_size, evaluate_population, nr_of_generations, 
-                 crossover_rate,mutation_rate, reporting_interval,
-                 ensemble):
-        self.archive = ParetoFront(similar=compare)
-#         self.archive = EpsilonParetoFront(np.asarray([1e-5]*len(weights)))
+    def __init__(self, evaluate_population, generate_individual, 
+                 levers, reporting_interval, obj_function,
+                 ensemble, crossover_rate, mutation_rate, weights,
+                 pop_size):
         self.evaluate_population = evaluate_population
         self.levers = levers
         self.reporting_interval = reporting_interval
         self.ensemble = ensemble
+        self.crossover_rate = crossover_rate 
+        self.mutation_rate = mutation_rate 
+        self.weights = weights
+        self.obj_function = obj_function
+        self.pop_size = pop_size
         
         #create a class for the individual
-        creator.create("Fitness", base.Fitness, weights=weights)
+        creator.create("Fitness", base.Fitness, weights=self.weights)
         creator.create("Individual", dict, 
                        fitness=creator.Fitness) #@UndefinedVariable
         self.toolbox = base.Toolbox()
-        self.levers =levers
+        self.levers = levers
     
-        attr_list = []
-        low = []
-        high = []
-        keys = []
+        self.attr_list = []
+        self.lever_names = []
         for key, value in levers.iteritems():
             lever_type = value['type']
             values = value['values']
-            keys.append(key)
             
             if lever_type=='list':
                 self.toolbox.register(key, random.choice, values)
-                attr_list.append(getattr(self.toolbox, key))
-                low.append(0)
-                high.append(len(value)-1)
             else:
                 if lever_type == 'range int':
                     self.toolbox.register(key, random.randint, 
                                           values[0], values[1])
                 elif lever_type == 'range float':
                     self.toolbox.register(key, random.uniform, 
-                                          value[0], value[1])
+                                          values[0], values[1])
                 else:
                     raise EMAError("unknown allele type: possible types are range and list")
-      
-                attr_list.append(getattr(self.toolbox, key))
-                low.append(value[0])
-                high.append(value[1])
-                
+
+            self.attr_list.append(getattr(self.toolbox, key))
+            self.lever_names.append(key)
+
         # Structure initializers
         self.toolbox.register("individual", 
                          generate_individual, 
                          creator.Individual, #@UndefinedVariable
-                         attr_list, keys=keys) 
+                         self.attr_list, keys=self.lever_names) 
         self.toolbox.register("population", tools.initRepeat, list, 
                          self.toolbox.individual)
     
         # Operator registering
-        self.toolbox.register("evaluate", obj_function)
-        self.toolbox.register("crossover", tools.cxOnePoint)
-        self.toolbox.register("mutate", mut_polynomial_bounded)
-       
-        self.toolbox.register("select", tools.selNSGA2)
+        self.toolbox.register("evaluate", self.obj_function)
+        
+        self.get_population = self._first_get_population
+        self.called = 0
+        
+        #some statistics logging
+        self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
+    
+    @abc.abstractmethod
+    def _first_get_population(self):
+        pass
+
+    @abc.abstractmethod
+    def _get_population(self):
+        pass
+
+class NSGA2(AbstractOptimizationAlgorithm):
+    
+    def __init__(self, weights, levers, generate_individual, obj_function,
+                 pop_size, evaluate_population, nr_of_generations, 
+                 crossover_rate,mutation_rate, reporting_interval,
+                 ensemble):
 
         # generate population
         # for some stupid reason, DEAP demands a multiple of four for 
         # population size in case of NSGA-2 
-        self.pop_size = closest_multiple_of_four(pop_size)
+        pop_size = closest_multiple_of_four(pop_size)
         info("population size restricted to %s " % (pop_size))
+               
+        super(NSGA2, self).__init__(evaluate_population, generate_individual, 
+                 levers, reporting_interval, obj_function,
+                 ensemble, crossover_rate, mutation_rate, weights,
+                 pop_size)
         
-        self.pop = self.toolbox.population(pop_size)
-        
+        self.archive = ParetoFront(similar=compare)
+        self.toolbox.register("crossover", tools.cxOnePoint)
+        self.toolbox.register("mutate", mut_polynomial_bounded)
+        self.toolbox.register("select", tools.selNSGA2)
+
+    def _first_get_population(self):
         debug("Start of evolution")
+        
+        self.pop = self.toolbox.population(self.pop_size)
         
         # Evaluate the entire population
         self.evaluate_population(self.pop, self.reporting_interval, self.toolbox, 
                                  self.ensemble)
 
         # This is just to assign the crowding distance to the individuals
-        tools.assignCrowdingDist(self.pop)
-    
-        #some statistics logging
-        self.stats_callback = NSGA2StatisticsCallback(weights=weights,
-                                    nr_of_generations=nr_of_generations,
-                                    crossover_rate=crossover_rate, 
-                                    mutation_rate=mutation_rate, 
-                                    pop_size=pop_size, archive=self.archive)
+        tools.assignCrowdingDist(self.pop)        
+
         self.stats_callback(self.pop)
-        self.stats_callback.log_stats(0)
+        self.stats_callback.log_stats(self.called)
+        self.get_population = self._get_population
     
-    def get_population(self):
+    def _get_population(self):
+        self.called +=1
         pop_size = len(self.pop)
         a = self.pop[0:closest_multiple_of_four(len(self.pop))]
         
@@ -354,7 +364,7 @@ class NSGA2():
                 keys = sorted(child1.keys())
                 
                 try:
-                    keys.self.pop(keys.index("name"))
+                    keys.pop(keys.index("name"))
                 except ValueError:
                     no_name = True
                 
@@ -377,8 +387,8 @@ class NSGA2():
                             child[key] = value
                 
             #apply mutation
-            self.toolbox.mutate(child1, self.mutation_rate, self.levers, keys, 0.05)
-            self.toolbox.mutate(child2, self.mutation_rate, self.levers, keys, 0.05)
+            self.toolbox.mutate(child1, self.mutation_rate, self.levers, self.lever_names, 0.05)
+            self.toolbox.mutate(child2, self.mutation_rate, self.levers, self.lever_names, 0.05)
 
             for entry in (child1, child2):
                 del entry.fitness.values
@@ -386,15 +396,26 @@ class NSGA2():
        
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        self.evaluate_population(self.pop, self.reporting_interval, self.toolbox, 
+        self.evaluate_population(invalid_ind, self.reporting_interval, self.toolbox, 
                                  self.ensemble)
 
         # Select the next generation population
         self.pop = self.toolbox.select(self.pop + offspring, pop_size)
         self.stats_callback(self.pop)
-        self.stats_callback.log_stats(0)
+        self.stats_callback.log_stats(self.called)
         return self.pop
 
+class epsNSGA2(NSGA2):
+
+    def __init__(self, weights, levers, generate_individual, obj_function,
+                 pop_size, evaluate_population, nr_of_generations, 
+                 crossover_rate,mutation_rate, reporting_interval,
+                 ensemble):
+        super(epsNSGA2, self).__init__(weights, levers, generate_individual, obj_function,
+                 pop_size, evaluate_population, nr_of_generations, 
+                 crossover_rate,mutation_rate, reporting_interval,
+                 ensemble)
+        self.archive = EpsilonParetoFront(np.asarray([1e-5]*len(weights)))
 
 class ParetoFront(HallOfFame):
     """The Pareto front hall of fame contains all the non-dominated individuals
@@ -577,12 +598,7 @@ class NSGA2StatisticsCallback(object):
     '''
     
     def __init__(self,
-                 weights=(),
-                 nr_of_generations=None,
-                 crossover_rate=None, 
-                 mutation_rate=None,
-                 pop_size=None,
-                 archive=None):
+                 algorithm=None):
         '''
         
         :param weights: the weights on the outcomes
@@ -594,28 +610,23 @@ class NSGA2StatisticsCallback(object):
         
         
         '''
-       
-        
         self.stats = []
+        self.algorithm = algorithm
 
-        self.hall_of_fame = archive
         ema_logging.warning("currently testing epsilon based domination")
-
-
 
         self.change = []
         
-        self.weights = weights
-        self.nr_of_generations = nr_of_generations
-        self.crossover_rate = crossover_rate
-        self.mutation_rate=mutation_rate
+        self.weights = self.algorithm.weights
+        self.crossover_rate = self.algorithm.crossover_rate
+        self.mutation_rate = self.algorithm.mutation_rate
 
         self.precision = "{0:.%if}" % 2
     
     
     def __get_hof_in_array(self):
         a = []
-        for entry in self.hall_of_fame:
+        for entry in self.algorithm.archive:
             a.append(entry.fitness.values)
         return np.asarray(a)
     
@@ -648,7 +659,8 @@ class NSGA2StatisticsCallback(object):
         ema_logging.info(line)
 
     def __call__(self, population):
-        self.change.append(self.hall_of_fame.update(population))
+        self.nr_of_generations = self.algorithm.called
+        self.change.append(self.algorithm.archive.update(population))
         
         for entry in population:
             self.stats.append(entry.fitness.values)
