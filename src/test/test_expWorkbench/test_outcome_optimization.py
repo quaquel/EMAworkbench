@@ -31,8 +31,8 @@ def test_optimization():
     ensemble.set_model_structure(model)
 #     ensemble.parallel=True
     
-    pop_size = 50
-    nr_of_generations = 250
+    pop_size = 10
+    nr_of_generations = 1000
         
     stats_callback, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
                                                     algorithm=epsNSGA2,
