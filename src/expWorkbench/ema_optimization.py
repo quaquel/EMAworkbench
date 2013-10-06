@@ -251,8 +251,14 @@ def mut_uniform_int(individual, policy_levers, keys):
     """
     for i, entry in enumerate(policy_levers.iteritems()):
         if random.random() < 1/len(policy_levers.keys()):
-            print entry
-#             individual[indx] = random.randint(low, up)
+            key, entry = entry
+            values = entry['values']
+            if entry['type'] == 'range float':
+                individual[key] = random.uniform(values[0], values[1])
+            elif entry['type'] == 'range int':
+                individual[key] = random.randint(values[0], values[1])
+            else:
+                raise NotImplementedError("unknown type")
     
     return individual,
 
@@ -432,40 +438,49 @@ class epsNSGA2(NSGA2):
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
                  ensemble)
-        self.archive = EpsilonParetoFront(np.asarray([1e-5]*len(weights)))
+        self.archive = EpsilonParetoFront(np.asarray([1e-9]*len(weights)))
         
-    def _get_population(self):
-        archive_length = len(self.archive.items)
-        ema_logging.info(archive_length)
-        
-        # here a restart check is needed
-        
-        desired_pop_size = 4 * len(self.archive.items)
+        self.desired_labda = 4
+    
+    def _rebuild_population(self):
+        desired_pop_size = self.desired_labda * len(self.archive.items)
+        self.pop_size = desired_pop_size
         new_pop = [entry for entry in self.archive.items]
         
         while len(new_pop) < desired_pop_size:
-            rand_i = random.randint(0, archive_length-1)
+            rand_i = random.randint(0, len(self.archive.items)-1)
             individual = self.archive.items[rand_i]
-            
-#             # do a random uniform mutation
-#             After some experimentation on the DTLZ (Deb et al., 2001), 
-#             WFG (Huband et al., 2006) and CEC 2009 (Zhang et al., 2009b) 
-#             test suites, we observed that filling the re- maining slots with 
-#             solutions selected randomly from the archive and mutated using 
-#             uniform mutation applied with probability 1/L achieved 
-#             significantly better results. This is supported by the work of 
-#             Schaffer et al. (1989) and others showing the dependence of 
-#             effective mutation rates upon the number of decision variables L.
-            
-            # so the chance of mutation 1/nr_decision_levers
-            # where each lever is mutation using uniform mutation
-            
             mut_uniform_int(individual, self.levers, self.lever_names)
             
             # add to new_pop
             new_pop.append(individual)
         
-        super(epsNSGA2, self)._get_population()
+        return new_pop
+        
+    def _get_population(self):
+
+        archive_length = len(self.archive.items)
+        ema_logging.info(archive_length)
+        
+        # TODO here a restart check is needed
+        labda = self.pop_size/archive_length
+        if np.abs(1-(labda/self.desired_labda)) > 0.25:
+            self.called +=1
+            new_pop = self._rebuild_population()
+        
+            # update selection presure...
+        
+            # Evaluate the individuals with an invalid fitness
+            self.evaluate_population(new_pop, self.reporting_interval, self.toolbox, 
+                                     self.ensemble)
+    
+            # Select the next generation population
+            self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)
+            self.stats_callback(self.pop)
+            self.stats_callback.log_stats(self.called)
+        else:
+            super(epsNSGA2, self)._get_population()
+
 
 class ParetoFront(HallOfFame):
     """The Pareto front hall of fame contains all the non-dominated individuals
