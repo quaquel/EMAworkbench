@@ -238,6 +238,23 @@ def closest_multiple_of_four(number):
     
     return number - number % 4
 
+def mut_uniform_int(individual, policy_levers, keys):
+    """Mutate an individual by replacing attributes, with probability *indpb*,
+    by a integer uniformly drawn between *low* and *up* inclusively.
+    
+    :param low: The lower bound of the range from wich to draw the new
+                integer.
+    :param up: The upper bound of the range from wich to draw the new
+                integer.
+    :param indpb: Probability for each attribute to be mutated.
+    :returns: A tuple of one individual.
+    """
+    for i, entry in enumerate(policy_levers.iteritems()):
+        if random.random() < 1/len(policy_levers.keys()):
+            print entry
+#             individual[indx] = random.randint(low, up)
+    
+    return individual,
 
 class AbstractOptimizationAlgorithm(object):
     
@@ -416,6 +433,39 @@ class epsNSGA2(NSGA2):
                  crossover_rate,mutation_rate, reporting_interval,
                  ensemble)
         self.archive = EpsilonParetoFront(np.asarray([1e-5]*len(weights)))
+        
+    def _get_population(self):
+        archive_length = len(self.archive.items)
+        ema_logging.info(archive_length)
+        
+        # here a restart check is needed
+        
+        desired_pop_size = 4 * len(self.archive.items)
+        new_pop = [entry for entry in self.archive.items]
+        
+        while len(new_pop) < desired_pop_size:
+            rand_i = random.randint(0, archive_length-1)
+            individual = self.archive.items[rand_i]
+            
+#             # do a random uniform mutation
+#             After some experimentation on the DTLZ (Deb et al., 2001), 
+#             WFG (Huband et al., 2006) and CEC 2009 (Zhang et al., 2009b) 
+#             test suites, we observed that filling the re- maining slots with 
+#             solutions selected randomly from the archive and mutated using 
+#             uniform mutation applied with probability 1/L achieved 
+#             significantly better results. This is supported by the work of 
+#             Schaffer et al. (1989) and others showing the dependence of 
+#             effective mutation rates upon the number of decision variables L.
+            
+            # so the chance of mutation 1/nr_decision_levers
+            # where each lever is mutation using uniform mutation
+            
+            mut_uniform_int(individual, self.levers, self.lever_names)
+            
+            # add to new_pop
+            new_pop.append(individual)
+        
+        super(epsNSGA2, self)._get_population()
 
 class ParetoFront(HallOfFame):
     """The Pareto front hall of fame contains all the non-dominated individuals
