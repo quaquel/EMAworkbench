@@ -257,8 +257,10 @@ def mut_uniform_int(individual, policy_levers, keys):
                 individual[key] = random.uniform(values[0], values[1])
             elif entry['type'] == 'range int':
                 individual[key] = random.randint(values[0], values[1])
+            elif entry['type'] == 'list':
+                individual[key] = random.choice(values)
             else:
-                raise NotImplementedError("unknown type")
+                raise NotImplementedError("unknown type: {}".format(entry['type']))
     
     return individual,
 
@@ -438,7 +440,7 @@ class epsNSGA2(NSGA2):
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
                  ensemble)
-        self.archive = EpsilonParetoFront(np.asarray([1e-9]*len(weights)))
+        self.archive = EpsilonParetoFront(np.asarray([1e-3]*len(weights)))
         
         self.desired_labda = 4
     

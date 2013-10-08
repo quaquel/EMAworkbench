@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from expWorkbench import ema_logging
 from test.test_vensim_flu import FluModel
 from expWorkbench import ModelEnsemble, MAXIMIZE
-from expWorkbench.ema_optimization import epsNSGA2
+from expWorkbench.ema_optimization import epsNSGA2, NSGA2
 
 
 def obj_function_single(results):
@@ -29,12 +29,21 @@ def test_optimization():
     ensemble = ModelEnsemble()
     
     ensemble.set_model_structure(model)
-#     ensemble.parallel=True
+    ensemble.parallel=True
     
     pop_size = 10
-    nr_of_generations = 1000
+    nr_of_generations = 250
+
+    stats_callback1, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
+                                                    algorithm=NSGA2,
+                                                    reporting_interval=100, 
+                                                    weights=(MAXIMIZE, MAXIMIZE),
+                                                    pop_size=pop_size,          
+                                                    nr_of_generations=nr_of_generations,
+                                                    crossover_rate=0.8,
+                                                    mutation_rate=0.05)
         
-    stats_callback, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
+    stats_callback2, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
                                                     algorithm=epsNSGA2,
                                                     reporting_interval=100, 
                                                     weights=(MAXIMIZE, MAXIMIZE),
@@ -44,18 +53,22 @@ def test_optimization():
                                                     mutation_rate=0.05)
     del ensemble
     
-    res = stats_callback.algorithm.archive.keys
+    res1 = stats_callback1.algorithm.archive.keys
+    x1 = [entry.values[0] for entry in res1]
+    y1 = [entry.values[1] for entry in res1]
 
-    x = [entry.values[0] for entry in res]
-    y = [entry.values[1] for entry in res]
+    res2 = stats_callback1.algorithm.archive.keys
+    x2 = [entry.values[0] for entry in res2]
+    y2 = [entry.values[1] for entry in res2]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter(x,y)
+    ax.scatter(x1,y1, c='r')
+    ax.scatter(x2,y2, c='b')
     ax.set_ylabel("deceased population")
     ax.set_xlabel("infected fraction")
 
-    change = stats_callback.change
+    change = stats_callback2.change
     added = [entry[0] for entry in change]
     removed = [entry[1] for entry in change]
 
