@@ -435,12 +435,12 @@ class epsNSGA2(NSGA2):
     def __init__(self, weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
-                 ensemble):
+                 ensemble, eps):
         super(epsNSGA2, self).__init__(weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
                  ensemble)
-        self.archive = EpsilonParetoFront(np.asarray([1e-3]*len(weights)))
+        self.archive = EpsilonParetoFront(eps)
         
         self.desired_labda = 4
     
