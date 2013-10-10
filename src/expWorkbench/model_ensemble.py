@@ -800,61 +800,10 @@ class ModelEnsemble(object):
                        info used in mutation.
         
         '''
-#         # figure out whether we are doing single or multi-objective 
-#         # optimization
-#         #TODO raise error if not specified
-#         single_obj = True
-#         if len(weights) >1: 
-#             single_obj=False
-#         
-#         # Structure initializers
-#         toolbox.register("individual", 
-#                          generate_individual, 
-#                          creator.Individual, #@UndefinedVariable
-#                          attr_list, keys=keys) 
-#         toolbox.register("population", tools.initRepeat, list, 
-#                          toolbox.individual)
-#     
-#         # Operator registering
-#         toolbox.register("evaluate", obj_function)
-#         toolbox.register("crossover", tools.cxOnePoint)
-#         toolbox.register("mutate", mut_polynomial_bounded)
-#        
-#         if single_obj:
-#             toolbox.register("select", tools.selTournament)
-#         else:
-#             toolbox.register("select", tools.selNSGA2)
-# 
-#         # generate population
-#         # for some stupid reason, DEAP demands a multiple of four for 
-#         # population size in case of NSGA-2 
-#         pop_size = closest_multiple_of_four(pop_size)
-#         info("population size restricted to %s " % (pop_size))
-#         pop = toolbox.population(pop_size)
-#         
-#         debug("Start of evolution")
-#         
-#         # Evaluate the entire population
-#         evaluate_population(pop, reporting_interval, toolbox, self)
-#         
-#         if not single_obj:
-#             # This is just to assign the crowding distance to the individuals
-#             tools.assignCrowdingDist(pop)
-#     
-#         #some statistics logging
-#         stats_callback = NSGA2StatisticsCallback(weights=weights,
-#                                     nr_of_generations=nr_of_generations,
-#                                     crossover_rate=crossover_rate, 
-#                                     mutation_rate=mutation_rate, 
-#                                     pop_size=pop_size, 
-#                                     caching=caching)
-#         stats_callback(pop)
-#         stats_callback.log_stats(0)
-
         algorithm = algorithm(weights, levers, generate_individual, obj_function, 
                           pop_size, evaluate_population, nr_of_generations, 
                           crossover_rate, mutation_rate, reporting_interval,
-                          self)
+                          self, **kwargs)
 
         # Begin the generational process
         for gen in range(nr_of_generations):
