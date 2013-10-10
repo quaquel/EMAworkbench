@@ -564,8 +564,9 @@ class EpsilonParetoFront(HallOfFame):
         return np.any(option_a<option_b)
     
     def sort_individual(self, solution):
-        sol_values = -1 * np.asarray(solution.fitness.wvalues) # we assume minimization here for the time being
-        sol_values = sol_values/self.normalize
+        # we assume minimization here for the time being
+        sol_values = -1 * np.asarray(solution.fitness.wvalues) 
+#         sol_values = sol_values/self.normalize
         i = -1
         size = len(self.items) - 1
         
@@ -579,7 +580,7 @@ class EpsilonParetoFront(HallOfFame):
             i += 1
             archived_solution = self[i]
             arc_sol_values = -1*np.asarray(archived_solution.fitness.wvalues)  # we assume minimization here for the time being
-            arc_sol_values = arc_sol_values/self.normalize
+#             arc_sol_values = arc_sol_values/self.normalize
     
             a_dom_b = self.dominates(arc_sol_values, sol_values)
             b_dom_a = self.dominates(sol_values, arc_sol_values)
@@ -631,7 +632,7 @@ class EpsilonParetoFront(HallOfFame):
             values.append(entry.fitness.wvalues)
         values = np.asarray(values)
         values = -1*values # we minimize
-        self.normalize = np.max(np.abs(values), axis=0)
+#         self.normalize = np.max(np.abs(values), axis=0)
 
         self.update = self._update
         return self.update(population)
