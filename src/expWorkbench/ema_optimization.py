@@ -11,6 +11,8 @@ from __future__ import division
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 import random 
+import copy
+import math
 
 from deap.tools import HallOfFame, isDominated
 
@@ -49,6 +51,53 @@ def generate_individual_outcome(icls, attr_list, keys):
     for key, attr in zip(keys, attr_list):
         ind[key] = attr()
     return ind
+
+
+def select_tournament_dominance_crowding(individuals, k, nr_individuals):
+    """Tournament selection based on dominance (D) between two individuals, if
+    the two individuals do not interdominate the selection is made
+    based on crowding distance (CD). 
+    
+    This selection requires the individuals to have a :attr:`crowding_dist`
+    attribute, which can be set by the :func:`assignCrowdingDist` function.
+    
+    :param individuals: A list of individuals to select from.
+    :param k: The number of individuals to select.
+    :returns: A list of selected individuals.
+    """
+    def binary_tournament(ind1, ind2):
+        if isDominated(ind1.fitness.wvalues, ind2.fitness.wvalues):
+            return ind2
+        elif isDominated(ind2.fitness.wvalues, ind1.fitness.wvalues):
+            return ind1
+
+        if ind1.fitness.crowding_dist < ind2.fitness.crowding_dist:
+            return ind2
+        elif ind1.fitness.crowding_dist > ind2.fitness.crowding_dist:
+            return ind1
+
+        if random.random() <= 0.5:
+            return ind1
+        return ind2
+
+    def tournament(tour_individuals):
+        best = tour_individuals[0]
+        
+        for entry in tour_individuals[1::]:
+            best = binary_tournament(best, entry)
+        return best
+        
+    chosen = []
+    for i in xrange(0, k):
+        tour_individuals = random.sample(individuals, nr_individuals)
+        
+        chosen.append(tournament(tour_individuals))
+#         chosen.append(binary_tournament(individuals_1[i+2], individuals_1[i+3]))
+#         chosen.append(binary_tournament(individuals_2[i],   individuals_2[i+1]))
+#         chosen.append(binary_tournament(individuals_2[i+2], individuals_2[i+3]))
+
+    return chosen
+
 
 #create a correct way of initializing the individual
 def generate_individual_robust(icls, attr_list, keys):
@@ -336,6 +385,8 @@ class AbstractOptimizationAlgorithm(object):
         pass
 
 class NSGA2(AbstractOptimizationAlgorithm):
+    tournament_size = 2
+    
     
     def __init__(self, weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
@@ -345,8 +396,8 @@ class NSGA2(AbstractOptimizationAlgorithm):
         # generate population
         # for some stupid reason, DEAP demands a multiple of four for 
         # population size in case of NSGA-2 
-        pop_size = closest_multiple_of_four(pop_size)
-        info("population size restricted to %s " % (pop_size))
+#         pop_size = closest_multiple_of_four(pop_size)
+#         info("population size restricted to %s " % (pop_size))
                
         super(NSGA2, self).__init__(evaluate_population, generate_individual, 
                  levers, reporting_interval, obj_function,
@@ -379,7 +430,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
         pop_size = len(self.pop)
         a = self.pop[0:closest_multiple_of_four(len(self.pop))]
         
-        offspring = tools.selTournamentDCD(a, len(self.pop))
+        offspring = select_tournament_dominance_crowding(a, len(self.pop), self.tournament_size)
         offspring = [self.toolbox.clone(ind) for ind in offspring]
         
         no_name=False
@@ -431,17 +482,19 @@ class NSGA2(AbstractOptimizationAlgorithm):
         return self.pop
 
 class epsNSGA2(NSGA2):
+    message = "reset population: pop size: {}; archive: {}; tournament size: {}"
+
 
     def __init__(self, weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
-                 ensemble, eps):
+                 ensemble, eps, selection_pressure = 0.02):
         super(epsNSGA2, self).__init__(weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
                  ensemble)
         self.archive = EpsilonParetoFront(eps)
-        
+        self.selection_presure = selection_pressure
         self.desired_labda = 4
     
     def _rebuild_population(self):
@@ -460,18 +513,22 @@ class epsNSGA2(NSGA2):
         return new_pop
         
     def _get_population(self):
-
         archive_length = len(self.archive.items)
-        ema_logging.info(archive_length)
         
         # TODO here a restart check is needed
         labda = self.pop_size/archive_length
-        if np.abs(1-(labda/self.desired_labda)) > 0.25:
+        a = np.abs(1-(labda/self.desired_labda))
+        if np.abs(1-(labda/self.desired_labda)) >= 0.25:
             self.called +=1
             new_pop = self._rebuild_population()
         
-            # update selection presure...
-        
+            # update selection pressure...
+            a = self.selection_presure*self.pop_size
+            self.tournament_size = int(max(2,a))
+            ema_logging.info(self.message.format(self.pop_size,
+                                                 archive_length,
+                                                 self.tournament_size))
+
             # Evaluate the individuals with an invalid fitness
             self.evaluate_population(new_pop, self.reporting_interval, self.toolbox, 
                                      self.ensemble)
@@ -526,7 +583,6 @@ class ParetoFront(HallOfFame):
             has_twin = False
             to_remove = []
             for i, hofer in enumerate(self):    # hofer = hall of famer
-                # replace with  np.any(nd.fitness.wvalues < hofer.fitness.wvalues)
                 
                 if isDominated(ind.fitness.wvalues, hofer.fitness.wvalues):
                     is_dominated = True
@@ -565,8 +621,10 @@ class EpsilonParetoFront(HallOfFame):
     
     def sort_individual(self, solution):
         # we assume minimization here for the time being
-        sol_values = -1 * np.asarray(solution.fitness.wvalues) 
-#         sol_values = sol_values/self.normalize
+        b = -1
+        
+        sol_values = np.asarray(solution.fitness.wvalues) 
+        sol_values = b * sol_values
         i = -1
         size = len(self.items) - 1
         
@@ -579,8 +637,9 @@ class EpsilonParetoFront(HallOfFame):
         while i < size:
             i += 1
             archived_solution = self[i]
-            arc_sol_values = -1*np.asarray(archived_solution.fitness.wvalues)  # we assume minimization here for the time being
-#             arc_sol_values = arc_sol_values/self.normalize
+
+            # we assume minimization here for the time being
+            arc_sol_values = b*np.asarray(archived_solution.fitness.wvalues)  
     
             a_dom_b = self.dominates(arc_sol_values, sol_values)
             b_dom_a = self.dominates(sol_values, arc_sol_values)
@@ -599,9 +658,11 @@ class EpsilonParetoFront(HallOfFame):
                 continue
             if (not a_dom_b) & (not b_dom_a):
                 # same box, use solution closes to lower left corner
-                box_left_corner = np.floor(sol_values/self.eps)*self.eps
-                d_solution = np.sum((sol_values-box_left_corner)**2) 
-                d_archive = np.sum((arc_sol_values-box_left_corner)**2)
+                norm_sol_values = sol_values/self.eps
+                norm_arc_sol_values = arc_sol_values/self.eps
+                box_left_corner = np.floor(norm_sol_values)
+                d_solution = np.sum((norm_sol_values-box_left_corner)**2) 
+                d_archive = np.sum((norm_arc_sol_values-box_left_corner)**2)
                 
                 same_box = True
                 

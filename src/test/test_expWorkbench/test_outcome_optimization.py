@@ -32,18 +32,18 @@ def test_optimization():
     ensemble.parallel=True
     
     pop_size = 8
-    nr_of_generations = 500
+    nr_of_generations = 10
     eps = np.array([1e-3, 1e6])
 
-    stats_callback1, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
-                                                    algorithm=NSGA2,
-                                                    reporting_interval=100, 
-                                                    weights=(MAXIMIZE, MAXIMIZE),
-                                                    pop_size=pop_size,          
-                                                    nr_of_generations=nr_of_generations,
-                                                    crossover_rate=0.8,
-                                                    mutation_rate=0.05)
-        
+#     stats_callback1, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
+#                                                     algorithm=NSGA2,
+#                                                     reporting_interval=100, 
+#                                                     weights=(MAXIMIZE, MAXIMIZE),
+#                                                     pop_size=pop_size,          
+#                                                     nr_of_generations=nr_of_generations,
+#                                                     crossover_rate=0.8,
+#                                                     mutation_rate=0.05)
+#         
     stats_callback2, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
                                                     algorithm=epsNSGA2,
                                                     reporting_interval=100, 
@@ -54,6 +54,8 @@ def test_optimization():
                                                     mutation_rate=0.05,
                                                     eps=eps)
     del ensemble
+    
+    stats_callback1 = stats_callback2
     
     res1 = stats_callback1.algorithm.archive.keys
     x1 = [entry.values[0] for entry in res1]
@@ -93,9 +95,10 @@ def test_optimization():
     
     
     fig, ax = make_gridded_ax(min_x, max_x, min_y, max_y)
-    ax.scatter(x2,y2, c='b', label='$\epsilon$-NSGA2')
-      
+
     ax.scatter(x1,y1, c='r', label='NSGA2')
+    ax.scatter(x2,y2, c='b', label='$\epsilon$-NSGA2')
+    
     ax.set_ylabel("deceased population")
     ax.set_xlabel("infected fraction")
 
@@ -105,20 +108,20 @@ def test_optimization():
     added = [entry[0] for entry in change]
     removed = [entry[1] for entry in change]
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(added, label='added')
-    ax.plot(removed, label='removed')
-    ax.set_ylabel("changes")
-    ax.set_xlabel("generation")
-    ax.legend(loc='best')
-    
-    e_progress = [entry[2] for entry in change] 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(e_progress, label='$\epsilon$ progress')   
-    ax.set_ylabel('$\epsilon$ progress')
-    ax.set_xlabel("generation")
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111)
+#     ax.plot(added, label='added')
+#     ax.plot(removed, label='removed')
+#     ax.set_ylabel("changes")
+#     ax.set_xlabel("generation")
+#     ax.legend(loc='best')
+#      
+#     e_progress = [entry[2] for entry in change] 
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111)
+#     ax.plot(e_progress, label='$\epsilon$ progress')   
+#     ax.set_ylabel('$\epsilon$ progress')
+#     ax.set_xlabel("generation")
     
     plt.show()
 
