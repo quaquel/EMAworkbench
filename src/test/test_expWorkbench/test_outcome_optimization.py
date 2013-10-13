@@ -29,10 +29,10 @@ def test_optimization():
     ensemble = ModelEnsemble()
     
     ensemble.set_model_structure(model)
-    ensemble.parallel=True
+#     ensemble.parallel=True
     
     pop_size = 8
-    nr_of_generations = 10
+    nr_of_generations = 100
     eps = np.array([1e-3, 1e6])
 
 #     stats_callback1, pop  = ensemble.perform_outcome_optimization(obj_function = obj_function_multi,
