@@ -25,13 +25,12 @@ from expWorkbench.ema_logging import info, warning, exception, debug
 from expWorkbench.ema_exceptions import CaseError, EMAError
 
 from expWorkbench.ema_optimization import NSGA2StatisticsCallback,\
-                                          mut_polynomial_bounded,\
-                                          evaluate_population_outcome,\
-                                          generate_individual_outcome,\
-                                          generate_individual_robust,\
-                                          evaluate_population_robust,\
-                                          closest_multiple_of_four, NSGA2
-
+                                          NSGA2
+from expWorkbench.ema_optimization_util import mut_polynomial_bounded,\
+                                               evaluate_population_outcome,\
+                                               generate_individual_outcome,\
+                                               generate_individual_robust,\
+                                               evaluate_population_robust                                               
 
 from samplers import FullFactorialSampler, LHSSampler
 from uncertainties import ParameterUncertainty, CategoricalUncertainty
@@ -353,6 +352,7 @@ class ModelEnsemble(object):
     def perform_robust_optimization(self, 
                                     cases,
                                     reporting_interval=100,
+                                    algorithm=NSGA2,
                                     obj_function=None,
                                     policy_levers={},
                                     weights = (),
@@ -399,179 +399,30 @@ class ModelEnsemble(object):
         evaluate_population = functools.partial(evaluate_population_robust, 
                                                 cases=cases)
 
-        #create a class for the individual
-        creator.create("Fitness", base.Fitness, weights=weights)
-        creator.create("Individual", dict, 
-                       fitness=creator.Fitness) #@UndefinedVariable
-
-        toolbox = base.Toolbox()
-        
-        # Attribute generator
-        keys = sorted(policy_levers.keys())
-        attr_list = []
-        low = []
-        high = []
-        for key in keys:
-            value = policy_levers[key]
-
-            type_allele = value['type'] 
-            value = value['values']
-            if type_allele=='range':
-                toolbox.register(key, random.uniform, value[0], value[1])
-                attr_list.append(getattr(toolbox, key))
-                low.append(value[0])
-                high.append(value[1])
-            elif type_allele=='list':
-                toolbox.register(key, random.choice, value)
-                attr_list.append(getattr(toolbox, key))
-                low.append(0)
-                high.append(len(value)-1)
-            else:
-                raise EMAError("unknown allele type: possible types are range and list")
-
-        return self._run_optimization(toolbox, generate_individual_robust, 
-                                       evaluate_population, attr_list, keys, 
-                                       obj_function, pop_size, 
-                                       reporting_interval, weights, 
-                                       nr_of_generations, crossover_rate, 
-                                       mutation_rate, policy_levers, 
-                                       caching, **kwargs)
-        
-    def continue_robust_optimization(self,
-                                     cases=None,
-                                     nr_of_generations=10,
-                                     pop=None,
-                                     stats_callback=None,
-                                     policy_levers=None,
-                                     obj_function=None,
-                                     crossover_rate=0.5,
-                                     mutation_rate=0.02,
-                                     reporting_interval=100,
-                                     **kwargs):
-        '''
-        Continue the robust optimization from a previously saved state. To 
-        make this work, one should save the return from 
-        perform_robust_optimization. The typical use case for this method is
-        to manually track convergence of the optimization after a number of 
-        specified generations. 
-        
-        :param cases: In case of Latin Hypercube sampling and Monte Carlo 
-                      sampling, cases specifies the number of cases to
-                      generate. In case of Full Factorial sampling,
-                      cases specifies the resolution to use for sampling
-                      continuous uncertainties. Alternatively, one can supply
-                      a list of dicts, where each dicts contains a case.
-                      That is, an uncertainty name as key, and its value. 
-        :param nr_of_generations: the number of generations for which the 
-                                  GA will be run
-        :param pop: the last ran population, returned 
-                    by perform_robust_optimization
-        :param stats_callback: the NSGA2StatisticsCallback instance returned
-                               by perform_robust_optimization
-        :param reporting_interval: parameter for specifying the frequency with
-                                   which the callback reports the progress.
-                                   (Default is 100) 
-        :param policy_levers: A dictionary with model parameter names as key
-                              and a dict as value. The dict should have two 
-                              fields: 'type' and 'values. Type is either
-                              list or range, and determines the appropriate
-                              allele type. Values are the parameters to 
-                              be used for the specific allele. 
-
-        :param obj_function: the objective function used by the optimization
-        :param crossover_rate: crossover rate for the GA
-        :param mutation_rate: mutation_rate for the GA
-        
-        .. note:: There is some tricky stuff involved in loading
-                  the stats_callback via cPickle. cPickle requires that the 
-                  classes in the pickle file exist. The individual class used 
-                  by deap is generated dynamicly. Loading the cPickle should 
-                  thus be preceded by reinstantiating the correct individual. 
-        
-        
-        '''
-        # figure out whether we are doing single or multi-objective 
-        # optimization
-        single_obj = True
-        if len(creator.Fitness.weights) >1:  #@UndefinedVariable
-            single_obj=False
-
-        evaluate_population = functools.partial(evaluate_population_robust, 
-                                                cases=cases)
-
-        # deduce from stats if caching was being used
-        try:
-            if stats_callback.tried_solutions:
-                caching=True
-        except AttributeError:
-            caching = False
-        
-        # set up the toolbox
-        toolbox = base.Toolbox()
-        
-        # Attribute generator
-        keys = sorted(policy_levers.keys())
-        attr_list = []
-        low = []
-        high = []
-        for key in keys:
-            value = policy_levers[key]
-
-            type_allele = value['type'] 
-            value = value['values']
-            if type_allele=='range':
-                toolbox.register(key, random.uniform, value[0], value[1])
-                attr_list.append(getattr(toolbox, key))
-                low.append(value[0])
-                high.append(value[1])
-            elif type_allele=='list':
-                toolbox.register(key, random.choice, value)
-                attr_list.append(getattr(toolbox, key))
-                low.append(0)
-                high.append(len(value)-1)
-            else:
-                raise EMAError("unknown allele type: possible types are range and list")
-    
-        # Operator registering
-        toolbox.register("evaluate", obj_function)
-        toolbox.register("crossover", tools.cxOnePoint)
-       
-        if single_obj:
-            toolbox.register("select", tools.selTournament)
-        else:       
-            toolbox.register("select", tools.selNSGA2)
-        toolbox.register("mutate", mut_polynomial_bounded)
-
-        # generate population
-        # for some stupid reason, DEAP demands a multiple of four for 
-        # population size in case of NSGA-2 
-        debug("Start of evolution")
-
-        # Begin the generational process
-        for gen in range(nr_of_generations):
-            pop = self._run_geneneration(pop, crossover_rate, mutation_rate, 
-                                          toolbox, reporting_interval, 
-                                          policy_levers, evaluate_population, 
-                                          keys, single_obj, caching, 
-                                          **kwargs) 
-            stats_callback(pop)
-            stats_callback.log_stats(gen)             
-        info("-- End of (successful) evolution --")                
-
-        return stats_callback, pop
+        return self._run_optimization(generate_individual_robust, 
+                                      evaluate_population, 
+                                      weights=weights,
+                                      levers=policy_levers,
+                                      algorithm=algorithm, 
+                                      obj_function=obj_function, 
+                                      pop_size=pop_size, 
+                                      reporting_interval=reporting_interval, 
+                                      nr_of_generations=nr_of_generations, 
+                                      crossover_rate=crossover_rate, 
+                                      mutation_rate=mutation_rate, **kwargs)
 
     def perform_outcome_optimization(self, 
                                      algorithm = NSGA2,
-                                    reporting_interval=100,
-                                    obj_function=None,
-                                    weights = (),
-                                    nr_of_generations=100,
-                                    pop_size=100,
-                                    crossover_rate=0.5, 
-                                    mutation_rate=0.02,
-                                    caching=False,
-                                    **kwargs
-                                    ):
+                                     reporting_interval=100,
+                                     obj_function=None,
+                                     weights = (),
+                                     nr_of_generations=100,
+                                     pop_size=100,
+                                     crossover_rate=0.5, 
+                                     mutation_rate=0.02,
+                                     caching=False,
+                                     **kwargs
+                                     ):
         """
         Method responsible for performing outcome optimization. The 
         optimization will be performed over the intersection of the 
