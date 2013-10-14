@@ -173,8 +173,8 @@ class EnergyTrans(VensimModelStructureInterface):
                               )
             ema_logging.debug("successfully retrieved data for %s" %output.name)
             if not result == []:
-                if result.shape[0] != self.runLength:
-                    a = np.zeros((self.runLength))
+                if result.shape[0] != self.run_length:
+                    a = np.zeros((self.run_length))
                     a[0:result.shape[0]] = result
                     result = a
                     error = True
