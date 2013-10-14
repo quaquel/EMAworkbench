@@ -12,13 +12,15 @@ import numpy as np
 import random 
 
 from deap.tools import HallOfFame, isDominated
-from ema_optimization_util import *
+from ema_optimization_util import compare, mut_polynomial_bounded,\
+                                  mut_uniform_int,\
+                                  select_tournament_dominance_crowding
 from deap import base
 from deap import creator
 from deap import tools
 
 from expWorkbench import ema_logging
-from expWorkbench import debug, info
+from expWorkbench import debug
 
 import abc
 from expWorkbench.ema_exceptions import EMAError
@@ -27,8 +29,6 @@ __all__ = ["NSGA2StatisticsCallback",
            "NSGA2",
            "epsNSGA2",
            ]
-
-
 
 class AbstractOptimizationAlgorithm(object):
     
@@ -145,7 +145,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
     def _get_population(self):
         self.called +=1
         pop_size = len(self.pop)
-        a = self.pop[0:closest_multiple_of_four(len(self.pop))]
+        a = self.pop[0:len(self.pop)]
         
         offspring = select_tournament_dominance_crowding(a, len(self.pop), self.tournament_size)
         offspring = [self.toolbox.clone(ind) for ind in offspring]
@@ -182,10 +182,9 @@ class NSGA2(AbstractOptimizationAlgorithm):
             #apply mutation
             self.toolbox.mutate(child1, self.mutation_rate, self.levers, self.lever_names, 0.05)
             self.toolbox.mutate(child2, self.mutation_rate, self.levers, self.lever_names, 0.05)
-
-            for entry in (child1, child2):
-                del entry.fitness.values
             
+            del child1.fitness.values
+            del child2.fitness.values
        
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
@@ -242,7 +241,6 @@ class epsNSGA2(NSGA2):
         # archive size or the desired archive size
         archive_length = len(self.archive.items)
         labda = self.pop_size/archive_length
-        a = np.abs(1-(labda/self.desired_labda))
         condition1 = np.abs(1-(labda/self.desired_labda)) >= 0.25
 
         # or more than self.time_window generations since last epsilon
