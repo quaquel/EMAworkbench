@@ -4,6 +4,7 @@ Created on Oct 12, 2013
 @author: jhkwakkel
 '''
 import random
+from collections import defaultdict
 import numpy.lib.recfunctions as recfunctions
 from deap.tools import isDominated
 
@@ -85,6 +86,17 @@ def select_tournament_dominance_crowding(individuals, k, nr_individuals):
     return chosen
 
 
+class MakeName():
+    def __init__(self):
+        self.counter = 0
+        
+    def __call__(self):
+        self.counter +=1
+        
+        return str(self.counter)
+
+make_name = MakeName
+
 #create a correct way of initializing the individual
 def generate_individual_robust(icls, attr_list, keys):
     '''
@@ -97,20 +109,9 @@ def generate_individual_robust(icls, attr_list, keys):
     
     '''
     ind = generate_individual_outcome(icls, attr_list, keys)
-    ind['name'] = make_name(ind) 
+    ind['name'] = make_name()
     return ind
 
-def make_name(ind):
-    keys  = sorted(ind.keys())
-    try:
-        keys.pop(keys.index('name'))
-    except ValueError:
-        ema_logging.debug("value error in make name, field 'name' not in list")
-    
-    name = ""
-    for key in keys:
-        name += " "+str(ind[key])
-    return name
     
 
 def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **kwargs):
@@ -128,6 +129,11 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **
     experiments, outcomes = ensemble.perform_experiments(cases,
                                                 reporting_interval=ri, 
                                                 **kwargs)
+    counter = {}
+    for entry in set(experiments['policy']):
+        logical = experiments['policy']==entry
+        counter[entry] = experiments[logical].shape[0]
+    
     
     for member in population:
         member_outcomes = {}
