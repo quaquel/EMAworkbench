@@ -668,7 +668,7 @@ def experiment_generator_predef_cases(designs, model_structures, policies):
         debug("generating designs for model %s" % (msi.name))
 
         for policy in policies:
-            info("generating designs for policy %s" % (policy['name']))
+            debug("generating designs for policy %s" % (policy['name']))
             for experiment in designs:
                 experiment['policy'] = copy.deepcopy(policy)
                 experiment['model'] = msi.name

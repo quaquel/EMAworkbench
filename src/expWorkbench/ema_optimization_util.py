@@ -9,6 +9,7 @@ import numpy.lib.recfunctions as recfunctions
 from deap.tools import isDominated
 import copy
 import ema_logging
+from expWorkbench.ema_exceptions import EMAError
 
 __all__ = ["mut_polynomial_bounded",
            "mut_uniform_int",
@@ -128,13 +129,19 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **
     experiments, outcomes = ensemble.perform_experiments(cases,
                                                 reporting_interval=ri, 
                                                 **kwargs)
+    # debug validation of results
+    # we should have an equal nr of scenarios for each policy
     counter = {}
+    last = None
     for entry in set(experiments['policy']):
         logical = experiments['policy']==entry
         value = experiments[logical].shape[0]
         counter[entry] = value
-    
-    print "blaat from evaluate population robust"
+        if not last:
+            last = value
+        else:
+            if last != value:
+                raise EMAError("something horribly wrong")
     
     for member in population:
         member_outcomes = {}

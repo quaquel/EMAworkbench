@@ -77,7 +77,7 @@ def worker(inqueue,
         job, i, experiment = task
         
         policy = experiment.pop('policy')
-        info("running policy {} for experiment {}".format(policy['name'], job))
+        debug("running policy {} for experiment {}".format(policy['name'], job))
         msi = experiment.pop('model')
         
         # check whether we already initialized the model for this 
@@ -380,15 +380,10 @@ class CalculatorPool(Pool):
 
     @staticmethod
     def _add_tasks(self, experiments, callback, event):
-        counter = defaultdict(int)
-        
         for e in experiments:
-            key = e['policy']['name']
-            counter[key] +=1
-            
             self.apply_async(e, callback, event)
         
-        print "blaat from pool._add_task"   
+
 
     def apply_async(self, experiment, callback, event):
         '''
