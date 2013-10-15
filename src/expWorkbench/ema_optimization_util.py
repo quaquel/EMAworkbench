@@ -79,10 +79,6 @@ def select_tournament_dominance_crowding(individuals, k, nr_individuals):
         tour_individuals = random.sample(individuals, nr_individuals)
         
         chosen.append(tournament(tour_individuals))
-#         chosen.append(binary_tournament(individuals_1[i+2], individuals_1[i+3]))
-#         chosen.append(binary_tournament(individuals_2[i],   individuals_2[i+1]))
-#         chosen.append(binary_tournament(individuals_2[i+2], individuals_2[i+3]))
-
     return chosen
 
 
@@ -111,8 +107,6 @@ def generate_individual_robust(icls, attr_list, keys):
     ind = generate_individual_outcome(icls, attr_list, keys)
     return ind
 
-    
-
 def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **kwargs):
     '''
     Helper function for evaluating a population in case of robust optimization
@@ -124,8 +118,6 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **
     :param cases: the cases to use in the robust optimization
     
     '''
-    
-    
     for policy in population:
         policy['name'] = make_name()
     
@@ -194,6 +186,10 @@ def evaluate_population_outcome(population, ri, toolbox, ensemble):
 def mut_polynomial_bounded(individual, eta, policy_levers, keys, indpb):
     """Polynomial mutation as implemented in original NSGA-II algorithm in
     C by Deb. Modified to cope with categories, next to continuous variables. 
+    
+    TODO:: this should be done differently. It should be possible to specify
+    the mutator type for each allele, preventing categorical data from using
+    this mutator.
     
     :param individual: Individual to be mutated.
     :param eta: Crowding degree of the mutation. A high eta will produce
