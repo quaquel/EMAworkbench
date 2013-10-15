@@ -95,7 +95,7 @@ class MakeName():
         
         return str(self.counter)
 
-make_name = MakeName
+make_name = MakeName()
 
 #create a correct way of initializing the individual
 def generate_individual_robust(icls, attr_list, keys):
@@ -109,7 +109,6 @@ def generate_individual_robust(icls, attr_list, keys):
     
     '''
     ind = generate_individual_outcome(icls, attr_list, keys)
-    ind['name'] = make_name()
     return ind
 
     
@@ -125,15 +124,22 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **
     :param cases: the cases to use in the robust optimization
     
     '''
-    ensemble._policies = [dict(member) for member in population]
+    
+    
+    for policy in population:
+        policy['name'] = make_name()
+    
+    policies = [dict(member) for member in population]
+    
+    ensemble._policies = policies
     experiments, outcomes = ensemble.perform_experiments(cases,
                                                 reporting_interval=ri, 
                                                 **kwargs)
     counter = {}
     for entry in set(experiments['policy']):
         logical = experiments['policy']==entry
-        counter[entry] = experiments[logical].shape[0]
-    
+        value = experiments[logical].shape[0]
+        counter[entry] = value
     
     for member in population:
         member_outcomes = {}
