@@ -10,6 +10,7 @@ an optimization.
 from __future__ import division
 import numpy as np
 import random 
+import copy
 
 from deap.tools import HallOfFame, isDominated
 from ema_optimization_util import compare, mut_polynomial_bounded,\
@@ -226,6 +227,7 @@ class epsNSGA2(NSGA2):
         while len(new_pop) < desired_pop_size:
             rand_i = random.randint(0, len(self.archive.items)-1)
             individual = self.archive.items[rand_i]
+            individual = copy.deepcopy(individual)
             mut_uniform_int(individual, self.levers, self.lever_names)
             
             # add to new_pop

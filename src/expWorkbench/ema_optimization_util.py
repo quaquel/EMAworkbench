@@ -7,7 +7,7 @@ import random
 from collections import defaultdict
 import numpy.lib.recfunctions as recfunctions
 from deap.tools import isDominated
-
+import copy
 import ema_logging
 
 __all__ = ["mut_polynomial_bounded",
@@ -77,8 +77,9 @@ def select_tournament_dominance_crowding(individuals, k, nr_individuals):
     chosen = []
     for i in xrange(0, k):
         tour_individuals = random.sample(individuals, nr_individuals)
-        
-        chosen.append(tournament(tour_individuals))
+        winner = tournament(tour_individuals)
+        winner = copy.deepcopy(winner)
+        chosen.append(winner)
     return chosen
 
 
@@ -132,6 +133,8 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **
         logical = experiments['policy']==entry
         value = experiments[logical].shape[0]
         counter[entry] = value
+    
+    print "blaat from evaluate population robust"
     
     for member in population:
         member_outcomes = {}
