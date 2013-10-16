@@ -411,7 +411,6 @@ class ModelEnsemble(object):
                                      pop_size=100,
                                      crossover_rate=0.5, 
                                      mutation_rate=0.02,
-                                     caching=False,
                                      **kwargs
                                      ):
         """
