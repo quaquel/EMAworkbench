@@ -90,9 +90,6 @@ class AbstractOptimizationAlgorithm(object):
         
         self.get_population = self._first_get_population
         self.called = 0
-        
-        #some statistics logging
-        self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
     
     @abc.abstractmethod
     def _first_get_population(self):
@@ -110,19 +107,14 @@ class NSGA2(AbstractOptimizationAlgorithm):
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
                  ensemble):
-
-        # generate population
-        # for some stupid reason, DEAP demands a multiple of four for 
-        # population size in case of NSGA-2 
-#         pop_size = closest_multiple_of_four(pop_size)
-#         info("population size restricted to %s " % (pop_size))
-               
         super(NSGA2, self).__init__(evaluate_population, generate_individual, 
                  levers, reporting_interval, obj_function,
                  ensemble, crossover_rate, mutation_rate, weights,
                  pop_size)
-        
         self.archive = ParetoFront(similar=compare)
+        
+        self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
+        
         self.toolbox.register("crossover", tools.cxOnePoint)
         self.toolbox.register("mutate", mut_polynomial_bounded)
         self.toolbox.register("select", tools.selNSGA2)
@@ -211,6 +203,7 @@ class epsNSGA2(NSGA2):
                  crossover_rate,mutation_rate, reporting_interval,
                  ensemble)
         self.archive = EpsilonParetoFront(eps)
+        self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
         self.selection_presure = selection_pressure
         self.desired_labda = 4
         
@@ -360,7 +353,7 @@ class EpsilonParetoFront(HallOfFame):
     def __init__(self, eps):
         self.eps = eps
         HallOfFame.__init__(self, None)
-        self.update = self._init_update
+        self.init = False
 
     def dominates(self, option_a, option_b):
         option_a = np.floor(option_a/self.eps)
@@ -438,11 +431,9 @@ class EpsilonParetoFront(HallOfFame):
             values.append(entry.fitness.wvalues)
         values = np.asarray(values)
         values = -1*values # we minimize
-
-        self.update = self._update
         return self.update(population)
     
-    def _update(self, population):
+    def update(self, population):
         """
         
         Update the epsilon Pareto front hall of fame with the *population* by adding 
@@ -453,6 +444,11 @@ class EpsilonParetoFront(HallOfFame):
         :param population: A list of individual with a fitness attribute to
                            update the hall of fame with.
         """
+        
+        if not self.init:
+            self.init=True
+            return self._init_update(population)
+        
         added = 0
         removed = 0
         e_prog = 0
@@ -469,36 +465,29 @@ class NSGA2StatisticsCallback(object):
     optimization
     '''
     
+    precision = "{0:.%if}" % 2
+    nr_of_generations = 0
+    stats = []
+    change = []
+    
+    
     def __init__(self,
                  algorithm=None):
         '''
         
-        :param weights: the weights on the outcomes
-        :param nr_of_generations: the number of generations
-        :param crossover_rate: the crossover rate
-        :param mutation_rate: the mutation rate
-        :param caching: parameter controling wether a list of tried solutions
-                        should be kept
-        
+        :param algorithm:
         
         '''
-        self.stats = []
-        self.algorithm = algorithm
-
-        ema_logging.warning("currently testing epsilon based domination")
-
-        self.change = []
+        self.archive = algorithm.archive
         
-        self.weights = self.algorithm.weights
-        self.crossover_rate = self.algorithm.crossover_rate
-        self.mutation_rate = self.algorithm.mutation_rate
+        self.weights = algorithm.weights
+        self.crossover_rate = algorithm.crossover_rate
+        self.mutation_rate = algorithm.mutation_rate
 
-        self.precision = "{0:.%if}" % 2
-    
-    
+
     def __get_hof_in_array(self):
         a = []
-        for entry in self.algorithm.archive:
+        for entry in self.archive:
             a.append(entry.fitness.values)
         return np.asarray(a)
     
@@ -525,20 +514,15 @@ class NSGA2StatisticsCallback(object):
         
         for name  in sorted(functions.keys()):
             function = functions[name]
-            kargs[name] = "[%s]" % ", ".join(map(self.precision.format, function(hof)))
+            kargs[name] = "[%s]" % ", ".join(map(self.precision.format, 
+                                                 function(hof)))
         line = line.format(**kargs)
         line = "generation %s: " %gen + line
         ema_logging.info(line)
 
     def __call__(self, population):
-        self.nr_of_generations = self.algorithm.called
-        self.change.append(self.algorithm.archive.update(population))
+        self.change.append(self.archive.update(population))
+        self.nr_of_generations += 1
         
         for entry in population:
             self.stats.append(entry.fitness.values)
-        
-        for entry in population:
-            try:
-                self.tried_solutions[entry] = entry
-            except AttributeError:
-                break
