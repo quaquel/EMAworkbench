@@ -189,7 +189,7 @@ def evaluate_population_outcome(population, ri, toolbox, ensemble):
         
         member_outcomes = {}
         for key, value in outcomes.items():
-            member_outcomes[key] = value[associated_index, :]
+            member_outcomes[key] = value[associated_index]
             
         member.fitness.values = toolbox.evaluate(member_outcomes)
 

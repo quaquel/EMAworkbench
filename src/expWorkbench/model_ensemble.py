@@ -403,7 +403,7 @@ class ModelEnsemble(object):
                                       mutation_rate=mutation_rate, **kwargs)
 
     def perform_outcome_optimization(self, 
-                                     algorithm = NSGA2,
+                                     algorithm=NSGA2,
                                      reporting_interval=100,
                                      obj_function=None,
                                      weights = (),
