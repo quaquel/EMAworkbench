@@ -26,7 +26,6 @@ import cStringIO
 import copy
 import os
 import time
-from collections import defaultdict
 import Queue
 import multiprocessing
 
@@ -79,7 +78,7 @@ def worker(inqueue,
         job, experiment = task
         
         policy = experiment.pop('policy')
-#        info("running policy {} for experiment {}".format(policy['name'], job))
+        debug("running policy {} for experiment {}".format(policy['name'], job))
         msi = experiment.pop('model')
         
         # check whether we already initialized the model for this 
@@ -240,8 +239,6 @@ class CalculatorPool(Pool):
         self._result_handler._state = RUN
         self._result_handler.start()
 
-        self.counter = defaultdict(int)
-
         # function for cleaning up when finalizing object
         self._terminate = Finalize(self, 
                                    self._terminate_pool,
@@ -252,7 +249,6 @@ class CalculatorPool(Pool):
                                          self._task_handler, 
                                          self._result_handler, 
                                          self._cache, 
-                                         self.counter,
                                          working_dirs,
                                          ),
                                     exitpriority=15
@@ -286,7 +282,6 @@ class CalculatorPool(Pool):
      
     @staticmethod
     def _handle_tasks(taskqueue, put, outqueue, pool):
-        experiment_counter = defaultdict(int)      
         thread = threading.current_thread()
 
         for task in iter(taskqueue.get, None):
@@ -295,8 +290,6 @@ class CalculatorPool(Pool):
                 break
             try:
                 put(task)
-                policy = task[1]['policy']['name']
-                experiment_counter[policy] +=1
             except IOError:
                 debug('could not put task on queue')
                 break
@@ -305,10 +298,6 @@ class CalculatorPool(Pool):
             break
         else:
             debug('task handler got sentinel')
-
-        ema_logging.info("handle tasks")
-        for key, value in experiment_counter.iteritems():
-            ema_logging.info("{} {}".format(key, value))
 
         try:
             # tell result handler to finish when cache is empty
@@ -326,7 +315,6 @@ class CalculatorPool(Pool):
 
     @staticmethod
     def _handle_results(outqueue, get, cache, log_queue):
-        experiment_counter = defaultdict(int)        
         thread = threading.current_thread()
 
         while 1:
@@ -346,18 +334,10 @@ class CalculatorPool(Pool):
                 break
 
             job, experiment = task
-            policy = experiment[1][1]
-            policy = policy['name']
-            experiment_counter[policy] += 1
-
             try:
                 cache[job]._set(experiment)
             except KeyError:
                 pass
-
-        ema_logging.info("handle results")
-        for key, value in experiment_counter.iteritems():
-            ema_logging.info("{} {}".format(key, value))
 
         while cache and thread._state != TERMINATE:
             try:
@@ -404,14 +384,8 @@ class CalculatorPool(Pool):
         '''
         assert self._state == RUN
         result = EMAApplyResult(self._cache, callback, event)
-        
-        # item, block, time out
-        # the none here is used by apply async to make clear
-        # that the task is done.
         self._taskqueue.put((result._job, copy.deepcopy(experiment)))
         
-        key = experiment['policy']['name']
-        self.counter[key] +=1
 
     @classmethod
     def _terminate_pool(cls, 
@@ -422,14 +396,8 @@ class CalculatorPool(Pool):
                         task_handler, 
                         result_handler, 
                         cache, 
-                        counter,
                         working_dirs,
                         ):
-
-        ema_logging.info("apply_async")
-        for key, value in counter.iteritems():
-            ema_logging.info("{} {}".format(key, value))
-
         info("terminating pool")
         
         
