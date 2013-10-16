@@ -215,21 +215,22 @@ if __name__ == "__main__":
        
     ensemble = ModelEnsemble()
     ensemble.set_model_structure(model)
-#     ensemble.parallel = True
+    ensemble.parallel = True
     
     policy_levers = {'Trigger subsidy T2': {'type':'range float', 'values':(0,1)},
                    'Trigger subsidy T3': {'type':'range float', 'values':(0,1)},
                    'Trigger subsidy T4': {'type':'range float', 'values':(0,1)},
                    'Trigger addnewcom': {'type':'list', 'values':[0, 0.25, 0.5, 0.75, 1]}}
     
-    stats_callback, pop   = ensemble.perform_robust_optimization(cases=10,
+    stats, pop   = ensemble.perform_robust_optimization(cases=10,
                                                reporting_interval=100,
                                                obj_function=obj_func,
                                                policy_levers=policy_levers,
                                                weights = (MAXIMIZE,),
-                                               nr_of_generations=10,
+                                               nr_of_generations=5,
                                                pop_size=10,
                                                crossover_rate=0.5, 
                                                mutation_rate=0.02
                                                )
-#     save_optimization_results((stats_callback, pop), '../data/robust test.bz2')
+    fn = '../data/test optimization save.bz2'
+    save_optimization_results((stats,pop), fn)
