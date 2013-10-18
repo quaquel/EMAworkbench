@@ -160,8 +160,6 @@ class PrimBox(object):
         select an entry from the peeling and pasting trajectory and update
         the prim box to this selected box.
         
-        TODO: ideally, this should invoke a paste attempt.
-        
         '''
         
 
@@ -176,6 +174,7 @@ class PrimBox(object):
         self.res_dim = self.res_dim[0:i]
         
         # after select, try to paste
+        self.prim._update_yi_remaining()
         self.prim._paste(self)
        
 
