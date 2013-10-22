@@ -912,9 +912,15 @@ class Prim(object):
 
             # determine value of new limit given logical
             if x[logical].shape[0] == 0:
-                new_limit = np.min(x[u])
+                if direction == 'upper':
+                    new_limit = np.max(x[u])
+                else:
+                    new_limit = np.min(x[u])
             else:
-                new_limit = np.min(x[u][logical])            
+                if direction =='upper':
+                    new_limit = np.max(x[u][logical])
+                else:
+                    new_limit = np.min(x[u][logical])            
             
             indices= box.yi[logical] 
             temp_box = copy.deepcopy(box.box_lims[-1])
