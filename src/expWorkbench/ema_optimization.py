@@ -252,7 +252,6 @@ class epsNSGA2(NSGA2):
             return False
 
     def _get_population(self):
-
         
         if self._restart_required():
             self.called +=1
@@ -361,6 +360,7 @@ class EpsilonParetoFront(HallOfFame):
         return np.any(option_a<option_b)
     
     def sort_individual(self, solution):
+        values = np.asarray(solution.fitness.values)
         sol_values = np.asarray(solution.fitness.wvalues) 
 
         # we assume minimization here for the time being
@@ -395,7 +395,7 @@ class EpsilonParetoFront(HallOfFame):
                 size -= 1
                 continue
             if (not a_dom_b) & (not b_dom_a):
-                # same box, use solution closesT to lower left corner
+                # same box, use solution closest to lower left corner
                 norm_sol_values = sol_values/self.eps
                 norm_arc_sol_values = arc_sol_values/self.eps
                 box_left_corner = np.floor(norm_sol_values)
@@ -465,12 +465,6 @@ class NSGA2StatisticsCallback(object):
     optimization
     '''
     
-    precision = "{0:.%if}" % 2
-    nr_of_generations = 0
-    stats = []
-    change = []
-    
-    
     def __init__(self,
                  algorithm=None):
         '''
@@ -483,6 +477,11 @@ class NSGA2StatisticsCallback(object):
         self.weights = algorithm.weights
         self.crossover_rate = algorithm.crossover_rate
         self.mutation_rate = algorithm.mutation_rate
+        
+        self.precision = "{0:.%if}" % 2
+        self.nr_of_generations = 0
+        self.stats = []
+        self.change = []
 
 
     def __get_hof_in_array(self):
@@ -521,7 +520,8 @@ class NSGA2StatisticsCallback(object):
         ema_logging.info(line)
 
     def __call__(self, population):
-        self.change.append(self.archive.update(population))
+        scores = self.archive.update(population)
+        self.change.append(copy.deepcopy(scores))
         self.nr_of_generations += 1
         
         for entry in population:
