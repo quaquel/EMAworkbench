@@ -27,13 +27,14 @@ import plotting_util
 
 
 __all__ = ['lines', 'envelopes', 'kde_over_time', 'ENVELOPE', 'LINES', 
-           'ENV_LIN', 'KDE', 'HIST', 'multiple_densities']
+           'ENV_LIN', 'KDE', 'HIST', 'BOXPLOT', 'multiple_densities']
 
 ENVELOPE = 'envelope'
 LINES = 'lines'
 ENV_LIN = "env_lin"
 KDE = 'kde'
 HIST = 'hist'
+BOXPLOT = 'boxplot'
 
 TIME_LABEL = "time"
 
@@ -201,19 +202,19 @@ def group_by_envelopes(outcomes,
             warning("value error when plotting for %s" % (key))
             raise
     
-        if density=='kde':
+        if density==KDE:
             kde_x, kde_y = determine_kde(value[:,-1])
             plot_kde(ax_d, kde_x, kde_y, j, **kwargs)
     
     if density:
-        if density=='hist':
+        if density==HIST:
             # rather nasty indexing going on here, outcomes[key] returns
             # a tuple, hence the[1] to get the dictionary with outcomes
             # out of this, we need the right outcome, and the final column
             # of values
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]
             plot_histogram(ax_d, values, **kwargs)
-        if density=='box plot':
+        if density==BOXPLOT:
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]
             plot_boxplots(ax_d, values, group_labels, **kwargs)
         
