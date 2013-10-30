@@ -42,8 +42,12 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
     # fill the limits in for each uncertainty and each box
     # determine the length of the uncertainty names to align these properly
     #
-    length = max([len(u) for u in uncertainties])
-    length = max((length, len('uncertainty')))
+    try:
+        length = max([len(u) for u in uncertainties])
+        length = max((length, len('uncertainty')))
+    except ValueError:
+        print "no boxes found"
+        return        
 
     # determine size of values in box_lims
     # this should be based on the integers and floats only
