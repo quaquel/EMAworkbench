@@ -164,8 +164,6 @@ class PrimBox(object):
         select an entry from the peeling and pasting trajectory and update
         the prim box to this selected box.
         
-        TODO: ideally, this should invoke a paste attempt.
-        
         '''
         
 
@@ -180,6 +178,7 @@ class PrimBox(object):
         self.res_dim = self.res_dim[0:i]
         
         # after select, try to paste
+        self.prim._update_yi_remaining()
         self.prim._paste(self)
        
 
@@ -917,9 +916,15 @@ class Prim(object):
 
             # determine value of new limit given logical
             if x[logical].shape[0] == 0:
-                new_limit = np.min(x[u])
+                if direction == 'upper':
+                    new_limit = np.max(x[u])
+                else:
+                    new_limit = np.min(x[u])
             else:
-                new_limit = np.min(x[u][logical])            
+                if direction =='upper':
+                    new_limit = np.max(x[u][logical])
+                else:
+                    new_limit = np.min(x[u][logical])            
             
             indices= box.yi[logical] 
             temp_box = copy.deepcopy(box.box_lims[-1])
