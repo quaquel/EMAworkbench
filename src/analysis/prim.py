@@ -231,7 +231,31 @@ class PrimBox(object):
                     fig, ncol=5, alpha=1)
         return fig
     
-    def write_ppt_stdout(self):
+    def show_tradeoff(self):
+        '''
+        
+        Visualize the trade off between coverage and density. Color is used
+        to denote the number of restricted dimensions.
+        
+        '''
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        
+        cmap = mpl.cm.jet #@UndefinedVariable
+        boundaries = np.arange(-0.5, max(self.res_dim)+1.5, step=1)
+        ncolors = cmap.N
+        norm = mpl.colors.BoundaryNorm(boundaries, ncolors)
+        
+        p = ax.scatter(self.density, self.coverage, c=self.res_dim, norm=norm)
+        ax.set_xlabel('density')
+        ax.set_ylabel('coverage')
+        
+        ticklocs = np.arange(0, max(self.res_dim)+1, step=1)
+        cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
+        cb.set_label("nr. of restricted dimensions")
+        
+    
+    def write_ppt_to_stdout(self):
         '''
         
         write the peeling and pasting trajectory to stdout
