@@ -161,34 +161,27 @@ class CalculatorPool(Pool):
 
         self._pool = []
         working_dirs = []
-#        msis = [copy.deepcopy(msi) for msi in msis]
         
         debug('generating workers')
         
-        workerRoot = None
+        worker_root = None
         for i in range(processes):
             debug('generating worker '+str(i))
             
-            workerName = 'PoolWorker'+str(i)
+            workername = 'PoolWorker'+str(i)
             
-            def ignore_function(path, names):
-                if path.find('.svn') != -1:
-                    return names
-                else:
-                    return []
-            
-            #setup working directories for parallelEMA
+            #setup working directories for parallel_ema
             for msi in msis:
                 if msi.working_directory != None:
-                    if workerRoot == None:
-                        workerRoot = os.path.dirname(os.path.abspath(msis[0].working_directory))
+                    if worker_root == None:
+                        worker_root = os.path.dirname(os.path.abspath(msis[0].working_directory))
                     
-                    working_directory = os.path.join(workerRoot, workerName, msi.name)
+                    working_directory = os.path.join(worker_root, workername, msi.name)
                     
                     working_dirs.append(working_directory)
                     shutil.copytree(msi.working_directory, 
                                     working_directory, 
-                                    ignore = ignore_function)
+                                    )
                     msi.set_working_directory(working_directory)
 
             w = LoggingProcess(
@@ -204,7 +197,7 @@ class CalculatorPool(Pool):
                                           )
             self._pool.append(w)
             
-            w.name = w.name.replace('Process', workerName)
+            w.name = w.name.replace('Process', workername)
             w.daemon = True
             w.start()
             debug(' worker '+str(i) + ' generated')
