@@ -9,10 +9,9 @@ from types import StringType, DictType, ListType
 import copy
 
 import numpy as np
-# import scipy.stats.kde as kde
 
 from sklearn.neighbors import KernelDensity
-
+from sklearn.grid_search import GridSearchCV
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -323,19 +322,16 @@ def determine_kde(data,
     if not ymax:
         ymax = np.max(data)
     
-    kde_y = np.linspace(ymin, ymax, size_kde)[::-1]
+    kde_y = np.linspace(ymin, ymax, size_kde)
     
     try:
-#         kde_x = kde.gaussian_kde(data)
-#         kde_x = kde_x.evaluate(kde_y)
-
-        kde_skl = KernelDensity(bandwidth=0.2)
-        kde_skl.fit(data)
-        # score_samples() returns the log-likelihood of the samples
-        log_pdf = kde_skl.score_samples(kde_y)
-        kde_x =  np.exp(log_pdf)
-
-    except np.linalg.LinAlgError as e:
+        grid = GridSearchCV(KernelDensity(kernel='gaussian'),
+                            {'bandwidth': np.linspace(ymin, ymax, 50)},
+                            cv=20)
+        grid.fit(data[:, np.newaxis])
+        best_kde = grid.best_estimator_
+        kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
+    except Exception as e:
         warning(e)
         kde_x = np.zeros(kde_y.shape)
     
