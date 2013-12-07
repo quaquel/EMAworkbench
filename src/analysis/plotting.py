@@ -27,13 +27,14 @@ import plotting_util
 
 
 __all__ = ['lines', 'envelopes', 'kde_over_time', 'ENVELOPE', 'LINES', 
-           'ENV_LIN', 'KDE', 'HIST', 'multiple_densities']
+           'ENV_LIN', 'KDE', 'HIST', 'BOXPLOT', 'multiple_densities']
 
 ENVELOPE = 'envelope'
 LINES = 'lines'
 ENV_LIN = "env_lin"
 KDE = 'kde'
 HIST = 'hist'
+BOXPLOT = 'box plot'
 
 TIME_LABEL = "time"
 

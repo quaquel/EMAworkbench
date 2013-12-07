@@ -209,10 +209,10 @@ def test_envelopes():
 #    set_fig_to_bw(envelopes(results, density=None)[0])
     
     #no grouping, with density
-#    envelopes(results, density='kde')
-#    envelopes(results, density='hist')
-    envelopes(results, density='box plot')
-#    set_fig_to_bw(envelopes(results, density='kde')[0])
+#    envelopes(results, density=KDE)
+#     envelopes(results, density=HIST)
+#     envelopes(results, density=BOXPLOT)
+#    set_fig_to_bw(envelopes(results, density=)[0])
 
     
 #    # grouping and density kde
@@ -221,14 +221,18 @@ def test_envelopes():
               density=KDE,
 #               log=True
               )
-    envelopes(results, 
-              group_by='policy',
-              density=BOXPLOT)
-#    envelopes(results, 
-#              group_by='policy',
-#              density='kde',
-#              log=True,
-#              grouping_specifiers=['no policy', 'adaptive policy'])
+#     envelopes(results, 
+#               group_by='policy',
+#               density=BOXPLOT)
+#     envelopes(results, 
+#               group_by='policy',
+#               density=KDE,
+#               log=True,
+#               grouping_specifiers=['no policy', 'adaptive policy'])
+#     envelopes(results, 
+#               group_by='policy',
+#               density=BOXPLOT,
+#               grouping_specifiers=['no policy', 'adaptive policy'])
     
 #    envelopes(results, 
 #              group_by='policy',
