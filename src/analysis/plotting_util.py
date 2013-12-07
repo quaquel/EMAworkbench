@@ -9,7 +9,10 @@ from types import StringType, DictType, ListType
 import copy
 
 import numpy as np
-import scipy.stats.kde as kde
+# import scipy.stats.kde as kde
+
+from sklearn.neighbors import KernelDensity
+
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -323,8 +326,15 @@ def determine_kde(data,
     kde_y = np.linspace(ymin, ymax, size_kde)[::-1]
     
     try:
-        kde_x = kde.gaussian_kde(data)
-        kde_x = kde_x.evaluate(kde_y)
+#         kde_x = kde.gaussian_kde(data)
+#         kde_x = kde_x.evaluate(kde_y)
+
+        kde_skl = KernelDensity(bandwidth=0.2)
+        kde_skl.fit(data)
+        # score_samples() returns the log-likelihood of the samples
+        log_pdf = kde_skl.score_samples(kde_y)
+        kde_x =  np.exp(log_pdf)
+
     except np.linalg.LinAlgError as e:
         warning(e)
         kde_x = np.zeros(kde_y.shape)
