@@ -161,8 +161,7 @@ def plot_kde(ax, kde_x, kde_y, j, log=False):
     if log:
         ax.set_xscale('log')
     else:
-        maximum = ax.get_xaxis().get_view_interval()[1]
-        
+#         maximum = ax.get_xaxis().get_view_interval()[1]
         ax.set_xticks([int(0), 
                       ax.get_xaxis().
                       get_view_interval()[1]])
