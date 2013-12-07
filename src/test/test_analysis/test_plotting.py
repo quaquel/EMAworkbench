@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from analysis.plotting import *
 from analysis.plotting_util import make_continuous_grouping_specifiers,\
                           filter_scalar_outcomes,\
-                          group_results
+                          group_results, BOXPLOT
 from expWorkbench import load_results, ema_logging
 from analysis.b_and_w_plotting import set_fig_to_bw
 
@@ -177,7 +177,7 @@ def test_lines():
     plt.show()
 
 def test_envelopes():
-    results = load_results(r'..\data\eng_trans_100.cPickle', zipped=False)
+    results = load_results(r'../data/eng_trans_100.cPickle', zipped=False)
     print results[1].keys()
     
 #    #testing titles
@@ -216,13 +216,14 @@ def test_envelopes():
 
     
 #    # grouping and density kde
-#    envelopes(results, 
-#              group_by='policy',
-#              density='kde',
-#              log=True)
     envelopes(results, 
               group_by='policy',
-              density='box plot')
+              density=KDE,
+#               log=True
+              )
+    envelopes(results, 
+              group_by='policy',
+              density=BOXPLOT)
 #    envelopes(results, 
 #              group_by='policy',
 #              density='kde',
@@ -355,8 +356,8 @@ def test_multiple_densities():
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-    test_lines()
-#    test_envelopes()
+#     test_lines()
+    test_envelopes()
 #    test_kde_over_time()
 #    test_multiple_densities()
 

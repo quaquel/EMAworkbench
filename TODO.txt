@@ -14,7 +14,9 @@ Major changes
 	* problem with pandas is that it still requires all the data in memory.
 	  It is therefore more sensible to use pytables directly. This can also
 	  be used for some of the data provenenace issues via the metadata that
-	  one can store in a hdf5 file.  
+	  one can store in a hdf5 file. 
+	* another more fundamental problem with pandas is that it is not datatype
+	  aware.  
  - Data provenance questions
  - Optimization
     * only Maximin left
