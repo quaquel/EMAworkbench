@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 from analysis.plotting_util import make_legend, COLOR_LIST
-from expWorkbench import info, debug, EMAError
+from expWorkbench import info, debug, EMAError, ema_logging
 
 DEFAULT = 'default'
 ABOVE = 1
@@ -611,7 +611,12 @@ class Prim(object):
             name = entry[0]
             value = x.dtype.fields.get(entry[0])[0] 
             if value == 'object':
-                box[name][:] = set(x[name])
+                data = x[name]
+                try:
+                    box[name][:] = set(data)
+                except TypeError as e:
+                    ema_logging.warning("{} has unhashable values".format(name))
+                    raise e
             else:
                 box[name][0] = np.min(x[name], axis=0) 
                 box[name][1] = np.max(x[name], axis=0)    
@@ -816,7 +821,7 @@ class Prim(object):
         mass_old = box.yi.shape[0]/self.n
 
         x = self.x[box.yi]
-        y = self.y[box.yi]
+#        y = self.y[box.yi]
        
         #identify all possible peels
         possible_peels = []
@@ -1004,7 +1009,7 @@ class Prim(object):
         '''
         
         x = self.x[self.yi_remaining]
-        y = self.y[self.yi_remaining]
+#        y = self.y[self.yi_remaining]
         
         mass_old = box.yi.shape[0]/self.n
         
