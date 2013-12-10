@@ -122,7 +122,6 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         command = " ".join((c_start, c_middle, c_end))
         self.netlogo.command(command)
         
-#        print c_middle
         # after the last go, we have not done a write for the outcomes
         # so we do that now
         self.netlogo.command(c_middle)
