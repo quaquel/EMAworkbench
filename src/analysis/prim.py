@@ -246,9 +246,11 @@ class PrimBox(object):
         ncolors = cmap.N
         norm = mpl.colors.BoundaryNorm(boundaries, ncolors)
         
-        p = ax.scatter(self.density, self.coverage, c=self.res_dim, norm=norm)
-        ax.set_xlabel('density')
-        ax.set_ylabel('coverage')
+        p = ax.scatter(self.coverage, self.density, c=self.res_dim, norm=norm)
+        ax.set_ylabel('density')
+        ax.set_xlabel('coverage')
+        ax.set_ylim(ymin=0, ymax=1.2)
+        ax.set_xlim(xmin=0, xmax=1.2)
         
         ticklocs = np.arange(0, max(self.res_dim)+1, step=1)
         cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
