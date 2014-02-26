@@ -15,12 +15,15 @@ import copy
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 from scipy.stats.mstats import mquantiles #@UnresolvedImport
+
 from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.gridspec as gridspec 
 
 from analysis.plotting_util import make_legend, COLOR_LIST
 from expWorkbench import info, debug, EMAError, ema_logging
+from analysis import pairs_plotting
 
 DEFAULT = 'default'
 ABOVE = 1
@@ -134,8 +137,62 @@ def _setup_figure(uncs):
     ax.set_yticklabels(uncs[::-1]) 
     return fig, ax
 
-class PrimBox(object):
 
+def _pair_wise_scatter(x,y, box_lim, restricted_dims):
+    restricted_dims = list(restricted_dims)
+    grid = gridspec.GridSpec(len(restricted_dims), len(restricted_dims))                             
+    grid.update(wspace = 0.1,
+                hspace = 0.1)    
+         
+    combis = [(field1, field2) for field1 in restricted_dims\
+                               for field2 in restricted_dims]
+    
+    figure = plt.figure()
+    
+    
+    for field1, field2 in combis:
+        i = restricted_dims.index(field1)
+        j = restricted_dims.index(field2)
+        ax = figure.add_subplot(grid[i,j])        
+        ec='b'
+        fc='b'
+        
+        if field1==field2:
+            ec='white'
+            fc='white'
+        
+        # scatter points
+        for n in [0,1]:
+            x_n = x[y==n]        
+            x_1 = x_n[field2]
+            x_2 = x_n[field1]
+            
+            if (n==0) :
+                fc='white'
+            elif ec=='b':
+                fc='b'
+            
+            ax.scatter(x_1, x_2, facecolor=fc, edgecolor=ec, s=10)
+
+        # draw boxlim
+        if field1 != field2:
+            x_1 = box_lim[field2]
+            x_2 = box_lim[field1]
+
+            for n in [0,1]:
+                ax.plot(x_1,
+                    [x_2[n], x_2[n]], c='r', linewidth=3)
+                ax.plot([x_1[n], x_1[n]],
+                    x_2, c='r', linewidth=3)
+            
+        #reuse labeling function from pairs_plotting
+        pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None, restricted_dims)
+            
+    return figure
+        
+            
+
+class PrimBox(object):
     stats_format = "{0:<5}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}"
     stats_header = "{0:<5}{1:>10}{2:>10}{3:>10}{4:>10}{5:>10}".format('box', 
                               'mean', 'mass', 'coverage', 'density', 'res dim')
@@ -255,7 +312,19 @@ class PrimBox(object):
         ticklocs = np.arange(0, max(self.res_dim)+1, step=1)
         cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
         cb.set_label("nr. of restricted dimensions")
+    
+    def show_pairs_scatter(self):
+        '''
         
+        make a pair wise scatter plot of all the restricted dimensions
+        with color denototing whether a given point is of interest or not
+        and the boxlims superimposed on top.
+        
+        '''   
+        box_lim = self.box_lims[-1]
+        
+        _pair_wise_scatter(self.prim.x, self.prim.y, box_lim, 
+                           self.prim.determine_restricted_dims(box_lim))
     
     def write_ppt_to_stdout(self):
         '''
