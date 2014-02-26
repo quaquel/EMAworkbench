@@ -40,6 +40,7 @@ class VensimError(EMAError):
     pass
 
 
+
 try:
     vensim = ctypes.windll.vendll32
 except (WindowsError, AttributeError):
@@ -433,3 +434,16 @@ def contextDrop(context):
     '''
     
     raise NotImplementedError
+
+def use_double_precision():
+    '''
+    convenience function for changing reference to dll to dll for double 
+    precision. 
+    '''
+    
+    global vensim
+    try:
+        vensim = ctypes.windll.LoadLibrary('C:\Windows\SysWOW64\VdpDLL32.dll')
+    except WindowsError:
+        raise EMAError("double precision vensim dll not found")
+            
