@@ -344,7 +344,33 @@ class PrimBox(object):
             row = self._format_stats(i, stats)
             print row
 
+    def write_selected_box_to_stdout(self, i=None):
+        '''
+        
+        Write the stats and box limits of the user specified box to standard 
+        out. if i is not provided, the last box will be printed
+        
+        '''
+      
+        print self.stats_header
+        
+        if not i:
+            i = len(self.box_lims)-1
+        
+        stats = {'mean': self.mean[i], 
+                'mass': self.mass[i], 
+                'coverage': self.coverage[i], 
+                'density': self.density[i], 
+                'restricted_dim': self.res_dim[i]}
+        print self._format_stats(i, stats)   
+
+        print "\n"
+        uncs = self.prim.determine_restricted_dims(self.box_lims[i])
+        uncs = list(uncs)
+        _write_boxes_to_stdout([self.box_lims[i]], uncs)
+
     def _format_stats(self, nr, stats):
+        '''helper function for formating box stats'''
         row = self.stats_format.format(nr,**stats)
         return row
 
