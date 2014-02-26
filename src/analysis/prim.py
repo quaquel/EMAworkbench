@@ -14,7 +14,10 @@ import copy
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
+
+from scipy.stats import binom
 from scipy.stats.mstats import mquantiles #@UnresolvedImport
+
 
 from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
@@ -30,28 +33,23 @@ ABOVE = 1
 BELOW = -1
 PRECISION = '.2f'
 
-def _write_boxes_to_stdout(box_lims, uncertainties):
+def _determine_size(box, uncertainties):
+    '''helper function for determining spacing when writing boxlims to stdout
+    
+    :param box: a box definition, used only to acquire datatype
+    :param uncertainties: a list of uncertainties to be printed
+    
+    fill the limits in for each uncertainty and each box
+    determine the length of the uncertainty names to align these properly
+    determine size of values in box_lims, this should be based on the integers 
+    and floats only
+
+    
     '''
     
-    write the lims for the uncertainties for each box lim to stdout
-    
-    :param box_lims: list of box_lims
-    :param uncertainties: list of uncertainties
-    
-    '''
-
-
-
-    # fill the limits in for each uncertainty and each box
-    # determine the length of the uncertainty names to align these properly
-    #
     length = max([len(u) for u in uncertainties])
     length = max((length, len('uncertainty')))
-
-    # determine size of values in box_lims
-    # this should be based on the integers and floats only
     
-    box = box_lims[-1]
     size = 0
     for u in uncertainties:
         data_type =  box[u].dtype
@@ -69,6 +67,21 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
             size = max(size,
                        s)
     size = size+4
+    return length, size
+
+
+def _write_boxes_to_stdout(box_lims, uncertainties):
+    '''
+    
+    write the lims for the uncertainties for each box lim to stdout
+    
+    :param box_lims: list of box_lims
+    :param uncertainties: list of uncertainties
+    
+    '''
+
+    box = box_lims[-1]
+    length, size = _determine_size(box, uncertainties)
 
     # make the headers of the limits table
     # first header is box names
@@ -112,7 +125,6 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
         print line
     print "\n\n"
 
-
 def _setup_figure(uncs):
     '''
     
@@ -137,18 +149,24 @@ def _setup_figure(uncs):
     ax.set_yticklabels(uncs[::-1]) 
     return fig, ax
 
-
 def _pair_wise_scatter(x,y, box_lim, restricted_dims):
+    ''' helper function for pair wise scatter plotting
+    
+    :param x: the experiments
+    :param y: the outcome of interest
+    :param box_lim: a boxlim
+    :param restricted_dims: list of uncertainties that define the boxlims
+    
+    '''
+
     restricted_dims = list(restricted_dims)
+    combis = [(field1, field2) for field1 in restricted_dims\
+                               for field2 in restricted_dims]
+
     grid = gridspec.GridSpec(len(restricted_dims), len(restricted_dims))                             
     grid.update(wspace = 0.1,
                 hspace = 0.1)    
-         
-    combis = [(field1, field2) for field1 in restricted_dims\
-                               for field2 in restricted_dims]
-    
     figure = plt.figure()
-    
     
     for field1, field2 in combis:
         i = restricted_dims.index(field1)
@@ -190,6 +208,45 @@ def _pair_wise_scatter(x,y, box_lim, restricted_dims):
             
     return figure
         
+def _in_box(x, boxlim, res_dim=None):
+    '''
+     
+    returns the indices of the remaining data points that are within the 
+    box_lims.
+    
+    '''
+    logical = np.ones(x.shape[0], dtype=np.bool)
+    
+    if not res_dim:
+        res_dim = recfunctions.get_names(boxlim.dtype)
+
+
+    for name in res_dim:
+        value = x.dtype.fields.get(name)[0]
+        
+        if value == 'object':
+            entries = boxlim[name][0]
+            l = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
+            for i,entry in enumerate(entries):
+                if type(list(entries)[0]) not in (StringType, FloatType, IntType):
+                    bools = []                
+                    for element in list(x[name]):
+                        if element == entry:
+                            bools.append(True)
+                        else:
+                            bools.append(False)
+                    l[:, i] = np.asarray(bools, dtype=bool)
+                else:
+                    l[:, i] = x[name] == entry
+            l = np.any(l, axis=1)
+            logical = logical & l
+        else:
+            logical = logical & (boxlim[name][0] <= x[name] )&\
+                                        (x[name] <= boxlim[name][1])                
+    
+    indices = np.where(logical==True)
+    
+    return indices
             
 
 class PrimBox(object):
@@ -365,9 +422,102 @@ class PrimBox(object):
         print self._format_stats(i, stats)   
 
         print "\n"
-        uncs = self.prim.determine_restricted_dims(self.box_lims[i])
-        uncs = list(uncs)
-        _write_boxes_to_stdout([self.box_lims[i]], uncs)
+                
+        qp_values = self._calculate_quasi_p(i)
+        uncs = [(key, value) for key, value in qp_values.iteritems()]
+        uncs.sort(key=itemgetter(1))
+        uncs = [uncs[0] for uncs in uncs]
+#        qp = [qp_values.get(key) for key in uncs]
+        
+        #TODO from here down
+        qp_col_size = len("qp values")+4
+#        for entry in qp:
+#            qp_col_size = max(qp_col_size,
+#                              len("{:>{}}".format(entry, PRECISION)))
+
+        
+        box = self.box_lims[i]
+        unc_col_size, value_col_size = _determine_size(box, uncs)
+        
+        # make the headers of the limits table
+        # first header is box names
+        # second header is min and max
+        elements_1 = ["{0:<{1}}".format("uncertainty", unc_col_size)]
+        elements_2 = ["{0:<{1}}".format("", unc_col_size)]
+        box_name = 'box {}'.format(i)
+        elements_1.append("{0:>{2}}{1:>{3}}".format("{}".format(box_name),"", value_col_size+4, value_col_size-2))
+        elements_2.append("{0:>{3}}{1:>{4}}{2:>{5}}".format("min", "max","qp values", value_col_size, value_col_size+2, qp_col_size))
+        line = "".join(elements_1)
+        print line
+        line = "".join(elements_2)
+        print line
+        
+        for u in uncs:
+            elements = ["{0:<{1}}".format(u, unc_col_size)]
+
+            data_type =  box[u].dtype
+            if data_type == np.float64:
+                data = list(box[u])
+                data.append(value_col_size)
+                data.append(value_col_size)
+                data.append(PRECISION)
+                
+                elements.append("{0:>{2}{4}} -{1:>{3}{4}}".format(*data))
+            elif data_type == np.int32:
+                data = list(box[u])
+                data.append(value_col_size)
+                data.append(value_col_size)                
+                
+                elements.append("{0:>{2}} -{1:>{3}}".format(*data))            
+            else:
+                elements.append("{0:>{1}}".format(box[u][0], value_col_size*2+2))
+            
+            elements.append("{0:>{1}{2}}".format(qp_values[u], qp_col_size, '.2e'))
+            
+            line = "".join(elements)
+            print line
+        print "\n\n"
+
+
+    def _calculate_quasi_p(self, i):
+        '''helper function for calculating quasi-p values as dicussed in 
+        Bryant and Lempert (2010).
+        
+        :param i: the specific box in the peeling trajectory for which the 
+                  quasi-p values are to be calculated
+        
+        '''
+        
+        box_lim = self.box_lims[i]
+        restricted_dims = list(self.prim.determine_restricted_dims(box_lim))
+        
+        # total nr. of cases in box
+        Tbox = self.mass[i] * self.prim.n 
+        
+        # total nr. of cases of interest in box
+        Hbox = self.coverage[i] * self.prim.t_coi  
+        
+        qp_values = {}
+        
+        for u in restricted_dims:
+            temp_box = copy.deepcopy(box_lim)
+            temp_box[u] = self.box_lims[0][u]
+        
+            indices = _in_box(self.prim.x, temp_box, restricted_dims)
+            
+            # total nr. of cases in box with one restriction removed
+            Tj = indices[0].shape[0]  
+            
+            # total nr. of cases of interest in box with one restriction 
+            # removed
+            Hj = np.sum(self.prim.y[indices])
+            
+            p = Hj/Tj
+            
+            qp = binom.sf(Hbox-1, Tbox, p)
+            qp_values[u] = qp
+        return qp_values
+                    
 
     def _format_stats(self, nr, stats):
         '''helper function for formating box stats'''
@@ -620,6 +770,8 @@ class Prim(object):
          
         returns the indices of the remaining data points that are within the 
         box_lims.
+        
+        TODO, should start using the general function _in_box
         
         '''
         x = self.x[self.yi_remaining]
