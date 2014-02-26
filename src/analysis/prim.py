@@ -33,7 +33,7 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
     write the lims for the uncertainties for each box lim to stdout
     
     :param box_lims: list of box_lims
-    :param uncertainties: list of of uncertainties
+    :param uncertainties: list of uncertainties
     
     '''
 
