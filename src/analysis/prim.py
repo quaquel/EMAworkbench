@@ -16,8 +16,6 @@ import numpy as np
 import numpy.lib.recfunctions as recfunctions
 
 from scipy.stats import binom
-from scipy.stats.mstats import mquantiles #@UnresolvedImport
-
 
 from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
@@ -33,6 +31,33 @@ ABOVE = 1
 BELOW = -1
 PRECISION = '.2f'
 
+def get_quantile(data, quantile):
+    '''
+    quantile calculation modeled on the implementation used in sdtoolkit
+    
+    this replaces the scipy.stats.mquantile that has been used before
+    
+    :param data: dataset for which quantile is needed
+    :param quantile: the desired quantile
+    
+    '''
+    
+    data = list(data)
+    data.sort()    
+    index = int(len(data)*quantile)-1
+    value = 0
+    
+    if quantile > 0.5:
+        while (data[index] == data[index+1]) & (index>0):
+            index -= 1
+        value = (data[index]+data[index+1])/2
+    else:
+        while (data[index] == data[index-1]) & (index<len(data)-1):
+            index += 1
+        value = (data[index]+data[index-1])/2
+
+    return value
+
 def _determine_size(box, uncertainties):
     '''helper function for determining spacing when writing boxlims to stdout
     
@@ -43,7 +68,6 @@ def _determine_size(box, uncertainties):
     determine the length of the uncertainty names to align these properly
     determine size of values in box_lims, this should be based on the integers 
     and floats only
-
     
     '''
     
@@ -380,7 +404,7 @@ class PrimBox(object):
         '''   
         box_lim = self.box_lims[-1]
         
-        _pair_wise_scatter(self.prim.x, self.prim.y, box_lim, 
+        return _pair_wise_scatter(self.prim.x, self.prim.y, box_lim, 
                            self.prim.determine_restricted_dims(box_lim))
     
     def write_ppt_to_stdout(self):
@@ -400,6 +424,7 @@ class PrimBox(object):
             
             row = self._format_stats(i, stats)
             print row
+        print "\n"
 
     def write_selected_box_to_stdout(self, i=None):
         '''
@@ -411,7 +436,7 @@ class PrimBox(object):
       
         print self.stats_header
         
-        if not i:
+        if i == None:
             i = len(self.box_lims)-1
         
         stats = {'mean': self.mean[i], 
@@ -427,15 +452,8 @@ class PrimBox(object):
         uncs = [(key, value) for key, value in qp_values.iteritems()]
         uncs.sort(key=itemgetter(1))
         uncs = [uncs[0] for uncs in uncs]
-#        qp = [qp_values.get(key) for key in uncs]
-        
-        #TODO from here down
-        qp_col_size = len("qp values")+4
-#        for entry in qp:
-#            qp_col_size = max(qp_col_size,
-#                              len("{:>{}}".format(entry, PRECISION)))
 
-        
+        qp_col_size = len("qp values")+4
         box = self.box_lims[i]
         unc_col_size, value_col_size = _determine_size(box, uncs)
         
@@ -476,12 +494,13 @@ class PrimBox(object):
             
             line = "".join(elements)
             print line
-        print "\n\n"
+        print "\n"
 
 
     def _calculate_quasi_p(self, i):
-        '''helper function for calculating quasi-p values as dicussed in 
-        Bryant and Lempert (2010).
+        '''helper function for calculating quasi-p values as discussed in 
+        Bryant and Lempert (2010). This is in essence a one sided 
+        binominal test. 
         
         :param i: the specific box in the peeling trajectory for which the 
                   quasi-p values are to be calculated
@@ -514,6 +533,9 @@ class PrimBox(object):
             
             p = Hj/Tj
             
+            Hbox = int(Hbox)
+            Tbox = int(Tbox)
+            
             qp = binom.sf(Hbox-1, Tbox, p)
             qp_values[u] = qp
         return qp_values
@@ -530,12 +552,6 @@ class PrimException(Exception):
 
 
 class Prim(object):
-
-    # parameters that control the mquantile calculation used
-    # in peeling and pasting
-    alpha = 1/3
-    beta = 1/3
-    
     message = "{0} point remaining, containing {1} cases of interest"
     
     def __init__(self, 
@@ -1056,11 +1072,6 @@ class Prim(object):
         
         Executes the peeling phase of the PRIM algorithm. Delegates peeling
         to data type specific helper methods.
-        
-        '''
-        
-        '''
-        Peeling stage of PRIM 
 
         :param box: box limits
         
@@ -1131,8 +1142,7 @@ class Prim(object):
                     peel_alpha = 1-self.peel_alpha
                     i=1
                 
-                box_peel = mquantiles(x[u], [peel_alpha], alphap=self.alpha, 
-                                      betap=self.beta)[0]
+                box_peel = get_quantile(x[u], peel_alpha)
                 if direction=='lower':
                     logical = x[u] >= box_peel
                     indices = box.yi[logical]
@@ -1168,8 +1178,7 @@ class Prim(object):
                 peel_alpha = 1-self.peel_alpha
                 i=1
             
-            box_peel = mquantiles(x[u], [peel_alpha], alphap=self.alpha, 
-                                  betap=self.beta)[0]
+            box_peel = get_quantile(x[u], peel_alpha)
             box_peel = int(box_peel)
 
             # determine logical associated with peel value            
@@ -1329,8 +1338,7 @@ class Prim(object):
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
                     b = (data.shape[0]-pa)/data.shape[0]
-                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
-                                             betap=self.beta)[0]
+                    paste_value = get_quantile(data, b)
                 
                     
             elif direction == 'upper':
@@ -1343,8 +1351,7 @@ class Prim(object):
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
                     b = (pa)/data.shape[0]
-                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
-                                             betap=self.beta)[0]
+                    paste_value = get_quantile(data, b)
            
             box_paste[u][i] = paste_value
             indices = self.in_box(box_paste)
@@ -1383,9 +1390,7 @@ class Prim(object):
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
                     b = (data.shape[0]-pa)/data.shape[0]
-                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
-                                             betap=self.beta)[0]
-                
+                    paste_value = get_quantile(data, b)
                     
             elif direction == 'upper':
                 i = 1
@@ -1397,8 +1402,7 @@ class Prim(object):
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
                     b = (pa)/data.shape[0]
-                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
-                                             betap=self.beta)[0]
+                    paste_value = get_quantile(data, b)
            
             box_paste[u][i] = int(paste_value)
             indices = self.in_box(box_paste)
@@ -1464,7 +1468,12 @@ class Prim(object):
         
         '''
         mean_old = np.mean(y_old)
-        mean_new = np.mean(y_new)
+        
+        if y_new.shape[0]>0:
+            mean_new = np.mean(y_new)
+        else:
+            mean_new = 0
+            
         obj = 0
         if mean_old != mean_new:
             if y_old.shape[0] >= y_new.shape[0]:
@@ -1537,6 +1546,8 @@ class Prim(object):
             eigen_vectors[:,i] / np.linalg.norm(eigen_vectors[:,i]) * np.sqrt(eigen_vals[i])
             
         return eigen_vectors
+
+
 
     _peels = {'object': _categorical_peel,
                'int32': _discrete_peel,
