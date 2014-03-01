@@ -47,6 +47,9 @@ def get_quantile(data, quantile):
     index = int(len(data)*quantile)-1
     value = 0
     
+    if index<0:
+        index=0
+    
     if quantile > 0.5:
         while (data[index] == data[index+1]) & (index>0):
             index -= 1
@@ -55,6 +58,7 @@ def get_quantile(data, quantile):
         while (data[index] == data[index-1]) & (index<len(data)-1):
             index += 1
         value = (data[index]+data[index-1])/2
+
 
     return value
 
