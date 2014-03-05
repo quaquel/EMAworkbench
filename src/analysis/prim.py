@@ -11,10 +11,10 @@ from __future__ import division
 from types import StringType, FloatType, IntType
 from operator import itemgetter
 import copy
+import math
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
-
 from scipy.stats import binom
 
 from mpl_toolkits.axes_grid1 import host_subplot
@@ -27,6 +27,8 @@ from expWorkbench import info, debug, EMAError, ema_logging
 from analysis import pairs_plotting
 
 DEFAULT = 'default'
+ORIGINAL = 'original'
+
 ABOVE = 1
 BELOW = -1
 PRECISION = '.2f'
@@ -41,23 +43,28 @@ def get_quantile(data, quantile):
     :param quantile: the desired quantile
     
     '''
+    assert quantile>0
+    assert quantile<1
     
     data = list(data)
     data.sort()    
-    index = int(len(data)*quantile)-1
+    
+    i = (len(data)-1)*quantile
+    index_lower =  int(math.floor(i))
+    index_higher = int(math.ceil(i))
+    
     value = 0
-    
-    if index<0:
-        index=0
-    
+
     if quantile > 0.5:
-        while (data[index] == data[index+1]) & (index>0):
-            index -= 1
-        value = (data[index]+data[index+1])/2
+        # upper
+        while (data[index_lower] == data[index_higher]) & (index_lower>0):
+            index_lower -= 1
+        value = (data[index_lower]+data[index_higher])/2
     else:
-        while (data[index] == data[index-1]) & (index<len(data)-1):
-            index += 1
-        value = (data[index]+data[index-1])/2
+        #lower
+        while (data[index_lower] == data[index_higher]) & (index_higher<len(data)-1):
+            index_higher += 1
+        value = (data[index_lower]+data[index_higher])/2
 
 
     return value
@@ -430,7 +437,7 @@ class PrimBox(object):
             print row
         print "\n"
 
-    def write_selected_box_to_stdout(self, i=None):
+    def inspect(self, i=None):
         '''
         
         Write the stats and box limits of the user specified box to standard 
@@ -449,8 +456,8 @@ class PrimBox(object):
                 'density': self.density[i], 
                 'restricted_dim': self.res_dim[i]}
         print self._format_stats(i, stats)   
+        print ""
 
-        print "\n"
                 
         qp_values = self._calculate_quasi_p(i)
         uncs = [(key, value) for key, value in qp_values.iteritems()]
@@ -542,6 +549,13 @@ class PrimBox(object):
             
             qp = binom.sf(Hbox-1, Tbox, p)
             qp_values[u] = qp
+            
+#            print u
+#            print qp
+#            p = (Hj+1)/Tj
+#            print "{0:.2e}".format(binom.sf(Hbox-1, Tbox, p))
+#            print ""
+            
         return qp_values
                     
 
@@ -556,7 +570,7 @@ class PrimException(Exception):
 
 
 class Prim(object):
-    message = "{0} point remaining, containing {1} cases of interest"
+    message = "{0} points remaining, containing {1} cases of interest"
     
     def __init__(self, 
                  results,
@@ -595,7 +609,6 @@ class Prim(object):
         else:
             drop_names = set(recfunctions.get_names(results[0].dtype))-set(incl_unc)
             self.x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)
-
         if type(classify)==StringType:
             self.y = results[1][classify]
         elif callable(classify):
@@ -1085,7 +1098,6 @@ class Prim(object):
         mass_old = box.yi.shape[0]/self.n
 
         x = self.x[box.yi]
-#        y = self.y[box.yi]
        
         #identify all possible peels
         possible_peels = []
@@ -1271,7 +1283,6 @@ class Prim(object):
         '''
         
         x = self.x[self.yi_remaining]
-#        y = self.y[self.yi_remaining]
         
         mass_old = box.yi.shape[0]/self.n
         
@@ -1279,6 +1290,8 @@ class Prim(object):
         
         possible_pastes = []
         for u in res_dim:
+            debug("pasting "+u)
+            
             dtype = self.x.dtype.fields.get(u)[0].name
             pastes = self._pastes[dtype](self, box, u)
             [possible_pastes.append(entry) for entry in pastes] 
@@ -1300,11 +1313,15 @@ class Prim(object):
         scores.sort(key=itemgetter(0,1), reverse=True)
         entry = scores[0]
         box_new, indices = entry[2:]
-        
         mass_new = self.y[indices].shape[0]/self.n
         
+        mean_old = np.mean(self.y[box.yi])
+        mean_new = np.mean(self.y[indices])
+        
+        
         if (mass_new >= self.mass_min) &\
-           (mass_new > mass_old):
+           (mass_new > mass_old) &\
+           (mean_old <= mean_new):
             box.update(box_new, indices)
             return self._paste(box)
         else:
@@ -1324,7 +1341,7 @@ class Prim(object):
         '''
 
         box_diff = self.box_init[u][1]-self.box_init[u][0]
-        pa = self.paste_alpha * box.yi.shape[0]
+#        pa = self.paste_alpha * box.yi.shape[0]
     
         pastes = []
         for direction in ['upper', 'lower']:
@@ -1341,8 +1358,8 @@ class Prim(object):
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
-                    b = (data.shape[0]-pa)/data.shape[0]
-                    paste_value = get_quantile(data, b)
+#                    b = (data.shape[0]-pa)/data.shape[0]
+                    paste_value = get_quantile(data, 1-self.paste_alpha)
                 
                     
             elif direction == 'upper':
@@ -1354,8 +1371,9 @@ class Prim(object):
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
-                    b = (pa)/data.shape[0]
-                    paste_value = get_quantile(data, b)
+#                    b = (pa)/data.shape[0]
+
+                    paste_value = get_quantile(data, self.paste_alpha)
            
             box_paste[u][i] = paste_value
             indices = self.in_box(box_paste)
@@ -1376,7 +1394,7 @@ class Prim(object):
        
         '''        
         box_diff = self.box_init[u][1]-self.box_init[u][0]
-        pa = self.paste_alpha * box.yi.shape[0]
+#        pa = self.paste_alpha * box.yi.shape[0]
     
         pastes = []
         for direction in ['upper', 'lower']:
@@ -1393,8 +1411,8 @@ class Prim(object):
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
-                    b = (data.shape[0]-pa)/data.shape[0]
-                    paste_value = get_quantile(data, b)
+#                    b = (data.shape[0]-pa)/data.shape[0]
+                    paste_value = get_quantile(data, 1-self.paste_alpha)
                     
             elif direction == 'upper':
                 i = 1
@@ -1405,8 +1423,8 @@ class Prim(object):
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
-                    b = (pa)/data.shape[0]
-                    paste_value = get_quantile(data, b)
+#                    b = (pa)/data.shape[0]
+                    paste_value = get_quantile(data, self.paste_alpha)
            
             box_paste[u][i] = int(paste_value)
             indices = self.in_box(box_paste)
@@ -1448,7 +1466,7 @@ class Prim(object):
             # no pastes possible, return empty list
             return []
     
-    def _def_obj_func(self, y_old, y_new):
+    def _default_obj_func(self, y_old, y_new):
         r'''
         the default objective function used by prim, instead of the original
         objective function, this function can cope with continuous, integer, 
@@ -1485,6 +1503,12 @@ class Prim(object):
             else:
                 obj = (mean_new-mean_old)/(y_new.shape[0]-y_old.shape[0])
         return obj
+    
+    def _original_obj_fund(self, y_old, y_new):
+        if y_new.shape[0]>0:
+            return np.mean(y_new)
+        else:
+            return -1    
 
     def _assert_dtypes(self, keys, dtypes):
         '''
@@ -1562,4 +1586,5 @@ class Prim(object):
                'float64': _real_paste}
 
     # dict with the various objective functions available
-    _obj_functions = {DEFAULT : _def_obj_func}    
+    _obj_functions = {DEFAULT : _default_obj_func,
+                      ORIGINAL: _original_obj_fund}    
