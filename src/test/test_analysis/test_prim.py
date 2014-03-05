@@ -7,6 +7,8 @@ from __future__ import division
 import unittest
 
 import numpy as np
+
+import numpy.lib.recfunctions as recfunctions
 import matplotlib.pyplot as plt
 
 from expWorkbench import ema_logging, load_results
@@ -77,7 +79,8 @@ class PrimTestCase(unittest.TestCase):
         
         experiments, outcomes = self.results
         
-        unc = experiments.dtype.descr
+        
+        unc = recfunctions.get_names(experiments.dtype)
         
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or higher than the threshold
@@ -86,7 +89,7 @@ class PrimTestCase(unittest.TestCase):
         threshold = 10000
         prim_obj = prim.Prim(results, classify='death toll', 
                              threshold_type=prim.ABOVE, threshold=threshold,
-                             inc_unc=unc)
+                             incl_unc=unc)
         
         value = np.ones((experiments.shape[0],))
         value = value[outcomes['death toll'] >= threshold].shape[0]
@@ -105,6 +108,24 @@ class PrimTestCase(unittest.TestCase):
         
         prim.Prim(self.results, self.classify, threshold=prim.ABOVE)
 
+    def test_quantile(self):
+        data = [x for x in range(10)]
+        self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
+        self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
+        self.assertTrue(prim.get_quantile(data, 0.1)==0.5)
+        self.assertTrue(prim.get_quantile(data, 0.05)==0.5)
+        
+        data = [1]
+        self.assertTrue(prim.get_quantile(data, 0.9)==1)
+        self.assertTrue(prim.get_quantile(data, 0.95)==1)
+        self.assertTrue(prim.get_quantile(data, 0.1)==1)
+        self.assertTrue(prim.get_quantile(data, 0.05)==1)
+        
+        data = [1,1,2,3,4,5,6,7,8,9,9]
+        self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
+        self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
+        self.assertTrue(prim.get_quantile(data, 0.1)==1.5)
+        self.assertTrue(prim.get_quantile(data, 0.05)==1.5)        
 
     def test_box(self):
         x = np.array([(0,1,2),
