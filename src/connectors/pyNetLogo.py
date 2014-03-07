@@ -125,6 +125,8 @@ class NetLogoLink():
             raise NetLogoException(ex.message())
         except jpype.JException(jpype.java.org.nlogo.api.CompilerException) as ex:
             raise NetLogoException(ex.message())
+        except jpype.JException(jpype.java.org.nlogo.api.EngineException) as ex:
+            raise NetLogoException(ex.message())
 
     def report(self, netlogo_reporter):
         '''
