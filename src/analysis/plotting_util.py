@@ -543,14 +543,9 @@ def prepare_data(results,
     
     '''
 
-
-    results = copy.deepcopy(results)
-    
     #unravel results
     experiments, outcomes = results
 
-    time, outcomes = determine_time_dimension(outcomes)
-    
     # remove outcomes that are not to be shown
     if outcomes_to_show:
         if type(outcomes_to_show) == StringType:
@@ -558,6 +553,11 @@ def prepare_data(results,
         
         [outcomes.pop(entry) for entry in\
          set(outcomes.keys()) - set(outcomes_to_show)]
+
+    experiments = copy.deepcopy(experiments)
+    outcomes = copy.deepcopy(outcomes)
+    
+    time, outcomes = determine_time_dimension(outcomes)
 
     # filter the outcomes to exclude scalar values
     if filter_scalar:
