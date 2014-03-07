@@ -89,12 +89,12 @@ def test_lines():
     results = load_results(r'..\data\eng_trans_100.cPickle', zipped=False)
 
 
-#    lines(results, 
-#                outcomes_to_show="total fraction new technologies",
-#                  experiments_to_show=np.arange(0,600, 20),
-#                  group_by='policy',
-#                  grouping_specifiers = 'basic policy'
-#                  )
+    lines(results, 
+                outcomes_to_show="total fraction new technologies",
+                  experiments_to_show=np.arange(0,600, 20),
+                  group_by='policy',
+                  grouping_specifiers = 'basic policy'
+                  )
 
 #    lines(results, 
 #          experiments_to_show=np.arange(0,600, 2),
@@ -360,8 +360,8 @@ def test_multiple_densities():
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-#     test_lines()
-    test_envelopes()
+    test_lines()
+#     test_envelopes()
 #    test_kde_over_time()
 #    test_multiple_densities()
 
