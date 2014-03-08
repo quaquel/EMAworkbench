@@ -546,16 +546,21 @@ def prepare_data(results,
     #unravel results
     experiments, outcomes = results
 
+    temp_outcomes = {}
+
     # remove outcomes that are not to be shown
     if outcomes_to_show:
         if type(outcomes_to_show) == StringType:
             outcomes_to_show  = [outcomes_to_show]
+            
+        for entry in outcomes_to_show:
+            temp_outcomes[entry] = copy.deepcopy(outcomes[entry])
         
-        [outcomes.pop(entry) for entry in\
-         set(outcomes.keys()) - set(outcomes_to_show)]
-
-    experiments = copy.deepcopy(experiments)
-    outcomes = copy.deepcopy(outcomes)
+# #         [outcomes.pop(entry) for entry in\
+# #          set(outcomes.keys()) - set(outcomes_to_show)]
+# 
+#     experiments = copy.deepcopy(experiments)
+#     outcomes = copy.deepcopy(outcomes)
     
     time, outcomes = determine_time_dimension(outcomes)
 
