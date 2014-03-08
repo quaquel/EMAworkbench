@@ -96,11 +96,11 @@ def test_lines():
                   grouping_specifiers = 'basic policy'
                   )
 
-#    lines(results, 
-#          experiments_to_show=np.arange(0,600, 2),
-#          group_by='policy',
-#          density='hist'
-#          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 2),
+          group_by='policy',
+          density='hist'
+          )
 #    lines(results, 
 #          experiments_to_show=np.arange(0,600, 2),
 #          group_by='policy',
