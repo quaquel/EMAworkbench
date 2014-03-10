@@ -961,6 +961,16 @@ class ModelEnsemble(object):
        
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        
+        temp_invalid_names = set()
+        temp_invalid_ind = []
+        for ind in invalid_ind:
+            name = ind['name'] 
+            if name not in temp_invalid_names:
+                temp_invalid_names.add(name)
+                temp_invalid_ind.append(ind)
+        invalid_ind = temp_invalid_ind
+        
         evaluate_population(invalid_ind, reporting_interval, toolbox, self)
 
         # Select the next generation population
