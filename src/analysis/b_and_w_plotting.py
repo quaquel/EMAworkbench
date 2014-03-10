@@ -93,9 +93,9 @@ def _set_ax_polycollection_to_bw(collection, ax, style):
             rgb_orig = polycollection._facecolors_original
             if rgb_orig in COLORMAP.keys():
                 new_color = color_converter.to_rgba(COLORMAP[rgb_orig]['fill'])
-                a = np.asarray([new_color])
-                polycollection.update({'facecolors' : a}) 
-                polycollection.update({'edgecolors' : 'black'}) 
+                new_color = np.asarray([new_color])
+                polycollection.update({'facecolors' : new_color}) 
+                polycollection.update({'edgecolors' : new_color})
     elif style==HATCHING:
         rgb_orig = collection._facecolors_original
         collection.update({'facecolors' : 'none'}) 
@@ -120,7 +120,7 @@ def _set_ax_pathcollection_to_bw(collection, ax, style):
         new_color = [color_converter.to_rgba(COLORMAP[entry]['fill']) for entry in color]
         new_color = np.asarray(new_color)
         collection.update({'facecolors' : new_color}) 
-        collection.update({'edgecolors' : 'black'}) 
+        collection.update({'edgecolors' : new_color}) 
 
 
 _collection_converter = {PathCollection: _set_ax_pathcollection_to_bw,

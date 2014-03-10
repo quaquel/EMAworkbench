@@ -102,8 +102,8 @@ def plot_envelope(ax, j, time, value, fill):
     color = COLOR_LIST[j]
     
     if fill:
-        ax.plot(time, minimum, color=color, alpha=0.3)
-        ax.plot(time, maximum, color=color, alpha=0.3)
+#        ax.plot(time, minimum, color=color, alpha=0.3)
+#        ax.plot(time, maximum, color=color, alpha=0.3)
         ax.fill_between(time, 
                         minimum,
                         maximum,
@@ -567,7 +567,7 @@ def prepare_data(results,
     # filter the outcomes to exclude scalar values
     if filter_scalar:
         outcomes = filter_scalar_outcomes(outcomes)
-    outcomes_to_show = outcomes.keys()
+        outcomes_to_show = outcomes.keys()
         
     # group the data if desired
     if group_by:
