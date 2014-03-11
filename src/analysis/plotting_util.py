@@ -11,8 +11,6 @@ import copy
 import numpy as np
 
 import scipy.stats.kde as kde
-from sklearn.neighbors import KernelDensity
-from sklearn.grid_search import GridSearchCV
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
