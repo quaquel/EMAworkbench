@@ -565,6 +565,7 @@ def prepare_data(results,
     # filter the outcomes to exclude scalar values
     if filter_scalar:
         outcomes = filter_scalar_outcomes(outcomes)
+    if not outcomes_to_show:
         outcomes_to_show = outcomes.keys()
         
     # group the data if desired
