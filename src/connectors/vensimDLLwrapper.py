@@ -439,6 +439,12 @@ def use_double_precision():
     '''
     convenience function for changing reference to dll to dll for double 
     precision. 
+    
+    
+    In order to ensure that double precision is used when running in parallel,
+    call this function at the top of the module in which you define the model
+    interface.
+    
     '''
     
     global vensim
