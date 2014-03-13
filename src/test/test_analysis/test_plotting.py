@@ -101,48 +101,48 @@ def test_lines():
           group_by='policy',
           density='hist'
           )
-#    lines(results, 
-#          experiments_to_show=np.arange(0,600, 2),
-#          group_by='policy',
-#          density='kde'
-#          )
-#    lines(results, 
-#          experiments_to_show=np.arange(0,600, 2),
-#          group_by='policy',
-#          density='box plot'
-#          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 2),
+          group_by='policy',
+          density='kde'
+          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 2),
+          group_by='policy',
+          density='box plot'
+          )
 
-#
-#    lines(results, 
-#              group_by='index',
-#              grouping_specifiers = {"blaat": np.arange(1, 100, 2)},
-#              density='kde',
-#              )
-#    
-#    lines(results, 
-#                experiments_to_show=np.arange(0,600, 30),
-#                group_by='policy',
-#                density='kde',
-#                show_envelope=True,
-#                grouping_specifiers=['no policy', 'adaptive policy']
-#                )
-#
-#    lines(results, 
-#                experiments_to_show=np.arange(0,600, 30),
-#                group_by='policy',
-#                density='kde',
-#                show_envelope=True,
-#                log=True,
-#                grouping_specifiers=['no policy', 'adaptive policy']
-#                )
-#    lines(results, 
-#                experiments_to_show=np.arange(0,600, 30),
-#                group_by='policy',
-#                density='box plot',
-#                show_envelope=True,
-#                log=True,
-#                grouping_specifiers=['no policy', 'adaptive policy']
-#                )
+
+    lines(results, 
+              group_by='index',
+              grouping_specifiers = {"blaat": np.arange(1, 100, 2)},
+              density='kde',
+              )
+    
+    lines(results, 
+                experiments_to_show=np.arange(0,600, 30),
+                group_by='policy',
+                density='kde',
+                show_envelope=True,
+                grouping_specifiers=['no policy', 'adaptive policy']
+                )
+
+    lines(results, 
+                experiments_to_show=np.arange(0,600, 30),
+                group_by='policy',
+                density='kde',
+                show_envelope=True,
+                log=True,
+                grouping_specifiers=['no policy', 'adaptive policy']
+                )
+    lines(results, 
+                experiments_to_show=np.arange(0,600, 30),
+                group_by='policy',
+                density='box plot',
+                show_envelope=True,
+                log=True,
+                grouping_specifiers=['no policy', 'adaptive policy']
+                )
 
 #    set_fig_to_bw(lines(results, 
 #              experiments_to_show=np.arange(0,600, 20),
