@@ -468,9 +468,9 @@ def plot_lines_with_envelopes(results,
                 full_value = full_outcomes[key][outcome_to_plot]
                 ax.plot(time.T[:, np.newaxis], value.T, COLOR_LIST[j])
                 if density=='kde':
-                    simple_density(density, full_value, ax_d, ax, **kwargs)
-#                    kde_x, kde_y = determine_kde(full_value[:,-1])
-#                    plot_kde(ax_d, kde_x, kde_y, j, **kwargs)
+#                    simple_density(density, full_value, ax_d, ax, **kwargs)
+                    kde_x, kde_y = determine_kde(full_value[:,-1])
+                    plot_kde(ax_d, kde_x, kde_y, j, **kwargs)
             
             if density:
                 if density=='hist':
