@@ -79,7 +79,6 @@ class PrimTestCase(unittest.TestCase):
         
         experiments, outcomes = self.results
         
-        
         unc = recfunctions.get_names(experiments.dtype)
         
         # test initialization, including t_coi calculation in case of searching
@@ -126,8 +125,15 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.1)==1.5)
         self.assertTrue(prim.get_quantile(data, 0.05)==1.5)        
+        
+        data = np.array([1,1,2,3,4,5,6,7,8,9,9, np.NAN])
+        self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
+        self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
+        self.assertTrue(prim.get_quantile(data, 0.1)==1.5)
+        self.assertTrue(prim.get_quantile(data, 0.05)==1.5)   
+        
 
-    def test_box(self):
+    def test_make_box(self):
         x = np.array([(0,1,2),
                       (2,5,6),
                       (3,2,1)], 
@@ -145,7 +151,90 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box.mass[0]==1)
         self.assertTrue(box.coverage[0]==1)
         self.assertTrue(box.density[0]==2/3)
+        
+    
+    def test_box_init(self):
+        # test init box without NANS
+        x = np.array([(0,1,2),
+                      (2,5,6),
+                      (3,2,7)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float),
+                            ('c', np.float)])
+        y = {'y':np.array([0,1,2])}
+        
+        prim_obj = prim.Prim((x,y), 'y', threshold=0.5)
+        box_init = prim_obj.box_init
+        
+        # some test on the box
+        self.assertTrue(box_init['a'][0]==0)
+        self.assertTrue(box_init['a'][1]==3)
+        self.assertTrue(box_init['b'][0]==1)
+        self.assertTrue(box_init['b'][1]==5)
+        self.assertTrue(box_init['c'][0]==2)
+        self.assertTrue(box_init['c'][1]==7)  
+ 
+        # test init box with NANS
+        x = np.array([(0,1,2),
+                      (2,5,np.NAN),
+                      (3,2,7)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float),
+                            ('c', np.float)])
+        y = {'y':np.array([0,1,2])}
+         
+        prim_obj = prim.Prim((x,y), 'y', threshold=0.5)
+        box_init = prim_obj.box_init
+         
+        # some test on the box
+        self.assertTrue(box_init['a'][0]==0)
+        self.assertTrue(box_init['a'][1]==3)
+        self.assertTrue(box_init['b'][0]==1)
+        self.assertTrue(box_init['b'][1]==5)
+        self.assertTrue(box_init['c'][0]==2)
+        self.assertTrue(box_init['c'][1]==7)  
+        
+        # heterogenous without NAN
+        dtype = [('a', np.float),('b', np.int), ('c', np.object)]
+        x = np.empty((10, ), dtype=dtype)
+        
+        x['a'] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.7, 0.8, 0.9, 1.0]
+        x['b'] = [0,1,2,3,4,5,6,7,8,9]
+        x['c'] = ['a','b','a','b','a','a','b','a','b','a', ]
+        
+        prim_obj = prim.Prim((x,y), 'y', threshold=0.5)
+        box_init = prim_obj.box_init
+         
+        # some test on the box
+        self.assertTrue(box_init['a'][0]==0.1)
+        self.assertTrue(box_init['a'][1]==1.0)
+        self.assertTrue(box_init['b'][0]==0)
+        self.assertTrue(box_init['b'][1]==9)
+        self.assertTrue(box_init['c'][0]==set(['a','b']))
+        self.assertTrue(box_init['c'][1]==set(['a','b'])) 
+ 
+        # heterogenous with NAN
+        dtype = [('a', np.float),('b', np.int), ('c', np.object)]
+        x = np.empty((10, ), dtype=dtype)
+        
+        x[:] = np.NAN
+        x['a'] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.7, 0.8, np.NAN, 1.0]
+        x['b'] = [0,1,2,3,4,5,6,7,8,9]
+        x['c'] = ['a','b','a','b',np.NAN,'a','b','a','b','a', ]
+        
+        prim_obj = prim.Prim((x,y), 'y', threshold=0.5)
+        box_init = prim_obj.box_init
+         
+        # some test on the box
+        self.assertTrue(box_init['a'][0]==0.1)
+        self.assertTrue(box_init['a'][1]==1.0)
+        self.assertTrue(box_init['b'][0]==0)
+        self.assertTrue(box_init['b'][1]==9)
+        self.assertTrue(box_init['c'][0]==set(['a','b']))
+        self.assertTrue(box_init['c'][1]==set(['a','b'])) 
+ 
 
+ 
     def test_restricted_dimension(self):
         x = np.random.rand(10, )
         x = np.asarray(x, dtype=[('a', np.float),
@@ -266,7 +355,7 @@ class PrimTestCase(unittest.TestCase):
         prim_obj.write_boxes_to_stdout()
         
         prim_obj.show_boxes()   
-        plt.show()
+#         plt.show()
         
     def test_select(self):
         results = load_results(r'../data/1000 flu cases no policy.bz2')

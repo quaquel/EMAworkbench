@@ -46,7 +46,11 @@ def get_quantile(data, quantile):
     assert quantile>0
     assert quantile<1
     
-    data = list(data)
+    data = np.asarray(data)
+    logical = np.isnan(data)
+    data = data[logical==False]
+    
+    data = list(data) #TODO do we realy need a list? I doubt it
     data.sort()    
     
     i = (len(data)-1)*quantile
@@ -888,20 +892,45 @@ class Prim(object):
         return dims
     
     def make_box(self, x):
+        '''
+        Make a box that encompasses all the data
+        
+        :param x: a structured array
+        
+        '''
+        
         box = np.zeros((2, ), x.dtype)
-        for entry in x.dtype.descr:
-            name = entry[0]
-            value = x.dtype.fields.get(entry[0])[0] 
-            if value == 'object':
-                data = x[name]
+        
+        names = recfunctions.get_names(x.dtype)
+        
+        for name in names:
+            dtype = x.dtype.fields.get(name)[0] 
+            values = x[name]
+            
+            if dtype == 'object':
                 try:
-                    box[name][:] = set(data)
+                    values = set(values)
+
+                    # remove nans
+                    nans = []
+                    for entry in values:
+                        try:
+                            if np.isnan(entry):
+                                nans.append(entry)
+                        except TypeError as e:
+                            pass 
+                    
+                    for entry in nans:
+                        values.remove(entry)
+   
+                    values = set(values)
+                    box[name][:] = values
                 except TypeError as e:
                     ema_logging.warning("{} has unhashable values".format(name))
                     raise e
             else:
-                box[name][0] = np.min(x[name], axis=0) 
-                box[name][1] = np.max(x[name], axis=0)    
+                box[name][0] = np.nanmin(values, axis=0) 
+                box[name][1] = np.nanmax(values, axis=0)    
         return box  
     
 #    def _getattr_(self, name):
