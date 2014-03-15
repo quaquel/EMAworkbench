@@ -909,28 +909,14 @@ class Prim(object):
             
             if dtype == 'object':
                 try:
-                    values = set(values)
-
-                    # remove nans
-                    nans = []
-                    for entry in values:
-                        try:
-                            if np.isnan(entry):
-                                nans.append(entry)
-                        except TypeError as e:
-                            pass 
-                    
-                    for entry in nans:
-                        values.remove(entry)
-   
-                    values = set(values)
+                    values = set(values) - set([np.ma.masked])
                     box[name][:] = values
                 except TypeError as e:
                     ema_logging.warning("{} has unhashable values".format(name))
                     raise e
             else:
-                box[name][0] = np.nanmin(values, axis=0) 
-                box[name][1] = np.nanmax(values, axis=0)    
+                box[name][0] = np.min(values, axis=0) 
+                box[name][1] = np.max(values, axis=0)    
         return box  
     
 #    def _getattr_(self, name):
