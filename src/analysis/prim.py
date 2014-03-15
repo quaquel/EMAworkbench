@@ -45,12 +45,9 @@ def get_quantile(data, quantile):
     '''
     assert quantile>0
     assert quantile<1
-    
-    data = np.asarray(data)
-    logical = np.isnan(data)
-    data = data[logical==False]
-    
-    data = list(data) #TODO do we realy need a list? I doubt it
+ 
+    data = data.compressed()
+    data = list(data) #TODO do we really need a list? I doubt it
     data.sort()    
     
     i = (len(data)-1)*quantile
@@ -609,7 +606,7 @@ class Prim(object):
         '''
         assert threshold!=None
         if not incl_unc:
-            self.x = results[0]
+            self.x = np.ma.array(results[0])
         else:
             drop_names = set(recfunctions.get_names(results[0].dtype))-set(incl_unc)
             self.x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)

@@ -108,25 +108,26 @@ class PrimTestCase(unittest.TestCase):
         prim.Prim(self.results, self.classify, threshold=prim.ABOVE)
 
     def test_quantile(self):
-        data = [x for x in range(10)]
+        data = np.ma.array([x for x in range(10)])
         self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.1)==0.5)
         self.assertTrue(prim.get_quantile(data, 0.05)==0.5)
         
-        data = [1]
+        data = np.ma.array(data = [1])
         self.assertTrue(prim.get_quantile(data, 0.9)==1)
         self.assertTrue(prim.get_quantile(data, 0.95)==1)
         self.assertTrue(prim.get_quantile(data, 0.1)==1)
         self.assertTrue(prim.get_quantile(data, 0.05)==1)
         
-        data = [1,1,2,3,4,5,6,7,8,9,9]
+        data = np.ma.array([1,1,2,3,4,5,6,7,8,9,9])
         self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.1)==1.5)
         self.assertTrue(prim.get_quantile(data, 0.05)==1.5)        
         
-        data = np.array([1,1,2,3,4,5,6,7,8,9,9, np.NAN])
+        data = np.ma.array([1,1,2,3,4,5,6,7,8,9,9, np.NAN], 
+                           mask=[0,0,0,0,0,0,0,0,0,0,0,1])
         self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.1)==1.5)
