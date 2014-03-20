@@ -405,6 +405,7 @@ class PrimBox(object):
         ticklocs = np.arange(0, max(self.res_dim)+1, step=1)
         cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
         cb.set_label("nr. of restricted dimensions")
+        return fig
     
     def show_pairs_scatter(self):
         '''
