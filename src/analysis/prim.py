@@ -17,7 +17,7 @@ import numpy as np
 import numpy.lib.recfunctions as recfunctions
 from scipy.stats import binom
 
-from mpl_toolkits.axes_grid1 import host_subplot
+from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec 
