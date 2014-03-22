@@ -379,6 +379,16 @@ class PrimTestCase(unittest.TestCase):
         
         self.assertEqual(len(box.mean), sb+1)
 
+
+    def test_drop_restriction(self):
+        results = load_results(r'../data/1000 flu cases no policy.bz2')
+        classify = flu_classify
+        
+        prim_obj = prim.Prim(results, classify, 
+                             threshold=0.8)
+        box = prim_obj.find_box()
+    
+        print "blaat"
     
     def test_find_boxes(self):
         results = load_results(r'../data/1000 flu cases no policy.bz2')
