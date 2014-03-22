@@ -11,8 +11,11 @@ import numpy as np
 import numpy.lib.recfunctions as recfunctions
 import matplotlib.pyplot as plt
 
-from expWorkbench import ema_logging, load_results
+from expWorkbench import ema_logging
 from analysis import prim
+
+from test import util
+from expWorkbench.util import load_results
 
 
 def flu_classify(data):
@@ -38,12 +41,15 @@ def scarcity_classify(outcomes):
     
     classes = np.zeros(outcome.shape[0])
     classes[logical] = 1
+    
+    nr_cases = np.sum(classes)
+    
     return classes
 
 
 class PrimTestCase(unittest.TestCase):
     def test_prim_init(self):
-        self.results = load_results(r'../data/1000 flu cases no policy.bz2')
+        self.results = util.load_flu_data()
         self.classify = flu_classify        
         
         experiments, outcomes = self.results
@@ -74,7 +80,7 @@ class PrimTestCase(unittest.TestCase):
         prim.Prim(self.results, self.classify, threshold=prim.ABOVE)
 
     def test_prim_init_select(self):
-        self.results = load_results(r'../data/1000 flu cases no policy.bz2')
+        self.results = util.load_flu_data()
         self.classify = flu_classify        
         
         experiments, outcomes = self.results
@@ -270,7 +276,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertEqual(len(u), 2)
 
     def test_compare(self):
-        self.results = load_results(r'../data/scarcity 1000.bz2')
+        self.results = util.load_scarcity_data()
         self.classify = scarcity_classify
         
         prim_obj = prim.Prim(self.results, self.classify, threshold=0.8)
@@ -313,7 +319,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(test)
 
     def test_in_box(self):
-        results = load_results(r'../data/1000 flu cases no policy.bz2')
+        results = util.load_flu_data()
         prim_obj = prim.Prim(results, flu_classify, threshold=0.8)
         
         box = prim_obj.make_box(results[0])
@@ -323,7 +329,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertEqual(prim_obj.in_box(box).shape[0], results[0].shape[0])
     
     def test_prim_init_exception(self):
-        results = load_results(r'../data/1000 flu cases no policy.bz2')
+        results = util.load_flu_data()
         self.assertRaises(prim.PrimException, 
                           prim.Prim,
                           results, 
@@ -353,14 +359,14 @@ class PrimTestCase(unittest.TestCase):
     def test_show_boxes(self):
 #        results = load_results(r'../data/1000 flu cases no policy.bz2')
 #        classify = flu_classify
-
-        results = load_results(r'../data/scarcity 1000.bz2')
-        classify = scarcity_classify
+                
+        results = util.load_flu_data()
+        classify = flu_classify
                 
         prim_obj = prim.Prim(results, classify, 
                              threshold=0.7)
-        prim_obj.find_box()
-        prim_obj.find_box()
+        box1 = prim_obj.find_box()
+        box2 = prim_obj.find_box()
         
         prim_obj.write_boxes_to_stdout()
         
@@ -368,7 +374,7 @@ class PrimTestCase(unittest.TestCase):
 #         plt.show()
         
     def test_select(self):
-        results = load_results(r'../data/1000 flu cases no policy.bz2')
+        results = util.load_flu_data()
         classify = flu_classify
         
         prim_obj = prim.Prim(results, classify, 
@@ -381,17 +387,17 @@ class PrimTestCase(unittest.TestCase):
 
 
     def test_drop_restriction(self):
-        results = load_results(r'../data/1000 flu cases no policy.bz2')
+        results = util.load_flu_data()
         classify = flu_classify
         
         prim_obj = prim.Prim(results, classify, 
                              threshold=0.8)
         box = prim_obj.find_box()
     
-        print "blaat"
+#         print "blaat"
     
     def test_find_boxes(self):
-        results = load_results(r'../data/1000 flu cases no policy.bz2')
+        results = util.load_flu_data()
         classify = flu_classify
         
         
