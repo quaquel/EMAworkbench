@@ -300,6 +300,7 @@ class PrimBox(object):
         self.res_dim = []
         self.box_lims = []
         self.mass = []
+        self.cur_box = None
         
         # indices van data in box
         self.update(box_lims, indices)
@@ -326,8 +327,23 @@ class PrimBox(object):
         # after select, try to paste
         self.prim._update_yi_remaining()
         self.prim._paste(self)
-       
-
+    
+    def drop_restriction(self, uncertainty):
+        '''
+        drop the restriction on the specified dimension. That is, replace
+        the limits in the chosen box with a new box where for the specified 
+        uncertainty the limits of the initial box are being used
+        
+        :param uncertainty:
+        
+        '''
+        
+        new_box_lim = copy.deepcopy(self.cur_box)
+        new_box_lim[uncertainty][:] = self.box_lims[0][:]
+        indices = _in_box(self.prim.x, new_box_lim)
+        self.update(new_box_lim, indices)
+        
+        
     def update(self, box_lims, indices):
         '''
         
@@ -353,6 +369,8 @@ class PrimBox(object):
         # determine the nr. of restricted dimensions
         # box_lims[0] is the initial box, box_lims[-1] is the latest box
         self.res_dim.append(self.prim.determine_nr_restricted_dims(self.box_lims[-1]))
+        self.cur_box = box_lims
+        
         
     def show_ppt(self):
         '''
