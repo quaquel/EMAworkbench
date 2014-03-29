@@ -319,14 +319,71 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(test)
 
     def test_in_box(self):
-        results = util.load_flu_data()
-        prim_obj = prim.Prim(results, flu_classify, threshold=0.8)
+        dtype = [('a', np.int)]
+        x = np.array([(0,),
+                      (1,),
+                      (2,),
+                      (3,),
+                      (4,),
+                      (5,),
+                      (6,),
+                      (7,),
+                      (8,),
+                      (9,)], 
+                     dtype=dtype)
+        boxlim = np.array([(1,),
+                           (8,)], dtype=dtype)
+        correct_result = np.array([1,2,3,4,5,6,7,8], dtype=np.int)
+        result = prim._in_box(x, boxlim)
         
-        box = prim_obj.make_box(results[0])
-        # I need an encompassing box
-        # the shape[0] of the return should be equal to experiment.shape[0]
-        # assuming that the box is an encompassing box
-        self.assertEqual(prim_obj.in_box(box).shape[0], results[0].shape[0])
+        self.assertTrue(np.all(correct_result==result))
+
+
+        dtype = [('a', np.int),
+                 ('b', np.int)]
+        x = np.array([(0,0),
+                      (1,1),
+                      (2,2),
+                      (3,3),
+                      (4,4),
+                      (5,5),
+                      (6,6),
+                      (7,7),
+                      (8,8),
+                      (9,9)], 
+                     dtype=dtype)
+        boxlim = np.array([(1,0),
+                           (8,7)], dtype=dtype)
+        correct_result = np.array([1,2,3,4,5,6,7], dtype=np.int)
+        result = prim._in_box(x, boxlim)
+        
+        self.assertTrue(np.all(correct_result==result))
+    
+        dtype = [('a', np.float),
+                 ('b', np.int),
+                 ('c', np.object)]
+        x = np.array([(0.1, 0, 'a'),
+                      (1.1, 1, 'a'),
+                      (2.1, 2, 'b'),
+                      (3.1, 3, 'b'),
+                      (4.1, 4, 'c'),
+                      (5.1, 5, 'c'),
+                      (6.1, 6, 'd'),
+                      (7.1, 7, 'd'),
+                      (8.1, 8, 'e'),
+                      (9.1, 9, 'e')], 
+                     dtype=dtype)
+        boxlim = np.array([(1.2,0, set(['a','b'])),
+                           (8.0,7, set(['a','b']) )], dtype=dtype)
+        correct_result = np.array([2,3], dtype=np.int)
+        result = prim._in_box(x, boxlim)
+        self.assertTrue(np.all(correct_result==result))
+        
+        boxlim = np.array([(0.1, 0, set(['a','b','c','d','e'])),
+                           (9.1, 9, set(['a','b','c','d','e']) )], dtype=dtype)
+        correct_result = np.array([0,1,2,3,4,5,6,7,8,9], dtype=np.int)
+        result = prim._in_box(x, boxlim)
+        self.assertTrue(np.all(correct_result==result))
     
     def test_prim_init_exception(self):
         results = util.load_flu_data()
@@ -485,5 +542,10 @@ class PrimTestCase(unittest.TestCase):
                 self.assertEqual(box_lims[u][0], set(['a','b']))
 
 if __name__ == '__main__':
-#    ema_logging.log_to_stderr(ema_logging.INFO)    
+#     ema_logging.log_to_stderr(ema_logging.INFO)    
+
     unittest.main()
+
+#     suite = unittest.TestSuite()
+#     suite.addTest(PrimTestCase("test_find_boxes"))
+#     unittest.TextTestRunner().run(suite)

@@ -244,20 +244,18 @@ def _pair_wise_scatter(x,y, box_lim, restricted_dims):
             
     return figure
         
-def _in_box(x, boxlim, res_dim=None):
+def _in_box(x, boxlim):
     '''
      
-    returns the indices of the remaining data points that are within the 
+    returns the indices of the data points that are within the 
     box_lims.
     
     '''
     logical = np.ones(x.shape[0], dtype=np.bool)
     
-    if not res_dim:
-        res_dim = recfunctions.get_names(boxlim.dtype)
+    dims = recfunctions.get_names(boxlim.dtype)
 
-
-    for name in res_dim:
+    for name in dims:
         value = x.dtype.fields.get(name)[0]
         
         if value == 'object':
@@ -281,6 +279,9 @@ def _in_box(x, boxlim, res_dim=None):
                                         (x[name] <= boxlim[name][1])                
     
     indices = np.where(logical==True)
+    
+    assert len(indices)==1
+    indices = indices[0]
     
     return indices
             
@@ -312,9 +313,7 @@ class PrimBox(object):
         the prim box to this selected box.
         
         '''
-        
-
-        self.yi = self.prim.in_box(self.box_lims[i])
+        self.yi = _in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
         
         i = i+1 
         self.box_lims = self.box_lims[0:i]
@@ -326,7 +325,7 @@ class PrimBox(object):
         
         # after select, try to paste
         self.prim._update_yi_remaining()
-        self.prim._paste(self)
+#         self.prim._paste(self)
     
     def drop_restriction(self, uncertainty):
         '''
@@ -553,10 +552,10 @@ class PrimBox(object):
             temp_box = copy.deepcopy(box_lim)
             temp_box[u] = self.box_lims[0][u]
         
-            indices = _in_box(self.prim.x, temp_box, restricted_dims)
+            indices = _in_box(self.prim.x, temp_box)
             
             # total nr. of cases in box with one restriction removed
-            Tj = indices[0].shape[0]  
+            Tj = indices.shape[0]  
             
             # total nr. of cases of interest in box with one restriction 
             # removed
@@ -569,12 +568,6 @@ class PrimBox(object):
             
             qp = binom.sf(Hbox-1, Tbox, p)
             qp_values[u] = qp
-            
-#            print u
-#            print qp
-#            p = (Hj+1)/Tj
-#            print "{0:.2e}".format(binom.sf(Hbox-1, Tbox, p))
-#            print ""
             
         return qp_values
                     
@@ -818,43 +811,43 @@ class Prim(object):
                         (a[name][1] == b[name][1])
         return logical
     
-    def in_box(self, box):
-        '''
-         
-        returns the indices of the remaining data points that are within the 
-        box_lims.
-        
-        TODO, should start using the general function _in_box
-        
-        '''
-        x = self.x[self.yi_remaining]
-        logical = np.ones(x.shape[0], dtype=np.bool)
-        res_dim = self.determine_restricted_dims(box)
-    
-        for name in res_dim:
-            value = x.dtype.fields.get(name)[0]
-            
-            if value == 'object':
-                entries = box[name][0]
-                l = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
-                for i,entry in enumerate(entries):
-                    if type(list(entries)[0]) not in (StringType, FloatType, IntType):
-                        bools = []                
-                        for element in list(x[name]):
-                            if element == entry:
-                                bools.append(True)
-                            else:
-                                bools.append(False)
-                        l[:, i] = np.asarray(bools, dtype=bool)
-                    else:
-                        l[:, i] = x[name] == entry
-                l = np.any(l, axis=1)
-                logical = logical & l
-            else:
-                logical = logical & (box[name][0] <= x[name] )&\
-                                        (x[name] <= box[name][1])                
-        
-        return self.yi_remaining[logical]
+#     def in_box(self, box):
+#         '''
+#          
+#         returns the indices of the remaining data points that are within the 
+#         box_lims.
+#         
+#         TODO, should start using the general function _in_box
+#         
+#         '''
+#         x = self.x[self.yi_remaining]
+#         logical = np.ones(x.shape[0], dtype=np.bool)
+#         res_dim = self.determine_restricted_dims(box)
+#     
+#         for name in res_dim:
+#             value = x.dtype.fields.get(name)[0]
+#             
+#             if value == 'object':
+#                 entries = box[name][0]
+#                 l = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
+#                 for i,entry in enumerate(entries):
+#                     if type(list(entries)[0]) not in (StringType, FloatType, IntType):
+#                         bools = []                
+#                         for element in list(x[name]):
+#                             if element == entry:
+#                                 bools.append(True)
+#                             else:
+#                                 bools.append(False)
+#                         l[:, i] = np.asarray(bools, dtype=bool)
+#                     else:
+#                         l[:, i] = x[name] == entry
+#                 l = np.any(l, axis=1)
+#                 logical = logical & l
+#             else:
+#                 logical = logical & (box[name][0] <= x[name] )&\
+#                                         (x[name] <= box[name][1])                
+#         
+#         return self.yi_remaining[logical]
    
     def determine_coi(self, indices):
         '''
@@ -974,7 +967,6 @@ class Prim(object):
         _write_boxes_to_stdout(*self._get_sorted_box_lims())
 
         
-    
     def show_boxes(self, together=True):
         '''
         
@@ -1108,12 +1100,10 @@ class Prim(object):
         '''
         
         # set the indices
-        yi_remaining = self.yi
-        
-        logical = yi_remaining == yi_remaining
+        logical = np.ones(self.yi.shape[0],dtype=np.bool )
         for box in self.boxes:
             logical[box.yi] = False
-        self.yi_remaining = yi_remaining[logical]
+        self.yi_remaining = self.yi[logical]
     
     def _peel(self, box):
         '''
@@ -1322,7 +1312,6 @@ class Prim(object):
         possible_pastes = []
         for u in res_dim:
             debug("pasting "+u)
-            
             dtype = self.x.dtype.fields.get(u)[0].name
             pastes = self._pastes[dtype](self, box, u)
             [possible_pastes.append(entry) for entry in pastes] 
@@ -1349,7 +1338,6 @@ class Prim(object):
         mean_old = np.mean(self.y[box.yi])
         mean_new = np.mean(self.y[indices])
         
-        
         if (mass_new >= self.mass_min) &\
            (mass_new > mass_old) &\
            (mean_old <= mean_new):
@@ -1371,43 +1359,47 @@ class Prim(object):
        
         '''
 
-        box_diff = self.box_init[u][1]-self.box_init[u][0]
-#        pa = self.paste_alpha * box.yi.shape[0]
-    
         pastes = []
-        for direction in ['upper', 'lower']:
+        for i, direction in enumerate(['lower', 'upper']):
             box_paste = np.copy(box.box_lims[-1])
-            test_box = np.copy(box.box_lims[-1])
+            paste_box = np.copy(box.box_lims[-1]) # box containing data candidate for pasting
             
-            if direction == 'lower':
-                i = 0
-                box_diff = -1*box_diff
-                test_box[u][1] = test_box[u][i]
-                test_box[u][i] = self.box_init[u][i]
-                indices = self.in_box(test_box)
-                data = self.x[indices][u]
+            lims_init = self.box_init[u]
+            lims_cur = box_paste[u]
+            
+            if direction == 'upper':
+                paste_box[u][0] = paste_box[u][1]
+                paste_box[u][1] = self.box_init[u][1]
+                indices = _in_box(self.x[self.yi_remaining], paste_box)
+                data = self.x[self.yi_remaining][indices][u]
+                
+                lims_paste = paste_box[u]
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
-#                    b = (data.shape[0]-pa)/data.shape[0]
-                    paste_value = get_quantile(data, 1-self.paste_alpha)
-                
-                    
-            elif direction == 'upper':
-                i = 1
-                test_box[u][0] = test_box[u][i]
-                test_box[u][i] = self.box_init[u][i]
-                indices = self.in_box(test_box)
-                data = self.x[indices][u]
-                
-                paste_value = self.box_init[u][i]
-                if data.shape[0] > 0:
-#                    b = (pa)/data.shape[0]
-
                     paste_value = get_quantile(data, self.paste_alpha)
+                    
+                assert paste_value >= box.box_lims[-1][u][i]
+                    
+            elif direction == 'lower':
+                paste_box[u][0] = self.box_init[u][0]
+                paste_box[u][1] = box_paste[u][0]
+                
+                lims_paste = paste_box[u]
+                
+                indices = _in_box(self.x[self.yi_remaining], paste_box)
+                data = self.x[self.yi_remaining][indices][u]
+                
+                paste_value = self.box_init[u][i]
+                if data.shape[0] > 0:
+                    paste_value = get_quantile(data, 1-self.paste_alpha)
            
+                if not paste_value <= box.box_lims[-1][u][i]:
+                    print paste_value, box.box_lims[-1][u][i]
+            
             box_paste[u][i] = paste_value
-            indices = self.in_box(box_paste)
+            indices = _in_box(self.x[self.yi_remaining], box_paste)
+            indices = self.yi_remaining[indices]
             
             pastes.append((indices, box_paste))
     
@@ -1437,8 +1429,8 @@ class Prim(object):
                 box_diff = -1*box_diff
                 test_box[u][1] = test_box[u][i]
                 test_box[u][i] = self.box_init[u][i]
-                indices = self.in_box(test_box)
-                data = self.x[indices][u]
+                indices = _in_box(self.x[self.yi_remaining], test_box)
+                data = self.x[self.yi_remaining][indices][u]
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
@@ -1449,8 +1441,8 @@ class Prim(object):
                 i = 1
                 test_box[u][0] = test_box[u][i]
                 test_box[u][i] = self.box_init[u][i]
-                indices = self.in_box(test_box)
-                data = self.x[indices][u]
+                indices = _in_box(self.x[self.yi_remaining], test_box)
+                data = self.x[self.yi_remaining][indices][u]
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
@@ -1458,7 +1450,8 @@ class Prim(object):
                     paste_value = get_quantile(data, self.paste_alpha)
            
             box_paste[u][i] = int(paste_value)
-            indices = self.in_box(box_paste)
+            indices = _in_box(self.x[self.yi_remaining], box_paste)
+            indices = self.yi_remaining[indices]
             
             pastes.append((indices, box_paste))
     
@@ -1490,7 +1483,7 @@ class Prim(object):
                 paste = copy.deepcopy(c_in_b)
                 paste.add(entry)
                 box_paste[u][:] = paste
-                indices = self.in_box(box_paste)
+                indices = _in_box(self.x[self.yi_remaining], box_paste)
                 pastes.append((indices, box_paste))
             return pastes
         else:
