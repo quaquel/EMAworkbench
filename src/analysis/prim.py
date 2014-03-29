@@ -325,7 +325,7 @@ class PrimBox(object):
         
         # after select, try to paste
         self.prim._update_yi_remaining()
-#         self.prim._paste(self)
+        self.prim._paste(self)
     
     def drop_restriction(self, uncertainty):
         '''
