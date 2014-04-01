@@ -309,6 +309,8 @@ class PrimBox(object):
     res_dim = CurEntry('res dim')
     mass = CurEntry('mass')
     
+    _frozen=False
+    
     def __init__(self, prim, box_lims, indices):
         self.prim = prim
         
@@ -409,6 +411,9 @@ class PrimBox(object):
         :param i: the index of the box to select
         
         '''
+        if self._frozen:
+            raise PrimException("""box has been frozen because PRIM has found 
+                                at least one more recent box""")
         
         indices = _in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
         self.yi = self.prim.yi_remaining[indices]
@@ -754,6 +759,10 @@ class Prim(object):
         '''
         # set the indices
         self._update_yi_remaining()
+        
+        # make boxes already found immutable 
+        for box in self.boxes:
+            box._frozen = True
         
         if self.yi_remaining.shape[0] == 0:
             info("no data remaining")
