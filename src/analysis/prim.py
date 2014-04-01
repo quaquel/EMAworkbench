@@ -312,8 +312,13 @@ class PrimBox(object):
         select an entry from the peeling and pasting trajectory and update
         the prim box to this selected box.
         
+        TODO: should merely set an index, and other methods that want info
+        from the box should receive the results based on this index.
+        
         '''
-        self.yi = _in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
+        
+        indices = _in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
+        self.yi = self.prim.yi_remaining[indices]
         
         i = i+1 
         self.box_lims = self.box_lims[0:i]
@@ -322,10 +327,6 @@ class PrimBox(object):
         self.coverage = self.coverage[0:i]
         self.density = self.density[0:i]
         self.res_dim = self.res_dim[0:i]
-        
-        # after select, try to paste
-        self.prim._update_yi_remaining()
-        self.prim._paste(self)
     
     def drop_restriction(self, uncertainty):
         '''
@@ -552,7 +553,8 @@ class PrimBox(object):
             temp_box = copy.deepcopy(box_lim)
             temp_box[u] = self.box_lims[0][u]
         
-            indices = _in_box(self.prim.x, temp_box)
+            indices = _in_box(self.prim.x[self.prim.yi_remaining], temp_box)
+            indices = self.prim.yi_remaining[indices]
             
             # total nr. of cases in box with one restriction removed
             Tj = indices.shape[0]  
@@ -1416,38 +1418,45 @@ class Prim(object):
         :returns: two box lims and the associated indices
        
         '''        
-        box_diff = self.box_init[u][1]-self.box_init[u][0]
-#        pa = self.paste_alpha * box.yi.shape[0]
     
         pastes = []
-        for direction in ['upper', 'lower']:
+        for i, direction in enumerate(['lower', 'upper']):
             box_paste = np.copy(box.box_lims[-1])
-            test_box = np.copy(box.box_lims[-1])
+            paste_box = np.copy(box.box_lims[-1]) # box containing data candidate for pasting
             
-            if direction == 'lower':
-                i = 0
-                box_diff = -1*box_diff
-                test_box[u][1] = test_box[u][i]
-                test_box[u][i] = self.box_init[u][i]
-                indices = _in_box(self.x[self.yi_remaining], test_box)
+            lims_init = self.box_init[u]
+            lims_cur = box_paste[u]
+            
+            if direction == 'upper':
+                paste_box[u][0] = paste_box[u][1]
+                paste_box[u][1] = self.box_init[u][1]
+                indices = _in_box(self.x[self.yi_remaining], paste_box)
                 data = self.x[self.yi_remaining][indices][u]
+                
+                lims_paste = paste_box[u]
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
-#                    b = (data.shape[0]-pa)/data.shape[0]
-                    paste_value = get_quantile(data, 1-self.paste_alpha)
-                    
-            elif direction == 'upper':
-                i = 1
-                test_box[u][0] = test_box[u][i]
-                test_box[u][i] = self.box_init[u][i]
-                indices = _in_box(self.x[self.yi_remaining], test_box)
-                data = self.x[self.yi_remaining][indices][u]
-                
-                paste_value = self.box_init[u][i]
-                if data.shape[0] > 0:
-#                    b = (pa)/data.shape[0]
                     paste_value = get_quantile(data, self.paste_alpha)
+                    
+                assert paste_value >= box.box_lims[-1][u][i]
+                assert paste_value <= self.box_init[u][1]
+                    
+            elif direction == 'lower':
+                paste_box[u][0] = self.box_init[u][0]
+                paste_box[u][1] = box_paste[u][0]
+                
+                lims_paste = paste_box[u]
+                
+                indices = _in_box(self.x[self.yi_remaining], paste_box)
+                data = self.x[self.yi_remaining][indices][u]
+                
+                paste_value = self.box_init[u][i]
+                if data.shape[0] > 0:
+                    paste_value = get_quantile(data, 1-self.paste_alpha)
+           
+                assert paste_value <= box.box_lims[-1][u][i]
+                assert paste_value >= self.box_init[u][0]
            
             box_paste[u][i] = int(paste_value)
             indices = _in_box(self.x[self.yi_remaining], box_paste)
@@ -1456,8 +1465,7 @@ class Prim(object):
             pastes.append((indices, box_paste))
     
         return pastes    
-        
-    
+            
     def _categorical_paste(self, box, u):
         '''
         
@@ -1522,10 +1530,12 @@ class Prim(object):
             
         obj = 0
         if mean_old != mean_new:
-            if y_old.shape[0] >= y_new.shape[0]:
+            if y_old.shape[0] > y_new.shape[0]:
                 obj = (mean_new-mean_old)/(y_old.shape[0]-y_new.shape[0])
-            else:
+            elif y_old.shape[0] < y_new.shape[0]:
                 obj = (mean_new-mean_old)/(y_new.shape[0]-y_old.shape[0])
+            else:
+                raise EMAError("mean is different, while shape is same, cannot be")
         return obj
     
     def _original_obj_fund(self, y_old, y_new):
