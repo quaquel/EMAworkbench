@@ -1,10 +1,7 @@
 '''
 Created on 22 feb. 2013
 
-@author: localadmin
-
-
-TODO: some of the code might be simplifed building on numpy.lib.recfunctions
+@author: j.h.kwakkel
 
 '''
 from __future__ import division
@@ -325,7 +322,6 @@ class PrimBox(object):
         # indices van data in box
         self.update(box_lims, indices)
 
-
     def __getattr__(self, name):
         '''
         used here to give box_lim same behaviour as coverage, density, mean
@@ -409,18 +405,21 @@ class PrimBox(object):
         '''        
         select an entry from the peeling and pasting trajectory and update
         the prim box to this selected box.
+        
+        :param i: the index of the box to select
+        
         '''
         
         indices = _in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
         self.yi = self.prim.yi_remaining[indices]
-        
         self._cur_box = i
 
     def drop_restriction(self, uncertainty):
         '''
         drop the restriction on the specified dimension. That is, replace
         the limits in the chosen box with a new box where for the specified 
-        uncertainty the limits of the initial box are being used
+        uncertainty the limits of the initial box are being used. The resulting
+        box is added to the peeling trajectory.
         
         :param uncertainty:
         
@@ -492,7 +491,9 @@ class PrimBox(object):
         ax = fig.add_subplot(111)
         
         cmap = mpl.cm.jet #@UndefinedVariable
-        boundaries = np.arange(-0.5, max(self.peeling_trajectory['res dim'])+1.5, step=1)
+        boundaries = np.arange(-0.5, 
+                               max(self.peeling_trajectory['res dim'])+1.5, 
+                               step=1)
         ncolors = cmap.N
         norm = mpl.colors.BoundaryNorm(boundaries, ncolors)
         
@@ -504,7 +505,9 @@ class PrimBox(object):
         ax.set_ylim(ymin=0, ymax=1.2)
         ax.set_xlim(xmin=0, xmax=1.2)
         
-        ticklocs = np.arange(0, max(self.peeling_trajectory['res dim'])+1, step=1)
+        ticklocs = np.arange(0, 
+                             max(self.peeling_trajectory['res dim'])+1, 
+                             step=1)
         cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
         cb.set_label("nr. of restricted dimensions")
         return fig
@@ -569,17 +572,14 @@ class PrimBox(object):
             qp_values[u] = qp
             
         return qp_values
-                    
 
     def _format_stats(self, nr, stats):
         '''helper function for formating box stats'''
         row = self.stats_format.format(nr,**stats)
         return row
 
-
 class PrimException(Exception):
     pass
-
 
 class Prim(object):
     message = "{0} points remaining, containing {1} cases of interest"
@@ -888,11 +888,7 @@ class Prim(object):
                 box[name][0] = np.min(values, axis=0) 
                 box[name][1] = np.max(values, axis=0)    
         return box  
-    
-#    def _getattr_(self, name):
-#        # TODO intercept gets on self.yi_remaining, call an update prior
-#        # to returning the value
-   
+ 
     def write_boxes_to_stdout(self):
         '''
         
@@ -1006,7 +1002,7 @@ class Prim(object):
                     COLOR_LIST[j])
    
     def _get_sorted_box_lims(self):
-
+        
         # determine the uncertainties that are being restricted
         # in one or more boxes
         unc = set()
@@ -1056,7 +1052,6 @@ class Prim(object):
         Update yi_remaining in light of the state of the boxes associated
         with this prim instance.
         
-        
         '''
         
         # set the indices
@@ -1072,7 +1067,6 @@ class Prim(object):
         to data type specific helper methods.
 
         :param box: box limits
-        
         
         '''
     
@@ -1224,7 +1218,6 @@ class Prim(object):
         :param u: the uncertainty for which to peel
         :returns: box lims and the associated indices
         
-        
         '''
         entries = box.box_lims[-1][u][0]
         
@@ -1252,7 +1245,6 @@ class Prim(object):
         else:
             # no peels possible, return empty list
             return []
-
 
     def _paste(self, box):
         '''
@@ -1350,6 +1342,11 @@ class Prim(object):
                 if not paste_value <= box.box_lims[-1][u][i]:
                     print paste_value, box.box_lims[-1][u][i]
             
+            
+            dtype = box_paste.dtype.fields[u][0]
+            if dtype==np.int32:
+                paste_value = np.int(paste_value)
+            
             box_paste[u][i] = paste_value
             indices = _in_box(self.x[self.yi_remaining], box_paste)
             indices = self.yi_remaining[indices]
@@ -1357,56 +1354,6 @@ class Prim(object):
             pastes.append((indices, box_paste))
     
         return pastes        
-    
-    def _discrete_paste(self, box, u):
-        '''
-        
-        returns two candidate new boxes, pasted along upper and lower 
-        dimension
-        
-        :param box: a PrimBox instance
-        :param u: the uncertainty for which to paste
-        :returns: two box lims and the associated indices
-       
-        '''        
-    
-        pastes = []
-        for i, direction in enumerate(['lower', 'upper']):
-            box_paste = np.copy(box.box_lims[-1])
-            paste_box = np.copy(box.box_lims[-1]) # box containing data candidate for pasting
-            
-            if direction == 'upper':
-                paste_box[u][0] = paste_box[u][1]
-                paste_box[u][1] = self.box_init[u][1]
-                indices = _in_box(self.x[self.yi_remaining], paste_box)
-                data = self.x[self.yi_remaining][indices][u]
-                paste_value = self.box_init[u][i]
-                if data.shape[0] > 0:
-                    paste_value = get_quantile(data, self.paste_alpha)
-                    
-                assert paste_value >= box.box_lims[-1][u][i]
-                assert paste_value <= self.box_init[u][1]
-                    
-            elif direction == 'lower':
-                paste_box[u][0] = self.box_init[u][0]
-                paste_box[u][1] = box_paste[u][0]
-                indices = _in_box(self.x[self.yi_remaining], paste_box)
-                data = self.x[self.yi_remaining][indices][u]
-                
-                paste_value = self.box_init[u][i]
-                if data.shape[0] > 0:
-                    paste_value = get_quantile(data, 1-self.paste_alpha)
-           
-                assert paste_value <= box.box_lims[-1][u][i]
-                assert paste_value >= self.box_init[u][0]
-           
-            box_paste[u][i] = int(paste_value)
-            indices = _in_box(self.x[self.yi_remaining], box_paste)
-            indices = self.yi_remaining[indices]
-            
-            pastes.append((indices, box_paste))
-    
-        return pastes    
             
     def _categorical_paste(self, box, u):
         '''
@@ -1443,8 +1390,9 @@ class Prim(object):
     def _default_obj_func(self, y_old, y_new):
         r'''
         the default objective function used by prim, instead of the original
-        objective function, this function can cope with continuous, integer, 
-        and categorical uncertainties.      
+        objective function, This function can cope with continuous, integer, 
+        and categorical uncertainties. The basic idea is that the gain in mean
+        is divided by the loss in mass. 
         
         .. math::
             
@@ -1477,10 +1425,12 @@ class Prim(object):
             elif y_old.shape[0] < y_new.shape[0]:
                 obj = (mean_new-mean_old)/(y_new.shape[0]-y_old.shape[0])
             else:
-                raise EMAError("mean is different, while shape is same, cannot be")
+                raise PrimException("mean is different, while shape is same, cannot be")
         return obj
     
     def _original_obj_fund(self, y_old, y_new):
+        ''' The original objective function: the mean of the data inside the box'''
+        
         if y_new.shape[0]>0:
             return np.mean(y_new)
         else:
@@ -1551,14 +1501,12 @@ class Prim(object):
             
         return eigen_vectors
 
-
-
     _peels = {'object': _categorical_peel,
                'int32': _discrete_peel,
                'float64': _real_peel}
 
     _pastes = {'object': _categorical_paste,
-               'int32': _discrete_paste,
+               'int32': _real_paste,
                'float64': _real_paste}
 
     # dict with the various objective functions available
