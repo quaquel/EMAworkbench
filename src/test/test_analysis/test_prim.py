@@ -656,8 +656,8 @@ class PrimTestCase(unittest.TestCase):
 if __name__ == '__main__':
 #     ema_logging.log_to_stderr(ema_logging.INFO)    
 
-#    unittest.main()
+    unittest.main()
 
-    suite = unittest.TestSuite()
-    suite.addTest(PrimBoxTestCase("test_inspect"))
-    unittest.TextTestRunner().run(suite)
+#    suite = unittest.TestSuite()
+#    suite.addTest(PrimBoxTestCase("test_inspect"))
+#    unittest.TextTestRunner().run(suite)
