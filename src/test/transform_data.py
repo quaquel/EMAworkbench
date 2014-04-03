@@ -12,14 +12,20 @@ from expWorkbench import load_results
 fn =r'./data/scarcity 1000.bz2'
 results = load_results(fn) 
 
-experiments, outcomes = results
-deceased_pop = outcomes['relative market price']
-time = outcomes[TIME]
+def write_results_to_csv(results, directory):
 
-rec2csv(experiments, './data/scarcity/experiments.csv', withheader=True)
-np.savetxt('./data/scarcity/relative_market_price.csv', deceased_pop, delimiter=',')
-np.savetxt('./data/scarcity/time.csv', time, delimiter=',')
+    experiments, outcomes = results
+#     deceased_pop = outcomes['relative market price']
+#     time = outcomes[TIME]
+    
+    rec2csv(experiments, directory+'/experiments.csv', withheader=True)
+    
+    for key, value in outcomes.iteritems():
+        np.savetxt(directory+'/{}.csv'.format(key), value, delimiter=',')
+#     np.savetxt('./data/scarcity/relative_market_price.csv', deceased_pop, delimiter=',')
+#     np.savetxt('./data/scarcity/time.csv', time, delimiter=',')
+#     
+#     for entry in experiments.dtype.descr:
+#         print entry
 
-
-for entry in experiments.dtype.descr:
-    print entry
+write_results_to_csv(results, './data/flu')
