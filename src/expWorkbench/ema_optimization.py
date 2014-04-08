@@ -120,9 +120,11 @@ def evaluate_population_outcome(population, ri, toolbox, ensemble):
     ordering.pop(ordering.index('policy')) 
     
     indices = {}
-    experiments = experiments[ordering].tolist()
-    for i in range(len(experiments)):
-        experiment = tuple(experiments[i])
+    for i in range(experiments.shape[0]):
+        experiment = experiments[i]
+        experiment = [experiment[unc] for unc in ordering]
+        experiment = tuple(experiment)
+        
         indices[experiment] = i
     
     for member in population:
