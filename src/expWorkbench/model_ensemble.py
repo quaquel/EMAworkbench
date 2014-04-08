@@ -966,7 +966,12 @@ class ModelEnsemble(object):
         temp_invalid_ind = []
         duplicates = {}
         for ind in invalid_ind:
-            name = ind['name'] 
+            
+            try:
+                name = ind['name']
+            except KeyError:
+                name = tuple([ind[key] for key in sorted(ind.keys())])
+                 
             if name not in temp_invalid_names:
                 temp_invalid_names.add(name)
                 temp_invalid_ind.append(ind)
@@ -979,7 +984,10 @@ class ModelEnsemble(object):
         
         # set fitness values of duplicates
         for ind in invalid_ind:
-            name = ind['name'] 
+            try:
+                name = ind['name']
+            except KeyError:
+                name = tuple([ind[key] for key in sorted(ind.keys())])
             
             for entry in duplicates[name]:
                 entry.fitness.values = ind.fitness.values
