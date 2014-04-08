@@ -277,14 +277,18 @@ def make_legend(categories,
             artist = plt.Line2D([0,1], [0,1], color=COLOR_LIST[i], 
                                 alpha=alpha) #TODO
         elif legend_type == SCATTER:
-            marker_obj = mpl.markers.MarkerStyle('o')
-            path = marker_obj.get_path().transformed(
-                             marker_obj.get_transform())
-            artist  = mpl.collections.PathCollection((path,),
-                                        sizes = [20],
-                                        facecolors = COLOR_LIST[i],
-                                        edgecolors = 'k',
-                                        offsets = (0,0))
+#             marker_obj = mpl.markers.MarkerStyle('o')
+#             path = marker_obj.get_path().transformed(
+#                              marker_obj.get_transform())
+#             artist  = mpl.collections.PathCollection((path,),
+#                                         sizes = [20],
+#                                         facecolors = COLOR_LIST[i],
+#                                         edgecolors = 'k',
+#                                         offsets = (0,0)
+#                                         )
+            # TODO work arround, should be a proper proxyartist for scatter legends
+            artist = mpl.lines.Line2D([0],[0], linestyle="none", c=COLOR_LIST[i], marker = 'o')
+
         elif legend_type == PATCH:
             artist = plt.Rectangle((0,0), 1,1, edgecolor=COLOR_LIST[i],
                                    facecolor=COLOR_LIST[i], alpha=alpha)
