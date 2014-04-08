@@ -396,7 +396,7 @@ class NSGA2StatisticsCallback(object):
         
         for entry in population:
             self.stats.append(entry.fitness.values)
-        
+
         for entry in population:
             try:
                 self.tried_solutions[entry] = entry

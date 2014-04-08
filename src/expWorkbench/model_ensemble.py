@@ -964,14 +964,25 @@ class ModelEnsemble(object):
         
         temp_invalid_names = set()
         temp_invalid_ind = []
+        duplicates = {}
         for ind in invalid_ind:
             name = ind['name'] 
             if name not in temp_invalid_names:
                 temp_invalid_names.add(name)
                 temp_invalid_ind.append(ind)
+                duplicates[name] = []
+            else:
+                duplicates[name].append(ind)
         invalid_ind = temp_invalid_ind
         
         evaluate_population(invalid_ind, reporting_interval, toolbox, self)
+        
+        # set fitness values of duplicates
+        for ind in invalid_ind:
+            name = ind['name'] 
+            
+            for entry in duplicates[name]:
+                entry.fitness.values = ind.fitness.values
 
         # Select the next generation population
         if single_obj:
