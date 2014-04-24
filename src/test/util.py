@@ -9,7 +9,7 @@ import numpy.lib.recfunctions as rf
 
 from matplotlib.mlab import csv2rec
 import numpy as np
-from expWorkbench import TIME
+from expWorkbench import TIME, ema_logging
 
 def load_flu_data():
     path = os.path.dirname(__file__)
@@ -92,6 +92,8 @@ def load_scarcity_data():
     return experiments, outcomes
 
 def load_eng_trans_data():
+    ema_logging.warning("this dataset might fail with prim because of dtype problems")
+    
     path = os.path.dirname(__file__)
     
     fn = './data/eng_trans/experiments.csv'
@@ -160,7 +162,10 @@ def load_eng_trans_data():
     
     
     dt = np.dtype(dt_descr)
-    experiments = experiments.astype(dt)
+    
+#     print experiments[0]
+#     experiments = experiments.astype(dt)
+#     print experiments[0]
   
     fn = './data/eng_trans/total capacity installed.csv'
     fn = os.path.join(path, fn)    

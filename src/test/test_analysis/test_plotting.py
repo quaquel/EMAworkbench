@@ -90,7 +90,6 @@ def test_group_results():
 def test_lines():
     results = util.load_eng_trans_data()
 
-
 #     lines(results, 
 #             outcomes_to_show="total fraction new technologies",
 #             experiments_to_show=np.arange(0,600, 20),
