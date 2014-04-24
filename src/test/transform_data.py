@@ -9,11 +9,6 @@ from expWorkbench import TIME
 
 from expWorkbench import load_results
 
-fn =r'./data/1000 flu cases no policy.bz2'
-results = load_results(fn) 
-print "blaat"
-
-
 def write_results_to_csv(results, directory):
 
     experiments, outcomes = results
@@ -30,4 +25,6 @@ def write_results_to_csv(results, directory):
 #     for entry in experiments.dtype.descr:
 #         print entry
 
-write_results_to_csv(results, './data/flu')
+fn =r'./data/scarcity 1000.bz2'
+results = load_results(fn)
+write_results_to_csv(results, './data/scarcity')
