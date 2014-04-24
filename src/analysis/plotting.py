@@ -206,10 +206,9 @@ def group_by_envelopes(outcomes,
         if density==KDE:
             kde_x, kde_y = determine_kde(value[:,-1])
             plot_kde(ax_d, kde_x, kde_y, j, **kwargs)
-        elif density==VIOLIN:
-            plot_violinplot(ax_d, value[:,-1], j, bp=True)
+
     
-    if density:
+    if density and density!=KDE:
         if density==HIST:
             # rather nasty indexing going on here, outcomes[key] returns
             # a tuple, hence the[1] to get the dictionary with outcomes
@@ -220,7 +219,12 @@ def group_by_envelopes(outcomes,
         elif density==BOXPLOT:
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]
             plot_boxplots(ax_d, values, group_labels, **kwargs)
-        
+        elif density==VIOLIN:
+            values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]
+            plot_violinplot(ax_d, values, bp=True, group_labels=group_labels)
+        else:
+            raise EMAError("unknown density type: {}".format(density))
+    
         ax_d.get_yaxis().set_view_interval(
                      ax.get_yaxis().get_view_interval()[0],
                      ax.get_yaxis().get_view_interval()[1])
@@ -470,21 +474,29 @@ def plot_lines_with_envelopes(results,
                 value = outcomes[key][outcome_to_plot]
                 full_value = full_outcomes[key][outcome_to_plot]
                 ax.plot(time.T[:, np.newaxis], value.T, COLOR_LIST[j])
-                if density=='kde':
+                if density==KDE:
 #                    simple_density(density, full_value, ax_d, ax, **kwargs)
                     kde_x, kde_y = determine_kde(full_value[:,-1])
                     plot_kde(ax_d, kde_x, kde_y, j, **kwargs)
             
-            if density:
-                if density=='hist':
+            if density and density!=KDE:
+                if density==HIST:
                     values = [full_outcomes[key][outcome_to_plot][:,-1]\
                                                     for key in grouping_labels]
                     plot_histogram(ax_d, values, **kwargs)
 
-                if density=='box plot':
+                elif density==BOXPLOT:
                     values = [full_outcomes[key][outcome_to_plot][:,-1]\
                                                     for key in grouping_labels]
                     plot_boxplots(ax_d, values, grouping_labels, **kwargs)
+                    
+                elif density==VIOLIN:
+                    values = [full_outcomes[key][outcome_to_plot][:,-1]\
+                                                    for key in grouping_labels]
+                    plot_violinplot(ax_d, values, bp=True, 
+                                    group_labels=grouping_labels)
+                else:
+                    raise EMAError("unknown density type: {}".format(density))
                
                 ax_d.get_yaxis().set_view_interval(
                              ax.get_yaxis().get_view_interval()[0],
@@ -537,18 +549,22 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
 
         color = COLOR_LIST[j]
         ax.plot(time.T[:, np.newaxis], value.T, c=color, ms=1, markevery=5)
-        if density=='kde':
+        if density==KDE:
             kde_x, kde_y = determine_kde(value[:,-1])
             plot_kde(ax_d, kde_x, kde_y, j, **kwargs)
     
-    if density:
-        if density=='hist':
+    if density and density != KDE:
+        if density==HIST:
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_by_labels]
             plot_histogram(ax_d, values, **kwargs)
-        if density=='box plot':
+        elif density==BOXPLOT:
             values = [outcomes[key][outcome_to_plot][:,-1]\
                                             for key in group_by_labels]
             plot_boxplots(ax_d, values, group_by_labels, **kwargs)        
+        elif density==VIOLIN:
+            values = [outcomes[key][outcome_to_plot][:,-1]\
+                                            for key in group_by_labels]
+            plot_violinplot(ax_d, values, bp=True, group_labels=group_by_labels)  
         
         ax_d.get_yaxis().set_view_interval(
                      ax.get_yaxis().get_view_interval()[0],

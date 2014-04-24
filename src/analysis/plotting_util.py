@@ -174,12 +174,13 @@ def plot_boxplots(ax, values, group_labels=None, log=False):
     if group_labels:
         ax.set_xticklabels(group_labels, rotation='vertical')
         
-def plot_violinplot(ax,data,pos, bp=False):
+def plot_violinplot(ax,data,bp=False, group_labels=None):
         '''
         create violin plots on an axis
         '''
+        pos = range(len(data))
         dist = max(pos)-min(pos)
-        w = min(0.15*max(dist,1.0),0.5)
+        w = min(0.1*max(dist,1.0),0.5)
         for d,p in zip(data,pos):
             if len(d)>0:
                 k = gaussian_kde(d) #calculates the kernel density
@@ -188,10 +189,13 @@ def plot_violinplot(ax,data,pos, bp=False):
                 x = np.arange(m,M,(M-m)/100.) # support for violin
                 v = k.evaluate(x) #violin profile (density curve)
                 v = v/v.max()*w #scaling the violin to the available space
-                ax.fill_betweenx(x,p,v+p,facecolor='y',alpha=0.3)
-                ax.fill_betweenx(x,p,-v+p,facecolor='y',alpha=0.3)
+                ax.fill_betweenx(x,p,v+p,facecolor=COLOR_LIST[p],alpha=0.3)
+                ax.fill_betweenx(x,p,-v+p,facecolor=COLOR_LIST[p],alpha=0.3)
         if bp:
             ax.boxplot(data,notch=1,positions=pos,vert=1)
+            
+        if group_labels:
+            ax.set_xticklabels(group_labels, rotation='vertical')
  
 
 def simple_density(density, value, ax_d, ax, loc=-1, **kwargs):
