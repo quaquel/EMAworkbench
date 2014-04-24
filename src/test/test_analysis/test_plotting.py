@@ -16,6 +16,8 @@ from analysis.b_and_w_plotting import set_fig_to_bw
 from analysis.pairs_plotting import pairs_scatter,\
                                      pairs_lines,\
                                      pairs_density
+                                     
+from test import util
                                                       
 np = np
  
@@ -311,6 +313,9 @@ def test_pairs_scatter():
 def test_multiple_densities():
     results = load_results(r'..\data\eng_trans_100.cPickle', zipped=False)
     
+    alt_res = util.load_scarcity_data()
+    
+    print "blaat"
     
 #    multiple_densities(results, 
 #                  outcome_to_show="total fraction new technologies", 
@@ -360,10 +365,10 @@ def test_multiple_densities():
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-    test_lines()
+#     test_lines()
 #     test_envelopes()
 #    test_kde_over_time()
-#    test_multiple_densities()
+    test_multiple_densities()
 
 #    test_pairs_scatter()
 #    test_pairs_lines()

@@ -718,20 +718,21 @@ def multiple_densities(results,
     axes_dicts = {}
     figures = []
     for outcome_to_show in outcomes_to_show:
+        temp_results = copy.deepcopy(results)
         axes_dict = {}
         axes_dicts[outcome_to_show] = axes_dict
      
         if plot_type != ENV_LIN:
             # standard way of pre processing data
             if experiments_to_show != None:
-                experiments, outcomes = results
+                experiments, outcomes = temp_results
                 experiments = experiments[experiments_to_show]
                 new_outcomes = {}
                 for key, value in outcomes.items():
                     new_outcomes[key] = value[experiments_to_show]
-                results = experiments, new_outcomes
+                temp_results = experiments, new_outcomes
     
-        data = prepare_data(results, [outcome_to_show], group_by, 
+        data = prepare_data(temp_results, [outcome_to_show], group_by, 
                             grouping_specifiers)
         outcomes, outcomes_to_show, time, grouping_labels = data
         del outcomes_to_show
@@ -834,7 +835,7 @@ def multiple_densities(results,
                 time_value = points_in_time[i]
                 
                 if time_value:
-                    index = np.where(time==points_in_time[i])[0][0]
+                    index = np.where(time==time_value)[0][0]
                     if density==KDE:
                         kde_x, kde_y = determine_kde(value[:,index])
                         plot_kde(ax, kde_x, kde_y, j,**kwargs)      
