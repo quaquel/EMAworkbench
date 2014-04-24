@@ -24,6 +24,7 @@ from plotting_util import prepare_data, COLOR_LIST, simple_kde,\
                          plot_kde, plot_histogram, simple_density, do_titles,\
                          do_ylabels, TIME, plot_boxplots
 import plotting_util
+from analysis.plotting_util import VIOLIN, plot_violinplot
 
 
 __all__ = ['lines', 'envelopes', 'kde_over_time', 'ENVELOPE', 'LINES', 
@@ -202,19 +203,21 @@ def group_by_envelopes(outcomes,
             warning("value error when plotting for %s" % (key))
             raise
     
-        if density=='kde':
+        if density==KDE:
             kde_x, kde_y = determine_kde(value[:,-1])
             plot_kde(ax_d, kde_x, kde_y, j, **kwargs)
+        elif density==VIOLIN:
+            plot_violinplot(ax_d, value[:,-1], j, bp=True)
     
     if density:
-        if density=='hist':
+        if density==HIST:
             # rather nasty indexing going on here, outcomes[key] returns
             # a tuple, hence the[1] to get the dictionary with outcomes
             # out of this, we need the right outcome, and the final column
             # of values
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]
             plot_histogram(ax_d, values, **kwargs)
-        if density=='box plot':
+        elif density==BOXPLOT:
             values = [outcomes[key][outcome_to_plot][:,-1] for key in group_labels]
             plot_boxplots(ax_d, values, group_labels, **kwargs)
         
