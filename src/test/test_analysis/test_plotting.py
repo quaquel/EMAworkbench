@@ -148,6 +148,14 @@ def test_lines():
           log=True,
           grouping_specifiers=['no policy', 'adaptive policy']
           )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
+          group_by='policy',
+          density=VIOLIN,
+          show_envelope=True,
+          log=True,
+          grouping_specifiers=['no policy', 'adaptive policy']
+          )
 
 #    set_fig_to_bw(lines(results, 
 #              experiments_to_show=np.arange(0,600, 20),
@@ -214,9 +222,11 @@ def test_envelopes():
 #    set_fig_to_bw(envelopes(results, density=None)[0])
     
     #no grouping, with density
-#    envelopes(results, density=KDE)
-#     envelopes(results, density=HIST)
-#     envelopes(results, density=BOXPLOT)
+    envelopes(results, density=KDE)
+    envelopes(results, density=HIST)
+    envelopes(results, density=BOXPLOT)
+    envelopes(results, density=VIOLIN)
+    
 #    set_fig_to_bw(envelopes(results, density=)[0])
 
     
@@ -362,8 +372,8 @@ def test_multiple_densities():
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-    test_lines()
-#     test_envelopes()
+#     test_lines()
+    test_envelopes()
 #    test_kde_over_time()
 #     test_multiple_densities()
 

@@ -180,7 +180,7 @@ def plot_violinplot(ax,data,bp=False, group_labels=None):
         '''
         pos = range(len(data))
         dist = max(pos)-min(pos)
-        w = min(0.1*max(dist,1.0),0.5)
+        w = min(0.15*max(dist,1.0),0.5)
         for d,p in zip(data,pos):
             if len(d)>0:
                 k = gaussian_kde(d) #calculates the kernel density
@@ -219,6 +219,8 @@ def simple_density(density, value, ax_d, ax, loc=-1, **kwargs):
         plot_histogram(ax_d, value[:,-1], log=kwargs.get('log'))
     elif density==BOXPLOT:
         plot_boxplots(ax_d, value[:,-1], log=kwargs.get('log'))
+    elif density==VIOLIN:
+        plot_violinplot(ax_d, [value[:,-1]], bp=1)
     else:
         raise EMAError("unknown density plot type")
         
