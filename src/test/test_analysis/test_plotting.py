@@ -313,46 +313,42 @@ def test_pairs_scatter():
 def test_multiple_densities():
     results = util.load_flu_data()
     
-    print "blaat"
-    
-#    multiple_densities(results, 
-#                  outcome_to_show="deceased population region 1", 
-#                  group_by="policy", 
-#                  points_in_time = [2000])
-#    multiple_densities(results, 
-#                  outcome_to_show="deceased population region 1", 
-#                  group_by="policy", 
-#                  points_in_time = [2000, 2100])
-#    multiple_densities(results, 
-#                  outcome_to_show="deceased population region 1", 
-#                  group_by="policy", 
-#                  points_in_time = [2000, 2020, 2100])
-#    multiple_densities(results, 
-#                  outcome_to_show="deceased population region 1", 
-#                  group_by="policy", 
-#                  points_in_time = [2000, 2020, 2040, 2060])
-#    multiple_densities(results, 
-#                  outcome_to_show="deceased population region 1", 
-#                  group_by="policy", 
-#                  points_in_time = [2020, 2040, 2060, 2080, 2100])
-#    multiple_densities(results, 
-#                  outcome_to_show="deceased population region 1", 
-#                  group_by="policy", 
-#                  grouping_specifiers="no policy",
-#                  points_in_time = [2000, 2020, 2040, 2060, 2080, 2100],
-#                  plot_type=ENV_LIN,
-#                  experiments_to_show=[1,2,10])
-#    multiple_densities(results, 
-#                  outcome_to_show="deceased population region 1", 
-#                  group_by="policy", 
-#                  grouping_specifiers="no policy",
-#                  points_in_time = [2000, 2020, 2040, 2060, 2080, 2100],
-#                  plot_type=ENVELOPE,
-#                  experiments_to_show=[1,2,10])
+#     multiple_densities(results, 
+#                   outcomes_to_show="deceased population region 1", 
+#                   group_by="policy", 
+#                   points_in_time = [0])
+#     multiple_densities(results, 
+#                   outcomes_to_show="deceased population region 1", 
+#                   group_by="policy", 
+#                   points_in_time = [0, 48])
+#     multiple_densities(results, 
+#                   outcomes_to_show="deceased population region 1", 
+#                   group_by="policy", 
+#                   points_in_time = [0, 12, 48])
+#     multiple_densities(results, 
+#                   outcomes_to_show="deceased population region 1", 
+#                   group_by="policy", 
+#                   points_in_time = [0, 12, 24, 36])
+#     multiple_densities(results, 
+#                   outcomes_to_show="deceased population region 1", 
+#                   group_by="policy", 
+#                   points_in_time = [0, 24, 24, 36, 48])
+    multiple_densities(results, 
+                  outcomes_to_show="deceased population region 1", 
+                  group_by="policy", 
+                  points_in_time = [0, 6, 12, 24, 36, 48],
+                  plot_type=ENV_LIN,
+                  experiments_to_show=[1,2,10])
+    multiple_densities(results, 
+                  outcomes_to_show="deceased population region 1", 
+                  group_by="policy", 
+                  points_in_time = [0, 6, 12, 24, 36, 48],
+                  plot_type=LINES,
+                  experiments_to_show=[1,2,10])
     multiple_densities(results, 
 #                  group_by="policy", 
     #              grouping_specifiers="no policy",
-                  points_in_time = [2040, 2045, 2050, 2060,2070,2080],
+                  points_in_time = [0, 6, 12, 24, 36, 48],
                   plot_type=ENVELOPE,
                   density=KDE,
                   log=False

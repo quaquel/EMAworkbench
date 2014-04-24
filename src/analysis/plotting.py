@@ -835,7 +835,11 @@ def multiple_densities(results,
                 time_value = points_in_time[i]
                 
                 if time_value:
-                    index = np.where(time==time_value)[0][0]
+                    try:
+                        index = np.where(time==time_value)[0][0]
+                    except IndexError as e:
+                        raise EMAError("point in time not foud: {}".format(time_value))
+
                     if density==KDE:
                         kde_x, kde_y = determine_kde(value[:,index])
                         plot_kde(ax, kde_x, kde_y, j,**kwargs)      
