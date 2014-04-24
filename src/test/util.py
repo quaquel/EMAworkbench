@@ -14,7 +14,7 @@ from expWorkbench import TIME
 def load_flu_data():
     path = os.path.dirname(__file__)
     
-    fn = './data/flu/flu_experiments.csv'
+    fn = './data/flu/experiments.csv'
     fn = os.path.join(path, fn)
     experiments = csv2rec(fn)
     outcomes = {}
@@ -25,13 +25,17 @@ def load_flu_data():
     dt = np.dtype(dt_descr)
     experiments = experiments.astype(dt)
   
-    fn = './data/flu/deceased_pop.csv'
+    fn = './data/flu/deceased population region 1.csv'
     fn = os.path.join(path, fn)    
     outcomes['deceased population region 1'] = np.loadtxt(fn, delimiter=',')
     
     fn = './data/flu/time.csv'
     fn = os.path.join(path, fn)
     outcomes[TIME] = np.loadtxt(fn, delimiter=',')
+
+    fn = './data/flu/infected fraction R1.csv'
+    fn = os.path.join(path, fn)
+    outcomes['infected fraction R1'] = np.loadtxt(fn, delimiter=',')
     
     return experiments, outcomes
 
