@@ -311,41 +311,39 @@ def test_pairs_scatter():
     plt.show()
 
 def test_multiple_densities():
-    results = load_results(r'..\data\eng_trans_100.cPickle', zipped=False)
-    
-    alt_res = util.load_scarcity_data()
+    results = util.load_flu_data()
     
     print "blaat"
     
 #    multiple_densities(results, 
-#                  outcome_to_show="total fraction new technologies", 
+#                  outcome_to_show="deceased population region 1", 
 #                  group_by="policy", 
 #                  points_in_time = [2000])
 #    multiple_densities(results, 
-#                  outcome_to_show="total fraction new technologies", 
+#                  outcome_to_show="deceased population region 1", 
 #                  group_by="policy", 
 #                  points_in_time = [2000, 2100])
 #    multiple_densities(results, 
-#                  outcome_to_show="total fraction new technologies", 
+#                  outcome_to_show="deceased population region 1", 
 #                  group_by="policy", 
 #                  points_in_time = [2000, 2020, 2100])
 #    multiple_densities(results, 
-#                  outcome_to_show="total fraction new technologies", 
+#                  outcome_to_show="deceased population region 1", 
 #                  group_by="policy", 
 #                  points_in_time = [2000, 2020, 2040, 2060])
 #    multiple_densities(results, 
-#                  outcome_to_show="total fraction new technologies", 
+#                  outcome_to_show="deceased population region 1", 
 #                  group_by="policy", 
 #                  points_in_time = [2020, 2040, 2060, 2080, 2100])
 #    multiple_densities(results, 
-#                  outcome_to_show="total fraction new technologies", 
+#                  outcome_to_show="deceased population region 1", 
 #                  group_by="policy", 
 #                  grouping_specifiers="no policy",
 #                  points_in_time = [2000, 2020, 2040, 2060, 2080, 2100],
 #                  plot_type=ENV_LIN,
 #                  experiments_to_show=[1,2,10])
 #    multiple_densities(results, 
-#                  outcome_to_show="total fraction new technologies", 
+#                  outcome_to_show="deceased population region 1", 
 #                  group_by="policy", 
 #                  grouping_specifiers="no policy",
 #                  points_in_time = [2000, 2020, 2040, 2060, 2080, 2100],

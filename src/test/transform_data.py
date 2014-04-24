@@ -9,8 +9,10 @@ from expWorkbench import TIME
 
 from expWorkbench import load_results
 
-fn =r'./data/scarcity 1000.bz2'
+fn =r'./data/1000 flu cases no policy.bz2'
 results = load_results(fn) 
+print "blaat"
+
 
 def write_results_to_csv(results, directory):
 
