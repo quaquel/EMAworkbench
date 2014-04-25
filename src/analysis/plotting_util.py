@@ -60,6 +60,7 @@ TIME = "TIME"
 ENVELOPE = 'envelope'
 LINES = 'lines'
 ENV_LIN = "env_lin"
+
 KDE = 'kde'
 HIST = 'hist'
 BOXPLOT = 'box plot'
@@ -141,7 +142,7 @@ def plot_histogram(ax, values, log=False):
         ax.set_xticks([0, ax.get_xbound()[1]])
     return a
   
-def plot_kde(ax, kde_x, kde_y, j, log=False):
+def plot_kde(ax, values, log=False):
     '''
     
     Helper function, responsible for plotting a KDE.
@@ -155,19 +156,21 @@ def plot_kde(ax, kde_x, kde_y, j, log=False):
     
     '''
 
-    color = COLOR_LIST[j]
-    
-    ax.plot(kde_x, kde_y, c=color, ms=1, markevery=20)
 
-    if log:
-        ax.set_xscale('log')
-    else:
-#         maximum = ax.get_xaxis().get_view_interval()[1]
-        ax.set_xticks([int(0), 
-                      ax.get_xaxis().
-                      get_view_interval()[1]])
-        labels =["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
-        ax.set_xticklabels(labels)
+    for j, value in enumerate(values):        
+        color = COLOR_LIST[j]
+        kde_x, kde_y = determine_kde(value)
+        ax.plot(kde_x, kde_y, c=color, ms=1, markevery=20)
+    
+        if log:
+            ax.set_xscale('log')
+        else:
+    #         maximum = ax.get_xaxis().get_view_interval()[1]
+            ax.set_xticks([int(0), 
+                          ax.get_xaxis().
+                          get_view_interval()[1]])
+            labels =["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
+            ax.set_xticklabels(labels)
 
 def plot_boxplots(ax, values, group_labels=None, log=False):
     ax.boxplot(values)
@@ -197,8 +200,25 @@ def plot_violinplot(ax,data,bp=False, group_labels=None):
         if group_labels:
             ax.set_xticklabels(group_labels, rotation='vertical')
  
+def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
+                  index=-1):
+    if density==HIST:
+        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        plot_histogram(ax_d, values)
+    elif density==BOXPLOT:
+        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        plot_boxplots(ax_d, values, group_labels)
+    elif density==VIOLIN:
+        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        plot_violinplot(ax_d, values, bp=True, group_labels=group_labels)
+    elif density==KDE:
+        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        plot_kde(ax_d, values)
+    else:
+        raise EMAError("unknown density type: {}".format(density))
+    
 
-def simple_density(density, value, ax_d, ax, loc=-1, **kwargs):
+def simple_density(density, value, ax_d, ax, loc=-1):
     '''
     
     Helper function, responsible for producing a density plot
@@ -213,12 +233,11 @@ def simple_density(density, value, ax_d, ax, loc=-1, **kwargs):
     '''
     
     if density==KDE:
-        kde_x, kde_y = determine_kde(value[:,loc])
-        plot_kde(ax_d, kde_x, kde_y, 0, **kwargs)
+        plot_kde(ax_d, [value[:,-1]])
     elif density==HIST:
-        plot_histogram(ax_d, value[:,-1], log=kwargs.get('log'))
+        plot_histogram(ax_d, value[:,-1])
     elif density==BOXPLOT:
-        plot_boxplots(ax_d, value[:,-1], log=kwargs.get('log'))
+        plot_boxplots(ax_d, value[:,-1])
     elif density==VIOLIN:
         plot_violinplot(ax_d, [value[:,-1]], bp=1)
     else:
