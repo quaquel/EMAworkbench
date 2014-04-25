@@ -92,8 +92,6 @@ def load_scarcity_data():
     return experiments, outcomes
 
 def load_eng_trans_data():
-    ema_logging.warning("this dataset might fail with prim because of dtype problems")
-    
     path = os.path.dirname(__file__)
     
     fn = './data/eng_trans/experiments.csv'
@@ -162,10 +160,10 @@ def load_eng_trans_data():
     
     
     dt = np.dtype(dt_descr)
+    names = [entry[0] for entry in dt_descr]
+    experiments.dtype.names = names
     
-#     print experiments[0]
-#     experiments = experiments.astype(dt)
-#     print experiments[0]
+    experiments = experiments.astype(dt)
   
     fn = './data/eng_trans/total capacity installed.csv'
     fn = os.path.join(path, fn)    
