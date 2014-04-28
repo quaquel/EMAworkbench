@@ -122,65 +122,98 @@ def test_lines():
 #           density=KDE,
 #           )
 #      
-#     lines(results, 
-#           experiments_to_show=np.arange(0,600, 30),
-#           group_by='policy',
-#           density=KDE,
-#           show_envelope=True,
-#           grouping_specifiers=['no policy', 'adaptive policy']
-#           )
-#     lines(results, 
-#           experiments_to_show=np.arange(0,600, 30),
-#           group_by='policy',
-#           density=HIST,
-#           show_envelope=True,
-#           grouping_specifiers=['no policy', 'adaptive policy']
-#           )
-#     lines(results, 
-#           experiments_to_show=np.arange(0,600, 30),
-#           group_by='policy',
-#           density=BOXPLOT,
-#           show_envelope=True,
-#           grouping_specifiers=['no policy', 'adaptive policy']
-#           )
-#     lines(results, 
-#           experiments_to_show=np.arange(0,600, 30),
-#           group_by='policy',
-#           density=VIOLIN,
-#           show_envelope=True,
-#           grouping_specifiers=['no policy', 'adaptive policy']
-#           )
-#  
-    set_fig_to_bw(lines(results, 
-             experiments_to_show=np.arange(0,600, 20),
-             group_by='policy',
-             density=KDE
-             )[0])      
-     
-    experiments, outcomes = results
-    new_outcomes = {}
-    for key, value in outcomes.items():
-        new_outcomes[key] = value[0:20, :]
-    experiments = experiments[0:20]
-    results = experiments, new_outcomes
-       
-    #no grouping, with density
-    set_fig_to_bw(lines(results, density=KDE)[0])
-    set_fig_to_bw(lines(results, density=HIST)[0])
-    set_fig_to_bw(lines(results, density=BOXPLOT)[0])
-    set_fig_to_bw(lines(results, density=VIOLIN)[0])
-       
-    # grouping and density
-    set_fig_to_bw(lines(results, 
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
           group_by='policy',
-          density='kde')[0])
-       
-    # grouping, density as histograms
-    # grouping and density
-    set_fig_to_bw(lines(results, 
+          density=KDE,
+          show_envelope=True,
+          grouping_specifiers=['no policy', 'adaptive policy']
+          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
           group_by='policy',
-          density='hist',
-          legend=False)[0])
+          density=HIST,
+          show_envelope=True,
+          grouping_specifiers=['no policy', 'adaptive policy']
+          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
+          group_by='policy',
+          density=BOXPLOT,
+          show_envelope=True,
+          grouping_specifiers=['no policy', 'adaptive policy']
+          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
+          group_by='policy',
+          density=VIOLIN,
+          show_envelope=True,
+          grouping_specifiers=['no policy', 'adaptive policy']
+          )
+    
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
+          group_by='policy',
+          density=KDE,
+          show_envelope=True,
+          grouping_specifiers=['no policy', 'adaptive policy'],
+          log=True
+          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
+          group_by='policy',
+          density=HIST,
+          show_envelope=True,
+          grouping_specifiers=['no policy', 'adaptive policy'],
+          log=True
+          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
+          group_by='policy',
+          density=BOXPLOT,
+          show_envelope=True,
+          grouping_specifiers=['no policy', 'adaptive policy'],
+          log=True
+          )
+    lines(results, 
+          experiments_to_show=np.arange(0,600, 30),
+          group_by='policy',
+          density=VIOLIN,
+          show_envelope=True,
+          grouping_specifiers=['no policy', 'adaptive policy'],
+          log=True
+          )    
+  
+#    set_fig_to_bw(lines(results, 
+#             experiments_to_show=np.arange(0,600, 20),
+#             group_by='policy',
+#             density=KDE
+#             )[0])      
+#     
+#    experiments, outcomes = results
+#    new_outcomes = {}
+#    for key, value in outcomes.items():
+#        new_outcomes[key] = value[0:20, :]
+#    experiments = experiments[0:20]
+#    results = experiments, new_outcomes
+#       
+#    #no grouping, with density
+#    set_fig_to_bw(lines(results, density=KDE)[0])
+#    set_fig_to_bw(lines(results, density=HIST)[0])
+#    set_fig_to_bw(lines(results, density=BOXPLOT)[0])
+#    set_fig_to_bw(lines(results, density=VIOLIN)[0])
+#       
+#    # grouping and density
+#    set_fig_to_bw(lines(results, 
+#          group_by='policy',
+#          density='kde')[0])
+#       
+#    # grouping, density as histograms
+#    # grouping and density
+#    set_fig_to_bw(lines(results, 
+#          group_by='policy',
+#          density='hist',
+#          legend=False)[0])
 
     plt.show()
 
@@ -223,47 +256,76 @@ def test_envelopes():
 #     set_fig_to_bw(envelopes(results, density=VIOLIN)[0])
 
     
-#     # grouping and density kde
-#     envelopes(results, 
-#               group_by='policy',
-#               density=VIOLIN,
-#               )
-#     envelopes(results, 
-#               group_by='policy',
-#               density=BOXPLOT)
-#     envelopes(results, 
-#               group_by='policy',
-#               density=KDE,
-#               grouping_specifiers=['no policy', 'adaptive policy'])
-#     envelopes(results, 
-#               group_by='policy',
-#               density=BOXPLOT,
-#               grouping_specifiers=['no policy', 'adaptive policy'])
-#     envelopes(results, 
-#               group_by='policy',
-#               density=KDE)
-#       
+    # grouping and density kde
+#    envelopes(results, 
+#              group_by='policy',
+#              density=VIOLIN)
+#    envelopes(results, 
+#              group_by='policy',
+#              density=BOXPLOT)
+#    envelopes(results, 
+#              group_by='policy',
+#              density=KDE,
+#              grouping_specifiers=['no policy', 'adaptive policy'])
+#    envelopes(results, 
+#              group_by='policy',
+#              density=BOXPLOT,
+#              grouping_specifiers=['no policy', 'adaptive policy'])
+#    envelopes(results, 
+#              group_by='policy',
+#              density=KDE)
+
+    envelopes(results, 
+              group_by='policy',
+              density=VIOLIN)
+    envelopes(results, 
+              group_by='policy',
+              density=BOXPLOT)
+    envelopes(results, 
+              group_by='policy',
+              density=KDE)          
+    envelopes(results, 
+              group_by='policy',
+              density=HIST)
+    
+    envelopes(results, 
+              group_by='policy',
+              density=VIOLIN,
+              log=True)
+    envelopes(results, 
+              group_by='policy',
+              density=BOXPLOT,
+              log=True)
+    envelopes(results, 
+              group_by='policy',
+              density=KDE,
+              log=True)          
+    envelopes(results, 
+              group_by='policy',
+              density=HIST,
+              log=True)
+       
     # grouping and density hist
-    envelopes(results, 
-              group_by='policy',
-              density='hist')
-    envelopes(results, 
-              group_by='policy',
-              density='hist')
-      
-    set_fig_to_bw(envelopes(results, 
-              group_by='policy',    
-              density='kde')[0])
-      
-    # grouping and density
-    envelopes(results, 
-              group_by='policy',
-              density='kde',
-              fill=True)
-    set_fig_to_bw(envelopes(results, 
-              group_by='policy',
-              density='kde',
-              fill=True)[0])
+#    envelopes(results, 
+#              group_by='policy',
+#              density=HIST)
+#    envelopes(results, 
+#              group_by='policy',
+#              density=HIST)
+#      
+#    set_fig_to_bw(envelopes(results, 
+#              group_by='policy',    
+#              density=KDE)[0])
+#      
+#    # grouping and density
+#    envelopes(results, 
+#              group_by='policy',
+#              density=KDE,
+#              fill=True)
+#    set_fig_to_bw(envelopes(results, 
+#              group_by='policy',
+#              density=KDE,
+#              fill=True)[0])
 
     plt.show()
 
@@ -311,26 +373,27 @@ def test_multiple_densities():
     results = util.load_eng_trans_data()
     ooi = 'total fraction new technologies'
     
-    multiple_densities(results, 
-                  outcomes_to_show=ooi, 
-                  group_by="policy", 
-                  points_in_time = [2010])
-    multiple_densities(results, 
-                  outcomes_to_show=ooi, 
-                  group_by="policy", 
-                  points_in_time = [2010, 2100])
-    multiple_densities(results, 
-                  outcomes_to_show=ooi, 
-                  group_by="policy", 
-                  points_in_time = [2010, 2050, 2100])
-    multiple_densities(results, 
-                  outcomes_to_show=ooi, 
-                  group_by="policy", 
-                  points_in_time = [2010, 2020, 2050, 2080])
-    multiple_densities(results, 
-                  outcomes_to_show=ooi, 
-                  group_by="policy", 
-                  points_in_time = [2010, 2020, 2040, 2060, 2100])
+#    multiple_densities(results, 
+#                  outcomes_to_show=ooi, 
+#                  group_by="policy", 
+#                  points_in_time = [2010])
+#    multiple_densities(results, 
+#                  outcomes_to_show=ooi, 
+#                  group_by="policy", 
+#                  points_in_time = [2010, 2100])
+#    multiple_densities(results, 
+#                  outcomes_to_show=ooi, 
+#                  group_by="policy", 
+#                  points_in_time = [2010, 2050, 2100])
+#    multiple_densities(results, 
+#                  outcomes_to_show=ooi, 
+#                  group_by="policy", 
+#                  points_in_time = [2010, 2020, 2050, 2080])
+#    multiple_densities(results, 
+#                  outcomes_to_show=ooi, 
+#                  group_by="policy", 
+#                  points_in_time = [2010, 2020, 2040, 2060, 2100])
+    
     multiple_densities(results, 
                   outcomes_to_show=ooi, 
                   group_by="policy", 
@@ -359,41 +422,50 @@ def test_multiple_densities():
                   plot_type=ENV_LIN,
                   density=VIOLIN,
                   experiments_to_show=[1,2,10])
+
+    multiple_densities(results, 
+                  outcomes_to_show=ooi, 
+                  group_by="policy", 
+                  points_in_time = [2010,2020, 2040, 2060, 2080, 2100],
+                  plot_type=ENV_LIN,
+                  density=KDE,
+                  experiments_to_show=[1,2,10],
+                  log=True)
+    multiple_densities(results, 
+                  outcomes_to_show=ooi, 
+                  group_by="policy", 
+                  points_in_time = [2010,2020, 2040, 2060, 2080, 2100],
+                  plot_type=ENV_LIN,
+                  density=HIST,    
+                  experiments_to_show=[1,2,10],
+                  log=True)
+    multiple_densities(results, 
+                  outcomes_to_show=ooi, 
+                  group_by="policy", 
+                  points_in_time = [2010,2020, 2040, 2060, 2080, 2100],
+                  plot_type=ENV_LIN,
+                  density=BOXPLOT,
+                  experiments_to_show=[1,2,10],
+                  log=True)
+    multiple_densities(results, 
+                  outcomes_to_show=ooi, 
+                  group_by="policy", 
+                  points_in_time = [2010,2020, 2040, 2060, 2080, 2100],
+                  plot_type=ENV_LIN,
+                  density=VIOLIN,
+                  experiments_to_show=[1,2,10],
+                  log=True)
+
     
     plt.show()
 
-def test_log_scaling():
-    '''
-    
-    test behavior of plot elements if their y_axis and/or x_axis is log scaled
-    
-    '''
-    
-    results = util.load_eng_trans_data()
-    
-    ooi = 'total capacity installed'
-    axes = envelopes(results, density=KDE, outcomes_to_show=ooi)[1]
-     
-    axes['total capacity installed_density'].set_xscale('log')
-#     axes['total capacity installed_density'].set_yscale('log')
-#     axes[ooi].set_yscale('log')
-    
-    
-    axes = envelopes(results, density=HIST,outcomes_to_show=ooi)[1]
-    axes['total capacity installed_density'].set_xscale('log')
-    
-#     envelopes(results, density=BOXPLOT)
-#     envelopes(results, density=VIOLIN)
-#     set_fig_to_bw(envelopes(results, density=VIOLIN)[0])
 
-    plt.show()
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-#     test_lines()
-#     test_envelopes()
-#     test_log_scaling()
-#     test_kde_over_time()
+#    test_lines()
+#    test_envelopes()
+#    test_kde_over_time()
     test_multiple_densities()
 
 #    test_pairs_scatter()
