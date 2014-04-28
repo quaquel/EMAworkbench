@@ -116,7 +116,7 @@ def plot_envelope(ax, j, time, value, fill):
         ax.plot(time, maximum, c=color)
 
 
-def plot_histogram(ax, values, log=False):
+def plot_histogram(ax, values, log):
     '''
     
     Helper function, responsible for plotting a histogram
@@ -142,15 +142,13 @@ def plot_histogram(ax, values, log=False):
         ax.set_xticks([0, ax.get_xbound()[1]])
     return a
   
-def plot_kde(ax, values, log=False):
+def plot_kde(ax, values, log):
     '''
     
     Helper function, responsible for plotting a KDE.
     
     :param ax: the axes on which to plot the kde
-    :param kde_x: the x values of the kde
-    :param kde_y: the y values of the kde
-    :param j: the index of the group being shown
+    :param values: the data for which to make a kde
     :param log: boolean, whether to log scale the data are not
     
     
@@ -165,60 +163,66 @@ def plot_kde(ax, values, log=False):
         if log:
             ax.set_xscale('log')
         else:
-    #         maximum = ax.get_xaxis().get_view_interval()[1]
             ax.set_xticks([int(0), 
                           ax.get_xaxis().
                           get_view_interval()[1]])
             labels =["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
             ax.set_xticklabels(labels)
 
-def plot_boxplots(ax, values, group_labels=None, log=False):
+def plot_boxplots(ax, values, log, group_labels=None):
+    if log:
+        warning("log option ignored for boxplot")
+    
+    
     ax.boxplot(values)
     if group_labels:
         ax.set_xticklabels(group_labels, rotation='vertical')
         
-def plot_violinplot(ax,data,bp=False, group_labels=None):
-        '''
-        create violin plots on an axis
-        '''
-        pos = range(len(data))
-        dist = max(pos)-min(pos)
-        w = min(0.15*max(dist,1.0),0.5)
-        for d,p in zip(data,pos):
-            if len(d)>0:
-                k = gaussian_kde(d) #calculates the kernel density
-                m = k.dataset.min() #lower bound of violin
-                M = k.dataset.max() #upper bound of violin
-                x = np.arange(m,M,(M-m)/100.) # support for violin
-                v = k.evaluate(x) #violin profile (density curve)
-                v = v/v.max()*w #scaling the violin to the available space
-                ax.fill_betweenx(x,p,v+p,facecolor=COLOR_LIST[p],alpha=0.3)
-                ax.fill_betweenx(x,p,-v+p,facecolor=COLOR_LIST[p],alpha=0.3)
-        if bp:
-            ax.boxplot(data,notch=1,positions=pos,vert=1)
-            
-        if group_labels:
-            ax.set_xticklabels(group_labels, rotation='vertical')
+def plot_violinplot(ax,data, log, group_labels=None):
+    '''
+    create violin plots on an axis
+    '''
+    
+    if log:
+        warning("log option ignored for violin plot")
+    
+    pos = range(len(data))
+    dist = max(pos)-min(pos)
+    w = min(0.15*max(dist,1.0),0.5)
+    for d,p in zip(data,pos):
+        if len(d)>0:
+            k = gaussian_kde(d) #calculates the kernel density
+            m = k.dataset.min() #lower bound of violin
+            M = k.dataset.max() #upper bound of violin
+            x = np.arange(m,M,(M-m)/100.) # support for violin
+            v = k.evaluate(x) #violin profile (density curve)
+            v = v/v.max()*w #scaling the violin to the available space
+            ax.fill_betweenx(x,p,v+p,facecolor=COLOR_LIST[p],alpha=0.3)
+            ax.fill_betweenx(x,p,-v+p,facecolor=COLOR_LIST[p],alpha=0.3)
+    ax.boxplot(data,notch=1,positions=pos,vert=1)
+        
+    if group_labels:
+        ax.set_xticklabels(group_labels, rotation='vertical')
  
-def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
-                  index=-1):
+def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, 
+                  log=False, index=-1):
     if density==HIST:
         values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
-        plot_histogram(ax_d, values)
+        plot_histogram(ax_d, values, log)
     elif density==BOXPLOT:
         values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
-        plot_boxplots(ax_d, values, group_labels)
+        plot_boxplots(ax_d, values, log, group_labels)
     elif density==VIOLIN:
         values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
-        plot_violinplot(ax_d, values, bp=True, group_labels=group_labels)
+        plot_violinplot(ax_d, values, log, group_labels=group_labels)
     elif density==KDE:
         values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
-        plot_kde(ax_d, values)
+        plot_kde(ax_d, values, log)
     else:
         raise EMAError("unknown density type: {}".format(density))
     
 
-def simple_density(density, value, ax_d, ax, loc=-1):
+def simple_density(density, value, ax_d, ax, loc=-1, log=False):
     '''
     
     Helper function, responsible for producing a density plot
@@ -227,19 +231,19 @@ def simple_density(density, value, ax_d, ax, loc=-1):
     :param value: the data for which to calculate the density
     :param ax_d:
     :param ax:
-    :param kwargs: 
+    :param log: 
     
     
     '''
     
     if density==KDE:
-        plot_kde(ax_d, [value[:,-1]])
+        plot_kde(ax_d, [value[:,-1]], log)
     elif density==HIST:
-        plot_histogram(ax_d, value[:,-1])
+        plot_histogram(ax_d, value[:,-1], log)
     elif density==BOXPLOT:
-        plot_boxplots(ax_d, value[:,-1])
+        plot_boxplots(ax_d, value[:,-1], log)
     elif density==VIOLIN:
-        plot_violinplot(ax_d, [value[:,-1]], bp=1)
+        plot_violinplot(ax_d, [value[:,-1]], log)
     else:
         raise EMAError("unknown density plot type")
         

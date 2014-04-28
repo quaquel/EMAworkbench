@@ -19,13 +19,12 @@ from matplotlib.patches import ConnectionPatch
 
 from expWorkbench.ema_logging import debug, warning
 from expWorkbench.ema_exceptions import EMAError
-from plotting_util import prepare_data, COLOR_LIST, simple_kde,\
-                         determine_kde, make_grid, make_legend, plot_envelope,\
-                         plot_kde, plot_histogram, simple_density, do_titles,\
-                         do_ylabels, TIME, plot_boxplots, KDE,HIST, BOXPLOT,\
-                         VIOLIN, plot_violinplot, ENV_LIN, ENVELOPE, LINES
-import plotting_util
-from analysis.plotting_util import group_density
+from plotting_util import prepare_data, COLOR_LIST, simple_kde, group_density,\
+                         make_grid, make_legend, plot_envelope, simple_density,\
+                         do_titles,do_ylabels, TIME, ENV_LIN, ENVELOPE, LINES,\
+                         PATCH, LINE, TIGHT, KDE
+#import plotting_util
+
 
 __all__ = ['lines', 'envelopes', 'kde_over_time', 'multiple_densities']
 
@@ -39,7 +38,8 @@ def envelopes(results,
               fill=False,
               legend=True,
               titles={},
-              ylabels={}):
+              ylabels={},
+              log=False):
     '''
     
     Make envelop plots. An envelope shows over time the minimum and maximum 
@@ -76,6 +76,7 @@ def envelopes(results,
                    the outcomes for which you want to use a different title. 
     :param ylabels: a way for controlling the ylabels. Works identical to 
                     titles.
+    :param log: boolean, log scale density plot
     :rtype: a `figure <http://matplotlib.sourceforge.net/api/figure_api.html>`_ instance
             and a dict with the individual axes.
             
@@ -124,10 +125,10 @@ def envelopes(results,
     
         if group_by:
             group_by_envelopes(outcomes,outcome_to_plot, time, density,
-                               ax, ax_d, fill, grouping_labels)
+                               ax, ax_d, fill, grouping_labels, log)
         else:
             single_envelope(outcomes, outcome_to_plot, time, density,
-                            ax, ax_d, fill)
+                            ax, ax_d, fill, log)
             
         if ax_d:
             for tl in ax_d.get_yticklabels():
@@ -140,11 +141,11 @@ def envelopes(results,
     if legend and group_by:
         if fill:
             make_legend(grouping_labels, figure, alpha=0.3, 
-                        legend_type=plotting_util.PATCH)
+                        legend_type=PATCH)
         else:
-            make_legend(grouping_labels, figure, legend_type=plotting_util.LINE)
+            make_legend(grouping_labels, figure, legend_type=LINE)
     
-    if plotting_util.TIGHT:
+    if TIGHT:
         grid.tight_layout(figure)
     
     return figure, axes_dict
@@ -156,7 +157,8 @@ def group_by_envelopes(outcomes,
                        ax,
                        ax_d,
                        fill,
-                       group_labels):
+                       group_labels, 
+                       log):
     '''
     
     Helper function, responsible for generating an envelope plot based on
@@ -170,6 +172,7 @@ def group_by_envelopes(outcomes,
     :param ax_d: the ax on which to plot the density
     :param fill: boolean, if true, fill the envelope. 
     :param group_by_labels: order in which groups should be plotted
+    :param log: boolean, log scale density plot
     
     '''
     
@@ -183,7 +186,8 @@ def group_by_envelopes(outcomes,
             raise
     
     if density:
-        group_density(ax_d, density, outcomes, outcome_to_plot, group_labels)
+        group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, 
+                      log)
     
         ax_d.get_yaxis().set_view_interval(
                      ax.get_yaxis().get_view_interval()[0],
@@ -197,7 +201,8 @@ def single_envelope(outcomes,
                     density,
                     ax,
                     ax_d,
-                    fill):
+                    fill, 
+                    log):
     '''
     
     Helper function for generating a single envelope plot.
@@ -209,15 +214,14 @@ def single_envelope(outcomes,
     :param ax: the ax on which to plot
     :param ax_d: the ax on which to plot the density
     :param fill: boolean, if true, fill the envelope. 
-    :param kwargs: kwargs to be passed on to the hlepr function for plotting
-                   the density.
+    :param log: boolean, log scale density plot
     
     '''
     value = outcomes[outcome_to_plot]
     
     plot_envelope(ax, 0, time, value,fill)
     if density:
-        simple_density(density, value, ax_d, ax)
+        simple_density(density, value, ax_d, ax, log)
 
           
 def lines(results, 
@@ -229,7 +233,8 @@ def lines(results,
           ylabels={},
           legend=True,
           experiments_to_show=None,
-          show_envelope=False):
+          show_envelope=False,
+          log=False):
     '''
     
     This function takes the results from :meth:`perform_experiments` and 
@@ -270,6 +275,7 @@ def lines(results,
                                 implying that all experiments should be shown.
     :param show_envelope: boolean, indicates whether envelopes should be 
                           plotted in combination with lines. Default is False.
+    :param log: boolean, log scale density plot
     :rtype: a `figure <http://matplotlib.sourceforge.net/api/figure_api.html>`_ instance
             and a dict with the individual axes.
    
@@ -286,7 +292,7 @@ def lines(results,
                                 group_by=group_by, legend=legend, density=density,    
                                 grouping_specifiers=grouping_specifiers, 
                                 experiments_to_show=experiments_to_show, 
-                                titles=titles, ylabels=ylabels)
+                                titles=titles, ylabels=ylabels, log=log)
     
     if experiments_to_show != None:
         experiments, outcomes = results
@@ -318,10 +324,10 @@ def lines(results,
     
         if group_by:
             group_by_lines(outcomes,outcome_to_plot, time, density,
-                           ax, ax_d, grouping_labels)
+                           ax, ax_d, grouping_labels, log)
         else:
             simple_lines(outcomes, outcome_to_plot, time, density,
-                         ax, ax_d)
+                         ax, ax_d, log)
         ax.set_xlabel(TIME_LABEL)
         do_ylabels(ax, ylabels, outcome_to_plot)
         do_titles(ax, titles, outcome_to_plot)
@@ -329,7 +335,7 @@ def lines(results,
     if legend and group_by:
         make_legend(grouping_labels, figure)
     
-    if plotting_util.TIGHT:
+    if TIGHT:
         grid.tight_layout(figure)
     
     return figure, axes_dict
@@ -342,7 +348,8 @@ def plot_lines_with_envelopes(results,
                               titles={},
                               ylabels={},
                               legend=True,
-                              experiments_to_show=None):
+                              experiments_to_show=None,
+                              log=False):
     '''
     
     Helper function for generating a plot which contains both an envelope and
@@ -377,6 +384,7 @@ def plot_lines_with_envelopes(results,
     :param experiments_to_show: numpy array containing the indices of the 
                                 experiments to be visualized. Defaults to None,
                                 implying that all experiments should be shown.
+    :param log: boolean, log scale density plot                                
     :rtype: a `figure <http://matplotlib.sourceforge.net/api/figure_api.html>`_ instance
 
     '''
@@ -425,7 +433,7 @@ def plot_lines_with_envelopes(results,
             
             if density:
                 group_density(ax_d, density, full_outcomes, outcome_to_plot, 
-                              grouping_labels)
+                              grouping_labels, log)
                
                 ax_d.get_yaxis().set_view_interval(
                              ax.get_yaxis().get_view_interval()[0],
@@ -435,7 +443,7 @@ def plot_lines_with_envelopes(results,
             value = full_outcomes[outcome_to_plot]
             plot_envelope(ax, 0, time, value, fill=True)
             if density:
-                simple_density(density, value, ax_d, ax)
+                simple_density(density, value, ax_d, ax, log)
             
             value = outcomes[outcome_to_plot]
             ax.plot(time.T, value.T)
@@ -448,14 +456,14 @@ def plot_lines_with_envelopes(results,
     if legend and group_by:
         make_legend(grouping_labels, figure)
     
-    if plotting_util.TIGHT:
+    if TIGHT:
         grid.tight_layout(figure)
     
     return figure, axes_dict
 
 
 def group_by_lines(outcomes, outcome_to_plot, time, density,
-                   ax, ax_d, group_by_labels):
+                   ax, ax_d, group_by_labels, log):
     '''
     
     Helper function responsible for generating a grouped lines plot. 
@@ -467,6 +475,7 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
     :param ax: the ax on which to plot
     :param ax_d: the ax on which to plot the density
     :param group_by_labels: order in which groups should be plotted
+    :param log: boolean, log scale density plot    
         
     '''
     
@@ -479,14 +488,14 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
     
     if density:
         group_density(ax_d, density, outcomes, outcome_to_plot, 
-                      group_by_labels)
+                      group_by_labels, log)
         
         ax_d.get_yaxis().set_view_interval(
                      ax.get_yaxis().get_view_interval()[0],
                      ax.get_yaxis().get_view_interval()[1])
 
 def simple_lines(outcomes, outcome_to_plot, time, density,
-                 ax, ax_d):
+                 ax, ax_d, log):
     '''
     
     Helper function responsible for generating a simple lines plot. 
@@ -497,14 +506,13 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
     :param density: string, either hist, kde, or empty/None. 
     :param ax: the ax on which to plot
     :param ax_d: the ax on which to plot the density
-    :param kwargs: kwargs to be passed on to the hlepr function for plotting
-                   the density.
+    :param log: boolean, log scale density plot
     
     '''    
     value = outcomes[outcome_to_plot]
     ax.plot(time.T, value.T)
     if density:
-        simple_density(density, value, ax_d, ax)
+        simple_density(density, value, ax_d, ax, log)
 
 def kde_over_time(results, 
                   outcomes_to_show = [],
@@ -582,7 +590,8 @@ def multiple_densities(results,
                        ylabels={},
                        legend=True,
                        experiments_to_show=None,
-                       plot_type=ENVELOPE):
+                       plot_type=ENVELOPE,
+                       log=False):
     '''
     Make an envelope plot with multiple density plots over the run time
     
@@ -620,6 +629,7 @@ def multiple_densities(results,
                                 implying that all experiments should be shown.
     :plot_type: kwarg for controling the type of main plot. Can be one of 
                 ENVELOPE, LINES, or ENV_LIN
+    :param log: boolean, log scale density plot                
     :rtype: a `figure <http://matplotlib.sourceforge.net/api/figure_api.html>`_ instance
             
     .. rubric:: an example of use
@@ -752,7 +762,7 @@ def multiple_densities(results,
             index = np.where(time==points_in_time[i])[0][0]
             
             group_density(ax, density, outcomes, outcome_to_show, 
-                          grouping_labels, index=index)
+                          grouping_labels, index=index, log=log)
 
         min_y, max_y = ax_env.get_ylim()
         ax_env.autoscale(enable=False, axis='y')  
