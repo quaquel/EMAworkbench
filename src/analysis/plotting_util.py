@@ -222,7 +222,7 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
         raise EMAError("unknown density type: {}".format(density))
     
 
-def simple_density(density, value, ax_d, ax, loc=-1, log=False):
+def simple_density(density, value, ax_d, ax, log, loc=-1):
     '''
     
     Helper function, responsible for producing a density plot
