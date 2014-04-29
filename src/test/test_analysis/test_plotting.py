@@ -278,34 +278,34 @@ def test_envelopes():
     envelopes(results, 
               group_by='policy',
               density=VIOLIN)
-    envelopes(results, 
-              group_by='policy',
-              density=BOXPLOT)
-    envelopes(results, 
-              group_by='policy',
-              density=KDE)          
-    envelopes(results, 
-              group_by='policy',
-              density=HIST)
+#    envelopes(results, 
+#              group_by='policy',
+#              density=BOXPLOT)
+#    envelopes(results, 
+#              group_by='policy',
+#              density=KDE)          
+#    envelopes(results, 
+#              group_by='policy',
+#              density=HIST)
     
-    envelopes(results, 
-              group_by='policy',
-              density=VIOLIN,
-              log=True)
-    envelopes(results, 
-              group_by='policy',
-              density=BOXPLOT,
-              log=True)
-    envelopes(results, 
-              group_by='policy',
-              density=KDE,
-              log=True)          
-    envelopes(results, 
-              group_by='policy',
-              density=HIST,
-              log=True)
-       
-    # grouping and density hist
+#    envelopes(results, 
+#              group_by='policy',
+#              density=VIOLIN,
+#              log=True)
+#    envelopes(results, 
+#              group_by='policy',
+#              density=BOXPLOT,
+#              log=True)
+#    envelopes(results, 
+#              group_by='policy',
+#              density=KDE,
+#              log=True)          
+#    envelopes(results, 
+#              group_by='policy',
+#              density=HIST,
+#              log=True)
+#       
+#    # grouping and density hist
 #    envelopes(results, 
 #              group_by='policy',
 #              density=HIST)
@@ -464,9 +464,9 @@ def test_multiple_densities():
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 #    test_lines()
-#    test_envelopes()
+    test_envelopes()
 #    test_kde_over_time()
-    test_multiple_densities()
+#    test_multiple_densities()
 
 #    test_pairs_scatter()
 #    test_pairs_lines()
