@@ -11,7 +11,8 @@ import copy
 import numpy as np
 
 import scipy.stats.kde as kde
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde, scoreatpercentile
+
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -189,20 +190,30 @@ def plot_violinplot(ax,data, log, group_labels=None):
     pos = range(len(data))
     dist = max(pos)-min(pos)
     w = min(0.15*max(dist,1.0),0.5)
-    for d,p in zip(data,pos):
-        if len(d)>0:
-            k = gaussian_kde(d) #calculates the kernel density
-            m = k.dataset.min() #lower bound of violin
-            M = k.dataset.max() #upper bound of violin
-            x = np.arange(m,M,(M-m)/100.) # support for violin
-            v = k.evaluate(x) #violin profile (density curve)
-            v = v/v.max()*w #scaling the violin to the available space
-            ax.fill_betweenx(x,p,v+p,facecolor=COLOR_LIST[p],alpha=0.3)
-            ax.fill_betweenx(x,p,-v+p,facecolor=COLOR_LIST[p],alpha=0.3)
-    ax.boxplot(data,notch=1,positions=pos,vert=1)
+    for data,p in zip(data,pos):
+        if len(data)>0:
+            kde = gaussian_kde(data) #calculates the kernel density
+            x = np.linspace(np.min(data),np.max(data),250.) # support for violin
+            v = kde.evaluate(x) #violin profile (density curve)
+            
+            scl = 1 / (v.max() / 0.4)
+            v = v*scl #scaling the violin to the available space
+            ax.fill_betweenx(x,p-v,p+v,facecolor=COLOR_LIST[p],alpha=0.6, lw=1.5)
+            
+            for percentile in [25, 75]:
+                quant = scoreatpercentile(data.ravel(), percentile)
+                q_x = kde.evaluate(quant) * scl 
+                q_x = [p - q_x, p + q_x]
+                ax.plot(q_x, [quant, quant], linestyle=":", c='k')
+            med = np.median(data)
+            m_x = kde.evaluate(med) * scl 
+            m_x = [p - m_x, p + m_x]
+            ax.plot(m_x, [med, med], linestyle="--", c='k', lw=1.5)            
         
     if group_labels:
-        ax.set_xticklabels(group_labels, rotation='vertical')
+        labels = group_labels[:]
+        labels.insert(0, '')
+        ax.set_xticklabels(labels, rotation='vertical')
  
 def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, 
                   log=False, index=-1):
