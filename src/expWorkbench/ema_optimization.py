@@ -527,12 +527,3 @@ class NSGA2StatisticsCallback(object):
         
         for entry in population:
             self.stats.append(entry.fitness.values)
-<<<<<<< HEAD
-=======
-
-        for entry in population:
-            try:
-                self.tried_solutions[entry] = entry
-            except AttributeError:
-                break
->>>>>>> master
