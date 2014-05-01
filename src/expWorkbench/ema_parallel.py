@@ -38,6 +38,7 @@ from ema_logging import debug, exception, info, warning, NullHandler, LOG_FORMAT
 import ema_logging                  
                                      
 from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
+import tempfile
 
 __all__ = ['CalculatorPool']
 
@@ -168,30 +169,28 @@ class CalculatorPool(Pool):
 
         debug('generating workers')
         
-        workerRoot = None
+        worker_root = None
         for i in range(processes):
             debug('generating worker '+str(i))
             
-            workerName = 'PoolWorker'+str(i)
+            workername = 'PoolWorker'+str(i)
             
-            def ignore_function(path, names):
-                if path.find('.svn') != -1:
-                    return names
-                else:
-                    return []
-            
-            #setup working directories for parallelEMA
+            #setup working directories for parallel_ema
             for msi in msis:
                 if msi.working_directory != None:
-                    if workerRoot == None:
-                        workerRoot = os.path.dirname(os.path.abspath(msis[0].working_directory))
+                    if worker_root == None:
+                        worker_root = os.path.dirname(os.path.abspath(msis[0].working_directory))
                     
-                    working_directory = os.path.join(workerRoot, workerName, msi.name)
+#                    working_directory = os.path.join(worker_root, workername, msi.name)
+                    
+                    working_directory = tempfile.mkdtemp(suffix=workername,
+                                                         prefix='tmp_',
+                                                         dir=worker_root)
                     
                     working_dirs.append(working_directory)
-                    shutil.copytree(msi.working_directory, 
+                    copytree(msi.working_directory, 
                                     working_directory, 
-                                    ignore = ignore_function)
+                                    )
                     msi.set_working_directory(working_directory)
 
             w = LoggingProcess(
@@ -207,7 +206,7 @@ class CalculatorPool(Pool):
                                           )
             self._pool.append(w)
             
-            w.name = w.name.replace('Process', workerName)
+            w.name = w.name.replace('Process', workername)
             w.daemon = True
             w.start()
             debug(' worker '+str(i) + ' generated')
@@ -440,7 +439,6 @@ class CalculatorPool(Pool):
         # functionality can be used instead
         
         for directory in working_dirs:
-            directory = os.path.dirname(directory)
             debug("deleting "+str(directory))
             shutil.rmtree(directory)
 
@@ -634,3 +632,46 @@ class LoggingProcess(Process):
         debug('process %s with pid %s started' % (p.name, p.pid))
         #call the run of the super, which in turn will call the worker function
         super(LoggingProcess, self).run()
+        
+def copytree(src, dst, symlinks=False, ignore=None):
+    """Recursively copy a directory tree using copy2().
+    slightly modified from shutil.copytree
+
+    """
+    names = os.listdir(src)
+    if ignore is not None:
+        ignored_names = ignore(src, names)
+    else:
+        ignored_names = set()
+
+    errors = []
+    for name in names:
+        if name in ignored_names:
+            continue
+        srcname = os.path.join(src, name)
+        dstname = os.path.join(dst, name)
+        try:
+            if symlinks and os.path.islink(srcname):
+                linkto = os.readlink(srcname)
+                os.symlink(linkto, dstname)
+            elif os.path.isdir(srcname):
+                copytree(srcname, dstname, symlinks, ignore)
+            else:
+                # Will raise a SpecialFileError for unsupported file types
+                shutil.copy2(srcname, dstname)
+        # catch the Error from the recursive copytree so that we can
+        # continue with other files
+        except shutil.Error, err:
+            errors.extend(err.args[0])
+        except EnvironmentError, why:
+            errors.append((srcname, dstname, str(why)))
+    try:
+        shutil.copystat(src, dst)
+    except OSError, why:
+        if WindowsError is not None and isinstance(why, WindowsError):
+            # Copying file access times may fail on Windows
+            pass
+        else:
+            errors.extend((src, dst, str(why)))
+    if errors:
+        raise shutil.Error, errors        

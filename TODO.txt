@@ -14,7 +14,9 @@ Major changes
 	* problem with pandas is that it still requires all the data in memory.
 	  It is therefore more sensible to use pytables directly. This can also
 	  be used for some of the data provenenace issues via the metadata that
-	  one can store in a hdf5 file.  
+	  one can store in a hdf5 file. 
+	* another more fundamental problem with pandas is that it is not datatype
+	  aware.  
  - Data provenance questions
  - Optimization
     * only Maximin left
@@ -60,3 +62,5 @@ Minor changes
    case of the optimization does not scale very well. This should be done
    in a more intelligent way. We should profile the code to figure out where
    the bottleneck is exactly. 
+ - violinplot option in addition to hist, kde, and boxplot
+   http://nbviewer.ipython.org/github/mwaskom/seaborn/blob/master/examples/plotting_distributions.ipynb?utm_content=buffer2788d&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer

@@ -18,9 +18,6 @@ import numpy as np
 from deap import creator, base
 
 from ema_logging import info, debug, warning
-from expWorkbench.uncertainties import CategoricalUncertainty,\
-                                       ParameterUncertainty,\
-                                       INTEGER
 from expWorkbench import EMAError
 
 __all__ = ['load_results',

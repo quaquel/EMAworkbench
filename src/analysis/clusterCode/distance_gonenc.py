@@ -283,6 +283,7 @@ def distance_gonenc(data,
     patterns with different number of cycles (e.g. oscillation with 4 cycle 
     versus oscillation with 6 cycles).
     
+    :param data:
     :param sisterCount: Number of long-versions that will be created for the 
                         short vector while comparing two data series with 
                         unequal feature vector lengths. 

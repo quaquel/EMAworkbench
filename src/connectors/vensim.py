@@ -301,7 +301,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
                     error = True
 
             if not output.time:
-                result = [-1]
+                result = result[-1]
             else:
                 result = result[0::self.step]
             try:
