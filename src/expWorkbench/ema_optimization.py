@@ -112,7 +112,6 @@ class NSGA2(AbstractOptimizationAlgorithm):
                  ensemble, crossover_rate, mutation_rate, weights,
                  pop_size)
         self.archive = ParetoFront(similar=compare)
-        
         self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
         
         self.toolbox.register("crossover", tools.cxOnePoint)
@@ -528,3 +527,12 @@ class NSGA2StatisticsCallback(object):
         
         for entry in population:
             self.stats.append(entry.fitness.values)
+<<<<<<< HEAD
+=======
+
+        for entry in population:
+            try:
+                self.tried_solutions[entry] = entry
+            except AttributeError:
+                break
+>>>>>>> master

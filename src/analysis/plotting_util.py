@@ -9,7 +9,10 @@ from types import StringType, DictType, ListType
 import copy
 
 import numpy as np
+
 import scipy.stats.kde as kde
+from scipy.stats import gaussian_kde, scoreatpercentile
+
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -58,9 +61,11 @@ TIME = "TIME"
 ENVELOPE = 'envelope'
 LINES = 'lines'
 ENV_LIN = "env_lin"
+
 KDE = 'kde'
 HIST = 'hist'
 BOXPLOT = 'box plot'
+VIOLIN = 'violin'
 
 # used for legend
 LINE = 'line'
@@ -99,8 +104,8 @@ def plot_envelope(ax, j, time, value, fill):
     color = COLOR_LIST[j]
     
     if fill:
-        ax.plot(time, minimum, color=color, alpha=0.3)
-        ax.plot(time, maximum, color=color, alpha=0.3)
+#        ax.plot(time, minimum, color=color, alpha=0.3)
+#        ax.plot(time, maximum, color=color, alpha=0.3)
         ax.fill_between(time, 
                         minimum,
                         maximum,
@@ -112,7 +117,7 @@ def plot_envelope(ax, j, time, value, fill):
         ax.plot(time, maximum, c=color)
 
 
-def plot_histogram(ax, values, log=False):
+def plot_histogram(ax, values, log):
     '''
     
     Helper function, responsible for plotting a histogram
@@ -138,41 +143,97 @@ def plot_histogram(ax, values, log=False):
         ax.set_xticks([0, ax.get_xbound()[1]])
     return a
   
-def plot_kde(ax, kde_x, kde_y, j, log=False):
+def plot_kde(ax, values, log):
     '''
     
     Helper function, responsible for plotting a KDE.
     
     :param ax: the axes on which to plot the kde
-    :param kde_x: the x values of the kde
-    :param kde_y: the y values of the kde
-    :param j: the index of the group being shown
+    :param values: the data for which to make a kde
     :param log: boolean, whether to log scale the data are not
     
     
     '''
 
-    color = COLOR_LIST[j]
+
+    for j, value in enumerate(values):        
+        color = COLOR_LIST[j]
+        kde_x, kde_y = determine_kde(value)
+        ax.plot(kde_x, kde_y, c=color, ms=1, markevery=20)
     
-    ax.plot(kde_x, kde_y, c=color, ms=1, markevery=20)
+        if log:
+            ax.set_xscale('log')
+        else:
+            ax.set_xticks([int(0), 
+                          ax.get_xaxis().
+                          get_view_interval()[1]])
+            labels =["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
+            ax.set_xticklabels(labels)
 
+def plot_boxplots(ax, values, log, group_labels=None):
     if log:
-        ax.set_xscale('log')
-    else:
-        maximum = ax.get_xaxis().get_view_interval()[1]
-        
-        ax.set_xticks([int(0), 
-                      ax.get_xaxis().
-                      get_view_interval()[1]])
-        labels =["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
-        ax.set_xticklabels(labels)
-
-def plot_boxplots(ax, values, group_labels=None, log=False):
+        warning("log option ignored for boxplot")
+    
+    
     ax.boxplot(values)
     if group_labels:
         ax.set_xticklabels(group_labels, rotation='vertical')
+        
+def plot_violinplot(ax,data, log, group_labels=None):
+    '''
+    create violin plots on an axis
+    '''
+    
+    if log:
+        warning("log option ignored for violin plot")
+    
+    pos = range(len(data))
+    dist = max(pos)-min(pos)
+    w = min(0.15*max(dist,1.0),0.5)
+    for data,p in zip(data,pos):
+        if len(data)>0:
+            kde = gaussian_kde(data) #calculates the kernel density
+            x = np.linspace(np.min(data),np.max(data),250.) # support for violin
+            v = kde.evaluate(x) #violin profile (density curve)
+            
+            scl = 1 / (v.max() / 0.4)
+            v = v*scl #scaling the violin to the available space
+            ax.fill_betweenx(x,p-v,p+v,facecolor=COLOR_LIST[p],alpha=0.6, lw=1.5)
+            
+            for percentile in [25, 75]:
+                quant = scoreatpercentile(data.ravel(), percentile)
+                q_x = kde.evaluate(quant) * scl 
+                q_x = [p - q_x, p + q_x]
+                ax.plot(q_x, [quant, quant], linestyle=":", c='k')
+            med = np.median(data)
+            m_x = kde.evaluate(med) * scl 
+            m_x = [p - m_x, p + m_x]
+            ax.plot(m_x, [med, med], linestyle="--", c='k', lw=1.5)            
+        
+    if group_labels:
+        labels = group_labels[:]
+        labels.insert(0, '')
+        ax.set_xticklabels(labels, rotation='vertical')
+ 
+def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, 
+                  log=False, index=-1):
+    if density==HIST:
+        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        plot_histogram(ax_d, values, log)
+    elif density==BOXPLOT:
+        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        plot_boxplots(ax_d, values, log, group_labels)
+    elif density==VIOLIN:
+        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        plot_violinplot(ax_d, values, log, group_labels=group_labels)
+    elif density==KDE:
+        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        plot_kde(ax_d, values, log)
+    else:
+        raise EMAError("unknown density type: {}".format(density))
+    
 
-def simple_density(density, value, ax_d, ax, loc=-1, **kwargs):
+def simple_density(density, value, ax_d, ax, log, loc=-1):
     '''
     
     Helper function, responsible for producing a density plot
@@ -181,18 +242,19 @@ def simple_density(density, value, ax_d, ax, loc=-1, **kwargs):
     :param value: the data for which to calculate the density
     :param ax_d:
     :param ax:
-    :param kwargs: 
+    :param log: 
     
     
     '''
     
     if density==KDE:
-        kde_x, kde_y = determine_kde(value[:,loc])
-        plot_kde(ax_d, kde_x, kde_y, 0, **kwargs)
+        plot_kde(ax_d, [value[:,-1]], log)
     elif density==HIST:
-        plot_histogram(ax_d, value[:,-1], log=kwargs.get('log'))
+        plot_histogram(ax_d, value[:,-1], log)
     elif density==BOXPLOT:
-        plot_boxplots(ax_d, value[:,-1], log=kwargs.get('log'))
+        plot_boxplots(ax_d, value[:,-1], log)
+    elif density==VIOLIN:
+        plot_violinplot(ax_d, [value[:,-1]], log)
     else:
         raise EMAError("unknown density plot type")
         
@@ -277,14 +339,18 @@ def make_legend(categories,
             artist = plt.Line2D([0,1], [0,1], color=COLOR_LIST[i], 
                                 alpha=alpha) #TODO
         elif legend_type == SCATTER:
-            marker_obj = mpl.markers.MarkerStyle('o')
-            path = marker_obj.get_path().transformed(
-                             marker_obj.get_transform())
-            artist  = mpl.collections.PathCollection((path,),
-                                        sizes = [20],
-                                        facecolors = COLOR_LIST[i],
-                                        edgecolors = 'k',
-                                        offsets = (0,0))
+#             marker_obj = mpl.markers.MarkerStyle('o')
+#             path = marker_obj.get_path().transformed(
+#                              marker_obj.get_transform())
+#             artist  = mpl.collections.PathCollection((path,),
+#                                         sizes = [20],
+#                                         facecolors = COLOR_LIST[i],
+#                                         edgecolors = 'k',
+#                                         offsets = (0,0)
+#                                         )
+            # TODO work arround, should be a proper proxyartist for scatter legends
+            artist = mpl.lines.Line2D([0],[0], linestyle="none", c=COLOR_LIST[i], marker = 'o')
+
         elif legend_type == PATCH:
             artist = plt.Rectangle((0,0), 1,1, edgecolor=COLOR_LIST[i],
                                    facecolor=COLOR_LIST[i], alpha=alpha)
@@ -320,12 +386,18 @@ def determine_kde(data,
     if not ymax:
         ymax = np.max(data)
     
-    kde_y = np.linspace(ymin, ymax, size_kde)[::-1]
+    kde_y = np.linspace(ymin, ymax, size_kde)
     
     try:
         kde_x = kde.gaussian_kde(data)
         kde_x = kde_x.evaluate(kde_y)
-    except np.linalg.LinAlgError as e:
+#         grid = GridSearchCV(KernelDensity(kernel='gaussian'),
+#                             {'bandwidth': np.linspace(ymin, ymax, 20)},
+#                             cv=20)
+#         grid.fit(data[:, np.newaxis])
+#         best_kde = grid.best_estimator_
+#         kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
+    except Exception as e:
         warning(e)
         kde_x = np.zeros(kde_y.shape)
     
@@ -535,26 +607,32 @@ def prepare_data(results,
     
     '''
 
-
-    results = copy.deepcopy(results)
-    
     #unravel results
     experiments, outcomes = results
 
-    time, outcomes = determine_time_dimension(outcomes)
-    
+    temp_outcomes = {}
+
     # remove outcomes that are not to be shown
     if outcomes_to_show:
         if type(outcomes_to_show) == StringType:
             outcomes_to_show  = [outcomes_to_show]
+            
+        for entry in outcomes_to_show:
+            temp_outcomes[entry] = copy.deepcopy(outcomes[entry])
         
-        [outcomes.pop(entry) for entry in\
-         set(outcomes.keys()) - set(outcomes_to_show)]
+# #         [outcomes.pop(entry) for entry in\
+# #          set(outcomes.keys()) - set(outcomes_to_show)]
+# 
+#     experiments = copy.deepcopy(experiments)
+#     outcomes = copy.deepcopy(outcomes)
+    
+    time, outcomes = determine_time_dimension(outcomes)
 
     # filter the outcomes to exclude scalar values
     if filter_scalar:
         outcomes = filter_scalar_outcomes(outcomes)
-    outcomes_to_show = outcomes.keys()
+    if not outcomes_to_show:
+        outcomes_to_show = outcomes.keys()
         
     # group the data if desired
     if group_by:

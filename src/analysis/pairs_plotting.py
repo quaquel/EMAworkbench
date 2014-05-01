@@ -13,6 +13,7 @@ import matplotlib.cm as cm
 from expWorkbench.ema_logging import debug, info
 
 from plotting_util import prepare_pairs_data, make_legend, COLOR_LIST
+from analysis.plotting_util import SCATTER
 
 __all__ = ['pairs_scatter', 'pairs_lines', 'pairs_density']
 
@@ -376,7 +377,7 @@ def pairs_scatter(results,
     axes_dict = {}
     
     if group_by and legend:
-        make_legend(grouping_labels, figure, legend_type='scatter')
+        make_legend(grouping_labels, figure, legend_type=SCATTER)
      
     combis = [(field1, field2) for field1 in outcomes_to_show\
                                for field2 in outcomes_to_show]

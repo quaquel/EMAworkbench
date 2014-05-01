@@ -11,7 +11,7 @@ from expWorkbench import debug
 __all__ = ['NetLogoException',
            'NetLogoLink']
 
-NETLOGO_HOME = r'/Applications/NetLogo 5.0.4'
+NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.5'
 PYNETLOGO_HOME = os.path.dirname(os.path.abspath(__file__))
 
 class NetLogoException(Exception):
@@ -124,6 +124,8 @@ class NetLogoLink():
         except jpype.JException(jpype.java.org.nlogo.api.LogoException) as ex:
             raise NetLogoException(ex.message())
         except jpype.JException(jpype.java.org.nlogo.api.CompilerException) as ex:
+            raise NetLogoException(ex.message())
+        except jpype.JException(jpype.java.org.nlogo.nvm.EngineException) as ex:
             raise NetLogoException(ex.message())
 
     def report(self, netlogo_reporter):

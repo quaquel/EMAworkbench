@@ -1,58 +1,90 @@
 '''
 Created on 22 feb. 2013
 
-@author: localadmin
-
-
-TODO: some of the code might be simplifed building on numpy.lib.recfunctions
+@author: j.h.kwakkel
 
 '''
 from __future__ import division
 from types import StringType, FloatType, IntType
 from operator import itemgetter
 import copy
+import math
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
-from scipy.stats.mstats import mquantiles #@UnresolvedImport
-from mpl_toolkits.axes_grid1 import host_subplot
+from scipy.stats import binom
+
+from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.gridspec as gridspec 
+
+import pandas as pd
 
 from analysis.plotting_util import make_legend, COLOR_LIST
-from expWorkbench import info, debug, EMAError
+from expWorkbench import info, debug, EMAError, ema_logging
+from analysis import pairs_plotting
 
 DEFAULT = 'default'
+ORIGINAL = 'original'
+
 ABOVE = 1
 BELOW = -1
 PRECISION = '.2f'
 
-def _write_boxes_to_stdout(box_lims, uncertainties):
+def get_quantile(data, quantile):
+    '''
+    quantile calculation modeled on the implementation used in sdtoolkit
+    
+    this replaces the scipy.stats.mquantile that has been used before
+    
+    :param data: dataset for which quantile is needed
+    :param quantile: the desired quantile
+    
+    '''
+    assert quantile>0
+    assert quantile<1
+ 
+    data = data.compressed()
+    data = list(data) #TODO do we really need a list? I doubt it
+    data.sort()    
+    
+    i = (len(data)-1)*quantile
+    index_lower =  int(math.floor(i))
+    index_higher = int(math.ceil(i))
+    
+    value = 0
+
+    if quantile > 0.5:
+        # upper
+        while (data[index_lower] == data[index_higher]) & (index_lower>0):
+            index_lower -= 1
+        value = (data[index_lower]+data[index_higher])/2
+    else:
+        #lower
+        while (data[index_lower] == data[index_higher]) & (index_higher<len(data)-1):
+            index_higher += 1
+        value = (data[index_lower]+data[index_higher])/2
+
+
+    return value
+
+def _determine_size(box, uncertainties):
+    '''helper function for determining spacing when writing boxlims to stdout
+    
+    :param box: a box definition, used only to acquire datatype
+    :param uncertainties: a list of uncertainties to be printed
+    
+    fill the limits in for each uncertainty and each box
+    determine the length of the uncertainty names to align these properly
+    determine size of values in box_lims, this should be based on the integers 
+    and floats only
+    
     '''
     
-    write the lims for the uncertainties for each box lim to stdout
+    length = max([len(u) for u in uncertainties])
+    length = max((length, len('uncertainty')))
     
-    :param box_lims: list of box_lims
-    :param uncertainties: list of of uncertainties
-    
-    '''
-
-
-
-    # fill the limits in for each uncertainty and each box
-    # determine the length of the uncertainty names to align these properly
-    #
-    try:
-        length = max([len(u) for u in uncertainties])
-        length = max((length, len('uncertainty')))
-    except ValueError:
-        print "no boxes found"
-        return        
-
-    # determine size of values in box_lims
-    # this should be based on the integers and floats only
-    
-    box = box_lims[-1]
     size = 0
     for u in uncertainties:
         data_type =  box[u].dtype
@@ -70,6 +102,21 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
             size = max(size,
                        s)
     size = size+4
+    return length, size
+
+
+def _write_boxes_to_stdout(box_lims, uncertainties):
+    '''
+    
+    write the lims for the uncertainties for each box lim to stdout
+    
+    :param box_lims: list of box_lims
+    :param uncertainties: list of uncertainties
+    
+    '''
+
+    box = box_lims[-1]
+    length, size = _determine_size(box, uncertainties)
 
     # make the headers of the limits table
     # first header is box names
@@ -113,7 +160,6 @@ def _write_boxes_to_stdout(box_lims, uncertainties):
         print line
     print "\n\n"
 
-
 def _setup_figure(uncs):
     '''
     
@@ -138,50 +184,258 @@ def _setup_figure(uncs):
     ax.set_yticklabels(uncs[::-1]) 
     return fig, ax
 
-class PrimBox(object):
+def _pair_wise_scatter(x,y, box_lim, restricted_dims):
+    ''' helper function for pair wise scatter plotting
+    
+    :param x: the experiments
+    :param y: the outcome of interest
+    :param box_lim: a boxlim
+    :param restricted_dims: list of uncertainties that define the boxlims
+    
+    '''
 
+    restricted_dims = list(restricted_dims)
+    combis = [(field1, field2) for field1 in restricted_dims\
+                               for field2 in restricted_dims]
+
+    grid = gridspec.GridSpec(len(restricted_dims), len(restricted_dims))                             
+    grid.update(wspace = 0.1,
+                hspace = 0.1)    
+    figure = plt.figure()
+    
+    for field1, field2 in combis:
+        i = restricted_dims.index(field1)
+        j = restricted_dims.index(field2)
+        ax = figure.add_subplot(grid[i,j])        
+        ec='b'
+        fc='b'
+        
+        if field1==field2:
+            ec='white'
+            fc='white'
+        
+        # scatter points
+        for n in [0,1]:
+            x_n = x[y==n]        
+            x_1 = x_n[field2]
+            x_2 = x_n[field1]
+            
+            if (n==0) :
+                fc='white'
+            elif ec=='b':
+                fc='b'
+            
+            ax.scatter(x_1, x_2, facecolor=fc, edgecolor=ec, s=10)
+
+        # draw boxlim
+        if field1 != field2:
+            x_1 = box_lim[field2]
+            x_2 = box_lim[field1]
+
+            for n in [0,1]:
+                ax.plot(x_1,
+                    [x_2[n], x_2[n]], c='r', linewidth=3)
+                ax.plot([x_1[n], x_1[n]],
+                    x_2, c='r', linewidth=3)
+            
+        #reuse labeling function from pairs_plotting
+        pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None, restricted_dims)
+            
+    return figure
+        
+def _in_box(x, boxlim):
+    '''
+     
+    returns the indices of the data points that are within the 
+    box_lims.
+    
+    '''
+    logical = np.ones(x.shape[0], dtype=np.bool)
+    
+    dims = recfunctions.get_names(boxlim.dtype)
+
+    for name in dims:
+        value = x.dtype.fields.get(name)[0]
+        
+        if value == 'object':
+            entries = boxlim[name][0]
+            l = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
+            for i,entry in enumerate(entries):
+                if type(list(entries)[0]) not in (StringType, FloatType, IntType):
+                    bools = []                
+                    for element in list(x[name]):
+                        if element == entry:
+                            bools.append(True)
+                        else:
+                            bools.append(False)
+                    l[:, i] = np.asarray(bools, dtype=bool)
+                else:
+                    l[:, i] = x[name] == entry
+            l = np.any(l, axis=1)
+            logical = logical & l
+        else:
+            logical = logical & (boxlim[name][0] <= x[name] )&\
+                                        (x[name] <= boxlim[name][1])                
+    
+    indices = np.where(logical==True)
+    
+    assert len(indices)==1
+    indices = indices[0]
+    
+    return indices
+
+
+class CurEntry(object):
+    '''a descriptor for the current entry on the peeling and pasting trajectory'''
+    
+    def __init__(self, name):
+        self.name = name
+        
+    def __get__(self, instance, owner):
+        return instance.peeling_trajectory[self.name][instance._cur_box]
+    
+    def __set__(self, instance, value):
+        raise PrimException("this property cannot be assigned to")
+                
+
+class PrimBox(object):
     stats_format = "{0:<5}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}"
     stats_header = "{0:<5}{1:>10}{2:>10}{3:>10}{4:>10}{5:>10}".format('box', 
                               'mean', 'mass', 'coverage', 'density', 'res dim')
+    
+    coverage = CurEntry('coverage')
+    density = CurEntry('density')
+    mean = CurEntry('mean')
+    res_dim = CurEntry('res dim')
+    mass = CurEntry('mass')
+    
+    _frozen=False
     
     def __init__(self, prim, box_lims, indices):
         self.prim = prim
         
         # peeling and pasting trajectory
-        self.coverage = []
-        self.density = []
-        self.mean = []
-        self.res_dim = []
+        colums = ['coverage', 'density', 'mean', 'res dim', 'mass']
+        self.peeling_trajectory = pd.DataFrame(columns=colums)
+        
         self.box_lims = []
-        self.mass = []
+        self._cur_box = -1
         
         # indices van data in box
         self.update(box_lims, indices)
-        
-    def select(self, i):
+
+    def __getattr__(self, name):
+        '''
+        used here to give box_lim same behaviour as coverage, density, mean
+        res_dim, and mass. That is, it will return the box lim associated with
+        the currently selected box. 
         '''
         
+        if name=='box_lim':
+            return self.box_lims[self._cur_box]
+        else:
+            raise AttributeError
+
+    def inspect(self, i=None):
+        '''
+        
+        Write the stats and box limits of the user specified box to standard 
+        out. if i is not provided, the last box will be printed
+        
+        '''
+      
+        print self.stats_header
+        
+        if i == None:
+            i = len(self.box_lims)-1
+        
+        stats = self.peeling_trajectory.iloc[i].to_dict()
+        stats['restricted_dim'] = stats['res dim']
+        
+        print self._format_stats(i, stats)   
+        print ""
+                
+        qp_values = self._calculate_quasi_p(i)
+        uncs = [(key, value) for key, value in qp_values.iteritems()]
+        uncs.sort(key=itemgetter(1))
+        uncs = [uncs[0] for uncs in uncs]
+
+        qp_col_size = len("qp values")+4
+        box = self.box_lims[i]
+        unc_col_size, value_col_size = _determine_size(box, uncs)
+        
+        # make the headers of the limits table
+        # first header is box names
+        # second header is min and max
+        elements_1 = ["{0:<{1}}".format("uncertainty", unc_col_size)]
+        elements_2 = ["{0:<{1}}".format("", unc_col_size)]
+        box_name = 'box {}'.format(i)
+        elements_1.append("{0:>{2}}{1:>{3}}".format("{}".format(box_name),"", value_col_size+4, value_col_size-2))
+        elements_2.append("{0:>{3}}{1:>{4}}{2:>{5}}".format("min", "max","qp values", value_col_size, value_col_size+2, qp_col_size))
+        line = "".join(elements_1)
+        print line
+        line = "".join(elements_2)
+        print line
+        
+        for u in uncs:
+            elements = ["{0:<{1}}".format(u, unc_col_size)]
+
+            data_type =  box[u].dtype
+            if data_type == np.float64:
+                data = list(box[u])
+                data.append(value_col_size)
+                data.append(value_col_size)
+                data.append(PRECISION)
+                
+                elements.append("{0:>{2}{4}} -{1:>{3}{4}}".format(*data))
+            elif data_type == np.int32:
+                data = list(box[u])
+                data.append(value_col_size)
+                data.append(value_col_size)                
+                
+                elements.append("{0:>{2}} -{1:>{3}}".format(*data))            
+            else:
+                elements.append("{0:>{1}}".format(box[u][0], value_col_size*2+2))
+            
+            elements.append("{0:>{1}{2}}".format(qp_values[u], qp_col_size, '.2e'))
+            
+            line = "".join(elements)
+            print line
+        print "\n"        
+        
+    def select(self, i):
+        '''        
         select an entry from the peeling and pasting trajectory and update
         the prim box to this selected box.
         
+        :param i: the index of the box to select
+        
+        '''
+        if self._frozen:
+            raise PrimException("""box has been frozen because PRIM has found 
+                                at least one more recent box""")
+        
+        indices = _in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
+        self.yi = self.prim.yi_remaining[indices]
+        self._cur_box = i
+
+    def drop_restriction(self, uncertainty):
+        '''
+        drop the restriction on the specified dimension. That is, replace
+        the limits in the chosen box with a new box where for the specified 
+        uncertainty the limits of the initial box are being used. The resulting
+        box is added to the peeling trajectory.
+        
+        :param uncertainty:
+        
         '''
         
-
-        self.yi = self.prim.in_box(self.box_lims[i])
+        new_box_lim = copy.deepcopy(self.box_lim)
+        new_box_lim[uncertainty][:] = self.box_lims[0][uncertainty][:]
+        indices = _in_box(self.prim.x[self.prim.yi_remaining], new_box_lim)
+        indices = self.prim.yi_remaining[indices]
+        self.update(new_box_lim, indices)
         
-        i = i+1 
-        self.box_lims = self.box_lims[0:i]
-        self.mean = self.mean[0:i]
-        self.mass = self.mass[0:i]
-        self.coverage = self.coverage[0:i]
-        self.density = self.density[0:i]
-        self.res_dim = self.res_dim[0:i]
-        
-        # after select, try to paste
-        self.prim._update_yi_remaining()
-        self.prim._paste(self)
-       
-
     def update(self, box_lims, indices):
         '''
         
@@ -197,23 +451,22 @@ class PrimBox(object):
         y = self.prim.y[self.yi]
 
         self.box_lims.append(box_lims)
-        self.mean.append(np.mean(y))
-        self.mass.append(y.shape[0]/self.prim.n)
-        
+
         coi = self.prim.determine_coi(self.yi)
-        self.coverage.append(coi/self.prim.t_coi)
-        self.density.append(coi/y.shape[0])
+
+        data = {'coverage':coi/self.prim.t_coi, 
+                'density':coi/y.shape[0],  
+                'mean':np.mean(y),
+                'res dim':self.prim.determine_nr_restricted_dims(self.box_lims[-1]),
+                'mass':y.shape[0]/self.prim.n}
+        new_row = pd.DataFrame([data])
+        self.peeling_trajectory = self.peeling_trajectory.append(new_row, ignore_index=True)
         
-        # determine the nr. of restricted dimensions
-        # box_lims[0] is the initial box, box_lims[-1] is the latest box
-        self.res_dim.append(self.prim.determine_nr_restricted_dims(self.box_lims[-1]))
+        self._cur_box = len(self.peeling_trajectory)-1
+        
         
     def show_ppt(self):
-        '''
-        
-        show the peeling and pasting trajectory in a figure
-        
-        '''
+        '''show the peeling and pasting trajectory in a figure'''
         
         ax = host_subplot(111)
         ax.set_xlabel("peeling and pasting trajectory")
@@ -221,11 +474,11 @@ class PrimBox(object):
         par = ax.twinx()
         par.set_ylabel("nr. restricted dimensions")
             
-        ax.plot(self.mean, label="mean")
-        ax.plot(self.mass, label="mass")
-        ax.plot(self.coverage, label="coverage")
-        ax.plot(self.density, label="density")
-        par.plot(self.res_dim, label="restricted_dim")
+        ax.plot(self.peeling_trajectory['mean'], label="mean")
+        ax.plot(self.peeling_trajectory['mass'], label="mass")
+        ax.plot(self.peeling_trajectory['coverage'], label="coverage")
+        ax.plot(self.peeling_trajectory['density'], label="density")
+        par.plot(self.peeling_trajectory['res dim'], label="restricted dims")
         ax.grid(True, which='both')
         ax.set_ylim(ymin=0,ymax=1)
         
@@ -235,41 +488,106 @@ class PrimBox(object):
                     fig, ncol=5, alpha=1)
         return fig
     
-    def write_ppt_stdout(self):
+    def show_tradeoff(self):
+        '''Visualise the trade off between coverage and density. Color is used
+        to denote the number of restricted dimensions.'''
+       
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        
+        cmap = mpl.cm.jet #@UndefinedVariable
+        boundaries = np.arange(-0.5, 
+                               max(self.peeling_trajectory['res dim'])+1.5, 
+                               step=1)
+        ncolors = cmap.N
+        norm = mpl.colors.BoundaryNorm(boundaries, ncolors)
+        
+        p = ax.scatter(self.peeling_trajectory['coverage'], 
+                       self.peeling_trajectory['density'], 
+                       c=self.peeling_trajectory['res dim'], norm=norm)
+        ax.set_ylabel('density')
+        ax.set_xlabel('coverage')
+        ax.set_ylim(ymin=0, ymax=1.2)
+        ax.set_xlim(xmin=0, xmax=1.2)
+        
+        ticklocs = np.arange(0, 
+                             max(self.peeling_trajectory['res dim'])+1, 
+                             step=1)
+        cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
+        cb.set_label("nr. of restricted dimensions")
+        return fig
+    
+    def show_pairs_scatter(self):
         '''
         
-        write the peeling and pasting trajectory to stdout
+        make a pair wise scatter plot of all the restricted dimensions
+        with colour denoting whether a given point is of interest or not
+        and the boxlims superimposed on top.
         
-        '''
+        '''   
+        return _pair_wise_scatter(self.prim.x, self.prim.y, self.box_lim, 
+                           self.prim.determine_restricted_dims(self.box_lim))
+    
+    def write_ppt_to_stdout(self):
+        '''write the peeling and pasting trajectory to stdout'''
+        print self.peeling_trajectory
+        print "\n"
 
-        print self.stats_header
-        for i in range(len(self.box_lims)):
-            stats = {'mean': self.mean[i], 
-                     'mass': self.mass[i], 
-                     'coverage': self.coverage[i], 
-                     'density': self.density[i], 
-                     'restricted_dim': self.res_dim[i]}            
+    def _calculate_quasi_p(self, i):
+        '''helper function for calculating quasi-p values as discussed in 
+        Bryant and Lempert (2010). This is in essence a one sided 
+        binominal test. 
+        
+        :param i: the specific box in the peeling trajectory for which the 
+                  quasi-p values are to be calculated
+        
+        '''
+        
+        box_lim = self.box_lims[i]
+        restricted_dims = list(self.prim.determine_restricted_dims(box_lim))
+        
+        # total nr. of cases in box
+        Tbox = self.peeling_trajectory['mass'][i] * self.prim.n 
+        
+        # total nr. of cases of interest in box
+        Hbox = self.peeling_trajectory['coverage'][i] * self.prim.t_coi  
+        
+        qp_values = {}
+        
+        for u in restricted_dims:
+            temp_box = copy.deepcopy(box_lim)
+            temp_box[u] = self.box_lims[0][u]
+        
+            indices = _in_box(self.prim.x[self.prim.yi_remaining], temp_box)
+            indices = self.prim.yi_remaining[indices]
             
-            row = self._format_stats(i, stats)
-            print row
+            # total nr. of cases in box with one restriction removed
+            Tj = indices.shape[0]  
+            
+            # total nr. of cases of interest in box with one restriction 
+            # removed
+            Hj = np.sum(self.prim.y[indices])
+            
+            p = Hj/Tj
+            
+            Hbox = int(Hbox)
+            Tbox = int(Tbox)
+            
+            qp = binom.sf(Hbox-1, Tbox, p)
+            qp_values[u] = qp
+            
+        return qp_values
 
     def _format_stats(self, nr, stats):
+        '''helper function for formating box stats'''
         row = self.stats_format.format(nr,**stats)
         return row
-
 
 class PrimException(Exception):
     pass
 
-
 class Prim(object):
-
-    # parameters that control the mquantile calculation used
-    # in peeling and pasting
-    alpha = 1/3
-    beta = 1/3
-    
-    message = "{0} point remaining, containing {1} cases of interest"
+    message = "{0} points remaining, containing {1} cases of interest"
     
     def __init__(self, 
                  results,
@@ -304,11 +622,10 @@ class Prim(object):
         '''
         assert threshold!=None
         if not incl_unc:
-            self.x = results[0]
+            self.x = np.ma.array(results[0])
         else:
             drop_names = set(recfunctions.get_names(results[0].dtype))-set(incl_unc)
             self.x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)
-
         if type(classify)==StringType:
             self.y = results[1][classify]
         elif callable(classify):
@@ -443,6 +760,10 @@ class Prim(object):
         # set the indices
         self._update_yi_remaining()
         
+        # make boxes already found immutable 
+        for box in self.boxes:
+            box._frozen = True
+        
         if self.yi_remaining.shape[0] == 0:
             info("no data remaining")
             return
@@ -463,19 +784,19 @@ class Prim(object):
         debug("pasting completed")
         
         message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
-        message = message.format(box.mean[-1],
-                                 box.mass[-1],
-                                 box.coverage[-1],
-                                 box.density[-1],
-                                 box.res_dim[-1])
+        message = message.format(box.mean,
+                                 box.mass,
+                                 box.coverage,
+                                 box.density,
+                                 box.res_dim)
 
         if (self.threshold_type==ABOVE) &\
-           (box.mean[-1] >= self.threshold):
+           (box.mean >= self.threshold):
             info(message)
             self.boxes.append(box)
             return box
         elif (self.threshold_type==BELOW) &\
-           (box.mean[-1] <= self.threshold):
+           (box.mean <= self.threshold):
             info(message)
             self.boxes.append(box)
             return box
@@ -497,43 +818,7 @@ class Prim(object):
                         (a[name][0] == b[name][0]) &\
                         (a[name][1] == b[name][1])
         return logical
-    
-    def in_box(self, box):
-        '''
-         
-        returns the indices of the remaining data points that are within the 
-        box_lims.
-        
-        '''
-        x = self.x[self.yi_remaining]
-        logical = np.ones(x.shape[0], dtype=np.bool)
-        res_dim = self.determine_restricted_dims(box)
-    
-        for name in res_dim:
-            value = x.dtype.fields.get(name)[0]
-            
-            if value == 'object':
-                entries = box[name][0]
-                l = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
-                for i,entry in enumerate(entries):
-                    if type(list(entries)[0]) not in (StringType, FloatType, IntType):
-                        bools = []                
-                        for element in list(x[name]):
-                            if element == entry:
-                                bools.append(True)
-                            else:
-                                bools.append(False)
-                        l[:, i] = np.asarray(bools, dtype=bool)
-                    else:
-                        l[:, i] = x[name] == entry
-                l = np.any(l, axis=1)
-                logical = logical & l
-            else:
-                logical = logical & (box[name][0] <= x[name] )&\
-                                        (x[name] <= box[name][1])                
-        
-        return self.yi_remaining[logical]
-   
+ 
     def determine_coi(self, indices):
         '''
         
@@ -586,21 +871,33 @@ class Prim(object):
         return dims
     
     def make_box(self, x):
+        '''
+        Make a box that encompasses all the data
+        
+        :param x: a structured array
+        
+        '''
+        
         box = np.zeros((2, ), x.dtype)
-        for entry in x.dtype.descr:
-            name = entry[0]
-            value = x.dtype.fields.get(entry[0])[0] 
-            if value == 'object':
-                box[name][:] = set(x[name])
+        
+        names = recfunctions.get_names(x.dtype)
+        
+        for name in names:
+            dtype = x.dtype.fields.get(name)[0] 
+            values = x[name]
+            
+            if dtype == 'object':
+                try:
+                    values = set(values) - set([np.ma.masked])
+                    box[name][:] = values
+                except TypeError as e:
+                    ema_logging.warning("{} has unhashable values".format(name))
+                    raise e
             else:
-                box[name][0] = np.min(x[name], axis=0) 
-                box[name][1] = np.max(x[name], axis=0)    
+                box[name][0] = np.min(values, axis=0) 
+                box[name][1] = np.max(values, axis=0)    
         return box  
-    
-#    def _getattr_(self, name):
-#        # TODO intercept gets on self.yi_remaining, call an update prior
-#        # to returning the value
-   
+ 
     def write_boxes_to_stdout(self):
         '''
         
@@ -612,7 +909,6 @@ class Prim(object):
         '''
       
         print self.boxes[0].stats_header
-        i = -1
         
         boxes = self.boxes[:]
         if not np.all(self.compare(boxes[-1].box_lims[-1], self.box_init)):
@@ -625,18 +921,17 @@ class Prim(object):
             if nr == len(boxes):
                 nr = 'rest'
             
-            stats = {'mean': box.mean[i], 
-                    'mass': box.mass[i], 
-                    'coverage': box.coverage[i], 
-                    'density': box.density[i], 
-                    'restricted_dim': box.res_dim[i]}
+            stats = {'mean': box.mean, 
+                    'mass': box.mass, 
+                    'coverage': box.coverage, 
+                    'density': box.density, 
+                    'restricted_dim': box.res_dim}
             print box._format_stats(nr, stats)   
 
         print "\n"
         _write_boxes_to_stdout(*self._get_sorted_box_lims())
 
         
-    
     def show_boxes(self, together=True):
         '''
         
@@ -716,7 +1011,7 @@ class Prim(object):
                     COLOR_LIST[j])
    
     def _get_sorted_box_lims(self):
-
+        
         # determine the uncertainties that are being restricted
         # in one or more boxes
         unc = set()
@@ -766,37 +1061,27 @@ class Prim(object):
         Update yi_remaining in light of the state of the boxes associated
         with this prim instance.
         
-        
         '''
         
         # set the indices
-        yi_remaining = self.yi
-        
-        logical = yi_remaining == yi_remaining
+        logical = np.ones(self.yi.shape[0],dtype=np.bool )
         for box in self.boxes:
             logical[box.yi] = False
-        self.yi_remaining = yi_remaining[logical]
+        self.yi_remaining = self.yi[logical]
     
     def _peel(self, box):
         '''
         
         Executes the peeling phase of the PRIM algorithm. Delegates peeling
         to data type specific helper methods.
-        
-        '''
-        
-        '''
-        Peeling stage of PRIM 
 
         :param box: box limits
-        
         
         '''
     
         mass_old = box.yi.shape[0]/self.n
 
         x = self.x[box.yi]
-        y = self.y[box.yi]
        
         #identify all possible peels
         possible_peels = []
@@ -857,8 +1142,7 @@ class Prim(object):
                     peel_alpha = 1-self.peel_alpha
                     i=1
                 
-                box_peel = mquantiles(x[u], [peel_alpha], alphap=self.alpha, 
-                                      betap=self.beta)[0]
+                box_peel = get_quantile(x[u], peel_alpha)
                 if direction=='lower':
                     logical = x[u] >= box_peel
                     indices = box.yi[logical]
@@ -894,8 +1178,7 @@ class Prim(object):
                 peel_alpha = 1-self.peel_alpha
                 i=1
             
-            box_peel = mquantiles(x[u], [peel_alpha], alphap=self.alpha, 
-                                  betap=self.beta)[0]
+            box_peel = get_quantile(x[u], peel_alpha)
             box_peel = int(box_peel)
 
             # determine logical associated with peel value            
@@ -944,7 +1227,6 @@ class Prim(object):
         :param u: the uncertainty for which to peel
         :returns: box lims and the associated indices
         
-        
         '''
         entries = box.box_lims[-1][u][0]
         
@@ -973,7 +1255,6 @@ class Prim(object):
             # no peels possible, return empty list
             return []
 
-
     def _paste(self, box):
         '''
         
@@ -984,7 +1265,6 @@ class Prim(object):
         '''
         
         x = self.x[self.yi_remaining]
-        y = self.y[self.yi_remaining]
         
         mass_old = box.yi.shape[0]/self.n
         
@@ -992,6 +1272,7 @@ class Prim(object):
         
         possible_pastes = []
         for u in res_dim:
+            debug("pasting "+u)
             dtype = self.x.dtype.fields.get(u)[0].name
             pastes = self._pastes[dtype](self, box, u)
             [possible_pastes.append(entry) for entry in pastes] 
@@ -1013,11 +1294,14 @@ class Prim(object):
         scores.sort(key=itemgetter(0,1), reverse=True)
         entry = scores[0]
         box_new, indices = entry[2:]
-        
         mass_new = self.y[indices].shape[0]/self.n
         
+        mean_old = np.mean(self.y[box.yi])
+        mean_new = np.mean(self.y[indices])
+        
         if (mass_new >= self.mass_min) &\
-           (mass_new > mass_old):
+           (mass_new > mass_old) &\
+           (mean_old <= mean_new):
             box.update(box_new, indices)
             return self._paste(box)
         else:
@@ -1036,104 +1320,50 @@ class Prim(object):
        
         '''
 
-        box_diff = self.box_init[u][1]-self.box_init[u][0]
-        pa = self.paste_alpha * box.yi.shape[0]
-    
         pastes = []
-        for direction in ['upper', 'lower']:
+        for i, direction in enumerate(['lower', 'upper']):
             box_paste = np.copy(box.box_lims[-1])
-            test_box = np.copy(box.box_lims[-1])
+            paste_box = np.copy(box.box_lims[-1]) # box containing data candidate for pasting
             
-            if direction == 'lower':
-                i = 0
-                box_diff = -1*box_diff
-                test_box[u][1] = test_box[u][i]
-                test_box[u][i] = self.box_init[u][i]
-                indices = self.in_box(test_box)
-                data = self.x[indices][u]
+            if direction == 'upper':
+                paste_box[u][0] = paste_box[u][1]
+                paste_box[u][1] = self.box_init[u][1]
+                indices = _in_box(self.x[self.yi_remaining], paste_box)
+                data = self.x[self.yi_remaining][indices][u]
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
-                    b = (data.shape[0]-pa)/data.shape[0]
-                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
-                                             betap=self.beta)[0]
-                
+                    paste_value = get_quantile(data, self.paste_alpha)
                     
-            elif direction == 'upper':
-                i = 1
-                test_box[u][0] = test_box[u][i]
-                test_box[u][i] = self.box_init[u][i]
-                indices = self.in_box(test_box)
-                data = self.x[indices][u]
+                assert paste_value >= box.box_lims[-1][u][i]
+                    
+            elif direction == 'lower':
+                paste_box[u][0] = self.box_init[u][0]
+                paste_box[u][1] = box_paste[u][0]
+                
+                indices = _in_box(self.x[self.yi_remaining], paste_box)
+                data = self.x[self.yi_remaining][indices][u]
                 
                 paste_value = self.box_init[u][i]
                 if data.shape[0] > 0:
-                    b = (pa)/data.shape[0]
-                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
-                                             betap=self.beta)[0]
+                    paste_value = get_quantile(data, 1-self.paste_alpha)
            
+                if not paste_value <= box.box_lims[-1][u][i]:
+                    print paste_value, box.box_lims[-1][u][i]
+            
+            
+            dtype = box_paste.dtype.fields[u][0]
+            if dtype==np.int32:
+                paste_value = np.int(paste_value)
+            
             box_paste[u][i] = paste_value
-            indices = self.in_box(box_paste)
+            indices = _in_box(self.x[self.yi_remaining], box_paste)
+            indices = self.yi_remaining[indices]
             
             pastes.append((indices, box_paste))
     
         return pastes        
-    
-    def _discrete_paste(self, box, u):
-        '''
-        
-        returns two candidate new boxes, pasted along upper and lower 
-        dimension
-        
-        :param box: a PrimBox instance
-        :param u: the uncertainty for which to paste
-        :returns: two box lims and the associated indices
-       
-        '''        
-        box_diff = self.box_init[u][1]-self.box_init[u][0]
-        pa = self.paste_alpha * box.yi.shape[0]
-    
-        pastes = []
-        for direction in ['upper', 'lower']:
-            box_paste = np.copy(box.box_lims[-1])
-            test_box = np.copy(box.box_lims[-1])
             
-            if direction == 'lower':
-                i = 0
-                box_diff = -1*box_diff
-                test_box[u][1] = test_box[u][i]
-                test_box[u][i] = self.box_init[u][i]
-                indices = self.in_box(test_box)
-                data = self.x[indices][u]
-                
-                paste_value = self.box_init[u][i]
-                if data.shape[0] > 0:
-                    b = (data.shape[0]-pa)/data.shape[0]
-                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
-                                             betap=self.beta)[0]
-                
-                    
-            elif direction == 'upper':
-                i = 1
-                test_box[u][0] = test_box[u][i]
-                test_box[u][i] = self.box_init[u][i]
-                indices = self.in_box(test_box)
-                data = self.x[indices][u]
-                
-                paste_value = self.box_init[u][i]
-                if data.shape[0] > 0:
-                    b = (pa)/data.shape[0]
-                    paste_value = mquantiles(data, [b], alphap=self.alpha, 
-                                             betap=self.beta)[0]
-           
-            box_paste[u][i] = int(paste_value)
-            indices = self.in_box(box_paste)
-            
-            pastes.append((indices, box_paste))
-    
-        return pastes    
-        
-    
     def _categorical_paste(self, box, u):
         '''
         
@@ -1159,18 +1389,19 @@ class Prim(object):
                 paste = copy.deepcopy(c_in_b)
                 paste.add(entry)
                 box_paste[u][:] = paste
-                indices = self.in_box(box_paste)
+                indices = _in_box(self.x[self.yi_remaining], box_paste)
                 pastes.append((indices, box_paste))
             return pastes
         else:
             # no pastes possible, return empty list
             return []
     
-    def _def_obj_func(self, y_old, y_new):
+    def _default_obj_func(self, y_old, y_new):
         r'''
         the default objective function used by prim, instead of the original
-        objective function, this function can cope with continuous, integer, 
-        and categorical uncertainties.      
+        objective function, This function can cope with continuous, integer, 
+        and categorical uncertainties. The basic idea is that the gain in mean
+        is divided by the loss in mass. 
         
         .. math::
             
@@ -1190,14 +1421,29 @@ class Prim(object):
         
         '''
         mean_old = np.mean(y_old)
-        mean_new = np.mean(y_new)
+        
+        if y_new.shape[0]>0:
+            mean_new = np.mean(y_new)
+        else:
+            mean_new = 0
+            
         obj = 0
         if mean_old != mean_new:
-            if y_old.shape[0] >= y_new.shape[0]:
+            if y_old.shape[0] > y_new.shape[0]:
                 obj = (mean_new-mean_old)/(y_old.shape[0]-y_new.shape[0])
-            else:
+            elif y_old.shape[0] < y_new.shape[0]:
                 obj = (mean_new-mean_old)/(y_new.shape[0]-y_old.shape[0])
+            else:
+                raise PrimException("mean is different, while shape is same, cannot be")
         return obj
+    
+    def _original_obj_fund(self, y_old, y_new):
+        ''' The original objective function: the mean of the data inside the box'''
+        
+        if y_new.shape[0]>0:
+            return np.mean(y_new)
+        else:
+            return -1    
 
     def _assert_dtypes(self, keys, dtypes):
         '''
@@ -1269,8 +1515,9 @@ class Prim(object):
                'float64': _real_peel}
 
     _pastes = {'object': _categorical_paste,
-               'int32': _discrete_paste,
+               'int32': _real_paste,
                'float64': _real_paste}
 
     # dict with the various objective functions available
-    _obj_functions = {DEFAULT : _def_obj_func}    
+    _obj_functions = {DEFAULT : _default_obj_func,
+                      ORIGINAL: _original_obj_fund}    

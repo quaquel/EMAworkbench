@@ -653,6 +653,7 @@ class ModelEnsemble(object):
 
         return algorithm.stats_callback, pop        
 
+
 def experiment_generator_predef_cases(designs, model_structures, policies):
     '''
     
