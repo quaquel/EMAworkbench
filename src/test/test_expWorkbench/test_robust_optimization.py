@@ -17,7 +17,7 @@ from expWorkbench.ema_exceptions import CaseError
 from expWorkbench import ModelEnsemble, MAXIMIZE, save_optimization_results
 
 class EnergyTrans(VensimModelStructureInterface):
-    modelFile = r'\CESUN_optimized_new.vpm'
+    model_file = r'\CESUN_optimized_new.vpm'
     
     #outcomes    
     outcomes = [Outcome('total fraction new technologies' , time=True),  
@@ -158,9 +158,9 @@ class EnergyTrans(VensimModelStructureInterface):
             vensim.set_value(key, value)
         ema_logging.debug("model parameters set successfully")
         
-        ema_logging.debug("run simulation, results stored in " + self.workingDirectory+self.resultFile)
+        ema_logging.debug("run simulation, results stored in " + self.working_directory+self.result_file)
         try:
-            vensim.run_simulation(self.workingDirectory+self.resultFile)
+            vensim.run_simulation(self.working_directory+self.result_file)
         except VensimError:
             raise
 
@@ -168,13 +168,13 @@ class EnergyTrans(VensimModelStructureInterface):
         error = False
         for output in self.outcomes:
             ema_logging.debug("getting data for %s" %output.name)
-            result = vensim.get_data(self.workingDirectory+self.resultFile, 
+            result = vensim.get_data(self.working_directory+self.result_file, 
                               output.name 
                               )
             ema_logging.debug("successfully retrieved data for %s" %output.name)
             if not result == []:
-                if result.shape[0] != self.runLength:
-                    a = np.zeros((self.runLength))
+                if result.shape[0] != self.run_length:
+                    a = np.zeros((self.run_length))
                     a[0:result.shape[0]] = result
                     result = a
                     error = True
@@ -217,19 +217,20 @@ if __name__ == "__main__":
     ensemble.set_model_structure(model)
     ensemble.parallel = True
     
-    policy_levers = {'Trigger subsidy T2': {'type':'range', 'values':(0,1)},
-                   'Trigger subsidy T3': {'type':'range', 'values':(0,1)},
-                   'Trigger subsidy T4': {'type':'range', 'values':(0,1)},
+    policy_levers = {'Trigger subsidy T2': {'type':'range float', 'values':(0,1)},
+                   'Trigger subsidy T3': {'type':'range float', 'values':(0,1)},
+                   'Trigger subsidy T4': {'type':'range float', 'values':(0,1)},
                    'Trigger addnewcom': {'type':'list', 'values':[0, 0.25, 0.5, 0.75, 1]}}
     
-    stats_callback, pop   = ensemble.perform_robust_optimization(cases=10,
+    stats, pop   = ensemble.perform_robust_optimization(cases=10,
                                                reporting_interval=100,
                                                obj_function=obj_func,
                                                policy_levers=policy_levers,
                                                weights = (MAXIMIZE,),
-                                               nr_of_generations=100,
+                                               nr_of_generations=5,
                                                pop_size=10,
                                                crossover_rate=0.5, 
                                                mutation_rate=0.02
                                                )
-    save_optimization_results((stats_callback, pop), '../data/robust test.bz2')
+    fn = '../data/test optimization save.bz2'
+    save_optimization_results((stats,pop), fn)

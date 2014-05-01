@@ -26,7 +26,10 @@ import cStringIO
 import copy
 import os
 import time
-from multiprocessing import Queue, Process, cpu_count, current_process,\
+import Queue
+import multiprocessing
+
+from multiprocessing import Process, cpu_count, current_process,\
                             TimeoutError
 from multiprocessing.util import Finalize
 
@@ -50,7 +53,6 @@ def worker(inqueue,
     debug("worker started")
     
     put = outqueue.put
-    get = inqueue.get
     if hasattr(inqueue, '_writer'):
         inqueue._writer.close()
         outqueue._reader.close()
@@ -65,7 +67,7 @@ def worker(inqueue,
 
     while 1:
         try:
-            task = get()
+            task = inqueue.get()
         except (EOFError, IOError):
             debug('worker got EOFError or IOError -- exiting')
             break
@@ -74,9 +76,10 @@ def worker(inqueue,
             cleanup(model_interfaces)
             break
 
-        job, i, experiment = task
+        job, experiment = task
         
         policy = experiment.pop('policy')
+        debug("running policy {} for experiment {}".format(policy['name'], job))
         msi = experiment.pop('model')
         
         # check whether we already initialized the model for this 
@@ -84,17 +87,18 @@ def worker(inqueue,
         if not msi_initialization_dict.has_key((policy['name'], msi)):
             try:
                 debug("invoking model init")
-                msis[msi].model_init(copy.deepcopy(policy), copy.deepcopy(model_kwargs))
+                msis[msi].model_init(copy.deepcopy(policy), 
+                                     copy.deepcopy(model_kwargs))
             except (EMAError, NotImplementedError) as inst:
                 exception(inst)
                 cleanup(model_interfaces)
                 result = (False, inst)
-                put((job, i, result))
+                put((job, result))
             except Exception:
                 exception("some exception occurred when invoking the init")
                 cleanup(model_interfaces)
                 result = (False, EMAParallelError("failure to initialize"))
-                put((job, i, result))
+                put((job, result))
                 
             debug("initialized model %s with policy %s" % (msi, policy['name']))
             
@@ -116,7 +120,7 @@ def worker(inqueue,
         msi.reset_model()
         
         debug("trying to reset model")
-        put((job, i, result))
+        put((job, result))
             
 
 class CalculatorPool(Pool):
@@ -140,7 +144,7 @@ class CalculatorPool(Pool):
         '''
         
         self._setup_queues()
-        self._taskqueue = Queue(cpu_count()*2)
+        self._taskqueue = Queue.Queue(cpu_count()*2)
         self._cache = {}
         self._state = RUN
 
@@ -151,7 +155,7 @@ class CalculatorPool(Pool):
                 processes = 1
         info("nr of processes is "+str(processes))
 
-        self.log_queue = Queue()
+        self.log_queue = multiprocessing.Queue()
         h = NullHandler()
         logging.getLogger(ema_logging.LOGGER_NAME).addHandler(h)
         
@@ -162,7 +166,7 @@ class CalculatorPool(Pool):
 
         self._pool = []
         working_dirs = []
-        
+
         debug('generating workers')
         
         worker_root = None
@@ -279,21 +283,16 @@ class CalculatorPool(Pool):
     def _handle_tasks(taskqueue, put, outqueue, pool):
         thread = threading.current_thread()
 
-        for taskseq, set_length in iter(taskqueue.get, None):
-            i = -1
-            for i, task in enumerate(taskseq):
-                if thread._state:
-                    debug('task handler found thread._state != RUN')
-                    break
-                try:
-                    put(task)
-                except IOError:
-                    debug('could not put task on queue')
-                    break
+        for task in iter(taskqueue.get, None):
+            if thread._state:
+                debug('task handler found thread._state != RUN')
+                break
+            try:
+                put(task)
+            except IOError:
+                debug('could not put task on queue')
+                break
             else:
-                if set_length:
-                    debug('doing set_length()')
-                    set_length(i+1)
                 continue
             break
         else:
@@ -333,9 +332,9 @@ class CalculatorPool(Pool):
                 debug('result handler got sentinel')
                 break
 
-            job, i, obj = task
+            job, experiment = task
             try:
-                cache[job]._set(i, obj)
+                cache[job]._set(experiment)
             except KeyError:
                 pass
 
@@ -349,9 +348,9 @@ class CalculatorPool(Pool):
             if task is None:
                 debug('result handler ignoring extra sentinel')
                 continue
-            job, i, obj = task
+            job, obj = task
             try:
-                cache[job]._set(i, obj)
+                cache[job]._set(obj)
             except KeyError:
                 pass
 
@@ -375,7 +374,8 @@ class CalculatorPool(Pool):
 
     @staticmethod
     def _add_tasks(self, experiments, callback, event):
-        [self.apply_async(e, callback, event) for e in experiments]
+        for e in experiments:
+            self.apply_async(e, callback, event)
 
     def apply_async(self, experiment, callback, event):
         '''
@@ -383,7 +383,8 @@ class CalculatorPool(Pool):
         '''
         assert self._state == RUN
         result = EMAApplyResult(self._cache, callback, event)
-        self._taskqueue.put(([(result._job, None, experiment)], None))
+        self._taskqueue.put((result._job, copy.deepcopy(experiment)))
+        
 
     @classmethod
     def _terminate_pool(cls, 
@@ -396,8 +397,9 @@ class CalculatorPool(Pool):
                         cache, 
                         working_dirs,
                         ):
-
         info("terminating pool")
+        
+        
         
         # this is guaranteed to only be called once
         debug('finalizing pool')
@@ -442,6 +444,7 @@ class CalculatorPool(Pool):
 
 
 job_counter = itertools.count()
+
 class EMAApplyResult(object):
     '''
     a modified version of :class:`multiprocessing.ApplyResult`
@@ -484,7 +487,7 @@ class EMAApplyResult(object):
         else:
             raise self._value
 
-    def _set(self, i, obj):
+    def _set(self, obj):
         self._success, self._value = obj
         if self._callback and self._success:
             self._callback(*self._value)

@@ -25,7 +25,6 @@ from plotting_util import prepare_data, COLOR_LIST, simple_kde, group_density,\
                          PATCH, LINE, TIGHT, KDE
 #import plotting_util
 
-
 __all__ = ['lines', 'envelopes', 'kde_over_time', 'multiple_densities']
 
 TIME_LABEL = 'Time'
