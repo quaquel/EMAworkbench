@@ -239,7 +239,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
             if savePer > 0:
                 timeStep = savePer
             
-            self.runLength = int((finalTime - initialTime)/timeStep +1)
+            self.run_length = int((finalTime - initialTime)/timeStep +1)
         except VensimWarning:
             raise EMAWarning(str(VensimWarning))
     
@@ -292,9 +292,9 @@ class VensimModelStructureInterface(ModelStructureInterface):
                               )
             debug("successfully retrieved data for %s" %output.name)
             if not result == []:
-                if result.shape[0] != self.runLength:
+                if result.shape[0] != self.run_length:
                     got = result.shape[0]
-                    data = np.empty((self.runLength))
+                    data = np.empty((self.run_length))
                     data[:] = np.NAN
                     data[0:result.shape[0]] = result
                     result = data
@@ -312,7 +312,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
         self.output = results   
         if error:
             raise CaseError("run not completed, got %s, expected %s" %
-                            (got, self.runLength), case)  
+                            (got, self.run_length), case)  
    
     def reset_model(self):
         """

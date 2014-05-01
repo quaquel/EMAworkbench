@@ -7,254 +7,278 @@ an optimization.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
+from __future__ import division
 import numpy as np
 import random 
+import copy
 
 from deap.tools import HallOfFame, isDominated
+from ema_optimization_util import compare, mut_polynomial_bounded,\
+                                  mut_uniform_int,\
+                                  select_tournament_dominance_crowding
+from deap import base
+from deap import creator
+from deap import tools
 
 from expWorkbench import ema_logging
+from expWorkbench import debug
 
-__all__ = ["mut_polynomial_bounded",
-           "NSGA2StatisticsCallback",
-           "generate_individual_outcome",
-           "generate_individual_robust",
-           "evaluate_population_outcome",
-           "evaluate_population_robust",
-           "closest_multiple_of_four"
+import abc
+from expWorkbench.ema_exceptions import EMAError
+
+__all__ = ["NSGA2StatisticsCallback",
+           "NSGA2",
+           "epsNSGA2",
            ]
 
-#create a correct way of initializing the individual
-def generate_individual_outcome(icls, attr_list, keys):
-    '''
-    Helper function for generating an individual in case of outcome 
-    optimization
+class AbstractOptimizationAlgorithm(object):
     
-    :param icls: class of the individual
-    :param attr_list: list of initializers for each attribute
-    :param keys: the name of each attribute
-    :returns: an instantiated individual
+    __metaclass__ = abc.ABCMeta
     
-    '''
-    ind = icls()
-    for key, attr in zip(sorted(keys), attr_list):
-        ind[key] = attr()
-    return ind
-
-#create a correct way of initializing the individual
-def generate_individual_robust(icls, attr_list, keys):
-    '''
-    Helper function for generating an individual in case of robust optimization
+    def __init__(self, evaluate_population, generate_individual, 
+                 levers, reporting_interval, obj_function,
+                 ensemble, crossover_rate, mutation_rate, weights,
+                 pop_size):
+        self.evaluate_population = evaluate_population
+        self.levers = levers
+        self.reporting_interval = reporting_interval
+        self.ensemble = ensemble
+        self.crossover_rate = crossover_rate 
+        self.mutation_rate = mutation_rate 
+        self.weights = weights
+        self.obj_function = obj_function
+        self.pop_size = pop_size
+        
+        #create a class for the individual
+        creator.create("Fitness", base.Fitness, weights=self.weights)
+        creator.create("Individual", dict, 
+                       fitness=creator.Fitness) #@UndefinedVariable
+        self.toolbox = base.Toolbox()
+        self.levers = levers
     
-    :param icls: class of the individual
-    :param attr_list: list of initializers for each attribute
-    :param keys: the name of each attribute
-    :returns: an instantiated individual
-    
-    '''
-    ind = generate_individual_outcome(icls, attr_list, keys)
-    ind['name'] = make_name(ind) 
-    return ind
-
-def make_name(ind):
-    keys  = sorted(ind.keys())
-    try:
-        keys.pop(keys.index('name'))
-    except ValueError:
-        ema_logging.debug("value error in make name, field 'name' not in list")
-    
-    name = ""
-    for key in keys:
-        name += " "+str(ind[key])
-    return name
-    
-
-def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **kwargs):
-    '''
-    Helper function for evaluating a population in case of robust optimization
-    
-    :param population: the population to evaluate
-    :param ri: reporinting interval
-    :param toolbox: deap toolbox instance
-    :param ensemble: the ensemble instance running the optimization
-    :param cases: the cases to use in the robust optimization
-    
-    '''
-    ensemble._policies = [dict(member) for member in population]
-    experiments, outcomes = ensemble.perform_experiments(cases,
-                                                reporting_interval=ri, 
-                                                **kwargs)
-    
-    for member in population:
-        member_outcomes = {}
-        for key, value in outcomes.items():
-            logical = experiments["policy"] == member["name"]
-            member_outcomes[key] = value[logical]
+        self.attr_list = []
+        self.lever_names = []
+        for key, value in levers.iteritems():
+            lever_type = value['type']
+            values = value['values']
             
-        member.fitness.values = toolbox.evaluate(member_outcomes)
+            if lever_type=='list':
+                self.toolbox.register(key, random.choice, values)
+            else:
+                if lever_type == 'range int':
+                    self.toolbox.register(key, random.randint, 
+                                          values[0], values[1])
+                elif lever_type == 'range float':
+                    self.toolbox.register(key, random.uniform, 
+                                          values[0], values[1])
+                else:
+                    raise EMAError("unknown allele type: possible types are range and list")
 
-def evaluate_population_outcome(population, ri, toolbox, ensemble):
-    '''
-    Helper function for evaluating a population in case of outcome optimization
-    
-    :param population: the population to evaluate
-    :param ri: reporting interval
-    :param toolbox: deap toolbox instance
-    :param ensemble: the ensemble instance running the optimization
-    
-    '''
-    
-    cases = [dict(member) for member in population]
-    experiments, outcomes = ensemble.perform_experiments(cases,
-                                                reporting_interval=ri)
+            self.attr_list.append(getattr(self.toolbox, key))
+            self.lever_names.append(key)
 
-    # TODO:: model en policy moeten er wel in blijven, 
-    # dit stelt je in staat om ook over policy en models heen te kijken
-    # naar wat het optimimum is. Dus je moet aan experiments
-    # standaard alle models en alle policies toevoegen en dan pas 
-    # je index opvragen
-    # Dit levert wel 2 extra geneste loops op... 
-    ordering = [entry[0] for entry in experiments.dtype.descr]
-    #dit zou in de listexpresion via filter moeten kunnen
-    ordering.pop(ordering.index('model')) 
-    #dit zou in de listexpresion via filter moeten kunnen
-    ordering.pop(ordering.index('policy')) 
+        # Structure initializers
+        self.toolbox.register("individual", 
+                         generate_individual, 
+                         creator.Individual, #@UndefinedVariable
+                         self.attr_list, keys=self.lever_names) 
+        self.toolbox.register("population", tools.initRepeat, list, 
+                         self.toolbox.individual)
     
-    indices = {}
-    for i in range(experiments.shape[0]):
-        experiment = experiments[i]
-        experiment = [experiment[unc] for unc in ordering]
-        experiment = tuple(experiment)
+        # Operator registering
+        self.toolbox.register("evaluate", self.obj_function)
         
-        indices[experiment] = i
+        self.get_population = self._first_get_population
+        self.called = 0
     
-    for member in population:
-        a = tuple([member[entry] for entry in ordering])
-        associated_index = indices[a]
+    @abc.abstractmethod
+    def _first_get_population(self):
+        pass
+
+    @abc.abstractmethod
+    def _get_population(self):
+        pass
+
+class NSGA2(AbstractOptimizationAlgorithm):
+    tournament_size = 2
+    
+    
+    def __init__(self, weights, levers, generate_individual, obj_function,
+                 pop_size, evaluate_population, nr_of_generations, 
+                 crossover_rate,mutation_rate, reporting_interval,
+                 ensemble):
+        super(NSGA2, self).__init__(evaluate_population, generate_individual, 
+                 levers, reporting_interval, obj_function,
+                 ensemble, crossover_rate, mutation_rate, weights,
+                 pop_size)
+        self.archive = ParetoFront(similar=compare)
+        self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
         
-        member_outcomes = {}
-        for key, value in outcomes.items():
-            member_outcomes[key] = value[associated_index, :]
+        self.toolbox.register("crossover", tools.cxOnePoint)
+        self.toolbox.register("mutate", mut_polynomial_bounded)
+        self.toolbox.register("select", tools.selNSGA2)
+
+    def _first_get_population(self):
+        debug("Start of evolution")
+        
+        self.pop = self.toolbox.population(self.pop_size)
+        
+        # Evaluate the entire population
+        self.evaluate_population(self.pop, self.reporting_interval, self.toolbox, 
+                                 self.ensemble)
+
+        # This is just to assign the crowding distance to the individuals
+        tools.assignCrowdingDist(self.pop)        
+
+        self.stats_callback(self.pop)
+        self.stats_callback.log_stats(self.called)
+        self.get_population = self._get_population
+    
+    def _get_population(self):
+        self.called +=1
+        pop_size = len(self.pop)
+        a = self.pop[0:len(self.pop)]
+        
+        offspring = select_tournament_dominance_crowding(a, len(self.pop), self.tournament_size)
+        offspring = [self.toolbox.clone(ind) for ind in offspring]
+        
+        no_name=False
+        for child1, child2 in zip(offspring[::2], offspring[1::2]):
+            # Apply crossover 
+            if random.random() < self.crossover_rate:
+                keys = sorted(child1.keys())
+                
+                try:
+                    keys.pop(keys.index("name"))
+                except ValueError:
+                    no_name = True
+                
+                child1_temp = [child1[key] for key in keys]
+                child2_temp = [child2[key] for key in keys]
+                self.toolbox.crossover(child1_temp, child2_temp)
+
+                if not no_name:
+                    for child, child_temp in zip((child1, child2), 
+                                             (child1_temp,child2_temp)):
+                        name = ""
+                        for key, value in zip(keys, child_temp):
+                            child[key] = value
+                            name += " "+str(child[key])
+                        child['name'] = name 
+                else:
+                    for child, child_temp in zip((child1, child2), 
+                                             (child1_temp,child2_temp)):
+                        for key, value in zip(keys, child_temp):
+                            child[key] = value
+                
+            #apply mutation
+            self.toolbox.mutate(child1, self.mutation_rate, self.levers, self.lever_names, 0.05)
+            self.toolbox.mutate(child2, self.mutation_rate, self.levers, self.lever_names, 0.05)
             
-        member.fitness.values = toolbox.evaluate(member_outcomes)
+            del child1.fitness.values
+            del child2.fitness.values
+       
+        # Evaluate the individuals with an invalid fitness
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        self.evaluate_population(invalid_ind, self.reporting_interval, self.toolbox, 
+                                 self.ensemble)
 
-def mut_polynomial_bounded(individual, eta, policy_levers, keys, indpb):
-    """Polynomial mutation as implemented in original NSGA-II algorithm in
-    C by Deb. Modified to cope with categories, next to continuous variables. 
-    
-    :param individual: Individual to be mutated.
-    :param eta: Crowding degree of the mutation. A high eta will produce
-                a mutant resembling its parent, while a small eta will
-                produce a solution much more different.
-    :param policy_levers:
-    :param keys:
-    :returns: A tuple of one individual.
-    """
+        # Select the next generation population
+        self.pop = self.toolbox.select(self.pop + offspring, pop_size)
+        self.stats_callback(self.pop)
+        self.stats_callback.log_stats(self.called)
+        return self.pop
+
+class epsNSGA2(NSGA2):
+    message = "reset population: pop size: {}; archive: {}; tournament size: {}"
+
+
+    def __init__(self, weights, levers, generate_individual, obj_function,
+                 pop_size, evaluate_population, nr_of_generations, 
+                 crossover_rate,mutation_rate, reporting_interval,
+                 ensemble, eps, selection_pressure = 0.02):
+        super(epsNSGA2, self).__init__(weights, levers, generate_individual, obj_function,
+                 pop_size, evaluate_population, nr_of_generations, 
+                 crossover_rate,mutation_rate, reporting_interval,
+                 ensemble)
+        self.archive = EpsilonParetoFront(eps)
+        self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
+        self.selection_presure = selection_pressure
+        self.desired_labda = 4
         
-    for key in keys:
-        if random.random() <= indpb:
-            x = individual[key]
+        # nr. of iterations without epsilon progress after which a reset of the
+        # population is activated analogous to borg
+        self.time_window = 10 
+        self.last_eps_progress = 0
+    
+    def _rebuild_population(self):
+        desired_pop_size = self.desired_labda * len(self.archive.items)
+        self.pop_size = desired_pop_size
+        new_pop = [entry for entry in self.archive.items]
+        
+        while len(new_pop) < desired_pop_size:
+            rand_i = random.randint(0, len(self.archive.items)-1)
+            individual = self.archive.items[rand_i]
+            individual = copy.deepcopy(individual)
+            mut_uniform_int(individual, self.levers, self.lever_names)
+            
+            # add to new_pop
+            new_pop.append(individual)
+        
+        return new_pop
+    
+    
+    def _restart_required(self):
 
-            type_allele = policy_levers[key]['type'] 
-            value = policy_levers[key]["values"]
-            if type_allele=='range float':
-                xl = value[0]
-                xu = value[1]
-                delta_1 = (x - xl) / (xu - xl)
-                delta_2 = (xu - x) / (xu - xl)
-                rand = random.random()
-                mut_pow = 1.0 / (eta + 1.)
-    
-                if rand < 0.5:
-                    xy = 1.0 - delta_1
-                    val = 2.0 * rand + (1.0 - 2.0 * rand) * xy**(eta + 1)
-                    delta_q = val**mut_pow - 1.0
-                else:
-                    xy = 1.0 - delta_2
-                    val = 2.0 * (1.0 - rand) + 2.0 * (rand - 0.5) * xy**(eta + 1)
-                    delta_q = 1.0 - val**mut_pow
-    
-                x = x + delta_q * (xu - xl)
-                x = min(max(x, xl), xu)
-                
-                individual[key] = x
-            elif type_allele=='range int':
-                xl = value[0]
-                xu = value[1]
-                delta_1 = (x - xl) / (xu - xl)
-                delta_2 = (xu - x) / (xu - xl)
-                rand = random.random()
-                mut_pow = 1.0 / (eta + 1.)
-    
-                if rand < 0.5:
-                    xy = 1.0 - delta_1
-                    val = 2.0 * rand + (1.0 - 2.0 * rand) * xy**(eta + 1)
-                    delta_q = val**mut_pow - 1.0
-                else:
-                    xy = 1.0 - delta_2
-                    val = 2.0 * (1.0 - rand) + 2.0 * (rand - 0.5) * xy**(eta + 1)
-                    delta_q = 1.0 - val**mut_pow
-    
-                x = x + delta_q * (xu - xl)
-                x = min(max(x, xl), xu)
-                
-                individual[key] = int(round(x))
-                
-            elif type_allele=='list':
-                individual[key] = random.choice(value)
-    return individual,
+        # restart checks
+        # restart is due to either a 25% difference between the actual
+        # archive size or the desired archive size
+        archive_length = len(self.archive.items)
+        labda = self.pop_size/archive_length
+        condition1 = np.abs(1-(labda/self.desired_labda)) >= 0.25
 
-def compare(ind1, ind2):
-    '''
-    Helper function for comparing to individuals. Returns True if all fields
-    are the same, otherwise False.
-    
-    :param ind1: individual 1
-    :param ind2: individual 2
-    
-    '''
-    
-    for key in ind1.keys():
-        if ind1[key] != ind2[key]:
+        # or more than self.time_window generations since last epsilon
+        # progress
+        if (self.stats_callback.change[-1][-1]) > 0:
+            self.last_eps_progress = 0
+        else:
+            self.last_eps_progress +=1
+        condition2 = self.last_eps_progress >= self.time_window
+        
+        if condition1 or condition2:
+            return True
+        else:
             return False
 
-    return True
-
-def closest_multiple_of_four(number):
-    '''
-    Helper function for transforming the population size to the closest
-    multiple of four. Is necessary because of implementation issues of the 
-    NSGA2 algorithm in deap. 
-    
-    '''
-    
-    return number - number % 4
-
-
-class TriedSolutions():
-    '''
-    Helper class to keep track of all solution that have been tried. It is 
-    essentially a dict where the key is the individual. Given that individual
-    is unhashable, we use make_name to obtain a string representation of the 
-    individual. Currently, make_name only sorts the keys at the highest level
-    of the dict. Lover level dicts are not sorted, so their is no guarantee
-    that in such a situation the fact that two individuals are identical is
-    being detected.
-    '''
-    
-    tried_solutions = dict()
-    
-    def __getitem__(self, ind):
-        return self.tried_solutions[make_name(ind)]
-    
-    def __setitem__(self, ind, value):
-        self.tried_solutions[make_name(ind)] = value
+    def _get_population(self):
         
-    def values(self):
-        return self.tried_solutions.values()
-    
-    def keys(self):
-        return self.tried_solutions.keys()
+        if self._restart_required():
+            self.called +=1
+            self.last_eps_progress = 0
+            new_pop = self._rebuild_population()
         
+            # update selection pressure...
+            self.tournament_size = int(max(2,
+                                        self.selection_presure*self.pop_size))
+            ema_logging.info(self.message.format(self.pop_size,
+                                                 len(self.archive.items),
+                                                 self.tournament_size))
+
+            # Evaluate the individuals with an invalid fitness
+            self.evaluate_population(new_pop, self.reporting_interval, 
+                                     self.toolbox, self.ensemble)
+    
+            # Select the next generation population
+            self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)
+            self.stats_callback(self.pop)
+            self.stats_callback.log_stats(self.called)
+            
+            return self.pop
+        else:
+            return super(epsNSGA2, self)._get_population()
+            
+        
+
 
 class ParetoFront(HallOfFame):
     """The Pareto front hall of fame contains all the non-dominated individuals
@@ -298,6 +322,7 @@ class ParetoFront(HallOfFame):
             has_twin = False
             to_remove = []
             for i, hofer in enumerate(self):    # hofer = hall of famer
+
                 # replace with  np.any(nd.fitness.wvalues < hofer.fitness.wvalues)
                 
                 if isDominated(ind.fitness.wvalues, hofer.fitness.wvalues):
@@ -317,6 +342,124 @@ class ParetoFront(HallOfFame):
                 added+=1
         return added, removed
 
+class EpsilonParetoFront(HallOfFame):
+    """
+    
+    an implementation of epsilon non-dominated sorting as discussed in 
+    
+    Deb et al. (2005)
+    
+    """
+    def __init__(self, eps):
+        self.eps = eps
+        HallOfFame.__init__(self, None)
+        self.init = False
+
+    def dominates(self, option_a, option_b):
+        option_a = np.floor(option_a/self.eps)
+        option_b = np.floor(option_b/self.eps)
+        return np.any(option_a<option_b)
+    
+    def sort_individual(self, solution):
+        values = np.asarray(solution.fitness.values)
+        sol_values = np.asarray(solution.fitness.wvalues) 
+
+        # we assume minimization here for the time being
+        sol_values = -1 * sol_values
+        
+        i = -1
+        size = len(self.items) - 1
+        removed = 0
+        added = 0
+        e_progress = 0
+        same_box = False
+        while i < size:
+            i += 1
+            archived_solution = self[i]
+
+            # we assume minimization here for the time being
+            arc_sol_values = -1*np.asarray(archived_solution.fitness.wvalues)  
+    
+            a_dom_b = self.dominates(arc_sol_values, sol_values)
+            b_dom_a = self.dominates(sol_values, arc_sol_values)
+            if a_dom_b & b_dom_a:
+                # non domination between a and b
+                continue
+            if a_dom_b:
+                # a dominates b
+                return removed, added, e_progress
+            if b_dom_a:
+                # b dominates a
+                self.remove(i)
+                removed +=1
+                i -= 1
+                size -= 1
+                continue
+            if (not a_dom_b) & (not b_dom_a):
+                # same box, use solution closest to lower left corner
+                norm_sol_values = sol_values/self.eps
+                norm_arc_sol_values = arc_sol_values/self.eps
+                box_left_corner = np.floor(norm_sol_values)
+                d_solution = np.sum((norm_sol_values-box_left_corner)**2) 
+                d_archive = np.sum((norm_arc_sol_values-box_left_corner)**2)
+                
+                same_box = True
+                
+                if d_archive < d_solution:
+                    return removed, added, e_progress
+                else:
+                    self.remove(i)
+                    removed +=1
+                    i -= 1
+                    size -= 1
+                    continue
+        
+        # non dominated solution
+        self.insert(solution)
+        added +=1
+        if not same_box:
+            e_progress += 1
+        
+        return removed, added, e_progress
+    
+    def _init_update(self, population):
+        '''
+        only called in the first iteration, used for
+        determining normalization valuess
+        '''
+        values = []
+        for entry in population:
+            values.append(entry.fitness.wvalues)
+        values = np.asarray(values)
+        values = -1*values # we minimize
+        return self.update(population)
+    
+    def update(self, population):
+        """
+        
+        Update the epsilon Pareto front hall of fame with the *population* by adding 
+        the individuals from the population that are not dominated by the hall
+        of fame. If any individual in the hall of fame is dominated it is
+        removed.
+        
+        :param population: A list of individual with a fitness attribute to
+                           update the hall of fame with.
+        """
+        
+        if not self.init:
+            self.init=True
+            return self._init_update(population)
+        
+        added = 0
+        removed = 0
+        e_prog = 0
+        for ind in population:
+            ind_rem, ind_add, ind_e_prog = self.sort_individual(ind)
+            added += ind_add
+            removed += ind_rem    
+            e_prog += ind_e_prog        
+        return added, removed, e_prog
+
 class NSGA2StatisticsCallback(object):
     '''
     Helper class for tracking statistics about the progression of the 
@@ -324,44 +467,27 @@ class NSGA2StatisticsCallback(object):
     '''
     
     def __init__(self,
-                 weights=(),
-                 nr_of_generations=None,
-                 crossover_rate=None, 
-                 mutation_rate=None,
-                 pop_size=None,
-                 caching=False):
+                 algorithm=None):
         '''
         
-        :param weights: the weights on the outcomes
-        :param nr_of_generations: the number of generations
-        :param crossover_rate: the crossover rate
-        :param mutation_rate: the mutation rate
-        :param caching: parameter controling wether a list of tried solutions
-                        should be kept
-        
+        :param algorithm:
         
         '''
-        self.stats = []
-        if len(weights)>1:
-            self.hall_of_fame = ParetoFront(similar=compare)
-        else:
-            self.hall_of_fame = HallOfFame(pop_size)
-
-        if caching:            
-            self.tried_solutions = TriedSolutions() 
-        self.change = []
+        self.archive = algorithm.archive
         
-        self.weights = weights
-        self.nr_of_generations = nr_of_generations
-        self.crossover_rate = crossover_rate
-        self.mutation_rate=mutation_rate
-
+        self.weights = algorithm.weights
+        self.crossover_rate = algorithm.crossover_rate
+        self.mutation_rate = algorithm.mutation_rate
+        
         self.precision = "{0:.%if}" % 2
-    
-    
+        self.nr_of_generations = 0
+        self.stats = []
+        self.change = []
+
+
     def __get_hof_in_array(self):
         a = []
-        for entry in self.hall_of_fame:
+        for entry in self.archive:
             a.append(entry.fitness.values)
         return np.asarray(a)
     
@@ -388,19 +514,16 @@ class NSGA2StatisticsCallback(object):
         
         for name  in sorted(functions.keys()):
             function = functions[name]
-            kargs[name] = "[%s]" % ", ".join(map(self.precision.format, function(hof)))
+            kargs[name] = "[%s]" % ", ".join(map(self.precision.format, 
+                                                 function(hof)))
         line = line.format(**kargs)
         line = "generation %s: " %gen + line
         ema_logging.info(line)
 
     def __call__(self, population):
-        self.change.append(self.hall_of_fame.update(population))
+        scores = self.archive.update(population)
+        self.change.append(copy.deepcopy(scores))
+        self.nr_of_generations += 1
         
         for entry in population:
             self.stats.append(entry.fitness.values)
-
-        for entry in population:
-            try:
-                self.tried_solutions[entry] = entry
-            except AttributeError:
-                break

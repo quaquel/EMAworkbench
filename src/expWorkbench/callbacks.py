@@ -171,8 +171,6 @@ class DefaultCallback(AbstractCallback):
                     self.results[outcome] = np.empty(shape)
                     self.results[outcome][:] = np.NAN
                     self.results[outcome][self.i-1, ] = outcome_res
-
-        
     
     def __call__(self, case, policy, name, result ):
         '''
