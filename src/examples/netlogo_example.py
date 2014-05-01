@@ -47,7 +47,7 @@ if __name__ == "__main__":
     ensemble.parallel = True
     
     #perform experiments
-    results = ensemble.perform_experiments(100)
+    results = ensemble.perform_experiments(100, reporting_interval=1)
 
     plotting.lines(results, density=plotting_util.KDE)
     plt.show()
