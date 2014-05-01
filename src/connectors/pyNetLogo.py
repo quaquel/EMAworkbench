@@ -5,13 +5,15 @@ Created on 21 mrt. 2013
 '''
 import jpype
 import os
+import sys
 
-from expWorkbench import debug
+from expWorkbench import debug, info
 
 __all__ = ['NetLogoException',
            'NetLogoLink']
 
-NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.5'
+# NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.5'
+NETLOGO_HOME = r'/Applications/NetLogo 5.0.4'
 PYNETLOGO_HOME = os.path.dirname(os.path.abspath(__file__))
 
 class NetLogoException(Exception):
@@ -55,24 +57,30 @@ class NetLogoLink():
             # format jars in right format for starting java virtual machine
             # TODO the use of the jre here is only relevant under windows 
             # apparently
-            jars = ";".join(jars)
-            jarpath = '-Djava.class.path={}'.format(jars)
-            jvm_dll = NETLOGO_HOME + r'/jre/bin/client/jvm.dll'    
-            
-            cwd = os.getcwd()
-            os.chdir(NETLOGO_HOME)
+            # might be solveable by setting netlogo home user.dir
+#             jvm_dll = NETLOGO_HOME + r'/jre/bin/client/jvm.dll'    
+#             cwd = os.getcwd()
+#             os.chdir(NETLOGO_HOME)
 #             jpype.startJVM(jvm_dll, jarpath)
-            jpype.startJVM(jpype.getDefaultJVMPath(), jarpath)
-            os.chdir(cwd)
-            cwd = jpype.java.lang.System.getProperty("user.dir");
             
+            jars = ":".join(jars) 
+            jarpath = '-Djava.class.path={}'.format(jars)
+            jvm_handle = jpype.getDefaultJVMPath()            
+
+            jpype.startJVM(jvm_handle, jarpath)
+            jpype.java.lang.System.setProperty('user.dir', NETLOGO_HOME)
+            jpype.java.lang.System.setProperty("java.awt.headless", "true");            
             debug("jvm started")
         
-        gui = jpype.java.lang.Boolean(gui)
-        thd = jpype.java.lang.Boolean(thd)
-
         link = jpype.JClass('netlogoLink.NetLogoLink')
+        debug('NetLogoLink class found')
+
+        if sys.platform == 'darwin' and gui:
+            info('on mac only headless mode is supported')
+            gui=False
+        
         self.link = link(gui, thd)
+        debug('NetLogoLink class instantiated')
         
             
     def load_model(self, path):
