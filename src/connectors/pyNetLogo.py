@@ -7,13 +7,23 @@ import jpype
 import os
 import sys
 
-from expWorkbench import debug, info
+from expWorkbench import debug, info, warning
+from expWorkbench.ema_exceptions import EMAError
+
 
 __all__ = ['NetLogoException',
            'NetLogoLink']
 
-# NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.5'
-NETLOGO_HOME = r'/Applications/NetLogo 5.0.4'
+if sys.platform=='win32':
+    NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.4'
+    jar_separator = ";" # jars are separated by a ; on Windows
+elif sys.platform=='darwin':
+    jar_separator = ";" # jars are separated by a : on MacOS    
+    NETLOGO_HOME = r'/Applications/NetLogo 5.0.4'
+else:
+    # TODO should raise and exception which is subsequently cached and
+    # transformed into a a warning just like excel and vensim
+    warning('netlogo support not available')
 PYNETLOGO_HOME = os.path.dirname(os.path.abspath(__file__))
 
 class NetLogoException(Exception):
@@ -57,19 +67,17 @@ class NetLogoLink():
             # format jars in right format for starting java virtual machine
             # TODO the use of the jre here is only relevant under windows 
             # apparently
-            # might be solveable by setting netlogo home user.dir
-#             jvm_dll = NETLOGO_HOME + r'/jre/bin/client/jvm.dll'    
-#             cwd = os.getcwd()
-#             os.chdir(NETLOGO_HOME)
-#             jpype.startJVM(jvm_dll, jarpath)
-            
-            jars = ":".join(jars) 
-            jarpath = '-Djava.class.path={}'.format(jars)
-            jvm_handle = jpype.getDefaultJVMPath()            
+            # might be solvable by setting netlogo home user.dir
 
-            jpype.startJVM(jvm_handle, jarpath)
+            joined_jars = jar_separator.join(jars)
+            jarpath = '-Djava.class.path={}'.format(joined_jars)
+            jvm_handle = jpype.getDefaultJVMPath()  
+            jpype.startJVM(jvm_handle, jarpath)  
             jpype.java.lang.System.setProperty('user.dir', NETLOGO_HOME)
-            jpype.java.lang.System.setProperty("java.awt.headless", "true");            
+
+            if sys.platform=='darwin':
+                jpype.java.lang.System.setProperty("java.awt.headless", "true");            
+            
             debug("jvm started")
         
         link = jpype.JClass('netlogoLink.NetLogoLink')
