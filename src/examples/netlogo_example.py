@@ -9,11 +9,11 @@ from connectors.netlogo import NetLogoModelStructureInterface
 
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome,\
                          ModelEnsemble, ema_logging
-from analysis import plotting
+from analysis import plotting, plotting_util
 
 
 class PredatorPrey(NetLogoModelStructureInterface):
-    model_file = r"\Wolf Sheep Predation.nlogo"
+    model_file = r"/Wolf Sheep Predation.nlogo"
     
     run_length = 1000
     
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
     
     #instantiate a model
-    vensimModel = PredatorPrey( r"..\..\models\predatorPreyNetlogo", "simpleModel")
+    vensimModel = PredatorPrey( r"../../models/predatorPreyNetlogo", "simpleModel")
     
     #instantiate an ensemble
     ensemble = ModelEnsemble()
@@ -49,5 +49,5 @@ if __name__ == "__main__":
     #perform experiments
     results = ensemble.perform_experiments(100)
 
-    plotting.lines(results, density=plotting.KDE)
+    plotting.lines(results, density=plotting_util.KDE)
     plt.show()
