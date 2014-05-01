@@ -8,8 +8,6 @@ import os
 import sys
 
 from expWorkbench import debug, info, warning
-from expWorkbench.ema_exceptions import EMAError
-
 
 __all__ = ['NetLogoException',
            'NetLogoLink']
@@ -18,7 +16,7 @@ if sys.platform=='win32':
     NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.4'
     jar_separator = ";" # jars are separated by a ; on Windows
 elif sys.platform=='darwin':
-    jar_separator = ";" # jars are separated by a : on MacOS    
+    jar_separator = ":" # jars are separated by a : on MacOS    
     NETLOGO_HOME = r'/Applications/NetLogo 5.0.4'
 else:
     # TODO should raise and exception which is subsequently cached and
