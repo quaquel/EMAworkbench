@@ -661,7 +661,7 @@ class Prim(object):
         
         self._update_yi_remaining()
     
-    def perform_pca(self, subsets=None, exclude=None):
+    def perform_pca(self, subsets=None, exclude=set()):
         '''
         
         WARNING:: code still needs to be tested!!!
@@ -698,6 +698,7 @@ class Prim(object):
         seen = set()
         for key, value in subsets.items():
             value = set(value) - set(exclude)
+
             subsets[key] = list(value)
             if (seen & value):
                 raise EMAError("uncertainty occurs in more then one subset")
@@ -734,7 +735,7 @@ class Prim(object):
         
         j = 0
         for key, value in subsets.items():
-            data = self._rotate_subset(value, self._x, logical)
+            data = self._rotate_subset(value, self.x, logical)
             subset_rotation_matrix, subset_experiments = data 
             rotation_matrix[j:j+len(value), j:j+len(value)] = subset_rotation_matrix
             [row_names.append(entry) for entry in value]
@@ -747,7 +748,9 @@ class Prim(object):
         
         self.rotation_matrix = rotation_matrix
         self.column_names = column_names
-        self.x = rotated_experiments
+        
+        self.x = np.ma.array(rotated_experiments)
+        self.box_init = self.make_box(self.x)
     
     def find_box(self):
         '''

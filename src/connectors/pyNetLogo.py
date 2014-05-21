@@ -22,6 +22,7 @@ else:
     # TODO should raise and exception which is subsequently cached and
     # transformed into a a warning just like excel and vensim
     warning('netlogo support not available')
+
 PYNETLOGO_HOME = os.path.dirname(os.path.abspath(__file__))
 
 class NetLogoException(Exception):
