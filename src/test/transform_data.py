@@ -9,9 +9,6 @@ from expWorkbench import TIME
 
 from expWorkbench import load_results
 
-fn =r'./data/scarcity 1000.bz2'
-results = load_results(fn) 
-
 def write_results_to_csv(results, directory):
 
     experiments, outcomes = results
@@ -25,7 +22,9 @@ def write_results_to_csv(results, directory):
 #     np.savetxt('./data/scarcity/relative_market_price.csv', deceased_pop, delimiter=',')
 #     np.savetxt('./data/scarcity/time.csv', time, delimiter=',')
 #     
-#     for entry in experiments.dtype.descr:
-#         print entry
+    for entry in experiments.dtype.descr:
+        print entry
 
-write_results_to_csv(results, './data/flu')
+fn =r'./data/eng_trans_100.cPickle'
+results = load_results(fn, zipped=False)
+write_results_to_csv(results, './data/eng_trans')
