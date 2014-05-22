@@ -46,7 +46,7 @@ lines(results,
       experiments_to_show=indices, 
       show_envelope=True,
       titles=None)
-
+#plt.show()
 plt.savefig("./pictures/advanced_lines.png", dpi=75)
 
 

@@ -11,7 +11,8 @@ from expWorkbench import debug
 __all__ = ['NetLogoException',
            'NetLogoLink']
 
-NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.5'
+NETLOGO_HOME = r'C:\Program Files\NetLogo 5.0.5'
+#NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.5'
 PYNETLOGO_HOME = os.path.dirname(os.path.abspath(__file__))
 
 class NetLogoException(Exception):
