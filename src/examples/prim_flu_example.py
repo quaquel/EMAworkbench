@@ -52,6 +52,7 @@ prim = prim.Prim(results, classify, threshold=0.8, threshold_type=1)
 box_1 = prim.find_box()
 box_1.show_ppt()
 box_1.show_tradeoff()
+box_1.select(5)
 box_1.write_ppt_to_stdout()
 
 #print prim to std_out

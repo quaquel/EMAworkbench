@@ -1019,19 +1019,19 @@ class Prim(object):
         # in one or more boxes
         unc = set()
         for box in self.boxes:
-            us  = self.determine_restricted_dims(box.box_lims[-1]).tolist()
+            us  = self.determine_restricted_dims(box.box_lim).tolist()
             unc = unc.union(us)
         unc = np.asarray(list(unc))
 
         # normalize the range for the first box
-        box_lim = self.boxes[0].box_lims[-1]
+        box_lim = self.boxes[0].box_lim
         nbl = self._normalize(box_lim, unc)
         box_size = nbl[:,1]-nbl[:,0]
         
         # sort the uncertainties based on the normalized size of the 
         # restricted dimensions
         unc = unc[np.argsort(box_size)]
-        box_lims = [box.box_lims[-1] for box in self.boxes]
+        box_lims = [box.box_lim for box in self.boxes]
 
         if not np.all(self.compare(box_lims[-1], self.box_init)):
             box_lims.append(self.box_init)
