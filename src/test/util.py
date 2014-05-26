@@ -4,6 +4,8 @@ Created on Mar 22, 2014
 @author: jhkwakkel
 '''
 import os
+import zipfile
+import StringIO
 
 import numpy.lib.recfunctions as rf
 
@@ -92,13 +94,7 @@ def load_scarcity_data():
     return experiments, outcomes
 
 def load_eng_trans_data():
-    path = os.path.dirname(__file__)
-    
-    fn = './data/eng_trans/experiments.csv'
-    fn = os.path.join(path, fn)
-    experiments = csv2rec(fn)
-    outcomes = {}
-        
+
     dt_descr = [('ini PR T4', '<f8'),
                 ('lifetime T1', '<f8'),
                 ('lifetime T2', '<f8'),
@@ -158,28 +154,31 @@ def load_eng_trans_data():
                 ('model', '|O4'),
                 ('policy', '|O4')]
     
-    
-    dt = np.dtype(dt_descr)
-    names = [entry[0] for entry in dt_descr]
-    experiments.dtype.names = names
-    
-    experiments = experiments.astype(dt)
-  
-    fn = './data/eng_trans/total capacity installed.csv'
-    fn = os.path.join(path, fn)    
-    outcomes['total capacity installed'] = np.loadtxt(fn, delimiter=',')
-    
-    fn = './data/eng_trans/time.csv'
-    fn = os.path.join(path, fn)
-    outcomes[TIME] = np.loadtxt(fn, delimiter=',')
+    path = os.path.dirname(__file__)
+    fn = './data/eng_trans.zip'
+    outcomes = {}
 
-    fn = './data/eng_trans/total fraction new technologies.csv'
-    fn = os.path.join(path, fn)
-    outcomes['total fraction new technologies'] = np.loadtxt(fn, delimiter=',')
+    with zipfile.ZipFile(fn) as z:
+        experiments = StringIO.StringIO(z.read('experiments.csv'))
+        experiments = csv2rec(experiments)
+        dt = np.dtype(dt_descr)
+        names = [entry[0] for entry in dt_descr]
+        experiments.dtype.names = names
+        experiments = experiments.astype(dt)
+       
+        data = StringIO.StringIO(z.read('total capacity installed.csv'))
+        outcomes['total capacity installed'] = np.loadtxt(data, delimiter=',')
+         
+        data = StringIO.StringIO(z.read('TIME.csv'))
+        outcomes[TIME] = np.loadtxt(data, delimiter=',')
+      
+        data = StringIO.StringIO(z.read('total fraction new technologies.csv'))
+        outcomes['total fraction new technologies'] = np.loadtxt(data, 
+                                                                 delimiter=',')
     
     return experiments, outcomes
   
 if __name__ == '__main__':
-    load_flu_data()
-    load_scarcity_data()
+#     load_flu_data()
+#     load_scarcity_data()
     load_eng_trans_data()
