@@ -15,40 +15,30 @@ from expWorkbench import TIME, ema_logging
 
 def load_flu_data():
     path = os.path.dirname(__file__)
-    
-    fn = './data/flu/experiments.csv'
+    fn = './data/flu.zip'
     fn = os.path.join(path, fn)
-    experiments = csv2rec(fn)
     outcomes = {}
-        
-    dt_descr = experiments.dtype.descr
-    dt_descr[-1] = (dt_descr[-1][0], 'object') #transform policy dtype to object
-    dt_descr[-2] = (dt_descr[-2][0], 'object') #transform model dtype to object
-    dt = np.dtype(dt_descr)
-    experiments = experiments.astype(dt)
-  
-    fn = './data/flu/deceased population region 1.csv'
-    fn = os.path.join(path, fn)    
-    outcomes['deceased population region 1'] = np.loadtxt(fn, delimiter=',')
-    
-    fn = './data/flu/time.csv'
-    fn = os.path.join(path, fn)
-    outcomes[TIME] = np.loadtxt(fn, delimiter=',')
 
-    fn = './data/flu/infected fraction R1.csv'
-    fn = os.path.join(path, fn)
-    outcomes['infected fraction R1'] = np.loadtxt(fn, delimiter=',')
+    ooi_map = {'deceased population region 1': 'deceased population region 1.csv',
+               TIME: "TIME.csv",
+               'infected fraction R1':'infected fraction R1.csv'}
+
+    with zipfile.ZipFile(fn) as z:
+        experiments = StringIO.StringIO(z.read('experiments.csv'))
+        experiments = csv2rec(experiments)
+        dt_descr = experiments.dtype.descr
+        dt_descr[-1] = (dt_descr[-1][0], 'object') #transform policy dtype to object
+        dt_descr[-2] = (dt_descr[-2][0], 'object') #transform model dtype to object
+        dt = np.dtype(dt_descr)
+        experiments = experiments.astype(dt)
+
+        for key, value in ooi_map.iteritems():
+            data = StringIO.StringIO(z.read(value))
+            outcomes[key] = np.loadtxt(data, delimiter=',')    
     
     return experiments, outcomes
 
 def load_scarcity_data():
-    path = os.path.dirname(__file__)
-    
-    fn = './data/scarcity/experiments.csv'
-    fn = os.path.join(path, fn)
-    experiments = csv2rec(fn)
-    outcomes = {}
-        
     dt_descr = [('absolute recycling loss fraction', '<f8'),
                 ('average construction time extraction capacity', '<f8'),
                 ('average lifetime extraction capacity', '<f8'),
@@ -79,17 +69,35 @@ def load_scarcity_data():
                 ('model', '|O4'),
                 ('policy', '|O4')]
     
-    
-    dt = np.dtype(dt_descr)
-    experiments = experiments.astype(dt)
-  
-    fn = './data/scarcity/relative_market_price.csv'
-    fn = os.path.join(path, fn)    
-    outcomes['relative market price'] = np.loadtxt(fn, delimiter=',')
-    
-    fn = './data/scarcity/time.csv'
+    path = os.path.dirname(__file__)
+    fn = './data/scarcity.zip'
     fn = os.path.join(path, fn)
-    outcomes[TIME] = np.loadtxt(fn, delimiter=',')
+    outcomes = {}
+
+    ooi_map = {'relative market price': 'relative market price.csv',
+               TIME: "time.csv"}
+
+    with zipfile.ZipFile(fn) as z:
+        experiments = StringIO.StringIO(z.read('experiments.csv'))
+        experiments = csv2rec(experiments)
+        dt = np.dtype(dt_descr)
+        experiments = experiments.astype(dt)
+
+        for key, value in ooi_map.iteritems():
+            data = StringIO.StringIO(z.read(value))
+            outcomes[key] = np.loadtxt(data, delimiter=',')   
+
+    
+#     dt = np.dtype(dt_descr)
+#     experiments = experiments.astype(dt)
+#   
+#     fn = './data/scarcity/relative_market_price.csv'
+#     fn = os.path.join(path, fn)    
+#     outcomes['relative market price'] = np.loadtxt(fn, delimiter=',')
+#     
+#     fn = './data/scarcity/time.csv'
+#     fn = os.path.join(path, fn)
+#     outcomes[TIME] = np.loadtxt(fn, delimiter=',')
     
     return experiments, outcomes
 
@@ -156,6 +164,7 @@ def load_eng_trans_data():
     
     path = os.path.dirname(__file__)
     fn = './data/eng_trans.zip'
+    fn = os.path.join(path, fn)
     outcomes = {}
 
     with zipfile.ZipFile(fn) as z:
@@ -179,6 +188,6 @@ def load_eng_trans_data():
     return experiments, outcomes
   
 if __name__ == '__main__':
-#     load_flu_data()
-#     load_scarcity_data()
+    load_flu_data()
+    load_scarcity_data()
     load_eng_trans_data()
