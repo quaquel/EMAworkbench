@@ -10,6 +10,7 @@ from __future__ import division
 import types
 import copy
 import functools
+import os
 
 from collections import defaultdict
 
@@ -210,7 +211,7 @@ class ModelEnsemble(object):
         recommended use is the following::
         
         >>> results = ensemble.perform_experiments(10000) #recommended use
-        >>> experiments, output = ensemble.perform_experiments(10000) #will work fine
+        >>> experiments, output = ensemble.perform_experiments(10000) 
         
         The latter option will work fine, but most analysis scripts require 
         to wrap it up into a tuple again::
@@ -221,7 +222,7 @@ class ModelEnsemble(object):
         directly::
         
         >>> import expWorkbench.util as util
-        >>> util.save_results(results, file)
+        >>> util.save_results(results, filename)
           
         .. note:: The current implementation has a hard coded limit to the 
           number of designs possible. This is set to 50.000 designs. 
@@ -235,18 +236,12 @@ class ModelEnsemble(object):
         
         # identify the uncertainties and sample over them
         if type(cases) ==  types.IntType:
-            sampled_unc, unc_dict = self._generate_samples(cases, which_uncertainties)
+            sampled_unc, unc_dict = self._generate_samples(cases, 
+                                                           which_uncertainties)
             nr_of_exp =self.sampler.deterimine_nr_of_designs(sampled_unc)\
                       *len(self._policies)*len(self._msis)
             experiments = self._generate_experiments(sampled_unc)
         elif type(cases) == types.ListType:
-            # TODO, don't know what this should look like until the\
-            # default case of generating experiments the normal way is working 
-            # again
-            # what still needs to be done is the unc_dict, which should
-            # become a dict {name: unc for name in unc_names}
-            # from where can we get the unc?
-            
             unc_dict = self.determine_uncertainties()[1]
             unc_names = cases[0].keys()
             sampled_unc = {name:[] for name in unc_names}
@@ -274,8 +269,7 @@ class ModelEnsemble(object):
                             nr_of_exp,
                             reporting_interval=reporting_interval,
                             **kwargs)
-        
-                
+
         if self.parallel:
             info("preparing to perform experiment in parallel")
             
@@ -296,6 +290,7 @@ class ModelEnsemble(object):
             msi_initialization_dict = {}
             msis = {msi.name: msi for msi in self._msis}
             
+            cwd = os.getcwd() 
             for experiment in experiments:
                 policy = experiment.pop('policy')
                 msi = experiment.pop('model')
@@ -335,6 +330,7 @@ class ModelEnsemble(object):
                 callback(experiment, policy, msi.name, result)
                 
             cleanup(self._msis)
+            os.chdir(cwd)
        
         results = callback.get_results()
         info("experiments finished")
