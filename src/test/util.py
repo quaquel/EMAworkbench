@@ -81,7 +81,9 @@ def load_scarcity_data():
         experiments = StringIO.StringIO(z.read('experiments.csv'))
         experiments = csv2rec(experiments)
         dt = np.dtype(dt_descr)
-        experiments = experiments.astype(dt)
+
+        for i, entry in enumerate(experiments.dtype.descr):
+            experiments[entry[0]] = experiments[entry[0]].astype(dt[i])
 
         for key, value in ooi_map.iteritems():
             data = StringIO.StringIO(z.read(value))

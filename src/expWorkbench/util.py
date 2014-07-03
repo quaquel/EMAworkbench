@@ -12,8 +12,11 @@ import cPickle
 import os
 import bz2
 import math
+import zipfile
+import StringIO
 
 import numpy as np
+from matplotlib.mlab import rec2csv, csv2rec
 
 from deap import creator, base
 
@@ -28,7 +31,84 @@ __all__ = ['load_results',
            'experiments_to_cases',
            'merge_results']
 
-def load_results(file_name, zipped=True):
+
+def load_results(file_name):
+    '''
+    load the specified bz2 file. the file is assumed to be saves
+    using save_results.
+    
+    :param file_name: the path of the file
+    :raises: IOError if file not found
+
+
+    '''
+    
+    outcomes = {}
+    with zipfile.ZipFile(file_name, 'r') as z:
+        # load experiments
+        experiments = StringIO.StringIO(z.read('experiments.csv'))
+        experiments = csv2rec(experiments)
+        dt_descr = experiments.dtype.descr
+        dt_descr[-1] = (dt_descr[-1][0], 'object') #transform policy dtype to object
+        dt_descr[-2] = (dt_descr[-2][0], 'object') #transform model dtype to object
+        dt = np.dtype(dt_descr)
+        experiments = experiments.astype(dt)
+
+        # load metadata
+        metadata = z.read('experiments metadata.csv')
+        metadata = metadata.split("\n")
+        metadata = [tuple(entry.split(",")) for entry in metadata]
+        metadata = np.dtype(metadata)
+
+        for i, entry in enumerate(experiments.dtype.descr):
+            experiments[entry[0]] = experiments[entry[0]].astype(metadata[i])
+
+        # load outcomes
+        fhs = z.namelist()
+        fhs.remove('experiments.csv')
+        fhs.remove('experiments metadata.csv')
+        for fh in fhs:
+            root = os.path.splitext(fh)[0]
+            data = StringIO.StringIO(z.read(fh))
+            outcomes[root] = np.loadtxt(data, delimiter=',')   
+    return experiments, outcomes
+
+
+def save_results(results, file_name):
+    '''
+    save the results to the specified zip file. The results are stored as csv
+    files. There is an experiments.csv, and a csv for each outcome. In 
+    addition, there is a metadata csv which contains the datatype information
+    for each of the columns in the experiments array.
+
+    :param results: the return of run_experiments
+    :param file_name: the path of the file
+    :raises: IOError if file not found
+
+    '''
+
+    experiments, outcomes = results
+    with zipfile.ZipFile(file_name, mode='w') as z:
+        # write the experiments to the zipfile
+        experiments_file = StringIO.StringIO()
+        rec2csv(experiments, experiments_file, withheader=True)
+        experiments_string = experiments_file.getvalue()
+        z.writestr('experiments.csv', experiments_string)
+        
+        # write metadata
+        dtype = experiments.dtype.descr
+        dtype = ["{},{}".format(*entry) for entry in dtype]
+        dtype = "\n".join(dtype)
+        z.writestr('experiments metadata.csv', dtype)
+        
+        # outcomes
+        for key, value in outcomes.iteritems():
+            fh = StringIO.StringIO()
+            np.savetxt(fh, value, delimiter=',')
+            fh = fh.getvalue()
+            z.writestr('{}.csv'.format(key), fh)
+
+def old_load_results(file_name, zipped=True):
     '''
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
@@ -56,7 +136,7 @@ def load_results(file_name, zipped=True):
     return results
     
 
-def save_results(results, file_name, zipped=True):
+def old_save_results(results, file_name, zipped=True):
     '''
     save the results to the specified bz2 file. To facilitate transfer
     across different machines. the files are saved in binary format
