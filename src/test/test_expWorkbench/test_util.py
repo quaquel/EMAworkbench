@@ -6,27 +6,28 @@ Created on 22 nov. 2012
 from expWorkbench import util, ema_logging
 import numpy as np
 import os
+from test.util import load_flu_data
+from expWorkbench.util import save_results, load_results
+
+
 
 def test_save_results():
-    ema_logging.log_to_stderr(ema_logging.DEBUG)
-    data  = util.load_results('./data/1000 flu cases no policy.cPickle', zip=False)
-    file_name = "test.bz2"
-    util.save_results(data, file_name)
-    os.remove(file_name)
-    ema_logging.debug("removing "+file_name)
+    results = load_flu_data()
+ 
+    save_results(results, r'test.zip')
+    os.remove('test.zip')
+
     
 
 def test_load_results():
-
-    data  = np.random.rand(1000,1000)
-    file_name = "test.bz2"
-    util.save_results(data, file_name)
+    results = load_flu_data()
+ 
+    save_results(results, r'test.zip')
+    load_results(r'test.zip')
+    os.remove('test.zip')
     
-    ema_logging.log_to_stderr(ema_logging.DEBUG)
-    util.load_results(file_name)
-    os.remove(file_name)
-    ema_logging.debug("removing "+file_name)
 
-
-#test_load_results()
-test_save_results()
+if __name__ == '__main__':
+    
+    test_load_results()
+    test_save_results()
