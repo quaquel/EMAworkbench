@@ -22,6 +22,7 @@ from deap import creator, base
 
 from ema_logging import info, debug, warning
 from expWorkbench import EMAError
+import tarfile
 
 __all__ = ['load_results',
            'save_results',
@@ -44,19 +45,14 @@ def load_results(file_name):
     '''
     
     outcomes = {}
-    with zipfile.ZipFile(file_name, 'r') as z:
+    with tarfile.open(file_name, 'r') as z:
         # load experiments
-        experiments = StringIO.StringIO(z.read('experiments.csv'))
+        experiments = z.extractfile('experiments.csv')
         experiments = csv2rec(experiments)
-        dt_descr = experiments.dtype.descr
-        dt_descr[-1] = (dt_descr[-1][0], 'object') #transform policy dtype to object
-        dt_descr[-2] = (dt_descr[-2][0], 'object') #transform model dtype to object
-        dt = np.dtype(dt_descr)
-        experiments = experiments.astype(dt)
 
         # load metadata
-        metadata = z.read('experiments metadata.csv')
-        metadata = metadata.split("\n")
+        metadata = z.extractfile('experiments metadata.csv').readlines()
+        metadata = [entry.strip() for entry in metadata]
         metadata = [tuple(entry.split(",")) for entry in metadata]
         metadata = np.dtype(metadata)
 
@@ -64,20 +60,20 @@ def load_results(file_name):
             experiments[entry[0]] = experiments[entry[0]].astype(metadata[i])
 
         # load outcomes
-        fhs = z.namelist()
+        fhs = z.getnames()
         fhs.remove('experiments.csv')
         fhs.remove('experiments metadata.csv')
         for fh in fhs:
             root = os.path.splitext(fh)[0]
-            data = StringIO.StringIO(z.read(fh))
+            data = z.extractfile(fh)
             outcomes[root] = np.loadtxt(data, delimiter=',')   
     return experiments, outcomes
 
 
 def save_results(results, file_name):
     '''
-    save the results to the specified zip file. The results are stored as csv
-    files. There is an experiments.csv, and a csv for each outcome. In 
+    save the results to the specified tar.gz file. The results are stored as 
+    csv files. There is an experiments.csv, and a csv for each outcome. In 
     addition, there is a metadata csv which contains the datatype information
     for each of the columns in the experiments array.
 
@@ -87,27 +83,37 @@ def save_results(results, file_name):
 
     '''
 
+    def add_file(tararchive, string_to_add, filename):
+        tarinfo = tarfile.TarInfo(filename)
+        tarinfo.size = len(string_to_add)
+        
+        z.addfile(tarinfo, StringIO.StringIO(string_to_add))  
+        
+
     experiments, outcomes = results
-    with zipfile.ZipFile(file_name, mode='w') as z:
+    with tarfile.open(file_name, 'w:gz') as z:
         # write the experiments to the zipfile
         experiments_file = StringIO.StringIO()
         rec2csv(experiments, experiments_file, withheader=True)
-        experiments_string = experiments_file.getvalue()
-        z.writestr('experiments.csv', experiments_string)
+
+        add_file(z, experiments_file.getvalue(), 'experiments.csv')
         
         # write metadata
         dtype = experiments.dtype.descr
         dtype = ["{},{}".format(*entry) for entry in dtype]
         dtype = "\n".join(dtype)
-        z.writestr('experiments metadata.csv', dtype)
+        add_file(z, dtype, 'experiments metadata.csv')
         
         # outcomes
         for key, value in outcomes.iteritems():
             fh = StringIO.StringIO()
             np.savetxt(fh, value, delimiter=',')
             fh = fh.getvalue()
-            z.writestr('{}.csv'.format(key), fh)
-
+            add_file(z, fh, '{}.csv'.format(key))
+  
+    info("results saved succesfully to {}".format(file_name))
+    
+  
 def old_load_results(file_name, zipped=True):
     '''
     load the specified bz2 file. the file is assumed to be saves
