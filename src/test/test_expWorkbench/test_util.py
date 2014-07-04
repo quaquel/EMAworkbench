@@ -14,20 +14,21 @@ from expWorkbench.util import save_results, load_results
 def test_save_results():
     results = load_flu_data()
  
-    save_results(results, r'test.zip')
-    os.remove('test.zip')
+    save_results(results, r'test.tar.gz')
+    os.remove('test.tar.gz')
 
     
 
 def test_load_results():
     results = load_flu_data()
  
-    save_results(results, r'test.zip')
-    load_results(r'test.zip')
-    os.remove('test.zip')
+    save_results(results, r'test.tar.gz')
+    load_results(r'test.tar.gz')
+    os.remove('test.tar.gz')
     
 
 if __name__ == '__main__':
     
+   
+#     test_save_results()
     test_load_results()
-    test_save_results()

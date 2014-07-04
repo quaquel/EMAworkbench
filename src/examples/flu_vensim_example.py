@@ -74,7 +74,7 @@ class FluModel(VensimModelStructureInterface):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
         
-    model = FluModel(r'..\..\models\flu', "flu_case")
+    model = FluModel(r'..\..\models\flu', "flucase")
     ensemble = ModelEnsemble()
     ensemble.set_model_structure(model)
     
@@ -92,7 +92,8 @@ if __name__ == "__main__":
     ensemble.parallel = True 
     
     # run 1000 experiments
-    results = ensemble.perform_experiments(1000)
+    nr_runs = 1000
+    results = ensemble.perform_experiments(nr_runs)
     
     # save the results
-    save_results(results, r'./data/1000 flu cases.bz2')
+    save_results(results, r'./data/{} flu cases.tar.gz'.format(nr_runs))
