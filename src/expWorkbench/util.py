@@ -71,7 +71,13 @@ def load_results(file_name):
         for fh in fhs:
             root = os.path.splitext(fh)[0]
             data = z.extractfile(fh)
-            outcomes[root] = np.loadtxt(data, delimiter=',')   
+            first_line = data.readline()
+            shape = first_line.split(":")[1].strip()[1:-1]
+            shape = tuple([int(entry) for entry in shape.split(',')])
+            data = np.loadtxt(data, delimiter=',')
+            data.reshape(shape)
+            
+            outcomes[root] = data
     return experiments, outcomes
 
 
@@ -93,7 +99,24 @@ def save_results(results, file_name):
         tarinfo.size = len(string_to_add)
         
         z.addfile(tarinfo, StringIO.StringIO(string_to_add))  
-        
+    
+    def save_numpy_array(fh, data):
+       # this should be generalized to nd arrays, it now works up to 3d
+       
+        # Any line starting with "#" will be ignored by numpy.loadtxt
+        fh.write('# Array shape: {0}\n'.format(data.shape))
+    
+        # Iterating through a ndimensional array produces slices along
+        # the last axis. This is equivalent to data[i,:,:] in this case
+        for data_slice in data:
+    
+            # The formatting string indicates that I'm writing out
+            # the values in left-justified columns 7 characters in width
+            # with 2 decimal places.  
+            np.savetxt(fh, data_slice, delimiter=',')
+    
+            # Writing out a break to indicate different slices...
+            fh.write('# New slice\n')
 
     experiments, outcomes = results
     with tarfile.open(file_name, 'w:gz') as z:
@@ -112,7 +135,8 @@ def save_results(results, file_name):
         # outcomes
         for key, value in outcomes.iteritems():
             fh = StringIO.StringIO()
-            np.savetxt(fh, value, delimiter=',')
+#             np.savetxt(fh, value, delimiter=',')
+            save_numpy_array(fh, value)
             fh = fh.getvalue()
             add_file(z, fh, '{}.csv'.format(key))
   
