@@ -56,8 +56,13 @@ def load_results(file_name):
         metadata = [tuple(entry.split(",")) for entry in metadata]
         metadata = np.dtype(metadata)
 
+        # cast experiments to dtype and name specified in metadata        
+        temp_experiments = np.zeros((experiments.shape[0],), dtype=metadata)
         for i, entry in enumerate(experiments.dtype.descr):
-            experiments[entry[0]] = experiments[entry[0]].astype(metadata[i])
+            dtype = metadata[i]
+            name = metadata.descr[i][0]
+            temp_experiments[name][:] = experiments[entry[0]].astype(dtype)
+        experiments = temp_experiments
 
         # load outcomes
         fhs = z.getnames()
