@@ -1,0 +1,21 @@
+additional seasonal immune population fraction R1,<f8
+additional seasonal immune population fraction R2,<f8
+fatality rate region 2,<f8
+fatality ratio region 1,<f8
+infection rate region 2,<f8
+infection ratio region 1,<f8
+initial immune fraction of the population of region 1,<f8
+initial immune fraction of the population of region 2,<f8
+normal contact rate region 1,<f8
+normal contact rate region 2,<f8
+normal interregional contact rate,<f8
+permanent immune population fraction R1,<f8
+permanent immune population fraction R2,<f8
+recovery time region 1,<f8
+recovery time region 2,<f8
+root contact rate region 1,<f8
+root contact ratio region 2,<f8
+susceptible to immune population delay time region 1,<f8
+susceptible to immune population delay time region 2,<f8
+model,|O8
+policy,|O8

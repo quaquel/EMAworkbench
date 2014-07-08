@@ -19,16 +19,14 @@ import numpy as np
 
 from expWorkbench.ema_logging import info
 from expWorkbench import EMAError
-from clusterCode.distance_gonenc import distance_gonenc
-from clusterCode.distance_willem import distance_willem
-from clusterCode.distance_triangle import distance_triangle
-from clusterCode.distance_sse import distance_sse
-from clusterCode.distance_mse import distance_mse
 
-from clusterCode import clusterPlotter as plotter
+from cluster_util import distance_gonenc, distance_mse, distance_sse,\
+                         distance_triangle
+
+
+from analysis.cluster_util import cluster_plotter as plotter
 
 distance_functions = {'gonenc': distance_gonenc,
-                      'willem': distance_willem,
                       'triangle':distance_triangle,
                       'sse': distance_sse,
                       'mse': distance_mse}

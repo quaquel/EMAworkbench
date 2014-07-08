@@ -75,9 +75,11 @@ def load_results(file_name):
             shape = first_line.split(":")[1].strip()[1:-1]
             shape = tuple([int(entry) for entry in shape.split(',')])
             data = np.loadtxt(data, delimiter=',')
-            data.reshape(shape)
+            data = data.reshape(shape)
             
             outcomes[root] = data
+            
+    info("results loaded succesfully from {}".format(file_name))
     return experiments, outcomes
 
 
@@ -101,7 +103,7 @@ def save_results(results, file_name):
         z.addfile(tarinfo, StringIO.StringIO(string_to_add))  
     
     def save_numpy_array(fh, data):
-       # this should be generalized to nd arrays, it now works up to 3d
+        # this should be generalized to nd arrays, it now works up to 3d
        
         # Any line starting with "#" will be ignored by numpy.loadtxt
         fh.write('# Array shape: {0}\n'.format(data.shape))
