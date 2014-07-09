@@ -36,4 +36,4 @@ if __name__ == '__main__':
     model = SimplePythonModel(None, 'simpleModel') #instantiate the model
     ensemble = ModelEnsemble() #instantiate an ensemble
     ensemble.set_model_structure(model) #set the model on the ensemble
-    results = ensemble.perform_experiments(1000) #generate 1000 cases
+    results = ensemble.perform_experiments(1000) #run 1000 experiments
