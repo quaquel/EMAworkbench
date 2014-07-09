@@ -188,7 +188,7 @@ class CalculatorPool(Pool):
                     if worker_root == None:
                         worker_root = os.path.dirname(os.path.abspath(msis[0].working_directory))
                     
-                    working_directory = os.path.join(worker_root, workername, msi.name)
+                    working_directory = os.path.join(worker_root, workername)
                     
 #                     working_directory = tempfile.mkdtemp(suffix=workername,
 #                                                          prefix='tmp_',
