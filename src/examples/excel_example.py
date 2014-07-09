@@ -44,9 +44,9 @@ class ExcelModel(ExcelModelStructureInterface):
     
 
 if __name__ == "__main__":    
-    logger = ema_logging.log_to_stderr(level=ema_logging.INFO)
+    ema_logging.log_to_stderr(level=ema_logging.INFO)
     
-    model = ExcelModel(r"..\..\models\excelModel", "predatorPrey")
+    model = ExcelModel(r"./models/excelModel", "predatorPrey")
     
     ensemble = ModelEnsemble()
     ensemble.set_model_structure(model) 
@@ -54,11 +54,6 @@ if __name__ == "__main__":
     ensemble.parallel = True #turn on parallel computing
     ensemble.processes = 2 #using only 2 cores 
     
-    #generate 100 cases
-    results = ensemble.perform_experiments(10) 
-    
-    lines(results)
-    plt.show()
-    
-    #save results
-#    save_results(results, r'..\..\excel runs.cPickle')
+    #run 100 experiments
+    nr_experiments = 100
+    results = ensemble.perform_experiments(nr_experiments) 
