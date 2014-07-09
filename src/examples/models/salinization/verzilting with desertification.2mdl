@@ -1,0 +1,1228 @@
+{UTF-8}
+inflow of salt=
+	irrigation*salt concentration
+	~	mg/Year
+	~		|
+
+percolation constant=
+	5
+	~	Year
+	~		|
+
+salt inflow from agriculture=
+	MIN(amount of salt in top soil*seepage constant*percolation, amount of salt in top soil\
+		/TIME STEP)
+	~	mg/Year
+	~		|
+
+rain=
+	area agriculture*rainfall
+	~	m*m*m/Year
+	~		|
+
+porosity top soil=
+	0.005
+	~	
+	~		|
+
+water shortage domestic=
+	(domestic water demand in cubic meters-water share population)*cubic meter to liter
+	~	liter/Year
+	~		|
+
+water use by crops=
+	area agriculture*water usage by crops
+	~	(m*m*m)/Year
+	~		|
+
+evaporation=
+	evaporation constant*root zone
+	~	(m*m*m)/Year
+	~		|
+
+amount of salt in top soil= INTEG (
+	inflow of salt-salt inflow from agriculture,
+		0)
+	~	mg
+	~		|
+
+extractable=
+	IF THEN ELSE( position of salt intrusion front>80 , percolation, 
+	IF THEN ELSE( position of salt intrusion front > 40 , percolation + 
+	(( 80-position of salt intrusion front)*(default extractable-percolation)/40 )
+	, default extractable))
+	~	(m*m*m)/Year
+	~		|
+
+root zone= INTEG (
+	supply due to rain+irrigation-percolation-water use,
+		area country*0.5*porosity top soil)
+	~	m*m*m
+	~		|
+
+percolation=
+	root zone/percolation constant
+	~	(m*m*m)/Year
+	~		|
+
+water usage by crops=
+	1
+	~	m/Year
+	~		|
+
+evaporation constant=
+	0.4
+	~	1/Year
+	~		|
+
+industrial demand in cubic meters=
+	industrial demand*liter to cubic meter
+	~	(m*m*m)/Year
+	~		|
+
+irrigation=
+	water share agriculture
+	~	
+	~		|
+
+liter to cubic meter=
+	1/1000
+	~	(m*m*m)/liter
+	~		|
+
+domestic water demand in cubic meters=
+	domestic water demand*liter to cubic meter
+	~	(m*m*m)/Year
+	~		|
+
+agricultural water in demand in cubic meters=
+	water demand irrigation*liter to cubic meter
+	~	(m*m*m)/Year
+	~		|
+
+water share agriculture=
+	total water supply*agricultural water in demand in cubic meters/total water demand
+	~	(m*m*m)/Year
+	~		|
+
+water share industry=
+	total water supply*industrial demand in cubic meters/total water demand
+	~	(m*m*m)/Year
+	~		|
+
+total water demand=
+	agricultural water in demand in cubic meters+domestic water demand in cubic meters+industrial demand in cubic meters
+	~	(m*m*m)/Year
+	~		|
+
+cubic meter to liter=
+	1000
+	~	liter/(m*m*m)
+	~		|
+
+water share population=
+	(total water supply*domestic water demand in cubic meters)/total water demand
+	~	(m*m*m)/Year
+	~		|
+
+water use=
+	MIN(root zone/TIME STEP, evaporation+water use by crops)
+	~	(m*m*m)/Year
+	~		|
+
+supply due to rain=
+	rain
+	~	m*m*m/Year
+	~		|
+
+ground water volume= INTEG (
+	percolation+recharge from river-extraction-flushing to sea,
+		1.6e+009)
+	~	m*m*m
+	~		|
+
+max volume of ground water=
+	cross sectional area aquifer*total width of aquifer*porosity
+	~	m*m*m
+	~		|
+
+flushing to sea=
+	MAX((ground water volume-max volume of ground water)/TIME STEP, 0 )
+	~	(m*m*m)/Year
+	~		|
+
+salt outflow=
+	(flushing to sea+extraction)*salt concentration
+	~	
+	~		|
+
+climate refugees= INTEG (
+	emigration,
+		0)
+	~	people
+	~		|
+
+total yield=
+	area irrigated*yield irrigated+yield non irrigated*area non irrigated
+	~	kg/Year
+	~		|
+
+seepage constant=
+	0.3
+	~	mg/(m*m*m)
+	~		|
+
+technological developments in irrigation=
+	0.015
+	~	
+	~		|
+
+savings=
+	technological developments in irrigation*water demand irrigation per area
+	~	
+	~		|
+
+decrease non irrigated=
+	IF THEN ELSE(difference max area < 0 , (-1*(area non irrigated/area agriculture))/adaptation time from non irrigated agriculture\
+		, 0)
+	~	Year
+	~		|
+
+influence of salt on deaths=
+	IF THEN ELSE("salt concentration in mg/l" < 50, 0, salinity effect multiplier* ("salt concentration in mg/l"\
+		-50)/10)
+	~	mg/l
+	~		|
+
+adaptation time from irrigated agriculture=
+	1
+	~	1/Year
+	~		|
+
+adaptation time from non irrigated agriculture=
+	1
+	~	1/Year
+	~		|
+
+emigration=
+	((population *emigration watershortage lookup(water shortage per person) * water shortage multiplier\
+		) /100)*
+	emigration fraction exported lookup(fraction exported) *food shortage multiplier
+	~	
+	~		|
+
+food shortage multiplier=
+	1
+	~	
+	~		|
+
+decrease irrigated=
+	IF THEN ELSE(difference max area < 0 , (-1*(area irrigated/area agriculture))/adaptation time from irrigated agriculture\
+		, 0)
+	~	Year
+	~		|
+
+salt effect multiplier=
+	1
+	~	
+	~		|
+
+water shortage multiplier=
+	1
+	~	
+	~		|
+
+salinity effect multiplier=
+	1
+	~	
+	~		|
+
+deaths=
+	population/1000 *  ( deaths lookup(Time+1976) +influence of salt on deaths) * deaths multiplier
+	~	
+	~		|
+
+deaths multiplier=
+	1
+	~	
+	~		|
+
+yield irrigated=
+	basic yield irrigated*salt effect lookup("salt concentration in mg/l") * salt effect multiplier
+	~	kg/(Year*m*m)
+	~		|
+
+births=
+	birth lookup(Time+1976)*(population/1000)*births multiplier
+	~	people/yr
+	~		|
+
+births multiplier=
+	1
+	~	1
+	~		|
+
+yield non irrigated=
+	160
+	~	kg/(Year * m*m)
+	~		|
+
+potential water demand=
+	total water demand*(1-usual fraction imported)
+	~	liter/Year
+	~		|
+
+max area with water=
+	water share agriculture/water demand per area
+	~	
+	~		|
+
+fraction exported=
+	food balance/required food
+	~	
+	~		|
+
+normal diffusion constant=
+	8000
+	~	
+	~		|
+
+required food=
+	food per person*population
+	~	kg/Year
+	~		|
+
+basic yield irrigated=
+	1600
+	~	kg/(Year*m*m)
+	~		|
+
+water shortage per person=
+	water shortage domestic/population
+	~	
+	~		|
+
+difference max area=
+	max agriculture-area agriculture
+	~	m*m
+	~		|
+
+food balance=
+	required food-total yield
+	~	kg/Year
+	~		|
+
+food per person=
+	80
+	~	kg/person/Year
+	~		|
+
+water demand per person=
+	40+RAMP( 0.5, 1976, 2050 )
+	~	liter/(person*Year)
+	~		|
+
+salt effect lookup(
+	[(0,0)-(250,1)],(0,1),(75,0.925),(125,0.85),(150,0.7),(200,0.1),(250,0.001))
+	~	1
+	~		|
+
+actually working=
+	((100-perc unemployed)/100)*total working population
+	~	people
+	~		|
+
+adaptation time=
+	5
+	~	Year
+	~		|
+
+adaptation time to irrigated agriculture=
+	0.03
+	~	1/Year
+	~		|
+
+adaptation time to non irrigated agriculture=
+	0.01
+	~	1/Year
+	~		|
+
+amount of salt in aquifer= INTEG (
+	salt inflow from agriculture-salt outflow+diffusion of salt into the aquifer from sea\
+		,
+		2e+006)
+	~	mg
+	~		|
+
+area agriculture=
+	area irrigated+area non irrigated
+	~	m*m
+	~		|
+
+area available= INTEG (
+	-business construction-house construction,
+		349000)
+	~	m*m
+	~		|
+
+area country=
+	4.65e+008
+	~	m*m
+	~		|
+
+area irrigated= INTEG (
+	increase irrigated-change caused by water-decrease irrigated,
+		105230)
+	~	m*m
+	~		|
+
+area non irrigated= INTEG (
+	change caused by water+increase non irrigated-decrease non irrigated,
+		64770)
+	~	m*m
+	~		|
+
+area per house=
+	0.285
+	~	m*m/house
+	~		|
+
+area per worker=
+	0.07
+	~	m*m/people
+	~		|
+
+avererage width aquiver=
+	ground water volume/(cross sectional area aquifer*porosity)
+	~	m
+	~		|
+
+birth lookup(
+	[(1975,40)-(2020,80)],(1975,51.5),(1976,51),(1977,50),(1978,49),(1979,48),(1980,47.6\
+		),(1981,47),(1982,46),(1983,46),(1984,46),(1985,45.4),(1986,46),(1986,46),(1987,48)\
+		,(1988,50),(1989,52),(1990,54.7),(1991,56),(1992,58),(1993,58.4),(1994,56.7),(1995,\
+		58.6),(1996,57.9),(1997,60),(1998,60),(1999,60),(2000,59),(2001,59),(2002,58),(2003\
+		,57),(2004,56),(2005,55.5),(2006,55),(2007,54.5),(2008,54),(2009,53.5),(2010,53),(2011\
+		,52.5),(2012,52),(2013,51.5),(2014,51),(2015,50.5),(2016,50),(2017,47),(2018,47),(2019\
+		,47),(2020,47))
+	~	1/yr
+	~		|
+
+building time=
+	1
+	~	Year
+	~		|
+
+business area= INTEG (
+	business construction,
+		6000)
+	~	m*m
+	~		|
+
+business construction=
+	MIN( (area available * (demand buiness area/total demand ))/building time,  difference demand and business\
+		/housing smoothing time)
+	~	m*m/Year
+	~		|
+
+change caused by water=
+	IF THEN ELSE(max area with water - area irrigated > 0, 0, area irrigated/adaptation time\
+		)
+	~	
+	~		|
+
+cross sectional area aquifer=
+	3.65e+008
+	~	m*m
+	~		|
+
+deaths lookup(
+	[(1975,0)-(2020,80)],(1975,15.8),(1976,14.3),(1977,12.9),(1978,11.7),(1979,11),(1980\
+		,10.1),(1981,9.6),(1982,9),(1983,8.3),(1984,7.7),(1985,7),(1986,6.6),(1987,6.1),(1988\
+		,5.8),(1989,5.7),(1990,5.5),(1991,5.7),(1992,5.9),(1993,6),(1994,5.4),(1995,5.2),(1996\
+		,6.3),(1997,5.1),(1998,5.5),(1999,5.5),(2000,5.5),(2001,5.5),(2002,5.5),(2003,5.5),\
+		(2004,5.5),(2005,5.5),(2006,5.5),(2007,5.5),(2008,5.5),(2009,5.5),(2010,5.5),(2011,\
+		5.5),(2012,5.5),(2013,5.5),(2014,5.5),(2015,5.5),(2016,5.5),(2017,5.5),(2018,5.5),(\
+		2019,5.5),(2020,5.5))
+	~	1/Year
+	~		|
+
+default extractable=
+	1e+008
+	~	m*m*m/Year
+	~		|
+
+demand buiness area=
+	actually working*area per worker
+	~	m*m
+	~		|
+
+demand housing=
+	area per house*number of houses
+	~	m*m
+	~		|
+
+demand per employee=
+	245
+	~	liter/(person*Year)
+	~		|
+
+difference demand and business=
+	MAX( demand buiness area-business area, 0 )
+	~	m*m
+	~		|
+
+difference demand and housing=
+	MAX( demand housing-housing area , 0)
+	~	m*m
+	~		|
+
+diffusion lookup(
+	[(0,0)-(100,10)],(0,7.5),(20,6),(40,4),(60,2),(80,0.9),(100,0.7))
+	~	
+	~		|
+
+diffusion of salt into the aquifer from sea=
+	normal diffusion constant*cross sectional area aquifer*diffusion lookup(avererage width aquiver\
+		)
+	~	
+	~		|
+
+domestic water demand=
+	population*water demand per person
+	~	liter/Year
+	~		|
+
+emigration fraction exported lookup(
+	[(-6,0)-(10,10)],(-5,1),(-2.5,1),(0,1),(2.5,3),(5,3),(7.5,3))
+	~	
+	~		|
+
+emigration watershortage lookup(
+	[(0,0)-(36,20)],(0,1),(2,1.15),(4,1.15),(6,1.15),(8,2.3),(10,2.65),(12,3.3),(14,3.45\
+		),(16,3.45),(18,3.95),(20,3.95),(22,4.6),(24,5.45),(26,6.45),(28,8.1),(30,9.75),(32\
+		,12.05),(34,14.55),(36,18.5))
+	~	
+	~		|
+
+extraction=
+	IF THEN ELSE(potential water demand  < extractable,  potential water demand, extractable\
+		)
+	~	(m*m*m)/Year
+	~		|
+
+house construction=
+	MIN( (area available * (demand housing/total demand) )/building time, difference demand and housing\
+		/housing smoothing time )
+	~	m*m/Year
+	~		|
+
+housing area= INTEG (
+	house construction,
+		18000)
+	~	m*m
+	~		|
+
+housing smoothing time=
+	5
+	~	Year
+	~		|
+
+increase irrigated=
+	IF THEN ELSE(difference max area < 0 , 0 , adaptation time to irrigated agriculture*\
+		difference max area)
+	~	m*m/Year
+	~		|
+
+increase non irrigated=
+	IF THEN ELSE(difference max area < 0 , 0, difference max area*adaptation time to non irrigated agriculture\
+		)
+	~	m*m/Year
+	~		|
+
+increase percentage unemployed=
+	1
+	~	1/Year
+	~		|
+
+industrial demand=
+	demand per employee*working in industry
+	~	liter/Year
+	~		|
+
+lookup for water extraction(
+	[(1975,0)-(2020,60)],(1975,20),(1976,21),(1977,22),(1978,23),(1979,23),(1980,24),(1981\
+		,24),(1982,24),(1983,25),(1984,26),(1985,28),(1986,30),(1987,33),(1988,35),(1989,37\
+		),(1990,38),(1991,38),(1992,38),(1993,39),(1994,39),(1995,39),(1996,39),(1997,40),(\
+		1998,41),(1999,41),(2000,41),(2001,41),(2002,42),(2003,43),(2004,43),(2005,43),(2006\
+		,43),(2007,44),(2008,44),(2009,44),(2010,45),(2011,45),(2012,46),(2013,46),(2014,47\
+		),(2015,47),(2018,48),(2019,49),(2020,49))
+	~	Dmnl
+	~		|
+
+max agriculture=
+	area available
+	~	m*m
+	~		|
+
+max importable volume=
+	1e+011
+	~	(m*m*m)/Year
+	~		|
+
+number of houses=
+	population/people per house
+	~	house
+	~		|
+
+"omreken factor m^3 naar liter"=
+	1000
+	~	l/(m*m*m)
+	~		|
+
+people per house=
+	7
+	~	people/house
+	~		|
+
+perc unemployed= INTEG (
+	increase percentage unemployed,
+		1)
+	~	1
+	~		|
+
+percentage working in industry=
+	0.125
+	~	1
+	~		|
+
+percentage working population=
+	0.22
+	~	1
+	~		|
+
+population= INTEG (
+	births-deaths-emigration,
+		443992)
+	~	people
+	~		|
+
+porosity=
+	0.05
+	~	1
+	~		|
+
+position of salt intrusion front=
+	total width of aquifer-avererage width aquiver
+	~	m
+	~		|
+
+rainfall=
+	0.3
+	~	m/Year
+	~		|
+
+recharge from river=
+	(1-(upstream water extraction/100))*river flow component
+	~	m*m*m/Year
+	~		|
+
+river flow component=
+	2e+006
+	~	m*m*m/Year
+	~		|
+
+salt concentration=
+	amount of salt in aquifer/(ground water volume)
+	~	mg/(m*m*m)
+	~		|
+
+"salt concentration in mg/l"=
+	salt concentration/"omreken factor m^3 naar liter"
+	~	mg/l
+	~		|
+
+total demand=
+	demand buiness area+demand housing
+	~	m*m
+	~		|
+
+total water shortage=
+	total water demand-total water supply
+	~	(m*m*m)/Year
+	~		|
+
+total water supply=
+	extraction+water imported
+	~	(m*m*m)/Year
+	~		|
+
+total width of aquifer=
+	100
+	~	m
+	~		|
+
+total working population=
+	percentage working population*population
+	~	people
+	~		|
+
+upstream water extraction=
+	lookup for water extraction(Time+1976)
+	~	1
+	~		|
+
+usual fraction imported=
+	0.1
+	~	1
+	~		|
+
+water demand irrigation=
+	area irrigated*water demand irrigation per area
+	~	liter/Year
+	~		|
+
+water demand irrigation per area= INTEG (
+	-savings,
+		700)
+	~	liter/(m*m*Year)
+	~		|
+
+water demand per area=
+	0.75*water demand irrigation per area
+	~	
+	~		|
+
+water imported=
+	MIN( total water demand*usual fraction imported, max importable volume)
+	~	(m*m*m)/Year
+	~		|
+
+working in industry=
+	actually working*percentage working in industry
+	~	people
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 100
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 1
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.015625
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*quantitiy of grounwater
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,110,0
+10,1,ground water volume,574,317,40,20,3,3,0,0,0,0,0,0
+12,2,48,776,334,10,8,0,3,0,0,-1,0,0,0
+1,3,5,2,4,0,0,22,0,0,0,-1--1--1,,1|(726,332)|
+1,4,5,1,100,0,0,22,0,0,0,-1--1--1,,1|(644,332)|
+11,5,48,680,332,6,8,34,3,0,0,1,0,0,0
+10,6,extraction,680,351,32,11,40,3,0,0,-1,0,0,0
+12,7,48,181,313,10,8,0,3,0,0,-1,0,0,0
+1,8,9,7,100,0,0,22,0,0,0,-1--1--1,,1|(226,317)|
+11,9,48,267,317,6,8,34,3,0,0,1,0,0,0
+10,10,supply due to rain,267,336,56,11,40,3,0,0,-1,0,0,0
+12,11,48,575,529,10,8,0,3,0,0,-1,0,0,0
+1,12,14,1,4,0,0,22,0,0,0,-1--1--1,,1|(578,379)|
+1,13,14,11,100,0,0,22,0,0,0,-1--1--1,,1|(578,477)|
+11,14,48,578,427,8,6,33,3,0,0,4,0,0,0
+10,15,recharge from river,646,427,60,11,40,3,0,0,-1,0,0,0
+10,16,rainfall,104,403,22,11,8,3,0,0,0,0,0,0
+10,17,area country,368,670,40,11,8,3,0,0,0,0,0,0
+10,18,rain,180,437,13,11,8,3,0,0,0,0,0,0
+1,19,16,18,1,0,0,0,0,64,0,-1--1--1,,1|(155,393)|
+1,20,18,10,1,0,0,0,0,64,0,-1--1--1,,1|(229,404)|
+10,21,river flow component,725,488,36,19,8,3,0,0,0,0,0,0
+10,22,upstream water extraction,633,507,49,19,8,3,0,0,0,0,0,0
+1,23,21,15,0,0,0,0,0,64,0,-1--1--1,,1|(686,457)|
+1,24,22,15,0,0,0,0,0,64,0,-1--1--1,,1|(638,469)|
+10,25,lookup for water extraction,669,654,54,19,8,3,0,0,0,0,0,0
+1,26,25,22,0,0,0,0,0,64,0,-1--1--1,,1|(652,587)|
+10,27,Time,733,628,26,11,8,2,16,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,28,27,22,0,16,0,0,2,64,0,-1--1--1,|12||0-0-0,1|(690,576)|
+10,29,potential water demand,903,443,47,19,8,3,0,0,0,0,0,0
+10,30,extractable,862,551,35,11,8,3,0,0,0,0,0,0
+10,31,position of salt intrusion front,971,526,46,19,8,3,0,0,0,0,0,0
+10,32,total width of aquifer,1116,570,42,19,8,3,0,0,0,0,0,0
+10,33,porosity,1142,514,27,11,8,3,0,0,0,0,0,0
+10,34,cross sectional area aquifer,1175,393,47,19,8,3,0,0,0,0,0,0
+10,35,avererage width aquiver,1061,476,51,19,8,3,0,0,0,0,0,0
+1,36,29,6,0,0,0,0,0,64,0,-1--1--1,,1|(787,395)|
+1,37,30,6,0,0,0,0,0,64,0,-1--1--1,,1|(775,456)|
+1,38,31,30,0,0,0,0,0,64,0,-1--1--1,,1|(917,537)|
+1,39,32,31,0,0,0,0,0,64,0,-1--1--1,,1|(1052,550)|
+1,40,33,35,0,0,0,0,0,64,0,-1--1--1,,1|(1116,501)|
+1,41,34,35,0,0,0,0,0,64,0,-1--1--1,,1|(1123,430)|
+1,42,35,31,0,0,0,0,0,64,0,-1--1--1,,1|(1022,497)|
+10,43,ground water volume,1131,330,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,44,43,35,0,0,0,0,0,64,0,-1--1--1,,1|(1099,396)|
+10,45,default extractable,973,608,57,11,8,3,0,0,0,0,0,0
+1,46,45,30,0,0,0,0,0,64,0,-1--1--1,,1|(923,582)|
+10,47,water share agriculture,456,128,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,48,total water demand,910,362,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,49,48,29,0,0,0,0,0,64,0,-1--1--1,,1|(907,395)|
+10,50,usual fraction imported,1010,387,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,51,50,29,0,0,0,0,0,64,0,-1--1--1,,1|(962,411)|
+10,52,max volume of ground water,1225,560,47,19,8,3,0,0,0,0,0,0
+1,53,32,52,0,0,0,0,0,64,0,-1--1--1,,1|(1161,566)|
+1,54,33,52,0,0,0,0,0,64,0,-1--1--1,,1|(1169,529)|
+1,55,34,52,0,0,0,0,0,64,0,-1--1--1,,1|(1197,469)|
+12,56,48,765,295,10,8,0,3,0,0,-1,0,0,0
+1,57,59,56,4,0,0,22,0,0,0,-1--1--1,,1|(718,299)|
+1,58,59,1,100,0,0,22,0,0,0,-1--1--1,,1|(642,299)|
+11,59,48,676,299,6,8,34,3,0,0,1,0,0,0
+10,60,flushing to sea,676,318,44,11,40,3,0,0,-1,0,0,0
+10,61,max volume of ground water,781,218,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,62,1,60,0,0,0,0,0,64,0,-1--1--1,,1|(616,317)|
+1,63,61,60,0,0,0,0,0,64,0,-1--1--1,,1|(729,267)|
+10,64,TIME STEP,652,268,50,11,8,2,16,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,65,64,60,0,16,0,0,2,64,0,-1--1--1,|12||0-0-0,1|(660,286)|
+10,66,root zone,375,318,40,20,3,3,0,0,0,0,0,0
+1,67,9,66,4,0,0,22,0,0,0,-1--1--1,,1|(304,317)|
+1,68,70,1,4,0,0,22,0,0,0,-1--1--1,,1|(505,319)|
+1,69,70,66,100,0,0,22,0,0,0,-1--1--1,,1|(440,319)|
+11,70,508,471,319,6,8,34,3,0,0,1,0,0,0
+10,71,percolation,471,338,36,11,40,3,0,0,-1,0,0,0
+12,72,48,363,173,10,8,0,3,0,0,-1,0,0,0
+1,73,75,66,4,0,0,22,0,0,0,-1--1--1,,1|(363,271)|
+1,74,75,72,100,0,0,22,0,0,0,-1--1--1,,1|(363,207)|
+11,75,48,363,239,8,6,33,3,0,0,4,0,0,0
+10,76,irrigation,399,239,28,11,40,3,0,0,-1,0,0,0
+1,77,47,76,0,0,0,0,0,64,0,-1--1--1,,1|(428,181)|
+12,78,48,368,431,10,8,0,3,0,0,-1,0,0,0
+1,79,81,78,4,0,0,22,0,0,0,-1--1--1,,1|(368,404)|
+1,80,81,66,100,0,0,22,0,0,0,-1--1--1,,1|(368,356)|
+11,81,48,368,380,8,6,33,3,0,0,4,0,0,0
+10,82,water use,407,380,31,11,40,3,0,0,-1,0,0,0
+10,83,evaporation,284,420,38,11,8,3,0,0,0,0,0,0
+1,84,66,83,1,0,0,0,0,64,0,-1--1--1,,1|(317,353)|
+1,85,83,82,1,0,0,0,0,64,0,-1--1--1,,1|(331,380)|
+10,86,water use by crops,415,500,60,11,8,3,0,0,0,0,0,0
+1,87,86,82,0,0,0,0,0,64,0,-1--1--1,,1|(411,446)|
+1,88,66,82,0,0,0,0,0,64,0,-1--1--1,,1|(389,347)|
+10,89,TIME STEP,479,386,50,11,8,2,16,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,90,89,82,0,16,0,0,2,64,0,-1--1--1,|12||0-0-0,1|(440,382)|
+12,91,0,160,651,126,38,8,135,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|255-0-0
+assumption here is that all the water goes into the rootzone, migh be modified to only use the agricultural land
+10,92,evaporation constant,295,489,38,19,8,3,0,0,0,0,0,0
+1,93,92,83,0,0,0,0,0,64,0,-1--1--1,,1|(289,457)|
+1,94,66,71,1,0,0,0,0,64,0,-1--1--1,,1|(430,351)|
+10,95,percolation constant,496,399,36,19,8,3,0,0,0,0,0,0
+1,96,95,71,0,0,0,0,0,64,0,-1--1--1,,1|(484,370)|
+10,97,area agriculture,268,561,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+10,98,water usage by crops,502,577,48,19,8,3,0,0,0,0,0,0
+1,99,97,86,0,0,0,0,0,64,0,-1--1--1,,1|(334,533)|
+1,100,98,86,0,0,0,0,0,64,0,-1--1--1,,1|(459,539)|
+10,101,porosity top soil,291,251,51,11,8,3,0,0,0,0,0,0
+1,102,17,66,0,0,0,0,0,64,1,-1--1--1,,1|(370,505)|
+1,103,101,66,0,0,0,0,0,64,1,-1--1--1,,1|(321,275)|
+1,104,97,18,0,0,0,0,0,64,0,-1--1--1,,1|(228,504)|
+10,107,percolation,824,622,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,108,107,30,0,0,0,0,0,64,0,-1--1--1,,1|(839,592)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*salt in the aquifer
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,amount of salt in aquifer,487,243,40,20,3,3,0,0,0,0,0,0
+1,2,3,1,4,0,0,22,0,0,0,-1--1--1,,1|(397,246)|
+11,3,48,341,246,6,8,34,3,0,0,1,0,0,0
+10,4,salt inflow from agriculture,341,273,49,19,40,3,0,0,-1,0,0,0
+12,5,48,721,240,10,8,0,3,0,0,-1,0,0,0
+1,6,8,5,4,0,0,22,0,0,0,-1--1--1,,1|(668,240)|
+1,7,8,1,100,0,0,22,0,0,0,-1--1--1,,1|(570,240)|
+11,8,48,619,240,6,8,34,3,0,0,1,0,0,0
+10,9,salt outflow,619,259,37,11,40,3,0,0,-1,0,0,0
+12,10,48,487,100,10,8,0,3,0,0,-1,0,0,0
+1,11,13,1,4,0,0,22,0,0,0,-1--1--1,,1|(487,197)|
+1,12,13,10,100,0,0,22,0,0,0,-1--1--1,,1|(487,133)|
+11,13,48,487,165,8,6,33,3,0,0,4,0,0,0
+10,14,diffusion of salt into the aquifer from sea,568,165,73,19,40,3,0,0,-1,0,0,0
+10,15,ground water volume,360,396,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,16,avererage width aquiver,729,97,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,18,normal diffusion constant,495,56,50,19,8,3,0,0,0,0,0,0
+10,19,salt concentration,489,351,55,11,8,3,0,0,0,0,0,0
+10,20,cross sectional area aquifer,635,46,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,22,18,14,0,0,0,0,0,64,0,-1--1--1,,1|(527,104)|
+1,23,20,14,0,0,0,0,0,64,0,-1--1--1,,1|(605,99)|
+1,24,16,14,0,0,0,0,0,64,0,-1--1--1,,1|(654,128)|
+1,25,15,19,0,0,0,0,0,64,0,-1--1--1,,1|(425,373)|
+1,26,1,19,0,0,0,0,0,64,0,-1--1--1,,1|(487,294)|
+1,27,19,9,0,0,0,0,0,64,0,-1--1--1,,1|(547,309)|
+10,28,diffusion lookup,758,189,50,11,8,3,0,0,0,0,0,0
+1,29,28,14,0,0,0,0,0,64,0,-1--1--1,,1|(681,179)|
+10,30,"omreken factor m^3 naar liter",410,488,49,19,8,3,0,0,0,0,0,0
+10,31,"salt concentration in mg/l",510,442,56,19,8,3,0,0,0,0,0,0
+1,32,19,31,0,0,0,0,0,64,0,-1--1--1,,1|(496,385)|
+1,33,30,31,0,0,0,0,0,64,0,-1--1--1,,1|(453,467)|
+10,34,extraction,709,316,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,35,34,9,0,0,0,0,0,64,0,-1--1--1,,1|(669,291)|
+10,36,seepage constant,277,345,45,19,8,3,0,0,0,0,0,0
+1,37,36,4,0,0,0,0,0,64,0,-1--1--1,,1|(303,314)|
+10,38,flushing to sea,695,378,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,39,38,9,0,0,0,0,0,64,0,-1--1--1,,1|(660,324)|
+10,40,percolation,323,44,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+10,42,amount of salt in top soil,192,244,40,20,3,3,0,0,0,0,0,0
+1,43,3,42,100,0,0,22,0,0,0,-1--1--1,,1|(283,246)|
+12,44,48,31,242,10,8,0,3,0,0,-1,0,0,0
+1,45,47,42,4,0,0,22,0,0,0,-1--1--1,,1|(123,242)|
+1,46,47,44,100,0,0,22,0,0,0,-1--1--1,,1|(62,242)|
+11,47,0,89,242,6,8,34,3,0,0,1,0,0,0
+10,48,inflow of salt,89,261,40,11,40,3,0,0,-1,0,0,0
+10,49,irrigation,71,318,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,50,49,48,0,0,0,0,0,64,0,-1--1--1,,1|(77,296)|
+1,51,19,48,0,0,0,0,0,64,0,-1--1--1,,1|(291,306)|
+10,52,cubic meter to liter,309,206,50,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,54,40,4,0,0,0,0,0,64,0,-1--1--1,,1|(330,147)|
+1,55,42,4,0,0,0,0,0,64,0,-1--1--1,,1|(255,255)|
+10,56,TIME STEP,341,311,50,11,8,2,16,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,57,56,4,0,16,0,0,2,64,0,-1--1--1,|0||-1--1--1,1|(341,303)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*population
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,population,441,321,40,20,3,3,0,0,0,0,0,0
+12,2,48,157,322,10,8,0,3,0,0,-1,0,0,0
+1,3,5,1,4,0,0,22,0,0,0,-1--1--1,,1|(345,322)|
+1,4,5,2,100,0,0,22,0,0,0,-1--1--1,,1|(222,322)|
+11,5,48,284,322,6,8,34,3,0,0,1,0,0,0
+10,6,births,284,341,19,11,40,3,0,0,-1,0,0,0
+12,7,48,743,328,10,8,0,3,0,0,-1,0,0,0
+1,8,10,7,4,0,0,22,0,0,0,-1--1--1,,1|(673,328)|
+1,9,10,1,100,0,0,22,0,0,0,-1--1--1,,1|(541,328)|
+11,10,48,607,328,6,8,34,3,0,0,1,0,0,0
+10,11,deaths,607,347,22,11,40,3,0,0,-1,0,0,0
+1,12,13,1,100,0,0,22,0,0,0,-1--1--1,,1|(438,272)|
+11,13,1340,438,238,8,6,33,3,0,0,4,0,0,0
+10,14,emigration,479,238,33,11,40,3,0,0,-1,0,0,0
+1,15,1,6,1,0,0,0,0,64,0,-1--1--1,,1|(361,353)|
+1,16,1,14,1,0,0,0,0,64,0,-1--1--1,,1|(495,280)|
+1,17,1,11,1,0,0,0,0,64,0,-1--1--1,,1|(521,374)|
+10,18,domestic water demand,452,440,49,19,8,3,0,0,0,0,0,0
+10,19,water shortage per person,734,206,60,19,8,3,0,0,0,0,0,0
+10,20,influence of salt on deaths,602,471,59,19,8,3,0,0,0,0,0,0
+10,21,birth lookup,215,378,39,11,8,3,0,0,0,0,0,0
+10,22,deaths lookup,730,380,45,11,8,3,0,0,0,0,0,0
+10,23,emigration watershortage lookup,756,153,69,19,8,3,0,0,0,0,0,0
+1,24,21,6,0,0,0,0,0,64,0,-1--1--1,,1|(243,362)|
+1,25,23,14,0,0,0,0,0,64,0,-1--1--1,,1|(610,197)|
+1,26,22,11,0,0,0,0,0,64,0,-1--1--1,,1|(665,362)|
+1,27,20,11,0,0,0,0,0,64,0,-1--1--1,,1|(603,411)|
+10,28,"salt concentration in mg/l",725,545,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,29,28,20,0,0,0,0,0,64,0,-1--1--1,,1|(669,511)|
+1,30,1,18,0,0,0,0,0,64,0,-1--1--1,,1|(445,374)|
+10,31,water demand per person,376,559,58,19,8,3,0,0,0,0,0,0
+1,32,31,18,0,0,0,0,0,64,0,-1--1--1,,1|(409,505)|
+10,33,Time,247,262,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,34,33,6,0,0,0,0,0,64,0,-1--1--1,,1|(262,295)|
+1,35,1,19,1,0,0,0,0,64,0,-1--1--1,,1|(654,345)|
+1,36,19,14,0,0,0,0,0,64,0,-1--1--1,,1|(599,222)|
+10,37,emigration fraction exported lookup,670,106,59,19,8,3,0,0,0,0,0,0
+10,38,Time,704,426,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,39,38,11,0,0,0,0,0,64,0,-1--1--1,,1|(660,390)|
+10,40,water shortage domestic,857,205,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,41,40,19,0,0,0,0,0,64,0,-1--1--1,,1|(807,205)|
+10,42,fraction exported,572,109,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,43,37,14,0,0,0,0,0,64,0,-1--1--1,,1|(574,172)|
+1,44,42,14,0,0,0,0,0,64,0,-1--1--1,,1|(526,171)|
+10,45,births multiplier,295,437,42,23,8,131,0,0,0,0,0,0
+1,46,45,6,0,0,0,0,0,64,0,-1--1--1,,1|(289,389)|
+10,47,deaths multiplier,671,296,51,11,8,3,0,0,0,0,0,0
+1,48,47,11,0,0,0,0,0,64,0,-1--1--1,,1|(644,317)|
+10,49,food shortage multiplier,323,141,44,19,8,3,0,0,0,0,0,0
+10,50,water shortage multiplier,247,214,47,19,8,3,0,0,0,0,0,0
+1,51,49,14,0,0,0,0,0,64,0,-1--1--1,,1|(401,189)|
+1,52,50,14,0,0,0,0,0,64,0,-1--1--1,,1|(363,225)|
+10,53,salinity effect multiplier,562,533,41,19,8,3,0,0,0,0,0,0
+1,54,53,20,0,0,0,0,0,64,0,-1--1--1,,1|(577,507)|
+10,55,climate refugees,438,152,40,20,3,3,0,0,0,0,0,0
+1,56,13,55,4,0,0,22,0,0,0,-1--1--1,,1|(438,202)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Agriculture
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*industry
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,perc unemployed,281,121,40,20,3,3,0,0,0,0,0,0
+12,2,48,79,127,10,8,0,3,0,0,-1,0,0,0
+1,3,5,1,4,0,0,22,0,0,0,-1--1--1,,1|(206,127)|
+1,4,5,2,100,0,0,22,0,0,0,-1--1--1,,1|(124,127)|
+11,5,48,165,127,6,8,34,3,0,0,1,0,0,0
+10,6,increase percentage unemployed,165,154,63,19,40,3,0,0,-1,0,0,0
+10,7,population,94,281,43,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,8,percentage working population,113,356,63,19,8,3,0,0,0,0,0,0
+10,9,total working population,259,267,42,19,8,3,0,0,0,0,0,0
+10,10,actually working,360,234,51,11,8,3,0,0,0,0,0,0
+10,11,working in industry,441,331,59,11,8,3,0,0,0,0,0,0
+10,12,percentage working in industry,270,400,63,19,8,3,0,0,0,0,0,0
+10,13,industrial demand,571,301,55,11,8,3,0,0,0,0,0,0
+10,14,demand per employee,741,331,39,19,8,3,0,0,0,0,0,0
+1,15,1,10,0,0,0,0,0,64,0,-1--1--1,,1|(318,176)|
+1,16,7,9,0,0,0,0,0,64,0,-1--1--1,,1|(170,274)|
+1,17,8,9,0,0,0,0,0,64,0,-1--1--1,,1|(179,315)|
+1,18,9,10,0,0,0,0,0,64,0,-1--1--1,,1|(306,251)|
+1,19,10,11,0,0,0,0,0,64,0,-1--1--1,,1|(395,277)|
+1,20,12,11,0,0,0,0,0,64,0,-1--1--1,,1|(358,364)|
+1,21,11,13,0,0,0,0,0,64,0,-1--1--1,,1|(498,317)|
+1,22,14,13,0,0,0,0,0,64,0,-1--1--1,,1|(670,318)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*usage of land
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,housing area,233,-386,40,20,3,3,0,0,0,0,0,0
+10,2,area available,500,-387,40,20,3,3,0,0,0,0,0,0
+10,3,business area,878,-390,40,20,3,3,0,0,0,0,0,0
+1,4,6,1,4,0,0,22,0,0,0,-1--1--1,,1|(316,-385)|
+1,5,6,2,100,0,0,22,0,0,0,-1--1--1,,1|(415,-385)|
+11,6,1996,365,-385,6,8,34,3,0,0,1,0,0,0
+10,7,house construction,365,-366,58,11,40,3,0,0,-1,0,0,0
+1,8,10,3,4,0,0,22,0,0,0,-1--1--1,,1|(748,-388)|
+1,9,10,2,100,0,0,22,0,0,0,-1--1--1,,1|(593,-388)|
+11,10,1836,652,-388,6,8,34,3,0,0,1,0,0,0
+10,11,business construction,652,-361,39,19,40,3,0,0,-1,0,0,0
+10,12,max agriculture,505,-496,48,11,8,3,0,0,0,0,0,0
+10,13,difference demand and housing,291,-285,59,19,8,3,0,0,0,0,0,0
+10,14,demand housing,393,-199,51,11,8,3,0,0,0,0,0,0
+10,15,total demand,494,-262,41,11,8,3,0,0,0,0,0,0
+10,16,area per house,379,-109,47,11,8,3,0,0,0,0,0,0
+10,17,number of houses,200,-167,55,11,8,3,0,0,0,0,0,0
+10,18,people per house,82,-109,54,11,8,3,0,0,0,0,0,0
+10,19,population,64,-231,43,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,20,2,12,0,0,0,0,0,64,0,-1--1--1,,1|(501,-440)|
+1,21,2,7,1,0,0,0,0,64,0,-1--1--1,,1|(416,-427)|
+1,22,2,11,1,0,0,0,0,64,0,-1--1--1,,1|(575,-425)|
+1,23,15,7,0,0,0,0,0,64,0,-1--1--1,,1|(434,-310)|
+1,24,15,11,0,0,0,0,0,64,0,-1--1--1,,1|(560,-304)|
+1,25,14,15,0,0,0,0,0,64,0,-1--1--1,,1|(437,-227)|
+1,26,14,13,0,0,0,0,0,64,0,-1--1--1,,1|(351,-234)|
+1,27,14,7,0,0,0,0,0,64,0,-1--1--1,,1|(380,-276)|
+1,28,1,13,0,0,0,0,0,64,0,-1--1--1,,1|(258,-342)|
+1,29,13,7,0,0,0,0,0,64,0,-1--1--1,,1|(326,-325)|
+1,30,19,17,0,0,0,0,0,64,0,-1--1--1,,1|(125,-202)|
+1,31,18,17,0,0,0,0,0,64,0,-1--1--1,,1|(134,-135)|
+1,32,17,14,0,0,0,0,0,64,0,-1--1--1,,1|(291,-183)|
+1,33,16,14,0,0,0,0,0,64,0,-1--1--1,,1|(384,-148)|
+10,34,difference demand and business,753,-214,59,19,8,3,0,0,0,0,0,0
+10,35,demand buiness area,669,-149,51,19,8,3,0,0,0,0,0,0
+10,36,area per worker,587,-71,51,11,8,3,0,0,0,0,0,0
+10,37,actually working,778,-69,31,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,38,37,35,0,0,0,0,0,64,0,-1--1--1,,1|(729,-105)|
+1,39,35,34,0,0,0,0,0,64,0,-1--1--1,,1|(704,-178)|
+1,40,3,34,0,0,0,0,0,64,0,-1--1--1,,1|(819,-308)|
+1,41,35,15,0,0,0,0,0,64,0,-1--1--1,,1|(581,-206)|
+1,42,35,11,0,0,0,0,0,64,0,-1--1--1,,1|(661,-249)|
+1,43,36,35,0,0,0,0,0,64,0,-1--1--1,,1|(618,-102)|
+1,44,34,11,0,0,0,0,0,64,0,-1--1--1,,1|(706,-282)|
+10,45,housing smoothing time,498,-558,55,19,8,3,0,0,0,0,0,0
+1,46,45,7,1,0,0,0,0,64,0,-1--1--1,,1|(379,-497)|
+10,47,building time,468,-343,40,11,8,3,0,0,0,0,0,0
+1,48,47,7,0,0,0,0,0,64,0,-1--1--1,,1|(427,-352)|
+1,49,47,11,0,0,0,0,0,64,0,-1--1--1,,1|(553,-352)|
+1,50,45,11,1,0,0,0,0,64,0,-1--1--1,,1|(614,-501)|
+10,51,water demand irrigation per area,480,737,40,20,3,3,0,0,0,0,0,0
+10,52,area irrigated,466,400,41,23,3,131,0,0,0,0,0,0
+10,53,area non irrigated,460,93,40,20,3,3,0,0,0,0,0,0
+12,54,48,209,91,10,8,0,3,0,0,-1,0,0,0
+1,55,57,53,4,0,0,22,0,0,0,-1--1--1,,1|(377,88)|
+1,56,57,54,100,0,0,22,0,0,0,-1--1--1,,1|(270,88)|
+11,57,48,328,88,6,8,34,3,0,0,1,0,0,0
+10,58,increase non irrigated,328,115,40,19,40,3,0,0,-1,0,0,0
+12,59,48,746,96,10,8,0,3,0,0,-1,0,0,0
+1,60,62,59,4,0,0,22,0,0,0,-1--1--1,,1|(683,93)|
+1,61,62,53,100,0,0,22,0,0,0,-1--1--1,,1|(559,93)|
+11,62,48,625,93,6,8,34,3,0,0,1,0,0,0
+10,63,decrease non irrigated,625,120,43,19,40,3,0,0,-1,0,0,0
+12,64,48,763,400,10,8,0,3,0,0,-1,0,0,0
+1,65,67,64,4,0,0,22,0,0,0,-1--1--1,,1|(694,400)|
+1,66,67,52,100,0,0,22,0,0,0,-1--1--1,,1|(565,400)|
+11,67,48,629,400,6,8,34,3,0,0,1,0,0,0
+10,68,decrease irrigated,629,419,56,11,40,3,0,0,-1,0,0,0
+12,69,48,234,394,10,8,0,3,0,0,-1,0,0,0
+1,70,72,52,4,0,0,22,0,0,0,-1--1--1,,1|(382,394)|
+1,71,72,69,100,0,0,22,0,0,0,-1--1--1,,1|(286,394)|
+11,72,48,334,394,6,8,34,3,0,0,1,0,0,0
+10,73,increase irrigated,334,413,53,11,40,3,0,0,-1,0,0,0
+12,74,48,729,736,10,8,0,3,0,0,-1,0,0,0
+1,75,77,74,4,0,0,22,0,0,0,-1--1--1,,1|(672,736)|
+1,76,77,51,100,0,0,22,0,0,0,-1--1--1,,1|(566,736)|
+11,77,48,619,736,6,8,34,3,0,0,1,0,0,0
+10,78,savings,619,755,24,11,40,3,0,0,-1,0,0,0
+1,79,81,53,4,0,0,22,0,0,0,-1--1--1,,1|(464,199)|
+1,80,81,52,100,0,0,22,0,0,0,-1--1--1,,1|(464,337)|
+11,81,972,464,292,8,6,33,3,0,0,4,0,0,0
+10,82,change caused by water,529,292,57,19,40,3,0,0,-1,0,0,0
+10,83,area agriculture,354,247,48,11,8,3,0,0,0,0,0,0
+10,84,difference max area,209,245,47,19,8,3,0,0,0,0,0,0
+10,85,adaptation time,611,262,48,11,8,3,0,0,0,0,0,0
+10,86,water demand irrigation,477,589,46,19,8,3,0,0,0,0,0,0
+10,87,water demand per area,313,741,46,19,8,3,0,0,0,0,0,0
+10,88,max area with water,202,835,45,19,8,3,0,0,0,0,0,0
+1,89,51,87,0,0,0,0,0,64,0,-1--1--1,,1|(406,737)|
+1,90,87,88,0,0,0,0,0,64,0,-1--1--1,,1|(262,783)|
+1,91,51,86,0,0,0,0,0,64,0,-1--1--1,,1|(478,669)|
+1,92,52,86,0,0,0,0,0,64,0,-1--1--1,,1|(470,489)|
+1,93,51,78,1,0,0,0,0,64,0,-1--1--1,,1|(546,772)|
+1,94,52,82,1,0,0,0,0,64,0,-1--1--1,,1|(528,339)|
+1,95,52,83,0,0,0,0,0,64,0,-1--1--1,,1|(410,323)|
+1,96,53,83,0,0,0,0,0,64,0,-1--1--1,,1|(407,168)|
+1,97,83,84,0,0,0,0,0,64,0,-1--1--1,,1|(287,246)|
+1,98,84,73,0,0,0,0,0,64,0,-1--1--1,,1|(269,327)|
+1,99,84,58,0,0,0,0,0,64,0,-1--1--1,,1|(263,185)|
+1,100,85,82,0,0,0,0,0,64,0,-1--1--1,,1|(587,273)|
+1,101,52,68,1,0,0,0,0,64,0,-1--1--1,,1|(533,447)|
+1,102,53,63,1,0,0,0,0,64,0,-1--1--1,,1|(507,42)|
+10,103,difference max area,875,262,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,104,area agriculture,725,247,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,105,103,68,0,0,0,0,0,64,0,-1--1--1,,1|(751,340)|
+1,106,104,68,0,0,0,0,0,64,0,-1--1--1,,1|(680,326)|
+1,107,104,63,0,0,0,0,0,64,0,-1--1--1,,1|(682,192)|
+1,108,103,63,0,0,0,0,0,64,0,-1--1--1,,1|(756,194)|
+10,109,max area with water,537,233,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,110,109,82,0,0,0,0,0,64,0,-1--1--1,,1|(534,255)|
+10,111,adaptation time to non irrigated agriculture,201,-17,62,19,8,3,0,0,0,0,0,0
+1,112,111,58,0,0,0,0,0,64,0,-1--1--1,,1|(259,43)|
+10,113,adaptation time to irrigated agriculture,298,501,61,19,8,3,0,0,0,0,0,0
+1,114,113,73,0,0,0,0,0,64,0,-1--1--1,,1|(314,459)|
+10,115,water share agriculture,228,680,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,116,115,88,0,0,0,0,0,64,0,-1--1--1,,1|(216,750)|
+10,117,max agriculture,101,305,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,118,117,84,0,0,0,0,0,64,0,-1--1--1,,1|(140,282)|
+10,119,adaptation time from irrigated agriculture,631,495,66,19,8,3,0,0,0,0,0,0
+10,120,adaptation time from non irrigated agriculture,709,18,74,19,8,3,0,0,0,0,0,0
+1,121,120,63,0,0,0,0,0,64,0,-1--1--1,,1|(671,63)|
+1,122,119,68,0,0,0,0,0,64,0,-1--1--1,,1|(630,459)|
+10,123,technological developments in irrigation,687,813,52,28,8,3,0,0,0,0,0,0
+1,124,123,78,0,0,0,0,0,64,0,-1--1--1,,1|(648,779)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*water balance
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,domestic water demand,123,201,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,2,industrial demand,89,311,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,3,water demand irrigation,113,471,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,4,total water demand,413,361,34,19,8,3,0,0,0,0,0,0
+10,5,water share agriculture,387,519,37,19,8,3,0,0,0,0,0,0
+10,6,water shortage domestic,434,159,47,19,8,3,0,0,0,0,0,0
+10,7,water share population,569,250,37,19,8,3,0,0,0,0,0,0
+10,8,water imported,709,372,48,11,8,3,0,0,0,0,0,0
+10,9,usual fraction imported,682,316,42,19,8,3,0,0,0,0,0,0
+10,10,max importable volume,832,288,49,19,8,3,0,0,0,0,0,0
+10,11,total water shortage,693,428,34,19,8,3,0,0,0,0,0,0
+10,12,water share industry,581,549,37,19,8,3,0,0,0,0,0,0
+10,13,total water supply,971,404,56,11,8,3,0,0,0,0,0,0
+1,14,4,5,0,0,0,0,0,64,0,-1--1--1,,1|(401,433)|
+1,15,4,12,0,0,0,0,0,64,0,-1--1--1,,1|(491,449)|
+1,16,4,7,0,0,0,0,0,64,0,-1--1--1,,1|(484,309)|
+1,17,7,6,0,0,0,0,0,64,0,-1--1--1,,1|(507,208)|
+1,18,8,13,0,0,0,0,0,64,0,-1--1--1,,1|(829,386)|
+1,19,13,11,0,0,0,0,0,64,0,-1--1--1,,1|(827,415)|
+1,20,4,11,0,0,0,0,0,64,0,-1--1--1,,1|(546,392)|
+1,21,13,12,1,0,0,0,0,64,0,-1--1--1,,1|(801,518)|
+1,22,13,5,1,0,0,0,0,64,0,-1--1--1,,1|(732,640)|
+1,23,13,7,1,0,0,0,0,64,0,-1--1--1,,1|(867,209)|
+1,24,9,8,0,0,0,0,0,64,0,-1--1--1,,1|(694,341)|
+1,25,10,8,0,0,0,0,0,64,0,-1--1--1,,1|(770,330)|
+10,26,extraction,1052,495,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,27,26,13,0,0,0,0,0,64,0,-1--1--1,,1|(1016,454)|
+1,28,4,8,0,0,0,0,0,64,0,-1--1--1,,1|(547,365)|
+10,29,liter to cubic meter,119,404,58,11,8,3,0,0,0,0,0,0
+10,30,domestic water demand in cubic meters,287,195,75,19,8,3,0,0,0,0,0,0
+10,31,industrial demand in cubic meters,269,330,63,19,8,3,0,0,0,0,0,0
+10,32,agricultural water in demand in cubic meters,275,448,75,19,8,3,0,0,0,0,0,0
+1,33,29,32,0,0,0,0,0,64,0,-1--1--1,,1|(175,420)|
+1,34,3,32,0,0,0,0,0,64,0,-1--1--1,,1|(174,462)|
+1,35,2,31,0,0,0,0,0,64,0,-1--1--1,,1|(157,317)|
+1,36,1,30,0,0,0,0,0,64,0,-1--1--1,,1|(187,199)|
+1,37,29,31,0,0,0,0,0,64,0,-1--1--1,,1|(179,374)|
+1,38,29,30,0,0,0,0,0,64,0,-1--1--1,,1|(194,308)|
+1,39,30,4,0,0,0,0,0,64,0,-1--1--1,,1|(345,272)|
+1,40,31,4,0,0,0,0,0,64,0,-1--1--1,,1|(348,346)|
+1,41,32,4,0,0,0,0,0,64,0,-1--1--1,,1|(337,408)|
+1,42,32,5,0,0,0,0,0,64,0,-1--1--1,,1|(324,479)|
+1,43,31,12,0,0,0,0,0,64,0,-1--1--1,,1|(418,435)|
+1,44,30,7,0,0,0,0,0,64,0,-1--1--1,,1|(440,224)|
+1,45,30,6,0,0,0,0,0,64,0,-1--1--1,,1|(367,175)|
+10,46,cubic meter to liter,444,67,58,11,8,3,0,0,0,0,0,0
+1,47,46,6,0,0,0,0,0,64,0,-1--1--1,,1|(440,102)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*food supply
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,population,236,359,43,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,2,area non irrigated,397,114,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,3,area irrigated,272,110,51,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,4,"salt concentration in mg/l",669,260,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,5,food per person,353,431,51,11,8,3,0,0,0,0,0,0
+10,6,required food,354,317,43,11,8,3,0,0,0,0,0,0
+10,7,fraction exported,244,263,54,11,8,3,0,0,0,0,0,0
+10,8,food balance,495,247,41,11,8,3,0,0,0,0,0,0
+10,9,total yield,271,149,31,11,8,3,0,0,0,0,0,0
+10,10,yield non irrigated,110,191,56,11,8,3,0,0,0,0,0,0
+10,11,yield irrigated,527,148,43,11,8,3,0,0,0,0,0,0
+10,12,salt effect lookup,608,113,54,11,8,3,0,0,0,0,0,0
+10,13,basic yield irrigated,661,169,34,19,8,3,0,0,0,0,0,0
+1,14,3,9,0,0,0,0,0,64,0,-1--1--1,,1|(271,122)|
+1,15,2,9,0,0,0,0,0,64,0,-1--1--1,,1|(339,129)|
+1,16,10,9,0,0,0,0,0,64,0,-1--1--1,,1|(189,170)|
+1,17,12,11,0,0,0,0,0,64,0,-1--1--1,,1|(573,127)|
+1,18,13,11,0,0,0,0,0,64,0,-1--1--1,,1|(605,160)|
+1,19,4,11,0,0,0,0,0,64,0,-1--1--1,,1|(598,204)|
+1,20,9,8,0,0,0,0,0,64,0,-1--1--1,,1|(376,195)|
+1,21,1,6,0,0,0,0,0,64,0,-1--1--1,,1|(287,340)|
+1,22,5,6,0,0,0,0,0,64,0,-1--1--1,,1|(353,381)|
+1,23,6,7,0,0,0,0,0,64,0,-1--1--1,,1|(305,293)|
+1,24,6,8,0,0,0,0,0,64,0,-1--1--1,,1|(417,285)|
+1,25,8,7,0,0,0,0,0,64,0,-1--1--1,,1|(382,253)|
+1,26,11,9,0,0,0,0,0,64,0,-1--1--1,,1|(400,148)|
+10,27,salt effect multiplier,496,78,60,11,8,3,0,0,0,0,0,0
+1,28,27,11,0,0,0,0,0,64,0,-1--1--1,,1|(508,106)|
+///---\\\
+:L<%^E!@
+1:Current.vdf
+9:Current
+22:$,Dollar,Dollars,$s
+22:Day,Days
+22:Hour,Hours
+22:Month,Months
+22:Person,People,Persons
+22:Unit,Units
+22:Week,Weeks
+22:Year,Years
+15:0,0,0,0,0,0
+19:110,0
+27:2,
+34:0,
+4:Time
+5:area country
+35:Date
+36:YYYY-MM-DD
+37:1975
+38:1
+39:1
+40:0
+41:0
+24:0
+25:100
+26:100

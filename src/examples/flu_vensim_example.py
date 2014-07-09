@@ -74,7 +74,7 @@ class FluModel(VensimModelStructureInterface):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
         
-    model = FluModel(r'..\..\models\flu', "flucase")
+    model = FluModel(r'./models/flu', "flucase")
     ensemble = ModelEnsemble()
     ensemble.set_model_structure(model)
     

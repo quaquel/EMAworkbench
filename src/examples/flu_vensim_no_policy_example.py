@@ -66,12 +66,14 @@ class FluModel(VensimModelStructureInterface):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
         
-    model = FluModel(r'..\..\models\flu', "fluCase")
+    model = FluModel(r'./models/flu', "fluCase")
     ensemble = ModelEnsemble()
     ensemble.set_model_structure(model)
     
     ensemble.parallel = True #turn on parallel processing
 
-    results = ensemble.perform_experiments(1000)
+    nr_experiments = 1000
+    results = ensemble.perform_experiments(nr_experiments)
     
-    save_results(results, r'1000 flu cases no policy.bz2')
+    fh =  r'./data/{} flu cases no policy.tar.gz'.format(nr_experiments)
+    save_results(results, fh)

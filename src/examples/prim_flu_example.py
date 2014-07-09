@@ -61,5 +61,4 @@ prim.write_boxes_to_stdout()
 
 #visualize
 prim.show_boxes()
-prim.show_boxes(together=False)
 plt.show()
