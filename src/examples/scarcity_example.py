@@ -110,5 +110,4 @@ if __name__ == "__main__":
     ensemble.set_model_structure(model)
     ensemble.parallel = True
     results = ensemble.perform_experiments(1000)
-    save_results(results, r'.\data\scarcity 1000.bz2')
 

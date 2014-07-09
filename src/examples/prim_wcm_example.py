@@ -24,7 +24,7 @@ def classify(outcomes):
     classes[outcome<1] = 1
     return classes
 
-results = load_results(r'./data/5000 runs WCM 64 bit.bz2')
+results = load_results(r'./data/5000 runs WCM.tar.gz')
 prim_obj = prim.Prim(results, classify, mass_min=0.05, threshold=0.75)
 
 # let's find a first box

@@ -34,7 +34,8 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
     
     #instantiate a model
-    vensimModel = VensimExampleModel(r"..\..\models\vensim example", "simpleModel")
+    wd = r'./models/vensim example'
+    vensimModel = VensimExampleModel(wd, "simpleModel")
     
     #instantiate an ensemble
     ensemble = ModelEnsemble()
@@ -48,4 +49,3 @@ if __name__ == "__main__":
     #perform experiments
     result = ensemble.perform_experiments(1000)
     
-    print "blaat"
