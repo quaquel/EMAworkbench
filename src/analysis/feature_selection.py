@@ -7,12 +7,14 @@ Created on Jul 9, 2014
 TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
 
 '''
+from types import StringType
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 
 from sklearn.ensemble import RandomForestClassifier
 from operator import itemgetter
+from sklearn.ensemble.forest import RandomForestRegressor
 
 
 def _preperate_experiments(experiments):
@@ -49,7 +51,7 @@ def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
     Get feature scores using a random forest
     
     :param results: results tuple
-    :param classify: a classify function analogous to PRIM
+    :param classify: a classify function or variable analogous to PRIM
     :param nr_trees: nr. of trees in forest (default=250)
     :param criterion: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     :param max_features: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
@@ -63,21 +65,33 @@ def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
               feature scores, and the forest itself
     
     '''
+    #TODO:: add sklearn.ensemble.RandomForestRegressor based on classify
+    
     experiments, outcomes = results
     uncs = recfunctions.get_names(experiments.dtype)
     
     x = _preperate_experiments(experiments)
-    y = classify(outcomes)
     
-    forest = RandomForestClassifier(n_estimators=nr_trees, 
-                                    criterion=criterion, 
-                                    max_features=max_features, 
-                                    max_depth=max_depth,
-                                    min_samples_split=min_samples_split,
-                                    min_samples_leaf=min_samples_leaf,
-                                    bootstrap=bootstrap,
-                                    oob_score=oob_score,
-                                    random_state=random_state)
+    if type(classify)==StringType:
+        y = outcomes[classify]
+        rfc = RandomForestRegressor
+        criterion = 'mse'
+    elif callable(classify):
+        y = classify(outcomes)
+        rfc = RandomForestClassifier
+    else:
+        raise TypeError("unknown type for classify")
+    
+    
+    forest = rfc(n_estimators=nr_trees, 
+                criterion=criterion, 
+                max_features=max_features, 
+                max_depth=max_depth,
+                min_samples_split=min_samples_split,
+                min_samples_leaf=min_samples_leaf,
+                bootstrap=bootstrap,
+                oob_score=oob_score,
+                random_state=random_state)
     forest.fit(x,y)
     
     importances = forest.feature_importances_
