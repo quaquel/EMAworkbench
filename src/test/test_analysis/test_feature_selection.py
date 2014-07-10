@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 from expWorkbench import ema_logging, load_results
 from analysis import feature_selection as fs
+from sklearn.ensemble.forest import RandomForestRegressor
 
 class FeatureSelectionTestCase(unittest.TestCase):
     def test_prepare_experiments(self):
@@ -74,6 +75,14 @@ class FeatureSelectionTestCase(unittest.TestCase):
         
         self.assertEqual(len(scores), len(results[0].dtype.fields))
         self.assertTrue(isinstance(forest, RandomForestClassifier))
+        
+        ooi = 'nr deaths'
+        results[1][ooi] = results[1]['deceased population region 1'][:,-1]
+        scores, forest = fs.get_rf_feature_scores(results, ooi, 
+                                                  random_state=10)
+        
+        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        self.assertTrue(isinstance(forest, RandomForestRegressor))
         
     
 if __name__ == '__main__':
