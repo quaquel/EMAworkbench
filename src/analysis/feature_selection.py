@@ -2,12 +2,17 @@
 Created on Jul 9, 2014
 
 @author: jhkwakkel@tudelft.net
+
+
+TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
+
 '''
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 
 from sklearn.ensemble import RandomForestClassifier
+from operator import itemgetter
 
 
 def _preperate_experiments(experiments):
@@ -36,28 +41,31 @@ def _preperate_experiments(experiments):
     return temp_experiments
         
     
-def get_feature_scores(results, classify, nr_trees=250, criterion='gini',
+def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
                        max_features='auto', max_depth=None, 
                        min_samples_split=2, min_samples_leaf=1, bootstrap=True,
-                       oob_score=True): 
+                       oob_score=True, random_state=None): 
     '''
     Get feature scores using a random forest
     
     :param results: results tuple
     :param classify: a classify function analogous to PRIM
     :param nr_trees: nr. of trees in forest (default=250)
-    :param criterion:
-    :param max_features:
-    :param max_depth:
-    :param min_samples:
-    :param min_samples_leaf:
-    :param bootstrap:
-    :param oob_score:
+    :param criterion: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    :param max_features: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    :param max_depth: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    :param min_samples: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    :param min_samples_leaf: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    :param bootstrap: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    :param oob_score: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    :param random_state: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     :returns: a list sorted in descending order of tuples with uncertainty and 
-              feature scores
+              feature scores, and the forest itself
     
     '''
     experiments, outcomes = results
+    uncs = recfunctions.get_names(experiments.dtype)
+    
     x = _preperate_experiments(experiments)
     y = classify(outcomes)
     
@@ -68,15 +76,16 @@ def get_feature_scores(results, classify, nr_trees=250, criterion='gini',
                                     min_samples_split=min_samples_split,
                                     min_samples_leaf=min_samples_leaf,
                                     bootstrap=bootstrap,
-                                    oob_score=oob_score)
+                                    oob_score=oob_score,
+                                    random_state=random_state)
     forest.fit(x,y)
+    
     importances = forest.feature_importances_
-    std = np.std([tree.feature_importances_ for tree in forest.estimators_],
-             axis=0)
+
+    importances = zip(uncs, importances)
+    importances.sort(key=itemgetter(1), reverse=True)
     
-    # todo what do we want to return
-    
-    
+    return importances, forest
     
     
     

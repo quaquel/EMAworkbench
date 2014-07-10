@@ -7,7 +7,9 @@ import unittest
 
 import numpy as np
 
-from expWorkbench import ema_logging
+from sklearn.ensemble import RandomForestClassifier
+
+from expWorkbench import ema_logging, load_results
 from analysis import feature_selection as fs
 
 class FeatureSelectionTestCase(unittest.TestCase):
@@ -50,7 +52,35 @@ class FeatureSelectionTestCase(unittest.TestCase):
 
         self.assertTrue(np.all(x==correct))
         
+    def test_get_rf_feature_scores(self):
+        fn = r'../data/1000 flu cases no policy.tar.gz'
+        results = load_results(fn)
+
+        
+        def classify(data):
+            #get the output for deceased population
+            result = data['deceased population region 1']
+            
+            #make an empty array of length equal to number of cases 
+            classes =  np.zeros(result.shape[0])
+            
+            #if deceased population is higher then 1.000.000 people, classify as 1 
+            classes[result[:, -1] > 1000000] = 1
+            
+            return classes
+        
+        scores, forest = fs.get_rf_feature_scores(results, classify, 
+                                                  random_state=10)
+        
+        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        self.assertTrue(isinstance(forest, RandomForestClassifier))
+        
     
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)   
-    unittest.main()
+#     unittest.main()
+
+
+    suite = unittest.TestSuite()
+    suite.addTest(FeatureSelectionTestCase("test_get_rf_feature_scores"))
+    unittest.TextTestRunner().run(suite)
