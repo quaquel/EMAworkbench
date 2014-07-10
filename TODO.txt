@@ -2,8 +2,6 @@
 Major changes
 -------------
  - Test code coverage
- - prepare for switching to Python 3. Switch to python 3 is conditioned
-   on when enthough switches to Python 3. 	
  - Assess benefits of switching to PANDAS as basic data structure
 	* pandas looks promising, is a better version of structured array
 	* can easily use pytables and hdf5 for storing data on disk. This means
@@ -37,18 +35,8 @@ Major changes
 Minor changes
 -------------
  - remove dependency on orange and switch to scikits.learn
- - Add connectors for netlogo and repast
-   * a basic version for netlogo is now available. This should be finalized
-     soon based on the experience with this interface in the work done by
-     Ruben. Also, good documentation and several examples are crucial to 
-     understand how to use it properly.
  - Have more than one outcome of interest in PRIM
  - Rewrite regret_analysis to work with the new data structure
- - modify lines3d and scatter3d to have a group by option
- - there appear to be various chaco related problems in more recent versions of
-   epd... To what extent to we want to maintain the interactive plotting 
-   functionality?
-   * apparently, Erik, Willem use it frequently...
  - implement some way of specifying files that can be ignored when
    copying working directories under parallel
  - visualizing prim boxes is now based on a sorting on how restricted the 
@@ -62,5 +50,84 @@ Minor changes
    case of the optimization does not scale very well. This should be done
    in a more intelligent way. We should profile the code to figure out where
    the bottleneck is exactly. 
- - violinplot option in addition to hist, kde, and boxplot
-   http://nbviewer.ipython.org/github/mwaskom/seaborn/blob/master/examples/plotting_distributions.ipynb?utm_content=buffer2788d&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
+  
+## PRIM SPECIFIC IDEAS 
+
+wish list/ requirements
+=======================
+
+ * good visualizations (show boxes, and show peeling trajectory)
+ * box init should be based on uncertainty limits, thus model interface is
+   a argument for prim
+ * try to use pandas internally, paving the way for moving to pandas in the 
+   future
+ * investigate multiple classes by using e.g. gini impurity in obj function
+ * much clearer error handling in case of no box being found, or, in case of 
+   using a classify, the number of cases of interest is either very large 
+   or small. 
+ * create possibility to have f-prim, where a weight parameter allows
+   one to make tradeoffs in coverage and density
+   
+objective function
+------------------
+
+The various ideas for the objective function raises the question what
+data is needed in the objective function for each of these cases. Clearly,
+the current implementation which only uses y_new and y_old is not enough.
+But what should we use instead?
+
+ * for coverage and density calculations, you need y_init as well.
+ * for gini and information gain, see python machine learning algorithmic
+   perspective book
+   
+PRIM implementation detail
+--------------------------
+
+Now we copy a lot of data, is it not possible to use indices instead. So, you 
+peel and paste by removing or adding indices back in. This can be achieved 
+quite easily by replacing logical with where. 
+
+
+## ANALYSIS PACKAGE RELATED
+
+The documentation needs to be completed and made consistent with the code.
+ 
+pairs_envelopes idea can be executed through non_dominated sorting. Each 
+combination of two outcome indicators produces a set of coordinates. In case
+of minimizing both, and through non_dominated sorting, we find the lower limit
+of points. By maximizing both, we find the upper limit of points. We can then 
+generate a shape that goes through all these points. This shape then specifies
+the outcomes space exhaustively. Testing of this idea can be through plotting
+the lines as well, this can easily confirm all falsify any implementation.
+For the non-dominated sorting, we could probably lift the code from DEAP, 
+rather then using my current implementation. If runtime were to become an 
+issue, Cython can come to the rescue. 
+
+in the generic util package, we should add a filter function that produces
+a result tuple given a column in the experiments array and a list of one 
+or more values for this column/an interval in this column.
+
+The conversion to black and white for scatter plots should be based on 
+different markers rather than grey scaling as is done now.
+
+The black and white conversion code can be made more elegant. There is 
+duplicate code now.
+
+ * make a comparison plot where we subtract the kde's of two policies. This 
+   shows the difference in performance over time between two policies
+ 
+ * make a lines plot where color coding indicates whether a run is better or 
+   worse compared to another run
+   
+ * set the y view limits based on time, in some cases the auto-scaling creates
+   white space
+
+ * let the density axis share its y-axis with its associated time-series plot
+ 
+ * the use of annotations or decorators would potentially simplify the plotting
+   code substantially. All data preparation could be handled through
+   a decorator 
+   
+ * Implement a text wrapper for the plotting functions,
+   e.g. http://stackoverflow.com/questions/4018860/text-box-in-matplotlib
+The question is how pandas and indices relate. 
