@@ -103,9 +103,21 @@ class FeatureScoringTestCase(unittest.TestCase):
             
             return classes
         
+        # f classify
         scores = fs.get_univariate_feature_scores(results, classify)
         self.assertEqual(len(scores), len(results[0].dtype.fields))
-   
+
+        # chi2
+        scores = fs.get_univariate_feature_scores(results, classify, 
+                                                  score_func='chi2')
+        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        
+        # f regression
+        ooi = 'nr deaths'
+        results[1][ooi] = results[1]['deceased population region 1'][:,-1]
+        scores = fs.get_univariate_feature_scores(results, ooi)
+        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        
    
     def test_get_rf_feature_scores(self):
         fn = r'../data/1000 flu cases no policy.tar.gz'
@@ -140,8 +152,8 @@ class FeatureScoringTestCase(unittest.TestCase):
     
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)   
-    unittest.main()
+#     unittest.main()
 
-#     suite = unittest.TestSuite()
-#     suite.addTest(FeatureScoringTestCase("test_get_univariate_feature_scores"))
-#     unittest.TextTestRunner().run(suite)
+    suite = unittest.TestSuite()
+    suite.addTest(FeatureScoringTestCase("test_get_univariate_feature_scores"))
+    unittest.TextTestRunner().run(suite)
