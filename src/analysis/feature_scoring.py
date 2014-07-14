@@ -16,7 +16,7 @@ from sklearn.ensemble import RandomForestClassifier
 from operator import itemgetter
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.feature_selection.univariate_selection import f_regression,\
-    f_classif, chi2, SelectPercentile
+    f_classif, chi2
 from sklearn.linear_model.randomized_l1 import RandomizedLogisticRegression,\
     RandomizedLasso
 
@@ -113,7 +113,7 @@ def get_univariate_feature_scores(results, classify,
     pvalues = np.asarray(pvalues)
 
     pvalues = zip(uncs, pvalues)
-    pvalues.sort(key=itemgetter(1), reverse=True)
+    pvalues.sort(key=itemgetter(1))
     return pvalues
 
     
@@ -192,8 +192,8 @@ def get_lasso_feature_scores(results, classify, scaling=0.5,
         lfs = RandomizedLasso
         # alpha bepaled
     
-    fs = RandomizedLogisticRegression(C, scaling, sample_fraction, n_resampling, selection_threshold, tol, fit_intercept, verbose, normalize, random_state, n_jobs, pre_dispatch, memory)
-    fs = RandomizedLasso(alpha, scaling, sample_fraction, n_resampling, selection_threshold, fit_intercept, verbose, normalize, precompute, max_iter, eps, random_state, n_jobs, pre_dispatch, memory)
-    
+#     fs = RandomizedLogisticRegression(C, scaling, sample_fraction, n_resampling, selection_threshold, tol, fit_intercept, verbose, normalize, random_state, n_jobs, pre_dispatch, memory)
+#     fs = RandomizedLasso(alpha, scaling, sample_fraction, n_resampling, selection_threshold, fit_intercept, verbose, normalize, precompute, max_iter, eps, random_state, n_jobs, pre_dispatch, memory)
+#     
     
     
