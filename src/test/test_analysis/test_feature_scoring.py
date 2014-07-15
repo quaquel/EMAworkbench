@@ -149,11 +149,36 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertEqual(len(scores), len(results[0].dtype.fields))
         self.assertTrue(isinstance(forest, RandomForestRegressor))
         
-    
+    def test_get_lasso_feature_scores(self):
+        fn = r'../data/1000 flu cases no policy.tar.gz'
+        results = load_results(fn)
+        
+        def classify(data):
+            #get the output for deceased population
+            result = data['deceased population region 1']
+            
+            #make an empty array of length equal to number of cases 
+            classes =  np.zeros(result.shape[0])
+            
+            #if deceased population is higher then 1.000.000 people, classify as 1 
+            classes[result[:, -1] > 1000000] = 1
+            
+            return classes
+        
+        # classification based
+        scores = fs.get_lasso_feature_scores(results, classify, random_state=42)
+        self.assertEqual(len(scores), len(results[0].dtype.fields))
+                
+        #regression based
+        ooi = 'nr deaths'
+        results[1][ooi] = results[1]['deceased population region 1'][:,-1]
+        scores = fs.get_lasso_feature_scores(results, ooi,random_state=42)
+        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)   
-#     unittest.main()
+    unittest.main()
 
-    suite = unittest.TestSuite()
-    suite.addTest(FeatureScoringTestCase("test_get_univariate_feature_scores"))
-    unittest.TextTestRunner().run(suite)
+#     suite = unittest.TestSuite()
+#     suite.addTest(FeatureScoringTestCase("test_get_lasso_feature_scores"))
+#     unittest.TextTestRunner().run(suite)

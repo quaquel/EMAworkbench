@@ -19,6 +19,7 @@ from sklearn.feature_selection.univariate_selection import f_regression,\
     f_classif, chi2
 from sklearn.linear_model.randomized_l1 import RandomizedLogisticRegression,\
     RandomizedLasso
+from sklearn.linear_model.least_angle import LassoLarsCV
 
 
 def _prepare_experiments(experiments):
@@ -172,12 +173,27 @@ def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
     
     
 def get_lasso_feature_scores(results, classify, scaling=0.5, 
-                                     sample_fraction=0.75, n_resampling=200):
+                                     sample_fraction=0.75, n_resampling=200,
+                                     random_state=None):
     '''
     Calculate features scores using a randomized lasso (regression) or 
-    randomized logistic regression (classification)
+    randomized logistic regression (classification). This is also known as 
+    stability selection.
     
+    see http://scikit-learn.org/stable/modules/feature_selection.html for 
+    details. 
     
+    :param results: results tuple
+    :param classify: a classify function or variable analogous to PRIM
+    :param scaling: scaling paramter, should be between 0 and 1
+    :param sample_fraction: the fraction of samples to used in each randomized
+                            dataset
+    :param n_resmpling: the number of times the model is trained on a random
+                        subset of the data
+    :param random_state: if it is an int, it specifies the seed to use, 
+                         defaults to None.
+                         
+         
     '''
     
     experiments, outcomes = results
@@ -187,13 +203,30 @@ def get_lasso_feature_scores(results, classify, scaling=0.5,
     y, categorical = _prepare_outcomes(outcomes, classify)
     
     if categorical:
-        lfs = RandomizedLogisticRegression
+
+        lfs = RandomizedLogisticRegression(scaling=scaling, 
+                                           sample_fraction=sample_fraction,
+                                           n_resampling=n_resampling, 
+                                           random_state=random_state)
+        lfs.fit(x,y)
     else:
-        lfs = RandomizedLasso
-        # alpha bepaled
-    
-#     fs = RandomizedLogisticRegression(C, scaling, sample_fraction, n_resampling, selection_threshold, tol, fit_intercept, verbose, normalize, random_state, n_jobs, pre_dispatch, memory)
-#     fs = RandomizedLasso(alpha, scaling, sample_fraction, n_resampling, selection_threshold, fit_intercept, verbose, normalize, precompute, max_iter, eps, random_state, n_jobs, pre_dispatch, memory)
-#     
+        # we use LassoLarsCV to determine alpha see
+        # http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html
+        lars_cv = LassoLarsCV(cv=6).fit(x, y,)
+        alphas = np.linspace(lars_cv.alphas_[0], .1 * lars_cv.alphas_[0], 6)
+        
+        # fit the randomized lasso        
+        lfs = RandomizedLasso(alpha=alphas,scaling=scaling, 
+                              sample_fraction=sample_fraction,
+                              n_resampling=n_resampling,
+                              random_state=random_state)
+        lfs.fit(x, y)
+
+    importances = lfs.scores_
+    importances = zip(uncs, importances)
+    importances.sort(key=itemgetter(1), reverse=True)
+
+    return importances
+
     
     
