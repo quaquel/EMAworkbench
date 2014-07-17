@@ -287,7 +287,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
                 ema_logging.debug("cin file read successfully")
         
         for lookup_uncertainty in self.lookup_uncertainties:
-            # ask the lookup to transform the retreived uncertainties to the 
+            # ask the lookup to transform the retrieved uncertainties to the 
             # proper lookup value
             case[lookup_uncertainty.name] = lookup_uncertainty.transform(case)
                     
