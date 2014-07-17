@@ -186,7 +186,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
     #: default name of the results file (default: 'Current.vdf')
     result_file = r'\Current.vdf'
     
-    lookup_uncertainties = []
+    _lookup_uncertainties = []
 
     #: attribute used for getting a slice of the results array instead of the
     #: full array. This can cut down the amount of data saved. Alternatively,
@@ -252,9 +252,9 @@ class VensimModelStructureInterface(ModelStructureInterface):
         '''
         deleting lookup uncertainties from the uncertainty list 
         '''
-        self.lookup_uncertainties = self.lookup_uncertainties[:]
+        self._lookup_uncertainties = self._lookup_uncertainties[:]
         self.uncertainties = [x for x in self.uncertainties if x not in 
-                              self.lookup_uncertainties]
+                              self._lookup_uncertainties]
     
     def run_model(self, case):
         """
@@ -286,7 +286,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
             else:
                 ema_logging.debug("cin file read successfully")
         
-        for lookup_uncertainty in self.lookup_uncertainties:
+        for lookup_uncertainty in self._lookup_uncertainties:
             # ask the lookup to transform the retrieved uncertainties to the 
             # proper lookup value
             case[lookup_uncertainty.name] = lookup_uncertainty.transform(case)

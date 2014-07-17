@@ -190,10 +190,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
     #: full array. This can cut down the amount of data saved. Alternatively,
     #: one can specify in Vensim the time steps for saving results
     step = 1 
-    
-    lookup_uncertainties = []
-
-    
+      
     def __init__(self, working_directory, name):
         """interface to the model
         
@@ -213,6 +210,8 @@ class VensimModelStructureInterface(ModelStructureInterface):
         self.outcomes.append(Outcome('TIME' , time=True))
         
         self.outcomes = list(self.outcomes)
+        
+        self._lookup_uncertainties = []
         
         debug("vensim interface init completed")
         
@@ -281,7 +280,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
             else:
                 debug("cin file read successfully")
 
-        for lookup_uncertainty in self.lookup_uncertainties:
+        for lookup_uncertainty in self._lookup_uncertainties:
             # ask the lookup to transform the retrieved uncertainties to the 
             # proper lookup value
             case[lookup_uncertainty.name] = lookup_uncertainty.transform(case)
@@ -342,13 +341,11 @@ class VensimModelStructureInterface(ModelStructureInterface):
         '''
         deleting lookup uncertainties from the uncertainty list 
         '''
-        self.lookup_uncertainties = self.lookup_uncertainties[:]
+        self._lookup_uncertainties = self._lookup_uncertainties[:]
         self.uncertainties = [x for x in self.uncertainties if x not in 
-                              self.lookup_uncertainties]
+                              self._lookup_uncertainties]
         
 class LookupUncertainty(AbstractUncertainty):
-    # TODO this class should be in vensim.py and not in generic
-    
     HEARNE1 = 'hearne1'
     HEARNE2 = 'hearne2'
     APPROX =  'approximation'
@@ -363,26 +360,31 @@ class LookupUncertainty(AbstractUncertainty):
     x = []
     y = []
      
-    def __init__(self, values, name, transform_type, msi, ymin, ymax):
+    def __init__(self, lookup_type, values, name, msi, ymin=None, ymax=None):
         
         
         '''
-        
+        :param lookup_type: the method to be used for alternative generation. 
+                            'categories', 'hearne' or 'approximation'
         :param values: the values for specifying the uncertainty from which to 
                        sample.
-           If 'transform_type' is "categories", a set of alternative lookup 
+           If 'lookup_type' is "categories", a set of alternative lookup 
                functions to  be entered as tuples of x,y points.
                Example definition: 
-               LookupUncertainty([[(0.0, 0.05), (0.25, 0.15), (0.5, 0.4), (0.75, 1), (1, 1.25)], 
-                                 [(0.0, 0.1), (0.25, 0.25), (0.5, 0.75), (1, 1.25)],
-                                 [(0.0, 0.0), (0.1, 0.2), (0.3, 0.6), (0.6, 0.9), (1, 1.25)]], "TF3", 'categories', self )
-           if 'transform_type' is "hearne1", a list of ranges for each parameter 
+               LookupUncertainty([[(0.0, 0.05), (0.25, 0.15), (0.5, 0.4), 
+                                   (0.75, 1), (1, 1.25)], 
+                                 [(0.0, 0.1), (0.25, 0.25), (0.5, 0.75), 
+                                  (1, 1.25)],
+                                 [(0.0, 0.0), (0.1, 0.2), (0.3, 0.6), 
+                                  (0.6, 0.9), (1, 1.25)]], 
+                                  "TF3", 'categories', self )
+           if 'lookup_type' is "hearne1", a list of ranges for each parameter 
                Single-extreme piecewise functions
                m: maximum deviation from l of the distortion function
                p: the point that this occurs
                l: lower end point
                u: upper end point
-           If 'transform_type' is "hearne2", a list of ranges for each 
+           If 'lookup_type' is "hearne2", a list of ranges for each 
                parameter. Double extreme piecewise linear functions with 
                variable endpoints are used to distort the lookup functions. 
                These functions are defined by 6 parameters, being m1, m2, p1, 
@@ -399,8 +401,9 @@ class LookupUncertainty(AbstractUncertainty):
                l : lower end point, namely the y value for x_min
                u : upper end point, namely the y value for x_max
                Example definition:
-               LookupUncertainty([(-1, 2), (-1, 1), (0, 1), (0, 1), (0, 0.5), (0.5, 1.5)], "TF2", 'hearne', self, 0, 2)
-            If 'transform_type' is "approximation", an analytical function 
+               LookupUncertainty([(-1, 2), (-1, 1), (0, 1), (0, 1), (0, 0.5), 
+                                  (0.5, 1.5)], "TF2", 'hearne', self, 0, 2)
+            If 'lookup_type' is "approximation", an analytical function 
                 approximation (a logistic function) will be used, instead of a 
                 lookup. This function also has 6 parameters whose ranges should 
                 be given:
@@ -410,31 +413,31 @@ class LookupUncertainty(AbstractUncertainty):
                 Q: depends on the value y(0)
                 M: the time of maximum growth if Q=v
                 Example definition:
-                TODO
+                TODO:
         :param name: name of the uncertainty
-        :param transform_type: the method to be used for alternative generation. 
-                     'categories', 'hearne' or 'approximation'
         :param msi: model structure interface, to be used for adding new 
                     parameter uncertainties
-        :param min: min value the lookup function can take
-        :param max: max value the lookup function can take
+        :param min: min value the lookup function can take, this argument is 
+                    not needed in case of CAT
+        :param max: max value the lookup function can take, this argument is 
+                    not needed in case of CAT
         
         '''
         super(LookupUncertainty, self).__init__(values, name)
-        self.type = transform_type
+        self.lookup_type = lookup_type
         self.y_min = ymin
         self.y_max = ymax
-        self.error_message = self.error_mesage.format(self.name)
+        self.error_message = self.error_message.format(self.name)
         self.transform_functions = {self.HEARNE1: self._hearne1,
                                     self.HEARNE2: self._hearne2,
                                     self.APPROX: self._approx,
                                     self.CAT: self._cat}
         
-        if self.type == "categories":
+        if self.lookup_type == "categories":
             msi.uncertainties.append(CategoricalUncertainty(range(len(values)), 
                                                             "c-"+self.name))
-            msi.lookup_uncertainties.append(self)  
-        elif self.type == "hearne1":
+            msi._lookup_uncertainties.append(self)  
+        elif self.lookup_type == "hearne1":
             msi.uncertainties.append(ParameterUncertainty(values[0], 
                                                           "m-"+self.name))
             msi.uncertainties.append(ParameterUncertainty(values[1], 
@@ -443,8 +446,8 @@ class LookupUncertainty(AbstractUncertainty):
                                                           "l-"+self.name))
             msi.uncertainties.append(ParameterUncertainty(values[3], 
                                                           "u-"+self.name))
-            msi.lookup_uncertainties.append(self)  
-        elif self.type == "hearne2":
+            msi._lookup_uncertainties.append(self)  
+        elif self.lookup_type == "hearne2":
             msi.uncertainties.append(ParameterUncertainty(values[0], 
                                                           "m1-"+self.name))
             msi.uncertainties.append(ParameterUncertainty(values[1], 
@@ -457,8 +460,8 @@ class LookupUncertainty(AbstractUncertainty):
                                                           "l-"+self.name))
             msi.uncertainties.append(ParameterUncertainty(values[5], 
                                                           "u-"+self.name))
-            msi.lookup_uncertainties.append(self) 
-        elif self.type == "approximation":
+            msi._lookup_uncertainties.append(self) 
+        elif self.lookup_type == "approximation":
             msi.uncertainties.append(ParameterUncertainty(values[0], 
                                                           "A-"+self.name))
             msi.uncertainties.append(ParameterUncertainty(values[1], 
@@ -469,7 +472,7 @@ class LookupUncertainty(AbstractUncertainty):
                                                           "Q-"+self.name))
             msi.uncertainties.append(ParameterUncertainty(values[4], 
                                                           "M-"+self.name))
-            msi.lookup_uncertainties.append(self) 
+            msi._lookup_uncertainties.append(self) 
         else: raise EMAError(self.error_message)
         
     
@@ -536,7 +539,7 @@ class LookupUncertainty(AbstractUncertainty):
             self.x_min = min(self.x)
             self.x_max = max(self.x)
         try: 
-            return self.transform_functions[self.type]
+            return self.transform_functions[self.lookup_type]
         except KeyError:
             raise EMAError(self.error_message)
 
@@ -547,8 +550,8 @@ class LookupUncertainty(AbstractUncertainty):
         upper value of the range.
          
         '''
-        # TODO this identity function is tricky. Identity is dependend on
-        # the exact transform type
+        # TODO this identity function is tricky. Identity is dependent on
+        # the exact transform lookup_type
         
         
         return (self.name, self.values[0], self.values[1])    
