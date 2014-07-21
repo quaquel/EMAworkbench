@@ -539,7 +539,9 @@ class LookupUncertainty(AbstractUncertainty):
             self.x_min = min(self.x)
             self.x_max = max(self.x)
         try: 
-            return self.transform_functions[self.lookup_type]
+            func = self.transform_functions[self.lookup_type]
+            
+            return func(case)
         except KeyError:
             raise EMAError(self.error_message)
 
@@ -624,13 +626,11 @@ class LookupUncertainty(AbstractUncertainty):
                            int(self.x_max*10+1), 
                            int(self.x_max)):
                 new_lookup.append((i/10, 
-                                   format(max(min(
-                                                  self._gen_log(i/10, 
-                                                                A, K, B, Q, M), 
-                                                  self.y_max), 
-                                              self.y_min), 
-                                          '.3f')))
+                                   max(min(self._gen_log(i/10, 
+                                           A, K, B, Q, M), 
+                                           self.y_max), 
+                                           self.y_min)))
         return new_lookup
     
     def _cat(self, case):
-        return self.values[case['c-'+self.name]] 
+        return  self.values[case.pop('c-'+self.name)] 

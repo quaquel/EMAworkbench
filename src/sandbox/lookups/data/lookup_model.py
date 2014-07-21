@@ -9,10 +9,10 @@ from expWorkbench import Outcome, save_results, ParameterUncertainty,\
 from connectors.vensim import VensimModelStructureInterface, LookupUncertainty
 
 
-class lookup_model(VensimModelStructureInterface): 
+class LookupTestModel(VensimModelStructureInterface): 
     def __init__(self, workingDirectory, name):
         self.modelFile = r'\sampleModel.vpm'
-        super(lookup_model, self).__init__(workingDirectory, name)
+        super(LookupTestModel, self).__init__(workingDirectory, name)
 
         # vensim.load_model(self.modelFile)
         self.outcomes = [Outcome('TF2', time=True),
@@ -39,7 +39,7 @@ class lookup_model(VensimModelStructureInterface):
         
 if __name__ == "__main__":
     logger = ema_logging.log_to_stderr(ema_logging.INFO)
-    model = lookup_model(r'..\lookups', "sampleModel")
+    model = LookupTestModel(r'..\lookups', "sampleModel")
 
     #model.step = 4 #reduce data to be stored
     ensemble = ModelEnsemble()
