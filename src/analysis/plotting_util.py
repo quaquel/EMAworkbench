@@ -363,11 +363,10 @@ def make_legend(categories,
             label = category
         
         labels.append(str(label))
-
-#    ncol = int(np.ceil(len(categories)/3))
     
     figure.legend(some_identifiers, labels, ncol=ncol,
-                      loc='upper center', borderaxespad=0.1)
+                      loc='upper center', borderaxespad=0.1,
+                      mode='expand')
 
 def determine_kde(data, 
                   size_kde=1000,
