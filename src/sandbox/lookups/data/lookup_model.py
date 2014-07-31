@@ -3,23 +3,18 @@ Created on Jun 26, 2012
 
 @author: sibeleker
 '''
-from expWorkbench import Outcome, save_results
-from modelEnsemble import ModelEnsemble
-import expWorkbench.ema_logging as logging
-from uncertainties import ParameterUncertainty, CategoricalUncertainty, LookupUncertainty
+from expWorkbench import Outcome, save_results, ParameterUncertainty,\
+                         ModelEnsemble, ema_logging
 
-from vensim import VensimModelStructureInterface
-from expWorkbench import load_results
-import matplotlib.pyplot as plt
-from analysis.graphs import lines, envelopes
-from expWorkbench import vensimDLLwrapper
+from connectors.vensim import VensimModelStructureInterface, LookupUncertainty
 
-class lookup_model(VensimModelStructureInterface): 
+
+class LookupTestModel(VensimModelStructureInterface): 
     def __init__(self, workingDirectory, name):
         self.modelFile = r'\sampleModel.vpm'
-        super(lookup_model, self).__init__(workingDirectory, name)
+        super(LookupTestModel, self).__init__(workingDirectory, name)
 
-       # vensim.load_model(self.modelFile)
+        # vensim.load_model(self.modelFile)
         self.outcomes = [Outcome('TF2', time=True),
                          Outcome('flow1', time=True),
                          Outcome('TF', time=True),
@@ -43,8 +38,8 @@ class lookup_model(VensimModelStructureInterface):
 
         
 if __name__ == "__main__":
-    logger = logging.log_to_stderr(logging.INFO)
-    model = lookup_model(r'..\lookups', "sampleModel")
+    logger = ema_logging.log_to_stderr(ema_logging.INFO)
+    model = LookupTestModel(r'..\lookups', "sampleModel")
 
     #model.step = 4 #reduce data to be stored
     ensemble = ModelEnsemble()
@@ -55,9 +50,3 @@ if __name__ == "__main__":
     
     #run policy with old cases
     results = ensemble.perform_experiments(10)
-    save_results(results, 'lookup_3methods.cpickle')
-    
-    results = load_results('lookup_3methods.cpickle')
-    outcomes =['TF', 'TF2', 'TF3', 'flow1']
-    lines(results, outcomes, density=True, hist=True)
-    plt.show()  
