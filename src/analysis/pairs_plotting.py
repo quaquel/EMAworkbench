@@ -4,6 +4,7 @@
 This module provides R style pairs plotting functionality.
 
 '''
+from __future__ import division
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ import matplotlib.cm as cm
 from expWorkbench.ema_logging import debug, info
 
 from plotting_util import prepare_pairs_data, make_legend, COLOR_LIST
-from analysis.plotting_util import SCATTER
+from analysis.plotting_util import SCATTER, LINE
 
 __all__ = ['pairs_scatter', 'pairs_lines', 'pairs_density']
 
@@ -69,10 +70,7 @@ def pairs_lines(results,
     #the plotting
     figure = plt.figure()
     axes_dict = {}
-    
-    if group_by and legend:
-        make_legend(grouping_labels, figure)
-     
+  
     combis = [(field1, field2) for field1 in outcomes_to_show\
                                for field2 in outcomes_to_show]
     
@@ -80,6 +78,7 @@ def pairs_lines(results,
         i = outcomes_to_show.index(field1)
         j = outcomes_to_show.index(field2)
         ax = figure.add_subplot(grid[i,j])
+        
         axes_dict[(field1, field2)] = ax
 
         if group_by:
@@ -99,7 +98,18 @@ def pairs_lines(results,
             simple_pairs_lines(ax, data1, data2, color)
         do_text_ticks_labels(ax, i, j, field1, field2, ylabels, 
                              outcomes_to_show)
-            
+
+    if group_by and legend:
+        gs1 = grid[0,0]
+        
+        for ax in figure.axes:
+            gs2 = ax._subplotspec
+            if all((gs1._gridspec == gs2._gridspec,
+                    gs1.num1 == gs2.num1,
+                    gs1.num2 == gs2.num2)):
+                break  
+        
+        make_legend(grouping_labels, ax, legend_type=LINE)
 
     return figure, axes_dict
  
@@ -376,9 +386,6 @@ def pairs_scatter(results,
     figure = plt.figure()
     axes_dict = {}
     
-    if group_by and legend:
-        make_legend(grouping_labels, figure, legend_type=SCATTER)
-     
     combis = [(field1, field2) for field1 in outcomes_to_show\
                                for field2 in outcomes_to_show]
     
@@ -413,6 +420,18 @@ def pairs_scatter(results,
                        facecolor=facecolor, edgecolor=edgecolor)
         do_text_ticks_labels(ax, i, j, field1, field2, ylabels, 
                              outcomes_to_show)
+
+    if group_by and legend:
+        gs1 = grid[0,0]
+        
+        for ax in figure.axes:
+            gs2 = ax._subplotspec
+            if all((gs1._gridspec == gs2._gridspec,
+                    gs1.num1 == gs2.num1,
+                    gs1.num2 == gs2.num2)):
+                break  
+        
+        make_legend(grouping_labels, ax, legend_type=SCATTER)
 
     return figure, axes_dict
 

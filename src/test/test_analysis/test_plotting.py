@@ -330,7 +330,7 @@ def test_envelopes():
     plt.show()
 
 def test_kde_over_time():
-    results = load_results(r'./../data/eng_trans_100.cPickle', zipped=False)
+    results = util.load_eng_trans_data()
     
 #    kde_over_time(results, log=False)
 #    kde_over_time(results, log=True)
@@ -338,7 +338,7 @@ def test_kde_over_time():
     plt.show()
 
 def test_pairs_lines():
-    results = load_results(r'..\data\eng_trans_100.cPickle', zipped=False)    
+    results = util.load_eng_trans_data()  
     pairs_lines(results)
 #    set_fig_to_bw(pairs_lines(results)[0])
     
@@ -347,7 +347,7 @@ def test_pairs_lines():
     plt.show()
 
 def test_pairs_density():
-    results = load_results(r'..\data\eng_trans_100.cPickle', zipped=False)
+    results =  util.load_eng_trans_data() 
 #    pairs_density(results)
 #    pairs_density(results, colormap='binary')
 
@@ -355,7 +355,7 @@ def test_pairs_density():
     plt.show()
 
 def test_pairs_scatter():
-    results = load_results(r'..\data\eng_trans_100.cPickle', zipped=False)    
+    results = util.load_eng_trans_data() 
     
     pairs_scatter(results)
 #    set_fig_to_bw(pairs_scatter(results)[0])
@@ -463,13 +463,13 @@ def test_multiple_densities():
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-#    test_lines()
-    test_envelopes()
-#    test_kde_over_time()
-#    test_multiple_densities()
+#     test_lines()
+#     test_envelopes()
+#     test_kde_over_time()
+#     test_multiple_densities()
 
-#    test_pairs_scatter()
-#    test_pairs_lines()
+#     test_pairs_scatter()
+    test_pairs_lines()
 #    test_pairs_density()
 
 #    test_filter_scalar_outcomes()

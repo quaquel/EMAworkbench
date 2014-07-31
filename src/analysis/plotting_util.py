@@ -318,16 +318,19 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
 
 
 def make_legend(categories,
-                figure,
+                ax,
                 ncol=3,
                 legend_type=LINE,
                 alpha=1):
     '''
+    Helper function responsible for making the legend
     
-    
-    :param categories:
-    :param figure:
-    :param legend_type:
+    :param categories: the categories in the legend
+    :param ax: the axes with which the legend is associated
+    :param ncol: the number of columns to use
+    :param legend_type: whether the legend is linked to lines, patches, or
+                        scatter plots
+    :param alpha: the alpha of the artists
     
     
     '''
@@ -364,9 +367,9 @@ def make_legend(categories,
         
         labels.append(str(label))
     
-    figure.legend(some_identifiers, labels, ncol=ncol,
-                      loc='upper center', borderaxespad=0.1,
-                      mode='expand')
+    ax.legend(some_identifiers, labels, ncol=ncol,
+                      loc=3, borderaxespad=0.1,
+                      mode='expand', bbox_to_anchor=(0., 1.1, 1., .102))
 
 def determine_kde(data, 
                   size_kde=1000,
