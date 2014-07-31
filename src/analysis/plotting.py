@@ -138,11 +138,19 @@ def envelopes(results,
         do_titles(ax, titles, outcome_to_plot)
         
     if legend and group_by:
+        gs1 = grid[0,0]
+        
+        for ax in figure.axes:
+            gs2 = ax._subplotspec
+            if all((gs1._gridspec == gs2._gridspec,
+                    gs1.num1 == gs2.num1,
+                    gs1.num2 == gs2.num2)):
+                break
         if fill:
-            make_legend(grouping_labels, figure, alpha=0.3, 
+            make_legend(grouping_labels, ax, alpha=0.3, 
                         legend_type=PATCH)
         else:
-            make_legend(grouping_labels, figure, legend_type=LINE)
+            make_legend(grouping_labels, ax, legend_type=LINE)
     
     if TIGHT:
         grid.tight_layout(figure)
@@ -332,7 +340,16 @@ def lines(results,
         do_titles(ax, titles, outcome_to_plot)
             
     if legend and group_by:
-        make_legend(grouping_labels, figure)
+        gs1 = grid[0,0]
+        
+        for ax in figure.axes:
+            gs2 = ax._subplotspec
+            if all((gs1._gridspec == gs2._gridspec,
+                    gs1.num1 == gs2.num1,
+                    gs1.num2 == gs2.num2)):
+                break        
+        
+        make_legend(grouping_labels, ax)
     
     if TIGHT:
         grid.tight_layout(figure)
@@ -453,7 +470,15 @@ def plot_lines_with_envelopes(results,
         do_titles(ax, titles, outcome_to_plot)
 
     if legend and group_by:
-        make_legend(grouping_labels, figure)
+        gs1 = grid[0,0]
+        
+        for ax in figure.axes:
+            gs2 = ax._subplotspec
+            if all((gs1._gridspec == gs2._gridspec,
+                    gs1.num1 == gs2.num1,
+                    gs1.num2 == gs2.num2)):
+                break
+        make_legend(grouping_labels, ax)
     
     if TIGHT:
         grid.tight_layout(figure)
@@ -778,5 +803,10 @@ def multiple_densities(results,
             ax_env.add_artist(con)
 
         if legend and group_by:
-            make_legend(grouping_labels, fig)
+            lt = PATCH
+            alpha = 0.3
+            if plot_type==LINES:
+                lt = LINE
+                alpha = 1
+            make_legend(grouping_labels, ax_env, legend_type=lt,alpha=alpha)
     return figures, axes_dicts
