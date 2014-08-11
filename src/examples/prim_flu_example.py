@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 
 import analysis.prim as prim
 from expWorkbench import load_results, ema_logging
+from expWorkbench.util import oldcsv_load_results
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
@@ -34,7 +35,7 @@ def classify(data):
     return classes
 
 #load data
-results = load_results(r'./data/1000 flu cases.tar.gz')
+results = oldcsv_load_results(r'./data/1000 flu cases.tar.gz')
 experiments, results = results
 
 #extract results for 1 policy
@@ -55,6 +56,7 @@ box_1.show_tradeoff()
 box_1.inspect(5)
 box_1.select(5)
 box_1.write_ppt_to_stdout()
+box_1.show_pairs_scatter()
 
 #print prim to std_out
 prim.write_boxes_to_stdout()
