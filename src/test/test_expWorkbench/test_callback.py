@@ -29,7 +29,9 @@ def test_callback_store_results():
 
     # case 1 scalar shape = (1)
     debug('----------- case 1 -----------')
-    callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
+    callback = DefaultCallback(uncs, 
+                               [outcome.name for outcome in outcomes], 
+                               nr_experiments=nr_experiments)
     result = {outcomes[0].name: 1}
     callback(case, policy, name, result)
     
@@ -39,7 +41,9 @@ def test_callback_store_results():
 
     # case 2 time series shape = (1, nr_time_steps)
     debug('----------- case 2 -----------')
-    callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
+    callback = DefaultCallback(uncs, 
+                               [outcome.name for outcome in outcomes], 
+                               nr_experiments=nr_experiments)
     result = {outcomes[0].name: np.random.rand(10)}
     callback(case, policy, name, result)
     
@@ -48,15 +52,27 @@ def test_callback_store_results():
         debug("\n" + str(key) + "\n" + str(value))
 
 
-    # case 2 maps etc. shape = (x,y)
+    # case 3 maps etc. shape = (x,y)
     debug('----------- case 3 -----------')
-    callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
+    callback = DefaultCallback(uncs, 
+                               [outcome.name for outcome in outcomes], 
+                               nr_experiments=nr_experiments)
     result = {outcomes[0].name: np.random.rand(2,2)}
     callback(case, policy, name, result)
     
     results = callback.get_results()
     for key, value in results[1].iteritems():
         debug("\n" + str(key) + "\n" + str(value))
+
+
+    # case 4 maps etc. shape = (x,y)
+    debug('----------- case 4 -----------')
+    callback = DefaultCallback(uncs, 
+                               [outcome.name for outcome in outcomes], 
+                               nr_experiments=nr_experiments)
+    result = {outcomes[0].name: np.random.rand(2,2, 2)}
+    callback(case, policy, name, result)
+    
 
 
 def test_callback_call_intersection():
@@ -157,7 +173,7 @@ def test_callback_call_union():
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.DEBUG)
 #    test_callback_initalization()
-#    test_callback_store_results()
+    test_callback_store_results()
 #    test_callback_call_intersection()
-    test_callback_call_union()
+#     test_callback_call_union()
     

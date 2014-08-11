@@ -5,6 +5,7 @@ Created on 22 Jan 2013
 '''
 from __future__ import division
 import numpy as np
+from expWorkbench.ema_exceptions import EMAError
 np = np
 
 from threading import Lock
@@ -94,6 +95,8 @@ class DefaultCallback(AbstractCallback):
     names = None   
     results = {}
     
+    shape_error_msg = "can only save up to 2d arrays, this array is {}d"
+    
     def __init__(self, 
                  uncs, 
                  outcomes, 
@@ -166,6 +169,10 @@ class DefaultCallback(AbstractCallback):
                     self.results[outcome][self.i-1, ] = outcome_res
                 except KeyError: 
                     shape = np.asarray(outcome_res).shape
+                    
+                    if len(shape)>2:
+                        raise EMAError(self.shape_error_msg.format(len(shape)))
+                    
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
                     self.results[outcome] = np.empty(shape)

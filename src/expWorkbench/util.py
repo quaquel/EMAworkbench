@@ -12,10 +12,11 @@ import cPickle
 import os
 import bz2
 import math
-import zipfile
 import StringIO
 
 import numpy as np
+import pandas as pd
+from pandas.io.parsers import read_csv
 from matplotlib.mlab import rec2csv, csv2rec
 
 from deap import creator, base
@@ -34,6 +35,134 @@ __all__ = ['load_results',
 
 
 def load_results(file_name):
+    '''
+    load the specified bz2 file. the file is assumed to be saves
+    using save_results.
+    
+    :param file_name: the path of the file
+    :raises: IOError if file not found
+
+
+    '''
+    
+    outcomes = {}
+    with tarfile.open(file_name, 'r') as z:
+        # load experiments
+        experiments = z.extractfile('experiments.csv')
+        experiments = csv2rec(experiments)
+
+        # load experiment metadata
+        metadata = z.extractfile('experiments metadata.csv').readlines()
+        metadata = [entry.strip() for entry in metadata]
+        metadata = [tuple(entry.split(",")) for entry in metadata]
+        metadata = np.dtype(metadata)
+
+        # cast experiments to dtype and name specified in metadata        
+        temp_experiments = np.zeros((experiments.shape[0],), dtype=metadata)
+        for i, entry in enumerate(experiments.dtype.descr):
+            dtype = metadata[i]
+            name = metadata.descr[i][0]
+            temp_experiments[name][:] = experiments[entry[0]].astype(dtype)
+        experiments = temp_experiments
+        
+        # load outcome metadata
+        metadata = z.extractfile('outcomes metadata.csv').readlines()
+        metadata = [entry.strip() for entry in metadata]
+        metadata = [tuple(entry.split(",")) for entry in metadata]
+        metadata = {entry[0]: entry[1:] for entry in metadata}
+
+        # load outcomes
+        for outcome, shape in metadata.iteritems():
+            shape = list(shape)
+            shape[0] = shape[0][1:]
+            shape[-1] = shape[-1][0:-1]
+            shape = tuple([int(entry) for entry in shape])
+            
+            if len(shape)>2:
+                nr_files = shape[-1]
+                
+                data = np.empty(shape)
+                for i in range(nr_files):
+                    values = z.extractfile("{}_{}.csv".format(outcome, i))
+                    values = read_csv(values, index_col=False, header=None).values
+                    data[:,:,i] = values
+
+            else:
+                data = z.extractfile("{}.csv".format(outcome))
+                data = read_csv(data, index_col=False, header=None).values
+                
+            outcomes[outcome] = data
+            
+    info("results loaded succesfully from {}".format(file_name))
+    return experiments, outcomes
+
+
+def save_results(results, file_name):
+    '''
+    save the results to the specified tar.gz file. The results are stored as 
+    csv files. There is an experiments.csv, and a csv for each outcome. In 
+    addition, there is a metadata csv which contains the datatype information
+    for each of the columns in the experiments array.
+
+    :param results: the return of run_experiments
+    :param file_name: the path of the file
+    :raises: IOError if file not found
+
+    '''
+
+    def add_file(tararchive, string_to_add, filename):
+        tarinfo = tarfile.TarInfo(filename)
+        tarinfo.size = len(string_to_add)
+        
+        z.addfile(tarinfo, StringIO.StringIO(string_to_add))  
+    
+    def save_numpy_array(fh, data):
+        data = pd.DataFrame(data)
+        data.to_csv(fh, header=False, index=False)
+        
+    experiments, outcomes = results
+    with tarfile.open(file_name, 'w:gz') as z:
+        # write the experiments to the zipfile
+        experiments_file = StringIO.StringIO()
+        rec2csv(experiments, experiments_file, withheader=True)
+        add_file(z, experiments_file.getvalue(), 'experiments.csv')
+        
+        # write experiment metadata
+        dtype = experiments.dtype.descr
+        dtype = ["{},{}".format(*entry) for entry in dtype]
+        dtype = "\n".join(dtype)
+        add_file(z, dtype, 'experiments metadata.csv')
+        
+        # write outcome metadata
+        outcome_names = outcomes.keys()
+        outcome_meta = ["{},{}".format(outcome, outcomes[outcome].shape) 
+                        for outcome in outcome_names]
+        outcome_meta = "\n".join(outcome_meta)
+        add_file(z, outcome_meta, "outcomes metadata.csv")
+        
+        
+        # outcomes
+        for key, value in outcomes.iteritems():
+            fh = StringIO.StringIO()
+            
+            nr_dim = len(value.shape)
+            if nr_dim==3:
+                for i in range(value.shape[2]):
+                    data = value[:,:,i]
+                    save_numpy_array(fh, data)
+                    fh = fh.getvalue()
+                    fn = '{}_{}.csv'.format(key, i)
+                    add_file(z, fh, fn)
+                    fh = StringIO.StringIO()
+            else:
+                save_numpy_array(fh, value)
+                fh = fh.getvalue()
+                add_file(z, fh, '{}.csv'.format(key))
+  
+    info("results saved successfully to {}".format(file_name))
+    
+
+def oldcsv_load_results(file_name):
     '''
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
@@ -83,72 +212,8 @@ def load_results(file_name):
     info("results loaded succesfully from {}".format(file_name))
     return experiments, outcomes
 
-
-def save_results(results, file_name):
-    '''
-    save the results to the specified tar.gz file. The results are stored as 
-    csv files. There is an experiments.csv, and a csv for each outcome. In 
-    addition, there is a metadata csv which contains the datatype information
-    for each of the columns in the experiments array.
-
-    :param results: the return of run_experiments
-    :param file_name: the path of the file
-    :raises: IOError if file not found
-
-    '''
-
-    def add_file(tararchive, string_to_add, filename):
-        tarinfo = tarfile.TarInfo(filename)
-        tarinfo.size = len(string_to_add)
-        
-        z.addfile(tarinfo, StringIO.StringIO(string_to_add))  
-    
-    def save_numpy_array(fh, data):
-        # this should be generalized to nd arrays, it now works up to 3d
-       
-        # Any line starting with "#" will be ignored by numpy.loadtxt
-        fh.write('# Array shape: {0}\n'.format(data.shape))
-    
-        # Iterating through a ndimensional array produces slices along
-        # the last axis. This is equivalent to data[i,:,:] in this case
-        if len(data.shape)>1:
-            for data_slice in data:
-        
-                # The formatting string indicates that I'm writing out
-                # the values in left-justified columns 7 characters in width
-                # with 2 decimal places.  
-                np.savetxt(fh, data_slice, delimiter=',')
-        
-                # Writing out a break to indicate different slices...
-                fh.write('# New slice\n')
-        else:
-            np.savetxt(fh, data, delimiter=',')
-
-    experiments, outcomes = results
-    with tarfile.open(file_name, 'w:gz') as z:
-        # write the experiments to the zipfile
-        experiments_file = StringIO.StringIO()
-        rec2csv(experiments, experiments_file, withheader=True)
-
-        add_file(z, experiments_file.getvalue(), 'experiments.csv')
-        
-        # write metadata
-        dtype = experiments.dtype.descr
-        dtype = ["{},{}".format(*entry) for entry in dtype]
-        dtype = "\n".join(dtype)
-        add_file(z, dtype, 'experiments metadata.csv')
-        
-        # outcomes
-        for key, value in outcomes.iteritems():
-            fh = StringIO.StringIO()
-            save_numpy_array(fh, value)
-            fh = fh.getvalue()
-            add_file(z, fh, '{}.csv'.format(key))
   
-    info("results saved succesfully to {}".format(file_name))
-    
-  
-def old_load_results(file_name, zipped=True):
+def pickled_load_results(file_name, zipped=True):
     '''
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
@@ -176,7 +241,7 @@ def old_load_results(file_name, zipped=True):
     return results
     
 
-def old_save_results(results, file_name, zipped=True):
+def pickled_save_results(results, file_name, zipped=True):
     '''
     save the results to the specified bz2 file. To facilitate transfer
     across different machines. the files are saved in binary format
