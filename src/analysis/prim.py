@@ -187,6 +187,11 @@ def _setup_figure(uncs):
 def _pair_wise_scatter(x,y, box_lim, restricted_dims):
     ''' helper function for pair wise scatter plotting
     
+    #TODO the cases of interest should be in red rather than in blue
+    # this will give a nice visual insight into the quality of the box
+    # currently it is done through the face color being white or blue
+    # this is not very clear
+    
     :param x: the experiments
     :param y: the outcome of interest
     :param box_lim: a boxlim
@@ -485,7 +490,7 @@ class PrimBox(object):
         fig = plt.gcf()
         
         make_legend(['mean', 'mass', 'coverage', 'density', 'restricted_dim'],
-                    fig, ncol=5, alpha=1)
+                    ax, ncol=5, alpha=1)
         return fig
     
     def show_tradeoff(self):
@@ -805,7 +810,7 @@ class Prim(object):
             return box
         else:
             # make a dump box
-            info('box does not meet threshold criteria, value is {}, returning dump box'.format(box.mean[-1]))
+            info('box does not meet threshold criteria, value is {}, returning dump box'.format(box.mean))
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self.boxes.append(box)
             return box
