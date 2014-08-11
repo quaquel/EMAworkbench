@@ -29,9 +29,8 @@ __all__ = ['load_results',
            'save_results',
            'save_optimization_results',
            'load_optimization_results',
-           'transform_old_cPickle_to_new_cPickle',
            'experiments_to_cases',
-           'merge_results']
+           ]
 
 
 def load_results(file_name):
