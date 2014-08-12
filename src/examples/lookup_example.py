@@ -6,7 +6,8 @@ Created on Oct 1, 2012
 from expWorkbench import Outcome, ModelEnsemble, ema_logging
 from connectors.vensim import  LookupUncertainty, VensimModelStructureInterface
 import matplotlib.pyplot as plt
-from analysis.plotting import lines, envelopes
+from analysis.plotting import lines
+from analysis.plotting_util import BOXPLOT
 
 class Burnout(VensimModelStructureInterface): 
     model_file = r'\BURNOUT.vpm'
@@ -18,7 +19,7 @@ class Burnout(VensimModelStructureInterface):
     def __init__(self, working_directory, name):
         super(Burnout, self).__init__(working_directory, name)
         
-        self.uncertainties = [LookupUncertainty('hearne2',[(-1, 3), (-2, 1), (0, 0.9), (0.1, 1), (0.99, 1.01), (0.99, 1.01)], 
+        uncertainties = [LookupUncertainty('hearne2',[(-1, 3), (-2, 1), (0, 0.9), (0.1, 1), (0.99, 1.01), (0.99, 1.01)], 
                                             "accomplishments per hour lookup", self, 0, 1),
                               LookupUncertainty('hearne2', [(-0.75, 0.75), (-0.75, 0.75), (0, 1.5), (0.1, 1.6), (-0.3, 1.5), (0.25, 2.5)], 
                                                  "fractional change in expectations from perceived adequacy lookup", self, -1, 1),
@@ -42,14 +43,14 @@ class Burnout(VensimModelStructureInterface):
         
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
-    model = Burnout(r'.', "burnout")
+    model = Burnout(r'./models/burnout', "burnout")
 
     ensemble = ModelEnsemble()
     ensemble.set_model_structure(model)
     
     #run policy with old cases
     results = ensemble.perform_experiments(100)
-    lines(results, 'Energy Level', density=False, hist=False)
+    lines(results, 'Energy Level', density=BOXPLOT)
     plt.show()
 
     
