@@ -37,7 +37,7 @@ from connectors.vensim import VensimModelStructureInterface, LookupUncertainty
 
 class LookupTestModel(VensimModelStructureInterface): 
     def __init__(self, working_directory, name):
-        self.model_file = r'\lookup_test.vpm'
+        self.model_file = r'\lookup_model.vpm'
         super(LookupTestModel, self).__init__(working_directory, name)
 
         # vensim.load_model(self.modelFile)
