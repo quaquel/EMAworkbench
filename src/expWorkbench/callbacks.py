@@ -160,6 +160,8 @@ class DefaultCallback(AbstractCallback):
             
     def _store_result(self, result):
         for outcome in self.outcomes:
+            debug("storing {}".format(outcome))
+            
             try:
                 outcome_res = result[outcome]
             except KeyError:
