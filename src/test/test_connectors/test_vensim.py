@@ -36,43 +36,29 @@ from connectors.vensim import VensimModelStructureInterface, LookupUncertainty
 
 
 class LookupTestModel(VensimModelStructureInterface): 
-    model_file = r'\lookup_test.vpm'
-    
-    # vensim.load_model(self.modelFile)
-    outcomes = [Outcome('TF2', time=True),
-                Outcome('flow1', time=True),
-                Outcome('TF', time=True),
-                Outcome('TF3', time=True)]
+    def __init__(self, working_directory, name):
+        self.model_file = r'\lookup_test.vpm'
+        super(LookupTestModel, self).__init__(working_directory, name)
 
+        # vensim.load_model(self.modelFile)
+        self.outcomes = [Outcome('flow1', time=True)]
 
-    def __init__(self,working_directory, name):
-        super(LookupTestModel, self).__init__(working_directory, 
-                                                            name)
-        
-        self.uncertainties.append(LookupUncertainty('hearne1', 
-                                                    [(0, 5), (-1, 2), 
-                                                     (0, 1.5), (0, 1.5), 
-                                                     (0, 1), (0.5, 1.5)], "TF", 
-                                                    self, 0, 2))
-        self.uncertainties.append(LookupUncertainty('approximation', 
-                                                    [(0, 4), (1, 5), 
-                                                     (1, 5), (0, 2), 
-                                                     (0, 2)], "TF2", self, 0, 
-                                                    10))
-        self.uncertainties.append(ParameterUncertainty((0.02, 0.08), "rate1"))
-        self.uncertainties.append(ParameterUncertainty((0.02, 0.08), "rate2"))
-        self.uncertainties.append(LookupUncertainty('categories',
-                                                    [[(0.0, 0.05), (0.25, 0.15), 
-                                                      (0.5, 0.4), (0.75, 1), 
-                                                      (1, 1.25)], 
-                                                     [(0.0, 0.1), (0.25, 0.25),
-                                                       (0.5, 0.75), (1, 1.25)],
-                                                     [(0.0, 0.0), (0.1, 0.2), 
-                                                      (0.3, 0.6), (0.6, 0.9), 
-                                                      (1, 1.25)]], "TF3", self, 
-                                                    0, 2))
-        self._delete_lookup_uncertainties()
-  
+ 
+        '''
+        each lookup uncertainty defined and added to the uncertainties list must be deleted immediately. it is not possible to do that in the constructor of lookups.
+        or i can delete it later before generating the cases.
+        '''
+        self.uncertainties.append(LookupUncertainty('hearne2', [(0, 0.5), (-0.5, 0), (0, 0.75), (0.75, 1.5), (0.8, 1.2), (0.8, 1.2)], "TF", self, 0, 2))
+        #self.uncertainties.pop()
+        self.uncertainties.append(LookupUncertainty('approximation', [(0, 4), (1, 5), (1, 5), (0, 2), (0, 2)], "TF2", self, 0, 10))
+        #self.uncertainties.pop()
+        #self.uncertainties.append(ParameterUncertainty((0.02, 0.08), "rate1"))
+        #self.uncertainties.append(ParameterUncertainty((0.02, 0.08), "rate2"))
+        self.uncertainties.append(LookupUncertainty('categories', [[(0.0, 0.05), (0.25, 0.15), (0.5, 0.4), (0.75, 1), (1, 1.25)], 
+                                                     [(0.0, 0.1), (0.25, 0.25), (0.5, 0.75), (1, 1.25)],
+                                                     [(0.0, 0.0), (0.1, 0.2), (0.3, 0.6), (0.6, 0.9), (1, 1.25)]], "TF3", self, 0, 2))
+        #self.uncertainties.pop()   
+        self._delete_lookup_uncertainties()                  
 
 class VensimTest(unittest.TestCase):
     
