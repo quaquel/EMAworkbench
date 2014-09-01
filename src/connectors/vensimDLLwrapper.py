@@ -20,7 +20,7 @@ import sys
 
 import numpy as np
 
-from expWorkbench import warning, EMAError, EMAWarning
+from expWorkbench import warning, EMAError, EMAWarning, info
 
 try:
     WindowsError
@@ -42,10 +42,28 @@ class VensimError(EMAError):
 
 
 try:
-    vensim = ctypes.windll.vendll32
+    vensim_single = ctypes.windll.vendll32
 except (WindowsError, AttributeError):
-    sys.stderr.write("vensim dll not found, vensim functionality not available\n")
-    warning("vensim dll not found, vensim functionality not available")
+    vemsim_single = None
+    
+try:
+    vensim_double = ctypes.windll.LoadLibrary('C:\Windows\SysWOW64\VdpDLL32.dll')
+except WindowsError:
+    vensim_double = None   
+
+if vensim_single and vensim_double:
+    vensim = vensim_single
+    info("both single and double precision vensim available, using single")
+elif vensim_single:
+    vensim = vensim_single
+    info('using single precision vensim')
+elif vensim_double:
+    vensim = vensim_double
+    info('using single precision vensim')
+else:
+    message = "vensim dll not found, vensim functionality not available"
+    sys.stderr.write(message+"\n")
+    warning(message)
 del sys
 
 def be_quiet(quietflag):
