@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 
 from analysis import prim
 from expWorkbench import ema_logging, load_results
+
+
 ema_logging.log_to_stderr(ema_logging.INFO);
 
 default_flow = 2.178849944502783e7
@@ -24,7 +26,10 @@ def classify(outcomes):
     classes[outcome<1] = 1
     return classes
 
-results = load_results(r'./data/5000 runs WCM.tar.gz')
+fn = r'./data/5000 runs WCM.tar.gz'
+results = load_results(fn)
+
+
 prim_obj = prim.Prim(results, classify, mass_min=0.05, threshold=0.75)
 
 # let's find a first box
