@@ -352,7 +352,7 @@ class PrimBox(object):
         print self.stats_header
         
         if i == None:
-            i = len(self.box_lims)-1
+            i = self._cur_box
         
         stats = self.peeling_trajectory.iloc[i].to_dict()
         stats['restricted_dim'] = stats['res dim']
@@ -1115,6 +1115,10 @@ class Prim(object):
 
         scores.sort(key=itemgetter(0,1), reverse=True)
         entry = scores[0]
+        
+        if entry[0]<0:
+            print "blaat"
+        
         box_new, indices = entry[2:]
         
         mass_new = self.y[indices].shape[0]/self.n
