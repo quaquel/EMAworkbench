@@ -75,7 +75,13 @@ def load_results(file_name):
             shape = list(shape)
             shape[0] = shape[0][1:]
             shape[-1] = shape[-1][0:-1]
-            shape = tuple([int(entry) for entry in shape])
+            
+            
+            temp_shape = []
+            for entry in shape:
+                if entry:
+                    temp_shape.append(int(entry))
+            shape = tuple(temp_shape)
             
             if len(shape)>2:
                 nr_files = shape[-1]
@@ -89,6 +95,7 @@ def load_results(file_name):
             else:
                 data = z.extractfile("{}.csv".format(outcome))
                 data = read_csv(data, index_col=False, header=None).values
+                data = np.reshape(data, shape)
                 
             outcomes[outcome] = data
             
@@ -546,3 +553,4 @@ def save_optimization_results(results, file_name, zipped=True):
     '''
 
     save_results(results, file_name, zipped=zipped) 
+

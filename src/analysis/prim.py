@@ -753,6 +753,7 @@ class Prim(object):
         
         self.rotation_matrix = rotation_matrix
         self.column_names = column_names
+        self.row_names = row_names
         
         self.x = np.ma.array(rotated_experiments)
         self.box_init = self.make_box(self.x)
@@ -1116,15 +1117,15 @@ class Prim(object):
         scores.sort(key=itemgetter(0,1), reverse=True)
         entry = scores[0]
         
-        if entry[0]<0:
-            print "blaat"
         
+        obj_score = entry[0]
         box_new, indices = entry[2:]
         
         mass_new = self.y[indices].shape[0]/self.n
        
         if (mass_new >= self.mass_min) &\
-           (mass_new < mass_old):
+           (mass_new < mass_old)&\
+           (obj_score>0):
             box.update(box_new, indices)
             return self._peel(box)
         else:
