@@ -4,7 +4,7 @@ Created on 22 feb. 2013
 @author: j.h.kwakkel
 
 '''
-from __future__ import division
+from __future__ import division, print_function
 from types import StringType, FloatType, IntType
 from operator import itemgetter
 import copy
@@ -104,61 +104,6 @@ def _determine_size(box, uncertainties):
     size = size+4
     return length, size
 
-
-def _write_boxes_to_stdout(box_lims, uncertainties):
-    '''
-    
-    write the lims for the uncertainties for each box lim to stdout
-    
-    :param box_lims: list of box_lims
-    :param uncertainties: list of uncertainties
-    
-    '''
-
-    box = box_lims[-1]
-    length, size = _determine_size(box, uncertainties)
-
-    # make the headers of the limits table
-    # first header is box names
-    # second header is min and max
-    elements_1 = ["{0:<{1}}".format("uncertainty", length)]
-    elements_2 = ["{0:<{1}}".format("", length)]
-    for i in range(len(box_lims)):
-        if i < len(box_lims)-1:
-            box_name = 'box {}'.format(i+1)
-        else:
-            box_name = 'rest box'        
-        
-        elements_1.append("{0:>{2}}{1:>{3}}".format("{}".format(box_name),"", size+4, size-2))
-        elements_2.append("{0:>{2}}{1:>{3}}".format("min", "max",size,size+2))
-    line = "".join(elements_1)
-    print line
-    line = "".join(elements_2)
-    print line
-    
-    for u in uncertainties:
-        elements = ["{0:<{1}}".format(u, length)]
-    
-        for box in box_lims:
-            data_type =  box[u].dtype
-            if data_type == np.float64:
-                data = list(box[u])
-                data.append(size)
-                data.append(size)
-                data.append(PRECISION)
-                
-                elements.append("{0:>{2}{4}} -{1:>{3}{4}}".format(*data))
-            elif data_type == np.int32:
-                data = list(box[u])
-                data.append(size)
-                data.append(size)                
-                
-                elements.append("{0:>{2}} -{1:>{3}}".format(*data))            
-            else:
-                elements.append("{0:>{1}}".format(box[u][0], size*2+2))
-        line = "".join(elements)
-        print line
-    print "\n\n"
 
 def _setup_figure(uncs):
     '''
@@ -348,65 +293,85 @@ class PrimBox(object):
         out. if i is not provided, the last box will be printed
         
         '''
-      
-        print self.stats_header
-        
         if i == None:
             i = self._cur_box
         
         stats = self.peeling_trajectory.iloc[i].to_dict()
         stats['restricted_dim'] = stats['res dim']
-        
-        print self._format_stats(i, stats)   
-        print ""
-                
+
         qp_values = self._calculate_quasi_p(i)
         uncs = [(key, value) for key, value in qp_values.iteritems()]
         uncs.sort(key=itemgetter(1))
         uncs = [uncs[0] for uncs in uncs]
-
-        qp_col_size = len("qp values")+4
-        box = self.box_lims[i]
-        unc_col_size, value_col_size = _determine_size(box, uncs)
         
-        # make the headers of the limits table
-        # first header is box names
-        # second header is min and max
-        elements_1 = ["{0:<{1}}".format("uncertainty", unc_col_size)]
-        elements_2 = ["{0:<{1}}".format("", unc_col_size)]
-        box_name = 'box {}'.format(i)
-        elements_1.append("{0:>{2}}{1:>{3}}".format("{}".format(box_name),"", value_col_size+4, value_col_size-2))
-        elements_2.append("{0:>{3}}{1:>{4}}{2:>{5}}".format("min", "max","qp values", value_col_size, value_col_size+2, qp_col_size))
-        line = "".join(elements_1)
-        print line
-        line = "".join(elements_2)
-        print line
+        #make the descriptive statistics for the box
+        print(self.peeling_trajectory.iloc[i])
+        print()
         
-        for u in uncs:
-            elements = ["{0:<{1}}".format(u, unc_col_size)]
-
-            data_type =  box[u].dtype
-            if data_type == np.float64:
-                data = list(box[u])
-                data.append(value_col_size)
-                data.append(value_col_size)
-                data.append(PRECISION)
-                
-                elements.append("{0:>{2}{4}} -{1:>{3}{4}}".format(*data))
-            elif data_type == np.int32:
-                data = list(box[u])
-                data.append(value_col_size)
-                data.append(value_col_size)                
-                
-                elements.append("{0:>{2}} -{1:>{3}}".format(*data))            
-            else:
-                elements.append("{0:>{1}}".format(box[u][0], value_col_size*2+2))
-            
-            elements.append("{0:>{1}{2}}".format(qp_values[u], qp_col_size, '.2e'))
-            
-            line = "".join(elements)
-            print line
-        print "\n"        
+        # make the box definition
+        columns = pd.MultiIndex.from_product([['box {}'.format(i)],
+                                              ['min', 'max', 'qp values']])
+        box_lim = pd.DataFrame(np.zeros((len(uncs), 3)), 
+                               index=uncs, 
+                               columns=columns)
+        
+        for unc in uncs:
+            values = self.box_lim[unc][:]
+            box_lim.loc[unc] = [values[0], values[1], qp_values[unc]]
+        
+        print(box_lim)
+        print()
+        
+#         print self._format_stats(i, stats)   
+#         print ""
+#                 
+#         qp_values = self._calculate_quasi_p(i)
+#         uncs = [(key, value) for key, value in qp_values.iteritems()]
+#         uncs.sort(key=itemgetter(1))
+#         uncs = [uncs[0] for uncs in uncs]
+# 
+#         qp_col_size = len("qp values")+4
+#         box = self.box_lims[i]
+#         unc_col_size, value_col_size = _determine_size(box, uncs)
+#         
+#         # make the headers of the limits table
+#         # first header is box names
+#         # second header is min and max
+#         elements_1 = ["{0:<{1}}".format("uncertainty", unc_col_size)]
+#         elements_2 = ["{0:<{1}}".format("", unc_col_size)]
+#         box_name = 'box {}'.format(i)
+#         elements_1.append("{0:>{2}}{1:>{3}}".format("{}".format(box_name),"", value_col_size+4, value_col_size-2))
+#         elements_2.append("{0:>{3}}{1:>{4}}{2:>{5}}".format("min", "max","qp values", value_col_size, value_col_size+2, qp_col_size))
+#         line = "".join(elements_1)
+#         print line
+#         line = "".join(elements_2)
+#         print line
+#         
+#         for u in uncs:
+#             elements = ["{0:<{1}}".format(u, unc_col_size)]
+# 
+#             data_type =  box[u].dtype
+#             if data_type == np.float64:
+#                 data = list(box[u])
+#                 data.append(value_col_size)
+#                 data.append(value_col_size)
+#                 data.append(PRECISION)
+#                 
+#                 elements.append("{0:>{2}{4}} -{1:>{3}{4}}".format(*data))
+#             elif data_type == np.int32:
+#                 data = list(box[u])
+#                 data.append(value_col_size)
+#                 data.append(value_col_size)                
+#                 
+#                 elements.append("{0:>{2}} -{1:>{3}}".format(*data))            
+#             else:
+#                 elements.append("{0:>{1}}".format(box[u][0], value_col_size*2+2))
+#             
+#             elements.append("{0:>{1}{2}}".format(qp_values[u], qp_col_size, '.2e'))
+#             
+#             line = "".join(elements)
+#             print line
+#         print "\n"        
         
     def select(self, i):
         '''        
@@ -535,8 +500,8 @@ class PrimBox(object):
     
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''
-        print self.peeling_trajectory
-        print "\n"
+        print(self.peeling_trajectory)
+        print("\n")
 
     def _calculate_quasi_p(self, i):
         '''helper function for calculating quasi-p values as discussed in 
@@ -916,29 +881,45 @@ class Prim(object):
         in the first box. 
         
         '''
-      
-        print self.boxes[0].stats_header
-        
         boxes = self.boxes[:]
         if not np.all(self.compare(boxes[-1].box_lims[-1], self.box_init)):
             self._update_yi_remaining()
-            box = PrimBox(self, self.box_init, self.yi_remaining[:])
+            box = PrimBox(self, 
+                          self.box_init, 
+                          self.yi_remaining[:])
             boxes.append(box)
-        
-        for nr, box in enumerate(boxes):
-            nr +=1
-            if nr == len(boxes):
-                nr = 'rest'
+        nr_boxes = len(boxes)
             
-            stats = {'mean': box.mean, 
-                    'mass': box.mass, 
-                    'coverage': box.coverage, 
-                    'density': box.density, 
-                    'restricted_dim': box.res_dim}
-            print box._format_stats(nr, stats)   
+        # statistics
+        columns = self.boxes[0].peeling_trajectory.columns
+        index = ["box {}".format(i+1) for i in range(nr_boxes-1)]
+        index.append('rest')
+        
+        stats = pd.DataFrame(np.zeros((nr_boxes, len(columns))),
+                             index=index,
+                             columns=columns)
+        for i, box in enumerate(boxes):
+            box_stats = box.peeling_trajectory.ix[box._cur_box]
+            stats.ix[i] = box_stats
+        print(stats)
+        print()
+        
+        # individual boxes
+        lims, uncs = self._get_sorted_box_lims()
+        columns = pd.MultiIndex.from_product([index,
+                                              ['min', 'max',]])
+        box_lim = pd.DataFrame(np.zeros((len(uncs), nr_boxes*2)),
+                               index = uncs,
+                               columns=columns)
 
-        print "\n"
-        _write_boxes_to_stdout(*self._get_sorted_box_lims())
+        for i, box in enumerate(lims):
+            for unc in uncs:
+                values = box[unc][:]
+                values = pd.Series(values, 
+                                   index=['min','max'])
+                box_lim.ix[unc][index[i]] = values
+        print(box_lim)
+        print()
 
         
     def show_boxes(self, together=True):
@@ -1362,7 +1343,7 @@ class Prim(object):
                     paste_value = get_quantile(data, 1-self.paste_alpha)
            
                 if not paste_value <= box.box_lims[-1][u][i]:
-                    print paste_value, box.box_lims[-1][u][i]
+                    print("{}, {}".format(paste_value, box.box_lims[-1][u][i]))
             
             
             dtype = box_paste.dtype.fields[u][0]
