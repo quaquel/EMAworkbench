@@ -44,11 +44,11 @@ class VensimError(EMAError):
 try:
     vensim_single = ctypes.windll.vendll32
 except (WindowsError, AttributeError):
-    vemsim_single = None
+    vensim_single = None
     
 try:
     vensim_double = ctypes.windll.LoadLibrary('C:\Windows\SysWOW64\VdpDLL32.dll')
-except WindowsError:
+except (WindowsError, AttributeError):
     vensim_double = None   
 
 if vensim_single and vensim_double:
