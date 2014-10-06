@@ -42,7 +42,6 @@ box1.show_tradeoff()
 box1.write_ppt_to_stdout()
 
 # based on the peeling trajectory, we pick entry number 44
-box1.inspect(44)
 box1.select(44)
 
 # show the resulting box
