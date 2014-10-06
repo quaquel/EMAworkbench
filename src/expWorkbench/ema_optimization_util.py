@@ -6,7 +6,7 @@ Created on Oct 12, 2013
 import random
 from collections import defaultdict
 import numpy.lib.recfunctions as recfunctions
-from deap.tools import isDominated
+# from deap.tools import isDominated
 import copy
 import ema_logging
 from expWorkbench.ema_exceptions import EMAError
@@ -54,10 +54,10 @@ def select_tournament_dominance_crowding(individuals, k, nr_individuals):
     :returns: A list of selected individuals.
     """
     def binary_tournament(ind1, ind2):
-        if isDominated(ind1.fitness.wvalues, ind2.fitness.wvalues):
-            return ind2
-        elif isDominated(ind2.fitness.wvalues, ind1.fitness.wvalues):
+        if ind1.fitness.dominates(ind2.fitness):
             return ind1
+        elif ind2.fitness.dominatres(ind1.fitness):
+            return ind2
 
         if ind1.fitness.crowding_dist < ind2.fitness.crowding_dist:
             return ind2

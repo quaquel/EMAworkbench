@@ -12,7 +12,7 @@ import numpy as np
 import random 
 import copy
 
-from deap.tools import HallOfFame, isDominated
+from deap.tools import HallOfFame
 from ema_optimization_util import compare, mut_polynomial_bounded,\
                                   mut_uniform_int,\
                                   select_tournament_dominance_crowding
@@ -128,7 +128,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
                                  self.ensemble)
 
         # This is just to assign the crowding distance to the individuals
-        tools.assignCrowdingDist(self.pop)        
+        tools.emo.assignCrowdingDist(self.pop)        
 
         self.stats_callback(self.pop)
         self.stats_callback.log_stats(self.called)
@@ -325,11 +325,11 @@ class ParetoFront(HallOfFame):
 
                 # replace with  np.any(nd.fitness.wvalues < hofer.fitness.wvalues)
                 
-                if isDominated(ind.fitness.wvalues, hofer.fitness.wvalues):
+                if ind.fitness.dominates(hofer.fitness):
+                    to_remove.append(i)
+                elif hofer.fitness.dominates(ind.fitness):
                     is_dominated = True
                     break
-                elif isDominated(hofer.fitness.wvalues, ind.fitness.wvalues):
-                    to_remove.append(i)
                 elif ind.fitness == hofer.fitness and self.similar(ind, hofer):
                     has_twin = True
                     break

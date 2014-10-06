@@ -233,4 +233,4 @@ if __name__ == "__main__":
                                                mutation_rate=0.02
                                                )
     fn = '../data/test optimization save.bz2'
-    save_optimization_results((stats,pop), fn)
+#     save_optimization_results((stats,pop), fn)
