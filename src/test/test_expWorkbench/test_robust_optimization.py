@@ -17,7 +17,7 @@ from expWorkbench.ema_exceptions import CaseError
 from expWorkbench import ModelEnsemble, MAXIMIZE, save_optimization_results
 
 class EnergyTrans(VensimModelStructureInterface):
-    model_file = r'\CESUN_optimized_new.vpm'
+    model_file = r'../models/CESUN_optimized_new.vpm'
     
     #outcomes    
     outcomes = [Outcome('total fraction new technologies' , time=True),  
