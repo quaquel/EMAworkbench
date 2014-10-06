@@ -26,7 +26,7 @@ def obj_function_multi(results):
 def test_optimization():
     ema_logging.log_to_stderr(ema_logging.INFO)
     
-    model = FluModel(r'..\data', "fluCase")
+    model = FluModel(r'../models', "fluCase")
     ensemble = ModelEnsemble()
     
     ensemble.set_model_structure(model)
@@ -46,7 +46,7 @@ def test_optimization():
                                                     mutation_rate=0.05,
                                                     eps=eps)
     fn = '../data/test optimization save.bz2'
-    save_optimization_results((stats,pop), fn)
+#     save_optimization_results((stats,pop), fn)
     
 
 if __name__ == '__main__':

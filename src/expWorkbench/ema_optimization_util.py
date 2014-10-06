@@ -56,7 +56,7 @@ def select_tournament_dominance_crowding(individuals, k, nr_individuals):
     def binary_tournament(ind1, ind2):
         if ind1.fitness.dominates(ind2.fitness):
             return ind1
-        elif ind2.fitness.dominatres(ind1.fitness):
+        elif ind2.fitness.dominates(ind1.fitness):
             return ind2
 
         if ind1.fitness.crowding_dist < ind2.fitness.crowding_dist:
