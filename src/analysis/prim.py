@@ -316,7 +316,7 @@ class PrimBox(object):
                                columns=columns)
         
         for unc in uncs:
-            values = self.box_lim[unc][:]
+            values = self.box_lims[i][unc][:]
             box_lim.loc[unc] = [values[0], values[1], qp_values[unc]]
         
         print(box_lim)
