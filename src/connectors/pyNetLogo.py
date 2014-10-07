@@ -8,6 +8,7 @@ import os
 import sys
 
 from expWorkbench import debug, info, warning
+from expWorkbench.ema_exceptions import EMAError
 
 __all__ = ['NetLogoException',
            'NetLogoLink']
@@ -70,6 +71,11 @@ class NetLogoLink():
 
             joined_jars = jar_separator.join(jars)
             jarpath = '-Djava.class.path={}'.format(joined_jars)
+            
+            import os
+            entries = os.environ
+            
+            
             jvm_handle = jpype.getDefaultJVMPath()  
             jpype.startJVM(jvm_handle, jarpath)  
             jpype.java.lang.System.setProperty('user.dir', NETLOGO_HOME)
@@ -100,6 +106,9 @@ class NetLogoLink():
         :raise: NetLogoException wrapped arround netlogo exceptions. 
         
         '''
+        if not os.path.isfile(path):
+            raise EMAError('{} is not a file'.format(path))
+        
         try:
             self.link.loadModel(path)
         except jpype.JException(jpype.java.io.IOException)as ex:

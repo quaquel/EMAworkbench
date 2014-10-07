@@ -13,21 +13,20 @@ from connectors.netlogo import NetLogoModelStructureInterface
 
 
 class PredatorPrey(NetLogoModelStructureInterface):
-    model_file = r"\Wolf Sheep Predation.nlogo"
+    model_file = r"/Wolf Sheep Predation.nlogo"
     
     run_length = 1000
     
     uncertainties = [ParameterUncertainty((10, 100), "grass-regrowth-time"),
                      CategoricalUncertainty(("true", "false"), "grass?") ]
     
-    outcomes = [Outcome('"sheep"', time=True),
-                Outcome('"wolves"', time=True),
-                Outcome('"grass / 4"', time=True)]
+    outcomes = [Outcome('sheep', time=True),
+                Outcome('wolves', time=True)]
 
 class Test(unittest.TestCase):
 
     def test_init(self):
-        wd = r"C:\git\EMAworkbench\models\predatorPreyNetlogo"
+        wd = r"../models"
         
         model = PredatorPrey(wd, "predPreyNetlogo")
         
@@ -39,7 +38,7 @@ class Test(unittest.TestCase):
 #        model.cleanup()
         
     def test_run_model(self):
-        wd = r"C:\git\EMAworkbench\models\predatorPreyNetlogo"
+        wd = r"../models"
         
         model = PredatorPrey(wd, "predPreyNetlogo")
         model.model_init({'name':'no policy'}, None)
@@ -50,13 +49,13 @@ class Test(unittest.TestCase):
         model.run_model(case)
         outcomes =  model.retrieve_output()
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        
-        for key, value in outcomes. iteritems():
-            ax.plot(value, label=key)
-        ax.legend(loc='best')
-        plt.show()
+#         fig = plt.figure()
+#         ax = fig.add_subplot(111)
+#         
+#         for key, value in outcomes. iteritems():
+#             ax.plot(value, label=key)
+#         ax.legend(loc='best')
+#         plt.show()
         
         model.cleanup()
         
@@ -64,6 +63,8 @@ class Test(unittest.TestCase):
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
+    
+
     
 #if not jpype.isJVMStarted():
 #

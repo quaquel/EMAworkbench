@@ -45,7 +45,7 @@ if __name__ == "__main__":
     ensemble.set_model_structure(vensimModel)
     
     #run in parallel, if not set, FALSE is assumed
-#     ensemble.parallel = True
+    ensemble.parallel = True
     
     #perform experiments
     results = ensemble.perform_experiments(100, reporting_interval=1)
