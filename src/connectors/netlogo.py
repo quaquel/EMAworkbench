@@ -54,7 +54,8 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         
         self.netlogo = pyNetLogo.NetLogoLink()
         debug("netlogo started")
-        self.netlogo.load_model(self.working_directory+self.model_file)
+        path = self.working_directory+self.model_file
+        self.netlogo.load_model(path)
         debug("model opened")
         
     
