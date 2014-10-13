@@ -342,6 +342,7 @@ class ParetoFront(HallOfFame):
                 added+=1
         return added, removed
 
+
 class EpsilonParetoFront(HallOfFame):
     """
     
@@ -459,6 +460,7 @@ class EpsilonParetoFront(HallOfFame):
             removed += ind_rem    
             e_prog += ind_e_prog        
         return added, removed, e_prog
+
 
 class NSGA2StatisticsCallback(object):
     '''
