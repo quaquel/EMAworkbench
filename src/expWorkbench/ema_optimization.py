@@ -487,7 +487,7 @@ class NSGA2StatisticsCallback(object):
         
         self.precision = "{0:.%if}" % 2
         self.nr_of_generations = 0
-        self.stats = []
+#         self.stats = []
         self.change = []
 
 
@@ -531,5 +531,5 @@ class NSGA2StatisticsCallback(object):
         self.change.append(copy.deepcopy(scores))
         self.nr_of_generations += 1
         
-        for entry in population:
-            self.stats.append(entry.fitness.values)
+#         for entry in population:
+#             self.stats.append(entry.fitness.values)
