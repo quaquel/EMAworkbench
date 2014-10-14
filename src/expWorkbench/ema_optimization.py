@@ -95,6 +95,7 @@ class AbstractOptimizationAlgorithm(object):
     def _get_population(self):
         pass
 
+
 class NSGA2(AbstractOptimizationAlgorithm):
     tournament_size = 2
     
@@ -192,9 +193,9 @@ class NSGA2(AbstractOptimizationAlgorithm):
         self.stats_callback.log_stats(self.called)
         return self.pop
 
+
 class epsNSGA2(NSGA2):
     message = "reset population: pop size: {}; archive: {}; tournament size: {}"
-
 
     def __init__(self, weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
