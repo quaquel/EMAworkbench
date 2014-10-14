@@ -43,6 +43,7 @@ from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
 
 __all__ = ['CalculatorPool']
 
+
 def worker(inqueue, 
            outqueue, 
            model_interfaces, 
@@ -116,12 +117,11 @@ def worker(inqueue,
             
         debug("trying to retrieve output")
         result = msi.retrieve_output()
-        
         result = (True, (experiment, policy, msi.name, result))
-        msi.reset_model()
+        put((job, result))
         
         debug("trying to reset model")
-        put((job, result))
+        msi.reset_model()
             
 
 class CalculatorPool(Pool):
@@ -284,7 +284,7 @@ class CalculatorPool(Pool):
         self._feeder_thread.join()
         
         event.wait()
-     
+
     @staticmethod
     def _handle_tasks(taskqueue, put, outqueue, pool):
         thread = threading.current_thread()

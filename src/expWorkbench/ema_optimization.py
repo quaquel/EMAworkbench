@@ -102,7 +102,6 @@ class AbstractOptimizationAlgorithm(object):
 class NSGA2(AbstractOptimizationAlgorithm):
     tournament_size = 2
     
-    
     def __init__(self, weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
@@ -119,6 +118,11 @@ class NSGA2(AbstractOptimizationAlgorithm):
         self.toolbox.register("select", tools.selNSGA2)
 
     def _first_get_population(self):
+        ''' called only once to initialize some stuff, returns 
+        a population. After the first call, _get_population is used instead.
+        
+        '''
+        
         debug("Start of evolution")
         
         self.pop = self.toolbox.population(self.pop_size)
@@ -139,7 +143,8 @@ class NSGA2(AbstractOptimizationAlgorithm):
         pop_size = len(self.pop)
         a = self.pop[0:len(self.pop)]
         
-        offspring = select_tournament_dominance_crowding(a, len(self.pop), self.tournament_size)
+        offspring = select_tournament_dominance_crowding(a, len(self.pop), 
+                                                         self.tournament_size)
         offspring = [self.toolbox.clone(ind) for ind in offspring]
         
         no_name=False
@@ -172,16 +177,18 @@ class NSGA2(AbstractOptimizationAlgorithm):
                             child[key] = value
                 
             #apply mutation
-            self.toolbox.mutate(child1, self.mutation_rate, self.levers, self.lever_names, 0.05)
-            self.toolbox.mutate(child2, self.mutation_rate, self.levers, self.lever_names, 0.05)
+            self.toolbox.mutate(child1, self.mutation_rate, 
+                                self.levers, self.lever_names, 0.05)
+            self.toolbox.mutate(child2, self.mutation_rate, 
+                                self.levers, self.lever_names, 0.05)
             
             del child1.fitness.values
             del child2.fitness.values
        
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        self.evaluate_population(invalid_ind, self.reporting_interval, self.toolbox, 
-                                 self.ensemble)
+        self.evaluate_population(invalid_ind, self.reporting_interval, 
+                                 self.toolbox, self.ensemble)
 
         # Select the next generation population
         self.pop = self.toolbox.select(self.pop + offspring, pop_size)
@@ -197,10 +204,10 @@ class epsNSGA2(NSGA2):
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
                  ensemble, eps, selection_pressure = 0.02):
-        super(epsNSGA2, self).__init__(weights, levers, generate_individual, obj_function,
-                 pop_size, evaluate_population, nr_of_generations, 
-                 crossover_rate,mutation_rate, reporting_interval,
-                 ensemble)
+        super(epsNSGA2, self).__init__(weights, levers, generate_individual, 
+                 obj_function, pop_size, evaluate_population,
+                 nr_of_generations, crossover_rate,mutation_rate, 
+                 reporting_interval,ensemble)
         self.archive = EpsilonParetoFront(eps)
         self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
         self.selection_presure = selection_pressure
@@ -226,7 +233,6 @@ class epsNSGA2(NSGA2):
             new_pop.append(individual)
         
         return new_pop
-    
     
     def _restart_required(self):
 
@@ -276,8 +282,6 @@ class epsNSGA2(NSGA2):
             return self.pop
         else:
             return super(epsNSGA2, self)._get_population()
-            
-        
 
 
 class ParetoFront(HallOfFame):
