@@ -144,27 +144,28 @@ class CalculatorPool(Pool):
         :param kwargs: kwargs to be pased to :meth:`model_init`
         '''
         
-        self._setup_queues()
-        self._taskqueue = Queue.Queue(cpu_count()*2)
-        self._cache = {}
-        self._state = RUN
-
         if processes is None:
             try:
                 processes = cpu_count()
             except NotImplementedError:
                 processes = 1
         info("nr of processes is "+str(processes))
-
+    
+        # setup queues etc.
+        self._setup_queues()
+        self._taskqueue = Queue.Queue(processes*2)
+        self._cache = {}
+        self._state = RUN
+        
+        # handling of logging
         self.log_queue = multiprocessing.Queue()
         h = NullHandler()
         logging.getLogger(ema_logging.LOGGER_NAME).addHandler(h)
         
-        # This thread will read from the subprocesses and write to the
-        # main log's handlers.
         log_queue_reader = LogQueueReader(self.log_queue)
         log_queue_reader.start()
 
+        # setup of the actual pool
         self._pool = []
         working_dirs = []
 
@@ -174,18 +175,15 @@ class CalculatorPool(Pool):
         for i in range(processes):
             debug('generating worker '+str(i))
             
-            # generate a random string helps in running repeatedly with
-            # crashes
-            choice_set = string.ascii_uppercase + string.digits + string.ascii_lowercase
-            random_string = ''.join(random.choice(choice_set) for _ in range(5))
-            
-            workername = 'tpm_{}_PoolWorker_{}'.format(random_string, i)
+            workername = self._get_worker_name(i)
             
             #setup working directories for parallel_ema
             for msi in msis:
                 if msi.working_directory != None:
                     if worker_root == None:
-                        worker_root = os.path.dirname(os.path.abspath(msis[0].working_directory))
+                        wd = msis[0].working_directory
+                        abs_wd = os.path.abspath(wd)
+                        worker_root = os.path.dirname(abs_wd)
                     
                     working_directory = os.path.join(worker_root, workername)
                     
@@ -260,6 +258,22 @@ class CalculatorPool(Pool):
                                     )
         
         info("pool has been set up")
+
+
+    def _get_worker_name(self, i):
+        '''Generate a name with random characters for the worker
+        
+        :param i: the index of the worker
+        
+        '''
+        
+        # generate a random string helps in running repeatedly with
+        # crashes
+        choice_set = string.ascii_uppercase + string.digits + string.ascii_lowercase
+        random_string = ''.join(random.choice(choice_set) for _ in range(5))
+        
+        workername = 'tpm_{}_PoolWorker_{}'.format(random_string, i)
+        return workername
 
     def run_experiments(self, experiments, callback):
         """
