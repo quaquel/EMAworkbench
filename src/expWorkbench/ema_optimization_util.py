@@ -79,7 +79,7 @@ def select_tournament_dominance_crowding(individuals, k, nr_individuals):
         return best
         
     chosen = []
-    for i in xrange(0, k):
+    for _ in xrange(0, k):
         tour_individuals = random.sample(individuals, nr_individuals)
         winner = tournament(tour_individuals)
         winner = copy.deepcopy(winner)
@@ -306,7 +306,7 @@ def mut_uniform_int(individual, policy_levers, keys):
     :param indpb: Probability for each attribute to be mutated.
     :returns: A tuple of one individual.
     """
-    for i, entry in enumerate(policy_levers.iteritems()):
+    for _, entry in enumerate(policy_levers.iteritems()):
         if random.random() < 1/len(policy_levers.keys()):
             key, entry = entry
             values = entry['values']
@@ -322,8 +322,12 @@ def mut_uniform_int(individual, policy_levers, keys):
     return individual,
 
 
-def MemmapCallback(DefaultCallback):
-    '''simple extension of default callback that uses memmap for storing '''
+class MemmapCallback(DefaultCallback):
+    '''simple extension of default callback that uses memmap for storing 
+    
+    This resolves getting memory errors due to adaptive population sizing
+    
+    '''
     
     def _store_result(self, result):
         for outcome in self.outcomes:
@@ -338,18 +342,21 @@ def MemmapCallback(DefaultCallback):
                     self.results[outcome][self.i-1, ] = outcome_res
                     self.results[outcome].flush()
                 except KeyError: 
-                    shape = np.asarray(outcome_res).shape
+                    data =  np.asarray(outcome_res)
+                    
+                    shape = data.shape
                     
                     if len(shape)>2:
                         raise EMAError(self.shape_error_msg.format(len(shape)))
                     
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
+                    shape = tuple(shape)
                     
                     fh = tempfile.TemporaryFile()
                     self.results[outcome] =  np.memmap(fh, 
-                                                       dtype=outcome_res.dtype, 
+                                                       dtype=data.dtype, 
                                                        shape=shape)
                     self.results[outcome][:] = np.NAN
-                    self.results[outcome][self.i-1, ] = outcome_res
+                    self.results[outcome][self.i-1, ] = data
                     self.results[outcome].flush()
