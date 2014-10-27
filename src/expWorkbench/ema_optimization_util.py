@@ -4,12 +4,15 @@ Created on Oct 12, 2013
 @author: jhkwakkel
 '''
 import random
-from collections import defaultdict
+import tempfile
+import numpy as np
 import numpy.lib.recfunctions as recfunctions
-# from deap.tools import isDominated
+
 import copy
 import ema_logging
 from expWorkbench.ema_exceptions import EMAError
+from expWorkbench import debug
+from expWorkbench.callbacks import DefaultCallback
 
 __all__ = ["mut_polynomial_bounded",
            "mut_uniform_int",
@@ -128,6 +131,7 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **
     ensemble._policies = policies
     experiments, outcomes = ensemble.perform_experiments(cases,
                                                 reporting_interval=ri, 
+                                                callback=MemmapCallback,
                                                 **kwargs)
     # debug validation of results
     # we should have an equal nr of scenarios for each policy
@@ -316,3 +320,36 @@ def mut_uniform_int(individual, policy_levers, keys):
                 raise NotImplementedError("unknown type: {}".format(entry['type']))
     
     return individual,
+
+
+def MemmapCallback(DefaultCallback):
+    '''simple extension of default callback that uses memmap for storing '''
+    
+    def _store_result(self, result):
+        for outcome in self.outcomes:
+            debug("storing {}".format(outcome))
+            
+            try:
+                outcome_res = result[outcome]
+            except KeyError:
+                ema_logging.debug("%s not in msi" % outcome)
+            else:
+                try:
+                    self.results[outcome][self.i-1, ] = outcome_res
+                    self.results[outcome].flush()
+                except KeyError: 
+                    shape = np.asarray(outcome_res).shape
+                    
+                    if len(shape)>2:
+                        raise EMAError(self.shape_error_msg.format(len(shape)))
+                    
+                    shape = list(shape)
+                    shape.insert(0, self.nr_experiments)
+                    
+                    fh = tempfile.TemporaryFile()
+                    self.results[outcome] =  np.memmap(fh, 
+                                                       dtype=outcome_res.dtype, 
+                                                       shape=shape)
+                    self.results[outcome][:] = np.NAN
+                    self.results[outcome][self.i-1, ] = outcome_res
+                    self.results[outcome].flush()
