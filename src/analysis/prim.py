@@ -894,7 +894,6 @@ class Prim(object):
         columns = self.boxes[0].peeling_trajectory.columns
         index = ["box {}".format(i+1) for i in range(nr_boxes-1)]
         index.append('rest')
-        
         stats = pd.DataFrame(np.zeros((nr_boxes, len(columns))),
                              index=index,
                              columns=columns)
@@ -906,10 +905,18 @@ class Prim(object):
         
         # individual boxes
         lims, uncs = self._get_sorted_box_lims()
+
+        dtype = float
+        for value in lims[0].dtype.fields.values():
+            if value[0] == object:
+                dtype = object
+                break
+                
         columns = pd.MultiIndex.from_product([index,
                                               ['min', 'max',]])
         box_lim = pd.DataFrame(np.zeros((len(uncs), nr_boxes*2)),
-                               index = uncs,
+                               index=uncs,
+                               dtype=dtype,
                                columns=columns)
 
         for i, box in enumerate(lims):

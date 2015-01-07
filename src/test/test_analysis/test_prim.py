@@ -566,13 +566,26 @@ class PrimTestCase(unittest.TestCase):
 #         plt.show()
   
     def test_write_boxes_to_stdout(self):
-        results = load_results(r'../data/1000 flu cases no policy.tar.gz')
-        classify = flu_classify
+        dtype = [('a', np.float),('b', np.object)]
+        x = np.empty((10, ), dtype=dtype)
+        
+        x['a'] = np.random.rand(10,)
+        x['b'] = ['a','b','a','b','a','a','b','a','b','a', ]
+        y = np.random.randint(0,2, (10,))
+        y = y.astype(np.int)
+        y = {'y':y}
+        results = x,y
+        classify = 'y'
                 
         prim_obj = prim.Prim(results, classify, 
                              threshold=0.7)
-        prim_obj.find_box()
-        prim_obj.find_box()
+        box_lim = np.array([(0.0, set(['a'])),
+                        (1.0, set(['a']))], dtype=dtype )
+        yi = prim._in_box(x, box_lim)
+        
+        
+        box = prim.PrimBox(prim_obj, box_lim, yi)
+        prim_obj.boxes.append(box)
         
         prim_obj.write_boxes_to_stdout()
         
@@ -668,8 +681,8 @@ class PrimTestCase(unittest.TestCase):
 if __name__ == '__main__':
 #     ema_logging.log_to_stderr(ema_logging.INFO)    
 
-#     unittest.main()
+    unittest.main()
 
-    suite = unittest.TestSuite()
-    suite.addTest(PrimTestCase("test_write_boxes_to_stdout"))
-    unittest.TextTestRunner().run(suite)
+#     suite = unittest.TestSuite()
+#     suite.addTest(PrimTestCase("test_write_boxes_to_stdout"))
+#     unittest.TextTestRunner().run(suite)
