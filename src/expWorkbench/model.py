@@ -105,7 +105,6 @@ class ModelStructureInterface(object):
 
         """
         self.output = {}
-        
     
     def cleanup(self):
         '''
