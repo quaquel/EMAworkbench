@@ -557,13 +557,25 @@ class PrimTestCase(unittest.TestCase):
                 
         prim_obj = prim.Prim(results, classify, 
                              threshold=0.7)
-        box1 = prim_obj.find_box()
-        box2 = prim_obj.find_box()
+        prim_obj.find_box()
+        prim_obj.find_box()
         
         prim_obj.write_boxes_to_stdout()
         
         prim_obj.show_boxes()   
 #         plt.show()
+  
+    def test_write_boxes_to_stdout(self):
+        results = load_results(r'../data/1000 flu cases no policy.tar.gz')
+        classify = flu_classify
+                
+        prim_obj = prim.Prim(results, classify, 
+                             threshold=0.7)
+        prim_obj.find_box()
+        prim_obj.find_box()
+        
+        prim_obj.write_boxes_to_stdout()
+        
   
     def test_find_boxes(self):
         results = util.load_flu_data()
@@ -656,8 +668,8 @@ class PrimTestCase(unittest.TestCase):
 if __name__ == '__main__':
 #     ema_logging.log_to_stderr(ema_logging.INFO)    
 
-    unittest.main()
+#     unittest.main()
 
-#    suite = unittest.TestSuite()
-#    suite.addTest(PrimBoxTestCase("test_inspect"))
-#    unittest.TextTestRunner().run(suite)
+    suite = unittest.TestSuite()
+    suite.addTest(PrimTestCase("test_write_boxes_to_stdout"))
+    unittest.TextTestRunner().run(suite)
