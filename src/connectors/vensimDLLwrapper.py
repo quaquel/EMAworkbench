@@ -161,9 +161,9 @@ def get_data(filename, varname, tname = "Time"):
                                          tval,\
                                          maxn)
 
-    vval = np.asarray(vval[:], dtype=np.float32)
-    tval = np.asarray(tval[:], dtype=np.float32)
-
+    vval = np.ctypeslib.as_array(vval)
+    tval = np.ctypeslib.as_array(tval)
+    
     return vval, tval
 
 def get_dpval(name, varval):
