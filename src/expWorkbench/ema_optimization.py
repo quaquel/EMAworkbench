@@ -8,23 +8,20 @@ an optimization.
 
 '''
 from __future__ import division
-import numpy as np
 import random 
 import copy
+import abc
 
+import numpy as np
+import pandas as pd
+
+from deap import base, creator, tools
 from deap.tools import HallOfFame
+
+from expWorkbench import ema_logging, debug, EMAError
 from ema_optimization_util import compare, mut_polynomial_bounded,\
                                   mut_uniform_int,\
                                   select_tournament_dominance_crowding
-from deap import base
-from deap import creator
-from deap import tools
-
-from expWorkbench import ema_logging
-from expWorkbench import debug
-
-import abc
-from expWorkbench.ema_exceptions import EMAError
 
 __all__ = ["NSGA2StatisticsCallback",
            "NSGA2",
@@ -98,6 +95,7 @@ class AbstractOptimizationAlgorithm(object):
     @abc.abstractmethod
     def _get_population(self):
         pass
+
 
 class NSGA2(AbstractOptimizationAlgorithm):
     tournament_size = 2
@@ -196,9 +194,9 @@ class NSGA2(AbstractOptimizationAlgorithm):
         self.stats_callback.log_stats(self.called)
         return self.pop
 
+
 class epsNSGA2(NSGA2):
     message = "reset population: pop size: {}; archive: {}; tournament size: {}"
-
 
     def __init__(self, weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
@@ -366,7 +364,6 @@ class EpsilonParetoFront(HallOfFame):
         return np.any(option_a<option_b)
     
     def sort_individual(self, solution):
-        values = np.asarray(solution.fitness.values)
         sol_values = np.asarray(solution.fitness.wvalues) 
 
         # we assume minimization here for the time being
@@ -476,7 +473,7 @@ class NSGA2StatisticsCallback(object):
                  algorithm=None):
         '''
         
-        :param algorithm:
+        :param algorithm: the optimization algorithm instance
         
         '''
         self.archive = algorithm.archive
@@ -487,15 +484,15 @@ class NSGA2StatisticsCallback(object):
         
         self.precision = "{0:.%if}" % 2
         self.nr_of_generations = 0
-        self.stats = []
+        self.stats = pd.DataFrame()
         self.change = []
 
 
     def __get_hof_in_array(self):
-        a = []
-        for entry in self.archive:
-            a.append(entry.fitness.values)
-        return np.asarray(a)
+        '''return a numpy array representation of the fitness values of the
+        archive'''
+        
+        return np.asarray([entry.fitness.values   for entry in self.archive])
     
     def std(self, hof):
         return np.std(hof, axis=0)
@@ -510,26 +507,38 @@ class NSGA2StatisticsCallback(object):
         return np.max(hof, axis=0)
 
     def log_stats(self, gen):
-        functions = {"minima":self.minima,
-                     "maxima":self.maxima,
+        '''Log statistics on the progress of the evolution'''
+        
+        functions = {"min":self.minima,
+                     "max":self.maxima,
                      "std":self.std,
                      "mean":self.mean,}
-        kargs = {}
+
         hof = self.__get_hof_in_array()
-        line = " ".join("{%s:<8}" % name for name in sorted(functions.keys()))
-        
-        for name  in sorted(functions.keys()):
-            function = functions[name]
-            kargs[name] = "[%s]" % ", ".join(map(self.precision.format, 
-                                                 function(hof)))
-        line = line.format(**kargs)
-        line = "generation %s: " %gen + line
+        info_message = pd.DataFrame(index=['min', 'max', 'mean', 'std'],
+                                    columns=['obj_{}'.format(i) for i in
+                                             range(hof.shape[1])])
+        for key, value in functions.iteritems():
+            data = value(hof)
+            info_message.loc[key] = data
+            
+        # let pandas do the formatting for us, but remove the trailing info
+        # on the size of the DataFrame
+        message = info_message.__str__()
+        message = message.split('\n')[0:-2]
+        message = "\n".join(message)
+        line = "\ngeneration {}\n{}".format(gen,message)
         ema_logging.info(line)
 
     def __call__(self, population):
+        '''the call function of the callback'''
+        
+        # update the archive
         scores = self.archive.update(population)
         self.change.append(copy.deepcopy(scores))
         self.nr_of_generations += 1
         
-        for entry in population:
-            self.stats.append(entry.fitness.values)
+        values = [entry.fitness.values for entry in population]
+        values = pd.DataFrame(values)
+        self.stats = self.stats.append(values,  ignore_index=True)
+

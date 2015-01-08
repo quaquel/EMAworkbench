@@ -643,7 +643,7 @@ class ModelEnsemble(object):
                           self, **kwargs)
 
         # Begin the generational process
-        for gen in range(nr_of_generations):
+        for _ in range(nr_of_generations):
             pop = algorithm.get_population()
         info("-- End of (successful) evolution --")
 
