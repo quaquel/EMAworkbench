@@ -4,12 +4,15 @@ Created on Oct 12, 2013
 @author: jhkwakkel
 '''
 import random
-from collections import defaultdict
+import tempfile
+import numpy as np
 import numpy.lib.recfunctions as recfunctions
-# from deap.tools import isDominated
+
 import copy
 import ema_logging
 from expWorkbench.ema_exceptions import EMAError
+from expWorkbench import debug
+from expWorkbench.callbacks import DefaultCallback
 
 __all__ = ["mut_polynomial_bounded",
            "mut_uniform_int",
@@ -76,7 +79,7 @@ def select_tournament_dominance_crowding(individuals, k, nr_individuals):
         return best
         
     chosen = []
-    for i in xrange(0, k):
+    for _ in xrange(0, k):
         tour_individuals = random.sample(individuals, nr_individuals)
         winner = tournament(tour_individuals)
         winner = copy.deepcopy(winner)
@@ -128,6 +131,7 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **
     ensemble._policies = policies
     experiments, outcomes = ensemble.perform_experiments(cases,
                                                 reporting_interval=ri, 
+                                                callback=MemmapCallback,
                                                 **kwargs)
     # debug validation of results
     # we should have an equal nr of scenarios for each policy
@@ -302,7 +306,7 @@ def mut_uniform_int(individual, policy_levers, keys):
     :param indpb: Probability for each attribute to be mutated.
     :returns: A tuple of one individual.
     """
-    for i, entry in enumerate(policy_levers.iteritems()):
+    for _, entry in enumerate(policy_levers.iteritems()):
         if random.random() < 1/len(policy_levers.keys()):
             key, entry = entry
             values = entry['values']
@@ -316,3 +320,43 @@ def mut_uniform_int(individual, policy_levers, keys):
                 raise NotImplementedError("unknown type: {}".format(entry['type']))
     
     return individual,
+
+
+class MemmapCallback(DefaultCallback):
+    '''simple extension of default callback that uses memmap for storing 
+    
+    This resolves getting memory errors due to adaptive population sizing
+    
+    '''
+    
+    def _store_result(self, result):
+        for outcome in self.outcomes:
+            debug("storing {}".format(outcome))
+            
+            try:
+                outcome_res = result[outcome]
+            except KeyError:
+                ema_logging.debug("%s not in msi" % outcome)
+            else:
+                try:
+                    self.results[outcome][self.i-1, ] = outcome_res
+                    self.results[outcome].flush()
+                except KeyError: 
+                    data =  np.asarray(outcome_res)
+                    
+                    shape = data.shape
+                    
+                    if len(shape)>2:
+                        raise EMAError(self.shape_error_msg.format(len(shape)))
+                    
+                    shape = list(shape)
+                    shape.insert(0, self.nr_experiments)
+                    shape = tuple(shape)
+                    
+                    fh = tempfile.TemporaryFile()
+                    self.results[outcome] =  np.memmap(fh, 
+                                                       dtype=data.dtype, 
+                                                       shape=shape)
+                    self.results[outcome][:] = np.NAN
+                    self.results[outcome][self.i-1, ] = data
+                    self.results[outcome].flush()
