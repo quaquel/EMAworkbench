@@ -18,7 +18,7 @@ if sys.platform=='win32':
     jar_separator = ";" # jars are separated by a ; on Windows
 elif sys.platform=='darwin':
     jar_separator = ":" # jars are separated by a : on MacOS    
-    NETLOGO_HOME = r'/Applications/NetLogo 5.0.4'
+    NETLOGO_HOME = r'/Applications/NetLogo 5.1.0'
 else:
     # TODO should raise and exception which is subsequently cached and
     # transformed into a a warning just like excel and vensim
