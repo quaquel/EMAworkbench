@@ -426,7 +426,7 @@ class PrimTestCase(unittest.TestCase):
                      dtype=[('a', np.float),
                             ('b', np.float)])
         
-        self.assertTrue(np.all(prim_obj.compare(a,b)))
+        self.assertTrue(np.all(prim._compare(a,b)))
         
         # all dimensions different
         a = np.array([(0,1),
@@ -437,7 +437,7 @@ class PrimTestCase(unittest.TestCase):
                       (0,0)], 
                      dtype=[('a', np.float),
                             ('b', np.float)])
-        test = prim_obj.compare(a,b)==False
+        test = prim._compare(a,b)==False
         self.assertTrue(np.all(test))
         
         # dimensions 1 different and dimension 2 the same
@@ -449,7 +449,7 @@ class PrimTestCase(unittest.TestCase):
                       (0,1)], 
                      dtype=[('a', np.float),
                             ('b', np.float)])
-        test = prim_obj.compare(a,b)
+        test = prim._compare(a,b)
         test = (test[0]==False) & (test[1]==True)
         self.assertTrue(test)
 

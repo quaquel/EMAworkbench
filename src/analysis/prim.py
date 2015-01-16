@@ -104,6 +104,17 @@ def _determine_size(box, uncertainties):
     size = size+4
     return length, size
 
+def _compare(a, b):
+    '''compare two boxes, for each dimension return True if the
+    same and false otherwise'''
+    dtypesDesc = a.dtype.descr
+    logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
+    for i, entry in enumerate(dtypesDesc):
+        name = entry[0]
+        logical[i] = logical[i] &\
+                    (a[name][0] == b[name][0]) &\
+                    (a[name][1] == b[name][1])
+    return logical
 
 def _setup_figure(uncs):
     '''
@@ -781,18 +792,6 @@ class Prim(object):
             self.boxes.append(box)
             return box
 
-    def compare(self, a, b):
-        '''compare two boxes, for each dimension return True if the
-        same and false otherwise'''
-        dtypesDesc = a.dtype.descr
-        logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
-        for i, entry in enumerate(dtypesDesc):
-            name = entry[0]
-            logical[i] = logical[i] &\
-                        (a[name][0] == b[name][0]) &\
-                        (a[name][1] == b[name][1])
-        return logical
- 
     def determine_coi(self, indices):
         '''
         
@@ -838,7 +837,7 @@ class Prim(object):
         
         '''
     
-        logical = self.compare(self.box_init, box_lims)
+        logical = _compare(self.box_init, box_lims)
         u = np.asarray(recfunctions.get_names(box_lims.dtype), 
                        dtype=object)
         dims = u[logical==False]
@@ -882,7 +881,7 @@ class Prim(object):
         
         '''
         boxes = self.boxes[:]
-        if not np.all(self.compare(boxes[-1].box_lims[-1], self.box_init)):
+        if not np.all(_compare(boxes[-1].box_lims[-1], self.box_init)):
             self._update_yi_remaining()
             box = PrimBox(self, 
                           self.box_init, 
@@ -1027,7 +1026,7 @@ class Prim(object):
         unc = unc[np.argsort(box_size)]
         box_lims = [box.box_lim for box in self.boxes]
 
-        if not np.all(self.compare(box_lims[-1], self.box_init)):
+        if not np.all(_compare(box_lims[-1], self.box_init)):
             box_lims.append(self.box_init)
         
         return box_lims, unc
