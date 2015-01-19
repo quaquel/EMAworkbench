@@ -49,8 +49,8 @@ results = (new_experiments, new_results)
 
 #perform prim on modified results tuple
 
-prim = prim.Prim(results, classify, threshold=0.8, threshold_type=1)
-box_1 = prim.find_box()
+prim_obj = prim.Prim(results, classify, threshold=0.8, threshold_type=1)
+box_1 = prim_obj.find_box()
 box_1.show_ppt()
 box_1.show_tradeoff()
 box_1.inspect(5)
@@ -59,8 +59,8 @@ box_1.write_ppt_to_stdout()
 box_1.show_pairs_scatter()
 
 #print prim to std_out
-prim.write_boxes_to_stdout()
+prim_obj.write_boxes_to_stdout()
 
 #visualize
-prim.show_boxes()
+prim_obj.show_boxes()
 plt.show()
