@@ -1390,6 +1390,7 @@ class Prim(object):
                 paste.add(entry)
                 box_paste[u][:] = paste
                 indices = _in_box(self.x[self.yi_remaining], box_paste)
+                indices = self.yi_remaining[indices]
                 pastes.append((indices, box_paste))
             return pastes
         else:
@@ -1434,7 +1435,8 @@ class Prim(object):
             elif y_old.shape[0] < y_new.shape[0]:
                 obj = (mean_new-mean_old)/(y_new.shape[0]-y_old.shape[0])
             else:
-                raise PrimException("mean is different, while shape is same, cannot be")
+                raise PrimException('''mean is different {} vs {}, while shape is the same,
+                                       this cannot be the case'''.format(mean_old, mean_new))
         return obj
     
     def _original_obj_fund(self, y_old, y_new):
