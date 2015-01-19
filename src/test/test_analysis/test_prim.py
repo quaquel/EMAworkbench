@@ -590,7 +590,7 @@ class PrimTestCase(unittest.TestCase):
         prim_obj.write_boxes_to_stdout()
         
   
-    def test_find_boxes(self):
+    def test_find_box(self):
         results = util.load_flu_data()
         classify = flu_classify
         
