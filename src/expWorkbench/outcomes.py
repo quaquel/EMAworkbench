@@ -21,7 +21,7 @@ class Outcome(object):
     #: boolean, indication of outcome is a time series or not
     time = False
     
-    def __init__(self, name, time = False):
+    def __init__(self, name, time=False):
         '''
         init
 

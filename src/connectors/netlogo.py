@@ -84,48 +84,55 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         # finish setup and invoke run
         self.netlogo.command("setup")
         
-        commands = []
+        time_commands = []
+        end_commands = []
         fns = {}
         for outcome in self.outcomes:
-            if outcome.time:
-                name = outcome.name
-                fn = r'{0}{3}{1}{2}'.format(self.working_directory,
-                               name,
-                               ".txt",
-                               os.sep)
-                fns[name] = fn
-                fn = '"{}"'.format(fn)
-                fn = fn.replace(os.sep, '/')
+            name = outcome.name
+            fn = r'{0}{3}{1}{2}'.format(self.working_directory,
+                           name,
+                           ".txt",
+                           os.sep)
+            fns[name] = fn
+            fn = '"{}"'.format(fn)
+            fn = fn.replace(os.sep, '/')
+            
+            if self.netlogo.report('is-agentset? {}'.format(name)):
+                # if name is name of an agentset, we
+                # assume that we should count the total number of agents
+                nc = r'{2} {0} {3} {4} {1}'.format(fn,
+                                                   name,
+                                                   "file-open",
+                                                   'file-write',
+                                                   'count')
+            else:
+                # it is not an agentset, so assume that it is 
+                # a reporter / global variable
                 
-                if self.netlogo.report('is-agentset? {}'.format(name)):
-                    # if name is name of an agentset, we
-                    # assume that we should count the total number of agents
-                    nc = r'{2} {0} {3} {4} {1}'.format(fn,
-                                                       name,
-                                                       "file-open",
-                                                       'file-write',
-                                                       'count')
-                else:
-                    # it is not an agentset, so assume that it is 
-                    # a reporter / global variable
-                    
-                    nc = r'{2} {0} {3} {1}'.format(fn,
-                                                       name,
-                                                       "file-open",
-                                                       'file-write')
-
-                commands.append(nc)
+                nc = r'{2} {0} {3} {1}'.format(fn,
+                                               name,
+                                               "file-open",
+                                               'file-write')
+            if outcome.time:
+                time_commands.append(nc)
+            else:
+                end_commands.append(nc)
                 
 
         c_start = "repeat {} [".format(self.run_length)
-        c_end = "go ]"
-        c_middle = " ".join(commands)
-        command = " ".join((c_start, c_middle, c_end))
+        c_close = "go ]"
+        c_middle = " ".join(time_commands)
+        c_end = " ".join(end_commands)
+        command = " ".join((c_start, c_middle, c_close))
+        debug(command)
         self.netlogo.command(command)
         
         # after the last go, we have not done a write for the outcomes
         # so we do that now
         self.netlogo.command(c_middle)
+        
+        # we also need to save the non time series outcomes
+        self.netlogo.command(c_end)
         
         self.netlogo.command("file-close-all")
         self._handle_outcomes(fns)
