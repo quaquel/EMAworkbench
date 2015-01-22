@@ -14,7 +14,7 @@ __all__ = ['NetLogoException',
            'NetLogoLink']
 
 if sys.platform=='win32':
-    NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.0.4'
+    NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.1.0'
     jar_separator = ";" # jars are separated by a ; on Windows
 elif sys.platform=='darwin':
     jar_separator = ":" # jars are separated by a : on MacOS    
