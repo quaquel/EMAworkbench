@@ -348,6 +348,7 @@ class ModelEnsemble(object):
                                     pop_size=100,
                                     crossover_rate=0.5, 
                                     mutation_rate=0.02,
+                                    caching=False,
                                     **kwargs):
         """
         Method responsible for performing robust optimization.
@@ -396,7 +397,9 @@ class ModelEnsemble(object):
                                       reporting_interval=reporting_interval, 
                                       nr_of_generations=nr_of_generations, 
                                       crossover_rate=crossover_rate, 
-                                      mutation_rate=mutation_rate, **kwargs)
+                                      mutation_rate=mutation_rate, 
+                                      caching=caching,
+                                      **kwargs)
 
     def perform_outcome_optimization(self, 
                                      algorithm=NSGA2,
@@ -407,6 +410,7 @@ class ModelEnsemble(object):
                                      pop_size=100,
                                      crossover_rate=0.5, 
                                      mutation_rate=0.02,
+                                     caching=False,
                                      **kwargs
                                      ):
         """
@@ -613,6 +617,7 @@ class ModelEnsemble(object):
                            pop_size=None, reporting_interval=None, 
                            nr_of_generations=None, crossover_rate=None, 
                            mutation_rate=None,
+                           caching=False,
                            **kwargs):
         '''
         Helper function that runs the actual optimization
@@ -640,7 +645,7 @@ class ModelEnsemble(object):
         algorithm = algorithm(weights, levers, generate_individual, obj_function, 
                           pop_size, evaluate_population, nr_of_generations, 
                           crossover_rate, mutation_rate, reporting_interval,
-                          self, **kwargs)
+                          self, caching, **kwargs)
 
         # Begin the generational process
         for _ in range(nr_of_generations):

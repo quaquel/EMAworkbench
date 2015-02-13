@@ -112,7 +112,8 @@ def generate_individual_robust(icls, attr_list, keys):
     ind = generate_individual_outcome(icls, attr_list, keys)
     return ind
 
-def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, **kwargs):
+def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, 
+                               **kwargs):
     '''
     Helper function for evaluating a population in case of robust optimization
     

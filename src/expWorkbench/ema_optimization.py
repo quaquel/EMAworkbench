@@ -18,7 +18,7 @@ import pandas as pd
 from deap import base, creator, tools
 from deap.tools import HallOfFame
 
-from expWorkbench import ema_logging, debug, EMAError
+from expWorkbench import ema_logging, debug, EMAError, info
 from ema_optimization_util import compare, mut_polynomial_bounded,\
                                   mut_uniform_int,\
                                   select_tournament_dominance_crowding
@@ -38,6 +38,7 @@ class AbstractOptimizationAlgorithm(object):
                  pop_size):
         self.evaluate_population = evaluate_population
         self.levers = levers
+        self.lever_keys = list(levers.keys())
         self.reporting_interval = reporting_interval
         self.ensemble = ensemble
         self.crossover_rate = crossover_rate 
@@ -45,6 +46,7 @@ class AbstractOptimizationAlgorithm(object):
         self.weights = weights
         self.obj_function = obj_function
         self.pop_size = pop_size
+        
         
         #create a class for the individual
         creator.create("Fitness", base.Fitness, weights=self.weights)
@@ -103,11 +105,14 @@ class NSGA2(AbstractOptimizationAlgorithm):
     def __init__(self, weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
-                 ensemble):
+                 ensemble, caching):
         super(NSGA2, self).__init__(evaluate_population, generate_individual, 
                  levers, reporting_interval, obj_function,
                  ensemble, crossover_rate, mutation_rate, weights,
                  pop_size)
+        self.caching = caching
+        self.cache = {}
+        
         self.archive = ParetoFront(similar=compare)
         self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
         
@@ -134,6 +139,10 @@ class NSGA2(AbstractOptimizationAlgorithm):
 
         self.stats_callback(self.pop)
         self.stats_callback.log_stats(self.called)
+        
+        if self.caching:
+            self._update_cache(self.pop)
+        
         self.get_population = self._get_population
     
     def _get_population(self):
@@ -182,17 +191,58 @@ class NSGA2(AbstractOptimizationAlgorithm):
             
             del child1.fitness.values
             del child2.fitness.values
-       
+            
+            
+        # if caching is used, check if fitness value is already known 
+        if self.caching:
+            self._run_through_cache(offspring)
+            
+            
         # Evaluate the individuals with an invalid fitness
-        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        self.evaluate_population(invalid_ind, self.reporting_interval, 
+        invalid_inds = [ind for ind in offspring if not ind.fitness.valid]
+        self.evaluate_population(invalid_inds, self.reporting_interval, 
                                  self.toolbox, self.ensemble)
+
+        if self.caching:
+            self._update_cache(offspring)
 
         # Select the next generation population
         self.pop = self.toolbox.select(self.pop + offspring, pop_size)
         self.stats_callback(self.pop)
         self.stats_callback.log_stats(self.called)
         return self.pop
+
+    def _update_cache(self, population):
+        '''helper function to fill the cache with each new population
+        
+        '''
+        
+        for ind in population:
+            # construct key
+            key = [ind.get(entry) for entry in self.lever_keys]
+            key = tuple(key)        
+            a = ind.fitness.values
+            self.cache[key] = ind.fitness.values
+    
+    def _run_through_cache(self, individuals):
+        '''Helper function, check whether individuals already have been evaluated
+        if so use the cached value '''
+        invalid_inds = [ind for ind in individuals if not ind.fitness.valid]            
+        info('nr. of invalid individuals before checking cache: {}'.format(len(invalid_inds)))
+        
+        for invalid_ind in invalid_inds:
+            # construct key
+            key = [invalid_ind.get(entry) for entry in self.lever_keys]
+            key = tuple(key)
+            
+            try:
+                # set value if in caching
+                invalid_ind.fitness.values = self.cache[key]
+            except KeyError:
+                pass
+
+        invalid_inds = [ind for ind in individuals if not ind.fitness.valid]            
+        info('nr. of invalid individuals after checking cache: {}'.format(len(invalid_inds)))
 
 
 class epsNSGA2(NSGA2):
