@@ -251,11 +251,11 @@ class epsNSGA2(NSGA2):
     def __init__(self, weights, levers, generate_individual, obj_function,
                  pop_size, evaluate_population, nr_of_generations, 
                  crossover_rate,mutation_rate, reporting_interval,
-                 ensemble, eps, selection_pressure = 0.02):
+                 ensemble, caching, eps, selection_pressure = 0.02):
         super(epsNSGA2, self).__init__(weights, levers, generate_individual, 
                  obj_function, pop_size, evaluate_population,
                  nr_of_generations, crossover_rate,mutation_rate, 
-                 reporting_interval,ensemble)
+                 reporting_interval,ensemble, caching)
         self.archive = EpsilonParetoFront(eps)
         self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
         self.selection_presure = selection_pressure
@@ -321,6 +321,10 @@ class epsNSGA2(NSGA2):
             # Evaluate the individuals with an invalid fitness
             self.evaluate_population(new_pop, self.reporting_interval, 
                                      self.toolbox, self.ensemble)
+            
+            if self.caching:
+                self._update_cache(new_pop)
+            
     
             # Select the next generation population
             self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)

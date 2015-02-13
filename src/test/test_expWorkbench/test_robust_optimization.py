@@ -13,6 +13,7 @@ from expWorkbench.outcomes import Outcome
 
 from expWorkbench import ModelEnsemble, MINIMIZE, UNION,\
                          ModelStructureInterface
+from expWorkbench.ema_optimization import epsNSGA2
 
 class DummyModel(ModelStructureInterface):
 
@@ -69,8 +70,10 @@ if __name__ == "__main__":
                                                policy_levers=policy_levers,
                                                weights = (MINIMIZE,)*2,
                                                nr_of_generations=20,
+                                               algorithm=epsNSGA2,
                                                pop_size=4,
                                                crossover_rate=0.5, 
                                                mutation_rate=0.02,
-                                               caching=True
+                                               caching=True,
+                                               eps=[0.01, 0.01]
                                                )
