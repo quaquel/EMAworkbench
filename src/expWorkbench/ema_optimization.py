@@ -219,7 +219,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
         
         for ind in population:
             # construct key
-            key = [ind.get(entry) for entry in self.lever_keys]
+            key = [repr(ind.get(entry)) for entry in self.lever_keys]
             key = tuple(key)        
             a = ind.fitness.values
             self.cache[key] = ind.fitness.values
