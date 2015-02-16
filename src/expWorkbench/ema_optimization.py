@@ -235,7 +235,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
         
         for invalid_ind in invalid_inds:
             # construct key
-            key = [invalid_ind.get(entry) for entry in self.lever_keys]
+            key = [repr(invalid_ind.get(entry)) for entry in self.lever_keys]
             key = tuple(key)
             
             try:
