@@ -200,11 +200,14 @@ class NSGA2(AbstractOptimizationAlgorithm):
             
         # Evaluate the individuals with an invalid fitness
         invalid_inds = [ind for ind in offspring if not ind.fitness.valid]
-        self.evaluate_population(invalid_inds, self.reporting_interval, 
-                                 self.toolbox, self.ensemble)
+        
+        if invalid_inds:
+            # only evaluate if there is something to evaluate
+            self.evaluate_population(invalid_inds, self.reporting_interval, 
+                                     self.toolbox, self.ensemble)
 
-        if self.caching:
-            self._update_cache(offspring)
+            if self.caching:
+                self._update_cache(invalid_inds)
 
         # Select the next generation population
         self.pop = self.toolbox.select(self.pop + offspring, pop_size)
