@@ -20,16 +20,12 @@ import numpy as np
 from expWorkbench.ema_logging import info
 from expWorkbench import EMAError
 
-from analysis.cluster_util import mse_distance
-from analysis.cluster_util import sse_distance
-from analysis.cluster_util import triangle_distance
-from analysis.cluster_util import gonenc_distance
-                         distance_triangle
-
+from analysis.cluster_util import distance_mse, distance_sse,\
+                                  distance_triangle, distance_gonenc
 
 from analysis.cluster_util import cluster_plotter as plotter
 
-distance_functions = {'gonenc': gonenc_distance,
+distance_functions = {'gonenc': distance_gonenc,
                       'triangle':distance_triangle,
                       'sse': distance_sse,
                       'mse': distance_mse}
