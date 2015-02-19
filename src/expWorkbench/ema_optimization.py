@@ -209,8 +209,8 @@ class NSGA2(AbstractOptimizationAlgorithm):
             if self.caching:
                 self._update_cache(invalid_inds)
 
-        # Select the next generation population
-        self.pop = self.toolbox.select(self.pop + offspring, pop_size)
+            # Select the next generation population
+            self.pop = self.toolbox.select(self.pop + offspring, pop_size)
         self.stats_callback(self.pop)
         self.stats_callback.log_stats(self.called)
         return self.pop
@@ -323,15 +323,16 @@ class epsNSGA2(NSGA2):
                                                  self.tournament_size))
 
             # Evaluate the individuals with an invalid fitness
-            self.evaluate_population(new_pop, self.reporting_interval, 
-                                     self.toolbox, self.ensemble)
-            
-            if self.caching:
-                self._update_cache(new_pop)
+            if new_pop:
+                self.evaluate_population(new_pop, self.reporting_interval, 
+                                         self.toolbox, self.ensemble)
+                
+                if self.caching:
+                    self._update_cache(new_pop)
             
     
-            # Select the next generation population
-            self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)
+                # Select the next generation population
+                self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)
             self.stats_callback(self.pop)
             self.stats_callback.log_stats(self.called)
             
@@ -363,8 +364,8 @@ class ParetoFront(HallOfFame):
     
     """
     def __init__(self, similar=compare):
+        super(ParetoFront, self).__init__(None)
         self.similar = similar
-        HallOfFame.__init__(self, None)
     
     def update(self, population):
         """Update the Pareto front hall of fame with the *population* by adding 
@@ -412,8 +413,8 @@ class EpsilonParetoFront(HallOfFame):
     
     """
     def __init__(self, eps):
+        super(EpsilonParetoFront, self).__init__(None)
         self.eps = eps
-        HallOfFame.__init__(self, None)
         self.init = False
 
     def dominates(self, option_a, option_b):

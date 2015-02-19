@@ -642,17 +642,17 @@ class ModelEnsemble(object):
                        info used in mutation.
         
         '''
-        algorithm = algorithm(weights, levers, generate_individual, obj_function, 
+        self.algorithm = algorithm(weights, levers, generate_individual, obj_function, 
                           pop_size, evaluate_population, nr_of_generations, 
                           crossover_rate, mutation_rate, reporting_interval,
                           self, caching, **kwargs)
 
         # Begin the generational process
         for _ in range(nr_of_generations):
-            pop = algorithm.get_population()
+            pop = self.algorithm.get_population()
         info("-- End of (successful) evolution --")
 
-        return algorithm.stats_callback, pop        
+        return self.algorithm.stats_callback, pop        
 
 
 def experiment_generator_predef_cases(designs, model_structures, policies):
