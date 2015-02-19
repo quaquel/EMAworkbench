@@ -313,6 +313,7 @@ class epsNSGA2(NSGA2):
             self.called +=1
             self.last_eps_progress = 0
             new_pop = self._rebuild_population()
+            new_pop = self._run_through_cache(new_pop)
         
             # update selection pressure...
             self.tournament_size = int(max(2,
