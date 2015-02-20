@@ -112,6 +112,7 @@ def generate_individual_robust(icls, attr_list, keys):
     ind = generate_individual_outcome(icls, attr_list, keys)
     return ind
 
+
 def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None, 
                                **kwargs):
     '''
@@ -156,6 +157,7 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None,
             
         member.fitness.values = toolbox.evaluate(member_outcomes)
 
+
 def evaluate_population_outcome(population, ri, toolbox, ensemble):
     '''
     Helper function for evaluating a population in case of outcome optimization
@@ -197,6 +199,7 @@ def evaluate_population_outcome(population, ri, toolbox, ensemble):
             member_outcomes[key] = value[associated_index]
             
         member.fitness.values = toolbox.evaluate(member_outcomes)
+
 
 def mut_polynomial_bounded(individual, eta, policy_levers, keys, indpb):
     """Polynomial mutation as implemented in original NSGA-II algorithm in
@@ -269,7 +272,6 @@ def mut_polynomial_bounded(individual, eta, policy_levers, keys, indpb):
     return individual,
 
 
-
 def compare(ind1, ind2):
     '''
     Helper function for comparing to individuals. Returns True if all fields
@@ -286,6 +288,7 @@ def compare(ind1, ind2):
 
     return True
 
+
 def closest_multiple_of_four(number):
     '''
     Helper function for transforming the population size to the closest
@@ -295,6 +298,7 @@ def closest_multiple_of_four(number):
     '''
     
     return number - number % 4
+
 
 def mut_uniform_int(individual, policy_levers, keys):
     """Mutate an individual by replacing attributes, with probability *indpb*,

@@ -46,8 +46,7 @@ class AbstractOptimizationAlgorithm(object):
         self.weights = weights
         self.obj_function = obj_function
         self.pop_size = pop_size
-        
-        
+                
         #create a class for the individual
         creator.create("Fitness", base.Fitness, weights=self.weights)
         creator.create("Individual", dict, 

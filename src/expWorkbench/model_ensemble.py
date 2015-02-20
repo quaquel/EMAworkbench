@@ -341,6 +341,7 @@ class ModelEnsemble(object):
                                     cases,
                                     reporting_interval=100,
                                     algorithm=NSGA2,
+                                    eval_pop=evaluate_population_robust,
                                     obj_function=None,
                                     policy_levers={},
                                     weights = (),
@@ -363,6 +364,9 @@ class ModelEnsemble(object):
         :param reporting_interval: parameter for specifying the frequency with
                                    which the callback reports the progress.
                                    (Default is 100) 
+        
+        :param algorithm:
+        :param eval_pop:
         :param obj_function: the objective function used by the optimization
         :param policy_levers: A dictionary with model parameter names as key
                               and a dict as value. The dict should have two 
@@ -384,7 +388,7 @@ class ModelEnsemble(object):
 
         
         """
-        evaluate_population = functools.partial(evaluate_population_robust, 
+        evaluate_population = functools.partial(eval_pop, 
                                                 cases=cases)
 
         return self._run_optimization(generate_individual_robust, 
