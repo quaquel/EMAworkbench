@@ -191,11 +191,9 @@ class NSGA2(AbstractOptimizationAlgorithm):
             del child1.fitness.values
             del child2.fitness.values
             
-            
         # if caching is used, check if fitness value is already known 
         if self.caching:
             self._run_through_cache(offspring)
-            
             
         # Evaluate the individuals with an invalid fitness
         invalid_inds = [ind for ind in offspring if not ind.fitness.valid]
@@ -311,7 +309,9 @@ class epsNSGA2(NSGA2):
             self.called +=1
             self.last_eps_progress = 0
             new_pop = self._rebuild_population()
-            new_pop = self._run_through_cache(new_pop)
+            
+            if self.cache:
+                new_pop = self._run_through_cache(new_pop)
         
             # update selection pressure...
             self.tournament_size = int(max(2,
