@@ -111,6 +111,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
                  pop_size)
         self.caching = caching
         self.cache = {}
+        self.pop = []
         
         self.archive = ParetoFront(similar=compare)
         self.stats_callback = NSGA2StatisticsCallback(algorithm=self)
@@ -127,11 +128,12 @@ class NSGA2(AbstractOptimizationAlgorithm):
         
         debug("Start of evolution")
         
-        self.pop = self.toolbox.population(self.pop_size)
+        new_pop = self.toolbox.population(self.pop_size)
         
         # Evaluate the entire population
-        self.evaluate_population(self.pop, self.reporting_interval, self.toolbox, 
+        self.evaluate_population(new_pop, self.reporting_interval, self.toolbox, 
                                  self.ensemble)
+        self.pop = new_pop
 
         # This is just to assign the crowding distance to the individuals
         tools.emo.assignCrowdingDist(self.pop)        
@@ -143,6 +145,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
             self._update_cache(self.pop)
         
         self.get_population = self._get_population
+        
     
     def _get_population(self):
         self.called +=1
