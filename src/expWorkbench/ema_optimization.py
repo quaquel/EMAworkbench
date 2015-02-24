@@ -327,7 +327,6 @@ class epsNSGA2(NSGA2):
                 
                 if self.caching:
                     self._update_cache(new_pop)
-            
     
                 # Select the next generation population
                 self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)
@@ -413,7 +412,7 @@ class EpsilonParetoFront(HallOfFame):
     def __init__(self, eps):
         super(EpsilonParetoFront, self).__init__(None)
         self.eps = eps
-        self.init = False
+#         self.init = False
 
     def dominates(self, option_a, option_b):
         option_a = np.floor(option_a/self.eps)
@@ -481,17 +480,18 @@ class EpsilonParetoFront(HallOfFame):
         
         return removed, added, e_progress
     
-    def _init_update(self, population):
-        '''
-        only called in the first iteration, used for
-        determining normalization valuess
-        '''
-        values = []
-        for entry in population:
-            values.append(entry.fitness.wvalues)
-        values = np.asarray(values)
-        values = -1*values # we minimize
-        return self.update(population)
+#     def _init_update(self, population):
+#         '''
+#         only called in the first iteration, used for
+#         determining normalization values
+#         '''
+#         values = []
+#         for entry in population:
+#             values.append(entry.fitness.wvalues)
+#         values = np.asarray(values)
+#         values = -1*values # we minimize
+#         
+#         return self.update(population)
     
     def update(self, population):
         """
@@ -505,9 +505,9 @@ class EpsilonParetoFront(HallOfFame):
                            update the hall of fame with.
         """
         
-        if not self.init:
-            self.init=True
-            return self._init_update(population)
+#         if not self.init:
+#             self.init = True
+#             return self._init_update(population)
         
         added = 0
         removed = 0
@@ -517,6 +517,7 @@ class EpsilonParetoFront(HallOfFame):
             added += ind_add
             removed += ind_rem    
             e_prog += ind_e_prog        
+        
         return added, removed, e_prog
 
 
