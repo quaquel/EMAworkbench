@@ -312,27 +312,31 @@ class epsNSGA2(NSGA2):
             self.called +=1
             self.last_eps_progress = 0
             new_pop = self._rebuild_population()
+
+            ema_logging.info(self.message.format(self.pop_size,
+                                                 len(self.archive.items),
+                                                 self.tournament_size))
             
+            # run new population through cache
             if self.cache:
                 new_pop = self._run_through_cache(new_pop)
         
             # update selection pressure...
             self.tournament_size = int(max(2,
                                         self.selection_presure*self.pop_size))
-            ema_logging.info(self.message.format(self.pop_size,
-                                                 len(self.archive.items),
-                                                 self.tournament_size))
+
 
             # Evaluate the individuals with an invalid fitness
-            if new_pop:
-                self.evaluate_population(new_pop, self.reporting_interval, 
-                                         self.toolbox, self.ensemble)
-                
-                if self.caching:
-                    self._update_cache(new_pop)
-    
-                # Select the next generation population
-                self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)
+            self.evaluate_population(new_pop, self.reporting_interval, 
+                                     self.toolbox, self.ensemble)
+            
+            # update cache with newly analysed population
+            if self.caching:
+                self._update_cache(new_pop)
+
+            # Select the next generation population
+            self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)
+            
             self.stats_callback(self.pop)
             self.stats_callback.log_stats(self.called)
             
