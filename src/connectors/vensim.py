@@ -141,7 +141,7 @@ def get_data(filename, varname, step=1):
     
     vval = []
     try:
-        vval, tval = vensimDLLwrapper.get_data(filename, varname)    
+        vval, _ = vensimDLLwrapper.get_data(filename, varname)    
     except VensimWarning as w:
         warning(str(w))
         
