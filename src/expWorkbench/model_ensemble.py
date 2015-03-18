@@ -11,7 +11,7 @@ import types
 import copy
 import functools
 import os
-
+import itertools
 from collections import defaultdict
 
 from ema_parallel import CalculatorPool
@@ -289,9 +289,11 @@ class ModelEnsemble(object):
             
             msi_initialization_dict = {}
             msis = {msi.name: msi for msi in self._msis}
+            job_counter = itertools.count()
             
             cwd = os.getcwd() 
             for experiment in experiments:
+                case_id = job_counter.next()
                 policy = experiment.pop('policy')
                 msi = experiment.pop('model')
                 
@@ -327,7 +329,7 @@ class ModelEnsemble(object):
                 msi.reset_model()
                 
                 debug("trying to reset model")
-                callback(experiment, policy, msi.name, result)
+                callback(case_id, experiment, policy, msi.name, result)
                 
             cleanup(self._msis)
             os.chdir(cwd)

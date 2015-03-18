@@ -510,7 +510,7 @@ class EMAApplyResult(object):
     def _set(self, obj):
         self._success, self._value = obj
         if self._callback and self._success:
-            self._callback(*self._value)
+            self._callback(self._job, *self._value)
         self._cond.acquire()
         try:
             self._ready = True
