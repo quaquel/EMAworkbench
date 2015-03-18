@@ -52,12 +52,13 @@ class AbstractCallback(object):
         self.reporting_interval = reporting_interval
             
     
-    def __call__(self, case, policy, name, result):
+    def __call__(self, case_id, case, policy, name, result):
         '''
         Method responsible for storing results. The implementation in this
         class only keeps track of how many runs have been completed and 
         logging this. 
         
+        :param case_id: the job id
         :param case: the case to be stored
         :param policy: the name of the policy being used
         :param name: the name of the model being used
@@ -151,14 +152,14 @@ class DefaultCallback(AbstractCallback):
         self.nr_experiments = nr_experiments
         
 
-    def _store_case(self, case, model, policy):
+    def _store_case(self, case_id, case, model, policy):
         case = [case.get(key) for key in self.uncertainties]
         case.append(model)
         case.append(policy)
         case = tuple(case)
-        self.cases[self.i-1] = case
+        self.cases[case_id] = case
             
-    def _store_result(self, result):
+    def _store_result(self, case_id, result):
         for outcome in self.outcomes:
             try:
                 debug("storing {}".format(outcome))
@@ -171,7 +172,7 @@ class DefaultCallback(AbstractCallback):
                 ema_logging.debug("%s not in msi" % outcome)
             else:
                 try:
-                    self.results[outcome][self.i-1, ] = outcome_res
+                    self.results[outcome][case_id, ] = outcome_res
                 except KeyError: 
                     shape = np.asarray(outcome_res).shape
                     
@@ -182,13 +183,14 @@ class DefaultCallback(AbstractCallback):
                     shape.insert(0, self.nr_experiments)
                     self.results[outcome] = np.empty(shape)
                     self.results[outcome][:] = np.NAN
-                    self.results[outcome][self.i-1, ] = outcome_res
+                    self.results[outcome][case_id, ] = outcome_res
     
-    def __call__(self, case, policy, name, result ):
+    def __call__(self, case_id, case, policy, name, result ):
         '''
         Method responsible for storing results. This method calls 
         :meth:`super` first, thus utilizing the logging provided there
         
+        :param case_id: the id of the case
         :param case: the case to be stored
         :param policy: the name of the policy being used
         :param name: the name of the model being used
@@ -201,15 +203,15 @@ class DefaultCallback(AbstractCallback):
                  result arrays. 
         
         '''
-        super(DefaultCallback, self).__call__(case, policy, name, result)
+        super(DefaultCallback, self).__call__(case_id, case, policy, name, result)
 
         self.lock.acquire()
                            
         #store the case
-        self._store_case(case, name, policy.get('name'), )
+        self._store_case(case_id, case, name, policy.get('name'), )
         
         #store results
-        self._store_result(result)
+        self._store_result(case_id, result)
         
         self.lock.release()
         
