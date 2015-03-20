@@ -334,7 +334,7 @@ class MemmapCallback(DefaultCallback):
     
     '''
     
-    def _store_result(self, result):
+    def _store_result(self, case_id, result):
         for outcome in self.outcomes:
             debug("storing {}".format(outcome))
             
@@ -344,7 +344,7 @@ class MemmapCallback(DefaultCallback):
                 ema_logging.debug("%s not in msi" % outcome)
             else:
                 try:
-                    self.results[outcome][self.i-1, ] = outcome_res
+                    self.results[outcome][case_id, ] = outcome_res
                     self.results[outcome].flush()
                 except KeyError: 
                     data =  np.asarray(outcome_res)
@@ -363,5 +363,5 @@ class MemmapCallback(DefaultCallback):
                                                        dtype=data.dtype, 
                                                        shape=shape)
                     self.results[outcome][:] = np.NAN
-                    self.results[outcome][self.i-1, ] = data
+                    self.results[outcome][case_id, ] = data
                     self.results[outcome].flush()
