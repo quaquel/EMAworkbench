@@ -149,10 +149,9 @@ class NSGA2(AbstractOptimizationAlgorithm):
     
     def _get_population(self):
         self.called +=1
-        pop_size = len(self.pop)
-        a = self.pop[0:len(self.pop)]
         
-        offspring = select_tournament_dominance_crowding(a, len(self.pop), 
+        offspring = select_tournament_dominance_crowding(self.pop[0:len(self.pop)], 
+                                                         len(self.pop), 
                                                          self.tournament_size)
         offspring = [self.toolbox.clone(ind) for ind in offspring]
         
@@ -210,7 +209,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
                 self._update_cache(invalid_inds)
 
             # Select the next generation population
-            self.pop = self.toolbox.select(self.pop + offspring, pop_size)
+            self.pop = self.toolbox.select(self.pop + offspring, self.pop_size)
         self.stats_callback(self.pop)
         self.stats_callback.log_stats(self.called)
         return self.pop
@@ -269,11 +268,9 @@ class epsNSGA2(NSGA2):
         self.last_eps_progress = 0
     
     def _rebuild_population(self):
-        desired_pop_size = self.desired_labda * len(self.archive.items)
-        self.pop_size = desired_pop_size
         new_pop = [entry for entry in self.archive.items]
         
-        while len(new_pop) < desired_pop_size:
+        while len(new_pop) < self.pop_size:
             rand_i = random.randint(0, len(self.archive.items)-1)
             individual = self.archive.items[rand_i]
             individual = copy.deepcopy(individual)
@@ -311,6 +308,8 @@ class epsNSGA2(NSGA2):
         if self._restart_required():
             self.called +=1
             self.last_eps_progress = 0
+            self.pop_size = self.desired_labda * len(self.archive.items)           
+            
             new_pop = self._rebuild_population()
 
             ema_logging.info(self.message.format(self.pop_size,
@@ -319,20 +318,21 @@ class epsNSGA2(NSGA2):
             
             # run new population through cache
             if self.cache:
-                new_pop = self._run_through_cache(new_pop)
+                invalid_new_pop = self._run_through_cache(new_pop)
         
             # update selection pressure...
             self.tournament_size = int(max(2,
                                         self.selection_presure*self.pop_size))
 
-
-            # Evaluate the individuals with an invalid fitness
-            self.evaluate_population(new_pop, self.reporting_interval, 
-                                     self.toolbox, self.ensemble)
             
-            # update cache with newly analysed population
-            if self.caching:
-                self._update_cache(new_pop)
+            if invalid_new_pop:
+                # Evaluate the individuals with an invalid fitness
+                self.evaluate_population(invalid_new_pop, self.reporting_interval, 
+                                         self.toolbox, self.ensemble)
+                
+                # update cache with newly analysed population
+                if self.caching:
+                    self._update_cache(invalid_new_pop)
 
             # Select the next generation population
             self.pop = self.toolbox.select(self.pop + new_pop, self.pop_size)
@@ -419,7 +419,7 @@ class EpsilonParetoFront(HallOfFame):
     def __init__(self, eps):
         super(EpsilonParetoFront, self).__init__(None)
         self.eps = eps
-#         self.init = False
+
 
     def dominates(self, option_a, option_b):
         option_a = np.floor(option_a/self.eps)
