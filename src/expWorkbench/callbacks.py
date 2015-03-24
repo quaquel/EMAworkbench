@@ -181,6 +181,7 @@ class DefaultCallback(AbstractCallback):
                     
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
+                    
                     self.results[outcome] = np.empty(shape)
                     self.results[outcome][:] = np.NAN
                     self.results[outcome][case_id, ] = outcome_res
