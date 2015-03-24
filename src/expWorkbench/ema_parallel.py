@@ -283,6 +283,9 @@ class CalculatorPool(Pool):
 
         """
 
+        global job_counter 
+        job_counter = itertools.count()
+
         event = threading.Event()
 
         self._feeder_thread = threading.Thread(target=CalculatorPool._add_tasks,
@@ -463,7 +466,6 @@ class CalculatorPool(Pool):
             shutil.rmtree(directory)
 
 
-job_counter = itertools.count()
 
 class EMAApplyResult(object):
     '''
