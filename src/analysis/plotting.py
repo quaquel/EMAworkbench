@@ -22,7 +22,8 @@ from expWorkbench.ema_exceptions import EMAError
 from plotting_util import prepare_data, COLOR_LIST, simple_kde, group_density,\
                          make_grid, make_legend, plot_envelope, simple_density,\
                          do_titles,do_ylabels, TIME, ENV_LIN, ENVELOPE, LINES,\
-                         PATCH, LINE, TIGHT, KDE
+                         PATCH, LINE, TIGHT
+from analysis import plotting_util
 #import plotting_util
 
 __all__ = ['lines', 
@@ -530,7 +531,7 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
     :param outcomes: a dictonary containing the various outcomes to plot
     :param outcome_to_plot: the specific outcome to plot
     :param time: the name of the time dimension
-    :param density: string, either hist, kde, or empty/None. 
+    :param density: string, either hist, kde, boxplot, violin, or empty/None. 
     :param ax: the ax on which to plot
     :param ax_d: the ax on which to plot the density
     :param log: boolean, log scale density plot
@@ -612,7 +613,7 @@ def multiple_densities(results,
                        points_in_time=[],
                        group_by = None,
                        grouping_specifiers = None,
-                       density=KDE,
+                       density=plotting_util.KDE,
                        titles={},
                        ylabels={},
                        legend=True,
@@ -638,7 +639,7 @@ def multiple_densities(results,
                                 case of grouping by index, the grouping 
                                 specifiers should be in a dictonary where the
                                 key denotes the name of the group. 
-    :param density: field, either KDE or HIST 
+    :param density: field, either KDE, HIST, BOXPLOT, or VIOLIN
     :param titles: a way for controlling whether each of the axes should have
                    a title. There are three possibilities. If set to None, no
                    title will be shown for any of the axes. If set to an empty 
