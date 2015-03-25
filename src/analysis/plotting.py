@@ -547,7 +547,7 @@ def kde_over_time(results,
                   group_by = None,
                   grouping_specifiers = None,
                   results_to_show=None,
-                  colormap='jet',
+                  colormap='coolwarm',
 #                  color_bar=False,
                   log=True):
     '''
