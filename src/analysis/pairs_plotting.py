@@ -141,7 +141,7 @@ def pairs_density(results,
                   point_in_time=-1,
                   log=True,
                   gridsize=50,
-                  colormap='jet',
+                  colormap='coolwarm',
                   filter_scalar=True): 
     '''
     
@@ -177,7 +177,7 @@ def pairs_density(results,
     :param cmap: color map that is to be used in generating the hexbin. For 
                  details on the available maps, 
                  see `pylab <http://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html#pylab-examples-show-colormaps>`_.
-                 (Defaults = jet)
+                 (Defaults = coolwarm)
     :param filter_scalar: boolean, remove the non-time-series outcomes.  
                           Defaults to True.
     :rtype: a `figure <http://matplotlib.sourceforge.net/api/figure_api.html>`_ instance
