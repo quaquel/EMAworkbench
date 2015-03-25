@@ -476,7 +476,7 @@ class PrimBox(object):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         
-        cmap = mpl.cm.jet #@UndefinedVariable
+        cmap = mpl.cm.YlGnBu_r #@UndefinedVariable
         boundaries = np.arange(-0.5, 
                                max(self.peeling_trajectory['res dim'])+1.5, 
                                step=1)
@@ -485,7 +485,9 @@ class PrimBox(object):
         
         p = ax.scatter(self.peeling_trajectory['coverage'], 
                        self.peeling_trajectory['density'], 
-                       c=self.peeling_trajectory['res dim'], norm=norm)
+                       c=self.peeling_trajectory['res dim'], 
+                       norm=norm,
+                       cmap=cmap)
         ax.set_ylabel('density')
         ax.set_xlabel('coverage')
         ax.set_ylim(ymin=0, ymax=1.2)
