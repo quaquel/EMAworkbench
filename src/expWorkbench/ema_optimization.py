@@ -317,6 +317,7 @@ class epsNSGA2(NSGA2):
                                                  self.tournament_size))
             
             # run new population through cache
+            invalid_new_pop = new_pop
             if self.cache:
                 invalid_new_pop = self._run_through_cache(new_pop)
         
