@@ -72,12 +72,8 @@ class NetLogoLink():
             joined_jars = jar_separator.join(jars)
             jarpath = '-Djava.class.path={}'.format(joined_jars)
             
-            import os
-            entries = os.environ
-            
-            
-            jvm_handle = jpype.getDefaultJVMPath()  
-            jpype.startJVM(jvm_handle, jarpath)  
+            jvm_handle = jpype.getDefaultJVMPath() 
+            jpype.startJVM(jvm_handle, jarpath, "-Xms128M","-Xmx1024m")  
             jpype.java.lang.System.setProperty('user.dir', NETLOGO_HOME)
 
             if sys.platform=='darwin':
