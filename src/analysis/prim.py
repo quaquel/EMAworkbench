@@ -5,6 +5,7 @@ Created on 22 feb. 2013
 
 '''
 from __future__ import division, print_function
+
 from types import StringType, FloatType, IntType
 from operator import itemgetter
 import copy
@@ -20,6 +21,11 @@ import matplotlib as mpl
 import matplotlib.gridspec as gridspec 
 
 import pandas as pd
+
+try:
+    import mpld3
+except ImportError:
+    mpdl3 = None
 
 from analysis.plotting_util import make_legend, COLOR_LIST
 from expWorkbench import info, debug, EMAError, ema_logging
@@ -297,11 +303,20 @@ class PrimBox(object):
         else:
             raise AttributeError
 
-    def inspect(self, i=None):
+    def inspect(self, i=None, style='table'):
         '''
         
         Write the stats and box limits of the user specified box to standard 
         out. if i is not provided, the last box will be printed
+        
+        Parameters
+        ----------
+        i : int, optional
+            the index of the box, defaults to currently selected box
+        style : {'table', 'graph'}
+                the style of the visualization
+        
+        
         
         '''
         if i == None:
@@ -314,6 +329,21 @@ class PrimBox(object):
         uncs = [(key, value) for key, value in qp_values.iteritems()]
         uncs.sort(key=itemgetter(1))
         uncs = [uncs[0] for uncs in uncs]
+        
+        if style == 'table':
+            return self._inspect_table(i, uncs, qp_values)
+        elif style == 'graph':
+            return self._inspect_visual(i, uncs, qp_values)
+        else:
+            raise ValueError("style must be one of graph or table")
+        
+
+    
+    def _inspect_table(self, i, uncs, qp_values):
+        '''Helper function for visualizing box statistics in 
+        table form
+        
+        '''
         
         #make the descriptive statistics for the box
         print(self.peeling_trajectory.iloc[i])
@@ -333,56 +363,81 @@ class PrimBox(object):
         print(box_lim)
         print()
         
-#         print self._format_stats(i, stats)   
-#         print ""
-#                 
-#         qp_values = self._calculate_quasi_p(i)
-#         uncs = [(key, value) for key, value in qp_values.iteritems()]
-#         uncs.sort(key=itemgetter(1))
-#         uncs = [uncs[0] for uncs in uncs]
-# 
-#         qp_col_size = len("qp values")+4
-#         box = self.box_lims[i]
-#         unc_col_size, value_col_size = _determine_size(box, uncs)
-#         
-#         # make the headers of the limits table
-#         # first header is box names
-#         # second header is min and max
-#         elements_1 = ["{0:<{1}}".format("uncertainty", unc_col_size)]
-#         elements_2 = ["{0:<{1}}".format("", unc_col_size)]
-#         box_name = 'box {}'.format(i)
-#         elements_1.append("{0:>{2}}{1:>{3}}".format("{}".format(box_name),"", value_col_size+4, value_col_size-2))
-#         elements_2.append("{0:>{3}}{1:>{4}}{2:>{5}}".format("min", "max","qp values", value_col_size, value_col_size+2, qp_col_size))
-#         line = "".join(elements_1)
-#         print line
-#         line = "".join(elements_2)
-#         print line
-#         
-#         for u in uncs:
-#             elements = ["{0:<{1}}".format(u, unc_col_size)]
-# 
-#             data_type =  box[u].dtype
-#             if data_type == np.float64:
-#                 data = list(box[u])
-#                 data.append(value_col_size)
-#                 data.append(value_col_size)
-#                 data.append(PRECISION)
-#                 
-#                 elements.append("{0:>{2}{4}} -{1:>{3}{4}}".format(*data))
-#             elif data_type == np.int32:
-#                 data = list(box[u])
-#                 data.append(value_col_size)
-#                 data.append(value_col_size)                
-#                 
-#                 elements.append("{0:>{2}} -{1:>{3}}".format(*data))            
-#             else:
-#                 elements.append("{0:>{1}}".format(box[u][0], value_col_size*2+2))
-#             
-#             elements.append("{0:>{1}{2}}".format(qp_values[u], qp_col_size, '.2e'))
-#             
-#             line = "".join(elements)
-#             print line
-#         print "\n"        
+    def _inspect_visual(self,  i, uncs, qp_values):
+        '''Helper function for visualizing box statistics in 
+        graph form
+        
+        '''        
+        
+        # normalize the box lims
+        # we don't need to show the last box, for this is the 
+        # box_init, which is visualized by a grey area in this
+        # plot.
+        box_lim = self.prim.box_init
+        
+        norm_box_lim =  self.prim._normalize(self.box_lims[i], uncs)
+        
+        fig, ax = _setup_figure(uncs)
+
+        for j, u in enumerate(uncs):
+            # we want to have the most restricted dimension
+            # at the top of the figure
+            xj = len(uncs) - j - 1
+
+            self.prim._plot_unc(xj, j, 0, norm_box_lim, box_lim, u, ax)
+
+            # new part
+
+            y = xj
+            props = {'facecolor':'white',
+                     'edgecolor':'white',
+                     'alpha':0.25}
+
+            # plot limit text labels
+            x = norm_box_lim[j][0]
+
+            if not np.allclose(x, 0):
+                label = "{: .2g}".format(self.box_lims[i][u][0])
+                ax.text(x-0.01, y, label, ha='right', va='center',
+                       bbox=props, color='blue', fontweight='normal')
+
+            x = norm_box_lim[j][1]
+            if not np.allclose(x, 1):
+                label = "{: .2g}".format(self.box_lims[i][u][1])
+                ax.text(x+0.01, y, label, ha='left', va='center',
+                       bbox=props, color='blue', fontweight='normal')
+
+            # plot uncertainty space text labels
+            x = 0
+            label = "{: .2g}".format(box_lim[u][0])
+            ax.text(x-0.01, y, label, ha='right', va='center',
+                   bbox=props, color='black', fontweight='normal')
+
+            x = 1
+            label = "{: .2g}".format(box_lim[u][1])
+            ax.text(x+0.01, y, label, ha='left', va='center',
+                   bbox=props, color='black', fontweight='normal')
+
+            labels = ["{} ({:.2g})".format(u, qp_values[u]) for u in uncs]
+            labels = labels[::-1]
+            ax.set_yticklabels(labels)
+
+            ax.set_xticklabels([])
+
+            coverage = '{:.3g}'.format(self.peeling_trajectory['coverage'][i])
+            density = '{:.3g}'.format(self.peeling_trajectory['density'][i])
+            
+            ax.table(cellText=[[coverage], [density]],
+                    colWidths = [0.1]*2,
+                    rowLabels=['coverage', 'density'],
+                    colLabels=None,
+                    loc='right',
+                    bbox=[1.1, 0.9, 0.1, 0.1])
+        
+            plt.tight_layout()
+        return fig
+
+        
         
     def select(self, i):
         '''        
@@ -498,6 +553,45 @@ class PrimBox(object):
                              step=1)
         cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
         cb.set_label("nr. of restricted dimensions")
+        
+        # make the tooltip tables
+        if mpld3:
+            # Define some CSS to control our custom labels
+            css = """
+            table
+            {
+              border-collapse: collapse;
+            }
+            th
+            {
+              background-color:  rgba(255,255,255,0.6);;;
+            }
+            td
+            {
+              background-color: rgba(255,255,255,0.6);;
+            }
+            table, th, td
+            {
+              font-family:Tahoma, Tahoma, sans-serif;
+              font-size: 16px;
+              border: 1px solid black;
+              text-align: right;
+            }
+            """   
+            
+            labels = []
+            columns_to_include = ['coverage','density', 'mass', 'res dim']
+            frmt = lambda x: '{:.2f}'.format( x )
+            for i in range(len(self.peeling_trajectory['coverage'])):
+                label = self.peeling_trajectory.ix[[i], columns_to_include].T
+                label.columns = ['box {0}'.format(i)]
+                # .to_html() is unicode; so make leading 'u' go away with str()
+                labels.append(str(label.to_html(float_format=frmt)))        
+    
+            tooltip = mpld3.plugins.PointHTMLTooltip(p, labels, voffset=10, 
+                                               hoffset=10, css=css)  
+            mpld3.plugins.connect(fig, tooltip)        
+        
         return fig
     
     def show_pairs_scatter(self):
@@ -518,8 +612,7 @@ class PrimBox(object):
 
     def _calculate_quasi_p(self, i):
         '''helper function for calculating quasi-p values as discussed in 
-        Bryant and Lempert (2010). This is in essence a one sided 
-        binominal test. 
+        Bryant and Lempert (2010). This is a one sided  binomial test. 
         
         :param i: the specific box in the peeling trajectory for which the 
                   quasi-p values are to be calculated
