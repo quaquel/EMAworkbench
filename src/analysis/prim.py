@@ -373,9 +373,9 @@ class PrimBox(object):
         # we don't need to show the last box, for this is the 
         # box_init, which is visualized by a grey area in this
         # plot.
-        box_lim = self.prim.box_init
-        
-        norm_box_lim =  self.prim._normalize(self.box_lims[i], uncs)
+        box_lim_init = self.prim.box_init
+        box_lim = self.box_lims[i]
+        norm_box_lim =  self.prim._normalize(box_lim, uncs)
         
         fig, ax = _setup_figure(uncs)
 
@@ -387,43 +387,68 @@ class PrimBox(object):
             self.prim._plot_unc(xj, j, 0, norm_box_lim, box_lim, u, ax)
 
             # new part
-
-            y = xj
+            dtype = box_lim_init[u].dtype
+            
             props = {'facecolor':'white',
                      'edgecolor':'white',
                      'alpha':0.25}
+            y = xj
 
-            # plot limit text labels
-            x = norm_box_lim[j][0]
+        
+            if dtype == object:
+                pass
+                elements = sorted(list(box_lim_init[u][0]))
+                max_value = (len(elements)-1)
+                values = box_lim[u][0]
+                x = [elements.index(entry) for entry in 
+                     values]
+                x = [entry/max_value for entry in x]
+                
+                for xi, label in zip(x, values):
+                    ax.text(xi, y-0.1, label, ha='center', va='center',
+                           bbox=props, color='blue', fontweight='normal')
 
-            if not np.allclose(x, 0):
-                label = "{: .2g}".format(self.box_lims[i][u][0])
+
+
+            else:
+                props = {'facecolor':'white',
+                         'edgecolor':'white',
+                         'alpha':0.25}
+    
+                # plot limit text labels
+                x = norm_box_lim[j][0]
+    
+                if not np.allclose(x, 0):
+                    label = "{: .2g}".format(self.box_lims[i][u][0])
+                    ax.text(x-0.01, y, label, ha='right', va='center',
+                           bbox=props, color='blue', fontweight='normal')
+    
+                x = norm_box_lim[j][1]
+                if not np.allclose(x, 1):
+                    label = "{: .2g}".format(self.box_lims[i][u][1])
+                    ax.text(x+0.01, y, label, ha='left', va='center',
+                           bbox=props, color='blue', fontweight='normal')
+
+                # plot uncertainty space text labels
+                x = 0
+                label = "{: .2g}".format(box_lim_init[u][0])
                 ax.text(x-0.01, y, label, ha='right', va='center',
-                       bbox=props, color='blue', fontweight='normal')
-
-            x = norm_box_lim[j][1]
-            if not np.allclose(x, 1):
-                label = "{: .2g}".format(self.box_lims[i][u][1])
+                       bbox=props, color='black', fontweight='normal')
+    
+                x = 1
+                label = "{: .2g}".format(box_lim_init[u][1])
                 ax.text(x+0.01, y, label, ha='left', va='center',
-                       bbox=props, color='blue', fontweight='normal')
-
-            # plot uncertainty space text labels
-            x = 0
-            label = "{: .2g}".format(box_lim[u][0])
-            ax.text(x-0.01, y, label, ha='right', va='center',
-                   bbox=props, color='black', fontweight='normal')
-
-            x = 1
-            label = "{: .2g}".format(box_lim[u][1])
-            ax.text(x+0.01, y, label, ha='left', va='center',
-                   bbox=props, color='black', fontweight='normal')
-
+                       bbox=props, color='black', fontweight='normal')
+                
+            # set y labels
             labels = ["{} ({:.2g})".format(u, qp_values[u]) for u in uncs]
             labels = labels[::-1]
             ax.set_yticklabels(labels)
 
+            # remove x tick labels
             ax.set_xticklabels([])
 
+            # add table to the left
             coverage = '{:.3g}'.format(self.peeling_trajectory['coverage'][i])
             density = '{:.3g}'.format(self.peeling_trajectory['density'][i])
             
