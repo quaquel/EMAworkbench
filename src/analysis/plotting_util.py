@@ -64,7 +64,7 @@ ENV_LIN = "env_lin"
 
 KDE = 'kde'
 HIST = 'hist'
-BOXPLOT = 'box plot'
+BOXPLOT = 'boxplot'
 VIOLIN = 'violin'
 
 # used for legend
@@ -442,7 +442,7 @@ def determine_time_dimension(outcomes):
             if len(value.shape)==2:
                 time =  np.arange(0, value.shape[1])
                 break
-    if time==None:
+    if time is None:
         info("no time dimension found in results")
     return time, outcomes    
 

@@ -13,7 +13,8 @@ import matplotlib.cm as cm
 
 from expWorkbench.ema_logging import debug, info
 
-from plotting_util import prepare_pairs_data, make_legend, COLOR_LIST
+from plotting_util import prepare_pairs_data, make_legend
+import plotting_util
 from analysis.plotting_util import SCATTER, LINE
 
 __all__ = ['pairs_scatter', 'pairs_lines', 'pairs_density']
@@ -85,7 +86,7 @@ def pairs_lines(results,
             for x, entry in enumerate(grouping_labels):
                 data1 = outcomes[entry][field1]
                 data2 = outcomes[entry][field2]
-                color = COLOR_LIST[x]
+                color = plotting_util.COLOR_LIST[x]
                 if i==j: 
                     color = 'white'
                 simple_pairs_lines(ax, data1, data2, color)
@@ -400,7 +401,7 @@ def pairs_scatter(results,
                 y_data = outcomes[group][field1]
                 x_data = outcomes[group][field2]
                 
-                facecolor = COLOR_LIST[x]
+                facecolor = plotting_util.COLOR_LIST[x]
                 edgecolor = 'k'
                 if i==j: 
                     facecolor = 'white'
