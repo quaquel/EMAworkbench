@@ -368,24 +368,18 @@ def experiments_to_cases(experiments):
     
     #make list of of tuples of tuples
     cases = []
+    cache = set()
     for i in range(experiments.shape[0]):
-        case = []
+        case = {}
+        case_tuple = []
         for uncertainty in uncertainties:
-            entry = (uncertainty, experiments[uncertainty][i])
-            case.append(entry)
-        cases.append(tuple(case))
-    
-    #remove duplicate cases, reason for using tuples before
-    cases = set(cases)
-    
-    #cast back to list of dicts
-    tempcases = []
-    for case in cases:
-        tempCase = {}
-        for entry in case:
-            tempCase[entry[0]] = entry[1]
-        tempcases.append(tempCase)
-    cases = tempcases
+            entry =  experiments[uncertainty][i]
+            case[uncertainty] = entry
+            case_tuple.append(entry)
+        
+        if case_tuple not in cache:
+            cases.append(case)
+            cache.add((case_tuple))
     
     return cases
 

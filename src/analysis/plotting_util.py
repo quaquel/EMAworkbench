@@ -142,6 +142,7 @@ def plot_histogram(ax, values, log):
     if not log:
         ax.set_xticks([0, ax.get_xbound()[1]])
     return a
+ 
   
 def plot_kde(ax, values, log):
     '''
@@ -170,6 +171,7 @@ def plot_kde(ax, values, log):
             labels =["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
             ax.set_xticklabels(labels)
 
+
 def plot_boxplots(ax, values, log, group_labels=None):
     if log:
         warning("log option ignored for boxplot")
@@ -178,7 +180,8 @@ def plot_boxplots(ax, values, log, group_labels=None):
     ax.boxplot(values)
     if group_labels:
         ax.set_xticklabels(group_labels, rotation='vertical')
-        
+
+    
 def plot_violinplot(ax,data, log, group_labels=None):
     '''
     create violin plots on an axis
@@ -214,6 +217,7 @@ def plot_violinplot(ax,data, log, group_labels=None):
         labels = group_labels[:]
         labels.insert(0, '')
         ax.set_xticklabels(labels, rotation='vertical')
+ 
  
 def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, 
                   log=False, index=-1):
@@ -263,7 +267,8 @@ def simple_density(density, value, ax_d, ax, log, loc=-1):
                  ax.get_yaxis().get_view_interval()[1]) 
     ax_d.set_ylim(ymin=ax.get_yaxis().get_view_interval()[0],
               ymax=ax.get_yaxis().get_view_interval()[1])
-    
+
+ 
 def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     '''
     
