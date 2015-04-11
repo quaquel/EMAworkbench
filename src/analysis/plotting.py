@@ -19,7 +19,7 @@ from matplotlib.patches import ConnectionPatch
 
 from expWorkbench.ema_logging import debug, warning
 from expWorkbench.ema_exceptions import EMAError
-from plotting_util import prepare_data, COLOR_LIST, simple_kde, group_density,\
+from plotting_util import prepare_data, simple_kde, group_density,\
                          make_grid, make_legend, plot_envelope, simple_density,\
                          do_titles,do_ylabels, TIME, ENV_LIN, ENVELOPE, LINES,\
                          PATCH, LINE, TIGHT
@@ -449,7 +449,7 @@ def plot_lines_with_envelopes(results,
             for j, key in enumerate(grouping_labels):
                 value = outcomes[key][outcome_to_plot]
                 full_value = full_outcomes[key][outcome_to_plot]
-                ax.plot(time.T[:, np.newaxis], value.T, COLOR_LIST[j])
+                ax.plot(time.T[:, np.newaxis], value.T, plotting_util.COLOR_LIST[j])
             
             if density:
                 group_density(ax_d, density, full_outcomes, outcome_to_plot, 
@@ -511,7 +511,7 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
         value = outcomes[key]
         value = value[outcome_to_plot]
 
-        color = COLOR_LIST[j]
+        color = plotting_util.COLOR_LIST[j]
         ax.plot(time.T[:, np.newaxis], value.T, c=color, ms=1, markevery=5)
     
     if density:
