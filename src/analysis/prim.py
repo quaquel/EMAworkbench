@@ -554,7 +554,7 @@ class PrimBox(object):
         to denote the number of restricted dimensions.'''
        
         fig = plt.figure()
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot(111, aspect='equal')
         
         cmap = mpl.cm.YlGnBu_r #@UndefinedVariable
         boundaries = np.arange(-0.5, 
