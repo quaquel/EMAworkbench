@@ -377,6 +377,7 @@ def experiments_to_cases(experiments):
             case[uncertainty] = entry
             case_tuple.append(entry)
         
+        case_tuple = tuple(case_tuple)
         if case_tuple not in cache:
             cases.append(case)
             cache.add((case_tuple))
