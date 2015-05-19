@@ -72,8 +72,8 @@ def get_quantile(data, quantile):
             index_higher += 1
         value = (data[index_lower]+data[index_higher])/2
 
-
     return value
+
 
 def _determine_size(box, uncertainties):
     '''helper function for determining spacing when writing boxlims to stdout
@@ -110,6 +110,7 @@ def _determine_size(box, uncertainties):
     size = size+4
     return length, size
 
+
 def _compare(a, b):
     '''compare two boxes, for each dimension return True if the
     same and false otherwise'''
@@ -121,6 +122,7 @@ def _compare(a, b):
                     (a[name][0] == b[name][0]) &\
                     (a[name][1] == b[name][1])
     return logical
+
 
 def _setup_figure(uncs):
     '''
@@ -145,6 +147,7 @@ def _setup_figure(uncs):
     ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
     ax.set_yticklabels(uncs[::-1]) 
     return fig, ax
+
 
 def _pair_wise_scatter(x,y, box_lim, restricted_dims):
     ''' helper function for pair wise scatter plotting
@@ -209,7 +212,8 @@ def _pair_wise_scatter(x,y, box_lim, restricted_dims):
         pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None, restricted_dims)
             
     return figure
-        
+
+
 def _in_box(x, boxlim):
     '''
      
@@ -316,8 +320,6 @@ class PrimBox(object):
         style : {'table', 'graph'}
                 the style of the visualization
         
-        
-        
         '''
         if i == None:
             i = self._cur_box
@@ -333,12 +335,10 @@ class PrimBox(object):
         if style == 'table':
             return self._inspect_table(i, uncs, qp_values)
         elif style == 'graph':
-            return self._inspect_visual(i, uncs, qp_values)
+            return self._inspect_graph(i, uncs, qp_values)
         else:
             raise ValueError("style must be one of graph or table")
-        
-
-    
+            
     def _inspect_table(self, i, uncs, qp_values):
         '''Helper function for visualizing box statistics in 
         table form
@@ -363,7 +363,7 @@ class PrimBox(object):
         print(box_lim)
         print()
         
-    def _inspect_visual(self,  i, uncs, qp_values):
+    def _inspect_graph(self,  i, uncs, qp_values):
         '''Helper function for visualizing box statistics in 
         graph form
         
@@ -407,8 +407,6 @@ class PrimBox(object):
                 for xi, label in zip(x, values):
                     ax.text(xi, y-0.1, label, ha='center', va='center',
                            bbox=props, color='blue', fontweight='normal')
-
-
 
             else:
                 props = {'facecolor':'white',
@@ -461,15 +459,16 @@ class PrimBox(object):
         
             plt.tight_layout()
         return fig
-
-        
         
     def select(self, i):
         '''        
         select an entry from the peeling and pasting trajectory and update
         the prim box to this selected box.
         
-        :param i: the index of the box to select
+        Parameters
+        ----------
+        i : int
+            the index of the box to select.
         
         '''
         if self._frozen:
@@ -487,7 +486,9 @@ class PrimBox(object):
         uncertainty the limits of the initial box are being used. The resulting
         box is added to the peeling trajectory.
         
-        :param uncertainty:
+        Parameters
+        ----------
+        uncertainty : string
         
         '''
         
@@ -502,9 +503,12 @@ class PrimBox(object):
         
         update the box to the provided box limits.
         
-        
-        :param box_lims: the new box_lims
-        :param indices: the indices of y that are inside the box
+        Parameters
+        ----------
+        box_lims: structured numpy array
+                  the new box_lims
+        indices: numpy array
+                 the indices of y that are inside the box
       
         '''
         self.yi = indices
@@ -524,7 +528,6 @@ class PrimBox(object):
         self.peeling_trajectory = self.peeling_trajectory.append(new_row, ignore_index=True)
         
         self._cur_box = len(self.peeling_trajectory)-1
-        
         
     def show_ppt(self):
         '''show the peeling and pasting trajectory in a figure'''
@@ -550,7 +553,7 @@ class PrimBox(object):
         return fig
     
     def show_tradeoff(self):
-        '''Visualise the trade off between coverage and density. Color is used
+        '''Visualize the trade off between coverage and density. Color is used
         to denote the number of restricted dimensions.'''
        
         fig = plt.figure()
@@ -623,7 +626,7 @@ class PrimBox(object):
         '''
         
         make a pair wise scatter plot of all the restricted dimensions
-        with colour denoting whether a given point is of interest or not
+        with color denoting whether a given point is of interest or not
         and the boxlims superimposed on top.
         
         '''   
@@ -639,8 +642,11 @@ class PrimBox(object):
         '''helper function for calculating quasi-p values as discussed in 
         Bryant and Lempert (2010). This is a one sided  binomial test. 
         
-        :param i: the specific box in the peeling trajectory for which the 
-                  quasi-p values are to be calculated
+        Parameters
+        ----------
+        i: int
+           the specific box in the peeling trajectory for which the quasi-p 
+           values are to be calculated.
         
         '''
         
@@ -687,52 +693,85 @@ class PrimBox(object):
 class PrimException(Exception):
     pass
 
+def setup_prim(results, classify, incl_unc=[], **kwargs):
+    """Helper function for setting up the prim algorithm
+    
+    Parameters
+    ----------
+    results : tuple of structured array and dict with numpy arrays
+              the return from :meth:`perform_experiments`.
+    classify : string, function or callable
+               either a string denoting the outcome of interest to 
+               use or a function. 
+    kwargs : valid keyword arguments for prim.Prim
+    
+    
+    Raises
+    ------
+    PrimException 
+        if data resulting from classify is not a 1-d array. 
+    TypeError 
+        if classify is not a string or a callable.
+    
+    """
+    
+    if not incl_unc:
+        x = np.ma.array(results[0])
+    else:
+        drop_names = set(recfunctions.get_names(results[0].dtype))-set(incl_unc)
+        x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)
+    if type(classify)==StringType:
+        y = results[1][classify]
+    elif callable(classify):
+        y = classify(results[1])
+    else:
+        raise TypeError("unknown type for classify")
+    
+    return Prim(x,y, **kwargs)
+    
+
 class Prim(object):
     message = "{0} points remaining, containing {1} cases of interest"
     
     def __init__(self, 
-                 results,
-                 classify, 
+                 x,
+                 y, 
+                 threshold=None, 
                  obj_function=DEFAULT, 
-                 peel_alpha = 0.05, 
-                 paste_alpha = 0.05,
-                 mass_min = 0.05, 
-                 threshold = None, 
-                 threshold_type=ABOVE,
-                 incl_unc=[]):
+                 peel_alpha=0.05, 
+                 paste_alpha=0.05,
+                 mass_min=0.05, 
+                 threshold_type=ABOVE):
         '''
-        
-        :param results: the return from :meth:`perform_experiments`.
-        :param classify: either a string denoting the outcome of interest to 
-                         use or a function. 
-        :param peel_alpha: parameter controlling the peeling stage (default = 0.05). 
-        :param paste_alpha: parameter controlling the pasting stage (default = 0.05).
-        :param mass_min: minimum mass of a box (default = 0.05). 
-        :param threshold: the threshold of the output space that boxes should meet. 
-        :param threshold_type: If 1, the boxes should go above the threshold, if -1
-                               the boxes should go below the threshold, if 0, the 
-                               algorithm looks for both +1 and -1.
-        :param obj_func: The objective function to use. Default is 
-                         :func:`def_obj_func`
-        :param incl_unc: optional argument, should be a list of uncertainties
-                         that are to be included in the prim analysis. 
-        :raises: PrimException if data resulting from classify is not a 
-                 1-d array. 
-        :raises: TypeError if classify is not a string or a callable.
+        Parameters
+        ----------
+        x : structured array
+            the independent variables
+        y : 1d numpy array
+            the dependent variable
+        threshold : float
+                    the coverage threshold that a box has to meet
+        peel_alpha : float, optional 
+                     parameter controlling the peeling stage (default = 0.05). 
+        paste_alpha : float, optional
+                      parameter controlling the pasting stage (default = 0.05).
+        mass_min : float, optional
+                   minimum mass of a box (default = 0.05). 
+        threshold_type : {ABOVE, BELOW}
+                         whether to look above or below the threshold value
+        obj_func : callable, optional
+                   the objective function used by PRIM
+                   
+        Raises
+        ------
+        AssertionError
+            if threshold is None
                      
         '''
         assert threshold!=None
-        if not incl_unc:
-            self.x = np.ma.array(results[0])
-        else:
-            drop_names = set(recfunctions.get_names(results[0].dtype))-set(incl_unc)
-            self.x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)
-        if type(classify)==StringType:
-            self.y = results[1][classify]
-        elif callable(classify):
-            self.y = classify(results[1])
-        else:
-            raise TypeError("unknown type for classify")
+        
+        self.x = x
+        self.y = y
         
         if len(self.y.shape) > 1:
             raise PrimException("y is not a 1-d array")
@@ -769,15 +808,19 @@ class Prim(object):
         
         Pre-process the data by performing a pca based rotation on it. 
         This effectively turns the algorithm into PCA-PRIM as described
-        in the envsoft paper
+        in `Dalal et al (2013) <http://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
         
-        :param subsets: optional kwarg, expects a dictionary with group name 
-                        as key and a list of uncertainty names as values. 
-                        If this is used, a constrained PCA-PRIM is executed
-                        **note:** the list of uncertainties should not 
-                        contain categorical uncertainties. 
-        :param exclude: optional kwarg, the uncertainties that should be 
-                        excluded. TODO: from what?
+        Parameters
+        ----------
+        subsets: dict, optional 
+                 expects a dictionary with group name as key and a list of 
+                 uncertainty names as values. If this is used, a constrained 
+                 PCA-PRIM is executed 
+                 
+                ..note:: the list of uncertainties should not contain 
+                         categorical uncertainties. 
+        exclude: list of strings, optional 
+                the uncertainties that should be excluded from the rotation
         
         '''
         
@@ -855,13 +898,8 @@ class Prim(object):
         self.box_init = self.make_box(self.x)
     
     def find_box(self):
-        '''
-        
-        Execute one iteration of the PRIM algorithm. That is, find one
-        box, starting from the current state of Prim. 
-        
-        
-        '''
+        '''Execute one iteration of the PRIM algorithm. That is, find one
+        box, starting from the current state of Prim.'''
         # set the indices
         self._update_yi_remaining()
         
@@ -913,15 +951,25 @@ class Prim(object):
             return box
 
     def determine_coi(self, indices):
-        '''
-        
+        '''        
         Given a set of indices on y, how many cases of interest are there in 
         this set.
         
-        :param indices: a valid index for y
-        :raises: ValueError if threshold_type is not either ABOVE or BELOW
-        :returns: the nr. of cases of interest.
+        Parameters
+        ----------
+        indices: numpy array
+                 a valid index for y
+
+        Returns
+        ------- 
+        int
+            the number of cases of interest.
         
+        Raises
+        ------
+        ValueError 
+            if threshold_type is not either ABOVE or BELOW
+
         '''
         
         y = self.y[indices]
@@ -941,7 +989,9 @@ class Prim(object):
         determine the number of restriced dimensions of a box given
         compared to the inital box that contains all the data
         
-        :param box_lims: 
+        Parameters
+        ----------
+        box_lims : structured numpy array
         
         '''
     
@@ -953,7 +1003,9 @@ class Prim(object):
         determine which dimensions of the given box are restricted compared 
         to compared to the initial box that contains all the data
         
-        :param box_lims: 
+        Parameters
+        ----------
+        box_lims : structured numpy array
         
         '''
     
@@ -967,7 +1019,10 @@ class Prim(object):
         '''
         Make a box that encompasses all the data
         
-        :param x: a structured array
+        Parameters
+        ----------
+        x : structured numpy array
+        
         
         '''
         
@@ -1053,10 +1108,15 @@ class Prim(object):
         
         visualize the boxes.
         
-        :param together: if true, all boxes will be shown in a single figure,
-                         if false boxes will be shown in individual figures
-        :returns: a single figure instance when plotting all figures
-                  together, a list of figures otherwise. 
+        Parameters
+        ----------
+        together : boolean, optional
+                   if true, all boxes will be shown in a single figure,
+                   if false boxes will be shown in individual figures
+        
+        Returns:
+        --------
+        fig instance or list of fig instances
         
         '''
         
@@ -1098,11 +1158,18 @@ class Prim(object):
     def _plot_unc(self, xi, i, j, norm_box_lim, box_lim, u, ax):
         '''
         
-        :param xi: the row at which to plot
-        :param i: the uncertainty being plotted
-        :param j: the box being plotted
-        :param u: the uncertainty being plotted:
-        :param ax: the ax on which to plot
+        Parameters:
+        ----------
+        xi : int 
+             the row at which to plot
+        i : int
+            the indexo of the uncertainty being plotted
+        j : int
+            the index of the box being plotted
+        u : string
+            the uncertainty being plotted:
+        ax : axes instance
+             the ax on which to plot
         
         '''
 
@@ -1191,8 +1258,6 @@ class Prim(object):
         Executes the peeling phase of the PRIM algorithm. Delegates peeling
         to data type specific helper methods.
 
-        :param box: box limits
-        
         '''
     
         mass_old = box.yi.shape[0]/self.n
@@ -1245,9 +1310,16 @@ class Prim(object):
         
         returns two candidate new boxes, peel along upper and lower dimension
         
-        :param box: a PrimBox instance
-        :param u: the uncertainty for which to peel
-        :returns: two box lims and the associated indices
+        Parameters
+        ----------
+        box : a PrimBox instance
+        u : string
+            the uncertainty for which to peel
+        
+        Returns
+        -------
+        tuple
+            two box lims and the associated indices
         
         '''
 
@@ -1282,9 +1354,16 @@ class Prim(object):
         
         returns two candidate new boxes, peel along upper and lower dimension
         
-        :param box: a PrimBox instance
-        :param u: the uncertainty for which to peel
-        :returns: two box lims and the associated indices
+        Parameters
+        ----------
+        box : a PrimBox instance
+        u : string
+            the uncertainty for which to peel
+        
+        Returns
+        -------
+        tuple
+            two box lims and the associated indices
 
         
         '''
@@ -1343,9 +1422,16 @@ class Prim(object):
         category. So. if the box[u] is a categorical variable with 4 
         categories, this method will return 4 boxes. 
         
-        :param box: a PrimBox instance
-        :param u: the uncertainty for which to peel
-        :returns: box lims and the associated indices
+        Parameters
+        ----------
+        box : a PrimBox instance
+        u : string
+            the uncertainty for which to peel
+        
+        Returns
+        -------
+        tuple
+            a list of box lims and the associated indices
         
         '''
         entries = box.box_lims[-1][u][0]
@@ -1434,9 +1520,16 @@ class Prim(object):
         returns two candidate new boxes, pasted along upper and lower 
         dimension
         
-        :param box: a PrimBox instance
-        :param u: the uncertainty for which to paste
-        :returns: two box lims and the associated indices
+        Parameters
+        ----------
+        box : a PrimBox instance
+        u : string
+            the uncertainty for which to peel
+        
+        Returns
+        -------
+        tuple
+            two box lims and the associated indices
        
         '''
 
@@ -1490,9 +1583,16 @@ class Prim(object):
         Return a list of pastes, equal to the number of classes currently
         not on the box lim. 
         
-        :param box: a PrimBox instance
-        :param u: the uncertainty for which to paste
-        :returns: a list of indices and box lims 
+        Parameters
+        ----------
+        box : a PrimBox instance
+        u : string
+            the uncertainty for which to peel
+        
+        Returns
+        -------
+        tuple
+            a list of box lims and the associated indices
         
         
         '''
@@ -1560,7 +1660,8 @@ class Prim(object):
         return obj
     
     def _original_obj_fund(self, y_old, y_new):
-        ''' The original objective function: the mean of the data inside the box'''
+        ''' The original objective function: the mean of the data inside the 
+        box'''
         
         if y_new.shape[0]>0:
             return np.mean(y_new)
@@ -1582,9 +1683,11 @@ class Prim(object):
         '''
         rotate a subset
         
-        :param value:
-        :param orig_experiment:
-        :param logical:
+        Parameters
+        ----------
+        value : list of strings
+        orig_experiment : numpy structured array
+        logical : boolean array
         
         '''
         list_dtypes = [(name, "<f8") for name in value]
@@ -1613,8 +1716,6 @@ class Prim(object):
     def _determine_rotation(self, experiments):
         '''
         Determine the rotation for the specified experiments
-        
-        :param experiments:
         
         '''
         covariance = np.cov(experiments.T)
