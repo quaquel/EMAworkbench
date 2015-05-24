@@ -46,7 +46,7 @@ def load_results(file_name):
     
     outcomes = {}
     with tarfile.open(file_name, 'r') as z:
-        # load experiments
+        # load x
         experiments = z.extractfile('experiments.csv')
         experiments = csv2rec(experiments)
 
@@ -106,9 +106,9 @@ def load_results(file_name):
 def save_results(results, file_name):
     '''
     save the results to the specified tar.gz file. The results are stored as 
-    csv files. There is an experiments.csv, and a csv for each outcome. In 
+    csv files. There is an x.csv, and a csv for each outcome. In 
     addition, there is a metadata csv which contains the datatype information
-    for each of the columns in the experiments array.
+    for each of the columns in the x array.
 
     :param results: the return of run_experiments
     :param file_name: the path of the file
@@ -128,16 +128,16 @@ def save_results(results, file_name):
         
     experiments, outcomes = results
     with tarfile.open(file_name, 'w:gz') as z:
-        # write the experiments to the zipfile
+        # write the x to the zipfile
         experiments_file = StringIO.StringIO()
         rec2csv(experiments, experiments_file, withheader=True)
-        add_file(z, experiments_file.getvalue(), 'experiments.csv')
+        add_file(z, experiments_file.getvalue(), 'x.csv')
         
         # write experiment metadata
-        dtype = experiments.dtype.descr
+        dtype = x.dtype.descr
         dtype = ["{},{}".format(*entry) for entry in dtype]
         dtype = "\n".join(dtype)
-        add_file(z, dtype, 'experiments metadata.csv')
+        add_file(z, dtype, 'x metadata.csv')
         
         # write outcome metadata
         outcome_names = outcomes.keys()
@@ -181,19 +181,19 @@ def oldcsv_load_results(file_name):
     
     outcomes = {}
     with tarfile.open(file_name, 'r') as z:
-        # load experiments
-        experiments = z.extractfile('experiments.csv')
+        # load x
+        experiments = z.extractfile('x.csv')
         experiments = csv2rec(experiments)
 
         # load metadata
-        metadata = z.extractfile('experiments metadata.csv').readlines()
+        metadata = z.extractfile('x metadata.csv').readlines()
         metadata = [entry.strip() for entry in metadata]
         metadata = [tuple(entry.split(",")) for entry in metadata]
         metadata = np.dtype(metadata)
 
-        # cast experiments to dtype and name specified in metadata        
+        # cast x to dtype and name specified in metadata        
         temp_experiments = np.zeros((experiments.shape[0],), dtype=metadata)
-        for i, entry in enumerate(experiments.dtype.descr):
+        for i, entry in enumerate(x.dtype.descr):
             dtype = metadata[i]
             name = metadata.descr[i][0]
             temp_experiments[name][:] = experiments[entry[0]].astype(dtype)
@@ -201,8 +201,8 @@ def oldcsv_load_results(file_name):
 
         # load outcomes
         fhs = z.getnames()
-        fhs.remove('experiments.csv')
-        fhs.remove('experiments metadata.csv')
+        fhs.remove('x.csv')
+        fhs.remove('x metadata.csv')
         for fh in fhs:
             root = os.path.splitext(fh)[0]
             data = z.extractfile(fh)
@@ -348,16 +348,16 @@ def transform_old_cPickle_to_new_cPickle(file_name):
 def experiments_to_cases(experiments):
     '''
     
-    This function transform a structured experiments array into a list
+    This function transform a structured x array into a list
     of case dicts. This can then for example be used as an argument for 
     running :meth:`~model.SimpleModelEnsemble.perform_experiments`.
     
-    :param experiments: a structured array containing experiments
+    :param x: a structured array containing x
     :return: a list of case dicts.
     
     '''
     #get the names of the uncertainties
-    uncertainties = [entry[0] for entry in experiments.dtype.descr]
+    uncertainties = [entry[0] for entry in x.dtype.descr]
     
     #remove policy and model, leaving only the case related uncertainties
     try:
@@ -387,11 +387,11 @@ def experiments_to_cases(experiments):
 def experiments_to_cases_prim(experiments, designs):
     '''
     
-    This function transform a structured experiments array into a list
+    This function transform a structured x array into a list
     of case dicts. This can then for example be used as an argument for 
     running :meth:`~model.SimpleModelEnsemble.perform_experiments`.
     
-    :param experiments: a structured array containing experiments
+    :param x: a structured array containing x
     :return: a list of case dicts.
     
     '''
@@ -435,15 +435,15 @@ def merge_results(results1, results2, downsample=None):
     convenience function for merging the return from 
     :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
     
-    The function merges results2 with results1. For the experiments,
+    The function merges results2 with results1. For the x,
     it generates an empty array equal to the size of the sum of the 
-    experiments. As dtype is uses the dtype from the experiments in results1.
+    x. As dtype is uses the dtype from the x in results1.
     The function assumes that the ordering of dtypes and names is identical in
     both results.  
     
     A typical use case for this function is in combination with 
     :func:`~util.experiments_to_cases`. Using :func:`~util.experiments_to_cases`
-    one extracts the cases from a first set of experiments. One then
+    one extracts the cases from a first set of x. One then
     performs these cases on a different model or policy, and then one wants to
     merge these new results with the old result for further analysis.  
     
@@ -460,7 +460,7 @@ def merge_results(results1, results2, downsample=None):
     old_exp, old_res = results1
     new_exp, new_res = results2
     
-    #merge experiments
+    #merge x
     dtypes = old_exp.dtype
     
     merged_exp = np.empty((old_exp.shape[0]+new_exp.shape[0],),dtype= dtypes)

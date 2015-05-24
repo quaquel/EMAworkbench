@@ -15,14 +15,14 @@ def write_results_to_csv(results, directory):
 #     deceased_pop = outcomes['relative market price']
 #     time = outcomes[TIME]
     
-    rec2csv(experiments, directory+'/experiments.csv', withheader=True)
+    rec2csv(experiments, directory+'/x.csv', withheader=True)
     
     for key, value in outcomes.iteritems():
         np.savetxt(directory+'/{}.csv'.format(key), value, delimiter=',')
 #     np.savetxt('./data/scarcity/relative_market_price.csv', deceased_pop, delimiter=',')
 #     np.savetxt('./data/scarcity/time.csv', time, delimiter=',')
 #     
-    for entry in experiments.dtype.descr:
+    for entry in x.dtype.descr:
         print entry
 
 fn =r'./data/eng_trans_100.cPickle'

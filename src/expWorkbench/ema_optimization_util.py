@@ -175,7 +175,7 @@ def evaluate_population_outcome(population, ri, toolbox, ensemble):
 
     # TODO:: model en policy moeten er wel in blijven, 
     # dit stelt je in staat om ook over policy en models heen te kijken
-    # naar wat het optimimum is. Dus je moet aan experiments
+    # naar wat het optimimum is. Dus je moet aan x
     # standaard alle models en alle policies toevoegen en dan pas 
     # je index opvragen
     # Dit levert wel 2 extra geneste loops op... 
@@ -183,12 +183,12 @@ def evaluate_population_outcome(population, ri, toolbox, ensemble):
     experiments = recfunctions.drop_fields(experiments,\
                                            drop_names=['model', 'policy'], 
                                            asrecarray = True)    
-    ordering = [entry[0] for entry in experiments.dtype.descr]
+    ordering = [entry[0] for entry in x.dtype.descr]
     
     experiments = experiments.tolist()
     indices = {tuple(experiments[i]):i for i in range(len(experiments))}
     
-    # we need to map the outcomes of the experiments back to the 
+    # we need to map the outcomes of the x back to the 
     # correct individual
     for member in population:
         index = tuple([member[entry] for entry in ordering])

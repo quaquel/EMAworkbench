@@ -99,7 +99,7 @@ def load_eng_trans_data():
     outcomes = {}
 
     with zipfile.ZipFile(fn) as z:
-        experiments = StringIO.StringIO(z.read('experiments.csv'))
+        experiments = StringIO.StringIO(z.read('x.csv'))
         experiments = csv2rec(experiments)
         dt = np.dtype(dt_descr)
         names = [entry[0] for entry in dt_descr]

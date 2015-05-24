@@ -285,7 +285,7 @@ class PrimTestCase(unittest.TestCase):
         y = np.array([0,1,2])
         
         prim_obj = prim.Prim(x, y, threshold=0.5)
-        box_lims = prim_obj.make_box(x)
+        box_lims = prim_obj._make_box(x)
         box = prim.PrimBox(prim_obj, box_lims, [0,1,2])
         
         # some test on the box
@@ -395,7 +395,7 @@ class PrimTestCase(unittest.TestCase):
         
         # all dimensions the same
         b = prim_obj.box_init
-        u = prim_obj.determine_restricted_dims(b)
+        u = prim_obj._determine_restricted_dims(b)
         
         self.assertEqual(len(u), 0)
         
@@ -404,7 +404,7 @@ class PrimTestCase(unittest.TestCase):
                       (0,1)], 
                      dtype=[('a', np.float),
                             ('b', np.float)])
-        u = prim_obj.determine_restricted_dims(b)
+        u = prim_obj._determine_restricted_dims(b)
         
         self.assertEqual(len(u), 2)
 
