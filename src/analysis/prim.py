@@ -631,7 +631,7 @@ class PrimBox(object):
         
         '''   
         return _pair_wise_scatter(self.prim.x, self.prim.y, self.box_lim, 
-                           self.prim.determine_restricted_dims(self.box_lim))
+                           self.prim._determine_restricted_dims(self.box_lim))
     
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''
@@ -651,7 +651,7 @@ class PrimBox(object):
         '''
         
         box_lim = self.box_lims[i]
-        restricted_dims = list(self.prim.determine_restricted_dims(box_lim))
+        restricted_dims = list(self.prim._determine_restricted_dims(box_lim))
         
         # total nr. of cases in box
         Tbox = self.peeling_trajectory['mass'][i] * self.prim.n 
@@ -794,7 +794,7 @@ class Prim(object):
         self.t_coi = self.determine_coi(self.yi)
         
         # initial box that contains all data
-        self.box_init = self.make_box(self.x)
+        self.box_init = self._make_box(self.x)
     
         # make a list in which the identified boxes can be put
         self.boxes = []
@@ -895,7 +895,7 @@ class Prim(object):
         self.row_names = row_names
         
         self.x = np.ma.array(rotated_experiments)
-        self.box_init = self.make_box(self.x)
+        self.box_init = self._make_box(self.x)
     
     def find_box(self):
         '''Execute one iteration of the PRIM algorithm. That is, find one
@@ -995,9 +995,9 @@ class Prim(object):
         
         '''
     
-        return self.determine_restricted_dims(box_lims).shape[0]
+        return self._determine_restricted_dims(box_lims).shape[0]
     
-    def determine_restricted_dims(self, box_lims):
+    def _determine_restricted_dims(self, box_lims):
         '''
         
         determine which dimensions of the given box are restricted compared 
@@ -1015,7 +1015,7 @@ class Prim(object):
         dims = u[logical==False]
         return dims
     
-    def make_box(self, x):
+    def _make_box(self, x):
         '''
         Make a box that encompasses all the data
         
@@ -1199,7 +1199,7 @@ class Prim(object):
         # in one or more boxes
         unc = set()
         for box in self.boxes:
-            us  = self.determine_restricted_dims(box.box_lim).tolist()
+            us  = self._determine_restricted_dims(box.box_lim).tolist()
             unc = unc.union(us)
         unc = np.asarray(list(unc))
 
@@ -1474,7 +1474,7 @@ class Prim(object):
         
         mass_old = box.yi.shape[0]/self.n
         
-        res_dim = self.determine_restricted_dims(box.box_lims[-1])
+        res_dim = self._determine_restricted_dims(box.box_lims[-1])
         
         possible_pastes = []
         for u in res_dim:

@@ -3,24 +3,19 @@ Created on May 22, 2015
 
 @author: jhkwakkel
 '''
-import copy
-import types
+from __future__ import division, print_function
+
 import pydot
-
-
-
+import types
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
-
+import pandas as pd
 from sklearn import tree
-from sklearn.tree import _tree
 from sklearn.externals.six import StringIO
 
-
 from expWorkbench import ema_logging
-
-ema_logging.log_to_stderr(ema_logging.INFO)
+import scenario_discovery_util as sdutil
 
 
 def perform_cart(results, classify, incl_unc=[], mass_min=0.05):
@@ -56,165 +51,169 @@ def perform_cart(results, classify, incl_unc=[], mass_min=0.05):
     else:
         raise TypeError("unknown type for classify")
     
-    # we need to transform the structured array to a ndarray
-    # for object dtype, we should return the mapping
-    x_temp = np.zeros((x.shape[0], len(x.dtype.descr)))
-    for i, entry in enumerate(x.dtype.descr):
-        data_type = x.dtype.fields[entry[0]][0]
-        data = x[entry[0]]
-        if data_type == np.object:
-            items = set(data)
-            temp_data = np.zeros(data.shape)
-            for index, item in enumerate(items):
-                temp_data[data==item] = index
-            x_temp[:, i] = temp_data
-            
-        else:
-            dtype = zip(entry, ['float64'])
-            x_temp[:, i] = np.array(data).view(dtype=dtype).copy()
-    
-    x = x_temp
-    
-    return build_tree(x, y, mass_min)
-    
-
-def build_tree(x, y, mass_min):
-    clf = tree.DecisionTreeClassifier(min_samples_leaf = int(mass_min*x.shape[0]))
-    clf = clf.fit(x,y)
-    return clf
+    return CART(x, y, mass_min)
 
 
-def show_tree(clf, feature_names):
-    dot_data = StringIO() 
-    tree.export_graphviz(clf, out_file=dot_data, feature_names=feature_names) 
-    graph = pydot.graph_from_dot_data(dot_data.getvalue()) 
-    img = graph.create_png()
-    return img
+class CART(sdutil.OutputFormatterMixin):
+    sep = '?!?'
+    
+    def __init__(self, x,y, mass_min):
+        self.x = x
+        self.y = y
+        self.mass_min = mass_min
 
-def get_branches(tree, node_id, parent=None, depth=0, path=[]):
-    path = copy.copy(path)
-    path.append(node_id)
-    depth += 1
-    
-    left_child = tree.children_left[node_id]
-    right_child = tree.children_right[node_id]
-
-    # Add node with description
-    if left_child != _tree.TREE_LEAF: # @SupressWarning
-        new_paths = []
-        
-        left_paths = get_branches(tree, left_child, parent=node_id, depth=depth, path=path)
-        right_paths = get_branches(tree, right_child, parent=node_id, depth=depth, path=path)
-        for entry in [left_paths, right_paths]:
-            for path in entry:
-                new_paths.append(path)
-        return new_paths
-    else:
-        return [path]
-
-
-def make_box(x):
-    '''
-    Make a box that encompasses all the data
-    
-    :param x: a structured array
-    
-    '''
-    
-    box = np.zeros((2, ), x.dtype)
-    
-    names = recfunctions.get_names(x.dtype)
-    
-    for name in names:
-        dtype = x.dtype.fields.get(name)[0] 
-        values = x[name]
-        
-        if dtype == 'object':
-            try:
-                values = set(values) - set([np.ma.masked])
-                box[name][:] = values
-            except TypeError as e:
-                ema_logging.warning("{} has unhashable values".format(name))
-                raise e
-        else:
-            box[name][0] = np.min(values, axis=0) 
-            box[name][1] = np.max(values, axis=0)    
-    return box  
-    
-
-# http://stackoverflow.com/questions/20224526/how-to-extract-the-decision-rules-from-scikit-learn-decision-tree
-
-def tree_to_boxes(experiments, decision_tree, feature_names=None):
-    """transform a classification tree to a PRIM like box representation
-
-    """
-    branches = get_branches(decision_tree.tree_, 0)
-    tree = decision_tree.tree_
-    
-    # left betekent dat het below is, right betekent above
-    # probleem is echter dat left en right gelden tov parent, en dus de
-    # threshold die we daar opvragen
-    left_children = set(tree.children_left)
-    right_children = set(tree.children_right)
-    
-    boxes = []
-    
-    for branch in branches:
-        box = make_box(experiments)
-        results = None
-        
-        feature = None
-        threshold = None
-        for node in branch:
-            if feature:
-                if node in left_children:
-                    box[feature][1] = threshold
-                else:
-                    box[feature][0] = threshold
-            if tree.children_left[node] == _tree.TREE_LEAF:
-                value = tree.value[node]
-                if tree.n_outputs == 1:
-                    value = value[0, :]
-                results = value
+        # we need to transform the structured array to a ndarray
+        # we use dummy variables for each category in case of categorical 
+        # variables. Integers are treated as floats
+        self.feature_names = []
+        columns = []
+        for unc, dtype in x.dtype.descr:
+            dtype = x.dtype.fields[unc][0]
+            if dtype==np.object:
+                categories =  sorted(list(set(x[unc])))
+                for cat in categories:
+                    label = '{}{}{}'.format(unc, self.sep,cat)
+                    self.feature_names.append(label)
+                    columns.append(x[unc]==cat)
             else:
-                feature = feature_names[tree.feature[node]]
-                threshold = tree.threshold[node]
-                
-        boxes.append((box, results))
+                self.feature_names.append(unc)
+                columns.append(x[unc])
+
+        self._x = np.column_stack(columns)
+        self._boxes = None
+
+    @property
+    def boxes(self):
+        assert self.clf
+        
+        if self._boxes:
+            return self._boxes
     
-    return boxes
+        # based on
+        # http://stackoverflow.com/questions/20224526/how-to-extract-the-
+        # decision-rules-from-scikit-learn-decision-tree
+        assert self.clf
+        
+        left = self.clf.tree_.children_left
+        right = self.clf.tree_.children_right
+        threshold = self.clf.tree_.threshold
+        features = [self.feature_names[i] for i in self.clf.tree_.feature]
+    
+        # get ids of leaf nodes
+        leafs = np.argwhere(left == -1)[:,0]     
+    
+        def recurse(left, right, child, lineage=None):          
+            if lineage is None:
+                # lineage = [self.clf.tree_.value[child]]
+                lineage = []
+            
+            if child in left:
+                parent = np.where(left == child)[0].item()
+                split = 'l'
+            else:
+                parent = np.where(right == child)[0].item()
+                split = 'r'
+    
+            lineage.append((parent, split, threshold[parent],
+                            features[parent]))
+    
+            if parent == 0:
+                lineage.reverse()
+                return lineage
+            else:
+                return recurse(left, right, parent, lineage)
+            
+        box_init = sdutil._make_box(self.x)
+        boxes = []
+        for leaf in leafs:
+            branch = recurse(left, right, leaf)
+            box = np.copy(box_init)
+            for node in branch:
+                direction = node[1]
+                value = node[2]
+                unc = node[3]
+                
+                if direction=='l':
+                    try:
+                        box[unc][1] = value
+                    except ValueError:
+                        unc, cat = unc.split(self.sep)
+                        cats = box[unc]
+                        cats.pop(cat)
+                        box[unc][:]=cats
+                else:
+                    try:
+                        box[unc][0] = value
+                    except ValueError:
+                        # we are in the right hand branch, so 
+                        # the category is included
+                        pass
+                        
+            boxes.append(box) 
+        self._boxes = boxes
+        return self._boxes       
+    
+
+    def build_tree(self):
+        '''train CART on the data'''
+        min_samples = int(self.mass_min*self.x.shape[0])
+        self.clf = tree.DecisionTreeClassifier(min_samples_leaf=min_samples)
+        self.clf.fit(self._x,self.y)
+
+    def show_tree(self):
+        '''return a png of the tree'''
+        assert self.clf
+
+        dot_data = StringIO() 
+        tree.export_graphviz(self.clf, out_file=dot_data, 
+                             feature_names=self.feature_names) 
+        graph = pydot.graph_from_dot_data(dot_data.getvalue()) 
+        img = graph.create_png()
+        return img
+
+   
 
     
 if __name__ == '__main__':
     from test import util
- 
-    def flu_classify(data):
-        #get the output for deceased population
-        result = data['deceased population region 1']
-        
-        #make an empty array of length equal to number of cases 
-        classes =  np.zeros(result.shape[0])
-        
-        #if deceased population is higher then 1.000.000 people, classify as 1 
-        classes[result[:, -1] > 1000000] = 1
-        
-        return classes   
- 
-    results = util.load_flu_data()
-    
-    clf = perform_cart(results, flu_classify)
-    img = show_tree(clf, np.lib.recfunctions.get_names(results[0].dtype))   
-    
     import matplotlib.pyplot as plt
-    import matplotlib.image as mpimg
 
-    # treat the dot output string as an image file
-    sio = StringIO()
-    sio.write(img)
-    sio.seek(0)
-    img = mpimg.imread(sio)
+    ema_logging.log_to_stderr(ema_logging.INFO)
+
+    def scarcity_classify(outcomes):
+        outcome = outcomes['relative market price']
+        change = np.abs(outcome[:, 1::]-outcome[:, 0:-1])
+        
+        neg_change = np.min(change, axis=1)
+        pos_change = np.max(change, axis=1)
+        
+        logical = (neg_change > -0.6) & (pos_change > 0.6)
+        
+        classes = np.zeros(outcome.shape[0])
+        classes[logical] = 1
+        
+        return classes
+ 
+    results = util.load_scarcity_data()
     
-    # plot the image
-    imgplot = plt.imshow(img, aspect='equal')
+    cart = perform_cart(results, scarcity_classify)
+    cart.build_tree()
     
+    print(cart.boxes_to_dataframe())
+    cart.display_boxes(together=True)
+    
+#     img = cart.show_tree()
+#      
+#     import matplotlib.pyplot as plt
+#     import matplotlib.image as mpimg
+#   
+#     # treat the dot output string as an image file
+#     sio = StringIO()
+#     sio.write(img)
+#     sio.seek(0)
+#     img = mpimg.imread(sio)
+#       
+#     # plot the image
+#     imgplot = plt.imshow(img, aspect='equal')
+#       
     plt.show()
