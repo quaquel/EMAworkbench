@@ -217,8 +217,9 @@ class OutputFormatterMixin(object):
         
                 plt.tight_layout()
             return figs
-        
-    def _plot_unc(self, box_init, xi, i, j, norm_box_lim, box_lim, u, ax):
+    
+    @staticmethod  
+    def _plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax):
         '''
         
         Parameters:
