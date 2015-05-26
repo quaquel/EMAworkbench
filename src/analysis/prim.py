@@ -12,7 +12,7 @@ import copy
 import math
 
 import numpy as np
-import numpy.lib.recfunctions as recfunctions
+import numpy.lib.recfunctions as rf
 from scipy.stats import binom
 
 from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
@@ -42,11 +42,13 @@ PRECISION = '.2f'
 def get_quantile(data, quantile):
     '''
     quantile calculation modeled on the implementation used in sdtoolkit
-    
-    this replaces the scipy.stats.mquantile that has been used before
-    
-    :param data: dataset for which quantile is needed
-    :param quantile: the desired quantile
+
+    Parameters
+    ----------
+    data : nd array like 
+           dataset for which quantile is needed
+    quantile : float
+               the desired quantile
     
     '''
     assert quantile>0
@@ -69,85 +71,12 @@ def get_quantile(data, quantile):
         value = (data[index_lower]+data[index_higher])/2
     else:
         #lower
-        while (data[index_lower] == data[index_higher]) & (index_higher<len(data)-1):
+        while (data[index_lower] == data[index_higher]) & \
+              (index_higher<len(data)-1):
             index_higher += 1
         value = (data[index_lower]+data[index_higher])/2
 
     return value
-
-
-def _determine_size(box, uncertainties):
-    '''helper function for determining spacing when writing boxlims to stdout
-    
-    :param box: a box definition, used only to acquire datatype
-    :param uncertainties: a list of uncertainties to be printed
-    
-    fill the limits in for each uncertainty and each box
-    determine the length of the uncertainty names to align these properly
-    determine size of values in box_lims, this should be based on the integers 
-    and floats only
-    
-    '''
-    
-    length = max([len(u) for u in uncertainties])
-    length = max((length, len('uncertainty')))
-    
-    size = 0
-    for u in uncertainties:
-        data_type =  box[u].dtype
-        if data_type == np.float64:
-            size = max(size, 
-                       len("{:>{}}".format(box[u][0], PRECISION)), 
-                       len("{:>{}}".format(box[u][1], PRECISION)))
-        elif data_type == np.int32:
-            size = max(size, 
-                       len("{:>}".format(box[u][0])), 
-                       len("{:>}".format(box[u][1])))   
-        elif data_type == np.object:
-            s = len("{}".format(box[u][0]))
-            s = int(s/2)-4
-            size = max(size,
-                       s)
-    size = size+4
-    return length, size
-
-
-# def _compare(a, b):
-#     '''compare two boxes, for each dimension return True if the
-#     same and false otherwise'''
-#     dtypesDesc = a.dtype.descr
-#     logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
-#     for i, entry in enumerate(dtypesDesc):
-#         name = entry[0]
-#         logical[i] = logical[i] &\
-#                     (a[name][0] == b[name][0]) &\
-#                     (a[name][1] == b[name][1])
-#     return logical
-
-
-# def _setup_figure(uncs):
-#     '''
-#     
-#     helper function for creating the basic layout for the figures that
-#     show the box lims.
-#     
-#     '''
-#     nr_unc = len(uncs)
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111)
-#     
-#     # create the shaded grey background
-#     rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc+1.5,
-#                                  alpha=0.25,  
-#                                  facecolor="#C0C0C0",
-#                                  edgecolor="#C0C0C0")
-#     ax.add_patch(rect)
-#     ax.set_xlim(xmin=-0.2, xmax=1.2)
-#     ax.set_ylim(ymin= -0.5, ymax=nr_unc-0.5)
-#     ax.yaxis.set_ticks([y for y in range(nr_unc)])
-#     ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
-#     ax.set_yticklabels(uncs[::-1]) 
-#     return fig, ax
 
 
 def _pair_wise_scatter(x,y, box_lim, restricted_dims):
@@ -158,10 +87,17 @@ def _pair_wise_scatter(x,y, box_lim, restricted_dims):
     # currently it is done through the face color being white or blue
     # this is not very clear
     
-    :param x: the experiments
-    :param y: the outcome of interest
-    :param box_lim: a boxlim
-    :param restricted_dims: list of uncertainties that define the boxlims
+    
+    Parameters
+    ----------
+    x : numpy structured array
+        the experiments
+    y : numpy array
+        the outcome of interest
+    box_lim : numpy structured array
+              a boxlim
+    restricted_dims : list of strings
+                      list of uncertainties that define the boxlims
     
     '''
 
@@ -210,12 +146,14 @@ def _pair_wise_scatter(x,y, box_lim, restricted_dims):
                     x_2, c='r', linewidth=3)
             
         #reuse labeling function from pairs_plotting
-        pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None, restricted_dims)
+        pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None, 
+                                            restricted_dims)
             
     return figure
 
 class CurEntry(object):
-    '''a descriptor for the current entry on the peeling and pasting trajectory'''
+    '''a descriptor for the current entry on the peeling and pasting 
+    trajectory'''
     
     def __init__(self, name):
         self.name = name
@@ -228,10 +166,6 @@ class CurEntry(object):
                 
 
 class PrimBox(object):
-    stats_format = "{0:<5}{mean:>10.2g}{mass:>10.2g}{coverage:>10.2g}{density:>10.2g}{restricted_dim:>10.2g}"
-    stats_header = "{0:<5}{1:>10}{2:>10}{3:>10}{4:>10}{5:>10}".format('box', 
-                              'mean', 'mass', 'coverage', 'density', 'res dim')
-    
     coverage = CurEntry('coverage')
     density = CurEntry('density')
     mean = CurEntry('mean')
@@ -299,10 +233,7 @@ class PrimBox(object):
             
     def _inspect_table(self, i, uncs, qp_values):
         '''Helper function for visualizing box statistics in 
-        table form
-        
-        '''
-        
+        table form'''
         #make the descriptive statistics for the box
         print(self.peeling_trajectory.iloc[i])
         print()
@@ -323,9 +254,7 @@ class PrimBox(object):
         
     def _inspect_graph(self,  i, uncs, qp_values):
         '''Helper function for visualizing box statistics in 
-        graph form
-        
-        '''        
+        graph form'''        
         
         # normalize the box lims
         # we don't need to show the last box, for this is the 
@@ -433,7 +362,8 @@ class PrimBox(object):
             raise PrimException("""box has been frozen because PRIM has found 
                                 at least one more recent box""")
         
-        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
+        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], 
+                                 self.box_lims[i])
         self.yi = self.prim.yi_remaining[indices]
         self._cur_box = i
 
@@ -452,7 +382,8 @@ class PrimBox(object):
         
         new_box_lim = copy.deepcopy(self.box_lim)
         new_box_lim[uncertainty][:] = self.box_lims[0][uncertainty][:]
-        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], new_box_lim)
+        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], 
+                                 new_box_lim)
         indices = self.prim.yi_remaining[indices]
         self.update(new_box_lim, indices)
         
@@ -484,7 +415,8 @@ class PrimBox(object):
                                                               self.prim.box_init),
                 'mass':y.shape[0]/self.prim.n}
         new_row = pd.DataFrame([data])
-        self.peeling_trajectory = self.peeling_trajectory.append(new_row, ignore_index=True)
+        self.peeling_trajectory = self.peeling_trajectory.append(new_row, 
+                                                             ignore_index=True)
         
         self._cur_box = len(self.peeling_trajectory)-1
         
@@ -611,7 +543,7 @@ class PrimBox(object):
         
         box_lim = self.box_lims[i]
         restricted_dims = list(sdutil._determine_restricted_dims(box_lim,
-                                                                 self.prim.box_init))
+                                                           self.prim.box_init))
         
         # total nr. of cases in box
         Tbox = self.peeling_trajectory['mass'][i] * self.prim.n 
@@ -625,7 +557,8 @@ class PrimBox(object):
             temp_box = copy.deepcopy(box_lim)
             temp_box[u] = self.box_lims[0][u]
         
-            indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], temp_box)
+            indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], 
+                                     temp_box)
             indices = self.prim.yi_remaining[indices]
             
             # total nr. of cases in box with one restriction removed
@@ -650,8 +583,10 @@ class PrimBox(object):
         row = self.stats_format.format(nr,**stats)
         return row
 
+
 class PrimException(Exception):
     pass
+
 
 def setup_prim(results, classify, incl_unc=[], **kwargs):
     """Helper function for setting up the prim algorithm
@@ -665,6 +600,9 @@ def setup_prim(results, classify, incl_unc=[], **kwargs):
                use or a function. 
     kwargs : valid keyword arguments for prim.Prim
     
+    Returns
+    -------
+    a Prim instance
     
     Raises
     ------
@@ -678,8 +616,8 @@ def setup_prim(results, classify, incl_unc=[], **kwargs):
     if not incl_unc:
         x = np.ma.array(results[0])
     else:
-        drop_names = set(recfunctions.get_names(results[0].dtype))-set(incl_unc)
-        x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)
+        drop_names = set(rf.get_names(results[0].dtype))-set(incl_unc)
+        x = rf.drop_fields(results[0], drop_names, asrecarray = True)
     if type(classify)==StringType:
         y = results[1][classify]
     elif callable(classify):
@@ -774,9 +712,9 @@ class Prim(sdutil.OutputFormatterMixin):
     @property
     def stats(self):
         stats = []
-        items = ['coverage','density','res dim']
+        items = ['coverage','density', 'mass', 'res_dim']
         for box in self._boxes:
-            stats.append({key: box[key] for key in items})
+            stats.append({key: getattr(box, key) for key in items})
         return stats
     
     def perform_pca(self, subsets=None, exclude=set()):
@@ -804,16 +742,18 @@ class Prim(sdutil.OutputFormatterMixin):
         
         #transform experiments to numpy array
         dtypes = self.x.dtype.fields
-        object_dtypes = [key for key, value in dtypes.items() if value[0]==np.dtype(object)]
+        object_dtypes = [key for key, value in dtypes.items() 
+                         if value[0]==np.dtype(object)]
         
         #get experiments of interest
         # TODO this assumes binary classification!!!!!!!
         logical = self.y>=self.threshold
         
-        # if no subsets are provided all uncertainties with non dtype object are
-        # in the same subset, the name of this is r, for rotation
+        # if no subsets are provided all uncertainties with non dtype object 
+        # are in the same subset, the name of this is r, for rotation
         if not subsets:
-            subsets = {"r":[key for key, value in dtypes.items() if value[0].name!=np.dtype(object)]}
+            subsets = {"r":[key for key, value in dtypes.items() 
+                            if value[0].name!=np.dtype(object)]}
         
         # remove uncertainties that are in exclude and check whether 
         # uncertainties occur in more then one subset
@@ -834,11 +774,12 @@ class Prim(sdutil.OutputFormatterMixin):
             
             # the names of the rotated columns are based on the group name 
             # and an index
-            [new_dtypes.append(("%s_%s" % (key, i), float)) for i in range(len(value))]
+            [new_dtypes.append(("%s_%s" % (key, i), float)) for i 
+             in range(len(value))]
         
         #add the uncertainties with object dtypes to the end
         included_object_dtypes = set(object_dtypes)-set(exclude)
-        [new_dtypes.append((name, object)) for name in included_object_dtypes ]
+        [new_dtypes.append((name, object)) for name in included_object_dtypes]
         
         #make a new empty recarray
         rotated_experiments = np.recarray((self.x.shape[0],),dtype=new_dtypes)
@@ -847,7 +788,8 @@ class Prim(sdutil.OutputFormatterMixin):
         for name in included_object_dtypes :
             rotated_experiments[name] = self.x[name]
         
-        #iterate over the subsets, rotate them, and put them into the new recarray
+        #iterate over the subsets, rotate them, and put them into the new 
+        # recarray
         shape = 0
         for key, value in subsets.items():
             shape += len(value) 
@@ -1088,10 +1030,8 @@ class Prim(sdutil.OutputFormatterMixin):
         -------
         tuple
             two box lims and the associated indices
-
         
         '''
-
         peels = []
         for direction in ['upper', 'lower']:
             peel_alpha = self.peel_alpha
@@ -1168,7 +1108,8 @@ class Prim(sdutil.OutputFormatterMixin):
                 peel.discard(entry)
                 temp_box[u][:] = peel
                 
-                if type(list(entries)[0]) not in (StringType, FloatType, IntType):
+                if type(list(entries)[0]) not in (StringType, FloatType, 
+                                                  IntType):
                     bools = []                
                     for element in list(x[u]):
                         if element != entry:
@@ -1186,13 +1127,8 @@ class Prim(sdutil.OutputFormatterMixin):
             return []
 
     def _paste(self, box):
-        '''
-        
-        Executes the pasting phase of the PRIM. Delegates pasting to data 
-        type specific helper methods.
-        
-     
-        '''
+        ''' Executes the pasting phase of the PRIM. Delegates pasting to data 
+        type specific helper methods.'''
         
         x = self.x[self.yi_remaining]
         
@@ -1419,8 +1355,9 @@ class Prim(sdutil.OutputFormatterMixin):
         list_dtypes = [(name, "<f8") for name in value]
         
         #cast everything to float
-        drop_names = set(recfunctions.get_names(orig_experiments.dtype)) -set(value)
-        orig_subset = recfunctions.drop_fields(orig_experiments, drop_names, asrecarray=True)
+        drop_names = set(rf.get_names(orig_experiments.dtype)) - set(value)
+        orig_subset = rf.drop_fields(orig_experiments, drop_names, 
+                                               asrecarray=True)
         subset_experiments = orig_subset.astype(list_dtypes).view('<f8').reshape(orig_experiments.shape[0], len(value))
  
         #normalize the data
