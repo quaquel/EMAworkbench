@@ -59,8 +59,9 @@ box_1.write_ppt_to_stdout()
 box_1.show_pairs_scatter()
 
 #print prim to std_out
-prim_obj.write_boxes_to_stdout()
+print prim_obj.stats_to_dataframe()
+print prim_obj.boxes_to_dataframe()
 
 #visualize
-prim_obj.show_boxes()
+prim_obj.display_boxes()
 plt.show()
