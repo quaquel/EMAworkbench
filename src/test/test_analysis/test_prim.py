@@ -9,13 +9,9 @@ import unittest
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 
-import matplotlib.pyplot as plt
-
-from expWorkbench import ema_logging
 from analysis import prim
 
 from test import util
-from expWorkbench.util import load_results
 from analysis.prim import PrimBox
 
 
