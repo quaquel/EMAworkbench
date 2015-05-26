@@ -38,10 +38,18 @@ def scarcity_classify(outcomes):
     return classes
 
 class CartTestCase(unittest.TestCase):
-    def perform_cart(self):
+    def test_perform_cart(self):
         results = util.load_flu_data()
         
         cart.perform_cart(results, flu_classify)
+        
+    def test_boxes(self):
+        pass
+    def test_stats(self):
+        pass
+    def build_tree(self):
+        pass
+    
         
 if __name__ == '__main__':
         unittest.main()

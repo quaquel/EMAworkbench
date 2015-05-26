@@ -213,6 +213,30 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(prim_obj.t_coi==value)
         
         prim.setup_prim(self.results, self.classify, threshold=prim.ABOVE)
+    
+    def test_boxes(self):
+        x = np.array([(0,1,2),
+                      (2,5,6),
+                      (3,2,1)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float),
+                            ('c', np.float)])
+        y = {'y':np.array([0,1,2])}
+        results = (x,y)
+        
+        prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
+        boxes = prim_obj.boxes
+        
+        self.assertEqual(len(boxes), 1, 'box length not correct')
+        
+        
+        # real data test case        
+        prim_obj = prim.setup_prim(util.load_flu_data(), flu_classify,
+                                   threshold=0.8)
+        prim_obj.find_box()
+        boxes = prim_obj.boxes
+        self.assertEqual(len(boxes), 2, 'box length not correct')        
+        
 
     def test_prim_init_select(self):
         self.results = util.load_flu_data()
@@ -275,26 +299,6 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(prim.get_quantile(data, 0.05)==1.5)   
         
 
-    def test_make_box(self):
-        x = np.array([(0,1,2),
-                      (2,5,6),
-                      (3,2,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
-        y = np.array([0,1,2])
-        
-        prim_obj = prim.Prim(x, y, threshold=0.5)
-        box_lims = prim_obj._make_box(x)
-        box = prim.PrimBox(prim_obj, box_lims, [0,1,2])
-        
-        # some test on the box
-        self.assertTrue(box.res_dim==0)
-        self.assertTrue(box.mass==1)
-        self.assertTrue(box.coverage==1)
-        self.assertTrue(box.density==2/3)
-        
-    
     def test_box_init(self):
         # test init box without NANS
         x = np.array([(0,1,2),
@@ -384,139 +388,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box_init['b'][1]==9)
         self.assertTrue(box_init['c'][0]==set(['a','b']))
         self.assertTrue(box_init['c'][1]==set(['a','b'])) 
-  
-    def test_restricted_dimension(self):
-        x = np.random.rand(10, )
-        x = np.asarray(x, dtype=[('a', np.float),
-                                 ('b', np.float)])
-        y = np.random.randint(0,2, (10,)).astype(int)
-        
-        prim_obj = prim.Prim(x,y, threshold=0.8)
-        
-        # all dimensions the same
-        b = prim_obj.box_init
-        u = prim_obj._determine_restricted_dims(b)
-        
-        self.assertEqual(len(u), 0)
-        
-        # dimensions 1 different and dimension 2 the same
-        b = np.array([(1,1),
-                      (0,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float)])
-        u = prim_obj._determine_restricted_dims(b)
-        
-        self.assertEqual(len(u), 2)
 
-    def test_compare(self):
-        self.results = util.load_scarcity_data()
-        self.classify = scarcity_classify
-        
-        prim_obj = prim.setup_prim(self.results, self.classify, threshold=0.8)
-        
-        # all dimensions the same
-        a = np.array([(0,1),
-                      (0,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float)])
-        b = np.array([(0,1),
-                      (0,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float)])
-        
-        self.assertTrue(np.all(prim._compare(a,b)))
-        
-        # all dimensions different
-        a = np.array([(0,1),
-                      (0,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float)])
-        b = np.array([(1,1),
-                      (0,0)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float)])
-        test = prim._compare(a,b)==False
-        self.assertTrue(np.all(test))
-        
-        # dimensions 1 different and dimension 2 the same
-        a = np.array([(0,1),
-                      (0,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float)])
-        b = np.array([(1,1),
-                      (0,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float)])
-        test = prim._compare(a,b)
-        test = (test[0]==False) & (test[1]==True)
-        self.assertTrue(test)
-
-    def test_in_box(self):
-        dtype = [('a', np.int)]
-        x = np.array([(0,),
-                      (1,),
-                      (2,),
-                      (3,),
-                      (4,),
-                      (5,),
-                      (6,),
-                      (7,),
-                      (8,),
-                      (9,)], 
-                     dtype=dtype)
-        boxlim = np.array([(1,),
-                           (8,)], dtype=dtype)
-        correct_result = np.array([1,2,3,4,5,6,7,8], dtype=np.int)
-        result = prim._in_box(x, boxlim)
-        
-        self.assertTrue(np.all(correct_result==result))
-
-        dtype = [('a', np.int),
-                 ('b', np.int)]
-        x = np.array([(0,0),
-                      (1,1),
-                      (2,2),
-                      (3,3),
-                      (4,4),
-                      (5,5),
-                      (6,6),
-                      (7,7),
-                      (8,8),
-                      (9,9)], 
-                     dtype=dtype)
-        boxlim = np.array([(1,0),
-                           (8,7)], dtype=dtype)
-        correct_result = np.array([1,2,3,4,5,6,7], dtype=np.int)
-        result = prim._in_box(x, boxlim)
-        
-        self.assertTrue(np.all(correct_result==result))
-    
-        dtype = [('a', np.float),
-                 ('b', np.int),
-                 ('c', np.object)]
-        x = np.array([(0.1, 0, 'a'),
-                      (1.1, 1, 'a'),
-                      (2.1, 2, 'b'),
-                      (3.1, 3, 'b'),
-                      (4.1, 4, 'c'),
-                      (5.1, 5, 'c'),
-                      (6.1, 6, 'd'),
-                      (7.1, 7, 'd'),
-                      (8.1, 8, 'e'),
-                      (9.1, 9, 'e')], 
-                     dtype=dtype)
-        boxlim = np.array([(1.2,0, set(['a','b'])),
-                           (8.0,7, set(['a','b']) )], dtype=dtype)
-        correct_result = np.array([2,3], dtype=np.int)
-        result = prim._in_box(x, boxlim)
-        self.assertTrue(np.all(correct_result==result))
-        
-        boxlim = np.array([(0.1, 0, set(['a','b','c','d','e'])),
-                           (9.1, 9, set(['a','b','c','d','e']) )], dtype=dtype)
-        correct_result = np.array([0,1,2,3,4,5,6,7,8,9], dtype=np.int)
-        result = prim._in_box(x, boxlim)
-        self.assertTrue(np.all(correct_result==result))
-    
     def test_setup_prim_exceptions(self):
         results = util.load_flu_data()
         self.assertRaises(prim.PrimException, 
@@ -530,58 +402,6 @@ class PrimTestCase(unittest.TestCase):
         self.assertRaises(prim.PrimException, prim.setup_prim, results, 
                           faulty_classify, threshold=0.8)
 
-#    def test_write_boxes_to_stdout(self):
-#        results = load_results(r'../data/1000 flu cases no policy.bz2')
-#        classify = flu_classify
-#
-##        results = load_results(r'../data/scarcity 1000.bz2')
-##        classify = scarcity_classify
-#                
-#        prim = prim.Prim(results, classify, 
-#                             threshold=0.7)
-#        prim.find_box()
-#        prim.find_box()
-#        
-#        print "\n"
-#        prim.write_boxes_to_stdout()   
-
-    def test_show_boxes(self):
-        results = util.load_flu_data()
-        classify = flu_classify
-                
-        prim_obj = prim.setup_prim(results, classify, 
-                             threshold=0.7)
-        prim_obj.find_box()
-        prim_obj.find_box()
-        
-        prim_obj.write_boxes_to_stdout()
-        
-        prim_obj.show_boxes()   
-#         plt.show()
-  
-    def test_write_boxes_to_stdout(self):
-        dtype = [('a', np.float),('b', np.object)]
-        x = np.empty((10, ), dtype=dtype)
-        
-        x['a'] = np.random.rand(10,)
-        x['b'] = ['a','b','a','b','a','a','b','a','b','a', ]
-        y = np.random.randint(0,2, (10,))
-        y = y.astype(np.int)
-        y = {'y':y}
-        results = x,y
-        classify = 'y'
-                
-        prim_obj = prim.setup_prim(results, classify, 
-                             threshold=0.7)
-        box_lim = np.array([(0.0, set(['a'])),
-                        (1.0, set(['a']))], dtype=dtype )
-        yi = prim._in_box(x, box_lim)
-        
-        box = prim.PrimBox(prim_obj, box_lim, yi)
-        prim_obj.boxes.append(box)
-        
-        prim_obj.write_boxes_to_stdout()
-        
     def test_find_box(self):
         results = util.load_flu_data()
         classify = flu_classify

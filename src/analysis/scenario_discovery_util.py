@@ -3,37 +3,53 @@ Created on May 24, 2015
 
 @author: jhkwakkel
 '''
+import abc
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 import pandas as pd
+from types import StringType, FloatType, IntType
 
 from expWorkbench import ema_logging
 from analysis.plotting_util import COLOR_LIST
 
 
 def _get_sorted_box_lims(boxes, box_init):
+    '''Sort the uncertainties for each box in boxes based on a normalization
+    given box_init. Unrestricted dimensions are dropped. The sorting is based
+    on the normalization of the first box in boxes. 
+    
+    Parameters
+    ----------
+    boxes : list of numpy structured arrays
+    box_init : numpy structured array
+    
+    Returns
+    -------
+    tuple with the sorted boxes, and the list of restricted uncertainties
+    
+    '''
         
-        # determine the uncertainties that are being restricted
-        # in one or more boxes
-        uncs = set()
-        for box in boxes:
-            us  = _determine_restricted_dims(box, box_init).tolist()
-            uncs = uncs.union(us)
-        uncs = np.asarray(list(uncs))
+    # determine the uncertainties that are being restricted
+    # in one or more boxes
+    uncs = set()
+    for box in boxes:
+        us  = _determine_restricted_dims(box, box_init).tolist()
+        uncs = uncs.union(us)
+    uncs = np.asarray(list(uncs))
 
-        # normalize the range for the first box
-        box_lim = boxes[0]
-        nbl = _normalize(box_lim, box_init, uncs)
-        box_size = nbl[:,1]-nbl[:,0]
-        
-        # sort the uncertainties based on the normalized size of the 
-        # restricted dimensions
-        uncs = uncs[np.argsort(box_size)]
-        box_lims = [box for box in boxes]
-        
-        return box_lims, uncs
+    # normalize the range for the first box
+    box_lim = boxes[0]
+    nbl = _normalize(box_lim, box_init, uncs)
+    box_size = nbl[:,1]-nbl[:,0]
+    
+    # sort the uncertainties based on the normalized size of the 
+    # restricted dimensions
+    uncs = uncs[np.argsort(box_size)]
+    box_lims = [box for box in boxes]
+    
+    return box_lims, uncs.tolist()
 
 
 def _make_box(x):
@@ -68,12 +84,32 @@ def _make_box(x):
     return box  
 
 
-def _normalize(box_lim, box_init, unc):
+def _normalize(box_lim, box_init, uncertainties):
+    '''Normalize the given box lim to the unit interval derived
+    from box init for the specified uncertainties.
+    
+    Categorical uncertainties are normalized based on fractionated. So
+    value specifies the fraction of categories in the box_lim. 
+    
+    Parameters
+    ----------
+    box_lim : a numpy structured array.
+    box_init :  a numpy structured array.
+    uncertainties : list of strings
+                    valid names of columns that exist in both structured 
+                    arrays.
+
+    Returns
+    -------
+    a numpy array of the shape (2, len(uncertainties) with the box limits.
+    
+    
+    '''
     
     # normalize the range for the first box
-    norm_box_lim = np.zeros((len(unc), box_lim.shape[0]))
+    norm_box_lim = np.zeros((len(uncertainties), box_lim.shape[0]))
     
-    for i, u in enumerate(unc):
+    for i, u in enumerate(uncertainties):
         dtype = box_lim.dtype.fields[u][0]
         if dtype ==np.dtype(object):
             nu = len(box_lim[u][0])/ len(box_init[u][0])
@@ -98,6 +134,9 @@ def _determine_restricted_dims(box_lims, box_init):
     Parameters
     ----------
     box_lims : structured numpy array
+               a specific box limit
+    box_init : structured numpy array
+               the initial box containing all data points
     
     '''
 
@@ -107,6 +146,23 @@ def _determine_restricted_dims(box_lims, box_init):
     dims = u[logical==False]
     return dims
 
+
+def _determine_nr_restricted_dims(box_lims, box_init):
+    '''
+    
+    determine the number of restriced dimensions of a box given
+    compared to the inital box that contains all the data
+    
+    Parameters
+    ----------
+    box_lims : structured numpy array
+               a specific box limit
+    box_init : structured numpy array
+               the initial box containing all data points
+    
+    '''
+
+    return _determine_restricted_dims(box_lims, box_init).shape[0]
 
 def _compare(a, b):
     '''compare two boxes, for each dimension return True if the
@@ -146,7 +202,72 @@ def _setup_figure(uncs):
     return fig, ax
 
 
+def _in_box(x, boxlim):
+    '''
+     
+    returns the indices of the data points that are within the 
+    box_lims.
+    
+    Parameters
+    ----------
+    x : numpy structured array
+    boxlim : numpy structured array
+    
+    
+    Returns
+    -------
+    valid numpy indices on x
+    
+    '''
+    logical = np.ones(x.shape[0], dtype=np.bool)
+    
+    dims = recfunctions.get_names(boxlim.dtype)
+
+    for name in dims:
+        value = x.dtype.fields.get(name)[0]
+        
+        if value == 'object':
+            entries = boxlim[name][0]
+            l = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
+            for i,entry in enumerate(entries):
+                if type(list(entries)[0]) not in (StringType, FloatType, IntType):
+                    bools = []                
+                    for element in list(x[name]):
+                        if element == entry:
+                            bools.append(True)
+                        else:
+                            bools.append(False)
+                    l[:, i] = np.asarray(bools, dtype=bool)
+                else:
+                    l[:, i] = x[name] == entry
+            l = np.any(l, axis=1)
+            logical = logical & l
+        else:
+            logical = logical & (boxlim[name][0] <= x[name] )&\
+                                        (x[name] <= boxlim[name][1])                
+    
+    indices = np.where(logical==True)
+    
+    assert len(indices)==1
+    indices = indices[0]
+    
+    return indices
+
 class OutputFormatterMixin(object):
+    __metaclass__ = abc.ABCMeta
+    
+    @abc.abstractproperty
+    def boxes(self):
+        '''Property for getting a list of box limits'''
+        
+        raise NotImplementedError
+    
+    @abc.abstractproperty
+    def stats(self):
+        '''property for getting a list of dicts containing the statistics
+        for each box'''
+        
+        raise NotImplementedError
     
     def boxes_to_dataframe(self):
         boxes = self.boxes
@@ -176,10 +297,13 @@ class OutputFormatterMixin(object):
                                    index=['min','max'])
                 df_boxes.ix[unc][index[i]] = values   
         return df_boxes 
-        
     
     def stats_to_dataframe(self):
-        pass
+        stats = self.stats
+        
+        index = pd.Index(['box {}'.format(i+1) for i in range(len(stats))])
+        
+        return pd.DataFrame(stats, index=index)
     
     def display_boxes(self, together=False):
         box_init = _make_box(self.x)
@@ -227,7 +351,7 @@ class OutputFormatterMixin(object):
         xi : int 
              the row at which to plot
         i : int
-            the indexo of the uncertainty being plotted
+            the index of the uncertainty being plotted
         j : int
             the index of the box being plotted
         u : string

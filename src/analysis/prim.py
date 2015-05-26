@@ -27,9 +27,10 @@ try:
 except ImportError:
     mpdl3 = None
 
-from analysis.plotting_util import make_legend, COLOR_LIST
-from expWorkbench import info, debug, EMAError, ema_logging
+from analysis.plotting_util import make_legend
+from expWorkbench import info, debug, EMAError
 from analysis import pairs_plotting
+from analysis import scenario_discovery_util as sdutil
 
 DEFAULT = 'default'
 ORIGINAL = 'original'
@@ -111,42 +112,42 @@ def _determine_size(box, uncertainties):
     return length, size
 
 
-def _compare(a, b):
-    '''compare two boxes, for each dimension return True if the
-    same and false otherwise'''
-    dtypesDesc = a.dtype.descr
-    logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
-    for i, entry in enumerate(dtypesDesc):
-        name = entry[0]
-        logical[i] = logical[i] &\
-                    (a[name][0] == b[name][0]) &\
-                    (a[name][1] == b[name][1])
-    return logical
+# def _compare(a, b):
+#     '''compare two boxes, for each dimension return True if the
+#     same and false otherwise'''
+#     dtypesDesc = a.dtype.descr
+#     logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
+#     for i, entry in enumerate(dtypesDesc):
+#         name = entry[0]
+#         logical[i] = logical[i] &\
+#                     (a[name][0] == b[name][0]) &\
+#                     (a[name][1] == b[name][1])
+#     return logical
 
 
-def _setup_figure(uncs):
-    '''
-    
-    helper function for creating the basic layout for the figures that
-    show the box lims.
-    
-    '''
-    nr_unc = len(uncs)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    
-    # create the shaded grey background
-    rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc+1.5,
-                                 alpha=0.25,  
-                                 facecolor="#C0C0C0",
-                                 edgecolor="#C0C0C0")
-    ax.add_patch(rect)
-    ax.set_xlim(xmin=-0.2, xmax=1.2)
-    ax.set_ylim(ymin= -0.5, ymax=nr_unc-0.5)
-    ax.yaxis.set_ticks([y for y in range(nr_unc)])
-    ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
-    ax.set_yticklabels(uncs[::-1]) 
-    return fig, ax
+# def _setup_figure(uncs):
+#     '''
+#     
+#     helper function for creating the basic layout for the figures that
+#     show the box lims.
+#     
+#     '''
+#     nr_unc = len(uncs)
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111)
+#     
+#     # create the shaded grey background
+#     rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc+1.5,
+#                                  alpha=0.25,  
+#                                  facecolor="#C0C0C0",
+#                                  edgecolor="#C0C0C0")
+#     ax.add_patch(rect)
+#     ax.set_xlim(xmin=-0.2, xmax=1.2)
+#     ax.set_ylim(ymin= -0.5, ymax=nr_unc-0.5)
+#     ax.yaxis.set_ticks([y for y in range(nr_unc)])
+#     ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
+#     ax.set_yticklabels(uncs[::-1]) 
+#     return fig, ax
 
 
 def _pair_wise_scatter(x,y, box_lim, restricted_dims):
@@ -212,49 +213,6 @@ def _pair_wise_scatter(x,y, box_lim, restricted_dims):
         pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None, restricted_dims)
             
     return figure
-
-
-def _in_box(x, boxlim):
-    '''
-     
-    returns the indices of the data points that are within the 
-    box_lims.
-    
-    '''
-    logical = np.ones(x.shape[0], dtype=np.bool)
-    
-    dims = recfunctions.get_names(boxlim.dtype)
-
-    for name in dims:
-        value = x.dtype.fields.get(name)[0]
-        
-        if value == 'object':
-            entries = boxlim[name][0]
-            l = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
-            for i,entry in enumerate(entries):
-                if type(list(entries)[0]) not in (StringType, FloatType, IntType):
-                    bools = []                
-                    for element in list(x[name]):
-                        if element == entry:
-                            bools.append(True)
-                        else:
-                            bools.append(False)
-                    l[:, i] = np.asarray(bools, dtype=bool)
-                else:
-                    l[:, i] = x[name] == entry
-            l = np.any(l, axis=1)
-            logical = logical & l
-        else:
-            logical = logical & (boxlim[name][0] <= x[name] )&\
-                                        (x[name] <= boxlim[name][1])                
-    
-    indices = np.where(logical==True)
-    
-    assert len(indices)==1
-    indices = indices[0]
-    
-    return indices
-
 
 class CurEntry(object):
     '''a descriptor for the current entry on the peeling and pasting trajectory'''
@@ -377,7 +335,7 @@ class PrimBox(object):
         box_lim = self.box_lims[i]
         norm_box_lim =  self.prim._normalize(box_lim, uncs)
         
-        fig, ax = _setup_figure(uncs)
+        fig, ax = sdutil._setup_figure(uncs)
 
         for j, u in enumerate(uncs):
             # we want to have the most restricted dimension
@@ -475,7 +433,7 @@ class PrimBox(object):
             raise PrimException("""box has been frozen because PRIM has found 
                                 at least one more recent box""")
         
-        indices = _in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
+        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], self.box_lims[i])
         self.yi = self.prim.yi_remaining[indices]
         self._cur_box = i
 
@@ -494,7 +452,7 @@ class PrimBox(object):
         
         new_box_lim = copy.deepcopy(self.box_lim)
         new_box_lim[uncertainty][:] = self.box_lims[0][uncertainty][:]
-        indices = _in_box(self.prim.x[self.prim.yi_remaining], new_box_lim)
+        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], new_box_lim)
         indices = self.prim.yi_remaining[indices]
         self.update(new_box_lim, indices)
         
@@ -522,7 +480,8 @@ class PrimBox(object):
         data = {'coverage':coi/self.prim.t_coi, 
                 'density':coi/y.shape[0],  
                 'mean':np.mean(y),
-                'res dim':self.prim.determine_nr_restricted_dims(self.box_lims[-1]),
+                'res dim':sdutil._determine_nr_restricted_dims(self.box_lims[-1], 
+                                                              self.prim.box_init),
                 'mass':y.shape[0]/self.prim.n}
         new_row = pd.DataFrame([data])
         self.peeling_trajectory = self.peeling_trajectory.append(new_row, ignore_index=True)
@@ -651,7 +610,8 @@ class PrimBox(object):
         '''
         
         box_lim = self.box_lims[i]
-        restricted_dims = list(self.prim._determine_restricted_dims(box_lim))
+        restricted_dims = list(sdutil._determine_restricted_dims(box_lim,
+                                                                 self.prim.box_init))
         
         # total nr. of cases in box
         Tbox = self.peeling_trajectory['mass'][i] * self.prim.n 
@@ -665,7 +625,7 @@ class PrimBox(object):
             temp_box = copy.deepcopy(box_lim)
             temp_box[u] = self.box_lims[0][u]
         
-            indices = _in_box(self.prim.x[self.prim.yi_remaining], temp_box)
+            indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], temp_box)
             indices = self.prim.yi_remaining[indices]
             
             # total nr. of cases in box with one restriction removed
@@ -730,7 +690,7 @@ def setup_prim(results, classify, incl_unc=[], **kwargs):
     return Prim(x,y, **kwargs)
     
 
-class Prim(object):
+class Prim(sdutil.OutputFormatterMixin):
     message = "{0} points remaining, containing {1} cases of interest"
     
     def __init__(self, 
@@ -794,12 +754,30 @@ class Prim(object):
         self.t_coi = self.determine_coi(self.yi)
         
         # initial box that contains all data
-        self.box_init = self._make_box(self.x)
+        self.box_init = sdutil._make_box(self.x)
     
         # make a list in which the identified boxes can be put
-        self.boxes = []
+        self._boxes = []
         
         self._update_yi_remaining()
+    
+    @property
+    def boxes(self):
+        boxes = [box.box_lim for box in self._boxes]
+        
+        if not boxes:
+            return [self.box_init]
+        elif not np.all(sdutil._compare(boxes[-1], self.box_init)):
+                boxes.append(self.box_init)
+        return boxes 
+    
+    @property
+    def stats(self):
+        stats = []
+        items = ['coverage','density','res dim']
+        for box in self._boxes:
+            stats.append({key: box[key] for key in items})
+        return stats
     
     def perform_pca(self, subsets=None, exclude=set()):
         '''
@@ -904,7 +882,7 @@ class Prim(object):
         self._update_yi_remaining()
         
         # make boxes already found immutable 
-        for box in self.boxes:
+        for box in self._boxes:
             box._frozen = True
         
         if self.yi_remaining.shape[0] == 0:
@@ -936,18 +914,18 @@ class Prim(object):
         if (self.threshold_type==ABOVE) &\
            (box.mean >= self.threshold):
             info(message)
-            self.boxes.append(box)
+            self._boxes.append(box)
             return box
         elif (self.threshold_type==BELOW) &\
            (box.mean <= self.threshold):
             info(message)
-            self.boxes.append(box)
+            self._boxes.append(box)
             return box
         else:
             # make a dump box
             info('box does not meet threshold criteria, value is {}, returning dump box'.format(box.mean))
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
-            self.boxes.append(box)
+            self._boxes.append(box)
             return box
 
     def determine_coi(self, indices):
@@ -983,261 +961,6 @@ class Prim(object):
         
         return coi
     
-    def determine_nr_restricted_dims(self, box_lims):
-        '''
-        
-        determine the number of restriced dimensions of a box given
-        compared to the inital box that contains all the data
-        
-        Parameters
-        ----------
-        box_lims : structured numpy array
-        
-        '''
-    
-        return self._determine_restricted_dims(box_lims).shape[0]
-    
-    def _determine_restricted_dims(self, box_lims):
-        '''
-        
-        determine which dimensions of the given box are restricted compared 
-        to compared to the initial box that contains all the data
-        
-        Parameters
-        ----------
-        box_lims : structured numpy array
-        
-        '''
-    
-        logical = _compare(self.box_init, box_lims)
-        u = np.asarray(recfunctions.get_names(box_lims.dtype), 
-                       dtype=object)
-        dims = u[logical==False]
-        return dims
-    
-    def _make_box(self, x):
-        '''
-        Make a box that encompasses all the data
-        
-        Parameters
-        ----------
-        x : structured numpy array
-        
-        
-        '''
-        
-        box = np.zeros((2, ), x.dtype)
-        
-        names = recfunctions.get_names(x.dtype)
-        
-        for name in names:
-            dtype = x.dtype.fields.get(name)[0] 
-            values = x[name]
-            
-            if dtype == 'object':
-                try:
-                    values = set(values) - set([np.ma.masked])
-                    box[name][:] = values
-                except TypeError as e:
-                    ema_logging.warning("{} has unhashable values".format(name))
-                    raise e
-            else:
-                box[name][0] = np.min(values, axis=0) 
-                box[name][1] = np.max(values, axis=0)    
-        return box  
- 
-    def write_boxes_to_stdout(self):
-        '''
-        
-        Write the stats and box limits of the identified boxes to standard 
-        out. It will  write all the box lims and the inital box as rest box. 
-        The uncertainties will be sorted based on how restricted they are
-        in the first box. 
-        
-        '''
-        boxes = self.boxes[:]
-        if not np.all(_compare(boxes[-1].box_lims[-1], self.box_init)):
-            self._update_yi_remaining()
-            box = PrimBox(self, 
-                          self.box_init, 
-                          self.yi_remaining[:])
-            boxes.append(box)
-        nr_boxes = len(boxes)
-            
-        # statistics
-        columns = self.boxes[0].peeling_trajectory.columns
-        index = ["box {}".format(i+1) for i in range(nr_boxes-1)]
-        index.append('rest')
-        stats = pd.DataFrame(np.zeros((nr_boxes, len(columns))),
-                             index=index,
-                             columns=columns)
-        for i, box in enumerate(boxes):
-            box_stats = box.peeling_trajectory.ix[box._cur_box]
-            stats.ix[i] = box_stats
-        print(stats)
-        print()
-        
-        # individual boxes
-        lims, uncs = self._get_sorted_box_lims()
-
-        dtype = float
-        for value in lims[0].dtype.fields.values():
-            if value[0] == object:
-                dtype = object
-                break
-                
-        columns = pd.MultiIndex.from_product([index,
-                                              ['min', 'max',]])
-        box_lim = pd.DataFrame(np.zeros((len(uncs), nr_boxes*2)),
-                               index=uncs,
-                               dtype=dtype,
-                               columns=columns)
-
-        for i, box in enumerate(lims):
-            for unc in uncs:
-                values = box[unc][:]
-                values = pd.Series(values, 
-                                   index=['min','max'])
-                box_lim.ix[unc][index[i]] = values
-        print(box_lim)
-        print()
-
-        
-    def show_boxes(self, together=True):
-        '''
-        
-        visualize the boxes.
-        
-        Parameters
-        ----------
-        together : boolean, optional
-                   if true, all boxes will be shown in a single figure,
-                   if false boxes will be shown in individual figures
-        
-        Returns:
-        --------
-        fig instance or list of fig instances
-        
-        '''
-        
-        # get the sorted box lims
-        box_lims, uncs = self._get_sorted_box_lims()
-
-        # normalize the box lims
-        # we don't need to show the last box, for this is the 
-        # box_init, which is visualized by a grey area in this
-        # plot.
-        norm_box_lims =  [self._normalize(box_lim, uncs) for 
-                                        box_lim in box_lims[0:-1]]
-                        
-        if together:
-            fig, ax = _setup_figure(uncs)
-            
-            for i, u in enumerate(uncs):
-                # we want to have the most restricted dimension
-                # at the top of the figure
-                xi = len(uncs) - i - 1
-                
-                for j, norm_box_lim in enumerate(norm_box_lims):
-                    self._plot_unc(xi, i, j, norm_box_lim, box_lims[j], u, ax)
-           
-            plt.tight_layout()
-            return fig
-        else:
-            figs = []
-            for j, norm_box_lim in enumerate(norm_box_lims):
-                fig, ax = _setup_figure(uncs)
-                figs.append(fig)
-                for i, u in enumerate(uncs):
-                    xi = len(uncs) - i - 1
-                    self._plot_unc(xi, i, j, norm_box_lim, box_lims[j], u, ax)
-        
-                plt.tight_layout()
-            return figs
-   
-    def _plot_unc(self, xi, i, j, norm_box_lim, box_lim, u, ax):
-        '''
-        
-        Parameters:
-        ----------
-        xi : int 
-             the row at which to plot
-        i : int
-            the indexo of the uncertainty being plotted
-        j : int
-            the index of the box being plotted
-        u : string
-            the uncertainty being plotted:
-        ax : axes instance
-             the ax on which to plot
-        
-        '''
-
-        dtype = self.box_init[u].dtype
-            
-        y = xi-j*0.1
-        
-        if dtype == object:
-            elements = sorted(list(self.box_init[u][0]))
-            max_value = (len(elements)-1)
-            box_lim = box_lim[u][0]
-            x = [elements.index(entry) for entry in 
-                 box_lim]
-            x = [entry/max_value for entry in x]
-            y = [y] * len(x)
-            
-            ax.scatter(x,y,  edgecolor=COLOR_LIST[j],
-                       facecolor=COLOR_LIST[j])
-            
-        else:
-            ax.plot(norm_box_lim[i], (y, y),
-                    COLOR_LIST[j])
-   
-    def _get_sorted_box_lims(self):
-        
-        # determine the uncertainties that are being restricted
-        # in one or more boxes
-        unc = set()
-        for box in self.boxes:
-            us  = self._determine_restricted_dims(box.box_lim).tolist()
-            unc = unc.union(us)
-        unc = np.asarray(list(unc))
-
-        # normalize the range for the first box
-        box_lim = self.boxes[0].box_lim
-        nbl = self._normalize(box_lim, unc)
-        box_size = nbl[:,1]-nbl[:,0]
-        
-        # sort the uncertainties based on the normalized size of the 
-        # restricted dimensions
-        unc = unc[np.argsort(box_size)]
-        box_lims = [box.box_lim for box in self.boxes]
-
-        if not np.all(_compare(box_lims[-1], self.box_init)):
-            box_lims.append(self.box_init)
-        
-        return box_lims, unc
-
-    def _normalize(self, box_lim, unc):
-        
-        # normalize the range for the first box
-        norm_box_lim = np.zeros((len(unc), box_lim.shape[0]))
-        
-        for i, u in enumerate(unc):
-            dtype = box_lim.dtype.fields[u][0]
-            if dtype ==np.dtype(object):
-                nu = len(box_lim[u][0])/ len(self.box_init[u][0])
-                nl = 0
-            else:
-                lower, upper = box_lim[u]
-                dif = (self.box_init[u][1]-self.box_init[u][0])
-                a = 1/dif
-                b = -1 * self.box_init[u][0] / dif
-                nl = a * lower + b
-                nu = a * upper + b
-            norm_box_lim[i, :] = nl, nu
-        return norm_box_lim
-   
     def _update_yi_remaining(self):
         '''
         
@@ -1248,7 +971,7 @@ class Prim(object):
         
         # set the indices
         logical = np.ones(self.yi.shape[0],dtype=np.bool )
-        for box in self.boxes:
+        for box in self._boxes:
             logical[box.yi] = False
         self.yi_remaining = self.yi[logical]
     
@@ -1282,7 +1005,8 @@ class Prim(object):
             i, box_lim = entry
             obj = self.obj_func(self, self.y[box.yi],  self.y[i])
             non_res_dim = len(x.dtype.descr)-\
-                          self.determine_nr_restricted_dims(box_lim)
+                          sdutil._determine_nr_restricted_dims(box_lim, 
+                                                              self.box_init)
             score = (obj, non_res_dim, box_lim, i)
             scores.append(score)
 
@@ -1474,7 +1198,8 @@ class Prim(object):
         
         mass_old = box.yi.shape[0]/self.n
         
-        res_dim = self._determine_restricted_dims(box.box_lims[-1])
+        res_dim = sdutil._determine_restricted_dims(box.box_lims[-1],
+                                                    self.box_init)
         
         possible_pastes = []
         for u in res_dim:
@@ -1493,7 +1218,8 @@ class Prim(object):
             i, box_lim = entry
             obj = self.obj_func(self, self.y[box.yi],  self.y[i])
             non_res_dim = len(x.dtype.descr)-\
-                          self.determine_nr_restricted_dims(box_lim)
+                          sdutil._determine_nr_restricted_dims(box_lim,
+                                                              self.box_init)
             score = (obj, non_res_dim, box_lim, i)
             scores.append(score)
 
@@ -1541,7 +1267,7 @@ class Prim(object):
             if direction == 'upper':
                 paste_box[u][0] = paste_box[u][1]
                 paste_box[u][1] = self.box_init[u][1]
-                indices = _in_box(self.x[self.yi_remaining], paste_box)
+                indices = sdutil._in_box(self.x[self.yi_remaining], paste_box)
                 data = self.x[self.yi_remaining][indices][u]
                 
                 paste_value = self.box_init[u][i]
@@ -1554,7 +1280,7 @@ class Prim(object):
                 paste_box[u][0] = self.box_init[u][0]
                 paste_box[u][1] = box_paste[u][0]
                 
-                indices = _in_box(self.x[self.yi_remaining], paste_box)
+                indices = sdutil._in_box(self.x[self.yi_remaining], paste_box)
                 data = self.x[self.yi_remaining][indices][u]
                 
                 paste_value = self.box_init[u][i]
@@ -1570,7 +1296,7 @@ class Prim(object):
                 paste_value = np.int(paste_value)
             
             box_paste[u][i] = paste_value
-            indices = _in_box(self.x[self.yi_remaining], box_paste)
+            indices = sdutil._in_box(self.x[self.yi_remaining], box_paste)
             indices = self.yi_remaining[indices]
             
             pastes.append((indices, box_paste))
@@ -1609,7 +1335,7 @@ class Prim(object):
                 paste = copy.deepcopy(c_in_b)
                 paste.add(entry)
                 box_paste[u][:] = paste
-                indices = _in_box(self.x[self.yi_remaining], box_paste)
+                indices = sdutil._in_box(self.x[self.yi_remaining], box_paste)
                 indices = self.yi_remaining[indices]
                 pastes.append((indices, box_paste))
             return pastes
