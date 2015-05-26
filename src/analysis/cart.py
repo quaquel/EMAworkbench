@@ -217,7 +217,7 @@ if __name__ == '__main__':
  
     results = util.load_scarcity_data()
     
-    cart = perform_cart(results, scarcity_classify)
+    cart = setup_cart(results, scarcity_classify)
     cart.build_tree()
     
     print(cart.boxes_to_dataframe())
