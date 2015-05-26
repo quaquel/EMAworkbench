@@ -10,7 +10,6 @@ import types
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
-import pandas as pd
 from sklearn import tree
 from sklearn.externals.six import StringIO
 
@@ -81,6 +80,7 @@ class CART(sdutil.OutputFormatterMixin):
 
         self._x = np.column_stack(columns)
         self._boxes = None
+        self._stats = None
 
     @property
     def boxes(self):
@@ -153,6 +153,29 @@ class CART(sdutil.OutputFormatterMixin):
         self._boxes = boxes
         return self._boxes       
     
+    @property
+    def stats(self):
+        if self._stats:
+            return self._stats
+        
+        boxes = self.boxes
+        total_coi = np.sum(self.y)
+        box_init = sdutil._make_box(self.x)
+        
+        self._stats = []
+        for box in boxes:
+            indices = sdutil._in_box(self.x, box)
+            
+            y_in_box = self.y[indices]
+            box_coi = np.sum(y_in_box)
+            
+            boxstats = {'coverage': box_coi/total_coi,
+                        'density': box_coi/y_in_box.shape[0],
+                        'res dim':sdutil._determine_nr_restricted_dims(box,
+                                                                       box_init),
+                        'mass':y_in_box.shape[0]/self.y.shape[0]}
+            self._stats.append(boxstats)
+        return self._stats
 
     def build_tree(self):
         '''train CART on the data'''
@@ -171,9 +194,7 @@ class CART(sdutil.OutputFormatterMixin):
         img = graph.create_png()
         return img
 
-   
-
-    
+       
 if __name__ == '__main__':
     from test import util
     import matplotlib.pyplot as plt
@@ -200,6 +221,7 @@ if __name__ == '__main__':
     cart.build_tree()
     
     print(cart.boxes_to_dataframe())
+    print(cart.stats_to_dataframe())
     cart.display_boxes(together=True)
     
 #     img = cart.show_tree()
