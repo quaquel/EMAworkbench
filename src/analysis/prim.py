@@ -522,7 +522,8 @@ class PrimBox(object):
         
         '''   
         return _pair_wise_scatter(self.prim.x, self.prim.y, self.box_lim, 
-                           self.prim._determine_restricted_dims(self.box_lim))
+                           sdutil._determine_restricted_dims(self.box_lim, 
+                                                        self.prim.box_init))
     
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''

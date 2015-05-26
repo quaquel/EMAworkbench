@@ -337,7 +337,8 @@ class OutputFormatterMixin(object):
                 figs.append(fig)
                 for i, u in enumerate(uncs):
                     xi = len(uncs) - i - 1
-                    self._plot_unc(xi, i, j, norm_box_lim, box_lims[j], u, ax)
+                    self._plot_unc(box_init, xi, i, j, norm_box_lim, 
+                                   box_lims[j], u, ax)
         
                 plt.tight_layout()
             return figs
