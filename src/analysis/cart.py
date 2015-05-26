@@ -17,7 +17,7 @@ from expWorkbench import ema_logging
 import scenario_discovery_util as sdutil
 
 
-def perform_cart(results, classify, incl_unc=[], mass_min=0.05):
+def setup_cart(results, classify, incl_unc=[], mass_min=0.05):
     """helper function for performing cart
     
     Parameters
