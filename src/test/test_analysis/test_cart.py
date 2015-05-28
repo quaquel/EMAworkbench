@@ -38,10 +38,21 @@ def scarcity_classify(outcomes):
     return classes
 
 class CartTestCase(unittest.TestCase):
-    def test_perform_cart(self):
+    def test_setup_cart(self):
         results = util.load_flu_data()
         
-        cart.perform_cart(results, flu_classify)
+        cart_algorithm = cart.setup_cart(results, flu_classify, mass_min=0.05)
+        
+        # setup can be generalized --> cart and prim essentially the same
+        # underlying code so move to sdutil
+        
+        # check include uncertainties
+        
+        # string type
+        # --> classification vs. regresion
+        
+        # callable
+        
         
     def test_boxes(self):
         pass
