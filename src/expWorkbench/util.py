@@ -80,7 +80,7 @@ def load_results(file_name):
             temp_shape = []
             for entry in shape:
                 if entry:
-                    temp_shape.append(int(entry))
+                    temp_shape.append(int(long(entry)))
             shape = tuple(temp_shape)
             
             if len(shape)>2:
