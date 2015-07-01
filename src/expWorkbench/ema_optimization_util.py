@@ -183,7 +183,7 @@ def evaluate_population_outcome(population, ri, toolbox, ensemble):
     experiments = recfunctions.drop_fields(experiments,\
                                            drop_names=['model', 'policy'], 
                                            asrecarray = True)    
-    ordering = [entry[0] for entry in x.dtype.descr]
+    ordering = [entry[0] for entry in experiments.dtype.descr]
     
     experiments = experiments.tolist()
     indices = {tuple(experiments[i]):i for i in range(len(experiments))}
