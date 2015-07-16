@@ -150,13 +150,12 @@ class LHSSampler(Sampler):
         
         perc = np.arange(0,1.,1./n)
         np.random.shuffle(perc)
-        smp = [stats.uniform(i,1./n).rvs() for i in perc]
+        smp = stats.uniform(perc,1./n).rvs() 
         v = dist(*parms).ppf(smp)
         
         if isinstance(siz,(tuple,list)):
             v.shape = siz
         return v
-
     
         
 class MonteCarloSampler(Sampler):
