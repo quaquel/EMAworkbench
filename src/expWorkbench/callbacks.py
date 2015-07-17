@@ -4,15 +4,12 @@ Created on 22 Jan 2013
 @author: jhkwakkel
 '''
 from __future__ import division
-import numpy as np
-from expWorkbench.ema_exceptions import EMAError
-np = np
-
 from threading import Lock
 
+import numpy as np
 
 from expWorkbench import ema_logging
-
+from expWorkbench.ema_exceptions import EMAError
 from expWorkbench.ema_logging import info, debug
 from uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\

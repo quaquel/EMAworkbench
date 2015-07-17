@@ -10,8 +10,8 @@ This logging system will also work in case of multiprocessing using
 
 '''
 
-import multiprocessing.util
 from logging.handlers import SMTPHandler
+import logging
 from logging import Handler, DEBUG, INFO
 
 __all__ =['debug',
@@ -22,9 +22,9 @@ __all__ =['debug',
           'critical',
           'get_logger',
           'log_to_stderr',
-          'TlsSMTPHandler',
-          'DEBUG',
           'INFO',
+          'DEBUG',
+          'TlsSMTPHandler',
           'DEFAULT_LEVEL',
           'LOGGER_NAME']
 
@@ -32,9 +32,11 @@ _logger = None
 LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
 
-LOG_FORMAT = multiprocessing.util.DEFAULT_LOGGING_FORMAT
+LOG_FORMAT = '[%(levelname)s] %(message)s'
 
-def debug(msg, *args):
+
+
+def debug(msg, *args, **kwargs):
     '''
     convenience function for logger.debug
     
@@ -44,7 +46,7 @@ def debug(msg, *args):
     '''
     
     if _logger:
-        _logger.debug(msg, *args)
+        _logger.log(DEBUG, msg, *args, **kwargs)
 
 def info(msg, *args):
     '''
@@ -123,6 +125,7 @@ def get_logger():
 
     return _logger
 
+
 def log_to_stderr(level=None):
     '''
     Turn on logging and add a handler which prints to stderr
@@ -130,7 +133,6 @@ def log_to_stderr(level=None):
     :param level: minimum level of the messages that will be logged
     
     '''
-    import logging
     
     if not level:
         level = DEFAULT_LEVEL
