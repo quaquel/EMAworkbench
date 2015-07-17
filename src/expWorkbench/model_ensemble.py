@@ -14,7 +14,7 @@ import os
 import itertools
 from collections import defaultdict
 
-from ema_parallel import CalculatorPool
+from ema_parallel_multiprocessing import CalculatorPool
 
 from expWorkbench.ema_logging import info, warning, exception, debug
 from expWorkbench.ema_exceptions import CaseError, EMAError
@@ -113,6 +113,10 @@ class ModelEnsemble(object):
         """
         [self._policies.append(policy) for policy in policies]
  
+    #TODO msis needs to be updated
+    # it will become a dictionary with the name as key
+    # we should also check whether a name already exist and raise an error
+    # or something accordingly
     def set_model_structure(self, modelStructure):
         '''
         Set the model structure. This function wraps the model structure
