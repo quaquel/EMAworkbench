@@ -4,8 +4,10 @@ Created on Jul 16, 2015
 @author: jhkwakkel
 '''
 import collections
+import copy
 import logging
 import os
+import shutil
 import socket
 import threading
 import zmq
@@ -13,10 +15,12 @@ import zmq
 import IPython
 from IPython.config import Application
 
+from expWorkbench import CaseError, EMAError, EMAParallelError
 import ema_logging
-
+from ema_logging import debug, info, warning, exception
 
 SUBTOPIC = "EMA"
+engine = None
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
     '''LoggerAdapter that inserts a topic at the start
@@ -88,7 +92,7 @@ class LogWatcher(object):
     def start(self):
         '''start the log watcher'''
         
-        ema_logging.info('start watching on {}'.format(self.url))
+        info('start watching on {}'.format(self.url))
         self.stream.on_recv(self.log_message)
     
     def stop(self):
@@ -97,7 +101,7 @@ class LogWatcher(object):
  
     def subscribe(self):
         """Update our SUB socket's subscriptions."""
-        ema_logging.debug("Subscribing to: everything")
+        debug("Subscribing to: everything")
         self.stream.setsockopt(zmq.SUBSCRIBE, '') # @UndefinedVariable
         
     def _extract_level(self, topic_str):
@@ -208,7 +212,7 @@ def set_engine_logger():
     adapter = EngingeLoggerAdapter(logger, SUBTOPIC)
     ema_logging._logger = adapter
     
-    ema_logging.debug('updated logger')
+    debug('updated logger')
     
 
 def get_engines_by_host(client):
@@ -269,3 +273,206 @@ def update_cwd_on_all_engines(client):
                 client[engine].apply(set_cwd_on_engine, cwd)
         else:
             raise NotImplementedError('not yet supported')
+
+
+class Engine(object):
+    '''class for setting up ema specific stuff on each engine
+    also functions as a convenient namespace for relevant info
+    
+    '''
+
+
+    def __init__(self, engine_id, msis, model_init_kwargs=None):
+        self.engine_id = engine_id
+        self.msis = msis
+        self.model_kwargs = model_init_kwargs
+        self.msi_initialization = {}
+    
+    def setup_working_directory(self, dir_name):
+        '''setup the root directory for the engine. The working directories 
+        associated with the various model structure interfaces will be copied to 
+        this root directory
+
+        Parameters
+        ----------
+        dir_name : string
+                   The name of the root directory
+
+
+        '''
+        dir_name = dir_name.format(self.engine_id)
+        os.mkdir(dir_name)
+        self.root_dir = dir_name
+
+    def cleanup_working_directory(self):
+        '''remove the root working directory of the engine'''
+        shutil.rmtree(self.root_dir) 
+
+    def copy_wds_for_msis(self, dirs_to_copy, wd_by_msi):
+        '''copy each unique working directory to the engine specific
+        folder and update the working directory for the associated model structure
+        interfaces
+
+        Parameters
+        ----------
+        dirs_to_copy : list of strings
+        wd_by_msi : dict
+                    a mapping from working directory to associated models structure
+                    interfaces. 
+
+
+        '''
+        for src in dirs_to_copy:
+            basename = os.path.basename(src)
+            dst = os.path.join(self.root_dir, basename)
+            shutil.copytree(src, dst) 
+
+            # set working directory for the associated msi's 
+            # on the engine
+            for msi_name in wd_by_msi[src]:
+                msi = self.msis[msi_name] 
+                msi.working_directory = dst
+                
+    def run_experiments(self, experiment):
+        
+        policy = experiment.pop('policy')
+        msi = experiment.pop('model')
+        experiment_id = experiment.pop('experiment id')
+        
+        policy_name = policy['name']
+        
+        debug("running policy {} for experiment {}".format(policy_name, experiment_id))
+        
+        # check whether we already initialized the model for this 
+        # policy
+        if not self.msi_initialization.has_key((policy_name, msi)):
+            try:
+                debug("invoking model init")
+                self.msis[msi].model_init(copy.deepcopy(policy), 
+                                     copy.deepcopy(self.model_kwargs))
+            except (EMAError, NotImplementedError) as inst:
+                exception(inst)
+                self.cleanup()
+                return inst
+            except Exception:
+                exception("some exception occurred when invoking the init")
+                self.cleanup()
+                return EMAParallelError("failure to initialize")
+                
+            debug("initialized model %s with policy %s" % (msi, policy_name))
+            
+            #always, only a single initialized msi instance
+            # TODO:: is this really needed, can't I have multiple initialized
+            # msis?
+            self.msi_initialization = {(policy_name, msi):self.msis[msi]}
+        msi = self.msis[msi]
+
+        case = copy.deepcopy(experiment)
+        try:
+            debug("trying to run model")
+            msi.run_model(case)
+        except CaseError as e:
+            warning(str(e))
+            
+        debug("trying to retrieve output")
+        result = msi.retrieve_output()
+        result = (experiment_id, result)
+        
+        debug("trying to reset model")
+        msi.reset_model()
+        
+        return result
+
+    def _cleanup(self):
+        for msi in self.msis:
+            msi.cleanup()
+        self.msis = None
+
+
+def initialize_engines(client, msis, model_init_kwargs={}):
+    '''initialize engine instances on all engines
+    
+    Parameters
+    ----------
+    client : IPython.parallel.Client 
+    msis : dict
+           dict of model structure interfaces with their names as keys
+    model_init_kwargs : dict, optional
+                        kwargs to pass to msi.model_init
+    
+    
+    '''
+    
+    for i in client.ids:
+        client[i].apply_sync(_initialize_engine, i, msis, model_init_kwargs)
+        
+    setup_working_directories(client, msis)
+
+      
+def setup_working_directories(client, msis):
+    '''setup working directory structure on all engines and copy files as 
+    necessary
+        
+    Parameters
+    ----------
+    client : IPython.parallel.Client 
+    msis : dict
+           dict of model structure interfaces with their names as keys
+    
+    
+    .. note:: multiple hosts not yet supported!
+    
+    '''
+    
+    # get the relevant working directories to copy
+    # it might be that working directories are shared
+    # so we use a defaultdict to store the model interfaces
+    # associated with each working directory
+    wd_by_msi = collections.defaultdict(list)
+    for msi in msis.values():
+        wd_by_msi[msi.working_directory].append(msi.name)
+        
+    # determine the common root of all working directories
+    common_root = os.path.commonprefix(wd_by_msi.keys())
+    common_root = os.path.dirname(common_root)
+    
+    engine_wd_name = 'engine{}'
+    engine_dir = os.path.join(common_root, engine_wd_name)
+        
+    # create the root directory for each engine
+    # we need to block until directory has been created
+    client[:].apply_sync(_setup_working_directory, engine_dir)
+    
+    # copy the working directories and update msi.working_directory
+    dirs_to_copy = wd_by_msi.keys()
+    client[:].apply_sync(_copy_working_directories, dirs_to_copy, wd_by_msi)
+    
+    # TODO:dirs_to_copy should be relative to some kind of home directory
+    # this home directory might be host specific
+    # using common_prefix we can get the path relative to home
+    # and send this to the engines, which again add the their home to it
+
+def cleanup_working_directories(client):
+    '''cleanup directory tree structure on all engines '''
+    client[:].apply_sync(_cleanun_working_directory)
+
+
+def _run_experiment(experiment):
+    return engine.run_experiments(experiment)
+
+
+def _initialize_engine(engine_id, msis, model_init_kwargs):
+    global engine
+    engine = Engine(engine_id, msis, model_init_kwargs)
+
+    
+def _setup_working_directory(dir_name):
+    engine.setup_working_directory(dir_name)
+
+    
+def _cleanun_working_directory():
+    engine.cleanup_working_directory()
+
+    
+def _copy_working_directories(dirs_to_copy, wd_by_msi):
+    engine.copy_wds_for_msis(dirs_to_copy, wd_by_msi)
