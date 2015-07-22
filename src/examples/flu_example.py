@@ -2,7 +2,7 @@
 Created on 20 dec. 2010
 
 This file illustrated the use of the workbench for a model 
-specified in Python itself. The example is based on `Pruyt & Hamarat http://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
+specified in Python itself. The example is based on `Pruyt & Hamarat <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
 For comparison, run both this model and the flu_vensim_no_policy_example.py and 
 compare the differences. 
 
@@ -20,7 +20,8 @@ import matplotlib.pyplot as plt
 from expWorkbench import ModelStructureInterface, ModelEnsemble,\
                          ParameterUncertainty, Outcome, ema_logging
                          
-from analysis.plotting import lines, KDE                         
+from analysis.plotting import lines
+from analysis.plotting_util import KDE                         
 
 
 class MexicanFlu(ModelStructureInterface):
@@ -36,8 +37,6 @@ class MexicanFlu(ModelStructureInterface):
                      ParameterUncertainty((0, 0.5), "x52"), #k9
                      ParameterUncertainty((0, 0.8), "x61"), #k10
                      ParameterUncertainty((0, 0.8), "x62"), #k11
-                     ParameterUncertainty((1,1), "x71"), #k12
-                     ParameterUncertainty((1,1), "x72"), #k13
                      ParameterUncertainty((1, 10), "x81"), #k14
                      ParameterUncertainty((1,10), "x82"), #k15
                      ParameterUncertainty((0, 0.1), "x91"), #k16
@@ -70,8 +69,8 @@ class MexicanFlu(ModelStructureInterface):
         x52 = kwargs['x52']
         x61 = kwargs['x61']
         x62 = kwargs['x62']
-        x71 = kwargs['x71']
-        x72 = kwargs['x72']
+        x71 = 1
+        x72 = 1
         x81 = kwargs['x81']
         x82 = kwargs['x82']
         x91 = kwargs['x91']
@@ -307,7 +306,7 @@ if __name__ == "__main__":
     fluModel = MexicanFlu(None, "mexicanFluExample")
     ensemble = ModelEnsemble()
     ensemble.parallel = True
-    ensemble.set_model_structure(fluModel)
+    ensemble.model_structure = fluModel
     
     nr_experiments = 500
     results = ensemble.perform_experiments(nr_experiments, reporting_interval=100)

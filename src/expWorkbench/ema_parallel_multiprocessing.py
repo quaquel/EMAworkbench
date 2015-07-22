@@ -78,11 +78,13 @@ def worker(inqueue,
             cleanup(model_interfaces)
             break
 
-        job, experiment = task
+        _, experiment = task
         
         policy = experiment.pop('policy')
-        debug("running policy {} for experiment {}".format(policy['name'], job))
         msi = experiment.pop('model')
+        experiment_id = experiment.pop('experiment id')
+        debug("running policy {} for experiment {}".format(policy['name'], experiment_id))
+
         
         # check whether we already initialized the model for this 
         # policy
@@ -95,12 +97,12 @@ def worker(inqueue,
                 exception(inst)
                 cleanup(model_interfaces)
                 result = (False, inst)
-                put((job, result))
+                put((experiment_id, result))
             except Exception:
                 exception("some exception occurred when invoking the init")
                 cleanup(model_interfaces)
                 result = (False, EMAParallelError("failure to initialize"))
-                put((job, result))
+                put((experiment_id, result))
                 
             debug("initialized model %s with policy %s" % (msi, policy['name']))
             
@@ -118,7 +120,7 @@ def worker(inqueue,
         debug("trying to retrieve output")
         result = msi.retrieve_output()
         result = (True, (experiment, policy, msi.name, result))
-        put((job, result))
+        put((experiment_id, result))
         
         debug("trying to reset model")
         msi.reset_model()

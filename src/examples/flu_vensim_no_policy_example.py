@@ -68,7 +68,7 @@ if __name__ == "__main__":
         
     model = FluModel(r'./models/flu', "fluCase")
     ensemble = ModelEnsemble()
-    ensemble.set_model_structure(model)
+    ensemble.model_structure = model
     
     ensemble.parallel = True #turn on parallel processing
 

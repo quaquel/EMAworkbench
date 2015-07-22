@@ -231,7 +231,6 @@ def get_engines_by_host(client):
     '''
     
     def engine_hostname():
-        import socket
         return socket.gethostname()
 
     results = {i:client[i].apply_sync(engine_hostname) for i in client.ids}
@@ -262,7 +261,6 @@ def update_cwd_on_all_engines(client):
     for key, value in engines_by_host.items():
 
         def set_cwd_on_engine(cwd):
-            import os
             os.chdir(cwd)
 
         if key == notebook_host:
@@ -336,7 +334,7 @@ class Engine(object):
     def run_experiments(self, experiment):
         
         policy = experiment.pop('policy')
-        msi = experiment.pop('model')
+        model_name = experiment.pop('model')
         experiment_id = experiment.pop('experiment id')
         
         policy_name = policy['name']
@@ -345,10 +343,10 @@ class Engine(object):
         
         # check whether we already initialized the model for this 
         # policy
-        if not self.msi_initialization.has_key((policy_name, msi)):
+        if not self.msi_initialization.has_key((policy_name, model_name)):
             try:
                 debug("invoking model init")
-                self.msis[msi].model_init(copy.deepcopy(policy), 
+                self.msis[model_name].model_init(copy.deepcopy(policy), 
                                      copy.deepcopy(self.model_kwargs))
             except (EMAError, NotImplementedError) as inst:
                 exception(inst)
@@ -359,13 +357,13 @@ class Engine(object):
                 self.cleanup()
                 return EMAParallelError("failure to initialize")
                 
-            debug("initialized model %s with policy %s" % (msi, policy_name))
+            debug("initialized model %s with policy %s" % (model_name, policy_name))
             
             #always, only a single initialized msi instance
             # TODO:: is this really needed, can't I have multiple initialized
             # msis?
-            self.msi_initialization = {(policy_name, msi):self.msis[msi]}
-        msi = self.msis[msi]
+            self.msi_initialization = {(policy_name, model_name):self.msis[model_name]}
+        msi = self.msis[model_name]
 
         case = copy.deepcopy(experiment)
         try:
@@ -376,12 +374,10 @@ class Engine(object):
             
         debug("trying to retrieve output")
         result = msi.retrieve_output()
-        result = (experiment_id, result)
         
         debug("trying to reset model")
         msi.reset_model()
-        
-        return result
+        return experiment_id, case, policy, model_name, result
 
     def _cleanup(self):
         for msi in self.msis:

@@ -28,6 +28,7 @@ from expWorkbench.ema_optimization_util import evaluate_population_outcome,\
 from samplers import FullFactorialSampler, LHSSampler
 from uncertainties import ParameterUncertainty, CategoricalUncertainty
 from callbacks import DefaultCallback
+from expWorkbench.ema_parallel import MultiprocessingPool
 
 __all__ = ['ModelEnsemble', 'MINIMIZE', 'MAXIMIZE', 'UNION', 'INTERSECTION']
 
@@ -65,18 +66,10 @@ class ModelEnsemble(object):
     
     '''
     
-    #: In case of parallel computing, the number of 
-    #: processes to be spawned. Default is None, meaning
-    #: that the number of processes will be equal to the
-    #: number of available cores.
-    processes=None
-    
     #: boolean for turning parallel on (default is False)
     parallel = False
     
-    _pool = None
-    
-    _policies = []
+    pool = None
     
     def __init__(self, sampler=LHSSampler()):
         """
@@ -90,65 +83,33 @@ class ModelEnsemble(object):
         super(ModelEnsemble, self).__init__()
         self.output = {}
         self._policies = []
-        self._msis = []
+        self._msis = {}
+        self._policies = {'None': {'name':'None'}}
         self.sampler = sampler
 
-    def add_policy(self, policy):
-        """
-        Add a policy. 
-        
-        :param policy: policy to be added, policy should be a dict with at 
-                       least a name.
-        
-        """
-        self._policies.append(policy)
-        
-    def add_policies(self, policies):
-        """
-        Add policies, policies should be a collection of policies.
-        
-        :param policies: policies to be added, every policy should be a 
-                         dict with at  least a name.
-        
-        """
-        [self._policies.append(policy) for policy in policies]
- 
-    #TODO msis needs to be updated
-    # it will become a dictionary with the name as key
-    # we should also check whether a name already exist and raise an error
-    # or something accordingly
-    def set_model_structure(self, modelStructure):
-        '''
-        Set the model structure. This function wraps the model structure
-        in a tuple, limiting the number of model structures to 1.
-        
-        :param modelStructure: a :class:`~model.ModelStructureInterface` 
-                               instance.
-        
-        '''
-        
-        self._msis = tuple([modelStructure])
-                     
-    def add_model_structure(self, ms):
-        '''
-        Add a model structure to the list of model structures.
-        
-        :param ms: a :class:`~model.ModelStructureInterface` instance.
-        
-        '''
-        
-        self._msis.append(ms)   
+    @property
+    def policies(self):
+        return self._policies.values()
+   
+    @policies.setter
+    def policies(self, policies):
+        self._policies = {policy['name'] for policy in policies}
+   
+    @property
+    def model_structures(self):
+        return self._msis.values()
     
-    def add_model_structures(self, mss):
-        '''
-        add a collection of model structures to the list of model structures.
-        
-        :param mss: a collection of :class:`~model.ModelStructureInterface` 
-                    instances
-        
-        '''
-        
-        [self._msis.append(ms) for ms in mss]  
+    @model_structures.setter
+    def model_structures(self, msis):
+        self._msis = {msi.name:msi for msi in msis}
+    
+    @property
+    def model_structure(self):
+        return self.model_structures[0]
+    
+    @model_structure.setter
+    def model_structure(self, msi):
+        self.model_structures = [msi]
     
     def determine_uncertainties(self):
         '''
@@ -234,22 +195,19 @@ class ModelEnsemble(object):
           a higher value.
         
         """
-
-        if not self._policies:
-            self._policies.append({"name": "None"})
         
         # identify the uncertainties and sample over them
         if type(cases) ==  types.IntType:
             sampled_unc, unc_dict = self._generate_samples(cases, 
                                                            which_uncertainties)
             nr_of_exp =self.sampler.deterimine_nr_of_designs(sampled_unc)\
-                      *len(self._policies)*len(self._msis)
+                      *len(self.policies)*len(self.model_structures)
             experiments = self._generate_experiments(sampled_unc)
         elif type(cases) == types.ListType:
             unc_dict = self.determine_uncertainties()[1]
             unc_names = cases[0].keys()
             sampled_unc = {name:[] for name in unc_names}
-            nr_of_exp = len(cases)*len(self._policies)*len(self._msis)
+            nr_of_exp = len(cases)*len(self.policies)*len(self.model_structures)
             experiments = self._generate_experiments(cases)
         else:
             raise EMAError("unknown type for cases")
@@ -260,7 +218,7 @@ class ModelEnsemble(object):
         if which_outcomes==UNION:
             outcomes = element_dict.keys()
         elif which_outcomes==INTERSECTION:
-            outcomes = overview_dict[tuple([msi.name for msi in self._msis])]
+            outcomes = overview_dict[tuple([msi.name for msi in self.model_structures])]
             outcomes = [outcome.name for outcome in outcomes]
         else:
             raise ValueError("incomplete value for which_outcomes")
@@ -277,11 +235,11 @@ class ModelEnsemble(object):
         if self.parallel:
             info("preparing to perform experiment in parallel")
             
-            if not self._pool:
-                self._make_pool(model_kwargs)
+            if not self.pool:
+                self.pool = MultiprocessingPool(self.model_structures, kwargs)
             info("starting to perform experiments in parallel")
 
-            self._pool.run_experiments(experiments, callback)
+            self.pool.perform_experiments(callback, experiments)
         else:
             info("starting to perform experiments sequentially")
 
@@ -292,12 +250,10 @@ class ModelEnsemble(object):
 
             
             msi_initialization_dict = {}
-            msis = {msi.name: msi for msi in self._msis}
-            job_counter = itertools.count()
             
             cwd = os.getcwd() 
             for experiment in experiments:
-                case_id = job_counter.next()
+                case_id = experiment.pop('experiment id')
                 policy = experiment.pop('policy')
                 msi = experiment.pop('model')
                 
@@ -306,20 +262,20 @@ class ModelEnsemble(object):
                 if not msi_initialization_dict.has_key((policy['name'], msi)):
                     try:
                         debug("invoking model init")
-                        msis[msi].model_init(copy.deepcopy(policy),\
+                        self._msis[msi].model_init(copy.deepcopy(policy),\
                                              copy.deepcopy(model_kwargs))
                     except (EMAError, NotImplementedError) as inst:
                         exception(inst)
-                        cleanup(self._msis)
+                        cleanup(self.model_structures)
                         raise
                     except Exception:
                         exception("some exception occurred when invoking the init")
-                        cleanup(self._msis)
+                        cleanup(self.model_structures)
                         raise 
                     debug("initialized model %s with policy %s" % (msi, policy['name']))
                     #always, only a single initialized msi instance
-                    msi_initialization_dict = {(policy['name'], msi):msis[msi]}
-                msi = msis[msi]
+                    msi_initialization_dict = {(policy['name'], msi):self._msis[msi]}
+                msi = self._msis[msi]
 
                 case = copy.deepcopy(experiment)
                 try:
@@ -335,7 +291,7 @@ class ModelEnsemble(object):
                 debug("trying to reset model")
                 callback(case_id, experiment, policy, msi.name, result)
                 
-            cleanup(self._msis)
+            cleanup(self.model_structures)
             os.chdir(cwd)
        
         results = callback.get_results()
@@ -448,7 +404,8 @@ class ModelEnsemble(object):
 
         # Attribute generator
         od = self._determine_unique_attributes('uncertainties')[0]
-        shared_uncertainties = od[tuple([msi.name for msi in self._msis])]
+        shared_uncertainties = od[tuple([msi.name for msi in 
+                                         self.model_structures])]
 
         #make a dictionary with the shared uncertainties and their range
         uncertainty_dict = {}
@@ -507,7 +464,7 @@ class ModelEnsemble(object):
         # but different other attributes
         element_dict = {}
         overview_dict = {}
-        for msi in self._msis:
+        for msi in self.model_structures:
             elements = getattr(msi, attribute)
             for element in elements:
                 if element_dict.has_key(element.name):
@@ -577,7 +534,7 @@ class ModelEnsemble(object):
             sampled_unc = self.sampler.generate_samples(unc_dict.values(), 
                                                    nr_of_samples)
         elif which_uncertainties==INTERSECTION:
-            uncertainties = overview_dict[tuple([msi.name for msi in self._msis])]
+            uncertainties = overview_dict[tuple([msi.name for msi in self.model_structures])]
             unc_dict = {key.name:unc_dict[key.name] for key in uncertainties}
             uncertainties = [unc_dict[unc.name] for unc in uncertainties]
             sampled_unc = self.sampler.generate_samples(unc_dict.values(), 
@@ -587,15 +544,6 @@ class ModelEnsemble(object):
         
         return sampled_unc, unc_dict
     
-    def _make_pool(self, model_kwargs):
-        '''
-        helper method for generating the pool in case of running in parallel.
-        '''
-        
-        self._pool = CalculatorPool(self._msis, 
-                                    processes=self.processes,
-                                    kwargs=model_kwargs)
-
     def _generate_experiments(self, sampled_unc):
         '''
         Helper method for turning the sampled uncertainties into actual
@@ -611,11 +559,11 @@ class ModelEnsemble(object):
         '''
         if isinstance(sampled_unc, list):
             return experiment_generator_predef_cases(copy.deepcopy(sampled_unc),\
-                                                     self._msis,\
-                                                     self._policies,)
+                                                     self.model_structures,\
+                                                     self.policies,)
         
-        return experiment_generator(sampled_unc, self._msis,\
-                                   self._policies, self.sampler)
+        return experiment_generator(sampled_unc, self.model_structures,\
+                                   self.policies, self.sampler)
 
 
 
@@ -674,6 +622,7 @@ def experiment_generator_predef_cases(designs, model_structures, policies):
     
     # experiment is made up of case, policy, and msi
     # to get case, we need msi
+    job_counter = itertools.count()
     
     for msi in model_structures:
         debug("generating designs for model %s" % (msi.name))
@@ -683,6 +632,7 @@ def experiment_generator_predef_cases(designs, model_structures, policies):
             for experiment in designs:
                 experiment['policy'] = copy.deepcopy(policy)
                 experiment['model'] = msi.name
+                experiment['experiment id'] = job_counter.next()
                 yield experiment
     
 def experiment_generator(sampled_unc, model_structures, policies, sampler):
@@ -694,6 +644,7 @@ def experiment_generator(sampled_unc, model_structures, policies, sampler):
     
     # experiment is made up of case, policy, and msi
     # to get case, we need msi
+    job_counter = itertools.count()
     
     for msi in model_structures:
         debug("generating designs for model %s" % (msi.name))
@@ -710,4 +661,5 @@ def experiment_generator(sampled_unc, model_structures, policies, sampler):
                                 range(len(uncertainties))}
                 experiment['policy'] = policy
                 experiment['model'] = msi.name
+                experiment['experiment id'] = job_counter.next()
                 yield experiment

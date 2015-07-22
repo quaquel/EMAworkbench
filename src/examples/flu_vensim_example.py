@@ -76,7 +76,7 @@ if __name__ == "__main__":
         
     model = FluModel(r'./models/flu', "flucase")
     ensemble = ModelEnsemble()
-    ensemble.set_model_structure(model)
+    ensemble.model_structure = model
     
     #add policies
     policies = [{'name': 'no policy',
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                 {'name': 'adaptive policy',
                  'file': r'\FLUvensimV1dynamic.vpm'}
                 ]
-    ensemble.add_policies(policies)
+    ensemble.policies = policies
     
     #turn on parallel processing
     ensemble.parallel = True 
