@@ -41,7 +41,7 @@ if __name__ == "__main__":
     ensemble = ModelEnsemble()
     
     #set the model on the ensemble
-    ensemble.set_model_structure(vensimModel)
+    ensemble.model_structure = vensimModel
     
     #run in parallel, if not set, FALSE is assumed
     ensemble.parallel = True

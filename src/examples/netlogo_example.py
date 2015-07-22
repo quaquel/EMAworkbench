@@ -36,13 +36,13 @@ if __name__ == "__main__":
     
     #instantiate a model
     fh = r"./models/predatorPreyNetlogo"
-    vensimModel = PredatorPrey(fh, "simpleModel")
+    model = PredatorPrey(fh, "simpleModel")
     
     #instantiate an ensemble
     ensemble = ModelEnsemble()
     
     #set the model on the ensemble
-    ensemble.set_model_structure(vensimModel)
+    ensemble.model_structure = model
     
     #run in parallel, if not set, FALSE is assumed
     ensemble.parallel = True

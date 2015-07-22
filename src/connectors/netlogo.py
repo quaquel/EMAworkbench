@@ -76,8 +76,8 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:
-                warning('variable {0} throws exception: {}'.format((key,
-                                                                    str(e))))
+                warning('variable {} throws exception: {}'.format(key,
+                                                                  str(e)))
             
         debug("model parameters set successfully")
           
