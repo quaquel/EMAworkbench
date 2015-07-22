@@ -5,7 +5,10 @@ Created on Jul 22, 2015
 '''
 import abc
 
-from expWorkbench.ema_parallel_ipython import _run_experiment, initialize_engines, cleanup_working_directories
+from expWorkbench.ema_parallel_ipython import _run_experiment,\
+                                              initialize_engines,\
+                                              cleanup_working_directories,\
+                                              set_engine_logger
 from expWorkbench.ema_parallel_multiprocessing import CalculatorPool
 
 class AbstractPool(object):
@@ -31,12 +34,16 @@ class MultiprocessingPool(AbstractPool):
 
 class IpyparallelPool(AbstractPool):
     
-    def __init__(self, msis, view, model_kwargs={}):
-        self.view = view
-        initialize_engines(self.view, msis, model_kwargs)
+    def __init__(self, msis, client, model_kwargs={}):
+        self.client = client
+        
+        # update loggers on all engines
+        client[:].apply_sync(set_engine_logger)
+        
+        initialize_engines(self.client, msis, model_kwargs)
     
     def perform_experiments(self, callback, experiments):
-        lb_view = self.view.load_balanced_view()
+        lb_view = self.client.load_balanced_view()
         
         results = lb_view.map(_run_experiment, experiments, ordered=False)
 
