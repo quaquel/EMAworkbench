@@ -379,7 +379,7 @@ class Engine(object):
         msi.reset_model()
         return experiment_id, case, policy, model_name, result
 
-    def _cleanup(self):
+    def cleanup(self):
         for msi in self.msis:
             msi.cleanup()
         self.msis = None
