@@ -21,9 +21,9 @@ from abc import abstractmethod
 __all__ = ['LHSSampler',
            'MonteCarloSampler',
            'FullFactorialSampler',
-           'Sampler']
+           'AbstractSampler']
 
-class Sampler(object):
+class AbstractSampler(object):
     '''
     base class from which different samplers can be derived
     '''
@@ -39,7 +39,7 @@ class Sampler(object):
                               }
     
     def __init__(self):
-        super(Sampler, self).__init__()
+        super(AbstractSampler, self).__init__()
 
     @abstractmethod
     def sample(self, distribution, params, size):
@@ -48,9 +48,20 @@ class Sampler(object):
         The various samplers differ with respect to their implementation
         of this method. 
         
-        :param distribution: the distribution to sample from
-        :param params: the parameters specifying the distribution
-        :param size: the number of samples to generate
+        Parameters
+        ----------
+        distribution : {'uniform', 'integer'} 
+                       the distribution to sample from
+        params : tuple
+                 the parameters specifying the distribution
+        size : int 
+               the number of samples to generate
+        
+        Returns
+        -------
+        numpy array
+            the samples for the distribution and specified parameters
+        
         
         '''
     
@@ -60,12 +71,21 @@ class Sampler(object):
         children. This will call the sample method for each of the 
         uncertainties and return the resulting designs. 
         
-        :param uncertainties: a collection of 
-                               :class:`~uncertainties.ParameterUncertainty` 
-                               and :class:`~uncertainties.CategoricalUncertainty`
-                               instances.
-        :param size: the number of samples to generate.
-        :rtype: dict with the uncertainty.name as key, and the sample as value
+        Parameters
+        ----------
+        uncertainties : collection
+                        a collection of :class:`~uncertainties.ParameterUncertainty` 
+                        and :class:`~uncertainties.CategoricalUncertainty`
+                        instances.
+        size : int
+               the number of samples to generate.
+        
+        
+        Returns
+        -------
+        dict
+            dict with the uncertainty.name as key, and the sample as value
+        
         '''
         
         samples = {}
@@ -79,40 +99,60 @@ class Sampler(object):
                 sample = [uncertainty.transform(int(entry)) for entry in sample]
             elif uncertainty.dist=='integer':
                 sample = [int(entry) for entry in sample]
-#                cases = np.asarray(cases)
             
             samples[uncertainty.name] = sample
         
         return samples
 
-    def generate_designs(self,  sampled_uncertainties):
-        '''
-        This method provides an alternative implementation to the default 
-        implementation provided by :class:`~sampler.Sampler`. This
-        version returns a full factorial design across the uncertainties. 
+    def generate_designs(self,  uncertainties, nr_samples):
+        '''external interface to sampler. Returns the computational experiments
+        over the specified uncertainties, for the given number of
+        samples for each uncertainty.
         
-        :param sampled_uncertainties: a list of sampled uncertainties, as 
-                                      the values return by generate_samples
-        :rtype: a generator object that yields the designs resulting from
+        Parameters
+        ----------
+        uncertainties : list 
+                        a list of uncertainties for which to generate the
+                        experimental designs
+        nr_samples : int
+                     the number of samples to draw for each uncertain factor
+        
+        
+        Returns
+        -------
+        a generator object that yields the designs resulting from
                 combining the uncertainties
+        int
+            the number of experimental designs
         
         '''
+        
+        sampled_uncertainties = self.generate_samples(uncertainties, nr_samples)
+        a = zip(*sampled_uncertainties.values())
         designs = itertools.izip(*sampled_uncertainties) 
-        return designs
+        return designs, self.deterimine_nr_of_designs(sampled_uncertainties)
 
     def deterimine_nr_of_designs(self, sampled_uncertainties):
         '''
         Helper function for determining the number of experiments that will
         be generated given the sampled uncertainties.
         
-        :param sampled_uncertainties: a list of sampled uncertainties, as 
-                              the values return by generate_samples
+        Parameter
+        ---------
+        sampled_uncertainties : list 
+                        a list of sampled uncertainties, as 
+                        the values return by generate_samples
+        
+        Returns
+        -------
+        int
+            the total number of experimental design
         
         '''
         
         return len(sampled_uncertainties.values()[0])
 
-class LHSSampler(Sampler):
+class LHSSampler(AbstractSampler):
     """
     generates a Latin Hypercube sample for each of the uncertainties
     in case of categorical uncertainties, it handles the transform as well
@@ -161,7 +201,7 @@ class LHSSampler(Sampler):
         return v
     
         
-class MonteCarloSampler(Sampler):
+class MonteCarloSampler(AbstractSampler):
     """
     generates a Monte Carlo sample for each of the uncertainties. In case of a 
     Categorical Uncertainty it also handles the transform
@@ -181,7 +221,7 @@ class MonteCarloSampler(Sampler):
         
         return self.distributions[distribution](*params).rvs(size)
 
-class FullFactorialSampler(Sampler):     
+class FullFactorialSampler(AbstractSampler):     
     '''
     generates a full factorial sample.
     If the uncertainty is non categorical, resolution is used to set the 
@@ -200,6 +240,8 @@ class FullFactorialSampler(Sampler):
         children. This will call the sample method for each of the 
         uncertainties and return the resulting samples 
         
+        Parameters
+        ----------
         :param uncertainties: a collection of 
                                :class:`~uncertainties.ParameterUncertainty` 
                                and :class:`~uncertainties.CategoricalUncertainty`
@@ -207,6 +249,8 @@ class FullFactorialSampler(Sampler):
         :param size: the number of samples to generate.
         :rtype: dict with the uncertainty.name as key, and the sample as value
         
+        Returns
+        -------
         
         '''
                 
@@ -228,30 +272,50 @@ class FullFactorialSampler(Sampler):
         
         return samples
        
-    def generate_designs(self,  sampled_uncertainties):
+    def generate_designs(self,  uncertainties, nr_samples):
         '''
         This method provides an alternative implementation to the default 
         implementation provided by :class:`~sampler.Sampler`. This
         version returns a full factorial design across the uncertainties. 
         
-        :param sampled_uncertainties: a list of sampled uncertainties, as 
-                                      the values return by generate_samples
-        :rtype: a generator object that yields the designs resulting from
-                combining the uncertainties      
+        Parameters
+        ----------
+        uncertainties : list 
+                        a list of uncertainties for which to generate the
+                        experimental designs
+        nr_samples : int
+                     the number of intervals to use on each
+                     ParameterUncertainty. Categorical uncertainties always
+                     return all their categories
+        
+        
+        Returns
+        -------
+        a generator object that yields the designs resulting from
+                combining the uncertainties
+        int
+            the number of experimental designs
         
         '''
+        sampled_uncertainties = self.generate_samples(uncertainties, nr_samples)
         designs = itertools.product(*sampled_uncertainties)
-        return designs
-
+        return designs, self.deterimine_nr_of_designs(sampled_uncertainties)
 
     def deterimine_nr_of_designs(self, sampled_uncertainties):
         '''
         Helper function for determining the number of experiments that will
         be generated given the sampled uncertainties.
         
-        :param sampled_uncertainties: a list of sampled uncertainties, as 
-                              the values return by generate_samples
+        Parameter
+        ---------
+        sampled_uncertainties : list 
+                        a list of sampled uncertainties, as 
+                        the values return by generate_samples
         
+        Returns
+        -------
+        int
+            the total number of experimental design
         '''
         nr_designs = 1
         for value in sampled_uncertainties.itervalues():
