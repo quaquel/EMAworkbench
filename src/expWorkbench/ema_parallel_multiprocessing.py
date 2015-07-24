@@ -40,6 +40,7 @@ from ema_logging import debug, exception, info, warning, NullHandler, LOG_FORMAT
 import ema_logging                  
                                      
 from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
+import model_ensemble
 
 __all__ = ['CalculatorPool']
 
@@ -59,13 +60,8 @@ def worker(inqueue,
         inqueue._writer.close()
         outqueue._reader.close()
     
-    def cleanup(model_interfaces):
-        for msi in model_interfaces:
-            msi.cleanup()
-            del msi
-
-    msis = {msi.name: msi for msi in model_interfaces}
-    msi_initialization_dict = {}
+    runner = model_ensemble.ExperimentRunner(model_interfaces,
+                                            model_kwargs)
 
     while 1:
         try:
@@ -75,56 +71,20 @@ def worker(inqueue,
             break
         if task is None:
             debug('worker got sentinel -- exiting')
-            cleanup(model_interfaces)
             break
 
         _, experiment = task
-        
-        policy = experiment.pop('policy')
-        msi = experiment.pop('model')
-        experiment_id = experiment.pop('experiment id')
-        debug("running policy {} for experiment {}".format(policy['name'], experiment_id))
+        experiment_id = experiment.get('experiment id')
 
-        
-        # check whether we already initialized the model for this 
-        # policy
-        if not msi_initialization_dict.has_key((policy['name'], msi)):
-            try:
-                debug("invoking model init")
-                msis[msi].model_init(copy.deepcopy(policy), 
-                                     copy.deepcopy(model_kwargs))
-            except (EMAError, NotImplementedError) as inst:
-                exception(inst)
-                cleanup(model_interfaces)
-                result = (False, inst)
-                put((experiment_id, result))
-            except Exception:
-                exception("some exception occurred when invoking the init")
-                cleanup(model_interfaces)
-                result = (False, EMAParallelError("failure to initialize"))
-                put((experiment_id, result))
-                
-            debug("initialized model %s with policy %s" % (msi, policy['name']))
-            
-            #always, only a single initialized msi instance
-            msi_initialization_dict = {(policy['name'], msi):msis[msi]}
-        msi = msis[msi]
-
-        case = copy.deepcopy(experiment)
         try:
-            debug("trying to run model")
-            msi.run_model(case)
-        except CaseError as e:
-            warning(str(e))
-            
-        debug("trying to retrieve output")
-        result = msi.retrieve_output()
-        result = (True, (experiment, policy, msi.name, result))
-        put((experiment_id, result))
-        
-        debug("trying to reset model")
-        msi.reset_model()
-            
+            result = runner.run_experiment(experiment)
+            put((experiment_id, result))
+        except EMAError as inst:
+            result = (False, inst)
+            put((experiment_id, result))
+        except Exception:
+            result = (False, EMAParallelError("failure to initialize"))
+            put((experiment_id, result))
 
 class CalculatorPool(Pool):
     '''
