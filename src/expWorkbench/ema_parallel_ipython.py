@@ -18,6 +18,8 @@ from IPython.config import Application
 from expWorkbench import CaseError, EMAError, EMAParallelError
 import ema_logging
 from ema_logging import debug, info, warning, exception
+# from model_ensemble import ExperimentRunner
+import model_ensemble
 
 SUBTOPIC = "EMA"
 engine = None
@@ -280,12 +282,15 @@ class Engine(object):
     '''
 
 
-    def __init__(self, engine_id, msis, model_init_kwargs=None):
+    def __init__(self, engine_id, msis, model_init_kwargs={}):
         self.engine_id = engine_id
         self.msis = msis
-        self.model_kwargs = model_init_kwargs
         self.msi_initialization = {}
-    
+        self.runner = model_ensemble.ExperimentRunner(msis, model_init_kwargs)
+        
+        # does this belong here?
+        set_engine_logger()
+
     def setup_working_directory(self, dir_name):
         '''setup the root directory for the engine. The working directories 
         associated with the various model structure interfaces will be copied to 
@@ -299,6 +304,15 @@ class Engine(object):
 
         '''
         dir_name = dir_name.format(self.engine_id)
+        
+        # if the directory already exists, is has not bee
+        # cleaned up properly last time
+        # let's be stupid and remove it
+        # a smarter solution would be to do a dif on the existing
+        # directory and what we would like to copy. 
+        if os.path.isdir(dir_name):
+            shutil.rmtree(dir_name)
+        
         os.mkdir(dir_name)
         self.root_dir = dir_name
 
@@ -332,58 +346,13 @@ class Engine(object):
                 msi.working_directory = dst
                 
     def run_experiments(self, experiment):
-        
-        policy = experiment.pop('policy')
-        model_name = experiment.pop('model')
-        experiment_id = experiment.pop('experiment id')
-        
-        policy_name = policy['name']
-        
-        debug("running policy {} for experiment {}".format(policy_name, experiment_id))
-        
-        # check whether we already initialized the model for this 
-        # policy
-        if not self.msi_initialization.has_key((policy_name, model_name)):
-            try:
-                debug("invoking model init")
-                self.msis[model_name].model_init(copy.deepcopy(policy), 
-                                     copy.deepcopy(self.model_kwargs))
-            except (EMAError, NotImplementedError) as inst:
-                exception(inst)
-                self.cleanup()
-                return inst
-            except Exception:
-                exception("some exception occurred when invoking the init")
-                self.cleanup()
-                return EMAParallelError("failure to initialize")
-                
-            debug("initialized model %s with policy %s" % (model_name, policy_name))
-            
-            #always, only a single initialized msi instance
-            # TODO:: is this really needed, can't I have multiple initialized
-            # msis?
-            self.msi_initialization = {(policy_name, model_name):self.msis[model_name]}
-        msi = self.msis[model_name]
-
-        case = copy.deepcopy(experiment)
         try:
-            debug("trying to run model")
-            msi.run_model(case)
-        except CaseError as e:
-            warning(str(e))
-            
-        debug("trying to retrieve output")
-        result = msi.retrieve_output()
-        
-        debug("trying to reset model")
-        msi.reset_model()
-        return experiment_id, case, policy, model_name, result
-
-    def cleanup(self):
-        for msi in self.msis:
-            msi.cleanup()
-        self.msis = None
-
+            return self.runner.run_experiment(experiment) 
+        except EMAError:
+            raise
+        except Exception:
+            raise EMAParallelError(str(Exception))
+       
 
 def initialize_engines(client, msis, model_init_kwargs={}):
     '''initialize engine instances on all engines
