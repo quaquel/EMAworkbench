@@ -1,10 +1,12 @@
 '''
+This module provides functionality for combining the EMA workbench
+with IPython parallel
+
 Created on Jul 16, 2015
 
-@author: jhkwakkel
+.. codeauthor::  jhkwakkel
 '''
 import collections
-import copy
 import logging
 import os
 import shutil
@@ -15,17 +17,16 @@ import zmq
 import IPython
 from IPython.config import Application
 
-from expWorkbench import CaseError, EMAError, EMAParallelError
+from expWorkbench import EMAError, EMAParallelError
 import ema_logging
-from ema_logging import debug, info, warning, exception
-# from model_ensemble import ExperimentRunner
+from ema_logging import debug, info
 import model_ensemble
 
 SUBTOPIC = "EMA"
 engine = None
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
-    '''LoggerAdapter that inserts a topic at the start
+    '''LoggerAdapter that inserts EMA as a topic into log messages
     '''
 
     def __init__(self, logger, topic):
@@ -47,7 +48,7 @@ class LogWatcher(object):
     to the EMA logger. 
     
     It is possible to filter topics before they are being logged on the EMA
-    logger. This filtering is done on a level and topic basis. By default,
+    logger. This filtering is done on a loglevel and topic basis. By default,
     filtering is active on the DEBUG level, with EMA as topic.   
     
     This class is adapted from the LogWatcher in IPython.paralle.apps to 
@@ -180,6 +181,7 @@ def start_logwatcher(url):
         the log watcher instance
     Thread
         the log watcher thread
+        
     .. note : there can only be one log watcher on a given url. 
     
     '''
@@ -201,8 +203,8 @@ def start_logwatcher(url):
 
 
 def set_engine_logger():
-    '''Updates EMA logging with a logger adapter to the logger
-    of the engines. This adapter injects EMA as a topic into all messages
+    '''Updates EMA logging on the engines with an EngineLoggerAdapter 
+    This adapter injects EMA as a topic into all messages
     '''
     
     logger = Application.instance().log
@@ -277,7 +279,8 @@ def update_cwd_on_all_engines(client):
 
 class Engine(object):
     '''class for setting up ema specific stuff on each engine
-    also functions as a convenient namespace for relevant info
+    also functions as a convenient namespace for workbench
+    relevant variables
     
     '''
 
@@ -322,15 +325,15 @@ class Engine(object):
 
     def copy_wds_for_msis(self, dirs_to_copy, wd_by_msi):
         '''copy each unique working directory to the engine specific
-        folder and update the working directory for the associated model structure
-        interfaces
+        folder and update the working directory for the associated model 
+        structure interfaces
 
         Parameters
         ----------
         dirs_to_copy : list of strings
         wd_by_msi : dict
-                    a mapping from working directory to associated models structure
-                    interfaces. 
+                    a mapping from working directory to associated models 
+                    structure interfaces. 
 
 
         '''
@@ -346,6 +349,9 @@ class Engine(object):
                 msi.working_directory = dst
                 
     def run_experiments(self, experiment):
+        '''run the experiment, the actual running is delegated
+        to an ExperimentRunner instance'''
+        
         try:
             return self.runner.run_experiment(experiment) 
         except EMAError:
@@ -367,7 +373,6 @@ def initialize_engines(client, msis, model_init_kwargs={}):
     
     
     '''
-    
     for i in client.ids:
         client[i].apply_sync(_initialize_engine, i, msis, model_init_kwargs)
         
@@ -417,11 +422,15 @@ def setup_working_directories(client, msis):
     # using common_prefix we can get the path relative to home
     # and send this to the engines, which again add the their home to it
 
+
 def cleanup_working_directories(client):
     '''cleanup directory tree structure on all engines '''
     client[:].apply_sync(_cleanun_working_directory)
 
 
+# engines can only deal with functions, not with object.method calls
+# these functions are wrappers around the relevant Engine methods
+# the engine instance is part of the namespace of the module. 
 def _run_experiment(experiment):
     return engine.run_experiments(experiment)
 

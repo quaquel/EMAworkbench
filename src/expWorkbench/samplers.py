@@ -10,12 +10,13 @@ Monte Carlo sampling.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
-
+import abc
 import itertools
-import scipy.stats as stats
 import numpy as np 
+import scipy.stats as stats
 
 from uncertainties import CategoricalUncertainty
+from abc import abstractmethod
 
 __all__ = ['LHSSampler',
            'MonteCarloSampler',
@@ -26,6 +27,8 @@ class Sampler(object):
     '''
     base class from which different samplers can be derived
     '''
+    __metaaclass__ = abc.ABCMeta
+    
     
     #: types of distributions known by the sampler.
     #: by default it knows the `uniform continuous <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html>`_
@@ -38,6 +41,7 @@ class Sampler(object):
     def __init__(self):
         super(Sampler, self).__init__()
 
+    @abstractmethod
     def sample(self, distribution, params, size):
         '''
         method for sampling a number of samples from a particular distribution.
@@ -49,7 +53,6 @@ class Sampler(object):
         :param size: the number of samples to generate
         
         '''
-        raise NotImplementedError
     
     def generate_samples(self, uncertainties, size):
         '''
