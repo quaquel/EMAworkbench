@@ -290,9 +290,6 @@ class Engine(object):
         self.msis = msis
         self.msi_initialization = {}
         self.runner = model_ensemble.ExperimentRunner(msis, model_init_kwargs)
-        
-        # does this belong here?
-        set_engine_logger()
 
     def setup_working_directory(self, dir_name):
         '''setup the root directory for the engine. The working directories 

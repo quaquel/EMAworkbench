@@ -4,6 +4,7 @@ Created on 22 Jan 2013
 @author: jhkwakkel
 '''
 from __future__ import division
+import abc
 from threading import Lock
 
 import numpy as np
@@ -25,6 +26,8 @@ class AbstractCallback(object):
     Callback is responsible for storing the results of the runs.
     
     '''
+    __metaclass__ = abc.ABCMeta
+    
     
     i = 0
     reporting_interval = 100
@@ -37,29 +40,42 @@ class AbstractCallback(object):
                  reporting_interval=100):
         '''
         
-        :param uncs: a list of the uncertainties over which the experiments 
-                     are being run.
-        :param outcomes: a list of outcomes
-        :param nr_experiments: the total number of experiments to be executed
-        :param reporting_interval: the interval at which to provide
-                                   progress information via logging.
+        Parameters
+        ----------
+        uncs : list
+                a list of the uncertainties over which the experiments 
+                are being run.
+        outcomes : list
+                   a list of outcomes
+        nr_experiments : int
+                         the total number of experiments to be executed
+        reporting_interval : int 
+                             the interval at which to provide
+                             progress information via logging.
         
                 
         '''
         self.reporting_interval = reporting_interval
             
-    
+    @abc.abstractmethod
     def __call__(self, case_id, case, policy, name, result):
         '''
         Method responsible for storing results. The implementation in this
         class only keeps track of how many runs have been completed and 
         logging this. 
         
-        :param case_id: the job id
-        :param case: the case to be stored
-        :param policy: the name of the policy being used
-        :param name: the name of the model being used
-        :param result: the result dict
+        Parameters
+        ----------
+        case_id: int
+                 the job id
+        case: dict
+              the case to be stored
+        policy: str 
+                the name of the policy being used
+        name: str
+              the name of the model being used
+        result: dict
+                the result dict
         
         '''
         
@@ -75,6 +91,7 @@ class AbstractCallback(object):
         been completed
         """
         self.results
+
         
 class DefaultCallback(AbstractCallback):
     """ 
@@ -103,12 +120,18 @@ class DefaultCallback(AbstractCallback):
         '''
         
         
-        :param uncs: a list of the uncertainties over which the experiments 
-                     are being run.
-        :param outcomes: a list of outcomes
-        :param nr_experiments: the total number of experiments to be executed
-        :param reporting_interval: the interval at which to provide
-                                   progress information via logging.
+        Parameters
+        ----------
+        uncs : list
+                a list of the uncertainties over which the experiments 
+                are being run.
+        outcomes : list
+                   a list of outcomes
+        nr_experiments : int
+                         the total number of experiments to be executed
+        reporting_interval : int 
+                             the interval at which to provide
+                             progress information via logging.
         
         '''
         
@@ -188,17 +211,19 @@ class DefaultCallback(AbstractCallback):
         Method responsible for storing results. This method calls 
         :meth:`super` first, thus utilizing the logging provided there
         
-        :param case_id: the id of the case
-        :param case: the case to be stored
-        :param policy: the name of the policy being used
-        :param name: the name of the model being used
-        :param result: the result dict. This implementation assumes that
-                       the values in this dict can be cast to numpy arrays. 
-                       Any shape is supported. The code takes the shape of the
-                       array and adds the nr_experiments to it as first 
-                       dimension.
-        :return: a tuple with the cases structured array and the dict of 
-                 result arrays. 
+        
+        Parameters
+        ----------
+        case_id: int
+                 the job id
+        case: dict
+              the case to be stored
+        policy: str 
+                the name of the policy being used
+        name: str
+              the name of the model being used
+        result: dict
+                the result dict
         
         '''
         super(DefaultCallback, self).__call__(case_id, case, policy, name, result)

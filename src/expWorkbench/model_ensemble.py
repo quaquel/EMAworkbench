@@ -203,23 +203,8 @@ class ModelEnsemble(object):
         
         """
         
-        # identify the uncertainties and sample over them
-        if type(cases) ==  types.IntType:
-            sampled_unc, unc_dict = self._generate_samples(cases, 
-                                                           which_uncertainties)
-            nr_of_exp =self.sampler.deterimine_nr_of_designs(sampled_unc)\
-                      *len(self.policies)*len(self.model_structures)
-            experiments = self._generate_experiments(sampled_unc)
-        elif type(cases) == types.ListType:
-            unc_dict = self.determine_uncertainties()[1]
-            unc_names = cases[0].keys()
-            sampled_unc = {name:[] for name in unc_names}
-            nr_of_exp = len(cases)*len(self.policies)*len(self.model_structures)
-            experiments = self._generate_experiments(cases)
-        else:
-            raise EMAError("unknown type for cases")
-        uncertainties = [unc_dict[unc] for unc in sorted(sampled_unc)]
-
+        experiments, nr_of_exp, uncertainties = self._generate_experiments(cases, which_uncertainties)
+        
         # identify the outcomes that are to be included
         overview_dict, element_dict = self._determine_unique_attributes("outcomes")
         if which_outcomes==UNION:
@@ -463,75 +448,57 @@ class ModelEnsemble(object):
         '''    
         return self._determine_unique_attributes('outcomes')
         
-    
-    def _generate_samples(self, nr_of_samples, which_uncertainties):
+    def _generate_experiments(self,cases, which_uncertainties):
         '''
-        number of cases specifies the number of cases to generate in case
-        of Monte Carlo and Latin Hypercube sampling.
+        Helper method for generating experiments
         
-        In case of full factorial sampling nr_of_cases specifies the resolution 
-        on non categorical uncertainties.
-        
-        In case of multiple model structures, the uncertainties over
-        which to explore is the intersection of the sets of uncertainties of
-        the model interface instances.
-        
-        :param nr_of_samples: The number of samples to generate for the 
-                              uncertainties. In case of mc and lhs sampling,
-                              the number of samples is generated. In case of 
-                              ff sampling, the number of samples is interpreted
-                              as the upper limit for the resolution to use.
-        :returns: a dict with the samples uncertainties and a dict
-                  with the unique uncertainties. The first dict containsall the 
-                  unique uncertainties. The dict has the uncertainty name as 
-                  key and the values are the generated samples. The second dict
-                  has the name as key and an instance of the associated 
-                  uncertainty as value.
+        Parameters
+        ----------
+        cases : int or list
+        whicn_uncertianties : {INTERSECTION, UNION}
+
+        Returns
+        -------
+        generator
+            a generator that yields experiment dicts
+        int
+            the total number of experiments 
+            so: nr_cases * nr of models * nr of policies)
+        list
+            list of the uncertainties over which the experiments are designed
         
         '''
         overview_dict, unc_dict = self.determine_uncertainties()
-        
-        if which_uncertainties==UNION:
-            if isinstance(self.sampler, FullFactorialSampler):
-                raise EMAError("full factorial sampling cannot be combined with exploring the union of uncertainties")
-            
-            sampled_unc = self.sampler.generate_samples(unc_dict.values(), 
-                                                   nr_of_samples)
-        elif which_uncertainties==INTERSECTION:
-            uncertainties = overview_dict[tuple([msi.name for msi in self.model_structures])]
-            unc_dict = {key.name:unc_dict[key.name] for key in uncertainties}
-            uncertainties = [unc_dict[unc.name] for unc in uncertainties]
-            sampled_unc = self.sampler.generate_samples(unc_dict.values(), 
-                                                   nr_of_samples)
+        # identify the uncertainties and sample over them
+        if type(cases) ==  types.IntType:
+            if which_uncertainties==UNION:
+                if isinstance(self.sampler, FullFactorialSampler):
+                    raise EMAError("full factorial sampling cannot be combined with exploring the union of uncertainties")
+                uncertainties = unc_dict.values()
+            elif which_uncertainties==INTERSECTION:
+                uncertainties = overview_dict[tuple([msi.name for msi in 
+                                                     self.model_structures])]
+                unc_dict = {key.name:unc_dict[key.name] for key in uncertainties}
+                uncertainties = [unc_dict[unc.name] for unc in uncertainties]
+            else:
+                raise ValueError("incompatible value for which_uncertainties")            
+
+            designs, nr_of_designs = self.sampler.generate_designs(uncertainties, 
+                                                   cases)
+        elif type(cases) == types.ListType:
+            unc_names = {case.viewkeys() for case in cases}
+            uncertainties = [unc_dict[unc] for unc in unc_names]
+            designs = cases
+            nr_of_designs = len(designs)
         else:
-            raise ValueError("incompatible value for which_uncertainties")
-        
-        return sampled_unc, unc_dict
-    
-    def _generate_experiments(self, sampled_unc):
-        '''
-        Helper method for turning the sampled uncertainties into actual
-        complete experiments, including the model structure interface and the 
-        policy. The actual generation is delegated to the experiments_generator 
-        function, which returns a generator. In this way, not all the 
-        experiments are kept in memory, but they are generated only when 
-        needed.
-        
-        :param sampled_unc: the sampled uncertainty dictionary
-        :returns: a generator object that yields the experiments
-        
-        '''
-        if isinstance(sampled_unc, list):
-            return experiment_generator_predef_cases(copy.deepcopy(sampled_unc),\
-                                                     self.model_structures,\
-                                                     self.policies,)
-        
-        return experiment_generator(sampled_unc, self.model_structures,\
-                                   self.policies, self.sampler)
+            raise EMAError("unknown type for cases")
 
-
-
-
+        nr_of_exp = nr_of_designs*len(self.policies)*len(self.model_structures)
+        experiments = experiment_generator(designs, self.model_structures,\
+                                           self.policies)
+        
+        return experiments, nr_of_exp, uncertainties
+        
     def _run_optimization(self, generate_individual, 
                            evaluate_population,algorithm=None, 
                            obj_function=None,
@@ -661,29 +628,7 @@ class ExperimentRunner(object):
         return experiment_id, case, policy, model_name, result        
         
 
-def experiment_generator_predef_cases(designs, model_structures, policies):
-    '''
-    
-    generator function which yields experiments
-    
-    '''
-    
-    # experiment is made up of case, policy, and msi
-    # to get case, we need msi
-    job_counter = itertools.count()
-    
-    for msi in model_structures:
-        debug("generating designs for model %s" % (msi.name))
-
-        for policy in policies:
-            debug("generating designs for policy %s" % (policy['name']))
-            for experiment in designs:
-                experiment['policy'] = copy.deepcopy(policy)
-                experiment['model'] = msi.name
-                experiment['experiment id'] = job_counter.next()
-                yield experiment
-    
-def experiment_generator(sampled_unc, model_structures, policies, sampler):
+def experiment_generator(designs, model_structures, policies):
     '''
     
     generator function which yields experiments
@@ -697,16 +642,13 @@ def experiment_generator(sampled_unc, model_structures, policies, sampler):
     for msi in model_structures:
         debug("generating designs for model %s" % (msi.name))
         
-        samples = [sampled_unc[unc.name] for unc in msi.uncertainties if\
-                   sampled_unc.has_key(unc.name)]
-        uncertainties = [unc.name for unc in msi.uncertainties if\
-                         sampled_unc.has_key(unc.name)]
+        msi_uncs = {unc.name for unc in msi.uncertainties}
+        
         for policy in policies:
             debug("generating designs for policy %s" % (policy['name']))
-            designs = sampler.generate_designs(samples)
+            
             for design in designs:
-                experiment = {uncertainties[i]: design[i] for i in\
-                                range(len(uncertainties))}
+                experiment = {u: design[u] for u in msi_uncs}
                 experiment['policy'] = policy
                 experiment['model'] = msi.name
                 experiment['experiment id'] = job_counter.next()
