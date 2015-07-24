@@ -16,31 +16,31 @@ of whether multiprocessing is used. The process class here modifies
 the _logger in ema_logging to refer to the logger for its particular subprocess
 
 '''
-import itertools
-import shutil
-import sys
-import traceback
-import threading
-import logging
 import cStringIO
 import copy
-import os
-import time
-import Queue
+import itertools
+import logging
 import multiprocessing
+import os
+import Queue
 import random
+import shutil
 import string
+import sys
+import threading
+import time
+import traceback
 
 from multiprocessing import Process, cpu_count, current_process,\
                             TimeoutError
 from multiprocessing.util import Finalize
 
-from pool import RUN, Pool, TERMINATE
-from ema_logging import debug, exception, info, warning, NullHandler, LOG_FORMAT
+
 import ema_logging                  
-                                     
-from expWorkbench.ema_exceptions import CaseError, EMAError, EMAParallelError
 import model_ensemble
+from pool import RUN, Pool, TERMINATE
+from ema_logging import debug, info,  NullHandler, LOG_FORMAT
+from expWorkbench.ema_exceptions import EMAError, EMAParallelError
 
 __all__ = ['CalculatorPool']
 

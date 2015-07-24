@@ -14,8 +14,6 @@ import os
 import itertools
 from collections import defaultdict
 
-from ema_parallel_multiprocessing import CalculatorPool
-
 from expWorkbench.ema_logging import info, warning, exception, debug
 from expWorkbench.ema_exceptions import CaseError, EMAError
 
@@ -77,9 +75,11 @@ class ModelEnsemble(object):
         Class responsible for running experiments on diverse model 
         structures and storing the results.
 
-        :param sampler: the sampler to be used for generating experiments. 
-                        By default, the sampling technique is 
-                        :class:`~samplers.LHSSampler`.  
+        Parameters
+        ----------
+        sampler: Sampler
+                 the sampler to be used for generating experiments. 
+                 (the default is  :class:`~samplers.LHSSampler`)
         """
         super(ModelEnsemble, self).__init__()
         self.output = {}
@@ -118,10 +118,13 @@ class ModelEnsemble(object):
         the uncertainties are shared across multiple model structure 
         interfaces.
         
-        :returns: An overview dictionary which shows which uncertainties are
-                  used by which model structure interface, or interfaces, and
-                  a dictionary with the unique uncertainties across all the 
-                  model structure interfaces, with the name as key. 
+        Returns
+        -------
+        dict
+            An overview dictionary which shows which uncertainties are
+            used by which model structure interface, or interfaces, and
+            a dictionary with the unique uncertainties across all the 
+            model structure interfaces, with the name as key. 
         
         '''
         return self._determine_unique_attributes('uncertainties')
@@ -137,38 +140,46 @@ class ModelEnsemble(object):
         """
         Method responsible for running the experiments on a structure. In case 
         of multiple model structures, the outcomes are set to the intersection 
-        of the sets of outcomes of the various models.         
+        of the sets of outcomes of the various models.     
         
-        :param cases: In case of Latin Hypercube sampling and Monte Carlo 
-                      sampling, cases specifies the number of cases to
-                      generate. In case of Full Factorial sampling,
-                      cases specifies the resolution to use for sampling
-                      continuous uncertainties. Alternatively, one can supply
-                      a list of dicts, where each dicts contains a case.
-                      That is, an uncertainty name as key, and its value. 
-        :param callback: Class that will be called after finishing a 
-                         single experiment,
-        :param reporting_interval: parameter for specifying the frequency with
-                                   which the callback reports the progress.
-                                   (Default is 100) 
-        :param model_kwargs: dictionary of keyword arguments to be passed to 
-                            model_init
-        :param which_uncertainties: keyword argument for controlling whether,
-                                    in case of multiple model structure 
-                                    interfaces, the intersection or the union
-                                    of uncertainties should be used. 
-                                    (Default is intersection).  
-        :param which_uncertainties: keyword argument for controlling whether,
-                                    in case of multiple model structure 
-                                    interfaces, the intersection or the union
-                                    of outcomes should be used. 
-                                    (Default is intersection).  
-        :param kwargs: generic keyword arguments to pass on to callback
+        Parameters
+        ----------    
+        cases: int or iterable
+               In case of Latin Hypercube sampling and Monte Carlo 
+               sampling, cases specifies the number of cases to
+               generate. In case of Full Factorial sampling,
+               cases specifies the resolution to use for sampling
+               continuous uncertainties. Alternatively, one can supply
+               a list of dicts, where each dicts contains a case.
+               That is, an uncertainty name as key, and its value. 
+        callback: Callback 
+                  callable that will be called after finishing a 
+                  single experiment (default is :class:`~callbacks.DefaultCallback`)
+        reporting_interval: int
+                            parameter for specifying the frequency with
+                            which the callback reports the progress.
+                            (Default is 100) 
+        model_kwargs: dict 
+                      dictionary of keyword arguments to be passed to 
+                      model_init
+        which_uncertainties: {INTERSECTION, UNION}
+                             keyword argument for controlling whether,
+                             in case of multiple model structure 
+                             interfaces, the intersection or the union
+                             of uncertainties should be used. 
+        which_uncertainties: {INTERSECTION, UNION}
+                             keyword argument for controlling whether,
+                             in case of multiple model structure 
+                             interfaces, the intersection or the union
+                             of outcomes should be used. 
+        kwargs: generic keyword arguments to pass on to callback
          
-                       
-        :returns: a `structured numpy array <http://docs.scipy.org/doc/numpy/user/basics.rec.html>`_ 
-                  containing the experiments, and a dict with the names of the 
-                  outcomes as keys and an numpy array as value.
+        Returns
+        --------
+        tuple of recarray and dict         
+            a `structured numpy array <http://docs.scipy.org/doc/numpy/user/basics.rec.html>`_ 
+            containing the experiments, and a dict with the names of the 
+            outcomes as keys and an numpy array as value.
                 
         .. rubric:: suggested use
         
@@ -189,11 +200,6 @@ class ModelEnsemble(object):
         
         >>> import expWorkbench.util as util
         >>> util.save_results(results, filename)
-          
-        .. note:: The current implementation has a hard coded limit to the 
-          number of designs possible. This is set to 50.000 designs. 
-          If one want to go beyond this, set `self.max_designs` to
-          a higher value.
         
         """
         
@@ -219,7 +225,8 @@ class ModelEnsemble(object):
         if which_outcomes==UNION:
             outcomes = element_dict.keys()
         elif which_outcomes==INTERSECTION:
-            outcomes = overview_dict[tuple([msi.name for msi in self.model_structures])]
+            outcomes = overview_dict[tuple([msi.name for msi in 
+                                            self.model_structures])]
             outcomes = [outcome.name for outcome in outcomes]
         else:
             raise ValueError("incomplete value for which_outcomes")
@@ -237,7 +244,8 @@ class ModelEnsemble(object):
             info("preparing to perform experiment in parallel")
             
             if not self.pool:
-                self.pool = MultiprocessingPool(self.model_structures, kwargs)
+                self.pool = MultiprocessingPool(self.model_structures, 
+                                                model_kwargs)
             info("starting to perform experiments in parallel")
 
             self.pool.perform_experiments(callback, experiments)
@@ -245,7 +253,7 @@ class ModelEnsemble(object):
             info("starting to perform experiments sequentially")
             
             cwd = os.getcwd() 
-            runner = ExperimentRunner(self._msis, kwargs)
+            runner = ExperimentRunner(self._msis, model_kwargs)
             for experiment in experiments:
                 runner.run_experiment(experiment)
             os.chdir(cwd)

@@ -1,7 +1,7 @@
 '''
 Created on Jul 22, 2015
 
-@author: jhkwakkel@tudelft.net
+.. codeauthor:: jhkwakkel@tudelft.net
 '''
 import abc
 

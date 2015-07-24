@@ -8,6 +8,7 @@ types of uncertainties.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
+import abc
 from expWorkbench.ema_exceptions import EMAError
 
 __all__ = ['AbstractUncertainty',
@@ -23,18 +24,14 @@ class AbstractUncertainty(object):
     :class:`AbstractUncertainty` provides a template for specifying different
     types of uncertainties.
     '''
+    __metaclass__ = abc.ABCMeta
+    
     
     #: the values that specify the uncertainty
     values = None
-    
-    #: the type of integer
-    type = None
-    
+   
     #: the name of the uncertainty
     name = None
-    
-#    #: the datatype of the uncertainty
-#    dtype = None    
     
     #: a string denoting the type of distribution to be used in sampling
     dist = None
@@ -42,9 +39,13 @@ class AbstractUncertainty(object):
     def __init__(self, values, name):
         '''
         
-        :param values: the values for specifying the uncertainty from which to 
-                       sample
-        :param name: name of the uncertainty
+        Parameters
+        ----------
+        values: tuple
+                the values for specifying the uncertainty from which to 
+                sample
+        name: str
+              name of the uncertainty
         
         '''
         
@@ -80,17 +81,20 @@ class ParameterUncertainty(AbstractUncertainty ):
     #: optional attribute for specifying default value for uncertainty
     default = None
     
-    def __init__(self, values, name, integer=False, default = None):
+    def __init__(self, values, name, integer=False):
         '''
         
-        :param values: the values for specifying the uncertainty from which to 
-                       sample. Values should be a tuple with the lower and
-                       upper bound for the uncertainty. These bounds are
-                       inclusive. 
-        :param name: name of the uncertainty
-        :param integer: boolean, if True, the parametric uncertainty is 
-                        an integer
-        :param default: optional argument for providing a default value
+        Parameters
+        ----------
+        values : tuple
+                 the values for specifying the uncertainty from which to 
+                 sample. Values should be a tuple with the lower and
+                 upper bound for the uncertainty. These bounds are
+                 inclusive. 
+        name: str
+              name of the uncertainty
+        integer: bool 
+                 if True, the parametric uncertainty is an integer
         
         '''
         if len(values)!=2:
@@ -99,12 +103,7 @@ class ParameterUncertainty(AbstractUncertainty ):
             raise ValueError("upper limit is not larger than lower limit")
        
         super(ParameterUncertainty, self).__init__(values, name)
-        if default: 
-            self.default = default
-        else: 
-            self.default = abs(self.values[0]-self.values[1])
         
-        self.type = "parameter"
         
         if len(values) != 2:
             raise EMAError("length of values for %s incorrect " % name)
@@ -112,19 +111,15 @@ class ParameterUncertainty(AbstractUncertainty ):
         # self.dist should be a string. This string should be a key     
         # in the distributions dictionary 
         if integer:
-            self.dist = "integer"
+            self.dist = INTEGER
             self.params = (values[0], values[1]+1)
             self.default = int(round(self.default))
         else:
-            self.dist = "uniform"
+            self.dist = UNIFORM
             #params for initializing self.dist
             self.params = (self.get_values()[0], 
                            self.get_values()[1]-self.get_values()[0])
-        
-    def get_default_value(self):
-        ''' return default value'''
-        
-        return self.default
+
 
 class CategoricalUncertainty(ParameterUncertainty):
     """
@@ -142,25 +137,24 @@ class CategoricalUncertainty(ParameterUncertainty):
     #: the categories of the uncertainty
     categories = None
     
-    def __init__(self, values, name, default = None):
+    def __init__(self, values, name):
         '''
         
-        :param values: the values for specifying the uncertainty from which to 
-                       sample. Values should be a collection.
-        :param name: name of the uncertainty
-        :param default: optional argument for providing a default value
+        Parameters
+        ----------
+        values: collection
+                the values for specifying the uncertainty from which to 
+                sample. Values should be a collection.
+        name:str 
+             name of the uncertainty
         
         '''
         self.categories = values
         values = (0, len(values)-1)
-        if default != None:
-            default = self.invert(default)
-        
-        self.default = default
+
         super(CategoricalUncertainty, self).__init__(values, 
                                                      name, 
-                                                     integer=True,
-                                                     default=default)
+                                                     integer=True)
         self.integer = True
                 
     def transform(self, param):
@@ -168,34 +162,6 @@ class CategoricalUncertainty(ParameterUncertainty):
         return self.categories[param]
     
     def invert(self, name):
-        ''' transform a category to an integer'''
+        ''' invert a category to an integer'''
         return self.categories.index(name)
 
-#==============================================================================
-# test functions
-#==============================================================================
-#def test_uncertainties():
-#    import ema_logging
-#    ema_logging.log_to_stderr(ema_logging.INFO)
-#    params = [
-##              CategoricalUncertainty(('1', '5',  '10'), 
-##                                        "blaat", 
-##                                        default = '5'),
-##              ParameterUncertainty((0, 1), "blaat2"),
-#              ParameterUncertainty((0, 10), "blaat3"),
-#              ParameterUncertainty((0, 5), "blaat4", integer=True)
-#              ]
-#
-#    sampler = FullFactorialSampler()
-#    a = sampler.generateDesign(params, 10)
-#    a = [combo for combo in a[0]]
-#    for entry in a:
-#        print entry
-#    
-#    print len(a)
-   
-#=============================================================================
-# running the module stand alone
-#==============================================================================
-#if __name__=='__main__':
-#    test_uncertainties()
