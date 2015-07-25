@@ -635,20 +635,23 @@ def experiment_generator(designs, model_structures, policies):
     
     '''
     
-    # experiment is made up of case, policy, and msi
-    # to get case, we need msi
     job_counter = itertools.count()
     
     for msi in model_structures:
         debug("generating designs for model %s" % (msi.name))
-        
         msi_uncs = {unc.name for unc in msi.uncertainties}
         
         for policy in policies:
             debug("generating designs for policy %s" % (policy['name']))
             
             for design in designs:
-                experiment = {u: design[u] for u in msi_uncs}
+                # from the design only get the uncertainties that 
+                # are valid for the current mis
+                keys = set(design.keys()).intersection(msi_uncs)
+                experiment = {unc:design[unc] for unc in keys}
+                
+                # complete the design by adding the policy, model name
+                # and experiment id to it
                 experiment['policy'] = policy
                 experiment['model'] = msi.name
                 experiment['experiment id'] = job_counter.next()
