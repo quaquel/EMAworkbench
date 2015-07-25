@@ -128,8 +128,10 @@ class AbstractSampler(object):
         '''
         
         sampled_uncertainties = self.generate_samples(uncertainties, nr_samples)
-        a = zip(*sampled_uncertainties.values())
-        designs = itertools.izip(*sampled_uncertainties) 
+        uncs = sorted(sampled_uncertainties.keys())
+        
+        designs = itertools.izip(*[sampled_uncertainties[u] for u in uncs]) 
+        designs = _design_generator(designs, uncs)
         return designs, self.deterimine_nr_of_designs(sampled_uncertainties)
 
     def deterimine_nr_of_designs(self, sampled_uncertainties):
@@ -298,7 +300,9 @@ class FullFactorialSampler(AbstractSampler):
         
         '''
         sampled_uncertainties = self.generate_samples(uncertainties, nr_samples)
-        designs = itertools.product(*sampled_uncertainties)
+        uncs = sorted(sampled_uncertainties.keys())
+        designs = itertools.product(*sampled_uncertainties.values())
+        designs = _design_generator(designs, uncs)
         return designs, self.deterimine_nr_of_designs(sampled_uncertainties)
 
     def deterimine_nr_of_designs(self, sampled_uncertainties):
@@ -321,5 +325,24 @@ class FullFactorialSampler(AbstractSampler):
         for value in sampled_uncertainties.itervalues():
             nr_designs *= len(value)
         return nr_designs
+    
+def _design_generator(designs, uncs):
+    '''combine the sampled uncertainties with their correct name in order
+    to return dicts
+    
+    Parameter
+    ---------
+    designs : iterable of tuples
+    uncs : iterable of uncertainties
+    
+    Yields
+    ------
+    dict
+        experimental design dictionary
+    
+    '''
+    
+    for design in designs:
+        design = {unc:design[i] for i, unc in enumerate(uncs)}
+        yield design
         
-          

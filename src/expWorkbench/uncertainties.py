@@ -78,9 +78,6 @@ class ParameterUncertainty(AbstractUncertainty ):
         
     """
     
-    #: optional attribute for specifying default value for uncertainty
-    default = None
-    
     def __init__(self, values, name, integer=False):
         '''
         
@@ -113,7 +110,6 @@ class ParameterUncertainty(AbstractUncertainty ):
         if integer:
             self.dist = INTEGER
             self.params = (values[0], values[1]+1)
-            self.default = int(round(self.default))
         else:
             self.dist = UNIFORM
             #params for initializing self.dist
