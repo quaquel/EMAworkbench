@@ -23,8 +23,6 @@ from expWorkbench import EMAError
 from analysis.cluster_util import distance_mse, distance_sse,\
                                   distance_triangle, distance_gonenc
 
-from analysis.cluster_util import cluster_plotter as plotter
-
 distance_functions = {'gonenc': distance_gonenc,
                       'triangle':distance_triangle,
                       'sse': distance_sse,
@@ -278,30 +276,7 @@ def plot_clusters(groupPlot, runLogs):
             if runLogs[runIndex][0]['Cluster']==str(clust+1):
                 runSubset.append(runLogs[runIndex])
         
-        # Dumps data about each cluster to a different cpickle file
-        if groupPlot:
-            clustersToPlot.append(runSubset)
-        else:
-            callSinglePlotter(runSubset)
    
-    if groupPlot:
-        callGroupPlotter(clustersToPlot)
-   
-def callSinglePlotter(data):
-    plt = plotter.singlePlot()
-    plt.setData(data)
-    global varName
-    plt.setVarName(varName)
-    plt.configure_traits()
-
-def callGroupPlotter(data):
-    plt = plotter.groupPlot()
-    plt.setData(data)
-    global varName
-    plt.setVarName(varName)
-    plt.configure_traits()  
-
-
 class Cluster(object):
     '''
     Contains information about a data-series cluster, as well as some methods to help analyzing a cluster.

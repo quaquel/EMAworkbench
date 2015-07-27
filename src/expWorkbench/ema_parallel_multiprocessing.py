@@ -60,8 +60,9 @@ def worker(inqueue,
         inqueue._writer.close()
         outqueue._reader.close()
     
-    runner = model_ensemble.ExperimentRunner(model_interfaces,
-                                            model_kwargs)
+    msis = {msi.name: msi for msi in model_interfaces}
+    runner = model_ensemble.ExperimentRunner(msis,
+                                             model_kwargs)
 
     while 1:
         try:
@@ -78,7 +79,7 @@ def worker(inqueue,
 
         try:
             result = runner.run_experiment(experiment)
-            put((experiment_id, result))
+            put((experiment_id, (True, result)))
         except EMAError as inst:
             result = (False, inst)
             put((experiment_id, result))
@@ -475,7 +476,7 @@ class EMAApplyResult(object):
     def _set(self, obj):
         self._success, self._value = obj
         if self._callback and self._success:
-            self._callback(self._job, *self._value)
+            self._callback(*self._value)
         self._cond.acquire()
         try:
             self._ready = True

@@ -9,7 +9,8 @@ import numpy as np
 from analysis.b_and_w_plotting import set_fig_to_bw, HATCHING, GREYSCALE
 from analysis.plotting_util import make_legend, PATCH
 
-
+# don't run these tests using nosetest
+__test__ = False
 
 def test_scatter():
     x = np.random.rand(5)

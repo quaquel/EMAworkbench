@@ -131,13 +131,13 @@ def save_results(results, file_name):
         # write the x to the zipfile
         experiments_file = StringIO.StringIO()
         rec2csv(experiments, experiments_file, withheader=True)
-        add_file(z, experiments_file.getvalue(), 'x.csv')
+        add_file(z, experiments_file.getvalue(), 'experiments.csv')
         
         # write experiment metadata
-        dtype = x.dtype.descr
+        dtype = experiments.dtype.descr
         dtype = ["{},{}".format(*entry) for entry in dtype]
         dtype = "\n".join(dtype)
-        add_file(z, dtype, 'x metadata.csv')
+        add_file(z, dtype, 'experiments metadata.csv')
         
         # write outcome metadata
         outcome_names = outcomes.keys()
@@ -145,7 +145,6 @@ def save_results(results, file_name):
                         for outcome in outcome_names]
         outcome_meta = "\n".join(outcome_meta)
         add_file(z, outcome_meta, "outcomes metadata.csv")
-        
         
         # outcomes
         for key, value in outcomes.iteritems():
