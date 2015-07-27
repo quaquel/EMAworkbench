@@ -1,7 +1,11 @@
-'''
+## Exploratory Modeling workbench
 This is a relatively stable version of the EMA workbench currently under 
 development at Delft University of Technology. Documentation can be found on
 http://simulation.tbm.tudelft.nl/ema-workbench/contents.html
+
+
+[![build status](https://travis-ci.org/quaquel/EMAworkbenchbranch=ipython_parallel)](https://travis-ci.org/quaquel/EMAworkbench)
+
 
 If you are interested in using the most recent version of the workbench  and
 would like to contribute to its further development, contact Jan Kwakkel at 
@@ -21,4 +25,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with EMA workbench.  If not, see <http://www.gnu.org/licenses/>.
-'''  
