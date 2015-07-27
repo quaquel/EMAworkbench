@@ -29,7 +29,6 @@ class AbstractSampler(object):
     '''
     __metaaclass__ = abc.ABCMeta
     
-    
     #: types of distributions known by the sampler.
     #: by default it knows the `uniform continuous <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html>`_
     #: distribution for sampling floats, and the `uniform discrete <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html#scipy.stats.randint>`_
@@ -132,9 +131,9 @@ class AbstractSampler(object):
         
         designs = itertools.izip(*[sampled_uncertainties[u] for u in uncs]) 
         designs = _design_generator(designs, uncs)
-        return designs, self.deterimine_nr_of_designs(sampled_uncertainties)
+        return designs, self.determine_nr_of_designs(sampled_uncertainties)
 
-    def deterimine_nr_of_designs(self, sampled_uncertainties):
+    def determine_nr_of_designs(self, sampled_uncertainties):
         '''
         Helper function for determining the number of experiments that will
         be generated given the sampled uncertainties.
@@ -303,9 +302,9 @@ class FullFactorialSampler(AbstractSampler):
         uncs = sorted(sampled_uncertainties.keys())
         designs = itertools.product(*sampled_uncertainties.values())
         designs = _design_generator(designs, uncs)
-        return designs, self.deterimine_nr_of_designs(sampled_uncertainties)
+        return designs, self.determine_nr_of_designs(sampled_uncertainties)
 
-    def deterimine_nr_of_designs(self, sampled_uncertainties):
+    def determine_nr_of_designs(self, sampled_uncertainties):
         '''
         Helper function for determining the number of experiments that will
         be generated given the sampled uncertainties.
@@ -325,7 +324,8 @@ class FullFactorialSampler(AbstractSampler):
         for value in sampled_uncertainties.itervalues():
             nr_designs *= len(value)
         return nr_designs
-    
+   
+
 def _design_generator(designs, uncs):
     '''combine the sampled uncertainties with their correct name in order
     to return dicts

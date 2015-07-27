@@ -394,8 +394,6 @@ class ModelEnsemble(object):
                                       crossover_rate=crossover_rate, 
                                       mutation_rate=mutation_rate, **kwargs)
 
-
-    
     def _determine_unique_attributes(self, attribute):
         '''
         Helper method for determining the unique values on attributes of model 
@@ -486,7 +484,7 @@ class ModelEnsemble(object):
             designs, nr_of_designs = self.sampler.generate_designs(uncertainties, 
                                                    cases)
         elif type(cases) == types.ListType:
-            unc_names = {case.viewkeys() for case in cases}
+            unc_names = reduce(set.union, map(set, map(dict.keys, cases)))
             uncertainties = [unc_dict[unc] for unc in unc_names]
             designs = cases
             nr_of_designs = len(designs)
@@ -597,7 +595,9 @@ class ExperimentRunner(object):
         if not self.msi_initialization.has_key((policy_name, model_name)):
             try:
                 debug("invoking model init")
-                self.msis[model_name].model_init(copy.deepcopy(policy), 
+                msi = self.msis[model_name]
+                
+                msi.model_init(copy.deepcopy(policy), 
                                      copy.deepcopy(self.model_kwargs))
             except EMAError as inst:
                 exception(inst)
@@ -646,7 +646,7 @@ def experiment_generator(designs, model_structures, policies):
             
             for design in designs:
                 # from the design only get the uncertainties that 
-                # are valid for the current mis
+                # are valid for the current msi
                 keys = set(design.keys()).intersection(msi_uncs)
                 experiment = {unc:design[unc] for unc in keys}
                 

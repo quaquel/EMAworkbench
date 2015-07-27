@@ -33,7 +33,7 @@ def test_callback_store_results():
                                [outcome.name for outcome in outcomes], 
                                nr_experiments=nr_experiments)
     result = {outcomes[0].name: 1}
-    callback(case, policy, name, result)
+    callback(0, case, policy, name, result)
     
     results = callback.get_results()
     for key, value in results[1].iteritems():
@@ -45,7 +45,7 @@ def test_callback_store_results():
                                [outcome.name for outcome in outcomes], 
                                nr_experiments=nr_experiments)
     result = {outcomes[0].name: np.random.rand(10)}
-    callback(case, policy, name, result)
+    callback(0, case, policy, name, result)
     
     results = callback.get_results()
     for key, value in results[1].iteritems():
@@ -58,21 +58,11 @@ def test_callback_store_results():
                                [outcome.name for outcome in outcomes], 
                                nr_experiments=nr_experiments)
     result = {outcomes[0].name: np.random.rand(2,2)}
-    callback(case, policy, name, result)
+    callback(0, case, policy, name, result)
     
     results = callback.get_results()
     for key, value in results[1].iteritems():
         debug("\n" + str(key) + "\n" + str(value))
-
-
-    # case 4 maps etc. shape = (x,y)
-    debug('----------- case 4 -----------')
-    callback = DefaultCallback(uncs, 
-                               [outcome.name for outcome in outcomes], 
-                               nr_experiments=nr_experiments)
-    result = {outcomes[0].name: np.random.rand(2,2, 2)}
-    callback(case, policy, name, result)
-    
 
 
 def test_callback_call_intersection():
@@ -89,7 +79,7 @@ def test_callback_call_intersection():
         case = {unc.name: random.random()for unc in uncs}
         result = {outcome.name: np.random.rand(100) for outcome in outcomes}
     
-        callback(case, policy, name, result)
+        callback(i, case, policy, name, result)
 
 def test_callback_call_union():
     # there are actually 3 cases that should be tested here
@@ -163,7 +153,7 @@ def test_callback_call_union():
             case = {uncs[1].name: random.random()}
             result = {outcomes[1].name: np.random.rand(10)}
     
-        callback(case, policy, name, result)
+        callback(i, case, policy, name, result)
     
     results = callback.get_results()
     debug("\n"+str(results[0]))

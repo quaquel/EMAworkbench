@@ -9,7 +9,8 @@ import numpy as np
 
 from sklearn.ensemble import RandomForestClassifier
 
-from expWorkbench import ema_logging, load_results
+from expWorkbench import ema_logging
+from test import util
 from analysis import feature_scoring as fs
 from sklearn.ensemble.forest import RandomForestRegressor
 
@@ -55,8 +56,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
 
     def test_prepare_outcomes(self):
-        fn = r'../data/1000 flu cases no policy.tar.gz'
-        results = load_results(fn)
+        results = util.load_flu_data()
         
         # string type correct
         ooi = 'nr deaths'
@@ -88,8 +88,7 @@ class FeatureScoringTestCase(unittest.TestCase):
    
    
     def test_get_univariate_feature_scores(self):
-        fn = r'../data/1000 flu cases no policy.tar.gz'
-        results = load_results(fn)
+        results = util.load_flu_data()
         
         def classify(data):
             #get the output for deceased population
@@ -120,9 +119,8 @@ class FeatureScoringTestCase(unittest.TestCase):
         
    
     def test_get_rf_feature_scores(self):
-        fn = r'../data/1000 flu cases no policy.tar.gz'
-        results = load_results(fn)
-        
+        results = util.load_flu_data()
+                
         def classify(data):
             #get the output for deceased population
             result = data['deceased population region 1']
@@ -150,9 +148,8 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertTrue(isinstance(forest, RandomForestRegressor))
         
     def test_get_lasso_feature_scores(self):
-        fn = r'../data/1000 flu cases no policy.tar.gz'
-        results = load_results(fn)
-        
+        results = util.load_flu_data()
+                
         def classify(data):
             #get the output for deceased population
             result = data['deceased population region 1']

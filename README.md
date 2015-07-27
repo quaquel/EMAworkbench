@@ -11,7 +11,7 @@ If you are interested in using the most recent version of the workbench  and
 would like to contribute to its further development, contact Jan Kwakkel at 
 Delft University of Technology.  
 
-This version should work well with the Anaconda distribution and Python 2.7.
+This version should work well with the Anaconda distribution of Python 2.7.
 
 EMA workbench is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

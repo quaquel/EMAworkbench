@@ -3,13 +3,13 @@ Created on Jul 17, 2014
 
 @author: jhkwakkel
 '''
+import os
 import unittest
 
-from expWorkbench import Outcome, ParameterUncertainty, ModelEnsemble,\
-    ema_logging
-from connectors.vensim import VensimModelStructureInterface, load_model,\
-    LookupUncertainty
-from expWorkbench.uncertainties import CategoricalUncertainty
+from expWorkbench import Outcome, ParameterUncertainty, ModelEnsemble, ema_logging
+from connectors.vensim import VensimModelStructureInterface, load_model
+from expWorkbench.uncertainties import CategoricalUncertainty 
+from connectors.vensim import LookupUncertainty
 
 class VensimExampleModel(VensimModelStructureInterface):
     '''
@@ -29,14 +29,15 @@ class VensimExampleModel(VensimModelStructureInterface):
                      ParameterUncertainty((-2.5, 2.5), "x12")]
 
 
-from expWorkbench import Outcome, save_results, ParameterUncertainty,\
-                         ModelEnsemble, ema_logging
 
-from connectors.vensim import VensimModelStructureInterface, LookupUncertainty
 
 
 class LookupTestModel(VensimModelStructureInterface): 
     def __init__(self, working_directory, name):
+        if os.name() != 'nt':
+            return
+
+        
         self.model_file = r'\lookup_model.vpm'
         super(LookupTestModel, self).__init__(working_directory, name)
 
@@ -75,6 +76,9 @@ class VensimTest(unittest.TestCase):
         pass
     
     def test_run_simulation(self):
+        if os.name != 'nt':
+            return
+
         
         model_file = r'../models/model.vpm'
         load_model(model_file)
@@ -85,6 +89,10 @@ class VensimTest(unittest.TestCase):
 class VensimMSITest(unittest.TestCase):
     
     def test_vensim_model(self):
+        if os.name != 'nt':
+            return
+
+        
         #instantiate a model
         wd = r'../models'
         model = VensimExampleModel(wd, "simpleModel")
@@ -93,7 +101,7 @@ class VensimMSITest(unittest.TestCase):
         ensemble = ModelEnsemble()
         
         #set the model on the ensemble
-        ensemble.set_model_structure(model)
+        ensemble.model_structure = model
         
         nr_runs = 10
         experiments, outcomes = ensemble.perform_experiments(nr_runs)
@@ -112,6 +120,9 @@ class LookupUncertaintyTest(unittest.TestCase):
         
         
         '''
+        if os.name != 'nt':
+            return
+
 
         # categories
         msi = VensimModelStructureInterface('', 'test')
@@ -182,18 +193,18 @@ class LookupUncertaintyTest(unittest.TestCase):
         analyzing the experiments array. 
         
         '''
+        if os.name != 'nt':
+            return
+        
         model = LookupTestModel( r'../models/', 'lookupTestModel')
         
         #model.step = 4 #reduce data to be stored
         ensemble = ModelEnsemble()
-        ensemble.set_model_structure(model)
+        ensemble.model_structure = model
         
         ensemble.perform_experiments(10)
 
 if __name__ == '__main__':
-    ema_logging.log_to_stderr(ema_logging.INFO)
-#     unittest.main()
-
-    suite = unittest.TestSuite()
-    suite.addTest(LookupUncertaintyTest("test_running_lookup_uncertainties"))
-    unittest.TextTestRunner().run(suite)
+    if os.name == 'nt':
+        ema_logging.log_to_stderr(ema_logging.INFO)
+        unittest.main()
