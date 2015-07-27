@@ -1,5 +1,6 @@
 # Travis config for EMA workbench
 language: python
+sudo: false
 
 python:
   - 2.7
