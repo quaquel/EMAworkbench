@@ -4,7 +4,7 @@ development at Delft University of Technology. Documentation can be found on
 http://simulation.tbm.tudelft.nl/ema-workbench/contents.html
 
 
-[![build status](https://travis-ci.org/quaquel/EMAworkbenchbranch=ipython_parallel)](https://travis-ci.org/quaquel/EMAworkbench)
+[![build status](https://travis-ci.org/quaquel/EMAworkbenchbranch=ipython_parallel)](https://travis-ci.org/quaquel/EMAworkbench)]
 
 
 If you are interested in using the most recent version of the workbench  and
