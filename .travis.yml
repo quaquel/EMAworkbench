@@ -6,7 +6,6 @@ python:
 
 envs:
   - DEPS="numpy=1.8 matplotlib scipy pandas"
-  - DEAP_VERSION=1.02
 
 install:
 - sudo apt-get update
@@ -22,7 +21,7 @@ install:
 
 # Replace dep1 dep2 ... with your dependencies
 - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION $DEPS pip
-- pip install deap=$DEAP_VERSION
+- pip install deap
 
 # script:
 # here goes the command that initiates all the tests
