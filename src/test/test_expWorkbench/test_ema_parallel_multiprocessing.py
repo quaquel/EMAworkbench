@@ -1,10 +1,11 @@
 '''
 Created on 28 sep. 2011
 
-@author: localadmin
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import unittest
 import mock
+import unittest
+
 
 from expWorkbench import ModelStructureInterface, ema_parallel_multiprocessing
 
