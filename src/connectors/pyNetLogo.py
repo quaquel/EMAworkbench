@@ -3,7 +3,10 @@ Created on 21 mrt. 2013
 
 @author: j.h. kwakkel
 '''
-import jpype
+try:
+    import jpype
+except ImportError:
+    jpype = None
 import os
 import sys
 
