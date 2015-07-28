@@ -8,7 +8,6 @@ try:
     import excel
 except ImportError:
     sys.stderr.write("excel connector not available\n")
-del sys
 
 try:
     import netlogo
