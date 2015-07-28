@@ -7,11 +7,10 @@ import os
 import unittest
 
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome
-from connectors.netlogo import NetLogoModelStructureInterface
+from connectors import netlogo
 
 # should be made conditional on the presence of jpype
 __test__ = False
-
 
 def setUpModule():
     global cwd 
@@ -22,7 +21,7 @@ def setUpModule():
 def tearDownModule():
     os.chdir(cwd)
 
-class PredatorPrey(NetLogoModelStructureInterface):
+class PredatorPrey(netlogo.NetLogoModelStructureInterface):
     model_file = r"/Wolf Sheep Predation.nlogo"
     
     run_length = 1000
