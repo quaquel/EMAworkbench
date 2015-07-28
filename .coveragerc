@@ -2,7 +2,8 @@
 omit =
     */python?.?/*
     */site-packages/nose/*
-    *test/*
+    */test/*
+    */examples/*
 
 # Regexes for lines to exclude from consideration
 exclude_lines =
