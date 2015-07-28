@@ -6,11 +6,11 @@ Created on 18 mrt. 2013
 import os
 import unittest
 
-from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome
-from connectors import netlogo
-
 # should be made conditional on the presence of jpype
 __test__ = False
+
+from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome
+from connectors import netlogo
 
 def setUpModule():
     global cwd 
