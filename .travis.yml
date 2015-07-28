@@ -6,7 +6,7 @@ python:
 - 2.7
 
 env:
-- DEPS="numpy matplotlib pandas ipython nose scikit-learn mock pydot"
+- DEPS="numpy matplotlib pandas=0.16 ipython nose scikit-learn mock pydot"
 
 install:
 - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
