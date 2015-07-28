@@ -6,7 +6,7 @@ python:
 - 2.7
 
 env:
-- DEPS="numpy=1.9 matplotlib=1.4.3 pandas=0.16 ipython nose scikit-learn=0.16.1 mock pydot=1.0.28"
+- DEPS="numpy=1.9 matplotlib=1.4.3 pandas=0.16 ipython nose scikit-learn=0.16.1 mock"
 
 install:
 - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -20,6 +20,7 @@ install:
 - conda install --yes $DEPS # Replace dep1 dep2 ... with your dependencies
 - pip install deap # deap is another dependency, not available via conda
 - pip install zmq # zmq is not available via conda for some reason
+- pip install pydot
 # jpype installation code to be added
 
 script:
