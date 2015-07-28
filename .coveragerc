@@ -1,3 +1,6 @@
+[run]
+source = expWorkbench, analysis
+
 [report]
 omit =
     */python?.?/*
