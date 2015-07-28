@@ -29,6 +29,6 @@ script:
 # coverage needs to be added
 # after_success:
 # - coveralls
-
-notifications:
-email: false
+#
+#notifications:
+#email: false
