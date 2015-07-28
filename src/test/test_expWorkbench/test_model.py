@@ -39,6 +39,8 @@ class Test(unittest.TestCase):
         
         self.assertEqual(policy, model.policy)
         self.assertEqual({}, model.kwargs)
+        
+        model.working_directory = wd
     
     def test_run_model(self):
         model_name = 'modelname'
