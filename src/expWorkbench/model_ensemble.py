@@ -435,20 +435,6 @@ class ModelEnsemble(object):
         overview_dict = temp_overview
         
         return overview_dict, element_dict 
-     
-    def _determine_outcomes(self):
-        '''
-        Helper method for determining the unique outcomes and how
-        the outcomes are shared across multiple model structure 
-        interfaces.
-        
-        :returns: An overview dictionary which shows which uncertainties are
-                  used by which model structure interface, or interfaces, and
-                  a dictionary with the unique uncertainties across all the 
-                  model structure interfaces, with the name as key. 
-        
-        '''    
-        return self._determine_unique_attributes('outcomes')
         
     def _generate_experiments(self,cases, which_uncertainties):
         '''

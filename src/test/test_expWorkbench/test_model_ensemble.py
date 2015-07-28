@@ -144,6 +144,9 @@ class ModelEnsembleTestCase(unittest.TestCase):
         self.assertIn(shared_ab_1, uncertainties)
         self.assertIn(a_1, uncertainties)
         
+        # test raises EMAError
+        self.assertRaises(EMAError, ensemble._generate_experiments, 'a string', UNION)
+        
         
 
     def test_determine_unique_attributes(self):
@@ -177,7 +180,6 @@ class ModelEnsembleTestCase(unittest.TestCase):
         self.assertIn(b_1.name, element_dict.keys(), msg)
         
         self.assertEqual(len(overview_dict.keys()),5, msg)
-        
         
         # let's add some uncertainties to this
         shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
