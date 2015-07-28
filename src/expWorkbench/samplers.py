@@ -17,6 +17,7 @@ import scipy.stats as stats
 
 from uncertainties import CategoricalUncertainty
 from abc import abstractmethod
+from _pyio import __metaclass__
 
 __all__ = ['LHSSampler',
            'MonteCarloSampler',
@@ -128,9 +129,7 @@ class AbstractSampler(object):
         
         sampled_uncertainties = self.generate_samples(uncertainties, nr_samples)
         uncs = sorted(sampled_uncertainties.keys())
-        
-        designs = itertools.izip(*[sampled_uncertainties[u] for u in uncs]) 
-        designs = _design_generator(designs, uncs)
+        designs = DefaultDesigns(sampled_uncertainties, uncs)
         return designs, self.determine_nr_of_designs(sampled_uncertainties)
 
     def determine_nr_of_designs(self, sampled_uncertainties):
@@ -300,8 +299,9 @@ class FullFactorialSampler(AbstractSampler):
         '''
         sampled_uncertainties = self.generate_samples(uncertainties, nr_samples)
         uncs = sorted(sampled_uncertainties.keys())
-        designs = itertools.product(*sampled_uncertainties.values())
-        designs = _design_generator(designs, uncs)
+#         designs = itertools.product(*sampled_uncertainties.values())
+#         designs = _design_generator(designs, uncs)
+        designs = FullFactorialDesigns(sampled_uncertainties, uncs)
         return designs, self.determine_nr_of_designs(sampled_uncertainties)
 
     def determine_nr_of_designs(self, sampled_uncertainties):
@@ -325,6 +325,27 @@ class FullFactorialSampler(AbstractSampler):
             nr_designs *= len(value)
         return nr_designs
    
+   
+class AbstractDesigns(object):
+    __metaclass__ = abc.ABCMeta
+    
+    def __init__(self, sampled_uncs, uncertainties):
+        self.sampled_uncs = sampled_uncs
+        self.uncs = uncertainties
+    
+    @abc.abstractmethod 
+    def __iter__(self):
+        pass
+
+class DefaultDesigns(AbstractDesigns):
+    def __iter__(self):
+        designs = itertools.izip(*[self.sampled_uncs[u] for u in self.uncs]) 
+        return _design_generator(designs, self.uncs)
+
+class FullFactorialDesigns(AbstractDesigns):
+    def __iter__(self):
+        designs = itertools.product(*[self.sampled_uncs[u] for u in self.uncs])
+        return _design_generator(designs, self.uncs)
 
 def _design_generator(designs, uncs):
     '''combine the sampled uncertainties with their correct name in order
