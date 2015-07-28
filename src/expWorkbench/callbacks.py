@@ -105,9 +105,7 @@ class DefaultCallback(AbstractCallback):
     """
     
     i = 0
-    cases = None
-    policies = None
-    names = None   
+    cases = None 
     results = {}
     
     shape_error_msg = "can only save up to 2d arrays, this array is {}d"
@@ -142,8 +140,6 @@ class DefaultCallback(AbstractCallback):
                                               reporting_interval)
         self.i = 0
         self.cases = None
-        self.policies = None
-        self.names = None   
         self.results = {}
         self.lock = Lock()
         

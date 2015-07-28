@@ -11,6 +11,11 @@ from connectors.vensim import VensimModelStructureInterface, load_model
 from expWorkbench.uncertainties import CategoricalUncertainty 
 from connectors.vensim import LookupUncertainty
 
+__test__ = True
+
+if os.name != 'nt':
+    __test__ = False
+
 class VensimExampleModel(VensimModelStructureInterface):
     '''
     example of the most simple case of doing EMA on
@@ -34,9 +39,6 @@ class VensimExampleModel(VensimModelStructureInterface):
 
 class LookupTestModel(VensimModelStructureInterface): 
     def __init__(self, working_directory, name):
-        if os.name() != 'nt':
-            return
-
         
         self.model_file = r'\lookup_model.vpm'
         super(LookupTestModel, self).__init__(working_directory, name)
@@ -76,9 +78,6 @@ class VensimTest(unittest.TestCase):
         pass
     
     def test_run_simulation(self):
-        if os.name != 'nt':
-            return
-
         
         model_file = r'../models/model.vpm'
         load_model(model_file)
@@ -89,9 +88,6 @@ class VensimTest(unittest.TestCase):
 class VensimMSITest(unittest.TestCase):
     
     def test_vensim_model(self):
-        if os.name != 'nt':
-            return
-
         
         #instantiate a model
         wd = r'../models'
