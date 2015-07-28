@@ -21,14 +21,15 @@ install:
 - pip install deap # deap is another dependency, not available via conda
 - pip install zmq # zmq is not available via conda for some reason
 - pip install pydot
+- pip install coveralls
 # jpype installation code to be added
 
 script:
-- nosetests
+- nosetests --with-coverage --cover-package=expWorkbench
 
 # coverage needs to be added
-# after_success:
-# - coveralls
-#
+after_success:
+- coveralls
+
 #notifications:
 #email: false
