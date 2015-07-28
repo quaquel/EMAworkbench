@@ -94,7 +94,11 @@ class ModelEnsemble(object):
    
     @policies.setter
     def policies(self, policies):
-        self._policies = {policy['name'] for policy in policies}
+        try:
+            self._policies = {policy['name'] for policy in policies}
+        except TypeError:
+            # it probably is a single policy
+            self._policies = {policies['name']:policies}
    
     @property
     def model_structures(self):

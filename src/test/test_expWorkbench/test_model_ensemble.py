@@ -1,17 +1,19 @@
 '''
 Created on 18 jan. 2013
 
-@author: localadmin
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+import mock
 import numpy as np
 import unittest
 
 from expWorkbench.model_ensemble import ModelEnsemble, UNION, INTERSECTION,\
-                                        experiment_generator 
+                                        experiment_generator, ExperimentRunner
 from expWorkbench import LHSSampler
 from expWorkbench import ModelStructureInterface
 from expWorkbench import ParameterUncertainty
 from expWorkbench.outcomes import Outcome
+from expWorkbench.ema_exceptions import EMAError, CaseError
 
 class DummyInterface(ModelStructureInterface):
     
@@ -23,6 +25,31 @@ class DummyInterface(ModelStructureInterface):
             self.output[outcome.name] = np.random.rand(10,)
          
 class ModelEnsembleTestCase(unittest.TestCase):
+    
+    def test_policies(self):
+        ensemble = ModelEnsemble()
+        
+        policy = {'name': 'test'}
+        ensemble.policies = policy
+        
+        ensemble = ModelEnsemble()
+        
+        policies = [{'name': 'test'}, {'name': 'test2'}]
+        ensemble.policies = policies
+        
+    def test_model_structures(self):
+        model_a = DummyInterface(None, "A")
+        
+        ensemble = ModelEnsemble()
+        ensemble.model_structure = model_a
+        self.assertEqual(ensemble.model_structure, model_a)
+        
+        model_a = DummyInterface(None, "A")
+        model_b = DummyInterface(None, "B")
+        ensemble = ModelEnsemble()
+        ensemble.model_structures = [model_a, model_b]
+        self.assertEqual(ensemble.model_structures, [model_a, model_b])
+        
     def test_generate_experiments(self):
         # everything shared
         model_a = DummyInterface(None, "A")
@@ -94,8 +121,6 @@ class ModelEnsembleTestCase(unittest.TestCase):
             self.assertNotEqual(len(experiment.keys()), len(model.uncertainties)+3)
             self.assertEqual(len(experiment.keys()), 5)
 
-
-
     def test_determine_unique_attributes(self):
         # everything shared
         model_a = DummyInterface(None, "A")
@@ -130,24 +155,6 @@ class ModelEnsembleTestCase(unittest.TestCase):
         
 
     def test_perform_experiments(self):
-    #    # let's make some interfaces
-    #    model_a = DummyInterface(None, "A")
-    #    model_b = DummyInterface(None, "B")
-    #    
-    #    # let's add some uncertainties to this
-    #    shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
-    #    shared_ab_2 = ParameterUncertainty((0,10), "shared ab 1")
-    #    model_a.uncertainties = [shared_ab_1, shared_ab_2]
-    #    model_b.uncertainties = [shared_ab_1, shared_ab_2]
-    #    
-    #    ensemble = ModelEnsemble()
-    #    ensemble.add_model_structures([model_a, model_b])
-        
-        # what are all the test cases?
-        # test for error in case uncertainty by same name but different 
-        # in other respects
-    
-        
         # everything shared
         model_a = DummyInterface(None, "A")
         model_b = DummyInterface(None, "B")
@@ -171,12 +178,24 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_c.outcomes = [outcome_shared]
         
         ensemble = ModelEnsemble()
-        ensemble.parallel = True
         ensemble.model_structures = [model_a, model_b, model_c]
         
-        _ = ensemble.perform_experiments(10, which_uncertainties=UNION, reporting_interval=1 )
-        
-        ensemble.perform_experiments(10, which_uncertainties=INTERSECTION, reporting_interval=1)
+        ensemble.perform_experiments(10, which_uncertainties=UNION, 
+                                         which_outcomes=UNION,
+                                         reporting_interval=1 )
+
+        ensemble.perform_experiments(10, which_uncertainties=UNION, 
+                                         which_outcomes=INTERSECTION,
+                                         reporting_interval=1 )
+
+        ensemble.perform_experiments(10, which_uncertainties=INTERSECTION, 
+                                         which_outcomes=UNION,
+                                         reporting_interval=1 )
+
+        ensemble.perform_experiments(10, which_uncertainties=INTERSECTION, 
+                                         which_outcomes=INTERSECTION,
+                                         reporting_interval=1 )
+
     
     def test_experiment_generator(self):
         sampler = LHSSampler()
@@ -207,5 +226,81 @@ class ModelEnsembleTestCase(unittest.TestCase):
             experiments.append(entry)
         self.assertEqual(len(experiments), 2*3*10)
 
+class MockMSI(ModelStructureInterface):
+
+    def run_model(self, case):
+        ModelStructureInterface.run_model(self, case)
+
+    def model_init(self, policy, kwargs):
+        ModelStructureInterface.model_init(self, policy, kwargs)
+
+class ExperimentRunnerTestCase(unittest.TestCase):
+    
+    def test_init(self):
+        mockMSI = mock.Mock(spec=MockMSI)
+        mockMSI.name = 'test'
+        msis = {'test':mockMSI}
+
+        runner = ExperimentRunner(msis, {})
+        
+        self.assertEqual(msis, runner.msis)
+        self.assertEqual({}, runner.msi_initialization)
+        self.assertEqual({}, runner.model_kwargs)
+    
+    
+    def test_run_experiment(self):
+        mockMSI = mock.Mock(spec=MockMSI)
+        mockMSI.name = 'test'
+        
+        msis = {'test':mockMSI}
+
+        runner = ExperimentRunner(msis, {})
+        
+        experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
+                      'experiment id': 0}
+        
+        runner.run_experiment(experiment)
+
+        self.assertEqual({('none', 'test'):mockMSI},runner.msi_initialization)
+        
+        mockMSI.run_model.assert_called_once_with({'a':1, 'b':2})
+        mockMSI.model_init.assert_called_once_with({'name':'none'}, {})
+        mockMSI.retrieve_output.assert_called_once_with()
+        mockMSI.reset_model.assert_called_once_with()
+        
+        # assert raises ema error
+        mockMSI = mock.Mock(spec=MockMSI)
+        mockMSI.name = 'test'
+        mockMSI.model_init.side_effect = EMAError("message")
+        
+        msis = {'test':mockMSI}
+        runner = ExperimentRunner(msis, {})
+    
+        experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
+              'experiment id': 0}
+        self.assertRaises(EMAError, runner.run_experiment, experiment)
+
+        # assert raises exception
+        mockMSI = mock.Mock(spec=MockMSI)
+        mockMSI.name = 'test'
+        mockMSI.model_init.side_effect = Exception("message")
+        msis = {'test':mockMSI}
+        runner = ExperimentRunner(msis, {})
+    
+        experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
+              'experiment id': 0}
+        self.assertRaises(Exception, runner.run_experiment, experiment)
+        
+        # assert handling of case error
+        mockMSI = mock.Mock(spec=MockMSI)
+        mockMSI.name = 'test'
+        mockMSI.run_model.side_effect = CaseError("message", {})
+        msis = {'test':mockMSI}
+        runner = ExperimentRunner(msis, {})
+    
+        experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
+              'experiment id': 0}
+
+    
 if __name__ == "__main__":
     unittest.main()
