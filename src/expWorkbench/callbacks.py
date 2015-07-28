@@ -85,12 +85,13 @@ class AbstractCallback(object):
         if self.i % self.reporting_interval == 0:
             info(str(self.i)+" cases completed")
 
+    @abc.abstractmethod
     def get_results(self):
         """
         method for retrieving the results. Called after all experiments have 
         been completed
         """
-        self.results
+        
 
         
 class DefaultCallback(AbstractCallback):
@@ -176,15 +177,12 @@ class DefaultCallback(AbstractCallback):
             
     def _store_result(self, case_id, result):
         for outcome in self.outcomes:
-            try:
-                debug("storing {}".format(outcome))
-            except ValueError:
-                print "what"
+            debug("storing {}".format(outcome))
             
             try:
                 outcome_res = result[outcome]
             except KeyError:
-                ema_logging.debug("%s not in msi" % outcome)
+                ema_logging.debug("%s not specified as outcome in msi" % outcome)
             else:
                 try:
                     self.results[outcome][case_id, ] = outcome_res

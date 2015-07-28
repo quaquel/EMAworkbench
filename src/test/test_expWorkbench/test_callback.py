@@ -10,6 +10,8 @@ import unittest
 
 from expWorkbench.callbacks import DefaultCallback
 from expWorkbench import ParameterUncertainty, Outcome
+from expWorkbench.uncertainties import CategoricalUncertainty
+from expWorkbench.ema_exceptions import EMAError
 
 
 
@@ -73,19 +75,30 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertIn(outcomes[0].name, out.keys())
         self.assertEqual(out[outcomes[0].name].shape, (3,2,2))
 
-    
+        # case 4 asser raises EMAError
+        callback = DefaultCallback(uncs, 
+                                   [outcome.name for outcome in outcomes], 
+                                   nr_experiments=nr_experiments)
+        result = {outcomes[0].name: np.random.rand(2,2,2)}
+        self.assertRaises(EMAError, callback, 0, case, policy, name, result)
+              
     def test_store_cases(self):
         nr_experiments = 3
         uncs = [ParameterUncertainty((0,1), "a"),
-               ParameterUncertainty((0,1), "b")]
+               ParameterUncertainty((0,1), "b"),
+               CategoricalUncertainty([0, 1, 2], "c"),
+               ParameterUncertainty((0,1), "d", integer=True),]
         outcomes = [Outcome("test", time=True)]
         case = {unc.name:random.random() for unc in uncs}
+        case["c"] = int(round(case["c"]*2))
+        case["d"] = int(round(case["d"]))
         policy = {'name':'none'}
         name = "test"
      
         callback = DefaultCallback(uncs, 
                                    [outcome.name for outcome in outcomes], 
-                                   nr_experiments=nr_experiments)
+                                   nr_experiments=nr_experiments,
+                                   reporting_interval=1)
         result = {outcomes[0].name: 1}
         callback(0, case, policy, name, result)
          

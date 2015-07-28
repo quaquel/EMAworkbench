@@ -53,12 +53,12 @@ class CaseError(EMAError):
         c = ""
         for key, value in self.case.items():
             c += key
-            c += " : "
+            c += ":"
             c += str(value)
-            c += '; '
-        c+= self.policy
+            c += ', '
+        c+= 'policy:'+self.policy
         
-        return self.message + ' case: ' + c
+        return self.message + ' case: {' + c + "}"
 
     def __repr__(self):
         return "%s case: %s " % (self.message, repr(self.case))        
