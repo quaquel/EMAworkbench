@@ -120,6 +120,31 @@ class ModelEnsembleTestCase(unittest.TestCase):
                 self.assertIn(unc.name, experiment.keys())
             self.assertNotEqual(len(experiment.keys()), len(model.uncertainties)+3)
             self.assertEqual(len(experiment.keys()), 5)
+            
+            
+        # predefined experiments
+        model_a = DummyInterface(None, "A")
+        
+        # let's add some uncertainties to this
+        shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
+        shared_abc_2 = ParameterUncertainty((0,1), "shared abc 2")
+        shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
+        a_1 = ParameterUncertainty((0,1), "a 1")
+        model_a.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, a_1]
+        ensemble = ModelEnsemble()
+        ensemble.model_structure = model_a
+        
+        cases = [{"shared abc 1":1, "shared abc 2":2, "shared ab 1":3, "a 1": 4}]
+        
+        experiments, nr_of_exp, uncertainties = ensemble._generate_experiments(cases, UNION)
+        
+        self.assertEqual(nr_of_exp, 1)
+        self.assertIn(shared_abc_1, uncertainties)
+        self.assertIn(shared_abc_2, uncertainties)
+        self.assertIn(shared_ab_1, uncertainties)
+        self.assertIn(a_1, uncertainties)
+        
+        
 
     def test_determine_unique_attributes(self):
         # everything shared
@@ -152,6 +177,21 @@ class ModelEnsembleTestCase(unittest.TestCase):
         self.assertIn(b_1.name, element_dict.keys(), msg)
         
         self.assertEqual(len(overview_dict.keys()),5, msg)
+        
+        
+        # let's add some uncertainties to this
+        shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
+        shared_abc_2 = ParameterUncertainty((0,2), "shared abc 1")
+        shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
+        a_1 = ParameterUncertainty((0,1), "a 1")
+        b_1 = ParameterUncertainty((0,1), "b 1")
+        model_a.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, a_1]
+        model_b.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, shared_bc_1, b_1]
+        
+        ensemble = ModelEnsemble()
+        ensemble.model_structures = [model_a, model_b, model_c]
+        
+        self.assertRaises(EMAError, ensemble._determine_unique_attributes, 'uncertainties')
         
 
     def test_perform_experiments(self):
@@ -195,6 +235,10 @@ class ModelEnsembleTestCase(unittest.TestCase):
         ensemble.perform_experiments(10, which_uncertainties=INTERSECTION, 
                                          which_outcomes=INTERSECTION,
                                          reporting_interval=1 )
+        
+        self.assertRaises(ValueError, ensemble.perform_experiments,
+                         10, which_uncertainties=INTERSECTION, 
+                         which_outcomes='Label')
 
     
     def test_experiment_generator(self):
@@ -300,6 +344,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
     
         experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
               'experiment id': 0}
+
+        runner.run_experiment(experiment)
 
     
 if __name__ == "__main__":

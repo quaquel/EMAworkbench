@@ -218,7 +218,7 @@ class ModelEnsemble(object):
                                             self.model_structures])]
             outcomes = [outcome.name for outcome in outcomes]
         else:
-            raise ValueError("incomplete value for which_outcomes")
+            raise ValueError("unknown value for which_outcomes")
          
         info(str(nr_of_exp) + " experiment will be executed")
                 
