@@ -9,6 +9,14 @@ import unittest
 from expWorkbench import ParameterUncertainty, CategoricalUncertainty, Outcome
 from connectors.netlogo import NetLogoModelStructureInterface
 
+__test__ = True
+
+try:
+    import jpype
+except ImportError:
+    __test__ = False    
+
+
 def setUpModule():
     global cwd 
     cwd = os.getcwd()

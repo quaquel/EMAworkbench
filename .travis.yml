@@ -22,7 +22,7 @@ install:
 # Replace dep1 dep2 ... with your dependencies
 - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION $DEPS pip
 - pip install deap
-- pip install jpype
+# jpype installation code to be added
 
 script:
 - nosetests
