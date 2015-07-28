@@ -38,8 +38,8 @@ class ModelStructureInterface(object):
     #: results, this should be a dict with the names of the outcomes as key
     output = {}
 
-    working_directory = None
-    
+    _working_directory = None
+
     def __init__(self, working_directory, name):
         """
         interface to the model
@@ -49,7 +49,6 @@ class ModelStructureInterface(object):
                      alphanumerical characters. 
         """
         self.name=None
-        self.working_directory=None
         
         super(ModelStructureInterface, self).__init__()
         if working_directory:
@@ -60,6 +59,14 @@ class ModelStructureInterface(object):
                             characters")
         
         self.name = name
+    
+    @property
+    def working_directory(self):
+        return self._working_directory
+    
+    @working_directory.setter
+    def working_directory(self, path):
+        self.set_working_directory(path)
     
     @abc.abstractmethod
     def model_init(self, policy, kwargs):
@@ -142,4 +149,4 @@ class ModelStructureInterface(object):
         wd = os.path.abspath(wd)
         debug('setting working directory to '+ wd)
         
-        self.working_directory = wd
+        self._working_directory = wd
