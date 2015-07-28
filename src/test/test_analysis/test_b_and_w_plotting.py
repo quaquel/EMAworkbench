@@ -5,17 +5,21 @@ Created on Sep 13, 2013
 '''
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 from analysis.b_and_w_plotting import set_fig_to_bw, HATCHING, GREYSCALE
 from analysis.plotting_util import make_legend, PATCH
 
-# don't run these tests using nosetest
-__test__ = False
+# figure_dir = r'./tmp_figs'
+# d = os.path.dirname(figure_dir)
+# if not os.path.exists(d):
+#     os.makedirs(d)
+
+
 
 def test_scatter():
     x = np.random.rand(5)
     y = np.random.rand(5)
-#     color = ['b','r','k','y','r']
     color = 'r'
     
     fig = plt.figure()
