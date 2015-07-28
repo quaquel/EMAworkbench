@@ -3,7 +3,10 @@ Created on 15 mrt. 2013
 
 @author: localadmin
 '''
-import jpype
+try:
+    import jpype
+except ImportError:
+    jpype = None
 import os
 
 import numpy as np
