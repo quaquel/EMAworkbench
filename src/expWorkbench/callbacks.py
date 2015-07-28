@@ -166,7 +166,6 @@ class DefaultCallback(AbstractCallback):
         self.cases = np.empty((nr_experiments,), dtype=self.dtypes)
         self.cases[:] = np.NAN
         self.nr_experiments = nr_experiments
-        
 
     def _store_case(self, case_id, case, model, policy):
         case = [case.get(key) for key in self.uncertainties]
