@@ -3,11 +3,20 @@ Created on 22 Jan 2013
 
 @author: jhkwakkel
 '''
-import random
+
 import numpy as np
+import random
+import unittest
+
 from expWorkbench.callbacks import DefaultCallback
 from expWorkbench import ParameterUncertainty, ema_logging, Outcome
 from expWorkbench.ema_logging import debug
+
+class Test(unittest.TestCase):
+
+
+    def testName(self):
+        pass
 
 def test_callback_initalization():
     
