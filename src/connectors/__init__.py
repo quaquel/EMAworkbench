@@ -9,3 +9,9 @@ try:
 except ImportError:
     sys.stderr.write("excel connector not available\n")
 del sys
+
+try:
+    import netlogo
+except ImportError:
+    sys.stderr.write("netlogo connector not available\n")
+del sys
