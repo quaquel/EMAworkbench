@@ -24,6 +24,10 @@ install:
 - pip install coveralls
 # jpype installation code to be added
 
+before_install:
+- "export DISPLAY=:99.0"
+- "sh -e /etc/init.d/xvfb start"
+
 script:
 - nosetests --with-coverage --cover-package=expWorkbench
 
