@@ -27,7 +27,7 @@ def test_scatter():
     ax.scatter(x,y, c=color, s=80, marker='x')
     set_fig_to_bw(fig)
     
-    plt.show()
+    plt.draw()
 
 def test_fill_between():
     x = np.linspace(0, 1)
@@ -44,7 +44,7 @@ def test_fill_between():
     ax.fill_between(x, y1, y2,label='test')
     set_fig_to_bw(fig, style=GREYSCALE)
     
-    plt.show()
+    plt.draw()
 
 def test_fig_legend():
 
@@ -52,10 +52,11 @@ def test_fig_legend():
     ax = fig.add_subplot(111)
     make_legend(['a','b','c'], fig, legend_type=PATCH)
     set_fig_to_bw(fig, style=GREYSCALE)
-    plt.show()
+    plt.draw()
     
 
 if __name__ == "__main__":
-#     test_scatter()
-#     test_fill_between()
+    test_scatter()
+    test_fill_between()
     test_fig_legend()
+    plt.show()
