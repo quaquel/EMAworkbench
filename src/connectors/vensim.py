@@ -303,7 +303,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
                               output.name 
                               )
             debug("successfully retrieved data for %s" %output.name)
-            if result is None:
+            if result is not None:
                 if result.shape[0] != self.run_length:
                     got = result.shape[0]
                     data = np.empty((self.run_length))
