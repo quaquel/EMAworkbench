@@ -1,7 +1,7 @@
 '''
 Created on Jul 28, 2015
 
-.. codeauthor:: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import unittest
 from expWorkbench.ema_exceptions import EMAError, CaseError

@@ -1,7 +1,7 @@
 '''
 Created on 22 Jan 2013
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import numpy as np
 import random

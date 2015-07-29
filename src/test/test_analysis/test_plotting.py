@@ -1,7 +1,7 @@
 '''
 Created on 22 jul. 2012
 
-@author: localadmin
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import numpy as np
 import matplotlib.pyplot as plt

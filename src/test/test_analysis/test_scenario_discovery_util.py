@@ -1,7 +1,7 @@
 '''
 Created on May 22, 2015
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 from __future__ import division
 import unittest
@@ -136,7 +136,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
                             dtype=[('a', np.float),
                                    ('b', np.float),
                                    ('c', np.float)])
-        uncs = np.lib.recfunctions.get_names(box_init.dtype)
+        uncs = np.lib.recfunctions.get_names(box_init.dtype) # @UndefinedVariable
         normalized = sdutil._normalize(box_lim, box_init, uncs)
         
         for i, lims in enumerate([(0, 2/3),(0, 1),(0,0.2)]):

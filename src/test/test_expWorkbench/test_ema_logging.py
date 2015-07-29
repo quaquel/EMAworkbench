@@ -1,7 +1,7 @@
 '''
 Created on Jul 28, 2015
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import logging
 import mock

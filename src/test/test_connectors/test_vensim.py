@@ -1,7 +1,7 @@
 '''
 Created on Jul 17, 2014
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import os
 import unittest
