@@ -547,5 +547,5 @@ def save_optimization_results(results, file_name, zipped=True):
 
     '''
 
-    save_results(results, file_name, zipped=zipped) 
+    pickled_save_results(results, file_name, zipped=zipped) 
 
