@@ -1,7 +1,7 @@
 '''
 Created on Feb 28, 2012
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 from __future__ import division
 import numpy as np

@@ -1,7 +1,7 @@
 '''
 Created on 22 nov. 2012
 
-@author: localadmin
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import os
 import unittest
@@ -116,6 +116,13 @@ class Load_ResultsTestCase(unittest.TestCase):
         if logical:
             ema_logging.info('3d loaded successfully')
     
+class ExperimentsToCasesTestCase(unittest.TestCase):
+    pass
+
+class MergeResultsTestCase(unittest.TestCase):
+    pass
+
+
 
 if __name__ == '__main__':
     unittest.main()
