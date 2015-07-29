@@ -3,6 +3,7 @@ Created on 22 Jan 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+import mock
 import numpy as np
 import random
 import numpy.lib.recfunctions as rf
@@ -12,6 +13,7 @@ from expWorkbench.callbacks import DefaultCallback
 from expWorkbench import ParameterUncertainty, Outcome
 from expWorkbench.uncertainties import CategoricalUncertainty
 from expWorkbench.ema_exceptions import EMAError
+import expWorkbench
 
 
 
@@ -75,12 +77,25 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertIn(outcomes[0].name, out.keys())
         self.assertEqual(out[outcomes[0].name].shape, (3,2,2))
 
-        # case 4 asser raises EMAError
+        # case 4 assert raises EMAError
         callback = DefaultCallback(uncs, 
                                    [outcome.name for outcome in outcomes], 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: np.random.rand(2,2,2)}
         self.assertRaises(EMAError, callback, 0, case, policy, name, result)
+        
+        # KeyError
+        with mock.patch('expWorkbench.ema_logging.debug') as mocked_logging:
+            callback = DefaultCallback(uncs, 
+                           [outcome.name for outcome in outcomes], 
+                           nr_experiments=nr_experiments)
+            result = {'incorrect': np.random.rand(2,)}
+            callback(0, case, policy, name, result)
+            
+            for outcome in outcomes:
+                mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
+            
+            
               
     def test_store_cases(self):
         nr_experiments = 3
