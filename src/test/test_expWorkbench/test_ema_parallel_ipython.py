@@ -188,93 +188,93 @@ class TestEngineLoggerAdapter(unittest.TestCase):
 #         client.clear(block=True)        
 
 
-class TestLogWatcher(unittest.TestCase):
-     
-    @classmethod
-    def setUpClass(cls):
-        with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-            cls.client = parallel.Client(profile='default')
-            cls.url = 'tcp://{}:20202'.format(localhost())
-            cls.watcher, cls.thread = ema.start_logwatcher(cls.url)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.watcher.stop()
-        
-        time.sleep(2)
-        
-        # horrible hack to kill the watcher thread
-        # for some reason despite it being a deamon thread, it
-        # is not terminated properly
-        if cls.thread.isAlive():
-            
-            exc = ctypes.py_object(KeyboardInterrupt)
-            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
-                ctypes.c_long(cls.thread.ident), exc)
-            if res == 0:
-                raise ValueError("nonexistent thread id")
-            elif res > 1:
-                # """if it returns a number greater than one, you're in trouble,
-                # and you should call it again with exc=NULL to revert the effect"""
-                ctypes.pythonapi.PyThreadState_SetAsyncExc(cls.thread.ident, None)
-                raise SystemError("PyThreadState_SetAsyncExc failed")
-
-    def tearDown(self):
-        self.client.clear(block=True)
- 
-    def test_init(self):
-        self.assertEqual(self.url, self.watcher.url)
-        self.assertEqual({ema_logging.DEBUG:{'EMA'}}, self.watcher.topic_subscriptions)
- 
-    def test_extract_level(self):
-        level = 'INFO'
-        topic = ema.SUBTOPIC
-        topic_str = 'engine.1.{}.{}'.format(level, topic)
-        extracted_level, extracted_topics = self.watcher._extract_level(topic_str)
-        
-        self.assertEqual(ema_logging.INFO, extracted_level)
-        self.assertEqual(['engine', '1', topic], extracted_topics)
-        
-        topic = ema.SUBTOPIC
-        topic_str = 'engine.1.{}'.format(topic)
-        extracted_level, extracted_topics = self.watcher._extract_level(topic_str)
-        
-        self.assertEqual(ema_logging.INFO, extracted_level)
-        self.assertEqual(['engine', '1', topic], extracted_topics)
-     
-    def test_subscribe_to_topic(self):
-
-        self.watcher.subscribe_to_topic(ema_logging.INFO, 'EMA')
-
-        self.assertEqual({ema_logging.DEBUG:{'EMA'},
-                          ema_logging.INFO: {'EMA'}}, self.watcher.topic_subscriptions)
-
-     
-    def test_log_message(self):
-        # no subscription on level
-        with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-            self.watcher.logger = mocked_logger
-            raw = ['engine.1', 'test']
-            self.watcher.log_message(raw)
-            mocked_logger.log.assert_called_once_with(ema_logging.INFO, '[engine.1] test')
-        
-        with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-            self.watcher.logger = mocked_logger
-            raw = ['engine.1.DEBUG.EMA', 'test']
-            self.watcher.log_message(raw)
-            mocked_logger.log.assert_called_once_with(ema_logging.DEBUG, '[engine.1.EMA] test')
-
-        with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-            self.watcher.logger = mocked_logger
-            raw = ['engine.1.DEBUG', 'test', 'more']
-            self.watcher.log_message(raw)
-            mocked_logger.error.assert_called_once_with("Invalid log message: %s"%raw)
-
-        with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-            self.watcher.logger = mocked_logger
-            raw = ['engine1DEBUG', 'test']
-            self.watcher.log_message(raw)
-            mocked_logger.error.assert_called_once_with("Invalid log message: %s"%raw)
+# class TestLogWatcher(unittest.TestCase):
+#      
+#     @classmethod
+#     def setUpClass(cls):
+#         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
+#             cls.client = parallel.Client(profile='default')
+#             cls.url = 'tcp://{}:20202'.format(localhost())
+#             cls.watcher, cls.thread = ema.start_logwatcher(cls.url)
+# 
+#     @classmethod
+#     def tearDownClass(cls):
+#         cls.watcher.stop()
+#         
+#         time.sleep(2)
+#         
+#         # horrible hack to kill the watcher thread
+#         # for some reason despite it being a deamon thread, it
+#         # is not terminated properly
+#         if cls.thread.isAlive():
+#             
+#             exc = ctypes.py_object(KeyboardInterrupt)
+#             res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+#                 ctypes.c_long(cls.thread.ident), exc)
+#             if res == 0:
+#                 raise ValueError("nonexistent thread id")
+#             elif res > 1:
+#                 # """if it returns a number greater than one, you're in trouble,
+#                 # and you should call it again with exc=NULL to revert the effect"""
+#                 ctypes.pythonapi.PyThreadState_SetAsyncExc(cls.thread.ident, None)
+#                 raise SystemError("PyThreadState_SetAsyncExc failed")
+# 
+#     def tearDown(self):
+#         self.client.clear(block=True)
+#  
+#     def test_init(self):
+#         self.assertEqual(self.url, self.watcher.url)
+#         self.assertEqual({ema_logging.DEBUG:{'EMA'}}, self.watcher.topic_subscriptions)
+#  
+#     def test_extract_level(self):
+#         level = 'INFO'
+#         topic = ema.SUBTOPIC
+#         topic_str = 'engine.1.{}.{}'.format(level, topic)
+#         extracted_level, extracted_topics = self.watcher._extract_level(topic_str)
+#         
+#         self.assertEqual(ema_logging.INFO, extracted_level)
+#         self.assertEqual(['engine', '1', topic], extracted_topics)
+#         
+#         topic = ema.SUBTOPIC
+#         topic_str = 'engine.1.{}'.format(topic)
+#         extracted_level, extracted_topics = self.watcher._extract_level(topic_str)
+#         
+#         self.assertEqual(ema_logging.INFO, extracted_level)
+#         self.assertEqual(['engine', '1', topic], extracted_topics)
+#      
+#     def test_subscribe_to_topic(self):
+# 
+#         self.watcher.subscribe_to_topic(ema_logging.INFO, 'EMA')
+# 
+#         self.assertEqual({ema_logging.DEBUG:{'EMA'},
+#                           ema_logging.INFO: {'EMA'}}, self.watcher.topic_subscriptions)
+# 
+#      
+#     def test_log_message(self):
+#         # no subscription on level
+#         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
+#             self.watcher.logger = mocked_logger
+#             raw = ['engine.1', 'test']
+#             self.watcher.log_message(raw)
+#             mocked_logger.log.assert_called_once_with(ema_logging.INFO, '[engine.1] test')
+#         
+#         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
+#             self.watcher.logger = mocked_logger
+#             raw = ['engine.1.DEBUG.EMA', 'test']
+#             self.watcher.log_message(raw)
+#             mocked_logger.log.assert_called_once_with(ema_logging.DEBUG, '[engine.1.EMA] test')
+# 
+#         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
+#             self.watcher.logger = mocked_logger
+#             raw = ['engine.1.DEBUG', 'test', 'more']
+#             self.watcher.log_message(raw)
+#             mocked_logger.error.assert_called_once_with("Invalid log message: %s"%raw)
+# 
+#         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
+#             self.watcher.logger = mocked_logger
+#             raw = ['engine1DEBUG', 'test']
+#             self.watcher.log_message(raw)
+#             mocked_logger.error.assert_called_once_with("Invalid log message: %s"%raw)
 
 
 class TestEngine(unittest.TestCase):
