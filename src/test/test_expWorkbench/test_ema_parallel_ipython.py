@@ -160,32 +160,32 @@ class TestEngineLoggerAdapter(unittest.TestCase):
             self.assertEqual(input_kwargs, kwargs)
          
  
-    def test_on_cluster(self):
-        client = parallel.Client(profile='default')
-        client[:].apply_sync(ema.set_engine_logger)
-         
-        def test_engine_logger():
-            from expWorkbench import ema_logging # @Reimport
-            from expWorkbench import ema_parallel_ipython as ema # @Reimport
-             
-            logger = ema_logging._logger
-             
-            tests = []
-            tests.append((type(logger) == ema.EngingeLoggerAdapter,
-                          'logger adapter'))
-            tests.append((logger.logger.level == ema_logging.DEBUG,
-                          'logger level'))
-            tests.append((logger.topic == ema.SUBTOPIC,
-                          'logger subptopic'))
-            return tests
-             
-        for engine in client.ids:
-            tests = client[engine].apply_sync(test_engine_logger)
-            for test in tests:
-                test, msg = test
-                self.assertTrue(test, msg)
-         
-        client.clear(block=True)        
+#     def test_on_cluster(self):
+#         client = parallel.Client(profile='default')
+#         client[:].apply_sync(ema.set_engine_logger)
+#          
+#         def test_engine_logger():
+#             from expWorkbench import ema_logging # @Reimport
+#             from expWorkbench import ema_parallel_ipython as ema # @Reimport
+#              
+#             logger = ema_logging._logger
+#              
+#             tests = []
+#             tests.append((type(logger) == ema.EngingeLoggerAdapter,
+#                           'logger adapter'))
+#             tests.append((logger.logger.level == ema_logging.DEBUG,
+#                           'logger level'))
+#             tests.append((logger.topic == ema.SUBTOPIC,
+#                           'logger subptopic'))
+#             return tests
+#              
+#         for engine in client.ids:
+#             tests = client[engine].apply_sync(test_engine_logger)
+#             for test in tests:
+#                 test, msg = test
+#                 self.assertTrue(test, msg)
+#          
+#         client.clear(block=True)        
 
 
 class TestLogWatcher(unittest.TestCase):
