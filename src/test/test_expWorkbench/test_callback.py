@@ -13,9 +13,6 @@ from expWorkbench.callbacks import DefaultCallback
 from expWorkbench import ParameterUncertainty, Outcome
 from expWorkbench.uncertainties import CategoricalUncertainty
 from expWorkbench.ema_exceptions import EMAError
-import expWorkbench
-
-
 
 class TestDefaultCallback(unittest.TestCase):
     def test_init(self):
@@ -94,8 +91,6 @@ class TestDefaultCallback(unittest.TestCase):
             
             for outcome in outcomes:
                 mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
-            
-            
               
     def test_store_cases(self):
         nr_experiments = 3

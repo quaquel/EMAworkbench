@@ -92,19 +92,22 @@ class ParameterUncertainty(AbstractUncertainty ):
               name of the uncertainty
         integer: bool 
                  if True, the parametric uncertainty is an integer
+                 
+        Raises
+        ------
+        ValueError
+            if the lenght of values is not equal to 2, or when the first
+            element in values is larger than the second element in values
+                 
         
         '''
         if len(values)!=2:
-            raise ValueError("too many values to unpack")
+            raise ValueError("length of values for %s incorrect " % name)
         if (values[0] >= values[1]):
             raise ValueError("upper limit is not larger than lower limit")
        
         super(ParameterUncertainty, self).__init__(values, name)
         
-        
-        if len(values) != 2:
-            raise EMAError("length of values for %s incorrect " % name)
-
         # self.dist should be a string. This string should be a key     
         # in the distributions dictionary 
         if integer:
@@ -153,11 +156,35 @@ class CategoricalUncertainty(ParameterUncertainty):
                                                      integer=True)
         self.integer = True
                 
-    def transform(self, param):
-        '''transform an integer to a category '''
-        return self.categories[param]
+    def transform(self, value):
+        '''transform an integer to a category 
+        
+        Parameter
+        ---------
+        name : int
+               value for which you want the category
+               
+        Raises
+        ------
+        IndexError
+            if value is out of bounds
+        '''
+
+        return self.categories[value]
     
     def invert(self, name):
-        ''' invert a category to an integer'''
+        ''' invert a category to an integer
+        
+        Parameter
+        ---------
+        name : obj
+               category
+               
+        Raises
+        ------
+        ValueError
+            if category is not found
+        
+        '''
         return self.categories.index(name)
 

@@ -165,39 +165,38 @@ class LHSSampler(AbstractSampler):
         '''
         generate a Latin Hypercupe Sample.
         
-        :param distribution: the distribution to sample from
-        :param params: the parameters specifying the distribution
-        :param size: the number of samples to generate
+        Parameters
+        ----------
+        distribution : scipy distribution
+                       the distribution to sample from
+        params : ti[;e
+                 the parameters specifying the distribution
+        size : int
+               the number of samples to generate
     
         '''
         
         return self._lhs(self.distributions[distribution], params, size)
 
-    def _lhs(self, dist, parms, siz=100):
+    def _lhs(self, dist, parms, siz):
         '''
         Latin Hypercube sampling of any distribution.
 
         modified from code found `online <http://code.google.com/p/bayesian-inference/source/browse/trunk/BIP/Bayes/lhs.py?r=3cfbbaa5806f2b8cc9e2457d967b0a58a3ce459c>`_.
     
-        :param dist: random number generator from `scipy.stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
-        :param parms: tuple of parameters as required for dist.
-        :param siz: number or shape tuple for the output sample
+        Parameters
+        ----------
+        dist : random number generator from `scipy.stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
+        parmas : tuple
+                 tuple of parameters as required for dist.
+        siz : int 
+              number of samples
     
         '''
-        if not isinstance(dist, (stats.rv_discrete,stats.rv_continuous)):
-            raise TypeError('dist is not a scipy.stats distribution object')
-        #number of samples
-        n=siz
-        if isinstance(siz,(tuple,list)):
-            n= np.product(siz)
-        
-        perc = np.arange(0,1.,1./n)
+        perc = np.arange(0,1.,1./siz)
         np.random.shuffle(perc)
-        smp = stats.uniform(perc,1./n).rvs() 
+        smp = stats.uniform(perc,1./siz).rvs() 
         v = dist(*parms).ppf(smp)
-        
-        if isinstance(siz,(tuple,list)):
-            v.shape = siz
         return v
     
         
@@ -214,9 +213,14 @@ class MonteCarloSampler(AbstractSampler):
         '''
         generate a Monte Carlo Sample.
         
-        :param distribution: the distribution to sample from
-        :param params: the parameters specifying the distribution
-        :param size: the number of samples to generate
+        Parameters
+        ----------
+        distribution : scipy distribution
+                       the distribution to sample from
+        params : ti[;e
+                 the parameters specifying the distribution
+        size : int
+               the number of samples to generate
         '''
         
         return self.distributions[distribution](*params).rvs(size)
@@ -242,15 +246,17 @@ class FullFactorialSampler(AbstractSampler):
         
         Parameters
         ----------
-        :param uncertainties: a collection of 
-                               :class:`~uncertainties.ParameterUncertainty` 
-                               and :class:`~uncertainties.CategoricalUncertainty`
-                               instances.
-        :param size: the number of samples to generate.
-        :rtype: dict with the uncertainty.name as key, and the sample as value
+        uncertainties : collection
+                        a collection of :class:`~uncertainties.ParameterUncertainty` 
+                        and :class:`~uncertainties.CategoricalUncertainty`
+                        instances.
+        size : int
+                the number of samples to generate.
         
         Returns
         -------
+        dict with the uncertainty.name as key, and the sample as value
+        
         
         '''
                 

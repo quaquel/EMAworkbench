@@ -26,7 +26,7 @@ class SamplerTestCase(unittest.TestCase):
         self.assertIn('1', design, msg)
         self.assertIn('2', design, msg)
         self.assertIn('3', design, msg)
-        self.assertEqual(nr_designs, actual_nr_designs, ) 
+        self.assertEqual(nr_designs, actual_nr_designs, msg) 
     
     def test_lhs_sampler(self):
         sampler = LHSSampler()
