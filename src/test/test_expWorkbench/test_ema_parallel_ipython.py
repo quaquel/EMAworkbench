@@ -200,7 +200,7 @@ class TestLogWatcher(unittest.TestCase):
  
     @classmethod
     def tearDownClass(cls):
-        sys.stderr.write("trying to tear down log watcher thread")
+        sys.stderr.write("trying to tear down log watcher thread\n")
         
         cls.watcher.stop()
          
@@ -210,15 +210,15 @@ class TestLogWatcher(unittest.TestCase):
         # for some reason despite it being a deamon thread, it
         # is not terminated properly
         if cls.thread.isAlive():
-            sys.stderr.write("thread still alive")
+            sys.stderr.write("thread still alive\n")
              
              
             exc = ctypes.py_object(KeyboardInterrupt)
             res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
                 ctypes.c_long(cls.thread.ident), 
-                ctypes.py_object(exc))
+                exc)
             
-            sys.stderr.write("send keyboard interrupt")
+            sys.stderr.write("send keyboard interrupt\n")
             if res == 0:
                 sys.stderr.write("value error")
                 raise ValueError("nonexistent thread id")

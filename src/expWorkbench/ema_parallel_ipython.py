@@ -11,6 +11,7 @@ import logging
 import os
 import shutil
 import socket
+import sys
 import threading
 import zmq
 
@@ -192,6 +193,7 @@ def start_logwatcher(url):
             logwatcher.loop.start()
         except KeyboardInterrupt:
             print "Logging Interrupted, shutting down...\n"
+            sys.stderr.write("received keyboard interrupt\n")
     
     logwatcher_thread = threading.Thread(target=starter)
     logwatcher_thread.deamon = True
