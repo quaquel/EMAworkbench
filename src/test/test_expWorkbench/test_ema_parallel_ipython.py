@@ -216,6 +216,8 @@ class TestLogWatcher(unittest.TestCase):
             exc = ctypes.py_object(KeyboardInterrupt)
             res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
                 ctypes.c_long(cls.thread.ident), exc)
+            
+            sys.stderr.write("send keyboard interrupt")
             if res == 0:
                 sys.stderr.write("value error")
                 raise ValueError("nonexistent thread id")
