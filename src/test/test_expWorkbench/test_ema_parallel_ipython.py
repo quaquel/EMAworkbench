@@ -194,42 +194,16 @@ class TestLogWatcher(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-#             cls.client = parallel.Client(profile='default')
+            cls.client = parallel.Client(profile='default')
             cls.url = 'tcp://{}:20202'.format(localhost())
-            cls.watcher, cls.thread = ema.start_logwatcher(cls.url)
+            cls.watcher = ema.start_logwatcher(cls.url)
  
     @classmethod
     def tearDownClass(cls):
-        sys.stderr.write("trying to tear down log watcher thread\n")
-        
         cls.watcher.stop()
 
-        # horrible hack to kill the watcher thread
-        # for some reason despite it being a deamon thread, it
-        # is not terminated properly
-        if cls.thread.isAlive():
-            sys.stderr.write("thread still alive\n")
-             
-             
-            exc = ctypes.py_object(SystemExit)
-            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
-                ctypes.c_long(cls.thread.ident), 
-                exc)
-            
-            sys.stderr.write("send keyboard interrupt\n")
-                
-            if res == 0:
-                sys.stderr.write("value error")
-                raise ValueError("nonexistent thread id")
-            elif res > 1:
-                # """if it returns a number greater than one, you're in trouble,
-                # and you should call it again with exc=NULL to revert the effect"""
-                sys.stderr.write("system error")
-                ctypes.pythonapi.PyThreadState_SetAsyncExc(cls.thread.ident, None)
-                raise SystemError("PyThreadState_SetAsyncExc failed")
- 
-#     def tearDown(self):
-#         self.client.clear(block=True)
+    def tearDown(self):
+        self.client.clear(block=True)
   
     def test_init(self):
         self.assertEqual(self.url, self.watcher.url)
