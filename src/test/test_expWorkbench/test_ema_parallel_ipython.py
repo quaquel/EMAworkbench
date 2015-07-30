@@ -213,7 +213,7 @@ class TestLogWatcher(unittest.TestCase):
             sys.stderr.write("thread still alive\n")
              
              
-            exc = ctypes.py_object(KeyboardInterrupt)
+            exc = ctypes.py_object(SystemExit)
             res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
                 ctypes.c_long(cls.thread.ident), 
                 exc)
