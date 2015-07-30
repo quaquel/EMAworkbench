@@ -100,6 +100,7 @@ class LogWatcher(object):
     def stop(self):
         '''stop the log watcher'''
         self.stream.stop_on_recv()
+        self.stream.close()
  
     def subscribe(self):
         """Update our SUB socket's subscriptions."""
@@ -191,7 +192,7 @@ def start_logwatcher(url):
         logwatcher.start()
         try:
             logwatcher.loop.start()
-        except KeyboardInterrupt:
+        except KeyboardInterrupt, SystemExit:
             print "Logging Interrupted, shutting down...\n"
             sys.stderr.write("received keyboard interrupt\n")
     
