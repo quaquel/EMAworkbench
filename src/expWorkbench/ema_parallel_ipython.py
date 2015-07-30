@@ -11,8 +11,8 @@ import logging
 import os
 import shutil
 import socket
-import sys
 import threading
+import time
 import zmq
 
 import IPython
@@ -22,6 +22,7 @@ from expWorkbench import EMAError, EMAParallelError
 import ema_logging
 from ema_logging import debug, info
 import model_ensemble
+from zmq.error import ZMQError
 
 SUBTOPIC = "EMA"
 engine = None
@@ -100,6 +101,9 @@ class LogWatcher(object):
     def stop(self):
         '''stop the log watcher'''
         self.stream.stop_on_recv()
+        
+        time.sleep((1))
+        
         self.stream.close()
  
     def subscribe(self):
@@ -192,15 +196,14 @@ def start_logwatcher(url):
         logwatcher.start()
         try:
             logwatcher.loop.start()
-        except KeyboardInterrupt, SystemExit:
-            print "Logging Interrupted, shutting down...\n"
-            sys.stderr.write("received keyboard interrupt\n")
+        except ZMQError:
+            print 'shutting down log watcher'
     
     logwatcher_thread = threading.Thread(target=starter)
     logwatcher_thread.deamon = True
     logwatcher_thread.start()
     
-    return logwatcher, logwatcher_thread
+    return logwatcher
 
 
 def set_engine_logger():
