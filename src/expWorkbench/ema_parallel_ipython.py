@@ -26,8 +26,7 @@ SUBTOPIC = "EMA"
 engine = None
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
-    '''LoggerAdapter that inserts EMA as a topic into log messages
-    '''
+    '''LoggerAdapter that inserts EMA as a topic into log messages'''
 
     def __init__(self, logger, topic):
         self.logger = logger
@@ -58,7 +57,6 @@ class LogWatcher(object):
     LOG_FORMAT = '[%(levelname)s] %(message)s'
     
     topic_subscriptions = {logging.DEBUG : set([SUBTOPIC])}
-    
     
     def __init__(self, url):
         '''
@@ -283,7 +281,6 @@ class Engine(object):
     relevant variables
     
     '''
-
 
     def __init__(self, engine_id, msis, model_init_kwargs={}):
         self.engine_id = engine_id
