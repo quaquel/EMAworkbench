@@ -341,7 +341,7 @@ class AbstractDesigns(object):
     
     @abc.abstractmethod 
     def __iter__(self):
-        pass
+        '''should return iterator'''
 
 class DefaultDesigns(AbstractDesigns):
     def __iter__(self):
