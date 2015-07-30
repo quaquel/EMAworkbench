@@ -31,7 +31,7 @@ from expWorkbench import ema_logging
 
 launchers =[]
 blackhole = open(os.devnull, 'w')
-
+ 
 # Launcher class
 class TestProcessLauncher(LocalProcessLauncher):
     """subclass LocalProcessLauncher, to prevent extra sockets and threads being created 
@@ -54,16 +54,16 @@ class TestProcessLauncher(LocalProcessLauncher):
 
 def add_engines(n=1, profile='default', total=False):
     """add a number of engines to a given profile.
-    
+     
     If total is True, then already running engines are counted, and only
     the additional engines necessary (if any) are started.
     """
     rc = parallel.Client(profile=profile)
     base = len(rc)
-    
+     
     if total:
         n = max(n - base, 0)
-    
+     
     eps = []
     for _ in range(n):
         ep = TestProcessLauncher()
@@ -85,7 +85,7 @@ def add_engines(n=1, profile='default', total=False):
         rc.spin()
     rc.close()
     return eps
-
+ 
 def setUpModule():
     cluster_dir = os.path.join(get_ipython_dir(), 'profile_default')
     engine_json = os.path.join(cluster_dir, 'security', 'ipcontroller-engine.json')
@@ -93,7 +93,7 @@ def setUpModule():
     for json in (engine_json, client_json):
         if os.path.exists(json):
             os.remove(json)
-    
+     
     cp = TestProcessLauncher()
     cp.cmd_and_args = ipcontroller_cmd_argv + \
                 ['--profile=default', '--log-level=20']
@@ -106,12 +106,12 @@ def setUpModule():
         elif time.time()-tic > 15:
             raise RuntimeError("Timeout waiting for the test controller to start.")
         time.sleep(0.1)
-        
+         
     add_engines(2, profile='default', total=True)
-    
+     
     client = parallel.Client(profile='default')
     print client.ids
-
+ 
 def tearDownModule():
     try:
         time.sleep(1)
@@ -194,7 +194,7 @@ class TestLogWatcher(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-            cls.client = parallel.Client(profile='default')
+#             cls.client = parallel.Client(profile='default')
             cls.url = 'tcp://{}:20202'.format(localhost())
             cls.watcher, cls.thread = ema.start_logwatcher(cls.url)
  
@@ -203,9 +203,7 @@ class TestLogWatcher(unittest.TestCase):
         sys.stderr.write("trying to tear down log watcher thread\n")
         
         cls.watcher.stop()
-         
-        time.sleep(2)
-         
+
         # horrible hack to kill the watcher thread
         # for some reason despite it being a deamon thread, it
         # is not terminated properly
@@ -219,6 +217,7 @@ class TestLogWatcher(unittest.TestCase):
                 exc)
             
             sys.stderr.write("send keyboard interrupt\n")
+                
             if res == 0:
                 sys.stderr.write("value error")
                 raise ValueError("nonexistent thread id")
@@ -229,8 +228,8 @@ class TestLogWatcher(unittest.TestCase):
                 ctypes.pythonapi.PyThreadState_SetAsyncExc(cls.thread.ident, None)
                 raise SystemError("PyThreadState_SetAsyncExc failed")
  
-    def tearDown(self):
-        self.client.clear(block=True)
+#     def tearDown(self):
+#         self.client.clear(block=True)
   
     def test_init(self):
         self.assertEqual(self.url, self.watcher.url)
