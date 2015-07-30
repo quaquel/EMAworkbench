@@ -8,7 +8,7 @@ omit =
     */test/*
     */examples/*
     *__init__*
-    */pool/* # taken from python 2.6 code so why add test code
+    *pool*
 
 # Regexes for lines to exclude from consideration
 exclude_lines =
