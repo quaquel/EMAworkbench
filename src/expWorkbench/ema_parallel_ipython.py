@@ -20,9 +20,8 @@ from IPython.config import Application
 
 from expWorkbench import EMAError, EMAParallelError
 import ema_logging
-from ema_logging import debug, info
 import model_ensemble
-from zmq.error import ZMQError
+
 
 SUBTOPIC = "EMA"
 engine = None
@@ -95,20 +94,17 @@ class LogWatcher(object):
     def start(self):
         '''start the log watcher'''
         
-        info('start watching on {}'.format(self.url))
+        ema_logging.info('start watching on {}'.format(self.url))
         self.stream.on_recv(self.log_message)
     
     def stop(self):
         '''stop the log watcher'''
         self.stream.stop_on_recv()
-        
-        time.sleep((1))
-        
         self.stream.close()
  
     def subscribe(self):
         """Update our SUB socket's subscriptions."""
-        debug("Subscribing to: everything")
+        ema_logging.debug("Subscribing to: everything")
         self.stream.setsockopt(zmq.SUBSCRIBE, '') # @UndefinedVariable
         
     def _extract_level(self, topic_str):
@@ -196,8 +192,8 @@ def start_logwatcher(url):
         logwatcher.start()
         try:
             logwatcher.loop.start()
-        except ZMQError:
-            print 'shutting down log watcher'
+        except zmq.error.ZMQError:
+            ema_logging.warning('shutting down log watcher')
     
     logwatcher_thread = threading.Thread(target=starter)
     logwatcher_thread.deamon = True
@@ -220,7 +216,7 @@ def set_engine_logger():
     adapter = EngingeLoggerAdapter(logger, SUBTOPIC)
     ema_logging._logger = adapter
     
-    debug('updated logger')
+    ema_logging.debug('updated logger')
     
 
 def get_engines_by_host(client):
@@ -238,10 +234,7 @@ def get_engines_by_host(client):
     
     '''
     
-    def engine_hostname():
-        return socket.gethostname()
-
-    results = {i:client[i].apply_sync(engine_hostname) for i in client.ids}
+    results = {i:client[i].apply_sync(socket.gethostname) for i in client.ids}
 
     engines_by_host = collections.defaultdict(list)
     for engine_id, host in results.items():
@@ -291,7 +284,6 @@ class Engine(object):
     def __init__(self, engine_id, msis, model_init_kwargs={}):
         self.engine_id = engine_id
         self.msis = msis
-        self.msi_initialization = {}
         self.runner = model_ensemble.ExperimentRunner(msis, model_init_kwargs)
 
     def setup_working_directory(self, dir_name):

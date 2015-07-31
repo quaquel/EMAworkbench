@@ -6,12 +6,11 @@ taken from the ipyparallel test code with some minor adaptations
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import ctypes
 import logging
 import mock
 import os
+import socket
 import subprocess
-import sys
 import time
 import unittest
 
@@ -28,6 +27,8 @@ from IPython.parallel.apps.launcher import (LocalProcessLauncher,
 
 import expWorkbench.ema_parallel_ipython as ema
 from expWorkbench import ema_logging
+import expWorkbench
+
 
 launchers =[]
 blackhole = open(os.devnull, 'w')
@@ -109,8 +110,6 @@ def setUpModule():
          
     add_engines(2, profile='default', total=True)
      
-    client = parallel.Client(profile='default')
-    print client.ids
  
 def tearDownModule():
     try:
@@ -161,6 +160,18 @@ class TestEngineLoggerAdapter(unittest.TestCase):
             self.assertEqual(input_kwargs, kwargs)
          
  
+    def test_engine_logger(self):
+        with mock.patch('expWorkbench.ema_logging._logger'):   
+            # I should probably mock Application.instance().log
+            # so that it returns a mocked logger and we can than test
+            # this code better
+            ema.set_engine_logger()
+    
+            logger = ema_logging._logger
+            self.assertTrue(type(logger) == ema.EngingeLoggerAdapter)
+            self.assertTrue(logger.logger.level == ema_logging.DEBUG)
+            self.assertTrue(logger.topic == ema.SUBTOPIC)
+ 
 #     def test_on_cluster(self):
 #         client = parallel.Client(profile='default')
 #         client[:].apply_sync(ema.set_engine_logger)
@@ -193,7 +204,7 @@ class TestLogWatcher(unittest.TestCase):
       
     @classmethod
     def setUpClass(cls):
-        with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
+        with mock.patch('expWorkbench.ema_logging._logger'):   
             cls.client = parallel.Client(profile='default')
             cls.url = 'tcp://{}:20202'.format(localhost())
             cls.watcher = ema.start_logwatcher(cls.url)
@@ -201,6 +212,15 @@ class TestLogWatcher(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.watcher.stop()
+
+    def test_stop(self):
+        with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
+            url = 'tcp://{}:20201'.format(localhost())
+            watcher = ema.start_logwatcher(url)
+
+            watcher.stop()
+            time.sleep(3)
+            mocked_logger.warning.assert_called_once_with('shutting down log watcher')
 
     def tearDown(self):
         self.client.clear(block=True)
@@ -262,9 +282,29 @@ class TestLogWatcher(unittest.TestCase):
 
 class TestEngine(unittest.TestCase):
 
-    def testName(self):
+    @classmethod
+    def setUpClass(cls):
+        cls.client = parallel.Client(profile='default')
+ 
+    @classmethod
+    def tearDownClass(cls):
         pass
-
+    
+    def test_get_engines_by_host(self):
+        engines_by_host = ema.get_engines_by_host(self.client)
+        self.assertEqual({ socket.gethostname(): [0,1]},engines_by_host)
+        
+    def test_init(self):
+        kwargs = {}
+        msis = {}
+        engine_id = 0
+        engine = ema.Engine(engine_id, msis, kwargs)
+        
+        self.assert_equal(engine_id, engine.engine_id)
+        self.assertEqual(msis, engine.msis)
+        self.assertEqual(kwargs, engine.runner.model_kwargs)
+        self.assertEqual(expWorkbench.ExperimentRunner, type(engine.runner))
+       
 
 if __name__ == "__main__":
 
