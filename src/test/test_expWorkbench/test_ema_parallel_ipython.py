@@ -213,14 +213,14 @@ class TestLogWatcher(unittest.TestCase):
     def tearDownClass(cls):
         cls.watcher.stop()
 
-    def test_stop(self):
-        with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-            url = 'tcp://{}:20201'.format(localhost())
-            watcher = ema.start_logwatcher(url)
-
-            watcher.stop()
-            time.sleep(3)
-            mocked_logger.warning.assert_called_once_with('shutting down log watcher')
+#     def test_stop(self):
+#         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
+#             url = 'tcp://{}:20201'.format(localhost())
+#             watcher = ema.start_logwatcher(url)
+# 
+#             watcher.stop()
+#             time.sleep(3)
+#             mocked_logger.warning.assert_called_once_with('shutting down log watcher')
 
     def tearDown(self):
         self.client.clear(block=True)
@@ -300,7 +300,7 @@ class TestEngine(unittest.TestCase):
         engine_id = 0
         engine = ema.Engine(engine_id, msis, kwargs)
         
-        self.assert_equal(engine_id, engine.engine_id)
+        self.assertEqual(engine_id, engine.engine_id)
         self.assertEqual(msis, engine.msis)
         self.assertEqual(kwargs, engine.runner.model_kwargs)
         self.assertEqual(expWorkbench.ExperimentRunner, type(engine.runner))
