@@ -14,7 +14,7 @@ import subprocess
 import time
 import unittest
 
-
+import IPython
 from IPython.utils.path import get_ipython_dir
 from IPython.utils.localinterfaces import localhost
 import IPython.parallel as parallel
@@ -28,6 +28,7 @@ from IPython.parallel.apps.launcher import (LocalProcessLauncher,
 import expWorkbench.ema_parallel_ipython as ema
 from expWorkbench import ema_logging
 import expWorkbench
+from expWorkbench.ema_exceptions import EMAError, EMAParallelError
 
 
 launchers =[]
@@ -159,18 +160,38 @@ class TestEngineLoggerAdapter(unittest.TestCase):
                              msg)
             self.assertEqual(input_kwargs, kwargs)
          
- 
-    def test_engine_logger(self):
-        with mock.patch('expWorkbench.ema_logging._logger'):   
-            # I should probably mock Application.instance().log
-            # so that it returns a mocked logger and we can than test
-            # this code better
-            ema.set_engine_logger()
     
-            logger = ema_logging._logger
-            self.assertTrue(type(logger) == ema.EngingeLoggerAdapter)
-            self.assertTrue(logger.logger.level == ema_logging.DEBUG)
-            self.assertTrue(logger.topic == ema.SUBTOPIC)
+    @mock.patch('expWorkbench.ema_logging._logger')
+    @mock.patch('expWorkbench.ema_parallel_ipython.Application')
+    def test_engine_logger(self, mocked_application, mocked_logger):
+        mock_log = mock.create_autospec(logging.Logger)
+        mock_log.handlers = []
+        
+        mocked_application.instance.return_value = mocked_application
+        mocked_application.log = mock_log
+        
+        # no handlers    
+        ema.set_engine_logger()
+        logger = ema_logging._logger
+        self.assertTrue(type(logger) == ema.EngingeLoggerAdapter)
+        mock_log.setLevel.assert_called_once_with(ema_logging.DEBUG)
+        self.assertTrue(logger.topic == ema.SUBTOPIC)
+        
+        # with handlers
+        mock_log = mock.create_autospec(logging.Logger)
+        mock_engine_handler = mock.create_autospec(IPython.kernel.zmq.log.EnginePUBHandler)# @UndefinedVariable
+        mock_log.handlers = [mock_engine_handler] 
+        
+        mocked_application.instance.return_value = mocked_application
+        mocked_application.log = mock_log
+        
+        ema.set_engine_logger()
+        logger = ema_logging._logger
+        self.assertTrue(type(logger) == ema.EngingeLoggerAdapter)
+        mock_log.setLevel.assert_called_once_with(ema_logging.DEBUG)
+        self.assertTrue(logger.topic == ema.SUBTOPIC)
+        mock_engine_handler.setLevel.assert_called_once_with(ema_logging.DEBUG)
+        
  
 #     def test_on_cluster(self):
 #         client = parallel.Client(profile='default')
@@ -213,14 +234,14 @@ class TestLogWatcher(unittest.TestCase):
     def tearDownClass(cls):
         cls.watcher.stop()
 
-#     def test_stop(self):
-#         with mock.patch('expWorkbench.ema_logging._logger') as mocked_logger:   
-#             url = 'tcp://{}:20201'.format(localhost())
-#             watcher = ema.start_logwatcher(url)
-# 
-#             watcher.stop()
-#             time.sleep(3)
-#             mocked_logger.warning.assert_called_once_with('shutting down log watcher')
+    @mock.patch('expWorkbench.ema_logging._logger')
+    def test_stop(self, mocked_logger):
+        url = 'tcp://{}:20201'.format(localhost())
+        watcher = ema.start_logwatcher(url)
+        
+        watcher.stop()
+        time.sleep(3)
+        mocked_logger.warning.assert_called_once_with('shutting down log watcher')
 
     def tearDown(self):
         self.client.clear(block=True)
@@ -290,9 +311,58 @@ class TestEngine(unittest.TestCase):
     def tearDownClass(cls):
         pass
     
+    @mock.patch('expWorkbench.ema_parallel_ipython.get_engines_by_host')
+    @mock.patch('expWorkbench.ema_parallel_ipython.os')
+    @mock.patch('expWorkbench.ema_parallel_ipython.socket')
+    def test_update_cwd_on_all_engines(self, mock_socket, mock_os, 
+                                       mock_engines_by_host):
+        mock_socket.gethostname.return_value = 'test host'
+        
+        mock_client = mock.create_autospec(parallel.Client)
+        mock_client.ids = [0, 1] # pretend we have two engines
+        mock_view = mock.create_autospec(parallel.client.view.View) #@ @UndefinedVariable
+        mock_client.__getitem__.return_value = mock_view  
+        
+        mock_engines_by_host.return_value = {'test host':[0, 1]}
+        
+        mock_os.getcwd.return_value = '/test'
+        
+        # engines on same host
+        ema.update_cwd_on_all_engines(mock_client)
+        mock_view.apply.assert_called_with(mock_os.chdir, '/test')
+        
+        # engines on another host 
+        mock_engines_by_host.return_value = {'other host':[0, 1]}
+        self.assertRaises(NotImplementedError, 
+                          ema.update_cwd_on_all_engines, mock_client)
+
+    
     def test_get_engines_by_host(self):
         engines_by_host = ema.get_engines_by_host(self.client)
         self.assertEqual({ socket.gethostname(): [0,1]},engines_by_host)
+    
+    @mock.patch('expWorkbench.ema_parallel_ipython.shutil')
+    @mock.patch('expWorkbench.ema_parallel_ipython.os')  
+    def test_copy_wds_for_msis(self, mock_os, mock_shutil):
+        mock_os.path.join.return_value = '.'
+        
+        mock_msi = mock.create_autospec(expWorkbench.ModelStructureInterface) # @UndefinedVariable
+        mock_msi.name = 'test'
+        
+        kwargs = {}
+        msis = {mock_msi.name: mock_msi}
+        engine_id = 0
+        engine = ema.Engine(engine_id, msis, kwargs)
+        engine.root_dir = '/dir_name'        
+        
+        dirs_to_copy = ['/test']
+        wd_by_msi = {'/test':[mock_msi.name]}
+        engine.copy_wds_for_msis(dirs_to_copy, wd_by_msi)
+        
+        mock_os.path.basename.called_once_with(dirs_to_copy[0])
+        mock_os.path.join.called_once_with('/dir_name' , dirs_to_copy[0])
+        mock_shutil.copytree.assert_called_once_with('/test','.')
+        self.assertEqual('.', mock_msi.working_directory)
         
     def test_init(self):
         kwargs = {}
@@ -304,8 +374,86 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(msis, engine.msis)
         self.assertEqual(kwargs, engine.runner.model_kwargs)
         self.assertEqual(expWorkbench.ExperimentRunner, type(engine.runner))
+    
+    @mock.patch('expWorkbench.ema_parallel_ipython.os') 
+    @mock.patch('expWorkbench.ema_parallel_ipython.shutil') 
+    def test_setup_wd(self, mock_shutil, mock_os):
+        kwargs = {}
+        msis = {}
+        engine_id = 0
+        engine = ema.Engine(engine_id, msis, kwargs)
+        
+        # directory does not exist
+        mock_os.path.isdir.return_value = False
+
+        wd = './test {}'
+        engine.setup_working_directory(wd)
+        mock_os.path.isdir.assert_called_once_with(wd.format(engine_id))
+        mock_os.mkdir.assert_called_once_with(wd.format(engine_id))
+
+        # directory already exists
+        mock_os.path.isdir.return_value = True
+        engine.setup_working_directory(wd)
+        mock_shutil.rmtree.assert_called_once_with(wd.format(engine_id))
        
+    def test_run_experiment(self):
+        mock_msi = mock.create_autospec(expWorkbench.ModelStructureInterface) # @UndefinedVariable
+        mock_msi.name = 'test'
+        
+        mock_runner = mock.create_autospec(expWorkbench.ExperimentRunner)
+        
+        kwargs = {}
+        msis = {mock_msi.name: mock_msi}
+        engine_id = 0
+        engine = ema.Engine(engine_id, msis, kwargs)
+        engine.runner = mock_runner
+        
+        experiment = {'a': 1}
+        engine.run_experiment(experiment)
+        
+        mock_runner.run_experiment.assert_called_once_with(experiment)
+        
+        mock_runner.run_experiment.side_effect = EMAError
+        self.assertRaises(EMAError, engine.run_experiment, experiment)
+        
+        
+        mock_runner.run_experiment.side_effect = Exception
+        self.assertRaises(EMAParallelError, engine.run_experiment, experiment)
+        
+
+class TestIpyParallelUtilFunctions(unittest.TestCase):
+
+    @mock.patch('expWorkbench.ema_parallel_ipython.setup_working_directories')
+    def test_initialize_engines(self, mocked_setup_working_directories):
+        mock_msi = mock.create_autospec(expWorkbench.ModelStructureInterface) # @UndefinedVariable
+        mock_msi.name = 'test'
+        msis = {mock_msi.name: mock_msi}
+        
+        mock_client = mock.create_autospec(parallel.Client)
+        mock_client.ids = [0, 1] # pretend we have two engines
+        mock_view = mock.create_autospec(parallel.client.view.View) #@ @UndefinedVariable
+        mock_client.__getitem__.return_value = mock_view  
+        
+        ema.initialize_engines(mock_client, msis)
+        
+        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 0, msis, {})
+        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 1, msis, {})
+        
+        mocked_setup_working_directories.assert_called_with(mock_client, msis)
+
+    @mock.patch('expWorkbench.ema_parallel_ipython.os')
+    def test_setup_working_directories(self, mock_os):
+        mock_msi = mock.create_autospec(expWorkbench.ModelStructureInterface) # @UndefinedVariable
+        mock_msi.name = 'test'
+        msis = {mock_msi.name: mock_msi}
+        
+        mock_client = mock.create_autospec(parallel.Client)
+        mock_client.ids = [0, 1] # pretend we have two engines
+        mock_view = mock.create_autospec(parallel.client.view.View) #@ @UndefinedVariable
+        mock_client.__getitem__.return_value = mock_view  
+        
+        ema.setup_working_directories(mock_client, msis)
+        #TODO assertion statements
 
 if __name__ == "__main__":
-
     unittest.main()
