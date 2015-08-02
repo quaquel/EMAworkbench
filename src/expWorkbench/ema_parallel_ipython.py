@@ -209,9 +209,10 @@ def set_engine_logger():
     
     logger = Application.instance().log
     logger.setLevel(ema_logging.DEBUG)
+
     for handler in logger.handlers:
         if isinstance(handler, IPython.kernel.zmq.log.EnginePUBHandler): # @UndefinedVariable
-            handler.setLevel(logging.DEBUG)
+            handler.setLevel(ema_logging.DEBUG)
     
     adapter = EngingeLoggerAdapter(logger, SUBTOPIC)
     ema_logging._logger = adapter
@@ -261,15 +262,12 @@ def update_cwd_on_all_engines(client):
     notebook_host = socket.gethostname()
     for key, value in engines_by_host.items():
 
-        def set_cwd_on_engine(cwd):
-            os.chdir(cwd)
-
         if key == notebook_host:
             cwd = os.getcwd()
 
-            # easy, we now the correct cwd
+            # easy, we know the correct cwd
             for engine in value:
-                client[engine].apply(set_cwd_on_engine, cwd)
+                client[engine].apply(os.chdir, cwd)
         else:
             raise NotImplementedError('not yet supported')
 
@@ -300,7 +298,7 @@ class Engine(object):
         '''
         dir_name = dir_name.format(self.engine_id)
         
-        # if the directory already exists, is has not bee
+        # if the directory already exists, is has not been
         # cleaned up properly last time
         # let's be stupid and remove it
         # a smarter solution would be to do a dif on the existing
@@ -340,7 +338,7 @@ class Engine(object):
                 msi = self.msis[msi_name] 
                 msi.working_directory = dst
                 
-    def run_experiments(self, experiment):
+    def run_experiment(self, experiment):
         '''run the experiment, the actual running is delegated
         to an ExperimentRunner instance'''
         
@@ -366,6 +364,7 @@ def initialize_engines(client, msis, model_init_kwargs={}):
     
     '''
     for i in client.ids:
+#         print 'blaat'
         client[i].apply_sync(_initialize_engine, i, msis, model_init_kwargs)
         
     setup_working_directories(client, msis)
@@ -424,7 +423,7 @@ def cleanup_working_directories(client):
 # these functions are wrappers around the relevant Engine methods
 # the engine instance is part of the namespace of the module. 
 def _run_experiment(experiment):
-    return engine.run_experiments(experiment)
+    return engine.run_experiment(experiment)
 
 
 def _initialize_engine(engine_id, msis, model_init_kwargs):
