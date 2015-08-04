@@ -27,8 +27,6 @@ from expWorkbench import EMAError
 
 __all__ = ['load_results',
            'save_results',
-           'save_optimization_results',
-           'load_optimization_results',
            'experiments_to_cases',
            'merge_results'
            ]
