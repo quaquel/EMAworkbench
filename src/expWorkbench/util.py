@@ -39,9 +39,14 @@ def load_results(file_name):
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
     
-    :param file_name: the path of the file
-    :raises: IOError if file not found
-
+    Parameters
+    ----------    
+    file_name : str
+                the path to the file
+                
+    Raises
+    ------
+    IOError if file not found
 
     '''
     
@@ -111,9 +116,16 @@ def save_results(results, file_name):
     addition, there is a metadata csv which contains the datatype information
     for each of the columns in the x array.
 
-    :param results: the return of run_experiments
-    :param file_name: the path of the file
-    :raises: IOError if file not found
+    Parameters
+    ----------    
+    results : tuple
+              the return of run_experiments
+    file_name : str
+                the path of the file
+    
+    Raises
+    ------
+    IOError if file not found
 
     '''
 
@@ -175,8 +187,14 @@ def experiments_to_cases(experiments):
     of case dicts. This can then for example be used as an argument for 
     running :meth:`~model.SimpleModelEnsemble.perform_experiments`.
     
-    :param x: a structured array containing experiments
-    :return: a list of case dicts.
+    Parameters
+    ----------    
+    experiments : numpy structured array
+                  a structured array containing experiments
+    
+    Returns
+    -------
+    a list of case dicts.
     
     '''
     #get the names of the uncertainties
@@ -225,11 +243,19 @@ def merge_results(results1, results2, downsample=None):
     performs these cases on a different model or policy, and then one wants to
     merge these new results with the old result for further analysis.  
     
-    :param results1: first results to be merged
-    :param results2: second results to be merged
-    :param downsample: should be an integer, will be used in slicing the results
-                       in order to avoid memory problems. 
-    :return: the merged results
+    Parameters
+    ----------
+    results1 : tuple
+               first results to be merged
+    results2: tuple
+              second results to be merged
+    downsample: int 
+                should be an integer, will be used in slicing the results
+                in order to avoid memory problems. 
+    
+    Results
+    -------
+    the merged results
     
     
     '''
@@ -277,16 +303,29 @@ def merge_results(results1, results2, downsample=None):
     mr = (merged_exp, merged_res)
     return mr  
 
+
 def load_optimization_results(file_name, weights, zipped=True):
     '''
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
     
-    :param file: the path of the file
-    :param zipped: load the pickled data from a zip file if True
-    :return: the unpickled results
-    :raises: IOError if file not found
-    :raises: EMAError if weights are not correct
+    Parameters
+    ----------    
+    file_name : str
+                the path of the file
+    zipped : bool
+            load the pickled data from a zip file if True
+    
+    Returns
+    -------
+    the unpickled results
+    
+    Raises
+    ------
+    IOError 
+        if file not found
+    EMAError 
+        if specified weights do not match weights in data set
     
     '''
     creator.create("Fitness", base.Fitness, weights=weights)
@@ -304,26 +343,35 @@ def load_optimization_results(file_name, weights, zipped=True):
         results = cPickle.load(file_name)
         
         if results[0].weights != weights:
-            raise EMAError("weights are %s, should be %s" % (weights, results[0].weights))
+            raise EMAError("weights are %s, should be %s" % (weights, 
+                                                        results[0].weights))
     except IOError:
         warning(file_name + " not found")
         raise
     
     return results
 
-def save_optimization_results(results, file_name, zipped=True):
-    '''
-    save the results to the specified bz2 file. To facilitate transfer
-    across different machines. the files are saved in binary format
-        
-    see also: http://projects.scipy.org/numpy/ticket/1284
-
-    :param results: the return of run_experiments
-    :param file: the path of the file
-    :param zipped: save the pickled data to a zip file if True
-    :raises: IOError if file not found
-
-    '''
-
-    pickled_save_results(results, file_name, zipped=zipped) 
+# def save_optimization_results(results, file_name, zipped=True):
+#     '''
+#     save the results to the specified bz2 file. To facilitate transfer
+#     across different machines. the files are saved in binary format
+#         
+#     see also: http://projects.scipy.org/numpy/ticket/1284
+# 
+#     Parameters
+#     ----------
+#     results : tuple
+#               the return of run_experiments
+#     file_name : str
+#                 the path of the file
+#     zipped : bool 
+#              save the pickled data to a zip file if True
+#     
+#     Raises
+#     ------
+#     IOError if file not found
+# 
+#     '''
+# 
+#     pickled_save_results(results, file_name, zipped=zipped) 
 

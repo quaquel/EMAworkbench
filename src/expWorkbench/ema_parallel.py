@@ -16,18 +16,37 @@ class AbstractPool(object):
     
     @abc.abstractmethod
     def __init__(self, msis, model_kwargs={}):
-        pass
-    
-    
+        ''' 
+        initialize the pool
+        
+        
+        Parameters
+        ----------
+        msis : iterable
+               iterable of model structure interface instances
+        model_kwargs : dict
+        
+        '''
+        
     @abc.abstractmethod
     def perform_experiments(self, callback, experiments):
-        pass
+        ''' 
+        perform the experiments using the pool
+        
+        
+        Parameters
+        ----------
+        callback : a Callback instance
+        experiments : collection of dicts
+        
+        '''
     
 
 class MultiprocessingPool(AbstractPool):
 
     def __init__(self, msis, model_kwargs={}, nr_processes=None):
-        self._pool = CalculatorPool(msis, processes=nr_processes, kwargs=model_kwargs)
+        self._pool = CalculatorPool(msis, processes=nr_processes, 
+                                    kwargs=model_kwargs)
     
     def perform_experiments(self, callback, experiments):
         self._pool.run_experiments(experiments, callback)
@@ -35,6 +54,19 @@ class MultiprocessingPool(AbstractPool):
 class IpyparallelPool(AbstractPool):
     
     def __init__(self, msis, client, model_kwargs={}):
+        ''' 
+        initialize the pool
+        
+        
+        Parameters
+        ----------
+        msis : iterable
+               iterable of model structure interface instances
+        cliet : IPython.parallel.client instance
+        model_kwargs : dict
+        
+        '''
+        
         self.client = client
         
         # update loggers on all engines

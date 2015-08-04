@@ -91,7 +91,6 @@ class AbstractCallback(object):
         method for retrieving the results. Called after all experiments have 
         been completed
         """
-        
 
         
 class DefaultCallback(AbstractCallback):
@@ -133,8 +132,6 @@ class DefaultCallback(AbstractCallback):
                              progress information via logging.
         
         '''
-        
-        
         super(DefaultCallback, self).__init__(uncs, 
                                               outcomes, 
                                               nr_experiments, 
@@ -230,7 +227,6 @@ class DefaultCallback(AbstractCallback):
         self._store_result(case_id, result)
         
         self.lock.release()
-        
         
     def get_results(self):
         return self.cases, self.results

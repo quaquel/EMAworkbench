@@ -23,11 +23,14 @@ class Outcome(object):
     
     def __init__(self, name, time=False):
         '''
-        init
 
-        :param name: Name of the outcome.
-        :param time: Boolean, specifies whether the outcome is a time
-                     series or not (Default = False).  
+        Parameters
+        ----------
+        name : str
+               Name of the outcome.
+        time: bool
+              specifies whether the outcome is a time series or not 
+              (Default = False).  
         
         '''
         
