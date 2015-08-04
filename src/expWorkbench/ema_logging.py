@@ -32,85 +32,121 @@ DEFAULT_LEVEL = DEBUG
 
 LOG_FORMAT = '[%(levelname)s] %(message)s'
 
-
-
 def debug(msg, *args, **kwargs):
     '''
     convenience function for logger.debug
     
-    :param msg: msg to log
-    :param args: args to pass on to the logger 
+    Parameters
+    ----------
+    msg : str
+          msg to log
+    args : list
+           args to pass on to the logger
+    kwargs : dict
+             kwargs to pass on to the logger
     
     '''
-    
     if _logger:
         _logger.debug(msg, *args, **kwargs)
+
 
 def info(msg, *args):
     '''
     convenience function for logger.info
         
-    :param msg: msg to log
-    :param args: args to pass on to the logger 
+    Parameters
+    ----------
+    msg : str
+          msg to log
+    args : list
+           args to pass on to the logger
+    kwargs : dict
+             kwargs to pass on to the logger
     
     '''
     if _logger:
         _logger.info(msg, *args)
 
+
 def warning(msg, *args):
     '''
     convenience function for logger.warning
     
-    :param msg: msg to log
-    :param args: args to pass on to the logger 
+    Parameters
+    ----------
+    msg : str
+          msg to log
+    args : list
+           args to pass on to the logger
+    kwargs : dict
+             kwargs to pass on to the logger
 
     '''    
-    
     if _logger:
         _logger.warning(msg, *args)
+
 
 def error(msg, *args):
     '''
     convenience function for logger.error
     
-    :param msg: msg to log
-    :param args: args to pass on to the logger 
+    Parameters
+    ----------
+    msg : str
+          msg to log
+    args : list
+           args to pass on to the logger
+    kwargs : dict
+             kwargs to pass on to the logger
 
     '''  
-
     if _logger:
         _logger.error(msg, *args)
+
 
 def exception(msg, *args):
     '''
     convenience function for logger.exception
     
-    :param msg: msg to log
-    :param args: args to pass on to the logger 
+    Parameters
+    ----------
+    msg : str
+          msg to log
+    args : list
+           args to pass on to the logger
+    kwargs : dict
+             kwargs to pass on to the logger
 
     '''      
-    
-    
     if _logger:
         _logger.exception(msg, *args)
+
 
 def critical(msg, *args):
     '''
     convenience function for logger.critical
     
-    :param msg: msg to log
-    :param args: args to pass on to the logger 
+    Parameters
+    ----------
+    msg : str
+          msg to log
+    args : list
+           args to pass on to the logger
+    kwargs : dict
+             kwargs to pass on to the logger
 
     '''      
-    
     if _logger:
         _logger.critical(msg, *args)
+
 
 def get_logger():
     '''
     Returns logger used by the EMA workbench
-    
-    :returns: the logger of the EMA workbench
+
+    Returns
+    -------
+    the logger of the EMA workbench
     
     '''
     global _logger
@@ -128,7 +164,10 @@ def log_to_stderr(level=None):
     '''
     Turn on logging and add a handler which prints to stderr
     
-    :param level: minimum level of the messages that will be logged
+    Parameters
+    ----------
+    level : int
+            minimum level of the messages that will be logged
     
     '''
     
@@ -151,6 +190,7 @@ def log_to_stderr(level=None):
     logger.propagate = False
 
     return logger
+
 
 class NullHandler(Handler):
     '''

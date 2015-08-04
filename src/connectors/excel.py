@@ -26,28 +26,35 @@ class ExcelModelStructureInterface(ModelStructureInterface):
     The provided implementation here does work with :mod:`parallel_ema`.
     
     '''
-    
-    
-    #: Reference to the Excel application. This attribute is `None` untill
+
+
+    #: Reference to the Excel application. This attribute is `None` until
     #: model_init has been invoked.
     xl = None
-    
-    #: Reference to the workbook. This attribute is `None` untill
+
+    #: Reference to the workbook. This attribute is `None` until
     #: model_init has been invoked.
     wb = None
-    
+
     #: Name of the sheet on which one want to set values
     sheet = None
-    
+
     #: relative path to workbook
     workbook = None
-    
+
     def model_init(self, policy, kwargs):
         '''
-        :param policy: policy to be run, in the default implementation, this
-                       argument is ignored. Extent :meth:`model_init` to
-                       specify how this argument should be used. 
-        :param kwargs: keyword arguments to be used by :meth:`model_init`
+        Method called to initialize the model.
+        
+        Parameters
+        ----------
+        policy : dict
+                 policy to be run.
+        kwargs : dict
+                 keyword arguments to be used by model_intit. This
+                 gives users to the ability to pass any additional 
+                 arguments. 
+        
         
         '''
         
@@ -62,7 +69,8 @@ class ExcelModelStructureInterface(ModelStructureInterface):
         self.wb = self.xl.Workbooks.Open(self.working_directory + self.workbook)
         ema_logging.debug("workbook opened")
         ema_logging.debug(self.working_directory)
-       
+
+
     def run_model(self, case):
         """
         Method for running an instantiated model structures. This 
@@ -75,7 +83,13 @@ class ExcelModelStructureInterface(ModelStructureInterface):
         this implementation assumes that the name of a :class:`~outcomes.Outcome`
         instance corresponds to the name of a cell, or set of cells.
 
-        :param case:    dictionary with arguments for running the model
+        Parameters
+        ----------
+        case : dict
+               keyword arguments for running the model. The case is a dict with 
+               the names of the uncertainties as key, and the values to which 
+               to set these uncertainties. 
+        
         
         """
         #find right sheet
@@ -107,21 +121,11 @@ class ExcelModelStructureInterface(ModelStructureInterface):
             except com_error:
                 ema_logging.warning("com error: no cell(s) named %s found" % outcome.name,)
         self.output = results
-    
-    def reset_model(self):
-        """
-        Method for reseting the model to its initial state before runModel 
-        was called
-        """
-        self.output = None
-    
+
+
     def cleanup(self):
-        '''
-        
-        cleaning up prior to finishing performing experiments. This 
-        will close the workbook and close Excel. 
-                
-        '''
+        ''' cleaning up prior to finishing performing experiments. This will 
+        close the workbook and close Excel'''
         
         ema_logging.debug("cleaning up")
         if self.wb:
@@ -131,7 +135,6 @@ class ExcelModelStructureInterface(ModelStructureInterface):
             self.xl.DisplayAlerts = False
             self.xl.Quit()
             del self.xl
-        
         
         self.xl = None
         self.wb = None

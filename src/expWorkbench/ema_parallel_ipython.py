@@ -12,7 +12,6 @@ import os
 import shutil
 import socket
 import threading
-import time
 import zmq
 
 import IPython
@@ -131,7 +130,7 @@ class LogWatcher(object):
         ----------
         level : int 
                 the logging level to which the topic subscription applies
-        topic : string
+        topic : str
                 topic name
         
         '''
@@ -143,7 +142,6 @@ class LogWatcher(object):
         
     def log_message(self, raw):
         """receive and parse a message, then log it."""
-
         
         if len(raw) != 2 or '.' not in raw[0]:
             self.logger.error("Invalid log message: %s"%raw)
@@ -172,7 +170,7 @@ def start_logwatcher(url):
     
     Parameters
     ----------
-    url : string
+    url : str
           the url on which to listen for log messages
 
     Returns
@@ -244,9 +242,8 @@ def get_engines_by_host(client):
 
 
 def update_cwd_on_all_engines(client):
-    ''' updates the current working directory on 
-    the engines to point to the same working directory
-    as this notebook
+    ''' updates the current working directory on the engines to point to the 
+    same working directory as this notebook
     
     currently only works if engines are on same 
     machine.
@@ -286,12 +283,12 @@ class Engine(object):
 
     def setup_working_directory(self, dir_name):
         '''setup the root directory for the engine. The working directories 
-        associated with the various model structure interfaces will be copied to 
-        this root directory
+        associated with the various model structure interfaces will be copied 
+        to this root directory.
 
         Parameters
         ----------
-        dir_name : string
+        dir_name : str
                    The name of the root directory
 
 
@@ -364,7 +361,6 @@ def initialize_engines(client, msis, model_init_kwargs={}):
     
     '''
     for i in client.ids:
-#         print 'blaat'
         client[i].apply_sync(_initialize_engine, i, msis, model_init_kwargs)
         
     setup_working_directories(client, msis)
@@ -379,7 +375,6 @@ def setup_working_directories(client, msis):
     client : IPython.parallel.Client 
     msis : dict
            dict of model structure interfaces with their names as keys
-    
     
     .. note:: multiple hosts not yet supported!
     

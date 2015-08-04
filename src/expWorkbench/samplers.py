@@ -187,8 +187,8 @@ class LHSSampler(AbstractSampler):
         Parameters
         ----------
         dist : random number generator from `scipy.stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
-        parmas : tuple
-                 tuple of parameters as required for dist.
+        parms : tuple
+                tuple of parameters as required for dist.
         siz : int 
               number of samples
     

@@ -206,9 +206,9 @@ class ModelEnsemble(object):
         >>> util.save_results(results, filename)
         
         """
+        return_val = self._generate_experiments(cases, which_uncertainties)
         
-        experiments, nr_of_exp, uncertainties = self._generate_experiments(cases, which_uncertainties)
-        
+        experiments, nr_of_exp, uncertainties = return_val
         # identify the outcomes that are to be included
         overview_dict, element_dict = self._determine_unique_attributes("outcomes")
         if which_outcomes==UNION:
@@ -269,38 +269,46 @@ class ModelEnsemble(object):
         """
         Method responsible for performing robust optimization.
         
-        :param cases: In case of Latin Hypercube sampling and Monte Carlo 
+        Parameters
+        ----------
+        cases : In case of Latin Hypercube sampling and Monte Carlo 
                       sampling, cases specifies the number of cases to
                       generate. In case of Full Factorial sampling,
                       cases specifies the resolution to use for sampling
                       continuous uncertainties. Alternatively, one can supply
                       a list of dicts, where each dicts contains a case.
                       That is, an uncertainty name as key, and its value. 
-        :param reporting_interval: parameter for specifying the frequency with
-                                   which the callback reports the progress.
-                                   (Default is 100) 
-        
-        :param algorithm:
-        :param eval_pop:
-        :param obj_function: the objective function used by the optimization
-        :param policy_levers: A dictionary with model parameter names as key
-                              and a dict as value. The dict should have two 
-                              fields: 'type' and 'values. Type is either
-                              list or range, and determines the appropriate
-                              allele type. Values are the parameters to 
-                              be used for the specific allele. 
-        :param weights: tuple of weights on the various outcomes of the 
-                        objective function. Use the constants MINIMIZE and 
-                        MAXIMIZE.
-        :param nr_of_generations: the number of generations for which the 
-                                  GA will be run
-        :param pop_size: the population size for the GA
-        :param crossover_rate: crossover rate for the GA
-        :param mutation_rate: mutation_rate for the GA
-        :param caching: keep track of tried solutions. This is memory 
-                intensive, so should be used sparingly. Defaults to
-                False. 
-
+        reporting_interval : int 
+                             parameter for specifying the frequency with which 
+                             the callback reports the progress. 
+                             (Default is 100) 
+        algorithm :
+        eval_pop :
+        obj_function : callable
+                       the objective function used by the optimization
+        policy_levers : dict
+                        A dictionary with model parameter names as key
+                        and a dict as value. The dict should have two 
+                        fields: 'type' and 'values. Type is either
+                        list or range, and determines the appropriate
+                        allele type. Values are the parameters to 
+                        be used for the specific allele. 
+        weights : tuple 
+                  weights on the various outcomes of the objective function. 
+                  Use the constants MINIMIZE and MAXIMIZE.
+        nr_of_generations : int
+                            the number of generations for which the GA will be 
+                            run
+        pop_size : int
+                   the population size for the GA
+        crossover_rate : float
+                         crossover rate for the GA
+        mutation_rate : float
+                        mutation_rate for the GA
+        caching: bool
+                 keep track of tried solutions. This is memory 
+                 intensive, so should be used sparingly. Defaults to
+                 False. 
         
         """
         evaluate_population = functools.partial(eval_pop, 
@@ -337,22 +345,29 @@ class ModelEnsemble(object):
         optimization will be performed over the intersection of the 
         uncertainties in case of multiple model structures. 
         
-        :param reporting_interval: parameter for specifying the frequency with
-                                   which the callback reports the progress.
-                                   (Default is 100) 
-        :param obj_function: the objective function used by the optimization
-        :param weights: tuple of weights on the various outcomes of the 
-                        objective function. Use the constants MINIMIZE and 
-                        MAXIMIZE.
-        :param nr_of_generations: the number of generations for which the 
-                                  GA will be run
-        :param pop_size: the population size for the GA
-        :param crossover_rate: crossover rate for the GA
-        :param mutation_rate: mutation_rate for the GA
-        :param caching: keep track of tried solutions. This is memory 
-                        intensive, so should be used sparingly. Defaults to
-                        False. 
-       
+        Parameters
+        ----------    
+        reporting_interval : int
+                             parameter for specifying the frequency with
+                             which the callback reports the progress.
+                             (Default is 100) 
+        obj_function : callable
+                       the objective function used by the optimization
+        weights : tuple
+                  tuple of weights on the various outcomes of the objective 
+                  function. Use the constants MINIMIZE and MAXIMIZE.
+        nr_of_generations : int
+                            the number of generations for which the GA will be 
+                            run
+        pop_size : int
+                   the population size for the GA
+        crossover_rate : float
+                         crossover rate for the GA
+        mutation_rate : float
+                        mutation_rate for the GA
+        caching : bool
+                  keep track of tried solutions. This is memory intensive, 
+                  so should be used sparingly. Defaults to False. 
         """
 
         # Attribute generator
@@ -404,11 +419,17 @@ class ModelEnsemble(object):
         interfaces, and how these values are shared across multiple model 
         structure interfaces. The working assumption is that this function 
         
-        :param attribute: the attribute to check on the msi
-        :returns: An overview dictionary which shows which uncertainties are
-                  used by which model structure interface, or interfaces, and
-                  a dictionary with the unique uncertainties across all the 
-                  model structure interfaces, with the name as key. 
+        Parameters
+        ----------
+        attribute : {'uncertainties', 'outcomes'}
+                    the attribute to check on the msi
+        
+        Returns
+        -------
+        An overview dictionary which shows which uncertainties or outcomes are
+        used by which model structure interface, or interfaces, and
+        a dictionary with the unique uncertainties or outcomes across all the 
+        model structure interfaces, with the name as key. 
         
         '''    
         # check whether uncertainties exist with the same name 
@@ -498,31 +519,43 @@ class ModelEnsemble(object):
                            **kwargs):
         '''
         Helper function that runs the actual optimization
-                
-        :param toolbox: 
-        :param generate_individual: helper function for generating an 
-                                    individual
-        :param evaluate_population: helper function for evaluating the 
-                                    population
-        :param attr_list: list of attributes (alleles)
-        :param keys: the names of the attributes in the same order as attr_list
-        :param obj_function: the objective function
-        :param pop_size: the size of the population
-        :param reporting_interval: the interval for reporting progress, passed
-                                   on to perform_experiments
-        :param weights: the weights on the outcomes
-        :param nr_of_generations: number of generations for which the GA will 
-                                  be run
-        :param crossover_rate: the crossover rate of the GA
-        :param mutation_rate: the muation rate of the GA
-        :param levers: a dictionary with param keys as keys, and as values
-                       info used in mutation.
+           
+        Parameters
+        ----------     
+        toolbox : 
+        generate_individual : callable
+                              helper function for generating an individual
+        evaluate_population : callable
+                              helper function for evaluating the population
+        attr_list : list
+                    list of attributes (alleles)
+        keys : list
+               the names of the attributes in the same order as attr_list
+        obj_function : callable
+                       the objective function
+        pop_size : int
+                   the size of the population
+        reporting_interval : int
+                             the interval for reporting progress, passed on to 
+                             perform_experiments
+        weights : tuple
+                  the weights on the outcomes
+        nr_of_generations : int
+                            number of generations for which the GA will 
+                            be run
+        crossover_rate : float
+                         the crossover rate of the GA
+        mutation_rate : float
+                        the mutation rate of the GA
+        levers : dict
+                 a dictionary with param keys as keys, and as values info used 
+                 in mutation.
         
         '''
-        self.algorithm = algorithm(weights, levers, generate_individual, obj_function, 
-                          pop_size, evaluate_population, nr_of_generations, 
-                          crossover_rate, mutation_rate, reporting_interval,
-                          self, caching, **kwargs)
+        self.algorithm = algorithm(weights, levers, generate_individual, 
+                          obj_function, pop_size, evaluate_population, 
+                          nr_of_generations, crossover_rate, mutation_rate, 
+                          reporting_interval, self, caching, **kwargs)
 
         # Begin the generational process
         for _ in range(nr_of_generations):

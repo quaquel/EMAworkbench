@@ -100,11 +100,15 @@ class CalculatorPool(Pool):
                  kwargs=None):
         '''
         
-        :param msis: an iterable of model structure interfaces
-        :param processes: nr. of processes to spawn, if none, it is 
-                                   set to equal the nr. of cores
-        :param callback: callback function for handling the output 
-        :param kwargs: kwargs to be pased to :meth:`model_init`
+        Parameters
+        ----------
+        msis : list 
+               iterable of model structure interface instances
+        processes: int
+                   nr. of processes to spawn, if none, it is set to equal the 
+                   nr. of cores
+        kwargs : dict
+                 kwargs to be pased to :meth:`model_init`
         '''
         
         if processes is None:
@@ -150,10 +154,6 @@ class CalculatorPool(Pool):
                     
                     wd_name = workername + msi.name
                     working_directory = os.path.join(worker_root, wd_name)
-                    
-#                     working_directory = tempfile.mkdtemp(suffix=workername,
-#                                                          prefix='tmp_',
-#                                                          dir=worker_root)
                     
                     working_dirs.append(working_directory)
                     shutil.copytree(msi.working_directory, 
@@ -227,26 +227,33 @@ class CalculatorPool(Pool):
     def _get_worker_name(self, i):
         '''Generate a name with random characters for the worker
         
-        :param i: the index of the worker
+        Parameters
+        ----------
+        i : int
+            the index of the worker
         
         '''
         
         # generate a random string helps in running repeatedly with
         # crashes
-        choice_set = string.ascii_uppercase + string.digits + string.ascii_lowercase
+        choice_set = (string.ascii_uppercase + string.digits + 
+                     string.ascii_lowercase)
         random_string = ''.join(random.choice(choice_set) for _ in range(5))
         
         workername = 'tpm_{}_PoolWorker_{}'.format(random_string, i)
         return workername
 
     def run_experiments(self, experiments, callback):
-        """
-        
-        starts a feeder thread that will add the experiments to the 
+        """starts a feeder thread that will add the experiments to the 
         task queue
-
+        
+        Parameters
+        ----------
+        experiments : iterable
+                      iterable of dicts
+        callback : a Callback instance
+                   callback function for handling the output 
         """
-
         global job_counter 
         job_counter = itertools.count()
 
@@ -367,11 +374,18 @@ class CalculatorPool(Pool):
     def apply_async(self, experiment, callback, event):
         '''
         Asynchronous equivalent of `apply()` builtin
+
+        Parameters
+        ----------
+        experiment : dict
+        callback : a Callback instance
+                   callback function for handling the output
+        event : threading.Event instance
+
         '''
         assert self._state == RUN
         result = EMAApplyResult(self._cache, callback, event)
         self._taskqueue.put((result._job, copy.deepcopy(experiment)))
-        
 
     @classmethod
     def _terminate_pool(cls, 
@@ -490,9 +504,7 @@ class EMAApplyResult(object):
 
 
 class SubProcessLogHandler(logging.Handler):
-    """
-    
-    handler used by subprocesses
+    """handler used by subprocesses
 
     It simply puts items on a Queue for the main process to log.
 

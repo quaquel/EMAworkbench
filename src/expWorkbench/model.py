@@ -44,9 +44,26 @@ class ModelStructureInterface(object):
         """
         interface to the model
         
-        :param working_directory: working_directory for the model. 
-        :param name: name of the modelInterface. The name should contain only
-                     alphanumerical characters. 
+        Parameters
+        ----------
+        
+        working_directory : str
+                            working_directory for the model. 
+        name : str
+               name of the modelInterface. The name should contain only
+               alpha-numerical characters.
+               
+        Raises
+        ------
+        EMAError if name contains non alpha-numerical characters
+        
+        .. note:: Anything that is relative to `self.working_directory`
+          should be specified in `model_init` and not
+          in `__init__`. Otherwise, the code will not work when running
+          it in parallel. The reason for this is that the working
+          directory is being updated by parallelEMA to the worker's 
+          separate working directory prior to calling `model_init`.
+                
         """
         self.name=None
         
@@ -73,10 +90,14 @@ class ModelStructureInterface(object):
         '''
         Method called to initialize the model.
         
-        :param policy: policy to be run.
-        :param kwargs: keyword arguments to be used by model_intit. This
-                       gives users to the ability to pass any additional 
-                       arguments. 
+        Parameters
+        ----------
+        policy : dict
+                 policy to be run.
+        kwargs : dict
+                 keyword arguments to be used by model_intit. This
+                 gives users to the ability to pass any additional 
+                 arguments. 
         
         .. note:: This method should always be implemented. Although in simple
                   cases, a simple pass can suffice. 
@@ -87,11 +108,12 @@ class ModelStructureInterface(object):
         """
         Method for running an instantiated model structure. 
         
-        This method should always be implemented.
-        
-        :param case: keyword arguments for running the model. The case is a 
-                     dict with the names of the uncertainties as key, and
-                     the values to which to set these uncertainties. 
+        Parameters
+        ----------
+        case : dict
+               keyword arguments for running the model. The case is a dict with 
+               the names of the uncertainties as key, and the values to which 
+               to set these uncertainties. 
         
         .. note:: This method should always be implemented.
         
@@ -101,7 +123,9 @@ class ModelStructureInterface(object):
         """
         Method for retrieving output after a model run.
         
-        :return: the results of a model run. 
+        Returns
+        -------
+        dict with the results of a model run. 
         """
         return self.output
     
@@ -130,7 +154,9 @@ class ModelStructureInterface(object):
         """
         Method for retrieving model structure uncertainties.
         
-        :return: list of the uncertainties of the model interface.
+        Returns
+        -------
+        list of the uncertainties of the model interface.
         """
         return self.uncertainties    
     
@@ -142,7 +168,10 @@ class ModelStructureInterface(object):
         having to share files across processes. This requires the need to
         update the working directory to the new working directory. 
         
-        :param wd: The new working directory.
+        Parameters
+        ----------
+        wd : str
+             The new working directory.
         
         '''
         
