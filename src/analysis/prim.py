@@ -669,7 +669,7 @@ class Prim(sdutil.OutputFormatterMixin):
         '''
         assert threshold!=None
         
-        self.x = x
+        self.x = np.ma.array(x)
         self.y = y
         
         if len(self.y.shape) > 1:
@@ -1398,11 +1398,13 @@ class Prim(sdutil.OutputFormatterMixin):
         return eigen_vectors
 
     _peels = {'object': _categorical_peel,
+              'int64': _discrete_peel,
                'int32': _discrete_peel,
                'float64': _real_peel}
 
     _pastes = {'object': _categorical_paste,
                'int32': _real_paste,
+               'int64': _real_paste,
                'float64': _real_paste}
 
     # dict with the various objective functions available
