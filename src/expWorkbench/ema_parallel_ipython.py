@@ -295,6 +295,8 @@ class Engine(object):
         '''
         dir_name = dir_name.format(self.engine_id)
         
+        # TODO: this dirname should be combined with ema_project_home_dir
+        
         # if the directory already exists, is has not been
         # cleaned up properly last time
         # let's be stupid and remove it
@@ -391,6 +393,9 @@ def setup_working_directories(client, msis):
     # determine the common root of all working directories
     common_root = os.path.commonprefix(wd_by_msi.keys())
     common_root = os.path.dirname(common_root)
+    # TODO: this common root should be relative to ema_project_home_dir
+    # this ensures that engine.root_dir is relative to ema_project_home
+    # on each host
     
     engine_wd_name = 'engine{}'
     engine_dir = os.path.join(common_root, engine_wd_name)
@@ -401,12 +406,10 @@ def setup_working_directories(client, msis):
     
     # copy the working directories and update msi.working_directory
     dirs_to_copy = wd_by_msi.keys()
+#     dirs_to_copy = [os.path.relpath(wd,common_root) for wd in dirs_to_copy]
     client[:].apply_sync(_copy_working_directories, dirs_to_copy, wd_by_msi)
     
-    # TODO:dirs_to_copy should be relative to some kind of home directory
-    # this home directory might be host specific
-    # using common_prefix we can get the path relative to home
-    # and send this to the engines, which again add the their home to it
+
 
 
 def cleanup_working_directories(client):
