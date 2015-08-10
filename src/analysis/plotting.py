@@ -108,6 +108,7 @@ def envelopes(results,
               This limit is due to the colors specified in COLOR_LIST.
     '''
     debug("generating envelopes")
+    results = copy.deepcopy(results)
    
     prepared_data = prepare_data(results, outcomes_to_show, group_by,
                                  grouping_specifiers)
@@ -203,7 +204,6 @@ def group_by_envelopes(outcomes,
         ax_d.get_yaxis().set_view_interval(
                      ax.get_yaxis().get_view_interval()[0],
                      ax.get_yaxis().get_view_interval()[1])
-        
 
 
 def single_envelope(outcomes,
@@ -296,6 +296,9 @@ def lines(results,
     '''
     
     debug("generating line graph")
+
+    # make sure we have the data
+    results = copy.deepcopy(results)
 
     if show_envelope:
         return plot_lines_with_envelopes(results, 
@@ -409,9 +412,6 @@ def plot_lines_with_envelopes(results,
 
     '''
    
-    # make sure we have the data
-    full_results = copy.deepcopy(results)
-      
     experiments, outcomes = results
     experiments = experiments[experiments_to_show]
     new_outcomes={}
@@ -571,6 +571,7 @@ def kde_over_time(results,
            colorbar is shown for each axes.
     
     '''
+    results = copy.deepcopy(results)
     
     #determine the minima and maxima over all runs
     minima = {}
