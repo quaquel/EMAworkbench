@@ -6,6 +6,9 @@ Created on Jul 16, 2015
 
 .. codeauthor::  jhkwakkel
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 import collections
 import logging
 import os
@@ -17,13 +20,15 @@ import zmq
 import IPython
 from IPython.config import Application
 
-from expWorkbench import EMAError, EMAParallelError
-import ema_logging
-import model_ensemble
+from . import EMAError, EMAParallelError
+from . import ema_logging
+from . import util
+from . import experiment_runner
 
 
 SUBTOPIC = "EMA"
 engine = None
+EMA_PROJECT_HOME_DIR = util.get_ema_project_home_dir()
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
     '''LoggerAdapter that inserts EMA as a topic into log messages'''
@@ -104,7 +109,7 @@ class LogWatcher(object):
     def subscribe(self):
         """Update our SUB socket's subscriptions."""
         ema_logging.debug("Subscribing to: everything")
-        self.stream.setsockopt(zmq.SUBSCRIBE, '') # @UndefinedVariable
+        self.stream.setsockopt(zmq.SUBSCRIBE, str('')) # @UndefinedVariable
         
     def _extract_level(self, topic_str):
         """Turn 'engine.0.INFO.extra' into (logging.INFO, 'engine.0.extra')"""
@@ -279,7 +284,7 @@ class Engine(object):
     def __init__(self, engine_id, msis, model_init_kwargs={}):
         self.engine_id = engine_id
         self.msis = msis
-        self.runner = model_ensemble.ExperimentRunner(msis, model_init_kwargs)
+        self.runner = experiment_runner.ExperimentRunner(msis, model_init_kwargs)
 
     def setup_working_directory(self, dir_name):
         '''setup the root directory for the engine. The working directories 
@@ -295,7 +300,8 @@ class Engine(object):
         '''
         dir_name = dir_name.format(self.engine_id)
         
-        # TODO: this dirname should be combined with ema_project_home_dir
+        #TODO::
+        dir_name = os.path.join(EMA_PROJECT_HOME_DIR, dir_name)
         
         # if the directory already exists, is has not been
         # cleaned up properly last time
@@ -393,12 +399,13 @@ def setup_working_directories(client, msis):
     # determine the common root of all working directories
     common_root = os.path.commonprefix(wd_by_msi.keys())
     common_root = os.path.dirname(common_root)
+    rel_common_root = os.path.relpath(common_root, EMA_PROJECT_HOME_DIR)
     # TODO: this common root should be relative to ema_project_home_dir
     # this ensures that engine.root_dir is relative to ema_project_home
     # on each host
     
     engine_wd_name = 'engine{}'
-    engine_dir = os.path.join(common_root, engine_wd_name)
+    engine_dir = os.path.join(rel_common_root, engine_wd_name)
         
     # create the root directory for each engine
     # we need to block until directory has been created

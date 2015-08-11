@@ -37,10 +37,10 @@ from multiprocessing.util import Finalize
 
 
 import ema_logging                  
-import model_ensemble
+from experiment_runner import ExperimentRunner
 from pool import RUN, Pool, TERMINATE
 from ema_logging import debug, info,  NullHandler, LOG_FORMAT
-from expWorkbench.ema_exceptions import EMAError, EMAParallelError
+from ema_exceptions import EMAError, EMAParallelError
 
 __all__ = ['CalculatorPool']
 
@@ -61,8 +61,7 @@ def worker(inqueue,
         outqueue._reader.close()
     
     msis = {msi.name: msi for msi in model_interfaces}
-    runner = model_ensemble.ExperimentRunner(msis,
-                                             model_kwargs)
+    runner = ExperimentRunner(msis, model_kwargs)
 
     while 1:
         try:

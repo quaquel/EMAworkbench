@@ -385,6 +385,7 @@ class TestEngine(unittest.TestCase):
         
         # directory does not exist
         mock_os.path.isdir.return_value = False
+        mock_os.path.join.return_value = './test 0'
 
         wd = './test {}'
         engine.setup_working_directory(wd)
@@ -393,6 +394,8 @@ class TestEngine(unittest.TestCase):
 
         # directory already exists
         mock_os.path.isdir.return_value = True
+        mock_os.path.join.return_value = './test 0'
+        
         engine.setup_working_directory(wd)
         mock_shutil.rmtree.assert_called_once_with(wd.format(engine_id))
        
