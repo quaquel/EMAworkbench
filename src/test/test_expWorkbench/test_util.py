@@ -6,10 +6,10 @@ Created on 22 nov. 2012
 import os
 import unittest
 
-from expWorkbench import  ema_logging
 import numpy as np
 
-from expWorkbench.util import save_results, load_results
+from expWorkbench.util import (save_results, load_results, 
+                               get_ema_project_home_dir)
 
 def setUpModule():
     global cwd 
@@ -34,11 +34,11 @@ class Save_ResultsTestCase(unittest.TestCase):
         
         results = (experiments, {'a': outcome_a})
     
-        fn = r'../data/test.tar.gz'
+        fn = u'../data/test.tar.gz'
         
         save_results(results, fn)
         os.remove(fn)
-        ema_logging.info('1d saved successfully')
+#         ema_logging.info('1d saved successfully')
         
         nr_experiments = 10000
         nr_timesteps = 100
@@ -49,7 +49,7 @@ class Save_ResultsTestCase(unittest.TestCase):
         results = (experiments, {'a': outcome_a})
         save_results(results, fn)
         os.remove(fn)
-        ema_logging.info('2d saved successfully')
+#         ema_logging.info('2d saved successfully')
      
      
         nr_experiments = 10000
@@ -62,7 +62,7 @@ class Save_ResultsTestCase(unittest.TestCase):
         results = (experiments, {'a': outcome_a})
         save_results(results, fn)
         os.remove(fn)
-        ema_logging.info('3d saved successfully')
+#         ema_logging.info('3d saved successfully')
         
         nr_experiments = 500000
         nr_timesteps = 100
@@ -73,7 +73,7 @@ class Save_ResultsTestCase(unittest.TestCase):
         results = (experiments, {'a': outcome_a})
         save_results(results, fn)
         os.remove(fn)
-        ema_logging.info('extremely long saved successfully')
+#         ema_logging.info('extremely long saved successfully')
     
 class Load_ResultsTestCase(unittest.TestCase):
     def test_load_results(self):
@@ -88,15 +88,15 @@ class Load_ResultsTestCase(unittest.TestCase):
         
         results = (experiments, {'a': outcome_a})
         
-        save_results(results, r'../data/test.tar.gz')
-        experiments, outcomes  = load_results(r'../data/test.tar.gz')
+        save_results(results, u'../data/test.tar.gz')
+        experiments, outcomes  = load_results(u'../data/test.tar.gz')
         
         logical = np.allclose(outcomes['a'],outcome_a)
         
         os.remove('../data/test.tar.gz')
         
-        if logical:
-            ema_logging.info('1d loaded successfully')
+#         if logical:
+#             ema_logging.info('1d loaded successfully')
         
         nr_experiments = 1000
         nr_timesteps = 100
@@ -106,15 +106,15 @@ class Load_ResultsTestCase(unittest.TestCase):
         outcome_a = np.zeros((nr_experiments,nr_timesteps,nr_replications))
          
         results = (experiments, {'a': outcome_a})
-        save_results(results, r'../data/test.tar.gz')
-        experiments, outcomes = load_results(r'../data/test.tar.gz')
+        save_results(results, u'../data/test.tar.gz')
+        experiments, outcomes = load_results(u'../data/test.tar.gz')
         
         logical = np.allclose(outcomes['a'],outcome_a)
         
         os.remove('../data/test.tar.gz')
         
-        if logical:
-            ema_logging.info('3d loaded successfully')
+#         if logical:
+#             ema_logging.info('3d loaded successfully')
     
 class ExperimentsToCasesTestCase(unittest.TestCase):
     pass
@@ -122,6 +122,10 @@ class ExperimentsToCasesTestCase(unittest.TestCase):
 class MergeResultsTestCase(unittest.TestCase):
     pass
 
+class ConfigTestCase(unittest.TestCase):
+    def test_get_home_dir(self):
+        home_dir = get_ema_project_home_dir()
+        
 
 
 if __name__ == '__main__':

@@ -6,9 +6,12 @@ Created on 13 jan. 2011
 This module provides various convenience functions and classes.
 
 '''
-from __future__ import division
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 
 import bz2
+import ConfigParser
 import cPickle
 import math
 import os
@@ -22,8 +25,9 @@ from pandas.io.parsers import read_csv
 
 from deap import creator, base
 
-from ema_logging import info, debug, warning
+from .ema_logging import info, debug, warning
 from expWorkbench import EMAError
+
 
 __all__ = ['load_results',
            'save_results',
@@ -56,8 +60,16 @@ def load_results(file_name):
 
         # load experiment metadata
         metadata = z.extractfile('experiments metadata.csv').readlines()
-        metadata = [entry.strip() for entry in metadata]
-        metadata = [tuple(entry.split(",")) for entry in metadata]
+        
+        metadata_temp = []
+        for entry in metadata:
+            entry = entry.strip()
+            entry = entry.split(",")
+            entry = [str(item) for item in entry]
+            entry = tuple(entry)
+            metadata_temp.append(entry)
+        metadata = metadata_temp    
+        
         metadata = np.dtype(metadata)
 
         # cast experiments to dtype and name specified in metadata        
@@ -348,6 +360,24 @@ def load_optimization_results(file_name, weights, zipped=True):
         raise
     
     return results
+
+
+def get_ema_project_home_dir():
+    config_file_name = "expworkbench.cfg"
+    directory = os.path.dirname(__file__)
+    fn = os.path.join(directory, config_file_name)
+    
+    config = ConfigParser.SafeConfigParser()
+    parsed = config.read(fn)
+    
+    if parsed:
+        info('config loaded from {}'.format(parsed[0]))
+    else:
+        info('no config file found')
+        
+    
+    home_dir = config.get('ema_project_home', 'home_dir')
+    return home_dir
 
 # def save_optimization_results(results, file_name, zipped=True):
 #     '''
