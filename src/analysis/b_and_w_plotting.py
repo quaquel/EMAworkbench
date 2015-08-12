@@ -1,7 +1,8 @@
 '''
 Created on 18 sep. 2012
 
-@author: localadmin
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 '''
 import numpy as np
 from matplotlib.colors import ColorConverter
@@ -34,8 +35,11 @@ def set_ax_lines_bw(ax):
     Derived from and expanded for use in the EMA workbench from:
     http://stackoverflow.com/questions/7358118/matplotlib-black-white-colormap-with-dashes-dots-etc
     
-    :param ax: The ax of which the lines needs to be transformed to B&W. 
-               Lines are transformed to different line styles. 
+    Parameters
+    ----------
+    ax : axes
+         The ax of which the lines needs to be transformed to B&W. Lines are 
+         transformed to different line styles. 
     
     """
 
@@ -48,12 +52,16 @@ def set_ax_lines_bw(ax):
             line.set_alpha(1)
             line.set_markersize(MARKERSIZE)
 
+
 def set_ax_patches_bw(ax):
     """
     Take each patch in the axes, ax, and convert the face color to be 
     suitable for black and white viewing.
     
-    :param ax: The ax of which the patches needs to be transformed to B&W.
+    Parameters
+    ----------
+    ax : axes
+         The ax of which the patches needs to be transformed to B&W.
     
     """    
     
@@ -69,13 +77,17 @@ def set_ax_patches_bw(ax):
         
         patch._facecolor = new_color
 
+
 def set_ax_collections_to_bw(ax, style):
     """
     Take each polycollection in the axes, ax, and convert the face color to be 
     suitable for black and white viewing.
-    
-    :param ax: The ax of which the polycollection needs to be transformed to 
-               B&W.
+
+    Parameters
+    ----------
+    ax : axes
+        The ax of which the polycollection needs to be transformed to 
+       B&W.
     
     """        
     for collection in ax.collections:
@@ -85,6 +97,15 @@ def set_ax_collections_to_bw(ax, style):
             raise EMAError("converter for {} not implemented").format(collection.__class__)
  
 def _set_ax_polycollection_to_bw(collection, ax, style):
+    '''helper function for converting a polycollection to black and white
+    
+    Parameters
+    ----------
+    collection : polycollection
+    ax : axes
+    style : {GREYSCALE, HATCHING}
+    
+    '''
 
     if style==GREYSCALE:
 
@@ -108,23 +129,34 @@ def _set_ax_polycollection_to_bw(collection, ax, style):
             ax.add_patch(p1)
             p1.set_zorder(collection.get_zorder()-0.1)
 
-def _set_ax_pathcollection_to_bw(collection, ax, style):
-        color_converter = ColorConverter()
-        colors = {}
-        for key, value in color_converter.colors.items():
-            colors[value] = key    
 
-        rgb_orig = collection._facecolors_original
-        rgb_orig = [color_converter.to_rgb(row) for row in rgb_orig]
-        color = [colors.get(entry) for entry in rgb_orig]
-        new_color = [color_converter.to_rgba(COLORMAP[entry]['fill']) for entry in color]
-        new_color = np.asarray(new_color)
-        collection.update({'facecolors' : new_color}) 
-        collection.update({'edgecolors' : new_color}) 
+def _set_ax_pathcollection_to_bw(collection, ax, style):
+    '''helper function for converting a pathcollection to black and white
+    
+    Parameters
+    ----------
+    collection : pathcollection
+    ax : axes
+    style : {GREYSCALE, HATCHING}
+    
+    '''
+    color_converter = ColorConverter()
+    colors = {}
+    for key, value in color_converter.colors.items():
+        colors[value] = key    
+
+    rgb_orig = collection._facecolors_original
+    rgb_orig = [color_converter.to_rgb(row) for row in rgb_orig]
+    color = [colors.get(entry) for entry in rgb_orig]
+    new_color = [color_converter.to_rgba(COLORMAP[entry]['fill']) for entry in color]
+    new_color = np.asarray(new_color)
+    collection.update({'facecolors' : new_color}) 
+    collection.update({'edgecolors' : new_color}) 
 
 
 _collection_converter = {PathCollection: _set_ax_pathcollection_to_bw,
                          PolyCollection: _set_ax_polycollection_to_bw}
+
 
 def set_legend_to_bw(leg, style):
     """
@@ -133,7 +165,10 @@ def set_legend_to_bw(leg, style):
     intances are currently not being supported, and might cause errors or
     other unexpected behavior.
     
-    :param fig: The figure which needs to be transformed to B&W.
+    Parameters
+    ----------
+    leg : legend
+    style : {GREYSCALE, HATCHING}
     
     """
     color_converter = ColorConverter()
@@ -173,6 +208,15 @@ def set_legend_to_bw(leg, style):
                 line.set_markersize(MARKERSIZE)
 
 def set_ax_legend_to_bw(ax, style):
+    '''convert axes legend to black and white
+    
+    Parameters
+    ----------
+    ax : axes
+    style : {GREYSCALE, HATCHING}
+    
+    '''
+    
     legend = ax.legend_
     set_legend_to_bw(legend, style)
 
@@ -189,10 +233,12 @@ def set_fig_to_bw(fig, style=HATCHING):
     derived from and expanded for my use from:
     http://stackoverflow.com/questions/7358118/matplotlib-black-white-colormap-with-dashes-dots-etc
     
-    
-    :param fig: the figure to transform to black and white
-    :param style: parameter controlling how polycollections are transformed.
-                  Options are HATCHING and GREYSCALE.  
+    Parameters
+    ----------
+    fig : figure
+          the figure to transform to black and white
+    style : {HATCHING, GREYSCALE}
+            parameter controlling how collections are transformed.  
     
     """
     for ax in fig.get_axes():

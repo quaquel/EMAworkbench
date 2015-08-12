@@ -1,7 +1,7 @@
 '''
 Created on Jul 9, 2014
 
-@author: jhkwakkel@tudelft.net
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
 TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
@@ -25,9 +25,14 @@ from sklearn.linear_model.least_angle import LassoLarsCV
 def _prepare_experiments(experiments):
     '''
     transform the experiments structured array into a numpy array.
+
+    Parameters
+    ----------
+    experiments : structured array
     
-    :poram experiments:
-    :returns temp_experiments:
+    Returns
+    -------
+    ndarray
     
     '''
     uncs = recfunctions.get_names(experiments.dtype)
@@ -53,12 +58,28 @@ def _prepare_outcomes(outcomes, classify):
     transform the outcomes dict into a vector with either the class allocation
     or the value.
     
-    :param outcomes: the outcomes dict
-    :param classify: a classify function or variable analogous to PRIM
-    :returns: a vector and a boolean indicated whether the data is categorical 
+    Parameters
+    ----------
+    outcomes : dict 
+               the outcomes dict
+    classify : callable or str
+               a classify function or variable analogous to PRIM
+               
+    Returns
+    -------
+    1d ndarray 
+        the return from classiy
+    bool
+        data is categorical (true) or continuous (false)
+    and a boolean indicated whether the data is categorical 
               (true) or continuous (false)
-    :raises: TypeError if classify is neither a StringType nor a callabale
-             KeyError if the string is not a key in the outcomes dict.
+    
+    Raises
+    --------
+    TypeError 
+        if classify is neither a StringType nor a callabale
+    KeyError 
+        if classify is a string which is not a key in the outcomes dict.
     
     '''
     if type(classify)==StringType:
