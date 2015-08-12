@@ -27,7 +27,8 @@ def _get_sorted_box_lims(boxes, box_init):
     
     Returns
     -------
-    tuple with the sorted boxes, and the list of restricted uncertainties
+    tuple 
+        with the sorted boxes, and the list of restricted uncertainties
     
     '''
         
@@ -101,7 +102,8 @@ def _normalize(box_lim, box_init, uncertainties):
 
     Returns
     -------
-    a numpy array of the shape (2, len(uncertainties) with the box limits.
+    ndarray
+        a numpy array of the shape (2, len(uncertainties) with the box limits.
     
     
     '''
@@ -216,7 +218,8 @@ def _in_box(x, boxlim):
     
     Returns
     -------
-    valid numpy indices on x
+    ndarray
+        valid numpy indices on x
     
     '''
     logical = np.ones(x.shape[0], dtype=np.bool)
@@ -253,6 +256,7 @@ def _in_box(x, boxlim):
     
     return indices
 
+
 class OutputFormatterMixin(object):
     __metaclass__ = abc.ABCMeta
     
@@ -270,6 +274,8 @@ class OutputFormatterMixin(object):
         raise NotImplementedError
     
     def boxes_to_dataframe(self):
+        '''convert boxes to pandas dataframe'''
+        
         boxes = self.boxes
             
         # determine the restricted dimensions
@@ -299,6 +305,8 @@ class OutputFormatterMixin(object):
         return df_boxes 
     
     def stats_to_dataframe(self):
+        '''convert stats to pandas dataframe'''
+        
         stats = self.stats
         
         index = pd.Index(['box {}'.format(i+1) for i in range(len(stats))])
@@ -306,6 +314,13 @@ class OutputFormatterMixin(object):
         return pd.DataFrame(stats, index=index)
     
     def display_boxes(self, together=False):
+        '''display boxes
+        
+        Parameters
+        ----------
+        together : bool, otional
+        
+        '''
         box_init = _make_box(self.x)
         box_lims, uncs = _get_sorted_box_lims(self.boxes, box_init)
 
