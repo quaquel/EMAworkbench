@@ -1,7 +1,7 @@
 '''
 Created on May 24, 2015
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import abc
 import matplotlib as mpl
