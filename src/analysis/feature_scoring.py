@@ -8,12 +8,12 @@ TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sp
 
 '''
 from types import StringType
+from operator import itemgetter
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 
 from sklearn.ensemble import RandomForestClassifier
-from operator import itemgetter
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.feature_selection.univariate_selection import f_regression,\
     f_classif, chi2
@@ -105,13 +105,18 @@ def get_univariate_feature_scores(results, classify,
     categorical data, chi square or the Anova F value is used. In case of 
     continuous data the Anova F value is used. 
     
-    :param results:
-    :param classify:
-    :param score_func: the score function to use, one of f_regression 
-                      (regression), or  f_classification or chi2 
-                      (classification). 
-    :returns: a list sorted in descending order of tuples with uncertainty and 
-              feature scores (i.e. p values in this case).
+    Parameters
+    ----------
+    results : tuple
+    classify : str
+    score_func : {'f_classification', 'chi2', 'f_regression'}
+                the score function to use, one of f_regression (regression), or  
+                f_classification or chi2 (classification). 
+    Returns
+    -------
+    list of tuples 
+        sorted in descending order of tuples with uncertainty and feature 
+        scores (i.e. p values in this case).
     
     
     '''
@@ -138,27 +143,46 @@ def get_univariate_feature_scores(results, classify,
     pvalues.sort(key=itemgetter(1))
     return pvalues
 
-    
+
 def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
                        max_features='auto', max_depth=None, 
                        min_samples_split=2, min_samples_leaf=1, bootstrap=True,
                        oob_score=True, random_state=None): 
     '''
     Get feature scores using a random forest
+
+    Parameters
+    ----------
+    results : tuple
+              results tuple
+    classify : callable or str
+               a classify function or variable analogous to PRIM
+    nr_trees : int, optional
+               nr. of trees in forest (default=250)
+    criterion : str, optional
+                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    max_features : int, optional
+                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    max_depth : int, optional 
+                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    min_samples : int, optional
+                  see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    min_samples_leaf : int, optional
+                       see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    bootstrap : bool, optional
+                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    oob_score : bool, optional
+                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    random_state : int, optional
+                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     
-    :param results: results tuple
-    :param classify: a classify function or variable analogous to PRIM
-    :param nr_trees: nr. of trees in forest (default=250)
-    :param criterion: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    :param max_features: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    :param max_depth: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    :param min_samples: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    :param min_samples_leaf: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    :param bootstrap: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    :param oob_score: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    :param random_state: see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    :returns: a list sorted in descending order of tuples with uncertainty and 
-              feature scores, and the forest itself
+    Returns
+    -------
+    list of tuples 
+        sorted in descending order of tuples with uncertainty and feature 
+        scores 
+    object
+        either RandomForestClassifier or RandomForestRegressor
     
     '''
     experiments, outcomes = results
@@ -191,8 +215,8 @@ def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
     importances.sort(key=itemgetter(1), reverse=True)
 
     return importances, forest
-    
-    
+
+
 def get_lasso_feature_scores(results, classify, scaling=0.5, 
                                      sample_fraction=0.75, n_resampling=200,
                                      random_state=None):
@@ -204,16 +228,28 @@ def get_lasso_feature_scores(results, classify, scaling=0.5,
     see http://scikit-learn.org/stable/modules/feature_selection.html for 
     details. 
     
-    :param results: results tuple
-    :param classify: a classify function or variable analogous to PRIM
-    :param scaling: scaling paramter, should be between 0 and 1
-    :param sample_fraction: the fraction of samples to used in each randomized
-                            dataset
-    :param n_resmpling: the number of times the model is trained on a random
-                        subset of the data
-    :param random_state: if it is an int, it specifies the seed to use, 
-                         defaults to None.
+    Parameters
+    ----------   
+    results : tuple
+    classify : callable or str
+               a classify function or variable analogous to PRIM
+    scaling : float, optional
+              scaling parameter, should be between 0 and 1
+    sample_fraction : float, optional
+                      the fraction of samples to used in each randomized 
+                      dataset
+    n_resmpling : int, optional
+                  the number of times the model is trained on a random subset 
+                  of the data
+    random_state : int, optional
+                   if it is an int, it specifies the seed to use, defaults to 
+                   None.
                          
+    Returns
+    -------
+    list of tuples 
+        sorted in descending order of tuples with uncertainty and feature 
+        scores         
          
     '''
     
@@ -248,6 +284,3 @@ def get_lasso_feature_scores(results, classify, scaling=0.5,
     importances.sort(key=itemgetter(1), reverse=True)
 
     return importances
-
-    
-    
