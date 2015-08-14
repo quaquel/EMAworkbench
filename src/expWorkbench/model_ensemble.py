@@ -458,14 +458,14 @@ class ModelEnsemble(object):
         
         return overview_dict, element_dict 
         
-    def _generate_experiments(self,cases, which_uncertainties):
+    def _generate_experiments(self, cases, which_uncertainties):
         '''
         Helper method for generating experiments
         
         Parameters
         ----------
         cases : int or list
-        whicn_uncertianties : {INTERSECTION, UNION}
+        which_uncertianties : {INTERSECTION, UNION}
 
         Returns
         -------
