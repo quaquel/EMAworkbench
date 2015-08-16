@@ -30,7 +30,7 @@ fn = r'./data/5000 runs WCM.tar.gz'
 results = load_results(fn)
 
 
-prim_obj = prim.Prim(results, classify, mass_min=0.05, threshold=0.75)
+prim_obj = prim.setup_prim(results, classify, mass_min=0.05, threshold=0.75)
 
 # let's find a first box
 box1 = prim_obj.find_box()

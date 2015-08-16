@@ -1,7 +1,7 @@
 '''
 Created on 22 feb. 2013
 
-@author: j.h.kwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
 from __future__ import division, print_function
@@ -536,9 +536,9 @@ class PrimBox(object):
         
         Parameters
         ----------
-        i: int
-           the specific box in the peeling trajectory for which the quasi-p 
-           values are to be calculated.
+        i : int
+            the specific box in the peeling trajectory for which the quasi-p 
+            values are to be calculated.
         
         '''
         
@@ -669,7 +669,7 @@ class Prim(sdutil.OutputFormatterMixin):
         '''
         assert threshold!=None
         
-        self.x = x
+        self.x = np.ma.array(x)
         self.y = y
         
         if len(self.y.shape) > 1:
@@ -736,8 +736,8 @@ class Prim(sdutil.OutputFormatterMixin):
                  
                 ..note:: the list of uncertainties should not contain 
                          categorical uncertainties. 
-        exclude: list of strings, optional 
-                the uncertainties that should be excluded from the rotation
+        exclude : list of str, optional 
+                  the uncertainties that should be excluded from the rotation
         
         '''
         
@@ -878,7 +878,7 @@ class Prim(sdutil.OutputFormatterMixin):
         
         Parameters
         ----------
-        indices: numpy array
+        indices: ndarray
                  a valid index for y
 
         Returns
@@ -980,7 +980,7 @@ class Prim(sdutil.OutputFormatterMixin):
         Parameters
         ----------
         box : a PrimBox instance
-        u : string
+        u : str
             the uncertainty for which to peel
         
         Returns
@@ -1024,7 +1024,7 @@ class Prim(sdutil.OutputFormatterMixin):
         Parameters
         ----------
         box : a PrimBox instance
-        u : string
+        u : str
             the uncertainty for which to peel
         
         Returns
@@ -1090,7 +1090,7 @@ class Prim(sdutil.OutputFormatterMixin):
         Parameters
         ----------
         box : a PrimBox instance
-        u : string
+        u : str
             the uncertainty for which to peel
         
         Returns
@@ -1186,7 +1186,7 @@ class Prim(sdutil.OutputFormatterMixin):
         Parameters
         ----------
         box : a PrimBox instance
-        u : string
+        u : str
             the uncertainty for which to peel
         
         Returns
@@ -1249,7 +1249,7 @@ class Prim(sdutil.OutputFormatterMixin):
         Parameters
         ----------
         box : a PrimBox instance
-        u : string
+        u : str
             the uncertainty for which to peel
         
         Returns
@@ -1348,7 +1348,7 @@ class Prim(sdutil.OutputFormatterMixin):
         
         Parameters
         ----------
-        value : list of strings
+        value : list of str
         orig_experiment : numpy structured array
         logical : boolean array
         
@@ -1398,11 +1398,13 @@ class Prim(sdutil.OutputFormatterMixin):
         return eigen_vectors
 
     _peels = {'object': _categorical_peel,
+              'int64': _discrete_peel,
                'int32': _discrete_peel,
                'float64': _real_peel}
 
     _pastes = {'object': _categorical_paste,
                'int32': _real_paste,
+               'int64': _real_paste,
                'float64': _real_paste}
 
     # dict with the various objective functions available

@@ -1,7 +1,7 @@
 '''
 Created on 22 jul. 2012
 
-@author: localadmin
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,8 +18,9 @@ from analysis.pairs_plotting import pairs_scatter,\
                                      pairs_density
                                      
 from test import util
-                                                      
-np = np
+
+# don't run these tests using nosetest
+__test__ = False
  
 def test_make_continuous_grouping_specifiers():
     array = np.random.randint(1,100, size=(1000,))
@@ -39,7 +40,7 @@ def test_filter_scalar_outcomes():
     print outcomes.keys()
 
 def test_group_results():
-    results = load_results(r'./../data/eng_trans_100.cPickle', zipped=False)
+    results = util.load_eng_trans_data()
     experiments, outcomes = results
     
     # test indices

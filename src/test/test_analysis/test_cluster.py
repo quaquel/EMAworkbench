@@ -1,7 +1,7 @@
 '''
 Created on Mar 15, 2012
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 
 from analysis import clusterer

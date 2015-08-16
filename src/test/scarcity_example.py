@@ -41,9 +41,9 @@ class ScarcityModel(VensimModelStructureInterface):
                      ParameterUncertainty((5000, 20000),"initial recycling infrastructure"),
                           
                      #order of delay
-                     CategoricalUncertainty((1,4,10, 1000), "order in goods delay", default = 4),
-                     CategoricalUncertainty((1,4,10), "order recycling capacity delay", default = 4),
-                     CategoricalUncertainty((1,4,10), "order extraction capacity delay", default = 4),
+                     CategoricalUncertainty((1,4,10, 1000), "order in goods delay"),
+                     CategoricalUncertainty((1,4,10), "order recycling capacity delay"),
+                     CategoricalUncertainty((1,4,10), "order extraction capacity delay"),
                           
                      #uncertainties associated with lookups
                      ParameterUncertainty((20, 50),"lookup shortage loc"),

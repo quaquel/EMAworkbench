@@ -6,7 +6,7 @@ Created on Jul 28, 2015
 import unittest
 
 
-class Test(unittest.TestCase):
+class TestDefaultCallback(unittest.TestCase):
 
 
     def testName(self):

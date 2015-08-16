@@ -1,7 +1,7 @@
 '''
 Created on Mar 1, 2012
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 from __future__ import division
 

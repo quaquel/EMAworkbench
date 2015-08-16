@@ -23,8 +23,6 @@ from expWorkbench import EMAError
 from analysis.cluster_util import distance_mse, distance_sse,\
                                   distance_triangle, distance_gonenc
 
-from analysis.cluster_util import cluster_plotter as plotter
-
 distance_functions = {'gonenc': distance_gonenc,
                       'triangle':distance_triangle,
                       'sse': distance_sse,
@@ -50,24 +48,37 @@ def cluster(data,
     Method that clusters time-series data from the specified cpickle file 
     according to a selected distance measure.
     
-    :param data: return from meth:`perform_experiments`.
-    :param outcome: Name of outcome/variable whose behavior is being analyzed
-    :param distance: The distance metric to be used.
-    :param interClusterDistance: How to calculate inter cluster distance.
-                                 see `linkage <http://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage>`_ 
-                                 for details.
-    :param cMethod: Cutoff method, 
-                    see `fcluster <http://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html#scipy.cluster.hierarchy.fcluster>`_ 
-                    for details.
-    :param cValue: Cutoff value, see 
-                   `fcluster <http://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html#scipy.cluster.hierarchy.fcluster>`_ 
-                   for details.
-    :param plotDendogram: Boolean, if true, plot dendogram.
-    :param plotCluster: Boolean, true if you want to plot clusters.
-    :param groupPlot: Boolean, if true plot clusters in a single window, 
-                      else the clusters are plotted in separate windows.
-    :rtype: A tuple containing the list of distances, the list of clusters (a Cluster object for each cluster), 
-            and a list of logged distance metrics for each time series.     
+    Parameters
+    ----------
+    
+    data : tuple
+           return from meth:`perform_experiments`.
+    outcome : str
+              Name of outcome/variable whose behavior is being analyzed
+    distance : {'gonenc','triangle', 'sse', 'mse'}
+               The distance metric to be used.
+    interClusterDistance : str
+                           How to calculate inter cluster distance.
+                           see `linkage <http://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage>`_ 
+                           for details.
+    cMethod : str
+              Cutoff method, see `fcluster <http://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html#scipy.cluster.hierarchy.fcluster>`_ 
+              for details.
+    cValue : float
+             Cutoff value, see `fcluster <http://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html#scipy.cluster.hierarchy.fcluster>`_ 
+             for details.
+    plotDendogram : bool
+    plotCluster : bool
+    groupPlot: bool
+    
+    Returns
+    -------
+    list
+        distances
+    list
+        Clusters
+    list
+        distance metrics
     
     The remainder of the arguments are passed on to the specified distance 
     function.
@@ -172,9 +183,16 @@ def get_drow_index(i,j, size):
     '''
     Get the index in the distance row for the distance between i and j.
     
-    :param i; result i
-    :param j: result j
-    :param size: the number of results
+    Parameters
+    ----------
+    i : result i
+    j : result j
+    size : the number of results
+    
+    Returns
+    -------
+    int
+    
     
     ...note:: i > j
     
@@ -278,30 +296,7 @@ def plot_clusters(groupPlot, runLogs):
             if runLogs[runIndex][0]['Cluster']==str(clust+1):
                 runSubset.append(runLogs[runIndex])
         
-        # Dumps data about each cluster to a different cpickle file
-        if groupPlot:
-            clustersToPlot.append(runSubset)
-        else:
-            callSinglePlotter(runSubset)
    
-    if groupPlot:
-        callGroupPlotter(clustersToPlot)
-   
-def callSinglePlotter(data):
-    plt = plotter.singlePlot()
-    plt.setData(data)
-    global varName
-    plt.setVarName(varName)
-    plt.configure_traits()
-
-def callGroupPlotter(data):
-    plt = plotter.groupPlot()
-    plt.setData(data)
-    global varName
-    plt.setVarName(varName)
-    plt.configure_traits()  
-
-
 class Cluster(object):
     '''
     Contains information about a data-series cluster, as well as some methods to help analyzing a cluster.

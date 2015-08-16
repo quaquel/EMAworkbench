@@ -51,9 +51,14 @@ def load_model(file_name):
     '''
     load the model 
     
-    :param file: the location of the .vpm file to be loaded.
-    :exception: raises a :class:`~EMAExceptions.VensimError` if the model 
-                cannot be loaded.
+    Parameters
+    ----------
+    file_name : str
+                file name of model, relative to working directory
+    
+    Raises
+    -------
+    VensimError if the model cannot be loaded.
     
     .. note: only works for .vpm files
     
@@ -69,9 +74,14 @@ def read_cin_file(file_name):
     '''
     read a .cin file
     
-    :param file: location of the .cin file.
-    :exception: raises a :class:`~EMAExceptions.VensimWarning` if the cin file
-                cannot be read.
+    Parameters
+    -----------
+    file_name : str
+                file name of *.cin file, relative to working directory
+                
+    Raises
+    ------
+    VensimWarning if the *.cin file cannot be read.
     '''
     debug("executing COMMAND: SIMULATE>READCIN|"+file_name)
     try:
@@ -88,11 +98,14 @@ def set_value(variable, value):
     of a list, a lookup is assumed, else a normal value is assumed. 
     See the DSS reference supplement, p. 58 for details.
 
-    
-    :param variable: name of the variable to set.
-    :param value: the value for the variable. 
-                  **note**: the value can be either a list, or an float/integer. 
-                  If it is a list, it is assumed the variable is a lookup.
+    Parameters
+    -----------
+    variable : str
+               name of the variable to set.
+    value : int, float, or list
+            the value for the variable. **note**: the value can be either a 
+            list, or an float/integer. If it is a list, it is assumed the 
+            variable is a lookup.
     '''
     
     if type(value) == types.ListType:
@@ -110,9 +123,15 @@ def run_simulation(file_name):
     the specified .vdf file. The specified output file will be overwritten 
     by default
 
-    :param file: the location of the outputfile
-    :exception: raises a :class:`~EMAExceptions.VensimError` if running 
-                the model failed in some way. 
+    Parameters
+    ----------
+    file_name : str
+                the file name of the output file relative to the working 
+                directory
+                
+    Raises
+    ------
+    VensimError if running the model failed in some way. 
                 
     '''
 
@@ -130,12 +149,19 @@ def get_data(filename, varname, step=1):
     ''' 
     Retrieves data from simulation runs or imported data sets. 
     
+    Parameters
+    ----------
+    filename : str
+               the name of the .vdf file that contains the data
+    varname : str
+              the name of the variable to retrieve data on
+    step : int (optional)
+           steps used in slicing. Defaults to 1, meaning the full recored time 
+           series is returned.
     
-    :param filename: the name of the .vdf file that contains the data
-    :param varname: the name of the variable to retrieve data on
-    :param step: steps used in slicing. Defaults to 1, meaning the full
-                 recored time series is returned.
-    :return: an array with the values for varname over the simulation
+    Returns
+    -------
+    numpy array with the values for varname over the simulation
     
     '''
     
@@ -194,16 +220,28 @@ class VensimModelStructureInterface(ModelStructureInterface):
     def __init__(self, working_directory, name):
         """interface to the model
         
-        :param working_directory: working_directory for the model. 
-        :param name: name of the modelInterface. The name should contain only
-                     alphanumerical characters. 
+        interface to the model
+        
+        Parameters
+        ----------
+        
+        working_directory : str
+                            working_directory for the model. 
+        name : str
+               name of the modelInterface. The name should contain only
+               alpha-numerical characters.
+               
+        Raises
+        ------
+        EMAError if name contains non alpha-numerical characters
         
         .. note:: Anything that is relative to `self.working_directory`
-                  should be specified in `model_init` and not
-                  in `__init__`. Otherwise, the code will not work when running
-                  it in parallel. The reason for this is that the working
-                  directory is being updated by parallelEMA to the worker's 
-                  separate working directory prior to calling `model_init`.
+          should be specified in `model_init` and not
+          in `__init__`. Otherwise, the code will not work when running
+          it in parallel. The reason for this is that the working
+          directory is being updated by parallelEMA to the worker's 
+          separate working directory prior to calling `model_init`.
+                
         """
         super(VensimModelStructureInterface, self).__init__(working_directory, 
                                                             name)
@@ -220,15 +258,19 @@ class VensimModelStructureInterface(ModelStructureInterface):
         """
         Init of the model, The provided implementation here assumes
         that `self.model_file`  is set correctly. In case of using different
-        vensim models for different policies, it is recomended to extent
+        vensim models for different policies, it is recommended to extent
         this method, extract the model file from the policy dict, set 
-        `self.model_file` to this file and then call this implementation through
-        calling `super`.
+        `self.model_file` to this file and then call this implementation 
+        through calling `super`.
         
-        :param policy: a dict specifying the policy. In this 
-                       implementation, this argument is ignored. 
-        :param kwargs: additional keyword arguments. In this implementation 
-                       this argument is ignored.
+        Parameters
+        ----------
+        policy : dict
+                 policy to be run.
+        kwargs : dict
+                 keyword arguments to be used by model_intit. This
+                 gives users to the ability to pass any additional 
+                 arguments. 
         """
 
         load_model(self.working_directory+self.model_file) #load the model
@@ -263,7 +305,12 @@ class VensimModelStructureInterface(ModelStructureInterface):
         if you want to use cin_files, set the cin_file, or cin_files in
         the extension of this method to `self.cin_file`.
         
-        :param case: the case to run
+        Parameters
+        ----------
+        case : dict
+               keyword arguments for running the model. The case is a dict with 
+               the names of the uncertainties as key, and the values to which 
+               to set these uncertainties. 
         
         
         .. note:: setting parameters should always be done via run_model.
@@ -361,66 +408,72 @@ class LookupUncertainty(AbstractUncertainty):
     y = []
      
     def __init__(self, lookup_type, values, name, msi, ymin=None, ymax=None):
-        
-        
         '''
-        :param lookup_type: the method to be used for alternative generation. 
-                            'categories', 'hearne' or 'approximation'
-        :param values: the values for specifying the uncertainty from which to 
-                       sample.
-           If 'lookup_type' is "categories", a set of alternative lookup 
-               functions to  be entered as tuples of x,y points.
-               Example definition: 
-               LookupUncertainty([[(0.0, 0.05), (0.25, 0.15), (0.5, 0.4), 
-                                   (0.75, 1), (1, 1.25)], 
-                                 [(0.0, 0.1), (0.25, 0.25), (0.5, 0.75), 
-                                  (1, 1.25)],
-                                 [(0.0, 0.0), (0.1, 0.2), (0.3, 0.6), 
-                                  (0.6, 0.9), (1, 1.25)]], 
-                                  "TF3", 'categories', self )
-           if 'lookup_type' is "hearne1", a list of ranges for each parameter 
-               Single-extreme piecewise functions
-               m: maximum deviation from l of the distortion function
-               p: the point that this occurs
-               l: lower end point
-               u: upper end point
-           If 'lookup_type' is "hearne2", a list of ranges for each 
-               parameter. Double extreme piecewise linear functions with 
-               variable endpoints are used to distort the lookup functions. 
-               These functions are defined by 6 parameters, being m1, m2, p1, 
-               p2, l and u; and the uncertainty ranges for these 6 parameters 
-               should  be given as the values of this lookup uncertainty if 
-               Hearne's method is chosen. The meaning of these parameters is 
-               simply:
-               m1: maximum deviation (peak if positive, bottom if negative) of 
-                the distortion function from l in the first segment
-               p1: where this peak occurs in the x axis
-               m2: maximum deviation of the distortion function from l or u in 
-                   the second segment
-               p2: where the second peak/bottom occurs
-               l : lower end point, namely the y value for x_min
-               u : upper end point, namely the y value for x_max
-               Example definition:
-               LookupUncertainty([(-1, 2), (-1, 1), (0, 1), (0, 1), (0, 0.5), 
-                                  (0.5, 1.5)], "TF2", 'hearne', self, 0, 2)
-            If 'lookup_type' is "approximation", an analytical function 
-                approximation (a logistic function) will be used, instead of a 
-                lookup. This function also has 6 parameters whose ranges should 
-                be given:
-                A: the lower asymptote
-                K: the upper asymptote
-                B: the growth rate
-                Q: depends on the value y(0)
-                M: the time of maximum growth if Q=v
+
+        Parameters
+        ----------
+        lookup_type : {'categories', 'hearne', 'approximation'}
+                      the method to be used for alternative generation. 
+        values : collection
+                 the values for specifying the uncertainty from which to 
+                 sample.
+            If 'lookup_type' is "categories", a set of alternative lookup 
+                functions to  be entered as tuples of x,y points.
+                Example definition: 
+                LookupUncertainty([[(0.0, 0.05), (0.25, 0.15), (0.5, 0.4), 
+                                    (0.75, 1), (1, 1.25)], 
+                                  [(0.0, 0.1), (0.25, 0.25), (0.5, 0.75), 
+                                   (1, 1.25)],
+                                  [(0.0, 0.0), (0.1, 0.2), (0.3, 0.6), 
+                                   (0.6, 0.9), (1, 1.25)]], 
+                                   "TF3", 'categories', self )
+            if 'lookup_type' is "hearne1", a list of ranges for each parameter 
+                Single-extreme piecewise functions
+                m: maximum deviation from l of the distortion function
+                p: the point that this occurs
+                l: lower end point
+                u: upper end point
+            If 'lookup_type' is "hearne2", a list of ranges for each 
+                parameter. Double extreme piecewise linear functions with 
+                variable endpoints are used to distort the lookup functions. 
+                These functions are defined by 6 parameters, being m1, m2, p1, 
+                p2, l and u; and the uncertainty ranges for these 6 parameters 
+                should  be given as the values of this lookup uncertainty if 
+                Hearne's method is chosen. The meaning of these parameters is 
+                simply:
+                m1: maximum deviation (peak if positive, bottom if negative) of 
+                 the distortion function from l in the first segment
+                p1: where this peak occurs in the x axis
+                m2: maximum deviation of the distortion function from l or u in 
+                    the second segment
+                p2: where the second peak/bottom occurs
+                l : lower end point, namely the y value for x_min
+                u : upper end point, namely the y value for x_max
+                Example definition:
+                LookupUncertainty([(-1, 2), (-1, 1), (0, 1), (0, 1), (0, 0.5), 
+                                   (0.5, 1.5)], "TF2", 'hearne', self, 0, 2)
+             If 'lookup_type' is "approximation", an analytical function 
+                 approximation (a logistic function) will be used, instead of a 
+                 lookup. This function also has 6 parameters whose ranges should 
+                 be given:
+                 A: the lower asymptote
+                 K: the upper asymptote
+                 B: the growth rate
+                 Q: depends on the value y(0)
+                 M: the time of maximum growth if Q=v
                 Example definition:
                 TODO:
-        :param name: name of the uncertainty
-        :param msi: model structure interface, to be used for adding new 
-                    parameter uncertainties
-        :param min: min value the lookup function can take, this argument is 
-                    not needed in case of CAT
-        :param max: max value the lookup function can take, this argument is 
-                    not needed in case of CAT
+        name : str
+               name of the uncertainty
+        msi : VensimModelStructureInterface instance
+              model structure interface, to be used for adding new 
+              parameter uncertainties
+        min : float
+              min value the lookup function can take, this argument is 
+              not needed in case of CAT
+        max : float
+              max value the lookup function can take, this argument is 
+              not needed in case of CAT
         
         '''
         super(LookupUncertainty, self).__init__(values, name)
@@ -481,7 +534,10 @@ class LookupUncertainty(AbstractUncertainty):
         Helper function to retrieve the lookup function as defined in the
         vensim model. This lookup is transformed using a distortion function.
         
-        :param name: name of variable in vensim model that contains the lookup
+        Parameters
+        ----------
+        name : str
+               name of variable in vensim model that contains the lookup
         
         '''
         
@@ -519,12 +575,15 @@ class LookupUncertainty(AbstractUncertainty):
         '''
         
         helper function implements a logistic function
-        :param t:
-        :param A:
-        :param K:
-        :param B:
-        :param Q:
-        :param M:
+        
+        Parameters
+        ----------
+        t : float
+        A : float
+        K : float
+        B : float
+        Q : float
+        M : float
         
         '''
         decimal.getcontext().prec = 3
@@ -554,8 +613,6 @@ class LookupUncertainty(AbstractUncertainty):
         '''
         # TODO this identity function is tricky. Identity is dependent on
         # the exact transform lookup_type
-        
-        
         return (self.name, self.values[0], self.values[1])    
     
     def _hearne1(self, case):

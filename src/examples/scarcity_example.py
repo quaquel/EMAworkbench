@@ -133,6 +133,6 @@ if __name__ == "__main__":
     model = ScarcityModel(r'./models/scarcity', "scarcity")
     
     ensemble = ModelEnsemble()
-    ensemble.set_model_structure(model)
+    ensemble.model_structure = model
     ensemble.parallel = True
     results = ensemble.perform_experiments(2)

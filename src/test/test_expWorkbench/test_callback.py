@@ -1,179 +1,128 @@
 '''
 Created on 22 Jan 2013
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import random
+import mock
 import numpy as np
+import random
+import numpy.lib.recfunctions as rf
+import unittest
+
 from expWorkbench.callbacks import DefaultCallback
-from expWorkbench import ParameterUncertainty, ema_logging, Outcome
-from expWorkbench.ema_logging import debug
+from expWorkbench import ParameterUncertainty, Outcome
+from expWorkbench.uncertainties import CategoricalUncertainty
+from expWorkbench.ema_exceptions import EMAError
 
-def test_callback_initalization():
-    
-    # let's add some uncertainties to this
-    uncs = [ParameterUncertainty((0,1), "a"),
-           ParameterUncertainty((0,1), "b")]
-    outcomes = [Outcome("test", time=True)]
-    callback = DefaultCallback(uncs, outcomes, nr_experiments=100)
-    return callback
+class TestDefaultCallback(unittest.TestCase):
+    def test_init(self):
+        # let's add some uncertainties to this
+        uncs = [ParameterUncertainty((0,1), "a"),
+               ParameterUncertainty((0,1), "b")]
+        outcomes = [Outcome("test", time=True)]
+        callback = DefaultCallback(uncs, outcomes, nr_experiments=100)
+        
+        self.assertEqual(callback.i, 0)
+        self.assertEqual(callback.nr_experiments, 100)
+        self.assertEqual(callback.cases.shape[0], 100)
+        self.assertEqual(callback.outcomes, outcomes)
+        
+        names = rf.get_names(callback.cases.dtype)
+        names = set(names)
+        self.assertEqual(names, {'a', 'b', 'policy', 'model'})
+        self.assertEqual(callback.results, {})
 
-def test_callback_store_results():
-    nr_experiments = 3
-    uncs = [ParameterUncertainty((0,1), "a"),
-           ParameterUncertainty((0,1), "b")]
-    outcomes = [Outcome("test", time=True)]
-    case = {unc.name:random.random() for unc in uncs}
-    policy = {'name':'none'}
-    name = "test"
+    def test_store_results(self):
+        nr_experiments = 3
+        uncs = [ParameterUncertainty((0,1), "a"),
+               ParameterUncertainty((0,1), "b")]
+        outcomes = [Outcome("test", time=True)]
+        case = {unc.name:random.random() for unc in uncs}
+        policy = {'name':'none'}
+        name = "test"
+     
+        # case 1 scalar shape = (1)
+        callback = DefaultCallback(uncs, 
+                                   [outcome.name for outcome in outcomes], 
+                                   nr_experiments=nr_experiments)
+        result = {outcomes[0].name: 1}
+        callback(0, case, policy, name, result)
+         
+        _, out = callback.get_results()
+        self.assertIn(outcomes[0].name, out.keys())
+        self.assertEqual(out[outcomes[0].name].shape, (3,))
+     
+        # case 2 time series shape = (1, nr_time_steps)
+        callback = DefaultCallback(uncs, 
+                                   [outcome.name for outcome in outcomes], 
+                                   nr_experiments=nr_experiments)
+        result = {outcomes[0].name: np.random.rand(10)}
+        callback(0, case, policy, name, result)
+          
+        _, out = callback.get_results()
+        self.assertIn(outcomes[0].name, out.keys())
+        self.assertEqual(out[outcomes[0].name].shape, (3,10))
 
-    # case 1 scalar shape = (1)
-    debug('----------- case 1 -----------')
-    callback = DefaultCallback(uncs, 
-                               [outcome.name for outcome in outcomes], 
-                               nr_experiments=nr_experiments)
-    result = {outcomes[0].name: 1}
-    callback(case, policy, name, result)
-    
-    results = callback.get_results()
-    for key, value in results[1].iteritems():
-        debug("\n" + str(key) + "\n" + str(value))
+        # case 3 maps etc. shape = (x,y)
+        callback = DefaultCallback(uncs, 
+                                   [outcome.name for outcome in outcomes], 
+                                   nr_experiments=nr_experiments)
+        result = {outcomes[0].name: np.random.rand(2,2)}
+        callback(0, case, policy, name, result)
+          
+        _, out = callback.get_results()
+        self.assertIn(outcomes[0].name, out.keys())
+        self.assertEqual(out[outcomes[0].name].shape, (3,2,2))
 
-    # case 2 time series shape = (1, nr_time_steps)
-    debug('----------- case 2 -----------')
-    callback = DefaultCallback(uncs, 
-                               [outcome.name for outcome in outcomes], 
-                               nr_experiments=nr_experiments)
-    result = {outcomes[0].name: np.random.rand(10)}
-    callback(case, policy, name, result)
-    
-    results = callback.get_results()
-    for key, value in results[1].iteritems():
-        debug("\n" + str(key) + "\n" + str(value))
-
-
-    # case 3 maps etc. shape = (x,y)
-    debug('----------- case 3 -----------')
-    callback = DefaultCallback(uncs, 
-                               [outcome.name for outcome in outcomes], 
-                               nr_experiments=nr_experiments)
-    result = {outcomes[0].name: np.random.rand(2,2)}
-    callback(case, policy, name, result)
-    
-    results = callback.get_results()
-    for key, value in results[1].iteritems():
-        debug("\n" + str(key) + "\n" + str(value))
-
-
-    # case 4 maps etc. shape = (x,y)
-    debug('----------- case 4 -----------')
-    callback = DefaultCallback(uncs, 
-                               [outcome.name for outcome in outcomes], 
-                               nr_experiments=nr_experiments)
-    result = {outcomes[0].name: np.random.rand(2,2, 2)}
-    callback(case, policy, name, result)
-    
-
-
-def test_callback_call_intersection():
-    nr_experiments = 10
-    uncs = [ParameterUncertainty((0,1), "a"),
-           ParameterUncertainty((0,1), "b")]
-    outcomes = [Outcome("test", time=True)]
-    callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
-    
-    policy = {"name": "none"}
-    name = "test"
-    
-    for i in range(nr_experiments):
-        case = {unc.name: random.random()for unc in uncs}
-        result = {outcome.name: np.random.rand(100) for outcome in outcomes}
-    
-        callback(case, policy, name, result)
-
-def test_callback_call_union():
-    # there are actually 3 cases that should be tested here
-    # union unc, intersection outcomes
-    # intersection unc, union outcomes
-    # union unc, union outcomes
-    
-    # case 1 union unc, intersection outcomes
-#    debug('----------- case 1 -----------')
-#    nr_experiments = 10
-#    uncs = [ParameterUncertainty((0,1), "a"),
-#           ParameterUncertainty((0,1), "b")]
-#    outcomes = [Outcome("test", time=True)]
-#    callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
-#    
-#    policy = {"name": "none"}
-#    name = "test"
-#    
-#    for i in range(nr_experiments):
-#        if i % 2 == 0:
-#            case = {uncs[0].name: np.random.rand(1)}
-#        else: 
-#            case = {uncs[1].name: np.random.rand(1)}
-#        result = {outcome.name: np.random.rand(10) for outcome in outcomes}
-#    
-#        callback(case, policy, name, result)
-#    
-#    results = callback.get_results()
-#    debug("\n"+str(results[0]))
-
-    
-    debug('----------- case 2 -----------')
-#    nr_experiments = 10
-#    uncs = [ParameterUncertainty((0,1), "a"),
-#           ParameterUncertainty((0,1), "b")]
-#    outcomes = [Outcome("test 1", time=True), 
-#                Outcome("test 2", time=True)]
-#    callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
-#    
-#    policy = {"name": "none"}
-#    name = "test"
-#    
-#    for i in range(nr_experiments):
-#        case = {unc.name: random.random()for unc in uncs}
-#        if i % 2 == 0:
-#            result = {outcomes[0].name: np.random.rand(10)}
-#        else: 
-#            result = {outcomes[1].name: np.random.rand(10)}
-#    
-#        callback(case, policy, name, result)
-#    
-
-
-  
-    debug('----------- case 3 -----------')
-    nr_experiments = 10
-    uncs = [ParameterUncertainty((0,1), "a"),
-           ParameterUncertainty((0,1), "b")]
-    outcomes = [Outcome("test 1", time=True), 
-                Outcome("test 2", time=True)]
-    callback = DefaultCallback(uncs, outcomes, nr_experiments=nr_experiments)
-    
-    policy = {"name": "none"}
-    name = "test"
-    
-    for i in range(nr_experiments):
-        if i % 2 == 0:
-            case = {uncs[0].name: random.random()}
-            result = {outcomes[0].name: np.random.rand(10)}
-        else: 
-            case = {uncs[1].name: random.random()}
-            result = {outcomes[1].name: np.random.rand(10)}
-    
-        callback(case, policy, name, result)
-    
-    results = callback.get_results()
-    debug("\n"+str(results[0]))
-    for key, value in results[1].iteritems():
-        debug("\n" + str(key) + "\n" + str(value))   
+        # case 4 assert raises EMAError
+        callback = DefaultCallback(uncs, 
+                                   [outcome.name for outcome in outcomes], 
+                                   nr_experiments=nr_experiments)
+        result = {outcomes[0].name: np.random.rand(2,2,2)}
+        self.assertRaises(EMAError, callback, 0, case, policy, name, result)
+        
+        # KeyError
+        with mock.patch('expWorkbench.ema_logging.debug') as mocked_logging:
+            callback = DefaultCallback(uncs, 
+                           [outcome.name for outcome in outcomes], 
+                           nr_experiments=nr_experiments)
+            result = {'incorrect': np.random.rand(2,)}
+            callback(0, case, policy, name, result)
+            
+            for outcome in outcomes:
+                mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
+              
+    def test_store_cases(self):
+        nr_experiments = 3
+        uncs = [ParameterUncertainty((0,1), "a"),
+               ParameterUncertainty((0,1), "b"),
+               CategoricalUncertainty([0, 1, 2], "c"),
+               ParameterUncertainty((0,1), "d", integer=True),]
+        outcomes = [Outcome("test", time=True)]
+        case = {unc.name:random.random() for unc in uncs}
+        case["c"] = int(round(case["c"]*2))
+        case["d"] = int(round(case["d"]))
+        policy = {'name':'none'}
+        name = "test"
+     
+        callback = DefaultCallback(uncs, 
+                                   [outcome.name for outcome in outcomes], 
+                                   nr_experiments=nr_experiments,
+                                   reporting_interval=1)
+        result = {outcomes[0].name: 1}
+        callback(0, case, policy, name, result)
+         
+        experiments, _ = callback.get_results()
+        design = case
+        design['policy'] = policy['name']
+        design['model'] = name
+        
+        names = rf.get_names(experiments.dtype)
+        for name in names:
+            self.assertEqual(experiments[name][0], design[name])
+        
+ 
 
 if __name__ == "__main__":
-    ema_logging.log_to_stderr(ema_logging.DEBUG)
-#    test_callback_initalization()
-    test_callback_store_results()
-#    test_callback_call_intersection()
-#     test_callback_call_union()
+    unittest.main()
     

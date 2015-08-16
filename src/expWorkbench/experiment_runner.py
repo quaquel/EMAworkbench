@@ -1,0 +1,98 @@
+'''
+Created on Aug 11, 2015
+
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+'''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+import copy
+
+from .ema_logging import debug, warning, exception
+from .ema_exceptions import EMAError, CaseError
+
+__all__ = ["ExperimentRunner"]
+
+class ExperimentRunner(object):
+    '''Helper class for running the experiments'''
+    
+    def __init__ (self, msis, model_kwargs):
+        self.msi_initialization = {}
+        self.msis = msis
+        self.model_kwargs = model_kwargs
+    
+    def cleanup(self):
+        for msi in self.msis.values():
+            msi.cleanup()
+        self.msis = None
+    
+    def run_experiment(self, experiment):
+        '''The logic for running a single model. This code makes
+        sure that the model is initialized properly if this has not
+        already been done.
+        
+        Parameters
+        ----------
+        experiment : dict
+        
+        Returns
+        -------
+        experiment_id: int
+        case : dict
+        policy : str
+        model_name : str
+        result :  dict
+        
+        Raises
+        ------
+        EMAError
+            if the model instance raises an EMA error, these are reraised.
+        Exception
+            Catch all for all other exceptions being raised by the model. 
+            These are reraised.
+        
+        '''
+        
+        policy = experiment.pop('policy')
+        model_name = experiment.pop('model')
+        experiment_id = experiment.pop('experiment id')
+        policy_name = policy['name']
+        
+        debug("running policy {} for experiment {}".format(policy_name, 
+                                                           experiment_id))
+        
+        # check whether we already initialized the model for this 
+        # policy
+        if not self.msi_initialization.has_key((policy_name, model_name)):
+            try:
+                debug("invoking model init")
+                msi = self.msis[model_name]
+                
+                msi.model_init(copy.deepcopy(policy), 
+                                     copy.deepcopy(self.model_kwargs))
+            except EMAError as inst:
+                exception(inst)
+                self.cleanup()
+                raise inst
+            except Exception as inst:
+                exception("some exception occurred when invoking the init")
+                self.cleanup()
+                raise inst
+                
+            debug("initialized model %s with policy %s" % (model_name, policy_name))
+
+            self.msi_initialization = {(policy_name, model_name):self.msis[model_name]}
+        msi = self.msis[model_name]
+
+        case = copy.deepcopy(experiment)
+        try:
+            debug("trying to run model")
+            msi.run_model(case)
+        except CaseError as e:
+            warning(str(e))
+            
+        debug("trying to retrieve output")
+        result = msi.retrieve_output()
+        
+        debug("trying to reset model")
+        msi.reset_model()
+        return experiment_id, case, policy, model_name, result      
