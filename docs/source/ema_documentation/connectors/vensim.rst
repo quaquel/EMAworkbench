@@ -1,5 +1,5 @@
 *************
-:mod:`Vensim`
+:mod:`vensim`
 *************
 
 .. automodule:: vensim

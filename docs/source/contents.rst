@@ -60,7 +60,7 @@ Workbench Content
 .. _simulation-control:
 
 ^^^^^^^^^^^^^^^^^^
-Simulation Control
+controllers
 ^^^^^^^^^^^^^^^^^^
 
 * Vensim controller (:mod:`vensim`): This enables controlling (e.g. setting 
@@ -68,11 +68,11 @@ Simulation Control
   is built in Vensim software, and conducting an EMA study based on this model.
 * Excel controller (:mod:`excel`): This enables controlling models build in 
   Excel.
-* NetLogo controller (Status: Planned, Related module: None, Contact: Gonenc 
-  Yucel): This enables controlling (e.g. setting parameters, simulation setup, 
+* NetLogo controller (:mod:`netlogo.py`): This enables controlling
+ (e.g. setting parameters, simulation setup, 
   run, get output, etc.) a simulation model that is built in NetLogo software, 
   and conducting an EMA study based on this model.
-* RePast controller (Status: Planned)
+
 
 .. _analysis:
 
@@ -80,11 +80,8 @@ Simulation Control
 Analysis
 ^^^^^^^^
 * Patient Rule Induction Method (:mod:`prim`) 
-* Feature Selection (:mod:`orangeFunctions`)
-* Classification Trees (:mod:`orangeFunctions`)
-* Random Forrests (:mod:`orangeFunctions`)
-* Self organizing maps (status: planned)
-* Stochastic Neighbor Embedding (status: planned)
+* Feature Scoring (:mod:`feature_scoring`)
+* Classification Trees (:mod:`cart`)
 * Behaviour clustering (:mod:`clusterer`): This analysis feature automatically 
   allocates output behaviours that are similar in characteristics to groups 
   (i.e. clusters). 'Similarity' between dynamic behaviours is defined using 
@@ -108,11 +105,9 @@ Analysis
 ^^^^^^^^^^^^^
 Visualization
 ^^^^^^^^^^^^^
-* lines, envelopes, multiplot graphs (:mod:`graphs`)
-* envelopes3d (:mod:`graphs3d`)
-* Interactive plots (:mod:`interactive_graphs`):
-* regret analysis along the lines of Lempert et al. (2003) Shaping the next 100 
-  years. (status: beta, related module: regret.py Contact: Jan Kwakkel)
+* lines, envelopes, multiplot graphs (:mod:`plotting`)
+* pair wise plots (:mod:`pairs_plotting`)
+* support for converting figures to black and white (:mod:`b_an_w_plotting`) 
 
 .. _exploratory-modeling-and-analysis:
 

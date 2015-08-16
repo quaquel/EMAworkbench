@@ -16,45 +16,8 @@ EMA Workbench documentation
     :Release: |version|
     :Date: |today|
 
-User Guide
-==========
-
-.. toctree::
-   :maxdepth: 2
-   
-   ../../contents.rst
-   ../../tutorial.rst
-   ../../download.rst
-   ../../ema_documentation/glossary.rst
-   ../../vensim-tips-and-tricks.rst
-   ../../gallery/rst/index.rst
-   
-.. only:: html
-
-   - `Gallery <gallery.html>`_   
-
-   
 EMA Modules
 ===========
-
-Analysis
-^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-   
-   ../../ema_documentation/analysis/plotting.rst
-   ../../ema_documentation/analysis/b_and_w_plotting.rst
-   ../../ema_documentation/analysis/pairs_plotting.rst
-   ../../ema_documentation/analysis/plotting_util.rst
-   ../../ema_documentation/analysis/interactive_graphs.rst
-   ../../ema_documentation/analysis/graphs3d.rst
-   ../../ema_documentation/analysis/prim.rst
-   ../../ema_documentation/analysis/pca_prim.rst
-   ../../ema_documentation/analysis/orange_functions.rst
-   ../../ema_documentation/analysis/clusterer.rst
-   ../../ema_documentation/analysis/scenario_discovery.rst
-
 
 The Core of the Workbench
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -67,12 +30,32 @@ The Core of the Workbench
    ../../ema_documentation/expWorkbench/uncertainties.rst
    ../../ema_documentation/expWorkbench/outcomes.rst
    ../../ema_documentation/expWorkbench/samplers.rst
+   ../../ema_documentation/expWorkbench/experiment_runner.rst
    ../../ema_documentation/expWorkbench/callbacks.rst
    ../../ema_documentation/expWorkbench/ema_logging.rst
    ../../ema_documentation/expWorkbench/ema_parallel.rst
+ 	../../ema_documentation/expWorkbench/ema_parallel_multiprocessing.rst
+ 	../../ema_documentation/expWorkbench/ema_parallel_ipython.rst
    ../../ema_documentation/expWorkbench/ema_exceptions.rst
    ../../ema_documentation/expWorkbench/ema_optimization.rst
+   ../../ema_documentation/expWorkbench/ema_optimization_util.rst
    ../../ema_documentation/expWorkbench/util.rst
+
+
+Analysis
+^^^^^^^^
+
+.. toctree::
+   :maxdepth: 2
+
+   ../../ema_documentation/analysis/prim.rst
+   ../../ema_documentation/analysis/cart.rst
+   ../../ema_documentation/analysis/scenario_discovery_util.rst
+   ../../ema_documentation/analysis/plotting.rst
+	../../ema_documentation/analysis/pairs_plotting.rst   
+   ../../ema_documentation/analysis/b_and_w_plotting.rst
+   ../../ema_documentation/analysis/plotting_util.rst
+   ../../ema_documentation/analysis/clusterer.rst
 
 
 Connectors
@@ -81,6 +64,9 @@ Connectors
    :maxdepth: 2
 
    ../../ema_documentation/expWorkbench/vensim.rst
+   ../../ema_documentation/expWorkbench/vensimDLLwrapper.rst
+   ../../ema_documentation/expWorkbench/netlogo.rst
+   ../../ema_documentation/expWorkbench/pyNetlogo.rst
    ../../ema_documentation/expWorkbench/excel.rst
 
 
