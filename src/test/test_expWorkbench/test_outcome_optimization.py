@@ -1,17 +1,16 @@
 '''
 Created on Feb 28, 2012
 
-@author: jhkwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 from __future__ import division
 import numpy as np
-import matplotlib.pyplot as plt
+import os
 
 from expWorkbench import ema_logging
 from test.test_vensim_flu import FluModel
 from expWorkbench import ModelEnsemble, MAXIMIZE
-from expWorkbench.ema_optimization import epsNSGA2, NSGA2
-from expWorkbench.util import save_optimization_results
+from expWorkbench.ema_optimization import epsNSGA2
 
 
 def obj_function_single(results):
@@ -24,12 +23,14 @@ def obj_function_multi(results):
     return np.max(outcome_1), outcome_2[-1]
 
 def test_optimization():
+    if os.name != 'nt':
+        return
     ema_logging.log_to_stderr(ema_logging.INFO)
     
     model = FluModel(r'../models', "fluCase")
     ensemble = ModelEnsemble()
     
-    ensemble.set_model_structure(model)
+    ensemble.model_structure = model
     ensemble.parallel=True
     
     pop_size = 8
@@ -45,9 +46,8 @@ def test_optimization():
                                                     crossover_rate=0.8,
                                                     mutation_rate=0.05,
                                                     eps=eps)
-    fn = '../data/test optimization save.bz2'
-#     save_optimization_results((stats,pop), fn)
     
 
 if __name__ == '__main__':
-    test_optimization()
+    if os.name == 'nt':
+        test_optimization()

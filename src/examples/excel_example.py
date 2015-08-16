@@ -16,6 +16,7 @@ from expWorkbench import ModelEnsemble, ParameterUncertainty,\
                          Outcome, ema_logging
 from connectors.excel import ExcelModelStructureInterface
 from analysis.plotting import lines
+from expWorkbench.ema_parallel import MultiprocessingPool
 
 class ExcelModel(ExcelModelStructureInterface):
     
@@ -49,10 +50,12 @@ if __name__ == "__main__":
     model = ExcelModel(r"./models/excelModel", "predatorPrey")
     
     ensemble = ModelEnsemble()
-    ensemble.set_model_structure(model) 
+    ensemble.model_structure = model
 
     ensemble.parallel = True #turn on parallel computing
-    ensemble.processes = 2 #using only 2 cores 
+    pool = MultiprocessingPool(ensemble.model_structure, 
+                               nr_processes=2)
+    ensemble.pool = pool
     
     #run 100 experiments
     nr_experiments = 100

@@ -1,9 +1,12 @@
 '''
 Created on 21 mrt. 2013
 
-@author: j.h. kwakkel
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import jpype
+try:
+    import jpype
+except ImportError:
+    jpype = None
 import os
 import sys
 
@@ -35,7 +38,7 @@ class NetLogoLink():
         '''
         
         Create a link with netlogo. Underneath, the netlogo jvm is started
-        throuhg jpype.
+        through jpype.
         
         
         :param gui: boolean, if true run netlogo with gui, otherwise run in 

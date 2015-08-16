@@ -6,30 +6,33 @@ Created on 13 jan. 2011
 This module provides various convenience functions and classes.
 
 '''
-from __future__ import division
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 
-import cPickle
-import os
+
 import bz2
+import ConfigParser
+import cPickle
 import math
+import os
 import StringIO
+import tarfile
 
+from matplotlib.mlab import rec2csv, csv2rec
 import numpy as np
 import pandas as pd
 from pandas.io.parsers import read_csv
-from matplotlib.mlab import rec2csv, csv2rec
 
 from deap import creator, base
 
-from ema_logging import info, debug, warning
+from .ema_logging import info, debug, warning
 from expWorkbench import EMAError
-import tarfile
+
 
 __all__ = ['load_results',
            'save_results',
-           'save_optimization_results',
-           'load_optimization_results',
            'experiments_to_cases',
+           'merge_results'
            ]
 
 
@@ -38,9 +41,14 @@ def load_results(file_name):
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
     
-    :param file_name: the path of the file
-    :raises: IOError if file not found
-
+    Parameters
+    ----------    
+    file_name : str
+                the path to the file
+                
+    Raises
+    ------
+    IOError if file not found
 
     '''
     
@@ -52,8 +60,16 @@ def load_results(file_name):
 
         # load experiment metadata
         metadata = z.extractfile('experiments metadata.csv').readlines()
-        metadata = [entry.strip() for entry in metadata]
-        metadata = [tuple(entry.split(",")) for entry in metadata]
+        
+        metadata_temp = []
+        for entry in metadata:
+            entry = entry.strip()
+            entry = entry.split(",")
+            entry = [str(item) for item in entry]
+            entry = tuple(entry)
+            metadata_temp.append(entry)
+        metadata = metadata_temp    
+        
         metadata = np.dtype(metadata)
 
         # cast experiments to dtype and name specified in metadata        
@@ -110,9 +126,16 @@ def save_results(results, file_name):
     addition, there is a metadata csv which contains the datatype information
     for each of the columns in the x array.
 
-    :param results: the return of run_experiments
-    :param file_name: the path of the file
-    :raises: IOError if file not found
+    Parameters
+    ----------    
+    results : tuple
+              the return of run_experiments
+    file_name : str
+                the path of the file
+    
+    Raises
+    ------
+    IOError if file not found
 
     '''
 
@@ -131,13 +154,13 @@ def save_results(results, file_name):
         # write the x to the zipfile
         experiments_file = StringIO.StringIO()
         rec2csv(experiments, experiments_file, withheader=True)
-        add_file(z, experiments_file.getvalue(), 'x.csv')
+        add_file(z, experiments_file.getvalue(), 'experiments.csv')
         
         # write experiment metadata
-        dtype = x.dtype.descr
+        dtype = experiments.dtype.descr
         dtype = ["{},{}".format(*entry) for entry in dtype]
         dtype = "\n".join(dtype)
-        add_file(z, dtype, 'x metadata.csv')
+        add_file(z, dtype, 'experiments metadata.csv')
         
         # write outcome metadata
         outcome_names = outcomes.keys()
@@ -145,7 +168,6 @@ def save_results(results, file_name):
                         for outcome in outcome_names]
         outcome_meta = "\n".join(outcome_meta)
         add_file(z, outcome_meta, "outcomes metadata.csv")
-        
         
         # outcomes
         for key, value in outcomes.iteritems():
@@ -168,183 +190,6 @@ def save_results(results, file_name):
     info("results saved successfully to {}".format(file_name))
     
 
-def oldcsv_load_results(file_name):
-    '''
-    load the specified bz2 file. the file is assumed to be saves
-    using save_results.
-    
-    :param file_name: the path of the file
-    :raises: IOError if file not found
-
-
-    '''
-    
-    outcomes = {}
-    with tarfile.open(file_name, 'r') as z:
-        # load x
-        experiments = z.extractfile('x.csv')
-        experiments = csv2rec(experiments)
-
-        # load metadata
-        metadata = z.extractfile('x metadata.csv').readlines()
-        metadata = [entry.strip() for entry in metadata]
-        metadata = [tuple(entry.split(",")) for entry in metadata]
-        metadata = np.dtype(metadata)
-
-        # cast x to dtype and name specified in metadata        
-        temp_experiments = np.zeros((experiments.shape[0],), dtype=metadata)
-        for i, entry in enumerate(x.dtype.descr):
-            dtype = metadata[i]
-            name = metadata.descr[i][0]
-            temp_experiments[name][:] = experiments[entry[0]].astype(dtype)
-        experiments = temp_experiments
-
-        # load outcomes
-        fhs = z.getnames()
-        fhs.remove('x.csv')
-        fhs.remove('x metadata.csv')
-        for fh in fhs:
-            root = os.path.splitext(fh)[0]
-            data = z.extractfile(fh)
-            first_line = data.readline()
-            shape = first_line.split(":")[1].strip()[1:-1]
-            shape = shape.split((','))
-            shape = tuple([int(entry) for entry in shape if len(entry)>0])
-            data = np.loadtxt(data, delimiter=',')
-            data = data.reshape(shape)
-            
-            outcomes[root] = data
-            
-    info("results loaded succesfully from {}".format(file_name))
-    return experiments, outcomes
-
-  
-def pickled_load_results(file_name, zipped=True):
-    '''
-    load the specified bz2 file. the file is assumed to be saves
-    using save_results.
-    
-    :param file: the path of the file
-    :param zipped: load the pickled data from a zip file if True
-    :return: the unpickled results
-    :raises: IOError if file not found
-    
-    '''
-    results = None
-    file_name = os.path.abspath(file_name)
-    debug("loading "+file_name)
-    try:
-        if zipped:
-            file_handle = bz2.BZ2File(file_name, 'rb')
-        else:
-            file_handle = open(file_name, 'rb')
-        
-        results = cPickle.load(file_handle)
-    except IOError:
-        warning(file_name + " not found")
-        raise
-    
-    return results
-    
-
-def pickled_save_results(results, file_name, zipped=True):
-    '''
-    save the results to the specified bz2 file. To facilitate transfer
-    across different machines. the files are saved in binary format
-        
-    see also: http://projects.scipy.org/numpy/ticket/1284
-
-    :param results: the return of run_experiments
-    :param file: the path of the file
-    :param zipped: save the pickled data to a zip file if True
-    :raises: IOError if file not found
-
-    '''
-    file_name = os.path.abspath(file_name)
-    debug("saving results to: " + file_name)
-    try:
-        if zipped:
-            file_name = bz2.BZ2File(file_name, 'wb')
-        else:
-            file_name = open(file_name, 'wb')
-
-        
-        cPickle.dump(results, file_name, protocol=2)
-    except IOError:
-        warning(os.path.abspath(file_name) + " not found")
-        raise
-        
-
-
-def results_to_tab(results, file_name):
-    '''
-    writes old style results to tab seperated
-    '''
-    
-    fields = results[0][0][0].keys()
-    outcomes = results[0][1].keys()
-    file_handle = open(file_name, 'w')
-    [file_handle.write(field + "\t") for field in fields]
-    file_handle.write("policy\tmodel\t")
-    [file_handle.write(field + "\t") for field in outcomes]
-    file_handle.write("\n")
-    
-    for result in results:
-        experiment = result[0]
-        case = experiment[0]
-        policy = experiment[1]['name']
-        model = experiment[2]
-        outcome = result[1]
-        
-        
-        for field in fields:
-            file_handle.write(str(case[field])+"\t")
-        file_handle.write(policy+"\t")
-        file_handle.write(model+"\t")
-        for field in outcomes:
-            file_handle.write(str(outcome[field][-1])+"\t")
-        
-        file_handle.write("\n")
-
-
-def transform_old_cPickle_to_new_cPickle(file_name):
-    data = cPickle.load(open(file_name, 'r'))
-    
-    uncertainties = []
-    dtypes= []
-    for name in  data[0][0][0].keys():
-        uncertainties.append(name)
-        dataType = float
-        dtypes.append((name, dataType))
-    dtypes.append(('model', object))
-    dtypes.append(('policy', object))
-    
-    #setup the empty data structures
-    cases = np.zeros((len(data),), dtype=dtypes)
-    results = {}
-    for key in data[0][1].keys():
-        results[key] = np.zeros((len(data), len(data[0][1].get(key))))
-        
-    for i, entry in enumerate(data):
-        case = entry[0][0]
-        policy = entry[0][1].get('name')
-        model = entry[0][2]
-        result = entry[1]
-        
-        #handle the case
-        case = [case.get(key) for key in uncertainties]
-        case.append(model)
-        case.append(policy)
-        cases[i] = tuple(case)
-        
-        #handle the result
-        for key, value in result.items():
-            results[key][i, :] = value
-    
-    results = cases, results
-    return results
-
-
 def experiments_to_cases(experiments):
     '''
     
@@ -352,12 +197,18 @@ def experiments_to_cases(experiments):
     of case dicts. This can then for example be used as an argument for 
     running :meth:`~model.SimpleModelEnsemble.perform_experiments`.
     
-    :param x: a structured array containing x
-    :return: a list of case dicts.
+    Parameters
+    ----------    
+    experiments : numpy structured array
+                  a structured array containing experiments
+    
+    Returns
+    -------
+    a list of case dicts.
     
     '''
     #get the names of the uncertainties
-    uncertainties = [entry[0] for entry in x.dtype.descr]
+    uncertainties = [entry[0] for entry in experiments.dtype.descr]
     
     #remove policy and model, leaving only the case related uncertainties
     try:
@@ -384,74 +235,37 @@ def experiments_to_cases(experiments):
     
     return cases
 
-def experiments_to_cases_prim(experiments, designs):
-    '''
-    
-    This function transform a structured x array into a list
-    of case dicts. This can then for example be used as an argument for 
-    running :meth:`~model.SimpleModelEnsemble.perform_experiments`.
-    
-    :param x: a structured array containing x
-    :return: a list of case dicts.
-    
-    '''
-    #get the names of the uncertainties
-    uncertainties = [entry[0] for entry in designs.dtype.descr]
-    
-    #remove policy and model, leaving only the case related uncertainties
-    try:
-        uncertainties.pop(uncertainties.index('policy'))
-        uncertainties.pop(uncertainties.index('model'))
-    except:
-        pass
-    
-    #make list of of tuples of tuples
-    cases = []
-    for i in range(len(experiments)):
-        case = []
-        j = 0
-        for uncertainty in uncertainties:
-            entry = (uncertainty, experiments[i][j])
-            j += 1
-            case.append(entry)
-        cases.append(tuple(case))
-    
-    #remove duplicate cases, reason for using tuples before
-    cases = set(cases)
-    
-    #cast back to list of dicts
-    tempcases = []
-    for case in cases:
-        tempCase = {}
-        for entry in case:
-            tempCase[entry[0]] = entry[1]
-        tempcases.append(tempCase)
-    cases = tempcases
-    
-    return cases
 
 def merge_results(results1, results2, downsample=None):
     '''
     convenience function for merging the return from 
     :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
     
-    The function merges results2 with results1. For the x,
+    The function merges results2 with results1. For the experiments,
     it generates an empty array equal to the size of the sum of the 
-    x. As dtype is uses the dtype from the x in results1.
+    experiments. As dtype is uses the dtype from the experiments in results1.
     The function assumes that the ordering of dtypes and names is identical in
     both results.  
     
     A typical use case for this function is in combination with 
     :func:`~util.experiments_to_cases`. Using :func:`~util.experiments_to_cases`
-    one extracts the cases from a first set of x. One then
+    one extracts the cases from a first set of experiments. One then
     performs these cases on a different model or policy, and then one wants to
     merge these new results with the old result for further analysis.  
     
-    :param results1: first results to be merged
-    :param results2: second results to be merged
-    :param downsample: should be an integer, will be used in slicing the results
-                       in order to avoid memory problems. 
-    :return: the merged results
+    Parameters
+    ----------
+    results1 : tuple
+               first results to be merged
+    results2: tuple
+              second results to be merged
+    downsample: int 
+                should be an integer, will be used in slicing the results
+                in order to avoid memory problems. 
+    
+    Results
+    -------
+    the merged results
     
     
     '''
@@ -499,16 +313,29 @@ def merge_results(results1, results2, downsample=None):
     mr = (merged_exp, merged_res)
     return mr  
 
+
 def load_optimization_results(file_name, weights, zipped=True):
     '''
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
     
-    :param file: the path of the file
-    :param zipped: load the pickled data from a zip file if True
-    :return: the unpickled results
-    :raises: IOError if file not found
-    :raises: EMAError if weights are not correct
+    Parameters
+    ----------    
+    file_name : str
+                the path of the file
+    zipped : bool
+            load the pickled data from a zip file if True
+    
+    Returns
+    -------
+    the unpickled results
+    
+    Raises
+    ------
+    IOError 
+        if file not found
+    EMAError 
+        if specified weights do not match weights in data set
     
     '''
     creator.create("Fitness", base.Fitness, weights=weights)
@@ -526,26 +353,53 @@ def load_optimization_results(file_name, weights, zipped=True):
         results = cPickle.load(file_name)
         
         if results[0].weights != weights:
-            raise EMAError("weights are %s, should be %s" % (weights, results[0].weights))
+            raise EMAError("weights are %s, should be %s" % (weights, 
+                                                        results[0].weights))
     except IOError:
         warning(file_name + " not found")
         raise
     
     return results
 
-def save_optimization_results(results, file_name, zipped=True):
-    '''
-    save the results to the specified bz2 file. To facilitate transfer
-    across different machines. the files are saved in binary format
+
+def get_ema_project_home_dir():
+    config_file_name = "expworkbench.cfg"
+    directory = os.path.dirname(__file__)
+    fn = os.path.join(directory, config_file_name)
+    
+    config = ConfigParser.SafeConfigParser()
+    parsed = config.read(fn)
+    
+    if parsed:
+        info('config loaded from {}'.format(parsed[0]))
+    else:
+        info('no config file found')
         
-    see also: http://projects.scipy.org/numpy/ticket/1284
+    
+    home_dir = config.get('ema_project_home', 'home_dir')
+    return home_dir
 
-    :param results: the return of run_experiments
-    :param file: the path of the file
-    :param zipped: save the pickled data to a zip file if True
-    :raises: IOError if file not found
-
-    '''
-
-    pickled_save_results(results, file_name, zipped=zipped) 
+# def save_optimization_results(results, file_name, zipped=True):
+#     '''
+#     save the results to the specified bz2 file. To facilitate transfer
+#     across different machines. the files are saved in binary format
+#         
+#     see also: http://projects.scipy.org/numpy/ticket/1284
+# 
+#     Parameters
+#     ----------
+#     results : tuple
+#               the return of run_experiments
+#     file_name : str
+#                 the path of the file
+#     zipped : bool 
+#              save the pickled data to a zip file if True
+#     
+#     Raises
+#     ------
+#     IOError if file not found
+# 
+#     '''
+# 
+#     pickled_save_results(results, file_name, zipped=zipped) 
 

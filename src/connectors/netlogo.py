@@ -1,9 +1,12 @@
 '''
 Created on 15 mrt. 2013
 
-@author: localadmin
+.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import jpype
+try:
+    import jpype
+except ImportError:
+    jpype = None
 import os
 
 import numpy as np
@@ -11,6 +14,8 @@ import numpy as np
 from expWorkbench import ModelStructureInterface, warning, debug,\
                          EMAError
 import pyNetLogo
+
+__all__ = ['NetLogoModelStructureInterface']
 
 class NetLogoModelStructureInterface(ModelStructureInterface):
     model_file = None
@@ -21,34 +26,42 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         """
         interface to the model
         
-        :param working_directory: working_directory for the model. 
-        :param name: name of the modelInterface. The name should contain only
-                     alphanumerical characters. 
+        Parameters
+        ----------
+        
+        working_directory : str
+                            working_directory for the model. 
+        name : str
+               name of the modelInterface. The name should contain only
+               alpha-numerical characters.
+               
+        Raises
+        ------
+        EMAError if name contains non alpha-numerical characters
+        
+        .. note:: Anything that is relative to `self.working_directory`
+          should be specified in `model_init` and not
+          in `__init__`. Otherwise, the code will not work when running
+          it in parallel. The reason for this is that the working
+          directory is being updated by parallelEMA to the worker's 
+          separate working directory prior to calling `model_init`.
+                
         """
-        self.name=None
-        self.working_directory=None
-        
-        super(ModelStructureInterface, self).__init__()
-        if working_directory:
-            self.set_working_directory(working_directory)
-    
-        if not name.isalnum():
-            raise EMAError("name of model should only contain alpha numerical\
-                            characters")
-        
-        self.name = name
+        super(NetLogoModelStructureInterface, self).__init__(working_directory, name)
     
     def model_init(self, policy, kwargs):
         '''
         Method called to initialize the model.
         
-        :param policy: policy to be run.
-        :param kwargs: keyword arguments to be used by model_intit. This
-                       gives users to the ability to pass any additional 
-                       arguments. 
+        Parameters
+        ----------
+        policy : dict
+                 policy to be run.
+        kwargs : dict
+                 keyword arguments to be used by model_intit. This
+                 gives users to the ability to pass any additional 
+                 arguments. 
         
-        .. note:: This method should always be implemented. Although in simple
-                  cases, a simple pass can suffice. 
         '''
         self.policy = policy
         
@@ -63,21 +76,26 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         """
         Method for running an instantiated model structure. 
         
-        This method should always be implemented.
+        Parameters
+        ----------
+        case : dict
+               keyword arguments for running the model. The case is a dict with 
+               the names of the uncertainties as key, and the values to which 
+               to set these uncertainties. 
         
-        :param case: keyword arguments for running the model. The case is a 
-                     dict with the names of the uncertainties as key, and
-                     the values to which to set these uncertainties. 
+        Raises
+        ------
+        jpype.JavaException if there is any exception thrown by the netlogo 
+        model
         
-        .. note:: This method should always be implemented.
         
         """
         for key, value in case.iteritems():
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:
-                warning('variable {0} throws exception: {}'.format((key,
-                                                                    str(e))))
+                warning('variable {} throws exception: {}'.format(key,
+                                                                  str(e)))
             
         debug("model parameters set successfully")
           
@@ -141,18 +159,11 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         """
         Method for retrieving output after a model run.
         
-        :return: the results of a model run. 
+        Returns
+        -------
+        dict with the results of a model run. 
         """
         return self.output
-    
-    def reset_model(self):
-        """
-        Method for reseting the model to its initial state. The default
-        implementation only sets the outputs to an empty dict. 
-
-        """
-        self.output = {}
-        
     
     def cleanup(self):
         '''
@@ -169,6 +180,7 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         jpype.shutdownJVM()
 
     def _handle_outcomes(self, fns):
+        '''helper function for parsing outcomes'''
       
         for key, value in fns.iteritems():
             with open(value) as fh:

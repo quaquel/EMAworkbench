@@ -87,12 +87,13 @@ def plot_envelope(ax, j, time, value, fill):
     
     Helper function, responsible for plotting an envelope.
     
-    :param ax:
-    :param j:
-    :param time:
-    :param time:
-    :param value:
-    :param fill:
+    Parameters
+    ----------
+    ax : axes instance
+    j : int
+    time : ndarray
+    value : ndarray
+    fill : bool
     
     
     '''
@@ -121,10 +122,12 @@ def plot_histogram(ax, values, log):
     '''
     
     Helper function, responsible for plotting a histogram
-    
-    :param ax:
-    :param values:
-    :param log:
+
+    Parameters
+    ----------
+    ax : axes instance
+    values : ndarray
+    log : bool
     
     
     '''
@@ -142,16 +145,18 @@ def plot_histogram(ax, values, log):
     if not log:
         ax.set_xticks([0, ax.get_xbound()[1]])
     return a
- 
-  
+
+
 def plot_kde(ax, values, log):
     '''
     
     Helper function, responsible for plotting a KDE.
-    
-    :param ax: the axes on which to plot the kde
-    :param values: the data for which to make a kde
-    :param log: boolean, whether to log scale the data are not
+
+    Parameters
+    ----------
+    ax : axes instance
+    values : ndarray
+    log : bool
     
     
     '''
@@ -173,6 +178,19 @@ def plot_kde(ax, values, log):
 
 
 def plot_boxplots(ax, values, log, group_labels=None):
+    '''
+    helper function for plotting a boxplot
+    
+    Parameters
+    ----------
+    ax : axes instance
+    value : ndarray
+    log : bool
+    group_labels : list of str, optional
+
+    
+    '''
+    
     if log:
         warning("log option ignored for boxplot")
     
@@ -181,19 +199,27 @@ def plot_boxplots(ax, values, log, group_labels=None):
     if group_labels:
         ax.set_xticklabels(group_labels, rotation='vertical')
 
-    
-def plot_violinplot(ax,data, log, group_labels=None):
+
+def plot_violinplot(ax, value, log, group_labels=None):
     '''
-    create violin plots on an axis
+    helper function for plotting violin plots on axes
+    
+    Parameters
+    ----------
+    ax : axes instance
+    value : ndarray
+    log : bool
+    group_labels : list of str, optional
+
     '''
     
     if log:
         warning("log option ignored for violin plot")
     
-    pos = range(len(data))
+    pos = range(len(value))
     dist = max(pos)-min(pos)
-    w = min(0.15*max(dist,1.0),0.5)
-    for data,p in zip(data,pos):
+    _ = min(0.15*max(dist,1.0),0.5)
+    for data, p in zip(value,pos):
         if len(data)>0:
             kde = gaussian_kde(data) #calculates the kernel density
             x = np.linspace(np.min(data),np.max(data),250.) # support for violin
@@ -217,37 +243,65 @@ def plot_violinplot(ax,data, log, group_labels=None):
         labels = group_labels[:]
         labels.insert(0, '')
         ax.set_xticklabels(labels, rotation='vertical')
- 
+
  
 def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, 
                   log=False, index=-1):
+    '''
+    helper function for plotting densities in case of grouped data
+    
+    
+    Parameters
+    ----------
+    ax_d : axes instance
+    density : {HIST, BOXPLOT, VIOLIN, KDE}
+    outcomes :  dict
+    outcome_to_plot : str 
+    group_labels : list of str
+    log : bool, optional
+    index : int, optional
+    
+    Raises
+    ------
+    EMAError
+        if density is unkown
+    
+    '''
+    
+    
+    
     if density==HIST:
-        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        values = [outcomes[key][outcome_to_plot][:,index] for key in 
+                  group_labels]
         plot_histogram(ax_d, values, log)
     elif density==BOXPLOT:
-        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        values = [outcomes[key][outcome_to_plot][:,index] for key in 
+                  group_labels]
         plot_boxplots(ax_d, values, log, group_labels)
     elif density==VIOLIN:
-        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        values = [outcomes[key][outcome_to_plot][:,index] for key in 
+                  group_labels]
         plot_violinplot(ax_d, values, log, group_labels=group_labels)
     elif density==KDE:
-        values = [outcomes[key][outcome_to_plot][:,index] for key in group_labels]
+        values = [outcomes[key][outcome_to_plot][:,index] for key in 
+                  group_labels]
         plot_kde(ax_d, values, log)
     else:
         raise EMAError("unknown density type: {}".format(density))
-    
 
-def simple_density(density, value, ax_d, ax, log, loc=-1):
+
+def simple_density(density, value, ax_d, ax, log):
     '''
     
     Helper function, responsible for producing a density plot
     
-    :param density: type of density
-    :param value: the data for which to calculate the density
-    :param ax_d:
-    :param ax:
-    :param log: 
-    
+    Parameters
+    ----------
+    density : {HIST, BOXPLOT, VIOLIN, KDE}
+    value : ndarray
+    ax_d : axes instance
+    ax : axes instance
+    log : bool
     
     '''
     
@@ -268,22 +322,22 @@ def simple_density(density, value, ax_d, ax, log, loc=-1):
     ax_d.set_ylim(ymin=ax.get_yaxis().get_view_interval()[0],
               ymax=ax.get_yaxis().get_view_interval()[1])
 
- 
+
 def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     '''
     
     Helper function for generating a density heatmap over time
     
-    :param outcomes:
-    :param outcomes_to_show:
-    :param colormap:
-    :param log:
-    :param minima:
-    :param maxima:
-    
+    Parameters
+    ----------
+    outcomes : dict
+    outcomes_to_show : list of str
+    colormap : str
+    log : bool
+    minima : dict
+    maxima : dict
     
     '''
-
 
     figure, grid = make_grid(outcomes_to_show)
     axes_dict = {}
@@ -329,14 +383,20 @@ def make_legend(categories,
                 alpha=1):
     '''
     Helper function responsible for making the legend
-    
-    :param categories: the categories in the legend
-    :param ax: the axes with which the legend is associated
-    :param ncol: the number of columns to use
-    :param legend_type: whether the legend is linked to lines, patches, or
-                        scatter plots
-    :param alpha: the alpha of the artists
-    
+
+    Parameters
+    ----------
+    categories : str or tuple
+                 the categories in the legend
+    ax : axes instance 
+         the axes with which the legend is associated
+    ncol : int
+           the number of columns to use
+    legend_type : {LINES, SCATTER, PATCH}
+                  whether the legend is linked to lines, patches, or scatter 
+                  plots
+    alpha : float
+            the alpha of the artists
     
     '''
     
@@ -376,6 +436,7 @@ def make_legend(categories,
                       loc=3, borderaxespad=0.1,
                       mode='expand', bbox_to_anchor=(0., 1.1, 1., .102))
 
+
 def determine_kde(data, 
                   size_kde=1000,
                   ymin=None,
@@ -384,7 +445,22 @@ def determine_kde(data,
     
     Helper function responsible for performing a KDE    
     
-    :param data:
+    Parameters
+    ----------
+    data : ndarray
+    size_kde : int, optional
+    ymin : float, optional
+    ymax : float, optional
+    
+    Returns
+    -------
+    ndarray
+        x values for kde
+    ndarray
+        y values for kde
+        
+    ..note:: x and y values are based on rotation as used in density 
+             plots for end states.
     
     
     '''
@@ -414,9 +490,15 @@ def filter_scalar_outcomes(outcomes):
     '''
     Helper function that removes non time series outcomes from all the 
     outcomes.
+
+    Parameters
+    ----------
+    outcomes : dict
     
-    :param outcomes:
-    :return: the filtered outcomes
+    Returns
+    -------
+    dict
+        the filtered outcomes
     
     
     '''
@@ -428,10 +510,19 @@ def filter_scalar_outcomes(outcomes):
     [outcomes.pop(entry) for entry in outcomes_to_remove]
     return outcomes
 
+
 def determine_time_dimension(outcomes):
     '''
+    helper function for determining or creating time dimension
+
     
-    :param outcomes:
+    Parameters
+    ----------
+    outcomes : dict
+    
+    Returns
+    -------
+    ndarray
     
     
     '''
@@ -451,19 +542,23 @@ def determine_time_dimension(outcomes):
         info("no time dimension found in results")
     return time, outcomes    
 
+
 def group_results(experiments, outcomes, group_by, grouping_specifiers):
     '''
     Helper function that takes the experiments and results and returns a list 
     based on groupings. Each element in the dictionary contains the experiments 
     and results for a particular group, the key is the grouping specifier.
     
-    :param experiments:
-    :param outcomes:
-    :param group_by: The column in the experiments array to which the 
-                     grouping specifiers apply. If the name is'index'
-                     it is assumed that the grouping specifiers are valid
-                     indices for numpy.ndarray .
-    :param grouping_specifiers: An iterable of grouping specifiers. A grouping 
+    Parameters
+    ----------
+    experiments : recarray
+    outcomes : dict
+    group_by : str
+               The column in the experiments array to which the grouping 
+               specifiers apply. If the name is'index' it is assumed that the 
+               grouping specifiers are valid indices for numpy.ndarray.
+    grouping_specifiers : iterable
+                    An iterable of grouping specifiers. A grouping 
                     specifier is a unique identifier in case of grouping by 
                     categorical uncertainties. It is a tuple in case of 
                     grouping by a parameter uncertainty. In this cose, the code
@@ -471,15 +566,17 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers):
                     last entry, which is treated as closed on both sides.  
                     In case of 'index', the iterable should be a dictionary 
                     with the name for each group as key and the value being a 
-                    valid index for numpy.ndarray. 
-    :return: A dictionary with the experiments and results for each group, the
-             the grouping specifier is used as key
+                    valid index for numpy.ndarray.
+    
+    Returns 
+    dict
+        A dictionary with the experiments and results for each group, the 
+        grouping specifier is used as key
              
     ..note:: In case of grouping by parameter uncertainty, the list of 
              grouping specifiers is sorted. The traversal assumes half open
              intervals, where the upper limit of each interval is open, except 
              for the last interval which is closed.
-    
     
     '''
     groups = {}
@@ -523,21 +620,28 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers):
         
     return groups
 
+
 def make_continuous_grouping_specifiers(array, nr_of_groups=5):
     '''
     Helper function for discretesizing a continuous array. By default, the 
     array is split into 5 equally wide intervals.
     
-    :param array: a 1-d array that is to be turned into discrete intervals.
-    :param nr_of_groups:
-    :return: list of tuples with the lower and upper bound of the intervals. 
+    Parameters
+    ----------
+    array : ndarray
+            a 1-d array that is to be turned into discrete intervals.
+    nr_of_groups : int, optional
+    
+    Returns
+    -------
+    list of tuples 
+        list of tuples with the lower and upper bound of the intervals. 
     
     .. note:: this code only produces intervals. :func:`group_results` uses
               these intervals in half-open fashion, apart from the last 
               interval: [a, b), [b,c), [c,d]. That is, both the end point
               and the start point of the range of the continuous array are 
               included.
-    
     
     '''
     
@@ -549,6 +653,7 @@ def make_continuous_grouping_specifiers(array, nr_of_groups=5):
     assert a[-1][1] == maximum
     return a
 
+
 def prepare_pairs_data(results, 
                         outcomes_to_show=None,
                         group_by=None,
@@ -557,14 +662,15 @@ def prepare_pairs_data(results,
                         filter_scalar=True):
     '''
     
-    
-    :param results:
-    :param outcomes_to_show:
-    :param group_by:
-    :param grouping_specifiers:
-    :param point_in_time:
-    
-    
+    Parameters
+    ----------
+    results : tuple
+    outcomes_to_show : list of str, optional
+    group_by : str, optional
+    grouping_specifiers : iterable, optional
+    point_in_time : int, optional
+    filter_scalar : bool, optional
+       
     '''
     if type(outcomes_to_show) == StringType:
         raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
@@ -597,20 +703,21 @@ def prepare_pairs_data(results,
             outcomes = filter_outcomes(outcomes, point_in_time)
     return outcomes, outcomes_to_show, grouping_labels 
 
+
 def prepare_data(results,
                  outcomes_to_show=None,
                  group_by=None,
                  grouping_specifiers=None,
-                 filter_scalar = True):
+                 filter_scalar=True):
     '''
     
-    
-    :param results: the results to visualize
-    :param outcomes_to_show:
-    :param group_by:
-    :param grouping_specifiers:
-    :param filter_scalar:
-    
+    Parameters
+    ----------
+    results : tuple
+    outcomes_to_show : list of str, optional
+    group_by : str, optional
+    grouping_specifiers : iterable, optional
+    filter_scalar : bool, optional
     
     '''
 
@@ -677,14 +784,18 @@ def prepare_data(results,
 
     return outcomes, outcomes_to_show, time, grouping_labels
 
+
 def do_titles(ax, titles, outcome):
     '''
     Helper function for setting the title on an ax
     
-    :param ax: the ax on which to set the title
-    :param titles: a dict which maps outcome names to titles
-    :param outcome: the outcome plotted in the ax.
-    
+    Parameters
+    ----------
+    ax : axes instance
+    titles : dict
+             a dict which maps outcome names to titles
+    outcome : str
+              the outcome plotted in the ax.
     
     '''
     
@@ -698,14 +809,18 @@ def do_titles(ax, titles, outcome):
                 warning("key error in do_titles, no title provided for `%s`" % (outcome))
                 ax.set_title(outcome)
 
+
 def do_ylabels(ax, ylabels, outcome):
     '''
     Helper function for setting the y labels on an ax
-    
-    :param ax: the ax on which to set the y label
-    :param titles: a dict which maps outcome names to y labels
-    :param outcome: the outcome plotted in the ax.
-    
+
+    Parameters
+    ----------
+    ax : axes instance
+    titles : dict
+             a dict which maps outcome names to y labels
+    outcome : str
+              the outcome plotted in the ax.
     
     '''
     
@@ -719,14 +834,17 @@ def do_ylabels(ax, ylabels, outcome):
                 warning("key error in do_ylabels, no ylabel provided for `%s`" % (outcome))
                 ax.set_ylabel(outcome)    
 
-def make_grid(outcomes_to_show, density=None):
+
+def make_grid(outcomes_to_show, density=False):
     '''
     Helper function for making the grid that specifies the size and location
     of the various axes. 
-    
-    :param outcomes_to_show: the list of outcomes to show
-    :param density: boolean, whether to show density or not
-    
+
+    Parameters
+    ----------
+    outcomes_to_show : list of str
+                       the list of outcomes to show
+    density: boolean : bool, optional
     
     '''
 
