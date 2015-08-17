@@ -8,6 +8,6 @@ JPype1 == 0.5.7
 mpld3 == 0.2
 scikit-learn == 0.16.1
 scipy == 0.15.1
-pydot == 1.0.28
 seaborn == 0.5.1
 matplotlib == 1.4.3
+pydot == 1.0.2
