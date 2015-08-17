@@ -176,35 +176,37 @@ class ModelEnsemble(object):
                              in case of multiple model structure 
                              interfaces, the intersection or the union
                              of outcomes should be used. 
-        kwargs: generic keyword arguments to pass on to callback
-         
+        kwargs: dict
+                generic keyword arguments to pass on to callback
+
         Returns
-        --------
-        tuple of recarray and dict         
+        -------
+        tuple 
             a `structured numpy array <http://docs.scipy.org/doc/numpy/user/basics.rec.html>`_ 
             containing the experiments, and a dict with the names of the 
             outcomes as keys and an numpy array as value.
-                
+
+
         .. rubric:: suggested use
-        
+
         In general, analysis scripts require both the structured array of the 
         experiments and the dictionary of arrays containing the results. The 
         recommended use is the following::
-        
+
         >>> results = ensemble.perform_experiments(10000) #recommended use
         >>> experiments, output = ensemble.perform_experiments(10000) 
-        
+
         The latter option will work fine, but most analysis scripts require 
         to wrap it up into a tuple again::
-        
+
         >>> data = (experiments, output)
-        
+
         Another reason for the recommended use is that you can save this tuple
         directly::
-        
+
         >>> import expWorkbench.util as util
         >>> util.save_results(results, filename)
-        
+
         """
         return_val = self._generate_experiments(cases, which_uncertainties)
         
