@@ -83,36 +83,33 @@ def envelopes(results,
 
     Returns
     -------
-    Figure
-        a figure instance
-    dict
-        dict with outcome as key, and axes as value. Density axes' are
-        indexed by the outcome followed by _density
-
-    .. rubric:: an example of use
+    Figure : Figure instance
+    axes : dict
+           dict with outcome as key, and axes as value. Density axes' are
+           indexed by the outcome followed by _density.
+        
+    Note
+    ----
+    the current implementation is limited to seven different categories in case 
+    of group_by, categories, and/or discretesize. This limit is due to the colors 
+    specified in COLOR_LIST.
+    
+    Examples
+    --------
 
     >>> import expWorkbench.util as util
     >>> data = util.load_results(r'1000 flu cases.cPickle')
-    >>> envelopes(data, column='policy')
+    >>> envelopes(data, group_by='policy')
 
     will show an envelope for three three different policies, for all the 
-    outcomes of interest.
+    outcomes of interest. while
 
-    .. plot:: ../docs/source/pyplots/basicEnvelope.py
-
-     while
-
-    >>> envelopes(data, column='policy', categories=['static policy', 
+    >>> envelopes(data, group_by='policy', categories=['static policy', 
                   'adaptive policy'])
 
     will only show results for the two specified policies, ignoring any results 
     associated with \'no policy\'.
 
-    .. plot:: ../docs/source/pyplots/basicEnvelope2.py
-
-    .. note:: the current implementation is limited to seven different 
-              categories in case of column, categories, and/or discretesize.
-              This limit is due to the colors specified in COLOR_LIST.
     '''
     debug("generating envelopes")
     results = copy.deepcopy(results)
@@ -269,9 +266,7 @@ def lines(results,
           experiments_to_show=None,
           show_envelope=False,
           log=False):
-    '''
-
-    This function takes the results from :meth:`perform_experiments` and 
+    '''This function takes the results from :meth:`perform_experiments` and 
     visualizes these as line plots. It is thus to be used in case of time 
     series data. The function will try to find a result labeled "TIME". If this
     is present, these values will be used on the X-axis. In case of Vensim 
@@ -279,7 +274,7 @@ def lines(results,
 
     Parameters
     ----------
-    results : tupule
+    results : tuple
               return from :meth:`perform_experiments`.
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot. If empty, 
@@ -319,16 +314,17 @@ def lines(results,
 
     Returns
     -------
-    Figure
-        a figure instance
-    dict
-        dict with outcome as key, and axes as value. Density axes' are
-        indexed by the outcome followed by _density
-
-    .. note:: the current implementation is limited to seven different 
-          categories in case of column, categories, and/or discretesize.
-          This limit is due to the colors specified in COLOR_LIST.
+    fig : Figure instance
+    axes : dict
+           dict with outcome as key, and axes as value. Density axes' are
+           indexed by the outcome followed by _density.
     
+    Note
+    ----
+    the current implementation is limited to seven different categories in case 
+    of group_by, categories, and/or discretesize. This limit is due to the colors 
+    specified in COLOR_LIST.
+
     '''
     
     debug("generating line graph")
@@ -641,11 +637,10 @@ def kde_over_time(results,
     dict
         dict with outcome as key, and axes as value. Density axes' are
         indexed by the outcome followed by _density
-
-    TODO:: a colorbar boolean should be added. This controls whether a
-           colorbar is shown for each axes.
-    
+       
     '''
+    # TODO:: a colorbar boolean should be added. This controls whether a
+    #        colorbar is shown for each axes.
     results = copy.deepcopy(results)
 
     #determine the minima and maxima over all runs
@@ -697,8 +692,7 @@ def multiple_densities(results,
                        experiments_to_show=None,
                        plot_type=ENVELOPE,
                        log=False):
-    '''
-    Make an envelope plot with multiple density plots over the run time
+    ''' Make an envelope plot with multiple density plots over the run time
 
     Parameters
     ----------
@@ -743,21 +737,23 @@ def multiple_densities(results,
 
     Returns
     -------
-    Figure
-        a figure instance
-    dict
-        dict with outcome as key, and axes as value. Density axes' are
-        indexed by the outcome followed by _density
-
-    .. rubric:: an example of use
-
-    .. note:: the current implementation is limited to seven different 
-              categories in case of column, categories, and/or discretesize.
-              This limit is due to the colors specified in COLOR_LIST.
-    .. note:: the connection patches are for some reason not drawn if log
-              scaling is used for the density plots. This appears to be an
-              issue in matplotlib itself.
-
+    fig : Figure instance 
+    axes : dict
+           dict with outcome as key, and axes as value. Density axes' are
+           indexed by the outcome followed by _density.
+    
+    Note
+    ---- 
+    the current implementation is limited to seven different categories in
+    case of group_by, categories, and/or discretesize. This limit is due to the 
+    colors specified in COLOR_LIST.
+    
+    Note
+    ----
+    the connection patches are for some reason not drawn if log scaling is 
+    used for the density plots. This appears to be an issue in matplotlib 
+    itself.
+    
     '''
     if not outcomes_to_show:
         outcomes_to_show =  results[1].keys()
