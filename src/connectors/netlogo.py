@@ -11,24 +11,39 @@ import os
 
 import numpy as np
 
-from expWorkbench import ModelStructureInterface, warning, debug,\
-                         EMAError
+from expWorkbench import (ModelStructureInterface, warning, debug)
+                         
 import pyNetLogo
 
 __all__ = ['NetLogoModelStructureInterface']
 
 class NetLogoModelStructureInterface(ModelStructureInterface):
+    '''Base clase for interfacing with netlogo models. This class
+    extends :class:`expWorkbench.ModelStructureInterface`.
+    
+    Attributes
+    ----------
+    model_file : str
+                 a relative path from the working directory to the model
+    run_length : int
+                 number of ticks
+    command_format : str
+                     default format for set operations in logo
+    working_directory : str
+    name : str
+    
+    '''
+    
     model_file = None
     run_length = None
     command_format = "set {0} {1}"
 
     def __init__(self, working_directory, name):
         """
-        interface to the model
+        init of class
         
         Parameters
         ----------
-        
         working_directory : str
                             working_directory for the model. 
         name : str
@@ -39,13 +54,14 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         ------
         EMAError if name contains non alpha-numerical characters
         
-        .. note:: Anything that is relative to `self.working_directory`
-          should be specified in `model_init` and not
-          in `__init__`. Otherwise, the code will not work when running
-          it in parallel. The reason for this is that the working
-          directory is being updated by parallelEMA to the worker's 
-          separate working directory prior to calling `model_init`.
-                
+        Note
+        ----
+        Anything that is relative to `self.working_directory`should be 
+        specified in `model_init` and not in `__init__`. Otherwise, the code 
+        will not work when running it in parallel. The reason for this is that 
+        the working directory is being updated by parallelEMA to the worker's 
+        separate working directory prior to calling `model_init`.
+        
         """
         super(NetLogoModelStructureInterface, self).__init__(working_directory, name)
     
@@ -162,6 +178,7 @@ class NetLogoModelStructureInterface(ModelStructureInterface):
         Returns
         -------
         dict with the results of a model run. 
+        
         """
         return self.output
     

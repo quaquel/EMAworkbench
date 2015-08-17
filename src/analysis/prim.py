@@ -3,6 +3,7 @@ Created on 22 feb. 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+
 '''
 from __future__ import division, print_function
 
@@ -168,6 +169,32 @@ class CurEntry(object):
                 
 
 class PrimBox(object):
+    '''A class that holds information over a specific box 
+    
+    Attributes
+    ----------
+    coverage : float
+               coverage of currently selected box
+    density : float
+               density of currently selected box
+    mean : float
+           mean of currently selected box
+    res_dim : int
+              number of restricted dimensions of currently selected box
+    mass : float
+           mass of currently selected box 
+    peeling_trajectory : pandas dataframe
+                         stats for each box in peeling trajectory
+    box_lims : list
+               list of box lims for each box in peeling trajectory
+    
+    
+    ----
+    by default, the currently selected box is the last box on the peeling
+    trajectory, unless this is changed via :meth:`PrimBox.select`.
+    
+    '''
+    
     coverage = CurEntry('coverage')
     density = CurEntry('density')
     mean = CurEntry('mean')
@@ -177,6 +204,17 @@ class PrimBox(object):
     _frozen=False
     
     def __init__(self, prim, box_lims, indices):
+        '''init 
+        
+        Parameters
+        ----------
+        prim : Prim instance
+        box_lims : recarray
+        indices : ndarray
+        
+        
+        '''
+        
         self.prim = prim
         
         # peeling and pasting trajectory
@@ -378,7 +416,7 @@ class PrimBox(object):
         
         Parameters
         ----------
-        uncertainty : string
+        uncertainty : str
         
         '''
         
@@ -396,9 +434,9 @@ class PrimBox(object):
         
         Parameters
         ----------
-        box_lims: structured numpy array
+        box_lims: numpy recarray
                   the new box_lims
-        indices: numpy array
+        indices: ndarray
                  the indices of y that are inside the box
       
         '''
@@ -588,20 +626,29 @@ class PrimBox(object):
 
 
 class PrimException(Exception):
+    '''Base exception class for prim related exceptions'''
     pass
 
 
-def setup_prim(results, classify, incl_unc=[], **kwargs):
+def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     """Helper function for setting up the prim algorithm
     
     Parameters
     ----------
-    results : tuple of structured array and dict with numpy arrays
+    results : tuple
+              tuple of structured array and dict with numpy arrays
               the return from :meth:`perform_experiments`.
-    classify : string, function or callable
+    classify : str or callable
                either a string denoting the outcome of interest to 
                use or a function. 
-    kwargs : valid keyword arguments for prim.Prim
+    threshold : double
+                the minimum score on the objective function of the last box
+                on the peeling trajectory. In case of a binary classification,
+                this should be between 0 and 1. 
+    incl_unc : list of str, optional
+               list of uncertainties to include in prim analysis
+    kwargs : dict
+             valid keyword arguments for prim.Prim
     
     Returns
     -------
@@ -620,7 +667,7 @@ def setup_prim(results, classify, incl_unc=[], **kwargs):
         x = np.ma.array(results[0])
     else:
         drop_names = set(rf.get_names(results[0].dtype))-set(incl_unc)
-        x = rf.drop_fields(results[0], drop_names, asrecarray = True)
+        x = rf.drop_fields(results[0], drop_names, asrecarray=True)
     if type(classify)==StringType:
         y = results[1][classify]
     elif callable(classify):
@@ -628,16 +675,38 @@ def setup_prim(results, classify, incl_unc=[], **kwargs):
     else:
         raise TypeError("unknown type for classify")
     
-    return Prim(x,y, **kwargs)
+    return Prim(x,y, threshold=threshold, **kwargs)
     
 
 class Prim(sdutil.OutputFormatterMixin):
+    '''Patient rule inducation algorithm
+    
+    The implementation of Prim is tailored to interactive use in the context
+    of scenario discovery
+        
+    Methods
+    -------
+    boxes_to_dataframe()
+        get boxes as pandas dataframe
+    stats_to_dataframe()
+        get stats as pandas dataframe
+    display_boxes(together=False)
+        display box limits in a figure
+        
+        
+    See also
+    --------
+    :mod:`cart`
+    
+    
+    '''
+    
     message = "{0} points remaining, containing {1} cases of interest"
     
     def __init__(self, 
                  x,
                  y, 
-                 threshold=None, 
+                 threshold, 
                  obj_function=DEFAULT, 
                  peel_alpha=0.05, 
                  paste_alpha=0.05,
@@ -648,7 +717,7 @@ class Prim(sdutil.OutputFormatterMixin):
         ----------
         x : structured array
             the independent variables
-        y : 1d numpy array
+        y : 1d ndarray
             the dependent variable
         threshold : float
                     the coverage threshold that a box has to meet
@@ -662,14 +731,9 @@ class Prim(sdutil.OutputFormatterMixin):
                          whether to look above or below the threshold value
         obj_func : callable, optional
                    the objective function used by PRIM
-                   
-        Raises
-        ------
-        AssertionError
-            if threshold is None
                      
         '''
-        assert threshold!=None
+
         
         self.x = np.ma.array(x)
         self.y = y

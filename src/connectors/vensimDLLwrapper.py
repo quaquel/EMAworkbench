@@ -98,6 +98,7 @@ def command(command):
         raise VensimWarning("command failed "+command)
     return return_val
 
+
 def continue_simulation(num_inter):
     '''This method continues the simulation for num_inter Time steps.
     
@@ -143,6 +144,7 @@ def get_data(filename, varname, tname = "Time"):
     Returns
     -------
     a tuple with an  for an array for varname and and array for tname.
+    
     '''
     vval = (ctypes.c_float * 1)()  
     tval = (ctypes.c_float * 1)()  
@@ -274,21 +276,28 @@ def get_varattrib(varname, attribute):
     attribute : int
                 attribute you want 
     
-    1 for Units, 
-    2 for the comment, 
-    3 for the equation, 
-    4 for causes, 
-    5 for uses, 
-    6 for initial causes only, 
-    7 for active causes only, 
-    8 for the subscripts the variable has, 
-    9 for all combinations those subscripts create,
-    10 for the combination of subscripts that would be used by a graph tool, 
-    11 for the minimum value set in the equation editor, 
-    12 for the maximum and 
-    13 for the range, 
-    14 for the variable type (returned as "Level" etc) and 
-    15 for the main group of a variable
+    Notes
+    -----
+    
+    ====== =============
+    number meaning
+    ====== =============
+    1      Units, 
+    2      the comment, 
+    3      the equation, 
+    4      causes, 
+    5      uses, 
+    6      initial causes only, 
+    7      active causes only, 
+    8      the subscripts the variable has, 
+    9      all combinations those subscripts create,
+    10     the combination of subscripts that would be used by a graph tool, 
+    11     the minimum value set in the equation editor, 
+    12     the maximum and 
+    13     the range, 
+    14     the variable type (returned as "Level" etc) and 
+    15     the main group of a variable
+    ====== =============
     
     ''' 
     buf = ctypes.create_string_buffer("", 10)
@@ -334,7 +343,9 @@ def get_varnames(filter='*', vartype=0):
     Returns
     -------
     a list with the variable names
-    
+
+    Notes
+    -----
     ====== =============
     number meaning
     ====== =============
