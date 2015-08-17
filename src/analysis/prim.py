@@ -32,6 +32,8 @@ from expWorkbench import info, debug, EMAError
 from analysis import pairs_plotting
 from analysis import scenario_discovery_util as sdutil
 
+__all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox', 'PrimException']
+
 DEFAULT = 'default'
 ORIGINAL = 'original'
 
