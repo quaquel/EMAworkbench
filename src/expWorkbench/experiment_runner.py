@@ -7,8 +7,8 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import copy
 
-from .ema_logging import debug, warning, exception
-from .ema_exceptions import EMAError, CaseError
+from . import debug, warning, exception
+from . import EMAError, CaseError
 
 __all__ = ["ExperimentRunner"]
 

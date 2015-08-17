@@ -1,6 +1,6 @@
-***************
-:mod:`outcomes`
-***************
+****************************
+:mod:`expWorkbench.outcomes`
+****************************
 
-.. automodule:: outcomes
+.. automodule:: expWorkbench.outcomes
    :members:

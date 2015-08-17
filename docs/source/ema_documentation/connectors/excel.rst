@@ -1,5 +1,5 @@
 ************
-:mod:`Excel`
+:mod:`excel`
 ************
 .. automodule:: excel
    :members:

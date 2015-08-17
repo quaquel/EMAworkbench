@@ -1,6 +1,6 @@
-*******************
-:mod:`experiment_runner`
-*******************
+*************************************
+:mod:`expWorkbench.experiment_runner`
+*************************************
 
-.. automodule:: experiment_runner
+.. automodule:: expWorkbench.experiment_runner
    :members:

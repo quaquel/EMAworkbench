@@ -1,6 +1,6 @@
-********************
-:mod:`uncertainties`
-********************
+*********************************
+:mod:`expWorkbench.uncertainties`
+*********************************
 
-.. automodule:: uncertainties
+.. automodule:: expWorkbench.uncertainties
    :members:
