@@ -1,6 +1,6 @@
-************
-:mod:`model`
-************
+*************************
+:mod:`expWorkbench.model`
+*************************
 
-.. automodule:: model
+.. automodule:: expWorkbench.model
    :members:

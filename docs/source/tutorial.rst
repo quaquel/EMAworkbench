@@ -459,7 +459,7 @@ But using :func:`pairs_scatter`. It shows for the three different policies
 their behavior on the total number of deaths, the hight of the heighest peak
 of the pandemic, and the point in time at which this peak was reached. 
 
-.. literalinclude:: ../../src/examples/flu_multiplot.py
+.. literalinclude:: ../../src/examples/flu_pairsplot.py
    :linenos:
 
 .. rubric:: no policy

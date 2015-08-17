@@ -9,7 +9,6 @@ types of uncertainties.
 
 '''
 import abc
-from expWorkbench.ema_exceptions import EMAError
 
 __all__ = ['AbstractUncertainty',
            'ParameterUncertainty',
@@ -159,8 +158,8 @@ class CategoricalUncertainty(ParameterUncertainty):
     def transform(self, value):
         '''transform an integer to a category 
         
-        Parameter
-        ---------
+        Parameters
+        ----------
         name : int
                value for which you want the category
                
@@ -175,8 +174,8 @@ class CategoricalUncertainty(ParameterUncertainty):
     def invert(self, name):
         ''' invert a category to an integer
         
-        Parameter
-        ---------
+        Parameters
+        ----------
         name : obj
                category
                

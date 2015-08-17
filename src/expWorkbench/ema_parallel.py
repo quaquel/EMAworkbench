@@ -7,7 +7,6 @@ import abc
 
 from expWorkbench.ema_parallel_ipython import _run_experiment,\
                                               initialize_engines,\
-                                              cleanup_working_directories,\
                                               set_engine_logger
 from expWorkbench.ema_parallel_multiprocessing import CalculatorPool
 
