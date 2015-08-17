@@ -6,6 +6,8 @@ http://simulation.tbm.tudelft.nl/ema-workbench/contents.html
 
 [![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=ipython_parallel)](https://travis-ci.org/quaquel/EMAworkbench)
 [![Coverage Status](https://coveralls.io/repos/quaquel/EMAworkbench/badge.svg?branch=ipython_parallel&service=github)](https://coveralls.io/github/quaquel/EMAworkbench?branch=ipython_parallel)
+[![Documentation Status](https://readthedocs.org/projects/emaworkbench/badge/?version=latest)](https://readthedocs.org/projects/emaworkbench/?badge=latest)
+
 
 If you are interested in using the most recent version of the workbench  and
 would like to contribute to its further development, contact Jan Kwakkel at 
