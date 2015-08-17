@@ -5,7 +5,6 @@ Created on May 22, 2015
 '''
 from __future__ import division, print_function
 
-import pydot
 import types
 
 import numpy as np
@@ -186,6 +185,7 @@ class CART(sdutil.OutputFormatterMixin):
     def show_tree(self):
         '''return a png of the tree'''
         assert self.clf
+        import pydot # dirty hack for read the docs
 
         dot_data = StringIO() 
         tree.export_graphviz(self.clf, out_file=dot_data, 
