@@ -7,7 +7,7 @@ an optimization.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
-from __future__ import division
+from __future__ import (division, absolute_import)
 import random 
 import copy
 import abc
@@ -18,15 +18,14 @@ import pandas as pd
 from deap import base, creator, tools
 from deap.tools import HallOfFame
 
-from expWorkbench import ema_logging, debug, EMAError, info
-from ema_optimization_util import compare, mut_polynomial_bounded,\
-                                  mut_uniform_int,\
-                                  select_tournament_dominance_crowding
+from . import ema_logging, debug, EMAError, info
+from .ema_optimization_util import (compare, mut_polynomial_bounded,
+                        mut_uniform_int, select_tournament_dominance_crowding)
 
 __all__ = ["NSGA2StatisticsCallback",
            "NSGA2",
-           "epsNSGA2",
-           ]
+           "epsNSGA2"]
+
 
 class AbstractOptimizationAlgorithm(object):
     

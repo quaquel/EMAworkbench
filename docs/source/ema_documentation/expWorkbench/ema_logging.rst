@@ -1,6 +1,6 @@
-******************
-:mod:`ema_logging`
-******************
+*******************************
+:mod:`expWorkbench.ema_logging`
+*******************************
 
-.. automodule:: ema_logging
+.. automodule:: expWorkbench.ema_logging
    :members:

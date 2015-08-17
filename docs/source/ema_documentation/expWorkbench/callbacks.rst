@@ -1,6 +1,6 @@
-****************
+*****************************
 :mod:`callbacks`
-****************
+*****************************
 
-.. automodule:: callbacks
+.. automodule:: expWorkbench.callbacks
    :members:

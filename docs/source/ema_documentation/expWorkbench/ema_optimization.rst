@@ -1,6 +1,6 @@
-***********************
-:mod:`ema_optimization`
-***********************
+************************************
+:mod:`expWorkbench.ema_optimization`
+************************************
 
-.. automodule:: ema_optimization
+.. automodule:: expWorkbench.ema_optimization
    :members:

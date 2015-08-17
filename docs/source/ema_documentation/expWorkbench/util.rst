@@ -1,6 +1,6 @@
-***********
-:mod:`util`
-***********
+************************
+:mod:`expWorkbench.util`
+************************
 
-.. automodule:: util
+.. automodule:: expWorkbench.util
    :members:

@@ -75,7 +75,7 @@ def read_cin_file(file_name):
     read a .cin file
     
     Parameters
-    -----------
+    ----------
     file_name : str
                 file name of *.cin file, relative to working directory
                 
@@ -99,7 +99,7 @@ def set_value(variable, value):
     See the DSS reference supplement, p. 58 for details.
 
     Parameters
-    -----------
+    ----------
     variable : str
                name of the variable to set.
     value : int, float, or list

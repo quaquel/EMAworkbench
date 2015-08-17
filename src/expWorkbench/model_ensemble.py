@@ -14,20 +14,19 @@ import os
 import itertools
 from collections import defaultdict
 
-from expWorkbench.ema_logging import info, debug
-from expWorkbench.ema_exceptions import EMAError
+from . import info, debug
+from . import EMAError
 
-from expWorkbench.ema_optimization import NSGA2
-from expWorkbench.ema_optimization_util import evaluate_population_outcome,\
-                                               generate_individual_outcome,\
-                                               generate_individual_robust,\
-                                               evaluate_population_robust                                               
+from .ema_optimization import NSGA2
+from .ema_optimization_util import (evaluate_population_outcome, 
+                    generate_individual_outcome, generate_individual_robust, 
+                    evaluate_population_robust)                                               
 
 from .samplers import FullFactorialSampler, LHSSampler
 from .uncertainties import ParameterUncertainty, CategoricalUncertainty
 from .callbacks import DefaultCallback
 from .ema_parallel import MultiprocessingPool
-from .experiment_runner import ExperimentRunner
+from . import ExperimentRunner
 
 __all__ = ['ModelEnsemble', 'MINIMIZE', 'MAXIMIZE', 'UNION', 
            'INTERSECTION']

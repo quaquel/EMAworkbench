@@ -1,6 +1,6 @@
-*********************
-:mod:`model_ensemble`
-*********************
+**********************************
+:mod:`expWorkbench.model_ensemble`
+**********************************
 
-.. automodule:: model_ensemble
+.. automodule:: expWorkbench.model_ensemble
    :members:
