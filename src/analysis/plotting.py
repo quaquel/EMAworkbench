@@ -325,10 +325,10 @@ def lines(results,
         dict with outcome as key, and axes as value. Density axes' are
         indexed by the outcome followed by _density
 
-
     .. note:: the current implementation is limited to seven different 
           categories in case of column, categories, and/or discretesize.
           This limit is due to the colors specified in COLOR_LIST.
+    
     '''
     
     debug("generating line graph")
@@ -749,7 +749,6 @@ def multiple_densities(results,
         dict with outcome as key, and axes as value. Density axes' are
         indexed by the outcome followed by _density
 
-
     .. rubric:: an example of use
 
     .. note:: the current implementation is limited to seven different 
@@ -758,6 +757,7 @@ def multiple_densities(results,
     .. note:: the connection patches are for some reason not drawn if log
               scaling is used for the density plots. This appears to be an
               issue in matplotlib itself.
+
     '''
     if not outcomes_to_show:
         outcomes_to_show =  results[1].keys()
