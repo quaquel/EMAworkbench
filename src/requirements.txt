@@ -1,13 +1,13 @@
-deap == 1.0.1
-future == 0.13.1
-futures == 2.1.6
+deap
+future
+futures
 ipython == 3.2.0
-numpy == 1.9.2
-scipy == 0.15.1
-pandas == 0.16.2
+numpy
+scipy
+pandas
 JPype1 == 0.5.7
 mpld3
-scikit-learn == 0.16.1
+scikit-learn
 seaborn
-matplotlib > 1.3
+matplotlib
 
