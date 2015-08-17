@@ -53,9 +53,58 @@ def setup_cart(results, classify, incl_unc=[], mass_min=0.05):
 
 
 class CART(sdutil.OutputFormatterMixin):
+    '''CART algorithm
+    
+    can be used in a manner similar to PRIM. It provides access
+    to the underlying tree, but it can also show the boxes described by the
+    tree in a table or graph form analoge to prim.
+    
+    Attributes
+    ----------
+    boxes : list
+            list of recarray box lims
+    stats : list
+            list of dicts with stats 
+
+    Methods
+    -------
+    boxes_to_dataframe()
+        get boxes as pandas dataframe
+    stats_to_dataframe()
+        get stats as pandas dataframe
+    display_boxes(together=False)
+        display box limits in a figure
+    
+    
+    Notes
+    -----
+    This class is a wrapper around scikit-learn's CART algorithm. It provides
+    an interface to CART that is more oriented towards scenario discovery, and
+    shared some methods with PRIM
+    
+    See also
+    --------
+    :mod:`prim`
+    
+    
+    '''
+    
     sep = '?!?'
     
-    def __init__(self, x,y, mass_min):
+    def __init__(self, x,y, mass_min=0.05):
+        ''' init
+        
+        Parameters
+        ----------
+        x : recarray
+        y : ndarray
+        mass_min : float, optional
+                   a value between 0 and 1 indicating the minimum fraction
+                   of data points in a terminal leaf. Defaults to 0.05, 
+                   identical to prim. 
+                   
+        '''
+        
         self.x = x
         self.y = y
         self.mass_min = mass_min

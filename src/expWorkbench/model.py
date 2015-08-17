@@ -3,13 +3,13 @@ Created on 23 dec. 2010
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import division
+from __future__ import (division, absolute_import)
 
 import abc
 import os
 
-from ema_logging import debug
-from ema_exceptions import EMAError
+from .ema_logging import debug
+from .ema_exceptions import EMAError
 
 __all__ = ['ModelStructureInterface']
 
@@ -19,25 +19,33 @@ __all__ = ['ModelStructureInterface']
 class ModelStructureInterface(object):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
-    for performing EMA. This class should be extended to provide an interface 
-    to the actual model. 
+    for performing EMA. This is an abstract base class and cannot be used 
+    directly. 
+    
+    
+    Attributes
+    ----------
+    uncertainties : list
+                    list of uncertainty instances
+    outcomes : list
+               list of outcome instances
+    name : str
+           alphanumerical name of model structure interface
+    output : dict
+             this should be a dict with the names of the outcomes as key
+    working_directory : str
+                        absolute path, all file operations in the model
+                        structure interface should be resolved from this
+                        directory. 
     
     '''
     
     __metaclass__ = abc.ABCMeta
     
-    #: list of uncertainty instances
     uncertainties = []
-    
-    #: list of outcome instances
     outcomes = []
-    
-    #: name of the model interface
     name = None 
-    
-    #: results, this should be a dict with the names of the outcomes as key
     output = {}
-
     _working_directory = None
 
     def __init__(self, working_directory, name):
@@ -57,13 +65,15 @@ class ModelStructureInterface(object):
         ------
         EMAError if name contains non alpha-numerical characters
         
-        .. note:: Anything that is relative to `self.working_directory`
-          should be specified in `model_init` and not
-          in `__init__`. Otherwise, the code will not work when running
-          it in parallel. The reason for this is that the working
-          directory is being updated by parallelEMA to the worker's 
-          separate working directory prior to calling `model_init`.
-                
+        
+        Note
+        ----
+        Anything that is relative to `self.working_directory` should be 
+        specified in `model_init` and not in `__init__`. Otherwise, the code 
+        will not work when running it in parallel. The reason for this is that 
+        the working directory is being updated by parallelEMA to the worker's 
+        separate working directory prior to calling `model_init`.
+        
         """
         self.name=None
         
