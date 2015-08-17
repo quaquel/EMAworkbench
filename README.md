@@ -4,8 +4,8 @@ development at Delft University of Technology. Documentation can be found on
 http://simulation.tbm.tudelft.nl/ema-workbench/contents.html
 
 
-[![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=ipython_parallel)](https://travis-ci.org/quaquel/EMAworkbench)
-[![Coverage Status](https://coveralls.io/repos/quaquel/EMAworkbench/badge.svg?branch=ipython_parallel&service=github)](https://coveralls.io/github/quaquel/EMAworkbench?branch=ipython_parallel)
+[![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=master)](https://travis-ci.org/quaquel/EMAworkbench)
+[![Coverage Status](https://coveralls.io/repos/quaquel/EMAworkbench/badge.svg?branch=master&service=github)](https://coveralls.io/github/quaquel/EMAworkbench?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/emaworkbench/badge/?version=latest)](https://readthedocs.org/projects/emaworkbench/?badge=latest)
 
 
