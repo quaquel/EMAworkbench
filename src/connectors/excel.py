@@ -8,9 +8,11 @@ Excel models. It relies on `win32com <http://python.net/crew/mhammond/win32/Down
 
 '''
 import numpy as np
-
-import win32com.client
-from win32com.universal import com_error
+try:
+    import win32com.client
+    from win32com.universal import com_error
+except ImportError:
+    pass
 
 from expWorkbench import ema_logging, EMAError, ModelStructureInterface
 

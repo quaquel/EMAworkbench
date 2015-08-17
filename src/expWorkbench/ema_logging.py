@@ -9,7 +9,6 @@ This logging system will also work in case of multiprocessing using
 :mod:`parallelEMA`.
 
 '''
-
 import logging
 from logging import Handler, DEBUG, INFO
 

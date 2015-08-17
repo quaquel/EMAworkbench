@@ -1,6 +1,6 @@
-*******************
-:mod:`ema_parallel_ipython`
-*******************
+****************************************
+:mod:`expWorkbench.ema_parallel_ipython`
+****************************************
 
-.. automodule:: ema_parallel_ipython
+.. automodule:: expWorkbench.ema_parallel_ipython
    :members:

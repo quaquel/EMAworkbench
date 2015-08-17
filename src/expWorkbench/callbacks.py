@@ -3,22 +3,23 @@ Created on 22 Jan 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import division
+from __future__ import (division, absolute_import)
+
+
 import abc
 from threading import Lock
 
 import numpy as np
 
-from expWorkbench import ema_logging
-from expWorkbench.ema_exceptions import EMAError
-from expWorkbench.ema_logging import info, debug
-from uncertainties import CategoricalUncertainty,\
+from . import ema_logging
+from .ema_exceptions import EMAError
+from .ema_logging import info, debug
+from .uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER
 
 __all__ = ['AbstractCallback',
-           'DefaultCallback'
-          ]
+           'DefaultCallback']
 
 class AbstractCallback(object):
     '''

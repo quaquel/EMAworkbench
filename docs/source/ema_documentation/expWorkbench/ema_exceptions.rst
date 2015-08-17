@@ -1,6 +1,6 @@
-*********************
-:mod:`ema_exceptions`
-*********************
+**********************************
+:mod:`expWorkbench.ema_exceptions`
+**********************************
 
-.. automodule:: ema_exceptions
+.. automodule:: expWorkbench.ema_exceptions
    :members:

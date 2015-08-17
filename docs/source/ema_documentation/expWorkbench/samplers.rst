@@ -1,8 +1,8 @@
-***************
-:mod:`samplers`
-***************
+****************************
+:mod:`expWorkbench.samplers`
+****************************
 
-.. automodule:: samplers
+.. automodule:: expWorkbench.samplers
    :members:
 
 

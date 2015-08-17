@@ -34,8 +34,8 @@ The Core of the Workbench
    ../../ema_documentation/expWorkbench/callbacks.rst
    ../../ema_documentation/expWorkbench/ema_logging.rst
    ../../ema_documentation/expWorkbench/ema_parallel.rst
- 	../../ema_documentation/expWorkbench/ema_parallel_multiprocessing.rst
- 	../../ema_documentation/expWorkbench/ema_parallel_ipython.rst
+   ../../ema_documentation/expWorkbench/ema_parallel_multiprocessing.rst
+   ../../ema_documentation/expWorkbench/ema_parallel_ipython.rst
    ../../ema_documentation/expWorkbench/ema_exceptions.rst
    ../../ema_documentation/expWorkbench/ema_optimization.rst
    ../../ema_documentation/expWorkbench/ema_optimization_util.rst
@@ -63,11 +63,11 @@ Connectors
 .. toctree::
    :maxdepth: 2
 
-   ../../ema_documentation/expWorkbench/vensim.rst
-   ../../ema_documentation/expWorkbench/vensimDLLwrapper.rst
-   ../../ema_documentation/expWorkbench/netlogo.rst
-   ../../ema_documentation/expWorkbench/pyNetlogo.rst
-   ../../ema_documentation/expWorkbench/excel.rst
+   ../../ema_documentation/connectors/vensim.rst
+   ../../ema_documentation/connectors/vensimDLLwrapper.rst
+   ../../ema_documentation/connectors/netlogo.rst
+   ../../ema_documentation/connectors/pyNetLogo.rst
+   ../../ema_documentation/connectors/excel.rst
 
 
 Indices and tables

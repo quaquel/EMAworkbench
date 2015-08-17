@@ -16,31 +16,30 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#print os.path.abspath('../../src/expWorkbench')
 
-sys.path.append(os.path.abspath('../../src'))
+
+sys.path.append(os.path.abspath('../../src/'))
 sys.path.append(os.path.abspath('../../src/analysis'))
-sys.path.append(os.path.abspath('../../src/analysis/clusterCode'))
+sys.path.append(os.path.abspath('../../src/analysis/cluster_util'))
 sys.path.append(os.path.abspath('../../src/connectors'))
-sys.path.append(os.path.abspath('../../src/examples'))
-sys.path.append(os.path.abspath('../../src/expWorkbench'))
+# sys.path.append(os.path.abspath('../../src/examples'))
+# sys.path.append(os.path.abspath('../../src/expWorkbench'))
 sys.path.append(os.path.abspath('../../docs/sphinxext'))
-#sys.path.append(r'C:/Python27/Lib/site-packages/matplotlib/sphinxext')
-
 
 
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+needs_sphinx = '1.3'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 
               'sphinx.ext.doctest', 
               'sphinx.ext.pngmath',
-              'only_directives',
-              'plot_directive'
+              'sphinx.ext.napoleon',
+              'matplotlib.sphinxext.only_directives',
+              'matplotlib.sphinxext.plot_directive',
               ]
  
 # Add any paths that contain templates here, relative to this directory.

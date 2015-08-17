@@ -137,8 +137,8 @@ class AbstractSampler(object):
         Helper function for determining the number of experiments that will
         be generated given the sampled uncertainties.
         
-        Parameter
-        ---------
+        Parameters
+        ----------
         sampled_uncertainties : list 
                         a list of sampled uncertainties, as 
                         the values return by generate_samples
@@ -315,8 +315,8 @@ class FullFactorialSampler(AbstractSampler):
         Helper function for determining the number of experiments that will
         be generated given the sampled uncertainties.
         
-        Parameter
-        ---------
+        Parameters
+        ----------
         sampled_uncertainties : list 
                         a list of sampled uncertainties, as 
                         the values return by generate_samples
@@ -357,8 +357,8 @@ def _design_generator(designs, uncs):
     '''combine the sampled uncertainties with their correct name in order
     to return dicts
     
-    Parameter
-    ---------
+    Parameters
+    ----------
     designs : iterable of tuples
     uncs : iterable of uncertainties
     
