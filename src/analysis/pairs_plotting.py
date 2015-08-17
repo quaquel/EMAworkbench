@@ -411,18 +411,19 @@ def pairs_scatter(results,
                     point_in_time should be a valid value on time
     filter_scalar: bool, optional 
                    remove the non-time-series outcomes. Defaults to True.
+
     Returns
     -------
-    fig
-        the figure instance
-    dict
-        key is tuple of names of outcomes, value is associated axes
-        instance
-    
+    fig : Figure instance
+          the figure instance
+    axes  : dict
+            key is tuple of names of outcomes, value is associated axes
+            instance
 
     .. note:: the current implementation is limited to seven different 
-          categories in case of column, categories, and/or discretesize.
-          This limit is due to the colors specified in COLOR_LIST. 
+              categories in case of column, categories, and/or discretesize.
+              This limit is due to the colors specified in COLOR_LIST. 
+    
     '''
     
     debug("generating pairwise scatter plot")

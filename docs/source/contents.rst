@@ -59,9 +59,9 @@ Workbench Content
 
 .. _simulation-control:
 
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 controllers
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 * Vensim controller (:mod:`vensim`): This enables controlling (e.g. setting 
   parameters, simulation setup, run, get output, etc.) a simulation model that 
@@ -69,9 +69,9 @@ controllers
 * Excel controller (:mod:`excel`): This enables controlling models build in 
   Excel.
 * NetLogo controller (:mod:`netlogo.py`): This enables controlling
- (e.g. setting parameters, simulation setup, 
-  run, get output, etc.) a simulation model that is built in NetLogo software, 
-  and conducting an EMA study based on this model.
+  (e.g. setting parameters, simulation setup, run, get output, etc.) a 
+  simulation model that is built in NetLogo software, and conducting an EMA 
+  study based on this model.
 
 
 .. _analysis:
