@@ -243,7 +243,7 @@ def plot_cdfs(x, y, ccdf=False):
         data = x[unc]
         if x.dtype[unc] == np.dtype('O'):
             discrete = True
-        plot_cdf(ax, unc, data, y, discrete)
+        plot_cdf(ax, unc, data, y, discrete, ccdf=ccdf)
     
     # last row might contain empty axis, 
     # let's make them disappear
