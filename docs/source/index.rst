@@ -50,6 +50,7 @@ Analysis
 
    ../../ema_documentation/analysis/prim.rst
    ../../ema_documentation/analysis/cart.rst
+   ../../ema_documentation/analysis/regional_sa.rst
    ../../ema_documentation/analysis/scenario_discovery_util.rst
    ../../ema_documentation/analysis/feature_scoring.rst
    ../../ema_documentation/analysis/plotting.rst
