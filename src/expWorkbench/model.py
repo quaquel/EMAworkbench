@@ -20,7 +20,8 @@ class ModelStructureInterface(object):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
     for performing EMA. This is an abstract base class and cannot be used 
-    directly. 
+    directly. When extending this class :meth:`model_init` and :meth:run_model
+    have to be implemented. The other methods are optional.
     
     
     Attributes
@@ -66,14 +67,6 @@ class ModelStructureInterface(object):
         EMAError if name contains non alpha-numerical characters
         
         
-        Note
-        ----
-        Anything that is relative to `self.working_directory` should be 
-        specified in `model_init` and not in `__init__`. Otherwise, the code 
-        will not work when running it in parallel. The reason for this is that 
-        the working directory is being updated by parallelEMA to the worker's 
-        separate working directory prior to calling `model_init`.
-        
         """
         self.name=None
         
@@ -109,8 +102,19 @@ class ModelStructureInterface(object):
                  gives users to the ability to pass any additional 
                  arguments. 
         
-        .. note:: This method should always be implemented. Although in simple
-                  cases, a simple pass can suffice. 
+        Note
+        ----
+        This method should always be implemented. Although in simple cases, a 
+        simple pass can suffice.
+        
+        Note
+        ----
+        Anything that is relative to `self.working_directory` should be 
+        specified in `model_init` and not in `__init__`. Otherwise, the code 
+        will not work when running it in parallel. The reason for this is that 
+        the working directory is being updated to reflect the working
+        directory of the worker
+         
         '''
     
     @abc.abstractmethod
@@ -125,7 +129,9 @@ class ModelStructureInterface(object):
                the names of the uncertainties as key, and the values to which 
                to set these uncertainties. 
         
-        .. note:: This method should always be implemented.
+        Note
+        ----
+        This method should always be implemented.
         
         """
 
