@@ -195,8 +195,9 @@ def start_logwatcher(url):
         logwatcher.start()
         try:
             logwatcher.loop.start()
-        except zmq.error.ZMQError:
+        except (zmq.error.ZMQError, IOError):
             ema_logging.warning('shutting down log watcher')
+        
     
     logwatcher_thread = threading.Thread(target=starter)
     logwatcher_thread.deamon = True

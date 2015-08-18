@@ -3,12 +3,13 @@ Created on Jul 22, 2015
 
 .. codeauthor:: jhkwakkel@tudelft.net
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import abc
 
-from expWorkbench.ema_parallel_ipython import _run_experiment,\
-                                              initialize_engines,\
-                                              set_engine_logger
-from expWorkbench.ema_parallel_multiprocessing import CalculatorPool
+from .ema_parallel_ipython import (_run_experiment, 
+                                   initialize_engines, set_engine_logger)
+from .ema_parallel_multiprocessing import CalculatorPool
 
 class AbstractPool(object):
     __metaclass__ = abc.ABCMeta

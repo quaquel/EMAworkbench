@@ -4,7 +4,8 @@ Created on 24 mei 2011
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
-
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 __all__ = ['Outcome',
            'TIME']
 
