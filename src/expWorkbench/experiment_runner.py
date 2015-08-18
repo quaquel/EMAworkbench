@@ -13,7 +13,22 @@ from . import EMAError, CaseError
 __all__ = ["ExperimentRunner"]
 
 class ExperimentRunner(object):
-    '''Helper class for running the experiments'''
+    '''Helper class for running the experiments
+    
+    This class contains the logic for initializing models properly,
+    running the experiment, getting the results, and cleaning up afterwards.
+    
+    Attributes
+    ----------
+    msi_initializiation : dict
+                          keeps track of which model is initialized with
+                          which policy. 
+    msis : dict
+           models indexed by name
+    model_kwargs : dict
+                   keyword arguments for model_init
+    
+    '''
     
     def __init__ (self, msis, model_kwargs):
         self.msi_initialization = {}
@@ -26,9 +41,8 @@ class ExperimentRunner(object):
         self.msis = None
     
     def run_experiment(self, experiment):
-        '''The logic for running a single model. This code makes
-        sure that the model is initialized properly if this has not
-        already been done.
+        '''The logic for running a single experiment. This code makes
+        sure that model(s) are initialized correctly.
         
         Parameters
         ----------
@@ -40,7 +54,7 @@ class ExperimentRunner(object):
         case : dict
         policy : str
         model_name : str
-        result :  dict
+        result : dict
         
         Raises
         ------
@@ -78,7 +92,8 @@ class ExperimentRunner(object):
                 self.cleanup()
                 raise inst
                 
-            debug("initialized model %s with policy %s" % (model_name, policy_name))
+            debug("initialized model %s with policy %s" % (model_name, 
+                                                           policy_name))
 
             self.msi_initialization = {(policy_name, model_name):self.msis[model_name]}
         msi = self.msis[model_name]

@@ -12,8 +12,7 @@ import abc
 
 __all__ = ['AbstractUncertainty',
            'ParameterUncertainty',
-           'CategoricalUncertainty'
-           ]
+           'CategoricalUncertainty']
 
 INTEGER = 'integer'
 UNIFORM = 'uniform'
@@ -21,18 +20,19 @@ UNIFORM = 'uniform'
 class AbstractUncertainty(object):
     '''
     :class:`AbstractUncertainty` provides a template for specifying different
-    types of uncertainties.
+    types of uncertainties. 
+    
+    Attributes
+    ----------
+    values : tuple
+    name : str 
+    dist : {INTEGER, UNIFORM}
+    
     '''
     __metaclass__ = abc.ABCMeta
     
-    
-    #: the values that specify the uncertainty
     values = None
-   
-    #: the name of the uncertainty
     name = None
-    
-    #: a string denoting the type of distribution to be used in sampling
     dist = None
     
     def __init__(self, values, name):
@@ -67,6 +67,7 @@ class AbstractUncertainty(object):
     def __str__(self):
         return self.name
 
+
 class ParameterUncertainty(AbstractUncertainty ):
     """
     :class:`ParameterUncertainty` is used for specifying parametric 
@@ -95,7 +96,7 @@ class ParameterUncertainty(AbstractUncertainty ):
         Raises
         ------
         ValueError
-            if the lenght of values is not equal to 2, or when the first
+            if the length of values is not equal to 2, or when the first
             element in values is larger than the second element in values
                  
         
@@ -130,25 +131,31 @@ class CategoricalUncertainty(ParameterUncertainty):
     an integer parametric uncertainty is used with each integer corresponding
     to a particular category.  This class  called by the sampler to transform 
     the integer back to the appropriate category.
-    """
     
-    #: the categories of the uncertainty
+    
+    Attributes
+    ----------
+    categories  : list or tuple
+                  list or tuple with the categories
+    
+    """
+
     categories = None
     
-    def __init__(self, values, name):
+    def __init__(self, categories, name):
         '''
         
         Parameters
         ----------
-        values: collection
+        categories: collection
                 the values for specifying the uncertainty from which to 
                 sample. Values should be a collection.
         name:str 
              name of the uncertainty
         
         '''
-        self.categories = values
-        values = (0, len(values)-1)
+        self.categories = categories
+        values = (0, len(categories)-1)
 
         super(CategoricalUncertainty, self).__init__(values, 
                                                      name, 

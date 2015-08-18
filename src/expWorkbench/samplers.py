@@ -17,23 +17,29 @@ import scipy.stats as stats
 
 from uncertainties import CategoricalUncertainty
 from abc import abstractmethod
-from _pyio import __metaclass__
 
-__all__ = ['LHSSampler',
+
+__all__ = ['AbstractSampler',
+           'LHSSampler',
            'MonteCarloSampler',
-           'FullFactorialSampler',
-           'AbstractSampler']
+           'FullFactorialSampler']
 
 class AbstractSampler(object):
     '''
-    base class from which different samplers can be derived
+    base class from which different samplers can be derived. In 
+    the simplest cases, only the sample method needs to be overwritten. 
+    
+    :meth:`generate_designs` is the only method called by the ensemble class.
+     The other methods are used internally to generate the designs. 
+    
+    
     '''
     __metaaclass__ = abc.ABCMeta
     
-    #: types of distributions known by the sampler.
-    #: by default it knows the `uniform continuous <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html>`_
-    #: distribution for sampling floats, and the `uniform discrete <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html#scipy.stats.randint>`_
-    #: distribution for sampling integers. 
+    # types of distributions known by the sampler.
+    # by default it knows the `uniform continuous <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html>`_
+    # distribution for sampling floats, and the `uniform discrete <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html#scipy.stats.randint>`_
+    # distribution for sampling integers. 
     distributions = {"uniform" : stats.uniform,
                      "integer" : stats.randint
                               }
@@ -120,8 +126,9 @@ class AbstractSampler(object):
         
         Returns
         -------
-        a generator object that yields the designs resulting from
-                combining the uncertainties
+        generator
+            a generator object that yields the designs resulting from
+            combining the uncertainties
         int
             the number of experimental designs
         
@@ -152,6 +159,7 @@ class AbstractSampler(object):
         
         return len(sampled_uncertainties.values()[0])
 
+
 class LHSSampler(AbstractSampler):
     """
     generates a Latin Hypercube sample for each of the uncertainties
@@ -163,16 +171,20 @@ class LHSSampler(AbstractSampler):
     
     def sample(self, distribution, params, size):
         '''
-        generate a Latin Hypercupe Sample.
+        generate a Latin Hypercube Sample.
         
         Parameters
         ----------
         distribution : scipy distribution
                        the distribution to sample from
-        params : ti[;e
+        params : tuple
                  the parameters specifying the distribution
         size : int
                the number of samples to generate
+    
+        Returns
+        -------
+        dict with the uncertainty.name as key, and the sample as value
     
         '''
         
@@ -181,8 +193,6 @@ class LHSSampler(AbstractSampler):
     def _lhs(self, dist, parms, siz):
         '''
         Latin Hypercube sampling of any distribution.
-
-        modified from code found `online <http://code.google.com/p/bayesian-inference/source/browse/trunk/BIP/Bayes/lhs.py?r=3cfbbaa5806f2b8cc9e2457d967b0a58a3ce459c>`_.
     
         Parameters
         ----------
@@ -221,13 +231,20 @@ class MonteCarloSampler(AbstractSampler):
                  the parameters specifying the distribution
         size : int
                the number of samples to generate
+        
+        Returns
+        -------
+        dict with the uncertainty.name as key, and the sample as value
+               
         '''
         
         return self.distributions[distribution](*params).rvs(size)
 
+
 class FullFactorialSampler(AbstractSampler):     
     '''
     generates a full factorial sample.
+    
     If the uncertainty is non categorical, resolution is used to set the 
     samples. If the uncertainty is an integer, their wont be duplicates in 
     the sample. So, samples is equal to or smaller then the specified 
@@ -297,16 +314,15 @@ class FullFactorialSampler(AbstractSampler):
         
         Returns
         -------
-        a generator object that yields the designs resulting from
-                combining the uncertainties
+        generator
+            a generator object that yields the designs resulting from
+            combining the uncertainties
         int
             the number of experimental designs
         
         '''
         sampled_uncertainties = self.generate_samples(uncertainties, nr_samples)
         uncs = sorted(sampled_uncertainties.keys())
-#         designs = itertools.product(*sampled_uncertainties.values())
-#         designs = _design_generator(designs, uncs)
         designs = FullFactorialDesigns(sampled_uncertainties, uncs)
         return designs, self.determine_nr_of_designs(sampled_uncertainties)
 
@@ -343,24 +359,27 @@ class AbstractDesigns(object):
     def __iter__(self):
         '''should return iterator'''
 
+
 class DefaultDesigns(AbstractDesigns):
     def __iter__(self):
         designs = itertools.izip(*[self.sampled_uncs[u] for u in self.uncs]) 
-        return _design_generator(designs, self.uncs)
+        return design_generator(designs, self.uncs)
+
 
 class FullFactorialDesigns(AbstractDesigns):
     def __iter__(self):
         designs = itertools.product(*[self.sampled_uncs[u] for u in self.uncs])
-        return _design_generator(designs, self.uncs)
+        return design_generator(designs, self.uncs)
 
-def _design_generator(designs, uncs):
-    '''combine the sampled uncertainties with their correct name in order
-    to return dicts
+
+def design_generator(designs, uncs):
+    '''generator that combines the sampled uncertainties with their correct 
+    name in order to return dicts.
     
     Parameters
     ----------
     designs : iterable of tuples
-    uncs : iterable of uncertainties
+    uncs : iterable of str
     
     Yields
     ------

@@ -13,6 +13,14 @@ TIME = "TIME"
 class Outcome(object):
     '''
     Outcome class
+    
+    Attributes
+    ----------
+    name : str
+    time : bool
+           If true, outcome is a time series. Default is false.
+    
+    
     '''
     
     #: name of the outcome
