@@ -26,11 +26,11 @@ __all__ = ['AbstractSampler',
 
 class AbstractSampler(object):
     '''
-    base class from which different samplers can be derived. In 
-    the simplest cases, only the sample method needs to be overwritten. 
+    Abstract base class from which different samplers can be derived. 
     
-    :meth:`generate_designs` is the only method called by the ensemble class.
-     The other methods are used internally to generate the designs. 
+    In the simplest cases, only the sample method needs to be overwritten. 
+    generate_designs` is the only method called by the ensemble class. The 
+    other methods are used internally to generate the designs. 
     
     
     '''
@@ -234,7 +234,8 @@ class MonteCarloSampler(AbstractSampler):
         
         Returns
         -------
-        dict with the uncertainty.name as key, and the sample as value
+        dict 
+            with the uncertainty.name as key, and the sample as value
                
         '''
         
@@ -245,10 +246,9 @@ class FullFactorialSampler(AbstractSampler):
     '''
     generates a full factorial sample.
     
-    If the uncertainty is non categorical, resolution is used to set the 
-    samples. If the uncertainty is an integer, their wont be duplicates in 
-    the sample. So, samples is equal to or smaller then the specified 
-    resolution
+    If the uncertainty is non categorical, the resolution is set the 
+    number of samples. If the uncertainty is categorical, the specified value 
+    for samples will be ignored and each category will be used instead. 
     
     '''
     
@@ -272,7 +272,8 @@ class FullFactorialSampler(AbstractSampler):
         
         Returns
         -------
-        dict with the uncertainty.name as key, and the sample as value
+        dict 
+            with the uncertainty.name as key, and the sample as value
         
         
         '''

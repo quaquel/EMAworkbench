@@ -20,8 +20,9 @@ class ModelStructureInterface(object):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
     for performing EMA. This is an abstract base class and cannot be used 
-    directly. When extending this class :meth:`model_init` and :meth:run_model
-    have to be implemented. The other methods are optional.
+    directly. When extending this class :meth:`model_init` and 
+    :meth:`run_model` have to be implemented. :meth:`__init__` should always
+    call super to ensure proper functioning. The other methods are optional.
     
     
     Attributes
@@ -110,9 +111,9 @@ class ModelStructureInterface(object):
         Note
         ----
         Anything that is relative to `self.working_directory` should be 
-        specified in `model_init` and not in `__init__`. Otherwise, the code 
-        will not work when running it in parallel. The reason for this is that 
-        the working directory is being updated to reflect the working
+        specified in :meth:`model_init` and not in :meth:`__init__`. Otherwise, 
+        the code will not work when running it in parallel. The reason for this 
+        is that the working directory is being updated to reflect the working
         directory of the worker
          
         '''
@@ -126,8 +127,8 @@ class ModelStructureInterface(object):
         ----------
         case : dict
                keyword arguments for running the model. The case is a dict with 
-               the names of the uncertainties as key, and the values to which 
-               to set these uncertainties. 
+               the names of the uncertainties as key, values are the values
+               to which to set these uncertainties. 
         
         Note
         ----

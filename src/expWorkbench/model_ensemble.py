@@ -52,7 +52,7 @@ class ModelEnsemble(object):
     
     .. rubric:: an illustration of use
     
-    >>> model = UserSpecifiedModelInterface(r'working directory', 'name')
+    >>> model = UserSpecifiedModelInterface('./model/', 'name')
     >>> ensemble = SimpleModelEnsemble()
     >>> ensemble.set_model_structure(model)
     >>> ensemble.parallel = True #parallel processing is turned on
@@ -63,11 +63,25 @@ class ModelEnsemble(object):
     model.uncertainties and the outcomes are assumed to be specified in
     model.outcomes.
     
+    Parameters
+    ----------
+    sampler: Sampler instance
+             the sampler to be used for generating experiments. 
+             (the default is  :class:`~samplers.LHSSampler`)
+    
+    Attributes
+    ----------
+    parallel : bool
+               whether to run in parallel or not. Default is false
+    pool : MultiprocessingPool instance or IpyparallelPool instance
+           the pool to delegate the running of experiments to in case
+           of running in parallel. If parallel is true and pool is none
+           a :class:`MultiprocessingPool` will be set up and used. 
+           
+    
     '''
     
-    #: boolean for turning parallel on (default is False)
     parallel = False
-    
     pool = None
     
     def __init__(self, sampler=LHSSampler()):
@@ -77,7 +91,7 @@ class ModelEnsemble(object):
 
         Parameters
         ----------
-        sampler: Sampler
+        sampler: Sampler instance
                  the sampler to be used for generating experiments. 
                  (the default is  :class:`~samplers.LHSSampler`)
         """
@@ -256,12 +270,12 @@ class ModelEnsemble(object):
 
     def perform_robust_optimization(self, 
                                     cases,
-                                    reporting_interval=100,
-                                    algorithm=NSGA2,
-                                    eval_pop=evaluate_population_robust,
                                     obj_function=None,
                                     policy_levers={},
                                     weights = (),
+                                    reporting_interval=100,
+                                    algorithm=NSGA2,
+                                    eval_pop=evaluate_population_robust,
                                     nr_of_generations=100,
                                     pop_size=100,
                                     crossover_rate=0.5, 
@@ -273,19 +287,13 @@ class ModelEnsemble(object):
         
         Parameters
         ----------
-        cases : In case of Latin Hypercube sampling and Monte Carlo 
-                      sampling, cases specifies the number of cases to
-                      generate. In case of Full Factorial sampling,
-                      cases specifies the resolution to use for sampling
-                      continuous uncertainties. Alternatively, one can supply
-                      a list of dicts, where each dicts contains a case.
-                      That is, an uncertainty name as key, and its value. 
-        reporting_interval : int 
-                             parameter for specifying the frequency with which 
-                             the callback reports the progress. 
-                             (Default is 100) 
-        algorithm :
-        eval_pop :
+        cases : int or list
+                In case of Latin Hypercube sampling and Monte Carlo sampling, 
+                cases specifies the number of cases to generate. In case of 
+                Full Factorial sampling, cases specifies the resolution to use 
+                for sampling continuous uncertainties. Alternatively, one can 
+                supply a list of dicts, where each dicts contains a case. That 
+                is, an uncertainty name as key, and its value. 
         obj_function : callable
                        the objective function used by the optimization
         policy_levers : dict
@@ -298,16 +306,24 @@ class ModelEnsemble(object):
         weights : tuple 
                   weights on the various outcomes of the objective function. 
                   Use the constants MINIMIZE and MAXIMIZE.
-        nr_of_generations : int
+        reporting_interval : int , optional
+                             parameter for specifying the frequency with which 
+                             the callback reports the progress. 
+                             (Default is 100) 
+        algorithm : NSGA2 instance, optional
+        eval_pop : callable, optional
+                   function for evaluating a population, defaults
+                   to :func:`evaluate_population_robust`
+        nr_of_generations : int, optional
                             the number of generations for which the GA will be 
                             run
-        pop_size : int
+        pop_size : int, optional
                    the population size for the GA
-        crossover_rate : float
+        crossover_rate : float, optional
                          crossover rate for the GA
-        mutation_rate : float
+        mutation_rate : float, optional
                         mutation_rate for the GA
-        caching: bool
+        caching: bool, optional
                  keep track of tried solutions. This is memory 
                  intensive, so should be used sparingly. Defaults to
                  False. 
@@ -331,10 +347,10 @@ class ModelEnsemble(object):
                                       **kwargs)
 
     def perform_outcome_optimization(self, 
-                                     algorithm=NSGA2,
-                                     reporting_interval=100,
                                      obj_function=None,
                                      weights = (),
+                                     algorithm=NSGA2,
+                                     reporting_interval=100,
                                      nr_of_generations=100,
                                      pop_size=100,
                                      crossover_rate=0.5, 
@@ -349,25 +365,25 @@ class ModelEnsemble(object):
         
         Parameters
         ----------    
-        reporting_interval : int
-                             parameter for specifying the frequency with
-                             which the callback reports the progress.
-                             (Default is 100) 
         obj_function : callable
                        the objective function used by the optimization
         weights : tuple
                   tuple of weights on the various outcomes of the objective 
                   function. Use the constants MINIMIZE and MAXIMIZE.
-        nr_of_generations : int
+        reporting_interval : int, optional
+                             parameter for specifying the frequency with
+                             which the callback reports the progress.
+                             (Default is 100) 
+        nr_of_generations : int, optional
                             the number of generations for which the GA will be 
                             run
-        pop_size : int
+        pop_size : int, optional
                    the population size for the GA
-        crossover_rate : float
+        crossover_rate : float, optional
                          crossover rate for the GA
-        mutation_rate : float
+        mutation_rate : float, optional
                         mutation_rate for the GA
-        caching : bool
+        caching : bool, optional
                   keep track of tried solutions. This is memory intensive, 
                   so should be used sparingly. Defaults to False. 
         """
@@ -428,10 +444,11 @@ class ModelEnsemble(object):
         
         Returns
         -------
-        An overview dictionary which shows which uncertainties or outcomes are
-        used by which model structure interface, or interfaces, and
-        a dictionary with the unique uncertainties or outcomes across all the 
-        model structure interfaces, with the name as key. 
+        tuple of dicts
+            An overview dictionary which shows which uncertainties or outcomes 
+            are used by which model structure interface, or interfaces, and a 
+            dictionary with the unique uncertainties or outcomes across all the 
+            model structure interfaces, with the name as key. 
         
         '''    
         # check whether uncertainties exist with the same name 
@@ -571,6 +588,19 @@ def experiment_generator(designs, model_structures, policies):
     '''
     
     generator function which yields experiments
+    
+    Parameters
+    ----------
+    designs : iterable of dicts
+    model_structures : list
+    policies : list
+
+    Notes
+    -----
+    this generator is essentially three nested loops: for each model structure,
+    for each policy, for each experiment, run the experiment. This means 
+    that designs should not be a generator because this will be exhausted after
+    the running the first policy on the first model. 
     
     '''
     

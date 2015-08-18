@@ -57,7 +57,7 @@ class CART(sdutil.OutputFormatterMixin):
     
     can be used in a manner similar to PRIM. It provides access
     to the underlying tree, but it can also show the boxes described by the
-    tree in a table or graph form analoge to prim.
+    tree in a table or graph form similar to prim.
     
     Attributes
     ----------
