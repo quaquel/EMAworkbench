@@ -3,16 +3,18 @@ Created on Oct 12, 2013
 
 @author: jhkwakkel
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import random
 import tempfile
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 
 import copy
-import ema_logging
-from expWorkbench.ema_exceptions import EMAError
-from expWorkbench import debug
-from expWorkbench.callbacks import DefaultCallback
+from .import ema_logging
+from .ema_exceptions import EMAError
+from .ema_logging import debug
+from .callbacks import DefaultCallback
 
 __all__ = ["mut_polynomial_bounded",
            "mut_uniform_int",

@@ -9,6 +9,8 @@ This logging system will also work in case of multiprocessing using
 :mod:`parallelEMA`.
 
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import logging
 from logging import Handler, DEBUG, INFO
 

@@ -10,13 +10,15 @@ Monte Carlo sampling.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import abc
 import itertools
 import numpy as np 
 import scipy.stats as stats
 
-from uncertainties import CategoricalUncertainty
-from abc import abstractmethod
+from .uncertainties import CategoricalUncertainty
+
 
 
 __all__ = ['AbstractSampler',
@@ -47,7 +49,7 @@ class AbstractSampler(object):
     def __init__(self):
         super(AbstractSampler, self).__init__()
 
-    @abstractmethod
+    @abc.abstractmethod
     def sample(self, distribution, params, size):
         '''
         method for sampling a number of samples from a particular distribution.

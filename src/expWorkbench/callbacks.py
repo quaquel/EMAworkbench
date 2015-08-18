@@ -3,8 +3,8 @@ Created on 22 Jan 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (division, absolute_import)
-
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 
 import abc
 from threading import Lock
@@ -159,8 +159,8 @@ class DefaultCallback(AbstractCallback):
                           uncertainty.dist==INTEGER:
                 dataType = int
             self.dtypes.append((name, dataType))
-        self.dtypes.append(('model', object))
-        self.dtypes.append(('policy', object))
+        self.dtypes.append((str('model'), object))
+        self.dtypes.append((str('policy'), object))
         
         self.cases = np.empty((nr_experiments,), dtype=self.dtypes)
         self.cases[:] = np.NAN
