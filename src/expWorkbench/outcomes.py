@@ -14,6 +14,14 @@ class Outcome(object):
     '''
     Outcome class
     
+    Parameters
+    ----------
+    name : str
+           Name of the outcome.
+    time: bool, optional
+          specifies whether the outcome is a time series or not 
+          (Default = False).  
+    
     Attributes
     ----------
     name : str
@@ -22,26 +30,11 @@ class Outcome(object):
     
     
     '''
-    
-    #: name of the outcome
+
     name = None
-    
-    #: boolean, indication of outcome is a time series or not
     time = False
     
     def __init__(self, name, time=False):
-        '''
-
-        Parameters
-        ----------
-        name : str
-               Name of the outcome.
-        time: bool
-              specifies whether the outcome is a time series or not 
-              (Default = False).  
-        
-        '''
-        
         self.name = name
         self.time = time
     

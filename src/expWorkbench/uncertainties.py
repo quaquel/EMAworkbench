@@ -22,6 +22,11 @@ class AbstractUncertainty(object):
     :class:`AbstractUncertainty` provides a template for specifying different
     types of uncertainties. 
     
+    Parameters
+    ----------
+    values : tuple
+    name : str
+    
     Attributes
     ----------
     values : tuple
@@ -73,34 +78,28 @@ class ParameterUncertainty(AbstractUncertainty ):
     :class:`ParameterUncertainty` is used for specifying parametric 
     uncertainties. An uncertainty is parametric if the range is continuous from
     the lower bound to the upper bound.
+
+    Parameters
+    ----------
+    values : tuple
+             the values for specifying the uncertainty from which to 
+             sample. Values should be a tuple with the lower and
+             upper bound for the uncertainty. These bounds are
+             inclusive. 
+    name: str
+          name of the uncertainty
+    integer: bool, optional
+             if True, the parametric uncertainty is an integer
+             
+    Raises
+    ------
+    ValueError
+        if the length of values is not equal to 2, or when the first
+        element in values is larger than the second element in values
     
-    Parametric uncertainties are either floats or integers. 
-        
     """
     
     def __init__(self, values, name, integer=False):
-        '''
-        
-        Parameters
-        ----------
-        values : tuple
-                 the values for specifying the uncertainty from which to 
-                 sample. Values should be a tuple with the lower and
-                 upper bound for the uncertainty. These bounds are
-                 inclusive. 
-        name: str
-              name of the uncertainty
-        integer: bool 
-                 if True, the parametric uncertainty is an integer
-                 
-        Raises
-        ------
-        ValueError
-            if the length of values is not equal to 2, or when the first
-            element in values is larger than the second element in values
-                 
-        
-        '''
         if len(values)!=2:
             raise ValueError("length of values for %s incorrect " % name)
         if (values[0] >= values[1]):
@@ -126,12 +125,19 @@ class CategoricalUncertainty(ParameterUncertainty):
     categorical variables. The categories can be of any type, including 
     Strings, Integers, Floats, Tuples, or any Object. As values the categories 
     are specified in a collection. 
-    
+
     Underneath, this is treated as a integer parametric uncertainty. That is,
     an integer parametric uncertainty is used with each integer corresponding
     to a particular category.  This class  called by the sampler to transform 
     the integer back to the appropriate category.
     
+    Parameters
+    ----------
+    categories: collection
+            the values for specifying the uncertainty from which to 
+            sample. Values should be a collection.
+    name:str 
+         name of the uncertainty
     
     Attributes
     ----------
@@ -143,17 +149,6 @@ class CategoricalUncertainty(ParameterUncertainty):
     categories = None
     
     def __init__(self, categories, name):
-        '''
-        
-        Parameters
-        ----------
-        categories: collection
-                the values for specifying the uncertainty from which to 
-                sample. Values should be a collection.
-        name:str 
-             name of the uncertainty
-        
-        '''
         self.categories = categories
         values = (0, len(categories)-1)
 
