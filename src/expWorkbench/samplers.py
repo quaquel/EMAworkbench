@@ -149,8 +149,9 @@ class AbstractSampler(object):
         Parameters
         ----------
         sampled_uncertainties : list 
-                        a list of sampled uncertainties, as 
-                        the values return by generate_samples
+                        a list of sampled uncertainties, Typicallly,
+                        this will be the values of the dict returned by
+                        :meth:`generate_samples`. 
         
         Returns
         -------
@@ -186,7 +187,8 @@ class LHSSampler(AbstractSampler):
     
         Returns
         -------
-        dict with the uncertainty.name as key, and the sample as value
+        dict 
+            with the uncertainty.name as key, and the sample as value
     
         '''
         

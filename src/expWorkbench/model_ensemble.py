@@ -43,31 +43,31 @@ class ModelEnsemble(object):
     responsible for running experiments on one or more model structures across
     one or more policies, and returning the results. 
     
-    The sampling is delegated to a sampler instance.
-    The storing or results is delegated to a callback instance
-    
-    the class has an attribute 'parallel' that specifies whether the 
-    experiments are to be run in parallel or not. By default, 'parallel' is 
-    False.
-    
-    .. rubric:: an illustration of use
-    
-    >>> model = UserSpecifiedModelInterface('./model/', 'name')
-    >>> ensemble = SimpleModelEnsemble()
-    >>> ensemble.set_model_structure(model)
-    >>> ensemble.parallel = True #parallel processing is turned on
-    >>> results = ensemble.perform_experiments(1000) #perform 1000 experiments
-    
-    In this example, a 1000 experiments will be carried out in parallel on 
-    the user specified model interface. The uncertainties are retrieved from 
-    model.uncertainties and the outcomes are assumed to be specified in
-    model.outcomes.
-    
     Parameters
     ----------
     sampler: Sampler instance
              the sampler to be used for generating experiments. 
              (the default is  :class:`~samplers.LHSSampler`)
+    
+
+    .. rubric:: an illustration of use
+    
+    >>> model = UserSpecifiedModelInterface('./model/', 'name')
+    >>> ensemble = SimpleModelEnsemble()
+    >>> ensemble.model_structure = model
+    >>> ensemble.parallel = True #parallel processing is turned on
+    >>> results = ensemble.perform_experiments(1000) #perform 1000 experiments
+    
+    In this example, 1000 experiments will be carried out in parallel on 
+    the user specified model interface. The uncertainties are retrieved from 
+    model.uncertainties and the outcomes are assumed to be specified in
+    model.outcomes.
+    
+    
+    The generation of designs is delegated to a sampler. See :mod:`samplers`
+    for details. The storing of results is delegated to a callback. See 
+    :mod:`callbacks` for details. 
+    
     
     Attributes
     ----------
@@ -77,7 +77,14 @@ class ModelEnsemble(object):
            the pool to delegate the running of experiments to in case
            of running in parallel. If parallel is true and pool is none
            a :class:`MultiprocessingPool` will be set up and used. 
-           
+    policies : list
+               a list of the policies to be explored. By default this contains
+               a single policy called None. The moment you assign new
+               policies to this attribute, this none policy is automoatically
+               removed. 
+    model_structures  : list
+                        a list with model structures over which to conduct
+                        the experiments.
     
     '''
     
@@ -85,18 +92,7 @@ class ModelEnsemble(object):
     pool = None
     
     def __init__(self, sampler=LHSSampler()):
-        """
-        Class responsible for running experiments on diverse model 
-        structures and storing the results.
-
-        Parameters
-        ----------
-        sampler: Sampler instance
-                 the sampler to be used for generating experiments. 
-                 (the default is  :class:`~samplers.LHSSampler`)
-        """
         super(ModelEnsemble, self).__init__()
-        self.output = {}
         self._policies = []
         self._msis = {}
         self._policies = {'None': {'name':'None'}}
@@ -162,36 +158,36 @@ class ModelEnsemble(object):
         
         Parameters
         ----------    
-        cases: int or iterable
-               In case of Latin Hypercube sampling and Monte Carlo 
-               sampling, cases specifies the number of cases to
-               generate. In case of Full Factorial sampling,
-               cases specifies the resolution to use for sampling
-               continuous uncertainties. Alternatively, one can supply
-               a list of dicts, where each dicts contains a case.
-               That is, an uncertainty name as key, and its value. 
-        callback: Callback 
-                  callable that will be called after finishing a 
-                  single experiment (default is :class:`~callbacks.DefaultCallback`)
-        reporting_interval: int
-                            parameter for specifying the frequency with
-                            which the callback reports the progress.
-                            (Default is 100) 
-        model_kwargs: dict 
-                      dictionary of keyword arguments to be passed to 
-                      model_init
-        which_uncertainties: {INTERSECTION, UNION}
-                             keyword argument for controlling whether,
-                             in case of multiple model structure 
-                             interfaces, the intersection or the union
-                             of uncertainties should be used. 
-        which_uncertainties: {INTERSECTION, UNION}
-                             keyword argument for controlling whether,
-                             in case of multiple model structure 
-                             interfaces, the intersection or the union
-                             of outcomes should be used. 
-        kwargs: dict
-                generic keyword arguments to pass on to callback
+        cases : int or iterable
+                In case of Latin Hypercube sampling and Monte Carlo 
+                sampling, cases specifies the number of cases to
+                generate. In case of Full Factorial sampling,
+                cases specifies the resolution to use for sampling
+                continuous uncertainties. Alternatively, one can supply
+                a list of dicts, where each dicts contains a case.
+                That is, an uncertainty name as key, and its value. 
+        callback : callback, optional
+                   callable that will be called after finishing a 
+                   single experiment (default is :class:`~callbacks.DefaultCallback`)
+        reporting_interval : int, optional
+                             parameter for specifying the frequency with
+                             which the callback reports the progress.
+                             (Default is 100) 
+        model_kwargs : dict, optional
+                       dictionary of keyword arguments to be passed to 
+                       model_init
+        which_uncertainties : {INTERSECTION, UNION}, optional
+                              keyword argument for controlling whether,
+                              in case of multiple model structure 
+                              interfaces, the intersection or the union
+                              of uncertainties should be used. 
+        which_outcomes : {INTERSECTION, UNION}, optional
+                          keyword argument for controlling whether,
+                          in case of multiple model structure 
+                          interfaces, the intersection or the union
+                          of outcomes should be used. 
+        kwargs : dict, optional
+                 generic keyword arguments to pass on to the callback
 
         Returns
         -------
