@@ -1,13 +1,11 @@
-
 '''
-Created on 25 mei 2011
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+convenience functions and classes to be used in combination with Vensim. 
 
-convenience functions and classes to be used in combination with Vensim.
-This module contains frequently used functions with error checking. For
-more fine grained control, the :mod:`vensimDLLwrapper` can also be used 
-directly.
+Most importantly, it specifies a generic ModelStructureInterface class
+for controlling vensim models. In addition, this module contains frequently 
+used functions with error checking. For more fine grained control, the 
+:mod:`vensimDLLwrapper` can also be used directly.
 
 '''
 from __future__ import division
@@ -24,6 +22,10 @@ from expWorkbench import debug, warning, ModelStructureInterface,\
 from vensimDLLwrapper import command, get_val
 from vensimDLLwrapper import VensimError, VensimWarning
 import vensimDLLwrapper 
+
+# Created on 25 mei 2011
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['be_quiet',
            'load_model',

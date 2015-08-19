@@ -1,10 +1,4 @@
 '''
-Created on Sep 8, 2011
-
-.. codeauthor:: 
-     gyucel <g.yucel (at) tudelft (dot) nl>,
-     jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-                
 
 a reworking of the cluster. The distance metrics have now their own .py file. 
 The metrics available are currently stored in the distance_functions 
@@ -22,6 +16,13 @@ from expWorkbench import EMAError
 
 from analysis.cluster_util import distance_mse, distance_sse,\
                                   distance_triangle, distance_gonenc
+
+# Created on Sep 8, 2011
+# 
+# .. codeauthor:: 
+#      gyucel <g.yucel (at) tudelft (dot) nl>,
+#      jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#                 
 
 distance_functions = {'gonenc': distance_gonenc,
                       'triangle':distance_triangle,

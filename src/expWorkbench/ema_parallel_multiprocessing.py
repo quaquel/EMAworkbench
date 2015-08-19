@@ -1,8 +1,4 @@
 '''
-Created on 21 dec. 2010
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
 calculator pool 
 adapted from  the pool provided in multiprocessing. This version is based 
 on the python 2.6 version.
@@ -42,6 +38,10 @@ from .experiment_runner import ExperimentRunner
 from .pool import RUN, Pool, TERMINATE
 from .ema_logging import debug, info,  NullHandler, LOG_FORMAT
 from .ema_exceptions import EMAError, EMAParallelError
+
+# Created on 21 dec. 2010
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['CalculatorPool']
 

@@ -1,13 +1,15 @@
 '''
-Created on 31 mei 2011
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 Exceptions and warning used internally by the EMA workbench. In line with 
 advice given in `PEP 8 <http://www.python.org/dev/peps/pep-0008/>`_.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+
+# Created on 31 mei 2011
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 __all__ = ['EMAError',
            'EMAWarning',
            'CaseError',

@@ -1,7 +1,8 @@
 '''
-Created on 23 dec. 2010
+This module specifies the abstract base class for interfacing with models. 
+Any model that is to be controlled from the workbench is controlled via
+an instance of an extension of this abstract base class. 
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
@@ -11,6 +12,10 @@ import os
 
 from .ema_logging import debug
 from .ema_exceptions import EMAError
+
+# Created on 23 dec. 2010
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['ModelStructureInterface']
 

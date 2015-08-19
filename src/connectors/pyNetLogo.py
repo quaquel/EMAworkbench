@@ -1,7 +1,5 @@
 '''
-Created on 21 mrt. 2013
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+Python Netlogo bridge build on top of jpype.
 '''
 try:
     import jpype
@@ -12,6 +10,10 @@ import sys
 
 from expWorkbench import debug, info, warning
 from expWorkbench.ema_exceptions import EMAError
+
+# Created on 21 mrt. 2013
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['NetLogoException',
            'NetLogoLink']

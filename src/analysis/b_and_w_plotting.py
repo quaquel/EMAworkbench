@@ -1,7 +1,8 @@
 '''
-Created on 18 sep. 2012
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+This module offers basic functionality for converting a matplotlib figure
+to black and white. The provided functionality is largely determined by
+what is needed for the workbench. 
 
 '''
 import numpy as np
@@ -10,6 +11,10 @@ import matplotlib as mpl
 from types import ListType
 from matplotlib.collections import PolyCollection, PathCollection
 from expWorkbench.ema_exceptions import EMAError
+
+# Created on 18 sep. 2012
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['set_fig_to_bw']
 

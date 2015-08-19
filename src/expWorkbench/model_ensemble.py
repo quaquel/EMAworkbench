@@ -1,8 +1,19 @@
 '''
+This module specifies the ensemble class which keeps track of the models,
+policies, and the running and storing of experiments. 
 
-Created on 23 dec. 2010
+.. rubric:: an illustration of use
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+>>> model = UserSpecifiedModelInterface('./model/', 'name')
+>>> ensemble = ModelEnsemble()
+>>> ensemble.model_structure = model
+>>> ensemble.parallel = True #parallel processing is turned on
+>>> results = ensemble.perform_experiments(1000) #perform 1000 experiments
+
+In this example, 1000 experiments will be carried out in parallel on 
+the user specified model interface. The uncertainties are retrieved from 
+model.uncertainties and the outcomes are assumed to be specified in
+model.outcomes.
 
 '''
 from __future__ import (absolute_import, print_function, division,
@@ -28,6 +39,10 @@ from .callbacks import DefaultCallback
 from .ema_parallel import MultiprocessingPool
 from . import ExperimentRunner
 
+# Created on 23 dec. 2010
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 __all__ = ['ModelEnsemble', 'MINIMIZE', 'MAXIMIZE', 'UNION', 
            'INTERSECTION']
 
@@ -50,20 +65,6 @@ class ModelEnsemble(object):
              (the default is  :class:`~samplers.LHSSampler`)
     
 
-    .. rubric:: an illustration of use
-    
-    >>> model = UserSpecifiedModelInterface('./model/', 'name')
-    >>> ensemble = SimpleModelEnsemble()
-    >>> ensemble.model_structure = model
-    >>> ensemble.parallel = True #parallel processing is turned on
-    >>> results = ensemble.perform_experiments(1000) #perform 1000 experiments
-    
-    In this example, 1000 experiments will be carried out in parallel on 
-    the user specified model interface. The uncertainties are retrieved from 
-    model.uncertainties and the outcomes are assumed to be specified in
-    model.outcomes.
-    
-    
     The generation of designs is delegated to a sampler. See :mod:`samplers`
     for details. The storing of results is delegated to a callback. See 
     :mod:`callbacks` for details. 

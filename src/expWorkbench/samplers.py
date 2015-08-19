@@ -1,13 +1,9 @@
 '''
 
-Created on 16 aug. 2011
-
 This module contains various classes that can be used for specifying different
 types of samplers. These different samplers implement basic sampling 
 techniques including Full Factorial sampling, Latin Hypercube sampling, and
 Monte Carlo sampling.
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
 from __future__ import (absolute_import, print_function, division,
@@ -19,7 +15,9 @@ import scipy.stats as stats
 
 from .uncertainties import CategoricalUncertainty
 
-
+# Created on 16 aug. 2011
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['AbstractSampler',
            'LHSSampler',

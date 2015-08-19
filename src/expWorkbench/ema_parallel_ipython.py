@@ -1,10 +1,12 @@
 '''
 This module provides functionality for combining the EMA workbench
-with IPython parallel
+with IPython parallel. 
 
-Created on Jul 16, 2015
+.. note:: the version provided here is compatible with ipython 3, and not 
+          with ipython 4 where ipython has been split into jupyter, ipyparallel
+          etc. In principle, aa simple change of imports should suffice
+          to rectify this. 
 
-.. codeauthor::  jhkwakkel
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
@@ -25,6 +27,9 @@ from . import ema_logging
 from . import util
 from . import experiment_runner
 
+# Created on Jul 16, 2015
+# 
+# .. codeauthor::  jhkwakkel
 
 SUBTOPIC = "EMA"
 engine = None

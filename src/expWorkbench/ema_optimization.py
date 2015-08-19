@@ -1,10 +1,7 @@
 '''
-Created on 21 okt. 2012
 
-Helper module with functions used by the model ensemble when perfomring
-an optimization. 
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+Helper module with functions used by the model ensemble when performing
+optimization. 
 
 '''
 from __future__ import (absolute_import, print_function, division,
@@ -22,6 +19,10 @@ from deap.tools import HallOfFame
 from . import ema_logging, debug, EMAError, info
 from .ema_optimization_util import (compare, mut_polynomial_bounded,
                         mut_uniform_int, select_tournament_dominance_crowding)
+
+# Created on 21 okt. 2012
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ["NSGA2StatisticsCallback",
            "NSGA2",

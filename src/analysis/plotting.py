@@ -1,5 +1,4 @@
 """
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
 this module provides functions for generating some basic figures. The code can
@@ -21,6 +20,8 @@ from plotting_util import (prepare_data, simple_kde, group_density, make_grid,
                            do_titles, do_ylabels, TIME, ENV_LIN, ENVELOPE,
                            LINES, PATCH, LINE, TIGHT)
 from analysis import plotting_util
+ 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['lines', 
            'envelopes', 

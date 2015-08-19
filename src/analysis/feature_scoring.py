@@ -1,8 +1,6 @@
 '''
-Created on Jul 9, 2014
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
+Feature scoring functionality 
 
 TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
 
@@ -21,6 +19,9 @@ from sklearn.linear_model.randomized_l1 import RandomizedLogisticRegression,\
     RandomizedLasso
 from sklearn.linear_model.least_angle import LassoLarsCV
 
+# Created on Jul 9, 2014
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 def _prepare_experiments(experiments):
     '''

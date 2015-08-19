@@ -1,7 +1,4 @@
 '''
-Created on 19 sep. 2011
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 This module provides a base class that can be used to perform EMA on 
 Excel models. It relies on `win32com <http://python.net/crew/mhammond/win32/Downloads.html>`_
@@ -15,6 +12,10 @@ except ImportError:
     pass
 
 from expWorkbench import ema_logging, EMAError, ModelStructureInterface
+
+# Created on 19 sep. 2011
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 class ExcelModelStructureInterface(ModelStructureInterface):
     '''
