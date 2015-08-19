@@ -232,8 +232,8 @@ class NSGA2(AbstractOptimizationAlgorithm):
             self.cache[key] = ind.fitness.values
     
     def _run_through_cache(self, individuals):
-        '''Helper function, check whether individuals already have been evaluated
-        if so use the cached value '''
+        '''Helper function, check whether individuals already have been 
+        evaluated if so use the cached value '''
         invalid_inds = [ind for ind in individuals if not ind.fitness.valid]            
         info('nr. of invalid individuals before checking cache: {}'.format(len(invalid_inds)))
         
@@ -372,7 +372,7 @@ class ParetoFront(HallOfFame):
     Since, the Pareto front hall of fame inherits from the :class:`HallOfFame`, 
     it is sorted lexicographically at every moment.
     
-    This is a  minutre modification to the original version in DEAP. Update now 
+    This is a  minute modification to the original version in DEAP. Update now 
     returns the number of changes that have been made to the front.
     
     """
