@@ -31,7 +31,15 @@ engine = None
 EMA_PROJECT_HOME_DIR = util.get_ema_project_home_dir()
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
-    '''LoggerAdapter that inserts EMA as a topic into log messages'''
+    '''LoggerAdapter that inserts EMA as a topic into log messages
+    
+    Parameters
+    ----------
+    logger : logger instance 
+    topic : str
+    
+    
+    '''
 
     def __init__(self, logger, topic):
         self.logger = logger
@@ -48,6 +56,11 @@ class LogWatcher(object):
     """A  class that receives messages on a SUB socket, as published
     by subclasses of `zmq.log.handlers.PUBHandler`, and logs them itself.
     
+    Parameters
+    ----------
+    url : string
+          the url on which to listen for log messages 
+    
     This LogWatcher subscribes to all topics and aggregates them by logging
     to the EMA logger. 
     
@@ -56,7 +69,8 @@ class LogWatcher(object):
     filtering is active on the DEBUG level, with EMA as topic.   
     
     This class is adapted from the LogWatcher in IPython.paralle.apps to 
-    fit the needs of the workbench. 
+    fit the needs of the workbench.
+
     """
 
     LOG_FORMAT = '[%(levelname)s] %(message)s'
@@ -64,15 +78,6 @@ class LogWatcher(object):
     topic_subscriptions = {logging.DEBUG : set([SUBTOPIC])}
     
     def __init__(self, url):
-        '''
-        
-        Parameters
-        ----------
-        url : string
-              the url on which to listen for log messages
-        
-        '''
-        
         super(LogWatcher, self).__init__()
         self.context = zmq.Context()
         self.loop = zmq.eventloop.ioloop.IOLoop() # @UndefinedVariable
@@ -280,6 +285,12 @@ class Engine(object):
     also functions as a convenient namespace for workbench
     relevant variables
     
+    Parameters
+    ----------
+    engine_id : int
+    msis : list
+    model_init_kwargs : dict, optional
+    
     '''
 
     def __init__(self, engine_id, msis, model_init_kwargs={}):
@@ -301,7 +312,6 @@ class Engine(object):
         '''
         dir_name = dir_name.format(self.engine_id)
         
-        #TODO::
         dir_name = os.path.join(EMA_PROJECT_HOME_DIR, dir_name)
         
         # if the directory already exists, is has not been
@@ -401,9 +411,7 @@ def setup_working_directories(client, msis):
     common_root = os.path.commonprefix(wd_by_msi.keys())
     common_root = os.path.dirname(common_root)
     rel_common_root = os.path.relpath(common_root, EMA_PROJECT_HOME_DIR)
-    # TODO: this common root should be relative to ema_project_home_dir
-    # this ensures that engine.root_dir is relative to ema_project_home
-    # on each host
+
     
     engine_wd_name = 'engine{}'
     engine_dir = os.path.join(rel_common_root, engine_wd_name)
@@ -416,8 +424,6 @@ def setup_working_directories(client, msis):
     dirs_to_copy = wd_by_msi.keys()
 #     dirs_to_copy = [os.path.relpath(wd,common_root) for wd in dirs_to_copy]
     client[:].apply_sync(_copy_working_directories, dirs_to_copy, wd_by_msi)
-    
-
 
 
 def cleanup_working_directories(client):

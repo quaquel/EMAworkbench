@@ -6,7 +6,7 @@ Created on 23 dec. 2010
 This module contains code for logging EMA processes. It is modeled on the 
 default `logging approach that comes with Python <http://docs.python.org/library/logging.html>`_. 
 This logging system will also work in case of multiprocessing using 
-:mod:`parallelEMA`.
+:mod:`ema_parallel`.
 
 '''
 from __future__ import (absolute_import, print_function, division,

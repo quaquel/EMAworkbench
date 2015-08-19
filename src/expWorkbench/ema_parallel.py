@@ -12,21 +12,22 @@ from .ema_parallel_ipython import (_run_experiment,
 from .ema_parallel_multiprocessing import CalculatorPool
 
 class AbstractPool(object):
+    '''
+    Abstract base class for a pool of workers. 
+    
+    Parameters
+    ----------
+    msis : iterable
+           iterable of model structure interface instances
+    model_kwargs : dict
+    
+    '''
+    
     __metaclass__ = abc.ABCMeta
     
     @abc.abstractmethod
     def __init__(self, msis, model_kwargs={}):
-        ''' 
-        initialize the pool
-        
-        
-        Parameters
-        ----------
-        msis : iterable
-               iterable of model structure interface instances
-        model_kwargs : dict
-        
-        '''
+        pass
         
     @abc.abstractmethod
     def perform_experiments(self, callback, experiments):
@@ -43,6 +44,11 @@ class AbstractPool(object):
     
 
 class MultiprocessingPool(AbstractPool):
+    '''
+    Extension of AbstractPool which wraps the multiprocessing pool.
+    
+    
+    '''
 
     def __init__(self, msis, model_kwargs={}, nr_processes=None):
         self._pool = CalculatorPool(msis, processes=nr_processes, 
@@ -52,21 +58,20 @@ class MultiprocessingPool(AbstractPool):
         self._pool.run_experiments(experiments, callback)
 
 class IpyparallelPool(AbstractPool):
+    '''
+    Extension of AbstractPool which wraps a ipyparallel cluster.
+    
+    Parameters
+    ----------
+    msis : iterable
+           iterable of model structure interface instances
+    cliet : IPython.parallel.client instance
+    model_kwargs : dict
+        
+    
+    '''
     
     def __init__(self, msis, client, model_kwargs={}):
-        ''' 
-        initialize the pool
-        
-        
-        Parameters
-        ----------
-        msis : iterable
-               iterable of model structure interface instances
-        cliet : IPython.parallel.client instance
-        model_kwargs : dict
-        
-        '''
-        
         self.client = client
         
         # update loggers on all engines

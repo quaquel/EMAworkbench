@@ -18,6 +18,11 @@ class ExperimentRunner(object):
     This class contains the logic for initializing models properly,
     running the experiment, getting the results, and cleaning up afterwards.
     
+    Parameters
+    ----------
+    msis : dict
+    model_kwargs : dict
+    
     Attributes
     ----------
     msi_initializiation : dict

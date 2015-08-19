@@ -25,10 +25,14 @@ from .ema_optimization_util import (compare, mut_polynomial_bounded,
 
 __all__ = ["NSGA2StatisticsCallback",
            "NSGA2",
-           "epsNSGA2"]
+           "epsNSGA2",
+           "ParetoFront",
+           "EpsilonParetoFront"]
 
 
 class AbstractOptimizationAlgorithm(object):
+    '''Abstract base class for optimization algorithms'''
+    
     
     __metaclass__ = abc.ABCMeta
     
@@ -99,6 +103,8 @@ class AbstractOptimizationAlgorithm(object):
 
 
 class NSGA2(AbstractOptimizationAlgorithm):
+    '''NSGA2 algorithm'''
+    
     tournament_size = 2
     
     def __init__(self, weights, levers, generate_individual, obj_function,
@@ -247,6 +253,8 @@ class NSGA2(AbstractOptimizationAlgorithm):
 
 
 class epsNSGA2(NSGA2):
+    ''' epsilon-NSGA2 algorithm'''
+    
     message = "reset population: pop size: {}; archive: {}; tournament size: {}"
 
     def __init__(self, weights, levers, generate_individual, obj_function,
