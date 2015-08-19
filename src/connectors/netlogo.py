@@ -1,7 +1,6 @@
 '''
-Created on 15 mrt. 2013
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+This module specifies a generic ModelStructureInterface for controlling
+NetLogo models. 
 '''
 try:
     import jpype
@@ -14,6 +13,10 @@ import numpy as np
 from expWorkbench import (ModelStructureInterface, warning, debug)
                          
 import pyNetLogo
+
+# Created on 15 mrt. 2013
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['NetLogoModelStructureInterface']
 

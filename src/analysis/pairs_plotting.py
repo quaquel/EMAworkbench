@@ -1,5 +1,5 @@
 '''
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 
 This module provides R style pairs plotting functionality.
 
@@ -16,6 +16,8 @@ from expWorkbench.ema_logging import debug, info
 from plotting_util import prepare_pairs_data, make_legend
 import plotting_util
 from analysis.plotting_util import SCATTER, LINE
+
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['pairs_scatter', 'pairs_lines', 'pairs_density']
 

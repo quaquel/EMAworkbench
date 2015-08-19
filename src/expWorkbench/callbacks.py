@@ -1,7 +1,16 @@
 '''
-Created on 22 Jan 2013
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+This module provides an abstract base class for a callback and a default
+implementation.
+
+If you want to store the data in a way that is different from the 
+functionality provided by the default callback, you can write your own 
+extension of callback. For example, you can easily implement a callback
+that stores the data in e.g. a NoSQL file.  
+
+The only method to implement is the __call__ magic method. To use logging of
+progress, always call super. 
+
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
@@ -17,6 +26,12 @@ from .ema_logging import info, debug
 from .uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER
+
+#
+# Created on 22 Jan 2013
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#
 
 __all__ = ['AbstractCallback',
            'DefaultCallback']
@@ -39,13 +54,18 @@ class AbstractCallback(object):
                          the interval at which to provide progress information 
                          via logging.
 
+    Attributes
+    ----------
+    i : int
+        a counter that keeps track of how many experiments have been saved
+    reporting_interval : int
+                         the frequency at which to log progress
+
     '''
     __metaclass__ = abc.ABCMeta
     
-    
     i = 0
     reporting_interval = 100
-    results = []
     
     def __init__(self, 
                  uncertainties, 

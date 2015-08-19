@@ -1,7 +1,6 @@
 '''
-Created on Aug 11, 2015
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+helper module for running experiments and keeping track of which model
+has been initialized with which policy. 
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
@@ -9,6 +8,11 @@ import copy
 
 from . import debug, warning, exception
 from . import EMAError, CaseError
+
+
+# Created on Aug 11, 2015
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ["ExperimentRunner"]
 

@@ -1,14 +1,10 @@
 '''
-Created on 13 jan. 2011
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 This module provides various convenience functions and classes.
 
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-
 
 import bz2
 import ConfigParser
@@ -28,6 +24,9 @@ from deap import creator, base
 from . import info, debug, warning
 from expWorkbench import EMAError
 
+# Created on 13 jan. 2011
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['load_results',
            'save_results',

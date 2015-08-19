@@ -1,7 +1,5 @@
 '''
-Created on May 24, 2015
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+Scenario discovery utilities used by both :mod:`cart` and :mod:`prim`
 '''
 import abc
 import matplotlib as mpl
@@ -14,6 +12,9 @@ from types import StringType, FloatType, IntType
 from expWorkbench import ema_logging
 from analysis.plotting_util import COLOR_LIST
 
+# Created on May 24, 2015
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 def _get_sorted_box_lims(boxes, box_init):
     '''Sort the uncertainties for each box in boxes based on a normalization

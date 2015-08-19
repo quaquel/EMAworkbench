@@ -1,7 +1,6 @@
 '''
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-
+Plotting utility functions
 
 '''
 from __future__ import division
@@ -21,6 +20,9 @@ import matplotlib.cm as cm
 
 from expWorkbench.ema_exceptions import EMAError
 from expWorkbench.ema_logging import info, warning
+
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 
 '''
 

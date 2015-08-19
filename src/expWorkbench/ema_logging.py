@@ -1,7 +1,4 @@
 '''
-Created on 23 dec. 2010
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 This module contains code for logging EMA processes. It is modeled on the 
 default `logging approach that comes with Python <http://docs.python.org/library/logging.html>`_. 
@@ -13,6 +10,10 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import logging
 from logging import Handler, DEBUG, INFO
+
+# Created on 23 dec. 2010
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ =['debug',
           'info',

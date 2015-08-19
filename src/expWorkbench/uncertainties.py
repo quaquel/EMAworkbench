@@ -1,16 +1,18 @@
 '''
 
-Created on 16 aug. 2011
-
 This module contains various classes that can be used for specifying different
 types of uncertainties.
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import abc
+
+# Created on 16 aug. 2011
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 
 __all__ = ['AbstractUncertainty',
            'ParameterUncertainty',

@@ -1,7 +1,8 @@
 '''
-Created on Oct 12, 2013
 
-@author: jhkwakkel
+This module provides utility classes and functions for performing optimization
+
+
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
@@ -27,6 +28,10 @@ __all__ = ["mut_polynomial_bounded",
            "closest_multiple_of_four",
            "compare",
            ]
+
+# Created on Oct 12, 2013
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 #create a correct way of initializing the individual
 def generate_individual_outcome(icls, attr_list, keys):

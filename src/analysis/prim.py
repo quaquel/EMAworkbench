@@ -1,8 +1,16 @@
 '''
-Created on 22 feb. 2013
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+A scenario discovery oriented implementation of PRIM.
 
+The implementation of prim provided here is datatype aware, so
+categorical variables will be handled appropriately. It also uses a 
+non-standard objective function in the peeling and pasting phase of the
+algorithm. This algorithm looks at the increase in the mean divided 
+by the amount of data removed. So essentially, it uses something akin
+to the first order derivative of the original objective function. 
+
+The implementation is designed for interactive use in combination with the
+ipython notebook. 
 
 '''
 from __future__ import division, print_function
@@ -32,6 +40,10 @@ from analysis.plotting_util import make_legend
 from expWorkbench import info, debug, EMAError
 from analysis import pairs_plotting
 from analysis import scenario_discovery_util as sdutil
+
+# Created on 22 feb. 2013
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox', 'PrimException']
 

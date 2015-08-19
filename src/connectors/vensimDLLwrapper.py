@@ -1,7 +1,4 @@
 '''
-Created on 21 okt. 2010
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 this is a first draft for wrapping the vensim dll in a pythonic way
 
@@ -26,6 +23,10 @@ try:
     WindowsError
 except NameError:
     WindowsError = None
+
+# Created on 21 okt. 2010
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 class VensimWarning(EMAWarning):
     '''

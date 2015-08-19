@@ -1,7 +1,4 @@
 '''
-Created on Aug 18, 2015
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 Module offers support for performing basic regional sensitvity analysis. The
 module can be used to perform regional sensitivity analysis on all 
@@ -18,6 +15,12 @@ import numpy as np
 import numpy.lib.recfunctions as rf
 import seaborn as sns
 
+# Created on Aug 18, 2015
+# 
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
+__all__ = ['plot_cdf',
+           'plot_cdfs']
 
 cp = sns.color_palette()
 
