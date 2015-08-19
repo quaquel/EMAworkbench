@@ -119,8 +119,8 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
     
 def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
                        ccdf):
-    '''plot a continuous cdf on ax for data,
-    grouping data by logical index.
+    '''plot a continuous cdf on ax for data,grouping data by the groups
+    specified in y.
     
     Parameters
     ----------
@@ -205,9 +205,8 @@ def plot_cdf(ax, unc, x, y, discrete=False,
         
 
 def plot_cdfs(x, y, ccdf=False):
-    '''plot cumulative density functions for
-    each column in x, based on logical index 
-    specified in y.
+    '''plot cumulative density functions for each column in x, based on the 
+    classification specified in y.
     
     Parameters
     ----------
