@@ -257,13 +257,13 @@ def merge_results(results1, results2, downsample=None):
     ----------
     results1 : tuple
                first results to be merged
-    results2: tuple
-              second results to be merged
-    downsample: int 
-                should be an integer, will be used in slicing the results
-                in order to avoid memory problems. 
-    
-    Results
+    results2 : tuple
+               second results to be merged
+    downsample : int 
+                 should be an integer, will be used in slicing the results
+                 in order to avoid memory problems. 
+
+    Returns
     -------
     the merged results
     

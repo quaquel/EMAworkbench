@@ -33,11 +33,18 @@ def generate_individual_outcome(icls, attr_list, keys):
     '''
     Helper function for generating an individual in case of outcome 
     optimization
+
+    Parameters
+    ----------
+    icls : class of the individual
+    attr_list : list
+                list of initializers for each attribute
+    keys : str
+           the name of each attribute
     
-    :param icls: class of the individual
-    :param attr_list: list of initializers for each attribute
-    :param keys: the name of each attribute
-    :returns: an instantiated individual
+    Returns
+    -------
+    an instantiated individual
     
     '''
     ind = icls()
@@ -53,10 +60,17 @@ def select_tournament_dominance_crowding(individuals, k, nr_individuals):
     
     This selection requires the individuals to have a :attr:`crowding_dist`
     attribute, which can be set by the :func:`assignCrowdingDist` function.
+
+    Parameters
+    ----------
+    individuals : list
+                  A list of individuals to select from.
+    k : int
+        The number of individuals to select.
     
-    :param individuals: A list of individuals to select from.
-    :param k: The number of individuals to select.
-    :returns: A list of selected individuals.
+    Returns
+    -------
+    A list of selected individuals.
     """
     def binary_tournament(ind1, ind2):
         if ind1.fitness.dominates(ind2.fitness):
@@ -104,11 +118,18 @@ make_name = MakeName()
 def generate_individual_robust(icls, attr_list, keys):
     '''
     Helper function for generating an individual in case of robust optimization
+
+    Parameters
+    ----------
+    icls: class of the individual
+    attr_list : list
+                list of initializers for each attribute
+    keys : str
+           the name of each attribute
     
-    :param icls: class of the individual
-    :param attr_list: list of initializers for each attribute
-    :param keys: the name of each attribute
-    :returns: an instantiated individual
+    Returns
+    -------  
+    an instantiated individual
     
     '''
     ind = generate_individual_outcome(icls, attr_list, keys)
@@ -119,12 +140,18 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None,
                                **kwargs):
     '''
     Helper function for evaluating a population in case of robust optimization
-    
-    :param population: the population to evaluate
-    :param ri: reporinting interval
-    :param toolbox: deap toolbox instance
-    :param ensemble: the ensemble instance running the optimization
-    :param cases: the cases to use in the robust optimization
+
+    Parameters
+    ----------
+    population : list
+                 the population to evaluate
+    ri : int
+        reporinting interval
+    toolbox: deap toolbox instance
+    ensemble : ModelEnsemble instance
+               the ensemble instance running the optimization
+    cases : list
+            the cases to use in the robust optimization
     
     '''
     for policy in population:
@@ -163,11 +190,16 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None,
 def evaluate_population_outcome(population, ri, toolbox, ensemble):
     '''
     Helper function for evaluating a population in case of outcome optimization
-    
-    :param population: the population to evaluate
-    :param ri: reporting interval
-    :param toolbox: deap toolbox instance
-    :param ensemble: the ensemble instance running the optimization
+
+    Parameters
+    ----------
+    population : list
+                  the population to evaluate
+    ri : int    
+         reporting interval
+    toolbox : deap toolbox instance
+    ensemble : ModelEnsemble instance
+               the ensemble instance running the optimization
     
     '''
     
@@ -210,14 +242,22 @@ def mut_polynomial_bounded(individual, eta, policy_levers, keys, indpb):
     TODO:: this should be done differently. It should be possible to specify
     the mutator type for each allele, preventing categorical data from using
     this mutator.
+
+    Parameters
+    ----------
+    individual : object
+                 Individual to be mutated.
+    eta : float
+          Crowding degree of the mutation. A high eta will produce a mutant 
+          resembling its parent, while a small eta will produce a solution 
+          much more different.
+    policy_levers :
+    keys :
+    indpb : 
     
-    :param individual: Individual to be mutated.
-    :param eta: Crowding degree of the mutation. A high eta will produce
-                a mutant resembling its parent, while a small eta will
-                produce a solution much more different.
-    :param policy_levers:
-    :param keys:
-    :returns: A tuple of one individual.
+    Returns
+    ------- 
+    A tuple of one individual.
     """
         
     for key in keys:
@@ -278,9 +318,13 @@ def compare(ind1, ind2):
     '''
     Helper function for comparing to individuals. Returns True if all fields
     are the same, otherwise False.
-    
-    :param ind1: individual 1
-    :param ind2: individual 2
+
+    Parameters
+    ----------
+    ind1 : object
+           individual 1
+    ind2 : object
+           individual 2
     
     '''
     
@@ -305,13 +349,18 @@ def closest_multiple_of_four(number):
 def mut_uniform_int(individual, policy_levers, keys):
     """Mutate an individual by replacing attributes, with probability *indpb*,
     by a integer uniformly drawn between *low* and *up* inclusively.
+
+    Parameters
+    ----------
+    low: The lower bound of the range from wich to draw the new
+                integer.
+    up: The upper bound of the range from wich to draw the new
+                integer.
+    indpb: Probability for each attribute to be mutated.
     
-    :param low: The lower bound of the range from wich to draw the new
-                integer.
-    :param up: The upper bound of the range from wich to draw the new
-                integer.
-    :param indpb: Probability for each attribute to be mutated.
-    :returns: A tuple of one individual.
+    Returns
+    ------- 
+    A tuple of one individual.
     """
     for _, entry in enumerate(policy_levers.iteritems()):
         if random.random() < 1/len(policy_levers.keys()):

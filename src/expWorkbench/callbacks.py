@@ -23,9 +23,22 @@ __all__ = ['AbstractCallback',
 
 class AbstractCallback(object):
     '''
-    Base class from which different call back classes can be derived.
+    Abstract base class from which different call back classes can be derived.
     Callback is responsible for storing the results of the runs.
-    
+
+    Parameters
+    ----------
+    uncs : list
+            a list of the uncertainties over which the experiments 
+            are being run.
+    outcomes : list
+               a list of outcomes
+    nr_experiments : int
+                     the total number of experiments to be executed
+    reporting_interval : int, optional 
+                         the interval at which to provide progress information 
+                         via logging.
+
     '''
     __metaclass__ = abc.ABCMeta
     
@@ -39,23 +52,6 @@ class AbstractCallback(object):
                  outcomes,
                  nr_experiments,
                  reporting_interval=100):
-        '''
-        
-        Parameters
-        ----------
-        uncs : list
-                a list of the uncertainties over which the experiments 
-                are being run.
-        outcomes : list
-                   a list of outcomes
-        nr_experiments : int
-                         the total number of experiments to be executed
-        reporting_interval : int 
-                             the interval at which to provide
-                             progress information via logging.
-        
-                
-        '''
         self.reporting_interval = reporting_interval
             
     @abc.abstractmethod
@@ -63,7 +59,9 @@ class AbstractCallback(object):
         '''
         Method responsible for storing results. The implementation in this
         class only keeps track of how many runs have been completed and 
-        logging this. 
+        logging this. Any extension of AbstractCallback needs to implement
+        this method. If one want to use the logging provided here, call it via
+        super.
         
         Parameters
         ----------
@@ -90,7 +88,8 @@ class AbstractCallback(object):
     def get_results(self):
         """
         method for retrieving the results. Called after all experiments have 
-        been completed
+        been completed. Any extension of AbstractCallback needs to implement
+        this method.
         """
 
         
