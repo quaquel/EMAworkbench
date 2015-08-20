@@ -3,7 +3,7 @@ Installing the workbench
 ************************
 
 The workbench is presently not yet available via any of the python
-package managers such as pip. The code is available from `github <https://github.com/quaquel/EMAworkbench.>`_
+package managers such as pip. The code is available from `github <https://github.com/quaquel/EMAworkbench.>`_.
 The code comes with a requirements.txt file that indicates the key 
 dependencies. Basically, if you have a standard scientific computing 
 distribution for python such as the Anaconda distribution, most of the 
@@ -14,7 +14,7 @@ the directory where the code is located to python's search path. ::
    import sys
    sys.path.append(“./EMAworkbench/src/”) # or whather your directory is
 
-In addition to the libraries available in Anaconda, you will need `deap <https://pypi.python.org/pypi/deap/>`_,
+In addition to the libraries available in Anaconda, you will need `deap <https://pypi.python.org/pypi/deap/>`_, 
 `jpype <http://jpype.readthedocs.org/en/latest/>`_ for NetLogo support, 
 `mpld3 <http://mpld3.github.io/>`_ for interactive plots, and `pydot <https://pypi.python.org/pypi/pydot/>`_ 
 and  Graphviz for some of the visualizations. Of these, deap is essential, the
