@@ -34,6 +34,7 @@ import pandas as pd
 try:
     import mpld3
 except ImportError:
+    global mpld3
     mpdl3 = None
 
 from analysis.plotting_util import make_legend

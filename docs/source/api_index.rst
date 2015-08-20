@@ -23,10 +23,19 @@ Core
    ../../ema_documentation/expWorkbench/ema_optimization_util.rst
    ../../ema_documentation/expWorkbench/util.rst
 
+Connectors
+^^^^^^^^^^
+.. toctree::
+   :maxdepth: 2
+
+   ../../ema_documentation/connectors/vensim.rst
+   ../../ema_documentation/connectors/vensimDLLwrapper.rst
+   ../../ema_documentation/connectors/netlogo.rst
+   ../../ema_documentation/connectors/pyNetLogo.rst
+   ../../ema_documentation/connectors/excel.rst
 
 Analysis
 ^^^^^^^^
-
 .. toctree::
    :maxdepth: 2
 
@@ -40,15 +49,3 @@ Analysis
    ../../ema_documentation/analysis/b_and_w_plotting.rst
    ../../ema_documentation/analysis/plotting_util.rst
    ../../ema_documentation/analysis/clusterer.rst
-
-
-Connectors
-^^^^^^^^^^
-.. toctree::
-   :maxdepth: 2
-
-   ../../ema_documentation/connectors/vensim.rst
-   ../../ema_documentation/connectors/vensimDLLwrapper.rst
-   ../../ema_documentation/connectors/netlogo.rst
-   ../../ema_documentation/connectors/pyNetLogo.rst
-   ../../ema_documentation/connectors/excel.rst
