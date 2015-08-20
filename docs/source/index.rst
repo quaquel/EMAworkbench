@@ -49,6 +49,7 @@ the details of the API.
    :maxdepth: 2
    
    ./overview.rst
+   ./installation.rst
    ./tutorial.rst
    ./vensim-tips-and-tricks.rst
    ./api_index.rst
