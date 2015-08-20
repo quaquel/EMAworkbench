@@ -2,7 +2,6 @@
 
 Feature scoring functionality 
 
-TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
 
 '''
 from types import StringType
@@ -22,6 +21,8 @@ from sklearn.linear_model.least_angle import LassoLarsCV
 # Created on Jul 9, 2014
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#
+# TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
 
 def _prepare_experiments(experiments):
     '''

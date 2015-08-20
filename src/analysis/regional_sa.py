@@ -170,14 +170,20 @@ def plot_cdf(ax, unc, x, y, discrete=False,
     
     Parameters
     ----------
-    ax : axes 
+    ax : Axes instance
+         axes on which to plot the cdf
     unc : str
+          the name of the uncertainty
     x : ndarray of shape (1,)
+        the data to plot
     y : ndarray(1,)
+        the categorization for the data
     discrete : bool, optional
+               if true, plot a discrete cdf. Default is false.
     legend : bool, optional
     xticklabels_on : bool, optional
     ccdf : bool, optional
+           if true, plot a complementary cdf instead of a normal cdf.
     
     '''
 
@@ -216,7 +222,7 @@ def plot_cdfs(x, y, ccdf=False):
     x : recarray
         the experiments to use in the cdfs
     y : ndaray 
-        the logical indexing
+        tthe categorization for the data
     ccdf : bool, optional
            if true, plot a complementary cdf 
            instead of a normal cdf.
@@ -265,5 +271,3 @@ def plot_cdfs(x, y, ccdf=False):
     fig.legend(proxies, labels, "upper center")
 
     return fig
-
-
