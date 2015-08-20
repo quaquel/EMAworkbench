@@ -24,9 +24,9 @@ including one way of handling policies.
 
 .. _A-simple-model-in-python:
 
-************************
+========================
 A simple model in Python
-************************
+========================
 
 In order to perfom EMA on a model. The first step is to extent  
 :class:`~model.ModelStructureInterface`. ::
@@ -120,9 +120,9 @@ invoing the :meth:`perform_experiments`.
 
 .. _A-simple-model-in-Vensim:
 
-************************
+========================
 A simple model in Vensim
-************************
+========================
 
 In order to perfom EMA on a model build in Vensim, we can either extent
 :class:`~model.ModelStructureInterface` or use 
@@ -217,9 +217,9 @@ to the INFO level, which in most cases is sufficient. For more details see
 
 .. _A-simple-model-in-Excel:
 
-***********************
+=======================
 A simple model in Excel
-***********************
+=======================
 
 In order to perform EMA on an Excel model, the easiest is to use 
 :class:`~excel.ExcelModelStructureInterface` as the base class. This base
@@ -249,9 +249,9 @@ Excel model.
 
 .. _A-more-elaborate-example-Mexican-Flu:
 
-*************************************
+=====================================
 A more elaborate example: Mexican Flu
-*************************************
+=====================================
 
 This example is derived from `Pruyt & Hamarat (2010) <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf>`_.
 This paper presents a small exploratory System Dynamics model related to the 
@@ -261,9 +261,9 @@ understanding about the possible dynamics of this new flu variant and to
 perform rough-cut policy explorations. Later, the model was also used to further 
 develop and illustrate Exploratory Modelling and Analysis.
 
-============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Mexican Flu: the basic model
-============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In the first days, weeks and months after the first reports about the outbreak 
 of a new flu variant in Mexico and the USA, much remained unknown about the 
@@ -396,9 +396,9 @@ results  on say Windows, but still open them on say MacOs.  The extensions
 it is found convenient to easily identify saved results. 
 
 
-=====================
+^^^^^^^^^^^^^^^^^^^^^
 Mexican Flu: policies
-=====================
+^^^^^^^^^^^^^^^^^^^^^
 
 For this paper, policies were developed by using the system understanding 
 of the analysts. 

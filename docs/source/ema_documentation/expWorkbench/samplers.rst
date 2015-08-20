@@ -1,6 +1,6 @@
-****************************
-:mod:`expWorkbench.samplers`
-****************************
+***************
+:mod:`samplers`
+***************
 
 .. automodule:: expWorkbench.samplers
    :members:

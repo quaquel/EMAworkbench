@@ -1,6 +1,6 @@
-********************************
-:mod:`expWorkbench.ema_parallel`
-********************************
+*******************
+:mod:`ema_parallel`
+*******************
 
 .. automodule:: expWorkbench.ema_parallel
    :members:
