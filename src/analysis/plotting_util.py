@@ -24,11 +24,7 @@ from expWorkbench.ema_logging import info, warning
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
-'''
 
-Default color list
-
-'''
 COLOR_LIST = ['b',
               'g',
               'r',
@@ -44,30 +40,35 @@ COLOR_LIST = ['b',
               'y',
               'k'
                 ]
+'''Default color list'''
 
-
-'''
-
-Parameter controlling whether tight layout from matplotlib should be used
-
-'''
 TIGHT = False
+'''Parameter controlling whether tight layout from matplotlib should be used'''
 
-'''
-
-Default key for time
-
-'''
 TIME = "TIME"
+'''Default key for time'''
 
 ENVELOPE = 'envelope'
+'''constant for plotting envelopes'''
+
 LINES = 'lines'
+'''constant for plotting lines'''
+
 ENV_LIN = "env_lin"
+'''constant for plotting envelopes with lines'''
 
 KDE = 'kde'
+'''constant for plotting density as a kernel density estimate'''
+
 HIST = 'hist'
+'''constant for plotting density as a histogram'''
+
 BOXPLOT = 'boxplot'
+'''constant for plotting density as a boxplot'''
+
 VIOLIN = 'violin'
+'''constant for plotting density as a violin plot, which combines a
+Gaussian density estimate with a boxplot'''
 
 # used for legend
 LINE = 'line'
