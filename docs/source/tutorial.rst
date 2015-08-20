@@ -101,7 +101,7 @@ code snippet ::
 
    model = SimplePythonModel(None, 'simpleModel') #instantiate the model
    ensemble = ModelEnsemble() #instantiate an ensemble
-   ensemble.set_model_structure(model) #set the model on the ensemble
+   ensemble.model_structures = model #set the model on the ensemble
    results = ensemble.perform_experiments(1000) #generate 1000 cases
 
 
@@ -194,7 +194,7 @@ perform EMA on the simple Vensim model. ::
     ensemble = ModelEnsemble()
     
     #set the model on the ensemble
-    ensemble.set_model_structure(vensimModel)
+    ensemble.model_structures = vensimModel
     
     #run in parallel, if not set, FALSE is assumed
     ensemble.parallel = True
@@ -351,7 +351,7 @@ Assuming we have imported :class:`~model_ensemblel.ModelEnsemble` and
    model = FluModel(r'..\..\models\flu', "fluCase")
    
    ensemble = ModelEnsemble()
-   ensemble.set_model_structure(model)
+   ensemble.model_structure = model
    ensemble.parallel = True
    
    results = ensemble.perform_experiments(1000)
@@ -382,19 +382,11 @@ for a series of experiments and save these results. One can then use these
 saved results in various analysis scripts. ::
 
    from expWorkbench.util import save_results
-   save_results(results, model.workingDirectory+r'\1000 runs.bz2')
+   save_results(results, r'./1000 runs.tar.gz')
 
 The above code snippet shows how we can use :func:`~util.save_results` for
-saving the results of our experiments. :func:`~util.save_results` stores the results
-using `cPickle <http://docs.python.org/library/pickle.html>`_ and 
-`bz2 <http://docs.python.org/2/library/bz2.html>`_. It is 
-recommended to use :func:`~util.save_results`, instead of using 
-`cPickle <http://docs.python.org/library/pickle.html>`_ directly, to guarantee 
-cross-platform useability of the stored results. That is, one can generate the 
-results  on say Windows, but still open them on say MacOs.  The extensions 
-`.bz2` is strictly speaking not necessary, any file extension can be used, but 
-it is found convenient to easily identify saved results. 
-
+saving the results of our experiments. :func:`~util.save_results` stores the as
+csv files in a tarbal.  
 
 ^^^^^^^^^^^^^^^^^^^^^
 Mexican Flu: policies
@@ -420,12 +412,11 @@ file based on the policy. After this, we call the super. ::
 
        def model_init(self, policy, kwargs):
         '''initializes the model'''
-        
-        try:
-            self.modelFile = policy['file']
-        except KeyError:
-            logging.warning("key 'file' not found in policy")
-        super(FluModel, self).model_init(policy, kwargs)
+           try:
+               self.model_file = policy['file']
+           except KeyError:
+               ema_logging.warning("key 'file' not found in policy")
+           super(FluModel, self).model_init(policy, kwargs)
 
 Now, our model can react to different policies, but we still have to 
 add these policies to :class:`ModelEnsemble`. We therefore make 
@@ -442,7 +433,7 @@ add this list of policies to the ensemble. ::
                 {'name': 'adaptive policy',
                  'file': r'\FLUvensimV1dynamic.vpm'}
                 ]
-    ensemble.add_policies(policies)
+    ensemble.policies = policies
 
 We can now proceed in the same way as before, and perform a series of
 experiments. Together, this results in the following code:
