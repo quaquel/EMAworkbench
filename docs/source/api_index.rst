@@ -1,26 +1,8 @@
-.. EMA workbench documentation master file, created by
-   sphinx-quickstart on Wed Sep 07 13:56:32 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-.. meta::
-   :description: The index of the full documentaton of the exploratory modeling
-                 workbench
-
-***************************
-EMA Workbench documentation
-***************************
-
-.. htmlonly::
-
-    :Release: |version|
-    :Date: |today|
-
 EMA Modules
 ===========
 
-The Core of the Workbench
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Core
+^^^^
 
 .. toctree::
    :maxdepth: 2
@@ -54,7 +36,7 @@ Analysis
    ../../ema_documentation/analysis/scenario_discovery_util.rst
    ../../ema_documentation/analysis/feature_scoring.rst
    ../../ema_documentation/analysis/plotting.rst
-	../../ema_documentation/analysis/pairs_plotting.rst   
+   ../../ema_documentation/analysis/pairs_plotting.rst   
    ../../ema_documentation/analysis/b_and_w_plotting.rst
    ../../ema_documentation/analysis/plotting_util.rst
    ../../ema_documentation/analysis/clusterer.rst
@@ -70,13 +52,3 @@ Connectors
    ../../ema_documentation/connectors/netlogo.rst
    ../../ema_documentation/connectors/pyNetLogo.rst
    ../../ema_documentation/connectors/excel.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-* :ref:`glossary`
-
