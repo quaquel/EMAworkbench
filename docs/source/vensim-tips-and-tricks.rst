@@ -163,30 +163,30 @@ uncertainties. ::
 
 Setting policy parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-The following modification to :meth:`model_init` allows us to set policy 
-related parameters. ::
+The following modification to :meth:`model_init` and :meth:`run_model `allows 
+us to set policy related parameters. ::
  
    def model_init(self, policy, kwargs):
       # call super
       super(self, ClassName).model_init(self, policy, kwargs)
+      self.policy = policy
       
-      #get model parameters from policy
-      policy.pop('name') #remove the name from the dict
+   der run_model(self, case)
+      for key, value in self.policy:
+         if key=="name": continue
+         case[key] = value
       
-      #the remainder of the keys specify policy parameters
-      for key, value in policy.items():
-         vensim.set_value(key, value)
-      
-the reason for first calling :meth:`super` is that in the :meth:`super`, vensim 
-is started and the model is loaded. After that, we can use 
-:func:`~vensim.set_value` to set the parameters specified in policy. We can now 
-add policies to :class:`~model.SimpleModelEnsemble` using  
-:meth:`~model.SimpleModelEnsemble.set_policy`. ::
+      super(self, ClassName).run_model(self, case)
+ 
+The trick is to add the policy related variables to the case and use 
+the normal procedures in :meth:`run_model` to set all variables in one go. 
+Policies always have a name field, which we need to ignore, hence the check if 
+key equals "name". We can now add policies to :class:`~model.ModelEnsemble` by 
+assigning to the policies attribue ::
 
-   policies = [{'name': 'policy1', 'param1': 5,'param2': 1.2},
-               {'name': 'policy2', 'param1': 7,'param2': 0.8},
-               {'name': 'base case'}]
-   ensemble.set_policies(policies              
+   ensemble.policies = [{'name': 'policy1', 'param1': 5,'param2': 1.2},
+                        {'name': 'policy2', 'param1': 7,'param2': 0.8},
+                        {'name': 'base case'}]              
 
 .. _debugging:
 
