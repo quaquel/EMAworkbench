@@ -8,7 +8,11 @@ The code comes with a requirements.txt file that indicates the key
 dependencies. Basically, if you have a standard scientific computing 
 distribution for python such as the Anaconda distribution, most of the 
 dependencies will already be met. Currently, the workbench only works with
-python 2.7.  
+python 2.7. Once you have dowloaded the code, do not forget to add
+the directory where the code is located to python's search path. ::  
+
+   import sys
+   sys.path.append(“./EMAworkbench/src/”) # or whather your directory is
 
 In addition to the libraries available in Anaconda, you will need `deap <https://pypi.python.org/pypi/deap/>`_,
 `jpype <http://jpype.readthedocs.org/en/latest/>`_ for NetLogo support, 
