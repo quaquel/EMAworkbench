@@ -13,7 +13,8 @@ The implementation is designed for interactive use in combination with the
 ipython notebook. 
 
 '''
-from __future__ import division, print_function
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 
 from types import StringType, FloatType, IntType
 from operator import itemgetter
@@ -37,10 +38,10 @@ except ImportError:
     global mpld3
     mpdl3 = None
 
-from analysis.plotting_util import make_legend
+from .plotting_util import make_legend
 from expWorkbench import info, debug, EMAError
-from analysis import pairs_plotting
-from analysis import scenario_discovery_util as sdutil
+from . import pairs_plotting
+from . import scenario_discovery_util as sdutil
 
 # Created on 22 feb. 2013
 # 

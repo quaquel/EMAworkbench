@@ -5,7 +5,8 @@ this module provides functions for generating some basic figures. The code can
 be used as is, or serve as an example for writing your own code. 
 
 """
-from __future__ import division
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import copy
 import types
 
@@ -15,11 +16,11 @@ import numpy as np
 
 from expWorkbench.ema_logging import debug, warning
 from expWorkbench.ema_exceptions import EMAError
-from plotting_util import (prepare_data, simple_kde, group_density, make_grid,
+from .plotting_util import (prepare_data, simple_kde, group_density, make_grid,
                            make_legend, plot_envelope, simple_density, 
                            do_titles, do_ylabels, TIME, ENV_LIN, ENVELOPE,
                            LINES, PATCH, LINE, TIGHT)
-from analysis import plotting_util
+from . import plotting_util
  
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 

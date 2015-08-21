@@ -5,7 +5,9 @@ The metrics available are currently stored in the distance_functions
 dictionary.
 
 '''
-from __future__ import division
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import fcluster, linkage, dendrogram, inconsistent
 from scipy.spatial.distance import squareform
@@ -167,7 +169,7 @@ def make_data_structure(clusters, distRow, runLogs):
         originalIndices = np.where(clusters==i)
         originalIndex = originalIndices[0][min_cIndex]
 
-        print originalIndex
+        print(originalIndex)
 
         a = list(np.where(clusters==i)[0])
         a = [int(entry) for entry in a]
@@ -256,18 +258,18 @@ def flatcluster(dRow, runLogs,
     clusters = fcluster(z, cValue, cMethod)
     
     noClusters = max(clusters)
-    print 'Total number of clusters:', noClusters
+    print('Total number of clusters:', noClusters)
     for i in range(noClusters):
         counter = 0
         for j in range(len(clusters)):
             if clusters[j]==(i+1):
                 counter+=1
-        print "Cluster",str(i+1),":",str(counter)
+        print("Cluster",str(i+1),":",str(counter))
     
     global clusterCount
     clusterCount = noClusters
-    print len(clusters)
-    print len(runLogs)
+    print(len(clusters))
+    print(len(runLogs))
     for i, log in enumerate(runLogs):
         log[0]['Cluster'] = str(clusters[i])
     
