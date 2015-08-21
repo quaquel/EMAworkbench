@@ -4,6 +4,9 @@ Feature scoring functionality
 
 
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 from types import StringType
 from operator import itemgetter
 

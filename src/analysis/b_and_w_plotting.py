@@ -5,6 +5,9 @@ to black and white. The provided functionality is largely determined by
 what is needed for the workbench. 
 
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 import numpy as np
 from matplotlib.colors import ColorConverter
 import matplotlib as mpl

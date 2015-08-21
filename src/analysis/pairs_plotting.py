@@ -1,10 +1,11 @@
 '''
 
-
 This module provides R style pairs plotting functionality.
 
 '''
-from __future__ import division
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -13,9 +14,9 @@ import matplotlib.cm as cm
 
 from expWorkbench.ema_logging import debug, info
 
-from plotting_util import prepare_pairs_data, make_legend
-import plotting_util
-from analysis.plotting_util import SCATTER, LINE
+from .plotting_util import prepare_pairs_data, make_legend
+from . import plotting_util
+from .plotting_util import SCATTER, LINE
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 

@@ -4,7 +4,8 @@ wrapper around scikit-learn's version of CART.
 
 
 '''
-from __future__ import division, print_function
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 
 import types
 
@@ -14,7 +15,7 @@ from sklearn import tree
 from sklearn.externals.six import StringIO
 
 from expWorkbench import ema_logging
-import scenario_discovery_util as sdutil
+from . import scenario_discovery_util as sdutil
 
 # Created on May 22, 2015
 # 

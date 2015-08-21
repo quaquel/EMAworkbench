@@ -1,6 +1,8 @@
 '''
 Scenario discovery utilities used by both :mod:`cart` and :mod:`prim`
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import abc
 import matplotlib as mpl
 import matplotlib.pyplot as plt
