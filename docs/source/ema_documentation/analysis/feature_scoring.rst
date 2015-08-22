@@ -2,5 +2,5 @@
 :mod:`feature_scoring`
 **********************
 
-.. automodule:: feature_scoring
+.. automodule:: analysis.feature_scoring
    :members:

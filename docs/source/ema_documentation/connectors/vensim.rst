@@ -2,5 +2,5 @@
 :mod:`vensim`
 *************
 
-.. automodule:: vensim
+.. automodule:: connectors.vensim
    :members:

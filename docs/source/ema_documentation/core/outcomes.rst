@@ -2,5 +2,5 @@
 :mod:`outcomes`
 ***************
 
-.. automodule:: expWorkbench.outcomes
+.. automodule:: core.outcomes
    :members:

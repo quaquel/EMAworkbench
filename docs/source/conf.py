@@ -18,10 +18,7 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 
-sys.path.append(os.path.abspath('../../src/'))
-sys.path.append(os.path.abspath('../../src/analysis'))
-sys.path.append(os.path.abspath('../../src/analysis/cluster_util'))
-sys.path.append(os.path.abspath('../../src/connectors'))
+sys.path.append(os.path.abspath('../../ema_workbench/'))
 
 
 # -- General configuration -----------------------------------------------------

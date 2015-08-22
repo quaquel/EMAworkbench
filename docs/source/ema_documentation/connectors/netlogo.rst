@@ -2,5 +2,5 @@
 :mod:`netlogo`
 **************
 
-.. automodule:: netlogo
+.. automodule:: connectors.netlogo
    :members:

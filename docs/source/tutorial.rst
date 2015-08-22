@@ -115,7 +115,7 @@ invoing the :meth:`perform_experiments`.
 
 .. rubric:: The complete code:
 
-.. literalinclude:: ../../src/examples/python_example.py
+.. literalinclude:: ../../examples/python_example.py
    :linenos:
 
 .. _A-simple-model-in-Vensim:
@@ -212,7 +212,7 @@ to the INFO level, which in most cases is sufficient. For more details see
 
 .. rubric:: The complete code
 
-.. literalinclude:: ../../src/examples/vensim_example.py
+.. literalinclude:: ../../examples/vensim_example.py
    :linenos:
 
 .. _A-simple-model-in-Excel:
@@ -231,7 +231,7 @@ the decimal seperator and thousands seperator are set correctly in Excel. This
 can be checked via file > options > advanced. These seperators should follow
 the `anglo saxon convention <http://en.wikipedia.org/wiki/Decimal_mark>`_. 
 
-.. literalinclude:: ../../src/examples/excel_example.py
+.. literalinclude:: ../../examples/excel_example.py
    :linenos:
 
 The example is relatively straight forward. We add multiple 
@@ -336,7 +336,7 @@ normal contact rate region 2                             10             200
 
 Together, this results in the following code:
 
-.. literalinclude:: ../../src/examples/flu_vensim_no_policy_example.py
+.. literalinclude:: ../../examples/flu_vensim_no_policy_example.py
    :linenos:
 
 We can now instantiate the model, instantiate an ensemble, and set the model on 
@@ -438,7 +438,7 @@ add this list of policies to the ensemble. ::
 We can now proceed in the same way as before, and perform a series of
 experiments. Together, this results in the following code:
 
-.. literalinclude:: ../../src/examples/flu_vensim_example.py
+.. literalinclude:: ../../examples/flu_vensim_example.py
    :linenos:
 
 comparison of results
@@ -450,7 +450,7 @@ But using :func:`pairs_scatter`. It shows for the three different policies
 their behavior on the total number of deaths, the hight of the heighest peak
 of the pandemic, and the point in time at which this peak was reached. 
 
-.. literalinclude:: ../../src/examples/flu_pairsplot.py
+.. literalinclude:: ../../examples/flu_pairsplot.py
    :linenos:
 
 .. rubric:: no policy

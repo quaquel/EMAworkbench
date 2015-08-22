@@ -2,7 +2,7 @@
 :mod:`pairs plotting`
 *********************
 
-.. automodule:: pairs_plotting
+.. automodule:: analysis.pairs_plotting
    :members:
 
 

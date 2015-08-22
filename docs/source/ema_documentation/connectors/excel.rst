@@ -1,5 +1,5 @@
 ************
 :mod:`excel`
 ************
-.. automodule:: excel
+.. automodule:: connectors.excel
    :members:

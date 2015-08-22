@@ -2,5 +2,5 @@
 :mod:`cart`
 ***********
 
-.. automodule:: cart
+.. automodule:: analysis.cart
    :members:

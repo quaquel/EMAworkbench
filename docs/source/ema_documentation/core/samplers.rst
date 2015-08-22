@@ -2,7 +2,7 @@
 :mod:`samplers`
 ***************
 
-.. automodule:: expWorkbench.samplers
+.. automodule:: core.samplers
    :members:
 
 

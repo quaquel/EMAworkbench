@@ -2,5 +2,5 @@
 :mod:`util`
 ***********
 
-.. automodule:: expWorkbench.util
+.. automodule:: util.util
    :members:
