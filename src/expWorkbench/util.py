@@ -7,11 +7,16 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import bz2
-import ConfigParser
-import cPickle
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
+# import cPickle
 import math
 import os
-import StringIO
+from io import BytesIO, StringIO
 import tarfile
 
 from matplotlib.mlab import rec2csv, csv2rec
@@ -21,8 +26,8 @@ from pandas.io.parsers import read_csv
 
 from deap import creator, base
 
-from . import info, debug, warning
-from expWorkbench import EMAError
+from .ema_logging import info, debug, warning
+from .ema_exceptions import EMAError
 
 # Created on 13 jan. 2011
 # 
@@ -86,7 +91,7 @@ def load_results(file_name):
         metadata = {entry[0]: entry[1:] for entry in metadata}
 
         # load outcomes
-        for outcome, shape in metadata.iteritems():
+        for outcome, shape in metadata.items():
             shape = list(shape)
             shape[0] = shape[0][1:]
             shape[-1] = shape[-1][0:-1]
@@ -142,7 +147,7 @@ def save_results(results, file_name):
         tarinfo = tarfile.TarInfo(filename)
         tarinfo.size = len(string_to_add)
         
-        z.addfile(tarinfo, StringIO.StringIO(string_to_add))  
+        z.addfile(tarinfo, BytesIO(string_to_add.encode('UTF-8')))  
     
     def save_numpy_array(fh, data):
         data = pd.DataFrame(data)
@@ -151,7 +156,7 @@ def save_results(results, file_name):
     experiments, outcomes = results
     with tarfile.open(file_name, 'w:gz') as z:
         # write the x to the zipfile
-        experiments_file = StringIO.StringIO()
+        experiments_file = BytesIO()
         rec2csv(experiments, experiments_file, withheader=True)
         add_file(z, experiments_file.getvalue(), 'experiments.csv')
         
@@ -169,8 +174,8 @@ def save_results(results, file_name):
         add_file(z, outcome_meta, "outcomes metadata.csv")
         
         # outcomes
-        for key, value in outcomes.iteritems():
-            fh = StringIO.StringIO()
+        for key, value in outcomes.items():
+            fh = BytesIO()
             
             nr_dim = len(value.shape)
             if nr_dim==3:
@@ -180,7 +185,7 @@ def save_results(results, file_name):
                     fh = fh.getvalue()
                     fn = '{}_{}.csv'.format(key, i)
                     add_file(z, fh, fn)
-                    fh = StringIO.StringIO()
+                    fh = BytesIO()
             else:
                 save_numpy_array(fh, value)
                 fh = fh.getvalue()
@@ -313,52 +318,52 @@ def merge_results(results1, results2, downsample=None):
     return mr  
 
 
-def load_optimization_results(file_name, weights, zipped=True):
-    '''
-    load the specified bz2 file. the file is assumed to be saves
-    using save_results.
-    
-    Parameters
-    ----------    
-    file_name : str
-                the path of the file
-    zipped : bool
-            load the pickled data from a zip file if True
-    
-    Returns
-    -------
-    the unpickled results
-    
-    Raises
-    ------
-    IOError 
-        if file not found
-    EMAError 
-        if specified weights do not match weights in data set
-    
-    '''
-    creator.create("Fitness", base.Fitness, weights=weights)
-    creator.create("Individual", dict, 
-                   fitness=creator.Fitness) #@UndefinedVariable
-    
-    file_name = os.path.abspath(file_name)
-    debug("loading "+file_name)
-    try:
-        if zipped:
-            file_name = bz2.BZ2File(file_name, 'rb')
-        else:
-            file_name = open(file_name, 'rb')
-        
-        results = cPickle.load(file_name)
-        
-        if results[0].weights != weights:
-            raise EMAError("weights are %s, should be %s" % (weights, 
-                                                        results[0].weights))
-    except IOError:
-        warning(file_name + " not found")
-        raise
-    
-    return results
+# def load_optimization_results(file_name, weights, zipped=True):
+#     '''
+#     load the specified bz2 file. the file is assumed to be saves
+#     using save_results.
+#     
+#     Parameters
+#     ----------    
+#     file_name : str
+#                 the path of the file
+#     zipped : bool
+#             load the pickled data from a zip file if True
+#     
+#     Returns
+#     -------
+#     the unpickled results
+#     
+#     Raises
+#     ------
+#     IOError 
+#         if file not found
+#     EMAError 
+#         if specified weights do not match weights in data set
+#     
+#     '''
+#     creator.create("Fitness", base.Fitness, weights=weights)
+#     creator.create("Individual", dict, 
+#                    fitness=creator.Fitness) #@UndefinedVariable
+#     
+#     file_name = os.path.abspath(file_name)
+#     debug("loading "+file_name)
+#     try:
+#         if zipped:
+#             file_name = bz2.BZ2File(file_name, 'rb')
+#         else:
+#             file_name = open(file_name, 'rb')
+#         
+#         results = cPickle.load(file_name)
+#         
+#         if results[0].weights != weights:
+#             raise EMAError("weights are %s, should be %s" % (weights, 
+#                                                         results[0].weights))
+#     except IOError:
+#         warning(file_name + " not found")
+#         raise
+#     
+#     return results
 
 
 def get_ema_project_home_dir():
@@ -366,7 +371,7 @@ def get_ema_project_home_dir():
     directory = os.path.dirname(__file__)
     fn = os.path.join(directory, config_file_name)
     
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     parsed = config.read(fn)
     
     if parsed:

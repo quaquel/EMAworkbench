@@ -8,20 +8,22 @@ used functions with error checking. For more fine grained control, the
 :mod:`vensimDLLwrapper` can also be used directly.
 
 '''
-from __future__ import division
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import types
 import decimal
 import math
 import numpy as np
 
-from expWorkbench import debug, warning, ModelStructureInterface,\
-                         Outcome, CaseError, EMAWarning, AbstractUncertainty,\
-                         ParameterUncertainty, CategoricalUncertainty,\
-                         EMAError
 
-from vensimDLLwrapper import command, get_val
-from vensimDLLwrapper import VensimError, VensimWarning
-import vensimDLLwrapper 
+from expWorkbench import (ModelStructureInterface, Outcome, 
+                          ParameterUncertainty, CategoricalUncertainty)
+from expWorkbench .ema_logging import debug, info, warning
+from expWorkbench .uncertainties import AbstractUncertainty
+from expWorkbench .ema_exceptions import EMAError, EMAWarning, CaseError
+
+from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
+from . import vensimDLLwrapper 
 
 # Created on 25 mei 2011
 # 
@@ -369,7 +371,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
             try:
                 results[output.name] = result
             except ValueError as e:
-                print "what"
+                print("what")
                 raise e
         self.output = results   
         if error:

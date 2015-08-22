@@ -5,7 +5,6 @@ Created on Nov 24, 2011
 '''
 import numpy as np
 
-from expWorkbench import EMAError
 from expWorkbench.ema_logging import info
 
 def trdist(d1,d2):

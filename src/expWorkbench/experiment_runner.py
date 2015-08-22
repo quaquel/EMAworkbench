@@ -6,8 +6,8 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import copy
 
-from . import debug, warning, exception
-from . import EMAError, CaseError
+from . import ema_logging
+from .ema_exceptions import EMAError, CaseError
 
 
 # Created on Aug 11, 2015
@@ -80,28 +80,28 @@ class ExperimentRunner(object):
         experiment_id = experiment.pop('experiment id')
         policy_name = policy['name']
         
-        debug("running policy {} for experiment {}".format(policy_name, 
+        ema_logging.debug("running policy {} for experiment {}".format(policy_name, 
                                                            experiment_id))
         
         # check whether we already initialized the model for this 
         # policy
-        if not self.msi_initialization.has_key((policy_name, model_name)):
+        if not (policy_name, model_name) in self.msi_initialization.keys():
             try:
-                debug("invoking model init")
+                ema_logging.debug("invoking model init")
                 msi = self.msis[model_name]
                 
                 msi.model_init(copy.deepcopy(policy), 
                                      copy.deepcopy(self.model_kwargs))
             except EMAError as inst:
-                exception(inst)
+                ema_logging.exception(inst)
                 self.cleanup()
                 raise inst
             except Exception as inst:
-                exception("some exception occurred when invoking the init")
+                ema_logging.exception("some exception occurred when invoking the init")
                 self.cleanup()
                 raise inst
                 
-            debug("initialized model %s with policy %s" % (model_name, 
+            ema_logging.debug("initialized model %s with policy %s" % (model_name, 
                                                            policy_name))
 
             self.msi_initialization = {(policy_name, model_name):self.msis[model_name]}
@@ -109,14 +109,14 @@ class ExperimentRunner(object):
 
         case = copy.deepcopy(experiment)
         try:
-            debug("trying to run model")
+            ema_logging.debug("trying to run model")
             msi.run_model(case)
         except CaseError as e:
-            warning(str(e))
+            ema_logging.warning(str(e))
             
-        debug("trying to retrieve output")
+        ema_logging.debug("trying to retrieve output")
         result = msi.retrieve_output()
         
-        debug("trying to reset model")
+        ema_logging.debug("trying to reset model")
         msi.reset_model()
         return experiment_id, case, policy, model_name, result      

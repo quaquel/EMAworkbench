@@ -22,9 +22,9 @@ import zmq
 import IPython
 from IPython.config import Application
 
-from . import EMAError, EMAParallelError
-from . import ema_logging
+from . import ema_exceptions
 from . import util
+from . import ema_logging
 from . import experiment_runner
 
 # Created on Jul 16, 2015
@@ -365,10 +365,10 @@ class Engine(object):
         
         try:
             return self.runner.run_experiment(experiment) 
-        except EMAError:
+        except ema_exceptions.EMAError:
             raise
         except Exception:
-            raise EMAParallelError(str(Exception))
+            raise ema_exceptions.EMAParallelError(str(Exception))
        
 
 def initialize_engines(client, msis, model_init_kwargs={}):

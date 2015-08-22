@@ -13,8 +13,7 @@ import numpy.lib.recfunctions as recfunctions
 
 import copy
 from .import ema_logging
-from .ema_exceptions import EMAError
-from .ema_logging import debug
+from . import ema_exceptions
 from .callbacks import DefaultCallback
 
 __all__ = ["mut_polynomial_bounded",
@@ -181,7 +180,7 @@ def evaluate_population_robust(population, ri, toolbox, ensemble, cases=None,
             last = value
         else:
             if last != value:
-                raise EMAError("something horribly wrong")
+                raise ema_exceptions.EMAError("something horribly wrong")
     
     for member in population:
         member_outcomes = {}
@@ -392,7 +391,7 @@ class MemmapCallback(DefaultCallback):
     
     def _store_result(self, case_id, result):
         for outcome in self.outcomes:
-            debug("storing {}".format(outcome))
+            ema_logging.debug("storing {}".format(outcome))
             
             try:
                 outcome_res = result[outcome]
@@ -408,7 +407,7 @@ class MemmapCallback(DefaultCallback):
                     shape = data.shape
                     
                     if len(shape)>2:
-                        raise EMAError(self.shape_error_msg.format(len(shape)))
+                        raise ema_exceptions.EMAError(self.shape_error_msg.format(len(shape)))
                     
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)

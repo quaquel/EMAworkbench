@@ -3,12 +3,8 @@ Created on Dec 19, 2011
 
 @author: gyucel
 '''
-
-
-
 import numpy as np
 
-from expWorkbench import EMAError
 from expWorkbench.ema_logging import info
 
 def msedist(d1,d2):

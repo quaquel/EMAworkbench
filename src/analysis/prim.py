@@ -16,7 +16,7 @@ ipython notebook.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-from types import StringType, FloatType, IntType
+# from types import FloatType, IntType
 from operator import itemgetter
 import copy
 import math
@@ -39,7 +39,8 @@ except ImportError:
     mpdl3 = None
 
 from .plotting_util import make_legend
-from expWorkbench import info, debug, EMAError
+from expWorkbench.ema_logging import info, debug
+from expWorkbench.ema_exceptions import EMAError
 from . import pairs_plotting
 from . import scenario_discovery_util as sdutil
 
@@ -681,7 +682,7 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     else:
         drop_names = set(rf.get_names(results[0].dtype))-set(incl_unc)
         x = rf.drop_fields(results[0], drop_names, asrecarray=True)
-    if type(classify)==StringType:
+    if isinstance(classify, str):
         y = results[1][classify]
     elif callable(classify):
         y = classify(results[1])
@@ -1188,8 +1189,8 @@ class Prim(sdutil.OutputFormatterMixin):
                 peel.discard(entry)
                 temp_box[u][:] = peel
                 
-                if type(list(entries)[0]) not in (StringType, FloatType, 
-                                                  IntType):
+                if type(list(entries)[0]) not in (str, float, 
+                                                  int):
                     bools = []                
                     for element in list(x[u]):
                         if element != entry:

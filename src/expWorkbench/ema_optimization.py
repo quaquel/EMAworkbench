@@ -16,7 +16,8 @@ import pandas as pd
 from deap import base, creator, tools
 from deap.tools import HallOfFame
 
-from . import ema_logging, debug, EMAError, info
+from . import ema_logging
+from .ema_exceptions import EMAError
 from .ema_optimization_util import (compare, mut_polynomial_bounded,
                         mut_uniform_int, select_tournament_dominance_crowding)
 
@@ -133,7 +134,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
         
         '''
         
-        debug("Start of evolution")
+        ema_logging.debug("Start of evolution")
         
         new_pop = self.toolbox.population(self.pop_size)
         
@@ -236,7 +237,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
         '''Helper function, check whether individuals already have been 
         evaluated if so use the cached value '''
         invalid_inds = [ind for ind in individuals if not ind.fitness.valid]            
-        info('nr. of invalid individuals before checking cache: {}'.format(len(invalid_inds)))
+        ema_logging.info('nr. of invalid individuals before checking cache: {}'.format(len(invalid_inds)))
         
         for invalid_ind in invalid_inds:
             # construct key
@@ -250,7 +251,7 @@ class NSGA2(AbstractOptimizationAlgorithm):
                 pass
 
         invalid_inds = [ind for ind in individuals if not ind.fitness.valid]            
-        info('nr. of invalid individuals after checking cache: {}'.format(len(invalid_inds)))
+        ema_logging.info('nr. of invalid individuals after checking cache: {}'.format(len(invalid_inds)))
 
 
 class epsNSGA2(NSGA2):

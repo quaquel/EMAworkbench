@@ -10,8 +10,8 @@ import numpy.lib.recfunctions as rf
 import unittest
 
 from expWorkbench.callbacks import DefaultCallback
-from expWorkbench import ParameterUncertainty, Outcome
-from expWorkbench.uncertainties import CategoricalUncertainty
+from expWorkbench.outcomes import Outcome
+from expWorkbench.uncertainties import CategoricalUncertainty, ParameterUncertainty
 from expWorkbench.ema_exceptions import EMAError
 
 class TestDefaultCallback(unittest.TestCase):

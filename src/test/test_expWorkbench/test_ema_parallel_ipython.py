@@ -27,6 +27,7 @@ from IPython.parallel.apps.launcher import (LocalProcessLauncher,
 
 import expWorkbench.ema_parallel_ipython as ema
 from expWorkbench import ema_logging
+from expWorkbench import experiment_runner
 import expWorkbench
 from expWorkbench.ema_exceptions import EMAError, EMAParallelError
 
@@ -373,7 +374,7 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(engine_id, engine.engine_id)
         self.assertEqual(msis, engine.msis)
         self.assertEqual(kwargs, engine.runner.model_kwargs)
-        self.assertEqual(expWorkbench.ExperimentRunner, type(engine.runner))
+        self.assertEqual(experiment_runner.ExperimentRunner, type(engine.runner))
     
     @mock.patch('expWorkbench.ema_parallel_ipython.os') 
     @mock.patch('expWorkbench.ema_parallel_ipython.shutil') 
@@ -403,7 +404,7 @@ class TestEngine(unittest.TestCase):
         mock_msi = mock.create_autospec(expWorkbench.ModelStructureInterface) # @UndefinedVariable
         mock_msi.name = 'test'
         
-        mock_runner = mock.create_autospec(expWorkbench.ExperimentRunner)
+        mock_runner = mock.create_autospec(experiment_runner.ExperimentRunner)
         
         kwargs = {}
         msis = {mock_msi.name: mock_msi}

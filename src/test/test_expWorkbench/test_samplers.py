@@ -7,8 +7,8 @@ Created on 21 jan. 2013
 import unittest
 
 
-from expWorkbench import LHSSampler, MonteCarloSampler, FullFactorialSampler
-from expWorkbench import ParameterUncertainty, CategoricalUncertainty
+from expWorkbench.samplers import LHSSampler, MonteCarloSampler, FullFactorialSampler
+from expWorkbench.uncertainties import ParameterUncertainty, CategoricalUncertainty
 
 class SamplerTestCase(unittest.TestCase):
     uncertainties = [ParameterUncertainty((0,10), "1"),
