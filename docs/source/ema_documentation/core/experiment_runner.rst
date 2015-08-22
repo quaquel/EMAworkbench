@@ -2,5 +2,5 @@
 :mod:`experiment_runner`
 ************************
 
-.. automodule:: expWorkbench.experiment_runner
+.. automodule:: core.experiment_runner
    :members:

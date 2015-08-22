@@ -2,5 +2,5 @@
 :mod:`plotting`
 ***************
 
-.. automodule:: plotting
+.. automodule:: analysis.plotting
    :members:

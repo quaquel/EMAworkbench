@@ -2,5 +2,5 @@
 :mod:`regional_sa`
 ******************
 
-.. automodule:: regional_sa
+.. automodule:: analysis.regional_sa
    :members:

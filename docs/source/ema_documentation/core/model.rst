@@ -2,5 +2,5 @@
 :mod:`model`
 ************
 
-.. automodule:: expWorkbench.model
+.. automodule:: core.model
    :members:

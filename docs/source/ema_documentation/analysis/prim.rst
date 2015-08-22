@@ -2,5 +2,5 @@
 :mod:`prim`
 ***********
 
-.. automodule:: prim
+.. automodule:: analysis.prim
    :members:

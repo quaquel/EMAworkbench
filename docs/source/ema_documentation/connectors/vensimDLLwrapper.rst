@@ -2,5 +2,5 @@
 :mod:`vensimDLLwrapper`
 ***********************
 
-.. automodule:: vensimDLLwrapper
+.. automodule:: connectors.vensimDLLwrapper
    :members:

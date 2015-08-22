@@ -2,5 +2,5 @@
 :mod:`uncertainties`
 ********************
 
-.. automodule:: expWorkbench.uncertainties
+.. automodule:: core.uncertainties
    :members:

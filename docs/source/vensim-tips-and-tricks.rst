@@ -210,7 +210,7 @@ workbench, we can then open the modified model in Vensim and spot the error.
 
 The following script can be used for this purpose.
 
-.. literalinclude:: ../../src/examples/model_debugger.py
+.. literalinclude:: ../../examples/model_debugger.py
    :linenos:
 
  

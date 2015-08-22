@@ -2,5 +2,5 @@
 :mod:`ema_parallel`
 *******************
 
-.. automodule:: expWorkbench.ema_parallel
+.. automodule:: core.ema_parallel
    :members:

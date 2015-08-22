@@ -2,5 +2,5 @@
 :mod:`plotting util`
 ********************
 
-.. automodule:: plotting_util
+.. automodule:: analysis.plotting_util
    :members:

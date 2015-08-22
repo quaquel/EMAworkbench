@@ -2,5 +2,5 @@
 :mod:`model_ensemble`
 *********************
 
-.. automodule:: expWorkbench.model_ensemble
+.. automodule:: core.model_ensemble
    :members:

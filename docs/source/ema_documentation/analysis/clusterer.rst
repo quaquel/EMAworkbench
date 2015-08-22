@@ -2,5 +2,5 @@
 :mod:`clusterer`
 ****************
 
-.. automodule:: clusterer
+.. automodule:: analysis.clusterer
    :members:

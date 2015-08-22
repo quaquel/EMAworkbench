@@ -2,5 +2,5 @@
 :mod:`ema_optimization`
 ***********************
 
-.. automodule:: expWorkbench.ema_optimization
+.. automodule:: core.ema_optimization
    :members:
