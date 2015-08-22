@@ -7,9 +7,9 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import abc
 
-from .ema_parallel_ipython import (_run_experiment, 
-                                   initialize_engines, set_engine_logger)
-from .ema_parallel_multiprocessing import CalculatorPool
+from .ema_parallel_ipython import (set_engine_logger, initialize_engines, 
+                                   _run_experiment)
+from .ema_parallel_multiprocessing import CalculatorPool 
 
 # Created on Jul 22, 2015
 # 

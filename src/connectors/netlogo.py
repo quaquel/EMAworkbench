@@ -2,6 +2,9 @@
 This module specifies a generic ModelStructureInterface for controlling
 NetLogo models. 
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 try:
     import jpype
 except ImportError:
@@ -10,9 +13,10 @@ import os
 
 import numpy as np
 
-from expWorkbench import (ModelStructureInterface, warning, debug)
+from expWorkbench.model import ModelStructureInterface
+from expWorkbench.ema_logging import warning, debug
                          
-import pyNetLogo
+from . import pyNetLogo
 
 # Created on 15 mrt. 2013
 # 

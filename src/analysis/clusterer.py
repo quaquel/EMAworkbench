@@ -14,7 +14,7 @@ from scipy.spatial.distance import squareform
 import numpy as np
 
 from expWorkbench.ema_logging import info
-from expWorkbench import EMAError
+from expWorkbench.ema_exceptions import EMAError
 
 from analysis.cluster_util import distance_mse, distance_sse,\
                                   distance_triangle, distance_gonenc

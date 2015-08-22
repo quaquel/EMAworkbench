@@ -4,6 +4,9 @@ This module provides a base class that can be used to perform EMA on
 Excel models. It relies on `win32com <http://python.net/crew/mhammond/win32/Downloads.html>`_
 
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 import numpy as np
 try:
     import win32com.client

@@ -1,6 +1,9 @@
 '''
 Python Netlogo bridge build on top of jpype.
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 try:
     import jpype
 except ImportError:
@@ -8,7 +11,7 @@ except ImportError:
 import os
 import sys
 
-from expWorkbench import debug, info, warning
+from expWorkbench.ema_logging import debug, info, warning
 from expWorkbench.ema_exceptions import EMAError
 
 # Created on 21 mrt. 2013

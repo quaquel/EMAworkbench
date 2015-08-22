@@ -8,7 +8,7 @@ import unittest
 
 from expWorkbench.model_ensemble import ModelEnsemble, UNION, INTERSECTION,\
                                         experiment_generator
-from expWorkbench import LHSSampler
+from expWorkbench.samplers import LHSSampler
 from expWorkbench import ModelStructureInterface
 from expWorkbench import ParameterUncertainty
 from expWorkbench.outcomes import Outcome

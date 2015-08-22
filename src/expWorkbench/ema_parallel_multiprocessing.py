@@ -14,13 +14,16 @@ the _logger in ema_logging to refer to the logger for its particular subprocess
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-import cStringIO
+import io
 import copy
 import itertools
 import logging
 import multiprocessing
 import os
-import Queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 import random
 import shutil
 import string
@@ -33,10 +36,9 @@ from multiprocessing import Process, cpu_count, current_process,\
                             TimeoutError
 from multiprocessing.util import Finalize
 
-from . import ema_logging                  
+from . import ema_logging
 from .experiment_runner import ExperimentRunner
 from .pool import RUN, Pool, TERMINATE
-from .ema_logging import debug, info,  NullHandler, LOG_FORMAT
 from .ema_exceptions import EMAError, EMAParallelError
 
 # Created on 21 dec. 2010
@@ -54,7 +56,7 @@ def worker(inqueue,
     # Code run by worker processes
     #    
         
-    debug("worker started")
+    ema_logging.debug("worker started")
     
     put = outqueue.put
     if hasattr(inqueue, '_writer'):
@@ -68,10 +70,10 @@ def worker(inqueue,
         try:
             task = inqueue.get()
         except (EOFError, IOError):
-            debug('worker got EOFError or IOError -- exiting')
+            ema_logging.debug('worker got EOFError or IOError -- exiting')
             break
         if task is None:
-            debug('worker got sentinel -- exiting')
+            ema_logging.debug('worker got sentinel -- exiting')
             break
 
         _, experiment = task
@@ -116,17 +118,17 @@ class CalculatorPool(Pool):
                 processes = cpu_count()
             except NotImplementedError:
                 processes = 1
-        info("nr of processes is "+str(processes))
+        ema_logging.info("nr of processes is "+str(processes))
     
         # setup queues etc.
         self._setup_queues()
-        self._taskqueue = Queue.Queue(processes*2)
+        self._taskqueue = queue.Queue(processes*2)
         self._cache = {}
         self._state = RUN
         
         # handling of logging
         self.log_queue = multiprocessing.Queue()
-        h = NullHandler()
+        h = ema_logging.NullHandler()
         logging.getLogger(ema_logging.LOGGER_NAME).addHandler(h)
         
         log_queue_reader = LogQueueReader(self.log_queue)
@@ -136,11 +138,11 @@ class CalculatorPool(Pool):
         self._pool = []
         working_dirs = []
 
-        debug('generating workers')
+        ema_logging.debug('generating workers')
         
         worker_root = None
         for i in range(processes):
-            debug('generating worker '+str(i))
+            ema_logging.debug('generating worker '+str(i))
             
             workername = self._get_worker_name(i)
             
@@ -177,7 +179,7 @@ class CalculatorPool(Pool):
             w.name = w.name.replace('Process', workername)
             w.daemon = True
             w.start()
-            debug(' worker '+str(i) + ' generated')
+            ema_logging.debug(' worker '+str(i) + ' generated')
 
         # thread for handling tasks
         self._task_handler = threading.Thread(
@@ -221,7 +223,7 @@ class CalculatorPool(Pool):
                                     exitpriority=15
                                     )
         
-        info("pool has been set up")
+        ema_logging.info("pool has been set up")
 
 
     def _get_worker_name(self, i):
@@ -279,32 +281,32 @@ class CalculatorPool(Pool):
 
         for task in iter(taskqueue.get, None):
             if thread._state:
-                debug('task handler found thread._state != RUN')
+                ema_logging.debug('task handler found thread._state != RUN')
                 break
             try:
                 put(task)
             except IOError:
-                debug('could not put task on queue')
+                ema_logging.debug('could not put task on queue')
                 break
             else:
                 continue
             break
         else:
-            debug('task handler got sentinel')
+            ema_logging.debug('task handler got sentinel')
 
         try:
             # tell result handler to finish when cache is empty
-            debug('task handler sending sentinel to result handler')
+            ema_logging.debug('task handler sending sentinel to result handler')
             outqueue.put(None)
 
             # tell workers there is no more work
-            debug('task handler sending sentinel to workers')
+            ema_logging.debug('task handler sending sentinel to workers')
             for _ in range(2*len(pool)):
                 put(None)
         except IOError:
-            debug('task handler got IOError when sending sentinels')
+            ema_logging.debug('task handler got IOError when sending sentinels')
 
-        debug('task handler exiting')
+        ema_logging.debug('task handler exiting')
 
     @staticmethod
     def _handle_results(outqueue, get, cache, log_queue):
@@ -314,16 +316,16 @@ class CalculatorPool(Pool):
             try:
                 task = get()
             except (IOError, EOFError):
-                debug('result handler got EOFError/IOError -- exiting')
+                ema_logging.debug('result handler got EOFError/IOError -- exiting')
                 return
 
             if thread._state:
                 assert thread._state == TERMINATE
-                debug('result handler found thread._state=TERMINATE')
+                ema_logging.debug('result handler found thread._state=TERMINATE')
                 break
 
             if task is None:
-                debug('result handler got sentinel')
+                ema_logging.debug('result handler got sentinel')
                 break
 
             job, experiment = task
@@ -336,11 +338,11 @@ class CalculatorPool(Pool):
             try:
                 task = get()
             except (IOError, EOFError):
-                debug('result handler got EOFError/IOError -- exiting')
+                ema_logging.debug('result handler got EOFError/IOError -- exiting')
                 return
 
             if task is None:
-                debug('result handler ignoring extra sentinel')
+                ema_logging.debug('result handler ignoring extra sentinel')
                 continue
             job, obj = task
             try:
@@ -349,7 +351,7 @@ class CalculatorPool(Pool):
                 pass
 
         if hasattr(outqueue, '_reader'):
-            debug('ensuring that outqueue is not full')
+            ema_logging.debug('ensuring that outqueue is not full')
             # If we don't make room available in outqueue then
             # attempts to add the sentinel (None) to outqueue may
             # block.  There is guaranteed to be no more than 2 sentinels.
@@ -361,7 +363,7 @@ class CalculatorPool(Pool):
             except (IOError, EOFError):
                 pass
 
-        debug('result handler exiting: len(cache)=%s, thread._state=%s',
+        ema_logging.debug('result handler exiting: len(cache)=%s, thread._state=%s',
               len(cache), thread._state)
         
         log_queue.put(None)
@@ -398,12 +400,12 @@ class CalculatorPool(Pool):
                         cache, 
                         working_dirs,
                         ):
-        info("terminating pool")
+        ema_logging.info("terminating pool")
         
         
         
         # this is guaranteed to only be called once
-        debug('finalizing pool')
+        ema_logging.debug('finalizing pool')
         TERMINATE = 2
 
         task_handler._state = TERMINATE
@@ -411,7 +413,7 @@ class CalculatorPool(Pool):
             taskqueue.put(None)                 # sentinel
             time.sleep(1)
 
-        debug('helping task handler/workers to finish')
+        ema_logging.debug('helping task handler/workers to finish')
         cls._help_stuff_finish(inqueue, task_handler, len(pool))
 
         assert result_handler.is_alive() or len(cache) == 0
@@ -420,18 +422,18 @@ class CalculatorPool(Pool):
         outqueue.put(None)                  # sentinel
 
         if pool and hasattr(pool[0], 'terminate'):
-            debug('terminating workers')
+            ema_logging.debug('terminating workers')
             for p in pool:
                 p.terminate()
 
-        debug('joining task handler')
+        ema_logging.debug('joining task handler')
         task_handler.join(1e100)
 
-        debug('joining result handler')
+        ema_logging.debug('joining result handler')
         result_handler.join(1e100)
 
         if pool and hasattr(pool[0], 'terminate'):
-            debug('joining pool workers')
+            ema_logging.debug('joining pool workers')
             for p in pool:
                 p.join()
         
@@ -440,7 +442,7 @@ class CalculatorPool(Pool):
         # functionality can be used instead
         
         for directory in working_dirs:
-            debug("deleting "+str(directory))
+            ema_logging.debug("deleting "+str(directory))
             shutil.rmtree(directory)
 
 
@@ -529,7 +531,7 @@ class SubProcessLogHandler(logging.Handler):
         self.queue.put(record)
 
     def formatException(self, ei):
-        sio = cStringIO.StringIO()
+        sio = io.StringIO()
         traceback.print_exception(ei[0], ei[1], ei[2], None, sio)
         s = sio.getvalue()
         sio.close()
@@ -571,7 +573,7 @@ class LogQueueReader(threading.Thread):
                 record = self.queue.get()
                 # get the logger for this record
                 if record is None:
-                    debug("none received")
+                    ema_logging.debug("none received")
                     break
                 
                 logger = logging.getLogger(record.name)
@@ -601,7 +603,7 @@ class LoggingProcess(Process):
     def _setupLogger(self):
         # create the logger to use.
         logger = logging.getLogger(ema_logging.LOGGER_NAME+'.subprocess')
-        ema_logging.LOGGER_NAME+'.subprocess'
+#         ema_logging.LOGGER_NAME+'.subprocess'
         ema_logging._logger = logger
         _logger = logger
         
@@ -616,7 +618,7 @@ class LoggingProcess(Process):
     
         # add the handler
         handler = SubProcessLogHandler(self.queue)
-        handler.setFormatter(LOG_FORMAT)
+        handler.setFormatter(ema_logging.LOG_FORMAT)
         logger.addHandler(handler)
 
         # On Windows, the level will not be inherited.  Also, we could just
@@ -628,6 +630,6 @@ class LoggingProcess(Process):
     def run(self):
         self._setupLogger()
         p = current_process()
-        debug('process %s with pid %s started' % (p.name, p.pid))
+        ema_logging.debug('process %s with pid %s started' % (p.name, p.pid))
         #call the run of the super, which in turn will call the worker function
         super(LoggingProcess, self).run()

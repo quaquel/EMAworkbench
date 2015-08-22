@@ -12,12 +12,15 @@ Typically, the dll can be found in ../AppData/Local/Vensim/vendll32.dll
 
 
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import ctypes 
 import sys
 
 import numpy as np
 
-from expWorkbench import warning, EMAError, EMAWarning, info
+from expWorkbench.ema_logging import warning, info
+from expWorkbench.ema_exceptions import EMAError, EMAWarning
 
 try:
     WindowsError

@@ -21,8 +21,7 @@ from threading import Lock
 import numpy as np
 
 from . import ema_logging
-from .ema_exceptions import EMAError
-from .ema_logging import info, debug
+from . import ema_exceptions
 from .uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER
@@ -99,10 +98,10 @@ class AbstractCallback(object):
         '''
         
         self.i+=1
-        debug(str(self.i)+" cases completed")
+        ema_logging.debug(str(self.i)+" cases completed")
         
         if self.i % self.reporting_interval == 0:
-            info(str(self.i)+" cases completed")
+            ema_logging.info(str(self.i)+" cases completed")
 
     @abc.abstractmethod
     def get_results(self):
@@ -194,7 +193,7 @@ class DefaultCallback(AbstractCallback):
             
     def _store_result(self, case_id, result):
         for outcome in self.outcomes:
-            debug("storing {}".format(outcome))
+            ema_logging.debug("storing {}".format(outcome))
             
             try:
                 outcome_res = result[outcome]
@@ -207,7 +206,7 @@ class DefaultCallback(AbstractCallback):
                     shape = np.asarray(outcome_res).shape
                     
                     if len(shape)>2:
-                        raise EMAError(self.shape_error_msg.format(len(shape)))
+                        raise ema_exceptions.EMAError(self.shape_error_msg.format(len(shape)))
                     
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)

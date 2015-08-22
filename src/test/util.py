@@ -11,7 +11,8 @@ import numpy.lib.recfunctions as rf
 
 from matplotlib.mlab import csv2rec
 import numpy as np
-from expWorkbench import TIME, ema_logging
+from expWorkbench.outcomes import TIME
+from expWorkbench import ema_logging
 from expWorkbench.util import load_results
 
 def load_flu_data():

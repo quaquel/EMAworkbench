@@ -25,8 +25,8 @@ import os
 import itertools
 from collections import defaultdict
 
-from . import info, debug
-from . import EMAError
+from .ema_logging import info, debug
+from .ema_exceptions import EMAError
 
 from .ema_optimization import NSGA2
 from .ema_optimization_util import (evaluate_population_outcome, 
@@ -36,8 +36,9 @@ from .ema_optimization_util import (evaluate_population_outcome,
 from .samplers import FullFactorialSampler, LHSSampler
 from .uncertainties import ParameterUncertainty, CategoricalUncertainty
 from .callbacks import DefaultCallback
+
+from .experiment_runner import ExperimentRunner
 from .ema_parallel import MultiprocessingPool
-from . import ExperimentRunner
 
 # Created on 23 dec. 2010
 # 

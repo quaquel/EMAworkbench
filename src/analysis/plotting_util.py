@@ -6,7 +6,7 @@ Plotting utility functions
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-from types import StringType, DictType, ListType
+# from types import StringType, DictType, ListType
 import copy
 
 import numpy as np
@@ -136,7 +136,7 @@ def plot_histogram(ax, values, log):
     
     
     '''
-    if type(values)==ListType:
+    if isinstance(values, list):
         color = COLOR_LIST[0:len(values)]
     else:
         color='b'
@@ -677,7 +677,7 @@ def prepare_pairs_data(results,
     filter_scalar : bool, optional
        
     '''
-    if type(outcomes_to_show) == StringType:
+    if isinstance(outcomes_to_show, str):
         raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
     
     outcomes, outcomes_to_show, time, grouping_labels = prepare_data(results, 
@@ -733,7 +733,7 @@ def prepare_data(results,
 
     # remove outcomes that are not to be shown
     if outcomes_to_show:
-        if type(outcomes_to_show) == StringType:
+        if isinstance(outcomes_to_show, str):
             outcomes_to_show  = [outcomes_to_show]
             
         for entry in outcomes_to_show:
@@ -768,10 +768,10 @@ def prepare_data(results,
                                                         grouping_specifiers)
             grouping_labels=sorted(grouping_specifiers)
         else:
-            if type(grouping_specifiers) == StringType:
+            if isinstance(grouping_specifiers, str):
                 grouping_specifiers = [grouping_specifiers]
                 grouping_labels=grouping_specifiers
-            elif type(grouping_specifiers) == DictType:
+            elif isinstance(grouping_specifiers, dict):
                 grouping_labels=sorted(grouping_specifiers.keys())
             else:
                 grouping_labels=grouping_specifiers
@@ -804,7 +804,7 @@ def do_titles(ax, titles, outcome):
     
     '''
     
-    if type(titles)==DictType:
+    if isinstance(titles, dict):
         if not titles:
             ax.set_title(outcome)
         else:
@@ -829,7 +829,7 @@ def do_ylabels(ax, ylabels, outcome):
     
     '''
     
-    if type(ylabels)==DictType:
+    if isinstance(ylabels, dict):
         if not ylabels:
             ax.set_ylabel(outcome)
         else:
