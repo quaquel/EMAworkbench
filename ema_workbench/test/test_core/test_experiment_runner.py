@@ -6,7 +6,10 @@ Created on Aug 11, 2015
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-import mock
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 import unittest
 
 from core.experiment_runner import ExperimentRunner

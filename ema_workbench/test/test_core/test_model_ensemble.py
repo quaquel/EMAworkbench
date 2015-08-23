@@ -3,6 +3,8 @@ Created on 18 jan. 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+import six
+
 import numpy as np
 import unittest
 
@@ -103,7 +105,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
         self.assertNotIn(b_1, uncertainties, msg)          
         
         self.assertEqual(nr_of_exp, 10* len(ensemble.model_structures), msg)
-        experiment = experiments.next()
+        experiment = six.next(experiments)
         self.assertIn('policy', experiment.keys(), msg)
         self.assertIn('model', experiment.keys(), msg)
         self.assertIn('experiment id', experiment.keys(), msg)

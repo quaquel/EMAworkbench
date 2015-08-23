@@ -21,6 +21,8 @@ import tarfile
 
 from matplotlib.mlab import rec2csv, csv2rec
 import numpy as np
+from numpy.lib import recfunctions
+
 import pandas as pd
 from pandas.io.parsers import read_csv
 
@@ -57,16 +59,19 @@ def load_results(file_name):
     '''
     
     outcomes = {}
-    with tarfile.open(file_name, 'r') as z:
+    with tarfile.open(file_name, 'r:gz', encoding="UTF8") as z:
         # load x
         experiments = z.extractfile('experiments.csv')
-        experiments = csv2rec(experiments)
+        df = pd.io.parsers.read_table(experiments, sep=',')
+        experiments = df.to_records()
+        experiments = recfunctions.drop_fields(experiments, ['index'])
 
         # load experiment metadata
         metadata = z.extractfile('experiments metadata.csv').readlines()
         
         metadata_temp = []
         for entry in metadata:
+            entry = entry.decode('UTF-8')
             entry = entry.strip()
             entry = entry.split(",")
             entry = [str(item) for item in entry]
@@ -86,6 +91,7 @@ def load_results(file_name):
         
         # load outcome metadata
         metadata = z.extractfile('outcomes metadata.csv').readlines()
+        metadata = [entry.decode('UTF-8') for entry in metadata]
         metadata = [entry.strip() for entry in metadata]
         metadata = [tuple(entry.split(",")) for entry in metadata]
         metadata = {entry[0]: entry[1:] for entry in metadata}
@@ -96,11 +102,10 @@ def load_results(file_name):
             shape[0] = shape[0][1:]
             shape[-1] = shape[-1][0:-1]
             
-            
             temp_shape = []
             for entry in shape:
                 if entry:
-                    temp_shape.append(int(long(entry)))
+                    temp_shape.append(int(entry))
             shape = tuple(temp_shape)
             
             if len(shape)>2:

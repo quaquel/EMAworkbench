@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 import pandas as pd
-# from types import StringType, FloatType, IntType
 
 from util import ema_logging
 from analysis.plotting_util import COLOR_LIST
@@ -73,11 +72,12 @@ def _make_box(x):
     
     for name in names:
         dtype = x.dtype.fields.get(name)[0] 
-        values = x[name]
+        mask = np.ma.getmaskarray(x[name])
+        values = x[name][mask==False]
         
         if dtype == 'object':
             try:
-                values = set(values) - set([np.ma.masked])
+                values = set(values)
                 box[name][:] = values
             except TypeError as e:
                 ema_logging.warning("{} has unhashable values".format(name))

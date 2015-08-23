@@ -7,8 +7,9 @@ be used as is, or serve as an example for writing your own code.
 """
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+import six
+
 import copy
-import types
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import ConnectionPatch
@@ -343,7 +344,7 @@ def lines(results,
                                 experiments_to_show=experiments_to_show, 
                                 titles=titles, ylabels=ylabels, log=log)
     
-    if experiments_to_show != None:
+    if experiments_to_show is not None:
         experiments, outcomes = results
         experiments = experiments[experiments_to_show]
         new_outcomes = {}
@@ -760,7 +761,7 @@ def multiple_densities(results,
     if not outcomes_to_show:
         outcomes_to_show =  results[1].keys()
         outcomes_to_show.remove(TIME)
-    elif type(outcomes_to_show)==types.StringType:
+    elif isinstance(outcomes_to_show, six.string_types):
         outcomes_to_show=[outcomes_to_show]
 
     axes_dicts = {}

@@ -52,9 +52,12 @@ class CaseError(EMAError):
         self.policy = policy['name']
     
     def __str__(self):
+        keys = sorted(self.case.keys())
+        
         
         c = ""
-        for key, value in self.case.items():
+        for key in keys:
+            value = self.case.get(key)
             c += key
             c += ":"
             c += str(value)

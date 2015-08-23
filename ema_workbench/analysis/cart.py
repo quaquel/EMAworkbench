@@ -6,8 +6,7 @@ wrapper around scikit-learn's version of CART.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-
-import types
+import six
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
@@ -52,7 +51,7 @@ def setup_cart(results, classify, incl_unc=[], mass_min=0.05):
     else:
         drop_names = set(recfunctions.get_names(results[0].dtype))-set(incl_unc)
         x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)
-    if type(classify)==types.StringType:
+    if isinstance(classify, six.string_types):
         y = results[1][classify]
     elif callable(classify):
         y = classify(results[1])
@@ -255,7 +254,7 @@ class CART(sdutil.OutputFormatterMixin):
 
        
 if __name__ == '__main__':
-    from test import util
+    from test import test_utilities
     import matplotlib.pyplot as plt
 
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -274,7 +273,7 @@ if __name__ == '__main__':
         
         return classes
  
-    results = util.load_scarcity_data()
+    results = test_utilities.load_scarcity_data()
     
     cart = setup_cart(results, scarcity_classify)
     cart.build_tree()

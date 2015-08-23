@@ -16,8 +16,8 @@ import numpy as np
 from util.ema_logging import info
 from util.ema_exceptions import EMAError
 
-from analysis.cluster_util import distance_mse, distance_sse,\
-                                  distance_triangle, distance_gonenc
+from .cluster_util import (distance_mse, distance_sse, distance_triangle, 
+                           distance_gonenc)
 
 # Created on Sep 8, 2011
 # 
@@ -332,7 +332,7 @@ class Cluster(object):
         return self.sample
 
 if __name__ == '__main__':
-    from core import load_results
+    from util.util import load_results
     results = load_results('../sandbox/cluster/datasets/PatternSet_Basics.cPickle')
     
     

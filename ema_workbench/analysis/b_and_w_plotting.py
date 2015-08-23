@@ -11,7 +11,6 @@ from __future__ import (absolute_import, print_function, division,
 import numpy as np
 from matplotlib.colors import ColorConverter
 import matplotlib as mpl
-from types import ListType
 from matplotlib.collections import PolyCollection, PathCollection
 
 from util.ema_exceptions import EMAError
@@ -187,7 +186,7 @@ def set_legend_to_bw(leg, style):
         colors[value] = key
     
     if leg:
-        if type(leg) == ListType:
+        if isinstance(leg, list):
             leg = leg[0]
     
         for element in leg.legendHandles:

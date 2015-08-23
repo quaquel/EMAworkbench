@@ -3,6 +3,7 @@ Created on Nov 24, 2011
 
 @author: gonengyucel
 '''
+from __future__ import print_function
 import numpy as np
 
 from util.ema_logging import info
@@ -13,7 +14,7 @@ def trdist(d1,d2):
     b = np.sqrt(np.sum(d1*d1))
     c = np.sqrt(np.sum(d2*d2))
     d = a/(b*c)
-    print d
+    print(d)
     return d
 
 def distance_triangle(data):
