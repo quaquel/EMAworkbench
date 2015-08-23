@@ -3,7 +3,10 @@ Created on 28 sep. 2011
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import mock
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 import unittest
 
 from core import ModelStructureInterface, ema_parallel_multiprocessing

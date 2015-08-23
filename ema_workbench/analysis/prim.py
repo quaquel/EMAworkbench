@@ -15,8 +15,8 @@ ipython notebook.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+import six
 
-# from types import FloatType, IntType
 from operator import itemgetter
 import copy
 import math
@@ -41,7 +41,8 @@ except ImportError:
 from .plotting_util import make_legend
 from util.ema_logging import info, debug
 from util.ema_exceptions import EMAError
-from . import pairs_plotting
+
+# from . import pairs_plotting
 from . import scenario_discovery_util as sdutil
 
 # Created on 22 feb. 2013
@@ -163,9 +164,9 @@ def _pair_wise_scatter(x,y, box_lim, restricted_dims):
                 ax.plot([x_1[n], x_1[n]],
                     x_2, c='r', linewidth=3)
             
-        #reuse labeling function from pairs_plotting
-        pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None, 
-                                            restricted_dims)
+#         #reuse labeling function from pairs_plotting
+#         pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None, 
+#                                             restricted_dims)
             
     return figure
 
@@ -274,7 +275,7 @@ class PrimBox(object):
         stats['restricted_dim'] = stats['res dim']
 
         qp_values = self._calculate_quasi_p(i)
-        uncs = [(key, value) for key, value in qp_values.iteritems()]
+        uncs = [(key, value) for key, value in qp_values.items()]
         uncs.sort(key=itemgetter(1))
         uncs = [uncs[0] for uncs in uncs]
         
@@ -682,7 +683,7 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     else:
         drop_names = set(rf.get_names(results[0].dtype))-set(incl_unc)
         x = rf.drop_fields(results[0], drop_names, asrecarray=True)
-    if isinstance(classify, str):
+    if isinstance(classify, six.string_types):
         y = results[1][classify]
     elif callable(classify):
         y = classify(results[1])

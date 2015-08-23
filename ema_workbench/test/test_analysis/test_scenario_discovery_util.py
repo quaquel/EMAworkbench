@@ -8,7 +8,7 @@ import unittest
 
 import numpy as np
 
-from analysis import scenario_discovery_util as sdutil
+import analysis.scenario_discovery_util as sdutil
 from test import test_utilities
 
 class ScenarioDiscoveryUtilTestCase(unittest.TestCase):

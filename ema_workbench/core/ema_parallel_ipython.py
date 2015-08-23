@@ -117,7 +117,7 @@ class LogWatcher(object):
     def subscribe(self):
         """Update our SUB socket's subscriptions."""
         ema_logging.debug("Subscribing to: everything")
-        self.stream.setsockopt(zmq.SUBSCRIBE, str('')) # @UndefinedVariable
+        self.stream.setsockopt(zmq.SUBSCRIBE, b'') # @UndefinedVariable
         
     def _extract_level(self, topic_str):
         """Turn 'engine.0.INFO.extra' into (logging.INFO, 'engine.0.extra')"""

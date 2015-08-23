@@ -5,7 +5,10 @@ Created on Jul 28, 2015
 '''
 from __future__ import absolute_import
 import logging
-import mock
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 import unittest
 
 from util import ema_logging

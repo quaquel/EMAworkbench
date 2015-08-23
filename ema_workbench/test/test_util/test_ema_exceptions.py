@@ -3,7 +3,8 @@ Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import absolute_import
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import unittest
 from util.ema_exceptions import EMAError, CaseError
 
@@ -15,13 +16,14 @@ class TestEMAError(unittest.TestCase):
         
         error = EMAError('a message', 'another message')
 
-        self.assertEqual(str(error), "('a message', 'another message')")
+        self.assertEqual(str(error), "(u'a message', u'another message')")
 
 
 class TestCaseError(unittest.TestCase):
     def test(self):
         error = CaseError('a message', {'a':1, 'b':2})
         self.assertEqual(str(error), "a message case: {a:1, b:2, policy:not specified}")
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

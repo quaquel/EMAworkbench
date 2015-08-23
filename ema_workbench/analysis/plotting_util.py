@@ -5,8 +5,8 @@ Plotting utility functions
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+import six
 
-# from types import StringType, DictType, ListType
 import copy
 
 import numpy as np
@@ -24,8 +24,6 @@ from util.ema_exceptions import EMAError
 from util.ema_logging import info, warning
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
-
 
 COLOR_LIST = ['b',
               'g',
@@ -677,7 +675,7 @@ def prepare_pairs_data(results,
     filter_scalar : bool, optional
        
     '''
-    if isinstance(outcomes_to_show, str):
+    if isinstance(outcomes_to_show, six.string_types):
         raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
     
     outcomes, outcomes_to_show, time, grouping_labels = prepare_data(results, 
@@ -733,8 +731,8 @@ def prepare_data(results,
 
     # remove outcomes that are not to be shown
     if outcomes_to_show:
-        if isinstance(outcomes_to_show, str):
-            outcomes_to_show  = [outcomes_to_show]
+        if isinstance(outcomes_to_show, six.string_types):
+            outcomes_to_show = [outcomes_to_show]
             
         for entry in outcomes_to_show:
             temp_outcomes[entry] = copy.deepcopy(outcomes[entry])
@@ -768,7 +766,7 @@ def prepare_data(results,
                                                         grouping_specifiers)
             grouping_labels=sorted(grouping_specifiers)
         else:
-            if isinstance(grouping_specifiers, str):
+            if isinstance(grouping_specifiers, six.string_types):
                 grouping_specifiers = [grouping_specifiers]
                 grouping_labels=grouping_specifiers
             elif isinstance(grouping_specifiers, dict):

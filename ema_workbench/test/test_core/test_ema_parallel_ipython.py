@@ -7,7 +7,12 @@ taken from the ipyparallel test code with some minor adaptations
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import logging
-import mock
+
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
+
 import os
 import socket
 import subprocess

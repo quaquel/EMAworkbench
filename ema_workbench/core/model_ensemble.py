@@ -18,11 +18,14 @@ model.outcomes.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-
-import functools
+import six
+from functools import reduce, partial
 import os
 import itertools
 from collections import defaultdict
+
+
+
 
 from util.ema_logging import info, debug
 from util.ema_exceptions import EMAError
@@ -326,7 +329,7 @@ class ModelEnsemble(object):
                  False. 
         
         """
-        evaluate_population = functools.partial(eval_pop, 
+        evaluate_population = partial(eval_pop, 
                                                 cases=cases)
 
         return self._run_optimization(generate_individual_robust, 
@@ -620,5 +623,5 @@ def experiment_generator(designs, model_structures, policies):
                 # and experiment id to it
                 experiment['policy'] = policy
                 experiment['model'] = msi.name
-                experiment['experiment id'] = job_counter.next()
+                experiment['experiment id'] = six.next(job_counter)
                 yield experiment

@@ -93,8 +93,8 @@ def pairs_lines(results,
                                for field2 in outcomes_to_show]
     
     for field1, field2 in combis:
-        i = outcomes_to_show.index(field1)
-        j = outcomes_to_show.index(field2)
+        i = list(outcomes_to_show).index(field1)
+        j = list(outcomes_to_show).index(field2)
         ax = figure.add_subplot(grid[i,j])
         
         axes_dict[(field1, field2)] = ax
@@ -339,8 +339,8 @@ def simple_pairs_density(outcomes,
                                for field2 in outcomes_to_show]
     axes_dict = {}
     for field1, field2 in combis:
-        i = outcomes_to_show.index(field1)
-        j = outcomes_to_show.index(field2)
+        i = list(outcomes_to_show).index(field1)
+        j = list(outcomes_to_show).index(field2)
         
         ax = figure.add_subplot(grid[i,j])
         axes_dict[(field1, field2)] = ax
@@ -449,8 +449,8 @@ def pairs_scatter(results,
                                for field2 in outcomes_to_show]
     
     for field1, field2 in combis:
-        i = outcomes_to_show.index(field1)
-        j = outcomes_to_show.index(field2)
+        i = list(outcomes_to_show).index(field1)
+        j = list(outcomes_to_show).index(field2)
         ax = figure.add_subplot(grid[i,j])
         axes_dict[(field1, field2)] = ax
 

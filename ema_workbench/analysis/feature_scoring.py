@@ -6,8 +6,8 @@ Feature scoring functionality
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+import six
 
-from types import StringType
 from operator import itemgetter
 
 import numpy as np
@@ -87,7 +87,7 @@ def _prepare_outcomes(outcomes, classify):
         if classify is a string which is not a key in the outcomes dict.
     
     '''
-    if type(classify)==StringType:
+    if isinstance(classify, six.string_types):
         try:
             y = outcomes[classify]
         except KeyError as e:
@@ -145,6 +145,7 @@ def get_univariate_feature_scores(results, classify,
     pvalues = np.asarray(pvalues)
 
     pvalues = zip(uncs, pvalues)
+    pvalues = list(pvalues)
     pvalues.sort(key=itemgetter(1))
     return pvalues
 
@@ -217,6 +218,7 @@ def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
     importances = forest.feature_importances_
 
     importances = zip(uncs, importances)
+    importances = list(importances)
     importances.sort(key=itemgetter(1), reverse=True)
 
     return importances, forest
@@ -286,6 +288,7 @@ def get_lasso_feature_scores(results, classify, scaling=0.5,
 
     importances = lfs.scores_
     importances = zip(uncs, importances)
+    importances = list(importances)
     importances.sort(key=itemgetter(1), reverse=True)
 
     return importances
