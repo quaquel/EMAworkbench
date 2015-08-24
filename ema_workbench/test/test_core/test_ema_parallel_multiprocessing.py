@@ -55,32 +55,19 @@ class ParallelMultiprocessingPoolTestCase(unittest.TestCase):
                          "os.dirname called too frequent")
         
         mock_os.path.join.assert_called_with("/Domain", "workernametest")
+        
+        mock_os.reset_mock()
 
-# 
-#     @mock.patch('core.ema_parallel_multiprocessing.os')
-#     @mock.patch('core.ema_parallel_multiprocessing.shutil')
-#     @mock.patch.object(ema_parallel_multiprocessing.CalculatorPool, '_get_worker_name')
-#     def test_init_normal(self, mock_get_worker_name, mock_shutil, mock_os):
-#         
-#         mockMSI = mock.Mock(spec=MockMSI)
-#         mockMSI.name = 'test'
-# 
-#         # set some proper return values on mocked methods and functions
-#         mock_get_worker_name.return_value = "workername"
-#         mockMSI.working_directory = '.'
-#         mock_os.path.abspath.return_value = '/Domain/model'
-#         mock_os.path.dirname.return_value = '/Domain'
-#         
-#         # instantiate the pool
-#         pool = ema_parallel_multiprocessing.CalculatorPool([mockMSI], 
-#                                                            processes=None)
-#         
-#         # assert whether the init is functioning correctly
-#         self.assertEqual(len(pool._pool), 2, "nr. processes not correct")
-#         self.assertEqual(mock_os.path.dirname.call_count, 1,
-#                          "os.dirname called too frequent")
-#         
-#         mock_os.path.join.assert_called_with("/Domain", "workernametest")
+        # instantiate the pool
+        pool = ema_parallel_multiprocessing.CalculatorPool([mockMSI], 
+                                                           processes=None)
+         
+        # assert whether the init is functioning correctly
+        self.assertGreater(len(pool._pool), 0)
+        self.assertEqual(mock_os.path.dirname.call_count, 1,
+                         "os.dirname called too frequent")
+         
+        mock_os.path.join.assert_called_with("/Domain", "workernametest")
 
 class ParallelMultiprocessingLogProcess(unittest.TestCase):
     pass

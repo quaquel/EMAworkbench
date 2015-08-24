@@ -29,7 +29,8 @@ before_install:
 - "sh -e /etc/init.d/xvfb start"
 
 script:
-- nosetests ema_workbench --with-coverage --verbose --cover-package=core
+- nosetests ema_workbench --with-coverage --verbose --cover-package=core --cover-package=util --cover-package=analysis
+
 
 # coverage needs to be added
 after_success:
