@@ -165,37 +165,40 @@ class TestEngineLoggerAdapter(unittest.TestCase):
             self.assertEqual('{}::{}'.format(ema.SUBTOPIC, input_msg), 
                              msg)
             self.assertEqual(input_kwargs, kwargs)
-         
     
-    @mock.patch('util.ema_logging._logger')
+    @mock.patch('core.ema_parallel_ipython.EngingeLoggerAdapter')  
     @mock.patch('core.ema_parallel_ipython.Application')
-    def test_engine_logger(self, mocked_application, mocked_logger):
-        mock_log = mock.create_autospec(logging.Logger)
-        mock_log.handlers = []
+    def test_engine_logger(self, mocked_application, mocked_adapter):
+        logger = ema_logging.get_logger()
+        mocked_logger = mock.Mock(spec=logger)
+        mocked_logger.handlers = []
+        mocked_logger.manager = mock.Mock(spec=logging.Manager)
+        mocked_logger.manager.disable = 0
+        ema_logging._logger = mocked_logger
         
         mocked_application.instance.return_value = mocked_application
-        mocked_application.log = mock_log
+        mocked_application.log = mocked_logger
         
         # no handlers    
         ema.set_engine_logger()
         logger = ema_logging._logger
-        self.assertTrue(type(logger) == ema.EngingeLoggerAdapter)
-        mock_log.setLevel.assert_called_once_with(ema_logging.DEBUG)
-        self.assertTrue(logger.topic == ema.SUBTOPIC)
+#         self.assertTrue(type(logger) == type(mocked_adapter))
+        mocked_logger.setLevel.assert_called_once_with(ema_logging.DEBUG)
+        mocked_adapter.assert_called_with(mocked_logger, ema.SUBTOPIC)
         
         # with handlers
-        mock_log = mock.create_autospec(logging.Logger)
+        mocked_logger = mock.create_autospec(logging.Logger)
         mock_engine_handler = mock.create_autospec(IPython.kernel.zmq.log.EnginePUBHandler)# @UndefinedVariable
-        mock_log.handlers = [mock_engine_handler] 
+        mocked_logger.handlers = [mock_engine_handler] 
         
         mocked_application.instance.return_value = mocked_application
-        mocked_application.log = mock_log
+        mocked_application.log = mocked_logger
         
         ema.set_engine_logger()
         logger = ema_logging._logger
-        self.assertTrue(type(logger) == ema.EngingeLoggerAdapter)
-        mock_log.setLevel.assert_called_once_with(ema_logging.DEBUG)
-        self.assertTrue(logger.topic == ema.SUBTOPIC)
+#         self.assertTrue(type(logger) == ema.EngingeLoggerAdapter)
+        mocked_logger.setLevel.assert_called_once_with(ema_logging.DEBUG)
+        mocked_adapter.assert_called_with(mocked_logger, ema.SUBTOPIC)
         mock_engine_handler.setLevel.assert_called_once_with(ema_logging.DEBUG)
         
  
@@ -231,16 +234,20 @@ class TestLogWatcher(unittest.TestCase):
       
     @classmethod
     def setUpClass(cls):
-        with mock.patch('util.ema_logging._logger'):   
-            cls.client = parallel.Client(profile='default')
-            cls.url = 'tcp://{}:20202'.format(localhost())
-            cls.watcher = ema.start_logwatcher(cls.url)
+        logger = ema_logging.get_logger()
+        mocked_logger = mock.Mock(spec=logger)
+        mocked_logger.handlers = []
+        ema_logging._logger = mocked_logger
+
+        cls.client = parallel.Client(profile='default')
+        cls.url = 'tcp://{}:20202'.format(localhost())
+        cls.watcher = ema.start_logwatcher(cls.url)
  
     @classmethod
     def tearDownClass(cls):
         cls.watcher.stop()
 
-    @mock.patch('util.ema_logging._logger')
+    @mock.patch('util.ema_logging._logger', autospec=True)
     def test_stop(self, mocked_logger):
         url = 'tcp://{}:20201'.format(localhost())
         watcher = ema.start_logwatcher(url)

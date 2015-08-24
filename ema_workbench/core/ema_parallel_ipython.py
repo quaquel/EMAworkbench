@@ -41,7 +41,6 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
     logger : logger instance 
     topic : str
     
-    
     '''
 
     def __init__(self, logger, topic):
