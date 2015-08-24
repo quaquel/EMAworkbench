@@ -16,7 +16,7 @@ class TestEMAError(unittest.TestCase):
         
         error = EMAError('a message', 'another message')
 
-        self.assertEqual(str(error), "('a message', 'another message')")
+        self.assertEqual(str(error), str("(u'a message', u'another message')"))
 
 
 class TestCaseError(unittest.TestCase):

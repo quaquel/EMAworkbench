@@ -176,7 +176,7 @@ class DefaultCallback(AbstractCallback):
             elif isinstance(uncertainty, ParameterUncertainty) and\
                           uncertainty.dist==INTEGER:
                 dataType = int
-            self.dtypes.append((name, dataType))
+            self.dtypes.append((str(name), dataType))
         self.dtypes.append((str('model'), object))
         self.dtypes.append((str('policy'), object))
         

@@ -6,8 +6,12 @@ It's main purpose has been to test the parallel processing functionality
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from core import ModelEnsemble, ModelStructureInterface,\
-                         ParameterUncertainty, Outcome
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
+from core import (ModelEnsemble, ModelStructureInterface, ParameterUncertainty, 
+                  Outcome)
+from util import ema_logging
 
 class SimplePythonModel(ModelStructureInterface):
     '''
@@ -33,7 +37,9 @@ class SimplePythonModel(ModelStructureInterface):
     
 
 if __name__ == '__main__':
+    ema_logging.log_to_stderr(ema_logging.INFO)
     model = SimplePythonModel(None, 'simpleModel') #instantiate the model
     ensemble = ModelEnsemble() #instantiate an ensemble
+    ensemble.parallel = True
     ensemble.model_structure = model #set the model on the ensemble
     results = ensemble.perform_experiments(1000) #run 1000 experiments
