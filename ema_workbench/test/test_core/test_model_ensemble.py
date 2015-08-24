@@ -49,7 +49,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_b = DummyInterface(None, "B")
         ensemble = ModelEnsemble()
         ensemble.model_structures = [model_a, model_b]
-        self.assertEqual(ensemble.model_structures, [model_a, model_b])
+        self.assertEqual(list(ensemble.model_structures), [model_a, model_b])
         
     def test_generate_experiments(self):
         # everything shared

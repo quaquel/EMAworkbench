@@ -20,6 +20,11 @@ import itertools
 import collections
 import time
 
+try:
+    from multiprocessing.queues import SimpleQueue
+except ImportError:
+    from multiprocessing import SimpleQueue
+
 from multiprocessing import Process, cpu_count, TimeoutError
 from multiprocessing.util import Finalize, debug
 
@@ -131,7 +136,6 @@ class Pool(object):
             )
 
     def _setup_queues(self):
-        from multiprocessing.queues import SimpleQueue
         self._inqueue = SimpleQueue()
         self._outqueue = SimpleQueue()
         self._quick_put = self._inqueue._writer.send
