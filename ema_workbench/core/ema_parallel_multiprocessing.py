@@ -32,15 +32,12 @@ import threading
 import time
 import traceback
 
-from multiprocessing import Process, cpu_count, current_process,\
-                            TimeoutError
+import multiprocessing.pool as pool
 from multiprocessing.util import Finalize
 
 
 from .experiment_runner import ExperimentRunner
-from .pool import RUN, Pool, TERMINATE
 
- 
 from util import ema_logging
 from util.ema_exceptions import EMAError, EMAParallelError
 
@@ -61,7 +58,6 @@ def worker(inqueue,
         
     ema_logging.debug("worker started")
     
-    put = outqueue.put
     if hasattr(inqueue, '_writer'):
         inqueue._writer.close()
         outqueue._reader.close()
@@ -84,15 +80,15 @@ def worker(inqueue,
 
         try:
             result = runner.run_experiment(experiment)
-            put((experiment_id, (True, result)))
+            outqueue.put((experiment_id, (True, result)))
         except EMAError as inst:
             result = (False, inst)
-            put((experiment_id, result))
+            outqueue.put((experiment_id, result))
         except Exception:
             result = (False, EMAParallelError("failure to initialize"))
-            put((experiment_id, result))
+            outqueue.put((experiment_id, result))
 
-class CalculatorPool(Pool):
+class CalculatorPool(pool.Pool):
     '''
     Class representing a pool of processes that handles the parallel 
     calculation heavily derived from the standard pool provided with the 
@@ -118,7 +114,7 @@ class CalculatorPool(Pool):
         
         if processes is None:
             try:
-                processes = cpu_count()
+                processes = multiprocessing.cpu_count()
             except NotImplementedError:
                 processes = 1
         ema_logging.info("nr of processes is "+str(processes))
@@ -127,7 +123,7 @@ class CalculatorPool(Pool):
         self._setup_queues()
         self._taskqueue = queue.Queue(processes*2)
         self._cache = {}
-        self._state = RUN
+        self._state = pool.RUN
         
         # handling of logging
         self.log_queue = multiprocessing.Queue()
@@ -195,7 +191,7 @@ class CalculatorPool(Pool):
                                               )
                                         )
         self._task_handler.daemon = True
-        self._task_handler._state = RUN
+        self._task_handler._state = pool.RUN
         self._task_handler.start()
 
         # thread for handling results
@@ -208,7 +204,7 @@ class CalculatorPool(Pool):
                                               self.log_queue)
             )
         self._result_handler.daemon = True
-        self._result_handler._state = RUN
+        self._result_handler._state = pool.RUN
         self._result_handler.start()
 
         # function for cleaning up when finalizing object
@@ -271,7 +267,7 @@ class CalculatorPool(Pool):
                                               event)
                                         )
         self._feeder_thread.daemon = True
-        self._feeder_thread._state = RUN
+        self._feeder_thread._state = pool.RUN
         self._feeder_thread.start()
         
         self._feeder_thread.join()
@@ -323,7 +319,7 @@ class CalculatorPool(Pool):
                 return
 
             if thread._state:
-                assert thread._state == TERMINATE
+                assert thread._state == pool.TERMINATE
                 ema_logging.debug('result handler found thread._state=TERMINATE')
                 break
 
@@ -337,7 +333,7 @@ class CalculatorPool(Pool):
             except KeyError:
                 pass
 
-        while cache and thread._state != TERMINATE:
+        while cache and thread._state != pool.TERMINATE:
             try:
                 task = get()
             except (IOError, EOFError):
@@ -388,7 +384,7 @@ class CalculatorPool(Pool):
         event : threading.Event instance
 
         '''
-        assert self._state == RUN
+        assert self._state == pool.RUN
         result = EMAApplyResult(self._cache, callback, event)
         self._taskqueue.put((result._job, copy.deepcopy(experiment)))
 
@@ -486,7 +482,7 @@ class EMAApplyResult(object):
     def get(self, timeout=None):
         self.wait(timeout)
         if not self._ready:
-            raise TimeoutError
+            raise multiprocessing.TimeoutError
         if self._success:
             return self._value
         else:
@@ -589,7 +585,7 @@ class LogQueueReader(threading.Thread):
                 traceback.print_exc(file=sys.stderr)
 
 
-class LoggingProcess(Process):
+class LoggingProcess(multiprocessing.Process):
     """
     A small extension of the default :class:`multiprocessing.Process` 
     in order to log from the subprocesses.
@@ -598,15 +594,14 @@ class LoggingProcess(Process):
     to fit into the :mod:`ema_logging` scheme.
     """
     
-    def __init__(self, queue, level= None, target=None, args=()):
-        Process.__init__(self, target=target, args = args)
+    def __init__(self, queue, level=None, target=None, args=()):
+        super(LoggingProcess, self).__init__(target=target, args=args)
         self.queue = queue
         self.level = level
 
     def _setupLogger(self):
         # create the logger to use.
         logger = logging.getLogger(ema_logging.LOGGER_NAME+'.subprocess')
-#         ema_logging.LOGGER_NAME+'.subprocess'
         ema_logging._logger = logger
         _logger = logger
         
@@ -632,7 +627,7 @@ class LoggingProcess(Process):
 
     def run(self):
         self._setupLogger()
-        p = current_process()
+        p = multiprocessing.current_process()
         ema_logging.debug('process %s with pid %s started' % (p.name, p.pid))
         #call the run of the super, which in turn will call the worker function
         super(LoggingProcess, self).run()

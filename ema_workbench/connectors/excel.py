@@ -12,7 +12,7 @@ try:
     import win32com.client
     from win32com.universal import com_error
 except ImportError:
-    pass
+    "win32com not found, Excel connector not avaiable"
 
 from util import ema_logging
 from util.ema_exceptions import EMAError
