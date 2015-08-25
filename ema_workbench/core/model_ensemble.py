@@ -78,6 +78,10 @@ class ModelEnsemble(object):
            the pool to delegate the running of experiments to in case
            of running in parallel. If parallel is true and pool is none
            a :class:`MultiprocessingPool` will be set up and used. 
+    processes : int
+                the number of processes to use when running in parallel. 
+                Default is None, meaning that the number of processes is
+                determined by the pool itself.     
     policies : list
                a list of the policies to be explored. By default this contains
                a single policy called None. The moment you assign new
@@ -91,6 +95,7 @@ class ModelEnsemble(object):
     
     parallel = False
     pool = None
+    processes = None
     
     def __init__(self, sampler=LHSSampler()):
         super(ModelEnsemble, self).__init__()
@@ -247,7 +252,7 @@ class ModelEnsemble(object):
             
             if not self.pool:
                 self.pool = MultiprocessingPool(self.model_structures, 
-                                                model_kwargs)
+                        model_kwargs=model_kwargs, nr_processes=self.processes)
             info("starting to perform experiments in parallel")
 
             self.pool.perform_experiments(callback, experiments)
