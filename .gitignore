@@ -12,6 +12,7 @@ tmp/
 *.swp
 *~.nib
 *.pyc
+*.cfg
 local.properties
 .classpath
 .settings/
