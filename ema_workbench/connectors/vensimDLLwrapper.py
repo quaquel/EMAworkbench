@@ -158,12 +158,12 @@ def get_data(filename, varname, tname = "Time"):
     tval = (ctypes.c_float * 1)()  
     maxn = ctypes.c_int(0)
     
-    return_val = vensim.vensim_get_data(filename, 
-                                         varname, 
-                                         tname, 
-                                         vval, 
-                                         tval, 
-                                         maxn)
+    return_val = vensim.vensim_get_data(str(filename), 
+                                        str(varname), 
+                                        str(tname), 
+                                        vval, 
+                                        tval, 
+                                        maxn)
     
     if return_val == 0:
         raise VensimWarning("variable "+varname+" not found in dataset")

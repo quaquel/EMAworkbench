@@ -8,8 +8,7 @@ used functions with error checking. For more fine grained control, the
 :mod:`vensimDLLwrapper` can also be used directly.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
+from __future__ import (absolute_import, print_function, division)
 import types
 import decimal
 import math
@@ -68,7 +67,7 @@ def load_model(file_name):
     '''
     debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|"+file_name)
     try:
-        command(r"SPECIAL>LOADMODEL|"+file_name)
+        command("SPECIAL>LOADMODEL|"+str(file_name))
     except VensimWarning as w:
         warning(str(w))
         raise VensimError("vensim file not found")
@@ -89,7 +88,7 @@ def read_cin_file(file_name):
     '''
     debug("executing COMMAND: SIMULATE>READCIN|"+file_name)
     try:
-        command(r"SIMULATE>READCIN|"+file_name)
+        command(r"SIMULATE>READCIN|"+str(file_name))
     except VensimWarning as w:
         debug(str(w))
         raise w
@@ -111,6 +110,7 @@ def set_value(variable, value):
             list, or an float/integer. If it is a list, it is assumed the 
             variable is a lookup.
     '''
+    variable = str(variable)
     
     if type(value) == types.ListType:
         command(r"SIMULATE>SETVAL|"+variable+"("+ str(value)[1:-1] + ")")
@@ -138,6 +138,8 @@ def run_simulation(file_name):
     VensimError if running the model failed in some way. 
                 
     '''
+
+    file_name = str(file_name)
 
     try:
         debug(" executing COMMAND: SIMULATE>RUNNAME|"+file_name+"|O")
@@ -171,7 +173,7 @@ def get_data(filename, varname, step=1):
     
     vval = []
     try:
-        vval, _ = vensimDLLwrapper.get_data(filename, varname)    
+        vval, _ = vensimDLLwrapper.get_data(str(filename), str(varname))    
     except VensimWarning as w:
         warning(str(w))
         

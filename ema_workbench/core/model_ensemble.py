@@ -24,9 +24,6 @@ import os
 import itertools
 from collections import defaultdict
 
-
-
-
 from util.ema_logging import info, debug
 from util.ema_exceptions import EMAError
 
