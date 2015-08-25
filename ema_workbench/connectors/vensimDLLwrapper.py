@@ -133,7 +133,7 @@ def finish_simulation():
     return return_val
 
     
-def get_data(filename, varname, tname = "Time"):
+def get_data(filename, varname, tname = b"Time"):
     ''' 
     Retrieves data from simulation runs or imported data sets. In contrast
     to the Vensim DLL, this method retrieves all the data, and not only the 
@@ -158,9 +158,9 @@ def get_data(filename, varname, tname = "Time"):
     tval = (ctypes.c_float * 1)()  
     maxn = ctypes.c_int(0)
     
-    return_val = vensim.vensim_get_data(str(filename), 
-                                        str(varname), 
-                                        str(tname), 
+    return_val = vensim.vensim_get_data(filename, 
+                                        varname, 
+                                        tname, 
                                         vval, 
                                         tval, 
                                         maxn)
