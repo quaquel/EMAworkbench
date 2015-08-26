@@ -10,12 +10,12 @@ This excel file implements a simple predator prey model.
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import matplotlib.pyplot as plt
+
 
 from core import ModelEnsemble, ParameterUncertainty,\
-                         Outcome, ema_logging
+                         Outcome
+from util import ema_logging
 from connectors.excel import ExcelModelStructureInterface
-from analysis.plotting import lines
 from core.ema_parallel import MultiprocessingPool
 
 class ExcelModel(ExcelModelStructureInterface):

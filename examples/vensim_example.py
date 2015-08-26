@@ -8,8 +8,8 @@ It's main purpose is to test the parallel processing functionality
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 '''
-from core import ModelEnsemble, ParameterUncertainty, Outcome,\
-                         ema_logging 
+from core import ModelEnsemble, ParameterUncertainty, Outcome
+from util import ema_logging 
 from connectors.vensim import VensimModelStructureInterface
 
 class VensimExampleModel(VensimModelStructureInterface):

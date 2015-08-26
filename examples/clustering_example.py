@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 
 from analysis.clusterer import cluster
 
-from core import load_results, ema_logging
+from util import ema_logging
+from util.util import load_results
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 

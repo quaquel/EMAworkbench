@@ -10,8 +10,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from analysis import prim
-from core import ema_logging, load_results
 
+from util import ema_logging
+from util.util import load_results
 
 ema_logging.log_to_stderr(ema_logging.INFO);
 

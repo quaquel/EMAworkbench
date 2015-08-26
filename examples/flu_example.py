@@ -17,8 +17,9 @@ from numpy import sin, min
 from scipy import exp
 import matplotlib.pyplot as plt
 
-from core import ModelStructureInterface, ModelEnsemble,\
-                         ParameterUncertainty, Outcome, ema_logging
+from core import (ModelStructureInterface, ModelEnsemble,ParameterUncertainty, 
+                  Outcome)
+from util import ema_logging
                          
 from analysis.plotting import lines
 from analysis.plotting_util import KDE                         

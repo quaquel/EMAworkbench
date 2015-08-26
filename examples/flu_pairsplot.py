@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from analysis.pairs_plotting import pairs_lines, pairs_scatter, pairs_density
 from util.util import load_results
-from core import ema_logging
+from util import ema_logging
 
 ema_logging.log_to_stderr(level=ema_logging.DEFAULT_LEVEL)
 
