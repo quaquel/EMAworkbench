@@ -7,7 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import analysis.cart as cart
-from core import load_results, ema_logging
+from util import ema_logging
+from util.util import load_results
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 

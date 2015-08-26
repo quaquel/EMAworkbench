@@ -7,8 +7,9 @@ Created on 8 mrt. 2011
 from __future__ import division
 from math import exp
 
-from core import ParameterUncertainty, CategoricalUncertainty, Outcome,\
-                         ema_logging, ModelEnsemble
+from core import (ParameterUncertainty, CategoricalUncertainty, Outcome, 
+                  ModelEnsemble)
+from util import ema_logging
 from connectors.vensim import VensimModelStructureInterface
 
 class ScarcityModel(VensimModelStructureInterface):

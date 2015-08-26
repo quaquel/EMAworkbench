@@ -8,9 +8,14 @@ use in conjuction with vensim models. This example is largely based on
 @author: sibeleker
 @author: jhkwakkel
 '''
-from core import Outcome, ModelEnsemble, ema_logging
-from connectors.vensim import  LookupUncertainty, VensimModelStructureInterface
 import matplotlib.pyplot as plt
+
+from core import Outcome, ModelEnsemble
+from util import ema_logging
+
+from connectors.vensim import  LookupUncertainty, VensimModelStructureInterface
+
+
 from analysis.plotting import lines
 from analysis.plotting_util import BOXPLOT
 
