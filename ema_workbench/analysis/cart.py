@@ -16,6 +16,7 @@ from sklearn.externals.six import StringIO
 from util import ema_logging
 from . import scenario_discovery_util as sdutil
 
+
 # Created on May 22, 2015
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -67,23 +68,26 @@ class CART(sdutil.OutputFormatterMixin):
     can be used in a manner similar to PRIM. It provides access
     to the underlying tree, but it can also show the boxes described by the
     tree in a table or graph form similar to prim.
-    
+
+    Parameters
+    ----------
+    x : recarray
+    y : ndarray
+    mass_min : float, optional
+               a value between 0 and 1 indicating the minimum fraction
+               of data points in a terminal leaf. Defaults to 0.05, 
+               identical to prim. 
+    mode : {BINARY, CLASSIFICATION, REGRESSION}
+           indicates the mode in which CART is used. Binary indicates
+           binary classification, classification is multiclass, and regression
+           is regression.
+
     Attributes
     ----------
     boxes : list
             list of recarray box lims
     stats : list
             list of dicts with stats 
-
-    Methods
-    -------
-    boxes_to_dataframe()
-        get boxes as pandas dataframe
-    stats_to_dataframe()
-        get stats as pandas dataframe
-    display_boxes(together=False)
-        display box limits in a figure
-    
     
     Notes
     -----
@@ -100,17 +104,10 @@ class CART(sdutil.OutputFormatterMixin):
     
     sep = '?!?'
     
-    def __init__(self, x,y, mass_min=0.05):
+    def __init__(self, x,y, mass_min=0.05, mode=sdutil.BINARY):
         ''' init
         
-        Parameters
-        ----------
-        x : recarray
-        y : ndarray
-        mass_min : float, optional
-                   a value between 0 and 1 indicating the minimum fraction
-                   of data points in a terminal leaf. Defaults to 0.05, 
-                   identical to prim. 
+       
                    
         '''
         
@@ -216,28 +213,48 @@ class CART(sdutil.OutputFormatterMixin):
             return self._stats
         
         boxes = self.boxes
-        total_coi = np.sum(self.y)
+        
         box_init = sdutil._make_box(self.x)
         
         self._stats = []
         for box in boxes:
-            indices = sdutil._in_box(self.x, box)
-            
-            y_in_box = self.y[indices]
-            box_coi = np.sum(y_in_box)
-            
-            boxstats = {'coverage': box_coi/total_coi,
-                        'density': box_coi/y_in_box.shape[0],
-                        'res dim':sdutil._determine_nr_restricted_dims(box,
-                                                                       box_init),
-                        'mass':y_in_box.shape[0]/self.y.shape[0]}
+            boxstats = self._boxstat_methods[self.mode](box, box_init)
             self._stats.append(boxstats)
         return self._stats
+
+    
+    def _binary_stats(self, box, box_init):
+        indices = sdutil._in_box(self.x, box)
+            
+        y_in_box = self.y[indices]
+        box_coi = np.sum(y_in_box)
+        
+        boxstats = {'coverage': box_coi/np.sum(self.y),
+                    'density': box_coi/y_in_box.shape[0],
+                    'res dim':sdutil._determine_nr_restricted_dims(box,
+                                                                   box_init),
+                    'mass':y_in_box.shape[0]/self.y.shape[0]}
+        return boxstats
+    
+    def _regression_stats(self, box, box_init):
+        raise NotImplementedError
+
+    
+    def _classification_stats(self, box, box_init):
+        raise NotImplementedError
+
+    _boxstat_methods = {sdutil.BINARY:_binary_stats, 
+                        sdutil.REGRESSION:_regression_stats,
+                        sdutil.CLASSIFICATION: _classification_stats}
 
     def build_tree(self):
         '''train CART on the data'''
         min_samples = int(self.mass_min*self.x.shape[0])
-        self.clf = tree.DecisionTreeClassifier(min_samples_leaf=min_samples)
+        
+        if self.mode==sdutil.REGRESSION:
+            self.clf =  tree.DecisionTreeRegressor(min_samples_leaf=min_samples)
+        else:
+            self.clf = tree.DecisionTreeClassifier(min_samples_leaf=min_samples)
         self.clf.fit(self._x,self.y)
 
     def show_tree(self):
