@@ -17,6 +17,17 @@ from analysis.plotting_util import COLOR_LIST
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+REGRESSION = 'regression'
+'''constant indicating regression mode'''
+
+BINARY = 'binary'
+'''constant indicating binary classification mode. This is the most
+common used mode in scenario discovery'''
+
+CLASSIFICATION = 'classification'
+'''constant indicating classification mode'''
+
+
 def _get_sorted_box_lims(boxes, box_init):
     '''Sort the uncertainties for each box in boxes based on a normalization
     given box_init. Unrestricted dimensions are dropped. The sorting is based
