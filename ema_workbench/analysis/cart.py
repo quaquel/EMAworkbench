@@ -114,6 +114,7 @@ class CART(sdutil.OutputFormatterMixin):
         self.x = x
         self.y = y
         self.mass_min = mass_min
+        self.mode = mode
 
         # we need to transform the structured array to a ndarray
         # we use dummy variables for each category in case of categorical 
@@ -218,7 +219,7 @@ class CART(sdutil.OutputFormatterMixin):
         
         self._stats = []
         for box in boxes:
-            boxstats = self._boxstat_methods[self.mode](box, box_init)
+            boxstats = self._boxstat_methods[self.mode](self, box, box_init)
             self._stats.append(boxstats)
         return self._stats
 
@@ -237,11 +238,39 @@ class CART(sdutil.OutputFormatterMixin):
         return boxstats
     
     def _regression_stats(self, box, box_init):
-        raise NotImplementedError
+        indices = sdutil._in_box(self.x, box)
+            
+        y_in_box = self.y[indices]
+        
+        boxstats = {'mean': np.mean(y_in_box),
+                    'mass':y_in_box.shape[0]/self.y.shape[0],
+                    'res dim':sdutil._determine_nr_restricted_dims(box,
+                                                                   box_init)}
+        return boxstats
 
     
     def _classification_stats(self, box, box_init):
-        raise NotImplementedError
+        indices = sdutil._in_box(self.x, box)
+            
+        y_in_box = self.y[indices]
+        classes = set(self.y)
+        classes = list(classes)
+        classes.sort()
+        
+        counts = [y_in_box[y_in_box==ci].shape[0] for ci in classes]
+
+        total_gini = 0
+        for count in counts:
+            total_gini += (count/y_in_box.shape[0])**2
+        gini = 1 - total_gini
+        
+        boxstats = {'gini': gini,
+            'mass':y_in_box.shape[0]/self.y.shape[0],
+            'box_composition': counts,
+            'res dim':sdutil._determine_nr_restricted_dims(box,
+                                                           box_init)}
+        
+        return boxstats
 
     _boxstat_methods = {sdutil.BINARY:_binary_stats, 
                         sdutil.REGRESSION:_regression_stats,
