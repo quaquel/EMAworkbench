@@ -1243,7 +1243,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
         scores.sort(key=itemgetter(0,1), reverse=True)
         entry = scores[0]
-        box_new, indices = entry[2:]
+        obj, _, box_new, indices = entry
         mass_new = self.y[indices].shape[0]/self.n
         
         mean_old = np.mean(self.y[box.yi])
@@ -1251,7 +1251,7 @@ class Prim(sdutil.OutputFormatterMixin):
         
         if (mass_new >= self.mass_min) &\
            (mass_new > mass_old) &\
-           (mean_old <= mean_new):
+           (obj>0):
             box.update(box_new, indices)
             return self._paste(box)
         else:
