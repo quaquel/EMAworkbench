@@ -51,7 +51,8 @@ from . import scenario_discovery_util as sdutil
 
 __all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox', 'PrimException']
 
-DEFAULT = 'default'
+LENIENT2 = 'lenient2'
+LENIENT1 = 'lenient1'
 ORIGINAL = 'original'
 
 ABOVE = 1
@@ -694,20 +695,32 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     
 
 class Prim(sdutil.OutputFormatterMixin):
-    '''Patient rule inducation algorithm
+    '''Patient rule induction algorithm
     
     The implementation of Prim is tailored to interactive use in the context
     of scenario discovery
-        
-    Methods
-    -------
-    boxes_to_dataframe()
-        get boxes as pandas dataframe
-    stats_to_dataframe()
-        get stats as pandas dataframe
-    display_boxes(together=False)
-        display box limits in a figure
-        
+
+    Parameters
+    ----------
+    x : structured array
+        the independent variables
+    y : 1d ndarray
+        the dependent variable
+    threshold : float
+                the coverage threshold that a box has to meet
+    obj_function : {LENIENT1, LENIENT2, ORIGINAL}
+                   the objective function used by PRIM. Defaults to a lenient 
+                   objective function based on the gain of mean divided by the 
+                   loss of mass. 
+    peel_alpha : float, optional 
+                 parameter controlling the peeling stage (default = 0.05). 
+    paste_alpha : float, optional
+                  parameter controlling the pasting stage (default = 0.05).
+    mass_min : float, optional
+               minimum mass of a box (default = 0.05). 
+    threshold_type : {ABOVE, BELOW}
+                     whether to look above or below the threshold value
+  
         
     See also
     --------
@@ -722,30 +735,13 @@ class Prim(sdutil.OutputFormatterMixin):
                  x,
                  y, 
                  threshold, 
-                 obj_function=DEFAULT, 
+                 obj_function=LENIENT1, 
                  peel_alpha=0.05, 
                  paste_alpha=0.05,
                  mass_min=0.05, 
                  threshold_type=ABOVE):
         '''
-        Parameters
-        ----------
-        x : structured array
-            the independent variables
-        y : 1d ndarray
-            the dependent variable
-        threshold : float
-                    the coverage threshold that a box has to meet
-        peel_alpha : float, optional 
-                     parameter controlling the peeling stage (default = 0.05). 
-        paste_alpha : float, optional
-                      parameter controlling the pasting stage (default = 0.05).
-        mass_min : float, optional
-                   minimum mass of a box (default = 0.05). 
-        threshold_type : {ABOVE, BELOW}
-                         whether to look above or below the threshold value
-        obj_func : callable, optional
-                   the objective function used by PRIM
+
                      
         '''
 
@@ -1251,7 +1247,8 @@ class Prim(sdutil.OutputFormatterMixin):
         
         if (mass_new >= self.mass_min) &\
            (mass_new > mass_old) &\
-           (obj>0):
+           (obj>0) &\
+           (mean_new>mean_old):
             box.update(box_new, indices)
             return self._paste(box)
         else:
@@ -1361,7 +1358,7 @@ class Prim(sdutil.OutputFormatterMixin):
             # no pastes possible, return empty list
             return []
     
-    def _default_obj_func(self, y_old, y_new):
+    def _lenient1_obj_func(self, y_old, y_new):
         r'''
         the default objective function used by prim, instead of the original
         objective function, This function can cope with continuous, integer, 
@@ -1384,6 +1381,8 @@ class Prim(sdutil.OutputFormatterMixin):
         in case of categorical data where the normal objective function often 
         results in boxes mainly based on the categorical data.  
         
+        TODO:: seems to be identical to 14.3 in friedman and fisher
+        
         '''
         mean_old = np.mean(y_old)
         
@@ -1401,6 +1400,34 @@ class Prim(sdutil.OutputFormatterMixin):
             else:
                 raise PrimException('''mean is different {} vs {}, while shape is the same,
                                        this cannot be the case'''.format(mean_old, mean_new))
+        return obj
+    
+    def _lenient2_obj_func(self, y_old, y_new):
+        '''
+        
+        friedman and fisher 14.6
+        
+        
+        '''
+        mean_old = np.mean(y_old)
+        
+        if y_new.shape[0]>0:
+            mean_new = np.mean(y_new)
+        else:
+            mean_new = 0
+            
+        obj = 0
+        if mean_old != mean_new:
+            if y_old.shape==y_new.shape:
+                raise PrimException('''mean is different {} vs {}, while shape is the same,
+                                       this cannot be the case'''.format(mean_old, mean_new))
+            
+            change_mean = mean_new - mean_old
+            change_mass = abs(y_old.shape[0]-y_new.shape[0])
+            mass_new = y_new.shape[0]
+                
+            obj = mass_new * change_mean / change_mass
+                
         return obj
     
     def _original_obj_fund(self, y_old, y_new):
@@ -1489,5 +1516,6 @@ class Prim(sdutil.OutputFormatterMixin):
                'float64': _real_paste}
 
     # dict with the various objective functions available
-    _obj_functions = {DEFAULT : _default_obj_func,
+    _obj_functions = {LENIENT2 : _lenient2_obj_func,
+                      LENIENT1 : _lenient1_obj_func,
                       ORIGINAL: _original_obj_fund}    
