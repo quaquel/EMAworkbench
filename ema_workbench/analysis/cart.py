@@ -14,7 +14,8 @@ from sklearn import tree
 from sklearn.externals.six import StringIO
 
 from util import ema_logging
-from . import scenario_discovery_util as sdutil
+from analysis import scenario_discovery_util as sdutil
+import math
 
 
 # Created on May 22, 2015
@@ -182,6 +183,7 @@ class CART(sdutil.OutputFormatterMixin):
         boxes = []
         for leaf in leafs:
             branch = recurse(left, right, leaf)
+#             print(branch)
             box = np.copy(box_init)
             for node in branch:
                 direction = node[1]
@@ -198,6 +200,10 @@ class CART(sdutil.OutputFormatterMixin):
                         box[unc][:]=cats
                 else:
                     try:
+                        if (box.dtype.fields[unc][0])==np.int32:
+                            value = math.ceil(value)
+                        
+                        
                         box[unc][0] = value
                     except ValueError:
                         # we are in the right hand branch, so 
