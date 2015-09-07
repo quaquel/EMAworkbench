@@ -105,7 +105,10 @@ def load_results(file_name):
             temp_shape = []
             for entry in shape:
                 if entry:
-                    temp_shape.append(int(entry))
+                    try:
+                        temp_shape.append(int(entry))
+                    except ValueError:
+                        temp_shape.append(int(long(entry)))
             shape = tuple(temp_shape)
             
             if len(shape)>2:
@@ -323,52 +326,53 @@ def merge_results(results1, results2, downsample=None):
     return mr  
 
 
-# def load_optimization_results(file_name, weights, zipped=True):
-#     '''
-#     load the specified bz2 file. the file is assumed to be saves
-#     using save_results.
-#     
-#     Parameters
-#     ----------    
-#     file_name : str
-#                 the path of the file
-#     zipped : bool
-#             load the pickled data from a zip file if True
-#     
-#     Returns
-#     -------
-#     the unpickled results
-#     
-#     Raises
-#     ------
-#     IOError 
-#         if file not found
-#     EMAError 
-#         if specified weights do not match weights in data set
-#     
-#     '''
-#     creator.create("Fitness", base.Fitness, weights=weights)
-#     creator.create("Individual", dict, 
-#                    fitness=creator.Fitness) #@UndefinedVariable
-#     
-#     file_name = os.path.abspath(file_name)
-#     debug("loading "+file_name)
-#     try:
-#         if zipped:
-#             file_name = bz2.BZ2File(file_name, 'rb')
-#         else:
-#             file_name = open(file_name, 'rb')
-#         
-#         results = cPickle.load(file_name)
-#         
-#         if results[0].weights != weights:
-#             raise EMAError("weights are %s, should be %s" % (weights, 
-#                                                         results[0].weights))
-#     except IOError:
-#         warning(file_name + " not found")
-#         raise
-#     
-#     return results
+def load_optimization_results(file_name, weights, zipped=True):
+    '''
+    load the specified bz2 file. the file is assumed to be saves
+    using save_results.
+     
+    Parameters
+    ----------    
+    file_name : str
+                the path of the file
+    zipped : bool
+            load the pickled data from a zip file if True
+     
+    Returns
+    -------
+    the unpickled results
+     
+    Raises
+    ------
+    IOError 
+        if file not found
+    EMAError 
+        if specified weights do not match weights in data set
+     
+    '''
+    import cPickle
+    creator.create("Fitness", base.Fitness, weights=weights)
+    creator.create("Individual", dict, 
+                   fitness=creator.Fitness) #@UndefinedVariable
+     
+    file_name = os.path.abspath(file_name)
+    debug("loading "+file_name)
+    try:
+        if zipped:
+            file_name = bz2.BZ2File(file_name, 'rb')
+        else:
+            file_name = open(file_name, 'rb')
+         
+        results = cPickle.load(file_name)
+         
+        if results[0].weights != weights:
+            raise EMAError("weights are %s, should be %s" % (weights, 
+                                                        results[0].weights))
+    except IOError:
+        warning(file_name + " not found")
+        raise
+     
+    return results
 
 
 def get_ema_project_home_dir():
