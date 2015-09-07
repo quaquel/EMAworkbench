@@ -327,7 +327,8 @@ class PrimBox(object):
             # at the top of the figure
             xj = len(uncs) - j - 1
 
-            self.prim._plot_unc(box_lim_init, xj, j, 0, norm_box_lim, box_lim, u, ax)
+            self.prim._plot_unc(box_lim_init, xj, j, 0, norm_box_lim, box_lim, 
+                                u, ax)
 
             # new part
             dtype = box_lim_init[u].dtype
