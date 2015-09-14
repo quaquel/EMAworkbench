@@ -113,7 +113,7 @@ def set_value(variable, value):
     variable = str(variable)
     
     if type(value) == types.ListType:
-        value = [str[entry] for entry in value]
+        value = [str(entry) for entry in value]
         command(r"SIMULATE>SETVAL|"+variable+"("+ value[1:-1] + ")")
     else:
         try:
