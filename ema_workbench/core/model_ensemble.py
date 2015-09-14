@@ -111,7 +111,7 @@ class ModelEnsemble(object):
     @policies.setter
     def policies(self, policies):
         try:
-            self._policies = {policy['name'] for policy in policies}
+            self._policies = {policy['name']:policy for policy in policies}
         except TypeError:
             # it probably is a single policy
             self._policies = {policies['name']:policies}
@@ -262,7 +262,8 @@ class ModelEnsemble(object):
             cwd = os.getcwd() 
             runner = ExperimentRunner(self._msis, model_kwargs)
             for experiment in experiments:
-                runner.run_experiment(experiment)
+                experiment_id, case, policy, model_name, result = runner.run_experiment(experiment)
+                callback(experiment_id, case, policy, model_name, result)
             os.chdir(cwd)
        
         results = callback.get_results()
