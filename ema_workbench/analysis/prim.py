@@ -741,11 +741,6 @@ class Prim(sdutil.OutputFormatterMixin):
                  paste_alpha=0.05,
                  mass_min=0.05, 
                  threshold_type=ABOVE):
-        '''
-
-                     
-        '''
-
         
         self.x = np.ma.array(x)
         self.y = y
@@ -833,19 +828,19 @@ class Prim(sdutil.OutputFormatterMixin):
         if not subsets:
             subsets = {"r":[key for key, value in dtypes.items() 
                             if value[0].name!=np.dtype(object)]}
-        
-        # remove uncertainties that are in exclude and check whether 
-        # uncertainties occur in more then one subset
-        seen = set()
-        for key, value in subsets.items():
-            value = set(value) - set(exclude)
-
-            subsets[key] = list(value)
-            if (seen & value):
-                raise EMAError("uncertainty occurs in more then one subset")
-            else:
-                seen = seen | set(value)
-        
+        else:
+            # remove uncertainties that are in exclude and check whether 
+            # uncertainties occur in more then one subset
+            seen = set()
+            for key, value in subsets.items():
+                value = set(value) - set(exclude)
+    
+                subsets[key] = list(value)
+                if (seen & value):
+                    raise EMAError("uncertainty occurs in more then one subset")
+                else:
+                    seen = seen | set(value)
+            
         #prepare the dtypes for the new rotated experiments recarray
         new_dtypes = []
         for key, value in subsets.items():
@@ -853,7 +848,7 @@ class Prim(sdutil.OutputFormatterMixin):
             
             # the names of the rotated columns are based on the group name 
             # and an index
-            [new_dtypes.append(("%s_%s" % (key, i), float)) for i 
+            [new_dtypes.append((str("{}_{}".format(key, i)), float)) for i 
              in range(len(value))]
         
         #add the uncertainties with object dtypes to the end
@@ -861,7 +856,7 @@ class Prim(sdutil.OutputFormatterMixin):
         [new_dtypes.append((name, object)) for name in included_object_dtypes]
         
         #make a new empty recarray
-        rotated_experiments = np.recarray((self.x.shape[0],),dtype=new_dtypes)
+        rotated_experiments = np.empty((self.x.shape[0],), dtype=new_dtypes)
         
         #put the uncertainties with object dtypes already into the new recarray 
         for name in included_object_dtypes :
@@ -894,7 +889,7 @@ class Prim(sdutil.OutputFormatterMixin):
         self.row_names = row_names
         
         self.x = np.ma.array(rotated_experiments)
-        self.box_init = self._make_box(self.x)
+        self.box_init = sdutil._make_box(self.x)
     
     def find_box(self):
         '''Execute one iteration of the PRIM algorithm. That is, find one
@@ -1431,7 +1426,7 @@ class Prim(sdutil.OutputFormatterMixin):
                 
         return obj
     
-    def _original_obj_fund(self, y_old, y_new):
+    def _original_obj_func(self, y_old, y_new):
         ''' The original objective function: the mean of the data inside the 
         box'''
         
@@ -1519,4 +1514,4 @@ class Prim(sdutil.OutputFormatterMixin):
     # dict with the various objective functions available
     _obj_functions = {LENIENT2 : _lenient2_obj_func,
                       LENIENT1 : _lenient1_obj_func,
-                      ORIGINAL: _original_obj_fund}    
+                      ORIGINAL: _original_obj_func}    

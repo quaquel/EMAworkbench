@@ -62,7 +62,7 @@ def load_results(file_name):
     with tarfile.open(file_name, 'r:gz', encoding="UTF8") as z:
         # load x
         experiments = z.extractfile('experiments.csv')
-        df = pd.io.parsers.read_table(experiments, sep=',')
+        df = pd.io.parsers.read_table(experiments, sep=',')  # @UndefinedVariable
         experiments = df.to_records()
         experiments = recfunctions.drop_fields(experiments, ['index'])
 
