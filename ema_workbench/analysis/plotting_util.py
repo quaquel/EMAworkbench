@@ -548,67 +548,64 @@ def determine_time_dimension(outcomes):
 
 def group_results(experiments, outcomes, group_by, grouping_specifiers):
     '''
-    Helper function that takes the experiments and results and returns a list
-    based on groupings. Each element in the dictionary contains the experiments
+    Helper function that takes the experiments and results and returns a list 
+    based on groupings. Each element in the dictionary contains the experiments 
     and results for a particular group, the key is the grouping specifier.
-   
+    
     Parameters
     ----------
     experiments : recarray
     outcomes : dict
     group_by : str
-               The column in the experiments array to which the grouping
-               specifiers apply. If the name is'index' it is assumed that the
+               The column in the experiments array to which the grouping 
+               specifiers apply. If the name is'index' it is assumed that the 
                grouping specifiers are valid indices for numpy.ndarray.
     grouping_specifiers : iterable
-                    An iterable of grouping specifiers. A grouping
-                    specifier is a unique identifier in case of grouping by
-                    categorical uncertainties. It is a tuple in case of
+                    An iterable of grouping specifiers. A grouping 
+                    specifier is a unique identifier in case of grouping by 
+                    categorical uncertainties. It is a tuple in case of 
                     grouping by a parameter uncertainty. In this cose, the code
-                    treats the tuples as half open intervals, apart from the
-                    last entry, which is treated as closed on both sides. 
-                    In case of 'index', the iterable should be a dictionary
-                    with the name for each group as key and the value being a
+                    treats the tuples as half open intervals, apart from the 
+                    last entry, which is treated as closed on both sides.  
+                    In case of 'index', the iterable should be a dictionary 
+                    with the name for each group as key and the value being a 
                     valid index for numpy.ndarray.
-   
-    Returns
+    
+    Returns 
     dict
-        A dictionary with the experiments and results for each group, the
+        A dictionary with the experiments and results for each group, the 
         grouping specifier is used as key
-            
-    ..note:: In case of grouping by parameter uncertainty, the list of
+             
+    ..note:: In case of grouping by parameter uncertainty, the list of 
              grouping specifiers is sorted. The traversal assumes half open
-             intervals, where the upper limit of each interval is open, except
+             intervals, where the upper limit of each interval is open, except 
              for the last interval which is closed.
-   
+    
     '''
     groups = {}
-   
+    
     if group_by != 'index':
         column_to_group_by = experiments[group_by]
-        grouping_specifiers = sorted(grouping_specifiers.items())
+        grouping_specifiers = sorted(grouping_specifiers)
     else:
         grouping_specifiers = grouping_specifiers.items()
-   
+    
     for grouping_specifier in grouping_specifiers:
         if isinstance(grouping_specifier, tuple):
             if isinstance(grouping_specifier[1], np.ndarray):
                 # the grouping is based on indices
                 logical = grouping_specifier[1]
                 grouping_specifier = grouping_specifier[0]
-           
+            
             else:
                 # the grouping is a continuous uncertainty
-                identifier = grouping_specifier
-               
-                lower_limit, upper_limit = grouping_specifier[1]
-                grouping_specifier = grouping_specifier[0]
-               
+                lower_limit, upper_limit = grouping_specifier
+                
                 #check whether it is the last grouping specifier
-                if grouping_specifiers.index(identifier) ==\
+                if grouping_specifiers.index(grouping_specifier) ==\
                     len(grouping_specifiers)-1:
                     #last case
-                   
+                    
                     logical = (column_to_group_by>=lower_limit) &\
                                (column_to_group_by<=upper_limit)
                 else:
@@ -617,13 +614,13 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers):
         else:
             # the grouping is an integer or categorical uncertainty
             logical = column_to_group_by==grouping_specifier
-       
+        
         group_outcomes = {}
         for key, value in outcomes.items():
             value = value[logical]
             group_outcomes[key] = value
         groups[grouping_specifier] = (experiments[logical], group_outcomes)
-       
+        
     return groups
 
 
@@ -739,13 +736,7 @@ def prepare_data(results,
             
         for entry in outcomes_to_show:
             temp_outcomes[entry] = copy.deepcopy(outcomes[entry])
-        
-# #         [outcomes.pop(entry) for entry in\
-# #          set(outcomes.keys()) - set(outcomes_to_show)]
-# 
-#     experiments = copy.deepcopy(experiments)
-#     outcomes = copy.deepcopy(outcomes)
-    
+
     time, outcomes = determine_time_dimension(outcomes)
 
     # filter the outcomes to exclude scalar values
@@ -771,11 +762,13 @@ def prepare_data(results,
         else:
             if isinstance(grouping_specifiers, six.string_types):
                 grouping_specifiers = [grouping_specifiers]
-                grouping_labels=grouping_specifiers
+                grouping_labels = grouping_specifiers
             elif isinstance(grouping_specifiers, dict):
-                grouping_labels=sorted(grouping_specifiers.keys())
+                grouping_labels = sorted(grouping_specifiers.keys())
+                grouping_specifiers = [grouping_specifiers[key] for key in 
+                                       grouping_labels]
             else:
-                grouping_labels=grouping_specifiers
+                grouping_labels = grouping_specifiers
                 
         
         outcomes = group_results(experiments, outcomes, group_by,\
