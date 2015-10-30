@@ -546,7 +546,8 @@ def determine_time_dimension(outcomes):
     return time, outcomes    
 
 
-def group_results(experiments, outcomes, group_by, grouping_specifiers):
+def group_results(experiments, outcomes, group_by, grouping_specifiers,
+                  grouping_labels):
     '''
     Helper function that takes the experiments and results and returns a list 
     based on groupings. Each element in the dictionary contains the experiments 
@@ -583,43 +584,36 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers):
     
     '''
     groups = {}
-    
     if group_by != 'index':
         column_to_group_by = experiments[group_by]
-        grouping_specifiers = sorted(grouping_specifiers)
-    else:
-        grouping_specifiers = grouping_specifiers.items()
     
-    for grouping_specifier in grouping_specifiers:
-        if isinstance(grouping_specifier, tuple):
-            if isinstance(grouping_specifier[1], np.ndarray):
-                # the grouping is based on indices
-                logical = grouping_specifier[1]
-                grouping_specifier = grouping_specifier[0]
+    for label, specifier in zip(grouping_labels, grouping_specifiers):
+        if isinstance(specifier, tuple):
+            # the grouping is a continuous uncertainty
+            lower_limit, upper_limit = specifier
             
-            else:
-                # the grouping is a continuous uncertainty
-                lower_limit, upper_limit = grouping_specifier
+            #check whether it is the last grouping specifier
+            if grouping_specifiers.index(specifier) ==\
+                len(grouping_specifiers)-1:
+                #last case
                 
-                #check whether it is the last grouping specifier
-                if grouping_specifiers.index(grouping_specifier) ==\
-                    len(grouping_specifiers)-1:
-                    #last case
-                    
-                    logical = (column_to_group_by>=lower_limit) &\
-                               (column_to_group_by<=upper_limit)
-                else:
-                    logical = (column_to_group_by>=lower_limit) &\
-                               (column_to_group_by<upper_limit)
+                logical = (column_to_group_by>=lower_limit) &\
+                           (column_to_group_by<=upper_limit)
+            else:
+                logical = (column_to_group_by>=lower_limit) &\
+                           (column_to_group_by<upper_limit)
+        elif group_by =='index':
+            # the grouping is based on indices
+            logical = specifier
         else:
             # the grouping is an integer or categorical uncertainty
-            logical = column_to_group_by==grouping_specifier
+            logical = column_to_group_by==specifier
         
         group_outcomes = {}
         for key, value in outcomes.items():
             value = value[logical]
             group_outcomes[key] = value
-        groups[grouping_specifier] = (experiments[logical], group_outcomes)
+        groups[label] = (experiments[logical], group_outcomes)
         
     return groups
 
@@ -758,7 +752,7 @@ def prepare_data(results,
                 else:
                     grouping_specifiers = make_continuous_grouping_specifiers(column_to_group_by, 
                                                         grouping_specifiers)
-            grouping_labels=sorted(grouping_specifiers)
+            grouping_labels = grouping_specifiers = sorted(grouping_specifiers)
         else:
             if isinstance(grouping_specifiers, six.string_types):
                 grouping_specifiers = [grouping_specifiers]
@@ -772,7 +766,7 @@ def prepare_data(results,
                 
         
         outcomes = group_results(experiments, outcomes, group_by,\
-                                 grouping_specifiers)
+                                 grouping_specifiers, grouping_labels)
         
         new_outcomes = {}
         for key, value in outcomes.items():
