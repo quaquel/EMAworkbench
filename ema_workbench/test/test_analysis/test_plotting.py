@@ -42,12 +42,13 @@ def test_group_results():
     experiments, outcomes = results
     
     # test indices
-    grouping_specifiers = {'set1':np.arange(0,11),
+    groups = {'set1':np.arange(0,11),
                            'set2':np.arange(11,25),
                            'set3':np.arange(25,experiments.shape[0])}
     groups = group_results(experiments, outcomes, 
                            group_by='index', 
-                           grouping_specifiers=grouping_specifiers)
+                           grouping_specifiers=groups.values(),
+                           grouping_labels= groups.keys())
     total_data = 0
     for value in groups.values():
         total_data += value[0].shape[0]
@@ -58,7 +59,8 @@ def test_group_results():
     grouping_specifiers = make_continuous_grouping_specifiers(array, nr_of_groups=5)
     groups = group_results(experiments, outcomes, 
                            group_by='average planning and construction period T1', 
-                           grouping_specifiers=grouping_specifiers) 
+                           grouping_specifiers=grouping_specifiers,
+                           grouping_labels = [str(entry) for entry in grouping_specifiers]) 
     total_data = 0
     for value in groups.values():
         total_data += value[0].shape[0]
@@ -69,7 +71,8 @@ def test_group_results():
     grouping_specifiers = make_continuous_grouping_specifiers(array, nr_of_groups=10)
     groups = group_results(experiments, outcomes, 
                            group_by='seed PR T1', 
-                           grouping_specifiers=grouping_specifiers) 
+                           grouping_specifiers=grouping_specifiers,
+                           grouping_labels = [str(entry) for entry in grouping_specifiers]) 
     total_data = 0
     for value in groups.values():
         total_data += value[0].shape[0]
@@ -80,7 +83,8 @@ def test_group_results():
     grouping_specifiers = set(experiments["policy"])
     groups = group_results(experiments, outcomes, 
                        group_by='policy', 
-                       grouping_specifiers=grouping_specifiers)
+                       grouping_specifiers=grouping_specifiers,
+                       grouping_labels = [str(entry) for entry in grouping_specifiers])
     total_data = 0
     for value in groups.values():
         total_data += value[0].shape[0]
