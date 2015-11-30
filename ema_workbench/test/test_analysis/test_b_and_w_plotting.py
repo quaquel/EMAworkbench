@@ -36,12 +36,12 @@ def test_fill_between():
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.fill_between(x, y1, y2)
+    ax.fill_between(x, y1, y2, c='b')
     set_fig_to_bw(fig, style=HATCHING)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.fill_between(x, y1, y2,label='test')
+    ax.fill_between(x, y1, y2,label='test',c='b')
     set_fig_to_bw(fig, style=GREYSCALE)
     
     plt.draw()
@@ -56,7 +56,7 @@ def test_fig_legend():
     
 
 if __name__ == "__main__":
-    test_scatter()
+#     test_scatter()
     test_fill_between()
-    test_fig_legend()
+#     test_fig_legend()
     plt.show()

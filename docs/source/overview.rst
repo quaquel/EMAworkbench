@@ -75,6 +75,7 @@ they can also be used on their own with data generated in some other manner.
 * Classification Trees (:mod:`cart`)
 * Feature Scoring (:mod:`feature_scoring`)
 * Regional Sensitivity Analysis (:mod:`regional_sa`)
+* Dimensional Stacking (:mod:`dimensional_stacking`)
 * Behaviour clustering (:mod:`clusterer`): This analysis feature automatically 
   allocates output behaviours that are similar in characteristics to groups 
   (i.e. clusters). 'Similarity' between dynamic behaviours is defined using 
