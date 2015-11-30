@@ -14,6 +14,7 @@ import matplotlib as mpl
 from matplotlib.collections import PolyCollection, PathCollection
 
 from util.ema_exceptions import EMAError
+from util import ema_logging
 
 
 # Created on 18 sep. 2012
@@ -98,12 +99,16 @@ def set_ax_collections_to_bw(ax, style):
         The ax of which the polycollection needs to be transformed to 
        B&W.
     
-    """        
+    """
     for collection in ax.collections:
+        collection_type = type(collection).__name__
         try:
-            _collection_converter[collection.__class__](collection, ax, style)
+            converter_func = _collection_converter[collection_type]
         except KeyError:
-            raise EMAError("converter for {} not implemented").format(collection.__class__)
+            raise EMAError("converter for {} not implemented".format(collection_type))
+        else:
+            converter_func(collection, ax, style)
+        
  
 def _set_ax_polycollection_to_bw(collection, ax, style):
     '''helper function for converting a polycollection to black and white
@@ -157,14 +162,15 @@ def _set_ax_pathcollection_to_bw(collection, ax, style):
     rgb_orig = collection._facecolors_original
     rgb_orig = [color_converter.to_rgb(row) for row in rgb_orig]
     color = [colors.get(entry) for entry in rgb_orig]
-    new_color = [color_converter.to_rgba(COLORMAP[entry]['fill']) for entry in color]
+    new_color = [color_converter.to_rgba(COLORMAP[entry]['fill']) for entry 
+                 in color]
     new_color = np.asarray(new_color)
     collection.update({'facecolors' : new_color}) 
     collection.update({'edgecolors' : new_color}) 
 
 
-_collection_converter = {PathCollection: _set_ax_pathcollection_to_bw,
-                         PolyCollection: _set_ax_polycollection_to_bw}
+_collection_converter = {PathCollection.__name__: _set_ax_pathcollection_to_bw,  # @UndefinedVariable
+                         PolyCollection.__name__: _set_ax_polycollection_to_bw}  # @UndefinedVariable
 
 
 def set_legend_to_bw(leg, style):
