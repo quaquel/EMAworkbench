@@ -8,10 +8,14 @@ what is needed for the workbench.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
+import itertools
+
 import numpy as np
 from matplotlib.colors import ColorConverter
 import matplotlib as mpl
 from matplotlib.collections import PolyCollection, PathCollection
+
+from analysis.plotting_util import COLOR_LIST
 
 from util.ema_exceptions import EMAError
 from util import ema_logging
@@ -23,15 +27,16 @@ from util import ema_logging
 
 __all__ = ['set_fig_to_bw']
 
-COLORMAP = {
-    'b': {'marker': None, 'dash': (None,None), 'fill':'0.1', 'hatch':'/'},
-    'g': {'marker': None, 'dash': [5,5], 'fill':'0.25', 'hatch':'\\'},
-    'r': {'marker': None, 'dash': [5,3,1,3], 'fill':'0.4', 'hatch':'|'},
-    'c': {'marker': None, 'dash': [1,3], 'fill':'0.55', 'hatch':'-'},
-    'm': {'marker': None, 'dash': [5,2,5,2,5,10], 'fill':'0.7', 'hatch':'o'},
-    'y': {'marker': None, 'dash': [5,3,1,2,1,10], 'fill':'0.85', 'hatch':'O'},
-    'k': {'marker': 'o', 'dash': (None,None), 'fill':'0.1', 'hatch':'.'} 
-        }
+mapping_cycle = itertools.cycle([
+    {'marker': None, 'dash': (None,None), 'fill':'0.1', 'hatch':'/'},
+    {'marker': None, 'dash': [5,5], 'fill':'0.25', 'hatch':'\\'},
+    {'marker': None, 'dash': [5,3,1,3], 'fill':'0.4', 'hatch':'|'},
+    {'marker': None, 'dash': [1,3], 'fill':'0.55', 'hatch':'-'},
+    {'marker': None, 'dash': [5,2,5,2,5,10], 'fill':'0.7', 'hatch':'o'},
+    {'marker': None, 'dash': [5,3,1,2,1,10], 'fill':'0.85', 'hatch':'O'},
+    {'marker': 'o', 'dash': (None,None), 'fill':'0.1', 'hatch':'.'}])
+
+COLORMAP = dict(zip(COLOR_LIST, mapping_cycle))
 
 MARKERSIZE = 3
 HATCHING = 'hatching'
@@ -76,14 +81,10 @@ def set_ax_patches_bw(ax):
     """    
     
     color_converter = ColorConverter()
-    colors = {}
-    for key, value in color_converter.colors.items():
-        colors[value] = key
     
     for patch in ax.patches:
         rgb_orig = color_converter.to_rgb(patch._facecolor)
-        origColor = colors[rgb_orig]
-        new_color = color_converter.to_rgba(COLORMAP[origColor]['fill'])
+        new_color = color_converter.to_rgba(COLORMAP[rgb_orig]['fill'])
         
         patch._facecolor = new_color
 
@@ -187,9 +188,6 @@ def set_legend_to_bw(leg, style):
     
     """
     color_converter = ColorConverter()
-    colors = {}
-    for key, value in color_converter.colors.items():
-        colors[value] = key
     
     if leg:
         if isinstance(leg, list):
@@ -198,21 +196,19 @@ def set_legend_to_bw(leg, style):
         for element in leg.legendHandles:
             if isinstance(element, mpl.collections.PathCollection):
                 rgb_orig = color_converter.to_rgb(element._facecolors[0])
-                origColor = colors[rgb_orig]
-                new_color = color_converter.to_rgba(COLORMAP[origColor]['fill'])
+                new_color = color_converter.to_rgba(COLORMAP[rgb_orig]['fill'])
                 element._facecolors = np.array((new_color,))
             elif isinstance(element, mpl.patches.Rectangle):
                 rgb_orig = color_converter.to_rgb(element._facecolor)
-                c = colors[rgb_orig]
                 
                 if style==HATCHING:
                     element.update({'alpha':1})
                     element.update({'facecolor':'none'})
                     element.update({'edgecolor':'black'})
-                    element.update({'hatch':COLORMAP[c]['hatch']})
+                    element.update({'hatch':COLORMAP[rgb_orig]['hatch']})
                 elif style==GREYSCALE:
-                    element.update({'facecolor':COLORMAP[c]['fill']})
-                    element.update({'edgecolor':COLORMAP[c]['fill']})
+                    element.update({'facecolor':COLORMAP[rgb_orig]['fill']})
+                    element.update({'edgecolor':COLORMAP[rgb_orig]['fill']})
 
             else:
                 line = element

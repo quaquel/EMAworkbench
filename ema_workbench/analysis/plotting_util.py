@@ -28,6 +28,7 @@ from util.ema_logging import info, warning
 
 COLOR_LIST = sns.color_palette()
 '''Default color list'''
+sns.set_palette(COLOR_LIST)
 
 TIGHT = False
 '''Parameter controlling whether tight layout from matplotlib should be used'''
@@ -124,7 +125,7 @@ def plot_histogram(ax, values, log):
     if isinstance(values, list):
         color = COLOR_LIST[0:len(values)]
     else:
-        color='b'
+        color=COLOR_LIST[0]
     a = ax.hist(values, 
              bins=11, 
              orientation='horizontal',
@@ -407,7 +408,8 @@ def make_legend(categories,
 #                                         offsets = (0,0)
 #                                         )
             # TODO work arround, should be a proper proxyartist for scatter legends
-            artist = mpl.lines.Line2D([0],[0], linestyle="none", c=COLOR_LIST[i], marker = 'o')
+            artist = mpl.lines.Line2D([0],[0], linestyle="none", 
+                                      c=COLOR_LIST[i], marker = 'o')
 
         elif legend_type == PATCH:
             artist = plt.Rectangle((0,0), 1,1, edgecolor=COLOR_LIST[i],

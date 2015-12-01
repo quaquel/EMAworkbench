@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from analysis.plotting import *
 from analysis.plotting_util import (make_continuous_grouping_specifiers,
                           filter_scalar_outcomes, group_results, BOXPLOT, KDE,
-                          VIOLIN, HIST, LINES, ENV_LIN, ENVELOPE)
+                          VIOLIN, HIST, LINES, ENV_LIN, ENVELOPE, COLOR_LIST)
 from analysis.b_and_w_plotting import set_fig_to_bw
 
                                      
@@ -467,11 +467,14 @@ def test_multiple_densities():
 
 
 if __name__ == '__main__':
+    import seaborn
+    seaborn.set_palette(COLOR_LIST)
+    
     test_lines()
 #     test_envelopes()
 #     test_kde_over_time()
 #     test_multiple_densities()
-
+  
 #     test_filter_scalar_outcomes()
 #     test_group_results()
 #     test_make_continuous_grouping_specifiers()
