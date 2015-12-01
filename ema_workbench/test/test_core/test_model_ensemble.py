@@ -5,11 +5,14 @@ Created on 18 jan. 2013
 '''
 import six
 
+import mock
 import numpy as np
 import unittest
 
 from core.model_ensemble import ModelEnsemble, UNION, INTERSECTION,\
                                         experiment_generator
+import core.model_ensemble as model_ensemble
+
 from core.samplers import LHSSampler
 from core import ModelStructureInterface
 from core import ParameterUncertainty
@@ -242,7 +245,15 @@ class ModelEnsembleTestCase(unittest.TestCase):
         self.assertRaises(ValueError, ensemble.perform_experiments,
                          10, which_uncertainties=INTERSECTION, 
                          which_outcomes='Label')
-
+        
+        with mock.patch('core.model_ensemble.MultiprocessingPool') as MockPool:
+            ensemble.parallel = True
+            ensemble.perform_experiments(10, which_uncertainties=UNION, 
+                                             which_outcomes=UNION,
+                                             reporting_interval=1 )
+            
+            self.assertEqual(2, len(MockPool.mock_calls))
+            
     
     def test_experiment_generator(self):
         sampler = LHSSampler()
