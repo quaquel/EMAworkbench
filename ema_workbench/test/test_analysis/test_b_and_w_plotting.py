@@ -36,12 +36,12 @@ def test_fill_between():
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.fill_between(x, y1, y2, c='b')
+    ax.fill_between(x, y1, y2, facecolor='b')
     set_fig_to_bw(fig, style=HATCHING)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.fill_between(x, y1, y2,label='test',c='b')
+    ax.fill_between(x, y1, y2,label='test', facecolor='b')
     set_fig_to_bw(fig, style=GREYSCALE)
     
     plt.draw()

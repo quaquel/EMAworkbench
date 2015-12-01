@@ -1,7 +1,7 @@
 '''
 This module provides functionality for doing dimensional stacking of 
 uncertain factors in order to reveal patterns in the values for a single 
-outcome of interests. It is inspired by the work reported `here<https://www.onepetro.org/conference-paper/SPE-174774-MS>`_ 
+outcome of interests. It is inspired by the work reported `here <https://www.onepetro.org/conference-paper/SPE-174774-MS>`_ 
 with one deviation. 
 
 Rather than using association rules to identify the 
@@ -18,7 +18,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import numpy as np
-import numpy.ma as ma
 import pandas as pd
 import seaborn as sns
 
@@ -146,8 +145,6 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         ax.spines['bottom'].set_color('grey')
     
     if axis==0:
-        rotation='horizontal'
-        distance = ax.get_xlim()[1]-ax.get_xlim()[0]        
         names = index.names
         ax.spines['top'].set_color('white')
         ax.spines['top'].set_linewidth(1.0)
@@ -166,8 +163,6 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         else:
             ax.set_yticks([])
     else:
-        rotation='vertical'
-        distance = ax.get_ylim()[1]-ax.get_ylim()[0]
         index = index[::-1]
         names = index.names
         ax.set_yticks([])
@@ -195,8 +190,6 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         levels = [index.values.tolist()]
         indices = zip(index.values)
 
-    nr_rows = len(index)
-    
     last = indices[0]
     plot_line(ax, axis, 0, 1, 0) # first line
     plot_line(ax, axis, len(indices), 1, 0) #last line
@@ -365,7 +358,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     as a template. 
         
     '''
-    results = (experiments, {'y':y})    
+    results = (x, {'y':y})    
     
     scores = feature_scoring.get_rf_feature_scores(results, 'y')[0]
     
@@ -373,17 +366,16 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     rows = [entry[0] for entry in scores[0:n:2]]
     columns = [entry[0] for entry in scores[1:n:2]]
 
-    data = pd.DataFrame.from_records(experiments)
-    discretized_x = dimensional_stacking.discretize(data, nbins=3)
+    data = pd.DataFrame.from_records(x)
+    discretized_x = discretize(data, nbins=3)
     
     ooi_label = 'y'
     ooi = pd.DataFrame(y[:, np.newaxis], columns=[ooi_label])
     
     x_y_concat = pd.concat([discretized_x, ooi], axis=1)
-    pvt = dimensional_stacking.make_pivot_table(x_y_concat, rows=rows, 
-                               columns=columns, values=ooi_label)
+    pvt = make_pivot_table(x_y_concat, rows=rows, columns=columns, 
+                           values=ooi_label)
 
-    fig = dimensional_stacking.plot_pivot_table(pvt, plot_labels=labels, 
-                                                plot_cats=categories)
+    fig = plot_pivot_table(pvt, plot_labels=labels, plot_cats=categories)
     
     return fig

@@ -332,8 +332,7 @@ class ModelEnsemble(object):
                  False. 
         
         """
-        evaluate_population = partial(eval_pop, 
-                                                cases=cases)
+        evaluate_population = partial(eval_pop, cases=cases)
 
         return self._run_optimization(generate_individual_robust, 
                                       evaluate_population, 
