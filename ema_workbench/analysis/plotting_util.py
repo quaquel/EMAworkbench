@@ -14,32 +14,19 @@ import numpy as np
 import scipy.stats.kde as kde
 from scipy.stats import gaussian_kde, scoreatpercentile
 
-
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec 
 import matplotlib.cm as cm
+
+import seaborn as sns
 
 from util.ema_exceptions import EMAError
 from util.ema_logging import info, warning
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-COLOR_LIST = ['b',
-              'g',
-              'r',
-              'c',
-              'm',
-              'y',
-              'k',
-              'b',
-              'g',
-              'r',
-              'c',
-              'm',
-              'y',
-              'k'
-                ]
+COLOR_LIST = sns.color_palette()
 '''Default color list'''
 
 TIGHT = False

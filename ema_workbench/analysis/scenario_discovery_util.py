@@ -409,6 +409,6 @@ class OutputFormatterMixin(object):
             
         else:
             ax.plot(norm_box_lim[i], (y, y),
-                    COLOR_LIST[j])
+                    c=COLOR_LIST[j])
         
         
