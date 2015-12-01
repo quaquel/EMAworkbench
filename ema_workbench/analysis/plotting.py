@@ -498,7 +498,7 @@ def plot_lines_with_envelopes(results,
                 value = outcomes[key][outcome_to_plot]
                 full_value = full_outcomes[key][outcome_to_plot]
                 ax.plot(time.T[:, np.newaxis], value.T, 
-                        plotting_util.COLOR_LIST[j])
+                        c=plotting_util.COLOR_LIST[j])
             
             if density:
                 group_density(ax_d, density, full_outcomes, outcome_to_plot, 
