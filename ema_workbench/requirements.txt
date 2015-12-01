@@ -9,5 +9,5 @@ JPype1 == 0.5.7
 mpld3
 scikit-learn
 seaborn
-matplotlib == 1.5
+matplotlib
 
