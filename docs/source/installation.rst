@@ -3,7 +3,7 @@ Installing the workbench
 ************************
 
 The workbench is presently not yet available via any of the python
-package managers such as pip. The code is available from `github <https://github.com/quaquel/EMAworkbench.>`_.
+package managers such as pip. The code is available from `github <https://github.com/quaquel/EMAworkbench>`_.
 The code comes with a requirements.txt file that indicates the key 
 dependencies. Basically, if you have a standard scientific computing 
 distribution for python such as the Anaconda distribution, most of the 
