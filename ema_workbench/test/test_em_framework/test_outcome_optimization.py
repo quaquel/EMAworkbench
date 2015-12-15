@@ -9,8 +9,8 @@ import os
 
 from util import ema_logging
 from test.vensim_flu_for_testing import FluModel
-from core import ModelEnsemble, MAXIMIZE
-from core.ema_optimization import epsNSGA2
+from em_framework import ModelEnsemble, MAXIMIZE
+from em_framework.ema_optimization import epsNSGA2
 
 
 def obj_function_single(results):

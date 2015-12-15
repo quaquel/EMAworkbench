@@ -7,13 +7,13 @@ from __future__ import division
 
 import numpy as np
 
-from core.uncertainties import ParameterUncertainty
+from em_framework.uncertainties import ParameterUncertainty
 from util import ema_logging
-from core.outcomes import Outcome
+from em_framework.outcomes import Outcome
 
-from core import ModelEnsemble, MINIMIZE, UNION,\
+from em_framework import ModelEnsemble, MINIMIZE, UNION,\
                          ModelStructureInterface
-from core.ema_optimization import epsNSGA2
+from em_framework.ema_optimization import epsNSGA2
 
 class DummyModel(ModelStructureInterface):
 

@@ -5,9 +5,9 @@ Created on Mar 22, 2014
 '''
 from matplotlib.mlab import rec2csv
 import numpy as np
-from core import TIME
+from em_framework import TIME
 
-from core import load_results
+from em_framework import load_results
 
 def write_results_to_csv(results, directory):
 

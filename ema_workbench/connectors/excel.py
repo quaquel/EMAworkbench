@@ -16,7 +16,7 @@ except ImportError:
 
 from util import ema_logging
 from util.ema_exceptions import EMAError
-from core import ModelStructureInterface
+from em_framework import ModelStructureInterface
 
 # Created on 19 sep. 2011
 # 

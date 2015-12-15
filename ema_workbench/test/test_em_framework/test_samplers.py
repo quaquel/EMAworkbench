@@ -5,8 +5,8 @@ Created on 21 jan. 2013
 '''
 import unittest
 
-from core.samplers import LHSSampler, MonteCarloSampler, FullFactorialSampler
-from core.uncertainties import ParameterUncertainty, CategoricalUncertainty
+from em_framework.samplers import LHSSampler, MonteCarloSampler, FullFactorialSampler
+from em_framework.uncertainties import ParameterUncertainty, CategoricalUncertainty
 
 class SamplerTestCase(unittest.TestCase):
     uncertainties = [ParameterUncertainty((0,10), "1"),

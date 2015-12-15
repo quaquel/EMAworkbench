@@ -14,9 +14,9 @@ import decimal
 import math
 import numpy as np
 
-from core import (ModelStructureInterface, Outcome, 
+from em_framework import (ModelStructureInterface, Outcome, 
                     ParameterUncertainty, CategoricalUncertainty)
-from core.uncertainties import AbstractUncertainty
+from em_framework.uncertainties import AbstractUncertainty
 from util.ema_logging import debug, warning
 from util.ema_exceptions import EMAError, EMAWarning, CaseError
 

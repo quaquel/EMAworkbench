@@ -5,8 +5,8 @@ Created on 18 jan. 2013
 '''
 
 import unittest
-from core import ParameterUncertainty, CategoricalUncertainty
-from core.uncertainties import INTEGER, UNIFORM
+from em_framework import ParameterUncertainty, CategoricalUncertainty
+from em_framework.uncertainties import INTEGER, UNIFORM
 
 class UncertaintyTestCase(unittest.TestCase):
 

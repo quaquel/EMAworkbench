@@ -5,7 +5,7 @@ Created on Jul 28, 2015
 '''
 import unittest
 
-from core import ModelStructureInterface
+from em_framework import ModelStructureInterface
 from util.ema_exceptions import EMAError
 
 class TestMSI(ModelStructureInterface):

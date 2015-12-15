@@ -5,15 +5,8 @@ Created on Mar 22, 2014
 '''
 from __future__ import (absolute_import, print_function, division)
 import os
-import zipfile
-import io
 
-import numpy.lib.recfunctions as rf
-
-from matplotlib.mlab import csv2rec
-import numpy as np
-from core.outcomes import TIME
-from util.util import load_results, save_results
+from util.utilities import load_results
 
 def load_flu_data():
     path = os.path.dirname(__file__)
@@ -22,6 +15,7 @@ def load_flu_data():
 
     experiments, outcomes = load_results(fn)
     return experiments, outcomes
+
 
 def load_scarcity_data():
     path = os.path.dirname(__file__)

@@ -10,7 +10,7 @@ use in conjuction with vensim models. This example is largely based on
 '''
 import matplotlib.pyplot as plt
 
-from core import Outcome, ModelEnsemble
+from em_framework import Outcome, ModelEnsemble
 from util import ema_logging
 
 from connectors.vensim import  LookupUncertainty, VensimModelStructureInterface

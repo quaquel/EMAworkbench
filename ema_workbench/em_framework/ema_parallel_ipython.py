@@ -22,7 +22,7 @@ import zmq
 import IPython
 from IPython.config import Application
 
-from util import ema_exceptions, util, ema_logging
+from util import ema_exceptions, utilities, ema_logging
 from . import experiment_runner
 
 # Created on Jul 16, 2015
@@ -31,7 +31,7 @@ from . import experiment_runner
 
 SUBTOPIC = "EMA"
 engine = None
-EMA_PROJECT_HOME_DIR = util.get_ema_project_home_dir()
+EMA_PROJECT_HOME_DIR = utilities.get_ema_project_home_dir()
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
     '''LoggerAdapter that inserts EMA as a topic into log messages

@@ -7,7 +7,7 @@ Created on Mar 15, 2012
 from analysis import clusterer
 from util import ema_logging
 
-from core import ModelEnsemble
+from em_framework import ModelEnsemble
 from test.scarcity_example import ScarcityModel
 
 if __name__ == "__main__":

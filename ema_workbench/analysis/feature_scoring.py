@@ -20,12 +20,26 @@ from sklearn.feature_selection.univariate_selection import f_regression,\
 from sklearn.linear_model.randomized_l1 import RandomizedLogisticRegression,\
     RandomizedLasso
 from sklearn.linear_model.least_angle import LassoLarsCV
+from analysis.scenario_discovery_util import CLASSIFICATION, REGRESSION
 
 # Created on Jul 9, 2014
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 #
 # TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
+
+
+__al__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2', 
+          'get_univariate_feature_scores', 'get_rf_feature_scores',
+          'get_lasso_feature_scores']
+
+F_REGRESSION = f_regression
+
+
+F_CLASSIFICATION = f_classif
+
+CHI2 = chi2
+
 
 def _prepare_experiments(experiments):
     '''
@@ -73,16 +87,14 @@ def _prepare_outcomes(outcomes, classify):
     Returns
     -------
     1d ndarray 
-        the return from classiy
+        the return from classify
     bool
-        data is categorical (true) or continuous (false)
-    and a boolean indicated whether the data is categorical 
-              (true) or continuous (false)
+        data is categorical (True) or continuous (False)
     
     Raises
     --------
     TypeError 
-        if classify is neither a StringType nor a callabale
+        if classify is neither a StringType nor a callable
     KeyError 
         if classify is a string which is not a key in the outcomes dict.
     
@@ -102,8 +114,7 @@ def _prepare_outcomes(outcomes, classify):
     return y, categorical
 
 
-def get_univariate_feature_scores(results, classify, 
-                                  score_func='f_classification'):
+def get_univariate_feature_scores(x,y, score_func=F_CLASSIFICATION):
     '''
     
     calculate feature scores using univariate statistical tests. In case of
@@ -112,9 +123,9 @@ def get_univariate_feature_scores(results, classify,
     
     Parameters
     ----------
-    results : tuple
-    classify : str
-    score_func : {'f_classification', 'chi2', 'f_regression'}
+    x : structured array
+    y : 1D nd.array
+    score_func : {F_CLASSIFICATION, F_REGRESSION, CHI2}
                 the score function to use, one of f_regression (regression), or  
                 f_classification or chi2 (classification). 
     Returns
@@ -125,21 +136,9 @@ def get_univariate_feature_scores(results, classify,
     
     
     '''
+    uncs = recfunctions.get_names(x.dtype)
     
-    score_funcs = {'f_regression': f_regression,
-                   'f_classification': f_classif,
-                   'chi2':chi2}
-    
-    experiments, outcomes = results
-    uncs = recfunctions.get_names(experiments.dtype)
-    
-    x = _prepare_experiments(experiments)
-    y, categorical = _prepare_outcomes(outcomes, classify)
-    
-    if  categorical:
-        score_func = score_funcs[score_func]
-    else:
-        score_func = f_regression
+    x = _prepare_experiments(x)
     
     pvalues = score_func(x, y)[1]
     pvalues = np.asarray(pvalues)
@@ -150,23 +149,20 @@ def get_univariate_feature_scores(results, classify,
     return pvalues
 
 
-def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
-                       max_features='auto', max_depth=None, 
-                       min_samples_split=2, min_samples_leaf=1, bootstrap=True,
-                       oob_score=True, random_state=None): 
+def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250, 
+                          max_features='auto', max_depth=None, 
+                          min_samples_split=2, min_samples_leaf=1, 
+                          bootstrap=True, oob_score=True, random_state=None): 
     '''
     Get feature scores using a random forest
 
     Parameters
     ----------
-    results : tuple
-              results tuple
-    classify : callable or str
-               a classify function or variable analogous to PRIM
+    x : structured array
+    y : 1D nd.array
+    mode : {CLASSIFICATION, REGRESSION}
     nr_trees : int, optional
                nr. of trees in forest (default=250)
-    criterion : str, optional
-                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     max_features : int, optional
                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     max_depth : int, optional 
@@ -191,18 +187,18 @@ def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
         either RandomForestClassifier or RandomForestRegressor
     
     '''
-    experiments, outcomes = results
-    uncs = recfunctions.get_names(experiments.dtype)
     
-    x = _prepare_experiments(experiments)
+    uncs = recfunctions.get_names(x.dtype)
+    x = _prepare_experiments(x)
     
-    y, categorical = _prepare_outcomes(outcomes, classify)
-    
-    if categorical:
+    if mode==CLASSIFICATION:
         rfc = RandomForestClassifier
-    else:
+        criterion='gini'
+    elif mode==REGRESSION:
         rfc = RandomForestRegressor
         criterion = 'mse'
+    else:
+        raise ValueError('{} not valid for mode'.format(mode))
     
     forest = rfc(n_estimators=nr_trees, 
                 criterion=criterion, 
@@ -224,9 +220,9 @@ def get_rf_feature_scores(results, classify, nr_trees=250, criterion='gini',
     return importances, forest
 
 
-def get_lasso_feature_scores(results, classify, scaling=0.5, 
-                                     sample_fraction=0.75, n_resampling=200,
-                                     random_state=None):
+def get_lasso_feature_scores(x, y, mode=CLASSIFICATION, scaling=0.5, 
+                             sample_fraction=0.75, n_resampling=200,
+                             random_state=None):
     '''
     Calculate features scores using a randomized lasso (regression) or 
     randomized logistic regression (classification). This is also known as 
@@ -237,9 +233,9 @@ def get_lasso_feature_scores(results, classify, scaling=0.5,
     
     Parameters
     ----------   
-    results : tuple
-    classify : callable or str
-               a classify function or variable analogous to PRIM
+    x : structured array
+    y : 1D nd.array
+    mode : {CLASSIFICATION, REGRESSION}
     scaling : float, optional
               scaling parameter, should be between 0 and 1
     sample_fraction : float, optional
@@ -260,20 +256,18 @@ def get_lasso_feature_scores(results, classify, scaling=0.5,
          
     '''
     
-    experiments, outcomes = results
-    uncs = recfunctions.get_names(experiments.dtype)
+    uncs = recfunctions.get_names(x.dtype)
     
-    x = _prepare_experiments(experiments)
-    y, categorical = _prepare_outcomes(outcomes, classify)
+    x = _prepare_experiments(x)
     
-    if categorical:
+    if mode==CLASSIFICATION:
 
         lfs = RandomizedLogisticRegression(scaling=scaling, 
                                            sample_fraction=sample_fraction,
                                            n_resampling=n_resampling, 
                                            random_state=random_state)
         lfs.fit(x,y)
-    else:
+    elif  mode==REGRESSION:
         # we use LassoLarsCV to determine alpha see
         # http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html
         lars_cv = LassoLarsCV(cv=6).fit(x, y,)
@@ -285,6 +279,8 @@ def get_lasso_feature_scores(results, classify, scaling=0.5,
                               n_resampling=n_resampling,
                               random_state=random_state)
         lfs.fit(x, y)
+    else:
+        raise ValueError('{} invalid value for mode'.format(mode))
 
     importances = lfs.scores_
     importances = zip(uncs, importances)

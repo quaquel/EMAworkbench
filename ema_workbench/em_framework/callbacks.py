@@ -20,8 +20,7 @@ from threading import Lock
 
 import numpy as np
 
-from util import ema_logging
-from util import ema_exceptions
+from util import ema_logging, ema_exceptions
 from .uncertainties import CategoricalUncertainty,\
                                        ParameterUncertainty,\
                                        INTEGER

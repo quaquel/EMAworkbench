@@ -13,6 +13,8 @@ from util import ema_logging
 from test import test_utilities
 from analysis import feature_scoring as fs
 from sklearn.ensemble.forest import RandomForestRegressor
+from analysis.feature_scoring import F_CLASSIFICATION, CHI2, F_REGRESSION
+from analysis.scenario_discovery_util import CLASSIFICATION, REGRESSION
 
 class FeatureScoringTestCase(unittest.TestCase):
     def test_prepare_experiments(self):
@@ -88,7 +90,7 @@ class FeatureScoringTestCase(unittest.TestCase):
    
    
     def test_get_univariate_feature_scores(self):
-        results = test_utilities.load_flu_data()
+        x, outcomes = test_utilities.load_flu_data()
         
         def classify(data):
             #get the output for deceased population
@@ -102,24 +104,25 @@ class FeatureScoringTestCase(unittest.TestCase):
             
             return classes
         
+        y = classify(outcomes)
+        
         # f classify
-        scores = fs.get_univariate_feature_scores(results, classify)
-        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        scores = fs.get_univariate_feature_scores(x,y, 
+                                                  score_func=F_CLASSIFICATION)
+        self.assertEqual(len(scores), len(x.dtype.fields))
 
         # chi2
-        scores = fs.get_univariate_feature_scores(results, classify, 
-                                                  score_func='chi2')
-        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        scores = fs.get_univariate_feature_scores(x,y, score_func=CHI2)
+        self.assertEqual(len(scores), len(x.dtype.fields))
         
         # f regression
-        ooi = 'nr deaths'
-        results[1][ooi] = results[1]['deceased population region 1'][:,-1]
-        scores = fs.get_univariate_feature_scores(results, ooi)
-        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        y= outcomes['deceased population region 1'][:,-1]
+        scores = fs.get_univariate_feature_scores(x,y, score_func=F_REGRESSION)
+        self.assertEqual(len(scores), len(x.dtype.fields))
         
    
     def test_get_rf_feature_scores(self):
-        results = test_utilities.load_flu_data()
+        x, outcomes = test_utilities.load_flu_data()
                 
         def classify(data):
             #get the output for deceased population
@@ -133,22 +136,27 @@ class FeatureScoringTestCase(unittest.TestCase):
             
             return classes
         
-        scores, forest = fs.get_rf_feature_scores(results, classify, 
+        y = classify(outcomes)
+                
+        scores, forest = fs.get_rf_feature_scores(x,y, mode=CLASSIFICATION,
                                                   random_state=10)
         
-        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        self.assertEqual(len(scores), len(x.dtype.fields))
         self.assertTrue(isinstance(forest, RandomForestClassifier))
         
-        ooi = 'nr deaths'
-        results[1][ooi] = results[1]['deceased population region 1'][:,-1]
-        scores, forest = fs.get_rf_feature_scores(results, ooi, 
+        
+        self.assertRaises(ValueError, fs.get_rf_feature_scores, x,y, 
+                          mode='illegal argument')
+        
+        y = outcomes['deceased population region 1'][:,-1]
+        scores, forest = fs.get_rf_feature_scores(x,y, mode=REGRESSION, 
                                                   random_state=10)
         
-        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        self.assertEqual(len(scores), len(x.dtype.fields))
         self.assertTrue(isinstance(forest, RandomForestRegressor))
         
     def test_get_lasso_feature_scores(self):
-        results = test_utilities.load_flu_data()
+        x, outcomes = test_utilities.load_flu_data()
                 
         def classify(data):
             #get the output for deceased population
@@ -162,15 +170,22 @@ class FeatureScoringTestCase(unittest.TestCase):
             
             return classes
         
+        y = classify(outcomes)
+        
         # classification based
-        scores = fs.get_lasso_feature_scores(results, classify, random_state=42)
-        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        scores = fs.get_lasso_feature_scores(x, y, mode=CLASSIFICATION, 
+                                             random_state=42)
+        self.assertEqual(len(scores), len(x.dtype.fields))
+        
+        
+        self.assertRaises(ValueError, fs.get_lasso_feature_scores, x,y, 
+                          mode='illegal argument')
                 
         #regression based
-        ooi = 'nr deaths'
-        results[1][ooi] = results[1]['deceased population region 1'][:,-1]
-        scores = fs.get_lasso_feature_scores(results, ooi,random_state=42)
-        self.assertEqual(len(scores), len(results[0].dtype.fields))
+        y = outcomes['deceased population region 1'][:,-1]
+        scores = fs.get_lasso_feature_scores(x, y, mode=REGRESSION,
+                                             random_state=42)
+        self.assertEqual(len(scores), len(x.dtype.fields))
         
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)   

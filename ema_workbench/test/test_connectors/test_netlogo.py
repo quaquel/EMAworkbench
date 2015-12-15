@@ -9,7 +9,7 @@ import unittest
 # should be made conditional on the presence of jpype
 __test__ = False
 
-from core import ParameterUncertainty, CategoricalUncertainty, Outcome
+from em_framework import ParameterUncertainty, CategoricalUncertainty, Outcome
 from connectors import netlogo
 
 def setUpModule():

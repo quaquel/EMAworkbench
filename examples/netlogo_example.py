@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from connectors.netlogo import NetLogoModelStructureInterface
 
-from core import (ParameterUncertainty, CategoricalUncertainty, Outcome,
+from em_framework import (ParameterUncertainty, CategoricalUncertainty, Outcome,
                   ModelEnsemble)
 from util import ema_logging
 from analysis import plotting, plotting_util

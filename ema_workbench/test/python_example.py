@@ -6,7 +6,7 @@ It's main purpose has been to test the parallel processing functionality
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from core import ModelEnsemble, ModelStructureInterface,\
+from em_framework import ModelEnsemble, ModelStructureInterface,\
                          ParameterUncertainty, Outcome
 
 class SimplePythonModel(ModelStructureInterface):
