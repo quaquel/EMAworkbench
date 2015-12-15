@@ -12,11 +12,11 @@ This excel file implements a simple predator prey model.
 '''
 
 
-from core import ModelEnsemble, ParameterUncertainty,\
+from em_framework import ModelEnsemble, ParameterUncertainty,\
                          Outcome
 from util import ema_logging
 from connectors.excel import ExcelModelStructureInterface
-from core.ema_parallel import MultiprocessingPool
+from em_framework.ema_parallel import MultiprocessingPool
 
 class ExcelModel(ExcelModelStructureInterface):
     

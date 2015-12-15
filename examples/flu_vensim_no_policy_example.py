@@ -9,7 +9,7 @@ is the same as used in fluExample
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 
-from core import ModelEnsemble, ParameterUncertainty, Outcome
+from em_framework import ModelEnsemble, ParameterUncertainty, Outcome
 from util import ema_logging
 from util.util import save_results
 

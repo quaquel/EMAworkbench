@@ -7,8 +7,8 @@ Created on Jul 17, 2014
 import os
 import unittest
 
-from core import Outcome, ParameterUncertainty, ModelEnsemble
-from core.uncertainties import CategoricalUncertainty 
+from em_framework import Outcome, ParameterUncertainty, ModelEnsemble
+from em_framework.uncertainties import CategoricalUncertainty 
 
 from connectors.vensim import VensimModelStructureInterface, load_model
 from connectors.vensim import LookupUncertainty

@@ -7,7 +7,7 @@ Created on 8 mrt. 2011
 from __future__ import division
 from math import exp
 
-from core import (ParameterUncertainty, CategoricalUncertainty, Outcome, 
+from em_framework import (ParameterUncertainty, CategoricalUncertainty, Outcome, 
                   ModelEnsemble)
 from util import ema_logging
 from connectors.vensim import VensimModelStructureInterface

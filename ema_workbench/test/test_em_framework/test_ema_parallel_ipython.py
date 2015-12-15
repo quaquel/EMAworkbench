@@ -30,10 +30,10 @@ from IPython.parallel.apps.launcher import (LocalProcessLauncher,
                                                   SIGKILL,
                                                   ProcessStateError)
 
-import core.ema_parallel_ipython as ema
+import em_framework.ema_parallel_ipython as ema
 from util import ema_logging
-from core import experiment_runner
-import core
+from em_framework import experiment_runner
+import em_framework
 from util.ema_exceptions import EMAError, EMAParallelError
 
 
@@ -166,8 +166,8 @@ class TestEngineLoggerAdapter(unittest.TestCase):
                              msg)
             self.assertEqual(input_kwargs, kwargs)
     
-    @mock.patch('core.ema_parallel_ipython.EngingeLoggerAdapter')  
-    @mock.patch('core.ema_parallel_ipython.Application')
+    @mock.patch('em_framework.ema_parallel_ipython.EngingeLoggerAdapter')  
+    @mock.patch('em_framework.ema_parallel_ipython.Application')
     def test_engine_logger(self, mocked_application, mocked_adapter):
         logger = ema_logging.get_logger()
         mocked_logger = mock.Mock(spec=logger)
@@ -207,8 +207,8 @@ class TestEngineLoggerAdapter(unittest.TestCase):
 #         client[:].apply_sync(ema.set_engine_logger)
 #          
 #         def test_engine_logger():
-#             from core import ema_logging # @Reimport
-#             from core import ema_parallel_ipython as ema # @Reimport
+#             from em_framework import ema_logging # @Reimport
+#             from em_framework import ema_parallel_ipython as ema # @Reimport
 #              
 #             logger = ema_logging._logger
 #              
@@ -324,9 +324,9 @@ class TestEngine(unittest.TestCase):
     def tearDownClass(cls):
         pass
     
-    @mock.patch('core.ema_parallel_ipython.get_engines_by_host')
-    @mock.patch('core.ema_parallel_ipython.os')
-    @mock.patch('core.ema_parallel_ipython.socket')
+    @mock.patch('em_framework.ema_parallel_ipython.get_engines_by_host')
+    @mock.patch('em_framework.ema_parallel_ipython.os')
+    @mock.patch('em_framework.ema_parallel_ipython.socket')
     def test_update_cwd_on_all_engines(self, mock_socket, mock_os, 
                                        mock_engines_by_host):
         mock_socket.gethostname.return_value = 'test host'
@@ -354,12 +354,12 @@ class TestEngine(unittest.TestCase):
         engines_by_host = ema.get_engines_by_host(self.client)
         self.assertEqual({ socket.gethostname(): [0,1]},engines_by_host)
     
-    @mock.patch('core.ema_parallel_ipython.shutil')
-    @mock.patch('core.ema_parallel_ipython.os')  
+    @mock.patch('em_framework.ema_parallel_ipython.shutil')
+    @mock.patch('em_framework.ema_parallel_ipython.os')  
     def test_copy_wds_for_msis(self, mock_os, mock_shutil):
         mock_os.path.join.return_value = '.'
         
-        mock_msi = mock.create_autospec(core.ModelStructureInterface) # @UndefinedVariable
+        mock_msi = mock.create_autospec(em_framework.ModelStructureInterface) # @UndefinedVariable
         mock_msi.name = 'test'
         
         kwargs = {}
@@ -388,8 +388,8 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(kwargs, engine.runner.model_kwargs)
         self.assertEqual(experiment_runner.ExperimentRunner, type(engine.runner))
     
-    @mock.patch('core.ema_parallel_ipython.os') 
-    @mock.patch('core.ema_parallel_ipython.shutil') 
+    @mock.patch('em_framework.ema_parallel_ipython.os') 
+    @mock.patch('em_framework.ema_parallel_ipython.shutil') 
     def test_setup_wd(self, mock_shutil, mock_os):
         kwargs = {}
         msis = {}
@@ -413,7 +413,7 @@ class TestEngine(unittest.TestCase):
         mock_shutil.rmtree.assert_called_once_with(wd.format(engine_id))
        
     def test_run_experiment(self):
-        mock_msi = mock.create_autospec(core.ModelStructureInterface) # @UndefinedVariable
+        mock_msi = mock.create_autospec(em_framework.ModelStructureInterface) # @UndefinedVariable
         mock_msi.name = 'test'
         
         mock_runner = mock.create_autospec(experiment_runner.ExperimentRunner)
@@ -439,9 +439,9 @@ class TestEngine(unittest.TestCase):
 
 class TestIpyParallelUtilFunctions(unittest.TestCase):
 
-    @mock.patch('core.ema_parallel_ipython.setup_working_directories')
+    @mock.patch('em_framework.ema_parallel_ipython.setup_working_directories')
     def test_initialize_engines(self, mocked_setup_working_directories):
-        mock_msi = mock.create_autospec(core.ModelStructureInterface) # @UndefinedVariable
+        mock_msi = mock.create_autospec(em_framework.ModelStructureInterface) # @UndefinedVariable
         mock_msi.name = 'test'
         msis = {mock_msi.name: mock_msi}
         
@@ -457,9 +457,9 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
         
         mocked_setup_working_directories.assert_called_with(mock_client, msis)
 
-    @mock.patch('core.ema_parallel_ipython.os')
+    @mock.patch('em_framework.ema_parallel_ipython.os')
     def test_setup_working_directories(self, mock_os):
-        mock_msi = mock.create_autospec(core.ModelStructureInterface) # @UndefinedVariable
+        mock_msi = mock.create_autospec(em_framework.ModelStructureInterface) # @UndefinedVariable
         mock_msi.name = 'test'
         msis = {mock_msi.name: mock_msi}
         

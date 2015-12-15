@@ -17,7 +17,7 @@ from numpy import sin, min
 from scipy import exp
 import matplotlib.pyplot as plt
 
-from core import (ModelStructureInterface, ModelEnsemble,ParameterUncertainty, 
+from em_framework import (ModelStructureInterface, ModelEnsemble,ParameterUncertainty, 
                   Outcome)
 from util import ema_logging
                          

@@ -8,8 +8,8 @@ from __future__ import division
 import numpy as np
 from math import exp
 
-from core import ModelEnsemble, Outcome
-from core import ParameterUncertainty, CategoricalUncertainty
+from em_framework import ModelEnsemble, Outcome
+from em_framework import ParameterUncertainty, CategoricalUncertainty
 
 from util import ema_logging
 

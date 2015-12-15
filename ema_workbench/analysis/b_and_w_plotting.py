@@ -18,7 +18,6 @@ from matplotlib.collections import PolyCollection, PathCollection
 from analysis.plotting_util import COLOR_LIST
 
 from util.ema_exceptions import EMAError
-from util import ema_logging
 
 
 # Created on 18 sep. 2012

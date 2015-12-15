@@ -61,7 +61,7 @@ class NetLogoLink():
                     NETLOGO_HOME + r'/lib/log4j-1.2.16.jar',
                     NETLOGO_HOME + r'/lib/jmf-2.1.1e.jar',
                     NETLOGO_HOME + r'/lib/pegdown-1.1.0.jar',
-                    NETLOGO_HOME + r'/lib/parboiled-core-1.0.2.jar',
+                    NETLOGO_HOME + r'/lib/parboiled-em_framework-1.0.2.jar',
                     NETLOGO_HOME + r'/lib/parboiled-java-1.0.2.jar',
                     NETLOGO_HOME + r'/lib/mrjadapter-1.2.jar',
                     NETLOGO_HOME + r'/lib/jhotdraw-6.0b1.jar',

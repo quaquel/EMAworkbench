@@ -9,9 +9,9 @@ import random
 import numpy.lib.recfunctions as rf
 import unittest
 
-from core.callbacks import DefaultCallback
-from core.outcomes import Outcome
-from core.uncertainties import CategoricalUncertainty, ParameterUncertainty
+from em_framework.callbacks import DefaultCallback
+from em_framework.outcomes import Outcome
+from em_framework.uncertainties import CategoricalUncertainty, ParameterUncertainty
 from util.ema_exceptions import EMAError
 
 class TestDefaultCallback(unittest.TestCase):

@@ -9,7 +9,7 @@ It's main purpose has been to test the parallel processing functionality
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-from core import (ModelEnsemble, ModelStructureInterface, ParameterUncertainty, 
+from em_framework import (ModelEnsemble, ModelStructureInterface, ParameterUncertainty, 
                   Outcome)
 from util import ema_logging
 

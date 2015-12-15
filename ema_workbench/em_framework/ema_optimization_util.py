@@ -13,8 +13,7 @@ import numpy.lib.recfunctions as recfunctions
 
 import copy
 
-from util import ema_logging
-from util import ema_exceptions
+from util import ema_logging, ema_exceptions
 from .callbacks import DefaultCallback
 
 __all__ = ["mut_polynomial_bounded",

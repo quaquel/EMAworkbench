@@ -17,7 +17,7 @@ import unittest
 import time
 import threading
 
-from core import ModelStructureInterface, ema_parallel_multiprocessing
+from em_framework import ModelStructureInterface, ema_parallel_multiprocessing
 
 
 class MockMSI(ModelStructureInterface):
@@ -31,8 +31,8 @@ class MockMSI(ModelStructureInterface):
 
 class ParallelMultiprocessingPoolTestCase(unittest.TestCase):
     
-    @mock.patch('core.ema_parallel_multiprocessing.os')
-    @mock.patch('core.ema_parallel_multiprocessing.shutil')
+    @mock.patch('em_framework.ema_parallel_multiprocessing.os')
+    @mock.patch('em_framework.ema_parallel_multiprocessing.shutil')
     @mock.patch.object(ema_parallel_multiprocessing.CalculatorPool, '_get_worker_name')
     def test_init_normal(self, mock_get_worker_name, mock_shutil, mock_os):
         
@@ -77,8 +77,8 @@ class ParallelMultiprocessingSubProcessLogHandler(unittest.TestCase):
 
 class WorkerTestCase(unittest.TestCase):
     
-    @mock.patch('core.ema_parallel_multiprocessing.ExperimentRunner')
-    @mock.patch('core.ema_parallel_multiprocessing.ema_logging')
+    @mock.patch('em_framework.ema_parallel_multiprocessing.ExperimentRunner')
+    @mock.patch('em_framework.ema_parallel_multiprocessing.ema_logging')
     def test_worker(self, mocked_logging, mocked_runner):
         mocked_inqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
         mocked_outqueue = mock.Mock(multiprocessing.queues.SimpleQueue())

@@ -7,6 +7,7 @@ wrapper around scikit-learn's version of CART.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import six
+import math
 
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
@@ -15,7 +16,6 @@ from sklearn.externals.six import StringIO
 
 from util import ema_logging
 from analysis import scenario_discovery_util as sdutil
-import math
 
 
 # Created on May 22, 2015
@@ -55,12 +55,14 @@ def setup_cart(results, classify, incl_unc=[], mass_min=0.05):
         x = recfunctions.drop_fields(results[0], drop_names, asrecarray = True)
     if isinstance(classify, six.string_types):
         y = results[1][classify]
+        mode = sdutil.REGRESSION
     elif callable(classify):
         y = classify(results[1])
+        mode = sdutil.BINARY
     else:
         raise TypeError("unknown type for classify")
     
-    return CART(x, y, mass_min)
+    return CART(x, y, mass_min, mode=mode)
 
 
 class CART(sdutil.OutputFormatterMixin):
@@ -99,8 +101,7 @@ class CART(sdutil.OutputFormatterMixin):
     See also
     --------
     :mod:`prim`
-    
-    
+        
     '''
     
     sep = '?!?'
@@ -108,8 +109,6 @@ class CART(sdutil.OutputFormatterMixin):
     def __init__(self, x,y, mass_min=0.05, mode=sdutil.BINARY):
         ''' init
         
-       
-                   
         '''
         
         self.x = x

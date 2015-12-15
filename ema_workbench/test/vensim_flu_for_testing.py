@@ -9,8 +9,7 @@ is the same as used in fluExample
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 from __future__ import absolute_import
-from core.uncertainties import ParameterUncertainty
-from core.outcomes import Outcome
+from em_framework import ParameterUncertainty, Outcome
 from connectors.vensim import VensimModelStructureInterface 
 
 class FluModel(VensimModelStructureInterface):

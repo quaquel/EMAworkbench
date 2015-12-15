@@ -12,8 +12,8 @@ except ImportError:
     import mock
 import unittest
 
-from core.experiment_runner import ExperimentRunner
-from core.model import ModelStructureInterface
+from em_framework.experiment_runner import ExperimentRunner
+from em_framework.model import ModelStructureInterface
 from util.ema_exceptions import (EMAError, CaseError)
 
 class MockMSI(ModelStructureInterface):

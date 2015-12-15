@@ -8,8 +8,8 @@ import unittest
 
 import numpy as np
 
-from util.util import (save_results, load_results, 
-                               get_ema_project_home_dir)
+from util.utilities import (save_results, load_results, 
+                            get_ema_project_home_dir)
 
 def setUpModule():
     global cwd 

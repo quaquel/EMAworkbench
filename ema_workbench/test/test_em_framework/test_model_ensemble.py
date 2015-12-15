@@ -9,14 +9,14 @@ import mock
 import numpy as np
 import unittest
 
-from core.model_ensemble import ModelEnsemble, UNION, INTERSECTION,\
+from em_framework.model_ensemble import ModelEnsemble, UNION, INTERSECTION,\
                                         experiment_generator
-import core.model_ensemble as model_ensemble
+import em_framework.model_ensemble as model_ensemble
 
-from core.samplers import LHSSampler
-from core import ModelStructureInterface
-from core import ParameterUncertainty
-from core.outcomes import Outcome
+from em_framework.samplers import LHSSampler
+from em_framework import ModelStructureInterface
+from em_framework import ParameterUncertainty
+from em_framework.outcomes import Outcome
 from util.ema_exceptions import EMAError
 
 class DummyInterface(ModelStructureInterface):
@@ -246,7 +246,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
                          10, which_uncertainties=INTERSECTION, 
                          which_outcomes='Label')
         
-        with mock.patch('core.model_ensemble.MultiprocessingPool') as MockPool:
+        with mock.patch('em_framework.model_ensemble.MultiprocessingPool') as MockPool:
             ensemble.parallel = True
             ensemble.perform_experiments(10, which_uncertainties=UNION, 
                                              which_outcomes=UNION,
