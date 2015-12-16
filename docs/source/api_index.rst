@@ -1,8 +1,8 @@
 EMA Modules
 ===========
 
-Core
-^^^^
+Exploratory modeling framework
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
    :maxdepth: 2
