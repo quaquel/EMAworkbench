@@ -2,5 +2,5 @@
 :mod:`plotting util`
 ********************
 
-.. automodule:: analysis.plotting_util
+.. automodule:: ema_workbench.analysis.plotting_util
    :members:

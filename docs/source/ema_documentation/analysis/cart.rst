@@ -2,5 +2,5 @@
 :mod:`cart`
 ***********
 
-.. automodule:: analysis.cart
+.. automodule:: ema_workbench.analysis.cart
    :members:

@@ -2,5 +2,5 @@
 :mod:`dimensional_stacking`
 ***************************
 
-.. automodule:: analysis.dimensional_stacking
+.. automodule:: ema_workbench.analysis.dimensional_stacking
    :members:
