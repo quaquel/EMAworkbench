@@ -10,4 +10,4 @@ mpld3
 scikit-learn
 seaborn
 matplotlib
-
+pyzmq
