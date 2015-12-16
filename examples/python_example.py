@@ -9,9 +9,10 @@ It's main purpose has been to test the parallel processing functionality
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-from em_framework import (ModelEnsemble, ModelStructureInterface, ParameterUncertainty, 
-                  Outcome)
-from util import ema_logging
+from ema_workbench.em_framework import (ModelEnsemble, ModelStructureInterface, 
+                                        ParameterUncertainty, 
+                                        Outcome)
+from ema_workbench.util import ema_logging
 
 class SimplePythonModel(ModelStructureInterface):
     '''

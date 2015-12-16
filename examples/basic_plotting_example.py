@@ -5,11 +5,10 @@ Created on Jul 8, 2014
 '''
 import matplotlib.pyplot as plt
 
-from util import ema_logging
-from util.util import load_results
+from ema_workbench.util import ema_logging, load_results
 
-from analysis.plotting import envelopes 
-from analysis.plotting_util import KDE
+from ema_workbench.analysis.plotting import envelopes 
+from ema_workbench.analysis.plotting_util import KDE
 
 
 ema_logging.log_to_stderr(ema_logging.INFO)

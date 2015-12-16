@@ -10,14 +10,13 @@ use in conjuction with vensim models. This example is largely based on
 '''
 import matplotlib.pyplot as plt
 
-from em_framework import Outcome, ModelEnsemble
-from util import ema_logging
+from ema_workbench.em_framework import Outcome, ModelEnsemble
+from ema_workbench.util import ema_logging
 
-from connectors.vensim import  LookupUncertainty, VensimModelStructureInterface
-
-
-from analysis.plotting import lines
-from analysis.plotting_util import BOXPLOT
+from ema_workbench.connectors.vensim import (LookupUncertainty, 
+                                             VensimModelStructureInterface)
+from ema_workbench.analysis.plotting import lines
+from ema_workbench.analysis.plotting_util import BOXPLOT
 
 class Burnout(VensimModelStructureInterface): 
     model_file = r'\BURNOUT.vpm'

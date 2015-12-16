@@ -17,12 +17,13 @@ from numpy import sin, min
 from scipy import exp
 import matplotlib.pyplot as plt
 
-from em_framework import (ModelStructureInterface, ModelEnsemble,ParameterUncertainty, 
-                  Outcome)
-from util import ema_logging
+from ema_workbench.em_framework import (ModelStructureInterface, 
+                                        ModelEnsemble,ParameterUncertainty, 
+                                        Outcome)
+from ema_workbench.util import ema_logging
                          
-from analysis.plotting import lines
-from analysis.plotting_util import KDE                         
+from ema_workbench.analysis.plotting import lines
+from ema_workbench.analysis.plotting_util import KDE                         
 
 
 class MexicanFlu(ModelStructureInterface):

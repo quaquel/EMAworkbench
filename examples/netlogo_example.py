@@ -5,12 +5,13 @@ Created on 20 mrt. 2013
 '''
 import matplotlib.pyplot as plt
 
-from connectors.netlogo import NetLogoModelStructureInterface
+from ema_workbench.connectors.netlogo import NetLogoModelStructureInterface
 
-from em_framework import (ParameterUncertainty, CategoricalUncertainty, Outcome,
-                  ModelEnsemble)
-from util import ema_logging
-from analysis import plotting, plotting_util
+from ema_workbench.em_framework import (ParameterUncertainty, 
+                                        CategoricalUncertainty, Outcome,
+                                        ModelEnsemble)
+from ema_workbench.util import ema_logging
+from ema_workbench.analysis import plotting, plotting_util
 
 
 class PredatorPrey(NetLogoModelStructureInterface):

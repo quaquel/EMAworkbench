@@ -7,10 +7,9 @@ Created on Sep 8, 2011
 '''
 import matplotlib.pyplot as plt
 
-from analysis.clusterer import cluster
+from ema_workbench.analysis.clusterer import cluster
 
-from util import ema_logging
-from util.util import load_results
+from ema_workbench.util import ema_logging, load_results
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 

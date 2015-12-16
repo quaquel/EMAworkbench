@@ -9,11 +9,11 @@ is the same as used in fluExample
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 
-from em_framework import ModelEnsemble, ParameterUncertainty, Outcome
-from util import ema_logging
-from util.util import save_results
+from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty, 
+                                        Outcome)
+from ema_workbench.util import ema_logging, save_results
 
-from connectors.vensim import VensimModelStructureInterface 
+from ema_workbench.connectors.vensim import VensimModelStructureInterface 
 
 class FluModel(VensimModelStructureInterface):
     #base case model
