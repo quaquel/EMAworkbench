@@ -2,5 +2,5 @@
 :mod:`vensim`
 *************
 
-.. automodule:: connectors.vensim
+.. automodule:: ema_workbench.connectors.vensim
    :members:

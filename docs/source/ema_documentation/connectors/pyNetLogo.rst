@@ -2,5 +2,5 @@
 :mod:`pyNetLogo`
 ****************
 
-.. automodule:: connectors.pyNetLogo
+.. automodule:: ema_workbench.connectors.pyNetLogo
    :members:

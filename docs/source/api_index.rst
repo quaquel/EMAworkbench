@@ -7,18 +7,18 @@ Core
 .. toctree::
    :maxdepth: 2
    
-   ../../ema_documentation/core/model.rst
-   ../../ema_documentation/core/model_ensemble.rst
-   ../../ema_documentation/core/uncertainties.rst
-   ../../ema_documentation/core/outcomes.rst
-   ../../ema_documentation/core/samplers.rst
-   ../../ema_documentation/core/experiment_runner.rst
-   ../../ema_documentation/core/callbacks.rst
-   ../../ema_documentation/core/ema_parallel.rst
-   ../../ema_documentation/core/ema_parallel_multiprocessing.rst
-   ../../ema_documentation/core/ema_parallel_ipython.rst
-   ../../ema_documentation/core/ema_optimization.rst
-   ../../ema_documentation/core/ema_optimization_util.rst
+   ../../ema_documentation/em_framework/model.rst
+   ../../ema_documentation/em_framework/model_ensemble.rst
+   ../../ema_documentation/em_framework/uncertainties.rst
+   ../../ema_documentation/em_framework/outcomes.rst
+   ../../ema_documentation/em_framework/samplers.rst
+   ../../ema_documentation/em_framework/experiment_runner.rst
+   ../../ema_documentation/em_framework/callbacks.rst
+   ../../ema_documentation/em_framework/ema_parallel.rst
+   ../../ema_documentation/em_framework/ema_parallel_multiprocessing.rst
+   ../../ema_documentation/em_framework/ema_parallel_ipython.rst
+   ../../ema_documentation/em_framework/ema_optimization.rst
+   ../../ema_documentation/em_framework/ema_optimization_util.rst
 
 Connectors
 ^^^^^^^^^^
@@ -55,6 +55,6 @@ Util
 
    ../../ema_documentation/util/ema_exceptions.rst   
    ../../ema_documentation/util/ema_logging.rst
-   ../../ema_documentation/util/util.rst
+   ../../ema_documentation/util/utilities.rst
 
 

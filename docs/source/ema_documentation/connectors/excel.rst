@@ -1,5 +1,5 @@
 ************
 :mod:`excel`
 ************
-.. automodule:: connectors.excel
+.. automodule:: ema_workbench.connectors.excel
    :members:

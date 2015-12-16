@@ -2,5 +2,5 @@
 :mod:`netlogo`
 **************
 
-.. automodule:: connectors.netlogo
+.. automodule:: ema_workbench.connectors.netlogo
    :members:

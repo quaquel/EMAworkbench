@@ -2,7 +2,7 @@
 :mod:`pairs plotting`
 *********************
 
-.. automodule:: analysis.pairs_plotting
+.. automodule:: ema_workbench.analysis.pairs_plotting
    :members:
 
 
