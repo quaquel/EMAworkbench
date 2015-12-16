@@ -6,9 +6,9 @@ Created on 20 sep. 2011
 import numpy as np
 import matplotlib.pyplot as plt
 
-from analysis.pairs_plotting import pairs_lines, pairs_scatter, pairs_density
-from util.util import load_results
-from util import ema_logging
+from ema_workbench.analysis.pairs_plotting import (pairs_lines, pairs_scatter, 
+                                                   pairs_density)
+from ema_workbench.util import load_results, ema_logging
 
 ema_logging.log_to_stderr(level=ema_logging.DEFAULT_LEVEL)
 

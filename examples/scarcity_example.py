@@ -7,10 +7,11 @@ Created on 8 mrt. 2011
 from __future__ import division
 from math import exp
 
-from em_framework import (ParameterUncertainty, CategoricalUncertainty, Outcome, 
-                  ModelEnsemble)
-from util import ema_logging
-from connectors.vensim import VensimModelStructureInterface
+from ema_workbench.em_framework import (ParameterUncertainty, 
+                                        CategoricalUncertainty, Outcome, 
+                                        ModelEnsemble)
+from ema_workbench.util import ema_logging
+from ema_workbench.connectors.vensim import VensimModelStructureInterface
 
 class ScarcityModel(VensimModelStructureInterface):
     model_file = r'\MetalsEMA.vpm'

@@ -8,9 +8,10 @@ It's main purpose is to test the parallel processing functionality
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 '''
-from em_framework import ModelEnsemble, ParameterUncertainty, Outcome
-from util import ema_logging 
-from connectors.vensim import VensimModelStructureInterface
+from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty, 
+                                        Outcome)
+from ema_workbench.util import ema_logging 
+from ema_workbench.connectors.vensim import VensimModelStructureInterface
 
 class VensimExampleModel(VensimModelStructureInterface):
     '''

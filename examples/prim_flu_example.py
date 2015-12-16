@@ -16,9 +16,8 @@ Therefore, this example will not work if you are running 64 bit Python.
 import numpy as np
 import matplotlib.pyplot as plt
 
-import analysis.prim as prim
-from util import ema_logging
-from util.util import load_results
+import ema_workbench.analysis.prim as prim
+from ema_workbench.util import ema_logging, load_results
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
