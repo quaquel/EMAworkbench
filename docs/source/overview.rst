@@ -8,32 +8,33 @@
 A High Level Overview
 *********************
 
-   * :ref:`core`
+   * :ref:`emframework`
    * :ref:`connectors`
    * :ref:`analysis`
 
 
-.. _core:
+.. _emframework:
 
-====
-Core
-====
+==============================
+Exploratory modeling framework
+==============================
 
 The core package contains the core functionality for setting up, designing,
 and performing series of computational experiments on one or more models 
 simultaneously. 
 
-* Model ensemble (:mod:`expWorkbench.model_ensemble`): the class responsbile 
-  for setting up and performing experiments.
-* Model (:mod:`expWorkbench.model`): an abstract base class for specifying
-  the interface to the model on which you want to perform exploratory modeling.
-* Samplers (:mod:`expWorkbench.samplers`): the various sampling techniques
-  that are readily available in the workbench.
-* Uncertianties (:mod:`expWorkbench.uncertainties`): various types of 
-  uncertainty classes that can be used to specify the uncertainties in a 
-  model interface.
-* Support for parallelization (:mod:`expWorkbench.ema_parallel`): the
-  executing of computational experiments is embarrassingly parallel. The 
+* Model ensemble (:mod:`ema_workbench.em_framework.model_ensemble`): the class 
+  responsbile for setting up and performing experiments.
+* Model (:mod:`ema_workbench.em_framework.model`): an abstract base class for 
+  specifying the interface to the model on which you want to perform 
+  exploratory modeling.
+* Samplers (:mod:`ema_workbench.em_framework.samplers`): the various sampling 
+  techniques that are readily available in the workbench.
+* Uncertainties (:mod:`ema_workbench.em_framework.uncertainties`): various 
+  types of uncertainty classes that can be used to specify the uncertainties in 
+  a model interface.
+* Support for parallelization (:mod:`ema_workbench.em_framework.ema_parallel`): 
+  the executing of computational experiments is embarrassingly parallel. The 
   workbench supports this. One can leverage the power of multiple cores on 
   a single machine, but also an entire cluster. Wrappers are offered for
   using both the multiprocessing library and the ipython parallel library.  
