@@ -72,6 +72,7 @@ def worker(inqueue,
             break
         if task is None:
             ema_logging.debug('worker got sentinel -- exiting')
+            runner.cleanup()
             break
 
         _, experiment = task

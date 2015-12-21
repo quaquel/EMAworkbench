@@ -330,6 +330,9 @@ class Engine(object):
     def cleanup_working_directory(self):
         '''remove the root working directory of the engine'''
         shutil.rmtree(self.root_dir) 
+        
+        # this is hacky
+        self.runner.cleanup()
 
     def copy_wds_for_msis(self, dirs_to_copy, wd_by_msi):
         '''copy each unique working directory to the engine specific
