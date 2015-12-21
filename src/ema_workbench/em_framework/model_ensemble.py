@@ -263,6 +263,7 @@ class ModelEnsemble(object):
             for experiment in experiments:
                 experiment_id, case, policy, model_name, result = runner.run_experiment(experiment)
                 callback(experiment_id, case, policy, model_name, result)
+            runner.cleanup()
             os.chdir(cwd)
        
         results = callback.get_results()
