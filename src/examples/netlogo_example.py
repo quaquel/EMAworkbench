@@ -15,7 +15,7 @@ from analysis import plotting
 class PredatorPrey(NetLogoModelStructureInterface):
     model_file = r"\Wolf Sheep Predation.nlogo"
     
-    run_length = 1000
+    run_length = 100
     
     uncertainties = [ParameterUncertainty((1, 99), "grass-regrowth-time"),
                      ParameterUncertainty((1, 250), "initial-number-sheep"),
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     ensemble.parallel = True
     
     #perform experiments
-    results = ensemble.perform_experiments(100)
+    results = ensemble.perform_experiments(5)
 
     plotting.lines(results, density=plotting.KDE)
     plt.show()
