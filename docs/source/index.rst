@@ -4,8 +4,10 @@
    contain the root `toctree` directive.
 
 .. meta::
-   :description: The index of the full documentaton of the exploratory modeling
-                 workbench
+   :description: A python library for exploratory modeling and analysis for 
+                 supporting model based decision making under deep uncertainty
+   :keywords: exploratory modeling, deep uncertainty, robust decision making,
+              vensim, python
 
 ***************************
 EMA Workbench documentation
@@ -16,72 +18,42 @@ EMA Workbench documentation
     :Release: |version|
     :Date: |today|
 
-User Guide
-==========
+.. _contents:
+
+.. _exploratory-modelling-analysis-workbench:
+
+**************************************************
+Exploratory Modelling and Analysis (EMA) Workbench
+**************************************************
+
+Exploratory Modeling and Analysis (EMA) is a research methodology that uses 
+computational experiments to analyze complex and uncertain systems 
+(`Bankes, 1993 <http://www.jstor.org/stable/10.2307/171847>`_). That is, 
+exploratory modeling aims at offering computational decision support for 
+decision making under `deep uncertainty <http://inderscience.metapress.com/content/y77p3q512x475523/>`_ 
+and `Robust decision making <http://en.wikipedia.org/wiki/Robust_decision_making>`_.  
+
+The EMA workbench aimes at providing support for performing exploratory
+modeling with models developed in various modelling packages and environments. 
+Currently, the workbench offers connectors to 
+`Vensim <http://www.vensim.com/>`_, `Netlogo <http://ccl.northwestern.edu/netlogo/>`_, 
+and Excel. 
+
+The EMA workbench offers support for designing experiments, performing the 
+experiments - including support for parallel processing on both a single 
+machine as well as on clusters-, and analysing the results. To get started, 
+take a look at the high level overview, the tutorial, or dive straight into 
+the details of the API. 
 
 .. toctree::
    :maxdepth: 2
    
-   ../../contents.rst
-   ../../tutorial.rst
-   ../../download.rst
-   ../../ema_documentation/glossary.rst
-   ../../vensim-tips-and-tricks.rst
-   ../../gallery/rst/index.rst
-   
-.. only:: html
-
-   - `Gallery <gallery.html>`_   
-
-   
-EMA Modules
-===========
-
-Analysis
-^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-   
-   ../../ema_documentation/analysis/plotting.rst
-   ../../ema_documentation/analysis/b_and_w_plotting.rst
-   ../../ema_documentation/analysis/pairs_plotting.rst
-   ../../ema_documentation/analysis/plotting_util.rst
-   ../../ema_documentation/analysis/interactive_graphs.rst
-   ../../ema_documentation/analysis/graphs3d.rst
-   ../../ema_documentation/analysis/prim.rst
-   ../../ema_documentation/analysis/pca_prim.rst
-   ../../ema_documentation/analysis/orange_functions.rst
-   ../../ema_documentation/analysis/clusterer.rst
-   ../../ema_documentation/analysis/scenario_discovery.rst
-
-
-The Core of the Workbench
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-   
-   ../../ema_documentation/expWorkbench/model.rst
-   ../../ema_documentation/expWorkbench/model_ensemble.rst
-   ../../ema_documentation/expWorkbench/uncertainties.rst
-   ../../ema_documentation/expWorkbench/outcomes.rst
-   ../../ema_documentation/expWorkbench/samplers.rst
-   ../../ema_documentation/expWorkbench/callbacks.rst
-   ../../ema_documentation/expWorkbench/ema_logging.rst
-   ../../ema_documentation/expWorkbench/ema_parallel.rst
-   ../../ema_documentation/expWorkbench/ema_exceptions.rst
-   ../../ema_documentation/expWorkbench/ema_optimization.rst
-   ../../ema_documentation/expWorkbench/util.rst
-
-
-Connectors
-^^^^^^^^^^
-.. toctree::
-   :maxdepth: 2
-
-   ../../ema_documentation/expWorkbench/vensim.rst
-   ../../ema_documentation/expWorkbench/excel.rst
+   ./overview.rst
+   ./installation.rst
+   ./tutorial.rst
+   ./vensim-tips-and-tricks.rst
+   ./api_index.rst
+   ./ema_documentation/glossary.rst
 
 
 Indices and tables

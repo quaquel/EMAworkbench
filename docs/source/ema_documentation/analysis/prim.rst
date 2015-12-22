@@ -2,5 +2,5 @@
 :mod:`prim`
 ***********
 
-.. automodule:: prim
+.. automodule:: ema_workbench.analysis.prim
    :members:

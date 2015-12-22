@@ -24,9 +24,9 @@ including one way of handling policies.
 
 .. _A-simple-model-in-python:
 
-************************
+========================
 A simple model in Python
-************************
+========================
 
 In order to perfom EMA on a model. The first step is to extent  
 :class:`~model.ModelStructureInterface`. ::
@@ -101,7 +101,7 @@ code snippet ::
 
    model = SimplePythonModel(None, 'simpleModel') #instantiate the model
    ensemble = ModelEnsemble() #instantiate an ensemble
-   ensemble.set_model_structure(model) #set the model on the ensemble
+   ensemble.model_structures = model #set the model on the ensemble
    results = ensemble.perform_experiments(1000) #generate 1000 cases
 
 
@@ -115,14 +115,14 @@ invoing the :meth:`perform_experiments`.
 
 .. rubric:: The complete code:
 
-.. literalinclude:: ../../src/examples/python_example.py
+.. literalinclude:: ../../examples/python_example.py
    :linenos:
 
 .. _A-simple-model-in-Vensim:
 
-************************
+========================
 A simple model in Vensim
-************************
+========================
 
 In order to perfom EMA on a model build in Vensim, we can either extent
 :class:`~model.ModelStructureInterface` or use 
@@ -194,7 +194,7 @@ perform EMA on the simple Vensim model. ::
     ensemble = ModelEnsemble()
     
     #set the model on the ensemble
-    ensemble.set_model_structure(vensimModel)
+    ensemble.model_structures = vensimModel
     
     #run in parallel, if not set, FALSE is assumed
     ensemble.parallel = True
@@ -212,14 +212,14 @@ to the INFO level, which in most cases is sufficient. For more details see
 
 .. rubric:: The complete code
 
-.. literalinclude:: ../../src/examples/vensim_example.py
+.. literalinclude:: ../../examples/vensim_example.py
    :linenos:
 
 .. _A-simple-model-in-Excel:
 
-***********************
+=======================
 A simple model in Excel
-***********************
+=======================
 
 In order to perform EMA on an Excel model, the easiest is to use 
 :class:`~excel.ExcelModelStructureInterface` as the base class. This base
@@ -231,7 +231,7 @@ the decimal seperator and thousands seperator are set correctly in Excel. This
 can be checked via file > options > advanced. These seperators should follow
 the `anglo saxon convention <http://en.wikipedia.org/wiki/Decimal_mark>`_. 
 
-.. literalinclude:: ../../src/examples/excel_example.py
+.. literalinclude:: ../../examples/excel_example.py
    :linenos:
 
 The example is relatively straight forward. We add multiple 
@@ -249,9 +249,9 @@ Excel model.
 
 .. _A-more-elaborate-example-Mexican-Flu:
 
-*************************************
+=====================================
 A more elaborate example: Mexican Flu
-*************************************
+=====================================
 
 This example is derived from `Pruyt & Hamarat (2010) <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf>`_.
 This paper presents a small exploratory System Dynamics model related to the 
@@ -261,9 +261,9 @@ understanding about the possible dynamics of this new flu variant and to
 perform rough-cut policy explorations. Later, the model was also used to further 
 develop and illustrate Exploratory Modelling and Analysis.
 
-============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Mexican Flu: the basic model
-============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In the first days, weeks and months after the first reports about the outbreak 
 of a new flu variant in Mexico and the USA, much remained unknown about the 
@@ -336,7 +336,7 @@ normal contact rate region 2                             10             200
 
 Together, this results in the following code:
 
-.. literalinclude:: ../../src/examples/flu_vensim_no_policy_example.py
+.. literalinclude:: ../../examples/flu_vensim_no_policy_example.py
    :linenos:
 
 We can now instantiate the model, instantiate an ensemble, and set the model on 
@@ -351,7 +351,7 @@ Assuming we have imported :class:`~model_ensemblel.ModelEnsemble` and
    model = FluModel(r'..\..\models\flu', "fluCase")
    
    ensemble = ModelEnsemble()
-   ensemble.set_model_structure(model)
+   ensemble.model_structure = model
    ensemble.parallel = True
    
    results = ensemble.perform_experiments(1000)
@@ -382,23 +382,15 @@ for a series of experiments and save these results. One can then use these
 saved results in various analysis scripts. ::
 
    from expWorkbench.util import save_results
-   save_results(results, model.workingDirectory+r'\1000 runs.bz2')
+   save_results(results, r'./1000 runs.tar.gz')
 
 The above code snippet shows how we can use :func:`~util.save_results` for
-saving the results of our experiments. :func:`~util.save_results` stores the results
-using `cPickle <http://docs.python.org/library/pickle.html>`_ and 
-`bz2 <http://docs.python.org/2/library/bz2.html>`_. It is 
-recommended to use :func:`~util.save_results`, instead of using 
-`cPickle <http://docs.python.org/library/pickle.html>`_ directly, to guarantee 
-cross-platform useability of the stored results. That is, one can generate the 
-results  on say Windows, but still open them on say MacOs.  The extensions 
-`.bz2` is strictly speaking not necessary, any file extension can be used, but 
-it is found convenient to easily identify saved results. 
+saving the results of our experiments. :func:`~util.save_results` stores the as
+csv files in a tarbal.  
 
-
-=====================
+^^^^^^^^^^^^^^^^^^^^^
 Mexican Flu: policies
-=====================
+^^^^^^^^^^^^^^^^^^^^^
 
 For this paper, policies were developed by using the system understanding 
 of the analysts. 
@@ -420,12 +412,11 @@ file based on the policy. After this, we call the super. ::
 
        def model_init(self, policy, kwargs):
         '''initializes the model'''
-        
-        try:
-            self.modelFile = policy['file']
-        except KeyError:
-            logging.warning("key 'file' not found in policy")
-        super(FluModel, self).model_init(policy, kwargs)
+           try:
+               self.model_file = policy['file']
+           except KeyError:
+               ema_logging.warning("key 'file' not found in policy")
+           super(FluModel, self).model_init(policy, kwargs)
 
 Now, our model can react to different policies, but we still have to 
 add these policies to :class:`ModelEnsemble`. We therefore make 
@@ -442,12 +433,12 @@ add this list of policies to the ensemble. ::
                 {'name': 'adaptive policy',
                  'file': r'\FLUvensimV1dynamic.vpm'}
                 ]
-    ensemble.add_policies(policies)
+    ensemble.policies = policies
 
 We can now proceed in the same way as before, and perform a series of
 experiments. Together, this results in the following code:
 
-.. literalinclude:: ../../src/examples/flu_vensim_example.py
+.. literalinclude:: ../../examples/flu_vensim_example.py
    :linenos:
 
 comparison of results
@@ -459,7 +450,7 @@ But using :func:`pairs_scatter`. It shows for the three different policies
 their behavior on the total number of deaths, the hight of the heighest peak
 of the pandemic, and the point in time at which this peak was reached. 
 
-.. literalinclude:: ../../src/examples/flu_multiplot.py
+.. literalinclude:: ../../examples/flu_pairsplot.py
    :linenos:
 
 .. rubric:: no policy

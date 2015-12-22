@@ -1,0 +1,40 @@
+# Travis config for EMA workbench
+language: python
+sudo: false
+
+python:
+- 2.7
+
+env:
+- DEPS="numpy matplotlib pandas ipython=3.2.0 nose scikit-learn mock seaborn"
+
+install:
+- wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+- bash miniconda.sh -b -p $HOME/miniconda
+- export PATH="$HOME/miniconda/bin:$PATH"
+- hash -r
+- conda config --set always_yes yes --set changeps1 no
+- conda install -c conda conda-env
+- conda update -q conda --no-deps
+- conda info -a # Useful for debugging any issues with conda
+- conda install --yes $DEPS # Replace dep1 dep2 ... with your dependencies
+- pip install deap # deap is another dependency, not available via conda
+- pip install zmq # zmq is not available via conda for some reason
+- pip install pydot
+- pip install coveralls
+# jpype installation code to be added
+
+before_install:
+- "export DISPLAY=:99.0"
+- "sh -e /etc/init.d/xvfb start"
+
+script:
+- nosetests ema_workbench --with-coverage --verbose --cover-package=ema_workbench.em_framework --cover-package=ema_workbench.util --cover-package=ema_workbench.analysis
+
+
+# coverage needs to be added
+after_success:
+- coveralls
+
+#notifications:
+#email: false
