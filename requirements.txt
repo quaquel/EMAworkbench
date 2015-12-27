@@ -5,6 +5,8 @@ numpy
 scipy
 pandas
 jupyter
+ipykernel
+ipyparallel
 JPype1 == 0.5.7
 mpld3
 scikit-learn
