@@ -162,17 +162,20 @@ class CalculatorPool(pool.Pool):
                                     )
                     msi.set_working_directory(working_directory)
 
-            w = LoggingProcess(
-                self.log_queue,
-                level = logging.getLogger(ema_logging.LOGGER_NAME)\
-                                          .getEffectiveLevel(),
-                                          target=worker,
-                                          args=(self._inqueue, 
-                                                self._outqueue, 
-                                                msis,
-                                                kwargs 
-                                                )
-                                          )
+#             w = multiprocessing.Process(target=worker,
+#                                         args=(self._inqueue, 
+#                                               self._outqueue, 
+#                                               msis,
+#                                               kwargs)
+#                                         )
+            w = LoggingProcess(self.log_queue,
+                                level = logging.getLogger(ema_logging.LOGGER_NAME).getEffectiveLevel(),
+                                target=worker,
+                                args=(self._inqueue, 
+                                      self._outqueue, 
+                                      msis,
+                                      kwargs)
+                                )
             self._pool.append(w)
             
             w.name = w.name.replace('Process', workername)
@@ -538,6 +541,7 @@ class SubProcessLogHandler(logging.Handler):
             s = s[:-1]
         return s
 
+
 class LogQueueReader(threading.Thread):
     """
     
@@ -576,7 +580,8 @@ class LogQueueReader(threading.Thread):
                     break
                 
                 logger = logging.getLogger(record.name)
-                logger.callHandlers(record)
+#                 logger.callHandlers(record)
+#                 ema_logging.info("{}, {}, {}".format(id(record), record.message, record.name))
             except (KeyboardInterrupt, SystemExit):
                 raise
             except EOFError:
@@ -594,6 +599,8 @@ class LoggingProcess(multiprocessing.Process):
     to fit into the :mod:`ema_logging` scheme.
     """
     
+    _i = 0
+    
     def __init__(self, queue, level=None, target=None, args=()):
         super(LoggingProcess, self).__init__(target=target, args=args)
         self.queue = queue
@@ -603,16 +610,12 @@ class LoggingProcess(multiprocessing.Process):
         # create the logger to use.
         logger = logging.getLogger(ema_logging.LOGGER_NAME+'.subprocess')
         ema_logging._logger = logger
-        _logger = logger
         
         # The only handler desired is the SubProcessLogHandler.  If any others
         # exist, remove them. In this case, on Unix and Linux the StreamHandler
         # will be inherited.
 
-        for handler in logger.handlers:
-            # just a check for my sanity
-            assert not isinstance(handler, SubProcessLogHandler)
-            logger.removeHandler(handler)
+        logger.handlers = []
     
         # add the handler
         handler = SubProcessLogHandler(self.queue)
@@ -627,7 +630,6 @@ class LoggingProcess(multiprocessing.Process):
 
     def run(self):
         self._setupLogger()
-        p = multiprocessing.current_process()
-        ema_logging.debug('process %s with pid %s started' % (p.name, p.pid))
+        ema_logging.debug('process %s with pid %s started' % (self.name, self.pid))
         #call the run of the super, which in turn will call the worker function
         super(LoggingProcess, self).run()
