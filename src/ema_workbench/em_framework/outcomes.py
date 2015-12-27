@@ -32,7 +32,6 @@ class Outcome(object):
     time : bool
            If true, outcome is a time series. Default is false.
     
-    
     '''
 
     name = None

@@ -26,8 +26,7 @@ class ModelStructureInterface(object):
     :class:`ModelStructureInterface` is one of the the two main classes used 
     for performing EMA. This is an abstract base class and cannot be used 
     directly. When extending this class :meth:`model_init` and 
-    :meth:`run_model` have to be implemented. :meth:`src` should always
-    call super to ensure proper functioning. The other methods are optional.
+    :meth:`run_model` have to be implemented. 
     
     
     Attributes
