@@ -48,10 +48,10 @@ if __name__ == "__main__":
     ensemble.model_structure = model
     
     #run in parallel, if not set, FALSE is assumed
-    ensemble.parallel = True
+    ensemble.parallel = False
     
     #perform experiments
-    results = ensemble.perform_experiments(10, reporting_interval=1)
+    results = ensemble.perform_experiments(100)
 
     plotting.lines(results, density=plotting_util.KDE)
     plt.show()
