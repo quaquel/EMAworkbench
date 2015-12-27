@@ -1028,7 +1028,6 @@ class Prim(sdutil.OutputFormatterMixin):
         scores.sort(key=itemgetter(0,1), reverse=True)
         entry = scores[0]
         
-        
         obj_score = entry[0]
         box_new, indices = entry[2:]
         

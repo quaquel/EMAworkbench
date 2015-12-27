@@ -1,10 +1,10 @@
 deap
 future
 futures
-ipython == 3.2.0
 numpy
 scipy
 pandas
+jupyter
 JPype1 == 0.5.7
 mpld3
 scikit-learn

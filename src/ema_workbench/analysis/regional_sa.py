@@ -1,6 +1,6 @@
 '''
 
-Module offers support for performing basic regional sensitvity analysis. The
+Module offers support for performing basic regional sensitivity analysis. The
 module can be used to perform regional sensitivity analysis on all 
 uncertainties specified in the experiment array, as well as the ability to 
 zoom in on any given uncertainty in more detail. 
@@ -225,8 +225,7 @@ def plot_cdfs(x, y, ccdf=False):
     y : ndaray 
         tthe categorization for the data
     ccdf : bool, optional
-           if true, plot a complementary cdf 
-           instead of a normal cdf.
+           if true, plot a complementary cdf instead of a normal cdf.
     
     '''
     

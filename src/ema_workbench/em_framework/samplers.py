@@ -156,7 +156,7 @@ class AbstractSampler(object):
         Parameters
         ----------
         sampled_uncertainties : list 
-                        a list of sampled uncertainties, Typicallly,
+                        a list of sampled uncertainties, Typically,
                         this will be the values of the dict returned by
                         :meth:`generate_samples`. 
         
@@ -360,7 +360,9 @@ class FullFactorialSampler(AbstractSampler):
         return nr_designs
    
    
-class AbstractDesigns(object):
+class AbstractDesignsIterable(object):
+    '''iterable for the experimental designs'''
+    
     __metaclass__ = abc.ABCMeta
     
     def __init__(self, sampled_uncs, uncertainties):
@@ -372,13 +374,13 @@ class AbstractDesigns(object):
         '''should return iterator'''
 
 
-class DefaultDesigns(AbstractDesigns):
+class DefaultDesigns(AbstractDesignsIterable):
     def __iter__(self):
         designs = zip(*[self.sampled_uncs[u] for u in self.uncs]) 
         return design_generator(designs, self.uncs)
 
 
-class FullFactorialDesigns(AbstractDesigns):
+class FullFactorialDesigns(AbstractDesignsIterable):
     def __iter__(self):
         designs = itertools.product(*[self.sampled_uncs[u] for u in self.uncs])
         return design_generator(designs, self.uncs)

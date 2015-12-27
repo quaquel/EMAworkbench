@@ -7,6 +7,7 @@ taken from the ipyparallel test code with some minor adaptations
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 import logging
+import ipykernel
 
 try:
     import unittest.mock as mock
@@ -19,16 +20,15 @@ import subprocess
 import time
 import unittest
 
-import IPython
-from IPython.utils.path import get_ipython_dir
-from IPython.utils.localinterfaces import localhost
-import IPython.parallel as parallel
+from jupyter_client.localinterfaces import localhost
+from IPython.paths import get_ipython_dir
 
-from IPython.parallel.apps.launcher import (LocalProcessLauncher,
-                                            ipengine_cmd_argv,
-                                            ipcontroller_cmd_argv,
-                                            SIGKILL,
-                                            ProcessStateError)
+import ipyparallel as parallel
+from ipyparallel.apps.launcher import (LocalProcessLauncher,
+                                       ipengine_cmd_argv,
+                                       ipcontroller_cmd_argv,
+                                       SIGKILL,
+                                       ProcessStateError)
 
 from ...em_framework import ema_parallel_ipython as ema
 from ...em_framework import experiment_runner
@@ -188,7 +188,7 @@ class TestEngineLoggerAdapter(unittest.TestCase):
         
         # with handlers
         mocked_logger = mock.create_autospec(logging.Logger)
-        mock_engine_handler = mock.create_autospec(IPython.kernel.zmq.log.EnginePUBHandler)# @UndefinedVariable
+        mock_engine_handler = mock.create_autospec(ipykernel.log.EnginePUBHandler)
         mocked_logger.handlers = [mock_engine_handler] 
         
         mocked_application.instance.return_value = mocked_application
