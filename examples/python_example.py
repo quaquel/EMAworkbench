@@ -38,9 +38,15 @@ class SimplePythonModel(ModelStructureInterface):
     
 
 if __name__ == '__main__':
-    ema_logging.log_to_stderr(ema_logging.INFO)
+    ema_logging.LOG_FORMAT = '[%(name)s/%(levelname)s/%(processName)s] %(message)s'
+    ema_logging.log_to_stderr(ema_logging.DEBUG)
+    
     model = SimplePythonModel(None, 'simpleModel') #instantiate the model
     ensemble = ModelEnsemble() #instantiate an ensemble
     ensemble.parallel = True
+    ensemble.processes = 2
     ensemble.model_structure = model #set the model on the ensemble
-    results = ensemble.perform_experiments(1000) #run 1000 experiments
+    results = ensemble.perform_experiments(2) #run 1000 experiments
+    
+
+    
