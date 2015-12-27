@@ -2,10 +2,10 @@
 This module provides functionality for combining the EMA workbench
 with IPython parallel. 
 
-.. note:: the version provided here is compatible with ipython 3, and not 
-          with ipython 4 where ipython has been split into jupyter, ipyparallel
-          etc. In principle, aa simple change of imports should suffice
-          to rectify this. 
+.. note:: the version provided here is compatible with ipython 4, and 
+          ipyparallel. That is, the version after the big split. It will not 
+          work with older versions of IPython
+
 
 '''
 from __future__ import (absolute_import, print_function, division,
@@ -17,10 +17,10 @@ import os
 import shutil
 import socket
 import threading
-import zmq
 
-import IPython
-from IPython.config import Application
+import zmq
+import ipykernel
+from traitlets.config import Application
 
 from ..util import ema_exceptions, utilities, ema_logging
 from . import experiment_runner
@@ -70,7 +70,7 @@ class LogWatcher(object):
     logger. This filtering is done on a loglevel and topic basis. By default,
     filtering is active on the DEBUG level, with EMA as topic.   
     
-    This class is adapted from the LogWatcher in IPython.paralle.apps to 
+    This class is adapted from the LogWatcher in ipyparallel.apps to 
     fit the needs of the workbench.
 
     """
@@ -204,7 +204,6 @@ def start_logwatcher(url):
             logwatcher.loop.start()
         except (zmq.error.ZMQError, IOError):
             ema_logging.warning('shutting down log watcher')
-        
     
     logwatcher_thread = threading.Thread(target=starter)
     logwatcher_thread.deamon = True
@@ -222,7 +221,7 @@ def set_engine_logger():
     logger.setLevel(ema_logging.DEBUG)
 
     for handler in logger.handlers:
-        if isinstance(handler, IPython.kernel.zmq.log.EnginePUBHandler): # @UndefinedVariable
+        if isinstance(handler, ipykernel.log.EnginePUBHandler): # @UndefinedVariable
             handler.setLevel(ema_logging.DEBUG)
     
     adapter = EngingeLoggerAdapter(logger, SUBTOPIC)
@@ -416,7 +415,6 @@ def setup_working_directories(client, msis):
     common_root = os.path.commonprefix(wd_by_msi.keys())
     common_root = os.path.dirname(common_root)
     rel_common_root = os.path.relpath(common_root, EMA_PROJECT_HOME_DIR)
-
     
     engine_wd_name = 'engine{}'
     engine_dir = os.path.join(rel_common_root, engine_wd_name)
@@ -427,7 +425,6 @@ def setup_working_directories(client, msis):
     
     # copy the working directories and update msi.working_directory
     dirs_to_copy = wd_by_msi.keys()
-#     dirs_to_copy = [os.path.relpath(wd,common_root) for wd in dirs_to_copy]
     client[:].apply_sync(_copy_working_directories, dirs_to_copy, wd_by_msi)
 
 

@@ -34,7 +34,8 @@ if sys.platform=='win64':
 
 elif sys.platform=='darwin':
     jar_separator = ":" # jars are separated by a : on MacOS    
-    NETLOGO_HOME = r'/Applications/NetLogo 5.1.0'
+#     NETLOGO_HOME = r'/Applications/NetLogo 5.1.0'
+    NETLOGO_HOME = r'/Applications/NetLogo 5.3'
 else:
     # TODO should raise and exception which is subsequently cached and
     # transformed into a a warning just like excel and vensim
@@ -63,22 +64,22 @@ class NetLogoLink():
         '''
         if not jpype.isJVMStarted():
             # netlogo jars
-            jars = [NETLOGO_HOME + r'/lib/scala-library.jar',
-                    NETLOGO_HOME + r'/lib/asm-all-3.3.1.jar',
-                    NETLOGO_HOME + r'/lib/picocontainer-2.13.6.jar',
-                    NETLOGO_HOME + r'/lib/log4j-1.2.16.jar',
-                    NETLOGO_HOME + r'/lib/jmf-2.1.1e.jar',
-                    NETLOGO_HOME + r'/lib/pegdown-1.1.0.jar',
-                    NETLOGO_HOME + r'/lib/parboiled-em_framework-1.0.2.jar',
-                    NETLOGO_HOME + r'/lib/parboiled-java-1.0.2.jar',
-                    NETLOGO_HOME + r'/lib/mrjadapter-1.2.jar',
-                    NETLOGO_HOME + r'/lib/jhotdraw-6.0b1.jar',
-                    NETLOGO_HOME + r'/lib/quaqua-7.3.4.jar',
-                    NETLOGO_HOME + r'/lib/swing-layout-7.3.4.jar',
-                    NETLOGO_HOME + r'/lib/jogl-1.1.1.jar',
-                    NETLOGO_HOME + r'/lib/gluegen-rt-1.1.1.jar',
-                    NETLOGO_HOME + r'/NetLogo.jar',
-                    PYNETLOGO_HOME + r'/external_files/netlogoLink.jar']
+            jars = [NETLOGO_HOME + '/Java/scala-library.jar',
+                    NETLOGO_HOME + '/Java/asm-all-3.3.1.jar',
+                    NETLOGO_HOME + '/Java/picocontainer-2.13.6.jar',
+                    NETLOGO_HOME + '/Java/log4j-1.2.16.jar',
+                    NETLOGO_HOME + '/Java/jmf-2.1.1e.jar',
+                    NETLOGO_HOME + '/Java/pegdown-1.1.0.jar',
+                    NETLOGO_HOME + '/Java/parboiled-em_framework-1.0.2.jar',
+                    NETLOGO_HOME + '/Java/parboiled-java-1.0.2.jar',
+                    NETLOGO_HOME + '/Java/mrjadapter-1.2.jar',
+                    NETLOGO_HOME + '/Java/jhotdraw-6.0b1.jar',
+                    NETLOGO_HOME + '/Java/quaqua-7.3.4.jar',
+                    NETLOGO_HOME + '/Java/swing-layout-7.3.4.jar',
+                    NETLOGO_HOME + '/Java/jogl-1.1.1.jar',
+                    NETLOGO_HOME + '/Java/gluegen-rt-1.1.1.jar',
+                    NETLOGO_HOME + '/Java/NetLogo.jar',
+                    PYNETLOGO_HOME + '/external_files/netlogoLink.jar']
             
             # format jars in right format for starting java virtual machine
             # TODO the use of the jre here is only relevant under windows 
@@ -89,13 +90,19 @@ class NetLogoLink():
             jarpath = '-Djava.class.path={}'.format(joined_jars)
             
             jvm_handle = jpype.getDefaultJVMPath() 
-            jpype.startJVM(jvm_handle, jarpath, "-Xms128M","-Xmx1024m")  
+            
+            debug('trying to start java')
+            debug(jvm_handle)
+            debug(jarpath)
+            jpype.startJVM(jvm_handle, jarpath, "-Xms128M","-Xmx1024m")
+            debug("jvm started")
+            
             jpype.java.lang.System.setProperty('user.dir', NETLOGO_HOME)
 
             if sys.platform=='darwin':
                 jpype.java.lang.System.setProperty("java.awt.headless", "true");            
             
-            debug("jvm started")
+            
         
         link = jpype.JClass('netlogoLink.NetLogoLink')
         debug('NetLogoLink class found')

@@ -56,7 +56,6 @@ class MultiprocessingPool(AbstractPool):
     '''
     Extension of AbstractPool which wraps the multiprocessing pool.
     
-    
     '''
 
     def __init__(self, msis, model_kwargs={}, nr_processes=None):
