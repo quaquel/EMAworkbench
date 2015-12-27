@@ -32,12 +32,8 @@ class PredatorPrey(NetLogoModelStructureInterface):
                 ]
     
 if __name__ == "__main__":
-    import multiprocessing
-    ema_logging.LOG_FORMAT = multiprocessing.util.DEFAULT_LOGGING_FORMAT
-    
     #turn on logging
-    ema_logging.log_to_stderr(ema_logging.DEBUG)
-    ema_logging.info('in main')
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     #instantiate a model
     
@@ -52,11 +48,10 @@ if __name__ == "__main__":
     ensemble.model_structure = model
     
     #run in parallel, if not set, FALSE is assumed
-    ensemble.parallel = True
-    ensemble.processes = 2
+    ensemble.parallel = False
     
     #perform experiments
-    results = ensemble.perform_experiments(10, reporting_interval=1)
+    results = ensemble.perform_experiments(100)
 
     plotting.lines(results, density=plotting_util.KDE)
     plt.show()

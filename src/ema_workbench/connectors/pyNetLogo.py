@@ -3,6 +3,7 @@ Python Netlogo bridge build on top of jpype.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+#from ema_workbench.connectors.pyNetLogo import NETLOGO_HOME
 
 try:
     import jpype
@@ -11,6 +12,8 @@ except ImportError:
 import os
 import sys
 
+
+#from expWorkbench import debug
 from ..util import debug, info, warning, EMAError
 
 # Created on 21 mrt. 2013
@@ -20,9 +23,15 @@ from ..util import debug, info, warning, EMAError
 __all__ = ['NetLogoException',
            'NetLogoLink']
 
-if sys.platform=='win32':
-    NETLOGO_HOME = r'C:\Program Files (x86)\NetLogo 5.1.0'
+#NETLOGO_HOME = r'C:\Program Files\NetLogo 5.3'
+#jar_separator = ";" # jars are separated by a ; on Windows
+
+
+##this is the code initially written by JK
+if sys.platform=='win64':
+    NETLOGO_HOME = r'C:\Program Files\NetLogo 5.3'
     jar_separator = ";" # jars are separated by a ; on Windows
+
 elif sys.platform=='darwin':
     jar_separator = ":" # jars are separated by a : on MacOS    
 #     NETLOGO_HOME = r'/Applications/NetLogo 5.1.0'

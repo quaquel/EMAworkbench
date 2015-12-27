@@ -32,4 +32,5 @@ fig, axesdict = envelopes(results,
 fig.set_size_inches(8,5)
 
 # save figure
-plt.savefig("./pictures/policy_comparison.png", dpi=75)
+plt.show()
+#plt.savefig("./pictures/policy_comparison.png", dpi=75)
