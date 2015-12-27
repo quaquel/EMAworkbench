@@ -6,7 +6,7 @@ python:
 - 2.7
 
 env:
-- DEPS="numpy matplotlib pandas jupyter nose scikit-learn mock seaborn"
+- DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn"
 
 install:
 - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
