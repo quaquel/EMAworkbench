@@ -73,7 +73,7 @@ class IpyparallelPool(AbstractPool):
     ----------
     msis : iterable
            iterable of model structure interface instances
-    cliet : IPython.parallel.client instance
+    client : IPython.parallel.client instance
     model_kwargs : dict
         
     
