@@ -96,6 +96,12 @@ class AbstractCallback(object):
         
         '''
         
+        
+        #
+        # TODO:: replace with optional tqdm based progress bar
+        # http://thelivingpearl.com/2012/12/31/creating-progress-bars-with-python/ 
+        # idea: have a bar that ships with workbench, which is used as a 
+        # fallback if tqdm is not available
         self.i+=1
         ema_logging.debug(str(self.i)+" cases completed")
         

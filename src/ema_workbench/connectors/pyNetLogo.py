@@ -55,6 +55,7 @@ class NetLogoLink():
         '''
         if not jpype.isJVMStarted():
             # netlogo jars
+            # TODO:: on windows, this is /app rather than /java
             jars = [NETLOGO_HOME + '/Java/scala-library.jar',
                     NETLOGO_HOME + '/Java/asm-all-3.3.1.jar',
                     NETLOGO_HOME + '/Java/picocontainer-2.13.6.jar',

@@ -141,6 +141,9 @@ class CalculatorPool(pool.Pool):
         
         worker_root = None
         for i in range(processes):
+            # consider adding a progress bar if we need to setup 
+            # many processes including substantial copying          
+            
             ema_logging.debug('generating worker '+str(i))
             
             workername = self._get_worker_name(i)
