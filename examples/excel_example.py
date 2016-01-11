@@ -54,9 +54,6 @@ if __name__ == "__main__":
     ensemble.model_structure = model
 
     ensemble.parallel = True #turn on parallel computing
-    pool = MultiprocessingPool(ensemble.model_structure, 
-                               nr_processes=2)
-    ensemble.pool = pool
     
     #run 100 experiments
     nr_experiments = 100
