@@ -39,7 +39,7 @@ class SimplePythonModel(ModelStructureInterface):
 
 if __name__ == '__main__':
     ema_logging.LOG_FORMAT = '[%(name)s/%(levelname)s/%(processName)s] %(message)s'
-#     ema_logging.log_to_stderr(ema_logging.INFO)
+    ema_logging.log_to_stderr(ema_logging.INFO)
     
     model = SimplePythonModel(None, 'simpleModel') #instantiate the model
     ensemble = ModelEnsemble() #instantiate an ensemble
