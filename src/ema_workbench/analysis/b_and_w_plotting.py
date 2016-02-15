@@ -60,7 +60,7 @@ def _identify_colors(fig):
             all_colors.add(rgb_orig)
                 
         for collection in ax.collections:
-            for color in collection._facecolors_original:
+            for color in collection.get_facecolor():
                 rgb_orig = color_converter.to_rgb(color)
                 all_colors.add(rgb_orig)
     
