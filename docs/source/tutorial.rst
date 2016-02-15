@@ -151,7 +151,7 @@ variable 'a' is the outcome of interest. We are going to extent
 
        #note that this reference to the model should be relative
        #this relative path will be combined to the workingDirectory
-       modelFile = r'\model.vpm' 
+       model_file = r'\model.vpm' 
         
        #specify outcomes   
        outcomes = [Outcome('a', time=True)]
@@ -166,7 +166,7 @@ need to specify the model file, the outcomes, and the uncertainties.
 
 We specify the model file relative to the working directory. :: 
 
-    modelFile = r'\model.vpm' 
+    model_file = r'\model.vpm' 
 
 We add an :class:`~outcomes.Outcome` called 'a' to :attr:`self.outcomes`. 
 The second argument `time=True` means we are interested in the value of 'a' 
