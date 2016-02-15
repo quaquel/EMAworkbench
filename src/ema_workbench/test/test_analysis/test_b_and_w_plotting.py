@@ -7,20 +7,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ...analysis.b_and_w_plotting import set_fig_to_bw, HATCHING, GREYSCALE
-from ...analysis.plotting_util import make_legend, PATCH, COLOR_LIST
-
-import seaborn as sns
+from ...analysis.plotting_util import make_legend, PATCH
 
 def test_scatter():
-    sns.set_palette(COLOR_LIST)
-    
     x = np.random.rand(5)
     y = np.random.rand(5)
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.scatter(x,y, s=80)
-#     set_fig_to_bw(fig)
+    set_fig_to_bw(fig)
     
     plt.draw()
 
@@ -42,11 +38,22 @@ def test_fill_between():
     plt.draw()
 
 def test_fig_legend():
-    sns.set_palette(COLOR_LIST)
-
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    make_legend(['a','b','c'], fig, legend_type=PATCH)
+    
+    x = np.random.rand(5)
+    y = np.random.rand(5)
+    ax.scatter(x,y, label='a', c='b')
+    
+    x = np.random.rand(5)
+    y = np.random.rand(5)
+    ax.scatter(x,y, label='b', c='r')
+    
+    x = np.random.rand(5)
+    y = np.random.rand(5)
+    ax.scatter(x,y, label='c', c='k')
+    ax.legend()
+    
     set_fig_to_bw(fig, style=GREYSCALE)
     plt.draw()
     

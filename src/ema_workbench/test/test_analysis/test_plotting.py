@@ -467,9 +467,6 @@ def test_multiple_densities():
 
 
 if __name__ == '__main__':
-    import seaborn
-    seaborn.set_palette(COLOR_LIST)
-    
     test_lines()
 #     test_envelopes()
 #     test_kde_over_time()
