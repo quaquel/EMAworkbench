@@ -13,6 +13,8 @@ from operator import itemgetter
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 
+import pandas as pd
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.feature_selection.univariate_selection import (f_regression,
@@ -131,7 +133,7 @@ def get_univariate_feature_scores(x,y, score_func=F_CLASSIFICATION):
                 f_classification or chi2 (classification). 
     Returns
     -------
-    list of tuples 
+    pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature 
         scores (i.e. p values in this case).
     
@@ -147,6 +149,9 @@ def get_univariate_feature_scores(x,y, score_func=F_CLASSIFICATION):
     pvalues = zip(uncs, pvalues)
     pvalues = list(pvalues)
     pvalues.sort(key=itemgetter(1))
+    
+    pvalues = pd.DataFrame(pvalues)
+    
     return pvalues
 
 
@@ -181,7 +186,7 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     
     Returns
     -------
-    list of tuples 
+    pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature 
         scores 
     object
@@ -218,6 +223,8 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     importances = list(importances)
     importances.sort(key=itemgetter(1), reverse=True)
 
+    importances = pd.DataFrame(importances)
+
     return importances, forest
 
 
@@ -251,7 +258,7 @@ def get_lasso_feature_scores(x, y, mode=CLASSIFICATION, scaling=0.5,
                          
     Returns
     -------
-    list of tuples 
+    pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature 
         scores         
          
@@ -287,5 +294,7 @@ def get_lasso_feature_scores(x, y, mode=CLASSIFICATION, scaling=0.5,
     importances = zip(uncs, importances)
     importances = list(importances)
     importances.sort(key=itemgetter(1), reverse=True)
+    importances = pd.DataFrame(importances)
+
 
     return importances
