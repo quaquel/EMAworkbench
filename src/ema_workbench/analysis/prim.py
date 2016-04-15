@@ -778,8 +778,8 @@ class Prim(sdutil.OutputFormatterMixin):
         
         if not boxes:
             return [self.box_init]
-        elif not np.all(sdutil._compare(boxes[-1], self.box_init)):
-                boxes.append(self.box_init)
+#         elif not np.all(sdutil._compare(boxes[-1], self.box_init)):
+#                 boxes.append(self.box_init)
         return boxes 
     
     @property
