@@ -31,7 +31,8 @@ from .uncertainties import CategoricalUncertainty
 __all__ = ['AbstractSampler',
            'LHSSampler',
            'MonteCarloSampler',
-           'FullFactorialSampler']
+           'FullFactorialSampler',
+           'PartialFactorialSampler']
 
 class AbstractSampler(object):
     '''
@@ -295,14 +296,15 @@ class FullFactorialSampler(AbstractSampler):
             if type(uncertainty) == CategoricalUncertainty:
                 category = uncertainty.categories
             else:
-                category = np.linspace(uncertainty.values[0], 
-                                       uncertainty.values[1], 
-                                       size)
-                if uncertainty.dist == 'integer':
-                    category = np.round(category, 0)
-                    category = set(category)
-                    category = [int(entry) for entry in category]
-                    category = sorted(category)
+                category = uncertainty.resolution
+#                 category = np.linspace(uncertainty.values[0], 
+#                                        uncertainty.values[1], 
+#                                        size)
+#                 if uncertainty.dist == 'integer':
+#                     category = np.round(category, 0)
+#                     category = set(category)
+#                     category = [int(entry) for entry in category]
+#                     category = sorted(category)
             samples[uncertainty.name] = category
         
         return samples
@@ -358,6 +360,94 @@ class FullFactorialSampler(AbstractSampler):
         for value in sampled_uncertainties.values():
             nr_designs *= len(value)
         return nr_designs
+
+
+class PartialFactorialSampler(AbstractSampler):
+    """
+    generates a partial factorial design over the uncertainties. Any
+    uncertainty where factorial is true will be included in a factorial design, 
+    while the remainder will be sampled using LHS or MC sampling
+    
+    Parameters
+    ----------
+    sampling: {'LHS', 'MC'}, optional
+              the desired sampling for the non factorial uncertainties.
+              
+    
+    """
+    
+    def __init__(self, sampling='LHS'):
+        super(PartialFactorialSampler, self).__init__()
+        
+        if sampling=='LHS':
+            self.sampler = LHSSampler()
+        elif sampling == 'MC':
+            self.sampler = MonteCarloSampler()
+        else:
+            raise ValueError('invalid value for sampling type, should be LHS or MC')
+        self.ff = FullFactorialSampler()
+    
+    def _sort_uncertainties(self, uncertainties):
+        '''sort uncertainties into full factorial and other
+        
+        Parameters
+        ----------
+        uncertainties : list of uncertainties
+        
+        
+        '''
+        
+        ff_uncs = []
+        other_uncs = []
+        for unc in uncertainties:
+            if unc.factorial == True:
+                ff_uncs.append(unc)
+            else:
+                other_uncs.append(unc)
+                
+        return ff_uncs, other_uncs
+        
+    
+    def generate_designs(self,  uncertainties, nr_samples):
+        '''external interface to sampler. Returns the computational experiments
+        over the specified uncertainties, for the given number of
+        samples for each uncertainty.
+        
+        Parameters
+        ----------
+        uncertainties : list 
+                        a list of uncertainties for which to generate the
+                        experimental designs
+        nr_samples : int
+                     the number of samples to draw for each uncertain factor
+        
+        
+        Returns
+        -------
+        generator
+            a generator object that yields the designs resulting from
+            combining the uncertainties
+        int
+            the number of experimental designs
+        
+        '''
+        
+        ff_uncs, other_uncs = self._sort_uncertainties(uncertainties)
+        
+        # generate a design over the factorials
+        # TODO update ff to use resolution if present
+        ff_designs, n_ff = self.ff.generate_designs(ff_uncs, nr_samples)
+        
+        # generate a design over the remainder
+        # for each factorial, run the MC design
+        other_designs, n_other = self.sampler.generate_designs(other_uncs, 
+                                                              nr_samples)
+        
+        nr_designs = n_other * n_ff
+        
+        designs = PartialFactorialDesigns(ff_designs, other_designs)
+        
+        return designs, nr_designs
    
    
 class AbstractDesignsIterable(object):
@@ -385,6 +475,39 @@ class FullFactorialDesigns(AbstractDesignsIterable):
         designs = itertools.product(*[self.sampled_uncs[u] for u in self.uncs])
         return design_generator(designs, self.uncs)
 
+
+class PartialFactorialDesigns(object):
+    def __init__(self, ff_designs, other_designs):
+        self.ff_designs = ff_designs
+        self.other_designs = other_designs
+    
+    def __iter__(self):
+        designs =  itertools.product(self.ff_designs, self.other_designs)
+        return partial_designs_generator(designs)
+
+def partial_designs_generator(designs):
+    '''generator which combines the full factorial part of the desing with
+    the non full factorial part into a single dict
+    
+    Parameters
+    ----------
+    designs: iterable of tuples
+    
+    Yields
+    ------
+    dict
+        experimental design dict
+    
+    
+    '''
+
+    for design in designs:
+        ff_part, other_part = design
+        
+        design = ff_part.copy()
+        design.update(other_part)
+        
+        yield design
 
 def design_generator(designs, uncs):
     '''generator that combines the sampled uncertainties with their correct 
