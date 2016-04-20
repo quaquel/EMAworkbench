@@ -6,7 +6,7 @@ Created on 21 jan. 2013
 import unittest
 
 from ...em_framework.samplers import (LHSSampler, MonteCarloSampler, 
-                                      FullFactorialSampler)
+                                FullFactorialSampler, PartialFactorialSampler)
 from ...em_framework.uncertainties import (ParameterUncertainty, 
                                            CategoricalUncertainty)
 
@@ -39,6 +39,34 @@ class SamplerTestCase(unittest.TestCase):
     def test_ff_sampler(self):
         sampler = FullFactorialSampler()
         self._test_generate_designs(sampler)
+        
+    def test_pf_sampler(self):
+        uncs = [ParameterUncertainty((0, 5), 'a', factorial=True, 
+                                     resolution=(0, 2.5,5)),
+                ParameterUncertainty((0, 1), 'b', factorial=True, 
+                                     resolution=(0,1)),
+                ParameterUncertainty((0, 1), 'c'),
+                ParameterUncertainty((1, 2), 'd'),
+                ]
+
+        sampler = PartialFactorialSampler()
+        designs, nr_designs = sampler.generate_designs(uncs, 10)
+        
+        expected = 60
+        self.assertEqual(expected, nr_designs)
+        
+        self.assertEqual(expected, len([design for design in designs]))
+        
+        ff, other = sampler._sort_uncertainties(uncs)
+        
+        received = {u.name for u in ff}
+        expected = {'a', 'b'}
+        self.assertEqual(received, expected)
+        
+        received = {u.name for u in other}
+        expected = {'c', 'd'}
+        self.assertEqual(received, expected)
+        
 
 if __name__ == "__main__":
     unittest.main()
