@@ -196,7 +196,8 @@ class CategoricalUncertainty(ParameterUncertainty):
         super(CategoricalUncertainty, self).__init__(values, 
                                                      name, 
                                                      integer=True,
-                                                     factorial=factorial)
+                                                     factorial=factorial,
+                                                     resolution=resolution)
         self.integer = True
                 
     def transform(self, value):
