@@ -48,7 +48,8 @@ from . import scenario_discovery_util as sdutil
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox', 'PrimException']
+__all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox', 'PrimException',
+           'MultiBoxesPrim']
 
 LENIENT2 = 'lenient2'
 LENIENT1 = 'lenient1'
@@ -1513,3 +1514,27 @@ class Prim(sdutil.OutputFormatterMixin):
     _obj_functions = {LENIENT2 : _lenient2_obj_func,
                       LENIENT1 : _lenient1_obj_func,
                       ORIGINAL: _original_obj_func}    
+
+
+class MultiBoxesPrim(Prim):
+    '''Modification of PRIM's handling of multiple boxes, based on the
+    suggestion of Guivarch et al (2016) doi:10.1016/j.envsoft.2016.03.006
+    
+    
+    TODO:: we need a better name for this
+    
+    '''
+    
+    def _update_yi_remaining(self):
+        '''
+        
+        Update yi_remaining in light of the state of the boxes associated
+        with this prim instance.
+        
+        '''
+        # set the indices
+        for box in self._boxes:
+            self.y[box.yi] = 0
+        print(np.sum(self.y))
+        
+        self.yi_remaining = self.yi
