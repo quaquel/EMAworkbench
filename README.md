@@ -14,6 +14,7 @@ would like to contribute to its further development, contact Jan Kwakkel at
 Delft University of Technology.  
 
 This version should work well with the Anaconda distribution of Python 2.7.
+[This other branch](https://github.com/adrivsh/EMAworkbench/tree/python3) should work with the Anaconda distribution of Python 3.x.
 
 EMA workbench is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
