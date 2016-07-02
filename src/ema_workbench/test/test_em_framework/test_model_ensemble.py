@@ -15,6 +15,7 @@ from ...em_framework.samplers import LHSSampler
 from ...em_framework import (ModelStructureInterface, ParameterUncertainty, 
                              Outcome, model_ensemble)
 from ...util.ema_exceptions import EMAError
+from ema_workbench.em_framework.callbacks import DefaultCallback
 
 class DummyInterface(ModelStructureInterface):
     
@@ -245,11 +246,29 @@ class ModelEnsembleTestCase(unittest.TestCase):
         
         with mock.patch('ema_workbench.em_framework.model_ensemble.MultiprocessingPool') as MockPool:
             ensemble.parallel = True
+            
+            mockedCallback = mock.Mock(DefaultCallback)
+            mockedCallback.configure_mock(**{'i':30})
+            mockedCallback.return_value = mockedCallback
+            
             ensemble.perform_experiments(10, which_uncertainties=UNION, 
                                              which_outcomes=UNION,
-                                             reporting_interval=1 )
+                                             reporting_interval=1,
+                                             callback=mockedCallback)
             
             self.assertEqual(2, len(MockPool.mock_calls))
+            
+            
+            MockPool.reset_mock()
+            mockedCallback = mock.Mock(DefaultCallback)
+            mockedCallback.configure_mock(**{'i':10})
+            mockedCallback.return_value = mockedCallback
+            
+            self.assertRaises(EMAError, ensemble.perform_experiments,
+                              10, which_uncertainties=UNION, 
+                              which_outcomes=UNION, reporting_interval=1,
+                             callback=mockedCallback)
+
             
     
     def test_experiment_generator(self):
