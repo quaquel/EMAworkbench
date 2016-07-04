@@ -15,8 +15,8 @@ import numpy.lib.recfunctions as recfunctions
 
 import pandas as pd
 
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble.forest import RandomForestRegressor
+from sklearn.ensemble import (ExtraTreesClassifier, ExtraTreesRegressor, 
+                              RandomForestClassifier, RandomForestRegressor)
 from sklearn.feature_selection.univariate_selection import (f_regression,
                                                             f_classif, chi2)
 from sklearn.linear_model.randomized_l1 import (RandomizedLogisticRegression,
@@ -298,3 +298,82 @@ def get_lasso_feature_scores(x, y, mode=CLASSIFICATION, scaling=0.5,
 
 
     return importances
+
+def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250, 
+                          max_features='auto', max_depth=None, 
+                          min_samples_split=2, min_samples_leaf=1, 
+                          min_weight_fraction_leaf=0, max_leaf_nodes=None,
+                          bootstrap=True, oob_score=True, random_state=None): 
+    '''
+    Get feature scores using extra trees
+
+    Parameters
+    ----------
+    x : structured array
+    y : 1D nd.array
+    mode : {CLASSIFICATION, REGRESSION}
+    nr_trees : int, optional
+               nr. of trees in forest (default=250)
+    max_features : int, optional
+                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    max_depth : int, optional 
+                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    min_samples_split : int, optional
+                  see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    min_samples_leaf : int, optional
+                       see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    min_weight_fraction_leaf : float, optional
+                               see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    max_leaf_nodes: int or None, optional
+                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    bootstrap : bool, optional
+                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    oob_score : bool, optional
+                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    random_state : int, optional
+                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+    
+    Returns
+    -------
+    pandas DataFrame
+        sorted in descending order of tuples with uncertainty and feature 
+        scores 
+    object
+        either ExtraTreesClassifier or ExtraTreesRegressor
+    
+    '''
+    
+    uncs = recfunctions.get_names(x.dtype)
+    x = _prepare_experiments(x)
+    
+    if mode==CLASSIFICATION:
+        etc = ExtraTreesClassifier
+        criterion='gini'
+    elif mode==REGRESSION:
+        etc = ExtraTreesRegressor
+        criterion = 'mse'
+    else:
+        raise ValueError('{} not valid for mode'.format(mode))
+    
+    extra_trees = etc(n_estimators=nr_trees, 
+                      criterion=criterion, 
+                      max_features=max_features, 
+                      max_depth=max_depth,
+                      min_samples_split=min_samples_split,
+                      min_samples_leaf=min_samples_leaf,
+                      min_weight_fraction_leaf=min_weight_fraction_leaf,
+                      max_leaf_nodes=max_leaf_nodes,
+                      bootstrap=bootstrap,
+                      oob_score=oob_score,
+                      random_state=random_state)
+    extra_trees.fit(x,y)
+
+    importances = extra_trees.feature_importances_
+
+    importances = zip(uncs, importances)
+    importances = list(importances)
+    importances.sort(key=itemgetter(1), reverse=True)
+
+    importances = pd.DataFrame(importances)
+
+    return importances, extra_trees
