@@ -5,6 +5,9 @@ Created on 18 jan. 2013
 '''
 
 import unittest
+
+import numpy as np
+
 from ...em_framework import ParameterUncertainty, CategoricalUncertainty
 from ...em_framework.uncertainties import INTEGER, UNIFORM
 
@@ -47,6 +50,19 @@ class UncertaintyTestCase(unittest.TestCase):
         values = (0,1,2)
         name = "test"
         self.assertRaises(ValueError, ParameterUncertainty, values, name)
+        
+        values = (0, 5)
+        uncertainty = ParameterUncertainty(values, name)
+        
+        expected = tuple(np.linspace(values[0], values[1], 3))
+        self.assertEqual(expected, uncertainty.resolution)
+        self.assertFalse(uncertainty.factorial)
+        
+        self.assertRaises(ValueError, ParameterUncertainty, values, name, 
+                          resolution=(-1, 2,6))
+        self.assertRaises(ValueError, ParameterUncertainty, values, name, 
+                          resolution='test')
+        
 
     def test_categorical_unc(self):
         values = ('a', 'b',  'c')
@@ -58,6 +74,9 @@ class UncertaintyTestCase(unittest.TestCase):
         
         self.assertRaises(IndexError, unc.transform, 3)
         self.assertRaises(ValueError, unc.invert, 'd')
+        
+        expected = (0,1,2)
+        self.assertEqual(expected, unc.resolution)
         
 
     def test_uncertainty_identity(self):

@@ -8,6 +8,7 @@ types of uncertainties.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import abc
+import numpy as np
 
 # Created on 16 aug. 2011
 # 
@@ -60,11 +61,8 @@ class AbstractUncertainty(object):
         super(AbstractUncertainty, self).__init__()
         self.values = values
         self.name = name
-    
-    def get_values(self):
-        ''' get values'''
-        return self.values
 
+    
     def __eq__ (self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
                           getattr(self, key) == getattr(other, key) for key 
@@ -94,16 +92,51 @@ class ParameterUncertainty(AbstractUncertainty ):
           name of the uncertainty
     integer: bool, optional
              if True, the parametric uncertainty is an integer
+    factorial: bool, optional
+               if true, and sampler is partial factorial sampler, include
+               this uncertainty as part of the factorial design
+    resolution: int, or iterable, optional
+                the resolution of specific values to use in case of inclusion
+                in a factorial design. 
              
     Raises
     ------
     ValueError
         if the length of values is not equal to 2, or when the first
         element in values is larger than the second element in values
+        
+    TODO:: Note that in case that integer is true, resolution will be cast
+    to integer.
     
     """
     
-    def __init__(self, values, name, integer=False):
+    
+    @property
+    def resolution(self):
+        return self._resolution
+    
+    @resolution.setter
+    def resolution(self, value):
+        # TODO:: what to do with resolution of 1
+        # the addition of resolution to parameter uncertainty makes the
+        # discretization in full factorial sampler for parameter uncertainties
+        # redundant
+        
+        try:
+            value = np.linspace(self.values[0], self.values[1], value)
+        except TypeError:
+            list(value).sort()
+            if value[0]<self.values[0] or value[-1]>self.values[1]:
+                raise ValueError(('resolution larger than range specified by' 
+                                  'values'))
+            
+        if self.dist==INTEGER:
+            value = [int(entry) for entry in value]
+            
+        self._resolution = tuple(value)
+    
+    def __init__(self, values, name, integer=False, factorial=False,
+                 resolution=3):
         if len(values)!=2:
             raise ValueError("length of values for %s incorrect " % name)
         if (values[0] >= values[1]):
@@ -119,8 +152,11 @@ class ParameterUncertainty(AbstractUncertainty ):
         else:
             self.dist = UNIFORM
             #params for initializing self.dist
-            self.params = (self.get_values()[0], 
-                           self.get_values()[1]-self.get_values()[0])
+            self.params = (self.values[0], 
+                           self.values[1]-self.values[0])
+
+        self.factorial = factorial
+        self.resolution = resolution
 
 
 class CategoricalUncertainty(ParameterUncertainty):
@@ -152,13 +188,16 @@ class CategoricalUncertainty(ParameterUncertainty):
 
     categories = None
     
-    def __init__(self, categories, name):
+    def __init__(self, categories, name, factorial=False):
         self.categories = categories
         values = (0, len(categories)-1)
+        resolution = np.arange(values[0], values[1]+1)
 
         super(CategoricalUncertainty, self).__init__(values, 
                                                      name, 
-                                                     integer=True)
+                                                     integer=True,
+                                                     factorial=factorial,
+                                                     resolution=resolution)
         self.integer = True
                 
     def transform(self, value):

@@ -89,10 +89,11 @@ def _make_box(x):
         if dtype == 'object':
             try:
                 values = set(values)
-                box[name][:] = values
             except TypeError as e:
                 ema_logging.warning("{} has unhashable values".format(name))
                 raise e
+            else:
+                box[name][:] = values
         else:
             box[name][0] = np.min(values, axis=0) 
             box[name][1] = np.max(values, axis=0)    

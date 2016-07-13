@@ -379,7 +379,7 @@ def pairs_scatter(results,
                   ylabels = {},
                   legend=True,
                   point_in_time=-1,
-                  filter_scalar=True,
+                  filter_scalar=False,
                   **kwargs):
     '''
     

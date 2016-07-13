@@ -10,7 +10,7 @@ is the same as used in fluExample
 '''
 from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty,
                                         Outcome)
-from ema_workbench.util import ema_logging
+from ema_workbench.util import ema_logging, save_results
 from ema_workbench.connectors.vensim import VensimModelStructureInterface 
 
 class FluModel(VensimModelStructureInterface):
@@ -97,4 +97,4 @@ if __name__ == "__main__":
     results = ensemble.perform_experiments(nr_runs)
     
     # save the results
-#     save_results(results, r'./data/{} flu cases.tar.gz'.format(nr_runs))
+    save_results(results, r'./data/{} flu cases.tar.gz'.format(nr_runs))

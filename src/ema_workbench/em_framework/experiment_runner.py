@@ -112,10 +112,12 @@ class ExperimentRunner(object):
             msi.run_model(case)
         except CaseError as e:
             ema_logging.warning(str(e))
+        except Exception as e:
+            raise EMAError('some exception has been raised by run_model'+str(e))
             
         ema_logging.debug("trying to retrieve output")
         result = msi.retrieve_output()
         
         ema_logging.debug("trying to reset model")
         msi.reset_model()
-        return experiment_id, case, policy, model_name, result      
+        return experiment_id, experiment, policy, model_name, result      

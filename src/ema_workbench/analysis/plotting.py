@@ -459,19 +459,21 @@ def plot_lines_with_envelopes(results,
         indexed by the outcome followed by _density
     '''
    
+    full_outcomes = prepare_data(results, outcomes_to_show, group_by,
+                             grouping_specifiers)[0]
+   
     experiments, outcomes = results
     experiments = experiments[experiments_to_show]
     new_outcomes={}
     for key, value in outcomes.items():
-        new_outcomes[key] =value[experiments_to_show]
+        new_outcomes[key] = value[experiments_to_show]
     results = experiments, new_outcomes
 
     data = prepare_data(results, outcomes_to_show, group_by, 
                         grouping_specifiers)
     outcomes, outcomes_to_show, time, grouping_labels = data
     
-    full_outcomes = prepare_data(results, outcomes_to_show, group_by,
-                             grouping_specifiers)[0]
+
 
     figure, grid = make_grid(outcomes_to_show, density)
     axes_dict = {}
