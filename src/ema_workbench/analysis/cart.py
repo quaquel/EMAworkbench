@@ -182,7 +182,6 @@ class CART(sdutil.OutputFormatterMixin):
         boxes = []
         for leaf in leafs:
             branch = recurse(left, right, leaf)
-#             print(branch)
             box = np.copy(box_init)
             for node in branch:
                 direction = node[1]
@@ -194,17 +193,15 @@ class CART(sdutil.OutputFormatterMixin):
                         box[unc][1] = value
                     except ValueError:
                         unc, cat = unc.split(self.sep)
-                        cats = box[unc]
-                        cats.pop(cat)
-                        box[unc][:]=cats
+                        cats = list(box[unc][0])
+                        cats.pop(cats.index(cat))
+                        box[unc][:]=set(cats)
                 else:
                     try:
                         if (box.dtype.fields[unc][0])==np.int32:
                             value = math.ceil(value)
-                        
-                        
                         box[unc][0] = value
-                    except ValueError:
+                    except (ValueError, KeyError):
                         # we are in the right hand branch, so 
                         # the category is included
                         pass
@@ -299,7 +296,7 @@ class CART(sdutil.OutputFormatterMixin):
         dot_data = StringIO() 
         tree.export_graphviz(self.clf, out_file=dot_data, 
                              feature_names=self.feature_names) 
-        graph = pydot.graph_from_dot_data(dot_data.getvalue()) 
+        graph = pydot.graph_from_dot_data(dot_data.getvalue().encode('ascii')) 
         img = graph.create_png()
         return img
 

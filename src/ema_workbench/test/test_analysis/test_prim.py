@@ -230,7 +230,7 @@ class PrimTestCase(unittest.TestCase):
                                    threshold=0.8)
         prim_obj.find_box()
         boxes = prim_obj.boxes
-        self.assertEqual(len(boxes), 2, 'box length not correct')        
+        self.assertEqual(len(boxes), 1, 'box length not correct')        
         
 
     def test_prim_init_select(self):

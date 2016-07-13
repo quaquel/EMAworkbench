@@ -660,6 +660,8 @@ def prepare_pairs_data(results,
     if isinstance(outcomes_to_show, six.string_types):
         raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
     
+    results = copy.deepcopy(results)
+    
     outcomes, outcomes_to_show, time, grouping_labels = prepare_data(results, 
                                                         outcomes_to_show,
                                                         group_by,

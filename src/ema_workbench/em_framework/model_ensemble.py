@@ -265,6 +265,14 @@ class ModelEnsemble(object):
                 callback(experiment_id, case, policy, model_name, result)
             runner.cleanup()
             os.chdir(cwd)
+        
+        
+        if callback.i != nr_of_exp:
+            raise EMAError(('some fatal error has occurred while '
+                            'running the experiments, not all runs have ' 
+                            'completed. expected {} '.format(nr_of_exp),
+                            'got {}'.format(callback.i),
+                            '{}'.format(type(callback))))
        
         results = callback.get_results()
         info("experiments finished")

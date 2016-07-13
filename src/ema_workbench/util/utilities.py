@@ -207,7 +207,7 @@ def experiments_to_cases(experiments):
     
     This function transform a structured x array into a list
     of case dicts. This can then for example be used as an argument for 
-    running :meth:`~model.SimpleModelEnsemble.perform_experiments`.
+    running :meth:`~em_framework.model_ensemble.ModelEnsemble.perform_experiments`.
     
     Parameters
     ----------    
