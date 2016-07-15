@@ -8,6 +8,7 @@ Monte Carlo sampling.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+from ema_workbench.em_framework.parameters import CategoricalParameter
 
 try:
     from future_builtins import zip
@@ -22,7 +23,7 @@ import itertools
 import numpy as np 
 import scipy.stats as stats
 
-from .uncertainties import CategoricalUncertainty
+# from .uncertainties import CategoricalUncertainty
 
 # Created on 16 aug. 2011
 # 
@@ -110,7 +111,7 @@ class AbstractSampler(object):
             #range in uncertainty gives lower and upper bound
             sample = self.sample(uncertainty.dist, uncertainty.params, size) 
             
-            if type(uncertainty) == CategoricalUncertainty:
+            if type(uncertainty) == CategoricalParameter:
                 # TODO look into numpy ufunc
                 sample = [uncertainty.transform(int(entry)) for entry in sample]
             elif uncertainty.dist=='integer':
@@ -293,7 +294,7 @@ class FullFactorialSampler(AbstractSampler):
         
         samples = {}
         for uncertainty in uncertainties:
-            if type(uncertainty) == CategoricalUncertainty:
+            if type(uncertainty) == CategoricalParameter:
                 category = uncertainty.categories
             else:
                 category = uncertainty.resolution
