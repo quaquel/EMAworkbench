@@ -70,7 +70,6 @@ class AbstractUncertainty(object):
         comparison.append(self.__class__ == other.__class__)
         return all(comparison)
 
-
     def __str__(self):
         return self.name
 

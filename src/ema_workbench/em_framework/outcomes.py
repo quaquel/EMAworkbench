@@ -4,6 +4,8 @@ Module for outcome classes
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+from ema_workbench.em_framework.parameters import NamedObject
+from ema_workbench.em_framework.model_ensemble import MINIMIZE, MAXIMIZE
 
 # Created on 24 mei 2011
 # 
@@ -14,7 +16,10 @@ __all__ = ['Outcome',
 
 TIME = "TIME"
 
-class Outcome(object):
+
+
+
+class Outcome(NamedObject):
     '''
     Outcome class
     
@@ -34,12 +39,15 @@ class Outcome(object):
     
     '''
 
-    name = None
+    MINIMIZE = -1
+    MAXIMIZE = 1
+    INFO = 0
+    
     time = False
     
-    def __init__(self, name, time=False):
-        self.name = name
-        self.time = time
+    def __init__(self, name, kind=INFO):
+        super(Outcome, self).__init__(name)
+        self.kind = kind
     
     def __eq__ (self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
@@ -47,3 +55,20 @@ class Outcome(object):
                           in self.__dict__.keys())]
         comparison.append(self.__class__ == other.__class__)
         return all(comparison)
+    
+class ScalarOutcome(Outcome):
+    
+    # TODO:: let it type an index / callable so you can transform a time series
+    # to a value of interest
+    
+    def __init__(self, name, kind=Outcome.INFO):
+        super(ScalarOutcome, self).__init__(name, kind)
+        
+class TimeSeriesOutcome(Outcome):
+    
+    def __init__(self, name, kind=Outcome.INFO, index=-1):
+        super(TimeSeriesOutcome, self).__init__(name, kind)
+        self.index = index
+        
+    
+        
