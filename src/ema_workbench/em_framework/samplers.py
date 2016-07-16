@@ -114,9 +114,9 @@ class AbstractSampler(object):
             
             if type(uncertainty) == CategoricalParameter:
                 # TODO look into numpy ufunc
-                sample = [uncertainty.transform(int(entry)) for entry in sample]
-            elif uncertainty.dist=='integer':
-                sample = [int(entry) for entry in sample]
+                sample = (uncertainty.transform(int(entry)) for entry in sample)
+            elif isinstance(uncertainty, IntegerParameter):
+                sample = (int(entry) for entry in sample)
             
             samples[uncertainty.name] = sample
         

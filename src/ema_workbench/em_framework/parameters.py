@@ -3,23 +3,20 @@
 
 '''
 from __future__ import (unicode_literals, print_function, absolute_import,
-                                        division)
+                        division)
 
 import abc
 import numbers
 
 import warnings
 
+from .util import NamedObject
+
 # Created on Jul 14, 2016
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['RealParameter', 'IntegerParameter', 'CategoricalParameter']
-
-class NamedObject(object):
-
-    def __init__(self, name):
-        self.name = name
+__all__ = ['Parameter','RealParameter', 'IntegerParameter', 'CategoricalParameter']
 
 class Parameter(NamedObject):
     ''' Base class for any model input parameter

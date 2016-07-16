@@ -12,5 +12,5 @@ from .uncertainties import (RealUncertainty, IntegerUncertainty,
 from .model import ModelStructureInterface
 from .model_ensemble import (ModelEnsemble, UNION, 
                             INTERSECTION)
-
+from .parameters import Parameter
 
