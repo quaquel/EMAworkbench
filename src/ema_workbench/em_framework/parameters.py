@@ -16,21 +16,11 @@ import warnings
 
 __all__ = ['RealParameter', 'IntegerParameter', 'CategoricalParameter']
 
-
-
-INTEGER = 'integer'
-UNIFORM = 'uniform'
-
-
 class NamedObject(object):
 
     def __init__(self, name):
         self.name = name
 
-
-# TODO:: should become root for both uncertainty and lever
-# perhaps real, integer, and categorical parameter first
-# before going to lever or unc
 class Parameter(NamedObject):
     ''' Base class for any model input parameter
     
@@ -52,7 +42,10 @@ class Parameter(NamedObject):
     '''
     
     __metaclass__ = abc.ABCMeta
-    
+        
+    INTEGER = 'integer'
+    UNIFORM = 'uniform'
+
     
     def __init__(self, name, lower_bound, upper_bound, resolution):
         super(Parameter, self).__init__(name)
@@ -108,7 +101,7 @@ class RealParameter(Parameter):
         super(RealParameter, self).__init__(name, lower_bound, upper_bound,
                                             resolution)
         
-        self.dist = UNIFORM
+        self.dist = Parameter.UNIFORM
         
     @property
     def params(self):
@@ -152,7 +145,7 @@ class IntegerParameter(Parameter):
                 raise ValueError(('all entries in resolution should be ' 
                                   'integers'))
         
-        self.dist = INTEGER
+        self.dist = Parameter.INTEGER
         
     @property
     def params(self):
