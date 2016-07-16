@@ -14,13 +14,14 @@ import decimal
 import math
 import numpy as np
 
-from ..em_framework import (ModelStructureInterface, Outcome, 
-                            ParameterUncertainty, CategoricalUncertainty)
+from ..em_framework import (ModelStructureInterface, TimeSeriesOutcome, 
+                            CategoricalUncertainty)
 from ..em_framework.uncertainties import AbstractUncertainty
 from ..util import debug, warning, EMAError, EMAWarning, CaseError
 
 from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
 from . import vensimDLLwrapper 
+from ema_workbench.em_framework.uncertainties import RealUncertainty
 
 # Created on 25 mei 2011
 # 
@@ -251,7 +252,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
         """
         super(VensimModelStructureInterface, self).__init__(working_directory, 
                                                             name)
-        self.outcomes.append(Outcome('TIME' , time=True))
+        self.outcomes.append(TimeSeriesOutcome('TIME'))
         
         self.outcomes = list(self.outcomes)
         
@@ -493,44 +494,37 @@ class LookupUncertainty(AbstractUncertainty):
                                     self.CAT: self._cat}
         
         if self.lookup_type == "categories":
-            msi.uncertainties.append(CategoricalUncertainty(range(len(values)), 
-                                                            "c-"+self.name))
+            msi.uncertainties.append(CategoricalUncertainty("c-"+self.name),
+                                                           range(len(values)))
             msi._lookup_uncertainties.append(self)  
         elif self.lookup_type == "hearne1":
-            msi.uncertainties.append(ParameterUncertainty(values[0], 
-                                                          "m-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[1], 
-                                                          "p-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[2], 
-                                                          "l-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[3], 
-                                                          "u-"+self.name))
+            msi.uncertainties.append(RealUncertainty("m-"+self.name,
+                                                     *values[0]))
+            msi.uncertainties.append(RealUncertainty("p-"+self.name,
+                                                     *values[1]))
+            msi.uncertainties.append(RealUncertainty("l-"+self.name,
+                                                     *values[2]))
+            msi.uncertainties.append(RealUncertainty("u-"+self.name,
+                                                     *values[3]))
             msi._lookup_uncertainties.append(self)  
         elif self.lookup_type == "hearne2":
-            msi.uncertainties.append(ParameterUncertainty(values[0], 
-                                                          "m1-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[1], 
-                                                          "m2-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[2], 
-                                                          "p1-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[3], 
-                                                          "p2-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[4], 
-                                                          "l-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[5], 
-                                                          "u-"+self.name))
+            msi.uncertainties.append(RealUncertainty("m1-"+self.name),
+                                                     *values[0])
+            msi.uncertainties.append(RealUncertainty("m2-"+self.name,
+                                                     *values[1]))
+            msi.uncertainties.append(RealUncertainty("p1-"+self.name, 
+                                                     *values[2]))
+            msi.uncertainties.append(RealUncertainty("p2-"+self.name,
+                                                     *values[3]))
+            msi.uncertainties.append(RealUncertainty("l-"+self.name,
+                                                     *values[4]))
+            msi.uncertainties.append(RealUncertainty("u-"+self.name,
+                                                     values[5]))
             msi._lookup_uncertainties.append(self) 
         elif self.lookup_type == "approximation":
-            msi.uncertainties.append(ParameterUncertainty(values[0], 
-                                                          "A-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[1], 
-                                                          "K-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[2], 
-                                                          "B-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[3], 
-                                                          "Q-"+self.name))
-            msi.uncertainties.append(ParameterUncertainty(values[4], 
-                                                          "M-"+self.name))
+            for i, entry in enumerate('A,K,B,Q,M'):
+                name = '{}-{}'.format(entry,self.name)
+                msi.uncertainties.append(RealUncertainty(name, *values[i]))
             msi._lookup_uncertainties.append(self) 
         else: raise EMAError(self.error_message)
         

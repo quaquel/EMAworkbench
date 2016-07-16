@@ -7,7 +7,7 @@ Created on Jul 17, 2014
 import os
 import unittest
 
-from ...em_framework import (Outcome, ParameterUncertainty, ModelEnsemble, 
+from ...em_framework import (TimeSeriesOutcome, RealUncertainty, ModelEnsemble, 
                              CategoricalUncertainty) 
 
 from ...connectors.vensim import (VensimModelStructureInterface, load_model, 
@@ -31,15 +31,11 @@ class VensimExampleModel(VensimModelStructureInterface):
     model_file = r'\model.vpm'
 
     #specify outcomes
-    outcomes = [Outcome('a', time=True)]
+    outcomes = [TimeSeriesOutcome('a')]
 
     #specify your uncertainties
-    uncertainties = [ParameterUncertainty((0, 2.5), "x11"),
-                     ParameterUncertainty((-2.5, 2.5), "x12")]
-
-
-
-
+    uncertainties = [RealUncertainty("x11", 0, 2.5),
+                     RealUncertainty("x12", -2.5, 2.5)]
 
 class LookupTestModel(VensimModelStructureInterface): 
     def __init__(self, working_directory, name):
@@ -48,7 +44,7 @@ class LookupTestModel(VensimModelStructureInterface):
         super(LookupTestModel, self).__init__(working_directory, name)
 
         # vensim.load_model(self.modelFile)
-        self.outcomes = [Outcome('flow1', time=True)]
+        self.outcomes = [TimeSeriesOutcome('flow1')]
 
  
         '''
@@ -151,7 +147,7 @@ class LookupUncertaintyTest(unittest.TestCase):
         self.assertEqual(len(msi.uncertainties), 4)
         for unc in msi.uncertainties:
             self.assertTrue(isinstance(unc, 
-                                   ParameterUncertainty))
+                                   RealUncertainty))
 
 
         # hearne2
@@ -166,7 +162,7 @@ class LookupUncertaintyTest(unittest.TestCase):
         self.assertEqual(len(msi.uncertainties), 6)
         for unc in msi.uncertainties:
             self.assertTrue(isinstance(unc, 
-                                   ParameterUncertainty))
+                                   RealUncertainty))
 
 
         # approximation
@@ -181,7 +177,7 @@ class LookupUncertaintyTest(unittest.TestCase):
         self.assertEqual(len(msi.uncertainties), 5)
         for unc in msi.uncertainties:
             self.assertTrue(isinstance(unc, 
-                                   ParameterUncertainty))
+                                   RealUncertainty))
 
 
     def test_running_lookup_uncertainties(self):

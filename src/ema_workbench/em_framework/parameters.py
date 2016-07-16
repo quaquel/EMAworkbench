@@ -41,6 +41,14 @@ class Parameter(NamedObject):
     upper_bound : int or float
     resolution : collection
     
+    Raises
+    ------
+    ValueError 
+        if lower bound is larger than upper bound
+    ValueError 
+        if entries in resolution are outside range of lower_bound and
+        upper_bound
+    
     '''
     
     __metaclass__ = abc.ABCMeta
@@ -83,7 +91,15 @@ class RealParameter(Parameter):
     name : str
     lower_bound : int or float
     upper_bound : int or float
-    resolution : collection
+    resolution : iterable 
+    
+    Raises
+    ------
+    ValueError 
+        if lower bound is larger than upper bound
+    ValueError 
+        if entries in resolution are outside range of lower_bound and
+        upper_bound
     
     '''
     
@@ -107,10 +123,19 @@ class IntegerParameter(Parameter):
     name : str
     lower_bound : int or float
     upper_bound : int or float
-    resolution : collection
+    resolution : iterable
+    
+    Raises
+    ------
+    ValueError 
+        if lower bound is larger than upper bound
+    ValueError 
+        if entries in resolution are outside range of lower_bound and
+        upper_bound, or not an numbers.Integral instance
+    ValueError 
+        if lower_bound or upper_bound is not an numbers.Integral instance
     
     '''
-    
     
     def __init__(self, name, lower_bound, upper_bound, resolution=None):
         super(IntegerParameter, self).__init__(name, lower_bound, upper_bound, 
@@ -139,9 +164,8 @@ class CategoricalParameter(IntegerParameter):
     Parameters
     ----------
     name : str
-    lower_bound : int or float
-    upper_bound : int or float
-    resolution : collection
+    categories : collection of obj
+        
     
     '''
     
@@ -149,11 +173,11 @@ class CategoricalParameter(IntegerParameter):
     def __init__(self, name, categories):
         lower_bound = 0
         upper_bound = len(categories)
-        resolution = [x for x in range(upper_bound)]
+#         resolution = [x for x in range(upper_bound)]
 
         super(CategoricalParameter, self).__init__(name, lower_bound, 
-                                           upper_bound, resolution=resolution)
-        self.categories = list(categories)
+                                           upper_bound, resolution=None)
+        self.resolution = list(categories)
         
     def index_for_cat(self, category):
         '''return index of category
@@ -170,7 +194,7 @@ class CategoricalParameter(IntegerParameter):
         
         '''
         
-        return self.categories.index(category)
+        return self.resolution.index(category)
     
     def cat_for_index(self, index):
         '''return category associated with index
@@ -185,7 +209,7 @@ class CategoricalParameter(IntegerParameter):
         
         '''
         
-        return self.categories[index]
+        return self.resolution[index]
         
         
     def transform(self, value):

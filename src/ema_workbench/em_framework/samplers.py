@@ -8,7 +8,8 @@ Monte Carlo sampling.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-from ema_workbench.em_framework.parameters import CategoricalParameter
+from ema_workbench.em_framework.parameters import CategoricalParameter,\
+    IntegerParameter
 
 try:
     from future_builtins import zip
@@ -287,26 +288,20 @@ class FullFactorialSampler(AbstractSampler):
         -------
         dict 
             with the uncertainty.name as key, and the sample as value
-        
-        
         '''
-                
-        
         samples = {}
         for uncertainty in uncertainties:
-            if type(uncertainty) == CategoricalParameter:
-                category = uncertainty.categories
-            else:
-                category = uncertainty.resolution
-#                 category = np.linspace(uncertainty.values[0], 
-#                                        uncertainty.values[1], 
-#                                        size)
-#                 if uncertainty.dist == 'integer':
-#                     category = np.round(category, 0)
-#                     category = set(category)
-#                     category = [int(entry) for entry in category]
-#                     category = sorted(category)
-            samples[uncertainty.name] = category
+            cats = uncertainty.resolution
+            if not cats:
+                cats = np.linspace(uncertainty.lower_bound, 
+                                   uncertainty.upper_bound, 
+                                   size)
+                if isinstance(uncertainty, IntegerParameter):
+                    cats = np.round(cats, 0)
+                    cats = set(cats)
+                    cats = [int(entry) for entry in cats]
+                    cats = sorted(cats)
+            samples[uncertainty.name] = cats
         
         return samples
        

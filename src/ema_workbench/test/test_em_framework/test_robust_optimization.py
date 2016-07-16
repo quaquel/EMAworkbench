@@ -8,19 +8,19 @@ from __future__ import division
 import numpy as np
 
 from ...em_framework import (ModelEnsemble, MINIMIZE, UNION,
-                             ModelStructureInterface, Outcome, 
-                             ParameterUncertainty)
+                             ModelStructureInterface, ScalarOutcome, 
+                             RealUncertainty)
 from ...em_framework.ema_optimization import epsNSGA2
 from ...util import ema_logging
 
 
 class DummyModel(ModelStructureInterface):
 
-    uncertainties = [ParameterUncertainty((0,1), 'a'),
-                     ParameterUncertainty((0,1), 'b')]
+    uncertainties = [RealUncertainty('a', 0, 1),
+                     RealUncertainty('b', 0, 1)]
 
-    outcomes = [Outcome('a', time=False),
-                Outcome('b', time=False)]
+    outcomes = [ScalarOutcome('a'),
+                ScalarOutcome('b')]
 
     def model_init(self, policy, kwargs):
         pass

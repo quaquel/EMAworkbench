@@ -8,8 +8,8 @@ from __future__ import division
 import numpy as np
 from math import exp
 
-from ..em_framework import ModelEnsemble, Outcome
-from ..em_framework import ParameterUncertainty, CategoricalUncertainty
+from ..em_framework import ModelEnsemble, TimeSeriesOutcome
+from ..em_framework import RealUncertainty, CategoricalUncertainty
 
 from ..util import ema_logging
 
@@ -18,49 +18,55 @@ from ..connectors.vensim import VensimModelStructureInterface
 class ScarcityModel(VensimModelStructureInterface):
     model_file = r'\MetalsEMA.vpm'
         
-    outcomes = [Outcome('relative market price', time=True),
-                Outcome('supply demand ratio', time=True),
-                Outcome('real annual demand', time=True),
-                Outcome('produced of intrinsically demanded', time=True),
-                Outcome('supply', time=True),
-                Outcome('Installed Recycling Capacity', time=True),
-                Outcome('Installed Extraction Capacity', time=True)]
+    outcomes = [TimeSeriesOutcome('relative market price'),
+                TimeSeriesOutcome('supply demand ratio'),
+                TimeSeriesOutcome('real annual demand'),
+                TimeSeriesOutcome('produced of intrinsically demanded'),
+                TimeSeriesOutcome('supply'),
+                TimeSeriesOutcome('Installed Recycling Capacity'),
+                TimeSeriesOutcome('Installed Extraction Capacity')]
                 
-    uncertainties = [ParameterUncertainty((0, 0.5), "price elasticity of demand"),
-                     ParameterUncertainty((0.6, 1.2), "fraction of maximum extraction capacity used"),
-                     ParameterUncertainty((1,4), "initial average recycling cost"),
-                     ParameterUncertainty((0, 15000),"exogenously planned extraction capacity"),
-                     ParameterUncertainty((0.1, 0.5),"absolute recycling loss fraction"),
-                     ParameterUncertainty((0, 0.4),"normal profit margin"),
-                     ParameterUncertainty((100000, 120000),"initial annual supply"),
-                     ParameterUncertainty((1500000, 2500000),"initial in goods"),
-                          
-                     ParameterUncertainty((1,  10),"average construction time extraction capacity"),
-                     ParameterUncertainty((20,  40),"average lifetime extraction capacity"),
-                     ParameterUncertainty((20, 40),"average lifetime recycling capacity"),
-                     ParameterUncertainty((5000,  20000),"initial extraction capacity under construction"),
-                     ParameterUncertainty((5000, 20000),"initial recycling capacity under construction"),
-                     ParameterUncertainty((5000, 20000),"initial recycling infrastructure"),
-                          
-                     #order of delay
-                     CategoricalUncertainty((1,4,10, 1000), "order in goods delay"),
-                     CategoricalUncertainty((1,4,10), "order recycling capacity delay"),
-                     CategoricalUncertainty((1,4,10), "order extraction capacity delay"),
-                          
-                     #uncertainties associated with lookups
-                     ParameterUncertainty((20, 50),"lookup shortage loc"),
-                     ParameterUncertainty((1, 5),"lookup shortage speed"),
+    uncertainties = [
+             RealUncertainty("price elasticity of demand", 0, 0.5),
+             RealUncertainty("fraction of maximum extraction capacity used", 
+                             0.6, 1.2),
+             RealUncertainty("initial average recycling cost", 1,4),
+             RealUncertainty("exogenously planned extraction capacity",
+                             0, 15000),
+             RealUncertainty("absolute recycling loss fraction", 0.1, 0.5),
+             RealUncertainty("normal profit margin", 0, 0.4),
+             RealUncertainty("initial annual supply", 100000, 120000),
+             RealUncertainty("initial in goods", 1500000, 2500000),
                   
-                     ParameterUncertainty((0.1, 0.5),"lookup price substitute speed"),
-                     ParameterUncertainty((3, 7),"lookup price substitute begin"),
-                     ParameterUncertainty((15, 25),"lookup price substitute end"),
-                          
-                     ParameterUncertainty((0.01, 0.2),"lookup returns to scale speed"),
-                     ParameterUncertainty((0.3, 0.7),"lookup returns to scale scale"),
+             RealUncertainty("average construction time extraction capacity",
+                             1,  10),
+             RealUncertainty("average lifetime extraction capacity", 20,  40),
+             RealUncertainty("average lifetime recycling capacity", 20, 40),
+             RealUncertainty("initial extraction capacity under construction",
+                             5000,  20000),
+             RealUncertainty("initial recycling capacity under construction",
+                             5000, 20000),
+             RealUncertainty("initial recycling infrastructure", 5000, 20000),
                   
-                     ParameterUncertainty((0.01, 0.2),"lookup approximated learning speed"),
-                     ParameterUncertainty((0.3, 0.6),"lookup approximated learning scale"),
-                     ParameterUncertainty((30, 60),"lookup approximated learning start")]
+             #order of delay
+             CategoricalUncertainty("order in goods delay", (1,4,10, 1000)),
+             CategoricalUncertainty("order recycling capacity delay", (1,4,10)),
+             CategoricalUncertainty("order extraction capacity delay", (1,4,10)),
+                  
+             #uncertainties associated with lookups
+             RealUncertainty("lookup shortage loc", 20, 50),
+             RealUncertainty("lookup shortage speed", 1, 5),
+          
+             RealUncertainty("lookup price substitute speed", 0.1, 0.5),
+             RealUncertainty("lookup price substitute begin", 3, 7),
+             RealUncertainty("lookup price substitute end", 15, 25),
+                  
+             RealUncertainty("lookup returns to scale speed", 0.01, 0.2),
+             RealUncertainty("lookup returns to scale scale", 0.3, 0.7),
+          
+             RealUncertainty("lookup approximated learning speed", 0.01, 0.2),
+             RealUncertainty("lookup approximated learning scale", 0.3, 0.6),
+             RealUncertainty("lookup approximated learning start", 30, 60)]
 
 
     def returnsToScale(self, x, speed, scale):

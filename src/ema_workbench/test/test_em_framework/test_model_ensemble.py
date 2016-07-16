@@ -12,10 +12,11 @@ import unittest
 from ...em_framework.model_ensemble import (ModelEnsemble, UNION, INTERSECTION,
                                             experiment_generator)
 from ...em_framework.samplers import LHSSampler
-from ...em_framework import (ModelStructureInterface, ParameterUncertainty, 
-                             Outcome, model_ensemble)
+from ...em_framework import (ModelStructureInterface, RealUncertainty, 
+                             model_ensemble, TimeSeriesOutcome)
 from ...util.ema_exceptions import EMAError
 from ema_workbench.em_framework.callbacks import DefaultCallback
+from ema_workbench.em_framework.outcomes import TimeSeriesOutcome
 
 class DummyInterface(ModelStructureInterface):
     
@@ -59,12 +60,12 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_c = DummyInterface(None, "C")
         
         # let's add some uncertainties to this
-        shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
-        shared_abc_2 = ParameterUncertainty((0,1), "shared abc 2")
-        shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
-        shared_bc_1 = ParameterUncertainty((0,1), "shared bc 1")
-        a_1 = ParameterUncertainty((0,1), "a 1")
-        b_1 = ParameterUncertainty((0,1), "b 1")
+        shared_abc_1 = RealUncertainty("shared abc 1", 0, 1)
+        shared_abc_2 = RealUncertainty("shared abc 2", 0, 1)
+        shared_ab_1 = RealUncertainty("shared ab 1", 0, 1)
+        shared_bc_1 = RealUncertainty("shared bc 1", 0, 1)
+        a_1 = RealUncertainty("a 1", 0, 1)
+        b_1 = RealUncertainty("b 1", 0, 1)
         model_a.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, a_1]
         model_b.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, shared_bc_1, b_1]
         model_c.uncertainties = [shared_abc_1, shared_abc_2, shared_bc_1]
@@ -128,10 +129,10 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_a = DummyInterface(None, "A")
         
         # let's add some uncertainties to this
-        shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
-        shared_abc_2 = ParameterUncertainty((0,1), "shared abc 2")
-        shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
-        a_1 = ParameterUncertainty((0,1), "a 1")
+        shared_abc_1 = RealUncertainty("shared abc 1", 0, 1)
+        shared_abc_2 = RealUncertainty("shared abc 2", 0, 1)
+        shared_ab_1 = RealUncertainty("shared ab 1", 0, 1)
+        a_1 = RealUncertainty("a 1", 0, 1)
         model_a.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, a_1]
         ensemble = ModelEnsemble()
         ensemble.model_structure = model_a
@@ -158,12 +159,12 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_c = DummyInterface(None, "C")
         
         # let's add some uncertainties to this
-        shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
-        shared_abc_2 = ParameterUncertainty((0,1), "shared abc 2")
-        shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
-        shared_bc_1 = ParameterUncertainty((0,1), "shared bc 1")
-        a_1 = ParameterUncertainty((0,1), "a 1")
-        b_1 = ParameterUncertainty((0,1), "b 1")
+        shared_abc_1 = RealUncertainty("shared abc 1", 0, 1)
+        shared_abc_2 = RealUncertainty("shared abc 2", 0, 1)
+        shared_ab_1 = RealUncertainty("shared ab 1", 0, 1)
+        shared_bc_1 = RealUncertainty("shared bc 1", 0, 1)
+        a_1 = RealUncertainty("a 1", 0, 1)
+        b_1 = RealUncertainty("b 1", 0, 1)
         model_a.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, a_1]
         model_b.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, shared_bc_1, b_1]
         model_c.uncertainties = [shared_abc_1, shared_abc_2, shared_bc_1]    
@@ -184,11 +185,11 @@ class ModelEnsembleTestCase(unittest.TestCase):
         self.assertEqual(len(overview_dict.keys()),5, msg)
         
         # let's add some uncertainties to this
-        shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
-        shared_abc_2 = ParameterUncertainty((0,2), "shared abc 1")
-        shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
-        a_1 = ParameterUncertainty((0,1), "a 1")
-        b_1 = ParameterUncertainty((0,1), "b 1")
+        shared_abc_1 = RealUncertainty("shared abc 1", 0, 1)
+        shared_abc_2 = RealUncertainty("shared abc 1", 0, 2)
+        shared_ab_1 = RealUncertainty("shared ab 1", 0, 1)
+        a_1 = RealUncertainty("a 1", 0, 1)
+        b_1 = RealUncertainty("b 1", 0, 1)
         model_a.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, a_1]
         model_b.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, shared_bc_1, b_1]
         
@@ -205,18 +206,18 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_c = DummyInterface(None, "C")
         
         # let's add some uncertainties to this
-        shared_abc_1 = ParameterUncertainty((0,1), "shared abc 1")
-        shared_abc_2 = ParameterUncertainty((0,1), "shared abc 2")
-        shared_ab_1 = ParameterUncertainty((0,1), "shared ab 1")
-        shared_bc_1 = ParameterUncertainty((0,1), "shared bc 1")
-        a_1 = ParameterUncertainty((0,1), "a 1")
-        b_1 = ParameterUncertainty((0,1), "b 1")
+        shared_abc_1 = RealUncertainty("shared abc 1", 0, 1)
+        shared_abc_2 = RealUncertainty("shared abc 2", 0, 1)
+        shared_ab_1 = RealUncertainty("shared ab 1", 0, 1)
+        shared_bc_1 = RealUncertainty("shared bc 1", 0, 1)
+        a_1 = RealUncertainty("a 1", 0, 1)
+        b_1 = RealUncertainty("b 1", 0, 1)
         model_a.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, a_1]
         model_b.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, shared_bc_1, b_1]
         model_c.uncertainties = [shared_abc_1, shared_abc_2, shared_bc_1]
         
         #let's add an outcome to this
-        outcome_shared = Outcome("test", time=True)
+        outcome_shared = TimeSeriesOutcome("test")
         model_a.outcomes = [outcome_shared]
         model_b.outcomes = [outcome_shared]
         model_c.outcomes = [outcome_shared]
@@ -274,10 +275,10 @@ class ModelEnsembleTestCase(unittest.TestCase):
     def test_experiment_generator(self):
         sampler = LHSSampler()
         
-        shared_abc_1 = ParameterUncertainty((0,1), "shared ab 1")
-        shared_abc_2 = ParameterUncertainty((0,1), "shared ab 2")
-        unique_a = ParameterUncertainty((0,1), "unique a ")
-        unique_b = ParameterUncertainty((0,1), "unique b ")
+        shared_abc_1 = RealUncertainty("shared ab 1", 0, 1)
+        shared_abc_2 = RealUncertainty("shared ab 2", 0, 1)
+        unique_a = RealUncertainty("unique a ", 0, 1)
+        unique_b = RealUncertainty("unique b ", 0, 1)
         uncertainties = [shared_abc_1, shared_abc_2, unique_a, unique_b]
         designs, _ = sampler.generate_designs(uncertainties, 10)
         

@@ -10,17 +10,18 @@ import numpy.lib.recfunctions as rf
 import unittest
 
 from ...em_framework.callbacks import DefaultCallback
-from ...em_framework.outcomes import Outcome
 from ...em_framework.uncertainties import (CategoricalUncertainty, 
-                                           ParameterUncertainty)
+                                           RealUncertainty)
 from ...util import EMAError
+from ema_workbench.em_framework.uncertainties import IntegerUncertainty
+from ema_workbench.em_framework.outcomes import TimeSeriesOutcome
 
 class TestDefaultCallback(unittest.TestCase):
     def test_init(self):
         # let's add some uncertainties to this
-        uncs = [ParameterUncertainty((0,1), "a"),
-               ParameterUncertainty((0,1), "b")]
-        outcomes = [Outcome("test", time=True)]
+        uncs = [RealUncertainty("a", 0, 1),
+               RealUncertainty("b", 0, 1)]
+        outcomes = [TimeSeriesOutcome("test")]
         callback = DefaultCallback(uncs, outcomes, nr_experiments=100)
         
         self.assertEqual(callback.i, 0)
@@ -35,9 +36,9 @@ class TestDefaultCallback(unittest.TestCase):
 
     def test_store_results(self):
         nr_experiments = 3
-        uncs = [ParameterUncertainty((0,1), "a"),
-               ParameterUncertainty((0,1), "b")]
-        outcomes = [Outcome("test", time=True)]
+        uncs = [RealUncertainty("a", 0, 1),
+               RealUncertainty("b", 0, 1)]
+        outcomes = [TimeSeriesOutcome("test")]
         case = {unc.name:random.random() for unc in uncs}
         policy = {'name':'none'}
         name = "test"
@@ -95,11 +96,11 @@ class TestDefaultCallback(unittest.TestCase):
               
     def test_store_cases(self):
         nr_experiments = 3
-        uncs = [ParameterUncertainty((0,1), "a"),
-               ParameterUncertainty((0,1), "b"),
-               CategoricalUncertainty([0, 1, 2], "c"),
-               ParameterUncertainty((0,1), "d", integer=True),]
-        outcomes = [Outcome("test", time=True)]
+        uncs = [RealUncertainty("a", 0, 1),
+               RealUncertainty("b", 0, 1),
+               CategoricalUncertainty('c', [0, 1, 2]),
+               IntegerUncertainty("d", 0, 1)]
+        outcomes = [TimeSeriesOutcome("test")]
         case = {unc.name:random.random() for unc in uncs}
         case["c"] = int(round(case["c"]*2))
         case["d"] = int(round(case["d"]))
