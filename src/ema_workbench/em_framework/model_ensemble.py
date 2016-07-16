@@ -19,21 +19,14 @@ model.outcomes.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import six
-from functools import reduce, partial
+from functools import reduce
 import os
 import itertools
 from collections import defaultdict
 
 from ..util import info, debug, EMAError
 
-from .ema_optimization import NSGA2
-from .ema_optimization_util import (evaluate_population_outcome, 
-                    generate_individual_outcome, generate_individual_robust, 
-                    evaluate_population_robust)                                               
-
 from .samplers import FullFactorialSampler, LHSSampler
-from .uncertainties import (CategoricalUncertainty, RealUncertainty, 
-                            IntegerUncertainty)
 from .callbacks import DefaultCallback
 
 from .experiment_runner import ExperimentRunner
@@ -43,11 +36,8 @@ from .ema_parallel import MultiprocessingPool
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['ModelEnsemble', 'MINIMIZE', 'MAXIMIZE', 'UNION', 
+__all__ = ['ModelEnsemble', 'UNION', 
            'INTERSECTION']
-
-MINIMIZE = -1.0
-MAXIMIZE = 1.0
 
 INTERSECTION = 'intersection'
 UNION = 'union'
@@ -280,165 +270,7 @@ class ModelEnsemble(object):
         
         return results
 
-    def perform_robust_optimization(self, 
-                                    cases,
-                                    obj_function=None,
-                                    policy_levers={},
-                                    weights = (),
-                                    reporting_interval=100,
-                                    algorithm=NSGA2,
-                                    eval_pop=evaluate_population_robust,
-                                    nr_of_generations=100,
-                                    pop_size=100,
-                                    crossover_rate=0.5, 
-                                    mutation_rate=0.02,
-                                    caching=False,
-                                    **kwargs):
-        """
-        Method responsible for performing robust optimization.
-        
-        Parameters
-        ----------
-        cases : int or list
-                In case of Latin Hypercube sampling and Monte Carlo sampling, 
-                cases specifies the number of cases to generate. In case of 
-                Full Factorial sampling, cases specifies the resolution to use 
-                for sampling continuous uncertainties. Alternatively, one can 
-                supply a list of dicts, where each dicts contains a case. That 
-                is, an uncertainty name as key, and its value. 
-        obj_function : callable
-                       the objective function used by the optimization
-        policy_levers : dict
-                        A dictionary with model parameter names as key
-                        and a dict as value. The dict should have two 
-                        fields: 'type' and 'values. Type is either
-                        list or range, and determines the appropriate
-                        allele type. Values are the parameters to 
-                        be used for the specific allele. 
-        weights : tuple 
-                  weights on the various outcomes of the objective function. 
-                  Use the constants MINIMIZE and MAXIMIZE.
-        reporting_interval : int , optional
-                             parameter for specifying the frequency with which 
-                             the callback reports the progress. 
-                             (Default is 100) 
-        algorithm : NSGA2 instance, optional
-        eval_pop : callable, optional
-                   function for evaluating a population, defaults
-                   to :func:`evaluate_population_robust`
-        nr_of_generations : int, optional
-                            the number of generations for which the GA will be 
-                            run
-        pop_size : int, optional
-                   the population size for the GA
-        crossover_rate : float, optional
-                         crossover rate for the GA
-        mutation_rate : float, optional
-                        mutation_rate for the GA
-        caching: bool, optional
-                 keep track of tried solutions. This is memory 
-                 intensive, so should be used sparingly. Defaults to
-                 False. 
-        
-        """
-        evaluate_population = partial(eval_pop, cases=cases)
 
-        return self._run_optimization(generate_individual_robust, 
-                                      evaluate_population, 
-                                      weights=weights,
-                                      levers=policy_levers,
-                                      algorithm=algorithm, 
-                                      obj_function=obj_function, 
-                                      pop_size=pop_size, 
-                                      reporting_interval=reporting_interval, 
-                                      nr_of_generations=nr_of_generations, 
-                                      crossover_rate=crossover_rate, 
-                                      mutation_rate=mutation_rate, 
-                                      caching=caching,
-                                      **kwargs)
-
-    def perform_outcome_optimization(self, 
-                                     obj_function=None,
-                                     weights = (),
-                                     algorithm=NSGA2,
-                                     reporting_interval=100,
-                                     nr_of_generations=100,
-                                     pop_size=100,
-                                     crossover_rate=0.5, 
-                                     mutation_rate=0.02,
-                                     caching=False,
-                                     **kwargs
-                                     ):
-        """
-        Method responsible for performing outcome optimization. The 
-        optimization will be performed over the intersection of the 
-        uncertainties in case of multiple model structures. 
-        
-        Parameters
-        ----------    
-        obj_function : callable
-                       the objective function used by the optimization
-        weights : tuple
-                  tuple of weights on the various outcomes of the objective 
-                  function. Use the constants MINIMIZE and MAXIMIZE.
-        reporting_interval : int, optional
-                             parameter for specifying the frequency with
-                             which the callback reports the progress.
-                             (Default is 100) 
-        nr_of_generations : int, optional
-                            the number of generations for which the GA will be 
-                            run
-        pop_size : int, optional
-                   the population size for the GA
-        crossover_rate : float, optional
-                         crossover rate for the GA
-        mutation_rate : float, optional
-                        mutation_rate for the GA
-        caching : bool, optional
-                  keep track of tried solutions. This is memory intensive, 
-                  so should be used sparingly. Defaults to False. 
-        """
-
-        # Attribute generator
-        od = self._determine_unique_attributes('uncertainties')[0]
-        shared_uncertainties = od[tuple([msi.name for msi in 
-                                         self.model_structures])]
-
-        #make a dictionary with the shared uncertainties and their range
-        uncertainty_dict = {}
-        for uncertainty in shared_uncertainties:
-                uncertainty_dict[uncertainty.name] = uncertainty
-        keys = sorted(uncertainty_dict.keys())
-        
-        levers = {}
-        for key in keys:
-            specification = {}
-            uncertainty = uncertainty_dict[key]
-            value = uncertainty.values
-             
-            if isinstance(uncertainty, CategoricalUncertainty):
-                value = uncertainty.categories
-                specification["type"]='list'
-            elif isinstance(uncertainty, RealUncertainty):
-                specification["type"]='range float'
-            elif isinstance(uncertainty, IntegerUncertainty):
-                specification["type"]='range int'     
-            else:
-                raise EMAError("unknown allele type: possible types are range and list")
-            specification['values']=value
-            levers[key] = specification
-
-        return self._run_optimization(generate_individual_outcome,
-                                      evaluate_population_outcome,
-                                      weights=weights,
-                                      levers=levers,
-                                      algorithm=algorithm, 
-                                      obj_function=obj_function, 
-                                      pop_size=pop_size, 
-                                      reporting_interval=reporting_interval, 
-                                      nr_of_generations=nr_of_generations, 
-                                      crossover_rate=crossover_rate, 
-                                      mutation_rate=mutation_rate, **kwargs)
 
     def _determine_unique_attributes(self, attribute):
         '''
@@ -536,63 +368,7 @@ class ModelEnsemble(object):
         
         return experiments, nr_of_exp, uncertainties
         
-    def _run_optimization(self, generate_individual, 
-                           evaluate_population,algorithm=None, 
-                           obj_function=None,
-                           weights=None, levers=None, 
-                           pop_size=None, reporting_interval=None, 
-                           nr_of_generations=None, crossover_rate=None, 
-                           mutation_rate=None,
-                           caching=False,
-                           **kwargs):
-        '''
-        Helper function that runs the actual optimization
-           
-        Parameters
-        ----------     
-        toolbox : 
-        generate_individual : callable
-                              helper function for generating an individual
-        evaluate_population : callable
-                              helper function for evaluating the population
-        attr_list : list
-                    list of attributes (alleles)
-        keys : list
-               the names of the attributes in the same order as attr_list
-        obj_function : callable
-                       the objective function
-        pop_size : int
-                   the size of the population
-        reporting_interval : int
-                             the interval for reporting progress, passed on to 
-                             perform_experiments
-        weights : tuple
-                  the weights on the outcomes
-        nr_of_generations : int
-                            number of generations for which the GA will 
-                            be run
-        crossover_rate : float
-                         the crossover rate of the GA
-        mutation_rate : float
-                        the mutation rate of the GA
-        levers : dict
-                 a dictionary with param keys as keys, and as values info used 
-                 in mutation.
-        
-        '''
-        self.algorithm = algorithm(weights, levers, generate_individual, 
-                          obj_function, pop_size, evaluate_population, 
-                          nr_of_generations, crossover_rate, mutation_rate, 
-                          reporting_interval, self, caching, **kwargs)
-
-        # Begin the generational process
-        for _ in range(nr_of_generations):
-            pop = self.algorithm.get_population()
-        info("-- End of (successful) evolution --")
-
-        return self.algorithm.stats_callback, pop        
-
-
+ 
 def experiment_generator(designs, model_structures, policies):
     '''
     
