@@ -8,9 +8,7 @@ types of uncertainties.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import abc
-import numpy as np
-from ema_workbench.em_framework.parameters import RealParameter,\
-    CategoricalParameter, IntegerParameter
+from .parameters import RealParameter, CategoricalParameter, IntegerParameter
 
 # Created on 16 aug. 2011
 # 

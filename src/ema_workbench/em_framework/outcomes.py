@@ -4,7 +4,10 @@ Module for outcome classes
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-from ema_workbench.em_framework.parameters import NamedObject
+import abc
+
+from .util import NamedObject
+
 
 # Created on 24 mei 2011
 # 
@@ -14,29 +17,25 @@ __all__ = ['ScalarOutcome', 'TimeSeriesOutcome']
 
 class Outcome(NamedObject):
     '''
-    Outcome class
+    Base Outcome class
     
     Parameters
     ----------
     name : str
            Name of the outcome.
-    time: bool, optional
-          specifies whether the outcome is a time series or not 
-          (Default = False).  
+    kind : {INFO, MINIMZE, MAXIMIZE}, optional
     
     Attributes
     ----------
     name : str
-    time : bool
-           If true, outcome is a time series. Default is false.
+    kind : int
     
     '''
+    __metaclass__ = abc.ABCMeta
 
     MINIMIZE = -1
     MAXIMIZE = 1
     INFO = 0
-    
-    time = False
     
     def __init__(self, name, kind=INFO):
         super(Outcome, self).__init__(name)
@@ -48,20 +47,64 @@ class Outcome(NamedObject):
                           in self.__dict__.keys())]
         comparison.append(self.__class__ == other.__class__)
         return all(comparison)
-    
+
+
 class ScalarOutcome(Outcome):
+    '''
+    Scalar Outcome class
     
-    # TODO:: let it type an index / callable so you can transform a time series
-    # to a value of interest
+    Parameters
+    ----------
+    name : str
+           Name of the outcome.
+    kind : {INFO, MINIMZE, MAXIMIZE}, optional
+    
+    Attributes
+    ----------
+    name : str
+    kind : int
+    
+    '''   
     
     def __init__(self, name, kind=Outcome.INFO):
         super(ScalarOutcome, self).__init__(name, kind)
-        
+
+
 class TimeSeriesOutcome(Outcome):
+    '''
+    TimeSeries Outcome class
     
-    def __init__(self, name, kind=Outcome.INFO, index=-1):
+    Parameters
+    ----------
+    name : str
+           Name of the outcome.
+    kind : {INFO, MINIMZE, MAXIMIZE}, optional
+    reduce : callable, optional
+             a callable which returns a scalar when called. Is only used
+             when the outcome is used in an optimization context
+    
+    Raises
+    ------
+    ValueError
+        if kind is MINIMIZE or MAXIMIZE and callable is not provided or
+        not a callable
+    
+    Attributes
+    ----------
+    name : str
+    kind : int
+    reduce : callable
+    
+    
+    '''   
+    
+    def __init__(self, name, kind=Outcome.INFO, reduce=None):
         super(TimeSeriesOutcome, self).__init__(name, kind)
-        self.index = index
+        
+        if (not self.kind==Outcome.INFO) and (not callable(reduce)):
+            raise ValueError(('reduce needs to be specified when using'
+                              ' TimeSeriesOutcome in optimization' ))
+        self.reduce = reduce
         
     
         
