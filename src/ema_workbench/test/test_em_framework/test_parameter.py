@@ -45,16 +45,16 @@ class RealParameterTestCase(unittest.TestCase):
         resolution = [0, 1,2]
         lower_bound = 0
         upper_bound = 2.0
-        par1 = parameters.Parameter(name, lower_bound, upper_bound, resolution)
-        par2 = parameters.Parameter(name, lower_bound, upper_bound, resolution)
+        par1 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+        par2 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
         
         self.assertTrue(par1==par2)
         
         name = 'test'
-        par1 = parameters.Parameter(name, lower_bound, upper_bound, resolution)
+        par1 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
         
         name = 'what?'
-        par2 = parameters.Parameter(name, lower_bound, upper_bound, resolution)
+        par2 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
         self.assertFalse(par1==par2)
     
     def test_params(self):
@@ -128,7 +128,7 @@ class CategoricalParameterTestCase(unittest.TestCase):
         par = parameters.CategoricalParameter(name, values)
         
         self.assertEqual(par.name, name)
-        self.assertEqual(par.resolution, [0,1])
+        self.assertEqual(par.resolution, list(values))
         self.assertEqual(par.lower_bound, 0)
         self.assertEqual(par.upper_bound, 2)
     

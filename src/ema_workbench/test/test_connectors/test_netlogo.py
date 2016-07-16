@@ -9,8 +9,8 @@ import unittest
 # should be made conditional on the presence of jpype
 __test__ = False
 
-from ...em_framework import (ParameterUncertainty, CategoricalUncertainty, 
-                             Outcome)
+from ...em_framework import (RealUncertainty, CategoricalUncertainty, 
+                             TimeSeriesOutcome)
 from ...connectors import netlogo
 
 def setUpModule():
@@ -27,11 +27,11 @@ class PredatorPrey(netlogo.NetLogoModelStructureInterface):
     
     run_length = 1000
     
-    uncertainties = [ParameterUncertainty((10, 100), "grass-regrowth-time"),
-                     CategoricalUncertainty(("true", "false"), "grass?") ]
+    uncertainties = [RealUncertainty("grass-regrowth-time", 10, 100),
+                     CategoricalUncertainty("grass?", ("true", "false")) ]
     
-    outcomes = [Outcome('sheep', time=True),
-                Outcome('wolves', time=True)]
+    outcomes = [TimeSeriesOutcome('sheep'),
+                TimeSeriesOutcome('wolves')]
 
 class Test(unittest.TestCase):
 

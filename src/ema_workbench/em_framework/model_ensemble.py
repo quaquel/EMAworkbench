@@ -32,7 +32,8 @@ from .ema_optimization_util import (evaluate_population_outcome,
                     evaluate_population_robust)                                               
 
 from .samplers import FullFactorialSampler, LHSSampler
-from .uncertainties import ParameterUncertainty, CategoricalUncertainty
+from .uncertainties import (CategoricalUncertainty, RealUncertainty, 
+                            IntegerUncertainty)
 from .callbacks import DefaultCallback
 
 from .experiment_runner import ExperimentRunner
@@ -418,15 +419,13 @@ class ModelEnsemble(object):
             if isinstance(uncertainty, CategoricalUncertainty):
                 value = uncertainty.categories
                 specification["type"]='list'
-                specification['values']=value
-            elif isinstance(uncertainty, ParameterUncertainty):
-                if uncertainty.dist=='integer':
-                    specification["type"]='range int'
-                else:
-                    specification["type"]='range float'
-                specification['values']=value     
+            elif isinstance(uncertainty, RealUncertainty):
+                specification["type"]='range float'
+            elif isinstance(uncertainty, IntegerUncertainty):
+                specification["type"]='range int'     
             else:
                 raise EMAError("unknown allele type: possible types are range and list")
+            specification['values']=value
             levers[key] = specification
 
         return self._run_optimization(generate_individual_outcome,

@@ -5,15 +5,20 @@ Created on 21 jan. 2013
 '''
 import unittest
 
-from ...em_framework.samplers import (LHSSampler, MonteCarloSampler, 
+from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler, 
                                 FullFactorialSampler, PartialFactorialSampler)
-from ...em_framework.uncertainties import (ParameterUncertainty, 
-                                           CategoricalUncertainty)
+from ema_workbench.em_framework.uncertainties import (RealUncertainty, IntegerUncertainty,
+                                                      CategoricalUncertainty)
+
+# from ...em_framework.samplers import (LHSSampler, MonteCarloSampler, 
+#                                 FullFactorialSampler, PartialFactorialSampler)
+# from ...em_framework.uncertainties import (RealUncertainty, IntegerUncertainty,
+#                                            CategoricalUncertainty)
 
 class SamplerTestCase(unittest.TestCase):
-    uncertainties = [ParameterUncertainty((0,10), "1"),
-                     ParameterUncertainty((0,10), "2", integer=True),
-                     CategoricalUncertainty(['a','b', 'c'], "3")]
+    uncertainties = [RealUncertainty("1", 0, 10),
+                     IntegerUncertainty("2", 0, 10),
+                     CategoricalUncertainty('3', ['a','b', 'c'])]
 
     def _test_generate_designs(self, sampler):
         designs, nr_designs = sampler.generate_designs(self.uncertainties, 10)
@@ -41,12 +46,12 @@ class SamplerTestCase(unittest.TestCase):
         self._test_generate_designs(sampler)
         
     def test_pf_sampler(self):
-        uncs = [ParameterUncertainty((0, 5), 'a', factorial=True, 
+        uncs = [RealUncertainty('a', 0, 5, factorial=True, 
                                      resolution=(0, 2.5,5)),
-                ParameterUncertainty((0, 1), 'b', factorial=True, 
+                RealUncertainty('b', 0, 1, factorial=True, 
                                      resolution=(0,1)),
-                ParameterUncertainty((0, 1), 'c'),
-                ParameterUncertainty((1, 2), 'd'),
+                RealUncertainty('c', 0, 1),
+                RealUncertainty('d', 1, 2),
                 ]
 
         sampler = PartialFactorialSampler()

@@ -21,9 +21,7 @@ from threading import Lock
 import numpy as np
 
 from ..util import ema_logging, ema_exceptions
-from .uncertainties import CategoricalUncertainty,\
-                                       ParameterUncertainty,\
-                                       INTEGER
+from .uncertainties import (CategoricalUncertainty, IntegerUncertainty)
 
 #
 # Created on 22 Jan 2013
@@ -178,8 +176,7 @@ class DefaultCallback(AbstractCallback):
             
             if isinstance(uncertainty, CategoricalUncertainty):
                 dataType = object
-            elif isinstance(uncertainty, ParameterUncertainty) and\
-                          uncertainty.dist==INTEGER:
+            elif isinstance(uncertainty, IntegerUncertainty):
                 dataType = int
             self.dtypes.append((str(name), dataType))
         self.dtypes.append((str('model'), object))
