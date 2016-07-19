@@ -5,6 +5,11 @@ Module for outcome classes
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import abc
+import os
+import warnings
+
+
+import pandas
 
 from .util import NamedObject
 
@@ -13,9 +18,19 @@ from .util import NamedObject
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['ScalarOutcome', 'TimeSeriesOutcome']
+__all__ = ['Outcome', 'ScalarOutcome', 'TimeSeriesOutcome']
 
-class Outcome(NamedObject):
+
+def Outcome(name, time=False):
+    if time:
+        warnings.warn('Deprecated, use TimeSeriesOutcome instead')
+        return ScalarOutcome(name)
+    else:
+        warnings.warn('Deprecated, use ScalarOutcome instead')
+        return TimeSeriesOutcome(name)
+    
+
+class AbstractOutcome(NamedObject):
     '''
     Base Outcome class
     
@@ -38,7 +53,7 @@ class Outcome(NamedObject):
     INFO = 0
     
     def __init__(self, name, kind=INFO):
-        super(Outcome, self).__init__(name)
+        super(AbstractOutcome, self).__init__(name)
         self.kind = kind
     
     def __eq__ (self, other):
@@ -49,7 +64,7 @@ class Outcome(NamedObject):
         return all(comparison)
 
 
-class ScalarOutcome(Outcome):
+class ScalarOutcome(AbstractOutcome):
     '''
     Scalar Outcome class
     
@@ -66,11 +81,11 @@ class ScalarOutcome(Outcome):
     
     '''   
     
-    def __init__(self, name, kind=Outcome.INFO):
+    def __init__(self, name, kind=AbstractOutcome.INFO):
         super(ScalarOutcome, self).__init__(name, kind)
 
 
-class TimeSeriesOutcome(Outcome):
+class TimeSeriesOutcome(AbstractOutcome):
     '''
     TimeSeries Outcome class
     
@@ -95,16 +110,49 @@ class TimeSeriesOutcome(Outcome):
     kind : int
     reduce : callable
     
-    
     '''   
     
-    def __init__(self, name, kind=Outcome.INFO, reduce=None):
+    def __init__(self, name, kind=AbstractOutcome.INFO, reduce=None):
         super(TimeSeriesOutcome, self).__init__(name, kind)
         
-        if (not self.kind==Outcome.INFO) and (not callable(reduce)):
+        if (not self.kind==AbstractOutcome.INFO) and (not callable(reduce)):
             raise ValueError(('reduce needs to be specified when using'
                               ' TimeSeriesOutcome in optimization' ))
         self.reduce = reduce
         
+
+def create_outcomes(outcomes):
+    '''Helper function for creating multiple outcomes
     
+    Parameters
+    ----------
+    outcomes : str, list of dict, or dataframe
+               if str, should be path to csv file
+               each entry should specify name and the type, where type
+               is 'scalar' or 'timeseries'
+    
+    
+    '''
+    
+    if isinstance(outcomes, list):
+        pass 
+        # to dataframe
+    elif isinstance(outcomes, str):
+        outcomes = pandas.read_csv(outcomes)
+    elif not isinstance(outcomes, pandas.DataFrame):
+        raise ValueError('unable to convert outcomes to a dataframe')
+    
+    temp_outcomes = []
+    for id, row in outcomes.iteritems():
+        name = row.ix['name']
+        type = row.ix['type']
+        
+        if type=='scalar':
+            outcome = ScalarOutcome(name)
+        elif type=='timeseries':
+            outcome = TimeSeriesOutcome(name)
+        else:
+            raise ValueError('unknown type for '+name)
+        temp_outcomes.append(outcome)
+    return temp_outcomes
         

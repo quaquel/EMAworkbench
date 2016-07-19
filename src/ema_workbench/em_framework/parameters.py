@@ -42,13 +42,12 @@ class Parameter(NamedObject):
         
     INTEGER = 'integer'
     UNIFORM = 'uniform'
-
     
-    def __init__(self, name, lower_bound, upper_bound, resolution):
+    def __init__(self, name, lower_bound, upper_bound, resolution=None):
         super(Parameter, self).__init__(name)
         
         if resolution is None:
-            resolution=[]
+            resolution = []
         
         for entry in resolution:
             if not ((entry >= lower_bound) and (entry <= upper_bound)):
@@ -147,7 +146,8 @@ class IntegerParameter(Parameter):
     @property
     def params(self):
         return (self.lower_bound, self.upper_bound)
-        
+
+
 class CategoricalParameter(IntegerParameter):
     ''' categorical model input parameter
     
@@ -155,15 +155,12 @@ class CategoricalParameter(IntegerParameter):
     ----------
     name : str
     categories : collection of obj
-        
     
     '''
-    
     
     def __init__(self, name, categories):
         lower_bound = 0
         upper_bound = len(categories)
-#         resolution = [x for x in range(upper_bound)]
 
         super(CategoricalParameter, self).__init__(name, lower_bound, 
                                            upper_bound, resolution=None)
@@ -179,7 +176,6 @@ class CategoricalParameter(IntegerParameter):
         Returns
         -------
         int
-        
         
         
         '''

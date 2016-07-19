@@ -5,8 +5,12 @@ Created on Jul 28, 2015
 '''
 import unittest
 
-from ...em_framework import ModelStructureInterface
-from ...util.ema_exceptions import EMAError
+
+from ema_workbench.em_framework import ModelStructureInterface
+from ema_workbench.util import EMAError
+
+# from ...em_framework import ModelStructureInterface
+# from ...util.ema_exceptions import EMAError
 
 class TestMSI(ModelStructureInterface):
     def model_init(self, policy, kwargs):
@@ -22,7 +26,7 @@ class Test(unittest.TestCase):
         model_name = 'modelname'
         wd = '/test'
         
-        model = TestMSI(wd, model_name)
+        model = TestMSI(model_name, wd)
         
         self.assertEqual(model.name, model_name)
         self.assertEqual(model.working_directory, wd)
@@ -33,7 +37,7 @@ class Test(unittest.TestCase):
         model_name = 'modelname'
         wd = '/test'
         
-        model = TestMSI(wd, model_name)
+        model = TestMSI(model_name, wd)
         policy = {'name':'test'}
         model.model_init(policy, {})
         
@@ -46,14 +50,14 @@ class Test(unittest.TestCase):
         model_name = 'modelname'
         wd = '/test'
         
-        model = TestMSI(wd, model_name)
+        model = TestMSI(model_name, wd)
         model.run_model({})
     
     def test_retrieve_output(self):
         model_name = 'modelname'
         wd = '/test'
         
-        model = TestMSI(wd, model_name)
+        model = TestMSI(model_name, wd)
         output = model.retrieve_output()
         
         self.assertEqual({}, output)
@@ -62,14 +66,14 @@ class Test(unittest.TestCase):
         model_name = 'modelname'
         wd = '/test'
         
-        model = TestMSI(wd, model_name)
+        model = TestMSI(model_name, wd)
         model.cleanup()
 
     def test_get_model_uncertainties(self):
         model_name = 'modelname'
         wd = '/test'
         
-        model = TestMSI(wd, model_name)
+        model = TestMSI(model_name, wd)
         uncs = model.get_model_uncertainties()
         
         self.assertEqual([], uncs)

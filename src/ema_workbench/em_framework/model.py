@@ -11,6 +11,7 @@ import abc
 import os
 
 from ..util import debug, EMAError
+from ema_workbench.em_framework.util import NamedObject
 
 # Created on 23 dec. 2010
 # 
@@ -21,7 +22,7 @@ __all__ = ['ModelStructureInterface']
 #==============================================================================
 # abstract Model class 
 #==============================================================================
-class ModelStructureInterface(object):
+class ModelStructureInterface(NamedObject):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
     for performing EMA. This is an abstract base class and cannot be used 
@@ -50,41 +51,46 @@ class ModelStructureInterface(object):
     
     uncertainties = []
     outcomes = []
+    levers = []
     name = None 
     output = {}
     _working_directory = None
 
-    def __init__(self, working_directory, name):
+#    TODO:: this will break existing model interface classes
+#     @property
+#     def uncertainties(self):
+#         return self._uncertainties
+#     
+#     @uncertainties.setter
+#     def uncertainties(self, uncs):
+#         self._uncertainties.extend((uncs))
+
+    def __init__(self, name, working_directory):
         """
         interface to the model
         
         Parameters
         ----------
-        
-        working_directory : str
-                            working_directory for the model. 
         name : str
                name of the modelInterface. The name should contain only
-               alpha-numerical characters.
+               alpha-numerical characters.        
+        working_directory : str
+                            working_directory for the model. 
                
         Raises
         ------
         EMAError if name contains non alpha-numerical characters
         
-        
         """
-        self.name=None
-        
-        super(ModelStructureInterface, self).__init__()
+        super(ModelStructureInterface, self).__init__(name)
+
         if working_directory:
             self.set_working_directory(working_directory)
     
-        if not name.isalnum():
+        if not self.name.isalnum():
             raise EMAError("name of model should only contain alpha numerical\
                             characters")
         
-        self.name = name
-    
     @property
     def working_directory(self):
         return self._working_directory
