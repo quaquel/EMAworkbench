@@ -5,20 +5,16 @@ Created on 21 jan. 2013
 '''
 import unittest
 
-from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler, 
+from ...em_framework.samplers import (LHSSampler, MonteCarloSampler, 
                                 FullFactorialSampler, PartialFactorialSampler)
-from ema_workbench.em_framework.uncertainties import (RealUncertainty, IntegerUncertainty,
-                                                      CategoricalUncertainty)
+from ...em_framework.uncertainties import (RealParameter, IntegerParameter, 
+                                           CategoricalParameter)
 
-# from ...em_framework.samplers import (LHSSampler, MonteCarloSampler, 
-#                                 FullFactorialSampler, PartialFactorialSampler)
-# from ...em_framework.uncertainties import (RealUncertainty, IntegerUncertainty,
-#                                            CategoricalUncertainty)
 
 class SamplerTestCase(unittest.TestCase):
-    uncertainties = [RealUncertainty("1", 0, 10),
-                     IntegerUncertainty("2", 0, 10),
-                     CategoricalUncertainty('3', ['a','b', 'c'])]
+    uncertainties = [RealParameter("1", 0, 10),
+                     IntegerParameter("2", 0, 10),
+                     CategoricalParameter('3', ['a','b', 'c'])]
 
     def _test_generate_designs(self, sampler):
         designs, nr_designs = sampler.generate_designs(self.uncertainties, 10)
@@ -46,23 +42,21 @@ class SamplerTestCase(unittest.TestCase):
         self._test_generate_designs(sampler)
         
     def test_pf_sampler(self):
-        uncs = [RealUncertainty('a', 0, 5, factorial=True, 
-                                     resolution=(0, 2.5,5)),
-                RealUncertainty('b', 0, 1, factorial=True, 
-                                     resolution=(0,1)),
-                RealUncertainty('c', 0, 1),
-                RealUncertainty('d', 1, 2),
+        uncs = [RealParameter('a', 0, 5, resolution=(0, 2.5,5)),
+                RealParameter('b', 0, 1, resolution=(0,1)),
+                RealParameter('c', 0, 1),
+                RealParameter('d', 1, 2),
                 ]
 
         sampler = PartialFactorialSampler()
-        designs, nr_designs = sampler.generate_designs(uncs, 10)
+        designs, nr_designs = sampler.generate_designs(uncs, 10, ['a', 'b'])
         
         expected = 60
         self.assertEqual(expected, nr_designs)
         
         self.assertEqual(expected, len([design for design in designs]))
         
-        ff, other = sampler._sort_uncertainties(uncs)
+        ff, other = sampler._sort_parameters(uncs, ['a', 'b'])
         
         received = {u.name for u in ff}
         expected = {'a', 'b'}

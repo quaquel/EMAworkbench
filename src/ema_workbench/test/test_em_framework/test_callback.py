@@ -10,17 +10,18 @@ import numpy.lib.recfunctions as rf
 import unittest
 
 from ...em_framework.callbacks import DefaultCallback
-from ...em_framework.uncertainties import (CategoricalUncertainty, 
-                                           RealUncertainty)
+from ...em_framework.uncertainties import (CategoricalParameter, RealParameter, 
+                                           IntegerParameter) 
+                                           
 from ...util import EMAError
-from ema_workbench.em_framework.uncertainties import IntegerUncertainty
+
 from ema_workbench.em_framework.outcomes import TimeSeriesOutcome
 
 class TestDefaultCallback(unittest.TestCase):
     def test_init(self):
         # let's add some uncertainties to this
-        uncs = [RealUncertainty("a", 0, 1),
-               RealUncertainty("b", 0, 1)]
+        uncs = [RealParameter("a", 0, 1),
+               RealParameter("b", 0, 1)]
         outcomes = [TimeSeriesOutcome("test")]
         callback = DefaultCallback(uncs, outcomes, nr_experiments=100)
         
@@ -36,8 +37,8 @@ class TestDefaultCallback(unittest.TestCase):
 
     def test_store_results(self):
         nr_experiments = 3
-        uncs = [RealUncertainty("a", 0, 1),
-               RealUncertainty("b", 0, 1)]
+        uncs = [RealParameter("a", 0, 1),
+               RealParameter("b", 0, 1)]
         outcomes = [TimeSeriesOutcome("test")]
         case = {unc.name:random.random() for unc in uncs}
         policy = {'name':'none'}
@@ -96,10 +97,10 @@ class TestDefaultCallback(unittest.TestCase):
               
     def test_store_cases(self):
         nr_experiments = 3
-        uncs = [RealUncertainty("a", 0, 1),
-               RealUncertainty("b", 0, 1),
-               CategoricalUncertainty('c', [0, 1, 2]),
-               IntegerUncertainty("d", 0, 1)]
+        uncs = [RealParameter("a", 0, 1),
+                RealParameter("b", 0, 1),
+                CategoricalParameter('c', [0, 1, 2]),
+                IntegerParameter("d", 0, 1)]
         outcomes = [TimeSeriesOutcome("test")]
         case = {unc.name:random.random() for unc in uncs}
         case["c"] = int(round(case["c"]*2))

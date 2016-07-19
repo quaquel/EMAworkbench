@@ -83,7 +83,7 @@ class WorkerTestCase(unittest.TestCase):
         mocked_inqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
         mocked_outqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
         
-        mockMSI = mock.Mock(spec=MockMSI('', 'test'))
+        mockMSI = mock.Mock(spec=MockMSI('test', ''))
         
         # task = None
         mocked_inqueue.get.return_value = None

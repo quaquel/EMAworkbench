@@ -1,4 +1,3 @@
-deap
 future
 futures
 numpy

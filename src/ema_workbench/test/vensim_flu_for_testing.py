@@ -9,7 +9,7 @@ is the same as used in fluExample
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 from __future__ import absolute_import
-from ..em_framework import RealUncertainty, TimeSeriesOutcome
+from ..em_framework import RealParameter, TimeSeriesOutcome
 from ..connectors.vensim import VensimModelStructureInterface 
 
 class FluModel(VensimModelStructureInterface):
@@ -22,29 +22,29 @@ class FluModel(VensimModelStructureInterface):
  
     #Plain Parametric Uncertainties 
     uncertainties = [
-        RealUncertainty("additional seasonal immune population fraction R1", 
+        RealParameter("additional seasonal immune population fraction R1", 
                         0, 0.5),
-        RealUncertainty("additional seasonal immune population fraction R2",
+        RealParameter("additional seasonal immune population fraction R2",
                         0, 0.5),
-        RealUncertainty("fatality ratio region 1", 0.0001, 0.1),
-        RealUncertainty("fatality rate region 2", 0.0001, 0.1),
-        RealUncertainty("initial immune fraction of the population of region 1",
+        RealParameter("fatality ratio region 1", 0.0001, 0.1),
+        RealParameter("fatality rate region 2", 0.0001, 0.1),
+        RealParameter("initial immune fraction of the population of region 1",
                         0, 0.5),
-        RealUncertainty("initial immune fraction of the population of region 2",
+        RealParameter("initial immune fraction of the population of region 2",
                         0, 0.5),
-        RealUncertainty("normal interregional contact rate", 0, 0.9),
-        RealUncertainty("permanent immune population fraction R1", 0, 0.5),
-        RealUncertainty("permanent immune population fraction R2", 0, 0.5),
-        RealUncertainty("recovery time region 1", 0.1, 0.75),
-        RealUncertainty("recovery time region 2", 0.1, 0.75),
-        RealUncertainty("susceptible to immune population delay time region 1", 
+        RealParameter("normal interregional contact rate", 0, 0.9),
+        RealParameter("permanent immune population fraction R1", 0, 0.5),
+        RealParameter("permanent immune population fraction R2", 0, 0.5),
+        RealParameter("recovery time region 1", 0.1, 0.75),
+        RealParameter("recovery time region 2", 0.1, 0.75),
+        RealParameter("susceptible to immune population delay time region 1", 
                         0.5,2),
-        RealUncertainty("susceptible to immune population delay time region 2",
+        RealParameter("susceptible to immune population delay time region 2",
                         0.5,2),
-        RealUncertainty("root contact rate region 1", 0.01, 5),
-        RealUncertainty("root contact ratio region 2", 0.01, 5),
-        RealUncertainty("infection ratio region 1", 0, 0.15),
-        RealUncertainty("infection rate region 2", 0, 0.15),
-        RealUncertainty("normal contact rate region 1", 10, 100),
-        RealUncertainty("normal contact rate region 2", 10, 200)]
+        RealParameter("root contact rate region 1", 0.01, 5),
+        RealParameter("root contact ratio region 2", 0.01, 5),
+        RealParameter("infection ratio region 1", 0, 0.15),
+        RealParameter("infection rate region 2", 0, 0.15),
+        RealParameter("normal contact rate region 1", 10, 100),
+        RealParameter("normal contact rate region 2", 10, 200)]
                          

@@ -15,7 +15,8 @@ class RealParameterTestCase(unittest.TestCase):
         resolution = [0, 1, 2]
         lower_bound = 0
         upper_bound = 2.1
-        par = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+        par = parameters.RealParameter(name, lower_bound, upper_bound, 
+                                       resolution)
         
         self.assertEqual(par.name, name)
         self.assertEqual(par.resolution, resolution)

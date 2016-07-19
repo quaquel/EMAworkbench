@@ -15,13 +15,13 @@ import math
 import numpy as np
 
 from ..em_framework import (ModelStructureInterface, TimeSeriesOutcome, 
-                            CategoricalUncertainty)
-from ..em_framework.uncertainties import AbstractUncertainty
+                            CategoricalParameter)
 from ..util import debug, warning, EMAError, EMAWarning, CaseError
+from ..em_framework.parameters import Parameter
 
 from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
 from . import vensimDLLwrapper 
-from ema_workbench.em_framework.uncertainties import RealUncertainty
+from ema_workbench.em_framework.uncertainties import RealParameter
 
 # Created on 25 mei 2011
 # 
@@ -399,7 +399,7 @@ class VensimModelStructureInterface(ModelStructureInterface):
         self.uncertainties = [x for x in self.uncertainties if x not in 
                               self._lookup_uncertainties]
         
-class LookupUncertainty(AbstractUncertainty):
+class LookupUncertainty(Parameter):
     HEARNE1 = 'hearne1'
     HEARNE2 = 'hearne2'
     APPROX =  'approximation'
@@ -494,37 +494,37 @@ class LookupUncertainty(AbstractUncertainty):
                                     self.CAT: self._cat}
         
         if self.lookup_type == "categories":
-            msi.uncertainties.append(CategoricalUncertainty("c-"+self.name),
+            msi.uncertainties.append(CategoricalParameter("c-"+self.name),
                                                            range(len(values)))
             msi._lookup_uncertainties.append(self)  
         elif self.lookup_type == "hearne1":
-            msi.uncertainties.append(RealUncertainty("m-"+self.name,
+            msi.uncertainties.append(RealParameter("m-"+self.name,
                                                      *values[0]))
-            msi.uncertainties.append(RealUncertainty("p-"+self.name,
+            msi.uncertainties.append(RealParameter("p-"+self.name,
                                                      *values[1]))
-            msi.uncertainties.append(RealUncertainty("l-"+self.name,
+            msi.uncertainties.append(RealParameter("l-"+self.name,
                                                      *values[2]))
-            msi.uncertainties.append(RealUncertainty("u-"+self.name,
+            msi.uncertainties.append(RealParameter("u-"+self.name,
                                                      *values[3]))
             msi._lookup_uncertainties.append(self)  
         elif self.lookup_type == "hearne2":
-            msi.uncertainties.append(RealUncertainty("m1-"+self.name),
+            msi.uncertainties.append(RealParameter("m1-"+self.name),
                                                      *values[0])
-            msi.uncertainties.append(RealUncertainty("m2-"+self.name,
+            msi.uncertainties.append(RealParameter("m2-"+self.name,
                                                      *values[1]))
-            msi.uncertainties.append(RealUncertainty("p1-"+self.name, 
+            msi.uncertainties.append(RealParameter("p1-"+self.name, 
                                                      *values[2]))
-            msi.uncertainties.append(RealUncertainty("p2-"+self.name,
+            msi.uncertainties.append(RealParameter("p2-"+self.name,
                                                      *values[3]))
-            msi.uncertainties.append(RealUncertainty("l-"+self.name,
+            msi.uncertainties.append(RealParameter("l-"+self.name,
                                                      *values[4]))
-            msi.uncertainties.append(RealUncertainty("u-"+self.name,
+            msi.uncertainties.append(RealParameter("u-"+self.name,
                                                      values[5]))
             msi._lookup_uncertainties.append(self) 
         elif self.lookup_type == "approximation":
             for i, entry in enumerate('A,K,B,Q,M'):
                 name = '{}-{}'.format(entry,self.name)
-                msi.uncertainties.append(RealUncertainty(name, *values[i]))
+                msi.uncertainties.append(RealParameter(name, *values[i]))
             msi._lookup_uncertainties.append(self) 
         else: raise EMAError(self.error_message)
         

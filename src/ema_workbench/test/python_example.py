@@ -7,7 +7,7 @@ It's main purpose has been to test the parallel processing functionality
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
 from ..em_framework import (ModelEnsemble, ModelStructureInterface,
-                            ParameterUncertainty, Outcome)
+                            RealParameter, ScalarOutcome)
 
 class SimplePythonModel(ModelStructureInterface):
     '''
@@ -17,12 +17,12 @@ class SimplePythonModel(ModelStructureInterface):
     '''
     
     #specify uncertainties
-    uncertainties = [ParameterUncertainty((0.1, 10), "x1"),
-                     ParameterUncertainty((-0.01,0.01), "x2"),
-                     ParameterUncertainty((-0.01,0.01), "x3")]
+    uncertainties = [RealParameter((0.1, 10), "x1"),
+                     RealParameter((-0.01,0.01), "x2"),
+                     RealParameter((-0.01,0.01), "x3")]
    
     #specify outcomes 
-    outcomes = [Outcome('y')]
+    outcomes = [ScalarOutcome('y')]
 
     def model_init(self, policy, kwargs):
         pass
