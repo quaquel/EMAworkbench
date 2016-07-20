@@ -8,6 +8,8 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 from collections import OrderedDict
 import six
 
+from ..util import EMAError
+
 # from .parameters import Parameter
 
 # Created on Jul 16, 2016
@@ -90,3 +92,31 @@ class NamedObjectMap(object):
      
     def keys(self):
         return self._data.keys()
+    
+def combine(*args):
+    '''combine scenario and policy into a single experiment dict
+    
+    Parameters
+    ----------
+    args : two or more dicts that need to be combined
+    
+    
+    Returns
+    -------
+    a single unified dict containing the entries from all dicts
+    
+    Raises
+    ------
+    EMAError 
+        if a keyword argument exists in more than one dict
+    '''
+    experiment = args[0].copy()
+    for entry in args[1::]:
+        overlap = set(experiment.keys()).intersection(set(entry.keys()))
+        if overlap:
+            raise EMAError(('parameters exist in two dicts' + overlap))
+        experiment.update(entry)
+            
+
+    return experiment
+    

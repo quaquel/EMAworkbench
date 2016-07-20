@@ -18,6 +18,19 @@ from .util import NamedObject
 
 __all__ = ['Parameter','RealParameter', 'IntegerParameter', 'CategoricalParameter']
 
+
+class Constant(NamedObject):
+    '''Constant class, 
+    
+    can be used for any parameters that have to be set to a fixed value
+    
+    '''
+    
+    def __init__(self, name, value):
+        super(Constant, self).__init__(name)
+        self.value = value
+
+
 class Parameter(NamedObject):
     ''' Base class for any model input parameter
     
@@ -232,4 +245,6 @@ class CategoricalParameter(IntegerParameter):
         warnings.warn('deprecated, use index_for_cat instead')
         
         return self.index_for_cat(name)
+    
+
 

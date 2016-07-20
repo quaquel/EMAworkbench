@@ -48,6 +48,8 @@ from . import scenario_discovery_util as sdutil
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+# TODO:: make separate qp-test for the lower limit and the upper limit
+
 __all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox', 'PrimException',
            'MultiBoxesPrim']
 

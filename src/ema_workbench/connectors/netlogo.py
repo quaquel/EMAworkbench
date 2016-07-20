@@ -13,7 +13,7 @@ import os
 
 import numpy as np
 
-from ..em_framework.model import ModelStructureInterface
+from ..em_framework.model import AbstractModelStructureInterface
 from ..util import warning, debug
                          
 from . import pyNetLogo
@@ -24,7 +24,7 @@ from . import pyNetLogo
 
 __all__ = ['NetLogoModelStructureInterface']
 
-class NetLogoModelStructureInterface(ModelStructureInterface):
+class NetLogoModelStructureInterface(AbstractModelStructureInterface):
     '''Base clase for interfacing with netlogo models. This class
     extends :class:`em_framework.ModelStructureInterface`.
     

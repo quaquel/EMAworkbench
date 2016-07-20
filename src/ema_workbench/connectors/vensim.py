@@ -14,10 +14,10 @@ import decimal
 import math
 import numpy as np
 
-from ..em_framework import (ModelStructureInterface, TimeSeriesOutcome, 
-                            CategoricalParameter)
+from ..em_framework import (TimeSeriesOutcome, CategoricalParameter)
 from ..util import debug, warning, EMAError, EMAWarning, CaseError
 from ..em_framework.parameters import Parameter
+from ..em_framework.model import AbstractModelStructureInterface
 
 from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
 from . import vensimDLLwrapper 
@@ -181,7 +181,7 @@ def get_data(filename, varname, step=1):
     return vval
 
   
-class VensimModelStructureInterface(ModelStructureInterface):
+class VensimModelStructureInterface(AbstractModelStructureInterface):
     '''
     This is a convenience extension of :class:`~model.ModelStructureInterface` 
     that can be used as a base class for performing EMA on Vensim models. This 

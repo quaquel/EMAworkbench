@@ -113,7 +113,7 @@ class ExperimentRunner(object):
         except CaseError as e:
             ema_logging.warning(str(e))
         except Exception as e:
-            raise EMAError('some exception has been raised by run_model'+str(e))
+            raise EMAError('some exception has been raised by run_model '+str(e))
             
         ema_logging.debug("trying to retrieve output")
         result = msi.retrieve_output()
