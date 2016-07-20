@@ -9,9 +9,12 @@ used functions with error checking. For more fine grained control, the
 
 '''
 from __future__ import (absolute_import, print_function, division)
+
 import types
 import decimal
 import math
+import os
+
 import numpy as np
 
 from ..em_framework import (TimeSeriesOutcome, CategoricalParameter)
@@ -22,6 +25,7 @@ from ..em_framework.model import AbstractModelStructureInterface
 from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
 from . import vensimDLLwrapper 
 from ema_workbench.em_framework.uncertainties import RealParameter
+from ema_workbench.em_framework.util import NamedObjectMap, combine
 
 # Created on 25 mei 2011
 # 
@@ -205,42 +209,29 @@ class VensimModelStructureInterface(AbstractModelStructureInterface):
     
     '''
     
-    #: attribute that can be set when one wants to load a cin file
-    cin_file = None
-    
-    model_file = None
-    '''
-    The path to the vensim model to be loaded.
-    
-    **note:** The model file should be a `.vpm` file
-    
-    '''
-    
-    #: default name of the results file (default: 'Current.vdf')
-    result_file = r'\Current.vdf'
 
-    #: attribute used for getting a slice of the results array instead of the
-    #: full array. This can cut down the amount of data saved. Alternatively,
-    #: one can specify in Vensim the time steps for saving results
-    step = 1 
       
-    def __init__(self, working_directory, name):
+    def __init__(self, name, wd=None, model_file=None):
         """interface to the model
         
         interface to the model
         
         Parameters
         ----------
-        
-        working_directory : str
-                            working_directory for the model. 
         name : str
                name of the modelInterface. The name should contain only
-               alpha-numerical characters.
+               alpha-numerical characters.        
+        working_directory : str
+                            working_directory for the model. 
+        model_file  : str
+                     The path to the vensim model to be loaded.
                
         Raises
         ------
-        EMAError if name contains non alpha-numerical characters
+        EMAError 
+            if name contains non alpha-numerical characters
+        ValueError
+            if model_file cannot be found or is not a vpm file
         
         .. note:: Anything that is relative to `self.working_directory`
           should be specified in `model_init` and not
@@ -250,13 +241,29 @@ class VensimModelStructureInterface(AbstractModelStructureInterface):
           separate working directory prior to calling `model_init`.
                 
         """
-        super(VensimModelStructureInterface, self).__init__(working_directory, 
-                                                            name)
-        self.outcomes.append(TimeSeriesOutcome('TIME'))
+        super(VensimModelStructureInterface, self).__init__(name, 
+                                                            wd=wd)
+        self.outcomes.extend(TimeSeriesOutcome('TIME'))
         
-        self.outcomes = list(self.outcomes)
+        self._lookup_uncertainties = NamedObjectMap(Parameter)
         
-        self._lookup_uncertainties = []
+        if not model_file.endswith('.vpm'):
+            raise ValueError('model file should be a vpm file')
+        if not os.path.isfile(self.working_directory+model_file):
+            raise ValueError('cannot find model file')
+        
+        self.model_file = model_file
+        
+        #: attribute that can be set when one wants to load a cin file
+        self.cin_file = None
+        
+        #: default name of the results file (default: 'Current.vdf')
+        self.result_file = r'\Current.vdf'
+
+        #: attribute used for getting a slice of the results array instead of the
+        #: full array. This can cut down the amount of data saved. Alternatively,
+        #: one can specify in Vensim the time steps for saving results
+        self.step = 1 
         
         debug("vensim interface init completed")
         
@@ -281,6 +288,15 @@ class VensimModelStructureInterface(AbstractModelStructureInterface):
         """
 
         load_model(self.working_directory+self.model_file) #load the model
+        
+        try:
+            policy.pop('name')
+        except KeyError:
+            pass
+            
+        self.policy = policy
+        
+        
         debug("model initialized successfully")
 
         be_quiet() # minimize the screens that are shown
@@ -339,7 +355,11 @@ class VensimModelStructureInterface(AbstractModelStructureInterface):
             # proper lookup value
             case[lookup_uncertainty.name] = lookup_uncertainty.transform(case)
   
-        for key, value in case.items():
+  
+        constants = {entry.name:entry.value for entry in self.constants}
+        experiment = combine(case, self.policy, constants)
+  
+        for key, value in experiment.items():
             set_value(key, value)
         debug("model parameters set successfully")
         
@@ -366,10 +386,14 @@ class VensimModelStructureInterface(AbstractModelStructureInterface):
                     result = data
                     error = True
 
-            if not output.time:
-                result = result[-1]
+            # TODO:: should be replaced with a call to the outcome itself
+            # step can also be done in a time series outcome, instead of here
+            if not isinstance(output, TimeSeriesOutcome):
+                result = result[-1] 
             else:
                 result = result[0::self.step]
+            
+            
             try:
                 results[output.name] = result
             except ValueError as e:

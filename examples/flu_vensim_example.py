@@ -9,7 +9,7 @@ is the same as used in fluExample
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty,
-                                        Outcome)
+                                        TimeSeriesOutcome)
 from ema_workbench.util import ema_logging, save_results
 from ema_workbench.connectors.vensim import VensimModelStructureInterface 
 
@@ -19,8 +19,8 @@ class FluModel(VensimModelStructureInterface):
     model_file = r'\FLUvensimV1basecase.vpm'
         
     #outcomes
-    outcomes = [Outcome('deceased population region 1', time=True),
-                Outcome('infected fraction R1', time=True)]
+    outcomes = [TimeSeriesOutcome('deceased population region 1'),
+                TimeSeriesOutcome('infected fraction R1')]
  
     #Plain Parametric Uncertainties 
     uncertainties = [
