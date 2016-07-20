@@ -138,7 +138,7 @@ def tearDownModule():
                 p.signal(SIGKILL)
             except:
                 print("couldn't shutdown process: ", p)
-    blackhole.close()
+#     blackhole.close()
 
 class TestEngineLoggerAdapter(unittest.TestCase):
      
