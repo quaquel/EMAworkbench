@@ -12,12 +12,12 @@ import unittest
 from ...em_framework.model_ensemble import (ModelEnsemble, UNION, INTERSECTION,
                                             experiment_generator)
 from ...em_framework.samplers import LHSSampler
-from ...em_framework import (ModelStructureInterface, RealParameter, 
+from ...em_framework import (Model, RealParameter, 
                              model_ensemble, TimeSeriesOutcome)
 from ...util.ema_exceptions import EMAError
 from ema_workbench.em_framework.callbacks import DefaultCallback
 
-class DummyInterface(ModelStructureInterface):
+class DummyInterface(Model):
     
     def model_init(self, policy, kwargs):
         pass
@@ -300,13 +300,13 @@ class ModelEnsembleTestCase(unittest.TestCase):
             experiments.append(entry)
         self.assertEqual(len(experiments), 2*3*10)
 
-class MockMSI(ModelStructureInterface):
+class MockMSI(Model):
 
     def run_model(self, case):
-        ModelStructureInterface.run_model(self, case)
+        Model.run_model(self, case)
 
     def model_init(self, policy, kwargs):
-        ModelStructureInterface.model_init(self, policy, kwargs)
+        Model.model_init(self, policy, kwargs)
 
 if __name__ == "__main__":
     unittest.main()

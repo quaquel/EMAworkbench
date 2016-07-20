@@ -13,16 +13,16 @@ except ImportError:
 import unittest
 
 from ...em_framework.experiment_runner import ExperimentRunner
-from ...em_framework.model import ModelStructureInterface
+from ...em_framework.model import Model
 from ...util import EMAError, CaseError
 
-class MockMSI(ModelStructureInterface):
+class MockMSI(Model):
 
     def run_model(self, case):
-        ModelStructureInterface.run_model(self, case)
+        Model.run_model(self, case)
 
     def model_init(self, policy, kwargs):
-        ModelStructureInterface.model_init(self, policy, kwargs)
+        Model.model_init(self, policy, kwargs)
 
 class ExperimentRunnerTestCase(unittest.TestCase):
     

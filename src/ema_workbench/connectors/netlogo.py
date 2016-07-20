@@ -13,7 +13,7 @@ import os
 
 import numpy as np
 
-from ..em_framework.model import AbstractModelStructureInterface
+from ..em_framework.model import FileModel
 from ..util import warning, debug
                          
 from . import pyNetLogo
@@ -24,7 +24,7 @@ from . import pyNetLogo
 
 __all__ = ['NetLogoModelStructureInterface']
 
-class NetLogoModelStructureInterface(AbstractModelStructureInterface):
+class NetLogoModelStructureInterface(FileModel):
     '''Base clase for interfacing with netlogo models. This class
     extends :class:`em_framework.ModelStructureInterface`.
     
@@ -40,12 +40,9 @@ class NetLogoModelStructureInterface(AbstractModelStructureInterface):
     name : str
     
     '''
-    
-    model_file = None
-    run_length = None
     command_format = "set {0} {1}"
 
-    def __init__(self, working_directory, name):
+    def __init__(self, name, wd=None, model_file=None):
         """
         init of class
         
@@ -70,7 +67,11 @@ class NetLogoModelStructureInterface(AbstractModelStructureInterface):
         separate working directory prior to calling `model_init`.
         
         """
-        super(NetLogoModelStructureInterface, self).__init__(working_directory, name)
+        super(NetLogoModelStructureInterface, self).__init__(name, wd=wd, 
+                                                             model_file=model_file)
+    
+        self.run_length = None
+       
     
     def model_init(self, policy, kwargs):
         '''
@@ -86,7 +87,7 @@ class NetLogoModelStructureInterface(AbstractModelStructureInterface):
                  arguments. 
         
         '''
-        self.policy = policy
+        super(NetLogoModelStructureInterface, self).model_init()
         
         self.netlogo = pyNetLogo.NetLogoLink()
         debug("netlogo started")
