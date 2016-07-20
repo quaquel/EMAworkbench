@@ -19,13 +19,13 @@ from .outcomes import AbstractOutcome
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['AbstractModelStructureInterface', 'ModelStructureInterface']
+__all__ = ['AbstractModel', 'Model']
 
 #==============================================================================
 # abstract Model class 
 #==============================================================================
 
-class AbstractModelStructureInterface(NamedObject):
+class AbstractModel(NamedObject):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
     for performing EMA. This is an abstract base class and cannot be used 
@@ -107,7 +107,7 @@ class AbstractModelStructureInterface(NamedObject):
         EMAError if name contains non alpha-numerical characters
         
         """
-        super(AbstractModelStructureInterface, self).__init__(name)
+        super(AbstractModel, self).__init__(name)
 
         if wd:
             self.set_working_directory(wd)
@@ -129,7 +129,6 @@ class AbstractModelStructureInterface(NamedObject):
     def working_directory(self, path):
         self.set_working_directory(path)
     
-    @abc.abstractmethod
     def model_init(self, policy, kwargs):
         '''
         Method called to initialize the model.
@@ -157,7 +156,13 @@ class AbstractModelStructureInterface(NamedObject):
         directory of the worker
          
         '''
-        pass
+        try:
+            policy.pop('name')
+        except KeyError:
+            pass
+        
+        self.policy = policy
+
     
     @abc.abstractmethod
     def run_model(self, case):
@@ -176,7 +181,6 @@ class AbstractModelStructureInterface(NamedObject):
         This method should always be implemented.
         
         """
-        pass
 
     def retrieve_output(self):
         """
@@ -230,7 +234,7 @@ class AbstractModelStructureInterface(NamedObject):
         self._working_directory = wd
 
 
-class ModelStructureInterface(AbstractModelStructureInterface):
+class Model(AbstractModel):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
     for performing EMA. This is an abstract base class and cannot be used 
@@ -267,43 +271,8 @@ class ModelStructureInterface(AbstractModelStructureInterface):
     '''
 
     def __init__(self, name, wd=None, function=None):
-        super(ModelStructureInterface, self).__init__(name, wd=wd)
+        super(Model, self).__init__(name, wd=wd)
         self.function = function
-    
-    def model_init(self, policy, kwargs):
-        '''
-        Method called to initialize the model.
-        
-        Parameters
-        ----------
-        policy : dict
-                 policy to be run.
-        kwargs : dict
-                 keyword arguments to be used by model_intit. This
-                 gives users to the ability to pass any additional 
-                 arguments. 
-        
-        Note
-        ----
-        This method should always be implemented. Although in simple cases, a 
-        simple pass can suffice.
-        
-        Note
-        ----
-        Anything that is relative to `self.working_directory` should be 
-        specified in :meth:`model_init` and not in :meth:`src`. Otherwise, 
-        the code will not work when running it in parallel. The reason for this 
-        is that the working directory is being updated to reflect the working
-        directory of the worker
-         
-        '''
-        
-        try:
-            policy.pop('name')
-        except KeyError:
-            pass
-        
-        self.policy = policy
     
     def run_model(self, case):
         """
@@ -332,4 +301,43 @@ class ModelStructureInterface(AbstractModelStructureInterface):
         self.output = {outcome.name:result[outcome.name] for outcome in 
                        self.outcomes}
 
+class FileModel(AbstractModel):
     
+    def __init__(self, name, wd=None, model_file=None):
+        """interface to the model
+        
+        interface to the model
+        
+        Parameters
+        ----------
+        name : str
+               name of the modelInterface. The name should contain only
+               alpha-numerical characters.        
+        working_directory : str
+                            working_directory for the model. 
+        model_file  : str
+                     The model file relative to working directory
+               
+        Raises
+        ------
+        EMAError 
+            if name contains non alpha-numerical characters
+        ValueError
+            if model_file cannot be found
+        
+        """
+        super(FileModel, self).__init__(name, wd=wd)
+        
+        if not os.path.isfile(self.working_directory+model_file):
+            raise ValueError('cannot find model file')
+        
+        self.model_file = model_file
+
+    def model_init(self, policy, kwargs):
+        AbstractModel.model_init(self, policy, kwargs)
+        
+        try:
+            self.model_file = self.policy.pop('model_file')
+        except KeyError:
+            pass        
+

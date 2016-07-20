@@ -15,13 +15,13 @@ except ImportError:
     "win32com not found, Excel connector not avaiable"
 
 from ..util import ema_logging, EMAError
-from ..em_framework.model import AbstractModelStructureInterface
+from ..em_framework.model import FileModel
 
 # Created on 19 sep. 2011
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-class ExcelModelStructureInterface(AbstractModelStructureInterface):
+class ExcelModelStructureInterface(FileModel):
     '''
     
     Base class for connecting the EMA workbench to models in Excel. To 
@@ -33,21 +33,24 @@ class ExcelModelStructureInterface(AbstractModelStructureInterface):
     The provided implementation here does work with :mod:`parallel_ema`.
     
     '''
+    def __init__(self, name, wd=None, model_file=None):
+        super(ExcelModelStructureInterface, self).__init__(name, wd=wd, 
+                                                           model_file=model_file)
+        #: Reference to the Excel application. This attribute is `None` until
+        #: model_init has been invoked.
+        self.xl = None
+    
+        #: Reference to the workbook. This attribute is `None` until
+        #: model_init has been invoked.
+        self.wb = None
+    
+        #: Name of the sheet on which one want to set values
+        self.sheet = None
+    
 
-
-    #: Reference to the Excel application. This attribute is `None` until
-    #: model_init has been invoked.
-    xl = None
-
-    #: Reference to the workbook. This attribute is `None` until
-    #: model_init has been invoked.
-    wb = None
-
-    #: Name of the sheet on which one want to set values
-    sheet = None
-
-    #: relative path to workbook
-    workbook = None
+    @property
+    def workbook(self):
+        return self.model_file
 
     def model_init(self, policy, kwargs):
         '''
@@ -64,6 +67,7 @@ class ExcelModelStructureInterface(AbstractModelStructureInterface):
         
         
         '''
+        super(ExcelModelStructureInterface, self).model_init(policy, kwargs)
         
         if not self.xl:
             try:

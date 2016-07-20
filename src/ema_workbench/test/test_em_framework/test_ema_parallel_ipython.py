@@ -361,7 +361,7 @@ class TestEngine(unittest.TestCase):
     def test_copy_wds_for_msis(self, mock_os, mock_shutil):
         mock_os.path.join.return_value = '.'
         
-        mock_msi = mock.create_autospec(em_framework.ModelStructureInterface) # @UndefinedVariable
+        mock_msi = mock.create_autospec(em_framework.Model) # @UndefinedVariable
         mock_msi.name = 'test'
         
         kwargs = {}
@@ -415,7 +415,7 @@ class TestEngine(unittest.TestCase):
         mock_shutil.rmtree.assert_called_once_with(wd.format(engine_id))
        
     def test_run_experiment(self):
-        mock_msi = mock.create_autospec(em_framework.ModelStructureInterface) # @UndefinedVariable
+        mock_msi = mock.create_autospec(em_framework.Model) # @UndefinedVariable
         mock_msi.name = 'test'
         
         mock_runner = mock.create_autospec(experiment_runner.ExperimentRunner)
@@ -443,7 +443,7 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
 
     @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.setup_working_directories')
     def test_initialize_engines(self, mocked_setup_working_directories):
-        mock_msi = mock.create_autospec(em_framework.ModelStructureInterface) # @UndefinedVariable
+        mock_msi = mock.create_autospec(em_framework.Model) # @UndefinedVariable
         mock_msi.name = 'test'
         msis = {mock_msi.name: mock_msi}
         
@@ -461,7 +461,7 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
 
     @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.os')
     def test_setup_working_directories(self, mock_os):
-        mock_msi = mock.create_autospec(em_framework.ModelStructureInterface) # @UndefinedVariable
+        mock_msi = mock.create_autospec(em_framework.Model) # @UndefinedVariable
         mock_msi.name = 'test'
         msis = {mock_msi.name: mock_msi}
         

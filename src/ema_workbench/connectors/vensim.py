@@ -20,7 +20,7 @@ import numpy as np
 from ..em_framework import (TimeSeriesOutcome, CategoricalParameter)
 from ..util import debug, warning, EMAError, EMAWarning, CaseError
 from ..em_framework.parameters import Parameter
-from ..em_framework.model import AbstractModelStructureInterface
+from ..em_framework.model import FileModel
 
 from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
 from . import vensimDLLwrapper 
@@ -185,7 +185,7 @@ def get_data(filename, varname, step=1):
     return vval
 
   
-class VensimModelStructureInterface(AbstractModelStructureInterface):
+class VensimModelStructureInterface(FileModel):
     '''
     This is a convenience extension of :class:`~model.ModelStructureInterface` 
     that can be used as a base class for performing EMA on Vensim models. This 
@@ -209,8 +209,6 @@ class VensimModelStructureInterface(AbstractModelStructureInterface):
     
     '''
     
-
-      
     def __init__(self, name, wd=None, model_file=None):
         """interface to the model
         
@@ -241,18 +239,15 @@ class VensimModelStructureInterface(AbstractModelStructureInterface):
           separate working directory prior to calling `model_init`.
                 
         """
+        if not model_file.endswith('.vpm'):
+            raise ValueError('model file should be a vpm file')
+        
         super(VensimModelStructureInterface, self).__init__(name, 
-                                                            wd=wd)
+                                                            wd=wd,
+                                                            model_file=model_file)
         self.outcomes.extend(TimeSeriesOutcome('TIME'))
         
         self._lookup_uncertainties = NamedObjectMap(Parameter)
-        
-        if not model_file.endswith('.vpm'):
-            raise ValueError('model file should be a vpm file')
-        if not os.path.isfile(self.working_directory+model_file):
-            raise ValueError('cannot find model file')
-        
-        self.model_file = model_file
         
         #: attribute that can be set when one wants to load a cin file
         self.cin_file = None
@@ -286,16 +281,9 @@ class VensimModelStructureInterface(AbstractModelStructureInterface):
                  gives users to the ability to pass any additional 
                  arguments. 
         """
+        super(VensimModelStructureInterface, self).model_init(policy, kwargs)
 
         load_model(self.working_directory+self.model_file) #load the model
-        
-        try:
-            policy.pop('name')
-        except KeyError:
-            pass
-            
-        self.policy = policy
-        
         
         debug("model initialized successfully")
 

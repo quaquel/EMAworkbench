@@ -6,15 +6,14 @@ Created on Jul 28, 2015
 import unittest
 
 
-from ema_workbench.em_framework import ModelStructureInterface
-from ema_workbench.em_framework.util import NamedObjectMap
-from ema_workbench.em_framework.parameters import Parameter, RealParameter
+from ema_workbench.em_framework.model import Model
+from ema_workbench.em_framework.parameters import RealParameter
 from ema_workbench.util import EMAError
 
 # from ...em_framework import ModelStructureInterface
 # from ...util.ema_exceptions import EMAError
 
-class TestMSI(ModelStructureInterface):
+class TestMSI(Model):
     def model_init(self, policy, kwargs):
         self.policy = policy
         self.kwargs = kwargs

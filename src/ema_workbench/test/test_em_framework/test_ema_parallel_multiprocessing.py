@@ -16,17 +16,16 @@ import unittest
 import time
 import threading
 
-from ...em_framework import (ModelStructureInterface, 
-                             ema_parallel_multiprocessing)
+from ...em_framework import (Model, ema_parallel_multiprocessing)
 from ...util import EMAError
 
-class MockMSI(ModelStructureInterface):
+class MockMSI(Model):
 
     def run_model(self, case):
-        ModelStructureInterface.run_model(self, case)
+        Model.run_model(self, case)
 
     def model_init(self, policy, kwargs):
-        ModelStructureInterface.model_init(self, policy, kwargs)
+        Model.model_init(self, policy, kwargs)
         
 
 class ParallelMultiprocessingPoolTestCase(unittest.TestCase):
