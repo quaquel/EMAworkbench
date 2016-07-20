@@ -21,7 +21,7 @@ from .parameters import RealParameter, CategoricalParameter, IntegerParameter
 __all__ = ['ParameterUncertainty', 'CategoricalUncertainty']
 
 def ParameterUncertainty(values, name, integer=False, factorial=False,
-                         resolution=3):
+                         resolution=[]):
         if integer:
             warnings.warn('deprecated use IntegerParameter instead')
             return IntegerParameter(name, values[0], values[1],

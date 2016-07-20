@@ -21,6 +21,16 @@ from .util import NamedObject
 __all__ = ['Outcome', 'ScalarOutcome', 'TimeSeriesOutcome']
 
 
+# TODO:: have two names for an outcome, one is the name as it is known
+# to the user, the other is the name of the variable in the model
+# the return value for the variable can be passed to a callable known
+# to the outcome. This makes is possible to have e.g. a peak infection, which
+# takes a time series on the infection, and finds the maximum over the time
+# series
+
+# TODO:: we need a output map, this map calls the outcomes to do
+# any transformation as outlined above
+
 def Outcome(name, time=False):
     if time:
         warnings.warn('Deprecated, use TimeSeriesOutcome instead')
@@ -134,22 +144,26 @@ def create_outcomes(outcomes):
     
     '''
     
+    [{'name':'a', 'type':'scalar'}]
+    [('a','scalar')('b', 'timeseries')]
+    {'a':'scalar', 'b':'time_series'}
+    
     if isinstance(outcomes, list):
-        pass 
-        # to dataframe
+        outcomes = {str(i):entry for i, entry in enumerate(outcomes)}
+        outcomes = pandas.DataFrame.from_dict(outcomes)
     elif isinstance(outcomes, str):
         outcomes = pandas.read_csv(outcomes)
     elif not isinstance(outcomes, pandas.DataFrame):
         raise ValueError('unable to convert outcomes to a dataframe')
     
     temp_outcomes = []
-    for id, row in outcomes.iteritems():
+    for _, row in outcomes.iteritems():
         name = row.ix['name']
-        type = row.ix['type']
+        kind = row.ix['type']
         
-        if type=='scalar':
+        if kind=='scalar':
             outcome = ScalarOutcome(name)
-        elif type=='timeseries':
+        elif kind=='timeseries':
             outcome = TimeSeriesOutcome(name)
         else:
             raise ValueError('unknown type for '+name)

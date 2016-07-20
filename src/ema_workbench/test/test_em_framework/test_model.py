@@ -7,6 +7,8 @@ import unittest
 
 
 from ema_workbench.em_framework import ModelStructureInterface
+from ema_workbench.em_framework.util import NamedObjectMap
+from ema_workbench.em_framework.parameters import Parameter, RealParameter
 from ema_workbench.util import EMAError
 
 # from ...em_framework import ModelStructureInterface
@@ -69,15 +71,18 @@ class Test(unittest.TestCase):
         model = TestMSI(model_name, wd)
         model.cleanup()
 
-    def test_get_model_uncertainties(self):
+    def test_model_uncertainties(self):
         model_name = 'modelname'
         wd = '/test'
         
         model = TestMSI(model_name, wd)
-        uncs = model.get_model_uncertainties()
         
-        self.assertEqual([], uncs)
-
+        self.assertTrue(len(model.uncertainties.keys())==0)
+        
+        unc_a = RealParameter('a', 0, 1)
+        model.uncertainties = unc_a
+        self.assertTrue(len(model.uncertainties.keys())==1)
+        self.assertTrue(unc_a.name in model.uncertainties)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

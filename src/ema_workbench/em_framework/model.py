@@ -11,18 +11,21 @@ import abc
 import os
 
 from ..util import debug, EMAError
-from ema_workbench.em_framework.util import NamedObject
+from .util import NamedObject, NamedObjectMap, combine
+from .parameters import Parameter, Constant
+from .outcomes import AbstractOutcome
 
 # Created on 23 dec. 2010
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['ModelStructureInterface']
+__all__ = ['AbstractModelStructureInterface', 'ModelStructureInterface']
 
 #==============================================================================
 # abstract Model class 
 #==============================================================================
-class ModelStructureInterface(NamedObject):
+
+class AbstractModelStructureInterface(NamedObject):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
     for performing EMA. This is an abstract base class and cannot be used 
@@ -32,9 +35,11 @@ class ModelStructureInterface(NamedObject):
     
     Attributes
     ----------
-    uncertainties : list
-                    list of uncertainty instances
-    outcomes : list
+    uncertainties : listlike
+                    list of parameter 
+    levers : listlike
+             list of parameter instances
+    outcomes : listlike
                list of outcome instances
     name : str
            alphanumerical name of model structure interface
@@ -49,23 +54,43 @@ class ModelStructureInterface(NamedObject):
     
     __metaclass__ = abc.ABCMeta
     
-    uncertainties = []
-    outcomes = []
-    levers = []
     name = None 
     output = {}
     _working_directory = None
 
-#    TODO:: this will break existing model interface classes
-#     @property
-#     def uncertainties(self):
-#         return self._uncertainties
-#     
-#     @uncertainties.setter
-#     def uncertainties(self, uncs):
-#         self._uncertainties.extend((uncs))
+    @property
+    def uncertainties(self):
+        return self._uncertainties
+ 
+    @uncertainties.setter
+    def uncertainties(self, uncs):
+        self._uncertainties.extend(uncs)
 
-    def __init__(self, name, working_directory):
+    @property
+    def outcomes(self):
+        return self._outcomes
+ 
+    @outcomes.setter
+    def outcomes(self, outcomes):
+        self._outcomes.extend(outcomes)
+
+    @property
+    def levers(self):
+        return self._levers
+ 
+    @levers.setter
+    def levers(self, levers):
+        self._levers.extend(levers)
+        
+    @property
+    def constants(self):
+        return self._constants
+ 
+    @constants.setter
+    def constants(self, constants):
+        self._constants.extend(constants)
+
+    def __init__(self, name, wd=None):
         """
         interface to the model
         
@@ -74,22 +99,27 @@ class ModelStructureInterface(NamedObject):
         name : str
                name of the modelInterface. The name should contain only
                alpha-numerical characters.        
-        working_directory : str
-                            working_directory for the model. 
+        wd : str, optional
+             working_directory for the model. 
                
         Raises
         ------
         EMAError if name contains non alpha-numerical characters
         
         """
-        super(ModelStructureInterface, self).__init__(name)
+        super(AbstractModelStructureInterface, self).__init__(name)
 
-        if working_directory:
-            self.set_working_directory(working_directory)
+        if wd:
+            self.set_working_directory(wd)
     
         if not self.name.isalnum():
             raise EMAError("name of model should only contain alpha numerical\
                             characters")
+            
+        self._uncertainties = NamedObjectMap(Parameter)
+        self._levers = NamedObjectMap(Parameter)
+        self._outcomes = NamedObjectMap(AbstractOutcome)
+        self._constants = NamedObjectMap(Constant)
         
     @property
     def working_directory(self):
@@ -127,6 +157,7 @@ class ModelStructureInterface(NamedObject):
         directory of the worker
          
         '''
+        pass
     
     @abc.abstractmethod
     def run_model(self, case):
@@ -145,6 +176,7 @@ class ModelStructureInterface(NamedObject):
         This method should always be implemented.
         
         """
+        pass
 
     def retrieve_output(self):
         """
@@ -177,16 +209,6 @@ class ModelStructureInterface(NamedObject):
         '''
         pass
 
-    def get_model_uncertainties(self):
-        """
-        Method for retrieving model structure uncertainties.
-        
-        Returns
-        -------
-        list of the uncertainties of the model interface.
-        """
-        return self.uncertainties    
-    
     def set_working_directory(self, wd):
         '''
         Method for setting the working directory of the model interface. This
@@ -206,3 +228,108 @@ class ModelStructureInterface(NamedObject):
         debug('setting working directory to '+ wd)
         
         self._working_directory = wd
+
+
+class ModelStructureInterface(AbstractModelStructureInterface):
+    '''
+    :class:`ModelStructureInterface` is one of the the two main classes used 
+    for performing EMA. This is an abstract base class and cannot be used 
+    directly. When extending this class :meth:`model_init` and 
+    :meth:`run_model` have to be implemented. 
+    
+    Parameters
+    ----------
+    name : str
+    wd : str
+         string specifying the path of the working directory used by function
+    function : callable
+               a function with each of the uncertain parameters as a keyword
+               argument
+    
+    
+    Attributes
+    ----------
+    uncertainties : listlike
+                    list of parameter 
+    levers : listlike
+             list of parameter instances
+    outcomes : listlike
+               list of outcome instances
+    name : str
+           alphanumerical name of model structure interface
+    output : dict
+             this should be a dict with the names of the outcomes as key
+    working_directory : str
+                        absolute path, all file operations in the model
+                        structure interface should be resolved from this
+                        directory. 
+    
+    '''
+
+    def __init__(self, name, wd=None, function=None):
+        super(ModelStructureInterface, self).__init__(name, wd=wd)
+        self.function = function
+    
+    def model_init(self, policy, kwargs):
+        '''
+        Method called to initialize the model.
+        
+        Parameters
+        ----------
+        policy : dict
+                 policy to be run.
+        kwargs : dict
+                 keyword arguments to be used by model_intit. This
+                 gives users to the ability to pass any additional 
+                 arguments. 
+        
+        Note
+        ----
+        This method should always be implemented. Although in simple cases, a 
+        simple pass can suffice.
+        
+        Note
+        ----
+        Anything that is relative to `self.working_directory` should be 
+        specified in :meth:`model_init` and not in :meth:`src`. Otherwise, 
+        the code will not work when running it in parallel. The reason for this 
+        is that the working directory is being updated to reflect the working
+        directory of the worker
+         
+        '''
+        
+        try:
+            policy.pop('name')
+        except KeyError:
+            pass
+        
+        self.policy = policy
+    
+    def run_model(self, case):
+        """
+        Method for running an instantiated model structure. 
+        
+        Parameters
+        ----------
+        case : dict
+               keyword arguments for running the model. The case is a dict with 
+               the names of the uncertainties as key, values are the values
+               to which to set these uncertainties. 
+        
+        Note
+        ----
+        This method should always be implemented.
+        
+        """
+        
+        if not callable(self.function):
+            raise EMAError('no callable function specified')
+            
+        constants = {c.name:c.value for c in self.constants}
+        experiment = combine(case, self.policy, constants)
+        result = self.function(**experiment)
+        
+        self.output = {outcome.name:result[outcome.name] for outcome in 
+                       self.outcomes}
+
+    

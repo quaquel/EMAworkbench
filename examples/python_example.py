@@ -10,42 +10,27 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 from ema_workbench.em_framework import (ModelEnsemble, ModelStructureInterface, 
-                                        ParameterUncertainty, 
-                                        Outcome)
+                                        RealParameter, ScalarOutcome)
 from ema_workbench.util import ema_logging
 
-class SimplePythonModel(ModelStructureInterface):
-    '''
-    This class represents a simple example of how one can extent the basic
-    ModelStructureInterface in order to do EMA on a simple model coded in
-    Python directly
-    '''
-    
-    #specify uncertainties
-    uncertainties = [ParameterUncertainty((0.1, 10), "x1"),
-                     ParameterUncertainty((-0.01,0.01), "x2"),
-                     ParameterUncertainty((-0.01,0.01), "x3")]
-   
-    #specify outcomes 
-    outcomes = [Outcome('y')]
-
-    def model_init(self, policy, kwargs):
-        pass
-    
-    def run_model(self, case):
-        """Method for running an instantiated model structure """
-        self.output[self.outcomes[0].name] =  case['x1']*case['x2']+case['x3']
-    
+def some_model(x1=None, x2=None, x3=None):
+    return {'y':x1*x2+x3}
 
 if __name__ == '__main__':
     ema_logging.LOG_FORMAT = '[%(name)s/%(levelname)s/%(processName)s] %(message)s'
     ema_logging.log_to_stderr(ema_logging.INFO)
     
-    model = SimplePythonModel(None, 'simpleModel') #instantiate the model
+    model = ModelStructureInterface('simpleModel', function=some_model) #instantiate the model
+
+    #specify uncertainties
+    model.uncertainties = [RealParameter((0.1, 10), "x1"),
+                           RealParameter((-0.01,0.01), "x2"),
+                           RealParameter((-0.01,0.01), "x3")]
+    #specify outcomes 
+    model.outcomes = [ScalarOutcome('y')]
+
     ensemble = ModelEnsemble() #instantiate an ensemble
-    ensemble.parallel = True
     ensemble.model_structure = model #set the model on the ensemble
-    results = ensemble.perform_experiments(1000, reporting_interval=1) #run 1000 experiments
+    results = ensemble.perform_experiments(100, reporting_interval=1) #run 1000 experiments
     
 
-    

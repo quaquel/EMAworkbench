@@ -15,13 +15,13 @@ except ImportError:
     "win32com not found, Excel connector not avaiable"
 
 from ..util import ema_logging, EMAError
-from ..em_framework import ModelStructureInterface
+from ..em_framework.model import AbstractModelStructureInterface
 
 # Created on 19 sep. 2011
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-class ExcelModelStructureInterface(ModelStructureInterface):
+class ExcelModelStructureInterface(AbstractModelStructureInterface):
     '''
     
     Base class for connecting the EMA workbench to models in Excel. To 
