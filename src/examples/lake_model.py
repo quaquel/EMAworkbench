@@ -13,8 +13,8 @@ import math
 import numpy as np
 from scipy.optimize import brentq as root
 
-from ema_workbench.em_framework import (ModelEnsemble, ModelStructureInterface, 
-                                        RealParameter, ScalarOutcome)
+from ema_workbench.em_framework import (ModelEnsemble, Model, RealParameter, 
+                                        ScalarOutcome)
 from ema_workbench.util import ema_logging
 from ema_workbench.em_framework.parameters import Constant
 
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
     
     #instantiate the model
-    model = ModelStructureInterface('lakeproblem', function=lake_problem)
+    model = Model('lakeproblem', function=lake_problem)
 
     #specify uncertainties
     model.uncertainties = [RealParameter("b", 0.1, 0.45),

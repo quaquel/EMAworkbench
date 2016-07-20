@@ -8,18 +8,20 @@ import matplotlib.pyplot as plt
 from ema_workbench.connectors.netlogo import NetLogoModelStructureInterface
 
 from ema_workbench.em_framework import (ParameterUncertainty, 
-                                        CategoricalUncertainty, Outcome,
+                                        CategoricalUncertainty, 
+                                        TimeSeriesOutcome,
                                         ModelEnsemble)
 from ema_workbench.util import ema_logging
 from ema_workbench.analysis import plotting, plotting_util
 
-
-class PredatorPrey(NetLogoModelStructureInterface):
-    model_file = r"/Wolf Sheep Predation.nlogo"
+if __name__ == '__main__':
     
-    run_length = 1000
+    model = NetLogoModelStructureInterface('predprey', 
+                                   wd="./models/predatorPreyNetlogo", 
+                                   model_file="/Wolf Sheep Predation.nlogo")
+    model.run_length = 1000
     
-    uncertainties = [ParameterUncertainty((1, 99), "grass-regrowth-time"),
+    model.uncertainties = [ParameterUncertainty((1, 99), "grass-regrowth-time"),
                      ParameterUncertainty((1, 250), "initial-number-sheep"),
                      ParameterUncertainty((1, 250), "initial-number-wolves"),
                      ParameterUncertainty((1, 20), "sheep-reproduce"),
@@ -27,23 +29,14 @@ class PredatorPrey(NetLogoModelStructureInterface):
                      CategoricalUncertainty(("true", "true"), "grass?") 
                      ]
     
-    outcomes = [Outcome('sheep', time=True),
-                Outcome('wolves', time=True),
-                Outcome('grass', time=True) # TODO patches not working in reporting
-                ]
-    
-if __name__ == "__main__":
-    import multiprocessing
-    ema_logging.LOG_FORMAT = multiprocessing.util.DEFAULT_LOGGING_FORMAT
+    model.outcomes = [TimeSeriesOutcome('sheep'),
+                      TimeSeriesOutcome('wolves'),
+                      TimeSeriesOutcome('grass') ]
     
     #turn on logging
     ema_logging.log_to_stderr(ema_logging.DEBUG)
     ema_logging.info('in main')
-    
-    #instantiate a model
-    fh = r"./models/predatorPreyNetlogo"
-    model = PredatorPrey(fh, "simpleModel")
-    
+     
     #instantiate an ensemble
     ensemble = ModelEnsemble()
     

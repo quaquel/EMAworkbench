@@ -19,6 +19,8 @@ from ..util import debug, EMAError
 # Created on 23 dec. 2010
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+# TODO:: move working directory as an argument to FileModel, no
+# need to have that in AbstractModel, or Model
 
 __all__ = ['AbstractModel', 'Model']
 

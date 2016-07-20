@@ -115,9 +115,6 @@ if __name__ == "__main__":
              RealParameter("lookup approximated learning speed", 0.01, 0.2),
              RealParameter("lookup approximated learning scale", 0.3, 0.6),
              RealParameter("lookup approximated learning start", 30, 60)]
-
-
-
     
     ensemble = ModelEnsemble()
     ensemble.model_structure = model

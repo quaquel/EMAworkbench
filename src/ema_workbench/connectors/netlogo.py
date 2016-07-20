@@ -87,7 +87,7 @@ class NetLogoModelStructureInterface(FileModel):
                  arguments. 
         
         '''
-        super(NetLogoModelStructureInterface, self).model_init()
+        super(NetLogoModelStructureInterface, self).model_init(policy, kwargs)
         
         self.netlogo = pyNetLogo.NetLogoLink()
         debug("netlogo started")

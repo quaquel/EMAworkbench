@@ -9,26 +9,10 @@ It's main purpose is to test the parallel processing functionality
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 '''
 from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty, 
-                                        Outcome)
+                                        TimeSeriesOutcome)
 from ema_workbench.util import ema_logging 
 from ema_workbench.connectors.vensim import VensimModelStructureInterface
 
-class VensimExampleModel(VensimModelStructureInterface):
-    '''
-    example of the most simple case of doing EMA on
-    a Vensim model.
-    
-    '''
-    #note that this reference to the model should be relative
-    #this relative path will be combined with the workingDirectory
-    model_file = r'\model.vpm'
-
-    #specify outcomes
-    outcomes = [Outcome('a', time=True)]
-
-    #specify your uncertainties
-    uncertainties = [ParameterUncertainty((0, 2.5), "x11"),
-                     ParameterUncertainty((-2.5, 2.5), "x12")]
 
 if __name__ == "__main__":
     #turn on logging
@@ -36,7 +20,11 @@ if __name__ == "__main__":
     
     #instantiate a model
     wd = r'./models/vensim example'
-    vensimModel = VensimExampleModel(wd, "simpleModel")
+    vensimModel = VensimModelStructureInterface("simpleModel", wd=wd,
+                                                model_file=r'\model.vpm')
+    vensimModel.outcomes = [TimeSeriesOutcome('a', time=True)]
+    vensimModel.uncertainties = [ParameterUncertainty((0, 2.5), "x11"),
+                                 ParameterUncertainty((-2.5, 2.5), "x12")]
     
     #instantiate an ensemble
     ensemble = ModelEnsemble()
