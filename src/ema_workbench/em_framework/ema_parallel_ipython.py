@@ -409,7 +409,10 @@ def setup_working_directories(client, msis):
     # associated with each working directory
     wd_by_msi = collections.defaultdict(list)
     for msi in msis.values():
-        wd_by_msi[msi.working_directory].append(msi.name)
+        try:
+            wd_by_msi[msi.working_directory].append(msi.name)
+        except AttributeError:
+            pass
         
     # determine the common root of all working directories
     common_root = os.path.commonprefix(wd_by_msi.keys())

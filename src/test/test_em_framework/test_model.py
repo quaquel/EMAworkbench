@@ -6,7 +6,7 @@ Created on Jul 28, 2015
 import unittest
 
 
-from ema_workbench.em_framework.model import Model
+from ema_workbench.em_framework.model import Model, FileModel
 from ema_workbench.em_framework.parameters import RealParameter
 from ema_workbench.util import EMAError
 
@@ -25,56 +25,47 @@ class Test(unittest.TestCase):
 
     def test_init(self):
         model_name = 'modelname'
-        wd = '/test'
         
-        model = TestMSI(model_name, wd)
+        model = TestMSI(model_name)
         
         self.assertEqual(model.name, model_name)
-        self.assertEqual(model.working_directory, wd)
         self.assertRaises(EMAError, TestMSI, '', 'model name')
         
 
     def test_model_init(self):
         model_name = 'modelname'
-        wd = '/test'
         
-        model = TestMSI(model_name, wd)
+        model = TestMSI(model_name)
         policy = {'name':'test'}
         model.model_init(policy, {})
         
         self.assertEqual(policy, model.policy)
         self.assertEqual({}, model.kwargs)
         
-        model.working_directory = wd
-    
     def test_run_model(self):
         model_name = 'modelname'
-        wd = '/test'
         
-        model = TestMSI(model_name, wd)
+        model = TestMSI(model_name)
         model.run_model({})
     
     def test_retrieve_output(self):
         model_name = 'modelname'
-        wd = '/test'
         
-        model = TestMSI(model_name, wd)
+        model = TestMSI(model_name)
         output = model.retrieve_output()
         
         self.assertEqual({}, output)
     
     def test_cleanup(self):
         model_name = 'modelname'
-        wd = '/test'
         
-        model = TestMSI(model_name, wd)
+        model = TestMSI(model_name)
         model.cleanup()
 
     def test_model_uncertainties(self):
         model_name = 'modelname'
-        wd = '/test'
         
-        model = TestMSI(model_name, wd)
+        model = TestMSI(model_name)
         
         self.assertTrue(len(model.uncertainties.keys())==0)
         

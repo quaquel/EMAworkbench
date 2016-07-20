@@ -48,10 +48,6 @@ class AbstractModel(NamedObject):
            alphanumerical name of model structure interface
     output : dict
              this should be a dict with the names of the outcomes as key
-    working_directory : str
-                        absolute path, all file operations in the model
-                        structure interface should be resolved from this
-                        directory. 
     
     '''
     
@@ -93,7 +89,7 @@ class AbstractModel(NamedObject):
     def constants(self, constants):
         self._constants.extend(constants)
 
-    def __init__(self, name, wd=None):
+    def __init__(self, name):
         """
         interface to the model
         
@@ -102,8 +98,7 @@ class AbstractModel(NamedObject):
         name : str
                name of the modelInterface. The name should contain only
                alpha-numerical characters.        
-        wd : str, optional
-             working_directory for the model. 
+
                
         Raises
         ------
@@ -112,9 +107,6 @@ class AbstractModel(NamedObject):
         """
         super(AbstractModel, self).__init__(name)
 
-        if wd:
-            self.set_working_directory(wd)
-    
         if not self.name.isalnum():
             raise EMAError("name of model should only contain alpha numerical\
                             characters")
@@ -125,12 +117,7 @@ class AbstractModel(NamedObject):
         self._constants = NamedObjectMap(Constant)
         
     @property
-    def working_directory(self):
-        return self._working_directory
-    
-    @working_directory.setter
-    def working_directory(self, path):
-        self.set_working_directory(path)
+
     
     def model_init(self, policy, kwargs):
         '''
@@ -215,27 +202,7 @@ class AbstractModel(NamedObject):
         
         '''
         pass
-
-    def set_working_directory(self, wd):
-        '''
-        Method for setting the working directory of the model interface. This
-        method is used in case of running models in parallel. In this case,
-        each worker process will have its own working directory, to avoid 
-        having to share files across processes. This requires the need to
-        update the working directory to the new working directory. 
-        
-        Parameters
-        ----------
-        wd : str
-             The new working directory.
-        
-        '''
-        
-        wd = os.path.abspath(wd)
-        debug('setting working directory to '+ wd)
-        
-        self._working_directory = wd
-
+    
 
 class Model(AbstractModel):
     '''
@@ -273,8 +240,9 @@ class Model(AbstractModel):
     
     '''
 
-    def __init__(self, name, wd=None, function=None):
-        super(Model, self).__init__(name, wd=wd)
+    
+    def __init__(self, name, function=None):
+        super(Model, self).__init__(name)
         self.function = function
     
     def run_model(self, case):
@@ -305,7 +273,17 @@ class Model(AbstractModel):
                        self.outcomes}
 
 class FileModel(AbstractModel):
+    @property
+    def working_directory(self):
+        return self._working_directory
     
+    @working_directory.setter
+    def working_directory(self, path):
+        wd = os.path.abspath(path)
+        debug('setting working directory to '+ wd)
+        self._working_directory = wd
+
+
     def __init__(self, name, wd=None, model_file=None):
         """interface to the model
         
@@ -329,12 +307,13 @@ class FileModel(AbstractModel):
             if model_file cannot be found
         
         """
-        super(FileModel, self).__init__(name, wd=wd)
+        super(FileModel, self).__init__(name)
         
         if not os.path.isfile(self.working_directory+model_file):
             raise ValueError('cannot find model file')
         
         self.model_file = model_file
+        self.working_directory = wd
 
     def model_init(self, policy, kwargs):
         AbstractModel.model_init(self, policy, kwargs)
