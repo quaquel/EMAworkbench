@@ -10,7 +10,6 @@ from ema_workbench.util import ema_logging, load_results
 from ema_workbench.analysis.plotting import envelopes 
 from ema_workbench.analysis.plotting_util import KDE
 
-
 ema_logging.log_to_stderr(ema_logging.INFO)
 
 file_name = r'./data/1000 flu cases.tar.gz'

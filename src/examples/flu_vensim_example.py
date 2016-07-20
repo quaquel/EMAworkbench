@@ -10,14 +10,14 @@ is the same as used in fluExample
 '''
 from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty,
                                         TimeSeriesOutcome)
-from ema_workbench.util import ema_logging, save_results
+from ema_workbench.util import ema_logging
 from ema_workbench.connectors.vensim import VensimModelStructureInterface 
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
-                                          model_file = r'\FLUvensimV1basecase.vpm')
+                                      model_file = r'\FLUvensimV1basecase.vpm')
             
     #outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     ensemble.policies = policies
     
     #turn on parallel processing
-#     ensemble.parallel = True 
+    ensemble.parallel = True 
     
     # run 1000 experiments
     nr_runs = 1000

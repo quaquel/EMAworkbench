@@ -14,6 +14,10 @@ import pandas as pd
 
 from .plotting_util import COLOR_LIST
 from ..util import ema_logging
+import itertools
+
+
+COLOR_LIST = itertools.cycle(COLOR_LIST)
 
 # Created on May 24, 2015
 # 
@@ -407,11 +411,11 @@ class OutputFormatterMixin(object):
             x = [entry/max_value for entry in x]
             y = [y] * len(x)
             
-            ax.scatter(x,y,  edgecolor=COLOR_LIST[j],
-                       facecolor=COLOR_LIST[j])
+            ax.scatter(x,y,  edgecolor=next(COLOR_LIST),
+                       facecolor=next(COLOR_LIST))
             
         else:
             ax.plot(norm_box_lim[i], (y, y),
-                    c=COLOR_LIST[j])
+                    c=next(COLOR_LIST))
         
         

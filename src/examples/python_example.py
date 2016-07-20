@@ -9,7 +9,7 @@ It's main purpose has been to test the parallel processing functionality
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-from ema_workbench.em_framework import (ModelEnsemble, ModelStructureInterface, 
+from ema_workbench.em_framework import (ModelEnsemble, Model, 
                                         RealParameter, ScalarOutcome)
 from ema_workbench.util import ema_logging
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     ema_logging.LOG_FORMAT = '[%(name)s/%(levelname)s/%(processName)s] %(message)s'
     ema_logging.log_to_stderr(ema_logging.INFO)
     
-    model = ModelStructureInterface('simpleModel', function=some_model) #instantiate the model
+    model = Model('simpleModel', function=some_model) #instantiate the model
 
     #specify uncertainties
     model.uncertainties = [RealParameter((0.1, 10), "x1"),

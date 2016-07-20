@@ -4,8 +4,8 @@ development at Delft University of Technology. Documentation can be found on
 http://simulation.tbm.tudelft.nl/ema-workbench/contents.html
 
 
-[![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=master)](https://travis-ci.org/quaquel/EMAworkbench)
-[![Coverage Status](https://coveralls.io/repos/quaquel/EMAworkbench/badge.svg?branch=master&service=github)](https://coveralls.io/github/quaquel/EMAworkbench?branch=master)
+[![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=levers)](https://travis-ci.org/quaquel/EMAworkbench)
+[![Coverage Status](https://coveralls.io/repos/quaquel/EMAworkbench/badge.svg?branch=levers&service=github)](https://coveralls.io/github/quaquel/EMAworkbench?branch=levers)
 [![Code Health](https://landscape.io/github/quaquel/EMAworkbench/levers/landscape.svg?style=flat)](https://landscape.io/github/quaquel/EMAworkbench/levers)
 [![Documentation Status](https://readthedocs.org/projects/emaworkbench/badge/?version=latest)](http://emaworkbench.readthedocs.org/en/latest/?badge=latest)
 

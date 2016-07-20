@@ -13,7 +13,7 @@ from ema_workbench.util import load_results, ema_logging
 ema_logging.log_to_stderr(level=ema_logging.DEFAULT_LEVEL)
 
 # load the data
-fh = r'.\data\1000 flu cases no policy.tar.gz'
+fh = './data/1000 flu cases no policy.tar.gz'
 experiments, outcomes = load_results(fh)
 
 # transform the results to the required format
