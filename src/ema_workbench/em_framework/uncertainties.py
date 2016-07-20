@@ -23,11 +23,13 @@ __all__ = ['ParameterUncertainty', 'CategoricalUncertainty']
 def ParameterUncertainty(values, name, integer=False, factorial=False,
                          resolution=[]):
         if integer:
-            warnings.warn('deprecated use IntegerParameter instead')
+            warnings.warn(('ParameterUncertainty is deprecated use '
+                           'IntegerParameter instead'))
             return IntegerParameter(name, values[0], values[1],
                                     resolution=resolution)
         else:
-            warnings.warn('deprecated use RealParameter instead')
+            warnings.warn(('ParameterUncertainty is deprecated use '
+                           'RealParameter instead'))
             return RealParameter(name, values[0], values[1], 
                                  resolution=resolution)
     

@@ -107,9 +107,9 @@ class AbstractSampler(object):
             #range in paramertainty gives lower and upper bound
             sample = self.sample(param.dist, param.params, size) 
             
-            if type(param) == CategoricalParameter:
+            if isinstance(param, CategoricalParameter):
                 # TODO look into numpy ufunc
-                sample = (param.transform(int(entry)) for entry in sample)
+                sample = [param.transform(int(entry)) for entry in sample]
             elif isinstance(param, IntegerParameter):
                 sample = (int(entry) for entry in sample)
             
