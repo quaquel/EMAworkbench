@@ -21,6 +21,7 @@ import itertools
 import logging
 import multiprocessing
 import os
+from ema_workbench.em_framework.model import FileModel
 
 try:
     import queue
@@ -150,7 +151,7 @@ class CalculatorPool(pool.Pool):
             
             #setup working directories for parallel_ema
             for msi in msis:
-                if msi.working_directory != None:
+                if isinstance(msi, FileModel):
                     if worker_root == None:
                         wd = msis[0].working_directory
                         abs_wd = os.path.abspath(wd)

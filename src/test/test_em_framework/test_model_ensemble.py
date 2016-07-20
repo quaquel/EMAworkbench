@@ -40,14 +40,14 @@ class ModelEnsembleTestCase(unittest.TestCase):
         ensemble.policies = policies
         
     def test_model_structures(self):
-        model_a = DummyInterface("A", None)
+        model_a = DummyInterface("A")
         
         ensemble = ModelEnsemble()
         ensemble.model_structure = model_a
         self.assertEqual(ensemble.model_structure, model_a)
         
-        model_a = DummyInterface("A", None)
-        model_b = DummyInterface("B", None)
+        model_a = DummyInterface("A")
+        model_b = DummyInterface("B")
         ensemble = ModelEnsemble()
         ensemble.model_structures = [model_a, model_b]
         self.assertEqual(list(ensemble.model_structures), [model_a, model_b])
@@ -200,9 +200,9 @@ class ModelEnsembleTestCase(unittest.TestCase):
 
     def test_perform_experiments(self):
         # everything shared
-        model_a = DummyInterface("A", None)
-        model_b = DummyInterface("B", None)
-        model_c = DummyInterface("C", None)
+        model_a = DummyInterface("A")
+        model_b = DummyInterface("B")
+        model_c = DummyInterface("C")
         
         # let's add some uncertainties to this
         shared_abc_1 = RealParameter("shared abc 1", 0, 1)
@@ -306,7 +306,7 @@ class MockMSI(Model):
         Model.run_model(self, case)
 
     def model_init(self, policy, kwargs):
-        Model.model_init(self, policy, kwargs)
+        Model.model_init(policy, kwargs)
 
 if __name__ == "__main__":
     unittest.main()
