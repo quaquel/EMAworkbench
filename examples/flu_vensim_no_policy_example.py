@@ -70,7 +70,7 @@ if __name__ == "__main__":
     ensemble = ModelEnsemble()
     ensemble.model_structure = model
     
-#     ensemble.parallel = True #turn on parallel processing
+    ensemble.parallel = True #turn on parallel processing
 
     nr_experiments = 100
     results = ensemble.perform_experiments(nr_experiments)
