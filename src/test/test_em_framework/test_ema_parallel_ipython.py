@@ -11,16 +11,19 @@ try:
 except ImportError:
     import mock
 
+import nose
 import os
 import socket
-import subprocess
 import time
 import unittest
+
+from subprocess import Popen, STDOUT
 
 from jupyter_client.localinterfaces import localhost
 from IPython.paths import get_ipython_dir
 
 import ipyparallel
+from ipyparallel import Client
 from ipyparallel.apps.launcher import (LocalProcessLauncher,
                                        ipengine_cmd_argv,
                                        ipcontroller_cmd_argv,
@@ -34,18 +37,17 @@ from ema_workbench.util import ema_logging, EMAError, EMAParallelError
 
 
 launchers =[]
-blackhole = open(os.devnull, 'w')
+blackhole = os.open(os.devnull, os.O_WRONLY)
  
 # Launcher class
 class TestProcessLauncher(LocalProcessLauncher):
-    """subclass LocalProcessLauncher, to prevent extra sockets and threads being created 
-    on Windows"""
+    """subclass LocalProcessLauncher, to prevent extra sockets and threads being created on Windows"""
     def start(self):
         if self.state == 'before':
             # Store stdout & stderr to show with failing tests.
             # This is defined in IPython.testing.iptest
-            self.process = subprocess.Popen(self.args,
-                stdout=blackhole, stderr=subprocess.STDOUT,
+            self.process = Popen(self.args,
+                stdout=blackhole, stderr=STDOUT,
                 env=os.environ,
                 cwd=self.work_dir
             )
@@ -56,24 +58,23 @@ class TestProcessLauncher(LocalProcessLauncher):
             raise ProcessStateError(s)
 
 
-def add_engines(n=1, profile='default', total=False):
+def add_engines(n=1, profile='iptest', total=False):
     """add a number of engines to a given profile.
-     
+    
     If total is True, then already running engines are counted, and only
     the additional engines necessary (if any) are started.
     """
-    rc = ipyparallel.Client(profile=profile)
+    rc = Client(profile=profile)
     base = len(rc)
-     
+    
     if total:
         n = max(n - base, 0)
-     
+    
     eps = []
-    for _ in range(n):
+    for i in range(n):
         ep = TestProcessLauncher()
         ep.cmd_and_args = ipengine_cmd_argv + [
             '--profile=%s' % profile,
-            '--log-level=50',
             '--InteractiveShell.colors=nocolor'
             ]
         ep.start()
@@ -86,7 +87,6 @@ def add_engines(n=1, profile='default', total=False):
         elif time.time()-tic > 15:
             raise RuntimeError("Timeout waiting for engines to connect.")
         time.sleep(.1)
-        rc.spin()
     rc.close()
     return eps
  
