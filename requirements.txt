@@ -10,3 +10,4 @@ scikit-learn
 seaborn
 matplotlib
 pyzmq
+jupyter
