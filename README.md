@@ -6,11 +6,7 @@ http://simulation.tbm.tudelft.nl/ema-workbench/contents.html
 
 [![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=master)](https://travis-ci.org/quaquel/EMAworkbench)
 [![Coverage Status](https://coveralls.io/repos/quaquel/EMAworkbench/badge.svg?branch=master&service=github)](https://coveralls.io/github/quaquel/EMAworkbench?branch=master)
-<<<<<<< HEAD
 [![Code Health](https://landscape.io/github/quaquel/EMAworkbench/levers/landscape.svg?style=flat)](https://landscape.io/github/quaquel/EMAworkbench/levers)
-=======
-[![Code Health](https://landscape.io/github/quaquel/EMAworkbench/master/landscape.svg?style=flat)](https://landscape.io/github/quaquel/EMAworkbench/master)
->>>>>>> master
 [![Documentation Status](https://readthedocs.org/projects/emaworkbench/badge/?version=latest)](http://emaworkbench.readthedocs.org/en/latest/?badge=latest)
 
 
