@@ -152,6 +152,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+*checkpoint.ipynb
 
 # Installer logs
 pip-log.txt
