@@ -11,6 +11,7 @@ import numbers
 import warnings
 
 from .util import NamedObject
+from ema_workbench.em_framework.util import NamedDict
 
 # Created on Jul 14, 2016
 #
@@ -245,6 +246,19 @@ class CategoricalParameter(IntegerParameter):
         warnings.warn('deprecated, use index_for_cat instead')
         
         return self.index_for_cat(name)
-    
 
+class Policy(NamedDict):
+    pass
 
+class Scenario(NamedDict):
+    pass
+
+class Experiment(NamedObject):
+
+    def __init__(self, name, model, policy, experiment_id, **kwargs):
+        super(Experiment, self).__init__(name)
+        
+        self.policy = policy
+        self.model = model
+        self.experiment_id = experiment_id
+        self.scenario = Scenario(name, **kwargs)

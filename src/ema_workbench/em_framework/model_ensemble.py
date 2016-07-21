@@ -25,10 +25,14 @@ import itertools
 import os
 import six
 
+from .parameters import Policy, Experiment
 from .samplers import FullFactorialSampler, LHSSampler
 from .callbacks import DefaultCallback
 from .experiment_runner import ExperimentRunner
 from .ema_parallel import MultiprocessingPool
+from ema_workbench.em_framework.util import NamedObjectMap
+
+
 from ..util import info, debug, EMAError
 
 # Created on 23 dec. 2010
@@ -90,20 +94,16 @@ class ModelEnsemble(object):
         super(ModelEnsemble, self).__init__()
         self._policies = []
         self._msis = {}
-        self._policies = {'None': {'name':'None'}}
+        self._policies = NamedObjectMap(Policy)
         self.sampler = sampler
 
     @property
     def policies(self):
-        return self._policies.values()
+        return self._policies
    
     @policies.setter
     def policies(self, policies):
-        try:
-            self._policies = {policy['name']:policy for policy in policies}
-        except TypeError:
-            # it probably is a single policy
-            self._policies = {policies['name']:policies}
+        self.policies.extend(policies)
    
     @property
     def model_structures(self):
@@ -213,8 +213,10 @@ class ModelEnsemble(object):
         >>> util.save_results(results, filename)
 
         """
-        return_val = self._generate_experiments(cases, which_uncertainties)
+        if len(self.policies) ==0: # TODO: we need is none,or equivalent working on NamedObjectMap
+            self.policies = [Policy('none')]
         
+        return_val = self._generate_experiments(cases, which_uncertainties)
         experiments, nr_of_exp, uncertainties = return_val
         # identify the outcomes that are to be included
         overview_dict, element_dict = self._determine_unique_attributes("outcomes")
@@ -387,7 +389,6 @@ def experiment_generator(designs, model_structures, policies):
     the running the first policy on the first model. 
     
     '''
-    
     job_counter = itertools.count()
     
     for msi in model_structures:
@@ -395,17 +396,16 @@ def experiment_generator(designs, model_structures, policies):
         msi_uncs = {unc.name for unc in msi.uncertainties}
         
         for policy in policies:
-            debug("generating designs for policy %s" % (policy['name']))
+            debug("generating designs for policy %s" % (policy.name))
             
             for design in designs:
                 # from the design only get the uncertainties that 
                 # are valid for the current msi
                 keys = set(design.keys()).intersection(msi_uncs)
-                experiment = {unc:design[unc] for unc in keys}
                 
-                # complete the design by adding the policy, model name
-                # and experiment id to it
-                experiment['policy'] = policy
-                experiment['model'] = msi.name
-                experiment['experiment id'] = six.next(job_counter)
+                experiment = {unc:design[unc] for unc in keys}
+                experiment_id =  six.next(job_counter)
+                name = '{} {} {}'.format(msi.name, policy.name, experiment_id)
+                experiment = Experiment(name, msi, policy, experiment_id, 
+                                        **experiment)
                 yield experiment

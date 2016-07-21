@@ -5,6 +5,7 @@ Module for outcome classes
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import abc
+import six
 import warnings
 
 import pandas
@@ -129,35 +130,32 @@ class TimeSeriesOutcome(AbstractOutcome):
         self.reduce = reduce
         
 
-def create_outcomes(outcomes):
+def create_outcomes(outcomes, **kwargs):
     '''Helper function for creating multiple outcomes
     
     Parameters
     ----------
-    outcomes : str, list of dict, or dataframe
-               if str, should be path to csv file
-               each entry should specify name and the type, where type
-               is 'scalar' or 'timeseries'
+    outcomes : Dataframe, or something convertable to a dataframe
+               in case of string, the string will be paased
     
+    Returns
+    -------
+    list
     
     '''
-    
-    [{'name':'a', 'type':'scalar'}]
-    [('a','scalar')('b', 'timeseries')]
-    {'a':'scalar', 'b':'time_series'}
-    
-    if isinstance(outcomes, list):
-        outcomes = {str(i):entry for i, entry in enumerate(outcomes)}
-        outcomes = pandas.DataFrame.from_dict(outcomes)
-    elif isinstance(outcomes, str):
-        outcomes = pandas.read_csv(outcomes)
+
+    if isinstance(outcomes, six.string_types):
+        outcomes = pandas.read_csv(outcomes, **kwargs)
     elif not isinstance(outcomes, pandas.DataFrame):
-        raise ValueError('unable to convert outcomes to a dataframe')
+        outcomes = pandas.DataFrame.from_dict(outcomes)
+        
+    for entry, correct in zip(outcomes.columns, ['name', 'type']):
+        outcomes = outcomes.rename(columns={entry:correct})
     
     temp_outcomes = []
-    for _, row in outcomes.iteritems():
-        name = row.ix['name']
-        kind = row.ix['type']
+    for _, row in outcomes.iterrows():
+        name = row['name']
+        kind = row['type']
         
         if kind=='scalar':
             outcome = ScalarOutcome(name)
@@ -167,4 +165,3 @@ def create_outcomes(outcomes):
             raise ValueError('unknown type for '+name)
         temp_outcomes.append(outcome)
     return temp_outcomes
-        

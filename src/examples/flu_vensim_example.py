@@ -10,6 +10,7 @@ is the same as used in fluExample
 '''
 from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty,
                                         TimeSeriesOutcome)
+from ema_workbench.em_framework.parameters import Policy
 from ema_workbench.util import ema_logging
 from ema_workbench.connectors.vensim import VensimModelStructureInterface 
 
@@ -71,12 +72,12 @@ if __name__ == '__main__':
     ensemble.parallel = True #turn on parallel processing
 
     #add policies
-    policies = [{'name': 'no policy',
-                 'model_file': r'\FLUvensimV1basecase.vpm'},
-                {'name': 'static policy',
-                 'model_file': r'\FLUvensimV1static.vpm'},
-                {'name': 'adaptive policy',
-                 'model_file': r'\FLUvensimV1dynamic.vpm'}
+    policies = [Policy('no policy',
+                       model_file=r'\FLUvensimV1basecase.vpm'),
+                Policy('static policy',
+                       model_file=r'\FLUvensimV1static.vpm'),
+                Policy('adaptive policy',
+                       model_file=r'\FLUvensimV1dynamic.vpm')
                 ]
     ensemble.policies = policies
     

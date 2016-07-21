@@ -16,7 +16,7 @@ from scipy.optimize import brentq as root
 from ema_workbench.em_framework import (ModelEnsemble, Model, RealParameter, 
                                         ScalarOutcome)
 from ema_workbench.util import ema_logging
-from ema_workbench.em_framework.parameters import Constant
+from ema_workbench.em_framework.parameters import Constant, Policy
 
 def lake_problem(decisions=[],
          b = 0.42,          # decay rate for P in lake (0.42 = irreversible)
@@ -80,8 +80,7 @@ if __name__ == '__main__':
     ensemble = ModelEnsemble() #instantiate an ensemble
     ensemble.model_structure = model #set the model on the ensemble
     ensemble.parallel = True
-    ensemble.policies = [ {'name':'0.01', 
-                           'decisions' : [0.01,]*100} ]
+    ensemble.policies = [ Policy('0.01', decisions=[0.01,]*100) ]
     
     #run 1000 experiments
     results = ensemble.perform_experiments(150, reporting_interval=10) 

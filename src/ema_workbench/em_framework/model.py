@@ -116,9 +116,6 @@ class AbstractModel(NamedObject):
         self._outcomes = NamedObjectMap(AbstractOutcome)
         self._constants = NamedObjectMap(Constant)
         
-    @property
-
-    
     def model_init(self, policy, kwargs):
         '''
         Method called to initialize the model.
@@ -146,11 +143,6 @@ class AbstractModel(NamedObject):
         directory of the worker
          
         '''
-        try:
-            policy.pop('name')
-        except KeyError:
-            pass
-        
         self.policy = policy
 
     
@@ -316,10 +308,5 @@ class FileModel(AbstractModel):
         self.working_directory = wd
 
     def model_init(self, policy, kwargs):
-        AbstractModel.model_init(self, policy, kwargs)
-        
-        try:
-            self.model_file = self.policy.pop('model_file')
-        except KeyError:
-            pass        
+        AbstractModel.model_init(self, policy, kwargs)   
 

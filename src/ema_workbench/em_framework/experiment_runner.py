@@ -74,10 +74,10 @@ class ExperimentRunner(object):
         
         '''
         
-        policy = experiment.pop('policy')
-        model_name = experiment.pop('model')
-        experiment_id = experiment.pop('experiment id')
-        policy_name = policy['name']
+        policy = experiment.policy
+        model_name = experiment.model.name
+        experiment_id = experiment.experiment_id
+        policy_name = policy.name
         
         ema_logging.debug("running policy {} for experiment {}".format(policy_name, 
                                                            experiment_id))
@@ -89,8 +89,11 @@ class ExperimentRunner(object):
                 ema_logging.debug("invoking model init")
                 msi = self.msis[model_name]
                 
-                msi.model_init(copy.deepcopy(policy), 
-                                     copy.deepcopy(self.model_kwargs))
+                policy = copy.deepcopy(policy)
+                model_kwargs = copy.deepcopy(self.model_kwargs)
+                
+                msi.model_init(policy, 
+                               model_kwargs)
             except EMAError as inst:
                 ema_logging.exception(inst)
                 self.cleanup()
@@ -106,7 +109,7 @@ class ExperimentRunner(object):
             self.msi_initialization = {(policy_name, model_name):self.msis[model_name]}
         msi = self.msis[model_name]
 
-        case = copy.deepcopy(experiment)
+        case = copy.deepcopy(experiment.scenario)
         try:
             ema_logging.debug("trying to run model")
             msi.run_model(case)
@@ -120,4 +123,4 @@ class ExperimentRunner(object):
         
         ema_logging.debug("trying to reset model")
         msi.reset_model()
-        return experiment_id, experiment, policy, model_name, result      
+        return experiment_id, experiment.scenario, policy, model_name, result      
