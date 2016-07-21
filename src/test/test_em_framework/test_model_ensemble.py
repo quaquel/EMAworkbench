@@ -17,6 +17,7 @@ from ema_workbench.em_framework import (Model, RealParameter,
                                         TimeSeriesOutcome)
 from ema_workbench.util.ema_exceptions import EMAError
 from ema_workbench.em_framework.callbacks import DefaultCallback
+from ema_workbench.em_framework.parameters import Policy
 
 class DummyInterface(Model):
     def model_init(self, policy, kwargs):
@@ -31,12 +32,12 @@ class ModelEnsembleTestCase(unittest.TestCase):
     def test_policies(self):
         ensemble = ModelEnsemble()
         
-        policy = {'name': 'test'}
+        policy = Policy('test')
         ensemble.policies = policy
         
         ensemble = ModelEnsemble()
         
-        policies = [{'name': 'test'}, {'name': 'test2'}]
+        policies = [Policy('test'), Policy('name')]
         ensemble.policies = policies
         
     def test_model_structures(self):
@@ -71,6 +72,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
         
         ensemble = ModelEnsemble()
         ensemble.model_structures = [model_a, model_b, model_c]
+        ensemble.policies =[Policy('none')]
         experiments, nr_of_exp, uncertainties = ensemble._generate_experiments(10, UNION )
         
         msg = 'testing UNION'
@@ -84,14 +86,13 @@ class ModelEnsembleTestCase(unittest.TestCase):
         self.assertEqual(nr_of_exp, 10* len(ensemble.model_structures), msg)
         
         for experiment in experiments:
-            self.assertIn('policy', experiment.keys(), msg)
-            self.assertIn('model', experiment.keys(), msg)
-            self.assertIn('experiment id', experiment.keys(), msg)
+            self.assertEqual(experiment.policy.name, 'none', msg)
+            self.assertIn(experiment.model.name, ["A", "B", "C"], msg)
             
-            model = ensemble._msis[experiment['model']]
+            model = experiment.model
             for unc in model.uncertainties:
-                self.assertIn(unc.name, experiment.keys())
-            self.assertEqual(len(experiment.keys()), len(model.uncertainties)+3)
+                self.assertIn(unc.name, experiment.scenario.keys())
+            self.assertEqual(len(experiment.scenario.keys()), len(model.uncertainties))
             
 
         experiments, nr_of_exp, uncertainties = ensemble._generate_experiments(10, INTERSECTION )
@@ -106,22 +107,16 @@ class ModelEnsembleTestCase(unittest.TestCase):
         self.assertNotIn(b_1, uncertainties, msg)          
         
         self.assertEqual(nr_of_exp, 10* len(ensemble.model_structures), msg)
-        experiment = six.next(experiments)
-        self.assertIn('policy', experiment.keys(), msg)
-        self.assertIn('model', experiment.keys(), msg)
-        self.assertIn('experiment id', experiment.keys(), msg)
-
 
         for experiment in experiments:
-            self.assertIn('policy', experiment.keys(), msg)
-            self.assertIn('model', experiment.keys(), msg)
-            self.assertIn('experiment id', experiment.keys(), msg)
-            
-            model = ensemble._msis[experiment['model']]
+            self.assertEqual(experiment.policy.name, 'none', msg)
+            self.assertIn(experiment.model.name, ["A", "B", "C"], msg)
+                        
+            model = experiment.model
             for unc in [shared_abc_1, shared_abc_2]:
-                self.assertIn(unc.name, experiment.keys())
-            self.assertNotEqual(len(experiment.keys()), len(model.uncertainties)+3)
-            self.assertEqual(len(experiment.keys()), 5)
+                self.assertIn(unc.name, experiment.scenario.keys())
+            self.assertNotEqual(len(experiment.scenario.keys()), len(model.uncertainties))
+            self.assertEqual(len(experiment.scenario.keys()), 2)
             
             
         # predefined experiments
@@ -134,6 +129,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
         a_1 = RealParameter("a 1", 0, 1)
         model_a.uncertainties = [shared_abc_1, shared_abc_2, shared_ab_1, a_1]
         ensemble = ModelEnsemble()
+        ensemble.policies = [Policy('none')]
         ensemble.model_structure = model_a
         
         cases = [{"shared abc 1":1, "shared abc 2":2, "shared ab 1":3, "a 1": 4}]
@@ -223,6 +219,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
         
         ensemble = ModelEnsemble()
         ensemble.model_structures = [model_a, model_b, model_c]
+        ensemble.policies = [Policy('None')]
         
         ensemble.perform_experiments(10, which_uncertainties=UNION, 
                                          which_outcomes=UNION,
@@ -289,9 +286,9 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_b.uncertainties = [shared_abc_1, shared_abc_2, unique_b]
         model_structures = [model_a, model_b]
         
-        policies = [{'name':'policy 1'},
-                    {'name':'policy 2'},
-                    {'name':'policy 3'},]
+        policies = [Policy('policy 1'),
+                    Policy('policy 2'),
+                    Policy('policy 3')]
         
         gen = experiment_generator(designs, model_structures, policies)
         

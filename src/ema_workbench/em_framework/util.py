@@ -5,7 +5,8 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
-from collections import OrderedDict
+from collections import OrderedDict, MutableMapping
+
 import six
 
 from ..util import EMAError
@@ -92,6 +93,34 @@ class NamedObjectMap(object):
      
     def keys(self):
         return self._data.keys()
+    
+
+class NamedDict(NamedObject, MutableMapping):
+    
+    def __init__(self, name=None, **kwargs):
+        self._dict = dict(**kwargs)
+        
+        if name is None:
+            name = repr(self._dict)
+        
+        super(NamedDict, self).__init__(name)
+        
+        
+    def __getitem__(self, key):
+        return self._dict[key]
+
+    def __setitem__(self, key, value):
+        self._dict[key] = value
+    
+    def __delitem__(self, key):
+        del self._dict[key]
+        
+    def __iter__(self):
+        return iter(self._dict)
+    
+    def __len__(self):
+        return len(self._dict)
+
     
 def combine(*args):
     '''combine scenario and policy into a single experiment dict

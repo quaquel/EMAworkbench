@@ -15,6 +15,7 @@ import unittest
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
 from ema_workbench.em_framework.model import Model
 from ema_workbench.util import EMAError, CaseError
+from ema_workbench.em_framework.parameters import Policy, Experiment
 
 
 class MockMSI(Model):
@@ -47,15 +48,15 @@ class ExperimentRunnerTestCase(unittest.TestCase):
 
         runner = ExperimentRunner(msis, {})
         
-        experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
-                      'experiment id': 0}
+        experiment = Experiment('test',model=mockMSI,policy=Policy('none'),  
+                      experiment_id=0, a=1, b=2)
         
         runner.run_experiment(experiment)
 
         self.assertEqual({('none', 'test'):mockMSI},runner.msi_initialization)
         
         mockMSI.run_model.assert_called_once_with({'a':1, 'b':2})
-        mockMSI.model_init.assert_called_once_with({'name':'none'}, {})
+        mockMSI.model_init.assert_called_once_with(Policy('none'), {})
         mockMSI.retrieve_output.assert_called_once_with()
         mockMSI.reset_model.assert_called_once_with()
         
@@ -67,8 +68,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         msis = {'test':mockMSI}
         runner = ExperimentRunner(msis, {})
     
-        experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
-              'experiment id': 0}
+        experiment = Experiment('test',model=mockMSI,policy=Policy('none'),  
+                                experiment_id=0, a=1, b=2)
         self.assertRaises(EMAError, runner.run_experiment, experiment)
 
         # assert raises exception
@@ -89,8 +90,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         msis = {'test':mockMSI}
         runner = ExperimentRunner(msis, {})
     
-        experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
-              'experiment id': 0}
+        experiment = Experiment('test',model=mockMSI,policy=Policy('none'),  
+                      experiment_id=0, a=1, b=2)
 
         runner.run_experiment(experiment)
         
