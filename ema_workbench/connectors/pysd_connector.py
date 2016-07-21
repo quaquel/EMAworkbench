@@ -3,7 +3,7 @@ from ..em_framework import (ModelStructureInterface, Outcome,
 import pysd
 
 
-class PySDInterface(ModelStructureInterface):
+class PySDConnector(ModelStructureInterface):
 
     def __init__(self, mdl_file, uncertainties_dict=None, outcomes_list=None,
                  working_directory=None, name=None):
@@ -43,7 +43,7 @@ class PySDInterface(ModelStructureInterface):
         self.model = pysd.read_vensim(mdl_file)
         # Todo: replace when pysd adds an attribute for the .py filename
         self.py_model_name = mdl_file.replace('.mdl', '.py')
-        super(PySDInterface, self).__init__(working_directory, name)
+        super(PySDConnector, self).__init__(working_directory, name)
 
     def model_init(self, policy, kwargs):
         # Todo: need to see what the arguments to this function should do

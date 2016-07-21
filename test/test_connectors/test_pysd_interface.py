@@ -3,7 +3,7 @@ import unittest
 from ema_workbench.em_framework import ModelEnsemble
 
 
-class TestPySDInterface(unittest.TestCase):
+class TestPySDConnector(unittest.TestCase):
 
     def test_connector_basic(self):
         """
@@ -12,9 +12,9 @@ class TestPySDInterface(unittest.TestCase):
         -------
 
         """
-        from ema_workbench.connectors.pysd_interface import PySDInterface
-        model = PySDInterface('../models/Teacup.mdl')
-        #Todo: add some checks
+        from ema_workbench.connectors import PySDConnector
+        model = PySDConnector('../models/Teacup.mdl')
+        self.assertIsInstance(model, PySDConnector)
 
     def test_add_uncertainties(self):
         """
@@ -23,8 +23,8 @@ class TestPySDInterface(unittest.TestCase):
         -------
 
         """
-        from ema_workbench.connectors.pysd_interface import PySDInterface
-        model = PySDInterface('../models/Teacup.mdl',
+        from ema_workbench.connectors import PySDConnector
+        model = PySDConnector('../models/Teacup.mdl',
                               uncertainties_dict={'Room Temperature': (33, 120)})
 
         ensemble = ModelEnsemble()  # instantiate an ensemble
@@ -40,8 +40,8 @@ class TestPySDInterface(unittest.TestCase):
 
 
     def test_add_outcomes(self):
-        from ema_workbench.connectors.pysd_interface import PySDInterface
-        model = PySDInterface('../models/Teacup.mdl',
+        from ema_workbench.connectors import PySDConnector
+        model = PySDConnector('../models/Teacup.mdl',
                               uncertainties_dict={'Room Temperature': (33, 120)},
                               outcomes_list=['Teacup Temperature'])
 
@@ -64,8 +64,8 @@ class TestPySDInterface(unittest.TestCase):
         -------
 
         """
-        from ema_workbench.connectors.pysd_interface import PySDInterface
-        model = PySDInterface('../models/Teacup.mdl',
+        from ema_workbench.connectors import PySDConnector
+        model = PySDConnector('../models/Teacup.mdl',
                               uncertainties_dict={'Room Temperature': (33, 120)},
                               outcomes_list=['Teacup Temperature'])
 
@@ -81,13 +81,13 @@ class TestPySDInterface(unittest.TestCase):
         -------
 
         """
-        from ema_workbench.connectors.pysd_interface import PySDInterface
-        market_model = PySDInterface('../models/Sales_Agent_Market_Building_Dynamics.mdl',
+        from ema_workbench.connectors import PySDConnector
+        market_model = PySDConnector('../models/Sales_Agent_Market_Building_Dynamics.mdl',
                                      uncertainties_dict={'Startup Subsidy': (0, 3),
                                                          'Startup Subsidy Length': (0, 10)},
                                      outcomes_list=['Still Employed'])
 
-        motivation_model = PySDInterface('../models/Sales_Agent_Market_Building_Dynamics.mdl',
+        motivation_model = PySDConnector('../models/Sales_Agent_Market_Building_Dynamics.mdl',
                                          uncertainties_dict={'Startup Subsidy': (0, 3),
                                                              'Startup Subsidy Length': (0, 10)},
                                          outcomes_list=['Still Employed'])
