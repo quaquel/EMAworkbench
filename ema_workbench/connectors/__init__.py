@@ -13,4 +13,10 @@ try:
     import netlogo
 except ImportError:
     sys.stderr.write("netlogo connector not available\n")
+
+try:
+    from pysd_connector import PySDConnector
+except ImportError:
+    sys.stderr.write("PySD library not installed\n")
+
 del sys
