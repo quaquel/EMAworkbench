@@ -5,8 +5,17 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
+
 from collections import OrderedDict, MutableMapping
 
+try:
+    # we assume python 2
+    from collections import MutableMapping
+except ImportError:
+    # so it must by python 3
+    from collections.abc import MutableMapping
+
+import copy
 import six
 
 from ..util import EMAError
@@ -139,7 +148,7 @@ def combine(*args):
     EMAError 
         if a keyword argument exists in more than one dict
     '''
-    experiment = args[0].copy()
+    experiment = copy.copy(args[0])
     for entry in args[1::]:
         overlap = set(experiment.keys()).intersection(set(entry.keys()))
         if overlap:

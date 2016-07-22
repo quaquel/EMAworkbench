@@ -77,7 +77,7 @@ def worker(inqueue,
             break
 
         _, experiment = task
-        experiment_id = experiment.get('experiment id')
+        experiment_id = experiment.experiment_id
 
         try:
             result = runner.run_experiment(experiment)

@@ -109,7 +109,7 @@ class AbstractSampler(object):
             
             if isinstance(param, CategoricalParameter):
                 # TODO look into numpy ufunc
-                sample = [param.transform(int(entry)) for entry in sample]
+                sample = [param.cat_for_index(int(entry)) for entry in sample]
             elif isinstance(param, IntegerParameter):
                 sample = (int(entry) for entry in sample)
             
@@ -144,28 +144,31 @@ class AbstractSampler(object):
         sampled_parameters = self.generate_samples(parameters, nr_samples)
         params = sorted(sampled_parameters.keys())
         designs = DefaultDesigns(sampled_parameters, params)
-        return designs, self.determine_nr_of_designs(sampled_parameters)
+        
+#         assert nr_samples == self.determine_nr_of_designs(sampled_parameters)
+        
+        return designs, nr_samples
 
-    def determine_nr_of_designs(self, sampled_parameters):
-        '''
-        Helper function for determining the number of experiments that will
-        be generated given the sampled parameters.
-        
-        Parameters
-        ----------
-        sampled_parameters : list 
-                        a list of sampled parameters, Typically,
-                        this will be the values of the dict returned by
-                        :meth:`generate_samples`. 
-        
-        Returns
-        -------
-        int
-            the total number of experimental design
-        
-        '''
-        
-        return len(next(iter(sampled_parameters.values())))
+#     def determine_nr_of_designs(self, sampled_parameters):
+#         '''
+#         Helper function for determining the number of experiments that will
+#         be generated given the sampled parameters.
+#         
+#         Parameters
+#         ----------
+#         sampled_parameters : list 
+#                         a list of sampled parameters, Typically,
+#                         this will be the values of the dict returned by
+#                         :meth:`generate_samples`. 
+#         
+#         Returns
+#         -------
+#         int
+#             the total number of experimental design
+#         
+#         '''
+#         
+#         return len(next(iter(sampled_parameters.values())))
 
 
 class LHSSampler(AbstractSampler):

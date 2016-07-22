@@ -1,3 +1,7 @@
+
+from __future__ import (absolute_import, print_function, unicode_literals, 
+                        division)
+
 import sys
 import os
 import glob
@@ -41,10 +45,10 @@ def run_exectests(test_dir, log_path='exectests.log'):
                     failed.append(fname)
                     pass
 
-    print ">> Passed %i/%i tests: " %(len(passed), len(test_files))
-    print "Passed: " + ', '.join(passed)
-    print "Failed: " + ', '.join(failed)
-    print "See %s for details" % log_path
+    print(">> Passed %i/%i tests: " %(len(passed), len(test_files)))
+    print("Passed: " + ', '.join(passed))
+    print("Failed: " + ', '.join(failed))
+    print("See %s for details" % log_path)
 
     return passed, failed
 

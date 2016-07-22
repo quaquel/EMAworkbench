@@ -7,11 +7,14 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import multiprocessing
+import sys
+from ema_workbench.em_framework.parameters import Experiment, Policy
 
 try:
     import unittest.mock as mock
 except ImportError:
     import mock
+    
 import unittest
 import time
 import threading
@@ -74,8 +77,14 @@ class WorkerTestCase(unittest.TestCase):
     @mock.patch('ema_workbench.em_framework.ema_parallel_multiprocessing.ExperimentRunner')
     @mock.patch('ema_workbench.em_framework.ema_parallel_multiprocessing.ema_logging')
     def test_worker(self, mocked_logging, mocked_runner):
-        mocked_inqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
-        mocked_outqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
+        
+        if sys.version_info[0] < 3:
+            mocked_inqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
+            mocked_outqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
+        else:
+            mocked_inqueue = mock.Mock(multiprocessing.SimpleQueue())
+            mocked_outqueue = mock.Mock(multiprocessing.SimpleQueue())
+
         
         mockMSI = mock.Mock(spec=MockMSI('test', ''))
         
@@ -105,7 +114,7 @@ class WorkerTestCase(unittest.TestCase):
         #     - exception
 
         # setup of test, we get a normal case 
-        experiment = {'experiment id':0}
+        experiment = Experiment('try', mockMSI, Policy('none'), 0, a=1)
         mocked_inqueue.get.return_value = (0, experiment)
         mocked_inqueue.get.side_effect = None        
         
@@ -128,7 +137,7 @@ class WorkerTestCase(unittest.TestCase):
         mocked_runner().reset_mock()
         
         # running experiment raises EMAError
-        experiment = {'experiment id':0}
+        experiment = Experiment('try', mockMSI, Policy('none'), 0, a=1)
         mocked_inqueue.get.return_value = (0, experiment)
         mocked_inqueue.get.side_effect = None   
         
@@ -151,7 +160,7 @@ class WorkerTestCase(unittest.TestCase):
         
 
         # running experiment works fine
-        experiment = {'experiment id':0}
+        experiment = Experiment('try', mockMSI, Policy('none'), 0, a=1)
         mocked_inqueue.get.return_value = (0, experiment)
         mocked_inqueue.get.side_effect = None   
         mocked_runner().run_experiment.side_effect = None
