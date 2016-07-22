@@ -55,7 +55,7 @@ class PrimBoxTestCase(unittest.TestCase):
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        self.assertTrue(box.peeling_trajectory.shape==(1,5))
+        self.assertEqual(box.peeling_trajectory.shape, (1,5))
     
     def test_select(self):
         x = np.array([(0,1,2),
@@ -439,12 +439,12 @@ class PrimTestCase(unittest.TestCase):
         x = x
         peels = prim_obj._categorical_peel(box, u, x)
         
-        self.assertEquals(len(peels), 2)
+        self.assertEqual(len(peels), 2)
         
         for peel in peels:
             pl  = peel[1][u]
-            self.assertEquals(len(pl[0]), 1)
-            self.assertEquals(len(pl[1]), 1)
+            self.assertEqual(len(pl[0]), 1)
+            self.assertEqual(len(pl[1]), 1)
         
 
     def test_categorical_paste(self):
@@ -470,12 +470,12 @@ class PrimTestCase(unittest.TestCase):
         u = 'b'
         pastes = prim_obj._categorical_paste(box, u)
         
-        self.assertEquals(len(pastes), 1)
+        self.assertEqual(len(pastes), 1)
         
         for paste in pastes:
             indices, box_lims = paste
             
-            self.assertEquals(indices.shape[0], 10)
+            self.assertEqual(indices.shape[0], 10)
             self.assertEqual(box_lims[u][0], set(['a','b']))
 
 if __name__ == '__main__':

@@ -17,7 +17,8 @@ from ema_workbench.em_framework.util import NamedDict
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['Parameter','RealParameter', 'IntegerParameter', 'CategoricalParameter']
+__all__ = ['Parameter','RealParameter', 'IntegerParameter',
+           'CategoricalParameter']
 
 
 class Constant(NamedObject):

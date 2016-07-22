@@ -11,7 +11,6 @@ try:
 except ImportError:
     import mock
 
-import nose
 import os
 import socket
 import time

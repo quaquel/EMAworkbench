@@ -7,6 +7,8 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import unittest
+import sys
+
 
 from ema_workbench.util.ema_exceptions import EMAError, CaseError
 
@@ -19,13 +21,17 @@ class TestEMAError(unittest.TestCase):
         
         error = EMAError('a message', 'another message')
 
-        self.assertEqual(str(error), str("(u'a message', u'another message')"))
-
+        if sys.version_info[0] < 3:
+            self.assertEqual(str(error), str("(u'a message', u'another message')"))
+        else: 
+            self.assertEqual(str(error), str("('a message', 'another message')"))
 
 class TestCaseError(unittest.TestCase):
     def test(self):
         error = CaseError('a message', {'a':1, 'b':2})
+
         self.assertEqual(str(error), "a message case: {a:1, b:2, policy:not specified}")
+        
 
 
 if __name__ == "__main__":
