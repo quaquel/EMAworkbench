@@ -5,6 +5,7 @@ Created on Aug 11, 2015
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+from ema_workbench.em_framework.util import NamedObjectMap
 
 try:
     import unittest.mock as mock
@@ -13,7 +14,7 @@ except ImportError:
 import unittest
 
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
-from ema_workbench.em_framework.model import Model
+from ema_workbench.em_framework.model import Model, AbstractModel
 from ema_workbench.util import EMAError, CaseError
 from ema_workbench.em_framework.parameters import Policy, Experiment
 
@@ -44,7 +45,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         mockMSI = mock.Mock(spec=MockMSI)
         mockMSI.name = 'test'
         
-        msis = {'test':mockMSI}
+        msis = NamedObjectMap(AbstractModel)
+        msis['test'] = mockMSI
 
         runner = ExperimentRunner(msis, {})
         
@@ -65,7 +67,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         mockMSI.name = 'test'
         mockMSI.model_init.side_effect = EMAError("message")
         
-        msis = {'test':mockMSI}
+        msis = NamedObjectMap(AbstractModel)
+        msis['test'] = mockMSI
         runner = ExperimentRunner(msis, {})
     
         experiment = Experiment('test',model=mockMSI,policy=Policy('none'),  
@@ -76,7 +79,10 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         mockMSI = mock.Mock(spec=MockMSI)
         mockMSI.name = 'test'
         mockMSI.model_init.side_effect = Exception("message")
-        msis = {'test':mockMSI}
+        
+        msis = NamedObjectMap(AbstractModel)
+        msis['test'] = mockMSI
+        
         runner = ExperimentRunner(msis, {})
     
         experiment = {'a':1, 'b':2, 'policy':{'name':'none'}, 'model':'test', 
@@ -87,7 +93,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         mockMSI = mock.Mock(spec=MockMSI)
         mockMSI.name = 'test'
         mockMSI.run_model.side_effect = CaseError("message", {})
-        msis = {'test':mockMSI}
+        msis = NamedObjectMap(AbstractModel)
+        msis['test'] = mockMSI
         runner = ExperimentRunner(msis, {})
     
         experiment = Experiment('test',model=mockMSI,policy=Policy('none'),  

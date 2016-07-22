@@ -1,12 +1,20 @@
-from ..em_framework import (ModelStructureInterface, Outcome,
-                            ParameterUncertainty)
+'''
+pysd connector
+'''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 import pysd
+import os
+
+from ..em_framework.model import FileModel
+from ..em_framework.outcomes import TimeSeriesOutcome
+from ema_workbench.em_framework.model import AbstractModel
 
 
-class PySDConnector(ModelStructureInterface):
+class PySDConnector(AbstractModel):
 
-    def __init__(self, mdl_file, uncertainties_dict=None, outcomes_list=None,
-                 working_directory=None, name=None):
+    def __init__(self, name=None, mdl_file=None):
         """
 
         Parameters
@@ -22,32 +30,19 @@ class PySDConnector(ModelStructureInterface):
         working_directory
         name
         """
-
+        if not mdl_file.endswith('.mdl'):
+            raise ValueError('model file needs to be a vensim .mdl file')
         if name is None:
             name = pysd.utils.make_python_identifier(mdl_file)[0].replace('_','')
+        
+        super(PySDConnector, self).__init__(name)
+#         self.outcomes = (TimeSeriesOutcome('TIME'))
 
-        if uncertainties_dict is not None:
-            self.uncertainties = [ParameterUncertainty(val, key) for
-                                  key, val in uncertainties_dict.iteritems()]
-        else:
-            self.uncertainties = []
-
-        if outcomes_list is not None:
-            self.outcomes = [Outcome(key, time=True) for
-                             key in outcomes_list]
-        else:
-            self.outcomes = []
-
-        self.outcomes.append(Outcome('TIME', time=True))
-
-        self.model = pysd.read_vensim(mdl_file)
+        self.mdl_file = mdl_file
+        self.model = pysd.read_vensim(os.path.abspath(self.mdl_file))
         # Todo: replace when pysd adds an attribute for the .py filename
         self.py_model_name = mdl_file.replace('.mdl', '.py')
-        super(PySDConnector, self).__init__(working_directory, name)
 
-    def model_init(self, policy, kwargs):
-        # Todo: need to see what the arguments to this function should do
-        pass
 
     def run_model(self, kwargs):
         res = self.model.run(params=kwargs,

@@ -44,7 +44,7 @@ class ExperimentRunner(object):
         self.model_kwargs = model_kwargs
     
     def cleanup(self):
-        for msi in self.msis.values():
+        for msi in self.msis:
             msi.cleanup()
         self.msis = None
     
@@ -75,7 +75,7 @@ class ExperimentRunner(object):
         '''
         
         policy = experiment.policy
-        model_name = experiment.model.name
+        model_name = experiment.model
         experiment_id = experiment.experiment_id
         policy_name = policy.name
         
@@ -87,7 +87,7 @@ class ExperimentRunner(object):
         if not (policy_name, model_name) in self.msi_initialization.keys():
             try:
                 ema_logging.debug("invoking model init")
-                msi = self.msis[model_name]
+                msi = self.msis._data[model_name] # dirty hack
                 
                 policy = copy.deepcopy(policy)
                 model_kwargs = copy.deepcopy(self.model_kwargs)
