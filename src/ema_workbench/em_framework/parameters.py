@@ -260,6 +260,6 @@ class Experiment(NamedObject):
         super(Experiment, self).__init__(name)
         
         self.policy = policy
-        self.model = model
+        self.model = model.name
         self.experiment_id = experiment_id
         self.scenario = Scenario(name, **kwargs)

@@ -15,7 +15,6 @@ the _logger in ema_logging to refer to the logger for its particular subprocess
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-import copy
 import io
 import itertools
 import logging
@@ -62,8 +61,8 @@ def worker(inqueue,
         inqueue._writer.close()
         outqueue._reader.close()
     
-    msis = {msi.name: msi for msi in model_interfaces}
-    runner = ExperimentRunner(msis, model_kwargs)
+#     msis = {msi.name: msi for msi in model_interfaces}
+    runner = ExperimentRunner(model_interfaces, model_kwargs)
 
     while 1:
         try:
@@ -393,7 +392,7 @@ class CalculatorPool(pool.Pool):
         '''
         assert self._state == pool.RUN
         result = EMAApplyResult(self._cache, callback, event)
-        self._taskqueue.put((result._job, copy.deepcopy(experiment)))
+        self._taskqueue.put((result._job, experiment))
 
     @classmethod
     def _terminate_pool(cls, 

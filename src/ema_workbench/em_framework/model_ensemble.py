@@ -34,6 +34,7 @@ from ema_workbench.em_framework.util import NamedObjectMap
 
 
 from ..util import info, debug, EMAError
+from ema_workbench.em_framework.model import AbstractModel
 
 # Created on 23 dec. 2010
 # 
@@ -93,7 +94,7 @@ class ModelEnsemble(object):
     def __init__(self, sampler=LHSSampler()):
         super(ModelEnsemble, self).__init__()
         self._policies = []
-        self._msis = {}
+        self._model_structures = NamedObjectMap(AbstractModel)
         self._policies = NamedObjectMap(Policy)
         self.sampler = sampler
 
@@ -107,11 +108,11 @@ class ModelEnsemble(object):
    
     @property
     def model_structures(self):
-        return self._msis.values()
+        return self._model_structures
     
     @model_structures.setter
     def model_structures(self, msis):
-        self._msis = {msi.name:msi for msi in msis}
+        self._model_structures.extend(msis)
     
     @property
     def model_structure(self):
@@ -251,7 +252,7 @@ class ModelEnsemble(object):
             info("starting to perform experiments sequentially")
             
             cwd = os.getcwd() 
-            runner = ExperimentRunner(self._msis, model_kwargs)
+            runner = ExperimentRunner(self.model_structures, model_kwargs)
             for experiment in experiments:
                 experiment_id, case, policy, model_name, result = runner.run_experiment(experiment)
                 callback(experiment_id, case, policy, model_name, result)
