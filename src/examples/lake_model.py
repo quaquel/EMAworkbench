@@ -84,3 +84,5 @@ if __name__ == '__main__':
     
     #run 1000 experiments
     results = ensemble.perform_experiments(150, reporting_interval=10) 
+    
+    print( results[1].keys())
