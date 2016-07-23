@@ -8,6 +8,7 @@ from __future__ import (absolute_import, print_function, division,
 import copy
 
 from ..util import ema_logging, EMAError, CaseError
+from pickle import PicklingError
 
 # Created on Aug 11, 2015
 # 
@@ -120,7 +121,10 @@ class ExperimentRunner(object):
             
         ema_logging.debug("trying to retrieve output")
         result = msi.retrieve_output()
+        ema_logging.debug("output retrieved successfully")
         
         ema_logging.debug("trying to reset model")
         msi.reset_model()
+        ema_logging.debug("model reset successfully")
+        
         return experiment_id, experiment.scenario, policy, model_name, result      

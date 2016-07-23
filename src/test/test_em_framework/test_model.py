@@ -6,9 +6,10 @@ Created on Jul 28, 2015
 import unittest
 
 
-from ema_workbench.em_framework.model import Model, FileModel
+from ema_workbench.em_framework.model import Model
 from ema_workbench.em_framework.parameters import RealParameter
 from ema_workbench.util import EMAError
+from ema_workbench.em_framework.outcomes import ScalarOutcome
 
 # from ...em_framework import ModelStructureInterface
 # from ...util.ema_exceptions import EMAError
@@ -52,9 +53,14 @@ class Test(unittest.TestCase):
         model_name = 'modelname'
         
         model = TestMSI(model_name)
-        output = model.retrieve_output()
+        model.outcomes = [ScalarOutcome('a')]
         
+        output = model.retrieve_output()
         self.assertEqual({}, output)
+        
+        output = {'a': 0 }
+        model.output = output
+        self.assertEqual(output, model.retrieve_output())
     
     def test_cleanup(self):
         model_name = 'modelname'
@@ -66,7 +72,6 @@ class Test(unittest.TestCase):
         model_name = 'modelname'
         
         model = TestMSI(model_name)
-        
         self.assertTrue(len(model.uncertainties.keys())==0)
         
         unc_a = RealParameter('a', 0, 1)

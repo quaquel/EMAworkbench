@@ -61,9 +61,28 @@ class AbstractOutcome(NamedObject):
     MAXIMIZE = 1
     INFO = 0
     
-    def __init__(self, name, kind=INFO):
+    @property
+    def variable_name(self):
+        if self._variable_name != None:
+            return self._variable_name
+        else:
+            return self.name
+        
+    @variable_name.setter
+    def variable_name(self, name):
+        self._variable_name = name
+    
+    def __init__(self, name, kind=INFO, variable_name=None, function=None):
         super(AbstractOutcome, self).__init__(name)
         self.kind = kind
+        self._variable_name = variable_name
+        self.function = function
+    
+    def process(self, values):
+        try:
+            return self.function(values)
+        except TypeError:
+            return values
     
     def __eq__ (self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and

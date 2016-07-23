@@ -93,8 +93,6 @@ class AbstractCallback(object):
                 the result dict
         
         '''
-        
-        
         #
         # TODO:: replace with optional tqdm based progress bar
         # http://thelivingpearl.com/2012/12/31/creating-progress-bars-with-python/ 
