@@ -259,7 +259,6 @@ class ModelEnsemble(object):
             runner.cleanup()
             os.chdir(cwd)
         
-        
         if callback.i != nr_of_exp:
             raise EMAError(('some fatal error has occurred while '
                             'running the experiments, not all runs have ' 
@@ -271,8 +270,6 @@ class ModelEnsemble(object):
         info("experiments finished")
         
         return results
-
-
 
     def _determine_unique_attributes(self, attribute):
         '''
