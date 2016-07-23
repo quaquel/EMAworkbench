@@ -10,12 +10,15 @@ import mock
 import numpy as np
 import numpy.lib.recfunctions as rf
 
-from ema_workbench.em_framework.callbacks import DefaultCallback # @UnresolvedImport
-from ema_workbench.em_framework.uncertainties import (CategoricalParameter, RealParameter, # @UnresolvedImport
-                                           IntegerParameter) # @UnresolvedImport
-                                           
-from ema_workbench.util import EMAError  # @UnresolvedImport
-from ema_workbench.em_framework.outcomes import TimeSeriesOutcome # @UnresolvedImport
+from ema_workbench.em_framework.callbacks import DefaultCallback
+from ema_workbench.em_framework.uncertainties import (CategoricalParameter,
+                                                      RealParameter, 
+                                                      IntegerParameter)
+from ema_workbench.em_framework.parameters import Policy                                           ,\
+    Experiment
+from ema_workbench.util import EMAError
+from ema_workbench.em_framework.outcomes import TimeSeriesOutcome 
+from ema_workbench.em_framework.util import NamedObject
 
 class TestDefaultCallback(unittest.TestCase):
     def test_init(self):
@@ -40,16 +43,16 @@ class TestDefaultCallback(unittest.TestCase):
         uncs = [RealParameter("a", 0, 1),
                RealParameter("b", 0, 1)]
         outcomes = [TimeSeriesOutcome("test")]
-        case = {unc.name:random.random() for unc in uncs}
-        policy = {'name':'none'}
-        name = "test"
+        model = NamedObject('test')
+
+        experiment = Experiment(0, model, 'test', 0, a=1)
      
         # case 1 scalar shape = (1)
         callback = DefaultCallback(uncs, 
                                    [outcome.name for outcome in outcomes], 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: 1}
-        callback(0, case, policy, name, result)
+        callback(experiment, result)
          
         _, out = callback.get_results()
         self.assertIn(outcomes[0].name, out.keys())
@@ -60,7 +63,7 @@ class TestDefaultCallback(unittest.TestCase):
                                    [outcome.name for outcome in outcomes], 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: np.random.rand(10)}
-        callback(0, case, policy, name, result)
+        callback(experiment, result)
           
         _, out = callback.get_results()
         self.assertIn(outcomes[0].name, out.keys())
@@ -71,7 +74,7 @@ class TestDefaultCallback(unittest.TestCase):
                                    [outcome.name for outcome in outcomes], 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: np.random.rand(2,2)}
-        callback(0, case, policy, name, result)
+        callback(experiment,result)
           
         _, out = callback.get_results()
         self.assertIn(outcomes[0].name, out.keys())
@@ -82,7 +85,7 @@ class TestDefaultCallback(unittest.TestCase):
                                    [outcome.name for outcome in outcomes], 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: np.random.rand(2,2,2)}
-        self.assertRaises(EMAError, callback, 0, case, policy, name, result)
+        self.assertRaises(EMAError, callback, experiment, result)
         
         # KeyError
         with mock.patch('ema_workbench.util.ema_logging.debug') as mocked_logging:
@@ -90,7 +93,7 @@ class TestDefaultCallback(unittest.TestCase):
                            [outcome.name for outcome in outcomes], 
                            nr_experiments=nr_experiments)
             result = {'incorrect': np.random.rand(2,)}
-            callback(0, case, policy, name, result)
+            callback(experiment, result)
             
             for outcome in outcomes:
                 mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
@@ -105,20 +108,21 @@ class TestDefaultCallback(unittest.TestCase):
         case = {unc.name:random.random() for unc in uncs}
         case["c"] = int(round(case["c"]*2))
         case["d"] = int(round(case["d"]))
-        policy = {'name':'none'}
-        name = "test"
+        
+        model = NamedObject('test')
+        experiment = Experiment(0, model, 'test', 0, **case)
      
         callback = DefaultCallback(uncs, 
                                    [outcome.name for outcome in outcomes], 
                                    nr_experiments=nr_experiments,
                                    reporting_interval=1)
         result = {outcomes[0].name: 1}
-        callback(0, case, policy, name, result)
+        callback(experiment, result)
          
         experiments, _ = callback.get_results()
         design = case
-        design['policy'] = policy['name']
-        design['model'] = name
+        design['policy'] = 'test'
+        design['model'] = 'test'
         
         names = rf.get_names(experiments.dtype)
         for name in names:

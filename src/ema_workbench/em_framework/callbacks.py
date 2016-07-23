@@ -71,7 +71,7 @@ class AbstractCallback(object):
         self.reporting_interval = reporting_interval
             
     @abc.abstractmethod
-    def __call__(self, case_id, case, policy, name, result):
+    def __call__(self, experiment, result):
         '''
         Method responsible for storing results. The implementation in this
         class only keeps track of how many runs have been completed and 
@@ -81,14 +81,7 @@ class AbstractCallback(object):
         
         Parameters
         ----------
-        case_id: int
-                 the job id
-        case: dict
-              the case to be stored
-        policy: str 
-                the name of the policy being used
-        name: str
-              the name of the model being used
+        experiment: Experiment instance
         result: dict
                 the result dict
         
@@ -184,12 +177,12 @@ class DefaultCallback(AbstractCallback):
         self.cases[:] = np.NAN
         self.nr_experiments = nr_experiments
 
-    def _store_case(self, case_id, case, model, policy):
-        case = [case.get(key) for key in self.uncertainties]
-        case.append(model)
-        case.append(policy)
+    def _store_case(self, experiment):
+        case = [experiment.scenario.get(key) for key in self.uncertainties]
+        case.append(experiment.model)
+        case.append(experiment.policy)
         case = tuple(case)
-        self.cases[case_id] = case
+        self.cases[experiment.experiment_id] = case
             
     def _store_result(self, case_id, result):
         for outcome in self.outcomes:
@@ -215,35 +208,29 @@ class DefaultCallback(AbstractCallback):
                     self.results[outcome][:] = np.NAN
                     self.results[outcome][case_id, ] = outcome_res
     
-    def __call__(self, case_id, case, policy, name, result ):
+    def __call__(self, experiment, result ):
         '''
         Method responsible for storing results. This method calls 
         :meth:`super` first, thus utilizing the logging provided there
         
         
+        
         Parameters
         ----------
-        case_id: int
-                 the job id
-        case: dict
-              the case to be stored
-        policy: str 
-                the name of the policy being used
-        name: str
-              the name of the model being used
+        experiment: Experiment instance
         result: dict
                 the result dict
         
         '''
-        super(DefaultCallback, self).__call__(case_id, case, policy, name, result)
+        super(DefaultCallback, self).__call__(experiment, result)
 
         self.lock.acquire()
                            
         #store the case
-        self._store_case(case_id, case, name, policy)
+        self._store_case(experiment)
         
         #store results
-        self._store_result(case_id, result)
+        self._store_result(experiment.experiment_id, result)
         
         self.lock.release()
         

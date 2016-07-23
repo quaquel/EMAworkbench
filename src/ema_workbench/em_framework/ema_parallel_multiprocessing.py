@@ -81,14 +81,16 @@ def worker(inqueue,
         try:
             result = runner.run_experiment(experiment)
         except EMAError as inst:
-            result = (False, inst)
+            result = inst
+            success = False
         except Exception as inst:
-            result = (False, EMAParallelError("failure to initialize"))
+            result = EMAParallelError("failure to initialize")
+            success = False
         else:
-            ema_logging.debug('putting result on outqueue')
-            outqueue.put((experiment_id, (True, result)))
-        finally:
-            outqueue.put((experiment_id, result))
+            success = True
+        
+        ema_logging.debug('putting result on outqueue')
+        outqueue.put((experiment_id, (success, (experiment, result))))
 
 class CalculatorPool(pool.Pool):
     '''
@@ -498,8 +500,6 @@ class EMAApplyResult(object):
 
     def _set(self, obj):
         self._success, self._value = obj
-        
-
         
         if self._callback and self._success:
             self._callback(*self._value)
