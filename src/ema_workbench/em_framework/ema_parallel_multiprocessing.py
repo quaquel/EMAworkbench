@@ -165,7 +165,7 @@ class CalculatorPool(pool.Pool):
                     shutil.copytree(msi.working_directory, 
                                     working_directory, 
                                     )
-                    msi.set_working_directory(working_directory)
+                    msi.working_directory = working_directory
 
 #             w = multiprocessing.Process(target=worker,
 #                                         args=(self._inqueue, 

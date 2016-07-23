@@ -18,7 +18,7 @@ if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
-                                      model_file = r'\FLUvensimV1basecase.vpm')
+                                      model_file = r'/FLUvensimV1basecase.vpm')
             
     #outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
@@ -69,15 +69,14 @@ if __name__ == '__main__':
     ensemble = ModelEnsemble()
     ensemble.model_structure = model
     
-    ensemble.parallel = True #turn on parallel processing
 
     #add policies
     policies = [Policy('no policy',
-                       model_file=r'\FLUvensimV1basecase.vpm'),
+                       model_file=r'/FLUvensimV1basecase.vpm'),
                 Policy('static policy',
-                       model_file=r'\FLUvensimV1static.vpm'),
+                       model_file=r'/FLUvensimV1static.vpm'),
                 Policy('adaptive policy',
-                       model_file=r'\FLUvensimV1dynamic.vpm')
+                       model_file=r'/FLUvensimV1dynamic.vpm')
                 ]
     ensemble.policies = policies
     
@@ -86,5 +85,5 @@ if __name__ == '__main__':
     
     # run 1000 experiments
     nr_runs = 1000
-    results = ensemble.perform_experiments(nr_runs)
+    experiments, outcomes = ensemble.perform_experiments(nr_runs)
 
