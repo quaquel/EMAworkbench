@@ -61,7 +61,6 @@ class TestPySDConnector(unittest.TestCase):
         """
         from ema_workbench.connectors import PySDConnector
         
-        
         relative_path_to_file = '../models/Sales_Agent_Market_Building_Dynamics.mdl'
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
@@ -71,7 +70,7 @@ class TestPySDConnector(unittest.TestCase):
                                       RealParameter('Startup Subsidy Length', 0, 10)]
         market_model.outcomes = [TimeSeriesOutcome('Still Employed')]
  
-        relative_path_to_file = '../models/Sales_Agent_Market_Building_Dynamics.mdl'
+        relative_path_to_file = '../models/Sales_Agent_Motivation_Dynamics.mdl'
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
  

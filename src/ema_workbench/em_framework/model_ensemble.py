@@ -254,8 +254,8 @@ class ModelEnsemble(object):
             cwd = os.getcwd() 
             runner = ExperimentRunner(self.model_structures, model_kwargs)
             for experiment in experiments:
-                experiment_id, case, policy, model_name, result = runner.run_experiment(experiment)
-                callback(experiment_id, case, policy, model_name, result)
+                result = runner.run_experiment(experiment)
+                callback(experiment, result)
             runner.cleanup()
             os.chdir(cwd)
         

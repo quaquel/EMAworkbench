@@ -127,4 +127,4 @@ class ExperimentRunner(object):
         msi.reset_model()
         ema_logging.debug("model reset successfully")
         
-        return experiment_id, experiment.scenario, policy_name, model_name, result      
+        return result      
