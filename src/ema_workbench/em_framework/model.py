@@ -9,8 +9,16 @@ from __future__ import (absolute_import, print_function, division,
 
 import abc
 import os
+from ema_workbench.em_framework.outcomes import Outcome
+from ema_workbench.util import ema_logging
 
-from .util import NamedObject, NamedObjectMap, combine
+try:
+    from collections import MutableMapping
+except ImportError:
+    from collections.abc import MutableMapping
+
+
+from .util import NamedObject, NamedObjectMap, combine, NamedObjectMapDescriptor
 from .parameters import Parameter, Constant
 from .outcomes import AbstractOutcome
 from ..util import debug, EMAError
@@ -54,41 +62,22 @@ class AbstractModel(NamedObject):
     __metaclass__ = abc.ABCMeta
     
     name = None 
-    output = {}
     _working_directory = None
 
     @property
-    def uncertainties(self):
-        return self._uncertainties
- 
-    @uncertainties.setter
-    def uncertainties(self, uncs):
-        self._uncertainties.extend(uncs)
+    def output(self):
+        return self._output
 
-    @property
-    def outcomes(self):
-        return self._outcomes
- 
-    @outcomes.setter
-    def outcomes(self, outcomes):
-        self._outcomes.extend(outcomes)
+    @output.setter
+    def output(self, outputs):
+        for key, value in outputs.items():
+            self._output[key] = self.outcomes[key].process(value)
 
-    @property
-    def levers(self):
-        return self._levers
- 
-    @levers.setter
-    def levers(self, levers):
-        self._levers.extend(levers)
+    uncertainties = NamedObjectMapDescriptor(Parameter)
+    levers = NamedObjectMapDescriptor(Parameter)
+    outcomes = NamedObjectMapDescriptor(AbstractOutcome)
+    constants = NamedObjectMapDescriptor(Constant)
         
-    @property
-    def constants(self):
-        return self._constants
- 
-    @constants.setter
-    def constants(self, constants):
-        self._constants.extend(constants)
-
     def __init__(self, name):
         """
         interface to the model
@@ -110,11 +99,8 @@ class AbstractModel(NamedObject):
         if not self.name.isalnum():
             raise EMAError("name of model should only contain alpha numerical\
                             characters")
-            
-        self._uncertainties = NamedObjectMap(Parameter)
-        self._levers = NamedObjectMap(Parameter)
-        self._outcomes = NamedObjectMap(AbstractOutcome)
-        self._constants = NamedObjectMap(Constant)
+
+        self._output = {}
         
     def model_init(self, policy, kwargs):
         '''
@@ -172,6 +158,8 @@ class AbstractModel(NamedObject):
         -------
         dict with the results of a model run. 
         """
+        ema_logging.debug('returning output')
+        
         return self.output
     
     def reset_model(self):
@@ -275,7 +263,6 @@ class FileModel(AbstractModel):
         debug('setting working directory to '+ wd)
         self._working_directory = wd
 
-
     def __init__(self, name, wd=None, model_file=None):
         """interface to the model
         
@@ -309,4 +296,3 @@ class FileModel(AbstractModel):
 
     def model_init(self, policy, kwargs):
         AbstractModel.model_init(self, policy, kwargs)   
-

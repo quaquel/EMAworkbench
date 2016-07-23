@@ -5,6 +5,7 @@ Created on 18 mrt. 2013
 '''
 import os
 import unittest
+from ema_workbench.connectors.netlogo import NetLogoModelStructureInterface
 
 # should be made conditional on the presence of jpype
 __test__ = False
@@ -12,6 +13,7 @@ __test__ = False
 from ema_workbench.em_framework import (RealParameter, 
                                         CategoricalParameter,
                                         TimeSeriesOutcome)
+from ema_workbench.em_framework.parameters import Policy
 from ema_workbench.connectors import netlogo
 
 def setUpModule():
@@ -23,29 +25,33 @@ def setUpModule():
 def tearDownModule():
     os.chdir(cwd)
 
-class PredatorPrey(netlogo.NetLogoModelStructureInterface):
-    model_file = r"/Wolf Sheep Predation.nlogo"
-    
-    run_length = 1000
-    
-    uncertainties = [RealParameter("grass-regrowth-time", 10, 100),
-                     CategoricalParameter("grass?", ("true", "false")) ]
-    
-    outcomes = [TimeSeriesOutcome('sheep'),
-                TimeSeriesOutcome('wolves')]
+
 
 class Test(unittest.TestCase):
 
     def test_init(self):
         wd = r"../models"
+        model_file = r"/Wolf Sheep Predation.nlogo"
         
-        PredatorPrey(wd, "predPreyNetlogo")
+        model = NetLogoModelStructureInterface("predPreyNetlogo", wd=wd,
+                                                       model_file=model_file)
         
     def test_run_model(self):
         wd = r"../models"
         
-        model = PredatorPrey(wd, "predPreyNetlogo")
-        model.model_init({'name':'no policy'}, None)
+        model_file = r"/Wolf Sheep Predation.nlogo"
+        
+        model = NetLogoModelStructureInterface("predPreyNetlogo", wd=wd,
+                                               model_file=model_file)
+        
+        model.run_length = 1000
+    
+        model.uncertainties = [RealParameter("grass-regrowth-time", 10, 100),
+                         CategoricalParameter("grass?", ("true", "false")) ]
+    
+        model.outcomes = [TimeSeriesOutcome('sheep'),
+                TimeSeriesOutcome('wolves')]
+        model.model_init(Policy('no policy'))
         
         case = {"grass-regrowth-time": 35,
                 "grass?": "true"}

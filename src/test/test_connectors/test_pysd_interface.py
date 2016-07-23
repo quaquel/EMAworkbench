@@ -7,9 +7,8 @@ import inspect
 import os
 import unittest
 
-
-
-from ema_workbench.em_framework import ModelEnsemble, RealParameter, TimeSeriesOutcome
+from ema_workbench.em_framework import (ModelEnsemble, RealParameter, 
+                                        TimeSeriesOutcome)
 
 
 class TestPySDConnector(unittest.TestCase):
@@ -51,7 +50,7 @@ class TestPySDConnector(unittest.TestCase):
         ensemble = ModelEnsemble()  # instantiate an ensemble
         ensemble.model_structure = model  # set the model on the ensemble
         ensemble.parallel = True
-        ensemble.perform_experiments(cases=20)
+        ensemble.perform_experiments(5)
  
     def test_multiple_models(self):
         """
@@ -83,7 +82,7 @@ class TestPySDConnector(unittest.TestCase):
  
         ensemble = ModelEnsemble()  # instantiate an ensemble
         ensemble.model_structures = [market_model, motivation_model]  # set the model on the ensemble
-        results = ensemble.perform_experiments(cases=20)
+        ensemble.perform_experiments(5)
 
 if __name__ == '__main__':
     unittest.main()

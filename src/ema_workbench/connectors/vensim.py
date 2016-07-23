@@ -360,7 +360,7 @@ class VensimModelStructureInterface(FileModel):
         for output in self.outcomes:
             debug("getting data for %s" %output.name)
             result = get_data(self.working_directory+self.result_file, 
-                              output.name 
+                              output.variable_name 
                               )
             debug("successfully retrieved data for %s" %output.name)
             if result is not None:

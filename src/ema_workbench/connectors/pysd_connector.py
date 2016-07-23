@@ -5,12 +5,9 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import pysd
-import os
 
-from ..em_framework.model import FileModel
-from ..em_framework.outcomes import TimeSeriesOutcome
-from ema_workbench.em_framework.model import AbstractModel
-
+from ..em_framework.model import AbstractModel
+from ..util import ema_logging
 
 class PySDConnector(AbstractModel):
 
@@ -36,19 +33,33 @@ class PySDConnector(AbstractModel):
             name = pysd.utils.make_python_identifier(mdl_file)[0].replace('_','')
         
         super(PySDConnector, self).__init__(name)
-#         self.outcomes = (TimeSeriesOutcome('TIME'))
 
         self.mdl_file = mdl_file
-        self.model = pysd.read_vensim(os.path.abspath(self.mdl_file))
+        self.model = pysd.read_vensim(self.mdl_file)
+        
         # Todo: replace when pysd adds an attribute for the .py filename
         self.py_model_name = mdl_file.replace('.mdl', '.py')
 
+    def model_init(self, policy, kwargs):
+        AbstractModel.model_init(self, policy, kwargs)
+        
+        try:
+            mdl_file = policy['mdl_file']
+        except KeyError:
+            pass
+        else:
+            self.model = pysd.read_vensim(mdl_file)
+        
 
     def run_model(self, kwargs):
+        ema_logging.debug('running pysd model')
+
         res = self.model.run(params=kwargs,
-                             return_columns=[o.name for o in self.outcomes])
+                         return_columns=[o.variable_name for o in self.outcomes])
+        
         # EMA wants output formatted properly
-        self.output = {col: series.as_matrix() for col, series in res.iteritems()}
+        output ={col: series.as_matrix() for col, series in res.iteritems()}
+        self.output = output
 
     def reset_model(self):
         """
@@ -56,4 +67,4 @@ class PySDConnector(AbstractModel):
         implementation only sets the outputs to an empty dict.
 
         """
-        self.model = pysd.load(self.py_model_name)
+        self.model.reset_state()

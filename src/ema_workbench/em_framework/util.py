@@ -7,6 +7,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 
 from collections import OrderedDict, MutableMapping
+from weakref import WeakKeyDictionary
 
 try:
     # we assume python 2
@@ -63,7 +64,8 @@ class NamedObjectMap(object):
             raise TypeError("can only add " + self.type.__name__ + " objects")
          
         if isinstance(key, six.integer_types):
-            self._data = OrderedDict([(value.name, value) if i==key else (k, v) for i, (k, v) in enumerate(six.iteritems(self._data))])
+            self._data = OrderedDict([(value.name, value) if i==key else (k, v) 
+                        for i, (k, v) in enumerate(six.iteritems(self._data))])
         else: 
             if value.name != key:
                 raise ValueError("key does not match name of " + self.type.__name__)
@@ -102,7 +104,31 @@ class NamedObjectMap(object):
      
     def keys(self):
         return self._data.keys()
-    
+
+class NamedObjectMapDescriptor(object):
+    def __init__(self, kind):
+        self._data = WeakKeyDictionary()
+        self.kind = kind
+        
+    def __get__(self, instance, owner):
+        if instance is None:
+            return
+        
+        try:
+            map = self._data[instance]
+        except KeyError:
+            map = NamedObjectMap(self.kind)
+            self._data[instance] = map
+        return map
+ 
+    def __set__(self, instance, values):
+        try:
+            map = self._data[instance]
+        except KeyError:
+            map = NamedObjectMap(self.kind)
+            self._data[instance] = map
+        
+        map.extend(values)
 
 class NamedDict(NamedObject, MutableMapping):
     

@@ -38,8 +38,7 @@ class ParallelMultiprocessingPoolTestCase(unittest.TestCase):
     @mock.patch.object(ema_parallel_multiprocessing.CalculatorPool, '_get_worker_name')
     def test_init_normal(self, mock_get_worker_name, mock_shutil, mock_os):
         
-        mockMSI = mock.Mock(spec=MockMSI)
-        mockMSI.name = 'test'
+        mockMSI = MockMSI("test")
 
         # set some proper return values on mocked methods and functions
         mock_get_worker_name.return_value = "workername"
@@ -86,7 +85,7 @@ class WorkerTestCase(unittest.TestCase):
             mocked_outqueue = mock.Mock(multiprocessing.SimpleQueue())
 
         
-        mockMSI = mock.Mock(spec=MockMSI('test', ''))
+        mockMSI = MockMSI("test")
         
         # task = None
         mocked_inqueue.get.return_value = None
