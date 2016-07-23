@@ -19,7 +19,7 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
-                                          model_file = r'\FLUvensimV1basecase.vpm')
+                                          model_file = r'/FLUvensimV1basecase.vpm')
             
     #outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),

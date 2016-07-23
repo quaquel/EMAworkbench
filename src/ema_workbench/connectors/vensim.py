@@ -397,7 +397,7 @@ class VensimModelStructureInterface(FileModel):
         was called
         """
       
-        self.output = None
+        self.output = {}
         self.result_file =r'\Current.vdf'
 
 

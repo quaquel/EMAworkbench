@@ -240,7 +240,7 @@ class DefaultCallback(AbstractCallback):
         self.lock.acquire()
                            
         #store the case
-        self._store_case(case_id, case, name, policy.get('name'), )
+        self._store_case(case_id, case, name, policy)
         
         #store results
         self._store_result(case_id, result)

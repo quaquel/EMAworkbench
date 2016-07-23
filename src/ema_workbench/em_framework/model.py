@@ -287,12 +287,20 @@ class FileModel(AbstractModel):
         
         """
         super(FileModel, self).__init__(name)
+        self.working_directory = wd
         
         if not os.path.isfile(self.working_directory+model_file):
             raise ValueError('cannot find model file')
         
         self.model_file = model_file
-        self.working_directory = wd
 
     def model_init(self, policy, kwargs):
-        AbstractModel.model_init(self, policy, kwargs)   
+        AbstractModel.model_init(self, policy, kwargs) 
+        
+        try:
+            model_file = policy.pop('model_file')
+        except KeyError:
+            pass
+        else:
+            self.model_file = model_file
+          
