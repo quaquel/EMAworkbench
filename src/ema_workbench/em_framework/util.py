@@ -107,26 +107,27 @@ class NamedObjectMap(object):
 
 class NamedObjectMapDescriptor(object):
     def __init__(self, kind):
-        self._data = WeakKeyDictionary()
         self.kind = kind
+        self.name = None
+        self.internal_name = None
         
     def __get__(self, instance, owner):
         if instance is None:
-            return
-        
+            return self
         try:
-            map = self._data[instance]
-        except KeyError:
+            return getattr(instance, self.internal_name)
+        except AttributeError:
             map = NamedObjectMap(self.kind)
-            self._data[instance] = map
-        return map
+            setattr(instance, self.internal_name, map) 
+            return map
+
  
     def __set__(self, instance, values):
         try:
-            map = self._data[instance]
-        except KeyError:
+            map = getattr(instance, self.internal_name)
+        except AttributeError:
             map = NamedObjectMap(self.kind)
-            self._data[instance] = map
+            setattr(instance, self.internal_name, map)
         
         map.extend(values)
 

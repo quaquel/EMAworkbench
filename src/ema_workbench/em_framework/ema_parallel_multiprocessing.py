@@ -33,6 +33,7 @@ import sys
 import threading
 import time
 import traceback
+import dill
 
 import multiprocessing.pool as pool
 from multiprocessing.util import Finalize
@@ -60,8 +61,7 @@ def worker(inqueue,
     if hasattr(inqueue, '_writer'):
         inqueue._writer.close()
         outqueue._reader.close()
-    
-#     msis = {msi.name: msi for msi in model_interfaces}
+
     runner = ExperimentRunner(model_interfaces, model_kwargs)
 
     while 1:
