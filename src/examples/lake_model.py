@@ -76,14 +76,14 @@ model.constants = [Constant('alpha', 0.41),
 
 
 if __name__ == '__main__':
-    ema_logging.log_to_stderr(ema_logging.INFO)
+    ema_logging.log_to_stderr(ema_logging.DEBUG)
     
     ensemble = ModelEnsemble() #instantiate an ensemble
     ensemble.model_structure = model #set the model on the ensemble
-    ensemble.parallel = True
+#     ensemble.parallel = True
     ensemble.processes = 1
     ensemble.policies = [ Policy('0.01', decisions=[0.01,]*100) ]
     
     #run 1000 experiments
-    results = ensemble.perform_experiments(100, reporting_interval=10) 
+    results = ensemble.perform_experiments(10, reporting_interval=10) 
 

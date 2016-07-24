@@ -92,7 +92,6 @@ class ExperimentRunner(object):
             
             
             try:
-                ema_logging.debug("invoking model init")
                 msi.model_init(policy, model_kwargs)
             except EMAError as inst:
                 ema_logging.exception(inst)
@@ -111,19 +110,13 @@ class ExperimentRunner(object):
 
         case = copy.deepcopy(experiment.scenario)
         try:
-            ema_logging.debug("trying to run model")
             msi.run_model(case)
         except CaseError as e:
             ema_logging.warning(str(e))
         except Exception as e:
             raise EMAError('some exception has been raised by run_model '+str(e))
             
-        ema_logging.debug("trying to retrieve output")
-        result = msi.retrieve_output()
-        ema_logging.debug("output retrieved successfully")
-        
-        ema_logging.debug("trying to reset model")
+        output = msi.output
         msi.reset_model()
-        ema_logging.debug("model reset successfully")
         
-        return result      
+        return output      

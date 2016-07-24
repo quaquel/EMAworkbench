@@ -61,7 +61,6 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         
         mockMSI.run_model.assert_called_once_with({'a':1, 'b':2})
         mockMSI.model_init.assert_called_once_with(Policy('none'), {})
-        mockMSI.retrieve_output.assert_called_once_with()
         mockMSI.reset_model.assert_called_once_with()
         
         # assert raises ema error
