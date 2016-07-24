@@ -9,8 +9,7 @@ from __future__ import (absolute_import, print_function, division,
 
 import abc
 import os
-from ema_workbench.em_framework.outcomes import Outcome
-from ema_workbench.util import ema_logging
+import warnings
 
 try:
     from collections import MutableMapping
@@ -18,11 +17,13 @@ except ImportError:
     from collections.abc import MutableMapping
 
 
-from .util import NamedObject, NamedObjectMap, combine, NamedObjectMapDescriptor
+from .util import (NamedObject, NamedObjectMap, combine, 
+                   NamedObjectMapDescriptor)
 from .parameters import Parameter, Constant
 from .outcomes import AbstractOutcome
-from ..util import debug, EMAError
 
+from ..util import debug, EMAError
+from ..util.ema_logging import method_logger
 
 # Created on 23 dec. 2010
 # 
@@ -115,7 +116,7 @@ class AbstractModel(NamedObject):
         self._outcomes = NamedObjectMap(AbstractOutcome)
 
         
-        
+    @method_logger
     def model_init(self, policy, kwargs):
         '''
         Method called to initialize the model.
@@ -146,6 +147,7 @@ class AbstractModel(NamedObject):
         self.policy = policy
 
     
+    @method_logger
     @abc.abstractmethod
     def run_model(self, case):
         """
@@ -164,6 +166,7 @@ class AbstractModel(NamedObject):
         
         """
 
+    @method_logger
     def retrieve_output(self):
         """
         Method for retrieving output after a model run.
@@ -172,10 +175,10 @@ class AbstractModel(NamedObject):
         -------
         dict with the results of a model run. 
         """
-        ema_logging.debug('returning output')
-        
+        warnings.warn('deprecated, use model.output instead')
         return self.output
     
+    @method_logger
     def reset_model(self):
         """
         Method for reseting the model to its initial state. The default
@@ -184,6 +187,7 @@ class AbstractModel(NamedObject):
         """
         self.output = {}
     
+    @method_logger
     def cleanup(self):
         '''
         This model is called after finishing all the experiments, but 
@@ -239,6 +243,7 @@ class Model(AbstractModel):
         super(Model, self).__init__(name)
         self.function = function
     
+    @method_logger
     def run_model(self, case):
         """
         Method for running an instantiated model structure. 

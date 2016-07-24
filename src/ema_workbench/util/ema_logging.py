@@ -9,6 +9,7 @@ This logging system will also work in case of multiprocessing using
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
+from functools import wraps
 import logging
 from logging import Handler, DEBUG, INFO
 
@@ -34,6 +35,17 @@ LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
 
 LOG_FORMAT = '[%(levelname)s] %(message)s'
+
+def method_logger(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # hack, because log is applied to methods, we can get
+        # object instance as first arguments in args
+        debug('calling {} on {}'.format(func.func_name, args[0].name))
+        res = func(*args, **kwargs)
+        debug('completed calling {} on {}'.format(func.func_name, args[0].name))
+        return res
+    return wrapper
 
 def debug(msg, *args, **kwargs):
     '''

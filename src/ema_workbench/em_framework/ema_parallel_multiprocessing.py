@@ -83,7 +83,7 @@ def worker(inqueue,
             result = inst
             success = False
         except Exception as inst:
-            result = EMAParallelError("failure to initialize")
+            result = EMAParallelError("failure to initialize: "+str(inst))
             success = False
         else:
             success = True
