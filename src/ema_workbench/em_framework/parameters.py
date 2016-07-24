@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 import abc
 import numbers
-
+import six
 import warnings
 
 from .util import NamedObject
@@ -256,10 +256,14 @@ class Scenario(NamedDict):
 
 class Experiment(NamedObject):
 
-    def __init__(self, name, model, policy, experiment_id, **kwargs):
+    def __init__(self, name, model_name, policy, experiment_id, **kwargs):
         super(Experiment, self).__init__(name)
         
+        if not isinstance(model_name, six.string_types):
+            raise ValueError('model_name should be a string')
+        
+        
         self.policy = policy
-        self.model = model
+        self.model_name = model_name
         self.experiment_id = experiment_id
         self.scenario = Scenario(name, **kwargs)

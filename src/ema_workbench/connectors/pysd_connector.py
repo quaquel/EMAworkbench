@@ -44,11 +44,11 @@ class PySDConnector(AbstractModel):
         AbstractModel.model_init(self, policy, kwargs)
         
         try:
-            mdl_file = policy['mdl_file']
+            self.mdl_file = policy['mdl_file']
         except KeyError:
             pass
         else:
-            self.model = pysd.read_vensim(mdl_file)
+            self.model = pysd.read_vensim(self.mdl_file)
         
 
     def run_model(self, kwargs):

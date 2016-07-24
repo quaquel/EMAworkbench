@@ -46,7 +46,7 @@ class TestDefaultCallback(unittest.TestCase):
         model = NamedObject('test')
         policy  = NamedObject('policy')
 
-        experiment = Experiment(0, model, policy, 0, a=1)
+        experiment = Experiment(0, model.name, policy, 0, a=1)
      
         # case 1 scalar shape = (1)
         callback = DefaultCallback(uncs, 
@@ -112,7 +112,7 @@ class TestDefaultCallback(unittest.TestCase):
         
         model = NamedObject('test')
         policy  = NamedObject('policy')
-        experiment = Experiment(0, model, policy, 0, **case)
+        experiment = Experiment(0, model.name, policy, 0, **case)
      
         callback = DefaultCallback(uncs, 
                                    [outcome.name for outcome in outcomes], 
