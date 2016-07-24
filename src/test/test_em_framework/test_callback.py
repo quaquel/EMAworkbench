@@ -44,8 +44,9 @@ class TestDefaultCallback(unittest.TestCase):
                RealParameter("b", 0, 1)]
         outcomes = [TimeSeriesOutcome("test")]
         model = NamedObject('test')
+        policy  = NamedObject('policy')
 
-        experiment = Experiment(0, model, 'test', 0, a=1)
+        experiment = Experiment(0, model, policy, 0, a=1)
      
         # case 1 scalar shape = (1)
         callback = DefaultCallback(uncs, 
@@ -110,7 +111,8 @@ class TestDefaultCallback(unittest.TestCase):
         case["d"] = int(round(case["d"]))
         
         model = NamedObject('test')
-        experiment = Experiment(0, model, 'test', 0, **case)
+        policy  = NamedObject('policy')
+        experiment = Experiment(0, model, policy, 0, **case)
      
         callback = DefaultCallback(uncs, 
                                    [outcome.name for outcome in outcomes], 
@@ -121,8 +123,8 @@ class TestDefaultCallback(unittest.TestCase):
          
         experiments, _ = callback.get_results()
         design = case
-        design['policy'] = 'test'
-        design['model'] = 'test'
+        design['policy'] = policy.name
+        design['model'] = model.name
         
         names = rf.get_names(experiments.dtype)
         for name in names:

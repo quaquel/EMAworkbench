@@ -35,6 +35,17 @@ __all__ = ['AbstractModel', 'Model']
 #==============================================================================
 # abstract Model class 
 #==============================================================================
+class ModelMeta(abc.ABCMeta):
+    
+    def __new__(mcls, name, bases, namespace):
+        
+        for key, value in namespace.items():
+            if isinstance(value, NamedObjectMapDescriptor):
+                value.name = key
+                value.internal_name = '_'+key
+       
+        return abc.ABCMeta.__new__(mcls, name, bases, namespace)
+
 
 class AbstractModel(NamedObject):
     '''
@@ -59,7 +70,7 @@ class AbstractModel(NamedObject):
     
     '''
     
-    __metaclass__ = abc.ABCMeta
+    __metaclass__ = ModelMeta
     
     name = None 
     _working_directory = None
@@ -72,7 +83,7 @@ class AbstractModel(NamedObject):
     def output(self, outputs):
         for key, value in outputs.items():
             self._output[key] = self.outcomes[key].process(value)
-
+            
     uncertainties = NamedObjectMapDescriptor(Parameter)
     levers = NamedObjectMapDescriptor(Parameter)
     outcomes = NamedObjectMapDescriptor(AbstractOutcome)
@@ -101,6 +112,9 @@ class AbstractModel(NamedObject):
                             characters")
 
         self._output = {}
+        self._outcomes = NamedObjectMap(AbstractOutcome)
+
+        
         
     def model_init(self, policy, kwargs):
         '''

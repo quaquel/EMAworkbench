@@ -75,10 +75,10 @@ class ExperimentRunner(object):
         
         '''
         
+        policy_name = experiment.policy.name
+        model_name = experiment.model.name
         policy = experiment.policy
-        model_name = experiment.model
         experiment_id = experiment.experiment_id
-        policy_name = policy.name
         
         ema_logging.debug("running policy {} for experiment {}".format(policy_name, 
                                                            experiment_id))

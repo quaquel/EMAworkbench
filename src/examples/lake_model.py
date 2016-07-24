@@ -55,34 +55,36 @@ def lake_problem(decisions=[],
     return {'max_P':max_P, 'utility':utility, 
             'inertia':inertia, 'reliability':reliability}
 
+#instantiate the model
+model = Model('lakeproblem', function=lake_problem)
+
+#specify uncertainties
+model.uncertainties = [RealParameter("b", 0.1, 0.45),
+                       RealParameter("q", 2.0, 4.5),
+                       RealParameter("mean", 0.01, 0.05),
+                       RealParameter("stdev", 0.001, 0.005),
+                       RealParameter("delta", 0.93, 0.99)]
+#specify outcomes 
+model.outcomes = [ScalarOutcome("max_P",),
+                  ScalarOutcome("utility"),
+                  ScalarOutcome("inertia"),
+                  ScalarOutcome("reliability")]
+
+# override some of the defaults of the model
+model.constants = [Constant('alpha', 0.41),
+                   Constant('nsamples', 150),]
+
+
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
     
-    #instantiate the model
-    model = Model('lakeproblem', function=lake_problem)
-
-    #specify uncertainties
-    model.uncertainties = [RealParameter("b", 0.1, 0.45),
-                           RealParameter("q", 2.0, 4.5),
-                           RealParameter("mean", 0.01, 0.05),
-                           RealParameter("stdev", 0.001, 0.005),
-                           RealParameter("delta", 0.93, 0.99)]
-    #specify outcomes 
-    model.outcomes = [ScalarOutcome("max_P",),
-                      ScalarOutcome("utility"),
-                      ScalarOutcome("inertia"),
-                      ScalarOutcome("reliability")]
-    
-    # override some of the defaults of the model
-    model.constants = [Constant('alpha', 0.41),
-                       Constant('nsamples', 150),]
-
     ensemble = ModelEnsemble() #instantiate an ensemble
     ensemble.model_structure = model #set the model on the ensemble
     ensemble.parallel = True
+    ensemble.processes = 1
     ensemble.policies = [ Policy('0.01', decisions=[0.01,]*100) ]
     
     #run 1000 experiments
-    results = ensemble.perform_experiments(150, reporting_interval=10) 
+    results = ensemble.perform_experiments(10, reporting_interval=10) 
     
     print( results[1].keys())
