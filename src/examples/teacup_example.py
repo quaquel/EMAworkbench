@@ -28,5 +28,5 @@ if __name__ == '__main__':
     
     ensemble = ModelEnsemble()  # instantiate an ensemble
     ensemble.model_structure = model  # set the model on the ensemble
-    ensemble.parallel = True
+#     ensemble.parallel = True
     ensemble.perform_experiments(5, reporting_interval=1)

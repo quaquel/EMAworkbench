@@ -179,7 +179,7 @@ class DefaultCallback(AbstractCallback):
 
     def _store_case(self, experiment):
         case = [experiment.scenario.get(key) for key in self.uncertainties]
-        case.append(experiment.model.name)
+        case.append(experiment.model_name)
         case.append(experiment.policy.name)
         case = tuple(case)
         self.cases[experiment.experiment_id] = case

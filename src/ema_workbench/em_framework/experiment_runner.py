@@ -76,7 +76,8 @@ class ExperimentRunner(object):
         '''
         
         policy_name = experiment.policy.name
-        model_name = experiment.model.name
+        model_name = experiment.model_name
+        msi = self.msis[model_name]
         policy = experiment.policy
         experiment_id = experiment.experiment_id
         
@@ -86,15 +87,13 @@ class ExperimentRunner(object):
         # check whether we already initialized the model for this 
         # policy
         if not (policy_name, model_name) in self.msi_initialization.keys():
+            policy = copy.deepcopy(policy)
+            model_kwargs = copy.deepcopy(self.model_kwargs)
+            
+            
             try:
                 ema_logging.debug("invoking model init")
-                msi = self.msis._data[model_name] # dirty hack
-                
-                policy = copy.deepcopy(policy)
-                model_kwargs = copy.deepcopy(self.model_kwargs)
-                
-                msi.model_init(policy, 
-                               model_kwargs)
+                msi.model_init(policy, model_kwargs)
             except EMAError as inst:
                 ema_logging.exception(inst)
                 self.cleanup()
@@ -108,7 +107,7 @@ class ExperimentRunner(object):
                                                            policy_name))
 
             self.msi_initialization = {(policy_name, model_name):self.msis[model_name]}
-        msi = self.msis[model_name]
+        
 
         case = copy.deepcopy(experiment.scenario)
         try:

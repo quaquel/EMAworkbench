@@ -33,7 +33,6 @@ import sys
 import threading
 import time
 import traceback
-import dill
 
 import multiprocessing.pool as pool
 from multiprocessing.util import Finalize

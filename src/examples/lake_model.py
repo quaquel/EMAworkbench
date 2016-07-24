@@ -85,6 +85,5 @@ if __name__ == '__main__':
     ensemble.policies = [ Policy('0.01', decisions=[0.01,]*100) ]
     
     #run 1000 experiments
-    results = ensemble.perform_experiments(10, reporting_interval=10) 
-    
-    print( results[1].keys())
+    results = ensemble.perform_experiments(100, reporting_interval=10) 
+
