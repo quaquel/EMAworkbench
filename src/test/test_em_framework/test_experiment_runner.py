@@ -51,7 +51,7 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         runner = ExperimentRunner(msis, {})
         
         experiment = Experiment('test',
-                                mockMSI.name,
+                                mockMSI,
                                 Policy('none'),  
                                 0, a=1, b=2)
         
@@ -72,7 +72,7 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         msis['test'] = mockMSI
         runner = ExperimentRunner(msis, {})
     
-        experiment = Experiment('test',mockMSI.name,Policy('none'),  
+        experiment = Experiment('test',mockMSI,Policy('none'),  
                                 0, a=1, b=2)
         self.assertRaises(EMAError, runner.run_experiment, experiment)
 
@@ -98,7 +98,7 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         msis['test'] = mockMSI
         runner = ExperimentRunner(msis, {})
     
-        experiment = Experiment('test',mockMSI.name,Policy('none'),  
+        experiment = Experiment('test',mockMSI,Policy('none'),  
                       0, a=1, b=2)
 
         runner.run_experiment(experiment)

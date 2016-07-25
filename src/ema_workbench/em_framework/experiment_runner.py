@@ -76,7 +76,7 @@ class ExperimentRunner(object):
         '''
         
         policy_name = experiment.policy.name
-        model_name = experiment.model_name
+        model_name = experiment.model.name
         msi = self.msis[model_name]
         policy = experiment.policy
         experiment_id = experiment.experiment_id
