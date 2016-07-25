@@ -1,5 +1,11 @@
 
+from __future__ import (division, absolute_import, unicode_literals, 
+                        print_function)
+
+import inspect
+import os
 import unittest
+
 from ema_workbench.em_framework import ModelEnsemble
 
 
@@ -13,7 +19,12 @@ class TestPySDConnector(unittest.TestCase):
 
         """
         from ema_workbench.connectors import PySDConnector
-        model = PySDConnector('../models/Teacup.mdl')
+        relative_path_to_file = '../models/Teacup.mdl'
+        directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        mdl_file = os.path.join(directory, relative_path_to_file)
+        
+        
+        model = PySDConnector(mdl_file)
         self.assertIsInstance(model, PySDConnector)
 
     def test_add_uncertainties(self):
@@ -24,7 +35,12 @@ class TestPySDConnector(unittest.TestCase):
 
         """
         from ema_workbench.connectors import PySDConnector
-        model = PySDConnector('../models/Teacup.mdl',
+
+        relative_path_to_file = '../models/Teacup.mdl'
+        directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        mdl_file = os.path.join(directory, relative_path_to_file)
+        
+        model = PySDConnector(mdl_file,
                               uncertainties_dict={'Room Temperature': (33, 120)})
 
         ensemble = ModelEnsemble()  # instantiate an ensemble
@@ -41,6 +57,8 @@ class TestPySDConnector(unittest.TestCase):
 
     def test_add_outcomes(self):
         from ema_workbench.connectors import PySDConnector
+        
+
         model = PySDConnector('../models/Teacup.mdl',
                               uncertainties_dict={'Room Temperature': (33, 120)},
                               outcomes_list=['Teacup Temperature'])
@@ -65,7 +83,12 @@ class TestPySDConnector(unittest.TestCase):
 
         """
         from ema_workbench.connectors import PySDConnector
-        model = PySDConnector('../models/Teacup.mdl',
+        
+        relative_path_to_file = '../models/Teacup.mdl'
+        directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        mdl_file = os.path.join(directory, relative_path_to_file)
+
+        model = PySDConnector(mdl_file,
                               uncertainties_dict={'Room Temperature': (33, 120)},
                               outcomes_list=['Teacup Temperature'])
 
@@ -82,12 +105,21 @@ class TestPySDConnector(unittest.TestCase):
 
         """
         from ema_workbench.connectors import PySDConnector
-        market_model = PySDConnector('../models/Sales_Agent_Market_Building_Dynamics.mdl',
+        
+        relative_path_to_file = '../models/Sales_Agent_Market_Building_Dynamics.mdl'
+        directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        mdl_file = os.path.join(directory, relative_path_to_file)
+        
+        market_model = PySDConnector(mdl_file,
                                      uncertainties_dict={'Startup Subsidy': (0, 3),
                                                          'Startup Subsidy Length': (0, 10)},
                                      outcomes_list=['Still Employed'])
 
-        motivation_model = PySDConnector('../models/Sales_Agent_Market_Building_Dynamics.mdl',
+        relative_path_to_file = '../models/Sales_Agent_Market_Building_Dynamics.mdl'
+        directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        mdl_file = os.path.join(directory, relative_path_to_file)
+
+        motivation_model = PySDConnector(mdl_file,
                                          uncertainties_dict={'Startup Subsidy': (0, 3),
                                                              'Startup Subsidy Length': (0, 10)},
                                          outcomes_list=['Still Employed'])
