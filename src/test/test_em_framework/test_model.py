@@ -3,18 +3,22 @@ Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+
+from __future__ import (print_function, absolute_import, unicode_literals, 
+                        division)
+
 import unittest
 
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
-from ema_workbench.em_framework.model import Model
-from ema_workbench.em_framework.parameters import RealParameter
+from ema_workbench.em_framework.model import Model, FileModel
+from ema_workbench.em_framework.parameters import RealParameter, Policy
 from ema_workbench.util import EMAError
-from ema_workbench.em_framework.outcomes import ScalarOutcome
 
-# from ...em_framework import ModelStructureInterface
-# from ...util.ema_exceptions import EMAError
-
-class TestMSI(Model):
+class FileModelTest(FileModel):
     def model_init(self, policy, kwargs):
         self.policy = policy
         self.kwargs = kwargs
@@ -22,56 +26,93 @@ class TestMSI(Model):
     def run_model(self, case):
         pass
 
-class Test(unittest.TestCase):
+class TestFileModel(unittest.TestCase):
+    def test_init(self):
+        model_name = 'modelname'
+        model_file = 'model_file'
+        
+        with self.assertRaises(ValueError):
+            model = FileModelTest(model_name, '.', model_file)
+            
+        with mock.patch('ema_workbench.em_framework.model.os') as patch:
+            patch.os.is_file.set_return_value(True)
+            model = FileModelTest(model_name, '.', model_file)
+            self.assertEqual(model.name, model_name, 'FileModel name not equal')
+            self.assertEqual(model.model_file, model_file)
+
+    def test_model_init(self):
+        pass
+        
+    def test_run_model(self):
+        pass
+    
+    
+    def test_cleanup(self):
+        pass
+
+    def test_model_uncertainties(self):
+        pass
+
+
+class TestModel(unittest.TestCase):
 
     def test_init(self):
         model_name = 'modelname'
         
-        model = TestMSI(model_name)
+        model = Model(model_name, lambda x:x)
         
         self.assertEqual(model.name, model_name)
-        self.assertRaises(EMAError, TestMSI, '', 'model name')
+        self.assertRaises(EMAError, Model, '', 'model name')
         
 
     def test_model_init(self):
         model_name = 'modelname'
         
-        model = TestMSI(model_name)
-        policy = {'name':'test'}
-        model.model_init(policy, {})
+        def initial_func(a=1):
+            return a
+        
+        model = Model(model_name,initial_func)
+        
+        def policy_func(a=1):
+            return a
+        
+        policy = Policy('test', function=policy_func, unknown='a')
+        model.model_init(policy)
         
         self.assertEqual(policy, model.policy)
-        self.assertEqual({}, model.kwargs)
+        self.assertEqual({}, model.model_init_kwargs)
+        self.assertEqual(model.function, policy_func)
+        
+        with self.assertRaises(AttributeError):
+            model.unknown
+        
         
     def test_run_model(self):
         model_name = 'modelname'
         
-        model = TestMSI(model_name)
-        model.run_model({})
-    
-    def test_retrieve_output(self):
-        model_name = 'modelname'
+        function = mock.Mock()
         
-        model = TestMSI(model_name)
-        model.outcomes = [ScalarOutcome('a')]
+        model = Model(model_name, function)
+        model.uncertainties = [RealParameter('a',  0 , 1)]
         
-        output = model.retrieve_output()
-        self.assertEqual({}, output)
+        model.model_init(Policy('test'))
         
-        output = {'a': 0 }
-        model.output = output
-        self.assertEqual(output, model.retrieve_output())
+        model.run_model({'a':0.1, 'b':1})
+        
+        function.assert_called_once_with(a=0.1)
+        
+        
     
     def test_cleanup(self):
         model_name = 'modelname'
         
-        model = TestMSI(model_name)
+        model = Model(model_name, lambda x:x)
         model.cleanup()
 
     def test_model_uncertainties(self):
         model_name = 'modelname'
         
-        model = TestMSI(model_name)
+        model = Model(model_name, lambda x:x)
         self.assertTrue(len(model.uncertainties.keys())==0)
         
         unc_a = RealParameter('a', 0, 1)

@@ -391,7 +391,7 @@ def experiment_generator(designs, model_structures, policies):
     
     for msi in model_structures:
         debug("generating designs for model %s" % (msi.name))
-        msi_uncs = {unc.name for unc in msi.uncertainties}
+#         msi_uncs = {unc.name for unc in msi.uncertainties}
         
         for policy in policies:
             debug("generating designs for policy %s" % (policy.name))
@@ -399,11 +399,10 @@ def experiment_generator(designs, model_structures, policies):
             for design in designs:
                 # from the design only get the uncertainties that 
                 # are valid for the current msi
-                keys = set(design.keys()).intersection(msi_uncs)
-                
-                experiment = {unc:design[unc] for unc in keys}
+#                 keys = set(design.keys()).intersection(msi_uncs)
+#                 design = {unc:design[unc] for unc in keys}
                 experiment_id =  six.next(job_counter)
                 name = '{} {} {}'.format(msi.name, policy.name, experiment_id)
                 experiment = Experiment(name, msi.name, policy, experiment_id, 
-                                        **experiment)
+                                        **design)
                 yield experiment

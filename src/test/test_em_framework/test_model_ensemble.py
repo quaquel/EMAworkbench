@@ -13,19 +13,12 @@ from ema_workbench.em_framework.model_ensemble import (ModelEnsemble, UNION,
                                                        INTERSECTION,
                                                        experiment_generator)
 from ema_workbench.em_framework.samplers import LHSSampler
-from ema_workbench.em_framework import (Model, RealParameter,
-                                        TimeSeriesOutcome)
+from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome)
 from ema_workbench.util.ema_exceptions import EMAError
 from ema_workbench.em_framework.callbacks import DefaultCallback
 from ema_workbench.em_framework.parameters import Policy
+from ema_workbench.em_framework.model import Model
 
-class DummyInterface(Model):
-    def model_init(self, policy, kwargs):
-        pass
-    
-    def run_model(self, case):
-        for outcome in self.outcomes:
-            self.output[outcome.name] = np.random.rand(10,)
          
 class ModelEnsembleTestCase(unittest.TestCase):
     
@@ -41,23 +34,26 @@ class ModelEnsembleTestCase(unittest.TestCase):
         ensemble.policies = policies
         
     def test_model_structures(self):
-        model_a = DummyInterface("A")
+        function = mock.Mock()
+        model_a = Model("A", function)
         
         ensemble = ModelEnsemble()
         ensemble.model_structure = model_a
         self.assertEqual(ensemble.model_structure, model_a)
         
-        model_a = DummyInterface("A")
-        model_b = DummyInterface("B")
+        model_a = Model("A", function)
+        model_b = Model("B", function)
         ensemble = ModelEnsemble()
         ensemble.model_structures = [model_a, model_b]
         self.assertEqual(list(ensemble.model_structures), [model_a, model_b])
         
     def test_generate_experiments(self):
+        function = mock.Mock()
+        
         # everything shared
-        model_a = DummyInterface("A", None)
-        model_b = DummyInterface("B", None)
-        model_c = DummyInterface("C", None)
+        model_a = Model("A", function())
+        model_b = Model("B", function())
+        model_c = Model("C", function())
         
         # let's add some uncertainties to this
         shared_abc_1 = RealParameter("shared abc 1", 0, 1)
@@ -92,8 +88,6 @@ class ModelEnsembleTestCase(unittest.TestCase):
             model = ensemble.model_structures[experiment.model_name]
             for unc in model.uncertainties:
                 self.assertIn(unc.name, experiment.scenario.keys())
-            self.assertEqual(len(experiment.scenario.keys()), len(model.uncertainties))
-            
 
         experiments, nr_of_exp, uncertainties = ensemble._generate_experiments(10, INTERSECTION )
          
@@ -120,7 +114,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
             
             
         # predefined experiments
-        model_a = DummyInterface("A", None)
+        model_a = Model("A", mock.Mock())
         
         # let's add some uncertainties to this
         shared_abc_1 = RealParameter("shared abc 1", 0, 1)
@@ -148,10 +142,11 @@ class ModelEnsembleTestCase(unittest.TestCase):
         
 
     def test_determine_unique_attributes(self):
+        function = mock.Mock()
         # everything shared
-        model_a = DummyInterface("A", None)
-        model_b = DummyInterface("B", None)
-        model_c = DummyInterface("C", None)
+        model_a = Model("A", function)
+        model_b = Model("B", function)
+        model_c = Model("C", function)
         
         # let's add some uncertainties to this
         shared_abc_1 = RealParameter("shared abc 1", 0, 1)
@@ -195,10 +190,12 @@ class ModelEnsembleTestCase(unittest.TestCase):
         
 
     def test_perform_experiments(self):
+        
         # everything shared
-        model_a = DummyInterface("A")
-        model_b = DummyInterface("B")
-        model_c = DummyInterface("C")
+        model_a = Model("A", mock.Mock())
+        model_b = Model("B", mock.Mock())
+        model_c = Model("C", mock.Mock())
+        models = [model_a, model_b, model_c]
         
         # let's add some uncertainties to this
         shared_abc_1 = RealParameter("shared abc 1", 0, 1)
@@ -217,6 +214,9 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_b.outcomes = [outcome_shared]
         model_c.outcomes = [outcome_shared]
         
+        for model in models:
+            model.function.return_value = {outcome_shared.name: [0.1]*10}
+        
         ensemble = ModelEnsemble()
         ensemble.model_structures = [model_a, model_b, model_c]
         ensemble.policies = [Policy('None')]
@@ -224,6 +224,9 @@ class ModelEnsembleTestCase(unittest.TestCase):
         ensemble.perform_experiments(10, which_uncertainties=UNION, 
                                          which_outcomes=UNION,
                                          reporting_interval=1 )
+#         for model in models:
+#             model.function.assert_has_calls() TODO::
+        
 
         ensemble.perform_experiments(10, which_uncertainties=UNION, 
                                          which_outcomes=INTERSECTION,
@@ -255,7 +258,6 @@ class ModelEnsembleTestCase(unittest.TestCase):
             
             self.assertEqual(2, len(MockPool.mock_calls))
             
-            
             MockPool.reset_mock()
             mockedCallback = mock.Mock(DefaultCallback)
             mockedCallback.configure_mock(**{'i':10})
@@ -279,8 +281,8 @@ class ModelEnsembleTestCase(unittest.TestCase):
         designs, _ = sampler.generate_designs(uncertainties, 10)
         
         # everything shared
-        model_a = DummyInterface("A", None)
-        model_b = DummyInterface("B", None)
+        model_a = Model("A", mock.Mock())
+        model_b = Model("B", mock.Mock())
         
         model_a.uncertainties = [shared_abc_1, shared_abc_2, unique_a]
         model_b.uncertainties = [shared_abc_1, shared_abc_2, unique_b]
@@ -296,14 +298,6 @@ class ModelEnsembleTestCase(unittest.TestCase):
         for entry in gen:
             experiments.append(entry)
         self.assertEqual(len(experiments), 2*3*10)
-
-class MockMSI(Model):
-
-    def run_model(self, case):
-        Model.run_model(self, case)
-
-    def model_init(self, policy, kwargs):
-        Model.model_init(policy, kwargs)
 
 if __name__ == "__main__":
     unittest.main()

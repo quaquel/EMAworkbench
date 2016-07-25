@@ -90,9 +90,8 @@ class ExperimentRunner(object):
             policy = copy.deepcopy(policy)
             model_kwargs = copy.deepcopy(self.model_kwargs)
             
-            
             try:
-                msi.model_init(policy, model_kwargs)
+                msi.model_init(policy, **model_kwargs)
             except EMAError as inst:
                 ema_logging.exception(inst)
                 self.cleanup()

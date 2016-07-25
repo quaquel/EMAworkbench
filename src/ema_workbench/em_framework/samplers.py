@@ -104,7 +104,7 @@ class AbstractSampler(object):
         samples = {}
 
         for param in parameters:
-            #range in paramertainty gives lower and upper bound
+            #range in parameter gives lower and upper bound
             sample = self.sample(param.dist, param.params, size) 
             
             if isinstance(param, CategoricalParameter):
@@ -144,8 +144,6 @@ class AbstractSampler(object):
         sampled_parameters = self.generate_samples(parameters, nr_samples)
         params = sorted(sampled_parameters.keys())
         designs = DefaultDesigns(sampled_parameters, params)
-        
-#         assert nr_samples == self.determine_nr_of_designs(sampled_parameters)
         
         return designs, nr_samples
 
