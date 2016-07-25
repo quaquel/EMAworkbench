@@ -9,7 +9,10 @@ import unittest
 
 from ema_workbench.em_framework import (ModelEnsemble, RealParameter, 
                                         TimeSeriesOutcome)
+from ema_workbench.connectors import PysdModel
 
+#TODO:: model classes should be tested for their pickleability prior to
+# initialization 
 
 class TestPySDConnector(unittest.TestCase):
 
@@ -20,14 +23,14 @@ class TestPySDConnector(unittest.TestCase):
         -------
 
         """
-        from ema_workbench.connectors import PySDConnector
+       
         
         relative_path_to_file = '../models/Teacup.mdl'
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
         
-        model = PySDConnector(mdl_file=mdl_file)
-        self.assertIsInstance(model, PySDConnector)
+        model = PysdModel(mdl_file=mdl_file)
+        self.assertIsInstance(model, PysdModel)
  
     def test_parallel_experiment(self):
         """
@@ -36,13 +39,11 @@ class TestPySDConnector(unittest.TestCase):
         -------
  
         """
-        from ema_workbench.connectors import PySDConnector
-        
         relative_path_to_file = '../models/Teacup.mdl'
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
         
-        model = PySDConnector(mdl_file=mdl_file)
+        model = PysdModel(mdl_file=mdl_file)
         
         model.uncertainties = [RealParameter('Room Temperature', 33, 120)]
         model.outcomes = [TimeSeriesOutcome('Teacup Temperature')]
@@ -59,13 +60,11 @@ class TestPySDConnector(unittest.TestCase):
         -------
  
         """
-        from ema_workbench.connectors import PySDConnector
-        
         relative_path_to_file = '../models/Sales_Agent_Market_Building_Dynamics.mdl'
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
         
-        market_model = PySDConnector(mdl_file=mdl_file)
+        market_model = PysdModel(mdl_file=mdl_file)
         market_model.uncertainties = [RealParameter('Startup Subsidy',0, 3),
                                       RealParameter('Startup Subsidy Length', 0, 10)]
         market_model.outcomes = [TimeSeriesOutcome('Still Employed')]
@@ -74,7 +73,7 @@ class TestPySDConnector(unittest.TestCase):
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
  
-        motivation_model = PySDConnector(mdl_file=mdl_file)
+        motivation_model = PysdModel(mdl_file=mdl_file)
         motivation_model.uncertainties = [RealParameter('Startup Subsidy', 0, 3),
                                       RealParameter('Startup Subsidy Length', 0, 10)]
         motivation_model.outcomes =[TimeSeriesOutcome('Still Employed')]

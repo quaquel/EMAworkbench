@@ -57,6 +57,7 @@ def filter_scenario(func):
         # object instance as first arguments in args
         model_instance = args[0]
         scenario = args[1]
+        policy = args[2]
         
         filtered_scenario = {}
         for unc in model_instance.uncertainties:
@@ -66,7 +67,7 @@ def filter_scenario(func):
                 if unc.default is not None:
                     filtered_scenario[unc.name] = unc.default
         
-        func(model_instance, filtered_scenario)
+        func(model_instance, filtered_scenario, policy)
         
     return wrapper
 
@@ -136,7 +137,7 @@ class AbstractModel(NamedObject):
         self._outcomes = NamedObjectMap(AbstractOutcome)
         
     @method_logger
-    def model_init(self, policy, **kwargs):
+    def model_init(self, policy):
         '''
         Method called to initialize the model.
         
@@ -144,10 +145,7 @@ class AbstractModel(NamedObject):
         ----------
         policy : dict
                  policy to be run.
-        kwargs : dict
-                 keyword arguments to be used by model_intit. This
-                 gives users to the ability to pass any additional 
-                 arguments. 
+ 
         
         Note
         ----
@@ -156,7 +154,6 @@ class AbstractModel(NamedObject):
          
         '''
         self.policy = policy
-        self.model_init_kwargs = kwargs
 
         # update any attribute on object that is found in policy
         for key, value in policy.items():
@@ -165,21 +162,36 @@ class AbstractModel(NamedObject):
                 setattr(self, key, value)
                 
 
-    
-    @abc.abstractmethod
-    def run_model(self, case):
+    @method_logger    
+    def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
         
         Parameters
         ----------
-        case : dict
-               keyword arguments for running the model. The case is a dict with 
-               the names of the uncertainties as key, values are the values
-               to which to set these uncertainties. 
+        scenario : Scenario instance
+        policy : Policy instance
+        
         
         """
+        if not self.initialized(policy):
+            self.model_init(policy)
         
+
+    @method_logger
+    def initialized(self, policy):
+        '''check if model has been initialized 
+
+        Parameters
+        ----------
+        policy : a Policy instance
+        
+        '''
+        
+        try:
+            return self.policy.name == policy.name
+        except AttributeError:
+            return False
 
     @method_logger
     def retrieve_output(self):
@@ -264,24 +276,20 @@ class Model(AbstractModel):
 
     @method_logger
     @filter_scenario
-    def run_model(self, case):
+    def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
         
         Parameters
         ----------
-        case : dict
-               keyword arguments for running the model. The case is a dict with 
-               the names of the uncertainties as key, values are the values
-               to which to set these uncertainties. 
+        scenario : Scenario instance
+        policy : Policy instance
         
-        Note
-        ----
-        This method should always be implemented.
         
         """
+        super(Model, self).run_model(scenario, policy)
         constants = {c.name:c.value for c in self.constants}
-        experiment = combine(case, self.policy, constants)
+        experiment = combine(scenario, self.policy, constants)
         result = self.function(**experiment)
         
         self.output = {outcome.name:result[outcome.name] for outcome in 

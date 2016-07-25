@@ -17,7 +17,7 @@ from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome,
 from ema_workbench.util import ema_logging
 
 if __name__ == '__main__':
-    ema_logging.log_to_stderr(ema_logging.INFO)    
+    ema_logging.log_to_stderr(ema_logging.DEBUG)    
     
     mdl_file = './models/pysd/Teacup.mdl'
     
@@ -29,4 +29,5 @@ if __name__ == '__main__':
     ensemble = ModelEnsemble()  # instantiate an ensemble
     ensemble.model_structure = model  # set the model on the ensemble
     ensemble.parallel = True
-    ensemble.perform_experiments(5, reporting_interval=1)
+    ensemble.processes = 1
+    ensemble.perform_experiments(10, reporting_interval=1)

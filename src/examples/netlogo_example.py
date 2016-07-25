@@ -5,7 +5,7 @@ Created on 20 mrt. 2013
 '''
 import matplotlib.pyplot as plt
 
-from ema_workbench.connectors.netlogo import NetLogoModelStructureInterface
+from ema_workbench.connectors.netlogo import NetLogoModel
 
 from ema_workbench.em_framework import (ParameterUncertainty, 
                                         CategoricalUncertainty, 
@@ -16,7 +16,7 @@ from ema_workbench.analysis import plotting, plotting_util
 
 if __name__ == '__main__':
     
-    model = NetLogoModelStructureInterface('predprey', 
+    model = NetLogoModel('predprey', 
                                    wd="./models/predatorPreyNetlogo", 
                                    model_file="/Wolf Sheep Predation.nlogo")
     model.run_length = 1000

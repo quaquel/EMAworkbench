@@ -305,7 +305,7 @@ class VensimModelStructureInterface(FileModel):
     
     @method_logger
     @filter_scenario
-    def run_model(self, case):
+    def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
         the provided implementation assumes that the keys in the 
@@ -320,10 +320,15 @@ class VensimModelStructureInterface(FileModel):
         
         Parameters
         ----------
-        case : dict
-               keyword arguments for running the model. The case is a dict with 
-               the names of the uncertainties as key, and the values to which 
-               to set these uncertainties. 
+        scenario : Scenario instance
+                   keyword arguments for running the model. Scenario is 
+                   dict-like  with  the names of the uncertainties as key, and 
+                   the values to which to set these uncertainties.
+        policy :  Policy instance
+                  if policy has model_file as a field, than this will
+                  update the model_file, otherwise, the key, value pairs in 
+                  are assumed to be parameters in the vensim model analogous
+                  to scenario
         
         
         .. note:: setting parameters should always be done via run_model.
@@ -331,6 +336,7 @@ class VensimModelStructureInterface(FileModel):
                   each run.  
         
         """
+        super(VensimModelStructureInterface, self).run_model(scenario, policy)
                 
         if self.cin_file:
             try:
@@ -343,11 +349,11 @@ class VensimModelStructureInterface(FileModel):
         for lookup_uncertainty in self._lookup_uncertainties:
             # ask the lookup to transform the retrieved uncertainties to the 
             # proper lookup value
-            case[lookup_uncertainty.name] = lookup_uncertainty.transform(case)
+            scenario[lookup_uncertainty.name] = lookup_uncertainty.transform(scenario)
   
   
         constants = {entry.name:entry.value for entry in self.constants}
-        experiment = combine(case, self.policy, constants)
+        experiment = combine(scenario, self.policy, constants)
   
         for key, value in experiment.items():
             set_value(key, value)
@@ -380,7 +386,7 @@ class VensimModelStructureInterface(FileModel):
         self.output = results   
         if error:
             raise CaseError("run not completed, got %s, expected %s" %
-                            (got, self.run_length), case)  
+                            (got, self.run_length), scenario)  
 
 
     def reset_model(self):

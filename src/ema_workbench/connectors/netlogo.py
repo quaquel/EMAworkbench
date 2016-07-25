@@ -24,9 +24,9 @@ from . import pyNetLogo
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['NetLogoModelStructureInterface']
+__all__ = ['NetLogoModel']
 
-class NetLogoModelStructureInterface(FileModel):
+class NetLogoModel(FileModel):
     '''Base clase for interfacing with netlogo models. This class
     extends :class:`em_framework.ModelStructureInterface`.
     
@@ -69,8 +69,7 @@ class NetLogoModelStructureInterface(FileModel):
         separate working directory prior to calling `model_init`.
         
         """
-        super(NetLogoModelStructureInterface, self).__init__(name, wd=wd, 
-                                                             model_file=model_file)
+        super(NetLogoModel, self).__init__(name, wd=wd, model_file=model_file)
     
         self.run_length = None
        
@@ -89,7 +88,7 @@ class NetLogoModelStructureInterface(FileModel):
                  arguments. 
         
         '''
-        super(NetLogoModelStructureInterface, self).model_init(policy, kwargs)
+        super(NetLogoModel, self).model_init(policy, kwargs)
         
         self.netlogo = pyNetLogo.NetLogoLink()
         debug("netlogo started")
@@ -99,16 +98,14 @@ class NetLogoModelStructureInterface(FileModel):
         
     @method_logger
     @filter_scenario    
-    def run_model(self, case):
+    def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
         
         Parameters
         ----------
-        case : dict
-               keyword arguments for running the model. The case is a dict with 
-               the names of the uncertainties as key, and the values to which 
-               to set these uncertainties. 
+        scenario : Scenario instance
+        policy : Policy instance
         
         Raises
         ------
@@ -117,7 +114,10 @@ class NetLogoModelStructureInterface(FileModel):
         
         
         """
-        for key, value in case.iteritems():
+        super(NetLogoModel, self).run_model(scenario,
+                                                               policy)
+        
+        for key, value in scenario.iteritems():
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:

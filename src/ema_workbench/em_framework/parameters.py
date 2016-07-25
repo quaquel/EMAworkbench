@@ -6,7 +6,9 @@ from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
 import abc
+import itertools
 import numbers
+import six
 import warnings
 
 from .util import NamedObject
@@ -256,7 +258,11 @@ class Policy(NamedDict):
     pass
 
 class Scenario(NamedDict):
-    pass
+    job_counter = itertools.count()
+    
+    def __init__(self, **kwargs):
+        name = six.next(Scenario.job_counter)
+        super(Scenario, self).__init__(name, **kwargs)
 
 class Experiment(NamedObject):
 
@@ -269,4 +275,4 @@ class Experiment(NamedObject):
         self.policy = policy
         self.model = model
         self.experiment_id = experiment_id
-        self.scenario = Scenario(name, **kwargs)
+        self.scenario = Scenario(**kwargs)

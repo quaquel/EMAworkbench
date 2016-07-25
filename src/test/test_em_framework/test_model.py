@@ -15,7 +15,8 @@ except ImportError:
     import mock
 
 from ema_workbench.em_framework.model import Model, FileModel
-from ema_workbench.em_framework.parameters import RealParameter, Policy
+from ema_workbench.em_framework.parameters import (RealParameter, Policy, 
+                                                   Scenario)
 from ema_workbench.util import EMAError
 
 class FileModelTest(FileModel):
@@ -23,7 +24,7 @@ class FileModelTest(FileModel):
         self.policy = policy
         self.kwargs = kwargs
         
-    def run_model(self, case):
+    def run_model(self, m):
         pass
 
 class TestFileModel(unittest.TestCase):
@@ -80,7 +81,6 @@ class TestModel(unittest.TestCase):
         model.model_init(policy)
         
         self.assertEqual(policy, model.policy)
-        self.assertEqual({}, model.model_init_kwargs)
         self.assertEqual(model.function, policy_func)
         
         with self.assertRaises(AttributeError):
@@ -94,14 +94,8 @@ class TestModel(unittest.TestCase):
         
         model = Model(model_name, function)
         model.uncertainties = [RealParameter('a',  0 , 1)]
-        
-        model.model_init(Policy('test'))
-        
-        model.run_model({'a':0.1, 'b':1})
-        
+        model.run_model(Scenario(**{'a':0.1, 'b':1}), Policy('test'))
         function.assert_called_once_with(a=0.1)
-        
-        
     
     def test_cleanup(self):
         model_name = 'modelname'

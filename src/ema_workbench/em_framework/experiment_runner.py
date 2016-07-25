@@ -6,9 +6,9 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import copy
+import sys
 
 from ..util import ema_logging, EMAError, CaseError
-from pickle import PicklingError
 
 # Created on Aug 11, 2015
 # 
@@ -40,9 +40,9 @@ class ExperimentRunner(object):
     '''
     
     def __init__ (self, msis, model_kwargs):
-        self.msi_initialization = {}
         self.msis = msis
-        self.model_kwargs = model_kwargs
+        self.log_message = ('running scenario {scenario_id} for policy '
+                            '{policy_name} on model {model_name}')
     
     def cleanup(self):
         for msi in self.msis:
@@ -77,45 +77,25 @@ class ExperimentRunner(object):
         
         policy_name = experiment.policy.name
         model_name = experiment.model.name
-        msi = self.msis[model_name]
+        model = self.msis[model_name]
         policy = experiment.policy
         experiment_id = experiment.experiment_id
+        scenario_id = experiment.scenario.name
         
-        ema_logging.debug("running policy {} for experiment {}".format(policy_name, 
-                                                           experiment_id))
-        
-        # check whether we already initialized the model for this 
-        # policy
-        if not (policy_name, model_name) in self.msi_initialization.keys():
-            policy = copy.deepcopy(policy)
-            model_kwargs = copy.deepcopy(self.model_kwargs)
-            
-            try:
-                msi.model_init(policy, **model_kwargs)
-            except EMAError as inst:
-                ema_logging.exception(inst)
-                self.cleanup()
-                raise inst
-            except Exception as inst:
-                ema_logging.exception("some exception occurred when invoking the init")
-                self.cleanup()
-                raise inst
-                
-            ema_logging.debug("initialized model %s with policy %s" % (model_name, 
-                                                           policy_name))
-
-            self.msi_initialization = {(policy_name, model_name):self.msis[model_name]}
-        
-
-        case = copy.deepcopy(experiment.scenario)
+        ema_logging.debug(self.log_message.format(scenario_id = scenario_id,
+                                                  policy_name=policy_name,
+                                                  model_name = model_name))
+        scenario = copy.deepcopy(experiment.scenario)
         try:
-            msi.run_model(case)
+            model.run_model(scenario, policy)
         except CaseError as e:
             ema_logging.warning(str(e))
         except Exception as e:
-            raise EMAError('some exception has been raised by run_model '+str(e))
+            self.cleanup()
+            raise EMAError(("exception in run_model"
+                   "\nCaused by: {}: {}".format(type(e).__name__, str(e)))), None, sys.exc_info()[2]
             
-        output = msi.output
-        msi.reset_model()
+        output = model.output
+        model.reset_model()
         
         return output      
