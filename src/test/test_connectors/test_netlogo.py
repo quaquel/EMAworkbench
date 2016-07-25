@@ -5,7 +5,7 @@ Created on 18 mrt. 2013
 '''
 import os
 import unittest
-from ema_workbench.connectors.netlogo import NetLogoModelStructureInterface
+from ema_workbench.connectors.netlogo import NetLogoModel
 
 # should be made conditional on the presence of jpype
 __test__ = False
@@ -33,7 +33,7 @@ class Test(unittest.TestCase):
         wd = r"../models"
         model_file = r"/Wolf Sheep Predation.nlogo"
         
-        model = NetLogoModelStructureInterface("predPreyNetlogo", wd=wd,
+        model = NetLogoModel("predPreyNetlogo", wd=wd,
                                                        model_file=model_file)
         
     def test_run_model(self):
@@ -41,7 +41,7 @@ class Test(unittest.TestCase):
         
         model_file = r"/Wolf Sheep Predation.nlogo"
         
-        model = NetLogoModelStructureInterface("predPreyNetlogo", wd=wd,
+        model = NetLogoModel("predPreyNetlogo", wd=wd,
                                                model_file=model_file)
         
         model.run_length = 1000

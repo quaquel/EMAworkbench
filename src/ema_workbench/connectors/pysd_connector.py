@@ -12,7 +12,7 @@ from ..util import ema_logging
 from ema_workbench.util.ema_logging import method_logger
 from ema_workbench.em_framework.model import filter_scenario
 
-class PySDConnector(AbstractModel):
+class PysdModel(AbstractModel):
 
     def __init__(self, name=None, mdl_file=None):
         """
@@ -37,7 +37,7 @@ class PySDConnector(AbstractModel):
         if name is None:
             name = pysd.utils.make_python_identifier(mdl_file)[0].replace('_','')
         
-        super(PySDConnector, self).__init__(name)
+        super(PysdModel, self).__init__(name)
         self.mdl_file = mdl_file
         
         # Todo: replace when pysd adds an attribute for the .py filename
@@ -50,11 +50,12 @@ class PySDConnector(AbstractModel):
 
     @method_logger
     @filter_scenario
-    def run_model(self, case):
+    def run_model(self, scenario, policy):
+        super(PysdModel, self).run_model(scenario, policy)
         ema_logging.debug('running pysd model')
 
-        res = self.model.run(params=case,
-                         return_columns=[o.variable_name for o in self.outcomes])
+        res = self.model.run(params=scenario,
+                     return_columns=[o.variable_name for o in self.outcomes])
         
         # EMA wants output formatted properly
         output ={col: series.as_matrix() for col, series in res.iteritems()}
@@ -67,5 +68,5 @@ class PySDConnector(AbstractModel):
         implementation only sets the outputs to an empty dict.
 
         """
-        super(PySDConnector, self).reset_model()
+        super(PysdModel, self).reset_model()
         self.model.reset_state()

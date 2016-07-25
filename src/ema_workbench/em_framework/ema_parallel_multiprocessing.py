@@ -89,7 +89,7 @@ def worker(inqueue,
             success = True
         
         ema_logging.debug('putting result on outqueue')
-        outqueue.put((experiment_id, (success, (experiment, result))))
+        outqueue.put((experiment_id, (success, result)))
 
 class CalculatorPool(pool.Pool):
     '''
@@ -394,7 +394,7 @@ class CalculatorPool(pool.Pool):
 
         '''
         assert self._state == pool.RUN
-        result = EMAApplyResult(self._cache, callback, event)
+        result = EMAApplyResult(self._cache, callback, event, experiment)
         self._taskqueue.put((result._job, experiment))
 
     @classmethod
@@ -464,13 +464,14 @@ class EMAApplyResult(object):
     
     '''
 
-    def __init__(self, cache, callback, event):
+    def __init__(self, cache, callback, event, experiment):
         self._cond = threading.Condition(threading.Lock())
         self._job = job_counter.next()
         self._cache = cache
         self._ready = False
         self._callback = callback
         self._event = event
+        self.experiment = experiment
         cache[self._job] = self
 
     def ready(self):
@@ -493,17 +494,17 @@ class EMAApplyResult(object):
         if not self._ready:
             raise multiprocessing.TimeoutError
         if self._success:
-            return self._value
+            return self._result
         else:
-            raise self._value
+            raise self._result
 
     def _set(self, obj):
-        self._success, self._value = obj
+        self._success, self._result = obj
         
         if self._callback and self._success:
-            self._callback(*self._value)
+            self._callback(self.experiment, self._result)
         else:
-            ema_logging.warning(self._value)
+            ema_logging.warning(self._result)
             
         self._cond.acquire()
         try:

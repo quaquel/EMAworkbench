@@ -381,7 +381,6 @@ class TestEngine(unittest.TestCase):
         
         self.assertEqual(engine_id, engine.engine_id)
         self.assertEqual(msis, engine.msis)
-        self.assertEqual(kwargs, engine.runner.model_kwargs)
         self.assertEqual(experiment_runner.ExperimentRunner, type(engine.runner))
     
     @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.os') 
