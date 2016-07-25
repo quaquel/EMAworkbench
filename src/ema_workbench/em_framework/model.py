@@ -161,6 +161,7 @@ class AbstractModel(NamedObject):
         # update any attribute on object that is found in policy
         for key, value in policy.items():
             if hasattr(self, key):
+                value = policy.pop(key)
                 setattr(self, key, value)
                 
 

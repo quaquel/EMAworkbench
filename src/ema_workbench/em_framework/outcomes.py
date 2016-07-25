@@ -48,6 +48,14 @@ class AbstractOutcome(NamedObject):
     name : str
            Name of the outcome.
     kind : {INFO, MINIMZE, MAXIMIZE}, optional
+    variable_name : str, optional
+                    if the name of the outcome in the underlying model
+                    is different from the name of the outcome, you can 
+                    supply the variable name as an optional argument,
+                    if not provided, defaults to name
+    function : callable, optional
+               a callable to perform postprocessing on data retrieved from
+               model
     
     Attributes
     ----------
@@ -109,8 +117,11 @@ class ScalarOutcome(AbstractOutcome):
     
     '''   
     
-    def __init__(self, name, kind=AbstractOutcome.INFO):
-        super(ScalarOutcome, self).__init__(name, kind)
+    def __init__(self, name, kind=AbstractOutcome.INFO, variable_name=None, 
+                 function=None):
+        super(ScalarOutcome, self).__init__(name, kind, 
+                                            variable_name=variable_name,
+                                            function=function)
 
 
 class TimeSeriesOutcome(AbstractOutcome):
