@@ -37,14 +37,6 @@ from ema_workbench.util import ema_logging, EMAError, EMAParallelError
 launchers =[]
 blackhole = os.open(os.devnull, os.O_WRONLY)
  
-class DummyInterface(Model):
-    def model_init(self, policy, kwargs):
-        pass
-    
-    def run_model(self, case):
-        for outcome in self.outcomes:
-            self.output[outcome.name] = 1
- 
 # Launcher class
 class TestProcessLauncher(LocalProcessLauncher):
     """subclass LocalProcessLauncher, to prevent extra sockets and threads being created on Windows"""
@@ -158,7 +150,6 @@ class TestEngineLoggerAdapter(unittest.TestCase):
             adapter = ema.EngingeLoggerAdapter(mocked_logger, ema.SUBTOPIC)
             self.assertEqual(mocked_logger, adapter.logger)
             self.assertEqual(ema.SUBTOPIC, adapter.topic)
-  
   
             input_msg = 'test'
             input_kwargs = {}
@@ -364,7 +355,8 @@ class TestEngine(unittest.TestCase):
     def test_copy_wds_for_msis(self, mock_os, mock_shutil):
         mock_os.path.join.return_value = '.'
         
-        mock_msi = DummyInterface('test')
+        function = mock.Mock()
+        mock_msi = Model('test', function)
         
         kwargs = {}
         msis = {mock_msi.name: mock_msi}
@@ -417,7 +409,9 @@ class TestEngine(unittest.TestCase):
         mock_shutil.rmtree.assert_called_once_with(wd.format(engine_id))
        
     def test_run_experiment(self):
-        mock_msi = DummyInterface('test')
+        
+        function = mock.Mock()
+        mock_msi = Model('test', function)
         mock_runner = mock.create_autospec(experiment_runner.ExperimentRunner)
         
         kwargs = {}
@@ -443,7 +437,9 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
 
     @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.setup_working_directories')
     def test_initialize_engines(self, mocked_setup_working_directories):
-        mock_msi = DummyInterface('test')
+        
+        function = mock.Mock()
+        mock_msi = Model('test', function)
         msis = {mock_msi.name: mock_msi}
         
         mock_client = mock.create_autospec(ipyparallel.Client)
@@ -460,7 +456,9 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
 
     @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.os')
     def test_setup_working_directories(self, mock_os):
-        mock_msi = DummyInterface('test')
+        
+        function = mock.Mock()
+        mock_msi = Model('test', function)
         msis = {mock_msi.name: mock_msi}
         
         mock_client = mock.create_autospec(ipyparallel.Client)

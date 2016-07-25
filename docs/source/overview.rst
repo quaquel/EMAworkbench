@@ -53,6 +53,7 @@ to their own model.
 * Vensim connector (:mod:`vensim`): This enables controlling (e.g. setting 
   parameters, simulation setup, run, get output, etc.) a simulation model that 
   is built in Vensim software, and conducting an EMA study based on this model.
+* Pysd connector (:mod:`pysd_connector`)
 * Excel connector (:mod:`excel`): This enables controlling models build in 
   Excel.
 * NetLogo connector (:mod:`netlogo.py`): This enables controlling

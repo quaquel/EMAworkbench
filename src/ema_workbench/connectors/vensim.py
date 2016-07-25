@@ -24,6 +24,8 @@ from ..em_framework.util import NamedObjectMap, combine
 from ..em_framework import TimeSeriesOutcome, FileModel
 
 from ..util import debug, warning, CaseError, EMAError, EMAWarning
+from ..em_framework.model import filter_scenario
+from ..util.ema_logging import method_logger
 
 # Created on 25 mei 2011
 # 
@@ -301,6 +303,8 @@ class VensimModelStructureInterface(FileModel):
             raise EMAWarning(str(VensimWarning))
     
     
+    @method_logger
+    @filter_scenario
     def run_model(self, case):
         """
         Method for running an instantiated model structure. 

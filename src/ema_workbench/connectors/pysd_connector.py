@@ -3,11 +3,14 @@ pysd connector
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+import os
 
 import pysd
 
 from ..em_framework.model import AbstractModel
 from ..util import ema_logging
+from ema_workbench.util.ema_logging import method_logger
+from ema_workbench.em_framework.model import filter_scenario
 
 class PySDConnector(AbstractModel):
 
@@ -29,37 +32,34 @@ class PySDConnector(AbstractModel):
         """
         if not mdl_file.endswith('.mdl'):
             raise ValueError('model file needs to be a vensim .mdl file')
+        if not os.path.isfile(mdl_file):
+            raise ValueError('mdl_file not found')
         if name is None:
             name = pysd.utils.make_python_identifier(mdl_file)[0].replace('_','')
         
         super(PySDConnector, self).__init__(name)
-
         self.mdl_file = mdl_file
-        self.model = pysd.read_vensim(self.mdl_file)
         
         # Todo: replace when pysd adds an attribute for the .py filename
         self.py_model_name = mdl_file.replace('.mdl', '.py')
 
-    def model_init(self, policy, kwargs):
-        AbstractModel.model_init(self, policy, kwargs)
-        
-        try:
-            self.mdl_file = policy['mdl_file']
-        except KeyError:
-            pass
-        else:
-            self.model = pysd.read_vensim(self.mdl_file)
-        
+    @method_logger
+    def model_init(self, policy, **kwargs):
+        AbstractModel.model_init(self, policy, **kwargs)
+        self.model = pysd.read_vensim(self.mdl_file)
 
-    def run_model(self, kwargs):
+    @method_logger
+    @filter_scenario
+    def run_model(self, case):
         ema_logging.debug('running pysd model')
 
-        res = self.model.run(params=kwargs,
+        res = self.model.run(params=case,
                          return_columns=[o.variable_name for o in self.outcomes])
         
         # EMA wants output formatted properly
         output ={col: series.as_matrix() for col, series in res.iteritems()}
         self.output = output
+
 
     def reset_model(self):
         """
@@ -67,4 +67,5 @@ class PySDConnector(AbstractModel):
         implementation only sets the outputs to an empty dict.
 
         """
+        super(PySDConnector, self).reset_model()
         self.model.reset_state()

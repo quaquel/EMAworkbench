@@ -8,8 +8,10 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
+from functools import wraps
 import os
 import warnings
+
 
 try:
     from collections import MutableMapping
@@ -48,6 +50,27 @@ class ModelMeta(abc.ABCMeta):
         return abc.ABCMeta.__new__(mcls, name, bases, namespace)
 
 
+def filter_scenario(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # hack, because log is applied to methods, we can get
+        # object instance as first arguments in args
+        model_instance = args[0]
+        scenario = args[1]
+        
+        filtered_scenario = {}
+        for unc in model_instance.uncertainties:
+            try:
+                filtered_scenario[unc.name] = scenario[unc.name]
+            except KeyError:
+                if unc.default is not None:
+                    filtered_scenario[unc.name] = unc.default
+        
+        func(model_instance, filtered_scenario)
+        
+    return wrapper
+
+
 class AbstractModel(NamedObject):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
@@ -72,9 +95,6 @@ class AbstractModel(NamedObject):
     '''
     
     __metaclass__ = ModelMeta
-    
-    name = None 
-    _working_directory = None
 
     @property
     def output(self):
@@ -114,10 +134,9 @@ class AbstractModel(NamedObject):
 
         self._output = {}
         self._outcomes = NamedObjectMap(AbstractOutcome)
-
         
     @method_logger
-    def model_init(self, policy, kwargs):
+    def model_init(self, policy, **kwargs):
         '''
         Method called to initialize the model.
         
@@ -134,20 +153,18 @@ class AbstractModel(NamedObject):
         ----
         This method should always be implemented. Although in simple cases, a 
         simple pass can suffice.
-        
-        Note
-        ----
-        Anything that is relative to `self.working_directory` should be 
-        specified in :meth:`model_init` and not in :meth:`src`. Otherwise, 
-        the code will not work when running it in parallel. The reason for this 
-        is that the working directory is being updated to reflect the working
-        directory of the worker
          
         '''
         self.policy = policy
+        self.model_init_kwargs = kwargs
+
+        # update any attribute on object that is found in policy
+        for key, value in policy.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+                
 
     
-    @method_logger
     @abc.abstractmethod
     def run_model(self, case):
         """
@@ -160,11 +177,8 @@ class AbstractModel(NamedObject):
                the names of the uncertainties as key, values are the values
                to which to set these uncertainties. 
         
-        Note
-        ----
-        This method should always be implemented.
-        
         """
+        
 
     @method_logger
     def retrieve_output(self):
@@ -241,9 +255,14 @@ class Model(AbstractModel):
     
     def __init__(self, name, function=None):
         super(Model, self).__init__(name)
+        
+        if not callable(function):
+            raise ValueError('function should be callable')
+        
         self.function = function
-    
+
     @method_logger
+    @filter_scenario
     def run_model(self, case):
         """
         Method for running an instantiated model structure. 
@@ -260,10 +279,6 @@ class Model(AbstractModel):
         This method should always be implemented.
         
         """
-        
-        if not callable(self.function):
-            raise EMAError('no callable function specified')
-            
         constants = {c.name:c.value for c in self.constants}
         experiment = combine(case, self.policy, constants)
         result = self.function(**experiment)
@@ -313,13 +328,3 @@ class FileModel(AbstractModel):
         
         self.model_file = model_file
 
-    def model_init(self, policy, kwargs):
-        AbstractModel.model_init(self, policy, kwargs) 
-        
-        try:
-            model_file = policy.pop('model_file')
-        except KeyError:
-            pass
-        else:
-            self.model_file = model_file
-          

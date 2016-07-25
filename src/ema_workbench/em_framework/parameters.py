@@ -58,7 +58,8 @@ class Parameter(NamedObject):
     INTEGER = 'integer'
     UNIFORM = 'uniform'
     
-    def __init__(self, name, lower_bound, upper_bound, resolution=None):
+    def __init__(self, name, lower_bound, upper_bound, resolution=None,
+                 default=None):
         super(Parameter, self).__init__(name)
         
         if resolution is None:
@@ -75,6 +76,7 @@ class Parameter(NamedObject):
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
         self.resolution = resolution
+        self.default = default
         
     def __eq__ (self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
@@ -108,9 +110,10 @@ class RealParameter(Parameter):
     '''
     
     
-    def __init__(self, name, lower_bound, upper_bound, resolution=None):
+    def __init__(self, name, lower_bound, upper_bound, resolution=None, 
+                 default=None):
         super(RealParameter, self).__init__(name, lower_bound, upper_bound,
-                                            resolution)
+                                        resolution=resolution, default=default)
         
         self.dist = Parameter.UNIFORM
         
@@ -141,9 +144,10 @@ class IntegerParameter(Parameter):
     
     '''
     
-    def __init__(self, name, lower_bound, upper_bound, resolution=None):
+    def __init__(self, name, lower_bound, upper_bound, resolution=None, 
+                 default=None):
         super(IntegerParameter, self).__init__(name, lower_bound, upper_bound, 
-                                               resolution)
+                                        resolution=resolution, default=default)
         
         lb_int = isinstance(lower_bound, numbers.Integral) 
         up_int = isinstance(upper_bound, numbers.Integral)
@@ -173,12 +177,12 @@ class CategoricalParameter(IntegerParameter):
     
     '''
     
-    def __init__(self, name, categories):
+    def __init__(self, name, categories, default=None):
         lower_bound = 0
         upper_bound = len(categories)
 
         super(CategoricalParameter, self).__init__(name, lower_bound, 
-                                           upper_bound, resolution=None)
+                                upper_bound, resolution=None, default=default)
         self.resolution = list(categories)
         
     def index_for_cat(self, category):

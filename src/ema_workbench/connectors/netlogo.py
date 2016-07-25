@@ -13,8 +13,10 @@ import os
 
 import numpy as np
 
-from ..em_framework.model import FileModel
+from ..em_framework.model import FileModel, filter_scenario
+from ..util.ema_logging import method_logger
 from ..util import warning, debug 
+
                          
 from . import pyNetLogo
 
@@ -95,7 +97,8 @@ class NetLogoModelStructureInterface(FileModel):
         self.netlogo.load_model(path)
         debug("model opened")
         
-    
+    @method_logger
+    @filter_scenario    
     def run_model(self, case):
         """
         Method for running an instantiated model structure. 
