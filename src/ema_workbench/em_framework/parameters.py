@@ -7,11 +7,11 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 import abc
 import numbers
-import six
 import warnings
 
 from .util import NamedObject
 from ema_workbench.em_framework.util import NamedDict
+# from ema_workbench.em_framework.model import AbstractModel
 
 # Created on Jul 14, 2016
 #
@@ -260,14 +260,13 @@ class Scenario(NamedDict):
 
 class Experiment(NamedObject):
 
-    def __init__(self, name, model_name, policy, experiment_id, **kwargs):
+    def __init__(self, name, model, policy, experiment_id, **kwargs):
         super(Experiment, self).__init__(name)
         
-        if not isinstance(model_name, six.string_types):
-            raise ValueError('model_name should be a string')
-        
-        
+#         if not isinstance(model, AbstractModel):
+#             raise ValueError('pass the actual model instance')
+         
         self.policy = policy
-        self.model_name = model_name
+        self.model = model
         self.experiment_id = experiment_id
         self.scenario = Scenario(name, **kwargs)

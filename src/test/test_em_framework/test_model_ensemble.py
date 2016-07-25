@@ -83,9 +83,9 @@ class ModelEnsembleTestCase(unittest.TestCase):
         
         for experiment in experiments:
             self.assertEqual(experiment.policy.name, 'none', msg)
-            self.assertIn(experiment.model_name, ["A", "B", "C"], msg)
+            self.assertIn(experiment.model.name, ["A", "B", "C"], msg)
             
-            model = ensemble.model_structures[experiment.model_name]
+            model = experiment.model
             for unc in model.uncertainties:
                 self.assertIn(unc.name, experiment.scenario.keys())
 
@@ -104,9 +104,9 @@ class ModelEnsembleTestCase(unittest.TestCase):
 
         for experiment in experiments:
             self.assertEqual(experiment.policy.name, 'none', msg)
-            self.assertIn(experiment.model_name, ["A", "B", "C"], msg)
+            self.assertIn(experiment.model.name, ["A", "B", "C"], msg)
                         
-            model = ensemble.model_structures[experiment.model_name]
+            model = experiment.model
             for unc in [shared_abc_1, shared_abc_2]:
                 self.assertIn(unc.name, experiment.scenario.keys())
             self.assertNotEqual(len(experiment.scenario.keys()), len(model.uncertainties))

@@ -403,6 +403,6 @@ def experiment_generator(designs, model_structures, policies):
 #                 design = {unc:design[unc] for unc in keys}
                 experiment_id =  six.next(job_counter)
                 name = '{} {} {}'.format(msi.name, policy.name, experiment_id)
-                experiment = Experiment(name, msi.name, policy, experiment_id, 
+                experiment = Experiment(name, msi, policy, experiment_id, 
                                         **design)
                 yield experiment
