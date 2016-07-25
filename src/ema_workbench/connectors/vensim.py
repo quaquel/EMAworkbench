@@ -263,7 +263,7 @@ class VensimModelStructureInterface(FileModel):
         debug("vensim interface init completed")
         
 
-    def model_init(self, policy, kwargs):
+    def model_init(self, policy, **kwargs):
         """
         Init of the model, The provided implementation here assumes
         that `self.model_file`  is set correctly. In case of using different
@@ -281,7 +281,7 @@ class VensimModelStructureInterface(FileModel):
                  gives users to the ability to pass any additional 
                  arguments. 
         """
-        super(VensimModelStructureInterface, self).model_init(policy, kwargs)
+        super(VensimModelStructureInterface, self).model_init(policy, **kwargs)
 
         load_model(self.working_directory+self.model_file) #load the model
         
@@ -376,19 +376,7 @@ class VensimModelStructureInterface(FileModel):
                     result = data
                     error = True
 
-            # TODO:: should be replaced with a call to the outcome itself
-            # step can also be done in a time series outcome, instead of here
-            if not isinstance(output, TimeSeriesOutcome):
-                result = result[-1] 
-            else:
-                result = result[0::self.step]
-            
-            
-            try:
-                results[output.name] = result
-            except ValueError as e:
-                print("what")
-                raise e
+            results[output.name] = result
         self.output = results   
         if error:
             raise CaseError("run not completed, got %s, expected %s" %
