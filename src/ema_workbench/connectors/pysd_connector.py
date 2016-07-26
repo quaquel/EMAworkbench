@@ -38,16 +38,16 @@ class PySDConnector(ModelStructureInterface):
         else:
             self.outcomes = []
 
-        self.outcomes.append(Outcome('TIME', time=True))
-
-        self.model = pysd.read_vensim(mdl_file)
+#         self.outcomes.append(Outcome('TIME', time=True))
+        self.mdl_file = mdl_file
+        
         # Todo: replace when pysd adds an attribute for the .py filename
         self.py_model_name = mdl_file.replace('.mdl', '.py')
         super(PySDConnector, self).__init__(working_directory, name)
 
     def model_init(self, policy, kwargs):
         # Todo: need to see what the arguments to this function should do
-        pass
+        self.model = pysd.read_vensim(self.mdl_file)
 
     def run_model(self, kwargs):
         res = self.model.run(params=kwargs,
