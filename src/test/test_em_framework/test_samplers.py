@@ -3,14 +3,20 @@ Created on 21 jan. 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+from __future__ import (absolute_import, unicode_literals, division, 
+                        print_function)
+
+import mock
 import unittest
 
 from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler, 
-                                FullFactorialSampler, PartialFactorialSampler)
+                                FullFactorialSampler, PartialFactorialSampler,
+                                determine_parameters)
 from ema_workbench.em_framework.uncertainties import (RealParameter, 
                                                       IntegerParameter, 
                                                       CategoricalParameter)
 
+from ema_workbench.em_framework import Model
 
 
 class SamplerTestCase(unittest.TestCase):
@@ -67,7 +73,29 @@ class SamplerTestCase(unittest.TestCase):
         received = {u.name for u in other}
         expected = {'c', 'd'}
         self.assertEqual(received, expected)
+ 
+    def test_determine_parameters(self):
+        function = mock.Mock()
+        model_a = Model("A", function)
+        model_a.uncertainties = [RealParameter('a', 0, 1),
+                                 RealParameter('b', 0, 1),]
+        function = mock.Mock()
+        model_b = Model("B", function)
+        model_b.uncertainties = [RealParameter('b', 0, 1),
+                                 RealParameter('c', 0, 1),]
         
+        models = [model_a, model_b]
+        
+        parameters = determine_parameters(models, 'uncertainties', union=True)
+        for model in models:
+            for unc in model.uncertainties:
+                self.assertIn(unc.name, parameters.keys())
+        
+        parameters = determine_parameters(models, 'uncertainties', union=False)
+        self.assertIn('b', parameters.keys())
+        self.assertNotIn('c', parameters.keys())
+        self.assertNotIn('a', parameters.keys())#         
+
 
 if __name__ == "__main__":
     unittest.main()

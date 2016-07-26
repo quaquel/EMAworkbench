@@ -79,7 +79,6 @@ class ExperimentRunner(object):
         model_name = experiment.model.name
         model = self.msis[model_name]
         policy = experiment.policy
-        experiment_id = experiment.experiment_id
         scenario_id = experiment.scenario.name
         
         ema_logging.debug(self.log_message.format(scenario_id = scenario_id,

@@ -453,8 +453,102 @@ class PartialFactorialSampler(AbstractSampler):
         designs = PartialFactorialDesigns(ff_designs, other_designs)
         
         return designs, nr_designs
-   
-   
+
+    
+def determine_parameters(models, attribute, union=True):
+    '''determine the parameters over which to sample
+    
+    Parameters
+    ----------
+    models : a collection of AbstractModel instances
+    attribute : {'uncertainties', 'levers'}
+    union : bool, optional
+            in case of multiple models, sample over the union of
+            levers, or over the intersection of the levers
+    sampler : Sampler instance, optional
+    
+    Returns
+    -------
+    collection of Parameter instances
+    
+    '''
+    parameters = getattr(models[0], attribute).copy()
+    intersection = set(parameters.keys())
+    
+    # gather parameters across all models
+    # TODO:: need to make slice work on NamedObjectMap
+    for model in models[1::]:
+        model_params = getattr(model, attribute)
+        
+        # relies on name based identity, do we want that?
+        parameters.extend(model_params)
+
+        intersection = intersection.intersection(model_params.keys())
+    
+    # in case not union, remove all parameters not in intersection
+    if not union:
+        params_to_remove = set(parameters.keys()) - intersection
+        for key in params_to_remove:
+            del parameters[key]
+    return parameters
+            
+def sample_levers(models, n_samples, union=True, sampler=LHSSampler):
+    '''generate policies by sampling over the levers
+    
+    Parameters
+    ----------
+    models : a collection of AbstractModel instances
+    n_samples : int
+    union : bool, optional
+            in case of multiple models, sample over the union of
+            levers, or over the intersection of the levers
+    sampler : Sampler instance, optional
+    
+    Returns
+    -------
+    generator yielding Policy instances
+    
+    '''
+    levers = determine_parameters(models, 'levers', union=union)
+    samples, n = sampler.generate_designs(levers, n_samples)
+    
+    # wrap samples in Policy
+    raise Exception()
+    
+
+def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler):
+    '''generate scenarios by sampling over the uncertainties
+    
+    Parameters
+    ----------
+    models : a collection of AbstractModel instances
+    n_samples : int
+    union : bool, optional
+            in case of multiple models, sample over the union of
+            uncertainties, or over the intersection of the uncertianties
+    sampler : Sampler instance, optional
+    
+    Returns
+    -------
+    generator 
+        yielding Scenario instances
+    collection
+        the collection of parameters over which to sample
+    n_samples
+        the number of scenarios (!= n_samples in case off FF sampling)
+    
+    
+    '''
+    uncertainties = determine_parameters(models, 'uncertainties', union=union)
+    samples, n = sampler.generate_designs(uncertainties, n_samples)
+    
+    return samples, uncertainties, n
+    # wrap samples in Scenario
+
+
+
+
+
 class AbstractDesignsIterable(object):
     '''iterable for the experimental designs'''
     
@@ -491,7 +585,7 @@ class PartialFactorialDesigns(object):
         return partial_designs_generator(designs)
 
 def partial_designs_generator(designs):
-    '''generator which combines the full factorial part of the desing with
+    '''generator which combines the full factorial part of the design with
     the non full factorial part into a single dict
     
     Parameters
