@@ -51,7 +51,11 @@ class TestPySDConnector(unittest.TestCase):
         self.assertEqual(experiments.shape[0], nr_runs)
 
     def test_add_outcomes(self):
-        model = PySDConnector('../models/Teacup.mdl',
+        relative_path_to_file = '../models/Teacup.mdl'
+        directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        mdl_file = os.path.join(directory, relative_path_to_file)
+        
+        model = PySDConnector(mdl_file,
                               uncertainties_dict={'Room Temperature': (33, 120)},
                               outcomes_list=['Teacup Temperature'])
 
