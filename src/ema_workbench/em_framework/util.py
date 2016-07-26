@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
-
+import copy
 from collections import OrderedDict, MutableMapping
 from weakref import WeakKeyDictionary
 
@@ -46,7 +46,13 @@ class NamedObjectMap(object):
          
     def clear(self):
         self._data = OrderedDict()
-         
+    
+    def copy(self):
+        copy = NamedObjectMap(self.type)
+        copy._data = self._data.copy()
+        
+        return copy 
+        
     def __len__(self):
         return len(self._data)
  

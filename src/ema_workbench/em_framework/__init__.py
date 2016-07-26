@@ -4,13 +4,13 @@ __all__ = ["ema_parallel", "model_ensemble",
            "model", "outcomes", "samplers", "uncertainties", 'RealUncertainty', 
            "IntegerUncertainty", "CategoricalUncertainty",  
            "Model", 'FileModel', "ModelEnsemble",
-           "UNION", "INTERSECTION", "ScalarOutcome", "TimeSeriesOutcome",
+           "ScalarOutcome", "TimeSeriesOutcome",
            "RealParameter", "IntegerParameter", "CategoricalParameter", 
            "Outcome"]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
 from .uncertainties import (ParameterUncertainty, CategoricalUncertainty)
 from .model import Model, FileModel
-from .model_ensemble import (ModelEnsemble, UNION, INTERSECTION)
+from .model_ensemble import (ModelEnsemble)
 from .parameters import RealParameter, IntegerParameter, CategoricalParameter
 
