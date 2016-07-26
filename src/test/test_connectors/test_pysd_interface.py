@@ -7,7 +7,7 @@ import os
 import unittest
 
 from ema_workbench.em_framework import ModelEnsemble
-
+from ema_workbench.connectors import PySDConnector
 
 class TestPySDConnector(unittest.TestCase):
 
@@ -18,7 +18,7 @@ class TestPySDConnector(unittest.TestCase):
         -------
 
         """
-        from ema_workbench.connectors import PySDConnector
+        
         relative_path_to_file = '../models/Teacup.mdl'
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
@@ -34,8 +34,6 @@ class TestPySDConnector(unittest.TestCase):
         -------
 
         """
-        from ema_workbench.connectors import PySDConnector
-
         relative_path_to_file = '../models/Teacup.mdl'
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
@@ -51,14 +49,8 @@ class TestPySDConnector(unittest.TestCase):
         experiments, outcomes = ensemble.perform_experiments(nr_runs)
 
         self.assertEqual(experiments.shape[0], nr_runs)
-        self.assertIn('TIME', outcomes.keys())
-
-
 
     def test_add_outcomes(self):
-        from ema_workbench.connectors import PySDConnector
-        
-
         model = PySDConnector('../models/Teacup.mdl',
                               uncertainties_dict={'Room Temperature': (33, 120)},
                               outcomes_list=['Teacup Temperature'])
@@ -71,9 +63,7 @@ class TestPySDConnector(unittest.TestCase):
         experiments, outcomes = ensemble.perform_experiments(nr_runs)
 
         self.assertEqual(experiments.shape[0], nr_runs)
-        self.assertIn('TIME', outcomes.keys())
         self.assertIn('Teacup Temperature', outcomes.keys())
-
 
     def test_parallel_experiment(self):
         """
@@ -82,8 +72,6 @@ class TestPySDConnector(unittest.TestCase):
         -------
 
         """
-        from ema_workbench.connectors import PySDConnector
-        
         relative_path_to_file = '../models/Teacup.mdl'
         directory = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
         mdl_file = os.path.join(directory, relative_path_to_file)
@@ -127,3 +115,7 @@ class TestPySDConnector(unittest.TestCase):
         ensemble = ModelEnsemble()  # instantiate an ensemble
         ensemble.model_structures = [market_model, motivation_model]  # set the model on the ensemble
         results = ensemble.perform_experiments(cases=20)
+
+
+if __name__ == '__main__':
+    unittest.main()
