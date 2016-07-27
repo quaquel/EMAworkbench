@@ -15,7 +15,7 @@ from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler,
 from ema_workbench.em_framework.uncertainties import (RealParameter, 
                                                       IntegerParameter, 
                                                       CategoricalParameter)
-
+from ema_workbench.em_framework.parameters import Scenario
 from ema_workbench.em_framework import Model
 
 
@@ -26,6 +26,7 @@ class SamplerTestCase(unittest.TestCase):
 
     def _test_generate_designs(self, sampler):
         designs, nr_designs = sampler.generate_designs(self.uncertainties, 10)
+        designs.kind = Scenario
         msg = 'tested for {}'.format(type(sampler))
         
         actual_nr_designs = 0
@@ -58,6 +59,7 @@ class SamplerTestCase(unittest.TestCase):
 
         sampler = PartialFactorialSampler()
         designs, nr_designs = sampler.generate_designs(uncs, 10, ['a', 'b'])
+        designs.kind = Scenario
         
         expected = 60
         self.assertEqual(expected, nr_designs)
@@ -94,7 +96,7 @@ class SamplerTestCase(unittest.TestCase):
         parameters = determine_parameters(models, 'uncertainties', union=False)
         self.assertIn('b', parameters.keys())
         self.assertNotIn('c', parameters.keys())
-        self.assertNotIn('a', parameters.keys())#         
+        self.assertNotIn('a', parameters.keys())    
 
 
 if __name__ == "__main__":

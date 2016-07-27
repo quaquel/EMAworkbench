@@ -68,7 +68,7 @@ if __name__ == "__main__":
                      
 
     ensemble = ModelEnsemble()
-    ensemble.model_structure = model
+    ensemble.model_structures = model
     
     ensemble.parallel = True #turn on parallel processing
 

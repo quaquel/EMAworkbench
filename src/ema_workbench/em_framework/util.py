@@ -8,6 +8,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 import copy
 from collections import OrderedDict, MutableMapping
 from weakref import WeakKeyDictionary
+from UserDict import UserDict
 
 try:
     # we assume python 2
@@ -137,32 +138,14 @@ class NamedObjectMapDescriptor(object):
         
         map.extend(values)
 
-class NamedDict(NamedObject, MutableMapping):
+class NamedDict(UserDict, NamedObject):
     
     def __init__(self, name=None, **kwargs):
-        self._dict = dict(**kwargs)
-        
+        super(NamedDict, self).__init__(**kwargs)
         if name is None:
-            name = repr(self._dict)
-        
-        super(NamedDict, self).__init__(name)
-        
-        
-    def __getitem__(self, key):
-        return self._dict[key]
-
-    def __setitem__(self, key, value):
-        self._dict[key] = value
-    
-    def __delitem__(self, key):
-        del self._dict[key]
-        
-    def __iter__(self):
-        return iter(self._dict)
-    
-    def __len__(self):
-        return len(self._dict)
-
+            name = repr(self)
+        self.name = name
+   
     
 def combine(*args):
     '''combine scenario and policy into a single experiment dict

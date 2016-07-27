@@ -14,8 +14,7 @@ from ema_workbench.em_framework.callbacks import DefaultCallback
 from ema_workbench.em_framework.uncertainties import (CategoricalParameter,
                                                       RealParameter, 
                                                       IntegerParameter)
-from ema_workbench.em_framework.parameters import Policy                                           ,\
-    Experiment
+from ema_workbench.em_framework.parameters import Policy, Scenario, Experiment
 from ema_workbench.util import EMAError
 from ema_workbench.em_framework.outcomes import TimeSeriesOutcome 
 from ema_workbench.em_framework.util import NamedObject
@@ -44,9 +43,8 @@ class TestDefaultCallback(unittest.TestCase):
                RealParameter("b", 0, 1)]
         outcomes = [TimeSeriesOutcome("test")]
         model = NamedObject('test')
-        policy  = NamedObject('policy')
 
-        experiment = Experiment(0, model, policy, 0, a=1)
+        experiment = Experiment(0, model, Policy('policy'), Scenario(a=1), 0)
      
         # case 1 scalar shape = (1)
         callback = DefaultCallback(uncs, 
@@ -111,8 +109,9 @@ class TestDefaultCallback(unittest.TestCase):
         case["d"] = int(round(case["d"]))
         
         model = NamedObject('test')
-        policy  = NamedObject('policy')
-        experiment = Experiment(0, model, policy, 0, **case)
+        policy  = Policy('policy')
+        scenario = Scenario(**case)
+        experiment = Experiment(0, model, policy, scenario, 0)
      
         callback = DefaultCallback(uncs, 
                                    [outcome.name for outcome in outcomes], 

@@ -8,7 +8,8 @@ Monte Carlo sampling.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-from .parameters import (CategoricalParameter, IntegerParameter)
+from .parameters import (CategoricalParameter, IntegerParameter, Policy, 
+                         Scenario)
 
 try:
     from future_builtins import zip
@@ -146,27 +147,6 @@ class AbstractSampler(object):
         designs = DefaultDesigns(sampled_parameters, params)
         
         return designs, nr_samples
-
-#     def determine_nr_of_designs(self, sampled_parameters):
-#         '''
-#         Helper function for determining the number of experiments that will
-#         be generated given the sampled parameters.
-#         
-#         Parameters
-#         ----------
-#         sampled_parameters : list 
-#                         a list of sampled parameters, Typically,
-#                         this will be the values of the dict returned by
-#                         :meth:`generate_samples`. 
-#         
-#         Returns
-#         -------
-#         int
-#             the total number of experimental design
-#         
-#         '''
-#         
-#         return len(next(iter(sampled_parameters.values())))
 
 
 class LHSSampler(AbstractSampler):
@@ -472,12 +452,12 @@ def determine_parameters(models, attribute, union=True):
     collection of Parameter instances
     
     '''
-    parameters = getattr(models[0], attribute).copy()
+    models = iter(models)
+    parameters = getattr(next(models), attribute).copy()
     intersection = set(parameters.keys())
     
     # gather parameters across all models
-    # TODO:: need to make slice work on NamedObjectMap
-    for model in models[1::]:
+    for model in models:
         model_params = getattr(model, attribute)
         
         # relies on name based identity, do we want that?
@@ -491,7 +471,8 @@ def determine_parameters(models, attribute, union=True):
         for key in params_to_remove:
             del parameters[key]
     return parameters
-            
+
+
 def sample_levers(models, n_samples, union=True, sampler=LHSSampler):
     '''generate policies by sampling over the levers
     
@@ -511,10 +492,8 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler):
     '''
     levers = determine_parameters(models, 'levers', union=union)
     samples, n = sampler.generate_designs(levers, n_samples)
-    
-    # wrap samples in Policy
-    raise Exception()
-    
+    samples.kind = Policy
+    return samples, levers, n
 
 def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler):
     '''generate scenarios by sampling over the uncertainties
@@ -541,12 +520,9 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler):
     '''
     uncertainties = determine_parameters(models, 'uncertainties', union=union)
     samples, n = sampler.generate_designs(uncertainties, n_samples)
+    samples.kind = Scenario
     
     return samples, uncertainties, n
-    # wrap samples in Scenario
-
-
-
 
 
 class AbstractDesignsIterable(object):
@@ -557,6 +533,7 @@ class AbstractDesignsIterable(object):
     def __init__(self, sampled_params, parameters):
         self.sampled_params = sampled_params
         self.params = parameters
+        self.kind = None
     
     @abc.abstractmethod 
     def __iter__(self):
@@ -566,19 +543,31 @@ class AbstractDesignsIterable(object):
 class DefaultDesigns(AbstractDesignsIterable):
     def __iter__(self):
         designs = zip(*[self.sampled_params[u] for u in self.params]) 
-        return design_generator(designs, self.params)
+        return design_generator(designs, self.params, self.kind)
 
 
 class FullFactorialDesigns(AbstractDesignsIterable):
     def __iter__(self):
         designs = itertools.product(*[self.sampled_params[u] for u in self.params])
-        return design_generator(designs, self.params)
+        return design_generator(designs, self.params, self.kind)
 
 
 class PartialFactorialDesigns(object):
+    
+    @property
+    def kind(self):
+        return self._kind
+    
+    @kind.setter
+    def kind(self, value):
+        self._kind = value
+        self.ff_designs.kind = value
+        self.other_designs.kind = value
+    
     def __init__(self, ff_designs, other_designs):
         self.ff_designs = ff_designs
         self.other_designs = other_designs
+        self._kind = None
     
     def __iter__(self):
         designs =  itertools.product(self.ff_designs, self.other_designs)
@@ -608,7 +597,7 @@ def partial_designs_generator(designs):
         
         yield design
 
-def design_generator(designs, params):
+def design_generator(designs, params, kind):
     '''generator that combines the sampled parameters with their correct 
     name in order to return dicts.
     
@@ -626,5 +615,5 @@ def design_generator(designs, params):
     
     for design in designs:
         design = {param:design[i] for i, param in enumerate(params)}
-        yield design
+        yield kind(**design)
         

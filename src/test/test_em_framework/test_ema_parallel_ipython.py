@@ -4,6 +4,9 @@ test code for ema_parallel_ipython. The setup and teardown of the cluster is
 taken from the ipyparallel test code with some minor adaptations
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+from __future__ import (unicode_literals, division, print_function, 
+                        absolute_import)
+
 import logging
 
 try:
@@ -15,6 +18,7 @@ import os
 import socket
 import time
 import unittest
+import warnings
 
 from subprocess import Popen, STDOUT
 
@@ -37,6 +41,8 @@ from ema_workbench.util import ema_logging, EMAError, EMAParallelError
 launchers =[]
 blackhole = os.open(os.devnull, os.O_WRONLY)
  
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='.*/ipyparallel/.*')
+
 # Launcher class
 class TestProcessLauncher(LocalProcessLauncher):
     """subclass LocalProcessLauncher, to prevent extra sockets and threads being created on Windows"""
@@ -87,7 +93,8 @@ def add_engines(n=1, profile='iptest', total=False):
         time.sleep(.1)
     rc.close()
     return eps
- 
+  
+  
 def setUpModule():
     cluster_dir = os.path.join(get_ipython_dir(), 'profile_default')
     engine_json = os.path.join(cluster_dir, 'security', 'ipcontroller-engine.json')
@@ -95,7 +102,7 @@ def setUpModule():
     for json in (engine_json, client_json):
         if os.path.exists(json):
             os.remove(json)
-     
+      
     cp = TestProcessLauncher()
     cp.cmd_and_args = ipcontroller_cmd_argv + \
                 ['--profile=default', '--log-level=20']
@@ -108,7 +115,7 @@ def setUpModule():
         elif time.time()-tic > 15:
             raise RuntimeError("Timeout waiting for the test controller to start.")
         time.sleep(0.1)
-         
+          
     add_engines(2, profile='default', total=True)
      
  
@@ -315,6 +322,7 @@ class TestEngine(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.client = ipyparallel.Client(profile='default')
+#         cls.client = ipyparallel.Client()
  
     @classmethod
     def tearDownClass(cls):
@@ -358,10 +366,9 @@ class TestEngine(unittest.TestCase):
         function = mock.Mock()
         mock_msi = Model('test', function)
         
-        kwargs = {}
         msis = {mock_msi.name: mock_msi}
         engine_id = 0
-        engine = ema.Engine(engine_id, msis, kwargs)
+        engine = ema.Engine(engine_id, msis)
         engine.root_dir = '/dir_name'        
         
         dirs_to_copy = ['/test']
@@ -374,10 +381,9 @@ class TestEngine(unittest.TestCase):
         self.assertEqual('.', mock_msi.working_directory)
         
     def test_init(self):
-        kwargs = {}
         msis = {}
         engine_id = 0
-        engine = ema.Engine(engine_id, msis, kwargs)
+        engine = ema.Engine(engine_id, msis)
         
         self.assertEqual(engine_id, engine.engine_id)
         self.assertEqual(msis, engine.msis)
@@ -386,10 +392,9 @@ class TestEngine(unittest.TestCase):
     @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.os') 
     @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.shutil') 
     def test_setup_wd(self, mock_shutil, mock_os):
-        kwargs = {}
         msis = {}
         engine_id = 0
-        engine = ema.Engine(engine_id, msis, kwargs)
+        engine = ema.Engine(engine_id, msis)
         
         # directory does not exist
         mock_os.path.isdir.return_value = False
@@ -413,10 +418,9 @@ class TestEngine(unittest.TestCase):
         mock_msi = Model('test', function)
         mock_runner = mock.create_autospec(experiment_runner.ExperimentRunner)
         
-        kwargs = {}
         msis = {mock_msi.name: mock_msi}
         engine_id = 0
-        engine = ema.Engine(engine_id, msis, kwargs)
+        engine = ema.Engine(engine_id, msis)
         engine.runner = mock_runner
         
         experiment = {'a': 1}

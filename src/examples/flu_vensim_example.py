@@ -53,7 +53,7 @@ if __name__ == '__main__':
        RealParameter("normal contact rate region 2",10,200)]
  
     ensemble = ModelEnsemble()
-    ensemble.model_structure = model
+    ensemble.model_structures = model
 
     #add policies
     policies = [Policy('no policy',

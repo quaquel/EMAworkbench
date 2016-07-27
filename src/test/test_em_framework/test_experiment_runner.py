@@ -16,7 +16,7 @@ import unittest
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
 from ema_workbench.em_framework.model import Model, AbstractModel
 from ema_workbench.util import EMAError, CaseError
-from ema_workbench.em_framework.parameters import Policy, Experiment
+from ema_workbench.em_framework.parameters import Policy, Experiment, Scenario
 
 class ExperimentRunnerTestCase(unittest.TestCase):
     
@@ -25,7 +25,7 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         mockMSI.name = 'test'
         msis = {'test':mockMSI}
 
-        runner = ExperimentRunner(msis, {})
+        runner = ExperimentRunner(msis)
         
         self.assertEqual(msis, runner.msis)
     
@@ -37,12 +37,12 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         msis = NamedObjectMap(AbstractModel)
         msis['test'] = mockMSI
 
-        runner = ExperimentRunner(msis, {})
+        runner = ExperimentRunner(msis)
         
         experiment = Experiment('test',
                                 mockMSI,
                                 Policy('none'),  
-                                0, a=1, b=2)
+                                Scenario(a=1, b=2), 0)
         
         runner.run_experiment(experiment)
         
@@ -60,10 +60,10 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         msis = NamedObjectMap(AbstractModel)
         msis['test'] = mockMSI
         
-        runner = ExperimentRunner(msis, {})
+        runner = ExperimentRunner(msis)
     
         experiment = Experiment('test',mockMSI,Policy('none'),  
-                      0, a=1, b=2)
+                      Scenario(a=1, b=2),0)
 
         with self.assertRaises(EMAError):
             runner.run_experiment(experiment)
@@ -74,10 +74,10 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         mockMSI.run_model.side_effect = CaseError("message", {})
         msis = NamedObjectMap(AbstractModel)
         msis['test'] = mockMSI
-        runner = ExperimentRunner(msis, {})
+        runner = ExperimentRunner(msis)
     
         experiment = Experiment('test',mockMSI,Policy('none'),  
-                      0, a=1, b=2)
+                      Scenario(a=1, b=2),0)
 
         runner.run_experiment(experiment)
         

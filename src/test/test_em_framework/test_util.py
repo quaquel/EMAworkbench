@@ -24,14 +24,17 @@ class TestNamedDict(unittest.TestCase):
         nd = util.NamedDict(name, **kwargs)
         
         self.assertEqual(nd.name, name, 'name not equal')
-        self.assertEqual(nd._dict, kwargs, 'kwargs not set on inner dict correctly')
+        
+        for key, value in nd.items():
+            self.assertEqual(kwargs[key], value, 'kwargs not set on inner dict correctly')
         
         kwargs = {'a':1, 'b':2}
 
         nd = util.NamedDict(**kwargs)
         
         self.assertEqual(nd.name, repr(kwargs), 'name not equal')
-        self.assertEqual(nd._dict, kwargs, 'kwargs not set on inner dict correctly')
+        for key, value in nd.items():
+            self.assertEqual(kwargs[key], value, 'kwargs not set on inner dict correctly')
         
         # test len
         self.assertEqual(2, len(nd), 'length not correct')

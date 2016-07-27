@@ -8,6 +8,8 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 from ema_workbench.em_framework import parameters
 
 import unittest
+from ema_workbench.em_framework.outcomes import create_outcomes
+from pandas.util.testing import assertRaises
     
 class RealParameterTestCase(unittest.TestCase):
     def test_instantiation(self):
@@ -167,6 +169,25 @@ class CategoricalParameterTestCase(unittest.TestCase):
         with self.assertRaises(IndexError):
             par1.cat_for_index(3)
 
-    
+class CreateOutcomesTestCase(unittest.TestCase):
+    def test_create_outcomes(self):
+        outcome_list = [dict(type='scalar', name='a'), 
+                        dict(type='timeseries', name='b')]
+
+        outcomes = create_outcomes(outcome_list)
+        
+        for x, y in zip(outcome_list, outcomes):
+            self.assertEqual(x['name'], y.name)
+            
+        with assertRaises(ValueError):
+            outcome_list = [dict(type='unknown', name='a')]
+            outcomes = create_outcomes(outcome_list)
+        
+        with assertRaises(ValueError):
+            outcome_list = [dict(kind='unknown', name='a')]
+            outcomes = create_outcomes(outcome_list)
+
+            
+
 if __name__ == "__main__":
     unittest.main()

@@ -32,9 +32,9 @@ class ScarcityModel(VensimModelStructureInterface):
         
         return (x+2000, scale*1/(1+exp(-1* speed * x)) +start)
 
-    def run_model(self, kwargs):
+    def run_model(self, scenario, policy):
         """Method for running an instantiated model structure """
-        
+        kwargs = scenario
         loc = kwargs.pop("lookup shortage loc")
         speed = kwargs.pop("lookup shortage speed")
         lookup = [self.f(x/10, speed, loc) for x in range(0,100)]
@@ -57,7 +57,7 @@ class ScarcityModel(VensimModelStructureInterface):
         lookup = [self.approxLearning(x, speed, scale, start) for x in range(0, 101, 10)]
         kwargs['approximated learning effect lookup'] = lookup
         
-        super(ScarcityModel, self).run_model(kwargs)
+        super(ScarcityModel, self).run_model(kwargs, policy)
 
 
 if __name__ == "__main__":
@@ -117,6 +117,6 @@ if __name__ == "__main__":
              RealParameter("lookup approximated learning start", 30, 60)]
     
     ensemble = ModelEnsemble()
-    ensemble.model_structure = model
+    ensemble.model_structures = model
 #     ensemble.parallel = True
     results = ensemble.perform_experiments(50)

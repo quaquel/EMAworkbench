@@ -19,7 +19,7 @@ import unittest
 import time
 import threading
 
-from ema_workbench.em_framework.parameters import Experiment, Policy
+from ema_workbench.em_framework.parameters import Experiment, Policy, Scenario
 from ema_workbench.em_framework import (Model, ema_parallel_multiprocessing)
 from ema_workbench.util import EMAError
 
@@ -114,7 +114,8 @@ class WorkerTestCase(unittest.TestCase):
         #     - exception
  
         # setup of test, we get a normal case 
-        experiment = Experiment('try', mockMSI.name, Policy('none'), 0, a=1)
+        experiment = Experiment('try', mockMSI.name, Policy('none'), 
+                                Scenario(a=1), 0)
         mocked_inqueue.get.return_value = (0, experiment)
         mocked_inqueue.get.side_effect = None        
          
@@ -136,7 +137,8 @@ class WorkerTestCase(unittest.TestCase):
         mocked_runner().reset_mock()
           
         # running experiment raises EMAError
-        experiment = Experiment('try', mockMSI.name, Policy('none'), 0, a=1)
+        experiment = Experiment('try', mockMSI.name, Policy('none'), 
+                                Scenario(a=1), 0)
         mocked_inqueue.get.return_value = (0, experiment)
         mocked_inqueue.get.side_effect = None   
           
@@ -158,7 +160,8 @@ class WorkerTestCase(unittest.TestCase):
         mocked_runner().reset_mock()
   
         # running experiment works fine
-        experiment = Experiment('try', mockMSI.name, Policy('none'), 0, a=1)
+        experiment = Experiment('try', mockMSI.name, Policy('none'), 
+                                Scenario(a=1), 0)
         mocked_inqueue.get.return_value = (0, experiment)
         mocked_inqueue.get.side_effect = None   
         mocked_runner().run_experiment.side_effect = None

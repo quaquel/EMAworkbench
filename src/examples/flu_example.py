@@ -266,7 +266,7 @@ if __name__ == '__main__':
     
     ensemble = ModelEnsemble()
     ensemble.parallel = True
-    ensemble.model_structure = model
+    ensemble.model_structures = model
     
     nr_experiments = 500
     results = ensemble.perform_experiments(nr_experiments, 
