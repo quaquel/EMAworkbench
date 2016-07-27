@@ -41,7 +41,7 @@ from ema_workbench.util import ema_logging, EMAError, EMAParallelError
 launchers =[]
 blackhole = os.open(os.devnull, os.O_WRONLY)
  
-warnings.filterwarnings('ignore', category=DeprecationWarning, module='.*/ipyparallel/.*')
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='.*/IPython/.*')
 
 # Launcher class
 class TestProcessLauncher(LocalProcessLauncher):
