@@ -173,4 +173,41 @@ def combine(*args):
             
 
     return experiment
+
+def determine_objects(models, attribute, union=True):
+    '''determine the parameters over which to sample
+    
+    Parameters
+    ----------
+    models : a collection of AbstractModel instances
+    attribute : {'uncertainties', 'levers'}
+    union : bool, optional
+            in case of multiple models, sample over the union of
+            levers, or over the intersection of the levers
+    sampler : Sampler instance, optional
+    
+    Returns
+    -------
+    collection of Parameter instances
+    
+    '''
+    models = iter(models)
+    named_objects = getattr(next(models), attribute).copy()
+    intersection = set(named_objects.keys())
+    
+    # gather parameters across all models
+    for model in models:
+        model_params = getattr(model, attribute)
+        
+        # relies on name based identity, do we want that?
+        named_objects.extend(model_params)
+
+        intersection = intersection.intersection(model_params.keys())
+    
+    # in case not union, remove all parameters not in intersection
+    if not union:
+        params_to_remove = set(named_objects.keys()) - intersection
+        for key in params_to_remove:
+            del named_objects[key]
+    return named_objects
     

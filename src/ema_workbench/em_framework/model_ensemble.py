@@ -19,24 +19,21 @@ model.outcomes.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-# from collections import defaultdict
-# from functools import reduce
 import itertools
 import os
 import six
 import warnings
 
-from .parameters import Policy, Experiment
-from .samplers import FullFactorialSampler, LHSSampler, sample_levers, sample_uncertainties
 from .callbacks import DefaultCallback
-from .experiment_runner import ExperimentRunner
 from .ema_parallel import MultiprocessingPool
-from ema_workbench.em_framework.util import NamedObjectMap
+from .experiment_runner import ExperimentRunner
+from .parameters import Policy, Experiment
+from .samplers import LHSSampler, sample_uncertainties
+from .util import determine_objects, NamedObjectMap
 
 
 from ..util import info, debug, EMAError
-from ema_workbench.em_framework.model import AbstractModel
-from ema_workbench.em_framework import samplers
+from .model import AbstractModel
 import numbers
 
 # Created on 23 dec. 2010
@@ -196,11 +193,8 @@ class ModelEnsemble(object):
         if len(self.policies) ==0: 
             self.policies = Policy('none')        
 
-        # TODO
-        if outcome_union:
-            outcomes = []
-        else:
-            outcomes = []
+        outcomes = determine_objects(self.model_structures, 'outcomes', 
+                                     union=outcome_union)
 
         if isinstance(cases, numbers.Integral):
             res = sample_uncertainties(self.model_structures, cases, 
