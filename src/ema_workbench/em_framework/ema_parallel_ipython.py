@@ -294,10 +294,10 @@ class Engine(object):
     
     '''
 
-    def __init__(self, engine_id, msis, model_init_kwargs={}):
+    def __init__(self, engine_id, msis):
         self.engine_id = engine_id
         self.msis = msis
-        self.runner = experiment_runner.ExperimentRunner(msis, model_init_kwargs)
+        self.runner = experiment_runner.ExperimentRunner(msis)
 
     def setup_working_directory(self, dir_name):
         '''setup the root directory for the engine. The working directories 
@@ -440,7 +440,7 @@ def cleanup_working_directories(client):
 # these functions are wrappers around the relevant Engine methods
 # the engine instance is part of the namespace of the module. 
 def _run_experiment(experiment):
-    return engine.run_experiment(experiment)
+    return experiment, engine.run_experiment(experiment)
 
 
 def _initialize_engine(engine_id, msis, model_init_kwargs):

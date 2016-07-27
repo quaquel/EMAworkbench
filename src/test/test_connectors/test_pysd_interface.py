@@ -49,7 +49,7 @@ class TestPySDConnector(unittest.TestCase):
         model.outcomes = [TimeSeriesOutcome('Teacup Temperature')]
  
         ensemble = ModelEnsemble()  # instantiate an ensemble
-        ensemble.model_structure = model  # set the model on the ensemble
+        ensemble.model_structures = model  # set the model on the ensemble
         ensemble.parallel = True
         ensemble.perform_experiments(5)
  

@@ -55,7 +55,7 @@ if __name__ == "__main__":
     model = Burnout(r'./models/burnout', "burnout")
 
     ensemble = ModelEnsemble()
-    ensemble.model_structure = model
+    ensemble.model_structures = model
     
     #run policy with old cases
     results = ensemble.perform_experiments(100)

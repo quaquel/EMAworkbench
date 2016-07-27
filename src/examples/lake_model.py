@@ -79,8 +79,8 @@ if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.DEBUG)
     
     ensemble = ModelEnsemble() #instantiate an ensemble
-    ensemble.model_structure = model #set the model on the ensemble
-#     ensemble.parallel = True
+    ensemble.model_structures = model #set the model on the ensemble
+    ensemble.parallel = True
     ensemble.processes = 1
     ensemble.policies = [ Policy('0.01', decisions=[0.01,]*100) ]
     

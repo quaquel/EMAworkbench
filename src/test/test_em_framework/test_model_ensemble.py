@@ -6,8 +6,6 @@ Created on 18 jan. 2013
 import unittest
 
 import mock
-import numpy as np
-import six
 
 from ema_workbench.em_framework.model_ensemble import (ModelEnsemble, 
                                                        experiment_generator)
@@ -15,7 +13,7 @@ from ema_workbench.em_framework.samplers import LHSSampler
 from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome)
 from ema_workbench.util.ema_exceptions import EMAError
 from ema_workbench.em_framework.callbacks import DefaultCallback
-from ema_workbench.em_framework.parameters import Policy
+from ema_workbench.em_framework.parameters import Policy, Scenario
 from ema_workbench.em_framework.model import Model
 
          
@@ -37,8 +35,8 @@ class ModelEnsembleTestCase(unittest.TestCase):
         model_a = Model("A", function)
         
         ensemble = ModelEnsemble()
-        ensemble.model_structure = model_a
-        self.assertEqual(ensemble.model_structure, model_a)
+        ensemble.model_structures = model_a
+        self.assertEqual(ensemble.model_structures[0], model_a)
         
         model_a = Model("A", function)
         model_b = Model("B", function)
@@ -278,6 +276,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
         unique_b = RealParameter("unique b ", 0, 1)
         uncertainties = [shared_abc_1, shared_abc_2, unique_a, unique_b]
         designs, _ = sampler.generate_designs(uncertainties, 10)
+        designs.kind = Scenario
         
         # everything shared
         model_a = Model("A", mock.Mock())

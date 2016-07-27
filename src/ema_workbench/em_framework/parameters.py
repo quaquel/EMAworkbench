@@ -265,14 +265,12 @@ class Scenario(NamedDict):
         super(Scenario, self).__init__(name, **kwargs)
 
 class Experiment(NamedObject):
-
-    def __init__(self, name, model, policy, experiment_id, **kwargs):
+    def __init__(self, name, model, policy, scenario, experiment_id):
         super(Experiment, self).__init__(name)
         
 #         if not isinstance(model, AbstractModel):
 #             raise ValueError('pass the actual model instance')
-         
+        self.experiment_id = experiment_id
         self.policy = policy
         self.model = model
-        self.experiment_id = experiment_id
-        self.scenario = Scenario(**kwargs)
+        self.scenario = scenario

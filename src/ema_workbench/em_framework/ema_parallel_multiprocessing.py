@@ -49,8 +49,7 @@ __all__ = ['CalculatorPool']
 
 def worker(inqueue, 
            outqueue, 
-           model_interfaces, 
-           model_kwargs=None):
+           model_interfaces):
     #
     # Code run by worker processes
     #    
@@ -61,7 +60,7 @@ def worker(inqueue,
         inqueue._writer.close()
         outqueue._reader.close()
 
-    runner = ExperimentRunner(model_interfaces, model_kwargs)
+    runner = ExperimentRunner(model_interfaces)
 
     while 1:
         try:
@@ -100,8 +99,7 @@ class CalculatorPool(pool.Pool):
 
     def __init__(self, 
                  msis, 
-                 processes=None, 
-                 kwargs=None):
+                 processes=None):
         '''
         
         Parameters
@@ -179,8 +177,7 @@ class CalculatorPool(pool.Pool):
                                 target=worker,
                                 args=(self._inqueue, 
                                       self._outqueue, 
-                                      msis,
-                                      kwargs)
+                                      msis)
                                 )
             self._pool.append(w)
             

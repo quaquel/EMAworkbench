@@ -20,12 +20,8 @@ from ema_workbench.em_framework.parameters import (RealParameter, Policy,
 from ema_workbench.util import EMAError
 
 class FileModelTest(FileModel):
-    def model_init(self, policy, kwargs):
-        self.policy = policy
-        self.kwargs = kwargs
-        
-    def run_model(self, m):
-        pass
+    def run_model(self, scenario, policy):
+        super(FileModelTest, self).run_model(scenario, policy)
 
 class TestFileModel(unittest.TestCase):
     def test_init(self):
@@ -33,7 +29,7 @@ class TestFileModel(unittest.TestCase):
         model_file = 'model_file'
         
         with self.assertRaises(ValueError):
-            model = FileModelTest(model_name, '.', model_file)
+            FileModelTest(model_name, '.', model_file)
             
         with mock.patch('ema_workbench.em_framework.model.os') as patch:
             patch.os.is_file.set_return_value(True)
@@ -41,19 +37,17 @@ class TestFileModel(unittest.TestCase):
             self.assertEqual(model.name, model_name, 'FileModel name not equal')
             self.assertEqual(model.model_file, model_file)
 
-    def test_model_init(self):
-        pass
         
     def test_run_model(self):
-        pass
-    
-    
-    def test_cleanup(self):
-        pass
-
-    def test_model_uncertainties(self):
-        pass
-
+        model_name = 'modelname'
+        model_file = 'model_file'
+        
+            
+        with mock.patch('ema_workbench.em_framework.model.os') as patch:
+            patch.os.is_file.set_return_value(True)
+            model = FileModelTest(model_name, '.', model_file)
+            model.run_model(Scenario(a=1), Policy('test', b=2))
+            self.assertEqual(model.policy.name, 'test')
 
 class TestModel(unittest.TestCase):
 

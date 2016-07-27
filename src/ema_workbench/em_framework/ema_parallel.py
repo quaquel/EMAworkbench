@@ -37,7 +37,7 @@ class AbstractPool(object):
     
     @abc.abstractmethod
     def __init__(self, msis, model_kwargs={}):
-        pass
+        ''''''
         
     @abc.abstractmethod
     def perform_experiments(self, callback, experiments):
@@ -59,9 +59,8 @@ class MultiprocessingPool(AbstractPool):
     
     '''
 
-    def __init__(self, msis, model_kwargs={}, nr_processes=None):
-        self._pool = CalculatorPool(msis, processes=nr_processes, 
-                                    kwargs=model_kwargs)
+    def __init__(self, msis, nr_processes=None):
+        self._pool = CalculatorPool(msis, processes=nr_processes)
     
     def perform_experiments(self, callback, experiments):
         self._pool.run_experiments(experiments, callback)
@@ -80,13 +79,13 @@ class IpyparallelPool(AbstractPool):
     
     '''
     
-    def __init__(self, msis, client, model_kwargs={}):
+    def __init__(self, msis, client):
         self.client = client
         
         # update loggers on all engines
         client[:].apply_sync(set_engine_logger)
         
-        initialize_engines(self.client, msis, model_kwargs)
+        initialize_engines(self.client, msis, {})
     
     def perform_experiments(self, callback, experiments):
         lb_view = self.client.load_balanced_view()
@@ -98,6 +97,5 @@ class IpyparallelPool(AbstractPool):
         # we can also get the results
         # as they arrive
         for entry in results:
-            experiment_id, case, policy, model_name, result = entry
-            callback(experiment_id, case, policy, model_name, result)
+            callback(*entry)
             

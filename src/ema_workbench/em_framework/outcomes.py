@@ -82,8 +82,13 @@ class AbstractOutcome(NamedObject):
     
     def __init__(self, name, kind=INFO, variable_name=None, function=None):
         super(AbstractOutcome, self).__init__(name)
+        
+        if function is not None and not callable(function):
+            raise ValueError('function must be a callable')
+            
+        
         self.kind = kind
-        self._variable_name = variable_name
+        self.variable_name = variable_name
         self.function = function
     
     def process(self, values):
@@ -151,14 +156,14 @@ class TimeSeriesOutcome(AbstractOutcome):
     
     '''   
     
-    def __init__(self, name, kind=AbstractOutcome.INFO, reduce=None):
-        super(TimeSeriesOutcome, self).__init__(name, kind)
+    def __init__(self, name, kind=AbstractOutcome.INFO, variable_name=None, 
+                 function=None):
+        super(TimeSeriesOutcome, self).__init__(name, kind, variable_name=variable_name, 
+                                                function=function)
         
         if (not self.kind==AbstractOutcome.INFO) and (not callable(reduce)):
             raise ValueError(('reduce needs to be specified when using'
                               ' TimeSeriesOutcome in optimization' ))
-        self.reduce = reduce
-        
 
 def create_outcomes(outcomes, **kwargs):
     '''Helper function for creating multiple outcomes
@@ -179,8 +184,9 @@ def create_outcomes(outcomes, **kwargs):
     elif not isinstance(outcomes, pandas.DataFrame):
         outcomes = pandas.DataFrame.from_dict(outcomes)
         
-    for entry, correct in zip(outcomes.columns, ['name', 'type']):
-        outcomes = outcomes.rename(columns={entry:correct})
+    for entry in ['name', 'type']:
+        if entry not in outcomes.columns:
+            raise ValueError('no {} column in dataframe'.format(entry))
     
     temp_outcomes = []
     for _, row in outcomes.iterrows():

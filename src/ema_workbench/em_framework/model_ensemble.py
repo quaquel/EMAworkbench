@@ -19,11 +19,12 @@ model.outcomes.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-from collections import defaultdict
-from functools import reduce
+# from collections import defaultdict
+# from functools import reduce
 import itertools
 import os
 import six
+import warnings
 
 from .parameters import Policy, Experiment
 from .samplers import FullFactorialSampler, LHSSampler, sample_levers, sample_uncertainties
@@ -35,6 +36,8 @@ from ema_workbench.em_framework.util import NamedObjectMap
 
 from ..util import info, debug, EMAError
 from ema_workbench.em_framework.model import AbstractModel
+from ema_workbench.em_framework import samplers
+import numbers
 
 # Created on 23 dec. 2010
 # 
@@ -95,6 +98,16 @@ class ModelEnsemble(object):
         self.sampler = sampler
 
     @property
+    def model_structure(self):
+        warnings.warn('deprecated, use ensemble.model_structures')
+        return self.model_structures
+
+    @model_structure.setter
+    def model_structure(self, value):
+        warnings.warn('deprecated, use ensemble.model_structures')
+        self.model_structures = value
+
+    @property
     def policies(self):
         return self._policies
    
@@ -110,36 +123,10 @@ class ModelEnsemble(object):
     def model_structures(self, msis):
         self._model_structures.extend(msis)
     
-    @property
-    def model_structure(self):
-        return list(self.model_structures)[0]
-    
-    @model_structure.setter
-    def model_structure(self, msi):
-        self.model_structures = [msi]
-    
-#     def determine_uncertainties(self):
-#         '''
-#         Helper method for determining the unique uncertainties and how
-#         the uncertainties are shared across multiple model structure 
-#         interfaces.
-#         
-#         Returns
-#         -------
-#         dict
-#             An overview dictionary which shows which uncertainties are
-#             used by which model structure interface, or interfaces, and
-#             a dictionary with the unique uncertainties across all the 
-#             model structure interfaces, with the name as key. 
-#         
-#         '''
-#         return self._determine_unique_attributes('uncertainties')
-
     def perform_experiments(self, 
                            cases,
                            callback=DefaultCallback,
                            reporting_interval=100,
-                           model_kwargs = {},
                            uncertainty_union=False,
                            outcome_union=False,
                            **kwargs):
@@ -150,14 +137,12 @@ class ModelEnsemble(object):
         
         Parameters
         ----------    
-        cases : int or iterable
+        cases : int
                 In case of Latin Hypercube sampling and Monte Carlo 
                 sampling, cases specifies the number of cases to
                 generate. In case of Full Factorial sampling,
                 cases specifies the resolution to use for sampling
-                continuous uncertainties. Alternatively, one can supply
-                a list of dicts, where each dicts contains a case.
-                That is, an uncertainty name as key, and its value. 
+                continuous uncertainties. 
         callback : callback, optional
                    callable that will be called after finishing a 
                    single experiment (default is :class:`~callbacks.DefaultCallback`)
@@ -165,9 +150,6 @@ class ModelEnsemble(object):
                              parameter for specifying the frequency with
                              which the callback reports the progress.
                              (Default is 100) 
-        model_kwargs : dict, optional
-                       dictionary of keyword arguments to be passed to 
-                       model_init
         uncertainty_union : bool, optional
                               keyword argument for controlling whether,
                               in case of multiple model structure 
@@ -210,21 +192,9 @@ class ModelEnsemble(object):
         >>> util.save_results(results, filename)
 
         """
-        if len(self.policies) ==0: # TODO: we need is none,or equivalent working on NamedObjectMap
-            self.policies = [Policy('none')]
-        
-#         return_val = self._generate_experiments(cases, which_uncertainties)
-#         experiments, nr_of_exp, uncertainties = return_val
-#         # identify the outcomes that are to be included
-#         overview_dict, element_dict = self._determine_unique_attributes("outcomes")
-#         if which_outcomes==UNION:
-#             outcomes = element_dict.keys()
-#         elif which_outcomes==INTERSECTION:
-#             outcomes = overview_dict[tuple([msi.name for msi in 
-#                                             self.model_structures])]
-#             outcomes = [outcome.name for outcome in outcomes]
-#         else:
-#             raise ValueError("unknown value for which_outcomes")
+        # TODO: we need is none,or equivalent working on NamedObjectMap
+        if len(self.policies) ==0: 
+            self.policies = Policy('none')        
 
         # TODO
         if outcome_union:
@@ -232,13 +202,18 @@ class ModelEnsemble(object):
         else:
             outcomes = []
 
-        msis = [m for m in self.model_structures]
-        res = sample_uncertainties(msis, cases, uncertainty_union, sampler=self.sampler)
-        scenarios, uncertainties, nr_of_scenarios = res
+        if isinstance(cases, numbers.Integral):
+            res = sample_uncertainties(self.model_structures, cases, 
+                                    uncertainty_union, sampler=self.sampler)
+            scenarios, uncertainties, nr_of_scenarios = res
+        else:
+            # TODO:: need to make a generator around a list
+            # which yields uncertainties
+            raise NotImplementedError
+        
         experiments = experiment_generator(scenarios, self.model_structures, 
                                            self.policies)
         nr_of_exp = nr_of_scenarios * len(self.model_structures) * len(self.policies)
-        
         
         info(str(nr_of_exp) + " experiment will be executed")
                 
@@ -253,8 +228,8 @@ class ModelEnsemble(object):
             info("preparing to perform experiment in parallel")
             
             if not self.pool:
-                self.pool = MultiprocessingPool(self.model_structures, 
-                        model_kwargs=model_kwargs, nr_processes=self.processes)
+                self.pool = MultiprocessingPool(self.model_structures,
+                                                nr_processes=self.processes)
             info("starting to perform experiments in parallel")
 
             self.pool.perform_experiments(callback, experiments)
@@ -262,7 +237,7 @@ class ModelEnsemble(object):
             info("starting to perform experiments sequentially")
             
             cwd = os.getcwd() 
-            runner = ExperimentRunner(self.model_structures, model_kwargs)
+            runner = ExperimentRunner(self.model_structures)
             for experiment in experiments:
                 result = runner.run_experiment(experiment)
                 callback(experiment, result)
@@ -281,101 +256,6 @@ class ModelEnsemble(object):
         
         return results
 
-#     def _determine_unique_attributes(self, attribute):
-#         '''
-#         Helper method for determining the unique values on attributes of model 
-#         interfaces, and how these values are shared across multiple model 
-#         structure interfaces. The working assumption is that this function 
-#         
-#         Parameters
-#         ----------
-#         attribute : {'uncertainties', 'outcomes'}
-#                     the attribute to check on the msi
-#         
-#         Returns
-#         -------
-#         tuple of dicts
-#             An overview dictionary which shows which uncertainties or outcomes 
-#             are used by which model structure interface, or interfaces, and a 
-#             dictionary with the unique uncertainties or outcomes across all the 
-#             model structure interfaces, with the name as key. 
-#         
-#         '''    
-#         # check whether uncertainties exist with the same name 
-#         # but different other attributes
-#         element_dict = {}
-#         overview_dict = {}
-#         for msi in self.model_structures:
-#             elements = getattr(msi, attribute)
-#             for element in elements:
-#                 if element.name in element_dict.keys():
-#                     if element==element_dict[element.name]:
-#                         overview_dict[element.name].append(msi)
-#                     else:
-#                         raise EMAError("%s `%s` is shared but has different state" 
-#                                        % (element.__class__.__name__, 
-#                                           element.name))
-#                 else:
-#                     element_dict[element.name]= element
-#                     overview_dict[element.name] = [msi]
-#         
-#         temp_overview = defaultdict(list)
-#         for key, value in overview_dict.items():
-#             temp_overview[tuple([msi.name for msi in value])].append(element_dict[key])  
-#         overview_dict = temp_overview
-#         
-#         return overview_dict, element_dict 
-#         
-#     def _generate_experiments(self, cases, which_uncertainties):
-#         '''
-#         Helper method for generating experiments
-#         
-#         Parameters
-#         ----------
-#         cases : int or list
-#         which_uncertianties : {INTERSECTION, UNION}
-# 
-#         Returns
-#         -------
-#         generator
-#             a generator that yields experiment dicts
-#         int
-#             the total number of experiments 
-#             so: nr_cases * nr of models * nr of policies)
-#         list
-#             list of the uncertainties over which the experiments are designed
-#         
-#         '''
-#         overview_dict, unc_dict = self.determine_uncertainties()
-#         # identify the uncertainties and sample over them
-#         if isinstance(cases, int):
-#             if which_uncertainties==UNION:
-#                 if isinstance(self.sampler, FullFactorialSampler):
-#                     raise EMAError("full factorial sampling cannot be combined with exploring the union of uncertainties")
-#                 uncertainties = unc_dict.values()
-#             elif which_uncertainties==INTERSECTION:
-#                 uncertainties = overview_dict[tuple([msi.name for msi in 
-#                                                      self.model_structures])]
-#                 unc_dict = {key.name:unc_dict[key.name] for key in uncertainties}
-#                 uncertainties = [unc_dict[unc.name] for unc in uncertainties]
-#             else:
-#                 raise ValueError("incompatible value for which_uncertainties")            
-# 
-#             designs, nr_of_designs = self.sampler.generate_designs(uncertainties, 
-#                                                    cases)
-#         elif isinstance(cases, list):
-#             unc_names = reduce(set.union, map(set, map(dict.keys, cases)))
-#             uncertainties = [unc_dict[unc] for unc in unc_names]
-#             designs = cases
-#             nr_of_designs = len(designs)
-#         else:
-#             raise EMAError("unknown type for cases")
-# 
-#         nr_of_exp = nr_of_designs*len(self.policies)*len(self.model_structures)
-#         experiments = experiment_generator(designs, self.model_structures,\
-#                                            self.policies)
-#         
-#         return experiments, nr_of_exp, uncertainties
         
  
 def experiment_generator(scenarios, model_structures, policies):
@@ -408,6 +288,5 @@ def experiment_generator(scenarios, model_structures, policies):
             for scenario in scenarios:
                 experiment_id =  six.next(job_counter)
                 name = '{} {} {}'.format(msi.name, policy.name, experiment_id)
-                experiment = Experiment(name, msi, policy, experiment_id, 
-                                        **scenario)
+                experiment = Experiment(name, msi, policy, scenario, experiment_id)
                 yield experiment
