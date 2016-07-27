@@ -1376,8 +1376,6 @@ class Prim(sdutil.OutputFormatterMixin):
         in case of categorical data where the normal objective function often 
         results in boxes mainly based on the categorical data.  
         
-        TODO:: seems to be identical to 14.3 in friedman and fisher
-        
         '''
         mean_old = np.mean(y_old)
         

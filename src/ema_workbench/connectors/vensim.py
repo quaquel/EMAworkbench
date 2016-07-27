@@ -476,8 +476,6 @@ class LookupUncertainty(Parameter):
                  B: the growth rate
                  Q: depends on the value y(0)
                  M: the time of maximum growth if Q=v
-                Example definition:
-                TODO:
         name : str
                name of the uncertainty
         msi : VensimModelStructureInterface instance

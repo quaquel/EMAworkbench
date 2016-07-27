@@ -24,17 +24,20 @@ import os
 import six
 import warnings
 
+import numpy as np
+
 from .callbacks import DefaultCallback
 from .ema_parallel import MultiprocessingPool
 from .experiment_runner import ExperimentRunner
 from .parameters import Policy, Experiment
-from .samplers import LHSSampler, sample_uncertainties
+from .samplers import LHSSampler, sample_uncertainties, from_experiments
 from .util import determine_objects, NamedObjectMap
 
 
 from ..util import info, debug, EMAError
 from .model import AbstractModel
 import numbers
+from ema_workbench.em_framework.samplers import DefaultDesigns
 
 # Created on 23 dec. 2010
 # 
@@ -189,8 +192,7 @@ class ModelEnsemble(object):
         >>> util.save_results(results, filename)
 
         """
-        # TODO: we need is none,or equivalent working on NamedObjectMap
-        if len(self.policies) ==0: 
+        if not self.policies:
             self.policies = Policy('none')        
 
         outcomes = determine_objects(self.model_structures, 'outcomes', 
@@ -199,11 +201,9 @@ class ModelEnsemble(object):
         if isinstance(cases, numbers.Integral):
             res = sample_uncertainties(self.model_structures, cases, 
                                     uncertainty_union, sampler=self.sampler)
-            scenarios, uncertainties, nr_of_scenarios = res
         else:
-            # TODO:: need to make a generator around a list
-            # which yields uncertainties
-            raise NotImplementedError
+            res = from_experiments(self.model_structures, cases)
+        scenarios, uncertainties, nr_of_scenarios = res
         
         experiments = experiment_generator(scenarios, self.model_structures, 
                                            self.policies)
