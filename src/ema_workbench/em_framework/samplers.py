@@ -10,6 +10,7 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 from .parameters import (CategoricalParameter, IntegerParameter, Policy, 
                          Scenario)
+from ema_workbench.em_framework import uncertainties
 
 try:
     from future_builtins import zip
@@ -527,6 +528,48 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler):
     
     return samples, uncertainties, n
 
+def from_experiments(models, experiments):
+    '''generate scenarios from an existing experiments recarray
+    
+    Parameters
+    ----------
+    models : colleciotn of AbstractModel instances
+    experiments : recarray
+    
+    Returns
+    -------
+     generator 
+        yielding Scenario instances
+    collection
+        the collection of parameters over which to sample
+    n_samples
+        the number of scenarios (!= n_samples in case off FF sampling)   
+    
+    '''
+    policy_names = np.unique(experiments['policy'])
+    model_names = np.unique(experiments['model'])
+    
+    # we sample ff over models and policies so we need to ensure
+    # we only get the experiments for a single model policy combination
+    logical = (experiments['model'] == model_names[0]) & \
+              (experiments['policy'] == policy_names[0]) 
+    
+    experiments = experiments[logical]
+    experiments = np.lib.recfunctions.drop_fields(experiments, 
+                                                  ['model', 'policy'], 
+                                                  asrecarray=True)
+    
+    uncertainties = util.determine_objects(models, 'uncertainties', 
+                                           union=True)
+    unc_names = np.lib.recfunctions.get_names(experiments.dtype)
+    uncertainties = [uncertainties[unc] for unc in unc_names]
+
+    samples = {unc:experiments[unc] for unc in unc_names}
+    
+    scenarios = DefaultDesigns(samples, unc_names)
+    scenarios.kind = Scenario
+    
+    return scenarios, uncertainties, experiments.shape[0]
 
 class AbstractDesignsIterable(object):
     '''iterable for the experimental designs'''

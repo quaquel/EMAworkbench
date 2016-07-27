@@ -80,10 +80,7 @@ def set_ax_lines_bw(ax, colormap, line_style='continuous'):
     line_style: str
                 linestyle to use for converting, can be continuous, black
                 or None
-                
-    # TODO:: None is strange as a value, and should be field based, can than 
-    # replace if structure with dict based functions
-    
+                    
     """
 
     for line in ax.get_lines():
@@ -251,9 +248,6 @@ def set_legend_to_bw(leg, style, colormap, line_style='continuous'):
                 linestyle to use for converting, can be continuous, black
                 or None
                 
-    # TODO:: None is strange as a value, and should be field based, see
-    # set_ax_lines_bw
-    
     """
     color_converter = ColorConverter()
 
