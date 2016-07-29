@@ -10,6 +10,8 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 from functools import wraps
+import inspect
+
 import logging
 from logging import Handler, DEBUG, INFO
 
@@ -33,17 +35,19 @@ __all__ =['debug',
 _logger = None
 LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
+INFO = INFO
 
-LOG_FORMAT = '[%(levelname)s] %(message)s'
+LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
 
 def method_logger(func):
+    classname = inspect.getouterframes(inspect.currentframe())[1][3]
     @wraps(func)
     def wrapper(*args, **kwargs):
         # hack, because log is applied to methods, we can get
         # object instance as first arguments in args
-        debug('calling {} on {}'.format(func.func_name, args[0].name))
+        debug('calling {} on {}'.format(func.func_name, classname))
         res = func(*args, **kwargs)
-        debug('completed calling {} on {}'.format(func.func_name, args[0].name))
+        debug('completed calling {} on {}'.format(func.func_name, classname))
         return res
     return wrapper
 

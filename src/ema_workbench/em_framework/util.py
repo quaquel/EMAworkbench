@@ -6,8 +6,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
 import copy
-from collections import OrderedDict, MutableMapping
-from weakref import WeakKeyDictionary
+from collections import OrderedDict
 from UserDict import UserDict
 
 try:
@@ -17,7 +16,6 @@ except ImportError:
     # so it must by python 3
     from collections.abc import MutableMapping
 
-import copy
 import six
 
 from ..util import EMAError
@@ -89,15 +87,14 @@ class NamedObjectMap(object):
         return item in self._data
      
     def extend(self, value):
-        if hasattr(value, "__iter__"):
+        if isinstance(value, NamedObject):
+            self._data[value.name] = value
+        elif hasattr(value, "__iter__"):
             for item in value:
                 if not isinstance(item, self.type):
                     raise TypeError("can only add " + self.type.__name__ + " objects")
-                 
             for item in value:
                 self._data[item.name] = item
-        elif isinstance(value, NamedObject):
-            self._data[value.name] = value
         else:
             raise TypeError("can only add " + str(type) + " objects")
              
@@ -145,6 +142,10 @@ class NamedDict(UserDict, NamedObject):
         if name is None:
             name = repr(self)
         self.name = name
+        
+#     def copy(self):
+#         copy = self.__class__(name=self.name, **self)
+#         return copy
    
     
 def combine(*args):
