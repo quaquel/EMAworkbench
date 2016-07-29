@@ -14,19 +14,21 @@ import numpy as np
 from scipy.optimize import brentq as root
 
 from ema_workbench.em_framework import (ModelEnsemble, Model, RealParameter, 
-                                        ScalarOutcome)
+                                        ScalarOutcome, Constant, samplers)
 from ema_workbench.util import ema_logging
-from ema_workbench.em_framework.parameters import Constant, Policy
 
-def lake_problem(decisions=[],
+
+def lake_problem(
          b = 0.42,          # decay rate for P in lake (0.42 = irreversible)
          q = 2.0,           # recycling exponent
          mean = 0.02,       # mean of natural inflows
          stdev = 0.001,     # future utility discount rate
          delta = 0.98,      # standard deviation of natural inflows
          alpha = 0.4,       # utility from pollution
-         nsamples = 100):   # Monte Carlo sampling of natural inflows
-                
+         nsamples = 100,    # Monte Carlo sampling of natural inflows
+         **kwargs):   
+    decisions = [kwargs[str(i)] for i in range(100)]
+    
     Pcrit = root(lambda x: x**q/(1+x**q) - b*x, 0.01, 1.5)
     nvars = len(decisions)
     X = np.zeros((nvars,))
@@ -55,35 +57,50 @@ def lake_problem(decisions=[],
     return {'max_P':max_P, 'utility':utility, 
             'inertia':inertia, 'reliability':reliability}
 
-#instantiate the model
-model = Model('lakeproblem', function=lake_problem)
-
-#specify uncertainties
-model.uncertainties = [RealParameter("b", 0.1, 0.45),
-                       RealParameter("q", 2.0, 4.5),
-                       RealParameter("mean", 0.01, 0.05),
-                       RealParameter("stdev", 0.001, 0.005),
-                       RealParameter("delta", 0.93, 0.99)]
-#specify outcomes 
-model.outcomes = [ScalarOutcome("max_P",),
-                  ScalarOutcome("utility"),
-                  ScalarOutcome("inertia"),
-                  ScalarOutcome("reliability")]
-
-# override some of the defaults of the model
-model.constants = [Constant('alpha', 0.41),
-                   Constant('nsamples', 150),]
-
-
 if __name__ == '__main__':
-    ema_logging.log_to_stderr(ema_logging.DEBUG)
+    ema_logging.log_to_stderr(ema_logging.INFO)
+
+    #instantiate the model
+    model = Model('lakeproblem', function=lake_problem)
+    
+    #specify uncertainties
+    model.uncertainties = [RealParameter("b", 0.1, 0.45),
+                           RealParameter("q", 2.0, 4.5),
+                           RealParameter("mean", 0.01, 0.05),
+                           RealParameter("stdev", 0.001, 0.005),
+                           RealParameter("delta", 0.93, 0.99)]
+    #specify outcomes 
+    model.outcomes = [ScalarOutcome("max_P",),
+                      ScalarOutcome("utility"),
+                      ScalarOutcome("inertia"),
+                      ScalarOutcome("reliability")]
+    
+    # override some of the defaults of the model
+    model.constants = [Constant('alpha', 0.41),
+                       Constant('nsamples', 150),]
+    
+    # set levers, one for each time step
+    model.levers = [RealParameter(str(i), 0, 0.1) for i in range(100)]
     
     ensemble = ModelEnsemble() #instantiate an ensemble
     ensemble.model_structures = model #set the model on the ensemble
     ensemble.parallel = True
     ensemble.processes = 1
-    ensemble.policies = [ Policy('0.01', decisions=[0.01,]*100) ]
+    
+    # generate some random policies by sampling over levers
+    policies, levers, n = samplers.sample_levers(ensemble.model_structures, 4, 
+                                         sampler=samplers.MonteCarloSampler())
+    
+    # policies is a generator, so let's exhaust the generator
+    policies = [policy for policy in policies]
+    
+    # policy name defaults to a repr(dict), let's rename
+    for i, policy in enumerate(policies):
+        policy.name = str(i)
+    
+    # let's set the policies on the ensemble
+    ensemble.policies = policies
     
     #run 1000 experiments
-    results = ensemble.perform_experiments(10, reporting_interval=10) 
+    results = ensemble.perform_experiments(1000, reporting_interval=10) 
 

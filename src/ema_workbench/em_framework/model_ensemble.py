@@ -20,24 +20,20 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import itertools
+import numbers
 import os
 import six
 import warnings
 
-import numpy as np
-
 from .callbacks import DefaultCallback
 from .ema_parallel import MultiprocessingPool
 from .experiment_runner import ExperimentRunner
+from .model import AbstractModel
 from .parameters import Policy, Experiment
 from .samplers import LHSSampler, sample_uncertainties, from_experiments
 from .util import determine_objects, NamedObjectMap
 
-
 from ..util import info, debug, EMAError
-from .model import AbstractModel
-import numbers
-from ema_workbench.em_framework.samplers import DefaultDesigns
 
 # Created on 23 dec. 2010
 # 

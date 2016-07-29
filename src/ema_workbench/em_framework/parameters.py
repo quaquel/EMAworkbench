@@ -255,21 +255,36 @@ class CategoricalParameter(IntegerParameter):
         return self.index_for_cat(name)
 
 class Policy(NamedDict):
-    pass
+    # idea: make use of NamedObjectMap --> underneath this is an
+    # ordered dict, so can always cast values to list / array
+    # makes decisions ala the lake model easier to implement
+    # combine this with some kind of function that generates many of the
+    # same lever objects but with an _id appended to name
+    # and lake problem becomes easy
+    #
+    # problem: won't work as long as you pass any kwargs using **kwarg
+    # notation. This removes the ordering
+    # practical issue: switching NamedDict from UserDict to 
+    # OrderedDict creates a world of pain
+    
+    def to_list(self, parameters):
+        '''get list like representation of policy where the
+        parameters are in the order of levers'''
+        
+        return [self[param.name] for param in parameters]
+        
 
 class Scenario(NamedDict):
     job_counter = itertools.count()
     
-    def __init__(self, **kwargs):
-        name = six.next(Scenario.job_counter)
+    def __init__(self, name=None, **kwargs):
+        if name == None:
+            name = six.next(Scenario.job_counter)
         super(Scenario, self).__init__(name, **kwargs)
 
 class Experiment(NamedObject):
     def __init__(self, name, model, policy, scenario, experiment_id):
         super(Experiment, self).__init__(name)
-        
-#         if not isinstance(model, AbstractModel):
-#             raise ValueError('pass the actual model instance')
         self.experiment_id = experiment_id
         self.policy = policy
         self.model = model

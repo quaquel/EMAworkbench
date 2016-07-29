@@ -11,6 +11,7 @@ import abc
 from functools import wraps
 import os
 import warnings
+from ema_workbench.util import ema_logging
 
 
 try:
@@ -288,10 +289,14 @@ class Model(AbstractModel):
         
         """
         super(Model, self).run_model(scenario, policy)
-        constants = {c.name:c.value for c in self.constants}
-        experiment = combine(scenario, self.policy, constants)
-        result = self.function(**experiment)
         
+        constants = {c.name:c.value for c in self.constants}
+        
+        policy = self.policy.to_list(self.levers)
+        
+        experiment = combine(scenario, self.policy, constants)
+        
+        result = self.function(**experiment)
         self.output = {outcome.name:result[outcome.name] for outcome in 
                        self.outcomes}
 

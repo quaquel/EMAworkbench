@@ -10,7 +10,6 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 from .parameters import (CategoricalParameter, IntegerParameter, Policy, 
                          Scenario)
-from ema_workbench.em_framework import uncertainties
 
 try:
     from future_builtins import zip
@@ -477,7 +476,7 @@ def determine_parameters(models, attribute, union=True):
 #     return parameters
 
 
-def sample_levers(models, n_samples, union=True, sampler=LHSSampler):
+def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     '''generate policies by sampling over the levers
     
     Parameters
@@ -499,7 +498,7 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler):
     samples.kind = Policy
     return samples, levers, n
 
-def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler):
+def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
     '''generate scenarios by sampling over the uncertainties
     
     Parameters
