@@ -76,8 +76,6 @@ sampling are also readily available. Read the documentation for
 A simple model in Vensim
 ========================
 
-
-
 Imagine we have a very simple Vensim model:
 
 .. figure:: /ystatic/simpleVensimModel.png
@@ -100,7 +98,7 @@ Next, we can specify the uncerainties and the outcomes. ::
                                  RealParameter("x12", -2.5, 2.5)]
 
     
-    vensimModel.outcomes = [TimeSeriesOutcome('a', time=True)]
+    vensimModel.outcomes = [TimeSeriesOutcome('a')]
     
 Note that we are using a TimeSeriesOutcome, because vensim results are time 
 series. We can now simply run this model by calling 
