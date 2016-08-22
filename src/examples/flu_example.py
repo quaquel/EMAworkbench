@@ -4,34 +4,34 @@ Created on 20 dec. 2010
 This file illustrated the use of the workbench for a model 
 specified in Python itself. The example is based on `Pruyt & Hamarat <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
 For comparison, run both this model and the flu_vensim_no_policy_example.py and 
-compare the differences. 
+compare the results. 
 
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 '''
+from __future__ import (absolute_import, print_function, division, 
+                        unicode_literals)
 
 import numpy as np
 from numpy import sin, min
 from scipy import exp
 import matplotlib.pyplot as plt
 
-from ema_workbench.em_framework import (Model, 
-                                        ModelEnsemble,ParameterUncertainty, 
-                                        TimeSeriesOutcome)
+from ema_workbench.em_framework import (Model, ParameterUncertainty, 
+                                        TimeSeriesOutcome, perform_experiments)
 from ema_workbench.util import ema_logging
                          
 from ema_workbench.analysis.plotting import lines
 from ema_workbench.analysis.plotting_util import KDE                         
 
 
-
-#============================================================================================
+#==============================================================================
 #
 #    the model itself
 #
-#============================================================================================
+#==============================================================================
 
 FINAL_TIME = 48
 INITIAL_TIME = 0
@@ -232,15 +232,13 @@ def flu_model(x11=0,x12=0,x21=0,x22=0,x31=0,x32=0,x41=0,x51=0,x52=0,x61=0,
     
     
     return {"TIME":runTime,
-            "deceased_population_region_1":deceased_population_region_1} #, Max_infected, Max_time)
+            "deceased_population_region_1":deceased_population_region_1} 
 
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
     
-    
     model = Model('mexicanFlu', function=flu_model)
-    
     model.uncertainties = [ParameterUncertainty((0, 0.5), "x11"), #k1
                            ParameterUncertainty((0, 0.5), "x12"), #k2
                            ParameterUncertainty((0.0001, 0.1), "x21"), #k3
@@ -259,18 +257,11 @@ if __name__ == '__main__':
                            ParameterUncertainty((0, 200), "x101"), #k18
                            ParameterUncertainty((0, 200), "x102")
                            ] 
-    
     model.outcomes = [TimeSeriesOutcome("TIME"),
-                      TimeSeriesOutcome("deceased_population_region_1"),
-                      ]
-    
-    ensemble = ModelEnsemble()
-    ensemble.parallel = True
-    ensemble.model_structures = model
+                      TimeSeriesOutcome("deceased_population_region_1")]
     
     nr_experiments = 500
-    results = ensemble.perform_experiments(nr_experiments, 
-                                           reporting_interval=100)
+    results = perform_experiments(model, nr_experiments, parallel=True)
 
     lines(results, outcomes_to_show="deceased_population_region_1", 
           show_envelope=True, density=KDE, titles=None, 
