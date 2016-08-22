@@ -9,8 +9,8 @@ It's main purpose has been to test the parallel processing functionality
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-from ema_workbench.em_framework import (ModelEnsemble, Model, 
-                                        RealParameter, ScalarOutcome)
+from ema_workbench.em_framework import (Model, RealParameter, ScalarOutcome,
+                                        perform_experiments)
 from ema_workbench.util import ema_logging
 
 def some_model(x1=None, x2=None, x3=None):
@@ -23,14 +23,16 @@ if __name__ == '__main__':
     model = Model('simpleModel', function=some_model) #instantiate the model
 
     #specify uncertainties
-    model.uncertainties = [RealParameter((0.1, 10), "x1"),
-                           RealParameter((-0.01,0.01), "x2"),
-                           RealParameter((-0.01,0.01), "x3")]
+    model.uncertainties = [RealParameter("x1", 0.1, 10),
+                           RealParameter("x2", -0.01,0.01),
+                           RealParameter("x3", -0.01,0.01)]
     #specify outcomes 
     model.outcomes = [ScalarOutcome('y')]
 
-    ensemble = ModelEnsemble() #instantiate an ensemble
-    ensemble.model_structure = model #set the model on the ensemble
-    results = ensemble.perform_experiments(100, reporting_interval=1) #run 1000 experiments
+    results = perform_experiments(model, 100)
+
+#     ensemble = ModelEnsemble() #instantiate an ensemble
+#     ensemble.model_structure = model #set the model on the ensemble
+#     results = ensemble.perform_experiments(100, reporting_interval=1) #run 1000 experiments
     
 

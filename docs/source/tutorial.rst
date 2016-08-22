@@ -28,90 +28,42 @@ including one way of handling policies.
 A simple model in Python
 ========================
 
-In order to perfom EMA on a model. The first step is to extent  
-:class:`~model.ModelStructureInterface`. ::
+The simplest case is where we have a model available through a python function.
+For example, imagine we have the simple model. ::
 
-   class SimplePythonModel(ModelStructureInterface):
-       '''
-       This class represents a simple example of how one can extent the basic
-       ModelStructureInterface in order to do EMA on a simple model coded in
-       Python directly
-       '''
+   def some_model(x1=None, x2=None, x3=None):
+       return {'y':x1*x2+x3}
 
-we need to specify the uncertainties and outcomes and implement at least 
-two methods :
- 
- * :meth:`model_init`
- * :meth:`run_model`
- 
-We can specify the uncertainties and outcomes directly by assiging them
-to :attr:`self.uncertainties` and :attr:`self.outcomes` respectively, 
-Below, we specify three :class:`~uncertainties.ParameterUncertainty` instances, 
-with the names 'x1', 'x2', and 'x3', and add them to 
-:attr:`self.uncertainties`. The first argument when instantiating 
-:class:`~uncertainties.ParameterUncertainty` specifies the range over which
-we want to sample. So, the value of 'x1' is defined as being somewhere between 
-0.1 and 10. Then, we have to specify the outcomes that the model generates. 
-In this example we have only a single :class:`~outcomes.Outcome` instance, 
-called 'y'. ::
-           
-   #specify uncertainties
-   uncertainties = [ParameterUncertainty((0.1, 10), "x1"),
-                    ParameterUncertainty((-0.01,0.01), "x2"),
-                    ParameterUncertainty((-0.01,0.01), "x3")]
+In order to control this model from the workbench, we can make use of the
+:class:`~ema_workbench.em_framework.model.Model`. We can instantiate a model 
+object, by passing it a name, and the function. ::
+
+   model = Model('simpleModel', function=some_model) #instantiate the model
+
+Next, we need to specify the uncertainties and the outcomes of the model. In 
+this case, the uncertainties are x1, x2, and x3, while the outcome is y. Both
+uncertainties and outcomes are attributes of the model object, so we can say ::
+
+    #specify uncertainties
+    model.uncertainties = [RealParameter("x1", 0.1, 10),
+                           RealParameter("x2", -0.01,0.01),
+                           RealParameter("x3", -0.01,0.01)]
+    #specify outcomes 
+    model.outcomes = [ScalarOutcome('y')]
+
+Here, we specify that x1 is some value between 0.1, and 10, while both x2 and 
+x3 are somewhere between -0.01 and 0.01. Having implemented this model, we can 
+now investigate the model behavior over the set of uncertainties by simply 
+calling ::
+
+   results = perform_experiments(model, 100) 
    
-   #specify outcomes 
-   outcomes = [Outcome('y')]
+The function :func:`perform_experiments` takes the model we just specified
+and will execute 100 experiments. By default, these experiments are generated
+using a Latin Hypercube sampling, but Monte Carlo sampling and Full factorial 
+sampling are also readily available. Read the documentation for 
+:func:`perform_experiments` for more details. 
 
-Having specified the uncertainties ant the outcomes, we can now implement 
-:meth:`model_init`. Since this is a simple example, we can suffice with a 
-'pass'. Meaning we do not do anything. In case of more complex models, 
-:meth:`model_init`  can be used for setting policy related variables, 
-and/or starting external tools or programs(e.g. Java, Excel, Vensim). ::
-
-       def model_init(self, policy, kwargs):
-           pass
-
-Finally, we implement :meth:`run_model`. Here we have a very simple model::
-
-       def run_model(self, case):
-           """Method for running an instantiated model structure """
-           
-           self.output[self.outcomes[0].name] = case['x1']*case['x2']+case['x3']
-   
-The above code might seem a bit strange. There are a couple of things
-being done in a single line of code. First, we need to assign the outcome 
-to `self.output`, which should be a :obj:`dict`. The key should match the names 
-of the outcomes as specified in :attr:`self.outcomes`. Since we have only 1 
-outcome, we can get to its name directly. ::
-   
-     self.outcomes[0].name #this gives us the name of the first entry in self.outcomes
-
-Next, we assign as value the outcome of our model. Here `case['x1']` gives us
-the value of 'x1'. So our model is :math:`x1*x2+x3`. Which in python code
-with the values for 'x1', 'x2', and 'x3' stored in the case dict looks like
-the following::
-
-   case['x1']*case['x2']+case['x3'] #this gives us the outcome
-    
-Having implemented this model, we can now do EMA by executing the following
-code snippet ::
-   
-   from expWorkbench import ModelEnsemble
-
-   model = SimplePythonModel(None, 'simpleModel') #instantiate the model
-   ensemble = ModelEnsemble() #instantiate an ensemble
-   ensemble.model_structures = model #set the model on the ensemble
-   results = ensemble.perform_experiments(1000) #generate 1000 cases
-
-
-Here, we instantiate the model first. Instantiating a model requires two 
-arguments: a working directory, and a name. The latter is required, the first
-is not. Our model does not have a working directory, so we pass `None`. Next
-we instantiate a :class:`~model_ensemblel.ModelEnsemble` and add the model to it.
-This class handles the generation of the experimetns, the executing of the
-experiments, and the storing of the results. We perform the experiments by
-invoing the :meth:`perform_experiments`. 
 
 .. rubric:: The complete code:
 
@@ -124,14 +76,7 @@ invoing the :meth:`perform_experiments`.
 A simple model in Vensim
 ========================
 
-In order to perfom EMA on a model build in Vensim, we can either extent
-:class:`~model.ModelStructureInterface` or use 
-:class:`~vensim.VensimModelStructureInterface`. The later contains a boiler 
-plate implementation for starting vensim, setting parameters, running the 
-model, and retrieving the results. 
-:class:`~vensim.VensimModelStructureInterface` is thus the most obvious choice.
-For almost all cases when performing EMA on Vensim model, 
-:class:`~vensim.VensimModelStructureInterface` can serve as the base class.
+
 
 Imagine we have a very simple Vensim model:
 
@@ -139,76 +84,44 @@ Imagine we have a very simple Vensim model:
    :align: center
 
 For this example, we assume that 'x11' and 'x12' are uncertain. The state
-variable 'a' is the outcome of interest. We are going to extent 
-:class:`~vensim.VensimModelStructureInterface` accordingly. ::
-   
-   class VensimExampleModel(VensimModelStructureInterface):
-       '''
-       example of the most simple case of doing EMA on
-       a vensim model
-       
-       '''
+variable 'a' is the outcome of interest. Similar to the previous example,
+we have to first instantiate a vensim model object, in this case 
+:class:`~vensim.VensimModelStructureInterface`. To this end, we need to
+specify the directory in which the vensim file resides, the name of the vensim
+file and the name of the model. ::
 
-       #note that this reference to the model should be relative
-       #this relative path will be combined to the workingDirectory
-       model_file = r'\model.vpm' 
-        
-       #specify outcomes   
-       outcomes = [Outcome('a', time=True)]
-           
-       #specify your uncertainties
-       uncertainties = [ParameterUncertainty((0, 2.5), "x11"),
-                        ParameterUncertainty((-2.5, 2.5), "x12")]  
+    wd = r'./models/vensim example'
+    vensimModel = VensimModelStructureInterface("simpleModel", wd=wd,
+                                                model_file=r'\model.vpm')
 
-We make a class called :class:`VensimExampleModel` that extents 
-:class:`~vensim.VensimModelStructureInterface`. For the simplest case, we only
-need to specify the model file, the outcomes, and the uncertainties. 
+Next, we can specify the uncerainties and the outcomes. ::
 
-We specify the model file relative to the working directory. :: 
+    vensimModel.uncertainties = [RealParameter("x11", 0, 2.5),
+                                 RealParameter("x12", -2.5, 2.5)]
 
-    model_file = r'\model.vpm' 
+    
+    vensimModel.outcomes = [TimeSeriesOutcome('a', time=True)]
+    
+Note that we are using a TimeSeriesOutcome, because vensim results are time 
+series. We can now simply run this model by calling 
+:func:`perform_experiments`. ::
 
-We add an :class:`~outcomes.Outcome` called 'a' to :attr:`self.outcomes`. 
-The second argument `time=True` means we are interested in the value of 'a' 
-over the duration of the simulation. ::
+   perform_experiments(vensimModel, 1000, parallel=True)
 
-   outcomes = [Outcome('a', time=True)]
+Here we add a new keyword argument, parallel, which tells the workbench
+that the experiments can be run in parallel making use of the multiple cores
+your computer has available.
 
-We add two :class:`~uncertainties.ParameterUncertainty` instances titled 
-'x11' and 'x12' to :attr:`self.uncertainties`. :: 
+Is it generally good practice to first run a model a small number of times 
+sequentially prior to running in parallel. In this way, bugs etc. can be 
+spotted more easily. To further help with keeping track of what is going on,
+it is also good practice to make use of the logging functionality provided by
+the workbench ::
 
-     uncertainties = [ParameterUncertainty((0, 2.5), "x11"),
-                      ParameterUncertainty((-2.5, 2.5), "x12")] 
-                      
-By specifying these three elements -the path to the model file relative to a 
-working directory, the outcomes, and the uncertainties- we are now able to 
-perform EMA on the simple Vensim model. ::
-
-    #turn on logging
     ema_logging.log_to_stderr(ema_logging.INFO)
     
-    #instantiate a model
-    vensimModel = VensimExampleModel(r"..\..\models\vensim example", "simpleModel")
-    
-    #instantiate an ensemble
-    ensemble = ModelEnsemble()
-    
-    #set the model on the ensemble
-    ensemble.model_structures = vensimModel
-    
-    #run in parallel, if not set, FALSE is assumed
-    ensemble.parallel = True
-    
-    #perform experiments
-    result = ensemble.perform_experiments(1000)
-
-
-In the first line, we turn on the logging functionality provided by 
-:mod:`ema_logging`. This is highly recommended, for we can get much more insight
-into what is going on: how the simulations are progressing, whether there
-are any warnings or errors, etc. For normal runs, we can set the level
-to the INFO level, which in most cases is sufficient. For more details see
-:mod:`ema_logging`. 
+Typically, this line appears at the start of the script. When executing the
+code, messages on progress or on errors will be shown.  
 
 .. rubric:: The complete code
 
@@ -221,8 +134,8 @@ to the INFO level, which in most cases is sufficient. For more details see
 A simple model in Excel
 =======================
 
-In order to perform EMA on an Excel model, the easiest is to use 
-:class:`~excel.ExcelModelStructureInterface` as the base class. This base
+In order to perform EMA on an Excel model, one can use the 
+:class:`~excel.ExcelModelStructureInterface`. This base
 class makes uses of naming cells in Excell to refer to them directly. That is,
 we can assume that the names of the uncertainties correspond to named cells
 in Excell, and similarly, that the names of the outcomes correspond to named
@@ -234,18 +147,16 @@ the `anglo saxon convention <http://en.wikipedia.org/wiki/Decimal_mark>`_.
 .. literalinclude:: ../../examples/excel_example.py
    :linenos:
 
-The example is relatively straight forward. We add multiple 
-:class:`~uncertainties.ParameterUncertainty` instances to 
-:attr:`self.uncertainties`. Next, we add two outcome to :attr:`self.outcomes`. 
-We specify the name of the sheet (:attr:`self.sheet`) and the relative path to 
-the workbook (:attr:`self.workbook`). This compleets the specification of the 
-Excel model.
+The example is relatively straight forward. We instantiate an excel model, we
+specify the uncerainties and the outcomes. We also need to specify the sheet
+in excel on which the model resides. Next we can call 
+:func:`perform_experiments`.
 
 
 .. warning:: 
 
    when using named cells. Make sure that the names are defined 
-   at the sheet level and not at the workbook level! 
+   at the sheet level and not at the workbook level
 
 .. _A-more-elaborate-example-Mexican-Flu:
 
@@ -348,13 +259,52 @@ Assuming we have imported :class:`~model_ensemblel.ModelEnsemble` and
 
    EMALogging.log_to_stderr(level=EMALogging.INFO)
    
-   model = FluModel(r'..\..\models\flu', "fluCase")
-   
-   ensemble = ModelEnsemble()
-   ensemble.model_structure = model
-   ensemble.parallel = True
-   
-   results = ensemble.perform_experiments(1000)
+    model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
+                                      model_file = r'/FLUvensimV1basecase.vpm')
+    model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
+                      TimeSeriesOutcome('infected fraction R1')]
+    model.uncertainties = [
+    ParameterUncertainty((0, 0.5), 
+                         "additional seasonal immune population fraction R1"),
+    ParameterUncertainty((0, 0.5), 
+                         "additional seasonal immune population fraction R2"),
+    ParameterUncertainty((0.0001, 0.1), 
+                         "fatality ratio region 1"),
+    ParameterUncertainty((0.0001, 0.1), 
+                         "fatality rate region 2"),
+    ParameterUncertainty((0, 0.5), 
+                         "initial immune fraction of the population of region 1"),
+    ParameterUncertainty((0, 0.5), 
+                         "initial immune fraction of the population of region 2"),
+    ParameterUncertainty((0, 0.9), 
+                         "normal interregional contact rate"),
+    ParameterUncertainty((0, 0.5), 
+                         "permanent immune population fraction R1"),
+    ParameterUncertainty((0, 0.5), 
+                         "permanent immune population fraction R2"),
+    ParameterUncertainty((0.1, 0.75), 
+                         "recovery time region 1"),
+    ParameterUncertainty((0.1, 0.75), 
+                         "recovery time region 2"),
+    ParameterUncertainty((0.5,2), 
+                         "susceptible to immune population delay time region 1"),
+    ParameterUncertainty((0.5,2), 
+                         "susceptible to immune population delay time region 2"),
+    ParameterUncertainty((0.01, 5), 
+                         "root contact rate region 1"),
+    ParameterUncertainty((0.01, 5), 
+                         "root contact ratio region 2"),
+    ParameterUncertainty((0, 0.15), 
+                         "infection ratio region 1"),
+    ParameterUncertainty((0, 0.15), 
+                         "infection rate region 2"),
+    ParameterUncertainty((10, 100), 
+                         "normal contact rate region 1"),
+    ParameterUncertainty((10, 200), 
+                         "normal contact rate region 2")]
+
+    nr_experiments = 100
+    results = perform_experiments(model, nr_experiments, parallel=True)
 
 We now have generated a 1000 cases and can proceed to analyse the results using
 various analysis scripts. As a first step, one can look at the individual runs
@@ -406,35 +356,28 @@ running the policies
 ^^^^^^^^^^^^^^^^^^^^
 
 In order to be able to run the models with the policies and to compare their
-results with the no policy case, we need to modify :class:`FluModel`. We 
-overide the default implementation of :meth:`model_init` to change the model
-file based on the policy. After this, we call the super. ::
-
-       def model_init(self, policy, kwargs):
-        '''initializes the model'''
-           try:
-               self.model_file = policy['file']
-           except KeyError:
-               ema_logging.warning("key 'file' not found in policy")
-           super(FluModel, self).model_init(policy, kwargs)
-
-Now, our model can react to different policies, but we still have to 
-add these policies to :class:`ModelEnsemble`. We therefore make 
-a list of policies. Each entry in the list is a :class:`dict`, with a 
-'name' field and a 'file' field. The name specifies the name
-of the policy, and the file specified the model file to be used. We 
-add this list of policies to the ensemble. ::
+results with the no policy case, we need to specify the policies ::
 
     #add policies
-    policies = [{'name': 'no policy',
-                 'file': r'\FLUvensimV1basecase.vpm'},
-                {'name': 'static policy',
-                 'file': r'\FLUvensimV1static.vpm'},
-                {'name': 'adaptive policy',
-                 'file': r'\FLUvensimV1dynamic.vpm'}
+    policies = [Policy('no policy',
+                       model_file=r'/FLUvensimV1basecase.vpm'),
+                Policy('static policy',
+                       model_file=r'/FLUvensimV1static.vpm'),
+                Policy('adaptive policy',
+                       model_file=r'/FLUvensimV1dynamic.vpm')
                 ]
-    ensemble.policies = policies
 
+In this case, we have chosen to have the policies implemented in seperate
+vensim files. Policies require a name, and can take any other keyword
+arguments you like. If the keyword matches an attribute on the model object,
+it will be updated, so model_file is an attribute on the vensim model. When 
+executing the policies, we update this attribute for each policy. We can pass 
+these policies to :func:`perform_experiment` as an additional keyword 
+argument ::
+
+    results = perform_experiments(model, 1000, policies=policies, 
+                                  parallel=True)
+                                  
 We can now proceed in the same way as before, and perform a series of
 experiments. Together, this results in the following code:
 

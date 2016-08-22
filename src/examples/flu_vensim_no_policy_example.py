@@ -10,7 +10,7 @@ is the same as used in fluExample
 '''
 
 from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty, 
-                                        TimeSeriesOutcome)
+                                        TimeSeriesOutcome, perform_experiments)
 from ema_workbench.util import ema_logging, save_results
 
 from ema_workbench.connectors.vensim import VensimModelStructureInterface 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
-                                          model_file = r'/FLUvensimV1basecase.vpm')
+                                      model_file = r'/FLUvensimV1basecase.vpm')
             
     #outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
@@ -65,12 +65,6 @@ if __name__ == "__main__":
                          "normal contact rate region 1"),
     ParameterUncertainty((10, 200), 
                          "normal contact rate region 2")]
-                     
-
-    ensemble = ModelEnsemble()
-    ensemble.model_structures = model
-    
-    ensemble.parallel = True #turn on parallel processing
 
     nr_experiments = 100
-    results = ensemble.perform_experiments(nr_experiments)
+    results = perform_experiments(model, nr_experiments, parallel=True)

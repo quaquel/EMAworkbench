@@ -12,7 +12,8 @@ import numpy as np
 
 
 from ema_workbench.em_framework import (ModelEnsemble, RealParameter,
-                                        TimeSeriesOutcome, ScalarOutcome)
+                                        TimeSeriesOutcome, ScalarOutcome,
+    perform_experiments)
 from ema_workbench.em_framework.parameters import Policy
 from ema_workbench.util import ema_logging
 from ema_workbench.connectors.vensim import VensimModelStructureInterface 
@@ -52,9 +53,6 @@ if __name__ == '__main__':
        RealParameter("normal contact rate region 1",10,100),
        RealParameter("normal contact rate region 2",10,200)]
  
-    ensemble = ModelEnsemble()
-    ensemble.model_structures = model
-
     #add policies
     policies = [Policy('no policy',
                        model_file=r'/FLUvensimV1basecase.vpm'),
@@ -63,13 +61,7 @@ if __name__ == '__main__':
                 Policy('adaptive policy',
                        model_file=r'/FLUvensimV1dynamic.vpm')
                 ]
-    ensemble.policies = policies
     
-    #turn on parallel processing
-    ensemble.parallel = True 
     
-    # run 1000 experiments
-    nr_runs = 1000
-    experiments, outcomes = ensemble.perform_experiments(nr_runs)
-
-
+    results = perform_experiments(model, 1000, policies=policies, 
+                                  parallel=True)

@@ -1,18 +1,20 @@
 '''
 Created on 3 Jan. 2011
 
-This file illustrated the use the EMA classes for a contrived example
-It's main purpose is to test the parallel processing functionality
+This file illustrated the use the EMA classes for a contrived vensim
+example
 
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 '''
-from ema_workbench.em_framework import (ModelEnsemble, ParameterUncertainty, 
-                                        TimeSeriesOutcome)
+from __future__ import (division, unicode_literals, absolute_import, 
+                        print_function)
+
+from ema_workbench.em_framework import (TimeSeriesOutcome, perform_experiments)
 from ema_workbench.util import ema_logging 
 from ema_workbench.connectors.vensim import VensimModelStructureInterface
-
+from ema_workbench.em_framework.parameters import RealParameter
 
 if __name__ == "__main__":
     #turn on logging
@@ -22,19 +24,10 @@ if __name__ == "__main__":
     wd = r'./models/vensim example'
     vensimModel = VensimModelStructureInterface("simpleModel", wd=wd,
                                                 model_file=r'\model.vpm')
+    vensimModel.uncertainties = [RealParameter("x11", 0, 2.5),
+                                 RealParameter("x12", -2.5, 2.5)]
+    
     vensimModel.outcomes = [TimeSeriesOutcome('a', time=True)]
-    vensimModel.uncertainties = [ParameterUncertainty((0, 2.5), "x11"),
-                                 ParameterUncertainty((-2.5, 2.5), "x12")]
     
-    #instantiate an ensemble
-    ensemble = ModelEnsemble()
-    
-    #set the model on the ensemble
-    ensemble.model_structures = vensimModel
-    
-    #run in parallel, if not set, FALSE is assumed
-    ensemble.parallel = True
-    
-    #perform experiments
-    result = ensemble.perform_experiments(1000)
+    results = perform_experiments(vensimModel, 1000, parallel=True)
     
