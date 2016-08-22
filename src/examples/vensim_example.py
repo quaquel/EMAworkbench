@@ -27,7 +27,7 @@ if __name__ == "__main__":
     vensimModel.uncertainties = [RealParameter("x11", 0, 2.5),
                                  RealParameter("x12", -2.5, 2.5)]
     
-    vensimModel.outcomes = [TimeSeriesOutcome('a', time=True)]
+    vensimModel.outcomes = [TimeSeriesOutcome('a')]
     
     results = perform_experiments(vensimModel, 1000, parallel=True)
     
