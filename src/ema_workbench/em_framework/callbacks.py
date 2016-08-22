@@ -154,7 +154,7 @@ class DefaultCallback(AbstractCallback):
         self.results = {}
         self.lock = Lock()
         
-        self.outcomes = outcomes
+        self.outcomes = [outcome.name for outcome in outcomes]
 
         #determine data types of uncertainties
         self.dtypes = []

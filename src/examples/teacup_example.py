@@ -28,6 +28,6 @@ if __name__ == '__main__':
     
     ensemble = ModelEnsemble()  # instantiate an ensemble
     ensemble.model_structures = model  # set the model on the ensemble
-#     ensemble.parallel = True
+    ensemble.parallel = True
     ensemble.processes = 1
-    ensemble.perform_experiments(10, reporting_interval=1)
+    ensemble.perform_experiments(100, reporting_interval=1)

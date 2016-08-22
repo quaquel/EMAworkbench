@@ -30,7 +30,7 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertEqual(callback.i, 0)
         self.assertEqual(callback.nr_experiments, 100)
         self.assertEqual(callback.cases.shape[0], 100)
-        self.assertEqual(callback.outcomes, outcomes)
+        self.assertEqual(callback.outcomes, [o.name for o in outcomes])
         
         names = rf.get_names(callback.cases.dtype)
         names = set(names)
@@ -47,8 +47,7 @@ class TestDefaultCallback(unittest.TestCase):
         experiment = Experiment(0, model, Policy('policy'), Scenario(a=1), 0)
      
         # case 1 scalar shape = (1)
-        callback = DefaultCallback(uncs, 
-                                   [outcome.name for outcome in outcomes], 
+        callback = DefaultCallback(uncs, outcomes, 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: 1}
         callback(experiment, result)
@@ -58,8 +57,7 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertEqual(out[outcomes[0].name].shape, (3,))
      
         # case 2 time series shape = (1, nr_time_steps)
-        callback = DefaultCallback(uncs, 
-                                   [outcome.name for outcome in outcomes], 
+        callback = DefaultCallback(uncs, outcomes, 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: np.random.rand(10)}
         callback(experiment, result)
@@ -69,8 +67,7 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertEqual(out[outcomes[0].name].shape, (3,10))
 
         # case 3 maps etc. shape = (x,y)
-        callback = DefaultCallback(uncs, 
-                                   [outcome.name for outcome in outcomes], 
+        callback = DefaultCallback(uncs, outcomes, 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: np.random.rand(2,2)}
         callback(experiment,result)
@@ -80,16 +77,14 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertEqual(out[outcomes[0].name].shape, (3,2,2))
 
         # case 4 assert raises EMAError
-        callback = DefaultCallback(uncs, 
-                                   [outcome.name for outcome in outcomes], 
+        callback = DefaultCallback(uncs, outcomes, 
                                    nr_experiments=nr_experiments)
         result = {outcomes[0].name: np.random.rand(2,2,2)}
         self.assertRaises(EMAError, callback, experiment, result)
         
         # KeyError
         with mock.patch('ema_workbench.util.ema_logging.debug') as mocked_logging:
-            callback = DefaultCallback(uncs, 
-                           [outcome.name for outcome in outcomes], 
+            callback = DefaultCallback(uncs, outcomes, 
                            nr_experiments=nr_experiments)
             result = {'incorrect': np.random.rand(2,)}
             callback(experiment, result)
@@ -114,7 +109,7 @@ class TestDefaultCallback(unittest.TestCase):
         experiment = Experiment(0, model, policy, scenario, 0)
      
         callback = DefaultCallback(uncs, 
-                                   [outcome.name for outcome in outcomes], 
+                                   outcomes, 
                                    nr_experiments=nr_experiments,
                                    reporting_interval=1)
         result = {outcomes[0].name: 1}
