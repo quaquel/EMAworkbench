@@ -1,0 +1,20 @@
+name,0,1
+additional seasonal immune population fraction R1,0.0,0.5
+additional seasonal immune population fraction R2,0.0,0.5
+fatality ratio region 1,0.0001,0.1
+fatality rate region 2,0.0001,0.1
+initial immune fraction of the population of region 1,0.0,0.5
+initial immune fraction of the population of region 2,0.0,0.5
+normal interregional contact rate,0.0,0.9
+permanent immune population fraction R1,0.0,0.5
+permanent immune population fraction R2,0.0,0.5
+recovery time region 1,0.1,0.75
+recovery time region 2,0.1,0.75
+susceptible to immune population delay time region 1,0.5,2.0
+susceptible to immune population delay time region 2,0.5,2.0
+root contact rate region 1,0.01,5.0
+root contact ratio region 2,0.01,5.0
+infection ratio region 1,0.0,0.15
+infection rate region 2,0.0,0.15
+normal contact rate region 1,10.0,100.0
+normal contact rate region 2,10.0,200.0

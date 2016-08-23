@@ -7,7 +7,8 @@ __all__ = ["ema_parallel", "model_ensemble", "parameters"
            "Model", 'FileModel', "ModelEnsemble",
            "Outcome", "ScalarOutcome", "TimeSeriesOutcome",
            "RealParameter", "IntegerParameter", "CategoricalParameter",
-           "Scenario", "Policy", "Experiment", "Constant" 
+           "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
+           "parameters_to_csv"
            ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
@@ -15,7 +16,8 @@ from .uncertainties import (ParameterUncertainty, CategoricalUncertainty)
 from .model import Model, FileModel
 from .model_ensemble import (ModelEnsemble)
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
-                         Scenario, Policy, Constant, Experiment)
+                     Scenario, Policy, Constant, Experiment, create_parameters,
+                     parameters_to_csv)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler, 
                        PartialFactorialSampler)
 
