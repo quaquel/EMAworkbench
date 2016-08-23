@@ -125,10 +125,17 @@ class RealParameter(Parameter):
         return (self.lower_bound, self.upper_bound-self.lower_bound)
     
     def __repr__(self, *args, **kwargs):
-        template = 'RealParameter(\'{}\', {}, {}, resolution={}, default={})'
+        start = 'RealParameter(\'{}\', {}, {}'.format(self.name, 
+                                          self.lower_bound, self.upper_bound)
         
-        return template.format(self.name, self.lower_bound, self.upper_bound, 
-                               self.resolution, self.default)
+        if self.resolution:
+            start += ', resolution={}'.format(self.resolution)
+        if self.default:
+            start += ', default={}'.format(self.default)
+            
+        start += ')'
+        
+        return start
         
         
 class IntegerParameter(Parameter):
@@ -176,10 +183,17 @@ class IntegerParameter(Parameter):
         return (self.lower_bound, self.upper_bound)
     
     def __repr__(self, *args, **kwargs):
-        template = 'IntegerParameter(\'{}\', {}, {}, resolution={}, default={})'
+        start = 'IntegerParameter(\'{}\', {}, {}'.format(self.name, 
+                                          self.lower_bound, self.upper_bound)
         
-        return template.format(self.name, self.lower_bound, self.upper_bound, 
-                               self.resolution, self.default)
+        if self.resolution:
+            start += ', resolution={}'.format(self.resolution)
+        if self.default:
+            start += ', default={}'.format(self.default)
+            
+        start += ')'
+        
+        return start
 
 
 class CategoricalParameter(IntegerParameter):
@@ -268,9 +282,16 @@ class CategoricalParameter(IntegerParameter):
         return self.index_for_cat(name)
 
     def __repr__(self, *args, **kwargs):
-        template = 'CategoricalParameter(\'{}\', {}, default={})'
+        template1 = 'CategoricalParameter(\'{}\', {}, default={})'
+        template2 = 'CategoricalParameter(\'{}\', {})'
         
-        return template.format(self.name, self.resolution, self.default)    
+        if self.default:
+            representation = template1.format(self.name, self.resolution, 
+                                            self.default)
+        else:
+            representation = template2.format(self.name, self.resolution)
+        
+        return representation
 
 
 class Policy(NamedDict):
@@ -308,7 +329,50 @@ class Experiment(NamedObject):
         self.policy = policy
         self.model = model
         self.scenario = scenario
+
+
+def parameters_to_csv(parameters, file_name):
+    '''Helper function for writing a collection of parameters to a csv file
+    
+    Parameters
+    ----------
+    parameters : collection of Parameter instances
+    file_name :  str
+    
+    
+    The function iterates over the collection and turns these into a data
+    frame prior to storing them. The resulting csv can be loaded using the 
+    create_parameters function. Note that currently we don't store resolution
+    and default attributes. 
+    
+    '''
+    
+    params = {}
+    
+    for i, param in enumerate(parameters):
         
+        if isinstance(param, CategoricalParameter):
+            values = param.resolution
+        else:
+            values = param.lower_bound, param.upper_bound
+        
+        dict_repr = {j:value for j, value in enumerate(values)}
+        dict_repr['name'] = param.name
+        
+        params[i] = dict_repr
+        
+    params = pandas.DataFrame.from_dict(params, orient='index')
+    
+    # for readability it is nice if name is the first column, so let's
+    # ensure this
+    cols = params.columns.tolist()
+    cols.insert(0, cols.pop(cols.index('name')))
+    params = params.reindex(columns=cols)
+
+    # we can now safely write the dataframe to a csv
+    pandas.DataFrame.to_csv(params, file_name, index=False)
+    
+
 def create_parameters(uncertainties, **kwargs):
     '''Helper function for creating many Parameters based on a dataframe
     or csv file
