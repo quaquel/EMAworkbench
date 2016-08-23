@@ -8,6 +8,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 import abc
 import itertools
 import numbers
+import pandas
 import six
 import warnings
 
@@ -20,7 +21,7 @@ from ema_workbench.em_framework.util import NamedDict
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['Parameter','RealParameter', 'IntegerParameter',
-           'CategoricalParameter']
+           'CategoricalParameter', 'create_uncertainties']
 
 
 class Constant(NamedObject):
@@ -122,6 +123,12 @@ class RealParameter(Parameter):
     @property
     def params(self):
         return (self.lower_bound, self.upper_bound-self.lower_bound)
+    
+    def __repr__(self, *args, **kwargs):
+        template = 'RealParameter(\'{}\', {}, {}, resolution={}, default={})'
+        
+        return template.format(self.name, self.lower_bound, self.upper_bound, 
+                               self.resolution, self.default)
         
         
 class IntegerParameter(Parameter):
@@ -167,6 +174,12 @@ class IntegerParameter(Parameter):
     @property
     def params(self):
         return (self.lower_bound, self.upper_bound)
+    
+    def __repr__(self, *args, **kwargs):
+        template = 'IntegerParameter(\'{}\', {}, {}, resolution={}, default={})'
+        
+        return template.format(self.name, self.lower_bound, self.upper_bound, 
+                               self.resolution, self.default)
 
 
 class CategoricalParameter(IntegerParameter):
@@ -254,6 +267,12 @@ class CategoricalParameter(IntegerParameter):
         
         return self.index_for_cat(name)
 
+    def __repr__(self, *args, **kwargs):
+        template = 'CategoricalParameter(\'{}\', {}, default={})'
+        
+        return template.format(self.name, self.resolution, self.default)    
+
+
 class Policy(NamedDict):
     # idea: make use of NamedObjectMap --> underneath this is an
     # ordered dict, so can always cast values to list / array
@@ -289,3 +308,113 @@ class Experiment(NamedObject):
         self.policy = policy
         self.model = model
         self.scenario = scenario
+        
+def create_parameters(uncertainties, **kwargs):
+    '''Helper function for creating many Parameters based on a dataframe
+    or csv file
+    
+    Parameters
+    ----------
+    uncertainties : str, dataframe
+    **kwargs : dict, arguments to pass to pandas.read_csv
+    
+    Returns
+    -------
+    list of Parameter instances
+    
+    
+    This helper function creates uncertainties. It assumes that the 
+    dataframe or csv file has a column titled 'name', optionally a type column
+    {int, real, cat}, can be included as well. the remainder of the columns
+    are handled as values for the parameters. If type is not specified,
+    the function will try to infer type from the values. 
+    
+    Note that this function does not support the resolution and default kwargs 
+    on parameters. 
+    
+    An example of a csv:
+    
+    NAME,TYPE,,,
+    a_real,real,0,1.1,
+    an_int,int,1,9,
+    a_categorical,cat,a,b,c
+    
+    this CSV file would result in 
+    
+    [RealParameter('a_real', 0, 1.1, resolution=[], default=None), 
+     IntegerParameter('an_int', 1, 9, resolution=[], default=None), 
+     CategoricalParameter('a_categorical', ['a', 'b', 'c'], default=None)]
+    
+    '''
+    
+    if isinstance(uncertainties, six.string_types):
+        uncertainties = pandas.read_csv(uncertainties, **kwargs)
+    elif not isinstance(uncertainties, pandas.DataFrame):
+        uncertainties = pandas.DataFrame.from_dict(uncertainties)
+    else:
+        uncertainties = uncertainties.copy()
+    
+    parameter_map = {'int': IntegerParameter,
+                     'real': RealParameter,
+                     'cat': CategoricalParameter}
+    
+    def cast(obj):
+        try:
+            obj = int(obj)
+        except ValueError:
+            try:
+                obj = float(obj)
+            except ValueError:
+                pass
+        return obj
+
+    # check if names column is there
+    if ('NAME' not in uncertainties) and ('name' not in uncertainties):
+        raise IndexError('name column missing')
+    elif ('NAME' in uncertainties.columns):
+        names = uncertainties.ix[:, 'NAME']
+        uncertainties.drop(['NAME'], axis=1, inplace=True)
+    else:
+        names = uncertainties.ix[:, 'name']
+        uncertainties.drop(['name'], axis=1, inplace=True)
+    
+    # check if type column is there
+    infer_type = False
+    if ('TYPE' not in uncertainties) and ('type' not in uncertainties):
+        infer_type = True
+    elif ('TYPE' in uncertainties):
+        types = uncertainties.ix[:, 'TYPE']
+        uncertainties.drop(['TYPE'], axis=1, inplace=True)
+    else:
+        types = uncertainties.ix[:, 'type']
+        uncertainties.drop(['type'], axis=1, inplace=True)
+    
+    uncs = []
+    for i, row in uncertainties.iterrows():
+        name = names[i]
+        values = row.values[row.notnull().values]
+        values = [cast(entry) for entry in values]
+        type = None
+        
+        if infer_type:
+            if len(values) != 2:
+                type = 'cat'
+            else:
+                l, u = values
+                
+                if isinstance(l, numbers.Integral) and isinstance(u, numbers.Integral):
+                    type = 'int'
+                else:
+                    type = 'real'
+            
+        else:
+            type = types[i]
+            
+            if (type != 'cat') and (len(values) != 2):
+                raise ValueError('to0 many values specified for {}, is {}, should be 2'.format(name, values.shape[0]))
+            
+        if type=='cat':
+            uncs.append(parameter_map[type](name, values))
+        else:
+            uncs.append(parameter_map[type](name, *values))
+    return uncs
