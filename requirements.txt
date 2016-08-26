@@ -12,3 +12,4 @@ matplotlib
 pyzmq
 jupyter
 deap
+pysd
