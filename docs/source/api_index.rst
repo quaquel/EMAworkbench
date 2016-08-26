@@ -18,6 +18,7 @@ Exploratory modeling framework
    ../../ema_documentation/em_framework/ema_parallel.rst
    ../../ema_documentation/em_framework/ema_parallel_multiprocessing.rst
    ../../ema_documentation/em_framework/ema_parallel_ipython.rst
+   ../../ema_documentation/em_framework/util.rst
 
 Connectors
 ^^^^^^^^^^
