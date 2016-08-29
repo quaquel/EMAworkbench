@@ -365,28 +365,48 @@ class VensimModelStructureInterface(FileModel):
         except VensimError:
             raise
 
+
+        def check_data(result):
+            error = False
+            if result.shape[0] != self.run_length:
+                data = np.empty((self.run_length))
+                data[:] = np.NAN
+                data[0:result.shape[0]] = result
+                result = data
+                error = True
+            return result, error
+                
+
         results = {}
-        error = False
         for output in self.outcomes:
             debug("getting data for %s" %output.name)
-            result = get_data(self.working_directory+self.result_file, 
-                              output.variable_name 
-                              )
-            debug("successfully retrieved data for %s" %output.name)
-            if result is not None:
-                if result.shape[0] != self.run_length:
-                    got = result.shape[0]
-                    data = np.empty((self.run_length))
-                    data[:] = np.NAN
-                    data[0:result.shape[0]] = result
-                    result = data
-                    error = True
+            
+            var_name = output.variable_name
+            if isinstance(var_name, basestring):
+                result = get_data(self.working_directory+self.result_file, 
+                                  var_name
+                                  )
+                result, error = check_data(result)
+                debug("successfully retrieved data for %s" %var_name)
+            else:
+                result = []
+                error = False
+                
+                for var in var_name:
+                    res = get_data(self.working_directory+self.result_file, 
+                                  var
+                                  )
+                    res, er = check_data(res)
+                    
+                    error = er or error 
+                    
+                    result.append(check_data(result))
+
 
             results[output.name] = result
         self.output = results   
         if error:
-            raise CaseError("run not completed, got %s, expected %s" %
-                            (got, self.run_length), scenario)  
+            raise CaseError("run not completed", scenario)  
 
 
     def reset_model(self):

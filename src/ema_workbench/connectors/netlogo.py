@@ -133,35 +133,39 @@ class NetLogoModel(FileModel):
         end_commands = []
         fns = {}
         for outcome in self.outcomes:
-            name = outcome.name
-            fn = r'{0}{3}{1}{2}'.format(self.working_directory,
-                           name,
-                           ".txt",
-                           os.sep)
-            fns[name] = fn
-            fn = '"{}"'.format(fn)
-            fn = fn.replace(os.sep, '/')
+            varname = outcome.variable_name
+            if isinstance(varname, basestring):
+                varname = [varname]
             
-            if self.netlogo.report('is-agentset? {}'.format(name)):
-                # if name is name of an agentset, we
-                # assume that we should count the total number of agents
-                nc = r'{2} {0} {3} {4} {1}'.format(fn,
+            for name in varname:
+                fn = r'{0}{3}{1}{2}'.format(self.working_directory,
+                               name,
+                               ".txt",
+                               os.sep)
+                fns[name] = fn
+                fn = '"{}"'.format(fn)
+                fn = fn.replace(os.sep, '/')
+                
+                if self.netlogo.report('is-agentset? {}'.format(name)):
+                    # if name is name of an agentset, we
+                    # assume that we should count the total number of agents
+                    nc = r'{2} {0} {3} {4} {1}'.format(fn,
+                                                       name,
+                                                       "file-open",
+                                                       'file-write',
+                                                       'count')
+                else:
+                    # it is not an agentset, so assume that it is 
+                    # a reporter / global variable
+                    
+                    nc = r'{2} {0} {3} {1}'.format(fn,
                                                    name,
                                                    "file-open",
-                                                   'file-write',
-                                                   'count')
-            else:
-                # it is not an agentset, so assume that it is 
-                # a reporter / global variable
-                
-                nc = r'{2} {0} {3} {1}'.format(fn,
-                                               name,
-                                               "file-open",
-                                               'file-write')
-            if outcome.time:
-                time_commands.append(nc)
-            else:
-                end_commands.append(nc)
+                                                   'file-write')
+                if outcome.time:
+                    time_commands.append(nc)
+                else:
+                    end_commands.append(nc)
                 
 
         c_start = "repeat {} [".format(self.run_length)
@@ -209,12 +213,23 @@ class NetLogoModel(FileModel):
 
     def _handle_outcomes(self, fns):
         '''helper function for parsing outcomes'''
-      
+        
+        results = {}
         for key, value in fns.iteritems():
             with open(value) as fh:
                 result = fh.readline()
                 result = result.strip()
                 result = result.split()
                 result = [float(entry) for entry in result]
-                self.output[key] = np.asarray(result)
-            os.remove(value)         
+                results[key] = np.asarray(result)
+            os.remove(value)        
+        
+        temp_output = {}
+        for outcome in self.outcomes:
+            varname = outcome.variable_name
+            if isinstance(varname, basestring):
+                temp_output[outcome.name] = results[varname]
+            else:
+                temp_output[outcome.name] = [results[var] for var in varname]
+        self.output = temp_output
+         
