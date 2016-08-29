@@ -229,6 +229,24 @@ class AbstractModel(NamedObject):
         '''
         pass
     
+    
+    def _unravel_scenario(self, scenario):
+        # TODO:: useless name, implementation wise a mess
+        # needs to be called always when calling run_model,
+        # but then, either put it in super (requires inplace updating
+        # of scenario, which is possible), but also reduces what can
+        # be done when extending run_model because it makes calling
+        # super obligatory at the start
+        
+        temp_scenario = {}
+        for unc in self.uncertainties:
+            value = scenario[unc.name]
+            
+            for varname in unc.variable_name:
+                temp_scenario[varname] = value
+        
+        return temp_scenario
+        
 
 class Model(AbstractModel):
     '''
@@ -289,6 +307,7 @@ class Model(AbstractModel):
         
         """
         super(Model, self).run_model(scenario, policy)
+        scenario = self._unravel_scenario(scenario)
         
         constants = {c.name:c.value for c in self.constants}
         

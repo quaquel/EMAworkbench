@@ -60,9 +60,23 @@ class Parameter(NamedObject):
         
     INTEGER = 'integer'
     UNIFORM = 'uniform'
-    
+
+
+    @property
+    def variable_name(self):
+        if self._variable_name != None:
+            return self._variable_name
+        else:
+            return [self.name]
+        
+    @variable_name.setter
+    def variable_name(self, name):
+        if isinstance(name, basestring):
+            name = [name]
+        self._variable_name = name
+
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None):
+                 default=None, variable_name=None):
         super(Parameter, self).__init__(name)
         
         if resolution is None:
@@ -80,6 +94,7 @@ class Parameter(NamedObject):
         self.upper_bound = upper_bound
         self.resolution = resolution
         self.default = default
+        self.variable_name = variable_name
         
     def __eq__ (self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
@@ -101,6 +116,7 @@ class RealParameter(Parameter):
     lower_bound : int or float
     upper_bound : int or float
     resolution : iterable 
+    variable_name : str, or list of str
     
     Raises
     ------
@@ -114,9 +130,10 @@ class RealParameter(Parameter):
     
     
     def __init__(self, name, lower_bound, upper_bound, resolution=None, 
-                 default=None):
+                 default=None, variable_name=None):
         super(RealParameter, self).__init__(name, lower_bound, upper_bound,
-                                        resolution=resolution, default=default)
+                                    resolution=resolution, default=default,
+                                    variable_name=variable_name)
         
         self.dist = Parameter.UNIFORM
         
@@ -147,6 +164,7 @@ class IntegerParameter(Parameter):
     lower_bound : int or float
     upper_bound : int or float
     resolution : iterable
+    variable_name : str, or list of str
     
     Raises
     ------
@@ -161,9 +179,10 @@ class IntegerParameter(Parameter):
     '''
     
     def __init__(self, name, lower_bound, upper_bound, resolution=None, 
-                 default=None):
+                 default=None, variable_name=None):
         super(IntegerParameter, self).__init__(name, lower_bound, upper_bound, 
-                                        resolution=resolution, default=default)
+                                    resolution=resolution, default=default,
+                                    variable_name=variable_name)
         
         lb_int = isinstance(lower_bound, numbers.Integral) 
         up_int = isinstance(upper_bound, numbers.Integral)
@@ -203,15 +222,17 @@ class CategoricalParameter(IntegerParameter):
     ----------
     name : str
     categories : collection of obj
+    variable_name : str, or list of str
     
     '''
     
-    def __init__(self, name, categories, default=None):
+    def __init__(self, name, categories, default=None, variable_name=None):
         lower_bound = 0
         upper_bound = len(categories)
 
         super(CategoricalParameter, self).__init__(name, lower_bound, 
-                                upper_bound, resolution=None, default=default)
+                            upper_bound, resolution=None, default=default,
+                            variable_name=variable_name)
         self.resolution = list(categories)
         
     def index_for_cat(self, category):
