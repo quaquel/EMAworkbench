@@ -19,6 +19,11 @@ from ema_workbench.em_framework.parameters import Policy, create_parameters
 from ema_workbench.util import ema_logging
 from ema_workbench.connectors.vensim import VensimModelStructureInterface 
 
+def time_of_max(infected_fraction, time):
+    index = np.where(infected_fraction==np.max(infected_fraction))
+    timing = time[index][0]
+    return timing
+    
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 
@@ -30,7 +35,10 @@ if __name__ == '__main__':
                       TimeSeriesOutcome('infected fraction R1'),
                       ScalarOutcome('max infection fraction', 
                                     variable_name='infected fraction R1', 
-                                    function=np.max)]
+                                    function=np.max),
+                      ScalarOutcome('time of max', 
+                                    variable_name=['infected fraction R1', 'TIME'], 
+                                    function=time_of_max)]
     
     #create uncertainties based on csv 
     model.uncertainties = create_parameters('./models/flu/flu_uncertainties.csv') 
@@ -47,3 +55,4 @@ if __name__ == '__main__':
      
     results = perform_experiments(model, 1000, policies=policies, 
                                   parallel=True)
+

@@ -386,7 +386,7 @@ class VensimModelStructureInterface(FileModel):
                 result = get_data(self.working_directory+self.result_file, 
                                   var_name
                                   )
-                result, error = check_data(result)
+                result, error = check_data(np.asarray(result))
                 debug("successfully retrieved data for %s" %var_name)
             else:
                 result = []
@@ -396,11 +396,11 @@ class VensimModelStructureInterface(FileModel):
                     res = get_data(self.working_directory+self.result_file, 
                                   var
                                   )
-                    res, er = check_data(res)
+                    res, er = check_data(np.asarray(res))
                     
                     error = er or error 
                     
-                    result.append(check_data(result))
+                    result.append(res)
 
 
             results[output.name] = result
