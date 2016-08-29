@@ -97,7 +97,7 @@ class TestScalarOutcome(unittest.TestCase):
         outputs = [1, 2]
         self.assertEqual(outcome.process(outputs), 2)
         function.assert_called_once()
-        function.assert_called_with(a=1, b=2)
+        function.assert_called_with(1, 2)
 
         with self.assertRaises(ValueError):
             name = 'test'
