@@ -337,6 +337,8 @@ class VensimModelStructureInterface(FileModel):
         
         """
         super(VensimModelStructureInterface, self).run_model(scenario, policy)
+         
+        scenario = self._unravel_scenario(scenario)
                 
         if self.cin_file:
             try:
