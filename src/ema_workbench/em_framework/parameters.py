@@ -422,15 +422,17 @@ def create_parameters(uncertainties, **kwargs):
                      'real': RealParameter,
                      'cat': CategoricalParameter}
     
-    def cast(obj):
-        try:
-            obj = int(obj)
-        except ValueError:
-            try:
-                obj = float(obj)
-            except ValueError:
-                pass
-        return obj
+#     def cast(obj):
+#         obj = str(obj)
+#         
+#         try:
+#             obj = int(obj)
+#         except ValueError:
+#             try:
+#                 obj = float(obj)
+#             except ValueError:
+#                 pass
+#         return obj
 
     # check if names column is there
     if ('NAME' not in uncertainties) and ('name' not in uncertainties):
@@ -457,7 +459,7 @@ def create_parameters(uncertainties, **kwargs):
     for i, row in uncertainties.iterrows():
         name = names[i]
         values = row.values[row.notnull().values]
-        values = [cast(entry) for entry in values]
+#         values = [cast(entry) for entry in values]
         type = None
         
         if infer_type:

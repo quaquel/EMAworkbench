@@ -131,12 +131,12 @@ class AbstractOutcome(NamedObject):
                     raise ValueError(('number of variables is {}, '
                           'number of outputs is {}').format(len_var, len_val))
                 
-                try:
-                    kwargs = {var_names[i]:values[i] for i in range(len(var_names))}
-                except TypeError as e:
-                    print(e)
-                    raise
-                return self.function(**kwargs)
+#                 try:
+#                     kwargs = {var_names[i]:values[i] for i in range(len(var_names))}
+#                 except TypeError as e:
+#                     print(e)
+#                     raise
+                return self.function(*values)
         except TypeError:
             return values
     
