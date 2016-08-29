@@ -115,7 +115,7 @@ class AbstractOutcome(NamedObject):
         self.function = function
     
     def process(self, values):
-        try:
+        if self.function:
             if isinstance(self.variable_name, basestring):
                 return self.function(values)
             else:
@@ -130,14 +130,9 @@ class AbstractOutcome(NamedObject):
                 if len_var != len_val:
                     raise ValueError(('number of variables is {}, '
                           'number of outputs is {}').format(len_var, len_val))
-                
-#                 try:
-#                     kwargs = {var_names[i]:values[i] for i in range(len(var_names))}
-#                 except TypeError as e:
-#                     print(e)
-#                     raise
+
                 return self.function(*values)
-        except TypeError:
+        else: 
             return values
     
     def __eq__ (self, other):
