@@ -124,7 +124,6 @@ class NamedObjectMapDescriptor(object):
             map = NamedObjectMap(self.kind)
             setattr(instance, self.internal_name, map) 
             return map
-
  
     def __set__(self, instance, values):
         try:

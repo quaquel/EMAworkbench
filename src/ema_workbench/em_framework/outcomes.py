@@ -69,6 +69,26 @@ class AbstractOutcome(NamedObject):
     MAXIMIZE = 1
     INFO = 0
     
+    #TODO:: variable_name should be expanded so that it can also accept a list
+    # of variable names, this is only meaningful in case there is also
+    # a function, in which case the function gets called with the
+    # results for each of the variables in the collection passed to 
+    # variable name. 
+    # this requires updating the run model in all the model interface
+    # classes. To help with this, it might be a good idea to add
+    # a outcome_variables attribute, perhaps
+    # best solution seems to be to change from setting all
+    # outputs in one go to handling to processing in the set_value
+    # of the outcomes dict, so changing the descriptor to an outcome
+    # specific descriptor
+    #
+    # other option is to make values into kwargs, so zip
+    # values with variable_names and use this in calling function
+    # then all that is needed is that the run_model functions
+    # simply create a list with the outcomes for each variable name
+    #
+    
+    
     @property
     def variable_name(self):
         if self._variable_name != None:
@@ -85,7 +105,10 @@ class AbstractOutcome(NamedObject):
         
         if function is not None and not callable(function):
             raise ValueError('function must be a callable')
-            
+        if variable_name:
+            if (not isinstance(variable_name, basestring)) and (not all(isinstance(elem, basestring) for elem in variable_name)):
+                    raise ValueError('variable name must be a string or list of strings')
+        
         
         self.kind = kind
         self.variable_name = variable_name
@@ -93,7 +116,27 @@ class AbstractOutcome(NamedObject):
     
     def process(self, values):
         try:
-            return self.function(values)
+            if isinstance(self.variable_name, basestring):
+                return self.function(values)
+            else:
+                var_names = self.variable_name
+                
+                len_var = len(var_names)
+                try:
+                    len_val = len(values)
+                except TypeError:
+                    len_val = None
+                
+                if len_var != len_val:
+                    raise ValueError(('number of variables is {}, '
+                          'number of outputs is {}').format(len_var, len_val))
+                
+                try:
+                    kwargs = {var_names[i]:values[i] for i in range(len(var_names))}
+                except TypeError as e:
+                    print(e)
+                    raise
+                return self.function(**kwargs)
         except TypeError:
             return values
     

@@ -297,8 +297,15 @@ class Model(AbstractModel):
         experiment = combine(scenario, self.policy, constants)
         
         result = self.function(**experiment)
-        self.output = {outcome.name:result[outcome.name] for outcome in 
-                       self.outcomes}
+        
+        results  = {}
+        for outcome in self.outcomes:
+            varname = outcome.variable_name
+            if isinstance(varname, basestring):
+                result[outcome.name] = result[varname]
+            else:
+                result[outcome.name] = [result[var] for var in varname]
+        self.output = results
 
 class FileModel(AbstractModel):
     @property
