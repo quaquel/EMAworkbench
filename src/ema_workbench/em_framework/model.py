@@ -12,6 +12,7 @@ from functools import wraps
 import os
 import warnings
 from ema_workbench.util import ema_logging
+from ema_workbench.em_framework.parameters import CategoricalParameter
 
 
 try:
@@ -51,26 +52,26 @@ class ModelMeta(abc.ABCMeta):
         return abc.ABCMeta.__new__(mcls, name, bases, namespace)
 
 
-def filter_scenario(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        # hack, because log is applied to methods, we can get
-        # object instance as first arguments in args
-        model_instance = args[0]
-        scenario = args[1]
-        policy = args[2]
-        
-        filtered_scenario = {}
-        for unc in model_instance.uncertainties:
-            try:
-                filtered_scenario[unc.name] = scenario[unc.name]
-            except KeyError:
-                if unc.default is not None:
-                    filtered_scenario[unc.name] = unc.default
-        scenario.data = filtered_scenario
-        func(model_instance, scenario, policy)
-        
-    return wrapper
+# def filter_scenario(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         # hack, because log is applied to methods, we can get
+#         # object instance as first arguments in args
+#         model_instance = args[0]
+#         scenario = args[1]
+#         policy = args[2]
+#         
+#         filtered_scenario = {}
+#         for unc in model_instance.uncertainties:
+#             try:
+#                 filtered_scenario[unc.name] = scenario[unc.name]
+#             except KeyError:
+#                 if unc.default is not None:
+#                     filtered_scenario[unc.name] = unc.default
+#         scenario.data = filtered_scenario
+#         func(model_instance, scenario, policy)
+#         
+#     return wrapper
 
 
 class AbstractModel(NamedObject):
@@ -164,7 +165,6 @@ class AbstractModel(NamedObject):
                 
 
     @method_logger    
-    @filter_scenario
     def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
@@ -192,15 +192,23 @@ class AbstractModel(NamedObject):
         # we can do it in the super, but have it available as a separate
         # function as well. Extending / implementing model interfaces
         # is not something most users will have to do
-    
         temp_scenario = {}
-        for key, value in scenario.iteritems():
-            unc = self.uncertainties[key]
+        for unc in self.uncertainties:
+            # only keep uncertainties that exist in this model
+            try:
+                value = scenario[unc.name]
+            except KeyError:
+                if unc.default is not None:
+                    value = unc.default
+                    
+                            
+            # TODO:: translate categories
+            if isinstance(unc, CategoricalParameter):
+                value = unc.value_for_category(value)
             
+            # translate uncertainty name to variable name
             for varname in unc.variable_name:
                 temp_scenario[varname] = value
-                
-            # TODO:: category omzetting
         
         scenario.data = temp_scenario
         

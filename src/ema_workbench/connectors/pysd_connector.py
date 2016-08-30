@@ -10,7 +10,6 @@ import pysd
 from ..em_framework.model import AbstractModel
 from ..util import ema_logging
 from ema_workbench.util.ema_logging import method_logger
-from ema_workbench.em_framework.model import filter_scenario
 
 class PysdModel(AbstractModel):
 

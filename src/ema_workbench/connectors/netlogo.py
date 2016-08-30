@@ -13,7 +13,7 @@ import os
 
 import numpy as np
 
-from ..em_framework.model import FileModel, filter_scenario
+from ..em_framework.model import FileModel
 from ..util.ema_logging import method_logger
 from ..util import warning, debug 
 

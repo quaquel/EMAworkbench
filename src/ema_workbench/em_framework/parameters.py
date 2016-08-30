@@ -13,7 +13,7 @@ import six
 import warnings
 
 from .util import NamedObject, Variable
-from ema_workbench.em_framework.util import NamedDict
+from ema_workbench.em_framework.util import NamedDict, NamedObjectMapDescriptor
 # from ema_workbench.em_framework.model import AbstractModel
 
 # Created on Jul 14, 2016
@@ -34,6 +34,19 @@ class Constant(NamedObject):
     def __init__(self, name, value):
         super(Constant, self).__init__(name)
         self.value = value
+
+
+class Category(Constant):
+    pass
+
+def create_category(cat):
+    if isinstance(cat, Category):
+        return self
+    else:
+        return Category(str(cat), cat)
+    
+             
+        
 
 
 class Parameter(Variable):
@@ -231,6 +244,8 @@ class CategoricalParameter(IntegerParameter):
     
     '''
     
+    categories = NamedObjectMapDescriptor(Category)
+    
     def __init__(self, name, categories, default=None, variable_name=None):
         lower_bound = 0
         upper_bound = len(categories)
@@ -241,7 +256,9 @@ class CategoricalParameter(IntegerParameter):
         super(CategoricalParameter, self).__init__(name, lower_bound, 
                             upper_bound, resolution=None, default=default,
                             variable_name=variable_name)
-        self.resolution = list(categories)
+        
+        categories = [create_category(cat) for cat in categories]
+        self.resolution = [cat.name for cat in categories]
         
     def index_for_cat(self, category):
         '''return index of category
@@ -268,6 +285,8 @@ class CategoricalParameter(IntegerParameter):
         
         return self.resolution.index(category)
 
+    def value_for_category(self, category):
+        return self.categories[category].value
 
     def cat_for_index(self, index):
         '''return category associated with index
