@@ -141,11 +141,7 @@ class NamedDict(UserDict, NamedObject):
         if name is None:
             name = repr(self)
         self.name = name
-        
-#     def copy(self):
-#         copy = self.__class__(name=self.name, **self)
-#         return copy
-   
+           
     
 def combine(*args):
     '''combine scenario and policy into a single experiment dict

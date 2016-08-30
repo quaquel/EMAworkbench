@@ -237,10 +237,17 @@ class AbstractModel(NamedObject):
         # of scenario, which is possible), but also reduces what can
         # be done when extending run_model because it makes calling
         # super obligatory at the start
+        #
+        # updating scenario requires updating the inner data dict
+        # so scenario.data = temp_scenario
+        #
+        # we can do it in the super, but have it available as a separate
+        # function as well. Extending / implementing model interfaces
+        # is not something most users will have to do
         
         temp_scenario = {}
-        for unc in self.uncertainties:
-            value = scenario[unc.name]
+        for key, value in scenario.iteritems():
+            unc = self.uncertainties[key]
             
             for varname in unc.variable_name:
                 temp_scenario[varname] = value
