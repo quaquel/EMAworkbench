@@ -82,7 +82,7 @@ class ExcelModelStructureInterface(FileModel):
         ema_logging.debug(self.working_directory)
 
 
-    def run_model(self, case):
+    def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structures. This 
         implementation assumes that the names of the uncertainties correspond
@@ -103,6 +103,8 @@ class ExcelModelStructureInterface(FileModel):
         
         
         """
+        super(ExcelModelStructureInterface, self).run_model(scenario, policy)
+        
         #find right sheet
         try:
             sheet = self.wb.Sheets(self.sheet)
@@ -112,7 +114,7 @@ class ExcelModelStructureInterface(FileModel):
             raise
         
         #set values on sheet
-        for key, value in case.items():
+        for key, value in scenario.items():
             try:
                 sheet.Range(key).Value = value 
             except com_error:
@@ -122,7 +124,7 @@ class ExcelModelStructureInterface(FileModel):
         results = {}
         for outcome in self.outcomes:
             try:
-                output = sheet.Range(outcome.name).Value
+                output = sheet.Range(outcome.name).Value #TODO:: use outcome.variable_name instead
                 try:
                     output = [value[0] for value in output]
                     output = np.array(output)

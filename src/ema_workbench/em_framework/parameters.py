@@ -12,7 +12,7 @@ import pandas
 import six
 import warnings
 
-from .util import NamedObject
+from .util import NamedObject, Variable
 from ema_workbench.em_framework.util import NamedDict
 # from ema_workbench.em_framework.model import AbstractModel
 
@@ -36,7 +36,7 @@ class Constant(NamedObject):
         self.value = value
 
 
-class Parameter(NamedObject):
+class Parameter(Variable):
     ''' Base class for any model input parameter
     
     Parameters
@@ -56,24 +56,29 @@ class Parameter(NamedObject):
     
     '''
     
+    #TODO:: variable_name should be expanded so that it can also accept a list
+    # of variable names, this is only meaningful in case there is also
+    # a function, in which case the function gets called with the
+    # results for each of the variables in the collection passed to 
+    # variable name. 
+    # this requires updating the run model in all the model interface
+    # classes. To help with this, it might be a good idea to add
+    # a outcome_variables attribute, perhaps
+    # best solution seems to be to change from setting all
+    # outputs in one go to handling to processing in the set_value
+    # of the outcomes dict, so changing the descriptor to an outcome
+    # specific descriptor
+    #
+    # other option is to make values into kwargs, so zip
+    # values with variable_names and use this in calling function
+    # then all that is needed is that the run_model functions
+    # simply create a list with the outcomes for each variable name
+    #
+    
     __metaclass__ = abc.ABCMeta
         
     INTEGER = 'integer'
     UNIFORM = 'uniform'
-
-
-    @property
-    def variable_name(self):
-        if self._variable_name != None:
-            return self._variable_name
-        else:
-            return [self.name]
-        
-    @variable_name.setter
-    def variable_name(self, name):
-        if isinstance(name, basestring):
-            name = [name]
-        self._variable_name = name
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None):

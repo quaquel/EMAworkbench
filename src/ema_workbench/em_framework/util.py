@@ -33,6 +33,20 @@ class NamedObject(object):
     def __init__(self, name):
         self.name = name
         
+class Variable(NamedObject):
+    @property
+    def variable_name(self):
+        if self._variable_name != None:
+            return self._variable_name
+        else:
+            return [self.name]
+        
+    @variable_name.setter
+    def variable_name(self, name):
+        if isinstance(name, basestring):
+            name = [name]
+        self._variable_name = name
+        
 class NamedObjectMap(object):
      
     def __init__(self, type):

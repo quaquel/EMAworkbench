@@ -97,7 +97,6 @@ class NetLogoModel(FileModel):
         debug("model opened")
         
     @method_logger
-    @filter_scenario    
     def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
@@ -114,8 +113,7 @@ class NetLogoModel(FileModel):
         
         
         """
-        super(NetLogoModel, self).run_model(scenario,
-                                                               policy)
+        super(NetLogoModel, self).run_model(scenario, policy)
         
         for key, value in scenario.iteritems():
             try:
