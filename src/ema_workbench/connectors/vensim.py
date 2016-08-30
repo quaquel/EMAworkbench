@@ -24,7 +24,6 @@ from ..em_framework.util import NamedObjectMap, combine
 from ..em_framework import TimeSeriesOutcome, FileModel
 
 from ..util import debug, warning, CaseError, EMAError, EMAWarning
-from ..em_framework.model import filter_scenario
 from ..util.ema_logging import method_logger
 
 # Created on 25 mei 2011
