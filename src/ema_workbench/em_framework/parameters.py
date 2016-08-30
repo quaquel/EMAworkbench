@@ -229,6 +229,9 @@ class CategoricalParameter(IntegerParameter):
     def __init__(self, name, categories, default=None, variable_name=None):
         lower_bound = 0
         upper_bound = len(categories)
+        
+        if upper_bound == 1:
+            raise ValueError('there should be more than 1 category')
 
         super(CategoricalParameter, self).__init__(name, lower_bound, 
                             upper_bound, resolution=None, default=default,
@@ -248,9 +251,19 @@ class CategoricalParameter(IntegerParameter):
         
         
         '''
+        # TODO:: make a mappaple category
+        # where each category is a name value pair
+        # by default, name and value are the same
+        # but if you have e.g. time series, you can use the time series
+        # as value and have the name show up in the experiment array
+        # this accidentally also requires updating the callback, depending
+        # on how it gets implemented (might use e.g. str, or repr on category
+        # as a way of solving this)
+        #
         
         return self.resolution.index(category)
-    
+
+
     def cat_for_index(self, index):
         '''return category associated with index
         
