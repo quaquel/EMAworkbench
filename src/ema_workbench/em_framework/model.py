@@ -67,8 +67,8 @@ def filter_scenario(func):
             except KeyError:
                 if unc.default is not None:
                     filtered_scenario[unc.name] = unc.default
-        
-        func(model_instance, filtered_scenario, policy)
+        scenario.data = filtered_scenario
+        func(model_instance, scenario, policy)
         
     return wrapper
 
@@ -164,6 +164,7 @@ class AbstractModel(NamedObject):
                 
 
     @method_logger    
+    @filter_scenario
     def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
@@ -177,6 +178,31 @@ class AbstractModel(NamedObject):
         """
         if not self.initialized(policy):
             self.model_init(policy)
+            
+        # TODO:: useless name, implementation wise a mess
+        # needs to be called always when calling run_model,
+        # but then, either put it in super (requires inplace updating
+        # of scenario, which is possible), but also reduces what can
+        # be done when extending run_model because it makes calling
+        # super obligatory at the start
+        #
+        # updating scenario requires updating the inner data dict
+        # so scenario.data = temp_scenario
+        #
+        # we can do it in the super, but have it available as a separate
+        # function as well. Extending / implementing model interfaces
+        # is not something most users will have to do
+    
+        temp_scenario = {}
+        for key, value in scenario.iteritems():
+            unc = self.uncertainties[key]
+            
+            for varname in unc.variable_name:
+                temp_scenario[varname] = value
+                
+            # TODO:: category omzetting
+        
+        scenario.data = temp_scenario
         
 
     @method_logger
@@ -229,31 +255,6 @@ class AbstractModel(NamedObject):
         '''
         pass
     
-    
-    def _unravel_scenario(self, scenario):
-        # TODO:: useless name, implementation wise a mess
-        # needs to be called always when calling run_model,
-        # but then, either put it in super (requires inplace updating
-        # of scenario, which is possible), but also reduces what can
-        # be done when extending run_model because it makes calling
-        # super obligatory at the start
-        #
-        # updating scenario requires updating the inner data dict
-        # so scenario.data = temp_scenario
-        #
-        # we can do it in the super, but have it available as a separate
-        # function as well. Extending / implementing model interfaces
-        # is not something most users will have to do
-        
-        temp_scenario = {}
-        for key, value in scenario.iteritems():
-            unc = self.uncertainties[key]
-            
-            for varname in unc.variable_name:
-                temp_scenario[varname] = value
-        
-        return temp_scenario
-        
 
 class Model(AbstractModel):
     '''
@@ -301,7 +302,6 @@ class Model(AbstractModel):
         self.function = function
 
     @method_logger
-    @filter_scenario
     def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
@@ -314,7 +314,6 @@ class Model(AbstractModel):
         
         """
         super(Model, self).run_model(scenario, policy)
-        scenario = self._unravel_scenario(scenario)
         
         constants = {c.name:c.value for c in self.constants}
         

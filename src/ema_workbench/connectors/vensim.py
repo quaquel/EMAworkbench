@@ -304,7 +304,6 @@ class VensimModelStructureInterface(FileModel):
     
     
     @method_logger
-    @filter_scenario
     def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
@@ -337,8 +336,6 @@ class VensimModelStructureInterface(FileModel):
         
         """
         super(VensimModelStructureInterface, self).run_model(scenario, policy)
-         
-        scenario = self._unravel_scenario(scenario)
                 
         if self.cin_file:
             try:

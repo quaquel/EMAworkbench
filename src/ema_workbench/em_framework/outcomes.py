@@ -10,7 +10,7 @@ import warnings
 
 import pandas
 
-from .util import NamedObject
+from .util import Variable
 
 
 # Created on 24 mei 2011
@@ -39,7 +39,7 @@ def Outcome(name, time=False):
         return TimeSeriesOutcome(name)
     
 
-class AbstractOutcome(NamedObject):
+class AbstractOutcome(Variable):
     '''
     Base Outcome class
     
@@ -69,37 +69,6 @@ class AbstractOutcome(NamedObject):
     MAXIMIZE = 1
     INFO = 0
     
-    #TODO:: variable_name should be expanded so that it can also accept a list
-    # of variable names, this is only meaningful in case there is also
-    # a function, in which case the function gets called with the
-    # results for each of the variables in the collection passed to 
-    # variable name. 
-    # this requires updating the run model in all the model interface
-    # classes. To help with this, it might be a good idea to add
-    # a outcome_variables attribute, perhaps
-    # best solution seems to be to change from setting all
-    # outputs in one go to handling to processing in the set_value
-    # of the outcomes dict, so changing the descriptor to an outcome
-    # specific descriptor
-    #
-    # other option is to make values into kwargs, so zip
-    # values with variable_names and use this in calling function
-    # then all that is needed is that the run_model functions
-    # simply create a list with the outcomes for each variable name
-    #
-    
-    
-    @property
-    def variable_name(self):
-        if self._variable_name != None:
-            return self._variable_name
-        else:
-            return self.name
-        
-    @variable_name.setter
-    def variable_name(self, name):
-        self._variable_name = name
-    
     def __init__(self, name, kind=INFO, variable_name=None, function=None):
         super(AbstractOutcome, self).__init__(name)
         
@@ -116,21 +85,20 @@ class AbstractOutcome(NamedObject):
     
     def process(self, values):
         if self.function:
-            if isinstance(self.variable_name, basestring):
+            var_names = self.variable_name
+            
+            len_var = len(var_names)
+            try:
+                len_val = len(values)
+            except TypeError:
+                len_val = None
+                
+            if (len_val==None) and (len_var==1):
                 return self.function(values)
+            elif len_var != len_val:
+                raise ValueError(('number of variables is {}, '
+                      'number of outputs is {}').format(len_var, len_val))
             else:
-                var_names = self.variable_name
-                
-                len_var = len(var_names)
-                try:
-                    len_val = len(values)
-                except TypeError:
-                    len_val = None
-                
-                if len_var != len_val:
-                    raise ValueError(('number of variables is {}, '
-                          'number of outputs is {}').format(len_var, len_val))
-
                 return self.function(*values)
         else: 
             return values

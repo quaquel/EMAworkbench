@@ -49,13 +49,18 @@ class PysdModel(AbstractModel):
         self.model = pysd.read_vensim(self.mdl_file)
 
     @method_logger
-    @filter_scenario
     def run_model(self, scenario, policy):
         super(PysdModel, self).run_model(scenario, policy)
         ema_logging.debug('running pysd model')
 
+        cols = []
+        for o in self.outcomes:
+            for var in o.variable_name:
+                cols.append(var)
+
         res = self.model.run(params=scenario,
-                     return_columns=[o.variable_name for o in self.outcomes])
+                     return_columns=[var for var in o.variable_name for o in 
+                                     self.outcomes])
         
         # EMA wants output formatted properly
         output ={col: series.as_matrix() for col, series in res.iteritems()}
