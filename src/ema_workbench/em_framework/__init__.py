@@ -8,7 +8,7 @@ __all__ = ["ema_parallel", "model_ensemble", "parameters"
            "Outcome", "ScalarOutcome", "TimeSeriesOutcome",
            "RealParameter", "IntegerParameter", "CategoricalParameter",
            "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
-           "parameters_to_csv"
+           "parameters_to_csv", "Category"
            ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
@@ -17,7 +17,7 @@ from .model import Model, FileModel
 from .model_ensemble import (ModelEnsemble)
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                      Scenario, Policy, Constant, Experiment, create_parameters,
-                     parameters_to_csv)
+                     parameters_to_csv, Category)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler, 
                        PartialFactorialSampler)
 
