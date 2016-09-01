@@ -52,28 +52,6 @@ class ModelMeta(abc.ABCMeta):
         return abc.ABCMeta.__new__(mcls, name, bases, namespace)
 
 
-# def filter_scenario(func):
-#     @wraps(func)
-#     def wrapper(*args, **kwargs):
-#         # hack, because log is applied to methods, we can get
-#         # object instance as first arguments in args
-#         model_instance = args[0]
-#         scenario = args[1]
-#         policy = args[2]
-#         
-#         filtered_scenario = {}
-#         for unc in model_instance.uncertainties:
-#             try:
-#                 filtered_scenario[unc.name] = scenario[unc.name]
-#             except KeyError:
-#                 if unc.default is not None:
-#                     filtered_scenario[unc.name] = unc.default
-#         scenario.data = filtered_scenario
-#         func(model_instance, scenario, policy)
-#         
-#     return wrapper
-
-
 class AbstractModel(NamedObject):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
@@ -136,7 +114,6 @@ class AbstractModel(NamedObject):
                             characters")
 
         self._output = {}
-        self._outcomes = NamedObjectMap(AbstractOutcome)
         
     @method_logger
     def model_init(self, policy):
@@ -192,6 +169,10 @@ class AbstractModel(NamedObject):
         # we can do it in the super, but have it available as a separate
         # function as well. Extending / implementing model interfaces
         # is not something most users will have to do
+        # 
+        # TODO:: this unraveling of scenario should also be supported
+        # for policies if we want to ensure that lever based 
+        # policies function properly
         temp_scenario = {}
         for unc in self.uncertainties:
             # only keep uncertainties that exist in this model
@@ -200,14 +181,25 @@ class AbstractModel(NamedObject):
             except KeyError:
                 if unc.default is not None:
                     value = unc.default
-                    
                             
             # TODO:: translate categories
+            multivalue = False
             if isinstance(unc, CategoricalParameter):
-                value = unc.value_for_category(value)
+                category = unc.categories[value]
+                
+                value = category.value
+                
+                if category.multivalue == True:
+                    multivalue = True
+                    values = value
             
             # translate uncertainty name to variable name
-            for varname in unc.variable_name:
+            for i, varname in enumerate(unc.variable_name):
+                # a bit hacky implementation, investigate some kind of 
+                # zipping of variable_names and values
+                if multivalue:
+                    value = values[i]
+                
                 temp_scenario[varname] = value
         
         scenario.data = temp_scenario

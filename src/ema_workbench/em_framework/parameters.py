@@ -12,7 +12,8 @@ import pandas
 import six
 import warnings
 
-from .util import NamedObject, Variable
+from ema_workbench.em_framework.util import NamedObject, Variable,\
+    NamedObjectMap
 from ema_workbench.em_framework.util import NamedDict, NamedObjectMapDescriptor
 # from ema_workbench.em_framework.model import AbstractModel
 
@@ -37,17 +38,18 @@ class Constant(NamedObject):
 
 
 class Category(Constant):
-    pass
+    
+    def __init__(self, name, value, multivalue=False):
+        super(Category, self).__init__(name, value)
+        self.multivalue = multivalue
+        
 
 def create_category(cat):
     if isinstance(cat, Category):
-        return self
+        return cat
     else:
         return Category(str(cat), cat)
     
-             
-        
-
 
 class Parameter(Variable):
     ''' Base class for any model input parameter
@@ -244,7 +246,14 @@ class CategoricalParameter(IntegerParameter):
     
     '''
     
-    categories = NamedObjectMapDescriptor(Category)
+    @property
+    def categories(self):
+        return self._categories
+    
+    @categories.setter
+    def categories(self, values):
+        self._categories.extend(values)
+    
     
     def __init__(self, name, categories, default=None, variable_name=None):
         lower_bound = 0
@@ -256,9 +265,12 @@ class CategoricalParameter(IntegerParameter):
         super(CategoricalParameter, self).__init__(name, lower_bound, 
                             upper_bound, resolution=None, default=default,
                             variable_name=variable_name)
+        cats = [create_category(cat) for cat in categories]
         
-        categories = [create_category(cat) for cat in categories]
-        self.resolution = [cat.name for cat in categories]
+        self._categories = NamedObjectMap(Category)
+        
+        self.categories = cats
+        self.resolution = [cat.name for cat in self.categories]
         
     def index_for_cat(self, category):
         '''return index of category
