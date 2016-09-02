@@ -10,9 +10,8 @@ is the same as used in fluExample
 '''
 import numpy as np
 
-from ema_workbench.em_framework import (ModelEnsemble, RealParameter,
-                                        TimeSeriesOutcome, ScalarOutcome,
-                                        perform_experiments)
+from ema_workbench.em_framework import (RealParameter,TimeSeriesOutcome, 
+                                        ScalarOutcome, perform_experiments)
 from ema_workbench.em_framework.parameters import Policy
 from ema_workbench.util import ema_logging
 from ema_workbench.connectors.vensim import VensimModelStructureInterface 
