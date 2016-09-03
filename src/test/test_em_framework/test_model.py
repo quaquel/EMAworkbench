@@ -16,7 +16,8 @@ except ImportError:
 
 from ema_workbench.em_framework.model import Model, FileModel
 from ema_workbench.em_framework.parameters import (RealParameter, Policy, 
-                                                   Scenario)
+                                                   Scenario,
+    CategoricalParameter, Category)
 from ema_workbench.util import EMAError
 
 class FileModelTest(FileModel):
@@ -90,6 +91,39 @@ class TestModel(unittest.TestCase):
         model.uncertainties = [RealParameter('a',  0 , 1)]
         model.run_model(Scenario(**{'a':0.1, 'b':1}), Policy('test'))
         function.assert_called_once_with(a=0.1)
+        
+        # test complete translation of scenario
+        
+        model = Model(model_name, function)
+        model.uncertainties = [RealParameter('a',  0 , 1, variable_name=['a', 'b'])]
+        
+        scenario = Scenario(**{'a':0.1})
+        model.run_model(scenario, Policy('test'))
+        
+        self.assertIn('a', scenario.keys())
+        self.assertIn('b', scenario.keys())
+        
+        model = Model(model_name, function)
+        cats = [Category('some name', [1,2],multivalue=True),
+                Category('some other name', [3,4],multivalue=True)]
+        model.uncertainties = [CategoricalParameter('a', cats, variable_name=['a', 'b'])]
+        
+        scenario = Scenario(**{'a':'some name'})
+        model.run_model(scenario, Policy('test'))
+        
+        self.assertIn('a', scenario.keys())
+        self.assertIn('b', scenario.keys())
+        self.assertEqual(scenario['a'], 1)
+        self.assertEqual(scenario['b'], 2)
+        
+        scenario = Scenario(**{'a':'some other name'})
+        model.run_model(scenario, Policy('test'))
+        
+        self.assertIn('a', scenario.keys())
+        self.assertIn('b', scenario.keys())
+        self.assertEqual(scenario['a'], 3)
+        self.assertEqual(scenario['b'], 4)
+        
     
     def test_cleanup(self):
         model_name = 'modelname'

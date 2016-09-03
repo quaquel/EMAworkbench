@@ -26,8 +26,6 @@ from numpy.lib import recfunctions
 import pandas as pd
 from pandas.io.parsers import read_csv
 
-from deap import creator, base
-
 from .ema_logging import info, debug, warning
 from .ema_exceptions import EMAError
 
