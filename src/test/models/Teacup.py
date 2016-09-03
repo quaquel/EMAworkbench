@@ -1,6 +1,6 @@
 
 """
-Python model /Domain/tudelft.net/Users/jhkwakkel/EMAworkbench/src/test/test_connectors/../models/Teacup.py
+Python model /Users/jhkwakkel/EMAworkbench/src/test/test_connectors/../models/Teacup.py
 Translated using PySD version 0.6.3
 """
 from __future__ import division

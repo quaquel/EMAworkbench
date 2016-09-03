@@ -135,11 +135,44 @@ class AbstractModel(NamedObject):
         self.policy = policy
 
         # update any attribute on object that is found in policy
+        self.to_remove = []
         for key, value in policy.items():
             if hasattr(self, key):
-                value = policy.pop(key)
+                self.to_remove.append(key)
                 setattr(self, key, value)
                 
+
+    def _transform(self, sampled_parameters, parameters):
+        #TODO:: add some more usefull debug logging
+        temp = {}
+        for par in parameters:
+            # only keep uncertainties that exist in this model
+            try:
+                value = sampled_parameters[par.name]
+            except KeyError:
+                if par.default is not None:
+                    value = par.default
+                            
+            multivalue = False
+            if isinstance(par, CategoricalParameter):
+                category = par.categories[value]
+                
+                value = category.value
+                
+                if category.multivalue == True:
+                    multivalue = True
+                    values = value
+            
+            # translate uncertainty name to variable name
+            for i, varname in enumerate(par.variable_name):
+                # a bit hacky implementation, investigate some kind of 
+                # zipping of variable_names and values
+                if multivalue:
+                    value = values[i]
+                
+                temp[varname] = value
+        
+        sampled_parameters.data = temp
 
     @method_logger    
     def run_model(self, scenario, policy):
@@ -155,55 +188,18 @@ class AbstractModel(NamedObject):
         """
         if not self.initialized(policy):
             self.model_init(policy)
-            
-        # TODO:: useless name, implementation wise a mess
-        # needs to be called always when calling run_model,
-        # but then, either put it in super (requires inplace updating
-        # of scenario, which is possible), but also reduces what can
-        # be done when extending run_model because it makes calling
-        # super obligatory at the start
-        #
-        # updating scenario requires updating the inner data dict
-        # so scenario.data = temp_scenario
-        #
-        # we can do it in the super, but have it available as a separate
-        # function as well. Extending / implementing model interfaces
-        # is not something most users will have to do
-        # 
-        # TODO:: this unraveling of scenario should also be supported
-        # for policies if we want to ensure that lever based 
-        # policies function properly
-        temp_scenario = {}
-        for unc in self.uncertainties:
-            # only keep uncertainties that exist in this model
-            try:
-                value = scenario[unc.name]
-            except KeyError:
-                if unc.default is not None:
-                    value = unc.default
-                            
-            # TODO:: translate categories
-            multivalue = False
-            if isinstance(unc, CategoricalParameter):
-                category = unc.categories[value]
-                
-                value = category.value
-                
-                if category.multivalue == True:
-                    multivalue = True
-                    values = value
-            
-            # translate uncertainty name to variable name
-            for i, varname in enumerate(unc.variable_name):
-                # a bit hacky implementation, investigate some kind of 
-                # zipping of variable_names and values
-                if multivalue:
-                    value = values[i]
-                
-                temp_scenario[varname] = value
         
-        scenario.data = temp_scenario
+        #TODO:: here we need to add policies and constants in some manner
+        self._transform(scenario, self.uncertainties)
         
+        # transform policy, first remove any attributes that have been
+        # updated on the model. Next, we assume that the remainder are
+        # parameters that have to be passed, this requires that they
+        # are specified as levers
+        for entry in self.to_remove:
+            del policy[entry]
+        
+        self._transform(policy, self.levers)
 
     @method_logger
     def initialized(self, policy):
@@ -314,12 +310,8 @@ class Model(AbstractModel):
         
         """
         super(Model, self).run_model(scenario, policy)
-        
         constants = {c.name:c.value for c in self.constants}
-        
-        policy = self.policy.to_list(self.levers)
-        
-        experiment = combine(scenario, self.policy, constants)
+        experiment = combine(scenario, policy, constants)
         
         result = self.function(**experiment)
         
