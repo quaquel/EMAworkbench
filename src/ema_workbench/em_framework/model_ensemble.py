@@ -189,7 +189,13 @@ class ModelEnsemble(object):
 
         """
         if not self.policies:
-            self.policies = Policy('none')        
+            self.policies = Policy('none')
+            levers = []        
+        else:
+            levers = determine_objects(self.model_structures, 'levers', 
+                                       union=True)
+            attributes = {key for p in self.policies for key in p.keys()}
+            levers = [lever for lever in levers if lever.name in attributes]
 
         outcomes = determine_objects(self.model_structures, 'outcomes', 
                                      union=outcome_union)
@@ -209,6 +215,7 @@ class ModelEnsemble(object):
                 
         #initialize the callback object
         callback = callback(uncertainties, 
+                            levers,
                             outcomes, 
                             nr_of_exp,
                             reporting_interval=reporting_interval,
