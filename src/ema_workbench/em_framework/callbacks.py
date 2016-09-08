@@ -40,7 +40,7 @@ class AbstractCallback(object):
     Parameters
     ----------
     uncs : list
-            a list of the uncertainties over which the experiments 
+            a list of the parameters over which the experiments 
             are being run.
     outcomes : list
                a list of outcomes
@@ -66,6 +66,7 @@ class AbstractCallback(object):
     def __init__(self, 
                  uncertainties, 
                  outcomes,
+                 levers,
                  nr_experiments,
                  reporting_interval=100):
         self.reporting_interval = reporting_interval
@@ -125,6 +126,7 @@ class DefaultCallback(AbstractCallback):
     
     def __init__(self, 
                  uncs, 
+                 levers,
                  outcomes, 
                  nr_experiments, 
                  reporting_interval=100):
@@ -134,7 +136,7 @@ class DefaultCallback(AbstractCallback):
         Parameters
         ----------
         uncs : list
-                a list of the uncertainties over which the experiments 
+                a list of the parameters over which the experiments 
                 are being run.
         outcomes : list
                    a list of outcomes
@@ -146,6 +148,7 @@ class DefaultCallback(AbstractCallback):
         
         '''
         super(DefaultCallback, self).__init__(uncs, 
+                                              levers,
                                               outcomes, 
                                               nr_experiments, 
                                               reporting_interval)
@@ -156,18 +159,18 @@ class DefaultCallback(AbstractCallback):
         
         self.outcomes = [outcome.name for outcome in outcomes]
 
-        #determine data types of uncertainties
+        #determine data types of parameters
         self.dtypes = []
-        self.uncertainties = []
+        self.parameters = []
         
-        for uncertainty in uncs:
-            name = uncertainty.name
-            self.uncertainties.append(name)
+        for parameter in uncs + levers:
+            name = parameter.name
+            self.parameters.append(name)
             dataType = float
             
-            if isinstance(uncertainty, CategoricalParameter):
+            if isinstance(parameter, CategoricalParameter):
                 dataType = object
-            elif isinstance(uncertainty, IntegerParameter):
+            elif isinstance(parameter, IntegerParameter):
                 dataType = int
             self.dtypes.append((str(name), dataType))
         self.dtypes.append((str('model'), object))
@@ -179,10 +182,19 @@ class DefaultCallback(AbstractCallback):
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
+        policy = experiment.policy
         
-        case = [scenario.get(key) for key in self.uncertainties]
+        case = []
+        for parameter in self.parameters:
+            try:
+                value = scenario[parameter]
+            except KeyError:
+                value = policy[parameter]
+            finally:
+                case.append(value)
+        
         case.append(experiment.model.name)
-        case.append(experiment.policy.name)
+        case.append(policy.name)
         case = tuple(case)
         self.cases[experiment.experiment_id] = case
             
