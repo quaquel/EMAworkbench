@@ -8,6 +8,7 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import numpy as np
+from __builtin__ import super
 try:
     import win32com.client
     from win32com.universal import com_error
@@ -52,7 +53,7 @@ class ExcelModelStructureInterface(FileModel):
     def workbook(self):
         return self.model_file
 
-    def model_init(self, policy, kwargs):
+    def model_init(self, policy):
         '''
         Method called to initialize the model.
         
@@ -67,7 +68,7 @@ class ExcelModelStructureInterface(FileModel):
         
         
         '''
-        super(ExcelModelStructureInterface, self).model_init(policy, kwargs)
+        super(ExcelModelStructureInterface, self).model_init(policy)
         
         if not self.xl:
             try:
@@ -88,7 +89,7 @@ class ExcelModelStructureInterface(FileModel):
         implementation assumes that the names of the uncertainties correspond
         to the name of the cells in Excel. See e.g. `this site <http://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_ 
         for details or use Google and search on 'named range'. One of the 
-        requirements on the names is that the cannot contains spaces. 
+        requirements on the names is that they cannot contains spaces. 
 
         For the extraction of results, the same approach is used. That is, 
         this implementation assumes that the name of a :class:`~outcomes.Outcome`
@@ -96,10 +97,8 @@ class ExcelModelStructureInterface(FileModel):
 
         Parameters
         ----------
-        case : dict
-               keyword arguments for running the model. The case is a dict with 
-               the names of the uncertainties as key, and the values to which 
-               to set these uncertainties. 
+        scenario : Scenario instance
+        policy : Policy instance
         
         
         """
@@ -124,7 +123,7 @@ class ExcelModelStructureInterface(FileModel):
         results = {}
         for outcome in self.outcomes:
             try:
-                output = sheet.Range(outcome.name).Value #TODO:: use outcome.variable_name instead
+                output = sheet.Range(outcome.name).Value
                 try:
                     output = [value[0] for value in output]
                     output = np.array(output)
