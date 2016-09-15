@@ -149,9 +149,12 @@ class AbstractModel(NamedObject):
             # only keep uncertainties that exist in this model
             try:
                 value = sampled_parameters[par.name]
-            except KeyError:
+            except KeyError as e:
                 if par.default is not None:
                     value = par.default
+                else:
+                    ema_logging.debug('{} not found'.format(par.name))
+                    continue
                             
             multivalue = False
             if isinstance(par, CategoricalParameter):
