@@ -13,17 +13,17 @@ This excel file implements a simple predator prey model.
 from __future__ import (division, print_function, absolute_import, 
                         unicode_literals)
 
-from ema_workbench.em_framework import (ModelEnsemble, RealParameter,
-                                        TimeSeriesOutcome, perform_experiments)
+from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome, 
+                                        perform_experiments)
 from ema_workbench.util import ema_logging
 from ema_workbench.connectors.excel import ExcelModelStructureInterface
 
 
 if __name__ == "__main__":    
-    ema_logging.log_to_stderr(level=ema_logging.INFO)
+    ema_logging.log_to_stderr(level=ema_logging.DEBUG)
     
     model = ExcelModelStructureInterface("predatorPrey", r"./models/excelModel",
-                                         model_file=r'\excel example.xlsx')
+                                         model_file=r'/excel example.xlsx')
     model.uncertainties = [RealParameter("K2", 0.01, 0.2), #we can refer to a cell in the normal way
                      RealParameter("KKK", 450,550), # we can also use named cells
                      RealParameter("rP", 0.05,0.15),
@@ -38,8 +38,7 @@ if __name__ == "__main__":
     #name of the sheet
     model.sheet = "Sheet1"
     
-    ensemble = ModelEnsemble()
-    ensemble.model_structures = model
+    results = perform_experiments(model, 100, parallel=True, reporting_interval=1)
     
-    results = perform_experiments(model, 100, parallel=True)
+    print("blaat")
 
