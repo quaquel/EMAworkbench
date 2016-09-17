@@ -7,8 +7,10 @@ Excel models. It relies on `win32com <http://python.net/crew/mhammond/win32/Down
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
+import os
+
 import numpy as np
-from __builtin__ import super
+
 try:
     import win32com.client
     from win32com.universal import com_error
@@ -34,6 +36,9 @@ class ExcelModelStructureInterface(FileModel):
     The provided implementation here does work with :mod:`parallel_ema`.
     
     '''
+    
+    com_warning_msg = "com error: no cell(s) named %s found"
+    
     def __init__(self, name, wd=None, model_file=None):
         super(ExcelModelStructureInterface, self).__init__(name, wd=wd, 
                                                            model_file=model_file)
@@ -47,7 +52,6 @@ class ExcelModelStructureInterface(FileModel):
     
         #: Name of the sheet on which one want to set values
         self.sheet = None
-    
 
     @property
     def workbook(self):
@@ -78,7 +82,9 @@ class ExcelModelStructureInterface(FileModel):
             except com_error as e:
                 raise EMAError(str(e))
         ema_logging.debug("trying to open workbook")
-        self.wb = self.xl.Workbooks.Open(self.working_directory + self.workbook)
+        
+        wb = os.path.join(self.working_directory, self.workbook)
+        self.wb = self.xl.Workbooks.Open(wb)
         ema_logging.debug("workbook opened")
         ema_logging.debug(self.working_directory)
 
@@ -122,16 +128,24 @@ class ExcelModelStructureInterface(FileModel):
         #get results
         results = {}
         for outcome in self.outcomes:
-            try:
-                output = sheet.Range(outcome.name).Value
+            
+            outputs = []
+            for entry in outcome.variable_name:
+                try:
+                    output = sheet.Range(entry).Value
+                except com_error:
+                    ema_logging.warning(self.com_warning_msg.format(entry))	
+                    continue
+                
                 try:
                     output = [value[0] for value in output]
-                    output = np.array(output)
                 except TypeError:
-                    output = np.array(output)
-                results[outcome.name] = output
-            except com_error:
-                ema_logging.warning("com error: no cell(s) named %s found" % outcome.name,)
+                    pass
+                    
+                output = np.array(output)
+                outputs.append(output)
+            results[outcome.name] = output
+            
         self.output = results
 
 
