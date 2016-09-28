@@ -1,7 +1,7 @@
 ## Exploratory Modeling workbench
 This is a relatively stable version of the EMA workbench currently under 
-development at Delft University of Technology. Documentation can be found on
-http://simulation.tbm.tudelft.nl/ema-workbench/contents.html
+development at Delft University of Technology. Documentation can be found 
+online: https://readthedocs.org/projects/emaworkbench/badge/?version=latest
 
 
 [![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=levers)](https://travis-ci.org/quaquel/EMAworkbench)
