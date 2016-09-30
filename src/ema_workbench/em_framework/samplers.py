@@ -493,6 +493,8 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     generator yielding Policy instances
     
     '''
+    
+    
     levers = determine_parameters(models, 'levers', union=union)
     samples, n = sampler.generate_designs(levers, n_samples)
     samples.kind = Policy
