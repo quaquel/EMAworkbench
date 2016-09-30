@@ -42,7 +42,7 @@ __all__ = ['AbstractModel', 'Model']
 #==============================================================================
 class ModelMeta(abc.ABCMeta):
     
-    def __new__(mcls, name, bases, namespace):
+    def __new__(mcls, name, bases, namespace):  # @NoSelf
         
         for key, value in namespace.items():
             if isinstance(value, NamedObjectMapDescriptor):
