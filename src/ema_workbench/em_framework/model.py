@@ -143,7 +143,7 @@ class AbstractModel(NamedObject):
                 
 
     def _transform(self, sampled_parameters, parameters):
-        #TODO:: add some more usefull debug logging
+        #TODO:: add some more useful debug logging
         temp = {}
         for par in parameters:
             # only keep uncertainties that exist in this model
@@ -316,15 +316,29 @@ class Model(AbstractModel):
         constants = {c.name:c.value for c in self.constants}
         experiment = combine(scenario, policy, constants)
         
-        result = self.function(**experiment)
+        model_output = self.function(**experiment)
         
         results  = {}
-        for outcome in self.outcomes:
+        for i, outcome in enumerate(self.outcomes):
             varname = outcome.variable_name
-            if isinstance(varname, basestring):
-                result[outcome.name] = result[varname]
+            
+            if len(varname)==1:
+                try:
+                    output = model_output[varname[0]]
+                except TypeError:
+                    output = model_output[i]
+                finally:
+                    results[outcome.name] = output
             else:
-                result[outcome.name] = [result[var] for var in varname]
+                try:
+                    output = [model_output[var] for var in varname]
+                except TypeError as e:
+                    # refuse the temptation to guess, when using varnames
+                    # the return from the model must be dictlike
+                    raise e
+                else:
+                    results[outcome.name]
+                    
         self.output = results
 
 class FileModel(AbstractModel):

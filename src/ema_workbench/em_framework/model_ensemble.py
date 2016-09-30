@@ -24,6 +24,7 @@ import numbers
 import os
 import six
 import warnings
+import numpy as np
 
 from .callbacks import DefaultCallback
 from .ema_parallel import MultiprocessingPool
@@ -34,6 +35,7 @@ from .samplers import LHSSampler, sample_uncertainties, from_experiments
 from .util import determine_objects, NamedObjectMap
 
 from ..util import info, debug, EMAError
+from ema_workbench.em_framework import samplers
 
 # Created on 23 dec. 2010
 # 
@@ -109,6 +111,7 @@ class ModelEnsemble(object):
    
     @policies.setter
     def policies(self, policies):
+        self.policies.clear() 
         self.policies.extend(policies)
    
     @property
@@ -202,9 +205,22 @@ class ModelEnsemble(object):
 
         if isinstance(cases, numbers.Integral):
             res = sample_uncertainties(self.model_structures, cases, 
-                                    uncertainty_union, sampler=self.sampler)
-        else:
+                                       uncertainty_union, sampler=self.sampler)
+        elif isinstance(cases, np.ndarray):
             res = from_experiments(self.model_structures, cases)
+        else:
+            scenarios = cases
+            nr_of_scenarios = len(scenarios)
+            uncertainties = samplers.determine_parameters(self.model_structures, 
+                                                          'uncertainties')
+            names = set()
+            for case in cases:
+                names = names.union(case.keys())
+                
+            uncertainties = [u for u in uncertainties if u.name in names]
+            res = scenarios, uncertainties, nr_of_scenarios
+            
+        
         scenarios, uncertainties, nr_of_scenarios = res
         
         experiments = experiment_generator(scenarios, self.model_structures, 

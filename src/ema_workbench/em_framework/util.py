@@ -190,7 +190,7 @@ def determine_objects(models, attribute, union=True):
     Parameters
     ----------
     models : a collection of AbstractModel instances
-    attribute : {'uncertainties', 'levers'}
+    attribute : {'uncertainties', 'levers', 'outcomes'}
     union : bool, optional
             in case of multiple models, sample over the union of
             levers, or over the intersection of the levers
@@ -201,7 +201,12 @@ def determine_objects(models, attribute, union=True):
     collection of Parameter instances
     
     '''
-    models = iter(models)
+    try:
+        models = iter(models)
+    except TypeError:
+        # we assume that thee is only a single model passed
+        models = iter([models])
+        
     named_objects = getattr(next(models), attribute).copy()
     intersection = set(named_objects.keys())
     
