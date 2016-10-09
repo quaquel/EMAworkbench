@@ -19,13 +19,9 @@ from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                      Scenario, Policy, Constant, Experiment, create_parameters,
                      parameters_to_csv, Category)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler, 
-                       PartialFactorialSampler)
+                       PartialFactorialSampler, LHS, MC, FF, PFF, samplers)
 
 
-LHS = LHSSampler
-MC = MonteCarloSampler
-FF = FullFactorialSampler
-PFF = PartialFactorialSampler
 
 def perform_experiments(models, cases, policies=[Policy('None')], 
                         sampling=LHS, parallel=False, reporting_interval=None,
@@ -60,7 +56,7 @@ def perform_experiments(models, cases, policies=[Policy('None')],
         
         reporting_interval = int(round(n / 10))    
 
-    ensemble = ModelEnsemble(sampler=sampling())
+    ensemble = ModelEnsemble(sampler=samplers[sampling])
     ensemble.parallel = parallel
     ensemble.model_structures = models
     ensemble.policies = policies
