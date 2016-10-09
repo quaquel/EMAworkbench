@@ -1341,10 +1341,12 @@ class Prim(sdutil.OutputFormatterMixin):
             pastes = []
             possible_cs = c_t - c_in_b
             for entry in possible_cs:
-                box_paste = np.copy(box_lim)
                 paste = copy.deepcopy(c_in_b)
                 paste.add(entry)
+
+                box_paste = np.copy(box_lim)
                 box_paste[u][:] = paste
+                
                 indices = sdutil._in_box(self.x[self.yi_remaining], box_paste)
                 indices = self.yi_remaining[indices]
                 pastes.append((indices, box_paste))

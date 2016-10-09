@@ -290,16 +290,10 @@ def experiment_generator(scenarios, model_structures, policies):
     the running the first policy on the first model. 
     
     '''
-    job_counter = itertools.count()
+    jobs = itertools.product(model_structures, policies, scenarios)
     
-    for msi in model_structures:
-        debug("generating designs for model %s" % (msi.name))
-        
-        for policy in policies:
-            debug("generating designs for policy %s" % (policy.name))
-            
-            for scenario in scenarios:
-                experiment_id =  six.next(job_counter)
-                name = '{} {} {}'.format(msi.name, policy.name, experiment_id)
-                experiment = Experiment(name, msi, policy, scenario, experiment_id)
-                yield experiment
+    for i, job in enumerate(jobs):
+        msi, policy, scenario = job
+        name = '{} {} {}'.format(msi.name, policy.name, i)
+        experiment = Experiment(name, msi, policy, scenario, i)
+        yield experiment

@@ -60,6 +60,9 @@ class Parameter(Variable):
     lower_bound : int or float
     upper_bound : int or float
     resolution : collection
+    pff : bool
+          if true, sample over this parameter using resolution in case of
+          partial factorial sampling
     
     Raises
     ------
@@ -71,32 +74,13 @@ class Parameter(Variable):
     
     '''
     
-    #TODO:: variable_name should be expanded so that it can also accept a list
-    # of variable names, this is only meaningful in case there is also
-    # a function, in which case the function gets called with the
-    # results for each of the variables in the collection passed to 
-    # variable name. 
-    # this requires updating the run model in all the model interface
-    # classes. To help with this, it might be a good idea to add
-    # a outcome_variables attribute, perhaps
-    # best solution seems to be to change from setting all
-    # outputs in one go to handling to processing in the set_value
-    # of the outcomes dict, so changing the descriptor to an outcome
-    # specific descriptor
-    #
-    # other option is to make values into kwargs, so zip
-    # values with variable_names and use this in calling function
-    # then all that is needed is that the run_model functions
-    # simply create a list with the outcomes for each variable name
-    #
-    
     __metaclass__ = abc.ABCMeta
         
     INTEGER = 'integer'
     UNIFORM = 'uniform'
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None):
+                 default=None, variable_name=None, pff=False):
         super(Parameter, self).__init__(name)
         
         if resolution is None:
@@ -115,6 +99,7 @@ class Parameter(Variable):
         self.resolution = resolution
         self.default = default
         self.variable_name = variable_name
+        self.pff = pff
         
     def __eq__ (self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
@@ -150,10 +135,10 @@ class RealParameter(Parameter):
     
     
     def __init__(self, name, lower_bound, upper_bound, resolution=None, 
-                 default=None, variable_name=None):
+                 default=None, variable_name=None, pff=False):
         super(RealParameter, self).__init__(name, lower_bound, upper_bound,
                                     resolution=resolution, default=default,
-                                    variable_name=variable_name)
+                                    variable_name=variable_name, pff=pff)
         
         self.dist = Parameter.UNIFORM
         
@@ -199,7 +184,7 @@ class IntegerParameter(Parameter):
     '''
     
     def __init__(self, name, lower_bound, upper_bound, resolution=None, 
-                 default=None, variable_name=None):
+                 default=None, variable_name=None, pff=False):
         super(IntegerParameter, self).__init__(name, lower_bound, upper_bound, 
                                     resolution=resolution, default=default,
                                     variable_name=variable_name)
@@ -255,7 +240,8 @@ class CategoricalParameter(IntegerParameter):
         self._categories.extend(values)
     
     
-    def __init__(self, name, categories, default=None, variable_name=None):
+    def __init__(self, name, categories, default=None, variable_name=None, 
+                 pff=False):
         lower_bound = 0
         upper_bound = len(categories)
         
@@ -264,7 +250,7 @@ class CategoricalParameter(IntegerParameter):
 
         super(CategoricalParameter, self).__init__(name, lower_bound, 
                             upper_bound, resolution=None, default=default,
-                            variable_name=variable_name)
+                            variable_name=variable_name, pff=pff)
         cats = [create_category(cat) for cat in categories]
         
         self._categories = NamedObjectMap(Category)

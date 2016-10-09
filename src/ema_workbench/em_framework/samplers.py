@@ -34,7 +34,17 @@ __all__ = ['AbstractSampler',
            'LHSSampler',
            'MonteCarloSampler',
            'FullFactorialSampler',
-           'PartialFactorialSampler']
+           'PartialFactorialSampler',
+           'sample_levers',
+           'sample_uncertainties',
+           'determine_parameters',
+           'LHS', 'MC', 'FF', 'PFF']
+
+LHS = 'lhs'
+MC = 'mc'
+FF = 'ff'
+PFF = 'pff'
+
 
 class AbstractSampler(object):
     '''
@@ -146,7 +156,8 @@ class AbstractSampler(object):
         
         sampled_parameters = self.generate_samples(parameters, nr_samples)
         params = sorted(sampled_parameters.keys())
-        designs = DefaultDesigns(sampled_parameters, params)
+        designs = zip(*[sampled_parameters[u] for u in params]) 
+        designs = DefaultDesigns(designs, params, nr_samples)
         
         return designs, nr_samples
 
@@ -310,10 +321,15 @@ class FullFactorialSampler(AbstractSampler):
             the number of experimental designs
         
         '''
-        sampled_parameters = self.generate_samples(parameters, nr_samples)
-        params = sorted(sampled_parameters.keys())
-        designs = FullFactorialDesigns(sampled_parameters, params)
-        return designs, self.determine_nr_of_designs(sampled_parameters)
+        parameters = self.generate_samples(parameters, nr_samples)
+        params = sorted(parameters.keys())
+        
+        sampled_parameters = itertools.product(*[parameters[u] for u in params])
+        
+        n_designs = self.determine_nr_of_designs(parameters)
+        designs = DefaultDesigns(sampled_parameters, params, n_designs)
+        
+        return designs, n_designs
 
     def determine_nr_of_designs(self, sampled_parameters):
         '''
@@ -370,22 +386,19 @@ class PartialFactorialSampler(AbstractSampler):
                               'or MC'))
         self.ff = FullFactorialSampler()
     
-    def _sort_parameters(self, parameters, ff_params):
+    def _sort_parameters(self, parameters):
         '''sort parameters into full factorial and other
         
         Parameters
         ----------
         parameters : list of parameters
-        ff_params : list of str
-                    names of the parameters over which the full factorial 
-                    design should be generated
         
         '''
-        ff_paramnames = set(ff_params)
         ff_params = []
         other_params = []
+        
         for param in parameters:
-            if param.name in ff_paramnames:
+            if param.pff:
                 ff_params.append(param)
             else:
                 other_params.append(param)
@@ -393,7 +406,7 @@ class PartialFactorialSampler(AbstractSampler):
         return ff_params, other_params
         
     
-    def generate_designs(self, parameters, nr_samples, ff_params=[]):
+    def generate_designs(self, parameters, nr_samples):
         '''external interface to sampler. Returns the computational experiments
         over the specified parameters, for the given number of samples for each
         parameter.
@@ -405,9 +418,6 @@ class PartialFactorialSampler(AbstractSampler):
                         experimental designs
         nr_samples : int
                      the number of samples to draw for each parameter
-        ff_params : list of str
-                    names of the parameters over which the full factorial 
-                    design should be generated
         
         Returns
         -------
@@ -419,7 +429,7 @@ class PartialFactorialSampler(AbstractSampler):
         
         '''
         
-        ff_params, other_params = self._sort_parameters(parameters, ff_params)
+        ff_params, other_params = self._sort_parameters(parameters)
         
         # generate a design over the factorials
         # TODO update ff to use resolution if present
@@ -432,10 +442,14 @@ class PartialFactorialSampler(AbstractSampler):
         
         nr_designs = n_other * n_ff
         
-        designs = PartialFactorialDesigns(ff_designs, other_designs)
+        designs = PartialFactorialDesigns(ff_designs, other_designs, nr_designs)
         
         return designs, nr_designs
 
+samplers = {LHS:LHSSampler(),
+            MC:MonteCarloSampler(),
+            FF:FullFactorialSampler(),
+            PFF:PartialFactorialSampler()}
     
 def determine_parameters(models, attribute, union=True):
     '''determine the parameters over which to sample
@@ -455,26 +469,6 @@ def determine_parameters(models, attribute, union=True):
      
     '''
     return util.determine_objects(models, attribute, union=union)
-#     models = iter(models)
-#     parameters = getattr(next(models), attribute).copy()
-#     intersection = set(parameters.keys())
-#     
-#     # gather parameters across all models
-#     for model in models:
-#         model_params = getattr(model, attribute)
-#         
-#         # relies on name based identity, do we want that?
-#         parameters.extend(model_params)
-# 
-#         intersection = intersection.intersection(model_params.keys())
-#     
-#     # in case not union, remove all parameters not in intersection
-#     if not union:
-#         params_to_remove = set(parameters.keys()) - intersection
-#         for key in params_to_remove:
-#             del parameters[key]
-#     return parameters
-
 
 def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     '''generate policies by sampling over the levers
@@ -493,7 +487,6 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     generator yielding Policy instances
     
     '''
-    
     
     levers = determine_parameters(models, 'levers', union=union)
     samples, n = sampler.generate_designs(levers, n_samples)
@@ -572,31 +565,19 @@ def from_experiments(models, experiments):
     
     return scenarios, uncertainties, experiments.shape[0]
 
-class AbstractDesignsIterable(object):
+class DefaultDesigns(object):
     '''iterable for the experimental designs'''
     
-    __metaclass__ = abc.ABCMeta
-    
-    def __init__(self, sampled_params, parameters):
-        self.sampled_params = sampled_params
+    def __init__(self, designs, parameters, n):
+        self.designs = designs
         self.params = parameters
         self.kind = None
+        self.n = n
     
     @abc.abstractmethod 
     def __iter__(self):
         '''should return iterator'''
-
-
-class DefaultDesigns(AbstractDesignsIterable):
-    def __iter__(self):
-        designs = zip(*[self.sampled_params[u] for u in self.params]) 
-        return design_generator(designs, self.params, self.kind)
-
-
-class FullFactorialDesigns(AbstractDesignsIterable):
-    def __iter__(self):
-        designs = itertools.product(*[self.sampled_params[u] for u in self.params])
-        return design_generator(designs, self.params, self.kind)
+        return design_generator(self.designs, self.params, self.kind)
 
 
 class PartialFactorialDesigns(object):
@@ -611,10 +592,11 @@ class PartialFactorialDesigns(object):
         self.ff_designs.kind = value
         self.other_designs.kind = value
     
-    def __init__(self, ff_designs, other_designs):
+    def __init__(self, ff_designs, other_designs, n):
         self.ff_designs = ff_designs
         self.other_designs = other_designs
         self._kind = None
+        self.n = n
     
     def __iter__(self):
         designs =  itertools.product(self.ff_designs, self.other_designs)
