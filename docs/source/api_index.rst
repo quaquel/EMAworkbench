@@ -8,7 +8,7 @@ Exploratory modeling framework
    :maxdepth: 2
    
    ../../ema_documentation/em_framework/model.rst
-   ../../ema_documentation/em_framework/model_ensemble.rst
+   ../../ema_documentation/em_framework/ensemble.rst
     ../../ema_documentation/em_framework/uncertainties.rst
    ../../ema_documentation/em_framework/parameters.rst
    ../../ema_documentation/em_framework/outcomes.rst
