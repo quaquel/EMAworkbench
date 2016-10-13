@@ -14,7 +14,7 @@ __all__ = ["ema_parallel", "model_ensemble", "parameters"
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
 from .uncertainties import (ParameterUncertainty, CategoricalUncertainty)
 from .model import Model, FileModel
-from .model_ensemble import (ModelEnsemble)
+from .ensemble import (ModelEnsemble)
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                      Scenario, Policy, Constant, Experiment, create_parameters,
                      parameters_to_csv, Category)

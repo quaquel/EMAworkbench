@@ -3,12 +3,13 @@ Created on 18 jan. 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+from __future__ import unicode_literals
 import unittest
 
 import mock
 
-from ema_workbench.em_framework.model_ensemble import (ModelEnsemble, 
-                                                       experiment_generator)
+from ema_workbench.em_framework.ensemble import (ModelEnsemble, 
+                                                 experiment_generator)
 from ema_workbench.em_framework.samplers import LHSSampler
 from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome)
 from ema_workbench.util.ema_exceptions import EMAError
@@ -17,7 +18,7 @@ from ema_workbench.em_framework.parameters import Policy, Scenario
 from ema_workbench.em_framework.model import Model
 
          
-class ModelEnsembleTestCase(unittest.TestCase):
+class EnsembleTestCase(unittest.TestCase):
     
     def test_policies(self):
         ensemble = ModelEnsemble()
@@ -241,7 +242,7 @@ class ModelEnsembleTestCase(unittest.TestCase):
 #                          10, uncertainty_union=False, 
 #                          union_outcomes='Label')
         
-        with mock.patch('ema_workbench.em_framework.model_ensemble.MultiprocessingPool') as MockPool:
+        with mock.patch('ema_workbench.em_framework.ensemble.MultiprocessingPool') as MockPool:
             ensemble.parallel = True
             
             mockedCallback = mock.Mock(DefaultCallback)

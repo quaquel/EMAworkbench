@@ -318,6 +318,10 @@ class Model(AbstractModel):
         
         model_output = self.function(**experiment)
         
+        # TODO: might it be possible to somehow abstract this
+        # perhaps expose a get_data on modelInterface?
+        # different connectors can than implement only this
+        # get method
         results  = {}
         for i, outcome in enumerate(self.outcomes):
             varname = outcome.variable_name
@@ -378,7 +382,10 @@ class FileModel(AbstractModel):
         super(FileModel, self).__init__(name)
         self.working_directory = wd
         
-        if not os.path.isfile(self.working_directory+model_file):
+        #TODO replace with os.path.join
+        path_to_file = os.path.join(self.working_directory, model_file)
+        
+        if not os.path.isfile(path_to_file):
             raise ValueError('cannot find model file')
         
         self.model_file = model_file
