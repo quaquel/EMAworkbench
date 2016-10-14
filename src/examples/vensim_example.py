@@ -13,7 +13,7 @@ from __future__ import (division, unicode_literals, absolute_import,
 
 from ema_workbench.em_framework import (TimeSeriesOutcome, perform_experiments)
 from ema_workbench.util import ema_logging 
-from ema_workbench.connectors.vensim import VensimModelStructureInterface
+from ema_workbench.connectors.vensim import VensimModel
 from ema_workbench.em_framework.parameters import RealParameter
 
 if __name__ == "__main__":
@@ -22,8 +22,8 @@ if __name__ == "__main__":
     
     #instantiate a model
     wd = r'./models/vensim example'
-    vensimModel = VensimModelStructureInterface("simpleModel", wd=wd,
-                                                model_file=r'\model.vpm')
+    vensimModel = VensimModel("simpleModel", wd=wd,
+                              model_file=r'\model.vpm')
     vensimModel.uncertainties = [RealParameter("x11", 0, 2.5),
                                  RealParameter("x12", -2.5, 2.5)]
     

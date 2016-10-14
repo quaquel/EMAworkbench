@@ -17,7 +17,7 @@ from ema_workbench.em_framework import (TimeSeriesOutcome, ScalarOutcome,
                                         perform_experiments)
 from ema_workbench.em_framework.parameters import Policy, create_parameters
 from ema_workbench.util import ema_logging
-from ema_workbench.connectors.vensim import VensimModelStructureInterface 
+from ema_workbench.connectors.vensim import VensimModel 
 
 def time_of_max(infected_fraction, time):
     index = np.where(infected_fraction==np.max(infected_fraction))
@@ -27,8 +27,8 @@ def time_of_max(infected_fraction, time):
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
-                                      model_file = r'/FLUvensimV1basecase.vpm')
+    model = VensimModel("fluCase", wd=r'./models/flu',
+                        model_file = r'/FLUvensimV1basecase.vpm')
             
     #outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),

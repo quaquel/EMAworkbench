@@ -127,24 +127,13 @@ class ExcelModelStructureInterface(FileModel):
 
         #get results
         results = {}
-        for outcome in self.outcomes:
-            
-            outputs = []
-            for entry in outcome.variable_name:
-                try:
-                    output = sheet.Range(entry).Value
-                except com_error:
-                    ema_logging.warning(self.com_warning_msg.format(entry))	
-                    continue
-                
-                try:
-                    output = [value[0] for value in output]
-                except TypeError:
-                    pass
-                    
-                output = np.array(output)
-                outputs.append(output)
-            results[outcome.name] = output
+        for variable in self.outcome_variables:
+            try:
+                output = sheet.Range(variable).Value
+            except com_error:
+                ema_logging.warning(self.com_warning_msg.format(variable))	
+                continue
+            results[variable] = output
             
         self.output = results
 

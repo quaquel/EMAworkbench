@@ -8,19 +8,22 @@ is the same as used in fluExample
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
+from __future__ import (division, unicode_literals, print_function, 
+                        absolute_import)
+
 import numpy as np
 
 from ema_workbench.em_framework import (RealParameter,TimeSeriesOutcome, 
                                         ScalarOutcome, perform_experiments)
 from ema_workbench.em_framework.parameters import Policy
 from ema_workbench.util import ema_logging
-from ema_workbench.connectors.vensim import VensimModelStructureInterface 
+from ema_workbench.connectors.vensim import VensimModel 
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
-                                      model_file = r'/FLUvensimV1basecase.vpm')
+    model = VensimModel("fluCase", wd=r'./models/flu',
+                        model_file = r'/FLUvensimV1basecase.vpm')
             
     #outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),

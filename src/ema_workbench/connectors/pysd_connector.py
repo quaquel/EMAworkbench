@@ -58,8 +58,7 @@ class PysdModel(AbstractModel):
                 cols.append(var)
 
         res = self.model.run(params=scenario,
-                     return_columns=[var for var in o.variable_name for o in 
-                                     self.outcomes])
+                             return_columns=self.outcome_variables)
         
         # EMA wants output formatted properly
         output ={col: series.as_matrix() for col, series in res.iteritems()}

@@ -4,15 +4,16 @@ Created on 8 mrt. 2011
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
-from __future__ import division
+from __future__ import (division, unicode_literals, print_function, 
+                        absolute_import)
 from math import exp
 
 from ema_workbench.em_framework import (RealParameter, CategoricalParameter, 
                                         Outcome, ModelEnsemble)
 from ema_workbench.util import ema_logging
-from ema_workbench.connectors.vensim import VensimModelStructureInterface
+from ema_workbench.connectors.vensim import VensimModel
 
-class ScarcityModel(VensimModelStructureInterface):
+class ScarcityModel(VensimModel):
     def returnsToScale(self, x, speed, scale):
     
         return (x*1000, scale*1/(1+exp(-1* speed * (x-50))))
