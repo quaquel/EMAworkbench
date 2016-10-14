@@ -82,8 +82,6 @@ class AbstractModel(NamedObject):
     def output(self, outputs):
         for outcome in self.outcomes:
             data = [outputs[var] for var in outcome.variable_name]
-            if len(data)==1:
-                data = data[0]
             self._output[outcome.name] = outcome.process(data)
     
     @property

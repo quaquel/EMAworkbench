@@ -23,7 +23,7 @@ if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     model = VensimModel("fluCase", wd=r'./models/flu',
-                        model_file = r'/FLUvensimV1basecase.vpm')
+                        model_file = r'FLUvensimV1basecase.vpm')
             
     #outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
@@ -56,13 +56,13 @@ if __name__ == '__main__':
  
     #add policies
     policies = [Policy('no policy',
-                       model_file=r'/FLUvensimV1basecase.vpm'),
+                       model_file=r'FLUvensimV1basecase.vpm'),
                 Policy('static policy',
-                       model_file=r'/FLUvensimV1static.vpm'),
+                       model_file=r'FLUvensimV1static.vpm'),
                 Policy('adaptive policy',
-                       model_file=r'/FLUvensimV1dynamic.vpm')
+                       model_file=r'FLUvensimV1dynamic.vpm')
                 ]
      
      
-    results = perform_experiments(model, 1000, policies=policies, 
+    results = perform_experiments(model, 10, policies=policies, 
                                   parallel=True)

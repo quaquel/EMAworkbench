@@ -8,12 +8,14 @@ used functions with error checking. For more fine grained control, the
 :mod:`vensimDLLwrapper` can also be used directly.
 
 '''
-from __future__ import (absolute_import, print_function, division)
+from __future__ import (absolute_import, print_function, division, 
+                        unicode_literals)
 
 import types
 import decimal
 import math
 import numpy as np
+import os
 import warnings
 
 from . import vensimDLLwrapper 
@@ -288,7 +290,8 @@ class VensimModel(FileModel):
         """
         super(VensimModel, self).model_init(policy, **kwargs)
 
-        load_model(self.working_directory+self.model_file) #load the model
+        fn = os.path.join(self.working_directory, self.model_file)
+        load_model(fn) #load the model
         
         debug("model initialized successfully")
 
@@ -389,6 +392,8 @@ class VensimModel(FileModel):
             error = error or er
             
             results[variable] = result
+            
+        debug('setting results to output')
         self.output = results   
         if error:
             raise CaseError("run not completed", scenario)  
@@ -400,7 +405,7 @@ class VensimModel(FileModel):
         was called
         """
       
-        self.output = {}
+        super(VensimModel, self).reset_model()
         self.result_file =r'\Current.vdf'
 
 

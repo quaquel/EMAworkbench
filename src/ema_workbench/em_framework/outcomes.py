@@ -11,6 +11,7 @@ import warnings
 import pandas
 
 from .util import Variable
+from ema_workbench.util.ema_exceptions import EMAError
 
 
 # Created on 24 mei 2011
@@ -87,21 +88,25 @@ class AbstractOutcome(Variable):
         if self.function:
             var_names = self.variable_name
             
-            len_var = len(var_names)
+            n_variables = len(var_names)
             try:
-                len_val = len(values)
+                n_values = len(values)
             except TypeError:
                 len_val = None
                 
-            if (len_val==None) and (len_var==1):
+            if (n_values==None) and (n_variables==1):
                 return self.function(values)
-            elif len_var != len_val:
+            elif n_variables != n_values:
                 raise ValueError(('number of variables is {}, '
-                      'number of outputs is {}').format(len_var, len_val))
+                      'number of outputs is {}').format(n_variables, n_values))
             else:
                 return self.function(*values)
         else: 
-            return values
+            if len(values)>1:
+                raise EMAError(('more than one value returned without ' 
+                                'processing function'))
+            
+            return values[0]
     
     def __eq__ (self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and

@@ -52,7 +52,7 @@ def perform_experiments(models, cases, policies=[Policy('None')],
         if not (isinstance(cases, numbers.Integral)):
             n = cases.shape[0]
         else:
-            n = cases 
+            n = cases
         
         reporting_interval = max(1, int(round(n / 10))) 
 

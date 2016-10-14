@@ -101,7 +101,7 @@ def check_status():
 def command(command):
     '''execute a command, for details see chapter 5 of the vensim DSS manual'''
     
-    return_val = vensim.vensim_command(command)
+    return_val = vensim.vensim_command(command.encode('utf-8'))
     if return_val == 0:
         raise VensimWarning("command failed "+command)
     return return_val
@@ -266,7 +266,7 @@ def get_val(name):
     
     '''
     value = ctypes.c_float(0)
-    return_val = vensim.vensim_get_val(name, ctypes.byref(value))
+    return_val = vensim.vensim_get_val(name.encode('utf-8'), ctypes.byref(value))
     if return_val == 0:
         raise VensimWarning("variable not found")
     
@@ -311,7 +311,7 @@ def get_varattrib(varname, attribute):
     buf = ctypes.create_string_buffer("", 10)
     maxBuf = ctypes.c_int(10)
     
-    bufferlength = vensim.vensim_get_varattrib(varname, 
+    bufferlength = vensim.vensim_get_varattrib(varname.encode('utf-8'), 
                                                attribute, 
                                                buf, 
                                                maxBuf)
@@ -320,7 +320,7 @@ def get_varattrib(varname, attribute):
     
     buf = ctypes.create_string_buffer("", int(bufferlength))
     maxBuf = ctypes.c_int(int(bufferlength))       
-    vensim.vensim_get_varattrib(varname, attribute, buf, maxBuf)
+    vensim.vensim_get_varattrib(varname.encode('utf-8'), attribute, buf, maxBuf)
     
     result = repr(buf.raw)
     result = result.strip()
