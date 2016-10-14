@@ -11,7 +11,7 @@ import unittest
 from ema_workbench.em_framework import (TimeSeriesOutcome, RealParameter, 
                                         ModelEnsemble, CategoricalUncertainty) 
 
-from ema_workbench.connectors.vensim import (VensimModelStructureInterface, 
+from ema_workbench.connectors.vensim import (VensimModel, 
                                              load_model, LookupUncertainty)
 
 from ema_workbench.util import ema_logging
@@ -22,7 +22,7 @@ __test__ = True
 if os.name != 'nt':
     __test__ = False
 
-class VensimExampleModel(VensimModelStructureInterface):
+class VensimExampleModel(VensimModel):
     '''
     example of the most simple case of doing EMA on
     a Vensim model.
@@ -39,7 +39,7 @@ class VensimExampleModel(VensimModelStructureInterface):
     uncertainties = [RealParameter("x11", 0, 2.5),
                      RealParameter("x12", -2.5, 2.5)]
 
-class LookupTestModel(VensimModelStructureInterface): 
+class LookupTestModel(VensimModel): 
     def __init__(self, working_directory, name):
         
         self.model_file = r'\lookup_model.vpm'
@@ -123,7 +123,7 @@ class LookupUncertaintyTest(unittest.TestCase):
 
 
         # categories
-        msi = VensimModelStructureInterface('', 'test')
+        msi = VensimModel('', 'test')
  
         lookup_type = 'categories'
         name = 'test'
@@ -138,7 +138,7 @@ class LookupUncertaintyTest(unittest.TestCase):
 
 
         # hearne1
-        msi = VensimModelStructureInterface('', 'test')
+        msi = VensimModel('', 'test')
         msi.uncertainties = []
  
         lookup_type = 'hearne1'
@@ -153,7 +153,7 @@ class LookupUncertaintyTest(unittest.TestCase):
 
 
         # hearne2
-        msi = VensimModelStructureInterface('', 'test')
+        msi = VensimModel('', 'test')
         msi.uncertainties = []
         
         lookup_type = 'hearne2'
@@ -168,7 +168,7 @@ class LookupUncertaintyTest(unittest.TestCase):
 
 
         # approximation
-        msi = VensimModelStructureInterface('', 'test')
+        msi = VensimModel('', 'test')
         msi.uncertainties = []
         
         lookup_type = 'approximation'

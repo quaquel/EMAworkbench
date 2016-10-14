@@ -10,13 +10,13 @@ from math import exp
 import numpy as np
 
 
-from ema_workbench.connectors.vensim import VensimModelStructureInterface
+from ema_workbench.connectors.vensim import VensimModel
 from ema_workbench.em_framework import ModelEnsemble, TimeSeriesOutcome
 from ema_workbench.em_framework import RealParameter, CategoricalParameter
 from ema_workbench.util import ema_logging
 
 
-class ScarcityModel(VensimModelStructureInterface):
+class ScarcityModel(VensimModel):
     model_file = r'\MetalsEMA.vpm'
         
     outcomes = [TimeSeriesOutcome('relative market price'),

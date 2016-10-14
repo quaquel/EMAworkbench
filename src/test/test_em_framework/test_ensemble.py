@@ -213,7 +213,7 @@ class EnsembleTestCase(unittest.TestCase):
         model_c.outcomes = [outcome_shared]
         
         for model in models:
-            model.function.return_value = {outcome_shared.name: [0.1]*10}
+            model.function.return_value = {a: [0.1]*10 for a in outcome_shared.variable_name}
         
         ensemble = ModelEnsemble()
         ensemble.model_structures = [model_a, model_b, model_c]

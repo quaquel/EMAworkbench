@@ -14,6 +14,7 @@ import types
 import decimal
 import math
 import numpy as np
+import warnings
 
 from . import vensimDLLwrapper 
 from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
@@ -37,6 +38,7 @@ __all__ = ['be_quiet',
            'run_simulation',
            'get_data',
            'VensimModelStructureInterface',
+           'VensimModel',
            'LookupUncertainty']
 
 
@@ -183,8 +185,14 @@ def get_data(filename, varname, step=1):
         
     return vval
 
+def VensimModelStructureInterface(name, wd=None, model_file=None):
+    warnings.warn(('VensimModelStructureInterface is deprecated use '
+                   'VensimModel instead'))
+    
+    return VensimModel(name, wd=wd, model_file=model_file)
+
   
-class VensimModelStructureInterface(FileModel):
+class VensimModel(FileModel):
     '''
     This is a convenience extension of :class:`~model.ModelStructureInterface` 
     that can be used as a base class for performing EMA on Vensim models. This 
@@ -241,9 +249,7 @@ class VensimModelStructureInterface(FileModel):
         if not model_file.endswith('.vpm'):
             raise ValueError('model file should be a vpm file')
         
-        super(VensimModelStructureInterface, self).__init__(name, 
-                                                            wd=wd,
-                                                            model_file=model_file)
+        super(VensimModel, self).__init__(name, wd=wd, model_file=model_file)
         self.outcomes.extend(TimeSeriesOutcome('TIME'))
         
         self._lookup_uncertainties = NamedObjectMap(Parameter)
@@ -280,7 +286,7 @@ class VensimModelStructureInterface(FileModel):
                  gives users to the ability to pass any additional 
                  arguments. 
         """
-        super(VensimModelStructureInterface, self).model_init(policy, **kwargs)
+        super(VensimModel, self).model_init(policy, **kwargs)
 
         load_model(self.working_directory+self.model_file) #load the model
         
@@ -334,7 +340,7 @@ class VensimModelStructureInterface(FileModel):
                   each run.  
         
         """
-        super(VensimModelStructureInterface, self).run_model(scenario, policy)
+        super(VensimModel, self).run_model(scenario, policy)
                 
         if self.cin_file:
             try:
@@ -349,7 +355,6 @@ class VensimModelStructureInterface(FileModel):
             # proper lookup value
             scenario[lookup_uncertainty.name] = lookup_uncertainty.transform(scenario)
   
-  
         constants = {entry.name:entry.value for entry in self.constants}
         experiment = combine(scenario, self.policy, constants)
   
@@ -363,7 +368,6 @@ class VensimModelStructureInterface(FileModel):
         except VensimError:
             raise
 
-
         def check_data(result):
             error = False
             if result.shape[0] != self.run_length:
@@ -373,35 +377,18 @@ class VensimModelStructureInterface(FileModel):
                 result = data
                 error = True
             return result, error
-                
 
         results = {}
-        for output in self.outcomes:
-            debug("getting data for %s" %output.name)
+        error = False
+        for variable in self.outcome_variables:
+            debug("getting data for %s" %variable)            
             
-            var_name = output.variable_name
-            if isinstance(var_name, basestring):
-                result = get_data(self.working_directory+self.result_file, 
-                                  var_name
-                                  )
-                result, error = check_data(np.asarray(result))
-                debug("successfully retrieved data for %s" %var_name)
-            else:
-                result = []
-                error = False
-                
-                for var in var_name:
-                    res = get_data(self.working_directory+self.result_file, 
-                                  var
-                                  )
-                    res, er = check_data(np.asarray(res))
-                    
-                    error = er or error 
-                    
-                    result.append(res)
-
-
-            results[output.name] = result
+            res = get_data(self.working_directory+self.result_file, 
+                          variable)
+            result, er = check_data(np.asarray(res))
+            error = error or er
+            
+            results[variable] = result
         self.output = results   
         if error:
             raise CaseError("run not completed", scenario)  

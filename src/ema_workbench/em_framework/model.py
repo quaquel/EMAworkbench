@@ -8,7 +8,6 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
-from functools import wraps
 import os
 import warnings
 from ema_workbench.util import ema_logging
@@ -21,8 +20,7 @@ except ImportError:
     from collections.abc import MutableMapping
 
 
-from .util import (NamedObject, NamedObjectMap, combine, 
-                   NamedObjectMapDescriptor)
+from .util import (NamedObject, combine, NamedObjectMapDescriptor)
 from .parameters import Parameter, Constant
 from .outcomes import AbstractOutcome
 
@@ -32,10 +30,9 @@ from ..util.ema_logging import method_logger
 # Created on 23 dec. 2010
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-# TODO:: move working directory as an argument to FileModel, no
-# need to have that in AbstractModel, or Model
+# 
 
-__all__ = ['AbstractModel', 'Model']
+__all__ = ['AbstractModel', 'Model', 'FileModel']
 
 #==============================================================================
 # abstract Model class 
@@ -83,9 +80,19 @@ class AbstractModel(NamedObject):
 
     @output.setter
     def output(self, outputs):
-        for key, value in outputs.items():
-            self._output[key] = self.outcomes[key].process(value)
-            
+        for outcome in self.outcomes:
+            data = [outputs[var] for var in outcome.variable_name]
+            if len(data)==1:
+                data = data[0]
+            self._output[outcome.name] = outcome.process(data)
+    
+    @property
+    def outcome_variables(self):
+        if self._outcome_variables is None:
+            self._outcome_variables = [var for o in self.outcomes for var in 
+                                       o.variable_name]
+        return self._outcome_variables
+         
     uncertainties = NamedObjectMapDescriptor(Parameter)
     levers = NamedObjectMapDescriptor(Parameter)
     outcomes = NamedObjectMapDescriptor(AbstractOutcome)
@@ -113,6 +120,7 @@ class AbstractModel(NamedObject):
             raise EMAError("name of model should only contain alpha numerical\
                             characters")
 
+        self._outcome_variables = None
         self._output = {}
         
     @method_logger
@@ -149,7 +157,7 @@ class AbstractModel(NamedObject):
             # only keep uncertainties that exist in this model
             try:
                 value = sampled_parameters[par.name]
-            except KeyError as e:
+            except KeyError:
                 if par.default is not None:
                     value = par.default
                 else:
@@ -238,7 +246,7 @@ class AbstractModel(NamedObject):
         implementation only sets the outputs to an empty dict. 
 
         """
-        self.output = {}
+        self._output = {}
     
     @method_logger
     def cleanup(self):
@@ -323,25 +331,8 @@ class Model(AbstractModel):
         # different connectors can than implement only this
         # get method
         results  = {}
-        for i, outcome in enumerate(self.outcomes):
-            varname = outcome.variable_name
-            
-            if len(varname)==1:
-                try:
-                    output = model_output[varname[0]]
-                except TypeError:
-                    output = model_output[i]
-                finally:
-                    results[outcome.name] = output
-            else:
-                try:
-                    output = [model_output[var] for var in varname]
-                except TypeError as e:
-                    # refuse the temptation to guess, when using varnames
-                    # the return from the model must be dictlike
-                    raise e
-                else:
-                    results[outcome.name]
+        for variable in self.outcome_variables:
+            results[variable] = model_output[variable]
                     
         self.output = results
 

@@ -8,17 +8,20 @@ use in conjuction with vensim models. This example is largely based on
 @author: sibeleker
 @author: jhkwakkel
 '''
+from __future__ import (division, unicode_literals, print_function, 
+                        absolute_import)
+
 import matplotlib.pyplot as plt
 
 from ema_workbench.em_framework import Outcome, ModelEnsemble
 from ema_workbench.util import ema_logging
 
 from ema_workbench.connectors.vensim import (LookupUncertainty, 
-                                             VensimModelStructureInterface)
+                                             VensimModel)
 from ema_workbench.analysis.plotting import lines
 from ema_workbench.analysis.plotting_util import BOXPLOT
 
-class Burnout(VensimModelStructureInterface): 
+class Burnout(VensimModel): 
     model_file = r'\BURNOUT.vpm'
     outcomes = [Outcome('Accomplishments to Date', time=True),
                 Outcome('Energy Level', time=True),
@@ -28,7 +31,7 @@ class Burnout(VensimModelStructureInterface):
     def __init__(self, working_directory, name):
         super(Burnout, self).__init__(working_directory, name)
         
-        uncertainties = [LookupUncertainty('hearne2',[(-1, 3), (-2, 1), (0, 0.9), (0.1, 1), (0.99, 1.01), (0.99, 1.01)], 
+        self.uncertainties = [LookupUncertainty('hearne2',[(-1, 3), (-2, 1), (0, 0.9), (0.1, 1), (0.99, 1.01), (0.99, 1.01)], 
                                         "accomplishments per hour lookup", self, 0, 1),
                          LookupUncertainty('hearne2', [(-0.75, 0.75), (-0.75, 0.75), (0, 1.5), (0.1, 1.6), (-0.3, 1.5), (0.25, 2.5)], 
                                          "fractional change in expectations from perceived adequacy lookup", self, -1, 1),

@@ -8,18 +8,20 @@ is the same as used in fluExample
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
-from __future__ import unicode_literals, print_function
+from __future__ import (division, unicode_literals, print_function, 
+                        absolute_import)
+
 from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome, 
                                         perform_experiments)
 from ema_workbench.util import ema_logging
 
-from ema_workbench.connectors.vensim import VensimModelStructureInterface 
+from ema_workbench.connectors.vensim import VensimModel 
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
-                                      model_file = r'/FLUvensimV1basecase.vpm')
+    model = VensimModel("fluCase", wd=r'./models/flu',
+                        model_file = r'/FLUvensimV1basecase.vpm')
             
     #outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
@@ -27,7 +29,7 @@ if __name__ == "__main__":
     
     #Plain Parametric Uncertainties 
     model.uncertainties = [
-    RealParameter('additional seasonal immune population fraction R1', 0, 0.5),
+        RealParameter('additional seasonal immune population fraction R1', 0, 0.5),
         RealParameter('additional seasonal immune population fraction R2', 0, 0.5),
         RealParameter('fatality ratio region 1', 0.0001, 0.1),
         RealParameter('fatality rate region 2', 0.0001, 0.1),
