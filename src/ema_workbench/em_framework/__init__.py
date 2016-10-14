@@ -54,7 +54,7 @@ def perform_experiments(models, cases, policies=[Policy('None')],
         else:
             n = cases 
         
-        reporting_interval = int(round(n / 10))    
+        reporting_interval = max(1, int(round(n / 10))) 
 
     ensemble = ModelEnsemble(sampler=samplers[sampling])
     ensemble.parallel = parallel
