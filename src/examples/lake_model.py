@@ -14,7 +14,8 @@ import numpy as np
 from scipy.optimize import brentq as root
 
 from ema_workbench.em_framework import (ModelEnsemble, Model, RealParameter, 
-                                        ScalarOutcome, Constant, samplers)
+                                        ScalarOutcome, Constant)
+import ema_workbench.em_framework.samplers as samplers
 from ema_workbench.util import ema_logging
 
 
@@ -36,7 +37,7 @@ def lake_problem(
     decisions = np.array(decisions)
     reliability = 0.0
 
-    for _ in xrange(nsamples):
+    for _ in range(nsamples):
         X[0] = 0.0
         
         natural_inflows = np.random.lognormal(
@@ -44,7 +45,7 @@ def lake_problem(
                 math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
                 size = nvars)
         
-        for t in xrange(1,nvars):
+        for t in range(1,nvars):
             X[t] = (1-b)*X[t-1] + X[t-1]**q/(1+X[t-1]**q) + decisions[t-1] + natural_inflows[t-1]
             average_daily_P[t] += X[t]/float(nsamples)
     

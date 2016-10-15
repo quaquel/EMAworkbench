@@ -4,7 +4,7 @@ sudo: false
 
 python:
 - 2.7
-
+- 3.5
 env:
 - DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn"
 
@@ -18,7 +18,6 @@ install:
 - conda update -q conda --no-deps
 - conda info -a # Useful for debugging any issues with conda
 - conda install --yes $DEPS # Replace dep1 dep2 ... with your dependencies
-- pip install deap # deap is another dependency, not available via conda
 - pip install zmq # zmq is not available via conda for some reason
 - pip install pydot
 - pip install coveralls

@@ -76,7 +76,7 @@ class AbstractOutcome(Variable):
         if function is not None and not callable(function):
             raise ValueError('function must be a callable')
         if variable_name:
-            if (not isinstance(variable_name, basestring)) and (not all(isinstance(elem, basestring) for elem in variable_name)):
+            if (not isinstance(variable_name, six.string_types)) and (not all(isinstance(elem, six.string_types) for elem in variable_name)):
                     raise ValueError('variable name must be a string or list of strings')
         
         

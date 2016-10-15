@@ -45,9 +45,9 @@ def method_logger(func):
     def wrapper(*args, **kwargs):
         # hack, because log is applied to methods, we can get
         # object instance as first arguments in args
-        debug('calling {} on {}'.format(func.func_name, classname))
+        debug('calling {} on {}'.format(func.__name__, classname))
         res = func(*args, **kwargs)
-        debug('completed calling {} on {}'.format(func.func_name, classname))
+        debug('completed calling {} on {}'.format(func.__name__, classname))
         return res
     return wrapper
 

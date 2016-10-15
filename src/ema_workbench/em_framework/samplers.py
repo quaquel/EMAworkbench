@@ -446,7 +446,8 @@ class PartialFactorialSampler(AbstractSampler):
         
         return designs, nr_designs
 
-samplers = {LHS:LHSSampler(),
+#TODO:: better name, sampers lowercase conflicts with modulename
+SAMPLERS = {LHS:LHSSampler(),
             MC:MonteCarloSampler(),
             FF:FullFactorialSampler(),
             PFF:PartialFactorialSampler()}

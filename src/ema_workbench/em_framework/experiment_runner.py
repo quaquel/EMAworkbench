@@ -92,7 +92,7 @@ class ExperimentRunner(object):
         except Exception as e:
             self.cleanup()
             raise EMAError(("exception in run_model"
-                   "\nCaused by: {}: {}".format(type(e).__name__, str(e)))), None, sys.exc_info()[2]
+                   "\nCaused by: {}: {}".format(type(e).__name__, str(e))))
             
         output = model.output
         model.reset_model()

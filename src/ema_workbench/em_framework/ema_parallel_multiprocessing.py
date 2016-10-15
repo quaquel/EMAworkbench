@@ -20,6 +20,7 @@ import itertools
 import logging
 import multiprocessing
 import os
+import six
 from ema_workbench.em_framework.model import FileModel
 
 try:
@@ -34,8 +35,14 @@ import threading
 import time
 import traceback
 
+
 import multiprocessing.pool as pool
 from multiprocessing.util import Finalize
+try:
+    from multiprocessing import get_context
+except ImportError:
+    def get_context():
+        return None
 
 from .experiment_runner import ExperimentRunner
 from ..util import ema_logging, EMAError, EMAParallelError
@@ -121,6 +128,7 @@ class CalculatorPool(pool.Pool):
         ema_logging.info("nr of processes is "+str(processes))
     
         # setup queues etc.
+        self._ctx = get_context()
         self._setup_queues()
         self._taskqueue = queue.Queue(processes*2)
         self._cache = {}
@@ -463,7 +471,7 @@ class EMAApplyResult(object):
 
     def __init__(self, cache, callback, event, experiment):
         self._cond = threading.Condition(threading.Lock())
-        self._job = job_counter.next()
+        self._job = six.next(job_counter)
         self._cache = cache
         self._ready = False
         self._callback = callback
