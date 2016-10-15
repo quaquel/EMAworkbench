@@ -9,6 +9,7 @@ from __future__ import (absolute_import, print_function, division,
 
 import abc
 import os
+import six
 import warnings
 from ema_workbench.util import ema_logging
 from ema_workbench.em_framework.parameters import CategoricalParameter
@@ -49,7 +50,7 @@ class ModelMeta(abc.ABCMeta):
         return abc.ABCMeta.__new__(mcls, name, bases, namespace)
 
 
-class AbstractModel(NamedObject):
+class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     '''
     :class:`ModelStructureInterface` is one of the the two main classes used 
     for performing EMA. This is an abstract base class and cannot be used 
@@ -72,7 +73,7 @@ class AbstractModel(NamedObject):
     
     '''
     
-    __metaclass__ = ModelMeta
+#     __metaclass__ = ModelMeta
 
     @property
     def output(self):

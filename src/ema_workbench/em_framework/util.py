@@ -7,7 +7,11 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 import copy
 from collections import OrderedDict
-from UserDict import UserDict
+
+try:
+    from UserDict import UserDict
+except ImportError:
+    from collections import UserDict
 
 try:
     # we assume python 2
@@ -43,7 +47,7 @@ class Variable(NamedObject):
         
     @variable_name.setter
     def variable_name(self, name):
-        if isinstance(name, basestring):
+        if isinstance(name, six.string_types):
             name = [name]
         self._variable_name = name
         

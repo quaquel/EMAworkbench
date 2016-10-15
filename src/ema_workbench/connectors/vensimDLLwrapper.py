@@ -133,7 +133,7 @@ def finish_simulation():
     return return_val
 
     
-def get_data(filename, varname, tname = b"Time"):
+def get_data(filename, variable_name, tname="Time"):
     ''' 
     Retrieves data from simulation runs or imported data sets. In contrast
     to the Vensim DLL, this method retrieves all the data, and not only the 
@@ -143,7 +143,7 @@ def get_data(filename, varname, tname = b"Time"):
     ----------
     filename : str
                the name of the .vdf file that contains the data
-    varname : str
+    variable_name : str
              the name of the variable to retrieve data on
     tname : str
             the name of the time axis against which to pull the data, 
@@ -158,6 +158,10 @@ def get_data(filename, varname, tname = b"Time"):
     tval = (ctypes.c_float * 1)()  
     maxn = ctypes.c_int(0)
     
+    filename = filename.encode('utf-8')
+    varname = variable_name.encode('utf-8')
+    tname = tname.encode('utf-8')
+    
     return_val = vensim.vensim_get_data(filename, 
                                         varname, 
                                         tname, 
@@ -166,7 +170,7 @@ def get_data(filename, varname, tname = b"Time"):
                                         maxn)
     
     if return_val == 0:
-        raise VensimWarning("variable "+varname+" not found in dataset")
+        raise VensimWarning("variable "+variable_name+" not found in dataset")
     
     vval = (ctypes.c_float * int(return_val))()  
     tval = (ctypes.c_float * int(return_val))()  

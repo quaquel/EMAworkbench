@@ -119,12 +119,12 @@ def set_value(variable, value):
     '''
     variable = str(variable)
     
-    if type(value) == types.ListType:
+    if isinstance(value, list):
         value = [str(entry) for entry in value]
         command("SIMULATE>SETVAL|"+variable+"("+ str(value)[1:-1] + ")")
     else:
         try:
-            command(r"SIMULATE>SETVAL|"+variable+"="+str(value))
+            command("SIMULATE>SETVAL|"+variable+"="+str(value))
         except VensimWarning:
             warning('variable: \'' +variable+'\' not found')
 
@@ -152,8 +152,8 @@ def run_simulation(file_name):
     try:
         debug(" executing COMMAND: SIMULATE>RUNNAME|"+file_name+"|O")
         command("SIMULATE>RUNNAME|"+file_name+"|O")
-        debug(r"MENU>RUN|o")
-        command(r"MENU>RUN|o")
+        debug("MENU>RUN|o")
+        command("MENU>RUN|o")
     except VensimWarning as w:
         warning((str(w)))
         raise VensimError(str(w))
@@ -181,7 +181,7 @@ def get_data(filename, varname, step=1):
     
     vval = []
     try:
-        vval, _ = vensimDLLwrapper.get_data(str(filename), str(varname))    
+        vval, _ = vensimDLLwrapper.get_data(filename, str(varname))    
     except VensimWarning as w:
         warning(str(w))
         
@@ -252,7 +252,7 @@ class VensimModel(FileModel):
             raise ValueError('model file should be a vpm file')
         
         super(VensimModel, self).__init__(name, wd=wd, model_file=model_file)
-        self.outcomes.extend(TimeSeriesOutcome('TIME'))
+        self.outcomes.extend(TimeSeriesOutcome('TIME', variable_name='Time'))
         
         self._lookup_uncertainties = NamedObjectMap(Parameter)
         
@@ -260,12 +260,7 @@ class VensimModel(FileModel):
         self.cin_file = None
         
         #: default name of the results file (default: 'Current.vdf')
-        self.result_file = r'\Current.vdf'
-
-        #: attribute used for getting a slice of the results array instead of the
-        #: full array. This can cut down the amount of data saved. Alternatively,
-        #: one can specify in Vensim the time steps for saving results
-        self.step = 1 
+        self.result_file = 'Current.vdf'
         
         debug("vensim interface init completed")
         
@@ -383,11 +378,11 @@ class VensimModel(FileModel):
 
         results = {}
         error = False
+        result_filename = os.path.join(self.working_directory, self.result_file)
         for variable in self.outcome_variables:
             debug("getting data for %s" %variable)            
             
-            res = get_data(self.working_directory+self.result_file, 
-                          variable)
+            res = get_data(result_filename, variable)
             result, er = check_data(np.asarray(res))
             error = error or er
             
@@ -406,7 +401,7 @@ class VensimModel(FileModel):
         """
       
         super(VensimModel, self).reset_model()
-        self.result_file =r'\Current.vdf'
+#         self.result_file = 'Current.vdf'
 
 
     def _delete_lookup_uncertainties(self):
