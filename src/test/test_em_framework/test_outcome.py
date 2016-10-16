@@ -73,15 +73,15 @@ class TestScalarOutcome(unittest.TestCase):
         name = 'test'
         outcome = ScalarOutcome(name)
         
-        outputs = 1
-        self.assertEqual(outcome.process(outputs), outputs)
+        outputs = [1]
+        self.assertEqual(outcome.process(outputs), outputs[0])
 
         name = 'test'
         function = mock.Mock()
         function.return_value = 2
         outcome = ScalarOutcome(name, function=function)
         
-        outputs = 1
+        outputs = [1]
         self.assertEqual(outcome.process(outputs), 2)
         function.assert_called_once()
 
@@ -108,8 +108,7 @@ class TestScalarOutcome(unittest.TestCase):
             outcome = ScalarOutcome(name, function=function, 
                                     variable_name=variable_name)
             
-            outcome.process(1)
-            
+            outcome.process([1])
 
 
 if __name__ == "__main__":
