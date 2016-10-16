@@ -135,17 +135,17 @@ class CategoricalParameterTestCase(unittest.TestCase):
         self.assertEqual(par.lower_bound, 0)
         self.assertEqual(par.upper_bound, 2)
     
-    def test_comparison(self):
-        name = 'test'
-        values = ('a', 'b')
-        par1 = parameters.CategoricalParameter(name, values)
-        par2 = parameters.CategoricalParameter(name, values)
-        
-        self.assertEqual(par1, par2)
-
-        name = 'what'
-        par2 = parameters.CategoricalParameter(name, values)
-        self.assertNotEqual(par1, par2)
+#     def test_comparison(self):
+#         name = 'test'
+#         values = ('a', 'b')
+#         par1 = parameters.CategoricalParameter(name, values)
+#         par2 = parameters.CategoricalParameter(name, values)
+#         
+#         self.assertEqual(par1, par2)
+# 
+#         name = 'what'
+#         par2 = parameters.CategoricalParameter(name, values)
+#         self.assertNotEqual(par1, par2)
     
     def test_index_for_cat(self):
         name = 'test'

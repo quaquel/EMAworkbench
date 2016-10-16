@@ -14,9 +14,10 @@ except ImportError:
     import ConfigParser as configparser
 
 # import cPickle
+from io import BytesIO, StringIO
 import math
 import os
-from io import BytesIO
+import sys
 import tarfile
 
 from matplotlib.mlab import rec2csv
@@ -28,6 +29,12 @@ from pandas.io.parsers import read_csv
 
 from .ema_logging import info, debug, warning
 from .ema_exceptions import EMAError
+
+PY3 = sys.version_info[0] == 3
+if PY3:
+    WriterFile =  StringIO
+else:
+    WriterFile =  BytesIO
 
 # Created on 13 jan. 2011
 # 
@@ -157,12 +164,13 @@ def save_results(results, file_name):
     
     def save_numpy_array(fh, data):
         data = pd.DataFrame(data)
-        data.to_csv(fh, header=False, index=False)
+        data.to_csv(fh, header=False, index=False, encoding='UTF-8')
         
     experiments, outcomes = results
     with tarfile.open(file_name, 'w:gz') as z:
         # write the x to the zipfile
-        experiments_file = BytesIO()
+#         experiments_file = BytesIO()
+        experiments_file = WriterFile()
         rec2csv(experiments, experiments_file, withheader=True)
         add_file(z, experiments_file.getvalue(), 'experiments.csv')
         
@@ -181,7 +189,8 @@ def save_results(results, file_name):
         
         # outcomes
         for key, value in outcomes.items():
-            fh = BytesIO()
+            fh = WriterFile()
+#             fh = StringIO()
             
             nr_dim = len(value.shape)
             if nr_dim==3:
