@@ -3,6 +3,8 @@ Created on 22 Jan 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import random
 import unittest
 
@@ -172,7 +174,7 @@ class TestDefaultCallback(unittest.TestCase):
         
         names = rf.get_names(experiments.dtype)
         
-        print experiments[0]
+        print(experiments[0])
         
         for name in names:
             self.assertEqual(experiments[name][0], design[name])

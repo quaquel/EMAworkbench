@@ -3,8 +3,8 @@ Created on May 22, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import division
-
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 import unittest
 
 import numpy as np
