@@ -101,12 +101,12 @@ class Parameter(Variable):
         self.variable_name = variable_name
         self.pff = pff
         
-#     def __eq__ (self, other):
-#         comparison = [all(hasattr(self, key) == hasattr(other, key) and
-#                           getattr(self, key) == getattr(other, key) for key 
-#                           in self.__dict__.keys())]
-#         comparison.append(self.__class__ == other.__class__)
-#         return all(comparison)
+    def __eq__ (self, other):
+        comparison = [all(hasattr(self, key) == hasattr(other, key) and
+                          getattr(self, key) == getattr(other, key) for key 
+                          in self.__dict__.keys())]
+        comparison.append(self.__class__ == other.__class__)
+        return all(comparison)
 
     def __str__(self):
         return self.name
