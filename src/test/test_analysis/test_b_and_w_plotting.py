@@ -3,10 +3,14 @@ Created on Sep 13, 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ema_workbench.analysis.b_and_w_plotting import set_fig_to_bw, HATCHING, GREYSCALE
+from ema_workbench.analysis.b_and_w_plotting import (set_fig_to_bw, HATCHING, 
+                                                     GREYSCALE)
 
 
 def test_scatter():
