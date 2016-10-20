@@ -1,7 +1,7 @@
 
 """
 Python model /Users/jhkwakkel/EMAworkbench/src/test/test_connectors/../models/Sales_Agent_Motivation_Dynamics.py
-Translated using PySD version 0.6.3
+Translated using PySD version 0.7.2
 """
 from __future__ import division
 import numpy as np
@@ -19,7 +19,7 @@ _namespace = {
     'Accumulating Income': 'accumulating_income',
     'TIME STEP': 'time_step',
     'Total Cumulative Income': 'total_cumulative_income',
-    'Sales': 'sales',
+    'Motivation Threshold': 'motivation_threshold',
     'SAVEPER': 'saveper',
     'Fraction of Effort for Sales': 'fraction_of_effort_for_sales',
     'Income': 'income',
@@ -28,30 +28,21 @@ _namespace = {
     'Total Effort Available': 'total_effort_available',
     'Sales Effort Available': 'sales_effort_available',
     'FINAL TIME': 'final_time',
+    'Tenure': 'tenure',
     'Effort': 'effort',
     'Startup Subsidy Length': 'startup_subsidy_length',
     'Motivation Adjustment': 'motivation_adjustment',
-    'Tenure': 'tenure',
+    'Time': 'time',
     'Success Rate': 'success_rate',
     'Motivation': 'motivation',
     'Total Cumulative Sales': 'total_cumulative_sales',
     'Startup Subsidy': 'startup_subsidy',
     'Accumulating Tenure': 'accumulating_tenure',
-    'Motivation Threshold': 'motivation_threshold',
+    'Sales': 'sales',
     'Still Employed': 'still_employed',
     'Motivation Adjustment Time': 'motivation_adjustment_time',
+    'TIME': 'time',
     'Accumulating Sales': 'accumulating_sales'}
-
-
-def _init_tenure():
-    """
-    Implicit
-    --------
-    (_init_tenure)
-    See docs for tenure
-    Provides initial conditions for tenure function
-    """
-    return 0
 
 
 @cache('step')
@@ -63,7 +54,10 @@ def motivation():
     Dmnl
 
     """
-    return _state['motivation']
+    return integ_motivation()
+
+
+integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), lambda: 0)
 
 
 @cache('run')
@@ -87,7 +81,7 @@ def total_cumulative_sales():
     Persons
 
     """
-    return _state['total_cumulative_sales']
+    return integ_total_cumulative_sales()
 
 
 @cache('run')
@@ -124,6 +118,9 @@ def motivation_adjustment_time():
 
     """
     return 3
+
+
+integ_total_cumulative_sales = functions.Integ(lambda: accumulating_sales(), lambda: 0)
 
 
 @cache('run')
@@ -174,17 +171,6 @@ def accumulating_income():
     return income()
 
 
-def _init_total_cumulative_income():
-    """
-    Implicit
-    --------
-    (_init_total_cumulative_income)
-    See docs for total_cumulative_income
-    Provides initial conditions for total_cumulative_income function
-    """
-    return 0
-
-
 @cache('run')
 def effort_required_to_make_a_sale():
     """
@@ -225,6 +211,9 @@ def sales_effort_available():
         0)
 
 
+integ_motivation = functions.Integ(lambda: motivation_adjustment(), lambda: 1)
+
+
 @cache('step')
 def income():
     """
@@ -262,21 +251,10 @@ def impact_of_motivation_on_effort(x):
                             0, 0.0616114, 0.232228, 0.492891, 0.772512, 0.862559, 0.914692, 0.952607, 0.957346])
 
 
-def _init_motivation():
-    """
-    Implicit
-    --------
-    (_init_motivation)
-    See docs for motivation
-    Provides initial conditions for motivation function
-    """
-    return 1
-
-
 @cache('step')
 def time():
     """
-    Time
+    TIME
     ----
     (time)
     None
@@ -322,18 +300,6 @@ def accumulating_tenure():
 
 
 @cache('step')
-def _dtenure_dt():
-    """
-    Implicit
-    --------
-    (_dtenure_dt)
-    See docs for tenure
-    Provides derivative for tenure function
-    """
-    return accumulating_tenure()
-
-
-@cache('step')
 def still_employed():
     """
     Still Employed
@@ -345,16 +311,7 @@ def still_employed():
     return functions.if_then_else(motivation() > motivation_threshold(), 1, 0)
 
 
-@cache('step')
-def _dmotivation_dt():
-    """
-    Implicit
-    --------
-    (_dmotivation_dt)
-    See docs for motivation
-    Provides derivative for motivation function
-    """
-    return motivation_adjustment()
+integ_tenure = functions.Integ(lambda: accumulating_tenure(), lambda: 0)
 
 
 @cache('step')
@@ -381,41 +338,6 @@ def total_effort_available():
     return 200
 
 
-def _init_total_cumulative_sales():
-    """
-    Implicit
-    --------
-    (_init_total_cumulative_sales)
-    See docs for total_cumulative_sales
-    Provides initial conditions for total_cumulative_sales function
-    """
-    return 0
-
-
-@cache('step')
-def _dtotal_cumulative_sales_dt():
-    """
-    Implicit
-    --------
-    (_dtotal_cumulative_sales_dt)
-    See docs for total_cumulative_sales
-    Provides derivative for total_cumulative_sales function
-    """
-    return accumulating_sales()
-
-
-@cache('step')
-def _dtotal_cumulative_income_dt():
-    """
-    Implicit
-    --------
-    (_dtotal_cumulative_income_dt)
-    See docs for total_cumulative_income
-    Provides derivative for total_cumulative_income function
-    """
-    return accumulating_income()
-
-
 @cache('step')
 def total_cumulative_income():
     """
@@ -425,7 +347,7 @@ def total_cumulative_income():
     Month
     Express income in units of 'months of expenses'
     """
-    return _state['total_cumulative_income']
+    return integ_total_cumulative_income()
 
 
 @cache('step')
@@ -449,7 +371,7 @@ def tenure():
     Month
 
     """
-    return _state['tenure']
+    return integ_tenure()
 
 
 @cache('step')
@@ -479,4 +401,4 @@ def initial_time():
 def time():
     return _t
 functions.time = time
-functions.initial_time = initial_time
+functions._stage = lambda: _stage
