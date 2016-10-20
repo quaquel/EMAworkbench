@@ -1,7 +1,7 @@
 
 """
 Python model /Users/jhkwakkel/EMAworkbench/src/test/test_connectors/../models/Sales_Agent_Market_Building_Dynamics.py
-Translated using PySD version 0.6.3
+Translated using PySD version 0.7.2
 """
 from __future__ import division
 import numpy as np
@@ -44,11 +44,13 @@ _namespace = {
     'FINAL TIME': 'final_time',
     'Tier 1 Referrals': 'tier_1_referrals',
     'Fraction of Effort for Sales': 'fraction_of_effort_for_sales',
+    'Tenure': 'tenure',
     'Tier 2 Income': 'tier_2_income',
     'Tier 1 Lead Aquisition': 'tier_1_lead_aquisition',
     'Tier 1 Clients': 'tier_1_clients',
     'Effort Devoted to Tier 2 Leads': 'effort_devoted_to_tier_2_leads',
     'Startup Subsidy Length': 'startup_subsidy_length',
+    'Tier 1 Income': 'tier_1_income',
     'Tier 2 Referrals': 'tier_2_referrals',
     'Down Referral Fraction': 'down_referral_fraction',
     'Referrals from Tier 2 Clients': 'referrals_from_tier_2_clients',
@@ -56,7 +58,7 @@ _namespace = {
     'Tier 1 Sales': 'tier_1_sales',
     'Tier 2 Sales': 'tier_2_sales',
     'Months of Buffer': 'months_of_buffer',
-    'Tenure': 'tenure',
+    'Time': 'time',
     'Success Rate': 'success_rate',
     'Minimum Time to Make a Sale': 'minimum_time_to_make_a_sale',
     'Effort Devoted to Tier 1 Leads': 'effort_devoted_to_tier_1_leads',
@@ -69,21 +71,16 @@ _namespace = {
     'Still Employed': 'still_employed',
     'SAVEPER': 'saveper',
     'Tier 1 Referrals from Tier 2': 'tier_1_referrals_from_tier_2',
-    'Tier 1 Income': 'tier_1_income',
+    'TIME': 'time',
     'Up Referral Fraction': 'up_referral_fraction',
     'Accumulating Sales': 'accumulating_sales',
     'Tier 1 Client Turnover': 'tier_1_client_turnover'}
 
 
-def _init_tenure():
-    """
-    Implicit
-    --------
-    (_init_tenure)
-    See docs for tenure
-    Provides initial conditions for tenure function
-    """
-    return 0
+integ_tier_2_clients = functions.Integ(
+    lambda: tier_2_sales() -
+    tier_2_client_turnover(),
+    lambda: 0)
 
 
 @cache('run')
@@ -99,16 +96,7 @@ def startup_subsidy():
     return 0.75
 
 
-@cache('step')
-def _dtier_1_clients_dt():
-    """
-    Implicit
-    --------
-    (_dtier_1_clients_dt)
-    See docs for tier_1_clients
-    Provides derivative for tier_1_clients function
-    """
-    return tier_1_sales() - tier_1_client_turnover()
+integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), lambda: 0)
 
 
 @cache('run')
@@ -132,19 +120,7 @@ def total_cumulative_sales():
     Persons
 
     """
-    return _state['total_cumulative_sales']
-
-
-@cache('step')
-def _dtier_2_leads_dt():
-    """
-    Implicit
-    --------
-    (_dtier_2_leads_dt)
-    See docs for tier_2_leads
-    Provides derivative for tier_2_leads function
-    """
-    return tier_2_lead_aquisition() + tier_2_sales() - tier_2_leads_going_stale()
+    return integ_total_cumulative_sales()
 
 
 @cache('step')
@@ -175,6 +151,9 @@ def startup_subsidy_length():
     return 3
 
 
+integ_total_cumulative_sales = functions.Integ(lambda: accumulating_sales(), lambda: 0)
+
+
 @cache('step')
 def tier_2_clients():
     """
@@ -185,7 +164,7 @@ def tier_2_clients():
     These are active clients who provide a regular level of return to the
                 company.
     """
-    return _state['tier_2_clients']
+    return integ_tier_2_clients()
 
 
 @cache('run')
@@ -292,17 +271,6 @@ def sales_effort_available():
     return fraction_of_effort_for_sales() * total_effort_available() * still_employed()
 
 
-def _init_months_of_buffer():
-    """
-    Implicit
-    --------
-    (_init_months_of_buffer)
-    See docs for months_of_buffer
-    Provides initial conditions for months_of_buffer function
-    """
-    return initial_buffer()
-
-
 @cache('run')
 def fraction_of_effort_for_sales():
     """
@@ -327,6 +295,9 @@ def tier_2_lead_aquisition():
     How many new tier 2 leads does an agent net?
     """
     return qualification_rate() * (tier_2_referrals() + tier_2_referrals_from_tier_1())
+
+
+integ_tenure = functions.Integ(lambda: accumulating_tenure(), lambda: 0)
 
 
 @cache('step')
@@ -367,30 +338,6 @@ def down_referral_fraction():
 
 
 @cache('step')
-def _dmonths_of_buffer_dt():
-    """
-    Implicit
-    --------
-    (_dmonths_of_buffer_dt)
-    See docs for months_of_buffer
-    Provides derivative for months_of_buffer function
-    """
-    return income() - expenses()
-
-
-@cache('step')
-def _dtier_1_leads_dt():
-    """
-    Implicit
-    --------
-    (_dtier_1_leads_dt)
-    See docs for tier_1_leads
-    Provides derivative for tier_1_leads function
-    """
-    return tier_1_lead_aquisition() + tier_1_sales() - tier_1_leads_going_stale()
-
-
-@cache('step')
 def accumulating_income():
     """
     Accumulating Income
@@ -413,17 +360,6 @@ def time_per_client_meeting():
                 relationship/accounts, and soliciting referrals, in one sitting.
     """
     return 1
-
-
-def _init_total_cumulative_income():
-    """
-    Implicit
-    --------
-    (_init_total_cumulative_income)
-    See docs for total_cumulative_income
-    Provides initial conditions for total_cumulative_income function
-    """
-    return 0
 
 
 @cache('run')
@@ -500,7 +436,7 @@ def months_of_buffer():
     This is the stock at any given time of the money in the bank, or remaining
                 familial goodwill, etc.
     """
-    return _state['months_of_buffer']
+    return integ_months_of_buffer()
 
 
 @cache('step')
@@ -581,27 +517,7 @@ def tier_2_income():
     return months_of_expenses_per_tier_2_sale() * tier_2_sales()
 
 
-def _init_tier_1_clients():
-    """
-    Implicit
-    --------
-    (_init_tier_1_clients)
-    See docs for tier_1_clients
-    Provides initial conditions for tier_1_clients function
-    """
-    return 0
-
-
-@cache('step')
-def _dtier_2_clients_dt():
-    """
-    Implicit
-    --------
-    (_dtier_2_clients_dt)
-    See docs for tier_2_clients
-    Provides derivative for tier_2_clients function
-    """
-    return tier_2_sales() - tier_2_client_turnover()
+integ_months_of_buffer = functions.Integ(lambda: income() - expenses(), lambda: initial_buffer())
 
 
 @cache('step')
@@ -629,25 +545,13 @@ def tier_1_leads():
                 to clients, they will have a regular level of return for the company.				We initialize to 100 because agents begin their sales careers with a list
                 of 200 friends and family, about 50% of whom they might contact.
     """
-    return _state['tier_1_leads']
-
-
-@cache('step')
-def _dtotal_cumulative_income_dt():
-    """
-    Implicit
-    --------
-    (_dtotal_cumulative_income_dt)
-    See docs for total_cumulative_income
-    Provides derivative for total_cumulative_income function
-    """
-    return accumulating_income()
+    return integ_tier_1_leads()
 
 
 @cache('step')
 def time():
     """
-    Time
+    TIME
     ----
     (time)
     None
@@ -737,16 +641,11 @@ def accumulating_tenure():
     return still_employed()
 
 
-@cache('step')
-def _dtenure_dt():
-    """
-    Implicit
-    --------
-    (_dtenure_dt)
-    See docs for tenure
-    Provides derivative for tenure function
-    """
-    return accumulating_tenure()
+integ_tier_2_leads = functions.Integ(
+    lambda: tier_2_lead_aquisition() +
+    tier_2_sales() -
+    tier_2_leads_going_stale(),
+    lambda: 0)
 
 
 @cache('step')
@@ -772,7 +671,7 @@ def tier_1_clients():
     These are active clients who provide a regular level of return to the
                 company.
     """
-    return _state['tier_1_clients']
+    return integ_tier_1_clients()
 
 
 @cache('step')
@@ -803,15 +702,10 @@ def client_lifetime():
     return 120
 
 
-def _init_total_cumulative_sales():
-    """
-    Implicit
-    --------
-    (_init_total_cumulative_sales)
-    See docs for total_cumulative_sales
-    Provides initial conditions for total_cumulative_sales function
-    """
-    return 0
+integ_tier_1_clients = functions.Integ(
+    lambda: tier_1_sales() -
+    tier_1_client_turnover(),
+    lambda: 0)
 
 
 @cache('step')
@@ -827,18 +721,6 @@ def effort_remaining_after_servicing_existing_clients():
     return np.maximum(sales_effort_available() -
                       (effort_devoted_to_tier_1_clients() +
                        effort_devoted_to_tier_2_clients()), 0)
-
-
-@cache('step')
-def _dtotal_cumulative_sales_dt():
-    """
-    Implicit
-    --------
-    (_dtotal_cumulative_sales_dt)
-    See docs for total_cumulative_sales
-    Provides derivative for total_cumulative_sales function
-    """
-    return accumulating_sales()
 
 
 @cache('run')
@@ -896,17 +778,6 @@ def frequency_of_meetings():
     return 1 / 12
 
 
-def _init_tier_2_leads():
-    """
-    Implicit
-    --------
-    (_init_tier_2_leads)
-    See docs for tier_2_leads
-    Provides initial conditions for tier_2_leads function
-    """
-    return 0
-
-
 @cache('step')
 def tier_2_leads():
     """
@@ -919,7 +790,7 @@ def tier_2_leads():
                 converted to clients, they will have a regular level of return for the
                 company.
     """
-    return _state['tier_2_leads']
+    return integ_tier_2_leads()
 
 
 @cache('step')
@@ -943,18 +814,7 @@ def total_cumulative_income():
     Months
 
     """
-    return _state['total_cumulative_income']
-
-
-def _init_tier_2_clients():
-    """
-    Implicit
-    --------
-    (_init_tier_2_clients)
-    See docs for tier_2_clients
-    Provides initial conditions for tier_2_clients function
-    """
-    return 0
+    return integ_total_cumulative_income()
 
 
 @cache('run')
@@ -970,17 +830,6 @@ def lead_shelf_life():
     return 3
 
 
-def _init_tier_1_leads():
-    """
-    Implicit
-    --------
-    (_init_tier_1_leads)
-    See docs for tier_1_leads
-    Provides initial conditions for tier_1_leads function
-    """
-    return 100
-
-
 @cache('step')
 def tenure():
     """
@@ -990,7 +839,7 @@ def tenure():
     Months
 
     """
-    return _state['tenure']
+    return integ_tenure()
 
 
 @cache('step')
@@ -1044,7 +893,14 @@ def initial_time():
     return 0
 
 
+integ_tier_1_leads = functions.Integ(
+    lambda: tier_1_lead_aquisition() +
+    tier_1_sales() -
+    tier_1_leads_going_stale(),
+    lambda: 100)
+
+
 def time():
     return _t
 functions.time = time
-functions.initial_time = initial_time
+functions._stage = lambda: _stage
