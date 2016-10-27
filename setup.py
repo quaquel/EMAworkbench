@@ -1,4 +1,4 @@
-from __future__ import (unicode_literals, print_function, absolute_import)
+from __future__ import (print_function, absolute_import)
 
 from setuptools import setup, find_packages
 
@@ -9,7 +9,8 @@ setup(
     version='0.1.1dev',
     author='Jan Kwakkel',
     author_email='j.h.kwakkel@tudelft',
-    packages=find_packages(exclude=['ez_setup']),
+    packages=find_packages('./src', exclude=['test', 'test.*', 'examples']),
+    package_dir={'':'./src'},
     url='https://github.com/quaquel/EMAworkbench',
     license='GNU General Public License',
     description='exploratory modelling in Python',
