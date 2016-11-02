@@ -90,7 +90,10 @@ class ExperimentRunner(object):
         except CaseError as e:
             ema_logging.warning(str(e))
         except Exception as e:
-            self.cleanup()
+            try:
+                self.cleanup()
+            except Exception:
+                pass
             raise EMAError(("exception in run_model"
                    "\nCaused by: {}: {}".format(type(e).__name__, str(e))))
             

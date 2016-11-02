@@ -74,7 +74,7 @@ class NetLogoModel(FileModel):
         self.run_length = None
        
     
-    def model_init(self, policy, kwargs):
+    def model_init(self, policy):
         '''
         Method called to initialize the model.
         
@@ -88,7 +88,7 @@ class NetLogoModel(FileModel):
                  arguments. 
         
         '''
-        super(NetLogoModel, self).model_init(policy, kwargs)
+        super(NetLogoModel, self).model_init(policy)
         
         self.netlogo = pyNetLogo.NetLogoLink()
         debug("netlogo started")
