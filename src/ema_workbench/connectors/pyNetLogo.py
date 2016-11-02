@@ -26,7 +26,7 @@ if sys.platform=='win32':
 elif sys.platform=='darwin':
     jar_separator = ":" # jars are separated by a : on MacOS    
 #     NETLOGO_HOME = r'/Applications/NetLogo 5.1.0'
-    NETLOGO_HOME = r'/Applications/NetLogo 5.3'
+    NETLOGO_HOME = r'/Applications/NetLogo 5.1'
 else:
     # TODO should raise and exception which is subsequently cached and
     # transformed into a a warning just like excel and vensim
@@ -71,7 +71,7 @@ class NetLogoLink():
                     NETLOGO_HOME + '/Java/jogl-1.1.1.jar',
                     NETLOGO_HOME + '/Java/gluegen-rt-1.1.1.jar',
                     NETLOGO_HOME + '/Java/NetLogo.jar',
-                    PYNETLOGO_HOME + '/external_files/netlogoLink.jar']
+                    PYNETLOGO_HOME + '/external_files/NetLogo.jar']
             
             # format jars in right format for starting java virtual machine
             # TODO the use of the jre here is only relevant under windows 
@@ -81,7 +81,8 @@ class NetLogoLink():
             joined_jars = jar_separator.join(jars)
             jarpath = '-Djava.class.path={}'.format(joined_jars)
             
-            jvm_handle = jpype.getDefaultJVMPath() 
+#             jvm_handle = jpype.getDefaultJVMPath() 
+            jvm_handle = '/Library/Java/JavaVirtualMachines/jdk1.7.0_75.jdk/Contents/Home/jre/lib/server/libjvm.dylib'
             
             debug('trying to start java')
             debug(jvm_handle)
@@ -96,7 +97,7 @@ class NetLogoLink():
             
             
         
-        link = jpype.JClass('netlogoLink.NetLogoLink')
+        link = jpype.JClass('NetLogo.NetLogoLink')
         debug('NetLogoLink class found')
 
         if sys.platform == 'darwin' and gui:

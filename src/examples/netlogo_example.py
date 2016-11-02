@@ -3,30 +3,30 @@ Created on 20 mrt. 2013
 
 @author: localadmin
 '''
+from __future__ import unicode_literals, absolute_import
 import matplotlib.pyplot as plt
 
 from ema_workbench.connectors.netlogo import NetLogoModel
 
-from ema_workbench.em_framework import (ParameterUncertainty, 
-                                        CategoricalUncertainty, 
-                                        TimeSeriesOutcome,
-                                        ModelEnsemble)
+from ema_workbench.em_framework import (TimeSeriesOutcome,CategoricalParameter,
+                                        ModelEnsemble, RealParameter)
 from ema_workbench.util import ema_logging
 from ema_workbench.analysis import plotting, plotting_util
+from ema_workbench.em_framework.parameters import CategoricalParameter
 
 if __name__ == '__main__':
     
     model = NetLogoModel('predprey', 
-                                   wd="./models/predatorPreyNetlogo", 
-                                   model_file="/Wolf Sheep Predation.nlogo")
+                          wd="./models/predatorPreyNetlogo", 
+                          model_file="Wolf Sheep Predation.nlogo")
     model.run_length = 1000
     
-    model.uncertainties = [ParameterUncertainty((1, 99), "grass-regrowth-time"),
-                     ParameterUncertainty((1, 250), "initial-number-sheep"),
-                     ParameterUncertainty((1, 250), "initial-number-wolves"),
-                     ParameterUncertainty((1, 20), "sheep-reproduce"),
-                     ParameterUncertainty((1, 20), "wolf-reproduce"),
-                     CategoricalUncertainty(("true", "true"), "grass?") 
+    model.uncertainties = [RealParameter("grass-regrowth-time", 1, 99),
+                           RealParameter("initial-number-sheep", 1, 250),
+                           RealParameter("initial-number-wolves", 1, 250),
+                           RealParameter("sheep-reproduce", 1, 20),
+                           RealParameter("wolf-reproduce", 1, 20),
+                           CategoricalParameter("grass?", ("true", "false")) 
                      ]
     
     model.outcomes = [TimeSeriesOutcome('sheep'),
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     ensemble.model_structures = model
     
     #run in parallel, if not set, FALSE is assumed
-    ensemble.parallel = True
+#     ensemble.parallel = True
     ensemble.processes = 2
     
     #perform experiments
