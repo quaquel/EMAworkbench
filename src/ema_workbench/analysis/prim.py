@@ -29,6 +29,7 @@ import pandas as pd
 import six
 from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
 from scipy.stats import binom
+from ema_workbench.analysis import scenario_discovery_util
 
 try:
     import mpld3
@@ -36,7 +37,7 @@ except ImportError:
     global mpld3
     mpdl3 = None
 
-from .plotting_util import make_legend
+from .plotting_util import make_legend, COLOR_LIST
 from ..util import info, debug, EMAError
 
 # from . import pairs_plotting
@@ -321,14 +322,14 @@ class PrimBox(object):
         norm_box_lim =  sdutil._normalize(box_lim, box_lim_init, uncs)
         
         fig, ax = sdutil._setup_figure(uncs)
-
+        color = COLOR_LIST[0]
         for j, u in enumerate(uncs):
             # we want to have the most restricted dimension
             # at the top of the figure
             xj = len(uncs) - j - 1
 
             self.prim._plot_unc(box_lim_init, xj, j, 0, norm_box_lim, box_lim, 
-                                u, ax)
+                                u, ax, color)
 
             # new part
             dtype = box_lim_init[u].dtype
