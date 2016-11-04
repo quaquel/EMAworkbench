@@ -354,6 +354,7 @@ class OutputFormatterMixin(object):
                         
         if together:
             fig, ax = _setup_figure(uncs)
+            color = next(COLOR_LIST)
             
             for i, u in enumerate(uncs):
                 # we want to have the most restricted dimension
@@ -362,25 +363,26 @@ class OutputFormatterMixin(object):
                 
                 for j, norm_box_lim in enumerate(norm_box_lims):
                     self._plot_unc(box_init, xi, i, j, norm_box_lim,
-                                   box_lims[j], u, ax)
+                                   box_lims[j], u, ax, color)
            
             plt.tight_layout()
             return fig
         else:
             figs = []
+            color = next(COLOR_LIST)
             for j, norm_box_lim in enumerate(norm_box_lims):
                 fig, ax = _setup_figure(uncs)
                 figs.append(fig)
                 for i, u in enumerate(uncs):
                     xi = len(uncs) - i - 1
                     self._plot_unc(box_init, xi, i, j, norm_box_lim, 
-                                   box_lims[j], u, ax)
+                                   box_lims[j], u, ax, color)
         
                 plt.tight_layout()
             return figs
     
     @staticmethod  
-    def _plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax):
+    def _plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color):
         '''
         
         Parameters:
@@ -411,11 +413,11 @@ class OutputFormatterMixin(object):
             x = [entry/max_value for entry in x]
             y = [y] * len(x)
             
-            ax.scatter(x,y,  edgecolor=next(COLOR_LIST),
-                       facecolor=next(COLOR_LIST))
+            ax.scatter(x,y,  edgecolor=color,
+                       facecolor=color)
             
         else:
             ax.plot(norm_box_lim[i], (y, y),
-                    c=next(COLOR_LIST))
+                    c=color)
         
         

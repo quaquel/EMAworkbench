@@ -330,9 +330,15 @@ class Model(AbstractModel):
         # different connectors can than implement only this
         # get method
         results  = {}
-        for variable in self.outcome_variables:
-            results[variable] = model_output[variable]
-                    
+        for i, variable in enumerate(self.outcome_variables):
+            try:
+                value = model_output[variable]
+            except KeyError:
+                ema_logging.warning(variable +' not found in model output')
+                value  = None
+            except TypeError:
+                value = model_output[i]
+            results[variable] = value
         self.output = results
 
 class FileModel(AbstractModel):

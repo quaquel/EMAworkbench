@@ -14,8 +14,7 @@ import warnings
 
 from ema_workbench.em_framework.util import NamedObject, Variable,\
     NamedObjectMap
-from ema_workbench.em_framework.util import NamedDict, NamedObjectMapDescriptor
-# from ema_workbench.em_framework.model import AbstractModel
+from ema_workbench.em_framework.util import NamedDict
 
 # Created on Jul 14, 2016
 #

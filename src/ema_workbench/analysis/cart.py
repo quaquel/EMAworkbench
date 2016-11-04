@@ -194,7 +194,8 @@ class CART(sdutil.OutputFormatterMixin):
                     except ValueError:
                         unc, cat = unc.split(self.sep)
                         cats = list(box[unc][0])
-                        cats.pop(cats.index(cat))
+                        cats = [str(cat) for cat in cats]
+                        cats.pop(cats.index(str(cat)))
                         box[unc][:]=set(cats)
                 else:
                     try:

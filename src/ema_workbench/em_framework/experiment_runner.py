@@ -7,6 +7,7 @@ from __future__ import (absolute_import, print_function, division,
 
 import copy
 import sys
+import traceback
 
 from ..util import ema_logging, EMAError, CaseError
 
@@ -94,6 +95,9 @@ class ExperimentRunner(object):
                 self.cleanup()
             except Exception:
                 pass
+            
+            traceback.print_exc()
+            
             raise EMAError(("exception in run_model"
                    "\nCaused by: {}: {}".format(type(e).__name__, str(e))))
             

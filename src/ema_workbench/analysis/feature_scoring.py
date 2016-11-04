@@ -32,7 +32,7 @@ from .scenario_discovery_util import CLASSIFICATION, REGRESSION
 
 __al__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2', 
           'get_univariate_feature_scores', 'get_rf_feature_scores',
-          'get_lasso_feature_scores']
+          'get_lasso_feature_scores', 'get_feature_scores_all']
 
 F_REGRESSION = f_regression
 
@@ -375,3 +375,45 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     importances = pd.DataFrame(importances)
 
     return importances, extra_trees
+
+algorithms = {'extra trees' : get_ex_feature_scores,
+              'lasso' : get_lasso_feature_scores,
+              'random forest' : get_rf_feature_scores,
+              'univariate' : get_univariate_feature_scores}
+
+def get_feature_scores_all(x, y, alg='extra trees', mode=REGRESSION,
+                   **kwargs):
+    '''perform feature scoring for all outcomes using the specified feature 
+    scoring algorithm
+    
+    Parameters
+    ----------
+    x : numpy structured array
+    y : dict of 1d numpy arrays
+        the outcomes, with a string as key, and a 1D array for each outcome
+    alg : {'extra trees', 'lasso', 'random forest', 'univariate'}, optional
+    mode : {REGRESSION, CLASSIFICATION}, optional
+    kwargs : dict, optional
+             any remaining keyword arguments will be passed to the specific
+             feature scoring algorithm
+    
+    Returns
+    -------
+    DataFrame instance
+    
+    
+    '''
+    complete = None
+    for key, value in y.items():
+        fs, _ = algorithms[alg](x,value,mode=mode, **kwargs)
+
+        fs = fs.rename(columns={1:key})
+        fs = fs.set_index(0)
+
+        if complete is None:
+            complete = fs.T
+        else:
+            complete = complete.append(fs.T)
+
+    return complete.T
+
