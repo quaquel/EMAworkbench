@@ -33,7 +33,7 @@ exploratory modeling aims at offering computational decision support for
 decision making under `deep uncertainty <http://inderscience.metapress.com/content/y77p3q512x475523/>`_ 
 and `Robust decision making <http://en.wikipedia.org/wiki/Robust_decision_making>`_.  
 
-The EMA workbench aimes at providing support for performing exploratory
+The EMA workbench aims at providing support for performing exploratory
 modeling with models developed in various modelling packages and environments. 
 Currently, the workbench offers connectors to 
 `Vensim <http://www.vensim.com/>`_, `Netlogo <http://ccl.northwestern.edu/netlogo/>`_, 
