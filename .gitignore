@@ -14,6 +14,7 @@ cover/
 *~.nib
 *.pyc
 *.cfg
+*.pypirc
 local.properties
 .classpath
 .settings/
