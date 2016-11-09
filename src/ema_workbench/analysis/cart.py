@@ -292,12 +292,15 @@ class CART(sdutil.OutputFormatterMixin):
     def show_tree(self):
         '''return a png of the tree'''
         assert self.clf
-        import pydot # dirty hack for read the docs
+        try:
+            import pydotplus as pydot
+        except ImportError:
+            import pydot # dirty hack for read the docs
 
         dot_data = StringIO() 
         tree.export_graphviz(self.clf, out_file=dot_data, 
                              feature_names=self.feature_names) 
-        graph = pydot.graph_from_dot_data(dot_data.getvalue().encode('ascii')) 
+        graph = pydot.graph_from_dot_data(dot_data.getvalue().encode('ascii'))  # @UndefinedVariable
         img = graph.create_png()
         return img
 

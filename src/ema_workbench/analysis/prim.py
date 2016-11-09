@@ -363,13 +363,13 @@ class PrimBox(object):
     
                 if not np.allclose(x, 0):
                     label = "{: .2g}".format(self.box_lims[i][u][0])
-                    ax.text(x-0.01, y, label, ha='right', va='center',
+                    ax.text(x, y-0.2, label, ha='center', va='center',
                            bbox=props, color='blue', fontweight='normal')
     
                 x = norm_box_lim[j][1]
                 if not np.allclose(x, 1):
                     label = "{: .2g}".format(self.box_lims[i][u][1])
-                    ax.text(x+0.01, y, label, ha='left', va='center',
+                    ax.text(x, y-0.2, label, ha='center', va='center',
                            bbox=props, color='blue', fontweight='normal')
 
                 # plot uncertainty space text labels
@@ -400,9 +400,9 @@ class PrimBox(object):
                     rowLabels=['coverage', 'density'],
                     colLabels=None,
                     loc='right',
-                    bbox=[1.1, 0.9, 0.1, 0.1])
+                    bbox=[1.2, 0.9, 0.1, 0.1])
         
-            plt.tight_layout()
+#             plt.tight_layout()
         return fig
         
     def select(self, i):

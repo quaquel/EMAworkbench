@@ -17,6 +17,6 @@ except ImportError:
 try:
     from pysd_connector import PysdModel
 except ImportError:
-    sys.stderr.write("PySD library not installed\n")
+    sys.stderr.write("pysdr connector not available\n")
 
 del sys
