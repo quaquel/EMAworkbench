@@ -66,7 +66,7 @@ def establish_version():
     version_match = re.search(r'^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)',
                               version_info)
 
-    return (group for group in version_match.groups())
+    return tuple((group for group in version_match.groups()))
 
 version_info = establish_version()
 version = '{}.{}'.format(*version_info[0:2])
