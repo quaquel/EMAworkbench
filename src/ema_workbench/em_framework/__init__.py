@@ -48,13 +48,6 @@ def perform_experiments(models, cases, policies=[Policy('None')],
     '''
     
     import numbers
-    if reporting_interval is None:
-        if not (isinstance(cases, numbers.Integral)):
-            n = cases.shape[0]
-        else:
-            n = cases
-        
-        reporting_interval = max(1, int(round(n / 10))) 
 
     ensemble = ModelEnsemble(sampler=SAMPLERS[sampling])
     ensemble.parallel = parallel
