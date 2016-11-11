@@ -125,7 +125,7 @@ class ModelEnsemble(object):
     def perform_experiments(self, 
                            cases,
                            callback=DefaultCallback,
-                           reporting_interval=100,
+                           reporting_interval=None,
                            uncertainty_union=False,
                            outcome_union=False,
                            **kwargs):
@@ -148,7 +148,8 @@ class ModelEnsemble(object):
         reporting_interval : int, optional
                              parameter for specifying the frequency with
                              which the callback reports the progress.
-                             (Default is 100) 
+                             If none is provided, it defaults to 1/10 of 
+                             the total number of scenarios.
         uncertainty_union : bool, optional
                               keyword argument for controlling whether,
                               in case of multiple model structure 
@@ -228,7 +229,10 @@ class ModelEnsemble(object):
         nr_of_exp = nr_of_scenarios * len(self.model_structures) * len(self.policies)
         
         info(str(nr_of_exp) + " experiment will be executed")
-                
+
+        if reporting_interval is None:
+            reporting_interval = max(1, int(round(nr_of_scenarios / 10))) 
+
         #initialize the callback object
         callback = callback(uncertainties, 
                             levers,
