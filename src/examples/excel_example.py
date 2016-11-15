@@ -16,20 +16,20 @@ from __future__ import (division, print_function, absolute_import,
 from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome, 
                                         perform_experiments)
 from ema_workbench.util import ema_logging
-from ema_workbench.connectors.excel import ExcelModelStructureInterface
+from ema_workbench.connectors.excel import ExcelModel
 
 
 if __name__ == "__main__":    
     ema_logging.log_to_stderr(level=ema_logging.DEBUG)
     
-    model = ExcelModelStructureInterface("predatorPrey", r"./models/excelModel",
-                                         model_file=r'/excel example.xlsx')
+    model = ExcelModel("predatorPrey", wd="./models/excelModel",
+                      model_file='/excel example.xlsx')
     model.uncertainties = [RealParameter("K2", 0.01, 0.2), #we can refer to a cell in the normal way
-                     RealParameter("KKK", 450,550), # we can also use named cells
-                     RealParameter("rP", 0.05,0.15),
-                     RealParameter("aaa", 0.00001,0.25),
-                     RealParameter("tH", 0.45,0.55),
-                     RealParameter("kk", 0.1,0.3)]
+                           RealParameter("KKK", 450,550), # we can also use named cells
+                           RealParameter("rP", 0.05,0.15),
+                           RealParameter("aaa", 0.00001,0.25),
+                           RealParameter("tH", 0.45,0.55),
+                           RealParameter("kk", 0.1,0.3)]
     
     #specification of the outcomes
     model.outcomes = [TimeSeriesOutcome("B4:B1076"),  #we can refer to a range in the normal way
