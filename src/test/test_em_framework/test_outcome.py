@@ -32,8 +32,6 @@ class TestScalarOutcome(unittest.TestCase):
         self.assertEqual(outcome.name, name)
         self.assertEqual(outcome.variable_name, [var_name])
         self.assertIsNone(outcome.function)
-        self.assertEqual(repr(outcome), self.outcome_klass+'(\'test\', variable_name=[\'something else\'])')
-
 
         name = 'test'
         var_name = 'something else'
