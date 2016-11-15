@@ -24,7 +24,7 @@ from ..em_framework.model import FileModel
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-class ExcelModelStructureInterface(FileModel):
+class ExcelModel(FileModel):
     '''
     
     Base class for connecting the EMA workbench to models in Excel. To 
@@ -40,8 +40,7 @@ class ExcelModelStructureInterface(FileModel):
     com_warning_msg = "com error: no cell(s) named %s found"
     
     def __init__(self, name, wd=None, model_file=None):
-        super(ExcelModelStructureInterface, self).__init__(name, wd=wd, 
-                                                           model_file=model_file)
+        super(ExcelModel, self).__init__(name, wd=wd, model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
         self.xl = None
