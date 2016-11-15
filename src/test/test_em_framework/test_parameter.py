@@ -8,8 +8,9 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 from ema_workbench.em_framework import parameters
 
 import unittest
+import mock
+
 from ema_workbench.em_framework.outcomes import create_outcomes
-from pandas.util.testing import assertRaises
     
 class RealParameterTestCase(unittest.TestCase):
     def test_instantiation(self):
@@ -179,15 +180,26 @@ class CreateOutcomesTestCase(unittest.TestCase):
         for x, y in zip(outcome_list, outcomes):
             self.assertEqual(x['name'], y.name)
             
-        with assertRaises(ValueError):
+        with self.assertRaises(ValueError):
             outcome_list = [dict(type='unknown', name='a')]
             outcomes = create_outcomes(outcome_list)
         
-        with assertRaises(ValueError):
+        with self.assertRaises(ValueError):
             outcome_list = [dict(kind='unknown', name='a')]
             outcomes = create_outcomes(outcome_list)
 
-            
+class ParametersToCsvTestCase(unittest.TestCase):
+    @mock.patch('ema_workbench.em_framework.parameters.pandas')
+    def test(self, mock_pandas):
+        params = [parameters.RealParameter('a', 0.1, 1.5),
+                  parameters.IntegerParameter('b', 0, 10),
+                  parameters.CategoricalParameter('c', ['a', 'b'])]
+        
+        parameters.parameters_to_csv(params, 'a.csv')
+        
+        # TODO:: add assertions
+        mock_pandas.DataFrame.from_dict.assert_called()
+
 
 if __name__ == "__main__":
     unittest.main()
