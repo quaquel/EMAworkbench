@@ -14,223 +14,95 @@ from pysd import functions
 _subscript_dict = {}
 
 _namespace = {
-    'Qualification Rate': 'qualification_rate',
-    'Effort Required to Make a Sale': 'effort_required_to_make_a_sale',
-    'Accumulating Tenure': 'accumulating_tenure',
-    'Tier 2 Client Turnover': 'tier_2_client_turnover',
-    'Tier 2 Leads Going Stale': 'tier_2_leads_going_stale',
-    'Time per Client Meeting': 'time_per_client_meeting',
-    'TIME STEP': 'time_step',
-    'Total Cumulative Income': 'total_cumulative_income',
-    'Effort Devoted to Tier 1 Clients': 'effort_devoted_to_tier_1_clients',
-    'Referrals from Tier 1 Clients': 'referrals_from_tier_1_clients',
-    'Months of Expenses per Tier 2 Sale': 'months_of_expenses_per_tier_2_sale',
-    'Tier 1 Leads': 'tier_1_leads',
-    'Lead Shelf Life': 'lead_shelf_life',
-    'Tier 2 Lead Aquisition': 'tier_2_lead_aquisition',
-    'Months of Expenses per Tier 1 Sale': 'months_of_expenses_per_tier_1_sale',
-    'Income': 'income',
-    'Frequency of Meetings': 'frequency_of_meetings',
-    'Initial Buffer': 'initial_buffer',
     'Tier 1 Leads Going Stale': 'tier_1_leads_going_stale',
-    'Effort Devoted to Tier 2 Clients': 'effort_devoted_to_tier_2_clients',
-    'Effort Remaining after Servicing Tier 2 Leads': 'effort_remaining_after_servicing_tier_2_leads',
-    'INITIAL TIME': 'initial_time',
-    'Referrals per meeting': 'referrals_per_meeting',
-    'Client Lifetime': 'client_lifetime',
-    'Total Effort Available': 'total_effort_available',
     'Sales Effort Available': 'sales_effort_available',
-    'Tier 2 Referrals from Tier 1': 'tier_2_referrals_from_tier_1',
-    'FINAL TIME': 'final_time',
-    'Tier 1 Referrals': 'tier_1_referrals',
-    'Fraction of Effort for Sales': 'fraction_of_effort_for_sales',
-    'Tenure': 'tenure',
-    'Tier 2 Income': 'tier_2_income',
-    'Tier 1 Lead Aquisition': 'tier_1_lead_aquisition',
-    'Tier 1 Clients': 'tier_1_clients',
-    'Effort Devoted to Tier 2 Leads': 'effort_devoted_to_tier_2_leads',
-    'Startup Subsidy Length': 'startup_subsidy_length',
-    'Tier 1 Income': 'tier_1_income',
-    'Tier 2 Referrals': 'tier_2_referrals',
-    'Down Referral Fraction': 'down_referral_fraction',
-    'Referrals from Tier 2 Clients': 'referrals_from_tier_2_clients',
-    'Tier 2 Clients': 'tier_2_clients',
-    'Tier 1 Sales': 'tier_1_sales',
     'Tier 2 Sales': 'tier_2_sales',
-    'Months of Buffer': 'months_of_buffer',
+    'Effort Remaining after Servicing Tier 2 Leads': 'effort_remaining_after_servicing_tier_2_leads',
+    'Tier 2 Referrals from Tier 1': 'tier_2_referrals_from_tier_1',
+    'Tier 2 Lead Aquisition': 'tier_2_lead_aquisition',
+    'Effort Devoted to Tier 2 Clients': 'effort_devoted_to_tier_2_clients',
+    'Effort Devoted to Tier 2 Leads': 'effort_devoted_to_tier_2_leads',
+    'Initial Buffer': 'initial_buffer',
     'Time': 'time',
-    'Success Rate': 'success_rate',
-    'Minimum Time to Make a Sale': 'minimum_time_to_make_a_sale',
-    'Effort Devoted to Tier 1 Leads': 'effort_devoted_to_tier_1_leads',
-    'Tier 2 Leads': 'tier_2_leads',
-    'Total Cumulative Sales': 'total_cumulative_sales',
-    'Startup Subsidy': 'startup_subsidy',
-    'Effort Remaining after Servicing Existing Clients': 'effort_remaining_after_servicing_existing_clients',
-    'Accumulating Income': 'accumulating_income',
-    'Expenses': 'expenses',
-    'Still Employed': 'still_employed',
-    'SAVEPER': 'saveper',
-    'Tier 1 Referrals from Tier 2': 'tier_1_referrals_from_tier_2',
+    'Lead Shelf Life': 'lead_shelf_life',
     'TIME': 'time',
-    'Up Referral Fraction': 'up_referral_fraction',
+    'Tier 1 Client Turnover': 'tier_1_client_turnover',
+    'Tenure': 'tenure',
+    'Tier 1 Clients': 'tier_1_clients',
+    'INITIAL TIME': 'initial_time',
+    'Tier 1 Leads': 'tier_1_leads',
+    'Accumulating Tenure': 'accumulating_tenure',
+    'Down Referral Fraction': 'down_referral_fraction',
+    'Months of Expenses per Tier 1 Sale': 'months_of_expenses_per_tier_1_sale',
+    'Tier 1 Lead Aquisition': 'tier_1_lead_aquisition',
+    'Tier 1 Referrals from Tier 2': 'tier_1_referrals_from_tier_2',
+    'Total Cumulative Income': 'total_cumulative_income',
+    'Still Employed': 'still_employed',
+    'Startup Subsidy': 'startup_subsidy',
+    'FINAL TIME': 'final_time',
+    'Tier 2 Leads': 'tier_2_leads',
+    'Effort Required to Make a Sale': 'effort_required_to_make_a_sale',
+    'Startup Subsidy Length': 'startup_subsidy_length',
+    'Months of Buffer': 'months_of_buffer',
+    'Tier 2 Client Turnover': 'tier_2_client_turnover',
+    'Client Lifetime': 'client_lifetime',
+    'Tier 2 Referrals': 'tier_2_referrals',
+    'Total Cumulative Sales': 'total_cumulative_sales',
+    'Referrals per meeting': 'referrals_per_meeting',
+    'Minimum Time to Make a Sale': 'minimum_time_to_make_a_sale',
+    'Tier 2 Leads Going Stale': 'tier_2_leads_going_stale',
+    'Total Effort Available': 'total_effort_available',
+    'Tier 2 Clients': 'tier_2_clients',
+    'Success Rate': 'success_rate',
+    'Fraction of Effort for Sales': 'fraction_of_effort_for_sales',
     'Accumulating Sales': 'accumulating_sales',
-    'Tier 1 Client Turnover': 'tier_1_client_turnover'}
-
-
-integ_tier_2_clients = functions.Integ(
-    lambda: tier_2_sales() -
-    tier_2_client_turnover(),
-    lambda: 0)
-
-
-@cache('run')
-def startup_subsidy():
-    """
-    Startup Subsidy
-    ---------------
-    (startup_subsidy)
-    Months/Month [0,1,0.1]
-    How much does an agent recieve each month from his sales manager to help
-                defer his expenses, in units of months of expenses?
-    """
-    return 0.75
-
-
-integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), lambda: 0)
-
-
-@cache('run')
-def final_time():
-    """
-    FINAL TIME
-    ----------
-    (final_time)
-    Month
-    The final time for the simulation.
-    """
-    return 200
+    'Effort Devoted to Tier 1 Leads': 'effort_devoted_to_tier_1_leads',
+    'Referrals from Tier 2 Clients': 'referrals_from_tier_2_clients',
+    'Expenses': 'expenses',
+    'Accumulating Income': 'accumulating_income',
+    'Effort Remaining after Servicing Existing Clients': 'effort_remaining_after_servicing_existing_clients',
+    'SAVEPER': 'saveper',
+    'Effort Devoted to Tier 1 Clients': 'effort_devoted_to_tier_1_clients',
+    'Qualification Rate': 'qualification_rate',
+    'Income': 'income',
+    'TIME STEP': 'time_step',
+    'Tier 1 Referrals': 'tier_1_referrals',
+    'Frequency of Meetings': 'frequency_of_meetings',
+    'Tier 1 Income': 'tier_1_income',
+    'Tier 1 Sales': 'tier_1_sales',
+    'Tier 2 Income': 'tier_2_income',
+    'Referrals from Tier 1 Clients': 'referrals_from_tier_1_clients',
+    'Time per Client Meeting': 'time_per_client_meeting',
+    'Up Referral Fraction': 'up_referral_fraction',
+    'Months of Expenses per Tier 2 Sale': 'months_of_expenses_per_tier_2_sale'}
 
 
 @cache('step')
-def total_cumulative_sales():
+def effort_remaining_after_servicing_tier_2_leads():
     """
-    Total Cumulative Sales
-    ----------------------
-    (total_cumulative_sales)
-    Persons
-
-    """
-    return integ_total_cumulative_sales()
-
-
-@cache('step')
-def tier_1_sales():
-    """
-    Tier 1 Sales
-    ------------
-    (tier_1_sales)
-    Persons/Month
-    The rate at which Tier 1 leads become clients. This is limited either by
-                the effort of the agent, or the natural calendar time required to make a
-                sale.
-    """
-    return success_rate() * np.minimum(effort_devoted_to_tier_1_leads() /
-                                       effort_required_to_make_a_sale(),
-                                       tier_1_leads() / minimum_time_to_make_a_sale())
-
-
-@cache('run')
-def startup_subsidy_length():
-    """
-    Startup Subsidy Length
-    ----------------------
-    (startup_subsidy_length)
-    Months
-    How long does a sales agent recieve a subsidy for, before it is cut off?
-    """
-    return 3
-
-
-integ_total_cumulative_sales = functions.Integ(lambda: accumulating_sales(), lambda: 0)
-
-
-@cache('step')
-def tier_2_clients():
-    """
-    Tier 2 Clients
-    --------------
-    (tier_2_clients)
-    Persons
-    These are active clients who provide a regular level of return to the
-                company.
-    """
-    return integ_tier_2_clients()
-
-
-@cache('run')
-def up_referral_fraction():
-    """
-    Up Referral Fraction
-    --------------------
-    (up_referral_fraction)
-    Dmnl
-    The likelihood that a referral from a tier 1 or tier 2 client will be to a
-                lead of the tier above them.
-    """
-    return 0.15
-
-
-@cache('run')
-def expenses():
-    """
-    Expenses
-    --------
-    (expenses)
-    Months/Month
-    How many months of expenses are expended per month. This is a bit of a
-                tautology, but its the right way to account for the agents income and
-                spending while preserving their privacy.
-    """
-    return 1
-
-
-@cache('step')
-def tier_2_leads_going_stale():
-    """
-    Tier 2 Leads Going Stale
-    ------------------------
-    (tier_2_leads_going_stale)
-    Persons/Month
-    These are tier 2 leads that grow old before they are sold, and are unable
-                to be followed up on.
-    """
-    return tier_2_leads() / lead_shelf_life()
-
-
-@cache('run')
-def months_of_expenses_per_tier_1_sale():
-    """
-    Months of Expenses per Tier 1 Sale
-    ----------------------------------
-    (months_of_expenses_per_tier_1_sale)
-    Months/Person
-    Income from commission for a sale to a tier 1 lead. Measured in units of
-                months of expenses, to preserve agents privacy.
-    """
-    return 12 / 300
-
-
-@cache('step')
-def effort_devoted_to_tier_1_clients():
-    """
-    Effort Devoted to Tier 1 Clients
-    --------------------------------
-    (effort_devoted_to_tier_1_clients)
+    Effort Remaining after Servicing Tier 2 Leads
+    ---------------------------------------------
+    (effort_remaining_after_servicing_tier_2_leads)
     Hours/Month
-    How much time does the agent devote to meetings for maintenance and
-                soliciting referrals from Tier 1 Clients.
+    How much effort remains after higher priority sales and maintenance
+                activities are complete?
     """
-    return tier_1_clients() * time_per_client_meeting() * frequency_of_meetings()
+    return np.maximum(
+        effort_remaining_after_servicing_existing_clients() -
+        effort_devoted_to_tier_2_leads(),
+        0)
+
+
+@cache('step')
+def time():
+    """
+    TIME
+    ----
+    (time)
+    None
+    The time of the model
+    """
+    return _t
 
 
 @cache('run')
@@ -246,29 +118,40 @@ def time_step():
 
 
 @cache('step')
-def effort_devoted_to_tier_1_leads():
+def months_of_buffer():
     """
-    Effort Devoted to Tier 1 Leads
-    ------------------------------
-    (effort_devoted_to_tier_1_leads)
-    Hours/Month
-    This is the amount of time the agent spends with a tier 1 lead in a given
-                year, working to make a sale.
+    Months of Buffer
+    ----------------
+    (months_of_buffer)
+    Months
+    This is the stock at any given time of the money in the bank, or remaining
+                familial goodwill, etc.
     """
-    return effort_remaining_after_servicing_tier_2_leads()
+    return integ_months_of_buffer()
 
 
-@cache('step')
-def sales_effort_available():
+@cache('run')
+def startup_subsidy_length():
     """
-    Sales Effort Available
+    Startup Subsidy Length
     ----------------------
-    (sales_effort_available)
-    Hours/Month
-    How much total time per month can an agent actually spend in sales or
-                maintenance meetings?
+    (startup_subsidy_length)
+    Months
+    How long does a sales agent recieve a subsidy for, before it is cut off?
     """
-    return fraction_of_effort_for_sales() * total_effort_available() * still_employed()
+    return 3
+
+
+@cache('run')
+def client_lifetime():
+    """
+    Client Lifetime
+    ---------------
+    (client_lifetime)
+    Months
+    How long, on average, does a client remain with an agent?
+    """
+    return 120
 
 
 @cache('run')
@@ -285,197 +168,34 @@ def fraction_of_effort_for_sales():
     return 0.25
 
 
-@cache('step')
-def tier_2_lead_aquisition():
+@cache('run')
+def months_of_expenses_per_tier_1_sale():
     """
-    Tier 2 Lead Aquisition
-    ----------------------
-    (tier_2_lead_aquisition)
-    Persons/Month
-    How many new tier 2 leads does an agent net?
+    Months of Expenses per Tier 1 Sale
+    ----------------------------------
+    (months_of_expenses_per_tier_1_sale)
+    Months/Person
+    Income from commission for a sale to a tier 1 lead. Measured in units of
+                months of expenses, to preserve agents privacy.
     """
-    return qualification_rate() * (tier_2_referrals() + tier_2_referrals_from_tier_1())
-
-
-integ_tenure = functions.Integ(lambda: accumulating_tenure(), lambda: 0)
+    return 12 / 300
 
 
 @cache('step')
-def tier_2_referrals():
+def effort_devoted_to_tier_2_leads():
     """
-    Tier 2 Referrals
-    ----------------
-    (tier_2_referrals)
-    Referrals/Month
-    This is the number of Tier 2 leads that are aquired through referrals from
-                any tier client.
-    """
-    return referrals_from_tier_2_clients() * (1 - down_referral_fraction())
-
-
-@cache('run')
-def total_effort_available():
-    """
-    Total Effort Available
-    ----------------------
-    (total_effort_available)
-    Hours/Month
-    This is the total number of hours the agent is willing to work in a month.
-    """
-    return 200
-
-
-@cache('run')
-def down_referral_fraction():
-    """
-    Down Referral Fraction
-    ----------------------
-    (down_referral_fraction)
-
-
-    """
-    return 0.2
-
-
-@cache('step')
-def accumulating_income():
-    """
-    Accumulating Income
-    -------------------
-    (accumulating_income)
-    Months/Month
-
-    """
-    return income()
-
-
-@cache('run')
-def time_per_client_meeting():
-    """
-    Time per Client Meeting
-    -----------------------
-    (time_per_client_meeting)
-    Hours/Meeting
-    This is the number of hours an agent spends with a client, maintaining the
-                relationship/accounts, and soliciting referrals, in one sitting.
-    """
-    return 1
-
-
-@cache('run')
-def effort_required_to_make_a_sale():
-    """
-    Effort Required to Make a Sale
+    Effort Devoted to Tier 2 Leads
     ------------------------------
-    (effort_required_to_make_a_sale)
-    Hours/Person [0,50]
-    This is the amount of time the agent must spend (on average) with a lead
-                (high or low value, for now) to make a sale.
+    (effort_devoted_to_tier_2_leads)
+    Hours/Month
+    This is the amount of time the agent spends with a tier 2 lead in a given
+                year, working to make a sale.
     """
-    return 4
-
-
-@cache('run')
-def success_rate():
-    """
-    Success Rate
-    ------------
-    (success_rate)
-    Dmnl
-    What is the likelihood that a given lead will become a client, if the
-                agent devotes the appropriate amount of attention to them?
-    """
-    return 0.2
-
-
-@cache('step')
-def tier_1_income():
-    """
-    Tier 1 Income
-    -------------
-    (tier_1_income)
-    Months/Month
-    This is the amount of money an agent makes from all commissions on Tier 1
-                Sales
-    """
-    return tier_1_sales() * months_of_expenses_per_tier_1_sale()
-
-
-@cache('run')
-def minimum_time_to_make_a_sale():
-    """
-    Minimum Time to Make a Sale
-    ---------------------------
-    (minimum_time_to_make_a_sale)
-    Months
-    What is the absolute minimum calendar time it would take to make a sale to
-                a person, even if you had all the hours in the day to devote to them?
-    """
-    return 1
-
-
-@cache('step')
-def saveper():
-    """
-    SAVEPER
-    -------
-    (saveper)
-    Month [0,?]
-    The frequency with which output is stored.
-    """
-    return time_step()
-
-
-@cache('step')
-def months_of_buffer():
-    """
-    Months of Buffer
-    ----------------
-    (months_of_buffer)
-    Months
-    This is the stock at any given time of the money in the bank, or remaining
-                familial goodwill, etc.
-    """
-    return integ_months_of_buffer()
-
-
-@cache('step')
-def tier_2_referrals_from_tier_1():
-    """
-    Tier 2 Referrals from Tier 1
-    ----------------------------
-    (tier_2_referrals_from_tier_1)
-    Referrals/Month
-    This is the number of Tier 2 leads that are aquired through referrals from
-                tier 1.
-    """
-    return referrals_from_tier_1_clients() * up_referral_fraction()
-
-
-@cache('step')
-def income():
-    """
-    Income
-    ------
-    (income)
-    Months/Month
-    The total income from commissions on sales to all tiers.
-    """
-    return tier_1_income() + tier_2_income() + functions.if_then_else(time()
-                                                                      < startup_subsidy_length(), startup_subsidy(), 0)
-
-
-@cache('step')
-def tier_1_referrals_from_tier_2():
-    """
-    Tier 1 Referrals from Tier 2
-    ----------------------------
-    (tier_1_referrals_from_tier_2)
-    Referrals/Month
-    This is the number of Tier 1 leads that are aquired through referrals from
-                tier 2.
-    """
-    return referrals_from_tier_2_clients() * down_referral_fraction()
+    return np.minimum(
+        effort_remaining_after_servicing_existing_clients(),
+        effort_required_to_make_a_sale() *
+        tier_2_leads() /
+        minimum_time_to_make_a_sale())
 
 
 @cache('step')
@@ -492,32 +212,71 @@ def tier_1_referrals():
 
 
 @cache('run')
-def months_of_expenses_per_tier_2_sale():
+def frequency_of_meetings():
     """
-    Months of Expenses per Tier 2 Sale
-    ----------------------------------
-    (months_of_expenses_per_tier_2_sale)
-    Months/Person
-    Income from commission for a sale to a tier 2 lead. Measured in units of
-                months of expenses, to preserve agents privacy.
+    Frequency of Meetings
+    ---------------------
+    (frequency_of_meetings)
+    Meetings/Month/Person
+    How many maintenance meetings does the agent have with each client in a
+                month?
     """
-    return 12 / 30
+    return 1 / 12
+
+
+@cache('run')
+def lead_shelf_life():
+    """
+    Lead Shelf Life
+    ---------------
+    (lead_shelf_life)
+    Months
+    After a certain amount of time, leads go stale. It gets awkward to keep
+                interacting with them, and you're better off moving on. How long is that?
+    """
+    return 3
 
 
 @cache('step')
-def tier_2_income():
+def tier_2_clients():
     """
-    Tier 2 Income
-    -------------
-    (tier_2_income)
-    Months/Month
-    This is the amount of money an agent makes from all commissions on Tier 2
-                Sales
+    Tier 2 Clients
+    --------------
+    (tier_2_clients)
+    Persons
+    These are active clients who provide a regular level of return to the
+                company.
     """
-    return months_of_expenses_per_tier_2_sale() * tier_2_sales()
+    return integ_tier_2_clients()
 
 
-integ_months_of_buffer = functions.Integ(lambda: income() - expenses(), lambda: initial_buffer())
+@cache('step')
+def tier_1_leads_going_stale():
+    """
+    Tier 1 Leads Going Stale
+    ------------------------
+    (tier_1_leads_going_stale)
+    Persons/Month
+    These are tier 1 leads that grow old before they are sold, and are unable
+                to be followed up on.
+    """
+    return tier_1_leads() / lead_shelf_life()
+
+
+@cache('step')
+def effort_devoted_to_tier_1_clients():
+    """
+    Effort Devoted to Tier 1 Clients
+    --------------------------------
+    (effort_devoted_to_tier_1_clients)
+    Hours/Month
+    How much time does the agent devote to meetings for maintenance and
+                soliciting referrals from Tier 1 Clients.
+    """
+    return tier_1_clients() * time_per_client_meeting() * frequency_of_meetings()
+
+
+integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), lambda: 0)
 
 
 @cache('step')
@@ -549,28 +308,204 @@ def tier_1_leads():
 
 
 @cache('step')
-def time():
+def saveper():
     """
-    TIME
-    ----
-    (time)
-    None
-    The time of the model
+    SAVEPER
+    -------
+    (saveper)
+    Month [0,?]
+    The frequency with which output is stored.
     """
-    return _t
+    return time_step()
 
 
 @cache('step')
-def tier_1_leads_going_stale():
+def tier_2_income():
     """
-    Tier 1 Leads Going Stale
-    ------------------------
-    (tier_1_leads_going_stale)
+    Tier 2 Income
+    -------------
+    (tier_2_income)
+    Months/Month
+    This is the amount of money an agent makes from all commissions on Tier 2
+                Sales
+    """
+    return months_of_expenses_per_tier_2_sale() * tier_2_sales()
+
+
+@cache('step')
+def tier_1_income():
+    """
+    Tier 1 Income
+    -------------
+    (tier_1_income)
+    Months/Month
+    This is the amount of money an agent makes from all commissions on Tier 1
+                Sales
+    """
+    return tier_1_sales() * months_of_expenses_per_tier_1_sale()
+
+
+@cache('step')
+def tier_1_sales():
+    """
+    Tier 1 Sales
+    ------------
+    (tier_1_sales)
     Persons/Month
-    These are tier 1 leads that grow old before they are sold, and are unable
-                to be followed up on.
+    The rate at which Tier 1 leads become clients. This is limited either by
+                the effort of the agent, or the natural calendar time required to make a
+                sale.
     """
-    return tier_1_leads() / lead_shelf_life()
+    return success_rate() * np.minimum(effort_devoted_to_tier_1_leads() /
+                                       effort_required_to_make_a_sale(),
+                                       tier_1_leads() / minimum_time_to_make_a_sale())
+
+
+@cache('step')
+def total_cumulative_income():
+    """
+    Total Cumulative Income
+    -----------------------
+    (total_cumulative_income)
+    Months
+
+    """
+    return integ_total_cumulative_income()
+
+
+@cache('step')
+def referrals_from_tier_1_clients():
+    """
+    Referrals from Tier 1 Clients
+    -----------------------------
+    (referrals_from_tier_1_clients)
+    Referrals/Month
+    The number of referrals coming in from maintenance meetings with tier 1
+                clients.
+    """
+    return tier_1_clients() * frequency_of_meetings() * referrals_per_meeting()
+
+
+@cache('run')
+def months_of_expenses_per_tier_2_sale():
+    """
+    Months of Expenses per Tier 2 Sale
+    ----------------------------------
+    (months_of_expenses_per_tier_2_sale)
+    Months/Person
+    Income from commission for a sale to a tier 2 lead. Measured in units of
+                months of expenses, to preserve agents privacy.
+    """
+    return 12 / 30
+
+
+@cache('run')
+def expenses():
+    """
+    Expenses
+    --------
+    (expenses)
+    Months/Month
+    How many months of expenses are expended per month. This is a bit of a
+                tautology, but its the right way to account for the agents income and
+                spending while preserving their privacy.
+    """
+    return 1
+
+
+@cache('run')
+def down_referral_fraction():
+    """
+    Down Referral Fraction
+    ----------------------
+    (down_referral_fraction)
+
+
+    """
+    return 0.2
+
+
+@cache('run')
+def startup_subsidy():
+    """
+    Startup Subsidy
+    ---------------
+    (startup_subsidy)
+    Months/Month [0,1,0.1]
+    How much does an agent recieve each month from his sales manager to help
+                defer his expenses, in units of months of expenses?
+    """
+    return 0.75
+
+
+@cache('step')
+def accumulating_sales():
+    """
+    Accumulating Sales
+    ------------------
+    (accumulating_sales)
+    Persons/Month
+
+    """
+    return tier_1_sales() + tier_2_sales()
+
+
+@cache('step')
+def tenure():
+    """
+    Tenure
+    ------
+    (tenure)
+    Months
+
+    """
+    return integ_tenure()
+
+
+@cache('step')
+def tier_2_lead_aquisition():
+    """
+    Tier 2 Lead Aquisition
+    ----------------------
+    (tier_2_lead_aquisition)
+    Persons/Month
+    How many new tier 2 leads does an agent net?
+    """
+    return qualification_rate() * (tier_2_referrals() + tier_2_referrals_from_tier_1())
+
+
+@cache('step')
+def tier_2_referrals_from_tier_1():
+    """
+    Tier 2 Referrals from Tier 1
+    ----------------------------
+    (tier_2_referrals_from_tier_1)
+    Referrals/Month
+    This is the number of Tier 2 leads that are aquired through referrals from
+                tier 1.
+    """
+    return referrals_from_tier_1_clients() * up_referral_fraction()
+
+
+integ_tier_1_clients = functions.Integ(
+    lambda: tier_1_sales() -
+    tier_1_client_turnover(),
+    lambda: 0)
+
+
+integ_total_cumulative_sales = functions.Integ(lambda: accumulating_sales(), lambda: 0)
+
+
+@cache('run')
+def total_effort_available():
+    """
+    Total Effort Available
+    ----------------------
+    (total_effort_available)
+    Hours/Month
+    This is the total number of hours the agent is willing to work in a month.
+    """
+    return 200
 
 
 @cache('step')
@@ -590,43 +525,16 @@ def tier_2_sales():
 
 
 @cache('step')
-def referrals_from_tier_2_clients():
+def tier_2_leads_going_stale():
     """
-    Referrals from Tier 2 Clients
-    -----------------------------
-    (referrals_from_tier_2_clients)
-    Referrals/Month
-    The number of referrals coming in from maintenance meetings with tier 2
-                clients.
+    Tier 2 Leads Going Stale
+    ------------------------
+    (tier_2_leads_going_stale)
+    Persons/Month
+    These are tier 2 leads that grow old before they are sold, and are unable
+                to be followed up on.
     """
-    return tier_2_clients() * referrals_per_meeting() * frequency_of_meetings()
-
-
-@cache('step')
-def referrals_from_tier_1_clients():
-    """
-    Referrals from Tier 1 Clients
-    -----------------------------
-    (referrals_from_tier_1_clients)
-    Referrals/Month
-    The number of referrals coming in from maintenance meetings with tier 1
-                clients.
-    """
-    return tier_1_clients() * frequency_of_meetings() * referrals_per_meeting()
-
-
-@cache('run')
-def initial_buffer():
-    """
-    Initial Buffer
-    --------------
-    (initial_buffer)
-    Months
-    How long can the agent afford to go with zero income? This could be months
-                of expenses in the bank, or months of 'rent equivalent' they are able to
-                borrow from family, etc.
-    """
-    return 6
+    return tier_2_leads() / lead_shelf_life()
 
 
 @cache('step')
@@ -641,71 +549,30 @@ def accumulating_tenure():
     return still_employed()
 
 
-integ_tier_2_leads = functions.Integ(
-    lambda: tier_2_lead_aquisition() +
-    tier_2_sales() -
-    tier_2_leads_going_stale(),
-    lambda: 0)
-
-
-@cache('step')
-def still_employed():
-    """
-    Still Employed
-    --------------
-    (still_employed)
-    Dmnl
-    Flag for whether the agent is still with the firm. Goes to zero when the
-                buffer becomes negative.
-    """
-    return functions.if_then_else(months_of_buffer() < 0, 0, 1)
-
-
-@cache('step')
-def tier_1_clients():
-    """
-    Tier 1 Clients
-    --------------
-    (tier_1_clients)
-    Persons
-    These are active clients who provide a regular level of return to the
-                company.
-    """
-    return integ_tier_1_clients()
-
-
-@cache('step')
-def effort_remaining_after_servicing_tier_2_leads():
-    """
-    Effort Remaining after Servicing Tier 2 Leads
-    ---------------------------------------------
-    (effort_remaining_after_servicing_tier_2_leads)
-    Hours/Month
-    How much effort remains after higher priority sales and maintenance
-                activities are complete?
-    """
-    return np.maximum(
-        effort_remaining_after_servicing_existing_clients() -
-        effort_devoted_to_tier_2_leads(),
-        0)
-
-
 @cache('run')
-def client_lifetime():
+def up_referral_fraction():
     """
-    Client Lifetime
-    ---------------
-    (client_lifetime)
-    Months
-    How long, on average, does a client remain with an agent?
+    Up Referral Fraction
+    --------------------
+    (up_referral_fraction)
+    Dmnl
+    The likelihood that a referral from a tier 1 or tier 2 client will be to a
+                lead of the tier above them.
     """
-    return 120
+    return 0.15
 
 
-integ_tier_1_clients = functions.Integ(
-    lambda: tier_1_sales() -
-    tier_1_client_turnover(),
-    lambda: 0)
+@cache('step')
+def tier_2_referrals():
+    """
+    Tier 2 Referrals
+    ----------------
+    (tier_2_referrals)
+    Referrals/Month
+    This is the number of Tier 2 leads that are aquired through referrals from
+                any tier client.
+    """
+    return referrals_from_tier_2_clients() * (1 - down_referral_fraction())
 
 
 @cache('step')
@@ -724,33 +591,53 @@ def effort_remaining_after_servicing_existing_clients():
 
 
 @cache('run')
-def referrals_per_meeting():
+def final_time():
     """
-    Referrals per meeting
-    ---------------------
-    (referrals_per_meeting)
-    Referrals/Meeting
-    How many referrals can an agent comfortably gather from his clients in a
-                given maintenance meeting?
+    FINAL TIME
+    ----------
+    (final_time)
+    Month
+    The final time for the simulation.
     """
-    return 2
+    return 200
 
 
 @cache('step')
-def effort_devoted_to_tier_2_leads():
+def tier_1_clients():
     """
-    Effort Devoted to Tier 2 Leads
-    ------------------------------
-    (effort_devoted_to_tier_2_leads)
-    Hours/Month
-    This is the amount of time the agent spends with a tier 2 lead in a given
-                year, working to make a sale.
+    Tier 1 Clients
+    --------------
+    (tier_1_clients)
+    Persons
+    These are active clients who provide a regular level of return to the
+                company.
     """
-    return np.minimum(
-        effort_remaining_after_servicing_existing_clients(),
-        effort_required_to_make_a_sale() *
-        tier_2_leads() /
-        minimum_time_to_make_a_sale())
+    return integ_tier_1_clients()
+
+
+@cache('run')
+def initial_time():
+    """
+    INITIAL TIME
+    ------------
+    (initial_time)
+    Month
+    The initial time for the simulation.
+    """
+    return 0
+
+
+@cache('run')
+def success_rate():
+    """
+    Success Rate
+    ------------
+    (success_rate)
+    Dmnl
+    What is the likelihood that a given lead will become a client, if the
+                agent devotes the appropriate amount of attention to them?
+    """
+    return 0.2
 
 
 @cache('step')
@@ -765,17 +652,97 @@ def tier_1_client_turnover():
     return tier_1_clients() / client_lifetime()
 
 
+@cache('step')
+def still_employed():
+    """
+    Still Employed
+    --------------
+    (still_employed)
+    Dmnl
+    Flag for whether the agent is still with the firm. Goes to zero when the
+                buffer becomes negative.
+    """
+    return functions.if_then_else(months_of_buffer() < 0, 0, 1)
+
+
 @cache('run')
-def frequency_of_meetings():
+def minimum_time_to_make_a_sale():
     """
-    Frequency of Meetings
-    ---------------------
-    (frequency_of_meetings)
-    Meetings/Month/Person
-    How many maintenance meetings does the agent have with each client in a
-                month?
+    Minimum Time to Make a Sale
+    ---------------------------
+    (minimum_time_to_make_a_sale)
+    Months
+    What is the absolute minimum calendar time it would take to make a sale to
+                a person, even if you had all the hours in the day to devote to them?
     """
-    return 1 / 12
+    return 1
+
+
+@cache('step')
+def accumulating_income():
+    """
+    Accumulating Income
+    -------------------
+    (accumulating_income)
+    Months/Month
+
+    """
+    return income()
+
+
+integ_months_of_buffer = functions.Integ(lambda: income() - expenses(), lambda: initial_buffer())
+
+
+@cache('run')
+def time_per_client_meeting():
+    """
+    Time per Client Meeting
+    -----------------------
+    (time_per_client_meeting)
+    Hours/Meeting
+    This is the number of hours an agent spends with a client, maintaining the
+                relationship/accounts, and soliciting referrals, in one sitting.
+    """
+    return 1
+
+
+@cache('step')
+def income():
+    """
+    Income
+    ------
+    (income)
+    Months/Month
+    The total income from commissions on sales to all tiers.
+    """
+    return tier_1_income() + tier_2_income() + functions.if_then_else(time()
+                                                                      < startup_subsidy_length(), startup_subsidy(), 0)
+
+
+@cache('step')
+def referrals_from_tier_2_clients():
+    """
+    Referrals from Tier 2 Clients
+    -----------------------------
+    (referrals_from_tier_2_clients)
+    Referrals/Month
+    The number of referrals coming in from maintenance meetings with tier 2
+                clients.
+    """
+    return tier_2_clients() * referrals_per_meeting() * frequency_of_meetings()
+
+
+@cache('step')
+def tier_1_referrals_from_tier_2():
+    """
+    Tier 1 Referrals from Tier 2
+    ----------------------------
+    (tier_1_referrals_from_tier_2)
+    Referrals/Month
+    This is the number of Tier 1 leads that are aquired through referrals from
+                tier 2.
+    """
+    return referrals_from_tier_2_clients() * down_referral_fraction()
 
 
 @cache('step')
@@ -793,77 +760,39 @@ def tier_2_leads():
     return integ_tier_2_leads()
 
 
-@cache('step')
-def tier_1_lead_aquisition():
-    """
-    Tier 1 Lead Aquisition
-    ----------------------
-    (tier_1_lead_aquisition)
-    Persons/Month
-    How many new tier 1 leads does an agent net?
-    """
-    return qualification_rate() * (tier_1_referrals() + tier_1_referrals_from_tier_2())
-
-
-@cache('step')
-def total_cumulative_income():
-    """
-    Total Cumulative Income
-    -----------------------
-    (total_cumulative_income)
-    Months
-
-    """
-    return integ_total_cumulative_income()
-
-
 @cache('run')
-def lead_shelf_life():
+def effort_required_to_make_a_sale():
     """
-    Lead Shelf Life
-    ---------------
-    (lead_shelf_life)
-    Months
-    After a certain amount of time, leads go stale. It gets awkward to keep
-                interacting with them, and you're better off moving on. How long is that?
+    Effort Required to Make a Sale
+    ------------------------------
+    (effort_required_to_make_a_sale)
+    Hours/Person [0,50]
+    This is the amount of time the agent must spend (on average) with a lead
+                (high or low value, for now) to make a sale.
     """
-    return 3
+    return 4
 
 
 @cache('step')
-def tenure():
+def sales_effort_available():
     """
-    Tenure
-    ------
-    (tenure)
-    Months
-
-    """
-    return integ_tenure()
-
-
-@cache('step')
-def accumulating_sales():
-    """
-    Accumulating Sales
-    ------------------
-    (accumulating_sales)
-    Persons/Month
-
-    """
-    return tier_1_sales() + tier_2_sales()
-
-
-@cache('step')
-def tier_2_client_turnover():
-    """
-    Tier 2 Client Turnover
+    Sales Effort Available
     ----------------------
-    (tier_2_client_turnover)
-    Persons/Month
-    This is the flow of Tier 2 clients leaving the practice.
+    (sales_effort_available)
+    Hours/Month
+    How much total time per month can an agent actually spend in sales or
+                maintenance meetings?
     """
-    return tier_2_clients() / client_lifetime()
+    return fraction_of_effort_for_sales() * total_effort_available() * still_employed()
+
+
+integ_tier_2_clients = functions.Integ(
+    lambda: tier_2_sales() -
+    tier_2_client_turnover(),
+    lambda: 0)
+
+
+integ_tenure = functions.Integ(lambda: accumulating_tenure(), lambda: 0)
 
 
 @cache('run')
@@ -881,16 +810,36 @@ def qualification_rate():
     return 1
 
 
+@cache('step')
+def tier_2_client_turnover():
+    """
+    Tier 2 Client Turnover
+    ----------------------
+    (tier_2_client_turnover)
+    Persons/Month
+    This is the flow of Tier 2 clients leaving the practice.
+    """
+    return tier_2_clients() / client_lifetime()
+
+
 @cache('run')
-def initial_time():
+def referrals_per_meeting():
     """
-    INITIAL TIME
-    ------------
-    (initial_time)
-    Month
-    The initial time for the simulation.
+    Referrals per meeting
+    ---------------------
+    (referrals_per_meeting)
+    Referrals/Meeting
+    How many referrals can an agent comfortably gather from his clients in a
+                given maintenance meeting?
     """
-    return 0
+    return 2
+
+
+integ_tier_2_leads = functions.Integ(
+    lambda: tier_2_lead_aquisition() +
+    tier_2_sales() -
+    tier_2_leads_going_stale(),
+    lambda: 0)
 
 
 integ_tier_1_leads = functions.Integ(
@@ -898,6 +847,57 @@ integ_tier_1_leads = functions.Integ(
     tier_1_sales() -
     tier_1_leads_going_stale(),
     lambda: 100)
+
+
+@cache('step')
+def total_cumulative_sales():
+    """
+    Total Cumulative Sales
+    ----------------------
+    (total_cumulative_sales)
+    Persons
+
+    """
+    return integ_total_cumulative_sales()
+
+
+@cache('step')
+def tier_1_lead_aquisition():
+    """
+    Tier 1 Lead Aquisition
+    ----------------------
+    (tier_1_lead_aquisition)
+    Persons/Month
+    How many new tier 1 leads does an agent net?
+    """
+    return qualification_rate() * (tier_1_referrals() + tier_1_referrals_from_tier_2())
+
+
+@cache('run')
+def initial_buffer():
+    """
+    Initial Buffer
+    --------------
+    (initial_buffer)
+    Months
+    How long can the agent afford to go with zero income? This could be months
+                of expenses in the bank, or months of 'rent equivalent' they are able to
+                borrow from family, etc.
+    """
+    return 6
+
+
+@cache('step')
+def effort_devoted_to_tier_1_leads():
+    """
+    Effort Devoted to Tier 1 Leads
+    ------------------------------
+    (effort_devoted_to_tier_1_leads)
+    Hours/Month
+    This is the amount of time the agent spends with a tier 1 lead in a given
+                year, working to make a sale.
+    """
+    return effort_remaining_after_servicing_tier_2_leads()
 
 
 def time():

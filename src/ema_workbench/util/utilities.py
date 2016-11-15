@@ -6,8 +6,6 @@ This module provides various convenience functions and classes.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-import bz2
-
 try:
     import configparser
 except ImportError:
@@ -113,7 +111,7 @@ def load_results(file_name):
                     try:
                         temp_shape.append(int(entry))
                     except ValueError:
-                        temp_shape.append(int(long(entry)))
+                        temp_shape.append(int(long(entry))) 
             shape = tuple(temp_shape)
             
             if len(shape)>2:
@@ -160,7 +158,9 @@ def save_results(results, file_name):
         tarinfo = tarfile.TarInfo(filename)
         tarinfo.size = len(string_to_add)
         
-        z.addfile(tarinfo, BytesIO(string_to_add.encode('UTF-8')))  
+        fh = BytesIO(string_to_add.encode('UTF-8'))
+        
+        z.addfile(tarinfo, fh)  
     
     def save_numpy_array(fh, data):
         data = pd.DataFrame(data)
@@ -169,7 +169,6 @@ def save_results(results, file_name):
     experiments, outcomes = results
     with tarfile.open(file_name, 'w:gz') as z:
         # write the x to the zipfile
-#         experiments_file = BytesIO()
         experiments_file = WriterFile()
         rec2csv(experiments, experiments_file, withheader=True)
         add_file(z, experiments_file.getvalue(), 'experiments.csv')
@@ -190,7 +189,6 @@ def save_results(results, file_name):
         # outcomes
         for key, value in outcomes.items():
             fh = WriterFile()
-#             fh = StringIO()
             
             nr_dim = len(value.shape)
             if nr_dim==3:
@@ -200,7 +198,7 @@ def save_results(results, file_name):
                     fh = fh.getvalue()
                     fn = '{}_{}.csv'.format(key, i)
                     add_file(z, fh, fn)
-                    fh = BytesIO()
+                    fh = WriterFile()
             else:
                 save_numpy_array(fh, value)
                 fh = fh.getvalue()
@@ -339,7 +337,7 @@ def get_ema_project_home_dir():
         directory = os.path.dirname(__file__)
         fn = os.path.join(directory, config_file_name)
 
-        config = configparser.SafeConfigParser()
+        config = configparser.ConfigParser()
         parsed = config.read(fn)
 
         if parsed:

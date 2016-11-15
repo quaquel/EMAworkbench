@@ -16,9 +16,9 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         x = np.array([(0,1,2),
                       (2,5,6),
                       (3,2,1)], 
-                     dtype=[(b'a', np.float),
-                            (b'b', np.float),
-                            (b'c', np.float)])
+                     dtype=[('a', np.float),
+                            ('b', np.float),
+                            ('c', np.float)])
         
         box_init = sdutil._make_box(x)
         
