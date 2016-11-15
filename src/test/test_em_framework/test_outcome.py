@@ -9,29 +9,36 @@ from __future__ import (division, print_function, absolute_import,
 import unittest
 import mock
 
-from ema_workbench.em_framework.outcomes import ScalarOutcome
+from ema_workbench.em_framework.outcomes import ScalarOutcome,\
+    TimeSeriesOutcome
 
 class TestScalarOutcome(unittest.TestCase):
+    outcome_class = ScalarOutcome
+    outcome_klass = "ScalarOutcome"
+    
     def test(self):
         name = 'test'
-        outcome = ScalarOutcome(name)
+        outcome = self.outcome_class(name)
         
         self.assertEqual(outcome.name, name)
         self.assertEqual(outcome.variable_name, [name])
         self.assertIsNone(outcome.function)
+        self.assertEqual(repr(outcome), self.outcome_klass+'(\'test\')')
 
         name = 'test'
         var_name = 'something else'
-        outcome = ScalarOutcome(name, variable_name=var_name)
+        outcome = self.outcome_class(name, variable_name=var_name)
         
         self.assertEqual(outcome.name, name)
         self.assertEqual(outcome.variable_name, [var_name])
         self.assertIsNone(outcome.function)
+        self.assertEqual(repr(outcome), self.outcome_klass+'(\'test\', variable_name=[\'something else\'])')
+
 
         name = 'test'
         var_name = 'something else'
         function = mock.Mock()
-        outcome = ScalarOutcome(name, variable_name=var_name, 
+        outcome = self.outcome_class(name, variable_name=var_name, 
                                 function=function)
         
         self.assertEqual(outcome.name, name)
@@ -42,28 +49,28 @@ class TestScalarOutcome(unittest.TestCase):
             name = 'test'
             var_name = 'something else'
             function = 'not a function'
-            outcome = ScalarOutcome(name, variable_name=var_name, 
+            outcome = self.outcome_class(name, variable_name=var_name, 
                                     function=function)
         
         with self.assertRaises(ValueError):
             name = 'test'
             var_name = 1
-            outcome = ScalarOutcome(name, variable_name=var_name, 
+            outcome = self.outcome_class(name, variable_name=var_name, 
                                     function=function)
         
         with self.assertRaises(ValueError):
             name = 'test'
             var_name = ['a variable', 1]
-            outcome = ScalarOutcome(name, variable_name=var_name, 
+            outcome = self.outcome_class(name, variable_name=var_name, 
                                     function=function)
         
         name = 'test'
         var_name = 'something else'
         function = lambda x: x
-        outcome1 = ScalarOutcome(name, variable_name=var_name, 
+        outcome1 = self.outcome_class(name, variable_name=var_name, 
                                 function=function)
 
-        outcome2 = ScalarOutcome(name, variable_name=var_name, 
+        outcome2 = self.outcome_class(name, variable_name=var_name, 
                                 function=function)
         
         self.assertEqual(outcome1, outcome2)
@@ -71,7 +78,7 @@ class TestScalarOutcome(unittest.TestCase):
 
     def test_process(self):
         name = 'test'
-        outcome = ScalarOutcome(name)
+        outcome = self.outcome_class(name)
         
         outputs = [1]
         self.assertEqual(outcome.process(outputs), outputs[0])
@@ -79,7 +86,7 @@ class TestScalarOutcome(unittest.TestCase):
         name = 'test'
         function = mock.Mock()
         function.return_value = 2
-        outcome = ScalarOutcome(name, function=function)
+        outcome = self.outcome_class(name, function=function)
         
         outputs = [1]
         self.assertEqual(outcome.process(outputs), 2)
@@ -91,7 +98,7 @@ class TestScalarOutcome(unittest.TestCase):
         function.return_value = 2
         variable_name = ['a', 'b']
         
-        outcome = ScalarOutcome(name, function=function, 
+        outcome = self.outcome_class(name, function=function, 
                                 variable_name=variable_name)
         
         outputs = [1, 2]
@@ -105,11 +112,14 @@ class TestScalarOutcome(unittest.TestCase):
             function.return_value = 2
             variable_name = ['a', 'b']
             
-            outcome = ScalarOutcome(name, function=function, 
+            outcome = self.outcome_class(name, function=function, 
                                     variable_name=variable_name)
             
             outcome.process([1])
 
+class TestTimeSeriesOutcome(TestScalarOutcome):
+    outcome_class = TimeSeriesOutcome
+    outcome_klass = "TimeSeriesOutcome"
 
 if __name__ == "__main__":
     unittest.main()
