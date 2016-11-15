@@ -8,6 +8,7 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
+import operator
 import os
 import six
 import warnings
@@ -261,6 +262,33 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         '''
         pass
     
+    def as_dict(self):
+        '''returns a dict representation of the model'''
+        
+        def join_attr(field):
+            joined = ', '.join([repr(entry) for entry in 
+                                sorted(field, key=operator.attrgetter('name'))])
+            return '[{}]'.format(joined)
+        model_spec = {}
+        
+        klass = self.__class__.__name__
+        name = self.name
+        
+        
+        uncs = ''
+        for uncertainty in self.uncertainties:
+            uncs += '\n' + repr(uncertainty)
+            
+        model_spec['class'] = klass
+        model_spec['name'] = name
+        model_spec['uncertainties'] = join_attr(self.uncertainties)
+        model_spec['outcomes'] = join_attr(self.outcomes)
+        model_spec['constants'] = join_attr(self.constants)
+            
+        return model_spec
+
+
+    
 
 class Model(AbstractModel):
     '''
@@ -340,6 +368,12 @@ class Model(AbstractModel):
                 value = model_output[i]
             results[variable] = value
         self.output = results
+        
+    def as_dict(self):
+        model_specs = super(Model, self).as_dict()
+        model_specs['function'] = self.function
+        return model_specs
+
 
 class FileModel(AbstractModel):
     @property
@@ -377,12 +411,15 @@ class FileModel(AbstractModel):
         """
         super(FileModel, self).__init__(name)
         self.working_directory = wd
-        
-        #TODO replace with os.path.join
+
         path_to_file = os.path.join(self.working_directory, model_file)
-        
         if not os.path.isfile(path_to_file):
             raise ValueError('cannot find model file')
         
         self.model_file = model_file
 
+    def as_dict(self):
+        model_specs = super(Model, self).as_dict()
+        model_specs['model_file'] = self.model_file
+        model_specs['working_directory'] = self.working_directory
+        return model_specs

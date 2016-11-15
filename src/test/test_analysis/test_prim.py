@@ -3,7 +3,8 @@ Created on Mar 13, 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (absolute_import, print_function, division)
+from __future__ import (absolute_import, print_function, division, 
+                        unicode_literals)
 import unittest
 
 import numpy as np
@@ -11,7 +12,7 @@ import numpy.lib.recfunctions as recfunctions
 
 from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
-from .. import test_utilities
+from test import test_utilities
 
 
 def flu_classify(data):

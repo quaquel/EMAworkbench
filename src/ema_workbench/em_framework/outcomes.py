@@ -114,6 +114,21 @@ class AbstractOutcome(Variable):
                           in self.__dict__.keys())]
         comparison.append(self.__class__ == other.__class__)
         return all(comparison)
+    
+    def __repr__(self, *args, **kwargs):
+        klass = self.__class__.__name__
+        name = self.name
+        
+        rep = '{}(\'{}\''.format(klass, name)
+        
+        if self.variable_name != [self.name]:
+            rep += ', variable_name={}'.format(self.variable_name)
+        if self.function:
+            rep += ', function={}'.format(self.function)
+        
+        rep += ')'
+        
+        return rep
 
 
 class ScalarOutcome(AbstractOutcome):

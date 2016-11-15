@@ -35,6 +35,8 @@ class Constant(NamedObject):
         super(Constant, self).__init__(name)
         self.value = value
 
+    def __repr__(self, *args, **kwargs):
+        return 'Contant(\'{}\', {})'.format(self.name, self.value)
 
 class Category(Constant):
     
@@ -109,6 +111,24 @@ class Parameter(Variable):
 
     def __str__(self):
         return self.name
+    
+    def __repr__(self, *args, **kwargs):
+        start = '{}(\'{}\', {}, {}'.format(self.__class__.__name__, 
+                                          self.name, 
+                                          self.lower_bound, self.upper_bound)
+        
+        if self.resolution:
+            start += ', resolution={}'.format(self.resolution)
+        if self.default:
+            start += ', default={}'.format(self.default)
+        if self.variable_name != [self.name]:
+            start += ', variable_name={}'.format(self.variable_name)
+        if self.pff:
+            start += ', pff={}'.format(self.pff)
+            
+        start += ')'
+        
+        return start
             
             
 class RealParameter(Parameter):
@@ -145,18 +165,22 @@ class RealParameter(Parameter):
     def params(self):
         return (self.lower_bound, self.upper_bound-self.lower_bound)
     
-    def __repr__(self, *args, **kwargs):
-        start = 'RealParameter(\'{}\', {}, {}'.format(self.name, 
-                                          self.lower_bound, self.upper_bound)
-        
-        if self.resolution:
-            start += ', resolution={}'.format(self.resolution)
-        if self.default:
-            start += ', default={}'.format(self.default)
-            
-        start += ')'
-        
-        return start
+#     def __repr__(self, *args, **kwargs):
+#         start = 'RealParameter(\'{}\', {}, {}'.format(self.name, 
+#                                           self.lower_bound, self.upper_bound)
+#         
+#         if self.resolution:
+#             start += ', resolution={}'.format(self.resolution)
+#         if self.default:
+#             start += ', default={}'.format(self.default)
+#         if self.variable_name != [self.name]:
+#             start += ', variable_name={}'.format(self.variable_name)
+#         if self.pff:
+#             start += ', pff={}'.format(self.pff)
+#             
+#         start += ')'
+#         
+#         return start
         
         
 class IntegerParameter(Parameter):
@@ -205,18 +229,22 @@ class IntegerParameter(Parameter):
     def params(self):
         return (self.lower_bound, self.upper_bound)
     
-    def __repr__(self, *args, **kwargs):
-        start = 'IntegerParameter(\'{}\', {}, {}'.format(self.name, 
-                                          self.lower_bound, self.upper_bound)
-        
-        if self.resolution:
-            start += ', resolution={}'.format(self.resolution)
-        if self.default:
-            start += ', default={}'.format(self.default)
-            
-        start += ')'
-        
-        return start
+#     def __repr__(self, *args, **kwargs):
+#         start = 'IntegerParameter(\'{}\', {}, {}'.format(self.name, 
+#                                           self.lower_bound, self.upper_bound)
+#         
+#         if self.resolution:
+#             start += ', resolution={}'.format(self.resolution)
+#         if self.default:
+#             start += ', default={}'.format(self.default)
+#         if self.variable_name != [self.name]:
+#             start += ', variable_name={}'.format(self.variable_name)
+#         if self.pff:
+#             start += ', pff={}'.format(self.pff)
+#             
+#         start += ')'
+#         
+#         return start
 
 
 class CategoricalParameter(IntegerParameter):
