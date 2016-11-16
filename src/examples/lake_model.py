@@ -11,12 +11,14 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 import math
 
 import numpy as np
-from scipy.optimize import brentq as root
+from scipy.optimize import brentq
 
-from ema_workbench.em_framework import (ModelEnsemble, Model, RealParameter, 
-                                        ScalarOutcome, Constant)
+from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
+                           perform_experiments)
 import ema_workbench.em_framework.samplers as samplers
 from ema_workbench.util import ema_logging
+
+
 
 
 def lake_problem(
@@ -30,7 +32,7 @@ def lake_problem(
          **kwargs):   
     decisions = [kwargs[str(i)] for i in range(100)]
     
-    Pcrit = root(lambda x: x**q/(1+x**q) - b*x, 0.01, 1.5)
+    Pcrit = brentq(lambda x: x**q/(1+x**q) - b*x, 0.01, 1.5)
     nvars = len(decisions)
     X = np.zeros((nvars,))
     average_daily_P = np.zeros((nvars,))
@@ -54,54 +56,50 @@ def lake_problem(
     max_P = np.max(average_daily_P)
     utility = np.sum(alpha*decisions*np.power(delta,np.arange(nvars)))
     inertia = np.sum(np.diff(decisions) > -0.02)/float(nvars-1)
-    
-    return {'max_P':max_P, 'utility':utility, 
-            'inertia':inertia, 'reliability':reliability}
+
+    return max_P, utility, inertia, reliability
+
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    #instantiate the model
-    model = Model('lakeproblem', function=lake_problem)
+    # instantiate the model
+    lake_model = Model('lakeproblem', function=lake_problem)
+    lake_model.time_horizon = 100
     
     #specify uncertainties
-    model.uncertainties = [RealParameter("b", 0.1, 0.45),
-                           RealParameter("q", 2.0, 4.5),
-                           RealParameter("mean", 0.01, 0.05),
-                           RealParameter("stdev", 0.001, 0.005),
-                           RealParameter("delta", 0.93, 0.99)]
-    #specify outcomes 
-    model.outcomes = [ScalarOutcome("max_P",),
-                      ScalarOutcome("utility"),
-                      ScalarOutcome("inertia"),
-                      ScalarOutcome("reliability")]
-    
-    # override some of the defaults of the model
-    model.constants = [Constant('alpha', 0.41),
-                       Constant('nsamples', 150),]
+    lake_model.uncertainties = [RealParameter('b', 0.1, 0.45),
+                                RealParameter('q', 2.0, 4.5),
+                                RealParameter('mean', 0.01, 0.05),
+                                RealParameter('stdev', 0.001, 0.005),
+                                RealParameter('delta', 0.93, 0.99)]
     
     # set levers, one for each time step
-    model.levers = [RealParameter(str(i), 0, 0.1) for i in range(100)]
+    lake_model.levers = [RealParameter(str(i), 0, 0.1) for i in 
+                         range(lake_model.time_horizon)]
     
-    ensemble = ModelEnsemble() #instantiate an ensemble
-    ensemble.model_structures = model #set the model on the ensemble
-    ensemble.parallel = True
-    ensemble.processes = 1
+    #specify outcomes 
+    lake_model.outcomes = [ScalarOutcome('max_P',),
+                           ScalarOutcome('utility'),
+                           ScalarOutcome('inertia'),
+                           ScalarOutcome('reliability')]
     
+    # override some of the defaults of the model
+    lake_model.constants = [Constant('alpha', 0.41),
+                            Constant('nsamples', 150)]
+
     # generate some random policies by sampling over levers
-    policies, levers, n = samplers.sample_levers(ensemble.model_structures, 4, 
-                                         sampler=samplers.MonteCarloSampler())
+    policies = samplers.sample_levers(lake_model, 4, 
+                                      sampler=samplers.MonteCarloSampler())
     
     # policies is a generator, so let's exhaust the generator
     policies = [policy for policy in policies]
     
-    # policy name defaults to a repr(dict), let's rename
     for i, policy in enumerate(policies):
-        policy.name = str(i)
+        policy.name = i
     
-    # let's set the policies on the ensemble
-    ensemble.policies = policies
+    # perform experiments
+    nr_experiments = 1000
     
-    #run 1000 experiments
-    results = ensemble.perform_experiments(1000, reporting_interval=10) 
-
+    results = perform_experiments(lake_model, nr_experiments, 
+                              policies, parallel=True)

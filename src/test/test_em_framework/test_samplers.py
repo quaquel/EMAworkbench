@@ -25,7 +25,7 @@ class SamplerTestCase(unittest.TestCase):
                      CategoricalParameter('3', ['a','b', 'c'])]
 
     def _test_generate_designs(self, sampler):
-        designs, nr_designs = sampler.generate_designs(self.uncertainties, 10)
+        designs = sampler.generate_designs(self.uncertainties, 10)
         designs.kind = Scenario
         msg = 'tested for {}'.format(type(sampler))
         
@@ -36,7 +36,7 @@ class SamplerTestCase(unittest.TestCase):
         self.assertIn('1', design, msg)
         self.assertIn('2', design, msg)
         self.assertIn('3', design, msg)
-        self.assertEqual(nr_designs, actual_nr_designs, msg) 
+        self.assertEqual(designs.n, actual_nr_designs, msg) 
     
     def test_lhs_sampler(self):
         sampler = LHSSampler()
@@ -58,11 +58,11 @@ class SamplerTestCase(unittest.TestCase):
                 ]
 
         sampler = PartialFactorialSampler()
-        designs, nr_designs = sampler.generate_designs(uncs, 10)
+        designs = sampler.generate_designs(uncs, 10)
         designs.kind = Scenario
         
         expected = 60
-        self.assertEqual(expected, nr_designs)
+        self.assertEqual(expected, designs.n)
         
         self.assertEqual(expected, len([design for design in designs]))
         

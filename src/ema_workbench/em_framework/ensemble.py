@@ -207,8 +207,14 @@ class ModelEnsemble(object):
         if isinstance(cases, numbers.Integral):
             res = sample_uncertainties(self.model_structures, cases, 
                                        uncertainty_union, sampler=self.sampler)
+            scenarios = res
+            uncertainties = res.parameters
+            nr_of_scenarios = res.n
         elif isinstance(cases, np.ndarray):
             res = from_experiments(self.model_structures, cases)
+            scenarios = res
+            uncertainties = res.parameters
+            nr_of_scenarios = res.n
         else:
             scenarios = cases
             nr_of_scenarios = len(scenarios)
@@ -218,11 +224,8 @@ class ModelEnsemble(object):
             for case in cases:
                 names = names.union(case.keys())
                 
-            uncertainties = [u for u in uncertainties if u.name in names]
-            res = scenarios, uncertainties, nr_of_scenarios
+#             uncertainties = [u for u in uncertainties if u.name in names]
             
-        
-        scenarios, uncertainties, nr_of_scenarios = res
         
         experiments = experiment_generator(scenarios, self.model_structures, 
                                            self.policies)
@@ -231,7 +234,7 @@ class ModelEnsemble(object):
         info(str(nr_of_exp) + " experiment will be executed")
 
         if reporting_interval is None:
-            reporting_interval = max(1, int(round(nr_of_scenarios / 10))) 
+            reporting_interval = max(1, int(round(nr_of_exp / 10))) 
 
         #initialize the callback object
         callback = callback(uncertainties, 
@@ -273,8 +276,7 @@ class ModelEnsemble(object):
         
         return results
 
-        
- 
+
 def experiment_generator(scenarios, model_structures, policies):
     '''
     
