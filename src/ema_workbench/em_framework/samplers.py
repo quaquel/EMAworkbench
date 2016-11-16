@@ -22,6 +22,7 @@ except ImportError:
 import abc
 import itertools
 import numpy as np 
+import operator
 import scipy.stats as stats
 
 from . import util
@@ -153,13 +154,12 @@ class AbstractSampler(object):
             the number of experimental designs
         
         '''
-        
+        parameters = sorted(parameters, key=operator.attrgetter('name'))
         sampled_parameters = self.generate_samples(parameters, nr_samples)
-        params = sorted(sampled_parameters.keys())
-        designs = zip(*[sampled_parameters[u] for u in params]) 
-        designs = DefaultDesigns(designs, params, nr_samples)
+        designs = zip(*[sampled_parameters[u.name] for u in parameters]) 
+        designs = DefaultDesigns(designs, parameters, nr_samples)
         
-        return designs, nr_samples
+        return designs
 
 
 class LHSSampler(AbstractSampler):
@@ -321,15 +321,15 @@ class FullFactorialSampler(AbstractSampler):
             the number of experimental designs
         
         '''
-        parameters = self.generate_samples(parameters, nr_samples)
-        params = sorted(parameters.keys())
+        parameters = sorted(parameters, key=operator.attrgetter('name'))
         
-        sampled_parameters = itertools.product(*[parameters[u] for u in params])
+        samples = self.generate_samples(parameters, nr_samples)
+        zipped_samples = itertools.product(*[samples[u.name] for u in parameters])
         
-        n_designs = self.determine_nr_of_designs(parameters)
-        designs = DefaultDesigns(sampled_parameters, params, n_designs)
+        n_designs = self.determine_nr_of_designs(samples)
+        designs = DefaultDesigns(zipped_samples, parameters, n_designs)
         
-        return designs, n_designs
+        return designs
 
     def determine_nr_of_designs(self, sampled_parameters):
         '''
@@ -433,18 +433,19 @@ class PartialFactorialSampler(AbstractSampler):
         
         # generate a design over the factorials
         # TODO update ff to use resolution if present
-        ff_designs, n_ff = self.ff.generate_designs(ff_params, nr_samples)
+        ff_designs = self.ff.generate_designs(ff_params, nr_samples)
         
         # generate a design over the remainder
         # for each factorial, run the MC design
-        other_designs, n_other = self.sampler.generate_designs(other_params, 
+        other_designs = self.sampler.generate_designs(other_params, 
                                                               nr_samples)
         
-        nr_designs = n_other * n_ff
+        nr_designs = other_designs.n * ff_designs.n
         
-        designs = PartialFactorialDesigns(ff_designs, other_designs, nr_designs)
+        designs = PartialFactorialDesigns(ff_designs, other_designs, 
+                                          parameters, nr_designs)
         
-        return designs, nr_designs
+        return designs
 
 #TODO:: better name, sampers lowercase conflicts with modulename
 SAMPLERS = {LHS:LHSSampler(),
@@ -490,9 +491,9 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     '''
     
     levers = determine_parameters(models, 'levers', union=union)
-    samples, n = sampler.generate_designs(levers, n_samples)
+    samples = sampler.generate_designs(levers, n_samples)
     samples.kind = Policy
-    return samples, levers, n
+    return samples
 
 def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
     '''generate scenarios by sampling over the uncertainties
@@ -518,10 +519,10 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
     
     '''
     uncertainties = determine_parameters(models, 'uncertainties', union=union)
-    samples, n = sampler.generate_designs(uncertainties, n_samples)
+    samples = sampler.generate_designs(uncertainties, n_samples)
     samples.kind = Scenario
     
-    return samples, uncertainties, n
+    return samples
 
 def from_experiments(models, experiments):
     '''generate scenarios from an existing experiments recarray
@@ -561,17 +562,18 @@ def from_experiments(models, experiments):
 
     samples = {unc:experiments[unc] for unc in unc_names}
     
-    scenarios = DefaultDesigns(samples, unc_names)
+    scenarios = DefaultDesigns(samples, uncertainties, experiments.shape[0])
     scenarios.kind = Scenario
     
-    return scenarios, uncertainties, experiments.shape[0]
+    return scenarios 
 
 class DefaultDesigns(object):
     '''iterable for the experimental designs'''
     
     def __init__(self, designs, parameters, n):
         self.designs = designs
-        self.params = parameters
+        self.parameters = parameters
+        self.params = [p.name for p in parameters]
         self.kind = None
         self.n = n
     
@@ -593,9 +595,13 @@ class PartialFactorialDesigns(object):
         self.ff_designs.kind = value
         self.other_designs.kind = value
     
-    def __init__(self, ff_designs, other_designs, n):
+    def __init__(self, ff_designs, other_designs, parameters, n):
         self.ff_designs = ff_designs
         self.other_designs = other_designs
+        
+        self.parameters = parameters
+        self.params = [p.name for p in parameters]
+
         self._kind = None
         self.n = n
     

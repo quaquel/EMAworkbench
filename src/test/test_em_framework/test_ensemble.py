@@ -277,7 +277,7 @@ class EnsembleTestCase(unittest.TestCase):
         unique_a = RealParameter("unique a ", 0, 1)
         unique_b = RealParameter("unique b ", 0, 1)
         uncertainties = [shared_abc_1, shared_abc_2, unique_a, unique_b]
-        designs, _ = sampler.generate_designs(uncertainties, 10)
+        designs  = sampler.generate_designs(uncertainties, 10)
         designs.kind = Scenario
         
         # everything shared
