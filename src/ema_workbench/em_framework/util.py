@@ -1,12 +1,10 @@
-'''
-
-
-'''
+'''utilities used throughout em_framework'''
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
 import copy
 from collections import OrderedDict
+from sympy.physics.quantum.represent import represent
 
 try:
     from UserDict import UserDict
@@ -20,6 +18,7 @@ except ImportError:
     # so it must by python 3
     from collections.abc import MutableMapping
 
+import itertools
 import six
 
 from ..util import EMAError
@@ -30,14 +29,31 @@ from ..util import EMAError
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['NamedObject']
+__all__ = ['NamedObject', 'NamedDict', 'counter', 'representation']
 
 class NamedObject(object):
 
     def __init__(self, name):
         self.name = name
+
+
+class Counter(object):
+    '''helper function for generating counter based names for NamedDicts'''
+    
+    _counter = itertools.count()
+    
+    def __call__(self, named_dict):
+        return six.next(self._counter)
+counter = Counter()
+
+    
+def representation(named_dict):
+    '''helper function for generating repr based names for NamedDicts'''
+    return repr(named_dict)
         
 class Variable(NamedObject):
+    '''Root class for input parameters and outcomes '''
+    
     @property
     def variable_name(self):
         if self._variable_name != None:
@@ -109,9 +125,6 @@ class NamedObjectMap(object):
             self._data[value.name] = value
         elif hasattr(value, "__iter__"):
             for item in value:
-                if not isinstance(item, self.type):
-                    raise TypeError("can only add " + self.type.__name__ + " objects")
-            for item in value:
                 self._data[item.name] = item
         else:
             raise TypeError("can only add " + str(type) + " objects")
@@ -154,10 +167,12 @@ class NamedObjectMapDescriptor(object):
 
 class NamedDict(UserDict, NamedObject):
     
-    def __init__(self, name=None, **kwargs):
+    def __init__(self, name=representation, **kwargs):
         super(NamedDict, self).__init__(**kwargs)
         if name is None:
-            name = repr(self)
+            raise ValueError()
+        elif callable(name):
+            name = name(self)
         self.name = name
            
     
@@ -229,4 +244,9 @@ def determine_objects(models, attribute, union=True):
         for key in params_to_remove:
             del named_objects[key]
     return named_objects
+
+
+
+    
+    
     
