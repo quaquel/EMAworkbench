@@ -16,9 +16,9 @@ from scipy.optimize import brentq
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            perform_experiments)
 import ema_workbench.em_framework.samplers as samplers
+import ema_workbench.em_framework.util as util
+
 from ema_workbench.util import ema_logging
-
-
 
 
 def lake_problem(
@@ -87,19 +87,14 @@ if __name__ == '__main__':
     # override some of the defaults of the model
     lake_model.constants = [Constant('alpha', 0.41),
                             Constant('nsamples', 150)]
-
+        
     # generate some random policies by sampling over levers
     policies = samplers.sample_levers(lake_model, 4, 
-                                      sampler=samplers.MonteCarloSampler())
-    
-    # policies is a generator, so let's exhaust the generator
-    policies = [policy for policy in policies]
-    
-    for i, policy in enumerate(policies):
-        policy.name = i
+                                      sampler=samplers.MonteCarloSampler(),
+                                      name=util.counter)
     
     # perform experiments
     nr_experiments = 1000
     
     results = perform_experiments(lake_model, nr_experiments, 
-                              policies, parallel=True)
+                                  policies, parallel=False)
