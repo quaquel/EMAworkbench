@@ -20,6 +20,7 @@ except ImportError:
         pass
 
 import abc
+import functools
 import itertools
 import numpy as np 
 import operator
@@ -472,7 +473,8 @@ def determine_parameters(models, attribute, union=True):
     '''
     return util.determine_objects(models, attribute, union=union)
 
-def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
+def sample_levers(models, n_samples, union=True, sampler=LHSSampler(),
+                  name=None):
     '''generate policies by sampling over the levers
     
     Parameters
@@ -483,16 +485,21 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
             in case of multiple models, sample over the union of
             levers, or over the intersection of the levers
     sampler : Sampler instance, optional
+    name : callable, optional
+           a callable to generate a name given the sampled values
+          for each lever
     
     Returns
     -------
     generator yielding Policy instances
     
     '''
-    
     levers = determine_parameters(models, 'levers', union=union)
     samples = sampler.generate_designs(levers, n_samples)
-    samples.kind = Policy
+    
+    partial_policy = functools.partial(Policy, name=name)
+    samples.kind = partial_policy
+    
     return samples
 
 def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
