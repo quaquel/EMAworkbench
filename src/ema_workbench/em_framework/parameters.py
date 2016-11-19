@@ -1,7 +1,4 @@
-'''
-
-
-'''
+'''parameters and collections of parameters'''
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
@@ -12,9 +9,8 @@ import pandas
 import six
 import warnings
 
-from ema_workbench.em_framework.util import NamedObject, Variable,\
-    NamedObjectMap
-from ema_workbench.em_framework.util import NamedDict
+from ema_workbench.em_framework.util import (NamedObject, Variable,
+                                         NamedObjectMap, counter, NamedDict)
 
 # Created on Jul 14, 2016
 #
@@ -27,7 +23,7 @@ __all__ = ['Parameter','RealParameter', 'IntegerParameter',
 class Constant(NamedObject):
     '''Constant class, 
     
-    can be used for any parameters that have to be set to a fixed value
+    can be used for any parameter that has to be set to a fixed value
     
     '''
     
@@ -37,6 +33,7 @@ class Constant(NamedObject):
 
     def __repr__(self, *args, **kwargs):
         return 'Contant(\'{}\', {})'.format(self.name, self.value)
+
 
 class Category(Constant):
     
@@ -164,25 +161,8 @@ class RealParameter(Parameter):
     @property
     def params(self):
         return (self.lower_bound, self.upper_bound-self.lower_bound)
-    
-#     def __repr__(self, *args, **kwargs):
-#         start = 'RealParameter(\'{}\', {}, {}'.format(self.name, 
-#                                           self.lower_bound, self.upper_bound)
-#         
-#         if self.resolution:
-#             start += ', resolution={}'.format(self.resolution)
-#         if self.default:
-#             start += ', default={}'.format(self.default)
-#         if self.variable_name != [self.name]:
-#             start += ', variable_name={}'.format(self.variable_name)
-#         if self.pff:
-#             start += ', pff={}'.format(self.pff)
-#             
-#         start += ')'
-#         
-#         return start
-        
-        
+
+  
 class IntegerParameter(Parameter):
     ''' integer valued model input parameter
     
@@ -229,23 +209,6 @@ class IntegerParameter(Parameter):
     def params(self):
         return (self.lower_bound, self.upper_bound)
     
-#     def __repr__(self, *args, **kwargs):
-#         start = 'IntegerParameter(\'{}\', {}, {}'.format(self.name, 
-#                                           self.lower_bound, self.upper_bound)
-#         
-#         if self.resolution:
-#             start += ', resolution={}'.format(self.resolution)
-#         if self.default:
-#             start += ', default={}'.format(self.default)
-#         if self.variable_name != [self.name]:
-#             start += ', variable_name={}'.format(self.variable_name)
-#         if self.pff:
-#             start += ', pff={}'.format(self.pff)
-#             
-#         start += ')'
-#         
-#         return start
-
 
 class CategoricalParameter(IntegerParameter):
     ''' categorical model input parameter
@@ -265,8 +228,7 @@ class CategoricalParameter(IntegerParameter):
     @categories.setter
     def categories(self, values):
         self._categories.extend(values)
-    
-    
+        
     def __init__(self, name, categories, default=None, variable_name=None, 
                  pff=False):
         lower_bound = 0
@@ -298,16 +260,6 @@ class CategoricalParameter(IntegerParameter):
         
         
         '''
-        # TODO:: make a mappaple category
-        # where each category is a name value pair
-        # by default, name and value are the same
-        # but if you have e.g. time series, you can use the time series
-        # as value and have the name show up in the experiment array
-        # this accidentally also requires updating the callback, depending
-        # on how it gets implemented (might use e.g. str, or repr on category
-        # as a way of solving this)
-        #
-        
         return self.resolution.index(category)
 
     def value_for_category(self, category):
@@ -328,7 +280,6 @@ class CategoricalParameter(IntegerParameter):
         
         return self.resolution[index]
         
-        
     def transform(self, value):
         '''transform an integer to a category 
         
@@ -343,7 +294,6 @@ class CategoricalParameter(IntegerParameter):
             if value is out of bounds
         '''
         warnings.warn('deprecated, use cat_for_index instead')
-
         return self.cat_for_index(value)
     
     def invert(self, name):
@@ -361,7 +311,6 @@ class CategoricalParameter(IntegerParameter):
         
         '''
         warnings.warn('deprecated, use index_for_cat instead')
-        
         return self.index_for_cat(name)
 
     def __repr__(self, *args, **kwargs):
@@ -398,12 +347,9 @@ class Policy(NamedDict):
         
 
 class Scenario(NamedDict):
-    job_counter = itertools.count()
-    
-    def __init__(self, name=None, **kwargs):
-        if name == None:
-            name = six.next(Scenario.job_counter)
+    def __init__(self, name=counter, **kwargs):
         super(Scenario, self).__init__(name, **kwargs)
+
 
 class Experiment(NamedObject):
     def __init__(self, name, model, policy, scenario, experiment_id):
@@ -542,7 +488,6 @@ def create_parameters(uncertainties, **kwargs):
     for i, row in uncertainties.iterrows():
         name = names[i]
         values = row.values[row.notnull().values]
-#         values = [cast(entry) for entry in values]
         type = None
         
         if infer_type:
@@ -567,3 +512,4 @@ def create_parameters(uncertainties, **kwargs):
         else:
             uncs.append(parameter_map[type](name, *values))
     return uncs
+
