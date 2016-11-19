@@ -9,9 +9,8 @@ using the world container model (Tavasszy et al 2011; http://dx.doi.org/10.1016/
 import numpy as np
 import matplotlib.pyplot as plt
 
+from ema_workbench import ema_logging, load_results
 from ema_workbench.analysis import prim
-
-from ema_workbench.util import ema_logging, load_results
 
 ema_logging.log_to_stderr(ema_logging.INFO);
 

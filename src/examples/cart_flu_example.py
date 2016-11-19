@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.cart as cart
-from ema_workbench.util import ema_logging, load_results
+from ema_workbench import ema_logging, load_results
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 

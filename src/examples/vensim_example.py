@@ -11,10 +11,10 @@ example
 from __future__ import (division, unicode_literals, absolute_import, 
                         print_function)
 
-from ema_workbench.em_framework import (TimeSeriesOutcome, perform_experiments)
-from ema_workbench.util import ema_logging 
+from ema_workbench import (TimeSeriesOutcome, perform_experiments,
+                           RealParameter, ema_logging)
+
 from ema_workbench.connectors.vensim import VensimModel
-from ema_workbench.em_framework.parameters import RealParameter
 
 if __name__ == "__main__":
     #turn on logging

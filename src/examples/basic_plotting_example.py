@@ -5,7 +5,7 @@ Created on Jul 8, 2014
 '''
 import matplotlib.pyplot as plt
 
-from ema_workbench.util import ema_logging, load_results
+from ema_workbench import ema_logging, load_results
 
 from ema_workbench.analysis.plotting import envelopes 
 from ema_workbench.analysis.plotting_util import KDE
