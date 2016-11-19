@@ -13,10 +13,9 @@ from __future__ import (division, unicode_literals, print_function,
 
 import numpy as np
 
-from ema_workbench.em_framework import (RealParameter,TimeSeriesOutcome, 
-                                        ScalarOutcome, perform_experiments)
+from ema_workbench import (RealParameter,TimeSeriesOutcome, ema_logging,
+                           ScalarOutcome, perform_experiments)
 from ema_workbench.em_framework.parameters import Policy
-from ema_workbench.util import ema_logging
 from ema_workbench.connectors.vensim import VensimModel 
 
 if __name__ == '__main__':

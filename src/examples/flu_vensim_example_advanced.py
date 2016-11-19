@@ -13,10 +13,10 @@ from __future__ import (absolute_import, print_function, unicode_literals,
 
 import numpy as np
 
-from ema_workbench.em_framework import (TimeSeriesOutcome, ScalarOutcome,
-                                        perform_experiments)
+from ema_workbench import (TimeSeriesOutcome, ScalarOutcome,ema_logging,
+                           perform_experiments)
 from ema_workbench.em_framework.parameters import Policy, create_parameters
-from ema_workbench.util import ema_logging
+
 from ema_workbench.connectors.vensim import VensimModel 
 
 def time_of_max(infected_fraction, time):

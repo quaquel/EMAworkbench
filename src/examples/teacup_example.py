@@ -11,10 +11,10 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+from ema_workbench import (RealParameter, TimeSeriesOutcome,ema_logging,
+                           perform_experiments)
+
 from ema_workbench.connectors import PysdModel
-from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome, 
-                                        ModelEnsemble)
-from ema_workbench.util import ema_logging
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.DEBUG)    
@@ -26,8 +26,4 @@ if __name__ == '__main__':
     model.uncertainties = [RealParameter('Room Temperature', 33, 120)]
     model.outcomes = [TimeSeriesOutcome('Teacup Temperature')]
     
-    ensemble = ModelEnsemble()  # instantiate an ensemble
-    ensemble.model_structures = model  # set the model on the ensemble
-#     ensemble.parallel = True
-    ensemble.processes = 1
-    ensemble.perform_experiments(100, reporting_interval=1)
+    perform_experiments(model, 100)

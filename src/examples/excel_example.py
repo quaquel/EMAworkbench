@@ -13,9 +13,9 @@ This excel file implements a simple predator prey model.
 from __future__ import (division, print_function, absolute_import, 
                         unicode_literals)
 
-from ema_workbench.em_framework import (RealParameter, TimeSeriesOutcome, 
-                                        perform_experiments)
-from ema_workbench.util import ema_logging
+from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
+                           perform_experiments)
+
 from ema_workbench.connectors.excel import ExcelModel
 
 

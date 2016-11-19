@@ -19,9 +19,8 @@ from numpy import sin, min
 from scipy import exp
 import matplotlib.pyplot as plt
 
-from ema_workbench.em_framework import (Model, ParameterUncertainty, 
-                                        TimeSeriesOutcome, perform_experiments)
-from ema_workbench.util import ema_logging
+from ema_workbench import (Model, RealParameter, TimeSeriesOutcome, 
+                           perform_experiments, ema_logging)
                          
 from ema_workbench.analysis.plotting import lines
 from ema_workbench.analysis.plotting_util import KDE                         
@@ -116,7 +115,7 @@ def flu_model(x11=0,x12=0,x21=0,x22=0,x31=0,x32=0,x41=0,x51=0,x52=0,x61=0,
      
     Max_infected = 0
 
-    for time in xrange(int(INITIAL_TIME/TIME_STEP), int(FINAL_TIME/TIME_STEP)):
+    for time in range(int(INITIAL_TIME/TIME_STEP), int(FINAL_TIME/TIME_STEP)):
         runTime.append(runTime[-1]+TIME_STEP)
         total_population_region_1 = infected_population_region_1 + recovered_population_region_1 + susceptible_population_region_1 + immune_population_region_1
         total_population_region_2 = infected_population_region_2 + recovered_population_region_2 + susceptible_population_region_2 + immune_population_region_2
@@ -239,30 +238,30 @@ if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
     
     model = Model('mexicanFlu', function=flu_model)
-    model.uncertainties = [ParameterUncertainty((0, 0.5), "x11"), #k1
-                           ParameterUncertainty((0, 0.5), "x12"), #k2
-                           ParameterUncertainty((0.0001, 0.1), "x21"), #k3
-                           ParameterUncertainty((0.0001, 0.1), "x22"), #k4
-                           ParameterUncertainty((0, 0.5), "x31"), #k5
-                           ParameterUncertainty((0, 0.5), "x32"), #k6
-                           ParameterUncertainty((0, 0.9), "x41"), #k7
-                           ParameterUncertainty((0, 0.5), "x51"), #k8
-                           ParameterUncertainty((0, 0.5), "x52"), #k9
-                           ParameterUncertainty((0, 0.8), "x61"), #k10
-                           ParameterUncertainty((0, 0.8), "x62"), #k11
-                           ParameterUncertainty((1, 10), "x81"), #k14
-                           ParameterUncertainty((1,10), "x82"), #k15
-                           ParameterUncertainty((0, 0.1), "x91"), #k16
-                           ParameterUncertainty((0, 0.1), "x92"), #k17
-                           ParameterUncertainty((0, 200), "x101"), #k18
-                           ParameterUncertainty((0, 200), "x102")
-                           ] 
+    model.uncertainties = [RealParameter('x11', 0, 0.5),
+                           RealParameter('x12', 0, 0.5),
+                           RealParameter('x21', 0.0001, 0.1),
+                           RealParameter('x22', 0.0001, 0.1),
+                           RealParameter('x31', 0, 0.5),
+                           RealParameter('x32', 0, 0.5),
+                           RealParameter('x41', 0, 0.9),
+                           RealParameter('x51', 0, 0.5),
+                           RealParameter('x52', 0, 0.5),
+                           RealParameter('x61', 0, 0.8),
+                           RealParameter('x62', 0, 0.8),
+                           RealParameter('x81', 1, 10),
+                           RealParameter('x82', 1, 10),
+                           RealParameter('x91', 0, 0.1),
+                           RealParameter('x92', 0, 0.1),
+                           RealParameter('x101', 0, 200),
+                           RealParameter('x102', 0, 200)] 
+    
     model.outcomes = [TimeSeriesOutcome("TIME"),
                       TimeSeriesOutcome("deceased_population_region_1")]
     
     nr_experiments = 500
     results = perform_experiments(model, nr_experiments, parallel=True)
-
+ 
     lines(results, outcomes_to_show="deceased_population_region_1", 
           show_envelope=True, density=KDE, titles=None, 
           experiments_to_show=np.arange(0, nr_experiments, 10)
