@@ -4,7 +4,6 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 import copy
 from collections import OrderedDict
-from sympy.physics.quantum.represent import represent
 
 try:
     from UserDict import UserDict
