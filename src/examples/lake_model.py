@@ -14,11 +14,9 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
-                           perform_experiments)
+                           perform_experiments, ema_logging)
 import ema_workbench.em_framework.samplers as samplers
 import ema_workbench.em_framework.util as util
-
-from ema_workbench.util import ema_logging
 
 
 def lake_problem(
