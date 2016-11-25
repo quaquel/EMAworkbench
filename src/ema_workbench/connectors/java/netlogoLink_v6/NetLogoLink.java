@@ -1,4 +1,4 @@
-package netlogoLink;
+package netlogoLink_v6;
 
 
 // partly based on the work of Uri Wilensky's Mathematica link:
@@ -7,7 +7,7 @@ package netlogoLink;
 
 
 import org.nlogo.headless.HeadlessWorkspace;
-import org.nlogo.api.CompilerException;
+import org.nlogo.core.CompilerException;
 import org.nlogo.api.LogoException;
 import org.nlogo.app.App;
 import java.awt.EventQueue;
@@ -66,8 +66,8 @@ public class NetLogoLink {
 			if( isGUIworkspace ) {
 				App.main( new String[] { } ) ;
 				workspace = App.app();
-				org.nlogo.util.Exceptions.setHandler
-					( new org.nlogo.util.Exceptions.Handler() {
+				org.nlogo.api.Exceptions.setHandler
+					( new org.nlogo.api.Exceptions.Handler() {
 							public void handle( Throwable t ) {
 								throw new RuntimeException(t.getMessage());
 							} } );
@@ -115,7 +115,7 @@ public class NetLogoLink {
 
 
 	public void loadModel(final String path)
-		throws java.io.IOException, LogoException, CompilerException, InterruptedException
+		throws java.io.IOException, LogoException, InterruptedException, CompilerException, Exception
 	{
 		/**
 		 * load a model
@@ -163,7 +163,7 @@ public class NetLogoLink {
 	}
 
 	public void command(final String s)
-		throws LogoException, CompilerException
+		throws Exception, LogoException, CompilerException
 	{
 		/**
 		 * execute the supplied command in netlogo. This method
@@ -180,7 +180,7 @@ public class NetLogoLink {
 	/* returns the value of a reporter.  if it is a LogoList, it will be
 	recursively converted to an array of Objects */
 	public Object report(String s)
-		throws LogoException, CompilerException, Exception
+		throws Exception, LogoException, CompilerException
 	{
 		/** 
 		 * Every reporter (commands which return a value) that can be called 

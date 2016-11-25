@@ -12,6 +12,7 @@ except ImportError:
 import os
 
 import numpy as np
+import six
 
 from ..em_framework.model import FileModel
 from ..util.ema_logging import method_logger
@@ -92,7 +93,7 @@ class NetLogoModel(FileModel):
         
         self.netlogo = pyNetLogo.NetLogoLink()
         debug("netlogo started")
-        path = self.working_directory+self.model_file
+        path = os.path.join(self.working_directory, self.model_file)
         self.netlogo.load_model(path)
         debug("model opened")
         
@@ -115,7 +116,7 @@ class NetLogoModel(FileModel):
         """
         super(NetLogoModel, self).run_model(scenario, policy)
         
-        for key, value in scenario.iteritems():
+        for key, value in scenario.items():
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:
@@ -208,7 +209,7 @@ class NetLogoModel(FileModel):
         '''helper function for parsing outcomes'''
         
         results = {}
-        for key, value in fns.iteritems():
+        for key, value in fns.items():
             with open(value) as fh:
                 result = fh.readline()
                 result = result.strip()
@@ -220,7 +221,8 @@ class NetLogoModel(FileModel):
         temp_output = {}
         for outcome in self.outcomes:
             varname = outcome.variable_name
-            if isinstance(varname, basestring):
+            if len(varname)==1:
+                varname = varname[0]
                 temp_output[outcome.name] = results[varname]
             else:
                 temp_output[outcome.name] = [results[var] for var in varname]

@@ -1,8 +1,8 @@
-package netlogoLink;
+package netlogoLink_v6;
 
 import java.util.LinkedHashMap;
 import java.text.ParseException;
-import org.nlogo.api.LogoList;
+import org.nlogo.core.LogoList;
 
 public class NLResult {
 
@@ -65,7 +65,7 @@ public class NLResult {
 		if(o instanceof LogoList)
 		{
 			type = "LogoList";
-			org.nlogo.api.LogoList loli = (org.nlogo.api.LogoList)o;
+			org.nlogo.core.LogoList loli = (org.nlogo.core.LogoList)o;
 			resultValue = cast_logolist(loli, false);
 		}
 		else if (o instanceof String) {
