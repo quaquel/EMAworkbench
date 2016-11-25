@@ -197,7 +197,7 @@ def create_outcomes(outcomes, **kwargs):
     Parameters
     ----------
     outcomes : Dataframe, or something convertable to a dataframe
-               in case of string, the string will be paased
+               in case of string, the string will be passed
     
     Returns
     -------
