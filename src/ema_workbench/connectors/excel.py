@@ -107,7 +107,7 @@ class ExcelModel(FileModel):
         
         
         """
-        super(ExcelModelStructureInterface, self).run_model(scenario, policy)
+        super(ExcelModel, self).run_model(scenario, policy)
         
         #find right sheet
         try:
