@@ -71,7 +71,7 @@ class ExcelModel(FileModel):
         
         
         '''
-        super(ExcelModelStructureInterface, self).model_init(policy)
+        super(ExcelModel, self).model_init(policy)
         
         if not self.xl:
             try:
