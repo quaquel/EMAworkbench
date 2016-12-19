@@ -17,6 +17,7 @@ from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            perform_experiments, ema_logging)
 import ema_workbench.em_framework.samplers as samplers
 import ema_workbench.em_framework.util as util
+from ema_workbench.em_framework.parameters import CategoricalParameter
 
 
 def lake_problem(
@@ -66,7 +67,7 @@ if __name__ == '__main__':
     lake_model.time_horizon = 100
     
     #specify uncertainties
-    lake_model.uncertainties = [RealParameter('b', 0.1, 0.45),
+    lake_model.uncertainties = [CategoricalParameter('b', [0.1, 0.2, 0.3, 0.4, 0.45]),
                                 RealParameter('q', 2.0, 4.5),
                                 RealParameter('mean', 0.01, 0.05),
                                 RealParameter('stdev', 0.001, 0.005),
@@ -92,7 +93,7 @@ if __name__ == '__main__':
                                       name=util.counter)
     
     # perform experiments
-    nr_experiments = 1000
+    nr_experiments = 100
     
     results = perform_experiments(lake_model, nr_experiments, 
-                                  policies, parallel=False)
+                                  policies, parallel=True)

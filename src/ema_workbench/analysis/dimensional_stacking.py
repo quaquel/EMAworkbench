@@ -359,13 +359,13 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     as a template. 
         
     '''
-    results = (x, {'y':y})    
-    
-    scores = feature_scoring.get_rf_feature_scores(results, 'y')[0]
+    scores = feature_scoring.get_ex_feature_scores(x,y)[0]
     
     n = nr_levels*2
-    rows = [entry[0] for entry in scores[0:n:2]]
-    columns = [entry[0] for entry in scores[1:n:2]]
+    
+    scores = scores[0].values.tolist()
+    rows = [entry for entry in scores[0:n:2]]
+    columns = [entry for entry in scores[1:n:2]]
 
     data = pd.DataFrame.from_records(x)
     discretized_x = discretize(data, nbins=3)

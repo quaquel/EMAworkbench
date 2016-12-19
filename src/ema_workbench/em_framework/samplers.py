@@ -115,22 +115,8 @@ class AbstractSampler(object):
             dict with the paramertainty.name as key, and the sample as value
         
         '''
-        
-        samples = {}
-
-        for param in parameters:
-            #range in parameter gives lower and upper bound
-            sample = self.sample(param.dist, param.params, size) 
-            
-            if isinstance(param, CategoricalParameter):
-                # TODO look into numpy ufunc
-                sample = [param.cat_for_index(int(entry)) for entry in sample]
-            elif isinstance(param, IntegerParameter):
-                sample = (int(entry) for entry in sample)
-            
-            samples[param.name] = sample
-        
-        return samples
+        return {param.name: self.sample(param.dist, param.params, size) for 
+                param in parameters}
 
     def generate_designs(self,  parameters, nr_samples):
         '''external interface to sampler. Returns the computational experiments
@@ -558,13 +544,13 @@ def from_experiments(models, experiments):
               (experiments['policy'] == policy_names[0]) 
     
     experiments = experiments[logical]
-    experiments = np.lib.recfunctions.drop_fields(experiments, 
+    experiments = np.lib.recfunctions.drop_fields(experiments,  
                                                   ['model', 'policy'], 
-                                                  asrecarray=True)
+                                                  asrecarray=True) 
     
     uncertainties = util.determine_objects(models, 'uncertainties', 
                                            union=True)
-    unc_names = np.lib.recfunctions.get_names(experiments.dtype)
+    unc_names = np.lib.recfunctions.get_names(experiments.dtype)  # @UndefinedVariable
     uncertainties = [uncertainties[unc] for unc in unc_names]
 
     samples = {unc:experiments[unc] for unc in unc_names}

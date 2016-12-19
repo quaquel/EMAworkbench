@@ -13,7 +13,8 @@ import os
 import six
 import warnings
 from ema_workbench.util import ema_logging
-from ema_workbench.em_framework.parameters import CategoricalParameter
+from ema_workbench.em_framework.parameters import CategoricalParameter,\
+    IntegerParameter
 
 
 try:
@@ -163,9 +164,14 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
                 else:
                     ema_logging.debug('{} not found'.format(par.name))
                     continue
-                            
+
+            if (isinstance(par, CategoricalParameter)) or \
+               (isinstance(par, IntegerParameter)):
+                value = int(value)
+            
             multivalue = False
             if isinstance(par, CategoricalParameter):
+                value = par.cat_for_index(value)
                 category = par.categories[value]
                 
                 value = category.value
@@ -286,8 +292,6 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         model_spec['constants'] = join_attr(self.constants)
             
         return model_spec
-
-
     
 
 class Model(AbstractModel):

@@ -16,7 +16,8 @@ import unittest
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
 from ema_workbench.em_framework.model import Model, AbstractModel
 from ema_workbench.util import EMAError, CaseError
-from ema_workbench.em_framework.parameters import Policy, Experiment, Scenario
+from ema_workbench.em_framework.parameters import Policy, Experiment, Scenario,\
+    RealParameter
 
 class ExperimentRunnerTestCase(unittest.TestCase):
     
@@ -33,6 +34,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
     def test_run_experiment(self):
         mockMSI = mock.Mock(spec=Model)
         mockMSI.name = 'test'
+        mockMSI.uncertainties = [RealParameter("a", 0, 10),
+                                 RealParameter("b", 0, 10)]
         
         msis = NamedObjectMap(AbstractModel)
         msis['test'] = mockMSI

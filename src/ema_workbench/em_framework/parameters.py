@@ -3,7 +3,6 @@ from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
 import abc
-import itertools
 import numbers
 import pandas
 import six
@@ -32,7 +31,8 @@ class Constant(NamedObject):
         self.value = value
 
     def __repr__(self, *args, **kwargs):
-        return 'Contant(\'{}\', {})'.format(self.name, self.value)
+        return '{}(\'{}\', {})'.format(self.__class__.__name__,
+                                       self.name, self.value)
 
 
 class Category(Constant):
@@ -262,11 +262,8 @@ class CategoricalParameter(IntegerParameter):
         '''
         return self.resolution.index(category)
 
-    def value_for_category(self, category):
-        return self.categories[category].value
-
     def cat_for_index(self, index):
-        '''return category associated with index
+        '''return category given index
         
         Parameters
         ----------
@@ -281,12 +278,12 @@ class CategoricalParameter(IntegerParameter):
         return self.resolution[index]
         
     def transform(self, value):
-        '''transform an integer to a category 
+        '''return index of category
         
         Parameters
         ----------
         name : int
-               value for which you want the category
+               index for which you want the category
                
         Raises
         ------
@@ -403,12 +400,12 @@ def parameters_to_csv(parameters, file_name):
     
 
 def create_parameters(uncertainties, **kwargs):
-    '''Helper function for creating many Parameters based on a dataframe
+    '''Helper function for creating many Parameters based on a DataFrame
     or csv file
     
     Parameters
     ----------
-    uncertainties : str, dataframe
+    uncertainties : str, DataFrame
     **kwargs : dict, arguments to pass to pandas.read_csv
     
     Returns
@@ -417,7 +414,7 @@ def create_parameters(uncertainties, **kwargs):
     
     
     This helper function creates uncertainties. It assumes that the 
-    dataframe or csv file has a column titled 'name', optionally a type column
+    DataFrame or csv file has a column titled 'name', optionally a type column
     {int, real, cat}, can be included as well. the remainder of the columns
     are handled as values for the parameters. If type is not specified,
     the function will try to infer type from the values. 
@@ -450,18 +447,6 @@ def create_parameters(uncertainties, **kwargs):
     parameter_map = {'int': IntegerParameter,
                      'real': RealParameter,
                      'cat': CategoricalParameter}
-    
-#     def cast(obj):
-#         obj = str(obj)
-#         
-#         try:
-#             obj = int(obj)
-#         except ValueError:
-#             try:
-#                 obj = float(obj)
-#             except ValueError:
-#                 pass
-#         return obj
 
     # check if names column is there
     if ('NAME' not in uncertainties) and ('name' not in uncertainties):
@@ -488,24 +473,24 @@ def create_parameters(uncertainties, **kwargs):
     for i, row in uncertainties.iterrows():
         name = names[i]
         values = row.values[row.notnull().values]
-        type = None
+        type = None  # @ReservedAssignment
         
         if infer_type:
             if len(values) != 2:
-                type = 'cat'
+                type = 'cat' # @ReservedAssignment
             else:
                 l, u = values
                 
                 if isinstance(l, numbers.Integral) and isinstance(u, numbers.Integral):
-                    type = 'int'
+                    type = 'int' # @ReservedAssignment
                 else:
-                    type = 'real'
+                    type = 'real' # @ReservedAssignment
             
         else:
-            type = types[i]
+            type = types[i] # @ReservedAssignment
             
             if (type != 'cat') and (len(values) != 2):
-                raise ValueError('to0 many values specified for {}, is {}, should be 2'.format(name, values.shape[0]))
+                raise ValueError('too many values specified for {}, is {}, should be 2'.format(name, values.shape[0]))
             
         if type=='cat':
             uncs.append(parameter_map[type](name, values))
