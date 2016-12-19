@@ -224,7 +224,7 @@ def plot_cdfs(x, y, ccdf=False):
     x : recarray
         the experiments to use in the cdfs
     y : ndaray 
-        tthe categorization for the data
+        the categorization for the data
     ccdf : bool, optional
            if true, plot a complementary cdf instead of a normal cdf.
     
