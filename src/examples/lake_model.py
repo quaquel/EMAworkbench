@@ -17,7 +17,6 @@ from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            perform_experiments, ema_logging)
 import ema_workbench.em_framework.samplers as samplers
 import ema_workbench.em_framework.util as util
-from ema_workbench.em_framework.parameters import CategoricalParameter
 
 
 def lake_problem(
@@ -29,7 +28,10 @@ def lake_problem(
          alpha = 0.4,       # utility from pollution
          nsamples = 100,    # Monte Carlo sampling of natural inflows
          **kwargs):   
-    decisions = [kwargs[str(i)] for i in range(100)]
+    try:
+        decisions = [kwargs[str(i)] for i in range(100)]
+    except KeyError:
+        decisions = [0, ] * 100
     
     Pcrit = brentq(lambda x: x**q/(1+x**q) - b*x, 0.01, 1.5)
     nvars = len(decisions)
@@ -67,7 +69,7 @@ if __name__ == '__main__':
     lake_model.time_horizon = 100
     
     #specify uncertainties
-    lake_model.uncertainties = [CategoricalParameter('b', [0.1, 0.2, 0.3, 0.4, 0.45]),
+    lake_model.uncertainties = [RealParameter('b', 0.1, 0.45),
                                 RealParameter('q', 2.0, 4.5),
                                 RealParameter('mean', 0.01, 0.05),
                                 RealParameter('stdev', 0.001, 0.005),
