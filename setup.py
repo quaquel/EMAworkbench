@@ -39,10 +39,16 @@ def package_files(root, package_data_dir):
 
 example_data_files = package_files('src/examples', 'data')
 example_model_files = package_files('src/examples', 'models')
+java_files = package_files('src/ema_workbench/connectors', 'java')
+java_files = [''.join(['connectors/', entry]) for entry in java_files]
+
+# print(example_data_files)
+# print(java_files)
 
 VERSION = version('src/ema_workbench/__init__.py')
 LONG_DESCRIPTION ="""Project Documentation: https://emaworkbench.readthedocs.io/"""
 EXAMPLE_DATA = example_data_files + example_model_files
+JAVA = java_files
 
 setup(
     name='ema_workbench',
@@ -51,7 +57,8 @@ setup(
     author_email='j.h.kwakkel@tudelft',
     packages=find_packages('./src', exclude=['test', 'test.*']),
     package_dir={'':'./src'},
-    package_data = {'examples': EXAMPLE_DATA},
+    package_data = {'examples': EXAMPLE_DATA, 
+                    'ema_workbench':JAVA},
     url='https://github.com/quaquel/EMAworkbench',
     license='BSD 3-Clause',
     description='exploratory modelling in Python',
