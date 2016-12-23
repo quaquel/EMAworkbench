@@ -12,7 +12,7 @@ Therefore, this example will not work if you are running 64 bit Python.
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 '''
-
+from __future__ import (division, print_function)
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -34,21 +34,10 @@ def classify(data):
     return classes
 
 #load data
-fn = r'./data/1000 flu cases.tar.gz'
+fn = r'./data/1000 flu cases no policy.tar.gz'
 results = load_results(fn)
-experiments, results = results
-
-#extract results for 1 policy
-logical = experiments['policy'] == 'no policy'
-new_experiments = experiments[ logical ]
-new_results = {}
-for key, value in results.items():
-    new_results[key] = value[logical]
-
-results = (new_experiments, new_results)
 
 #perform prim on modified results tuple
-
 prim_obj = prim.setup_prim(results, classify, threshold=0.8, threshold_type=1)
 
 box_1 = prim_obj.find_box()
@@ -60,8 +49,8 @@ box_1.write_ppt_to_stdout()
 box_1.show_pairs_scatter()
 
 #print prim to std_out
-print prim_obj.stats_to_dataframe()
-print prim_obj.boxes_to_dataframe()
+print(prim_obj.stats_to_dataframe())
+print(prim_obj.boxes_to_dataframe())
 
 #visualize
 prim_obj.display_boxes()
