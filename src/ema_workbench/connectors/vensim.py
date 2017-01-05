@@ -11,7 +11,6 @@ used functions with error checking. For more fine grained control, the
 from __future__ import (absolute_import, print_function, division, 
                         unicode_literals)
 
-import types
 import decimal
 import math
 import numpy as np
@@ -218,6 +217,10 @@ class VensimModel(FileModel):
     
     '''
     
+    @property
+    def result_file(self):
+        return os.path.join(self.working_directory, self._resultfile)
+    
     def __init__(self, name, wd=None, model_file=None):
         """interface to the model
         
@@ -260,7 +263,7 @@ class VensimModel(FileModel):
         self.cin_file = None
         
         #: default name of the results file (default: 'Current.vdf')
-        self.result_file = 'Current.vdf'
+        self._resultfile = 'Current.vdf'
         
         debug("vensim interface init completed")
         
@@ -360,9 +363,9 @@ class VensimModel(FileModel):
             set_value(key, value)
         debug("model parameters set successfully")
         
-        debug("run simulation, results stored in " + self.working_directory+self.result_file)
+        debug("run simulation, results stored in " + self.result_file)
         try:
-            run_simulation(self.working_directory+self.result_file)
+            run_simulation(self.result_file)
         except VensimError:
             raise
 
@@ -401,7 +404,6 @@ class VensimModel(FileModel):
         """
       
         super(VensimModel, self).reset_model()
-#         self.result_file = 'Current.vdf'
 
 
     def _delete_lookup_uncertainties(self):
