@@ -13,3 +13,4 @@ pyzmq
 jupyter
 deap
 pysd
+salib
