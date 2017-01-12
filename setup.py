@@ -4,7 +4,7 @@ import io
 import os
 import re
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def read(path, encoding='utf-8'):
@@ -49,13 +49,20 @@ VERSION = version('src/ema_workbench/__init__.py')
 LONG_DESCRIPTION ="""Project Documentation: https://emaworkbench.readthedocs.io/"""
 EXAMPLE_DATA = example_data_files + example_model_files
 JAVA = java_files
+PACKAGES = ['ema_workbench', 
+            'ema_workbench.analysis', 
+            'ema_workbench.connectors', 
+            'ema_workbench.em_framework', 
+            'ema_workbench.util', 
+            'ema_workbench.analysis.cluster_util',
+            'examples']
 
 setup(
     name='ema_workbench',
     version=VERSION,
     author='Jan Kwakkel',
     author_email='j.h.kwakkel@tudelft',
-    packages=find_packages('./src', exclude=['test', 'test.*']),
+    packages=PACKAGES,
     package_dir={'':'./src'},
     package_data = {'examples': EXAMPLE_DATA, 
                     'ema_workbench':JAVA},

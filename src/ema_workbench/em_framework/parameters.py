@@ -335,6 +335,8 @@ class Policy(NamedDict):
     # notation. This removes the ordering
     # practical issue: switching NamedDict from UserDict to 
     # OrderedDict creates a world of pain
+    def __init__(self, name, **kwargs):
+        super(Policy, self).__init__(name, **kwargs)
     
     def to_list(self, parameters):
         '''get list like representation of policy where the
