@@ -8,8 +8,6 @@ Monte Carlo sampling.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-from .parameters import (CategoricalParameter, IntegerParameter, Policy, 
-                         Scenario)
 
 try:
     from future_builtins import zip
@@ -27,6 +25,7 @@ import operator
 import scipy.stats as stats
 
 from . import util
+from .parameters import (IntegerParameter, Policy, Scenario)
 
 # Created on 16 aug. 2011
 # 
@@ -460,7 +459,7 @@ def determine_parameters(models, attribute, union=True):
     return util.determine_objects(models, attribute, union=union)
 
 def sample_levers(models, n_samples, union=True, sampler=LHSSampler(),
-                  name=None):
+                  name=util.representation):
     '''generate policies by sampling over the levers
     
     Parameters

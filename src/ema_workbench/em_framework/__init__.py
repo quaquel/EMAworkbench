@@ -8,7 +8,8 @@ __all__ = ["ema_parallel", "model_ensemble", "parameters"
            "Outcome", "ScalarOutcome", "TimeSeriesOutcome",
            "RealParameter", "IntegerParameter", "CategoricalParameter",
            "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
-           "parameters_to_csv", "Category"
+           "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
+           "get_SaLib_problem"
            ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
@@ -20,10 +21,11 @@ from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                      parameters_to_csv, Category)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler, 
                        PartialFactorialSampler, LHS, MC, FF, PFF, SAMPLERS)
+from .salib_samplers import (SobolSampler, MorrisSampler, get_SaLib_problem)
 
 
 
-def perform_experiments(models, cases, policies=[Policy('None')], 
+def perform_experiments(models, cases, policies=[Policy('none')], 
                         sampling=LHS, parallel=False, reporting_interval=None,
                         uncertainty_union=False, outcome_union=False):
     '''convenience function for running experiments

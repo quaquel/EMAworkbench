@@ -13,6 +13,7 @@ Exploratory modeling framework
    ../../ema_documentation/em_framework/parameters.rst
    ../../ema_documentation/em_framework/outcomes.rst
    ../../ema_documentation/em_framework/samplers.rst
+   ../../ema_documentation/em_framework/salib_samplers.rst
    ../../ema_documentation/em_framework/experiment_runner.rst
    ../../ema_documentation/em_framework/callbacks.rst
    ../../ema_documentation/em_framework/ema_parallel.rst

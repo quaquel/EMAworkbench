@@ -8,4 +8,4 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
 from . import util
 from .util import save_results, load_results, ema_logging
 
-__version__ = '0.7.0.dev3'
+__version__ = '0.7.0.dev4'

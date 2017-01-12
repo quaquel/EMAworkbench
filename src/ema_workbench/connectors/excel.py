@@ -9,13 +9,8 @@ from __future__ import (absolute_import, print_function, division,
 
 import os
 
-import numpy as np
-
-try:
-    import win32com.client
-    from win32com.universal import com_error
-except ImportError:
-    "win32com not found, Excel connector not avaiable"
+import win32com.client  # @UnresolvedImport
+from win32com.universal import com_error # @UnresolvedImport
 
 from ..util import ema_logging, EMAError
 from ..em_framework.model import FileModel
