@@ -38,13 +38,7 @@ __all__ = ['AbstractSampler',
            'PartialFactorialSampler',
            'sample_levers',
            'sample_uncertainties',
-           'determine_parameters',
-           'LHS', 'MC', 'FF', 'PFF']
-
-LHS = 'lhs'
-MC = 'mc'
-FF = 'ff'
-PFF = 'pff'
+           'determine_parameters']
 
 
 class AbstractSampler(object):
@@ -433,11 +427,7 @@ class PartialFactorialSampler(AbstractSampler):
         
         return designs
 
-#TODO:: better name, sampers lowercase conflicts with modulename
-SAMPLERS = {LHS:LHSSampler(),
-            MC:MonteCarloSampler(),
-            FF:FullFactorialSampler(),
-            PFF:PartialFactorialSampler()}
+
     
 def determine_parameters(models, attribute, union=True):
     '''determine the parameters over which to sample
