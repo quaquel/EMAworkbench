@@ -11,10 +11,10 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["SobolSampler"]
+__all__ = ["SobolSampler", "MorrisSampler", "FASTSampler", 'get_SALib_problem']
 
 
-from SALib.sample import saltelli, morris
+from SALib.sample import saltelli, morris, fast_sampler
 
 import operator
 
@@ -23,7 +23,7 @@ from ema_workbench.em_framework.uncertainties import (CategoricalParameter,
                                                       IntegerParameter)
 
 
-def get_SaLib_problem(uncertainties):
+def get_SALib_problem(uncertainties):
     '''returns a dict with a problem specificatin as required by SALib'''
     
     _warning = False
@@ -63,7 +63,7 @@ class SALibSampler(object):
         
         '''
         
-        problem = get_SaLib_problem(uncertainties)
+        problem = get_SALib_problem(uncertainties)
         samples = self.sample(problem, size)
         samples = {unc.name:samples[:,i] for i, unc in enumerate(uncertainties)}
         
@@ -159,7 +159,34 @@ class MorrisSampler(SALibSampler):
     def __init__(self, num_levels, grid_jump, optimal_trajectories=None, 
                  local_optimization=False):
         super(MorrisSampler, self).__init__()
+        self.num_levels = num_levels
+        self.grid_jump = grid_jump
+        self.optimal_trajectories = optimal_trajectories
+        self.local_optimization = local_optimization
+        
 
     def sample(self, problem, size):
         return morris.sample(problem, size, self.num_levels, self.grid_jump, 
-                         self.optimal_trajectories, self.local_optimization)    
+                         self.optimal_trajectories, self.local_optimization)   
+        
+class FASTSampler(SALibSampler):
+    '''Sampler generating a Fourier Amplitude Sensitivity Test (FAST) using 
+    SALib
+    
+    Parameters
+    ----------
+    n : int
+        The number of samples to generate
+    m : int (default: 4)
+        The interference parameter, i.e., the number of harmonics to sum in the
+        Fourier series decomposition 
+    '''
+
+    
+    def __init__(self, n, m=4):
+        super(MorrisSampler, self).__init__()
+        self.n = n
+        self.m = m
+
+    def sample(self, problem, size):
+        return fast_sampler(self.n, self.m)  

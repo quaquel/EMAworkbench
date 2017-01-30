@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, unicode_literals, division, 
                         print_function)
 
+
 __all__ = ["ema_parallel", "model_ensemble", "parameters"
            "model", "outcomes", "samplers", "uncertainties", 
            'RealUncertainty', "IntegerUncertainty", "CategoricalUncertainty",  
@@ -9,7 +10,7 @@ __all__ = ["ema_parallel", "model_ensemble", "parameters"
            "RealParameter", "IntegerParameter", "CategoricalParameter",
            "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
-           "get_SaLib_problem"
+           "get_SALib_problem", "FASTSampler"
            ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
@@ -20,14 +21,30 @@ from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                      Scenario, Policy, Constant, Experiment, create_parameters,
                      parameters_to_csv, Category)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler, 
-                       PartialFactorialSampler, LHS, MC, FF, PFF, SAMPLERS)
-from .salib_samplers import (SobolSampler, MorrisSampler, get_SaLib_problem)
+                       PartialFactorialSampler)
+from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler, get_SALib_problem)
 
 
+LHS = 'lhs'
+MC = 'mc'
+FF = 'ff'
+PFF = 'pff'
+SOBOL = 'sobol'
+MORRIS = 'morris'
+FAST = 'fast'
+
+#TODO:: better name, sampers lowercase conflicts with modulename
+SAMPLERS = {LHS:LHSSampler,
+            MC:MonteCarloSampler,
+            FF:FullFactorialSampler,
+            PFF:PartialFactorialSampler,
+            SOBOL:SobolSampler,
+            MORRIS:MorrisSampler,
+            FAST:FASTSampler}
 
 def perform_experiments(models, cases, policies=[Policy('none')], 
                         sampling=LHS, parallel=False, reporting_interval=None,
-                        uncertainty_union=False, outcome_union=False):
+                        uncertainty_union=False, outcome_union=False, **kwargs):
     '''convenience function for running experiments
     
     Parameters
@@ -41,6 +58,7 @@ def perform_experiments(models, cases, policies=[Policy('none')],
                          defaults to 1/10 of the number of cases
     uncertainty_union : bool, optional
     outcome_union : bool, optional
+    kwargs : kwargs for sampler
     
     Returns
     -------
@@ -51,7 +69,7 @@ def perform_experiments(models, cases, policies=[Policy('none')],
     
     import numbers
 
-    ensemble = ModelEnsemble(sampler=SAMPLERS[sampling])
+    ensemble = ModelEnsemble(sampler=SAMPLERS[sampling](**kwargs))
     ensemble.parallel = parallel
     ensemble.model_structures = models
     ensemble.policies = policies
