@@ -10,13 +10,14 @@ from __future__ import (absolute_import, print_function, division,
 
 import itertools
 import math
+import six
 
 import matplotlib as mpl
 import numpy as np
-from ema_workbench.util import ema_logging
 from matplotlib.collections import PolyCollection, PathCollection
 from matplotlib.colors import ColorConverter
 
+from ema_workbench.util import ema_logging
 from ..util import EMAError
 
 
@@ -169,7 +170,7 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
     if style==GREYSCALE:
         color_converter = ColorConverter()
         for polycollection in ax.collections:
-            orig_color = polycollection._facecolors_original
+            orig_color = polycollection._original_facecolor
 
             try:
                 mapping = colormap[orig_color]
@@ -181,7 +182,7 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
                 polycollection.update({'facecolors' : new_color}) 
                 polycollection.update({'edgecolors' : new_color})
     elif style==HATCHING:
-        orig_color = collection._facecolors_original
+        orig_color = collection._original_facecolor
         
         try:
             mapping = colormap[orig_color]
@@ -216,7 +217,11 @@ def _set_ax_pathcollection_to_bw(collection, ax, style, colormap):
     for key, value in color_converter.colors.items():
         colors[value] = key    
 
-    rgb_orig = collection._facecolors_original
+    rgb_orig = collection._original_facecolor
+
+
+    if isinstance(rgb_orig, six.string_types):
+        rgb_orig = [rgb_orig]
     rgb_orig = [color_converter.to_rgb(row) for row in rgb_orig]
     
     new_color = [color_converter.to_rgba(colormap[entry]['fill']) for entry 
