@@ -189,7 +189,10 @@ class DefaultCallback(AbstractCallback):
             try:
                 value = scenario[parameter]
             except KeyError:
-                value = policy[parameter]
+                try:
+                    value = policy[parameter]
+                except KeyError:
+                    value = np.nan
             finally:
                 case.append(value)
         
