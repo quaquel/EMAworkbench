@@ -68,7 +68,8 @@ def find_jars(path):
             if file.endswith(".jar"):
                 jars.append(os.path.join(root, file))
     return jars
-      
+
+
 def establish_netlogoversion(path):
     # TODO: python3 compliance
     pattern = re.compile(r'(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$')
@@ -81,6 +82,7 @@ def establish_netlogoversion(path):
     
     main_version = version[0]
     return main_version
+
 
 def find_netlogo_windows():
     netlogo = None
@@ -105,6 +107,7 @@ def find_netlogo_windows():
     
     return netlogo
 
+
 def find_netlogo_mac():
     paths = ['/Applications', 
              os.path.join(os.getenv('HOME'), 'Applications')]
@@ -118,6 +121,7 @@ def find_netlogo_mac():
             netlogo = os.path.join(path, netlogo)
         
     return netlogo
+
 
 def find_netlogo_linux():
     raise NotImplementedError
@@ -142,6 +146,21 @@ class NetLogoException(Exception):
 
     
 class NetLogoLink():
+    '''
+    
+    Create a link with NetLogo. Underneath, the NetLogo JVM is started
+    through Jpype.
+    
+    
+    :param gui: boolean, if true run NetLogo with gui, otherwise run in 
+                headless mode. Defaults to false.
+    :param thd: boolean, if true start NetLogo in 3d mode. Defaults to 
+                false
+    :param nl_dir: string - full path to NetLogo .exe directory, use if
+                NetLogo is not in the default location
+    :param nl_version: string - NetLogo version under nl_dir (5.2 or 6.0)
+    
+    '''
     
     def __init__(self, gui=False, thd=False, netlogo_home=None, 
                  netlogo_version=None, jvm_home=None):
@@ -189,7 +208,6 @@ class NetLogoLink():
                 jpype.java.lang.System.setProperty("java.awt.headless", "true");            
             
             debug("JVM started")
-            
         
         link = jpype.JClass(module_name[netlogo_version])
         debug('NetLogoLink class found')
