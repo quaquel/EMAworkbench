@@ -85,7 +85,7 @@ class IpyparallelPool(AbstractPool):
         # update loggers on all engines
         client[:].apply_sync(set_engine_logger)
         
-        initialize_engines(self.client, msis, {})
+        initialize_engines(self.client, msis)
     
     def perform_experiments(self, callback, experiments):
         lb_view = self.client.load_balanced_view()
