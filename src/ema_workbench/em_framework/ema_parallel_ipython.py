@@ -18,9 +18,10 @@ import shutil
 import socket
 import threading
 
-import ipykernel
 import zmq
 from traitlets.config import Application
+
+from ipyparallel.engine.log import EnginePUBHandler
 
 from . import experiment_runner
 from ..util import ema_exceptions, utilities, ema_logging
@@ -221,7 +222,7 @@ def set_engine_logger():
     logger.setLevel(ema_logging.DEBUG)
 
     for handler in logger.handlers:
-        if isinstance(handler, ipykernel.log.EnginePUBHandler): # @UndefinedVariable
+        if isinstance(handler, EnginePUBHandler): # @UndefinedVariable
             handler.setLevel(ema_logging.DEBUG)
     
     adapter = EngingeLoggerAdapter(logger, SUBTOPIC)
@@ -370,7 +371,7 @@ class Engine(object):
             raise ema_exceptions.EMAParallelError(str(Exception))
        
 
-def initialize_engines(client, msis, model_init_kwargs={}):
+def initialize_engines(client, msis):
     '''initialize engine instances on all engines
     
     Parameters
@@ -378,13 +379,10 @@ def initialize_engines(client, msis, model_init_kwargs={}):
     client : IPython.parallel.Client 
     msis : dict
            dict of model structure interfaces with their names as keys
-    model_init_kwargs : dict, optional
-                        kwargs to pass to msi.model_init
-    
     
     '''
     for i in client.ids:
-        client[i].apply_sync(_initialize_engine, i, msis, model_init_kwargs)
+        client[i].apply_sync(_initialize_engine, i, msis)
         
     setup_working_directories(client, msis)
 
@@ -408,11 +406,14 @@ def setup_working_directories(client, msis):
     # so we use a defaultdict to store the model interfaces
     # associated with each working directory
     wd_by_msi = collections.defaultdict(list)
-    for msi in msis.values():
+    for msi in msis:
         try:
             wd_by_msi[msi.working_directory].append(msi.name)
         except AttributeError:
             pass
+        
+    if len(wd_by_msi) == 0 :
+        return
         
     # determine the common root of all working directories
     common_root = os.path.commonprefix(wd_by_msi.keys())
@@ -443,9 +444,9 @@ def _run_experiment(experiment):
     return experiment, engine.run_experiment(experiment)
 
 
-def _initialize_engine(engine_id, msis, model_init_kwargs):
+def _initialize_engine(engine_id, msis):
     global engine
-    engine = Engine(engine_id, msis, model_init_kwargs)
+    engine = Engine(engine_id, msis)
 
     
 def _setup_working_directory(dir_name):
