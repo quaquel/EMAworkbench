@@ -19,7 +19,7 @@ def test_scatter():
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter(x,y, s=80)
+    ax.scatter(x,y, s=80, c='r')
     set_fig_to_bw(fig)
     
     plt.draw()

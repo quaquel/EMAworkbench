@@ -244,27 +244,25 @@ class TestLogWatcher(unittest.TestCase):
 
         cls.client = ipyparallel.Client(profile='default')
         cls.url = 'tcp://{}:20202'.format(localhost())
-        cls.watcher = ema.start_logwatcher(cls.url)
+        cls.watcher = ema.start_logwatcher()
  
     @classmethod
     def tearDownClass(cls):
         cls.watcher.stop()
 
-    @mock.patch('ema_workbench.util.ema_logging._logger', autospec=True)
-    def test_stop(self, mocked_logger):
-        url = 'tcp://{}:20201'.format(localhost())
-        watcher = ema.start_logwatcher(url)
-        
-        watcher.stop()
-        time.sleep(3)
-        mocked_logger.warning.assert_called_once_with('shutting down log watcher')
+#     @mock.patch('ema_workbench.util.ema_logging._logger', autospec=True)
+#     def test_stop(self, mocked_logger):
+#         watcher = ema.start_logwatcher()
+#         
+#         watcher.stop()
+#         time.sleep(3)
+#         mocked_logger.warning.assert_called_once_with('shutting down log watcher')
 
     def tearDown(self):
         self.client.clear(block=True)
   
     def test_init(self):
         self.assertEqual(self.url, self.watcher.url)
-        self.assertEqual({ema_logging.DEBUG:{'EMA'}}, self.watcher.topic_subscriptions)
   
     def test_extract_level(self):
         level = 'INFO'
@@ -273,47 +271,45 @@ class TestLogWatcher(unittest.TestCase):
         extracted_level, extracted_topics = self.watcher._extract_level(topic_str)
          
         self.assertEqual(ema_logging.INFO, extracted_level)
-        self.assertEqual(['engine', '1', topic], extracted_topics)
+        self.assertEqual('engine.1.{}'.format(topic), extracted_topics)
          
         topic = ema.SUBTOPIC
         topic_str = 'engine.1.{}'.format(topic)
         extracted_level, extracted_topics = self.watcher._extract_level(topic_str)
          
         self.assertEqual(ema_logging.INFO, extracted_level)
-        self.assertEqual(['engine', '1', topic], extracted_topics)
-      
-    def test_subscribe_to_topic(self):
- 
-        self.watcher.subscribe_to_topic(ema_logging.INFO, 'EMA')
- 
-        self.assertEqual({ema_logging.DEBUG:{'EMA'},
-                          ema_logging.INFO: {'EMA'}}, self.watcher.topic_subscriptions)
- 
+        self.assertEqual('engine.1.{}'.format(topic), extracted_topics)
       
     def test_log_message(self):
         # no subscription on level
-        with mock.patch('ema_workbench.util.ema_logging._logger') as mocked_logger:   
-            self.watcher.logger = mocked_logger
-            raw = ['engine.1', 'test']
+        with mock.patch('logging.getLogger') as mocked:
+            mocked_logger = mock.Mock(spec=logging.Logger)
+            mocked.return_value = mocked_logger  
+            raw = [b'engine.1.INFO.EMA', b'test']
             self.watcher.log_message(raw)
             mocked_logger.log.assert_called_once_with(ema_logging.INFO, '[engine.1] test')
          
-        with mock.patch('ema_workbench.util.ema_logging._logger') as mocked_logger:   
-            self.watcher.logger = mocked_logger
-            raw = ['engine.1.DEBUG.EMA', 'test']
+        with mock.patch('logging.getLogger') as mocked:
+            mocked_logger = mock.Mock(spec=logging.Logger)
+            mocked.return_value = mocked_logger
+            raw = [b'engine.1.DEBUG.EMA', b'test']
             self.watcher.log_message(raw)
-            mocked_logger.log.assert_called_once_with(ema_logging.DEBUG, '[engine.1.EMA] test')
+            mocked_logger.log.assert_called_once_with(ema_logging.DEBUG, '[engine.1] test')
  
-        with mock.patch('ema_workbench.util.ema_logging._logger') as mocked_logger:   
-            self.watcher.logger = mocked_logger
-            raw = ['engine.1.DEBUG', 'test', 'more']
+        with mock.patch('logging.getLogger') as mocked:
+            mocked_logger = mock.Mock(spec=logging.Logger)
+            mocked.return_value = mocked_logger
+            raw = [b'engine.1.DEBUG', b'test', b'more']
             self.watcher.log_message(raw)
+            raw = [str(r,'utf-8') for r in raw]
             mocked_logger.error.assert_called_once_with("Invalid log message: %s"%raw)
  
-        with mock.patch('ema_workbench.util.ema_logging._logger') as mocked_logger:   
-            self.watcher.logger = mocked_logger
-            raw = ['engine1DEBUG', 'test']
+        with mock.patch('logging.getLogger') as mocked:
+            mocked_logger = mock.Mock(spec=logging.Logger)
+            mocked.return_value = mocked_logger
+            raw = [b'engine1DEBUG', b'test']
             self.watcher.log_message(raw)
+            raw = [str(r,'utf-8') for r in raw]
             mocked_logger.error.assert_called_once_with("Invalid log message: %s"%raw)
 
 
@@ -452,8 +448,8 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
         
         ema.initialize_engines(mock_client, msis)
         
-        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 0, msis, {})
-        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 1, msis, {})
+        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 0, msis)
+        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 1, msis)
         
         mocked_setup_working_directories.assert_called_with(mock_client, msis)
 

@@ -14,7 +14,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 from ema_workbench import (RealParameter, TimeSeriesOutcome,ema_logging,
                            perform_experiments)
 
-from ema_workbench.connectors import PysdModel
+from ema_workbench.connectors.pysd_connector import PysdModel
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.DEBUG)    
