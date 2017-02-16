@@ -19,7 +19,14 @@ import socket
 import threading
 
 import zmq
+from zmq.eventloop import ioloop, zmqstream
+
 from traitlets.config import Application
+from traitlets.config.configurable import LoggingConfigurable
+from traitlets import Unicode, Instance, List
+
+from jupyter_client.localinterfaces import localhost
+
 
 from ipyparallel.engine.log import EnginePUBHandler
 
@@ -30,7 +37,7 @@ from ..util import ema_exceptions, utilities, ema_logging
 # 
 # .. codeauthor::  jhkwakkel
 
-SUBTOPIC = "EMA"
+SUBTOPIC = ema_logging.LOGGER_NAME
 engine = None
 EMA_PROJECT_HOME_DIR = utilities.get_ema_project_home_dir()
 
@@ -49,143 +56,12 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
         self.topic = topic
         
     def process(self, msg, kwargs):
-        
         msg = '{topic}::{msg}'.format(topic=self.topic, msg=msg)
-        
         return msg, kwargs
 
-
-class LogWatcher(object):
-    """A  class that receives messages on a SUB socket, as published
-    by subclasses of `zmq.log.handlers.PUBHandler`, and logs them itself.
-    
-    Parameters
-    ----------
-    url : string
-          the url on which to listen for log messages 
-    
-    This LogWatcher subscribes to all topics and aggregates them by logging
-    to the EMA logger. 
-    
-    It is possible to filter topics before they are being logged on the EMA
-    logger. This filtering is done on a loglevel and topic basis. By default,
-    filtering is active on the DEBUG level, with EMA as topic.   
-    
-    This class is adapted from the LogWatcher in ipyparallel.apps to 
-    fit the needs of the workbench.
-
-    """
-
-    LOG_FORMAT = '[%(levelname)s] %(message)s'
-    
-    topic_subscriptions = {logging.DEBUG : set([SUBTOPIC])}
-    
-    def __init__(self, url):
-        super(LogWatcher, self).__init__()
-        self.context = zmq.Context()
-        self.loop = zmq.eventloop.ioloop.IOLoop() # @UndefinedVariable
-        self.url = url
-        
-        s = self.context.socket(zmq.SUB) # @UndefinedVariable
-        s.bind(self.url)
-        
-        # setup up the aggregate EMA logger
-        self.logger = ema_logging.get_logger()
-
-        # add check to avoid double stream handlers
-        if not any([isinstance(h, logging.StreamHandler) for h in 
-                    self.logger.handlers]):
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(self.LOG_FORMAT)
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-        
-        self.stream = zmq.eventloop.zmqstream.ZMQStream(s, self.loop) # @UndefinedVariable
-        self.subscribe()
-        
-    def start(self):
-        '''start the log watcher'''
-        
-        ema_logging.info('start watching on {}'.format(self.url))
-        self.stream.on_recv(self.log_message)
-    
-    def stop(self):
-        '''stop the log watcher'''
-        self.stream.stop_on_recv()
-        self.stream.close()
- 
-    def subscribe(self):
-        """Update our SUB socket's subscriptions."""
-        ema_logging.debug("Subscribing to: everything")
-        self.stream.setsockopt(zmq.SUBSCRIBE, b'') # @UndefinedVariable
-        
-    def _extract_level(self, topic_str):
-        """Turn 'engine.0.INFO.extra' into (logging.INFO, 'engine.0.extra')"""
-
-        topics = topic_str.split('.')
-        for idx,t in enumerate(topics):
-            level = getattr(logging, t, None)
-
-            if level is not None:
-                break
-        
-        if level is None:
-            level = logging.INFO
-        else:
-            topics.pop(idx)
-        
-        return level, topics
-
-    def subscribe_to_topic(self, level, topic):
-        '''add a topic subscription for the specified level
-        
-        Parameters
-        ----------
-        level : int 
-                the logging level to which the topic subscription applies
-        topic : str
-                topic name
-        
-        '''
-        
-        try:
-            self.topic_subscriptions[level].update([topic])
-        except KeyError:
-            self.topic_subscriptions[level] = set([topic])
-        
-    def log_message(self, raw):
-        """receive and parse a message, then log it."""
-        
-        if len(raw) != 2 or '.' not in raw[0]:
-            self.logger.error("Invalid log message: %s"%raw)
-            return
-        else:
-            raw = [entry.strip() for entry in raw]
-            
-            topic, msg = raw
-            topic = topic.strip()
-            level, topics = self._extract_level(topic)
-            
-            topic = '.'.join(topics)
-            subtopic = '.'.join(topics[2::])
-            
-            try:
-                subscriptions = self.topic_subscriptions[level]
-            except KeyError:
-                self.logger.log(level, "[%s] %s" % (topic, msg))
-            else:
-                if subtopic in subscriptions:
-                    self.logger.log(level, "[%s] %s" % (topic, msg))
-        
-
-def start_logwatcher(url):
+def start_logwatcher():
     '''convenience function for starting the LogWatcher 
     
-    Parameters
-    ----------
-    url : str
-          the url on which to listen for log messages
-
     Returns
     -------
     LogWatcher
@@ -197,7 +73,7 @@ def start_logwatcher(url):
     
     '''
 
-    logwatcher = LogWatcher(url)
+    logwatcher = LogWatcher()
     
     def starter():
         logwatcher.start()
@@ -205,6 +81,8 @@ def start_logwatcher(url):
             logwatcher.loop.start()
         except (zmq.error.ZMQError, IOError, OSError):
             ema_logging.warning('shutting down log watcher')
+        except RuntimeError:
+            pass
     
     logwatcher_thread = threading.Thread(target=starter)
     logwatcher_thread.deamon = True
@@ -280,6 +158,99 @@ def update_cwd_on_all_engines(client):
                 client[engine].apply(os.chdir, cwd)
         else:
             raise NotImplementedError('not yet supported')
+
+
+class LogWatcher(LoggingConfigurable):
+    """A simple class that receives messages on a SUB socket, as published
+    by subclasses of `zmq.log.handlers.PUBHandler`, and logs them itself.
+    
+    This can subscribe to multiple topics, but defaults to all topics.
+    """
+    
+    # configurables
+    topics = List([''],
+        help="The ZMQ topics to subscribe to. Default is to subscribe to all messages").tag(config=True)
+    url = Unicode(
+        help="ZMQ url on which to listen for log messages").tag(config=True)
+    def _url_default(self):
+        return 'tcp://%s:20202' % localhost()
+    
+    # internals
+    stream = Instance('zmq.eventloop.zmqstream.ZMQStream', allow_none=True)
+    
+    context = Instance(zmq.Context)
+    def _context_default(self):
+        return zmq.Context.instance()
+    
+    loop = Instance(zmq.eventloop.ioloop.IOLoop)  # @UndefinedVariable
+    def _loop_default(self):
+        return ioloop.IOLoop.instance()
+    
+    def __init__(self, **kwargs):
+        super(LogWatcher, self).__init__(**kwargs)
+        s = self.context.socket(zmq.SUB)  # @UndefinedVariable
+        s.bind(self.url)
+        self.stream = zmqstream.ZMQStream(s, self.loop)
+        self.subscribe()
+        self.observe(self.subscribe, 'topics')
+    
+    def start(self):
+        self.stream.on_recv(self.log_message)
+    
+    def stop(self):
+        self.stream.stop_on_recv()
+    
+    def subscribe(self):
+        """Update our SUB socket's subscriptions."""
+        self.stream.setsockopt(zmq.UNSUBSCRIBE, b'')  # @UndefinedVariable
+        if '' in self.topics:
+            self.log.debug("Subscribing to: everything")
+            self.stream.setsockopt(zmq.SUBSCRIBE, b'')  # @UndefinedVariable
+        else:
+            for topic in self.topics:
+                self.log.debug("Subscribing to: %r"%(topic))
+                self.stream.setsockopt(zmq.SUBSCRIBE, topic)  # @UndefinedVariable
+    
+    def _extract_level(self, topic_str):
+        """Turn 'engine.0.INFO.extra' into (logging.INFO, 'engine.0.extra')"""
+        topics = topic_str.split('.')
+        for idx,t in enumerate(topics):
+            level = getattr(logging, t, None)
+            if level is not None:
+                break
+        
+        if level is None:
+            level = logging.INFO
+        else:
+            topics.pop(idx)
+        
+        return level, '.'.join(topics)
+            
+            
+    def log_message(self, raw):
+        """receive and parse a message, then log it."""
+        raw = [str(r,'utf-8') for r in raw]
+        
+        if len(raw) != 2 or '.' not in raw[0]:
+            logging.getLogger().error("Invalid log message: %s"%raw)
+            return
+        else:
+            topic, msg = raw
+            level, topic = self._extract_level(topic)
+            
+            # bit of a hacky way to filter messages
+            # assumes subtopic only contains a single dot
+            # main topic is now the substring with the origin of the message
+            # so e.g. engine.1
+            main_topic, subtopic = topic.rsplit('.',1) 
+            log = logging.getLogger(subtopic) 
+            
+            if msg[-1] == '\n':
+                msg = msg[:-1]
+#             self.log.log(level, "[%s] %s" % (topic, msg))
+            print("[%s] %s" % (main_topic, msg))
+
+            log.log(level, "[%s] %s" % (main_topic, msg))
 
 
 class Engine(object):
