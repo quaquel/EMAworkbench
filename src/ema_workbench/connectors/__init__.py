@@ -1,21 +1,21 @@
 import sys
 try:
-    import vensim
+    from . import vensim
 except ImportError:
     sys.stderr.write("vensim connector not available\n")
 
 try:
-    import excel
+    from . import excel
 except ImportError:
     sys.stderr.write("excel connector not available\n")
 
 try:
-    import netlogo
+    from . import netlogo
 except ImportError:
     sys.stderr.write("netlogo connector not available\n")
 
 try:
-    from pysd_connector import PysdModel
+    from . import pysd_connector
 except ImportError:
     sys.stderr.write("pysd connector not available\n")
 
