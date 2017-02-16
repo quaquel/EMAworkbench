@@ -4,13 +4,12 @@ numpy
 scipy
 pandas
 jupyter
-JPype1 == 0.5.7
+JPype1
 mpld3
 scikit-learn
 seaborn
 matplotlib
 pyzmq
 jupyter
-deap
 pysd
 salib
