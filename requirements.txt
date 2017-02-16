@@ -3,7 +3,6 @@ futures
 numpy
 scipy
 pandas
-jupyter
 JPype1
 mpld3
 scikit-learn
@@ -11,5 +10,7 @@ seaborn
 matplotlib
 pyzmq
 jupyter
+ipython
+ipyparallel
 pysd
 salib
