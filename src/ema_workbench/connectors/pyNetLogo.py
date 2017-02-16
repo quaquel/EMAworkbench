@@ -184,7 +184,7 @@ class NetLogoLink():
         if not netlogo_version:
             netlogo_version = establish_netlogoversion(netlogo_home)
         if not jvm_home:
-            jvm_home = jpype.getDefaultJVMPath()  
+            jvm_home = jpype.get_default_jvm_path()  
         
         
         if not jpype.isJVMStarted():
@@ -192,22 +192,18 @@ class NetLogoLink():
             jars.append(os.path.join(PYNETLOGO_HOME, 'java', 'netlogoLink_combined.jar'))     
             joined_jars = jar_sep[sys.platform].join(jars)
             jarpath = '-Djava.class.path={}'.format(joined_jars)
-            
             try:
+                debug("starting jvm: {} {}".format(jvm_home, jarpath))
                 jpype.startJVM(jvm_home, jarpath)
+                debug("JVM started")  
             except RuntimeError as e:
                 warning('failed to start JVM using jvm_home')
-                
-                # dirty hack to make it work on my laptop
-                jpype.startJVM('/Library/Java/JavaVirtualMachines/jdk1.8.0_101.jdk/Contents/Home/jre/lib/server/libjvm.dylib', jarpath)
-              
-            #Causes problems with 6.0? 
+                raise e
             #jpype.java.lang.System.setProperty('user.dir', netlogo_home)
-
             if sys.platform=='darwin':
+                debug('set state to headless on mac os')
                 jpype.java.lang.System.setProperty("java.awt.headless", "true");            
             
-            debug("JVM started")
         
         link = jpype.JClass(module_name[netlogo_version])
         debug('NetLogoLink class found')
