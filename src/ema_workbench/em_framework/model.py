@@ -22,6 +22,7 @@ try:
 except ImportError:
     from collections.abc import MutableMapping
 
+from collections import defaultdict
 
 from .util import (NamedObject, combine, NamedObjectMapDescriptor)
 from .parameters import Parameter, Constant
@@ -35,7 +36,8 @@ from ..util.ema_logging import method_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 # 
 
-__all__ = ['AbstractModel', 'Model', 'FileModel']
+__all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator', 
+           'SingleReplication']
 
 #==============================================================================
 # abstract Model class 
@@ -75,8 +77,6 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     
     '''
     
-#     __metaclass__ = ModelMeta
-
     @property
     def output(self):
         return self._output
@@ -279,8 +279,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         
         klass = self.__class__.__name__
         name = self.name
-        
-        
+                
         uncs = ''
         for uncertainty in self.uncertainties:
             uncs += '\n' + repr(uncertainty)
@@ -292,20 +291,82 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         model_spec['constants'] = join_attr(self.constants)
             
         return model_spec
-    
 
-class Model(AbstractModel):
+class Replicator(AbstractModel):
+    @property
+    def replications(self):
+        return self._replications
+    
+    @replications.setter
+    def replications(self, replications):
+        
+        # int
+        if isinstance(replications, int):
+            # TODO:: use a repeating generator instead
+        
+            self._replications = [{} for _ in range(replications)]
+            self.nreplications = replications
+        elif isinstance(replications, list):
+            # should we check if all are dict?
+            self._replications = replications
+            self.nreplications = len(replications) 
+        else:
+            raise TypeError("replications should be int or list not {}".format(type(replications)))
+
+    @method_logger
+    def run_model(self, scenario, policy):
+        """
+        Method for running an instantiated model structure. 
+        
+        Parameters
+        ----------
+        scenario : Scenario instance
+        policy : Policy instance
+        
+        
+        """
+        super(Replicator, self).run_model(scenario, policy)
+        constants = {c.name:c.value for c in self.constants}
+        
+        outputs = defaultdict(list)
+        
+        partial_experiment = combine(scenario, policy, constants)
+        
+        for _, rep in enumerate(self.replications):
+            experiment = combine(partial_experiment, rep)
+            output = self.run_experiment(experiment)
+            for key, value in output.items():
+                outputs[key].append(value)
+            
+        self.output = outputs
+
+
+class SingleReplication(AbstractModel):
+    @method_logger
+    def run_model(self, scenario, policy):
+        """
+        Method for running an instantiated model structure. 
+        
+        Parameters
+        ----------
+        scenario : Scenario instance
+        policy : Policy instance
+        
+        
+        """
+        super(SingleReplication, self).run_model(scenario, policy) 
+        # TODO:: should this not be moved up?
+        constants = {c.name:c.value for c in self.constants}
+        experiment = combine(scenario, policy, constants)
+        self.output = self.run_experiment(experiment)
+
+class BaseModel(AbstractModel):
     '''
-    :class:`ModelStructureInterface` is one of the the two main classes used 
-    for performing EMA. This is an abstract base class and cannot be used 
-    directly. When extending this class :meth:`model_init` and 
-    :meth:`run_model` have to be implemented. 
+    generic class for working with models implemented as a Python callable 
     
     Parameters
     ----------
     name : str
-    wd : str
-         string specifying the path of the working directory used by function
     function : callable
                a function with each of the uncertain parameters as a keyword
                argument
@@ -332,7 +393,7 @@ class Model(AbstractModel):
 
     
     def __init__(self, name, function=None):
-        super(Model, self).__init__(name)
+        super(BaseModel, self).__init__(name)
         
         if not callable(function):
             raise ValueError('function should be callable')
@@ -340,21 +401,22 @@ class Model(AbstractModel):
         self.function = function
 
     @method_logger
-    def run_model(self, scenario, policy):
+    def run_experiment(self, experiment):
         """
         Method for running an instantiated model structure. 
         
         Parameters
         ----------
-        scenario : Scenario instance
-        policy : Policy instance
+        experiment : dict like
         
         
         """
-        super(Model, self).run_model(scenario, policy)
-        constants = {c.name:c.value for c in self.constants}
-        experiment = combine(scenario, policy, constants)
-        
+#         super(BaseModel, self).run_model(scenario, policy)
+#         
+#         # TODO:: should this not be moved up?
+#         constants = {c.name:c.value for c in self.constants}
+#         experiment = combine(scenario, policy, constants)
+#         
         model_output = self.function(**experiment)
         
         # TODO: might it be possible to somehow abstract this
@@ -371,10 +433,10 @@ class Model(AbstractModel):
             except TypeError:
                 value = model_output[i]
             results[variable] = value
-        self.output = results
+        return results
         
     def as_dict(self):
-        model_specs = super(Model, self).as_dict()
+        model_specs = super(BaseModel, self).as_dict()
         model_specs['function'] = self.function
         return model_specs
 
@@ -423,7 +485,10 @@ class FileModel(AbstractModel):
         self.model_file = model_file
 
     def as_dict(self):
-        model_specs = super(Model, self).as_dict()
+        model_specs = super(FileModel, self).as_dict()
         model_specs['model_file'] = self.model_file
         model_specs['working_directory'] = self.working_directory
         return model_specs
+
+class Model(SingleReplication, BaseModel):
+    pass

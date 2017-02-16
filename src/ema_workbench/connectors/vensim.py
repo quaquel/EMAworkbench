@@ -27,6 +27,7 @@ from ..em_framework import TimeSeriesOutcome, FileModel
 
 from ..util import debug, warning, CaseError, EMAError, EMAWarning
 from ..util.ema_logging import method_logger
+from ema_workbench.em_framework.model import SingleReplication
 
 # Created on 25 mei 2011
 # 
@@ -193,7 +194,7 @@ def VensimModelStructureInterface(name, wd=None, model_file=None):
     return VensimModel(name, wd=wd, model_file=model_file)
 
   
-class VensimModel(FileModel):
+class BaseVensimModel(FileModel):
     '''
     This is a convenience extension of :class:`~model.ModelStructureInterface` 
     that can be used as a base class for performing EMA on Vensim models. This 
@@ -268,7 +269,7 @@ class VensimModel(FileModel):
         debug("vensim interface init completed")
         
 
-    def model_init(self, policy, **kwargs):
+    def model_init(self, policy):
         """
         Init of the model, The provided implementation here assumes
         that `self.model_file`  is set correctly. In case of using different
@@ -281,12 +282,8 @@ class VensimModel(FileModel):
         ----------
         policy : dict
                  policy to be run.
-        kwargs : dict
-                 keyword arguments to be used by model_intit. This
-                 gives users to the ability to pass any additional 
-                 arguments. 
         """
-        super(VensimModel, self).model_init(policy, **kwargs)
+        super(VensimModel, self).model_init(policy)
 
         fn = os.path.join(self.working_directory, self.model_file)
         load_model(fn) #load the model
@@ -310,7 +307,7 @@ class VensimModel(FileModel):
     
     
     @method_logger
-    def run_model(self, scenario, policy):
+    def run_experiment(self, experiment):
         """
         Method for running an instantiated model structure. 
         the provided implementation assumes that the keys in the 
@@ -325,27 +322,20 @@ class VensimModel(FileModel):
         
         Parameters
         ----------
-        scenario : Scenario instance
-                   keyword arguments for running the model. Scenario is 
-                   dict-like  with  the names of the uncertainties as key, and 
-                   the values to which to set these uncertainties.
-        policy :  Policy instance
-                  if policy has model_file as a field, than this will
-                  update the model_file, otherwise, the key, value pairs in 
-                  are assumed to be parameters in the vensim model analogous
-                  to scenario
-        
+        scenario : dict like
         
         .. note:: setting parameters should always be done via run_model.
                   The model is reset to its initial values automatically after
                   each run.  
         
         """
-        super(VensimModel, self).run_model(scenario, policy)
+#         super(VensimModel, self).run_model(scenario, policy)
                 
         if self.cin_file:
+            cin_file = os.path.join(self.working_directory,self.cin_file)
+            
             try:
-                read_cin_file(self.working_directory+self.cin_file)
+                read_cin_file(cin_file)
             except VensimWarning as w:
                 debug(str(w))
             else:
@@ -354,10 +344,10 @@ class VensimModel(FileModel):
         for lookup_uncertainty in self._lookup_uncertainties:
             # ask the lookup to transform the retrieved uncertainties to the 
             # proper lookup value
-            scenario[lookup_uncertainty.name] = lookup_uncertainty.transform(scenario)
+            experiment[lookup_uncertainty.name] = lookup_uncertainty.transform(experiment)
   
-        constants = {entry.name:entry.value for entry in self.constants}
-        experiment = combine(scenario, self.policy, constants)
+#         constants = {entry.name:entry.value for entry in self.constants}
+#         experiment = combine(ex, self.policy, constants)
   
         for key, value in experiment.items():
             set_value(key, value)
@@ -369,6 +359,7 @@ class VensimModel(FileModel):
         except VensimError:
             raise
 
+        # TODO:: move to seperate function/method?
         def check_data(result):
             error = False
             if result.shape[0] != self.run_length:
@@ -392,9 +383,11 @@ class VensimModel(FileModel):
             results[variable] = result
             
         debug('setting results to output')
-        self.output = results   
+#         self.output = results   
         if error:
-            raise CaseError("run not completed", scenario)  
+            raise CaseError("run not completed", experiment)
+        
+        return results  
 
 
     def reset_model(self):
@@ -704,3 +697,6 @@ class LookupUncertainty(Parameter):
     
     def _cat(self, case):
         return  self.values[case.pop('c-'+self.name)] 
+    
+class VensimModel(SingleReplication, BaseVensimModel):
+    pass
