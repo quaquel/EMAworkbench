@@ -219,7 +219,6 @@ def _set_ax_pathcollection_to_bw(collection, ax, style, colormap):
 
     rgb_orig = collection._original_facecolor
 
-
     if isinstance(rgb_orig, six.string_types):
         rgb_orig = [rgb_orig]
     rgb_orig = [color_converter.to_rgb(row) for row in rgb_orig]
