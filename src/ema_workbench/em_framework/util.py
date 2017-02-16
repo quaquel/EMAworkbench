@@ -196,7 +196,7 @@ def combine(*args):
     for entry in args[1::]:
         overlap = set(experiment.keys()).intersection(set(entry.keys()))
         if overlap:
-            raise EMAError(('parameters exist in two dicts' + overlap))
+            raise EMAError(('parameters exist in two dicts' + str(overlap)))
         experiment.update(entry)
             
 
