@@ -301,7 +301,7 @@ class TestLogWatcher(unittest.TestCase):
             mocked.return_value = mocked_logger
             raw = [b'engine.1.DEBUG', b'test', b'more']
             self.watcher.log_message(raw)
-            raw = [str(r,'utf-8') for r in raw]
+            raw = [r.decode('utf-8') for r in raw]
             mocked_logger.error.assert_called_once_with("Invalid log message: %s"%raw)
  
         with mock.patch('logging.getLogger') as mocked:
@@ -309,7 +309,7 @@ class TestLogWatcher(unittest.TestCase):
             mocked.return_value = mocked_logger
             raw = [b'engine1DEBUG', b'test']
             self.watcher.log_message(raw)
-            raw = [str(r,'utf-8') for r in raw]
+            raw = [r.decode('utf-8') for r in raw]
             mocked_logger.error.assert_called_once_with("Invalid log message: %s"%raw)
 
 

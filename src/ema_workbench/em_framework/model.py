@@ -20,7 +20,7 @@ from ema_workbench.em_framework.parameters import CategoricalParameter,\
 try:
     from collections import MutableMapping
 except ImportError:
-    from collections.abc import MutableMapping
+    from collections.abc import MutableMapping  # @UnusedImport
 
 from collections import defaultdict
 
