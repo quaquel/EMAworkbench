@@ -4,6 +4,7 @@ NetLogo models.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+from ema_workbench.em_framework.model import Replicator, SingleReplication
 
 try:
     import jpype
@@ -27,8 +28,8 @@ from . import pyNetLogo
 
 __all__ = ['NetLogoModel']
 
-class NetLogoModel(FileModel):
-    '''Base clase for interfacing with netlogo models. This class
+class BaseNetLogoModel(FileModel):
+    '''Base class for interfacing with netlogo models. This class
     extends :class:`em_framework.ModelStructureInterface`.
     
     Attributes
@@ -70,11 +71,11 @@ class NetLogoModel(FileModel):
         separate working directory prior to calling `model_init`.
         
         """
-        super(NetLogoModel, self).__init__(name, wd=wd, model_file=model_file)
+        super(BaseNetLogoModel, self).__init__(name, wd=wd, model_file=model_file)
     
         self.run_length = None
        
-    
+    @method_logger
     def model_init(self, policy):
         '''
         Method called to initialize the model.
@@ -89,8 +90,8 @@ class NetLogoModel(FileModel):
                  arguments. 
         
         '''
-        super(NetLogoModel, self).model_init(policy)
-        
+        super(BaseNetLogoModel, self).model_init(policy)
+        debug("trying to start NetLogo")
         self.netlogo = pyNetLogo.NetLogoLink()
         debug("netlogo started")
         path = os.path.join(self.working_directory, self.model_file)
@@ -98,14 +99,14 @@ class NetLogoModel(FileModel):
         debug("model opened")
         
     @method_logger
-    def run_model(self, scenario, policy):
+    def run_experiment(self, experiment):
         """
         Method for running an instantiated model structure. 
         
         Parameters
         ----------
-        scenario : Scenario instance
-        policy : Policy instance
+        experiment : dict like
+
         
         Raises
         ------
@@ -114,9 +115,9 @@ class NetLogoModel(FileModel):
         
         
         """
-        super(NetLogoModel, self).run_model(scenario, policy)
+#         super(BaseNetLogoModel, self).run_model(scenario, policy)
         
-        for key, value in scenario.items():
+        for key, value in experiment.items():
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:
@@ -178,7 +179,7 @@ class NetLogoModel(FileModel):
 #         self.netlogo.command(c_end)
         
         self.netlogo.command("file-close-all")
-        self._handle_outcomes(fns)
+        return self._handle_outcomes(fns)
 
     def retrieve_output(self):
         """
@@ -226,5 +227,10 @@ class NetLogoModel(FileModel):
                 temp_output[outcome.name] = results[varname]
             else:
                 temp_output[outcome.name] = [results[var] for var in varname]
-        self.output = temp_output
+        return temp_output
          
+class NetLogoModel(Replicator, BaseNetLogoModel):
+    pass
+
+class SingleReplicationNetLogoModel(SingleReplication, BaseNetLogoModel):
+    pass
