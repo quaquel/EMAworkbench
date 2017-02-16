@@ -14,12 +14,13 @@ from win32com.universal import com_error # @UnresolvedImport
 
 from ..util import ema_logging, EMAError
 from ..em_framework.model import FileModel
+from ema_workbench.em_framework.model import SingleReplication
 
 # Created on 19 sep. 2011
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-class ExcelModel(FileModel):
+class BaseExcelModel(FileModel):
     '''
     
     Base class for connecting the EMA workbench to models in Excel. To 
@@ -35,7 +36,7 @@ class ExcelModel(FileModel):
     com_warning_msg = "com error: no cell(s) named %s found"
     
     def __init__(self, name, wd=None, model_file=None):
-        super(ExcelModel, self).__init__(name, wd=wd, model_file=model_file)
+        super(BaseExcelModel, self).__init__(name, wd=wd, model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
         self.xl = None
@@ -66,7 +67,7 @@ class ExcelModel(FileModel):
         
         
         '''
-        super(ExcelModel, self).model_init(policy)
+        super(BaseExcelModel, self).model_init(policy)
         
         if not self.xl:
             try:
@@ -83,7 +84,7 @@ class ExcelModel(FileModel):
         ema_logging.debug(self.working_directory)
 
 
-    def run_model(self, scenario, policy):
+    def run_experiment(self, experiment):
         """
         Method for running an instantiated model structures. This 
         implementation assumes that the names of the uncertainties correspond
@@ -102,7 +103,7 @@ class ExcelModel(FileModel):
         
         
         """
-        super(ExcelModel, self).run_model(scenario, policy)
+#         super(ExcelModel, self).run_model(scenario, policy)
         
         #find right sheet
         try:
@@ -113,7 +114,7 @@ class ExcelModel(FileModel):
             raise
         
         #set values on sheet
-        for key, value in scenario.items():
+        for key, value in experiment.items():
             try:
                 sheet.Range(key).Value = value 
             except com_error:
@@ -129,7 +130,7 @@ class ExcelModel(FileModel):
                 continue
             results[variable] = output
             
-        self.output = results
+        return results
 
 
     def cleanup(self):
@@ -147,3 +148,6 @@ class ExcelModel(FileModel):
         
         self.xl = None
         self.wb = None
+        
+class ExcelModel(SingleReplication, BaseExcelModel):
+    pass
