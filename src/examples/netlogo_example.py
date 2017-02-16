@@ -23,6 +23,7 @@ if __name__ == '__main__':
                           wd="./models/predatorPreyNetlogo", 
                           model_file="Wolf Sheep Predation.nlogo")
     model.run_length = 100
+    model.replications = 10
     
     model.uncertainties = [RealParameter("grass-regrowth-time", 1, 99),
                            RealParameter("initial-number-sheep", 1, 200),
@@ -36,5 +37,5 @@ if __name__ == '__main__':
                       TimeSeriesOutcome('grass') ]
      
     #perform experiments
-    n = 100
+    n = 10
     results = perform_experiments(model, n, parallel=True)
