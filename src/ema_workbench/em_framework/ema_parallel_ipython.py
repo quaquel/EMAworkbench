@@ -229,7 +229,7 @@ class LogWatcher(LoggingConfigurable):
             
     def log_message(self, raw):
         """receive and parse a message, then log it."""
-        raw = [str(r,'utf-8') for r in raw]
+        raw = [r.decode("utf-8") for r in raw]
         
         if len(raw) != 2 or '.' not in raw[0]:
             logging.getLogger().error("Invalid log message: %s"%raw)
