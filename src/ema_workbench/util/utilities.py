@@ -60,7 +60,7 @@ def load_results(file_name):
     IOError if file not found
 
     '''
-    
+    file_name = os.path.abspath(file_name)
     outcomes = {}
     with tarfile.open(file_name, 'r:gz', encoding="UTF8") as z:
         # load x
@@ -153,6 +153,7 @@ def save_results(results, file_name):
     IOError if file not found
 
     '''
+    file_name = os.path.abspath(file_name)
 
     def add_file(tararchive, string_to_add, filename):
         tarinfo = tarfile.TarInfo(filename)
