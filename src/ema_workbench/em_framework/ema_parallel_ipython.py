@@ -88,7 +88,7 @@ def start_logwatcher():
     logwatcher_thread.deamon = True
     logwatcher_thread.start()
     
-    return logwatcher
+    return logwatcher, logwatcher_thread
 
 
 def set_engine_logger():
@@ -198,6 +198,7 @@ class LogWatcher(LoggingConfigurable):
         self.stream.on_recv(self.log_message)
     
     def stop(self):
+        self.stream.setsockopt(zmq.UNSUBSCRIBE, b'')  # @UndefinedVariable
         self.stream.stop_on_recv()
     
     def subscribe(self):
