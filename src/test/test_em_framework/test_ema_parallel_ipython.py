@@ -8,6 +8,7 @@ from __future__ import (unicode_literals, division, print_function,
                         absolute_import)
 
 import logging
+from ema_workbench.em_framework.ema_parallel_ipython import LogWatcher
 
 try:
     import unittest.mock as mock
@@ -244,19 +245,14 @@ class TestLogWatcher(unittest.TestCase):
 
         cls.client = ipyparallel.Client(profile='default')
         cls.url = 'tcp://{}:20202'.format(localhost())
-        cls.watcher = ema.start_logwatcher()
+#         cls.watcher, cls.thread = ema.start_logwatcher()
+        cls.watcher = LogWatcher()
  
     @classmethod
     def tearDownClass(cls):
         cls.watcher.stop()
-
-#     @mock.patch('ema_workbench.util.ema_logging._logger', autospec=True)
-#     def test_stop(self, mocked_logger):
-#         watcher = ema.start_logwatcher()
-#         
-#         watcher.stop()
-#         time.sleep(3)
-#         mocked_logger.warning.assert_called_once_with('shutting down log watcher')
+        # TODO use some way to signal the thread to terminate
+        # despite that it is a deamon thread
 
     def tearDown(self):
         self.client.clear(block=True)
@@ -470,3 +466,4 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    time.sleep(1)
