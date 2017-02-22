@@ -51,6 +51,16 @@ from ..util import ema_logging, EMAError, EMAParallelError
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+
+# TODO:: needs reimplementation based on latest version of multiprocessing
+# working directory, in worker generate a wd
+# for each model check if initialized if wd has been copied already
+# if not copy it 
+# this reduces the need to create wd's when spanning pool, instead
+# individual processes generate it themselves.
+# only issue: worker needs some larger namespace
+# might be done through clossure.
+
 __all__ = ['CalculatorPool']
 
 
