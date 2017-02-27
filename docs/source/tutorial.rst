@@ -84,27 +84,26 @@ Imagine we have a very simple Vensim model:
 For this example, we assume that 'x11' and 'x12' are uncertain. The state
 variable 'a' is the outcome of interest. Similar to the previous example,
 we have to first instantiate a vensim model object, in this case 
-:class:`~vensim.VensimModelStructureInterface`. To this end, we need to
+:class:`~vensim.VensimModel`. To this end, we need to
 specify the directory in which the vensim file resides, the name of the vensim
 file and the name of the model. ::
 
     wd = r'./models/vensim example'
-    vensimModel = VensimModelStructureInterface("simpleModel", wd=wd,
-                                                model_file=r'\model.vpm')
+    model = VensimModel("simpleModel", wd=wd, model_file=r'\model.vpm')
 
-Next, we can specify the uncerainties and the outcomes. ::
+Next, we can specify the uncertainties and the outcomes. ::
 
-    vensimModel.uncertainties = [RealParameter("x11", 0, 2.5),
+    model.uncertainties = [RealParameter("x11", 0, 2.5),
                                  RealParameter("x12", -2.5, 2.5)]
 
     
-    vensimModel.outcomes = [TimeSeriesOutcome('a')]
+    model.outcomes = [TimeSeriesOutcome('a')]
     
 Note that we are using a TimeSeriesOutcome, because vensim results are time 
 series. We can now simply run this model by calling 
 :func:`perform_experiments`. ::
 
-   perform_experiments(vensimModel, 1000, parallel=True)
+   perform_experiments(model, 1000, parallel=True)
 
 Here we add a new keyword argument, parallel, which tells the workbench
 that the experiments can be run in parallel making use of the multiple cores
@@ -133,20 +132,20 @@ A simple model in Excel
 =======================
 
 In order to perform EMA on an Excel model, one can use the 
-:class:`~excel.ExcelModelStructureInterface`. This base
-class makes uses of naming cells in Excell to refer to them directly. That is,
+:class:`~excel.ExcelModel`. This base
+class makes uses of naming cells in Excel to refer to them directly. That is,
 we can assume that the names of the uncertainties correspond to named cells
-in Excell, and similarly, that the names of the outcomes correspond to named
+in Excel, and similarly, that the names of the outcomes correspond to named
 cells or ranges of cells in Excel. When using this class, make sure that
-the decimal seperator and thousands seperator are set correctly in Excel. This
-can be checked via file > options > advanced. These seperators should follow
+the decimal separator and thousands separator are set correctly in Excel. This
+can be checked via file > options > advanced. These separators should follow
 the `anglo saxon convention <http://en.wikipedia.org/wiki/Decimal_mark>`_. 
 
 .. literalinclude:: ../../examples/excel_example.py
    :linenos:
 
 The example is relatively straight forward. We instantiate an excel model, we
-specify the uncerainties and the outcomes. We also need to specify the sheet
+specify the uncertainties and the outcomes. We also need to specify the sheet
 in excel on which the model resides. Next we can call 
 :func:`perform_experiments`.
 
@@ -195,19 +194,19 @@ more elaborate description of the model, see `Pruyt & Hamarat (2010) <http://www
    :align: center
    
 Given the various uncertainties about the exact characteristics of the flu, 
-including its fatality rate, the contact rate, the susceptability of the 
-population, etc. the flu case is an ideal candiate for EMA. One can use
+including its fatality rate, the contact rate, the susceptibility of the 
+population, etc. the flu case is an ideal candidate for EMA. One can use
 EMA to explore the kinds of dynamics that can occur, identify undesirable
 dynamic, and develop policies targeted at the undesirable dynamics. 
 
-In the orignal paper, `Pruyt & Hamarat (2010) <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf>`_. 
+In the original paper, `Pruyt & Hamarat (2010) <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf>`_. 
 recoded the model in Python and performed the analysis in that way. Here we
 show how the EMA workbench can be connected to Vensim directly.
 
-The flu model was build in Vensim. We can thus use :class:`~vensim.VensimModelStructureInterface` 
+The flu model was build in Vensim. We can thus use :class:`~vensim.VensimModelS` 
 as a base class. 
 
-We are interessted in two outcomes:
+We are interested in two outcomes:
  
  * **deceased population region 1**: the total number of deaths over the 
    duration of the simulation.
@@ -249,7 +248,7 @@ Together, this results in the following code:
    :linenos:
 
 We can now instantiate the model, instantiate an ensemble, and set the model on 
-the ensemble, as seen below. Just as witht the simple Vensim model, we first 
+the ensemble, as seen below. Just as with the simple Vensim model, we first 
 start the logging and direct it to the stream specified in `sys.stderr <http://docs.python.org/library/sys.html>`_.
 Which, if we are working with `Eclipse <http://www.eclipse.org/>`_ is the console. 
 Assuming we have imported :class:`~model_ensemblel.ModelEnsemble` and 
@@ -257,8 +256,8 @@ Assuming we have imported :class:`~model_ensemblel.ModelEnsemble` and
 
    EMALogging.log_to_stderr(level=EMALogging.INFO)
    
-    model = VensimModelStructureInterface("fluCase", wd=r'./models/flu',
-                                      model_file = r'/FLUvensimV1basecase.vpm')
+    model = VensimModel("fluCase", wd=r'./models/flu',
+                        model_file = r'/FLUvensimV1basecase.vpm')
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
                       TimeSeriesOutcome('infected fraction R1')]
     model.uncertainties = [
@@ -320,12 +319,12 @@ generates the following figure:
 .. figure:: /ystatic/tutorial-lines.png
    :align: center
 
-From this figure, one can deduce that accross the ensemble of possible futures,
-there is a subset of runs with a substantial ammount of deaths. We can zoom in
-on those cases, identify their conditions for occuring, and use this insight
+From this figure, one can deduce that across the ensemble of possible futures,
+there is a subset of runs with a substantial amount of deaths. We can zoom in
+on those cases, identify their conditions for occurring, and use this insight
 for policy design. 
 
-For further analysis, it is generally conveniened, to generate the results
+For further analysis, it is generally convenient, to generate the results
 for a series of experiments and save these results. One can then use these
 saved results in various analysis scripts. ::
 
@@ -365,7 +364,7 @@ results with the no policy case, we need to specify the policies ::
                        model_file=r'/FLUvensimV1dynamic.vpm')
                 ]
 
-In this case, we have chosen to have the policies implemented in seperate
+In this case, we have chosen to have the policies implemented in separate
 vensim files. Policies require a name, and can take any other keyword
 arguments you like. If the keyword matches an attribute on the model object,
 it will be updated, so model_file is an attribute on the vensim model. When 
@@ -388,7 +387,7 @@ comparison of results
 Using the following script, we reproduce figures similar to the 3D figures
 in `Pruyt & Hamarat (2010) <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf>`_. 
 But using :func:`pairs_scatter`. It shows for the three different policies 
-their behavior on the total number of deaths, the hight of the heighest peak
+their behavior on the total number of deaths, the height of the heigest peak
 of the pandemic, and the point in time at which this peak was reached. 
 
 .. literalinclude:: ../../examples/flu_pairsplot.py

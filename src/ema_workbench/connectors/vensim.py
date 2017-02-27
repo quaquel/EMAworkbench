@@ -39,7 +39,6 @@ __all__ = ['be_quiet',
            'set_value',
            'run_simulation',
            'get_data',
-           'VensimModelStructureInterface',
            'VensimModel',
            'LookupUncertainty']
 
@@ -478,7 +477,7 @@ class LookupUncertainty(Parameter):
                  M: the time of maximum growth if Q=v
         name : str
                name of the uncertainty
-        msi : VensimModelStructureInterface instance
+        msi : VensimModel instance
               model structure interface, to be used for adding new 
               parameter uncertainties
         min : float
