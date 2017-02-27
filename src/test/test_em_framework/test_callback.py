@@ -123,7 +123,7 @@ class TestDefaultCallback(unittest.TestCase):
         model = NamedObject('test')
         policy  = Policy('policy')
         scenario = Scenario(**case)
-        experiment = Experiment(0, model, policy, scenario, 0)
+        experiment = Experiment(0, model.name, policy, scenario, 0)
      
         callback = DefaultCallback(uncs, 
                                    [],
@@ -140,7 +140,7 @@ class TestDefaultCallback(unittest.TestCase):
         
         names = rf.get_names(experiments.dtype)
         for name in names:
-            self.assertEqual(experiments[name][0], design[name])
+            self.assertEqual(experiments[name][0], design[name], "failed for "+name)
             
             
         # with levers
@@ -155,7 +155,7 @@ class TestDefaultCallback(unittest.TestCase):
         model = NamedObject('test')
         policy  = Policy('policy', c=1, d=1)
         scenario = Scenario(**case)
-        experiment = Experiment(0, model, policy, scenario, 0)
+        experiment = Experiment(0, model.name, policy, scenario, 0)
      
         callback = DefaultCallback(uncs, 
                                    levers,
