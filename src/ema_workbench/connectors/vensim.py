@@ -255,7 +255,7 @@ class BaseVensimModel(FileModel):
         if not model_file.endswith('.vpm'):
             raise ValueError('model file should be a vpm file')
         
-        super(VensimModel, self).__init__(name, wd=wd, model_file=model_file)
+        super(BaseVensimModel, self).__init__(name, wd=wd, model_file=model_file)
         self.outcomes.extend(TimeSeriesOutcome('TIME', variable_name='Time'))
         
         self._lookup_uncertainties = NamedObjectMap(Parameter)
@@ -283,7 +283,7 @@ class BaseVensimModel(FileModel):
         policy : dict
                  policy to be run.
         """
-        super(VensimModel, self).model_init(policy)
+        super(BaseVensimModel, self).model_init(policy)
 
         fn = os.path.join(self.working_directory, self.model_file)
         load_model(fn) #load the model
@@ -396,7 +396,7 @@ class BaseVensimModel(FileModel):
         was called
         """
       
-        super(VensimModel, self).reset_model()
+        super(BaseVensimModel, self).reset_model()
 
 
     def _delete_lookup_uncertainties(self):
