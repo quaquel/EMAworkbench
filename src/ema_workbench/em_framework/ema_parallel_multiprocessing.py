@@ -607,7 +607,6 @@ class LogQueueReader(threading.Thread):
                 
                 logger = logging.getLogger(record.name)
                 logger.callHandlers(record)
-#                 ema_logging.info("{}, {}, {}".format(id(record), record.msg, record.name))
             except (KeyboardInterrupt, SystemExit):
                 raise
             except EOFError:

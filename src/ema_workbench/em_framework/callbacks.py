@@ -196,7 +196,7 @@ class DefaultCallback(AbstractCallback):
             finally:
                 case.append(value)
         
-        case.append(experiment.model.name)
+        case.append(experiment.model_name)
         case.append(policy.name)
         case = tuple(case)
         self.cases[experiment.experiment_id] = case

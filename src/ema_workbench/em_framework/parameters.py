@@ -351,11 +351,11 @@ class Scenario(NamedDict):
 
 
 class Experiment(NamedObject):
-    def __init__(self, name, model, policy, scenario, experiment_id):
+    def __init__(self, name, model_name, policy, scenario, experiment_id):
         super(Experiment, self).__init__(name)
         self.experiment_id = experiment_id
         self.policy = policy
-        self.model = model
+        self.model_name = model_name
         self.scenario = scenario
 
 
