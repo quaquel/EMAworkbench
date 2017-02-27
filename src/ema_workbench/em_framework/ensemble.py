@@ -301,5 +301,5 @@ def experiment_generator(scenarios, model_structures, policies):
     for i, job in enumerate(jobs):
         msi, policy, scenario = job
         name = '{} {} {}'.format(msi.name, policy.name, i)
-        experiment = Experiment(name, msi, policy, scenario, i)
+        experiment = Experiment(name, msi.name, policy, scenario, i)
         yield experiment

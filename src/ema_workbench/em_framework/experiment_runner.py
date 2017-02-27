@@ -5,8 +5,6 @@ has been initialized with which policy.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-import copy
-import sys
 import traceback
 
 from ..util import ema_logging, EMAError, CaseError
@@ -77,7 +75,7 @@ class ExperimentRunner(object):
         '''
         
         policy_name = experiment.policy.name
-        model_name = experiment.model.name
+        model_name = experiment.model_name
         model = self.msis[model_name]
         policy = experiment.policy.copy()
         scenario_id = experiment.scenario.name
