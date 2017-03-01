@@ -11,6 +11,8 @@ import abc
 from .ema_parallel_ipython import (set_engine_logger, initialize_engines,
                                    _run_experiment)
 from .ema_parallel_multiprocessing import CalculatorPool
+import ipyparallel
+import threading
 
 # Created on Jul 22, 2015
 # 
@@ -82,6 +84,12 @@ class IpyparallelPool(AbstractPool):
     def __init__(self, msis, client):
         self.client = client
         
+        # monkeypatch for ipyparallel
+        try:
+            TIMEOUT_MAX = threading.TIMEOUT_MAX
+        except AttributeError:
+            TIMEOUT_MAX = 1e10  # noqa        
+        ipyparallel.client.asyncresult._FOREVER = TIMEOUT_MAX
         # update loggers on all engines
         client[:].apply_sync(set_engine_logger)
         
