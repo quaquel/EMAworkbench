@@ -90,7 +90,8 @@ class IpyparallelPool(AbstractPool):
     def perform_experiments(self, callback, experiments):
         lb_view = self.client.load_balanced_view()
         
-        results = lb_view.map(_run_experiment, experiments, ordered=False)
+        results = lb_view.map(_run_experiment, experiments, ordered=False, 
+                              block=True)
         
         # TODO cleanup call
 
