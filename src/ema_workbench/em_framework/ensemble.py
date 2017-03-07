@@ -233,9 +233,6 @@ class ModelEnsemble(object):
         
         info(str(nr_of_exp) + " experiment will be executed")
 
-        if reporting_interval is None:
-            reporting_interval = max(1, int(round(nr_of_exp / 10))) 
-
         #initialize the callback object
         callback = callback(uncertainties, 
                             levers,
