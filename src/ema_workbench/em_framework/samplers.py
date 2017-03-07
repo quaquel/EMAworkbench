@@ -511,7 +511,7 @@ def from_experiments(models, experiments):
     
     Parameters
     ----------
-    models : colleciotn of AbstractModel instances
+    models : collection of AbstractModel instances
     experiments : recarray
     
     Returns

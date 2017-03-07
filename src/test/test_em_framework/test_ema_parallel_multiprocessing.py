@@ -79,8 +79,8 @@ class WorkerTestCase(unittest.TestCase):
     def test_worker(self, mocked_logging, mocked_runner):
         
         if sys.version_info[0] < 3:
-            mocked_inqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
-            mocked_outqueue = mock.Mock(multiprocessing.queues.SimpleQueue())
+            mocked_inqueue = mock.Mock(multiprocessing.queues.SimpleQueue())  # @UndefinedVariable
+            mocked_outqueue = mock.Mock(multiprocessing.queues.SimpleQueue())  # @UndefinedVariable
         else:
             mocked_inqueue = mock.Mock(multiprocessing.SimpleQueue())
             mocked_outqueue = mock.Mock(multiprocessing.SimpleQueue())

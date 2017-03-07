@@ -222,7 +222,7 @@ def determine_objects(models, attribute, union=True):
     try:
         models = iter(models)
     except TypeError:
-        # we assume that thee is only a single model passed
+        # we assume that there is only a single model passed
         models = iter([models])
         
     named_objects = getattr(next(models), attribute).copy()

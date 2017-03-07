@@ -33,7 +33,7 @@ SOBOL = 'sobol'
 MORRIS = 'morris'
 FAST = 'fast'
 
-#TODO:: better name, sampers lowercase conflicts with modulename
+#TODO:: better name, samplers lowercase conflicts with modulename
 SAMPLERS = {LHS:LHSSampler,
             MC:MonteCarloSampler,
             FF:FullFactorialSampler,
