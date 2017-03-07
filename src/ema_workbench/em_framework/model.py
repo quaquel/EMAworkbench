@@ -441,6 +441,10 @@ class BaseModel(AbstractModel):
         return model_specs
 
 
+# TODO:: is it required that FileModel has a model_file?
+# might instead be some data files used by a Python Process
+# Solution, have an intermediate class, WorkingDirectoryModel
+# FileModel than extents that class with the model_file
 class FileModel(AbstractModel):
     @property
     def working_directory(self):
