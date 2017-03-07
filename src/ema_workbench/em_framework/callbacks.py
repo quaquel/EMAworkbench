@@ -68,7 +68,11 @@ class AbstractCallback(object):
                  outcomes,
                  levers,
                  nr_experiments,
-                 reporting_interval=100):
+                 reporting_interval=None):
+        
+        if reporting_interval is None:
+            reporting_interval = max(1, int(round(nr_experiments / 10))) 
+        
         self.reporting_interval = reporting_interval
             
     @abc.abstractmethod
