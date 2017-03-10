@@ -15,6 +15,7 @@ from win32com.universal import com_error # @UnresolvedImport
 from ..util import ema_logging, EMAError
 from ..em_framework.model import FileModel
 from ema_workbench.em_framework.model import SingleReplication
+from ..util.ema_logging import method_logger
 
 # Created on 19 sep. 2011
 # 
@@ -76,14 +77,16 @@ class BaseExcelModel(FileModel):
                 ema_logging.debug("Excel started") 
             except com_error as e:
                 raise EMAError(str(e))
-        ema_logging.debug("trying to open workbook")
         
-        wb = os.path.join(self.working_directory, self.workbook)
-        self.wb = self.xl.Workbooks.Open(wb)
-        ema_logging.debug("workbook opened")
-        ema_logging.debug(self.working_directory)
+        # TODO for some strange reason, init is called for every replication
+        if not self.wb:
+            ema_logging.debug("trying to open workbook")
+            wb = os.path.join(self.working_directory, self.workbook)
+            self.wb = self.xl.Workbooks.Open(wb)
+            ema_logging.debug("workbook opened")
+            ema_logging.debug(self.working_directory)
 
-
+    @method_logger
     def run_experiment(self, experiment):
         """
         Method for running an instantiated model structures. This 
