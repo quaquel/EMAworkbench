@@ -8,6 +8,7 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
+import copy
 import operator
 import os
 import six
@@ -330,10 +331,13 @@ class Replicator(AbstractModel):
         
         outputs = defaultdict(list)
         
+        policy =  copy.deepcopy(policy)
         partial_experiment = combine(scenario, policy, constants)
+              
         
         for _, rep in enumerate(self.replications):
-            experiment = combine(partial_experiment, rep)
+            experiment = copy.deepcopy(partial_experiment)
+            experiment = combine(experiment, rep)
             output = self.run_experiment(experiment)
             for key, value in output.items():
                 outputs[key].append(value)
