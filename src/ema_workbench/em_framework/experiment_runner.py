@@ -95,8 +95,8 @@ class ExperimentRunner(object):
             except Exception:
                 raise e
             
-            sys.stderr.write(traceback.print_exc()+"\n")
-            
+            sys.stderr.write(traceback.print_exc())
+            sys.stderr.write("\n")
             
             raise EMAError(("exception in run_model"
                    "\nCaused by: {}: {}".format(type(e).__name__, str(e))))
