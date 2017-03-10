@@ -5,6 +5,7 @@ has been initialized with which policy.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
+import sys
 import traceback
 
 from ..util import ema_logging, EMAError, CaseError
@@ -92,9 +93,10 @@ class ExperimentRunner(object):
             try:
                 self.cleanup()
             except Exception:
-                pass
+                raise e
             
-            traceback.print_exc()
+            sys.stderr.write(traceback.print_exc()+"\n")
+            
             
             raise EMAError(("exception in run_model"
                    "\nCaused by: {}: {}".format(type(e).__name__, str(e))))
