@@ -12,7 +12,7 @@ import unittest
 from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler, 
                                 FullFactorialSampler, PartialFactorialSampler,
                                 determine_parameters)
-from ema_workbench.em_framework.uncertainties import (RealParameter, 
+from ema_workbench.em_framework.parameters import (RealParameter, 
                                                       IntegerParameter, 
                                                       CategoricalParameter)
 from ema_workbench.em_framework.parameters import Scenario

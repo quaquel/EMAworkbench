@@ -10,7 +10,6 @@ import abc
 
 from .ema_parallel_ipython import (set_engine_logger, initialize_engines,
                                    _run_experiment)
-from .ema_parallel_multiprocessing import CalculatorPool
 import ipyparallel
 import threading
 
@@ -54,18 +53,6 @@ class AbstractPool(object):
         
         '''
     
-
-class MultiprocessingPool(AbstractPool):
-    '''
-    Extension of AbstractPool which wraps the multiprocessing pool.
-    
-    '''
-
-    def __init__(self, msis, nr_processes=None):
-        self._pool = CalculatorPool(msis, processes=nr_processes)
-    
-    def perform_experiments(self, callback, experiments):
-        self._pool.run_experiments(experiments, callback)
 
 class IpyparallelPool(AbstractPool):
     '''

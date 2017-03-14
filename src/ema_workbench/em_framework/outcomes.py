@@ -21,16 +21,6 @@ from ema_workbench.util.ema_exceptions import EMAError
 __all__ = ['Outcome', 'ScalarOutcome', 'TimeSeriesOutcome']
 
 
-# TODO:: have two names for an outcome, one is the name as it is known
-# to the user, the other is the name of the variable in the model
-# the return value for the variable can be passed to a callable known
-# to the outcome. This makes is possible to have e.g. a peak infection, which
-# takes a time series on the infection, and finds the maximum over the time
-# series
-
-# TODO:: we need a output map, this map calls the outcomes to do
-# any transformation as outlined above
-
 def Outcome(name, time=False):
     if time:
         warnings.warn('Deprecated, use TimeSeriesOutcome instead')
@@ -187,8 +177,8 @@ class TimeSeriesOutcome(AbstractOutcome):
         super(TimeSeriesOutcome, self).__init__(name, kind, variable_name=variable_name, 
                                                 function=function)
         
-        if (not self.kind==AbstractOutcome.INFO) and (not callable(reduce)):
-            raise ValueError(('reduce needs to be specified when using'
+        if (not self.kind==AbstractOutcome.INFO) and (not callable(function)):
+            raise ValueError(('function needs to be specified when using'
                               ' TimeSeriesOutcome in optimization' ))
 
 def create_outcomes(outcomes, **kwargs):
@@ -196,7 +186,7 @@ def create_outcomes(outcomes, **kwargs):
     
     Parameters
     ----------
-    outcomes : Dataframe, or something convertable to a dataframe
+    outcomes : DataFrame, or something convertable to a DataFrame
                in case of string, the string will be passed
     
     Returns

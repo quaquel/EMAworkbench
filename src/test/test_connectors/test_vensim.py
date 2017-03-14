@@ -10,7 +10,7 @@ import unittest
 
 
 from ema_workbench.em_framework import (TimeSeriesOutcome, RealParameter, 
-                                        ModelEnsemble, CategoricalUncertainty) 
+                                    CategoricalParameter, perform_experiments) 
 
 from ema_workbench.connectors.vensim import (VensimModel, 
                                              load_model, LookupUncertainty)
@@ -96,14 +96,8 @@ class VensimMSITest(unittest.TestCase):
         wd = r'../models'
         model = VensimExampleModel(wd, "simpleModel")
         
-        #instantiate an ensemble
-        ensemble = ModelEnsemble()
-        
-        #set the model on the ensemble
-        ensemble.model_structure = model
-        
         nr_runs = 10
-        experiments, outcomes = ensemble.perform_experiments(nr_runs)
+        experiments, outcomes = perform_experiments(model, nr_runs)
         
         self.assertEqual(experiments.shape[0], nr_runs)
         self.assertIn('TIME', outcomes.keys())
@@ -135,7 +129,7 @@ class LookupUncertaintyTest(unittest.TestCase):
          
         self.assertEqual(len(msi.uncertainties), 1)
         self.assertTrue(isinstance(msi.uncertainties[0], 
-                                   CategoricalUncertainty))
+                                   CategoricalParameter))
 
 
         # hearne1
@@ -197,10 +191,7 @@ class LookupUncertaintyTest(unittest.TestCase):
         model = LookupTestModel( r'../models/', 'lookupTestModel')
         
         #model.step = 4 #reduce data to be stored
-        ensemble = ModelEnsemble()
-        ensemble.model_structure = model
-        
-        ensemble.perform_experiments(10)
+        perform_experiments(model, 10)
 
 if __name__ == '__main__':
     if os.name == 'nt':

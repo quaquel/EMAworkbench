@@ -3,6 +3,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
 import abc
+import itertools
 import numbers
 import pandas
 import six
@@ -16,7 +17,8 @@ from ema_workbench.em_framework.util import (NamedObject, Variable,
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['Parameter','RealParameter', 'IntegerParameter',
-           'CategoricalParameter', 'create_uncertainties']
+           'CategoricalParameter', 'create_uncertainties', 
+           'experiment_generator']
 
 
 class Constant(NamedObject):
@@ -357,6 +359,34 @@ class Experiment(NamedObject):
         self.policy = policy
         self.model_name = model_name
         self.scenario = scenario
+
+
+def experiment_generator(scenarios, model_structures, policies):
+    '''
+    
+    generator function which yields experiments
+    
+    Parameters
+    ----------
+    designs : iterable of dicts
+    model_structures : list
+    policies : list
+
+    Notes
+    -----
+    this generator is essentially three nested loops: for each model structure,
+    for each policy, for each experiment, run the experiment. This means 
+    that designs should not be a generator because this will be exhausted after
+    the running the first policy on the first model. 
+    
+    '''
+    jobs = itertools.product(model_structures, policies, scenarios)
+    
+    for i, job in enumerate(jobs):
+        msi, policy, scenario = job
+        name = '{} {} {}'.format(msi.name, policy.name, i)
+        experiment = Experiment(name, msi.name, policy, scenario, i)
+        yield experiment
 
 
 def parameters_to_csv(parameters, file_name):

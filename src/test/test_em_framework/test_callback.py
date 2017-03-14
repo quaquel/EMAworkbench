@@ -13,7 +13,7 @@ import numpy as np
 import numpy.lib.recfunctions as rf
 
 from ema_workbench.em_framework.callbacks import DefaultCallback
-from ema_workbench.em_framework.uncertainties import (CategoricalParameter,
+from ema_workbench.em_framework.parameters import (CategoricalParameter,
                                                       RealParameter, 
                                                       IntegerParameter)
 from ema_workbench.em_framework.parameters import Policy, Scenario, Experiment
