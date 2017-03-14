@@ -18,9 +18,8 @@ from SALib.sample import saltelli, morris, fast_sampler
 
 import operator
 
-from ema_workbench.em_framework.samplers import DefaultDesigns
-from ema_workbench.em_framework.uncertainties import (CategoricalParameter, 
-                                                      IntegerParameter)
+from .samplers import DefaultDesigns
+from .parameters import CategoricalParameter, IntegerParameter
 
 
 def get_SALib_problem(uncertainties):
