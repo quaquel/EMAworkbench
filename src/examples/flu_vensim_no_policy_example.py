@@ -15,6 +15,7 @@ from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
                            perform_experiments)
 
 from ema_workbench.connectors.vensim import VensimModel 
+from ema_workbench.em_framework.evaluators import MultiprocessingPoolEvaluator
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -49,4 +50,6 @@ if __name__ == "__main__":
         RealParameter('normal contact rate region 2', 10, 200)]
 
     nr_experiments = 100
-    results = perform_experiments(model, nr_experiments, parallel=True)
+    with MultiprocessingPoolEvaluator(model) as evaluator:
+        results = perform_experiments(model, nr_experiments, 
+                                      evaluator==evaluator)

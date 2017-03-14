@@ -63,5 +63,4 @@ if __name__ == '__main__':
                 ]
      
      
-    results = perform_experiments(model, 1000, policies=policies, 
-                                  parallel=True)
+    results = perform_experiments(model, 1000, policies=policies)

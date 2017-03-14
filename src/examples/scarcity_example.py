@@ -9,7 +9,7 @@ from __future__ import (division, unicode_literals, print_function,
 from math import exp
 
 from ema_workbench.em_framework import (RealParameter, CategoricalParameter, 
-                                        Outcome, ModelEnsemble)
+                                        Outcome, perform_experiments)
 from ema_workbench.util import ema_logging
 from ema_workbench.connectors.vensim import VensimModel
 
@@ -117,7 +117,5 @@ if __name__ == "__main__":
              RealParameter("lookup approximated learning scale", 0.3, 0.6),
              RealParameter("lookup approximated learning start", 30, 60)]
     
-    ensemble = ModelEnsemble()
-    ensemble.model_structures = model
-#     ensemble.parallel = True
-    results = ensemble.perform_experiments(50)
+
+    results = perform_experiments(model, 50)

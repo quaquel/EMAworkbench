@@ -17,6 +17,7 @@ from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
                            perform_experiments)
 
 from ema_workbench.connectors.excel import ExcelModel
+from ema_workbench.em_framework.evaluators import MultiprocessingPoolEvaluator
 
 
 if __name__ == "__main__":    
@@ -38,7 +39,9 @@ if __name__ == "__main__":
     #name of the sheet
     model.sheet = "Sheet1"
     
-    results = perform_experiments(model, 100, parallel=True, reporting_interval=1)
+    with MultiprocessingPoolEvaluator(model) as evaluator:
+        results = perform_experiments(model, 100, reporting_interval=1,
+                                      evaluator=evaluator)
     
     print("blaat")
 

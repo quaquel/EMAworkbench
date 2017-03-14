@@ -14,9 +14,9 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
-                           perform_experiments, ema_logging)
-import ema_workbench.em_framework.samplers as samplers
-import ema_workbench.em_framework.util as util
+                           perform_experiments, ema_logging, 
+                           MultiprocessingPoolEvaluator)
+from ema_workbench.em_framework.evaluators import MC
 
 
 def lake_problem(
@@ -90,12 +90,9 @@ if __name__ == '__main__':
                             Constant('nsamples', 150)]
         
     # generate some random policies by sampling over levers
-    policies = samplers.sample_levers(lake_model, 4, 
-                                      sampler=samplers.MonteCarloSampler(),
-                                      name=util.counter)
+    n_scenarios = 100
+    n_policies = 4
     
-    # perform experiments
-    nr_experiments = 100
-    
-    results = perform_experiments(lake_model, nr_experiments, 
-                                  policies, parallel=True)
+    with MultiprocessingPoolEvaluator(lake_model) as evaluator:
+        results = perform_experiments(lake_model, n_scenarios, n_policies, 
+                                      evaluator=evaluator, levers_sampling=MC)
