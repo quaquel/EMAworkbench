@@ -24,4 +24,4 @@ from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler, 
                              get_SALib_problem)
 from .evaluators import (perform_experiments, IpyparallelEvaluator, 
-                         MultiprocessingPoolEvaluator, SequentialEvaluator)
+                         MultiprocessingPoolEvaluator, SequentialEvaluator, )

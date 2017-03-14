@@ -24,6 +24,7 @@ from ema_workbench import (Model, RealParameter, TimeSeriesOutcome,
                          
 from ema_workbench.analysis.plotting import lines
 from ema_workbench.analysis.plotting_util import KDE                         
+from ema_workbench.em_framework.evaluators import MultiprocessingPoolEvaluator
 
 
 #==============================================================================
@@ -170,7 +171,7 @@ def flu_model(x11=0,x12=0,x21=0,x22=0,x31=0,x32=0,x41=0,x51=0,x52=0,x61=0,
             normal_immune_population_fraction_region_1 = (additional_seasonal_immune_population_fraction_R1/2)*sin(4.5+(time*TIME_STEP/2))  + (((2*permanent_immune_population_fraction_R1) + additional_seasonal_immune_population_fraction_R1)/2) 
         else: normal_immune_population_fraction_region_1 = max((float(qw),(additional_seasonal_immune_population_fraction_R1/2)*sin(4.5+(time*TIME_STEP/2))  + (((2*permanent_immune_population_fraction_R1) + additional_seasonal_immune_population_fraction_R1)/2)))
 
-        normal_immune_population_fraction_region_2 = (switch_immunity_cap*min((sin((time*TIME_STEP/2)+1.5)* additional_seasonal_immune_population_fraction_R2/2)+(((2*permanent_immune_population_fraction_R2)+additional_seasonal_immune_population_fraction_R2)/2),(permanent_immune_population_fraction_R1+additional_seasonal_immune_population_fraction_R1)))+((1-switch_immunity_cap)*((sin((time*TIME_STEP/2)+1.5)*additional_seasonal_immune_population_fraction_R2/2)+(((2*permanent_immune_population_fraction_R2)+additional_seasonal_immune_population_fraction_R2)/2))) 
+        normal_immune_population_fraction_region_2 = switch_immunity_cap*min((sin((time*TIME_STEP/2)+1.5)*additional_seasonal_immune_population_fraction_R2/2)+(((2*permanent_immune_population_fraction_R2)+additional_seasonal_immune_population_fraction_R2)/2),(permanent_immune_population_fraction_R1+additional_seasonal_immune_population_fraction_R1))+((1-switch_immunity_cap)*((sin((time*TIME_STEP/2)+1.5)*additional_seasonal_immune_population_fraction_R2/2)+(((2*permanent_immune_population_fraction_R2)+additional_seasonal_immune_population_fraction_R2)/2))) 
     
         normal_immune_population_region_1 = normal_immune_population_fraction_region_1*total_population_region_1
         normal_immune_population_region_2 = normal_immune_population_fraction_region_2*total_population_region_2
@@ -260,10 +261,15 @@ if __name__ == '__main__':
                       TimeSeriesOutcome("deceased_population_region_1")]
     
     nr_experiments = 500
-    results = perform_experiments(model, nr_experiments, parallel=True)
+    
+    results = perform_experiments(model, 10)
+    
+#     with MultiprocessingPoolEvaluator(model) as evaluator:
+#         results = perform_experiments(model, nr_experiments,
+#                                       evaluator=evaluator)
  
     lines(results, outcomes_to_show="deceased_population_region_1", 
           show_envelope=True, density=KDE, titles=None, 
           experiments_to_show=np.arange(0, nr_experiments, 10)
           )
-    plt.show()
+    plt.show()  
