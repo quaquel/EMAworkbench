@@ -81,7 +81,7 @@ class ExperimentRunner(object):
         policy = experiment.policy.copy()
         scenario_id = experiment.scenario.name
         
-        ema_logging.debug(self.log_message.format(scenario_id = scenario_id,
+        ema_logging.debug(self.log_message.format(scenario_id=scenario_id,
                                                   policy_name=policy_name,
                                                   model_name = model_name))
         scenario = experiment.scenario.copy()

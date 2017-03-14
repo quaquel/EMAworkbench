@@ -22,6 +22,8 @@ from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler) # TODO:: should become optional import
 from .util import NamedObjectMap, determine_objects
 from ..util import ema_logging, EMAError
+from ema_workbench.em_framework.ema_parallel_ipython import start_logwatcher
+from ema_workbench.em_framework import ema_parallel_ipython
 
 
 
@@ -233,24 +235,30 @@ class IpyparallelEvaluator(BaseEvaluator):
         self.client = client
         
     def __enter__(self):
-#         BaseEvaluator.__enter__(self)
-        
+        ema_logging.debug("starting ipyparallel pool")
         self.pool = IpyparallelPool(self._msis, self.client)
+        self.logwatcher, self.logwatcher_thread = start_logwatcher()
         
+        ema_logging.debug("successfully started ipyparallel pool")
+        
+        ema_logging.info("performing experiments using ipyparallel")
+        
+        return self
+
+
     def __exit__(self, exc_type, exc_value, traceback):
-#         BaseEvaluator.__exit__(self, exc_type, exc_value, traceback)
-        pass
-        
         # what to do here?
         # reset clients?
         # remove directories?
+        self.logwatcher.stop()
+#         del self.logwatcher, self.logwatcher_thread
+        ema_parallel_ipython.cleanup(self.client)
         
         
     def perform_experiments(self, scenarios, policies, callback):
-        BaseEvaluator.perform_experiments(self, scenarios, policies, callback)
-        
         ex_gen = experiment_generator(scenarios, self._msis, policies)
         self.pool.perform_experiments(callback, ex_gen)
+
 
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None, 
                         reporting_interval=None, uncertainty_union=False, 

@@ -129,6 +129,9 @@ def setup_working_directories(models):
         tmpdir = "tmp{}".format(os.getpid())
         os.mkdir(os.path.join(path, tmpdir))
         
+        ema_logging.debug("setting up working directory: {}".format(os.path.join(path, tmpdir)))
+        
+        
         for key, value in wd_by_model.items():
             # we need a sub directory in the process working directory
             # for each unique model working directory
