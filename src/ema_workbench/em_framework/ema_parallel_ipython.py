@@ -31,6 +31,9 @@ from jupyter_client.localinterfaces import localhost
 from ipyparallel.engine.log import EnginePUBHandler
 
 from . import experiment_runner
+from .model import AbstractModel
+from .util import NamedObjectMap
+from .ema_pool import setup_working_directories
 from ..util import ema_exceptions, utilities, ema_logging
 
 # Created on Jul 16, 2015
@@ -188,9 +191,9 @@ class LogWatcher(LoggingConfigurable):
     
     def __init__(self, **kwargs):
         super(LogWatcher, self).__init__(**kwargs)
-        s = self.context.socket(zmq.SUB)  # @UndefinedVariable
-        s.bind(self.url)
-        self.stream = zmqstream.ZMQStream(s, self.loop)
+        self.s = self.context.socket(zmq.SUB)  # @UndefinedVariable
+        self.s.bind(self.url)
+        self.stream = zmqstream.ZMQStream(self.s, self.loop)
         self.subscribe()
         self.observe(self.subscribe, 'topics')
     
@@ -200,6 +203,7 @@ class LogWatcher(LoggingConfigurable):
     def stop(self):
         self.stream.setsockopt(zmq.UNSUBSCRIBE, b'')  # @UndefinedVariable
         self.stream.stop_on_recv()
+        self.s.close()
     
     def subscribe(self):
         """Update our SUB socket's subscriptions."""
@@ -249,7 +253,7 @@ class LogWatcher(LoggingConfigurable):
             if msg[-1] == '\n':
                 msg = msg[:-1]
 #             self.log.log(level, "[%s] %s" % (topic, msg))
-            print("[%s] %s" % (main_topic, msg))
+#             print("[%s] %s" % (main_topic, msg))
 
             log.log(level, "[%s] %s" % (main_topic, msg))
 
@@ -263,74 +267,29 @@ class Engine(object):
     ----------
     engine_id : int
     msis : list
-    model_init_kwargs : dict, optional
+    cwd : str
     
     '''
 
-    def __init__(self, engine_id, msis):
+    def __init__(self, engine_id, msis, cwd):
+        ema_logging.debug("starting engine {}".format(engine_id))
         self.engine_id = engine_id
         self.msis = msis
-        self.runner = experiment_runner.ExperimentRunner(msis)
-
-    def setup_working_directory(self, dir_name):
-        '''setup the root directory for the engine. The working directories 
-        associated with the various model structure interfaces will be copied 
-        to this root directory.
-
-        Parameters
-        ----------
-        dir_name : str
-                   The name of the root directory
-
-
-        '''
-        dir_name = dir_name.format(self.engine_id)
         
-        dir_name = os.path.join(EMA_PROJECT_HOME_DIR, dir_name)
+        ema_logging.debug("setting root working directory to {}".format(cwd))        
+        os.chdir(cwd)
         
-        # if the directory already exists, is has not been
-        # cleaned up properly last time
-        # let's be stupid and remove it
-        # a smarter solution would be to do a dif on the existing
-        # directory and what we would like to copy. 
-        if os.path.isdir(dir_name):
-            shutil.rmtree(dir_name)
+        models = NamedObjectMap(AbstractModel)
+        models.extend(msis)
+        self.runner = experiment_runner.ExperimentRunner(models)
         
-        os.mkdir(dir_name)
-        self.root_dir = dir_name
+        self.tmpdir = setup_working_directories(msis)
 
     def cleanup_working_directory(self):
         '''remove the root working directory of the engine'''
-        shutil.rmtree(self.root_dir) 
-        
-        # this is hacky
-        self.runner.cleanup()
-
-    def copy_wds_for_msis(self, dirs_to_copy, wd_by_msi):
-        '''copy each unique working directory to the engine specific
-        folder and update the working directory for the associated model 
-        structure interfaces
-
-        Parameters
-        ----------
-        dirs_to_copy : list of strings
-        wd_by_msi : dict
-                    a mapping from working directory to associated models 
-                    structure interfaces. 
-
-
-        '''
-        for src in dirs_to_copy:
-            basename = os.path.basename(src)
-            dst = os.path.join(self.root_dir, basename)
-            shutil.copytree(src, dst) 
-
-            # set working directory for the associated msi's 
-            # on the engine
-            for msi_name in wd_by_msi[src]:
-                msi = self.msis[msi_name] 
-                msi.working_directory = dst
-                
+        if self.tmpdir:
+            shutil.rmtree(self.tmpdir) 
+            
     def run_experiment(self, experiment):
         '''run the experiment, the actual running is delegated
         to an ExperimentRunner instance'''
@@ -343,7 +302,7 @@ class Engine(object):
             raise ema_exceptions.EMAParallelError(str(Exception))
        
 
-def initialize_engines(client, msis):
+def initialize_engines(client, msis, cwd):
     '''initialize engine instances on all engines
     
     Parameters
@@ -351,62 +310,16 @@ def initialize_engines(client, msis):
     client : IPython.parallel.Client 
     msis : dict
            dict of model structure interfaces with their names as keys
+    cwd : str
     
     '''
     for i in client.ids:
-        client[i].apply_sync(_initialize_engine, i, msis)
-        
-    setup_working_directories(client, msis)
-
-      
-def setup_working_directories(client, msis):
-    '''setup working directory structure on all engines and copy files as 
-    necessary
-        
-    Parameters
-    ----------
-    client : IPython.parallel.Client 
-    msis : dict
-           dict of model structure interfaces with their names as keys
-    
-    .. note:: multiple hosts not yet supported!
-    
-    '''
-    
-    # get the relevant working directories to copy
-    # it might be that working directories are shared
-    # so we use a defaultdict to store the model interfaces
-    # associated with each working directory
-    wd_by_msi = collections.defaultdict(list)
-    for msi in msis:
-        try:
-            wd_by_msi[msi.working_directory].append(msi.name)
-        except AttributeError:
-            pass
-        
-    if len(wd_by_msi) == 0 :
-        return
-        
-    # determine the common root of all working directories
-    common_root = os.path.commonprefix(wd_by_msi.keys())
-    common_root = os.path.dirname(common_root)
-    rel_common_root = os.path.relpath(common_root, EMA_PROJECT_HOME_DIR)
-    
-    engine_wd_name = 'engine{}'
-    engine_dir = os.path.join(rel_common_root, engine_wd_name)
-        
-    # create the root directory for each engine
-    # we need to block until directory has been created
-    client[:].apply_sync(_setup_working_directory, engine_dir)
-    
-    # copy the working directories and update msi.working_directory
-    dirs_to_copy = wd_by_msi.keys()
-    client[:].apply_sync(_copy_working_directories, dirs_to_copy, wd_by_msi)
+        client[i].apply_sync(_initialize_engine, i, msis, cwd)
 
 
-def cleanup_working_directories(client):
+def cleanup(client):
     '''cleanup directory tree structure on all engines '''
-    client[:].apply_sync(_cleanun_working_directory)
+    client[:].apply_sync(_cleanup)
 
 
 # engines can only deal with functions, not with object.method calls
@@ -416,18 +329,12 @@ def _run_experiment(experiment):
     return experiment, engine.run_experiment(experiment)
 
 
-def _initialize_engine(engine_id, msis):
+def _initialize_engine(engine_id, msis, cwd):
     global engine
-    engine = Engine(engine_id, msis)
+    engine = Engine(engine_id, msis, cwd)
 
     
-def _setup_working_directory(dir_name):
-    engine.setup_working_directory(dir_name)
-
-    
-def _cleanun_working_directory():
+def _cleanup():
+    global engine
     engine.cleanup_working_directory()
-
-    
-def _copy_working_directories(dirs_to_copy, wd_by_msi):
-    engine.copy_wds_for_msis(dirs_to_copy, wd_by_msi)
+    del engine

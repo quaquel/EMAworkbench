@@ -7,11 +7,14 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
+import ipyparallel
+import os
+import threading
+
 
 from .ema_parallel_ipython import (set_engine_logger, initialize_engines,
                                    _run_experiment)
-import ipyparallel
-import threading
+from ..util import ema_logging
 
 # Created on Jul 22, 2015
 # 
@@ -80,7 +83,8 @@ class IpyparallelPool(AbstractPool):
         # update loggers on all engines
         client[:].apply_sync(set_engine_logger)
         
-        initialize_engines(self.client, msis)
+        ema_logging.debug("initializing engines")
+        initialize_engines(self.client, msis, os.getcwd())
     
     def perform_experiments(self, callback, experiments):
         lb_view = self.client.load_balanced_view()
