@@ -1,22 +1,24 @@
-import sys
+import warnings
+
+warnings.simplefilter("once", ImportWarning)
+
 try:
     from . import vensim
 except ImportError:
-    sys.stderr.write("vensim connector not available\n")
+    warnings.warn("vensim connector not available", ImportWarning)
 
 try:
     from . import excel
 except ImportError:
-    sys.stderr.write("excel connector not available\n")
+    warnings.warn("excel connector not available", ImportWarning)
 
 try:
     from . import netlogo
 except ImportError:
-    sys.stderr.write("netlogo connector not available\n")
+    warnings.warn("netlogo connector not available", ImportWarning)
 
 try:
     from . import pysd_connector
 except ImportError:
-    sys.stderr.write("pysd connector not available\n")
+    warnings.warn("pysd connector not available", ImportWarning)
 
-del sys

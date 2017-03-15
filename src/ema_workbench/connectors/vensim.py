@@ -22,7 +22,7 @@ from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
 
 from ..em_framework.parameters import (Parameter, RealParameter, 
                                        CategoricalParameter)
-from ..em_framework.util import NamedObjectMap, combine
+from ..em_framework.util import NamedObjectMap
 from ..em_framework import TimeSeriesOutcome, FileModel
 
 from ..util import debug, warning, CaseError, EMAError, EMAWarning

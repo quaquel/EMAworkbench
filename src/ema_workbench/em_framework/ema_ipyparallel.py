@@ -2,11 +2,6 @@
 This module provides functionality for combining the EMA workbench
 with IPython parallel. 
 
-.. note:: the version provided here is compatible with ipython 4, and 
-          ipyparallel. That is, the version after the big split. It will not 
-          work with older versions of IPython
-
-
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
@@ -25,16 +20,14 @@ from traitlets.config import Application
 from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Unicode, Instance, List
 
+from ipyparallel.engine.log import EnginePUBHandler
 from jupyter_client.localinterfaces import localhost
 
-
-from ipyparallel.engine.log import EnginePUBHandler
-
 from . import experiment_runner
+from .ema_multiprocessing import setup_working_directories
 from .model import AbstractModel
 from .util import NamedObjectMap
-from .ema_pool import setup_working_directories
-from ..util import ema_exceptions, utilities, ema_logging
+from ..util import ema_exceptions, ema_logging
 
 # Created on Jul 16, 2015
 # 
@@ -42,7 +35,6 @@ from ..util import ema_exceptions, utilities, ema_logging
 
 SUBTOPIC = ema_logging.LOGGER_NAME
 engine = None
-EMA_PROJECT_HOME_DIR = utilities.get_ema_project_home_dir()
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
     '''LoggerAdapter that inserts EMA as a topic into log messages
