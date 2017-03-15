@@ -20,7 +20,7 @@ import sys
 
 import numpy as np
 
-from ..util import warning, info, EMAError, EMAWarning
+from ..util import info, EMAError, EMAWarning
 
 try:
     WindowsError # @UndefinedVariable
@@ -69,9 +69,7 @@ elif vensim_double:
     vensim = vensim_double
     info('using single precision vensim')
 else:
-    message = "vensim dll not found, vensim functionality not available"
-    sys.stderr.write(message+"\n")
-    warning(message)
+    raise ImportError("vensim dll not found")
 del sys
 
 

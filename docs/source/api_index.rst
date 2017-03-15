@@ -15,9 +15,8 @@ Exploratory modeling framework
    ../../ema_documentation/em_framework/salib_samplers.rst
    ../../ema_documentation/em_framework/experiment_runner.rst
    ../../ema_documentation/em_framework/callbacks.rst
-   ../../ema_documentation/em_framework/ema_parallel.rst
-   ../../ema_documentation/em_framework/ema_pool.rst
-   ../../ema_documentation/em_framework/ema_parallel_ipython.rst
+   ../../ema_documentation/em_framework/ema_multiprocessing.rst
+   ../../ema_documentation/em_framework/ema_ipyparallel.rst
    ../../ema_documentation/em_framework/util.rst
 
 Connectors

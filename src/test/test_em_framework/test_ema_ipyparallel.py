@@ -1,6 +1,6 @@
 '''
 Created on Jul 28, 2015
-test code for ema_parallel_ipython. The setup and teardown of the cluster is
+test code for ema_ipyparallel. The setup and teardown of the cluster is
 taken from the ipyparallel test code with some minor adaptations
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
@@ -8,7 +8,6 @@ from __future__ import (unicode_literals, division, print_function,
                         absolute_import)
 
 import logging
-from ema_workbench.em_framework.ema_parallel_ipython import LogWatcher
 
 try:
     import unittest.mock as mock
@@ -34,9 +33,10 @@ from ipyparallel.apps.launcher import (LocalProcessLauncher,
                                        SIGKILL,
                                        ProcessStateError)
 
-from ema_workbench.em_framework import ema_parallel_ipython as ema
+from ema_workbench.em_framework import ema_ipyparallel as ema
 from ema_workbench.em_framework import experiment_runner, Model
 from ema_workbench.util import ema_logging, EMAError, EMAParallelError
+from ema_workbench.em_framework.ema_ipyparallel import LogWatcher
 
 
 launchers =[]
@@ -167,8 +167,8 @@ class TestEngineLoggerAdapter(unittest.TestCase):
                              msg)
             self.assertEqual(input_kwargs, kwargs)
     
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.EngingeLoggerAdapter')  
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.Application')
+    @mock.patch('ema_workbench.em_framework.ema_ipyparallel.EngingeLoggerAdapter')  
+    @mock.patch('ema_workbench.em_framework.ema_ipyparallel.Application')
     def test_engine_logger(self, mocked_application, mocked_adapter):
         logger = ema_logging.get_logger()
         mocked_logger = mock.Mock(spec=logger)
@@ -320,9 +320,9 @@ class TestEngine(unittest.TestCase):
     def tearDownClass(cls):
         pass
     
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.get_engines_by_host')
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.os')
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.socket')
+    @mock.patch('ema_workbench.em_framework.ema_ipyparallel.get_engines_by_host')
+    @mock.patch('ema_workbench.em_framework.ema_ipyparallel.os')
+    @mock.patch('ema_workbench.em_framework.ema_ipyparallel.socket')
     def test_update_cwd_on_all_engines(self, mock_socket, mock_os, 
                                        mock_engines_by_host):
         mock_socket.gethostname.return_value = 'test host'
@@ -350,59 +350,14 @@ class TestEngine(unittest.TestCase):
         engines_by_host = ema.get_engines_by_host(self.client)
         self.assertEqual({ socket.gethostname(): [0,1]},engines_by_host)
     
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.shutil')
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.os')  
-    def test_copy_wds_for_msis(self, mock_os, mock_shutil):
-        mock_os.path.join.return_value = '.'
-        
-        function = mock.Mock()
-        mock_msi = Model('test', function)
-        
-        msis = {mock_msi.name: mock_msi}
-        engine_id = 0
-        engine = ema.Engine(engine_id, msis)
-        engine.root_dir = '/dir_name'        
-        
-        dirs_to_copy = ['/test']
-        wd_by_msi = {'/test':[mock_msi.name]}
-        engine.copy_wds_for_msis(dirs_to_copy, wd_by_msi)
-        
-        mock_os.path.basename.called_once_with(dirs_to_copy[0])
-        mock_os.path.join.called_once_with('/dir_name' , dirs_to_copy[0])
-        mock_shutil.copytree.assert_called_once_with('/test','.')
-        self.assertEqual('.', mock_msi.working_directory)
-        
     def test_init(self):
-        msis = {}
+        msis = []
         engine_id = 0
-        engine = ema.Engine(engine_id, msis)
+        engine = ema.Engine(engine_id, msis, '.')
         
         self.assertEqual(engine_id, engine.engine_id)
         self.assertEqual(msis, engine.msis)
         self.assertEqual(experiment_runner.ExperimentRunner, type(engine.runner))
-    
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.os') 
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.shutil') 
-    def test_setup_wd(self, mock_shutil, mock_os):
-        msis = {}
-        engine_id = 0
-        engine = ema.Engine(engine_id, msis)
-        
-        # directory does not exist
-        mock_os.path.isdir.return_value = False
-        mock_os.path.join.return_value = './test 0'
-
-        wd = './test {}'
-        engine.setup_working_directory(wd)
-        mock_os.path.isdir.assert_called_once_with(wd.format(engine_id))
-        mock_os.mkdir.assert_called_once_with(wd.format(engine_id))
-
-        # directory already exists
-        mock_os.path.isdir.return_value = True
-        mock_os.path.join.return_value = './test 0'
-        
-        engine.setup_working_directory(wd)
-        mock_shutil.rmtree.assert_called_once_with(wd.format(engine_id))
        
     def test_run_experiment(self):
         
@@ -410,9 +365,9 @@ class TestEngine(unittest.TestCase):
         mock_msi = Model('test', function)
         mock_runner = mock.create_autospec(experiment_runner.ExperimentRunner)
         
-        msis = {mock_msi.name: mock_msi}
+        msis = [mock_msi]
         engine_id = 0
-        engine = ema.Engine(engine_id, msis)
+        engine = ema.Engine(engine_id, msis, '.')
         engine.runner = mock_runner
         
         experiment = {'a': 1}
@@ -430,8 +385,7 @@ class TestEngine(unittest.TestCase):
 
 class TestIpyParallelUtilFunctions(unittest.TestCase):
 
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.setup_working_directories')
-    def test_initialize_engines(self, mocked_setup_working_directories):
+    def test_initialize_engines(self):
         
         function = mock.Mock()
         mock_msi = Model('test', function)
@@ -442,27 +396,14 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
         mock_view = mock.create_autospec(ipyparallel.client.view.View) #@ @UndefinedVariable
         mock_client.__getitem__.return_value = mock_view  
         
-        ema.initialize_engines(mock_client, msis)
+        cwd = '.'
+        ema.initialize_engines(mock_client, msis, cwd)
         
-        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 0, msis)
-        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 1, msis)
-        
-        mocked_setup_working_directories.assert_called_with(mock_client, msis)
+        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 0, msis,
+                                             cwd)
+        mock_view.apply_sync.assert_any_call(ema._initialize_engine, 1, msis,
+                                             cwd)
 
-    @mock.patch('ema_workbench.em_framework.ema_parallel_ipython.os')
-    def test_setup_working_directories(self, mock_os):
-        
-        function = mock.Mock()
-        mock_msi = Model('test', function)
-        msis = {mock_msi.name: mock_msi}
-        
-        mock_client = mock.create_autospec(ipyparallel.Client)
-        mock_client.ids = [0, 1] # pretend we have two engines
-        mock_view = mock.create_autospec(ipyparallel.client.view.View) #@ @UndefinedVariable
-        mock_client.__getitem__.return_value = mock_view  
-        
-        ema.setup_working_directories(mock_client, msis)
-        #TODO assertion statements
 
 if __name__ == "__main__":
     unittest.main()

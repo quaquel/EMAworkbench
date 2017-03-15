@@ -8,11 +8,13 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 import multiprocessing
 import numbers 
 import os
+import threading
 
 from .callbacks import DefaultCallback
+from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
+from .ema_ipyparallel import (start_logwatcher, set_engine_logger, 
+                              initialize_engines, cleanup, _run_experiment)
 from .experiment_runner import ExperimentRunner
-from .ema_parallel import IpyparallelPool
-from .ema_pool import LogQueueReader, initializer, add_tasks
 from .model import AbstractModel
 from .outcomes import AbstractOutcome
 from .parameters import experiment_generator, Scenario, Policy
@@ -22,16 +24,11 @@ from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler) # TODO:: should become optional import
 from .util import NamedObjectMap, determine_objects
 from ..util import ema_logging, EMAError
-from ema_workbench.em_framework.ema_parallel_ipython import start_logwatcher
-from ema_workbench.em_framework import ema_parallel_ipython
-
-
 
 
 # Created on 5 Mar 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
 
 LHS = 'lhs'
 MC = 'mc'
@@ -41,7 +38,7 @@ SOBOL = 'sobol'
 MORRIS = 'morris'
 FAST = 'fast'
 
-#TODO:: better name, samplers lowercase conflicts with modulename
+#TODO:: better name, samplers lower case conflicts with module name
 SAMPLERS = {LHS:LHSSampler,
             MC:MonteCarloSampler,
             FF:FullFactorialSampler,
@@ -50,8 +47,7 @@ SAMPLERS = {LHS:LHSSampler,
             MORRIS:MorrisSampler,
             FAST:FASTSampler}
 
-
-__all__ = ['MultiprocessingPoolEvaluator']
+__all__ = ['MultiprocessingPoolEvaluator', 'IpyparallelEvaluator']
 
 class BaseEvaluator(object):
     '''evaluator for experiments using a multiprocessing pool
@@ -62,7 +58,7 @@ class BaseEvaluator(object):
     searchover : {None, 'levers', 'uncertainties'}, optional
                   to be used in combination with platypus
     union : {None, True, False}, optional
-            to be used in combination with platypus, indicates wheter
+            to be used in combination with platypus, indicates whether
             you want to optimize over the union or the intersection of
             search_over
     
@@ -96,16 +92,18 @@ class BaseEvaluator(object):
             self.outcome_names = [o.name for o in self.outcomes]
 
     def __enter__(self):
-        raise NotImplementedError
+        return self
 
 
     def __exit__(self, exc_type, exc_value, traceback):
-        raise NotImplementedError
+        if exc_type is not None:
+            return False
 
         
-    def perform_experiments(self, scenarios, policies, callback):
+    def evaluate_experiments(self, scenarios, policies, callback):
         '''used by ema_workbench'''
         raise NotImplementedError
+
     
     def evaluate_all(self, jobs, **kwargs):
         '''make ema_workbench evaluators compatible with Platypus'''
@@ -149,15 +147,8 @@ class BaseEvaluator(object):
 class SequentialEvaluator(BaseEvaluator):
     def __init__(self, models, **kwargs):
         super(SequentialEvaluator, self).__init__(models, **kwargs)
-
-    def __enter__(self):
-        pass
-
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        pass
         
-    def perform_experiments(self, scenarios, policies, callback):
+    def evaluate_experiments(self, scenarios, policies, callback):
         ema_logging.info("performing experiments sequentially")
         
         ex_gen = experiment_generator(scenarios, self._msis, policies)
@@ -220,9 +211,8 @@ class MultiprocessingPoolEvaluator(BaseEvaluator):
         # Stop accepting new jobs and wait for pending jobs to finish.
         self._pool.close()
         self._pool.join()
-
         
-    def perform_experiments(self, scenarios, policies, callback):
+    def evaluate_experiments(self, scenarios, policies, callback):
         ex_gen = experiment_generator(scenarios, self._msis, policies)
         
         add_tasks(self._pool, ex_gen, callback)
@@ -235,8 +225,22 @@ class IpyparallelEvaluator(BaseEvaluator):
         self.client = client
         
     def __enter__(self):
+        import ipyparallel
+        
         ema_logging.debug("starting ipyparallel pool")
-        self.pool = IpyparallelPool(self._msis, self.client)
+
+        try:
+            TIMEOUT_MAX = threading.TIMEOUT_MAX
+        except AttributeError:
+            TIMEOUT_MAX = 1e10  # noqa        
+        ipyparallel.client.asyncresult._FOREVER = TIMEOUT_MAX
+        # update loggers on all engines
+        self.client[:].apply_sync(set_engine_logger)
+        
+        ema_logging.debug("initializing engines")
+        initialize_engines(self.client, self._msis, 
+                                                os.getcwd())
+        
         self.logwatcher, self.logwatcher_thread = start_logwatcher()
         
         ema_logging.debug("successfully started ipyparallel pool")
@@ -247,17 +251,21 @@ class IpyparallelEvaluator(BaseEvaluator):
 
 
     def __exit__(self, exc_type, exc_value, traceback):
-        # what to do here?
-        # reset clients?
-        # remove directories?
         self.logwatcher.stop()
-#         del self.logwatcher, self.logwatcher_thread
-        ema_parallel_ipython.cleanup(self.client)
+        cleanup(self.client)
         
         
-    def perform_experiments(self, scenarios, policies, callback):
+    def evaluate_experiments(self, scenarios, policies, callback):
         ex_gen = experiment_generator(scenarios, self._msis, policies)
-        self.pool.perform_experiments(callback, ex_gen)
+        
+        lb_view = self.client.load_balanced_view()
+        
+        results = lb_view.map(_run_experiment, 
+                              ex_gen, ordered=False, block=False)
+
+        for entry in results:
+            callback(*entry)
+        
 
 
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None, 
@@ -281,10 +289,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     
     
     '''
-    
-    
     if not scenarios and not policies:
-        raise EMAError('no experiments possible since both scenarios and policies are 0')
+        raise EMAError(('no experiments possible since both ' 
+                        'scenarios and policies are 0'))
     
     if not scenarios:
         scenarios = [Scenario("None", **{})]
@@ -332,7 +339,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     if not evaluator:
         evaluator = SequentialEvaluator(models)
     
-    evaluator.perform_experiments(scenarios, policies, callback)
+    evaluator.evaluate_experiments(scenarios, policies, callback)
     
     if callback.i != nr_of_exp:
         raise EMAError(('some fatal error has occurred while '
