@@ -4,9 +4,9 @@ development at Delft University of Technology. Documentation can be found
 online: https://readthedocs.org/projects/emaworkbench/badge/?version=latest
 
 
-[![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=master)](https://travis-ci.org/quaquel/EMAworkbench)
-[![Coverage Status](https://coveralls.io/repos/quaquel/EMAworkbench/badge.svg?branch=master&service=github)](https://coveralls.io/github/quaquel/EMAworkbench?branch=master)
-[![Code Health](https://landscape.io/github/quaquel/EMAworkbench/master/landscape.svg?style=flat)](https://landscape.io/github/quaquel/EMAworkbench/master)
+[![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=09dev)](https://travis-ci.org/quaquel/EMAworkbench)
+[![Coverage Status](https://coveralls.io/repos/github/quaquel/EMAworkbench/badge.svg?branch=09dev)](https://coveralls.io/github/quaquel/EMAworkbench?branch=09dev)
+[![Code Health](https://landscape.io/github/quaquel/EMAworkbench/09dev/landscape.svg?style=flat)](https://landscape.io/github/quaquel/EMAworkbench/09dev)
 [![Documentation Status](https://readthedocs.org/projects/emaworkbench/badge/?version=latest)](http://emaworkbench.readthedocs.org/en/latest/?badge=master)
 
 
