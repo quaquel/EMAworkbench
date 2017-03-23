@@ -47,7 +47,7 @@ SAMPLERS = {LHS:LHSSampler,
             MORRIS:MorrisSampler,
             FAST:FASTSampler}
 
-__all__ = ['MultiprocessingPoolEvaluator', 'IpyparallelEvaluator']
+__all__ = ['MultiprocessingEvaluator', 'IpyparallelEvaluator']
 
 class BaseEvaluator(object):
     '''evaluator for experiments using a multiprocessing pool
@@ -165,7 +165,7 @@ class SequentialEvaluator(BaseEvaluator):
         os.chdir(cwd)
     
 
-class MultiprocessingPoolEvaluator(BaseEvaluator):
+class MultiprocessingEvaluator(BaseEvaluator):
     '''evaluator for experiments using a multiprocessing pool
     
     Parameters
@@ -177,7 +177,7 @@ class MultiprocessingPoolEvaluator(BaseEvaluator):
     '''
     
     def __init__(self, msis, n_processes=None, **kwargs):
-        super(MultiprocessingPoolEvaluator, self).__init__(msis, **kwargs)
+        super(MultiprocessingEvaluator, self).__init__(msis, **kwargs)
         
         self._pool = None
         self.n_processes = n_processes
@@ -219,6 +219,8 @@ class MultiprocessingPoolEvaluator(BaseEvaluator):
 
 
 class IpyparallelEvaluator(BaseEvaluator):
+    '''evaluator for using an ipypparallel pool'''
+    
 
     def __init__(self,  msis, client, **kwargs):
         super(IpyparallelEvaluator, self).__init__(msis, **kwargs)

@@ -11,7 +11,7 @@ __all__ = ["ema_parallel", "parameters"
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
            "get_SALib_problem", "FASTSampler"
            "peform_experiments", "IpyparallelEvaluator", 
-           "MultiprocessingPoolEvaluator", "SequentialEvaluator"
+           "MultiprocessingEvaluator", "SequentialEvaluator"
            ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
@@ -24,4 +24,4 @@ from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler, 
                              get_SALib_problem)
 from .evaluators import (perform_experiments, IpyparallelEvaluator, 
-                         MultiprocessingPoolEvaluator, SequentialEvaluator)
+                         MultiprocessingEvaluator, SequentialEvaluator)
