@@ -20,8 +20,6 @@ from .experiment_runner import ExperimentRunner
 from .util import NamedObjectMap
 from .model import AbstractModel
 
-
-
 # Created on 22 Feb 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -240,6 +238,8 @@ class LogQueueReader(threading.Thread):
             except (KeyboardInterrupt, SystemExit):
                 raise
             except EOFError:
+                break
+            except TypeError:
                 break
             except:
                 traceback.print_exc(file=sys.stderr)
