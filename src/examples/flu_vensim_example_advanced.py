@@ -18,7 +18,7 @@ from ema_workbench import (TimeSeriesOutcome, ScalarOutcome,ema_logging,
 from ema_workbench.em_framework.parameters import Policy, create_parameters
 
 from ema_workbench.connectors.vensim import VensimModel 
-from ema_workbench.em_framework.evaluators import MultiprocessingPoolEvaluator
+from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
 def time_of_max(infected_fraction, time):
     index = np.where(infected_fraction==np.max(infected_fraction))
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                 ]
      
      
-    with MultiprocessingPoolEvaluator(model, 2) as evaluator:
+    with MultiprocessingEvaluator(model, 2) as evaluator:
         results = perform_experiments(model, 1000, policies=policies, 
                                       evaluator==evaluator)
 

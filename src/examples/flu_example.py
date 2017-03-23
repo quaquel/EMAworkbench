@@ -24,7 +24,7 @@ from ema_workbench import (Model, RealParameter, TimeSeriesOutcome,
                          
 from ema_workbench.analysis.plotting import lines
 from ema_workbench.analysis.plotting_util import KDE                         
-from ema_workbench.em_framework.evaluators import MultiprocessingPoolEvaluator
+from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
 
 #==============================================================================

@@ -13,8 +13,7 @@ from __future__ import (division, unicode_literals, print_function,
 
 import matplotlib.pyplot as plt
 
-from ema_workbench.em_framework import Outcome, ModelEnsemble
-from ema_workbench.util import ema_logging
+from ema_workbench import TimeSeriesOutcome,perform_experiments, ema_logging
 
 from ema_workbench.connectors.vensim import (LookupUncertainty, 
                                              VensimModel)
@@ -23,10 +22,10 @@ from ema_workbench.analysis.plotting_util import BOXPLOT
 
 class Burnout(VensimModel): 
     model_file = r'\BURNOUT.vpm'
-    outcomes = [Outcome('Accomplishments to Date', time=True),
-                Outcome('Energy Level', time=True),
-                Outcome('Hours Worked Per Week', time=True),
-                Outcome('accomplishments per hour', time=True)]
+    outcomes = [TimeSeriesOutcome('Accomplishments to Date'),
+                TimeSeriesOutcome('Energy Level'),
+                TimeSeriesOutcome('Hours Worked Per Week'),
+                TimeSeriesOutcome('accomplishments per hour')]
     
     def __init__(self, working_directory, name):
         super(Burnout, self).__init__(working_directory, name)
@@ -56,12 +55,9 @@ class Burnout(VensimModel):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
     model = Burnout(r'./models/burnout', "burnout")
-
-    ensemble = ModelEnsemble()
-    ensemble.model_structures = model
     
     #run policy with old cases
-    results = ensemble.perform_experiments(100)
+    results = perform_experiments(model, 100)
     lines(results, 'Energy Level', density=BOXPLOT)
     plt.show()
 

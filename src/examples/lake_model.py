@@ -15,7 +15,7 @@ from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            perform_experiments, ema_logging, 
-                           MultiprocessingPoolEvaluator)
+                           MultiprocessingEvaluator)
 from ema_workbench.em_framework.evaluators import MC
 
 
@@ -93,6 +93,6 @@ if __name__ == '__main__':
     n_scenarios = 100
     n_policies = 4
     
-    with MultiprocessingPoolEvaluator(lake_model) as evaluator:
+    with MultiprocessingEvaluator(lake_model) as evaluator:
         results = perform_experiments(lake_model, n_scenarios, n_policies, 
                                       evaluator=evaluator, levers_sampling=MC)

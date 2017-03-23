@@ -29,9 +29,3 @@ if __name__ == '__main__':
     model.outcomes = [ScalarOutcome('y')]
 
     results = perform_experiments(model, 100)
-
-#     ensemble = ModelEnsemble() #instantiate an ensemble
-#     ensemble.model_structure = model #set the model on the ensemble
-#     results = ensemble.perform_experiments(100, reporting_interval=1) #run 1000 experiments
-    
-
