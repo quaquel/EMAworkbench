@@ -334,7 +334,7 @@ def get_varattrib(varname, attribute):
     return result
 
 
-def get_varnames(filter='*', vartype=0):
+def get_varnames(filter='*', vartype=0):  # @ReservedAssignment
     '''
     This function returns variable names in the model a filter can be specified 
     in the same way as Vensim variable Selection filter  (use * for all), 
@@ -376,7 +376,7 @@ def get_varnames(filter='*', vartype=0):
 
     '''
     
-    filter = ctypes.c_char_p(filter)
+    filter = ctypes.c_char_p(filter)  # @ReservedAssignment
     vartype = ctypes.c_int(vartype)
     buf = ctypes.create_string_buffer("", 512)
     maxBuf = ctypes.c_int(512)    

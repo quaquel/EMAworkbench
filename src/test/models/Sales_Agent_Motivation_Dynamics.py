@@ -14,35 +14,89 @@ from pysd import functions
 _subscript_dict = {}
 
 _namespace = {
-    'Accumulating Tenure': 'accumulating_tenure', 'FINAL TIME': 'final_time',
-    'Accumulating Sales': 'accumulating_sales', 'Tenure': 'tenure', 'Motivation': 'motivation',
-    'Still Employed': 'still_employed',
-    'Fraction of Effort for Sales': 'fraction_of_effort_for_sales', 'SAVEPER': 'saveper',
+    'Motivation Threshold': 'motivation_threshold',
+    'Accumulating Sales': 'accumulating_sales',
+    'Sales': 'sales',
+    'Motivation': 'motivation',
+    'Startup Subsidy Length': 'startup_subsidy_length',
+    'Motivation Adjustment': 'motivation_adjustment',
+    'Effort': 'effort',
+    'TIME STEP': 'time_step',
+    'SAVEPER': 'saveper',
+    'Effort Required to Make a Sale': 'effort_required_to_make_a_sale',
+    'Tenure': 'tenure',
+    'Accumulating Tenure': 'accumulating_tenure',
     'Accumulating Income': 'accumulating_income',
-    'Motivation Adjustment Time': 'motivation_adjustment_time',
-    'Startup Subsidy Length': 'startup_subsidy_length', 'Startup Subsidy': 'startup_subsidy',
-    'Motivation Threshold': 'motivation_threshold', 'TIME': 'time', 'TIME STEP': 'time_step',
-    'Effort Required to Make a Sale': 'effort_required_to_make_a_sale', 'Income': 'income',
-    'INITIAL TIME': 'initial_time',
+    'Income': 'income',
+    'Time': 'time',
+    'Still Employed': 'still_employed',
     'Impact of Motivation on Effort': 'impact_of_motivation_on_effort',
-    'Sales Effort Available': 'sales_effort_available',
-    'Total Effort Available': 'total_effort_available', 'Effort': 'effort',
+    'Total Effort Available': 'total_effort_available',
+    'FINAL TIME': 'final_time',
+    'Startup Subsidy': 'startup_subsidy',
+    'Motivation Adjustment Time': 'motivation_adjustment_time',
+    'Fraction of Effort for Sales': 'fraction_of_effort_for_sales',
     'Total Cumulative Sales': 'total_cumulative_sales',
-    'Motivation Adjustment': 'motivation_adjustment', 'Time': 'time', 'Sales': 'sales',
-    'Success Rate': 'success_rate', 'Total Cumulative Income': 'total_cumulative_income',
+    'TIME': 'time',
+    'Sales Effort Available': 'sales_effort_available',
+    'Total Cumulative Income': 'total_cumulative_income',
+    'Success Rate': 'success_rate',
+    'INITIAL TIME': 'initial_time',
     'Months of Expenses per Sale': 'months_of_expenses_per_sale'}
 
 
 @cache('step')
-def sales():
+def still_employed():
     """
-    Sales
-    -----
-    (sales)
-    Persons/Month
+    Still Employed
+    --------------
+    (still_employed)
+    Dmnl
 
     """
-    return effort() / effort_required_to_make_a_sale() * success_rate()
+    return functions.if_then_else(motivation() > motivation_threshold(), 1, 0)
+
+
+integ_tenure = functions.Integ(lambda: accumulating_tenure(), lambda: 0)
+
+
+@cache('run')
+def time_step():
+    """
+    TIME STEP
+    ---------
+    (time_step)
+    Month [0,?]
+    The time step for the simulation.
+    """
+    return 0.0625
+
+
+@cache('run')
+def fraction_of_effort_for_sales():
+    """
+    Fraction of Effort for Sales
+    ----------------------------
+    (fraction_of_effort_for_sales)
+    Dmnl
+
+    """
+    return 0.25
+
+
+@cache('step')
+def total_cumulative_sales():
+    """
+    Total Cumulative Sales
+    ----------------------
+    (total_cumulative_sales)
+    Persons
+
+    """
+    return integ_total_cumulative_sales()
+
+
+integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), lambda: 0)
 
 
 @cache('step')
@@ -57,16 +111,103 @@ def effort():
     return sales_effort_available() * impact_of_motivation_on_effort(motivation())
 
 
+integ_motivation = functions.Integ(lambda: motivation_adjustment(), lambda: 1)
+
+
 @cache('step')
-def still_employed():
+def motivation():
     """
-    Still Employed
-    --------------
-    (still_employed)
+    Motivation
+    ----------
+    (motivation)
     Dmnl
 
     """
-    return functions.if_then_else(motivation() > motivation_threshold(), 1, 0)
+    return integ_motivation()
+
+
+@cache('step')
+def accumulating_income():
+    """
+    Accumulating Income
+    -------------------
+    (accumulating_income)
+    Month/Month
+
+    """
+    return income()
+
+
+@cache('run')
+def total_effort_available():
+    """
+    Total Effort Available
+    ----------------------
+    (total_effort_available)
+    Hours/Month
+
+    """
+    return 200
+
+
+@cache('step')
+def sales():
+    """
+    Sales
+    -----
+    (sales)
+    Persons/Month
+
+    """
+    return effort() / effort_required_to_make_a_sale() * success_rate()
+
+
+@cache('run')
+def effort_required_to_make_a_sale():
+    """
+    Effort Required to Make a Sale
+    ------------------------------
+    (effort_required_to_make_a_sale)
+    Hours/Person
+
+    """
+    return 4
+
+
+@cache('step')
+def motivation_adjustment():
+    """
+    Motivation Adjustment
+    ---------------------
+    (motivation_adjustment)
+    1/Month
+
+    """
+    return (income() - motivation()) / motivation_adjustment_time()
+
+
+def impact_of_motivation_on_effort(x):
+    """
+    Impact of Motivation on Effort
+    ------------------------------
+    (impact_of_motivation_on_effort)
+    Dmnl
+
+    """
+    return functions.lookup(x, [0, 0.285132, 0.448065, 0.570265, 0.733198, 0.95723, 1.4664, 3.19756, 4.03259], [
+                            0, 0.0616114, 0.232228, 0.492891, 0.772512, 0.862559, 0.914692, 0.952607, 0.957346])
+
+
+@cache('run')
+def final_time():
+    """
+    FINAL TIME
+    ----------
+    (final_time)
+    Month
+    The final time for the simulation.
+    """
+    return 200
 
 
 @cache('step')
@@ -86,30 +227,15 @@ def sales_effort_available():
 
 
 @cache('run')
-def initial_time():
+def success_rate():
     """
-    INITIAL TIME
+    Success Rate
     ------------
-    (initial_time)
-    Month
-    The initial time for the simulation.
-    """
-    return 0
-
-
-integ_total_cumulative_sales = functions.Integ(lambda: accumulating_sales(), lambda: 0)
-
-
-@cache('run')
-def fraction_of_effort_for_sales():
-    """
-    Fraction of Effort for Sales
-    ----------------------------
-    (fraction_of_effort_for_sales)
+    (success_rate)
     Dmnl
 
     """
-    return 0.25
+    return 0.2
 
 
 @cache('step')
@@ -122,21 +248,6 @@ def accumulating_sales():
 
     """
     return sales()
-
-
-integ_motivation = functions.Integ(lambda: motivation_adjustment(), lambda: 1)
-
-
-@cache('step')
-def total_cumulative_sales():
-    """
-    Total Cumulative Sales
-    ----------------------
-    (total_cumulative_sales)
-    Persons
-
-    """
-    return integ_total_cumulative_sales()
 
 
 @cache('step')
@@ -152,33 +263,6 @@ def total_cumulative_income():
 
 
 @cache('run')
-def motivation_threshold():
-    """
-    Motivation Threshold
-    --------------------
-    (motivation_threshold)
-
-
-    """
-    return 0.1
-
-
-@cache('step')
-def accumulating_income():
-    """
-    Accumulating Income
-    -------------------
-    (accumulating_income)
-    Month/Month
-
-    """
-    return income()
-
-
-integ_tenure = functions.Integ(lambda: accumulating_tenure(), lambda: 0)
-
-
-@cache('run')
 def startup_subsidy():
     """
     Startup Subsidy
@@ -190,76 +274,43 @@ def startup_subsidy():
     return 0.5
 
 
-@cache('run')
-def success_rate():
-    """
-    Success Rate
-    ------------
-    (success_rate)
-    Dmnl
-
-    """
-    return 0.2
-
-
-@cache('run')
-def total_effort_available():
-    """
-    Total Effort Available
-    ----------------------
-    (total_effort_available)
-    Hours/Month
-
-    """
-    return 200
-
-
-@cache('run')
-def final_time():
-    """
-    FINAL TIME
-    ----------
-    (final_time)
-    Month
-    The final time for the simulation.
-    """
-    return 200
-
-
-def impact_of_motivation_on_effort(x):
-    """
-    Impact of Motivation on Effort
-    ------------------------------
-    (impact_of_motivation_on_effort)
-    Dmnl
-
-    """
-    return functions.lookup(x, [0, 0.285132, 0.448065, 0.570265, 0.733198, 0.95723, 1.4664, 3.19756, 4.03259], [
-                            0, 0.0616114, 0.232228, 0.492891, 0.772512, 0.862559, 0.914692, 0.952607, 0.957346])
-
-
-@cache('run')
-def time_step():
-    """
-    TIME STEP
-    ---------
-    (time_step)
-    Month [0,?]
-    The time step for the simulation.
-    """
-    return 0.0625
-
-
 @cache('step')
-def accumulating_tenure():
+def tenure():
     """
-    Accumulating Tenure
-    -------------------
-    (accumulating_tenure)
-    Months/Month
+    Tenure
+    ------
+    (tenure)
+    Month
 
     """
-    return still_employed()
+    return integ_tenure()
+
+
+@cache('run')
+def motivation_threshold():
+    """
+    Motivation Threshold
+    --------------------
+    (motivation_threshold)
+
+
+    """
+    return 0.1
+
+
+integ_total_cumulative_sales = functions.Integ(lambda: accumulating_sales(), lambda: 0)
+
+
+@cache('run')
+def initial_time():
+    """
+    INITIAL TIME
+    ------------
+    (initial_time)
+    Month
+    The initial time for the simulation.
+    """
+    return 0
 
 
 @cache('run')
@@ -274,16 +325,16 @@ def startup_subsidy_length():
     return 6
 
 
-@cache('step')
-def tenure():
+@cache('run')
+def motivation_adjustment_time():
     """
-    Tenure
-    ------
-    (tenure)
+    Motivation Adjustment Time
+    --------------------------
+    (motivation_adjustment_time)
     Month
 
     """
-    return integ_tenure()
+    return 3
 
 
 @cache('step')
@@ -311,27 +362,15 @@ def saveper():
 
 
 @cache('step')
-def motivation_adjustment():
+def accumulating_tenure():
     """
-    Motivation Adjustment
-    ---------------------
-    (motivation_adjustment)
-    1/Month
+    Accumulating Tenure
+    -------------------
+    (accumulating_tenure)
+    Months/Month
 
     """
-    return (income() - motivation()) / motivation_adjustment_time()
-
-
-@cache('run')
-def motivation_adjustment_time():
-    """
-    Motivation Adjustment Time
-    --------------------------
-    (motivation_adjustment_time)
-    Month
-
-    """
-    return 3
+    return still_employed()
 
 
 @cache('step')
@@ -345,33 +384,6 @@ def income():
     """
     return months_of_expenses_per_sale() * sales() + functions.if_then_else(time() <
                                                                             startup_subsidy_length(), startup_subsidy(), 0)
-
-
-@cache('run')
-def effort_required_to_make_a_sale():
-    """
-    Effort Required to Make a Sale
-    ------------------------------
-    (effort_required_to_make_a_sale)
-    Hours/Person
-
-    """
-    return 4
-
-
-@cache('step')
-def motivation():
-    """
-    Motivation
-    ----------
-    (motivation)
-    Dmnl
-
-    """
-    return integ_motivation()
-
-
-integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), lambda: 0)
 
 
 @cache('run')

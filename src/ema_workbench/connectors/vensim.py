@@ -358,7 +358,7 @@ class BaseVensimModel(FileModel):
         except VensimError:
             raise
 
-        # TODO:: move to seperate function/method?
+        # TODO:: move to separate function/method?
         def check_data(result):
             error = False
             if result.shape[0] != self.run_length:
