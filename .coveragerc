@@ -1,5 +1,8 @@
 [run]
-source = expWorkbench, analysis
+source = 
+    ema_workbench/em_framework/*
+    ema_workbench/analysis/*
+    ema_workbench/util/*
 
 [report]
 omit =
@@ -7,8 +10,6 @@ omit =
     */site-packages/nose/*
     */test/*
     */examples/*
-    *__init__*
-    *pool*
 
 # Regexes for lines to exclude from consideration
 exclude_lines =
