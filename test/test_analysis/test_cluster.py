@@ -7,7 +7,7 @@ Created on Mar 15, 2012
 from ema_workbench.analysis import clusterer
 from ema_workbench.util import ema_logging
 
-from ..test_utilities import load_scarcity_data
+from ..utilities import load_scarcity_data
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)

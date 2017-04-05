@@ -14,7 +14,7 @@ from ema_workbench.analysis.plotting import *
 from ema_workbench.analysis.plotting_util import (make_continuous_grouping_specifiers,
                                                   filter_scalar_outcomes, group_results, BOXPLOT, KDE,
                                                   VIOLIN, HIST, ENV_LIN)
-from .. import test_utilities
+from .. import utilities
 
 
 # don't run these tests using nosetest
@@ -38,7 +38,7 @@ def test_filter_scalar_outcomes():
     print(outcomes.keys())
 
 def test_group_results():
-    results = test_utilities.load_eng_trans_data()
+    results = utilities.load_eng_trans_data()
     experiments, outcomes = results
     
     # test indices
@@ -91,7 +91,7 @@ def test_group_results():
     print(experiments.shape[0], total_data)   
 
 def test_lines():
-    results = test_utilities.load_eng_trans_data()
+    results = utilities.load_eng_trans_data()
 
     lines(results, 
           outcomes_to_show="total fraction new technologies",
@@ -228,7 +228,7 @@ def test_lines():
     plt.close('all')
 
 def test_envelopes():
-    results = test_utilities.load_eng_trans_data()
+    results = utilities.load_eng_trans_data()
     
     #testing titles
     envelopes(results, 
@@ -362,7 +362,7 @@ def test_envelopes():
     plt.close('all')
 
 def test_kde_over_time():
-    results = test_utilities.load_eng_trans_data()
+    results = utilities.load_eng_trans_data()
     
     kde_over_time(results, log=False)
     kde_over_time(results, log=True)
@@ -372,7 +372,7 @@ def test_kde_over_time():
 
 
 def test_multiple_densities():
-    results = test_utilities.load_eng_trans_data()
+    results = utilities.load_eng_trans_data()
     ooi = 'total fraction new technologies'
     
     multiple_densities(results, 

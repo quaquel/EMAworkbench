@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 
 from ema_workbench.analysis.pairs_plotting import (pairs_density, pairs_lines,
                                                    pairs_scatter)
-from .. import test_utilities
+from .. import utilities
 
 def test_pairs_lines():
-    results = test_utilities.load_eng_trans_data() 
+    results = utilities.load_eng_trans_data() 
     pairs_lines(results)
     
     pairs_lines(results, group_by='policy')
@@ -21,7 +21,7 @@ def test_pairs_lines():
     plt.close('all')
 
 def test_pairs_density():
-    results =  test_utilities.load_eng_trans_data() 
+    results =  utilities.load_eng_trans_data() 
     pairs_density(results)
     pairs_density(results, colormap='binary')
 
@@ -30,7 +30,7 @@ def test_pairs_density():
     plt.close('all')
 
 def test_pairs_scatter():
-    results = test_utilities.load_eng_trans_data()
+    results = utilities.load_eng_trans_data()
     
     pairs_scatter(results)
     

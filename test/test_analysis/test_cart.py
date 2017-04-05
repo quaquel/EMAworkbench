@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 
 from ema_workbench.analysis import cart
-from .. import test_utilities
+from .. import utilities
 
 
 def flu_classify(data):
@@ -41,7 +41,7 @@ def scarcity_classify(outcomes):
 
 class CartTestCase(unittest.TestCase):
     def test_setup_cart(self):
-        results = test_utilities.load_flu_data()
+        results = utilities.load_flu_data()
         
         cart_algorithm = cart.setup_cart(results, flu_classify, mass_min=0.05)
         
