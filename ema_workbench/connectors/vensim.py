@@ -388,6 +388,10 @@ class BaseVensimModel(FileModel):
         
         return results  
 
+    @method_logger
+    def cleanup(self):
+        super.cleanup(self)
+        vensimDLLwrapper.command("SPECIAL>EXIT1")
 
     def reset_model(self):
         """
