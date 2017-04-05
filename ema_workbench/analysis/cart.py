@@ -305,35 +305,35 @@ class CART(sdutil.OutputFormatterMixin):
         return img
 
        
-if __name__ == '__main__':
-    from test import test_utilities
-    import matplotlib.pyplot as plt
-
-    ema_logging.log_to_stderr(ema_logging.INFO)
-
-    def scarcity_classify(outcomes):
-        outcome = outcomes['relative market price']
-        change = np.abs(outcome[:, 1::]-outcome[:, 0:-1])
-        
-        neg_change = np.min(change, axis=1)
-        pos_change = np.max(change, axis=1)
-        
-        logical = (neg_change > -0.6) & (pos_change > 0.6)
-        
-        classes = np.zeros(outcome.shape[0])
-        classes[logical] = 1
-        
-        return classes
- 
-    results = test_utilities.load_scarcity_data()
-    
-    cart = setup_cart(results, scarcity_classify)
-    cart.build_tree()
-    
-    print(cart.boxes_to_dataframe())
-    print(cart.stats_to_dataframe())
-    cart.display_boxes(together=True)
-    
+# if __name__ == '__main__':
+#     from test import test_utilities
+#     import matplotlib.pyplot as plt
+# 
+#     ema_logging.log_to_stderr(ema_logging.INFO)
+# 
+#     def scarcity_classify(outcomes):
+#         outcome = outcomes['relative market price']
+#         change = np.abs(outcome[:, 1::]-outcome[:, 0:-1])
+#         
+#         neg_change = np.min(change, axis=1)
+#         pos_change = np.max(change, axis=1)
+#         
+#         logical = (neg_change > -0.6) & (pos_change > 0.6)
+#         
+#         classes = np.zeros(outcome.shape[0])
+#         classes[logical] = 1
+#         
+#         return classes
+#  
+#     results = test_utilities.load_scarcity_data()
+#     
+#     cart = setup_cart(results, scarcity_classify)
+#     cart.build_tree()
+#     
+#     print(cart.boxes_to_dataframe())
+#     print(cart.stats_to_dataframe())
+#     cart.display_boxes(together=True)
+#     
 #     img = cart.show_tree()
 #      
 #     import matplotlib.pyplot as plt
@@ -348,4 +348,4 @@ if __name__ == '__main__':
 #     # plot the image
 #     imgplot = plt.imshow(img, aspect='equal')
 #       
-    plt.show()
+#     plt.show()

@@ -11,7 +11,7 @@ import numpy.lib.recfunctions as recfunctions
 
 from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
-from test import test_utilities
+from test import utilities
 
 
 def flu_classify(data):
@@ -179,7 +179,7 @@ class PrimBoxTestCase(unittest.TestCase):
 class PrimTestCase(unittest.TestCase):
 
     def test_setup_prim(self):
-        self.results = test_utilities.load_flu_data()
+        self.results = utilities.load_flu_data()
         self.classify = flu_classify        
         
         experiments, outcomes = self.results
@@ -226,7 +226,7 @@ class PrimTestCase(unittest.TestCase):
         
         
         # real data test case        
-        prim_obj = prim.setup_prim(test_utilities.load_flu_data(), flu_classify,
+        prim_obj = prim.setup_prim(utilities.load_flu_data(), flu_classify,
                                    threshold=0.8)
         prim_obj.find_box()
         boxes = prim_obj.boxes
@@ -234,7 +234,7 @@ class PrimTestCase(unittest.TestCase):
         
 
     def test_prim_init_select(self):
-        self.results = test_utilities.load_flu_data()
+        self.results = utilities.load_flu_data()
         self.classify = flu_classify        
         
         experiments, outcomes = self.results
@@ -385,7 +385,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box_init['c'][1]==set(['a','b'])) 
 
     def test_setup_prim_exceptions(self):
-        results = test_utilities.load_flu_data()
+        results = utilities.load_flu_data()
         self.assertRaises(prim.PrimException, 
                           prim.setup_prim,
                           results, 
@@ -398,7 +398,7 @@ class PrimTestCase(unittest.TestCase):
                           faulty_classify, threshold=0.8)
 
     def test_find_box(self):
-        results = test_utilities.load_flu_data()
+        results = utilities.load_flu_data()
         classify = flu_classify
         
         prim_obj = prim.setup_prim(results, classify, 

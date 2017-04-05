@@ -15,7 +15,7 @@ from ema_workbench.analysis import feature_scoring as fs
 from ema_workbench.analysis.feature_scoring import F_CLASSIFICATION, CHI2, F_REGRESSION
 from ema_workbench.analysis.scenario_discovery_util import CLASSIFICATION, REGRESSION
 from ema_workbench.util import ema_logging
-from .. import test_utilities
+from .. import utilities
 
 
 class FeatureScoringTestCase(unittest.TestCase):
@@ -60,7 +60,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
 
     def test_prepare_outcomes(self):
-        results = test_utilities.load_flu_data()
+        results = utilities.load_flu_data()
         
         # string type correct
         ooi = 'nr deaths'
@@ -92,7 +92,7 @@ class FeatureScoringTestCase(unittest.TestCase):
    
    
     def test_get_univariate_feature_scores(self):
-        x, outcomes = test_utilities.load_flu_data()
+        x, outcomes = utilities.load_flu_data()
         
         def classify(data):
             #get the output for deceased population
@@ -124,7 +124,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         
    
     def test_get_rf_feature_scores(self):
-        x, outcomes = test_utilities.load_flu_data()
+        x, outcomes = utilities.load_flu_data()
                 
         def classify(data):
             #get the output for deceased population
@@ -158,7 +158,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertTrue(isinstance(forest, RandomForestRegressor))
         
     def test_get_lasso_feature_scores(self):
-        x, outcomes = test_utilities.load_flu_data()
+        x, outcomes = utilities.load_flu_data()
                 
         def classify(data):
             #get the output for deceased population

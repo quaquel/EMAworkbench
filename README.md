@@ -14,4 +14,5 @@ If you are interested in using the most recent version of the workbench  and
 would like to contribute to its further development, contact Jan Kwakkel at 
 Delft University of Technology.  
 
-This version should work well with the Anaconda distribution of Python 2.7.
+The workbench is available from pip, and is compatible with both Python 2 and
+3. For further installation details, see read the docs. 
