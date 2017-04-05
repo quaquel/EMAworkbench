@@ -1,4 +1,4 @@
-from __future__ import (print_function, absolute_import)
+from __future__ import (print_function, absolute_import, unicode_literals)
 
 import io
 import os
@@ -58,15 +58,16 @@ PACKAGES = ['ema_workbench',
             'examples']
 
 setup(
-    name='ema_workbench',
-    version=VERSION,
-    author='Jan Kwakkel',
-    author_email='j.h.kwakkel@tudelft',
-    packages=PACKAGES,
-    package_data = {'examples': EXAMPLE_DATA, 
-                    'ema_workbench':JAVA},
-    url='https://github.com/quaquel/EMAworkbench',
-    license='BSD 3-Clause',
-    description='exploratory modelling in Python',
-    long_description=LONG_DESCRIPTION,
+    name            = 'ema_workbench',
+    version         = VERSION,
+    description     = 'exploratory modelling in Python',
+    long_description= LONG_DESCRIPTION,
+    author          = 'Jan Kwakkel',
+    author_email    = 'j.h.kwakkel@tudelft',
+    packages        = PACKAGES,
+    package_data    = {'examples': EXAMPLE_DATA, 
+                       'ema_workbench':JAVA},
+    url             = 'https://github.com/quaquel/EMAworkbench',
+    license         = 'BSD 3-Clause',
+    platforms       = "Linux, Mac OS X, Windows",
 )
