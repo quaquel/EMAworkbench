@@ -15,7 +15,7 @@ try:
     from collections import MutableMapping
 except ImportError:
     # so it must by python 3
-    from collections.abc import MutableMapping
+    from collections.abc import MutableMapping  # @UnusedImport
 
 import itertools
 import six
@@ -68,7 +68,7 @@ class Variable(NamedObject):
         
 class NamedObjectMap(object):
      
-    def __init__(self, type):
+    def __init__(self, type):  # @ReservedAssignment
         super(NamedObjectMap, self).__init__()
         self.type = type
         self._data = OrderedDict()
@@ -151,15 +151,15 @@ class NamedObjectMapDescriptor(object):
         try:
             return getattr(instance, self.internal_name)
         except AttributeError:
-            map = NamedObjectMap(self.kind)
+            map = NamedObjectMap(self.kind)  # @ReservedAssignment
             setattr(instance, self.internal_name, map) 
             return map
  
     def __set__(self, instance, values):
         try:
-            map = getattr(instance, self.internal_name)
+            map = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
-            map = NamedObjectMap(self.kind)
+            map = NamedObjectMap(self.kind)  # @ReservedAssignment
             setattr(instance, self.internal_name, map)
         
         map.extend(values)
