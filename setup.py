@@ -42,20 +42,22 @@ example_model_files = package_files('examples', 'models')
 java_files = package_files('ema_workbench/connectors', 'java')
 java_files = [''.join(['connectors/', entry]) for entry in java_files]
 
-# print(example_data_files)
-# print(java_files)
+name = 'ema_workbench'
+pjoin = os.path.join
+here = os.path.abspath(os.path.dirname(__file__))
+pkg_root = pjoin(here, name)
+
+packages = []
+for d, _, _ in os.walk(pjoin(here, name)):
+    if os.path.exists(pjoin(d, '__init__.py')):
+        packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
+
 
 VERSION = version('ema_workbench/__init__.py')
 LONG_DESCRIPTION ="""Project Documentation: https://emaworkbench.readthedocs.io/"""
 EXAMPLE_DATA = example_data_files + example_model_files
 JAVA = java_files
-PACKAGES = ['ema_workbench', 
-            'ema_workbench.analysis', 
-            'ema_workbench.connectors', 
-            'ema_workbench.em_framework', 
-            'ema_workbench.util', 
-            'ema_workbench.analysis.cluster_util',
-            'examples']
+PACKAGES = packages
 
 setup(
     name            = 'ema_workbench',
