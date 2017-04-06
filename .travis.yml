@@ -31,7 +31,7 @@ before_install:
 - "sh -e /etc/init.d/xvfb start"
 
 script:
-- nosetests --exclude-dir=./src/test/test_connectors --with-coverage --verbose --cover-package=ema_workbench.em_framework --cover-package=ema_workbench.util --cover-package=ema_workbench.analysis
+- nosetests --exclude-dir=./test/test_connectors --with-coverage --verbose --cover-package=ema_workbench.em_framework --cover-package=ema_workbench.util --cover-package=ema_workbench.analysis
 
 
 # coverage needs to be added
