@@ -52,4 +52,4 @@ if __name__ == "__main__":
     nr_experiments = 100
     with MultiprocessingEvaluator(model) as evaluator:
         results = perform_experiments(model, nr_experiments, 
-                                      evaluator==evaluator)
+                                      evaluator=evaluator)
