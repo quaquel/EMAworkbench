@@ -37,8 +37,8 @@ def package_files(root, package_data_dir):
             paths.append(os.path.relpath(full_path, root))
     return paths
 
-example_data_files = package_files('examples', 'data')
-example_model_files = package_files('examples', 'models')
+example_data_files = package_files('ema_workbench/examples', 'data')
+example_model_files = package_files('ema_workbench/examples', 'models')
 java_files = package_files('ema_workbench/connectors', 'java')
 java_files = [''.join(['connectors/', entry]) for entry in java_files]
 
