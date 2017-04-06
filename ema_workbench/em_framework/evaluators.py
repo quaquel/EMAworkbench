@@ -8,6 +8,8 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 import multiprocessing
 import numbers 
 import os
+import random
+import string
 import threading
 
 from .callbacks import DefaultCallback
@@ -194,7 +196,11 @@ class MultiprocessingEvaluator(BaseEvaluator):
         except AttributeError:
             loglevel=30
             
-        self.root_dir = os.path.abspath("pool_root")
+            
+        random_part = [random.choice(string.ascii_letters + string.digits) 
+                     for _ in range(5)]
+        random_part = ''.join(random_part)
+        self.root_dir = os.path.abspath("tmp"+random_part)
         os.makedirs(self.root_dir)
     
         self._pool = multiprocessing.Pool(self.n_processes , initializer, 

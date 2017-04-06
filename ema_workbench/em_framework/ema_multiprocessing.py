@@ -61,7 +61,8 @@ def initializer(*args):
         
     # register a cleanup finalizer function
     # remove the root temp
-    multiprocessing.util.Finalize(None, finalizer, args=(os.path.abspath(tmpdir), ), 
+    if tmpdir:
+        multiprocessing.util.Finalize(None, finalizer, args=(os.path.abspath(tmpdir), ), 
                                   exitpriority=10)  # @UndefinedVariable
 
 
@@ -76,7 +77,10 @@ def finalizer(tmpdir):
     time.sleep(1)
     
     if tmpdir:
-        shutil.rmtree(tmpdir, ignore_errors=True)
+        try:
+            shutil.rmtree(tmpdir)
+        except OSError:
+            pass
     
 
 def setup_logging(queue, log_level):
