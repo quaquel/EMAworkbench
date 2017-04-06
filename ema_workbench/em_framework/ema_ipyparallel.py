@@ -275,7 +275,7 @@ class Engine(object):
         models.extend(msis)
         self.runner = experiment_runner.ExperimentRunner(models)
         
-        self.tmpdir = setup_working_directories(msis)
+        self.tmpdir = setup_working_directories(msis, os.getcwd())
 
     def cleanup_working_directory(self):
         '''remove the root working directory of the engine'''
