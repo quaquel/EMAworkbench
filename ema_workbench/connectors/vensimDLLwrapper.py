@@ -220,10 +220,10 @@ def get_info(infowanted):
                  field that specifies the info wanted
     '''
     
-    buf = ctypes.create_string_buffer("", 512)
+    buf = ctypes.create_string_buffer(b"", 512)
     maxBuf = ctypes.c_int(512)    
     a = vensim.vensim_get_info(infowanted, buf, maxBuf)
-    buf = ctypes.create_string_buffer("", int(a))
+    buf = ctypes.create_string_buffer(b"", int(a))
     maxBuf = ctypes.c_int(int(a))
     vensim.vensim_get_info(infowanted, buf, maxBuf)
     

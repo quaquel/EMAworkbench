@@ -28,6 +28,7 @@ from ..em_framework import TimeSeriesOutcome, FileModel
 from ..util import debug, warning, CaseError, EMAError, EMAWarning
 from ..util.ema_logging import method_logger
 from ema_workbench.em_framework.model import SingleReplication
+from ema_workbench.util import ema_logging
 
 # Created on 25 mei 2011
 # 
@@ -382,16 +383,15 @@ class BaseVensimModel(FileModel):
             results[variable] = result
             
         debug('setting results to output')
-#         self.output = results   
         if error:
             raise CaseError("run not completed", experiment)
         
         return results  
 
-    @method_logger
+
     def cleanup(self):
-        super.cleanup(self)
-        vensimDLLwrapper.command("SPECIAL>EXIT1")
+        super(BaseVensimModel, self).cleanup()
+
 
     def reset_model(self):
         """
