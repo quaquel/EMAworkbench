@@ -1,4 +1,4 @@
-from __future__ import (print_function, absolute_import, unicode_literals)
+from __future__ import (print_function, absolute_import)
 
 import io
 import os
@@ -38,7 +38,11 @@ def package_files(root, package_data_dir):
     return paths
 
 example_data_files = package_files('ema_workbench/examples', 'data')
+example_data_files = [''.join(['examples/', entry]) for entry in example_data_files]
+
 example_model_files = package_files('ema_workbench/examples', 'models')
+example_model_files = [''.join(['examples/', entry]) for entry in example_model_files]
+
 java_files = package_files('ema_workbench/connectors', 'java')
 java_files = [''.join(['connectors/', entry]) for entry in java_files]
 
@@ -67,8 +71,7 @@ setup(
     author          = 'Jan Kwakkel',
     author_email    = 'j.h.kwakkel@tudelft',
     packages        = PACKAGES,
-    package_data    = {'examples': EXAMPLE_DATA, 
-                       'ema_workbench':JAVA},
+    package_data    = {'ema_workbench': EXAMPLE_DATA+JAVA},
     url             = 'https://github.com/quaquel/EMAworkbench',
     license         = 'BSD 3-Clause',
     platforms       = "Linux, Mac OS X, Windows",
