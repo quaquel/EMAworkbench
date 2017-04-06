@@ -49,7 +49,7 @@ if __name__ == "__main__":
         RealParameter('normal contact rate region 1', 10, 100),
         RealParameter('normal contact rate region 2', 10, 200)]
 
-    nr_experiments = 100
+    nr_experiments = 10
     with MultiprocessingEvaluator(model) as evaluator:
         results = perform_experiments(model, nr_experiments, 
                                       evaluator=evaluator)

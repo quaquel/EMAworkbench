@@ -24,6 +24,7 @@ from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler) # TODO:: should become optional import
 from .util import NamedObjectMap, determine_objects
 from ..util import ema_logging, EMAError
+import shutil
 
 
 # Created on 5 Mar 2017
@@ -192,9 +193,12 @@ class MultiprocessingEvaluator(BaseEvaluator):
             loglevel = ema_logging._logger.getEffectiveLevel()
         except AttributeError:
             loglevel=30
+            
+        self.root_dir = os.path.abspath("pool_root")
+        os.makedirs(self.root_dir)
     
         self._pool = multiprocessing.Pool(self.n_processes , initializer, 
-                                          (self._msis, log_queue, loglevel))
+                                  (self._msis, log_queue, loglevel, self.root_dir))
         ema_logging.info("pool started")
         return self
 
@@ -211,6 +215,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
         # Stop accepting new jobs and wait for pending jobs to finish.
         self._pool.close()
         self._pool.join()
+        
+        shutil.rmtree(self.root_dir)
         
     def evaluate_experiments(self, scenarios, policies, callback):
         ex_gen = experiment_generator(scenarios, self._msis, policies)

@@ -12,6 +12,7 @@ import multiprocessing
 import os
 import sys
 import threading
+import time
 import shutil
 import traceback
 
@@ -43,7 +44,7 @@ def initializer(*args):
     global experiment_runner, current_process
     
     current_process = multiprocessing.current_process()
-    models, queue, log_level = args
+    models, queue, log_level, root_dir = args
     
     # setup the experiment runner
     msis = NamedObjectMap(AbstractModel)
@@ -56,7 +57,7 @@ def initializer(*args):
     # setup the working directories
     # make a root temp
     # copy each model directory
-    tmpdir = setup_working_directories(models)
+    tmpdir = setup_working_directories(models, root_dir)
         
     # register a cleanup finalizer function
     # remove the root temp
@@ -69,9 +70,13 @@ def finalizer(tmpdir):
     global experiment_runner
     ema_logging.info("finalizing")
     
+    experiment_runner.cleanup()
     del experiment_runner
+    
+    time.sleep(1)
+    
     if tmpdir:
-        shutil.rmtree(tmpdir)
+        shutil.rmtree(tmpdir, ignore_errors=True)
     
 
 def setup_logging(queue, log_level):
@@ -99,13 +104,14 @@ def setup_logging(queue, log_level):
     logger.setLevel(log_level)
 
 
-def setup_working_directories(models):
+def setup_working_directories(models, root_dir):
     '''copies the working directory of each model to a process specific 
     temporary directory and update the working directory of the model
     
     Parameters
     ----------
     models : list
+    root_dir : str
     
     '''
     
@@ -122,14 +128,12 @@ def setup_working_directories(models):
     
     # if the dict is not empty
     if wd_by_model:
-        path  = os.getcwd()
-        
         # make a directory with the process id as identifier
-        tmpdir = "tmp{}".format(os.getpid())
-        os.mkdir(os.path.join(path, tmpdir))
+        tmpdir_name = "tmp{}".format(os.getpid())
+        tmpdir = os.path.join(root_dir, tmpdir_name)
+        os.mkdir(tmpdir)
         
-        ema_logging.debug("setting up working directory: {}".format(os.path.join(path, tmpdir)))
-        
+        ema_logging.debug("setting up working directory: {}".format(tmpdir))
         
         for key, value in wd_by_model.items():
             # we need a sub directory in the process working directory
