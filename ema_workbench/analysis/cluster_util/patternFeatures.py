@@ -3,6 +3,7 @@ Created on Sep 27, 2011
 
 @author: gyucel
 '''
+from __future__ import (print_function, unicode_literals)
 import numpy as np
 from ema_workbench.util import utilities
 
@@ -70,9 +71,9 @@ def periodDominance(ds):
     powerSpect = np.abs(Y)**2
     timeStep = 1 
     freq = np.fft.fftfreq(n, d=timeStep)
-    print len(freq), len(powerSpect)
+    print(len(freq), len(powerSpect))
     for i in range(len(freq)/2+1):
-        print freq[i], 1/freq[i], powerSpect[i]
+        print(freq[i], 1/freq[i], powerSpect[i])
 
 
 if __name__ == '__main__':
@@ -82,15 +83,15 @@ if __name__ == '__main__':
     ds1 = dataSeries[25]
     ds2 = dataSeries[26]
     
-    print linearFit(ds1)
-    print quadraticFit(ds1)
-    print mean(ds1), variance(ds1), stdDev(ds1)
-    print autoCovariance(ds1,0)
+    print(linearFit(ds1))
+    print(quadraticFit(ds1))
+    print(mean(ds1), variance(ds1), stdDev(ds1))
+    print(autoCovariance(ds1,0))
     for k in range(31):
-        print k,autoCorrelation(ds1,k)
+        print(k,autoCorrelation(ds1,k))
     
     for k in range(31):
-        print k, crossCorrelation(ds1,ds2,k)
+        print(k, crossCorrelation(ds1,ds2,k))
     
     periodDominance(ds1)    
 #    data = np.zeros(5,dtype=int)

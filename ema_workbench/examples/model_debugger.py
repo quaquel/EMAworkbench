@@ -24,6 +24,7 @@ To be able to debug the Vensim model, a few steps are needed:
     6.  Vensim tells you about your critical mistake
 
 '''
+from __future__ import (division, print_function, unicode_literals)
 
 fileSpecifyingError = ""
 
@@ -46,12 +47,12 @@ for n in range(len(splitOne)-1):
     variableElement=variableElement.lstrip("'")
     variableElement=variableElement.rstrip()
     variableElement=variableElement.rstrip("'")
-    print variableElement
+    print(variableElement)
     valueElement=splitTwo[1]
     valueElement=valueElement.lstrip()
     valueElement=valueElement.rstrip()
     variable[variableElement] = valueElement
-print variable
+print(variable)
 
 # This generates a new (text-formatted) model
 changeNextLine = False
@@ -68,4 +69,4 @@ for line  in open(pathToExistingModel):
 
     newModel.write(line) 
 notSet = set(variable.keys())-set(settedValues)         
-print notSet
+print(notSet)
