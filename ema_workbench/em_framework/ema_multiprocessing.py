@@ -60,7 +60,8 @@ def initializer(*args):
         
     # register a cleanup finalizer function
     # remove the root temp
-    multiprocessing.util.Finalize(None, finalizer, args=(tmpdir, ), exitpriority=10)  # @UndefinedVariable
+    multiprocessing.util.Finalize(None, finalizer, args=(os.path.abspath(tmpdir), ), 
+                                  exitpriority=10)  # @UndefinedVariable
 
 
 def finalizer(tmpdir):
