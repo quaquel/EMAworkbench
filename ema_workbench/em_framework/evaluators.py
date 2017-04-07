@@ -343,7 +343,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
     outcomes = determine_objects(models, 'outcomes', union=outcome_union)
     nr_of_exp = n_models * n_scenarios * n_policies 
-        
+    
+    ema_logging.info("performing {} scenarios * {} policies * {} model(s) = {} experiments".format(n_scenarios, n_policies, n_models, nr_of_exp))
+    
     callback = DefaultCallback(uncertainties,
                                levers,
                                outcomes,
