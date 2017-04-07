@@ -192,7 +192,7 @@ class IntegerParameter(Parameter):
                  default=None, variable_name=None, pff=False):
         super(IntegerParameter, self).__init__(name, lower_bound, upper_bound, 
                                     resolution=resolution, default=default,
-                                    variable_name=variable_name)
+                                    variable_name=variable_name, pff=pff)
         
         lb_int = isinstance(lower_bound, numbers.Integral) 
         up_int = isinstance(upper_bound, numbers.Integral)
@@ -247,7 +247,7 @@ class CategoricalParameter(IntegerParameter):
         self._categories = NamedObjectMap(Category)
         
         self.categories = cats
-        self.resolution = [cat.name for cat in self.categories]
+        self.resolution = [i for i in range(len(self.categories))]
         
     def index_for_cat(self, category):
         '''return index of category
