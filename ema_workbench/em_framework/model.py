@@ -172,8 +172,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
             
             multivalue = False
             if isinstance(par, CategoricalParameter):
-                value = par.cat_for_index(value)
-                category = par.categories[value]
+                category = par.cat_for_index(value)
+#                 category = par.categories[value]
                 
                 value = category.value
                 
@@ -415,12 +415,6 @@ class BaseModel(AbstractModel):
         
         
         """
-#         super(BaseModel, self).run_model(scenario, policy)
-#         
-#         # TODO:: should this not be moved up?
-#         constants = {c.name:c.value for c in self.constants}
-#         experiment = combine(scenario, policy, constants)
-#         
         model_output = self.function(**experiment)
         
         # TODO: might it be possible to somehow abstract this

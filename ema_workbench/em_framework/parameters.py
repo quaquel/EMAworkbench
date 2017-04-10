@@ -262,7 +262,10 @@ class CategoricalParameter(IntegerParameter):
         
         
         '''
-        return self.resolution.index(category)
+        for i, cat in enumerate(self.categories):
+            if cat.name==category:
+                return i
+        raise ValueError("category not found")
 
     def cat_for_index(self, index):
         '''return category given index
@@ -277,7 +280,7 @@ class CategoricalParameter(IntegerParameter):
         
         '''
         
-        return self.resolution[index]
+        return self.categories[index]
         
     def transform(self, value):
         '''return index of category
