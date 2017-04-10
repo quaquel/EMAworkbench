@@ -168,7 +168,7 @@ class CategoricalParameterTestCase(unittest.TestCase):
         par = parameters.CategoricalParameter(name, values)
         
         self.assertEqual(par.name, name)
-        self.assertEqual(par.resolution, list(values))
+        self.assertEqual(par.resolution, [0,1])
         self.assertEqual(par.lower_bound, 0)
         self.assertEqual(par.upper_bound, 2)
     
@@ -200,10 +200,10 @@ class CategoricalParameterTestCase(unittest.TestCase):
         values = ('a', 'b')
         par1 = parameters.CategoricalParameter(name, values)
        
-        self.assertEqual(par1.cat_for_index(0), 'a')
-        self.assertEqual(par1.cat_for_index(1), 'b')
+        self.assertEqual(par1.cat_for_index(0).name, 'a')
+        self.assertEqual(par1.cat_for_index(1).name, 'b')
         
-        with self.assertRaises(IndexError):
+        with self.assertRaises(KeyError):
             par1.cat_for_index(3)
 
 class CreateOutcomesTestCase(unittest.TestCase):
