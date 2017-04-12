@@ -95,13 +95,28 @@ class BaseEvaluator(object):
             self.outcome_names = [o.name for o in self.outcomes]
 
     def __enter__(self):
+        
+        self.initialize()
+        
         return self
 
 
     def __exit__(self, exc_type, exc_value, traceback):
+        
+        self.finalize()
+        
         if exc_type is not None:
             return False
-
+        
+    def initialize(self):
+        ''' initialize the evaluator '''
+        
+        raise NotImplementedError
+    
+    def finalize(self):
+        ''' finalize the evaluator '''
+        
+        raise NotImplementedError
         
     def evaluate_experiments(self, scenarios, policies, callback):
         '''used by ema_workbench'''
@@ -146,11 +161,36 @@ class BaseEvaluator(object):
             
         return jobs
 
+    def perform_experiments(self, scenarios=0, policies=0, evaluator=None, 
+                        reporting_interval=None, uncertainty_union=False, 
+                        lever_union=False, outcome_union=False, 
+                        uncertainty_sampling=LHS, levers_sampling=LHS):
+        '''convenience method for performing experiments.
+        
+        is forwarded to :func:perform_experiments, with evaluator and models
+        arguments added in.
+        
+        '''
+        
+        perform_experiments(self._msis, scenarios=scenarios, 
+                    policies=policies, evaluator=self, 
+                    reporting_interval=reporting_interval, 
+                    uncertainty_union=uncertainty_union, lever_union=lever_union, 
+                    outcome_union=outcome_union, 
+                    uncertainty_sampling=uncertainty_sampling, 
+                    levers_sampling=levers_sampling)
+
 
 class SequentialEvaluator(BaseEvaluator):
     def __init__(self, models, **kwargs):
         super(SequentialEvaluator, self).__init__(models, **kwargs)
-        
+    
+    def initialize(self):
+        pass
+    
+    def finalize(self):
+        pass
+    
     def evaluate_experiments(self, scenarios, policies, callback):
         ema_logging.info("performing experiments sequentially")
         
@@ -185,7 +225,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
         self._pool = None
         self.n_processes = n_processes
 
-    def __enter__(self):
+    def initialize(self):
         log_queue = multiprocessing.Queue()
     
         log_queue_reader = LogQueueReader(log_queue)
@@ -208,7 +248,6 @@ class MultiprocessingEvaluator(BaseEvaluator):
         ema_logging.info("pool started")
         return self
 
-
     def __exit__(self, exc_type, exc_value, traceback):
         ema_logging.info("terminating pool")
         
@@ -218,6 +257,9 @@ class MultiprocessingEvaluator(BaseEvaluator):
             self._pool.terminate()
             return False
         
+        super(MultiprocessingEvaluator, self).__exit__(exc_type, exc_value, traceback)
+
+    def finalize(self):
         # Stop accepting new jobs and wait for pending jobs to finish.
         self._pool.close()
         self._pool.join()
@@ -238,7 +280,7 @@ class IpyparallelEvaluator(BaseEvaluator):
         super(IpyparallelEvaluator, self).__init__(msis, **kwargs)
         self.client = client
         
-    def __enter__(self):
+    def initialize(self):
         import ipyparallel
         
         ema_logging.debug("starting ipyparallel pool")
@@ -264,7 +306,7 @@ class IpyparallelEvaluator(BaseEvaluator):
         return self
 
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def finalize(self):
         self.logwatcher.stop()
         cleanup(self.client)
         
