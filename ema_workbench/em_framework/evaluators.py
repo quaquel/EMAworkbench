@@ -360,6 +360,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         n_scenarios = scenarios.n
     else:
         uncertainties = determine_objects(models, "uncertainties", union=True)
+        if isinstance(scenarios, Scenario):
+            scenarios = [scenarios]
+        
         uncertainties = [u for u in uncertainties if u.name in scenarios[0]]
         n_scenarios = len(scenarios)
         
@@ -375,6 +378,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         n_policies = policies.n
     else:
         levers = determine_objects(models, "levers", union=True)
+        if isinstance(policies, Policy):
+            policies = [Policy]
+        
         levers = [l for l in levers if l.name in policies[0]]
         n_policies = len(policies)
     
