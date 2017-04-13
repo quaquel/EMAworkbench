@@ -7,8 +7,9 @@ from __future__ import unicode_literals, absolute_import
 
 from ema_workbench.connectors.netlogo import NetLogoModel
 
-from ema_workbench import (TimeSeriesOutcome, RealParameter, ema_logging,
+from ema_workbench import (RealParameter, ema_logging,
                            perform_experiments,TimeSeriesOutcome)
+from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
 
 if __name__ == '__main__':
@@ -35,5 +36,5 @@ if __name__ == '__main__':
     #perform experiments
     n = 10
     
-    with TimeSeriesOutcome(model) as evaluator:
+    with MultiprocessingEvaluator(model) as evaluator:
         results = perform_experiments(model, n, evaluator=evaluator)
