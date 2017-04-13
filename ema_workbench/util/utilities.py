@@ -111,7 +111,10 @@ def load_results(file_name):
                     try:
                         temp_shape.append(int(entry))
                     except ValueError:
-                        temp_shape.append(int(long(entry))) 
+                        try:
+                            temp_shape.append(int(long(entry)))
+                        except NameError: # we are on python3
+                            temp_shape.append(int(entry[0:-1]))
             shape = tuple(temp_shape)
             
             if len(shape)>2:
