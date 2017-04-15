@@ -145,12 +145,18 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         self.policy = policy
 
         # update any attribute on object that is found in policy
-        self.to_remove = []
-        for key, value in policy.items():
+#         to_remove = []
+#         for key, value in policy.items():
+#             if hasattr(self, key):
+#                 to_remove.append(key)
+#                 setattr(self, key, value)
+
+        for key in policy.keys():
             if hasattr(self, key):
-                self.to_remove.append(key)
+                value = policy.pop(key)
                 setattr(self, key, value)
                 
+        
 
     def _transform(self, sampled_parameters, parameters):
         #TODO:: add some more useful debug logging
@@ -207,14 +213,6 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         
         #TODO:: here we need to add policies and constants in some manner
         self._transform(scenario, self.uncertainties)
-        
-        # transform policy, first remove any attributes that have been
-        # updated on the model. Next, we assume that the remainder are
-        # parameters that have to be passed, this requires that they
-        # are specified as levers
-        for entry in self.to_remove:
-            del policy[entry]
-        
         self._transform(policy, self.levers)
 
     @method_logger
