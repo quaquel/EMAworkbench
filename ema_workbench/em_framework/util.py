@@ -198,7 +198,6 @@ def combine(*args):
         if overlap:
             raise EMAError(('parameters exist in two dicts' + str(overlap)))
         experiment.update(entry)
-            
 
     return experiment
 
