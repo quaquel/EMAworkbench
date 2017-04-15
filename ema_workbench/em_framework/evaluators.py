@@ -172,7 +172,7 @@ class BaseEvaluator(object):
         
         '''
         
-        perform_experiments(self._msis, scenarios=scenarios, 
+        return perform_experiments(self._msis, scenarios=scenarios, 
                     policies=policies, evaluator=self, 
                     reporting_interval=reporting_interval, 
                     uncertainty_union=uncertainty_union, lever_union=lever_union, 
