@@ -379,7 +379,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     else:
         levers = determine_objects(models, "levers", union=True)
         if isinstance(policies, Policy):
-            policies = [Policy]
+            policies = [policies]
         
         levers = [l for l in levers if l.name in policies[0]]
         n_policies = len(policies)
