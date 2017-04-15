@@ -93,6 +93,7 @@ if __name__ == '__main__':
     n_scenarios = 100
     n_policies = 4
     
+     
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        perform_experiments(lake_model, n_scenarios, n_policies,
-                            evaluator=evaluator, levers_sampling=MC)
+        res = evaluator.perform_experiments(n_scenarios, n_policies,
+                                            levers_sampling=MC)
