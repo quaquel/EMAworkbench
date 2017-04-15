@@ -172,9 +172,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
             
             multivalue = False
             if isinstance(par, CategoricalParameter):
-                category = par.cat_for_index(value)
-#                 category = par.categories[value]
-                
+                category = par.cat_for_index(value)                
                 value = category.value
                 
                 if category.multivalue == True:
