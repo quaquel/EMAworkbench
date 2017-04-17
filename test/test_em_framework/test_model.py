@@ -104,11 +104,12 @@ class TestModel(unittest.TestCase):
         self.assertIn('b', scenario.keys())
         
         model = Model(model_name, function)
-        cats = [Category('some name', [1,2],multivalue=True),
-                Category('some other name', [3,4],multivalue=True)]
-        model.uncertainties = [CategoricalParameter('a', cats, variable_name=['a', 'b'])]
+        cats = [Category('some name', [1,2]),
+                Category('some other name', [3,4])]
+        model.uncertainties = [CategoricalParameter('a', cats, 
+                                    variable_name=['a', 'b'], multivalue=True)]
         
-        scenario = Scenario(**{'a':0})
+        scenario = Scenario(**{'a':cats[0].value})
         model.run_model(scenario, Policy('test'))
         
         self.assertIn('a', scenario.keys())
@@ -116,7 +117,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(scenario['a'], 1)
         self.assertEqual(scenario['b'], 2)
         
-        scenario = Scenario(**{'a':1})
+        scenario = Scenario(**{'a':cats[1].value})
         model.run_model(scenario, Policy('test'))
         
         self.assertIn('a', scenario.keys())

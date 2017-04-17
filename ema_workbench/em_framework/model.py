@@ -144,17 +144,14 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         '''
         self.policy = policy
 
-        # update any attribute on object that is found in policy
-#         to_remove = []
-#         for key, value in policy.items():
-#             if hasattr(self, key):
-#                 to_remove.append(key)
-#                 setattr(self, key, value)
-
-        for key in policy.keys():
+        remove = []
+        for key, value in policy.items():
             if hasattr(self, key):
-                value = policy.pop(key)
                 setattr(self, key, value)
+                remove.append(key)
+        
+        for k in remove:
+            del policy[k]
                 
         
 
@@ -172,16 +169,9 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
                     ema_logging.debug('{} not found'.format(par.name))
                     continue
 
-            if (isinstance(par, CategoricalParameter)) or \
-               (isinstance(par, IntegerParameter)):
-                value = int(value)
-            
             multivalue = False
             if isinstance(par, CategoricalParameter):
-                category = par.cat_for_index(value)                
-                value = category.value
-                
-                if category.multivalue == True:
+                if par.multivalue == True:
                     multivalue = True
                     values = value
             

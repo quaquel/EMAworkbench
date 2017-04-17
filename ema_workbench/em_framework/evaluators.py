@@ -383,7 +383,6 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         
         levers = [l for l in levers if l.name in policies[0]]
         n_policies = len(policies)
-    
     try:
         n_models = len(models)
     except TypeError:
