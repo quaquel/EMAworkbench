@@ -14,9 +14,9 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
-                           perform_experiments, ema_logging, 
-                           MultiprocessingEvaluator)
-from ema_workbench.em_framework.evaluators import MC
+                           ema_logging, MultiprocessingEvaluator)
+from ema_workbench.em_framework.evaluators import MC, SequentialEvaluator
+from ema_workbench.em_framework.parameters import CategoricalParameter
 
 
 def lake_problem(

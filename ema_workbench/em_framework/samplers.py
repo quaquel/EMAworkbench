@@ -8,6 +8,7 @@ Monte Carlo sampling.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
+from ema_workbench.em_framework.parameters import CategoricalParameter
 
 try:
     from future_builtins import zip
@@ -562,7 +563,7 @@ class DefaultDesigns(object):
     @abc.abstractmethod 
     def __iter__(self):
         '''should return iterator'''
-        return design_generator(self.designs, self.params, self.kind)
+        return design_generator(self.designs, self.parameters, self.kind)
 
 
 class PartialFactorialDesigns(object):
@@ -632,6 +633,17 @@ def design_generator(designs, params, kind):
     '''
     
     for design in designs:
-        design = {param:design[i] for i, param in enumerate(params)}
-        yield kind(**design)
+
+        design_dict = {}
+        for param, value in zip(params, design):
+            if isinstance(param, IntegerParameter):
+                value = int(value)
+            if isinstance(param, CategoricalParameter):
+                # categorical parameter is an integer parameter, so
+                # conversion to int is already done
+                value = param.cat_for_index(value).value
+            
+            design_dict[param.name] = value
+        
+        yield kind(**design_dict)
         

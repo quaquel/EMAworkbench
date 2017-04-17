@@ -38,11 +38,8 @@ class Constant(NamedObject):
 
 
 class Category(Constant):
-    
-    def __init__(self, name, value, multivalue=False):
+    def __init__(self, name, value):
         super(Category, self).__init__(name, value)
-        self.multivalue = multivalue
-        
 
 def create_category(cat):
     if isinstance(cat, Category):
@@ -220,6 +217,9 @@ class CategoricalParameter(IntegerParameter):
     name : str
     categories : collection of obj
     variable_name : str, or list of str
+    multivalue : boolean
+                 if categories have a set of values, for each variable_name
+                 a different one.
     
     '''
     
@@ -232,7 +232,7 @@ class CategoricalParameter(IntegerParameter):
         self._categories.extend(values)
         
     def __init__(self, name, categories, default=None, variable_name=None, 
-                 pff=False):
+                 pff=False, multivalue=False):
         lower_bound = 0
         upper_bound = len(categories)
         
@@ -248,6 +248,7 @@ class CategoricalParameter(IntegerParameter):
         
         self.categories = cats
         self.resolution = [i for i in range(len(self.categories))]
+        self.multivalue = multivalue
         
     def index_for_cat(self, category):
         '''return index of category
