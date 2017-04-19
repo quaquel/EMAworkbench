@@ -7,9 +7,8 @@ ema workbench examples
 # license as Matplotlib
 import os, glob
 
-import os
+
 import re
-import sys
 
 def out_of_date(original, derived):
     """

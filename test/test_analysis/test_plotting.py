@@ -239,8 +239,7 @@ def test_envelopes():
           titles={})
     envelopes(results, 
           density=None,
-          titles={'total fraction new technologies': 'a',
-                  'total fraction new technologies': 'b'})
+          titles={'total fraction new technologies': 'a'})
   
     plt.draw()
     plt.close('all')

@@ -22,7 +22,7 @@ def setUpModule():
 def tearDownModule():
     os.chdir(cwd)
 
-class Save_ResultsTestCase(unittest.TestCase):
+class SaveResultsTestCase(unittest.TestCase):
     def test_save_results(self):
         # test for 1d
         # test for 2d
@@ -76,7 +76,7 @@ class Save_ResultsTestCase(unittest.TestCase):
 #         os.remove(fn)
 #         ema_logging.info('extremely long saved successfully')
     
-class Load_ResultsTestCase(unittest.TestCase):
+class LoadResultsTestCase(unittest.TestCase):
     def test_load_results(self):
         # test for 1d
         # test for 2d

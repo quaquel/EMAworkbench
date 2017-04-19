@@ -62,7 +62,7 @@ for line  in open(pathToExistingModel):
         elements = line.split("=")
         value = elements[0]
         value = value.strip()
-        if variable.has_key(value):
+        if value in variable:
             elements[1] = variable.get(value)
             line = elements[0] + " = " + elements[1]
             settedValues.append(value)
