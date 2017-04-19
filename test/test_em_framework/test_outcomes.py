@@ -16,7 +16,7 @@ class TestScalarOutcome(unittest.TestCase):
     outcome_class = ScalarOutcome
     outcome_klass = "ScalarOutcome"
     
-    def test(self):
+    def test_outcome(self):
         name = 'test'
         outcome = self.outcome_class(name)
         

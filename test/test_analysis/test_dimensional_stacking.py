@@ -20,7 +20,7 @@ class DimStackTestCase(unittest.TestCase):
     def test_dim_rations(self):
         pass
     
-    def make_pivot_talbe(self):
+    def test_make_pivot_table(self):
         pass
     
     def test_plot_pivot_table(self):

@@ -17,7 +17,7 @@ class TestNamedObjectMap(unittest.TestCase):
 
 class TestNamedDict(unittest.TestCase):
     
-    def test(self):
+    def test_namedict(self):
         name = 'test'
         kwargs = {'a':1, 'b':2}
 

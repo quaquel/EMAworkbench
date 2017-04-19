@@ -14,7 +14,7 @@ from ema_workbench.util.ema_exceptions import EMAError, CaseError
 
 
 class TestEMAError(unittest.TestCase):
-    def test(self):
+    def test_emaerror(self):
         error = EMAError('a message')
 
         self.assertEqual(str(error), 'a message')
@@ -27,7 +27,7 @@ class TestEMAError(unittest.TestCase):
             self.assertEqual(str(error), str("('a message', 'another message')"))
 
 class TestCaseError(unittest.TestCase):
-    def test(self):
+    def test_caseerror(self):
         error = CaseError('a message', {'a':1, 'b':2})
 
         self.assertEqual(str(error), "a message case: {a:1, b:2, policy:not specified}")

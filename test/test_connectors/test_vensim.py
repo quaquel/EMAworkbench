@@ -74,7 +74,7 @@ class VensimTest(unittest.TestCase):
     def test_load_model(self):
         pass
     
-    def read_cin_file(self):
+    def test_read_cin_file(self):
         pass
     
     def test_set_value(self):
