@@ -60,7 +60,7 @@ class CartTestCase(unittest.TestCase):
         pass
     def test_stats(self):
         pass
-    def build_tree(self):
+    def test_build_tree(self):
         pass
     
         

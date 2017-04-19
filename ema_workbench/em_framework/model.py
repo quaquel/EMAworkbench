@@ -14,8 +14,7 @@ import os
 import six
 import warnings
 from ema_workbench.util import ema_logging
-from ema_workbench.em_framework.parameters import CategoricalParameter,\
-    IntegerParameter
+from ema_workbench.em_framework.parameters import CategoricalParameter
 
 
 try:
@@ -156,7 +155,13 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         
 
     def _transform(self, sampled_parameters, parameters):
-        #TODO:: add some more useful debug logging
+        
+        if not parameters:
+            # no parameters defined, so nothing to transform, mainly
+            # useful for manual specification of scenario /  policy
+            # without having to define uncertainties / levers
+            return
+        
         temp = {}
         for par in parameters:
             # only keep uncertainties that exist in this model

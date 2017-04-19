@@ -226,7 +226,7 @@ class CreateOutcomesTestCase(unittest.TestCase):
 
 class ParametersToCsvTestCase(unittest.TestCase):
     @mock.patch('ema_workbench.em_framework.parameters.pandas')
-    def test(self, mock_pandas):
+    def test_to_csv(self, mock_pandas):
         params = [parameters.RealParameter('a', 0.1, 1.5),
                   parameters.IntegerParameter('b', 0, 10),
                   parameters.CategoricalParameter('c', ['a', 'b'])]
