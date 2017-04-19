@@ -26,8 +26,7 @@ def load_scarcity_data():
 
     experiments, outcomes = load_results(fn)
     return experiments, outcomes
-    
-    return experiments, outcomes
+
 
 def load_eng_trans_data():
     path = os.path.dirname(__file__)
@@ -36,10 +35,6 @@ def load_eng_trans_data():
 
     experiments, outcomes = load_results(fn)
     return experiments, outcomes
-    
-    return experiments, outcomes
-
-
   
 if __name__ == '__main__':
     load_flu_data()
