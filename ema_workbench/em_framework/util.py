@@ -28,7 +28,7 @@ from ..util import EMAError
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['NamedObject', 'NamedDict', 'counter', 'representation']
+__all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation']
 
 class NamedObject(object):
 
@@ -39,11 +39,11 @@ class NamedObject(object):
 class Counter(object):
     '''helper function for generating counter based names for NamedDicts'''
     
-    _counter = itertools.count()
+    def __init__(self):
+        self._counter = itertools.count()
     
     def __call__(self, named_dict):
         return six.next(self._counter)
-counter = Counter()
 
     
 def representation(named_dict):

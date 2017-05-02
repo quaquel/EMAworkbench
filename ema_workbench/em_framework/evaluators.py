@@ -359,12 +359,16 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         uncertainties = scenarios.parameters
         n_scenarios = scenarios.n
     else:
-        uncertainties = determine_objects(models, "uncertainties", union=True)
-        if isinstance(scenarios, Scenario):
-            scenarios = [scenarios]
-        
-        uncertainties = [u for u in uncertainties if u.name in scenarios[0]]
-        n_scenarios = len(scenarios)
+        try:
+            uncertainties = scenarios.parameters
+            n_scenarios = scenarios.n
+        except AttributeError:
+            uncertainties = determine_objects(models, "uncertainties", union=True)
+            if isinstance(scenarios, Scenario):
+                scenarios = [scenarios]
+            
+            uncertainties = [u for u in uncertainties if u.name in scenarios[0]]
+            n_scenarios = len(scenarios)
         
     
     if not policies:
@@ -377,12 +381,16 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         levers = policies.parameters
         n_policies = policies.n
     else:
-        levers = determine_objects(models, "levers", union=True)
-        if isinstance(policies, Policy):
-            policies = [policies]
-        
-        levers = [l for l in levers if l.name in policies[0]]
-        n_policies = len(policies)
+        try:
+            levers = policies.parameters
+            n_policies = policies.n
+        except AttributeError:
+            levers = determine_objects(models, "levers", union=True)
+            if isinstance(policies, Policy):
+                policies = [policies]
+            
+            levers = [l for l in levers if l.name in policies[0]]
+            n_policies = len(policies)
     try:
         n_models = len(models)
     except TypeError:
