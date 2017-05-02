@@ -10,7 +10,7 @@ import six
 import warnings
 
 from ema_workbench.em_framework.util import (NamedObject, Variable,
-                                         NamedObjectMap, counter, NamedDict)
+                                         NamedObjectMap, Counter, NamedDict)
 
 # Created on Jul 14, 2016
 #
@@ -352,7 +352,7 @@ class Policy(NamedDict):
         
 
 class Scenario(NamedDict):
-    def __init__(self, name=counter, **kwargs):
+    def __init__(self, name=Counter(), **kwargs):
         super(Scenario, self).__init__(name, **kwargs)
 
 

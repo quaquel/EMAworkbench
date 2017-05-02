@@ -20,7 +20,8 @@ from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                      Scenario, Policy, Constant, Experiment, create_parameters,
                      parameters_to_csv, Category, experiment_generator)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler, 
-                       PartialFactorialSampler)
+                       PartialFactorialSampler, sample_levers, 
+                       sample_uncertainties)
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler, 
                              get_SALib_problem)
 from .evaluators import (perform_experiments, IpyparallelEvaluator, 
