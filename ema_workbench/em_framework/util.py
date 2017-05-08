@@ -49,7 +49,8 @@ class Counter(object):
 def representation(named_dict):
     '''helper function for generating repr based names for NamedDicts'''
     return repr(named_dict)
-        
+
+
 class Variable(NamedObject):
     '''Root class for input parameters and outcomes '''
     

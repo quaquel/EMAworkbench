@@ -318,11 +318,12 @@ class Replicator(AbstractModel):
         
         """
         super(Replicator, self).run_model(scenario, policy)
+        
         constants = {c.name:c.value for c in self.constants}
         
         outputs = defaultdict(list)
         
-        policy =  copy.deepcopy(self.policy)
+        policy = copy.deepcopy(self.policy)
         partial_experiment = combine(scenario, policy, constants)
         
         for _, rep in enumerate(self.replications):

@@ -9,4 +9,4 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
 from . import util
 from .util import save_results, load_results, ema_logging, EMAError
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
