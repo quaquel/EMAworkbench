@@ -13,7 +13,6 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 __all__ = ["SobolSampler", "MorrisSampler", "FASTSampler", 'get_SALib_problem']
 
-
 from SALib.sample import saltelli, morris, fast_sampler
 
 import operator
@@ -26,8 +25,9 @@ def get_SALib_problem(uncertainties):
     '''returns a dict with a problem specificatin as required by SALib'''
     
     _warning = False
+    uncertainties = sorted(uncertainties, key=operator.attrgetter('name'))
     bounds = []
-
+    
     for uncertainty in uncertainties:
         values = uncertainty.lower_bound, uncertainty.upper_bound
         bounds.append(values)
