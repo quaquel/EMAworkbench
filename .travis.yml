@@ -5,6 +5,7 @@ sudo: false
 python:
 - 2.7
 - 3.5
+
 env:
 - DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn"
 
