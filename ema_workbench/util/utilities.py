@@ -66,7 +66,7 @@ def load_results(file_name):
         # load x
         experiments = z.extractfile('experiments.csv')
         if not (hasattr(experiments, 'read')):
-            print(repr(experiments))
+            raise EMAError(repr(experiments))
         
 #         df = pd.io.parsers.read_table(experiments, sep=',')  # @UndefinedVariable
         df = pd.read_csv(experiments)
