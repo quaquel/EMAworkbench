@@ -42,8 +42,7 @@ class TestFileModel(unittest.TestCase):
     def test_run_model(self):
         model_name = 'modelname'
         model_file = 'model_file'
-        
-            
+                    
         with mock.patch('ema_workbench.em_framework.model.os') as patch:
             patch.os.is_file.set_return_value(True)
             model = FileModelTest(model_name, '.', model_file)

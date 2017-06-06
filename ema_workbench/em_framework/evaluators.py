@@ -9,8 +9,12 @@ import multiprocessing
 import numbers 
 import os
 import random
+import shutil
 import string
 import threading
+import warnings
+
+warnings.simplefilter("once", ImportWarning)
 
 from .callbacks import DefaultCallback
 from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
@@ -18,15 +22,18 @@ from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
                               initialize_engines, cleanup, _run_experiment)
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
-from .outcomes import AbstractOutcome
-from .parameters import experiment_generator, Scenario, Policy
+from .optimization import (evaluate_robust, evaluate, EpsNSGAII, 
+                           to_dataframe, to_problem, to_robust_problem,
+                           process_levers, process_uncertainties, 
+                           process_robust)
+from .outcomes import ScalarOutcome, AbstractOutcome
+from .parameters import (experiment_generator, Scenario, Policy)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler, 
                        PartialFactorialSampler, sample_levers, 
                        sample_uncertainties)
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler) # TODO:: should become optional import
 from .util import NamedObjectMap, determine_objects
 from ..util import ema_logging, EMAError
-import shutil
 
 
 # Created on 5 Mar 2017
@@ -50,7 +57,8 @@ SAMPLERS = {LHS:LHSSampler,
             MORRIS:MorrisSampler,
             FAST:FASTSampler}
 
-__all__ = ['MultiprocessingEvaluator', 'IpyparallelEvaluator']
+__all__ = ['MultiprocessingEvaluator', 'IpyparallelEvaluator', 
+           'optimize', 'perform_experiments', 'SequentialEvaluator']
 
 class BaseEvaluator(object):
     '''evaluator for experiments using a multiprocessing pool
@@ -71,7 +79,7 @@ class BaseEvaluator(object):
     
     '''
     
-    def __init__(self, msis, searchover=None, union=None):
+    def __init__(self, msis, union=None):
         super(BaseEvaluator, self).__init__()
         
         if isinstance(msis, AbstractModel):
@@ -79,20 +87,20 @@ class BaseEvaluator(object):
         
         self._msis = msis
         
-        if searchover:
-            if searchover not in {'levers', 'uncertainties'}:
-                raise ValueError(("search_over must be one of 'levers'"
-                              "or 'uncertainties' not {}".format(searchover)))
-            
-            self.searchover = searchover
-            
-            self.parameters = determine_objects(msis, searchover, union=union)
-            self.parameter_names = [p.name for p in self.parameters]
-            
-            outcomes = determine_objects(msis, "outcomes", union=union)
-            self.outcomes = [o for o in outcomes if
-                             o.kind != AbstractOutcome.INFO]
-            self.outcome_names = [o.name for o in self.outcomes]
+#         if searchover:
+#             if searchover not in {'levers', 'uncertainties'}:
+#                 raise ValueError(("search_over must be one of 'levers'"
+#                               "or 'uncertainties' not {}".format(searchover)))
+#             
+#             self.searchover = searchover
+#             
+#             self.parameters = determine_objects(msis, searchover, union=union)
+#             self.parameter_names = [p.name for p in self.parameters]
+#             
+#             outcomes = determine_objects(msis, "outcomes", union=union)
+#             self.outcomes = [o for o in outcomes if
+#                              o.kind != AbstractOutcome.INFO]
+#             self.outcome_names = [o.name for o in self.outcomes]
 
     def __enter__(self):
         
@@ -109,55 +117,51 @@ class BaseEvaluator(object):
             return False
         
     def initialize(self):
-        ''' initialize the evaluator '''
+        ''' initialize the evaluator'''
         
         raise NotImplementedError
     
     def finalize(self):
-        ''' finalize the evaluator '''
+        ''' finalize the evaluator'''
         
         raise NotImplementedError
         
     def evaluate_experiments(self, scenarios, policies, callback):
         '''used by ema_workbench'''
+        
         raise NotImplementedError
 
     
     def evaluate_all(self, jobs, **kwargs):
-        '''make ema_workbench evaluators compatible with Platypus'''
-        policies = []
-        scenarios = []
+        '''makes ema_workbench evaluators compatible with Platypus evaluators
+        as used by platypus algorithms'''
         
-        for i, job in enumerate(jobs):
-            variables = dict(zip(self.parameter_names, job.solution.variables))
-            
-                # we can now evaluate the model
-            if self.searchover=='levers':
-                job = Policy(name=str(i), **variables)
-                policies.append(job)
-            else:
-                job = Scenario(**variables)
-                scenarios.append(job)
+        problem = jobs[0].solution.problem
+        searchover = problem.searchover
         
-        if not policies:
-            policies = 0
-        if not scenarios:
-            scenarios = 0
+        if searchover == 'levers':
+            scenarios, policies = process_levers(jobs)
+            jobs_collection = zip(policies, jobs)
+        elif searchover == 'uncertainties':
+            scenarios, policies = process_uncertainties(jobs)
+            jobs_collection = zip(scenarios, jobs)
+        elif searchover == 'robust':
+            scenarios, policies = process_robust(jobs)
+            jobs_collection = zip(policies, jobs)
+        else:
+            raise NotImplementedError()
         
         experiments, outcomes = perform_experiments(self._msis, 
                                         scenarios=scenarios, policies=policies, 
                                         evaluator=self)
-                
-        # map back cases to jobs
-        # TODO:: not correct for scenarios, we probably need to 
-        # include a scenario_id in the experiments, just like we have a 
-        # policy_id
-        for i, job_id in enumerate(experiments['policy']):
-            job_outcomes = [outcomes[o][i] for o in self.outcome_names]
-            job = jobs[int(job_id)]
-            
-            job.solution.problem.function = lambda x: job_outcomes
-            job.solution.evaluate()
+
+
+        if searchover in ('levers', 'uncertainties'):
+            evaluate(jobs_collection, experiments, outcomes, 
+                      problem)
+        else:
+            evaluate_robust(jobs_collection, experiments, outcomes, 
+                             problem)
             
         return jobs
 
@@ -179,6 +183,32 @@ class BaseEvaluator(object):
                     outcome_union=outcome_union, 
                     uncertainty_sampling=uncertainty_sampling, 
                     levers_sampling=levers_sampling)
+
+
+    def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
+                 **kwargs):
+        '''convenience method for outcome optimization.
+        
+        is forwarded to :func:optimize, with evaluator and models
+        arguments added in.
+        
+        '''
+        
+        return optimize(self._msis, algorithm=algorithm, nfe=nfe, 
+                        searchover=searchover, evaluator=self, **kwargs)
+
+        
+    def robust_optimize(self, robustness_functions, scenarios, 
+                        algorithm=EpsNSGAII, nfe=10000, searchover='levers',
+                        **kwargs):
+        '''convenience method for robust optimization.
+        
+        is forwarded to :func:robust_optimize, with evaluator and models
+        arguments added in.
+        
+        '''
+        return robust_optimize(self._msis, robustness_functions, scenarios,
+                               self, algorithm=algorithm, nfe=nfe, **kwargs)
 
 
 class SequentialEvaluator(BaseEvaluator):
@@ -363,11 +393,13 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
             uncertainties = scenarios.parameters
             n_scenarios = scenarios.n
         except AttributeError:
-            uncertainties = determine_objects(models, "uncertainties", union=True)
+            uncertainties = determine_objects(models, "uncertainties", 
+                                              union=True)
             if isinstance(scenarios, Scenario):
                 scenarios = [scenarios]
             
-            uncertainties = [u for u in uncertainties if u.name in scenarios[0]]
+            uncertainties = [u for u in uncertainties if u.name in 
+                             scenarios[0]]
             n_scenarios = len(scenarios)
         
     
@@ -422,3 +454,116 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     results = callback.get_results()
     ema_logging.info("experiments finished")
     return results
+
+
+
+def optimize(models, algorithm=EpsNSGAII, nfe=10000, 
+             searchover='levers', evaluator=None, **kwargs):
+    '''optimize the model
+    
+    Parameters
+    ----------
+    models : 1 or more Model instances
+    algorithm : a valid Platypus optimization algorithm
+    nfe : int
+    searchover : {'uncertainties', 'levers'}
+    kwargs : aditional argumenst to pass on to algorithm
+    
+    Returns
+    -------
+    pandas DataFrame
+    
+    
+    Raises
+    ------
+    EMAError if searchover is not one of 'uncertainties' or 'levers'
+    NotImplementedError if len(models) > 1
+    
+    TODO:: constrains are not yet supported
+    
+    '''
+    if searchover not in ('levers', 'uncertainties'):
+        raise EMAError(("searchover should be one of 'levers' or"
+                        "'uncertainties' not {}".format(searchover)))
+        
+    try:
+        if len(models)==1:
+            models = models[0]
+        else:
+            raise NotImplementedError(("optimization over multiple" 
+                                      "models yet supported"))
+    except TypeError:
+        pass
+        
+    
+    problem = to_problem(models, searchover)
+    
+    # solve the optimization problem
+    if not evaluator:
+        evaluator = SequentialEvaluator(models)
+
+    optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
+    optimizer.run(nfe)
+    results = to_dataframe(optimizer, problem.parameter_names, 
+                           problem.outcome_names)
+
+    message = "optimization completed, found {} solutions"
+    ema_logging.info(message.format(len(optimizer.algorithm.archive)))
+
+    return results
+
+
+    
+
+def robust_optimize(model, robustness_functions, scenarios, 
+                    evaluator=None, algorithm=EpsNSGAII, nfe=10000, 
+                    **kwargs):
+    '''
+    
+    Parameters
+    ----------
+    model : 
+    robustness_functions : collection of ScalarOutcomes
+    scenarios : 
+    evaluator : Evaluator instance
+    algorithm : platypus Algorithm instance
+    nfe : int
+    kwargs : any additional arguments will be passed on to algorithm
+    
+    
+    Raises
+    ------
+    AssertionError if robustness_function is not a ScalarOutcome,
+    if robustness_funcion.kind is INFO, or 
+    if robustness_function.function is None
+    
+    
+    robustness functions are scalar outcomes, kind should be MINIMIZE or
+    MAXIMIZE, function is the robustness function you want to use.
+    
+    
+    
+    '''
+    
+    for rf in robustness_functions:
+        assert(isinstance(rf, ScalarOutcome))
+        assert(rf.kind != AbstractOutcome.INFO)
+        assert(rf.function != None)
+    
+    problem = to_robust_problem(model, scenarios, robustness_functions)
+
+    # solve the optimization problem
+    if not evaluator:
+        evaluator = SequentialEvaluator(model)
+        
+    optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
+    optimizer.run(nfe)
+    
+    results = to_dataframe(optimizer, problem.parameter_names, 
+                           problem.outcome_names)
+
+    message = "optimization completed, found {} solutions"
+    ema_logging.info(message.format(len(optimizer.algorithm.archive)))
+
+    return results
+    

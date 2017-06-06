@@ -116,7 +116,7 @@ def load_results(file_name):
                         temp_shape.append(int(entry))
                     except ValueError:
                         try:
-                            temp_shape.append(int(long(entry)))
+                            temp_shape.append(int(long(entry))) #@UndefinedVariable
                         except NameError: # we are on python3
                             temp_shape.append(int(entry[0:-1]))
             shape = tuple(temp_shape)

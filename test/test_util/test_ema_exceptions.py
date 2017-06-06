@@ -30,7 +30,7 @@ class TestCaseError(unittest.TestCase):
     def test_caseerror(self):
         error = CaseError('a message', {'a':1, 'b':2})
 
-        self.assertEqual(str(error), "a message case: {a:1, b:2, policy:not specified}")
+        self.assertEqual(str(error), "a message case: {a:1, b:2, policy:None}")
         
 
 
