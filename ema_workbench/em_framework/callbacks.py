@@ -177,8 +177,10 @@ class DefaultCallback(AbstractCallback):
             elif isinstance(parameter, IntegerParameter):
                 dataType = int
             self.dtypes.append((str(name), dataType))
-        self.dtypes.append((str('model'), object))
+        self.dtypes.append((str('scenario_id'), object))
         self.dtypes.append((str('policy'), object))
+        self.dtypes.append((str('model'), object))
+        
         
         self.cases = np.empty((nr_experiments,), dtype=self.dtypes)
         self.cases[:] = np.NAN
@@ -200,8 +202,9 @@ class DefaultCallback(AbstractCallback):
             finally:
                 case.append(value)
         
-        case.append(experiment.model_name)
+        case.append(scenario.name)
         case.append(policy.name)
+        case.append(experiment.model_name)
         case = tuple(case)
         self.cases[experiment.experiment_id] = case
             

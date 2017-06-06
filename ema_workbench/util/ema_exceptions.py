@@ -45,11 +45,14 @@ class CaseError(EMAError):
     gave rise to the error. 
     
     '''
-    def __init__(self, message, case, policy={'name':"not specified"}):
+    def __init__(self, message, case, policy=None):
         self.message = message
         self.case = case
         self.args = (message, case)
-        self.policy = policy['name']
+        try:
+            self.policy = policy.name
+        except AttributeError:
+            self.policy = 'None'
     
     def __str__(self):
         keys = sorted(self.case.keys())

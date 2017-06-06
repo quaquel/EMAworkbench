@@ -14,52 +14,16 @@ from pysd import functions
 _subscript_dict = {}
 
 _namespace = {
+    'Heat Loss to Room': 'heat_loss_to_room',
     'Characteristic Time': 'characteristic_time',
+    'Time': 'time',
+    'FINAL TIME': 'final_time',
+    'SAVEPER': 'saveper',
+    'Teacup Temperature': 'teacup_temperature',
+    'TIME STEP': 'time_step',
     'TIME': 'time',
     'Room Temperature': 'room_temperature',
-    'SAVEPER': 'saveper',
-    'INITIAL TIME': 'initial_time',
-    'FINAL TIME': 'final_time',
-    'Heat Loss to Room': 'heat_loss_to_room',
-    'TIME STEP': 'time_step',
-    'Time': 'time',
-    'Teacup Temperature': 'teacup_temperature'}
-
-
-@cache('run')
-def time_step():
-    """
-    TIME STEP
-    ---------
-    (time_step)
-    Minute [0,?]
-    The time step for the simulation.
-    """
-    return 0.125
-
-
-@cache('step')
-def teacup_temperature():
-    """
-    Teacup Temperature
-    ------------------
-    (teacup_temperature)
-    Degrees
-
-    """
-    return integ_teacup_temperature()
-
-
-@cache('step')
-def saveper():
-    """
-    SAVEPER
-    -------
-    (saveper)
-    Minute [0,?]
-    The frequency with which output is stored.
-    """
-    return time_step()
+    'INITIAL TIME': 'initial_time'}
 
 
 @cache('step')
@@ -72,6 +36,18 @@ def time():
     The time of the model
     """
     return _t
+
+
+@cache('step')
+def teacup_temperature():
+    """
+    Teacup Temperature
+    ------------------
+    (teacup_temperature)
+    Degrees
+
+    """
+    return integ_teacup_temperature()
 
 
 @cache('step')
@@ -88,6 +64,30 @@ def heat_loss_to_room():
 
 
 @cache('run')
+def final_time():
+    """
+    FINAL TIME
+    ----------
+    (final_time)
+    Minute
+    The final time for the simulation.
+    """
+    return 30
+
+
+@cache('run')
+def initial_time():
+    """
+    INITIAL TIME
+    ------------
+    (initial_time)
+    Minute
+    The initial time for the simulation.
+    """
+    return 0
+
+
+@cache('run')
 def characteristic_time():
     """
     Characteristic Time
@@ -100,15 +100,15 @@ def characteristic_time():
 
 
 @cache('run')
-def final_time():
+def time_step():
     """
-    FINAL TIME
-    ----------
-    (final_time)
-    Minute
-    The final time for the simulation.
+    TIME STEP
+    ---------
+    (time_step)
+    Minute [0,?]
+    The time step for the simulation.
     """
-    return 30
+    return 0.125
 
 
 integ_teacup_temperature = functions.Integ(lambda: -heat_loss_to_room(), lambda: 180)
@@ -126,16 +126,16 @@ def room_temperature():
     return 70
 
 
-@cache('run')
-def initial_time():
+@cache('step')
+def saveper():
     """
-    INITIAL TIME
-    ------------
-    (initial_time)
-    Minute
-    The initial time for the simulation.
+    SAVEPER
+    -------
+    (saveper)
+    Minute [0,?]
+    The frequency with which output is stored.
     """
-    return 0
+    return time_step()
 
 
 def time():

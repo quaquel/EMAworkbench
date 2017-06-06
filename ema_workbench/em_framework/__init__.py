@@ -10,7 +10,7 @@ __all__ = ["ema_parallel", "parameters"
            "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
            "get_SALib_problem", "FASTSampler"
-           "peform_experiments", "IpyparallelEvaluator", 
+           "peform_experiments", 'optimize', "IpyparallelEvaluator", 
            "MultiprocessingEvaluator", "SequentialEvaluator"
            ]
 
@@ -24,5 +24,5 @@ from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
                        sample_uncertainties)
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler, 
                              get_SALib_problem)
-from .evaluators import (perform_experiments, IpyparallelEvaluator, 
+from .evaluators import (perform_experiments, optimize, IpyparallelEvaluator, 
                          MultiprocessingEvaluator, SequentialEvaluator)

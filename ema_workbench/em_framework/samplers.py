@@ -554,7 +554,7 @@ class DefaultDesigns(object):
     '''iterable for the experimental designs'''
     
     def __init__(self, designs, parameters, n):
-        self.designs = designs
+        self.designs = list(designs)
         self.parameters = parameters
         self.params = [p.name for p in parameters]
         self.kind = None
@@ -563,6 +563,7 @@ class DefaultDesigns(object):
     @abc.abstractmethod 
     def __iter__(self):
         '''should return iterator'''
+        
         return design_generator(self.designs, self.parameters, self.kind)
 
 
