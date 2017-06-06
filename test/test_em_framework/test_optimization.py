@@ -13,6 +13,7 @@ try:
 except ImportError:
     import mock
 
+import ema_workbench
 from ema_workbench.em_framework.model import Model
 from ema_workbench.em_framework.parameters import RealParameter
 from ema_workbench.em_framework.outcomes import ScalarOutcome
@@ -23,49 +24,51 @@ from ema_workbench.em_framework.optimization import (Problem, RobustProblem,
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+class MockProblem(object):
+    def __init__(self, ndv, nobjs, nconstr=0):
+        pass
+    
 class TestProblem(unittest.TestCase):
 
+   
     def test_problem(self):
-        with mock.patch('ema_workbench.em_framework.optimization.PlatypusProblem'):
-            
-            searchover = 'levers'
-            parameters = [mock.Mock(), mock.Mock()]
-            parameter_names = ['a', 'b']
-            outcome_names = ['x', 'y']
-            
-            problem = Problem(searchover, parameters, parameter_names, 
-                              outcome_names)
+        # evil way to mock super
+        searchover = 'levers'
+        parameters = [mock.Mock(), mock.Mock()]
+        parameter_names = ['a', 'b']
+        outcome_names = ['x', 'y']
+        
+        problem = Problem(searchover, parameters, parameter_names, 
+                          outcome_names)
 
-            self.assertEqual(searchover, problem.searchover)
-            self.assertEqual(parameters, problem.parameters)
-            self.assertEqual(parameter_names, problem.parameter_names)
-            self.assertEqual(outcome_names, problem.outcome_names)
-            
-            searchover = 'uncertainties'
-            problem = Problem(searchover, parameters, parameter_names, 
-                              outcome_names)
+        self.assertEqual(searchover, problem.searchover)
+        self.assertEqual(parameters, problem.parameters)
+        self.assertEqual(parameter_names, problem.parameter_names)
+        self.assertEqual(outcome_names, problem.outcome_names)
+        
+        searchover = 'uncertainties'
+        problem = Problem(searchover, parameters, parameter_names, 
+                          outcome_names)
 
-            self.assertEqual(searchover, problem.searchover)
-            self.assertEqual(parameters, problem.parameters)
-            self.assertEqual(parameter_names, problem.parameter_names)
-            self.assertEqual(outcome_names, problem.outcome_names)
-
+        self.assertEqual(searchover, problem.searchover)
+        self.assertEqual(parameters, problem.parameters)
+        self.assertEqual(parameter_names, problem.parameter_names)
+        self.assertEqual(outcome_names, problem.outcome_names)
     
     def test_robust_problem(self):
-        with mock.patch('ema_workbench.em_framework.optimization.PlatypusProblem'):
-            parameters = [mock.Mock(), mock.Mock()]
-            parameter_names = ['a', 'b']
-            outcome_names = ['x', 'y']
-            scenarios = 10
-            robustness_functions = [mock.Mock(), mock.Mock()]
-            
-            problem = RobustProblem(parameters, parameter_names, outcome_names, 
-                                    scenarios, robustness_functions)
-            
-            self.assertEqual('robust', problem.searchover)
-            self.assertEqual(parameters, problem.parameters)
-            self.assertEqual(parameter_names, problem.parameter_names)
-            self.assertEqual(outcome_names, problem.outcome_names)      
+        parameters = [mock.Mock(), mock.Mock()]
+        parameter_names = ['a', 'b']
+        outcome_names = ['x', 'y']
+        scenarios = 10
+        robustness_functions = [mock.Mock(), mock.Mock()]
+        
+        problem = RobustProblem(parameters, parameter_names, outcome_names, 
+                                scenarios, robustness_functions)
+        
+        self.assertEqual('robust', problem.searchover)
+        self.assertEqual(parameters, problem.parameters)
+        self.assertEqual(parameter_names, problem.parameter_names)
+        self.assertEqual(outcome_names, problem.outcome_names)      
 
     
 class TestOptimization(unittest.TestCase):
@@ -94,7 +97,9 @@ class TestOptimization(unittest.TestCase):
 #         self.assertEqual(outcome_names, problem.outcome_names)
 
 class TestRobustOptimization(unittest.TestCase):
-    def test_to_robust_problem(self):
+    
+    @mock.patch('ema_workbench.em_framework.optimization.platypus')
+    def test_to_robust_problem(self, mocked_platypus):
         mocked_model = Model('test', function=mock.Mock())
         mocked_model.levers = [RealParameter('a', 0, 1),
                                RealParameter('b', 0, 1)]
