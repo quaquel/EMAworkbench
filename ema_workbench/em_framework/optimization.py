@@ -15,12 +15,14 @@ from .samplers import determine_parameters
 from .util import determine_objects
 
 try:
-    from platypus import (Real, Integer, Permutation, EpsNSGAII)  # @UnresolvedImport
+    from platypus import EpsNSGAII  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
     import platypus
 except ImportError:
     warnings.warn("platypus based optimization not available", ImportWarning)
-    PlatypusProblem =  object
+    class PlatypusProblem(object):
+        def __init__(self, *args, **kwargs):
+            pass 
     EpsNSGAII = None
     platypus = None
 
@@ -76,9 +78,9 @@ def to_problem(model, searchover):
     Problem instance
     
     '''
-    _type_mapping = {RealParameter: Real,
-                     IntegerParameter: Integer,
-                     CategoricalParameter: Permutation}
+    _type_mapping = {RealParameter: platypus.Real,
+                     IntegerParameter: platypus.Integer,
+                     CategoricalParameter: platypus.Permutation}
     
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, searchover, union=True)
@@ -132,9 +134,9 @@ def to_robust_problem(model, scenarios, robustness_functions):
 
 def to_platypus_types(decision_variables):
     
-    _type_mapping = {RealParameter: Real,
-                     IntegerParameter: Integer,
-                     CategoricalParameter: Permutation}
+    _type_mapping = {RealParameter: platypus.Real,
+                     IntegerParameter: platypus.Integer,
+                     CategoricalParameter: platypus.Permutation}
     types = []
     for dv in decision_variables:
         klass = _type_mapping[type(dv)]
