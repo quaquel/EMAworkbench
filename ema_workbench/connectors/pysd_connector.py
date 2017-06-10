@@ -52,9 +52,6 @@ class BasePysdModel(AbstractModel):
 
     @method_logger
     def run_experiment(self, experiment):
-#         super(BasePysdModel, self).run_model(scenario, policy)
-#         ema_logging.debug('running pysd model')
-
         res = self.model.run(params=experiment,
                              return_columns=self.outcome_variables)
         
