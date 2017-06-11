@@ -68,10 +68,9 @@ def load_results(file_name):
         if not (hasattr(experiments, 'read')):
             raise EMAError(repr(experiments))
         
-#         df = pd.io.parsers.read_table(experiments, sep=',')  # @UndefinedVariable
         df = pd.read_csv(experiments)
-        experiments = df.to_records()
-        experiments = recfunctions.drop_fields(experiments, ['index'])
+        experiments = df.to_records(index=False)
+#         experiments = recfunctions.drop_fields(experiments, ['index'])
 
         # load experiment metadata
         metadata = z.extractfile('experiments metadata.csv').readlines()
