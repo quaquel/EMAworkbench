@@ -15,8 +15,7 @@ from ema_workbench.analysis import feature_scoring as fs
 from ema_workbench.analysis.feature_scoring import F_CLASSIFICATION, CHI2, F_REGRESSION
 from ema_workbench.analysis.scenario_discovery_util import CLASSIFICATION, REGRESSION
 from ema_workbench.util import ema_logging
-from .. import utilities
-
+from test import utilities
 
 class FeatureScoringTestCase(unittest.TestCase):
     def test_prepare_experiments(self):
@@ -27,7 +26,7 @@ class FeatureScoringTestCase(unittest.TestCase):
                             ('b', np.float),
                             ('c', np.float),
                             ('d', np.float)])
-        x = fs._prepare_experiments(x)
+        x, _ = fs._prepare_experiments(x)
         
         correct = np.array([[0,1,2,1],
                             [2,5,6,1],
@@ -42,7 +41,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         x['a'] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
         x['b'] = [0,1,2,3,4,5,6,7,8,9]
         x['c'] = ['a','b','a','b','a','a','b','a','b','a', ]
-        x = fs._prepare_experiments(x)
+        x, _ = fs._prepare_experiments(x)
        
         correct = np.array([[0.1, 0, 0],
                             [0.2, 1, 1],
