@@ -325,10 +325,6 @@ class PrimTestCase(unittest.TestCase):
         y = np.array([0,1,2])
         
         x = np.ma.array(x)
-        x['a'] = np.ma.masked_invalid(x['a'])
-        x['b'] = np.ma.masked_invalid(x['b'])
-        x['c'] = np.ma.masked_invalid(x['c'])
-         
         prim_obj = prim.Prim(x,y, threshold=0.5)
         box_init = prim_obj.box_init
          
@@ -368,10 +364,10 @@ class PrimTestCase(unittest.TestCase):
         x['b'] = [0,1,2,3,4,5,6,7,8,9]
         x['c'] = ['a','b','a','b',np.NAN,'a','b','a','b','a', ]
         
-        x = np.ma.array(x)
-        x['a'] = np.ma.masked_invalid(x['a'])
-        x['b'] = np.ma.masked_invalid(x['b'])
-        x['c'][4] = np.ma.masked
+#         x = np.ma.array(x)
+#         x['a'] = np.ma.masked_invalid(x['a'])
+#         x['b'] = np.ma.masked_invalid(x['b'])
+#         x['c'][4] = np.ma.masked
         
         prim_obj = prim.Prim(x,y, threshold=0.5)
         box_init = prim_obj.box_init

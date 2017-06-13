@@ -598,6 +598,10 @@ class PrimBox(object):
             the specific box in the peeling trajectory for which the quasi-p 
             values are to be calculated.
         
+        Returns
+        -------
+        dict
+        
         '''
         
         box_lim = self.box_lims[i]
@@ -743,7 +747,15 @@ class Prim(sdutil.OutputFormatterMixin):
                  mass_min=0.05, 
                  threshold_type=ABOVE):
         
-        self.x = np.ma.array(x)
+        # preprocess x
+        x = rf.drop_fields(x, "scenario_id", asrecarray=True)
+        x = np.ma.array(x)
+        names = rf.get_names(x.dtype)
+        for name in names:
+            logical = pd.isnull(x[name])
+            x[name][logical] = np.ma.masked
+        
+        self.x = x
         self.y = y
         
         if len(self.y.shape) > 1:

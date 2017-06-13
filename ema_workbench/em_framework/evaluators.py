@@ -480,6 +480,8 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     NotImplementedError if len(models) > 1
     
     TODO:: constrains are not yet supported
+    TODO:: add an optional single policy/scenario to overwrite the defaults
+    
     
     '''
     if searchover not in ('levers', 'uncertainties'):

@@ -55,6 +55,8 @@ def _prepare_experiments(experiments):
     ndarray
     
     '''
+    experiments = recfunctions.drop_fields(experiments, "scenario_id", 
+                                           asrecarray=True)
     uncs = recfunctions.get_names(experiments.dtype)
 
     temp_experiments = np.zeros((experiments.shape[0], len(uncs)))
@@ -70,7 +72,7 @@ def _prepare_experiments(experiments):
             for j, entry in enumerate(entries):
                 temp_experiments[data==entry,i] = j
     
-    return temp_experiments
+    return temp_experiments, uncs
 
 
 def _prepare_outcomes(outcomes, classify):
@@ -137,9 +139,7 @@ def get_univariate_feature_scores(x,y, score_func=F_CLASSIFICATION):
     
     
     '''
-    uncs = recfunctions.get_names(x.dtype)
-    
-    x = _prepare_experiments(x)
+    x, uncs = _prepare_experiments(x)
     
     pvalues = score_func(x, y)[1]
     pvalues = np.asarray(pvalues)
@@ -191,9 +191,7 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
         either RandomForestClassifier or RandomForestRegressor
     
     '''
-    
-    uncs = recfunctions.get_names(x.dtype)
-    x = _prepare_experiments(x)
+    x, uncs = _prepare_experiments(x)
     
     if mode==CLASSIFICATION:
         rfc = RandomForestClassifier
@@ -261,10 +259,7 @@ def get_lasso_feature_scores(x, y, mode=CLASSIFICATION, scaling=0.5,
         scores         
          
     '''
-    
-    uncs = recfunctions.get_names(x.dtype)
-    
-    x = _prepare_experiments(x)
+    x, uncs = _prepare_experiments(x)
     
     if mode==CLASSIFICATION:
 
@@ -340,9 +335,7 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
         either ExtraTreesClassifier or ExtraTreesRegressor
     
     '''
-    
-    uncs = recfunctions.get_names(x.dtype)
-    x = _prepare_experiments(x)
+    x, uncs = _prepare_experiments(x)
     
     if mode==CLASSIFICATION:
         etc = ExtraTreesClassifier

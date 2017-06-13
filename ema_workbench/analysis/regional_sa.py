@@ -229,7 +229,7 @@ def plot_cdfs(x, y, ccdf=False):
            if true, plot a complementary cdf instead of a normal cdf.
     
     '''
-    
+    x = rf.drop_fields(x, "scenario_id", asrecarray=True)
     uncs = rf.get_names(x.dtype)
     cp = sns.color_palette()
     

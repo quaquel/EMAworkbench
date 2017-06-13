@@ -110,6 +110,8 @@ class CART(sdutil.OutputFormatterMixin):
         ''' init
         
         '''
+        x = recfunctions.drop_fields(x, "scenario_id", asrecarray=True)
+
         
         self.x = x
         self.y = y

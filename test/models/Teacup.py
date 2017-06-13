@@ -15,54 +15,15 @@ _subscript_dict = {}
 
 _namespace = {
     'Heat Loss to Room': 'heat_loss_to_room',
-    'SAVEPER': 'saveper',
     'Teacup Temperature': 'teacup_temperature',
-    'Time': 'time',
-    'FINAL TIME': 'final_time',
-    'TIME': 'time',
-    'INITIAL TIME': 'initial_time',
     'Room Temperature': 'room_temperature',
+    'TIME STEP': 'time_step',
+    'INITIAL TIME': 'initial_time',
+    'TIME': 'time',
+    'Time': 'time',
     'Characteristic Time': 'characteristic_time',
-    'TIME STEP': 'time_step'}
-
-
-@cache('step')
-def time():
-    """
-    TIME
-    ----
-    (time)
-    None
-    The time of the model
-    """
-    return _t
-
-
-@cache('run')
-def initial_time():
-    """
-    INITIAL TIME
-    ------------
-    (initial_time)
-    Minute
-    The initial time for the simulation.
-    """
-    return 0
-
-
-integ_teacup_temperature = functions.Integ(lambda: -heat_loss_to_room(), lambda: 180)
-
-
-@cache('run')
-def time_step():
-    """
-    TIME STEP
-    ---------
-    (time_step)
-    Minute [0,?]
-    The time step for the simulation.
-    """
-    return 0.125
+    'SAVEPER': 'saveper',
+    'FINAL TIME': 'final_time'}
 
 
 @cache('run')
@@ -90,16 +51,7 @@ def heat_loss_to_room():
     return (teacup_temperature() - room_temperature()) / characteristic_time()
 
 
-@cache('step')
-def saveper():
-    """
-    SAVEPER
-    -------
-    (saveper)
-    Minute [0,?]
-    The frequency with which output is stored.
-    """
-    return time_step()
+integ_teacup_temperature = functions.Integ(lambda: -heat_loss_to_room(), lambda: 180)
 
 
 @cache('run')
@@ -115,6 +67,30 @@ def characteristic_time():
 
 
 @cache('run')
+def time_step():
+    """
+    TIME STEP
+    ---------
+    (time_step)
+    Minute [0,?]
+    The time step for the simulation.
+    """
+    return 0.125
+
+
+@cache('step')
+def saveper():
+    """
+    SAVEPER
+    -------
+    (saveper)
+    Minute [0,?]
+    The frequency with which output is stored.
+    """
+    return time_step()
+
+
+@cache('run')
 def room_temperature():
     """
     Room Temperature
@@ -124,6 +100,30 @@ def room_temperature():
 
     """
     return 70
+
+
+@cache('run')
+def initial_time():
+    """
+    INITIAL TIME
+    ------------
+    (initial_time)
+    Minute
+    The initial time for the simulation.
+    """
+    return 0
+
+
+@cache('step')
+def time():
+    """
+    TIME
+    ----
+    (time)
+    None
+    The time of the model
+    """
+    return _t
 
 
 @cache('step')

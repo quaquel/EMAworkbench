@@ -14,6 +14,7 @@ from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            ema_logging, MultiprocessingEvaluator)
 from ema_workbench.em_framework.samplers import sample_uncertainties
 
+
 # Created on 1 Jun 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -132,11 +133,17 @@ if __name__ == '__main__':
                             Constant('nsamples', 100),
                             Constant('myears', 100)]
     
+    def signal_to_noise(data):
+        mean = np.mean(data)
+        std = np.std(data)
+        sn = mean/std
+        return sn
+    
     
     MAXIMIZE = ScalarOutcome.MAXIMIZE  # @UndefinedVariable
     MINIMIZE = ScalarOutcome.MINIMIZE  # @UndefinedVariable
     robustnes_functions = [ScalarOutcome('mean p', kind=MINIMIZE, 
-                                 variable_name='max_P', function=np.mean),
+                                 variable_name='max_P', function=signal_to_noise),
                            ScalarOutcome('std p', kind=MINIMIZE, 
                                          variable_name='max_P', function=np.std)]
     n_scenarios = 10
