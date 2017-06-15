@@ -186,7 +186,7 @@ class BaseEvaluator(object):
 
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
-                 **kwargs):
+                 reference=None, **kwargs):
         '''convenience method for outcome optimization.
         
         is forwarded to :func:optimize, with evaluator and models
@@ -195,7 +195,8 @@ class BaseEvaluator(object):
         '''
         
         return optimize(self._msis, algorithm=algorithm, nfe=nfe, 
-                        searchover=searchover, evaluator=self, **kwargs)
+                        searchover=searchover, evaluator=self, 
+                        reference=reference,**kwargs)
 
         
     def robust_optimize(self, robustness_functions, scenarios, 
@@ -458,7 +459,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000, 
-             searchover='levers', evaluator=None, **kwargs):
+             searchover='levers', evaluator=None, reference=None,
+             **kwargs):
     '''optimize the model
     
     Parameters
@@ -498,7 +500,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
         pass
         
     
-    problem = to_problem(models, searchover)
+    problem = to_problem(models, searchover, reference=reference)
     
     # solve the optimization problem
     if not evaluator:

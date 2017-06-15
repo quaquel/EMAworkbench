@@ -39,16 +39,24 @@ class Problem(PlatypusProblem):
     and the type of search'''
     
     def __init__(self, searchover, parameters, parameter_names,
-                 outcome_names):
+                 outcome_names, reference=None):
         super(Problem, self).__init__(len(parameters), len(outcome_names) , 
                                       nconstrs=0)
         assert len(parameters) == len(parameter_names)
         assert searchover in ('levers', 'uncertainties', 'robust')
         
+        if searchover=='levers':
+            assert not reference or isinstance(reference, Scenario) 
+        elif searchover=='uncertainties':
+            assert not reference or isinstance(reference, Policy) 
+        else:
+            assert not reference
+        
         self.searchover = searchover
         self.parameters = parameters
         self.parameter_names = parameter_names
         self.outcome_names = outcome_names
+        self.reference = reference if reference else 0 
 
 
 class RobustProblem(Problem):
@@ -65,13 +73,17 @@ class RobustProblem(Problem):
         self.robustness_functions = robustness_functions
 
 
-def to_problem(model, searchover):
+def to_problem(model, searchover, reference=None):
     '''helper function to create Problem object
     
     Parameters
     ----------
     model : AbstractModel instance
     searchover : str
+    reference : Policy or Scenario instance, optional
+                overwrite the default scenario in case of searching over 
+                levers, or default policy in case of searching over 
+                uncertainties
     
     Returns
     -------
@@ -93,7 +105,7 @@ def to_problem(model, searchover):
     
     
     problem = Problem(searchover, decision_variables, dvnames,
-                      outcome_names)
+                      outcome_names, reference=reference)
     problem.types = to_platypus_types(decision_variables)
     problem.directions = [outcome.kind for outcome in outcomes]
 
@@ -181,8 +193,8 @@ def to_dataframe(optimizer, dvnames, outcome_names):
 
 
 def process_uncertainties(jobs):
+    problem = jobs[0].solution.problem
     scenarios = []
-    policies = 0
     
     for i, platypus_job in enumerate(jobs):
         variables = dict(zip(platypus_job.solution.problem.parameter_names, 
@@ -190,12 +202,14 @@ def process_uncertainties(jobs):
         name = str(i)
         job = Scenario(name=name, **variables)
         scenarios.append(job)
+    
+    policies = problem.reference
         
     return scenarios, policies
 
 def process_levers(jobs):
+    problem = jobs[0].solution.problem
     policies = []
-    scenarios = 0
     
     for i, platypus_job in enumerate(jobs):
         variables = dict(zip(platypus_job.solution.problem.parameter_names, 
@@ -203,6 +217,8 @@ def process_levers(jobs):
         name = str(i)
         job = Policy(name=name, **variables)
         policies.append(job)
+    
+    scenarios = problem.reference
     
     return scenarios, policies
 
