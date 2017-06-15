@@ -16,7 +16,6 @@ from sklearn import tree
 from sklearn.externals.six import StringIO
 
 from . import scenario_discovery_util as sdutil
-from ..util import ema_logging
 
 # Created on May 22, 2015
 # 
