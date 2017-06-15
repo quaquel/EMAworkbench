@@ -37,11 +37,12 @@ def discretize(data, nbins=3, with_labels=False):
     data : DataFrame
     nbins : int, optional
             the number of bins to use (default is 3)
+    with_labels : bool, optional
     
     Returns
     -------
-    digitized
-        the digitized data frame
+    discretized
+        the discretized data frame
     
     note:: nbins is currently a constant for all float and integer columns. 
            Categorical data is not discretized. If the number of integers is
@@ -66,7 +67,7 @@ def discretize(data, nbins=3, with_labels=False):
             n = n_unique
             column_data= column_data.astype('category')
             column_data= column_data.cat.rename_categories([x for x in range(1,n+1)])
-            
+          
         if with_labels:
             labels = ['{}-{}'.format(column, i) for i in range(n)]
             indices = pd.cut(column_data, n,  
