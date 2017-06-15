@@ -256,7 +256,7 @@ class PrimBox(object):
         else:
             raise AttributeError
 
-    def inspect(self, i=None, style='table'):
+    def inspect(self, i=None, style='table', **kwargs):
         '''
         
         Write the stats and box limits of the user specified box to standard 
@@ -268,6 +268,9 @@ class PrimBox(object):
             the index of the box, defaults to currently selected box
         style : {'table', 'graph'}
                 the style of the visualization
+        
+        additional kwargs are passed to the helper function that generates
+        the table or graph
         
         '''
         if i == None:
@@ -282,9 +285,9 @@ class PrimBox(object):
         uncs = [uncs[0] for uncs in uncs]
         
         if style == 'table':
-            return self._inspect_table(i, uncs, qp_values)
+            return self._inspect_table(i, uncs, qp_values, **kwargs)
         elif style == 'graph':
-            return self._inspect_graph(i, uncs, qp_values)
+            return self._inspect_graph(i, uncs, qp_values, **kwargs)
         else:
             raise ValueError("style must be one of graph or table")
             
@@ -309,7 +312,10 @@ class PrimBox(object):
         print(box_lim)
         print()
         
-    def _inspect_graph(self,  i, uncs, qp_values):
+    def _inspect_graph(self,  i, uncs, qp_values, 
+                       ticklabel_formatter="{} ({:.2g})",
+                       boxlim_formatter="{: .2g}", 
+                       table_formatter='{:.3g}'):
         '''Helper function for visualizing box statistics in 
         graph form'''        
         
@@ -362,29 +368,29 @@ class PrimBox(object):
                 x = norm_box_lim[j][0]
     
                 if not np.allclose(x, 0):
-                    label = "{: .2g}".format(self.box_lims[i][u][0])
+                    label = boxlim_formatter.format(self.box_lims[i][u][0])
                     ax.text(x, y-0.2, label, ha='center', va='center',
                            bbox=props, color='blue', fontweight='normal')
     
                 x = norm_box_lim[j][1]
                 if not np.allclose(x, 1):
-                    label = "{: .2g}".format(self.box_lims[i][u][1])
+                    label = boxlim_formatter.format(self.box_lims[i][u][1])
                     ax.text(x, y-0.2, label, ha='center', va='center',
                            bbox=props, color='blue', fontweight='normal')
 
                 # plot uncertainty space text labels
                 x = 0
-                label = "{: .2g}".format(box_lim_init[u][0])
+                label = boxlim_formatter.format(box_lim_init[u][0])
                 ax.text(x-0.01, y, label, ha='right', va='center',
                        bbox=props, color='black', fontweight='normal')
     
                 x = 1
-                label = "{: .2g}".format(box_lim_init[u][1])
+                label = boxlim_formatter.format(box_lim_init[u][1])
                 ax.text(x+0.01, y, label, ha='left', va='center',
                        bbox=props, color='black', fontweight='normal')
                 
             # set y labels
-            labels = ["{} ({:.2g})".format(u, qp_values[u]) for u in uncs]
+            labels = [ticklabel_formatter.format(u, qp_values[u]) for u in uncs]
             labels = labels[::-1]
             ax.set_yticklabels(labels)
 
@@ -392,8 +398,8 @@ class PrimBox(object):
             ax.set_xticklabels([])
 
             # add table to the left
-            coverage = '{:.3g}'.format(self.peeling_trajectory['coverage'][i])
-            density = '{:.3g}'.format(self.peeling_trajectory['density'][i])
+            coverage = table_formatter.format(self.peeling_trajectory['coverage'][i])
+            density = table_formatter.format(self.peeling_trajectory['density'][i])
             
             ax.table(cellText=[[coverage], [density]],
                     colWidths = [0.1]*2,
