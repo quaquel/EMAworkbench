@@ -1,4 +1,11 @@
 '''
+This example takes the direct policy search formulation of the lake problem as
+found in Quinn et al (2017), but embeds in in a robust optimization.
+
+Quinn, J.D., Reed, P.M., Keller, K. (2017) 
+Direct policy search for robust multi-objective management of deeply 
+uncertain socio-ecological tipping points. Environmental Modelling & 
+Software 92, 125-141.
 
 
 '''
@@ -133,19 +140,22 @@ if __name__ == '__main__':
                             Constant('nsamples', 100),
                             Constant('myears', 100)]
     
+    # setup and execute the robust optimization
     def signal_to_noise(data):
         mean = np.mean(data)
         std = np.std(data)
         sn = mean/std
         return sn
     
-    
     MAXIMIZE = ScalarOutcome.MAXIMIZE  # @UndefinedVariable
     MINIMIZE = ScalarOutcome.MINIMIZE  # @UndefinedVariable
     robustnes_functions = [ScalarOutcome('mean p', kind=MINIMIZE, 
-                                 variable_name='max_P', function=signal_to_noise),
+                             variable_name='max_P', function=np.mean),
                            ScalarOutcome('std p', kind=MINIMIZE, 
-                                         variable_name='max_P', function=np.std)]
+                             variable_name='max_P', function=np.std),
+                           ScalarOutcome('sn reliability', kind=MAXIMIZE, 
+                             variable_name='reliability', 
+                             function=signal_to_noise)]
     n_scenarios = 10
     scenarios = sample_uncertainties(lake_model, n_scenarios)
     nfe = 1000

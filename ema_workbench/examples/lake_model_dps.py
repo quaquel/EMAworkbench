@@ -1,5 +1,13 @@
 '''
+This example replicates Quinn, J.D., Reed, P.M., Keller, K. (2017) 
+Direct policy search for robust multi-objective management of deeply 
+uncertain socio-ecological tipping points. Environmental Modelling & 
+Software 92, 125-141.
 
+It also show cases how the workbench can be used to apply the MORDM extension
+suggested by Watson, A.A., Kasprzyk, J.R. (2017) Incorporating deeply uncertain 
+factors into the many objective search process. Environmental Modelling & 
+Software 89, 159-171.
 
 '''
 from __future__ import (unicode_literals, print_function, absolute_import,
@@ -12,6 +20,7 @@ from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant, 
                            ema_logging, MultiprocessingEvaluator)
+from ema_workbench.em_framework.parameters import Scenario
 
 # Created on 1 Jun 2017
 #
@@ -135,9 +144,11 @@ if __name__ == '__main__':
                             Constant('nsamples', 100),
                             Constant('myears', 100)]
     
+    # reference is optional, but can be used to implement search for
+    # various user specified scenarios along the lines suggested by
+    # Watson and Kasprzyk (2017) 
+    reference = Scenario('reference', b=0.4, q=2, mean=0.02, stdev=0.01)
+    
     with MultiprocessingEvaluator(lake_model) as evaluator:
         evaluator.optimize(searchover='levers', nfe=1000,
-                 epsilons=[0.1,]*len(lake_model.outcomes))
-
-#     optimize(lake_model, nfe=1000, searchover='levers', 
-#              epsilons=[0.1,]*len(lake_model.outcomes))
+                 epsilons=[0.1,]*len(lake_model.outcomes), reference=reference)
