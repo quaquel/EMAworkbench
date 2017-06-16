@@ -369,7 +369,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     columns = [entry for entry in scores[1:n:2]]
 
     data = pd.DataFrame.from_records(x)
-    discretized_x = discretize(data, nbins=3)
+    discretized_x = discretize(data, nbins=nbins)
     
     ooi_label = 'y'
     ooi = pd.DataFrame(y[:, np.newaxis], columns=[ooi_label])
