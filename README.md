@@ -1,8 +1,7 @@
 ## Exploratory Modeling workbench
 This is a relatively stable version of the EMA workbench currently under 
 development at Delft University of Technology. Documentation can be found 
-online: https://readthedocs.org/projects/emaworkbench/badge/?version=latest
-
+online: https://emaworkbench.readthedocs.io/en/latest/
 
 [![build status](https://travis-ci.org/quaquel/EMAworkbench.svg?branch=master)](https://travis-ci.org/quaquel/EMAworkbench)
 [![Coverage Status](https://coveralls.io/repos/github/quaquel/EMAworkbench/badge.svg?branch=master)](https://coveralls.io/github/quaquel/EMAworkbench?branch=master)
