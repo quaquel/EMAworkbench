@@ -164,7 +164,8 @@ class TestRobustOptimization(unittest.TestCase):
                                 ScalarOutcome('mean y', variable_name='y', 
                                               function=mock.Mock())]
         
-        problem = to_robust_problem(mocked_model, scenarios, robustness_functions)
+        problem = to_robust_problem(mocked_model, scenarios, 
+                                    robustness_functions)
         
         self.assertEqual('robust', problem.searchover)
         for entry in problem.parameters:
