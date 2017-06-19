@@ -26,7 +26,7 @@ from collections import defaultdict
 
 from .util import (NamedObject, combine, NamedObjectMapDescriptor)
 from .parameters import Parameter, Constant
-from .outcomes import AbstractOutcome
+from .outcomes import AbstractOutcome, Constraint
 
 from ..util import debug, EMAError
 from ..util.ema_logging import method_logger
@@ -78,26 +78,53 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     '''
     
     @property
+    def outcomes_output(self):
+        data = {outcome.name: self._output[outcome.name] for outcome in self.outcomes}
+        return data
+
+    @property
+    def constraints_output(self):
+        data = {c.name: self._output[c.name] for c in self.constraints}
+        return data
+
+    @property
     def output(self):
-        return self._output
+        warnings.warn('deprecated, use outcome_output instead')
+        data = {outcome.name: self._output[outcome.name] for outcome in self.outcomes}
+        return data
 
     @output.setter
     def output(self, outputs):
         for outcome in self.outcomes:
             data = [outputs[var] for var in outcome.variable_name]
             self._output[outcome.name] = outcome.process(data)
+        
+        for constraint in self.constraints:
+            data = [outputs[var] for var in constraint.variable_name]
+            self._output[outcome.name] = constraint.process(data)
     
     @property
-    def outcome_variables(self):
-        if self._outcome_variables is None:
-            self._outcome_variables = [var for o in self.outcomes for var in 
+    def output_variables(self):
+        if self._output_variables is None:
+            self._output_variables = [var for o in self.outcomes for var in 
                                        o.variable_name]
-        return self._outcome_variables
-         
+            self._output_variables += [var for c in self.constraints for var in 
+                                       c.variable_name]
+        return self._output_variables
+    
+#     @property
+#     def outcome_variables(self):
+#         warnings.warn('deprecated, use output_variables instead')
+#         if self._output_variables is None:
+#             self._output_variables = [var for o in self.outcomes for var in 
+#                                        o.variable_name]
+#         return self._output_variables
+     
     uncertainties = NamedObjectMapDescriptor(Parameter)
     levers = NamedObjectMapDescriptor(Parameter)
     outcomes = NamedObjectMapDescriptor(AbstractOutcome)
     constants = NamedObjectMapDescriptor(Constant)
+    constraints = NamedObjectMapDescriptor(Constraint)
         
     def __init__(self, name):
         """
@@ -121,7 +148,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
             raise EMAError("name of model should only contain alpha numerical\
                             characters")
 
-        self._outcome_variables = None
+        self._output_variables = None
         self._output = {}
         
     @method_logger
@@ -414,7 +441,7 @@ class BaseModel(AbstractModel):
         # different connectors can than implement only this
         # get method
         results  = {}
-        for i, variable in enumerate(self.outcome_variables):
+        for i, variable in enumerate(self.output_variables):
             try:
                 value = model_output[variable]
             except KeyError:

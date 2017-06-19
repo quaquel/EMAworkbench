@@ -115,8 +115,6 @@ class BaseNetLogoModel(FileModel):
         
         
         """
-#         super(BaseNetLogoModel, self).run_model(scenario, policy)
-        
         for key, value in experiment.items():
             try:
                 self.netlogo.command(self.command_format.format(key, value))
@@ -135,7 +133,7 @@ class BaseNetLogoModel(FileModel):
         # routine, but can do them at the end
         commands = []
         fns = {}
-        for variable in self.outcome_variables:
+        for variable in self.output_variables:
             fn = r'{0}{3}{1}{2}'.format(self.working_directory,
                            variable,
                            ".txt",
@@ -219,15 +217,19 @@ class BaseNetLogoModel(FileModel):
                 results[key] = np.asarray(result)
             os.remove(value)        
         
-        temp_output = {}
-        for outcome in self.outcomes:
-            varname = outcome.variable_name
-            if len(varname)==1:
-                varname = varname[0]
-                temp_output[outcome.name] = results[varname]
-            else:
-                temp_output[outcome.name] = [results[var] for var in varname]
-        return temp_output
+#         temp_output = {}
+#         
+#         outputs = [entry for entry in self.outcomes]
+#         outputs +=  [entry for entry in self.constraints]
+#         
+#         for outcome in outputs:
+#             varname = outcome.variable_name
+#             if len(varname)==1:
+#                 varname = varname[0]
+#                 temp_output[outcome.name] = results[varname]
+#             else:
+#                 temp_output[outcome.name] = [results[var] for var in varname]
+        return results
          
 class NetLogoModel(Replicator, BaseNetLogoModel):
     pass

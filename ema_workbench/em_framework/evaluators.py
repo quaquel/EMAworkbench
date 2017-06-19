@@ -68,10 +68,6 @@ class BaseEvaluator(object):
     msis : collection of models
     searchover : {None, 'levers', 'uncertainties'}, optional
                   to be used in combination with platypus
-    union : {None, True, False}, optional
-            to be used in combination with platypus, indicates whether
-            you want to optimize over the union or the intersection of
-            search_over
     
     Raises
     ------
@@ -79,7 +75,7 @@ class BaseEvaluator(object):
     
     '''
     
-    def __init__(self, msis, union=None):
+    def __init__(self, msis):
         super(BaseEvaluator, self).__init__()
         
         if isinstance(msis, AbstractModel):
@@ -87,20 +83,6 @@ class BaseEvaluator(object):
         
         self._msis = msis
         
-#         if searchover:
-#             if searchover not in {'levers', 'uncertainties'}:
-#                 raise ValueError(("search_over must be one of 'levers'"
-#                               "or 'uncertainties' not {}".format(searchover)))
-#             
-#             self.searchover = searchover
-#             
-#             self.parameters = determine_objects(msis, searchover, union=union)
-#             self.parameter_names = [p.name for p in self.parameters]
-#             
-#             outcomes = determine_objects(msis, "outcomes", union=union)
-#             self.outcomes = [o for o in outcomes if
-#                              o.kind != AbstractOutcome.INFO]
-#             self.outcome_names = [o.name for o in self.outcomes]
 
     def __enter__(self):
         
@@ -110,7 +92,6 @@ class BaseEvaluator(object):
 
 
     def __exit__(self, exc_type, exc_value, traceback):
-        
         self.finalize()
         
         if exc_type is not None:
@@ -155,7 +136,6 @@ class BaseEvaluator(object):
                                         scenarios=scenarios, policies=policies, 
                                         evaluator=self)
 
-
         if searchover in ('levers', 'uncertainties'):
             evaluate(jobs_collection, experiments, outcomes, 
                       problem)
@@ -165,10 +145,10 @@ class BaseEvaluator(object):
             
         return jobs
 
-    def perform_experiments(self, scenarios=0, policies=0, evaluator=None, 
-                        reporting_interval=None, uncertainty_union=False, 
-                        lever_union=False, outcome_union=False, 
-                        uncertainty_sampling=LHS, levers_sampling=LHS):
+    def perform_experiments(self, scenarios=0, policies=0, 
+                            reporting_interval=None, uncertainty_union=False, 
+                            lever_union=False, outcome_union=False, 
+                            uncertainty_sampling=LHS, levers_sampling=LHS):
         '''convenience method for performing experiments.
         
         is forwarded to :func:perform_experiments, with evaluator and models
@@ -179,8 +159,8 @@ class BaseEvaluator(object):
         return perform_experiments(self._msis, scenarios=scenarios, 
                     policies=policies, evaluator=self, 
                     reporting_interval=reporting_interval, 
-                    uncertainty_union=uncertainty_union, lever_union=lever_union, 
-                    outcome_union=outcome_union, 
+                    uncertainty_union=uncertainty_union, 
+                    lever_union=lever_union, outcome_union=outcome_union, 
                     uncertainty_sampling=uncertainty_sampling, 
                     levers_sampling=levers_sampling)
 
@@ -200,8 +180,7 @@ class BaseEvaluator(object):
 
         
     def robust_optimize(self, robustness_functions, scenarios, 
-                        algorithm=EpsNSGAII, nfe=10000, searchover='levers',
-                        **kwargs):
+                        algorithm=EpsNSGAII, nfe=10000, **kwargs):
         '''convenience method for robust optimization.
         
         is forwarded to :func:robust_optimize, with evaluator and models
@@ -233,8 +212,8 @@ class SequentialEvaluator(BaseEvaluator):
         cwd = os.getcwd() 
         runner = ExperimentRunner(models)
         for experiment in ex_gen:
-            result = runner.run_experiment(experiment)
-            callback(experiment, result)
+            outcomes, constraints = runner.run_experiment(experiment)
+            callback(experiment, outcomes, constraints)
         runner.cleanup()
         os.chdir(cwd)
     
@@ -267,15 +246,23 @@ class MultiprocessingEvaluator(BaseEvaluator):
         except AttributeError:
             loglevel=30
             
-            
-        random_part = [random.choice(string.ascii_letters + string.digits) 
-                     for _ in range(5)]
-        random_part = ''.join(random_part)
-        self.root_dir = os.path.abspath("tmp"+random_part)
-        os.makedirs(self.root_dir)
+        # check if we need a working directory
+        for model in self._msis:
+            try:
+                model.working_directory
+            except AttributeError:
+                self.root_dir = None
+                break
+        else:
+            random_part = [random.choice(string.ascii_letters + string.digits) 
+                         for _ in range(5)]
+            random_part = ''.join(random_part)
+            self.root_dir = os.path.abspath("tmp"+random_part)
+            os.makedirs(self.root_dir)
     
         self._pool = multiprocessing.Pool(self.n_processes , initializer, 
-                                  (self._msis, log_queue, loglevel, self.root_dir))
+                                  (self._msis, log_queue, loglevel, 
+                                   self.root_dir))
         ema_logging.info("pool started")
         return self
 
@@ -288,14 +275,16 @@ class MultiprocessingEvaluator(BaseEvaluator):
             self._pool.terminate()
             return False
         
-        super(MultiprocessingEvaluator, self).__exit__(exc_type, exc_value, traceback)
+        super(MultiprocessingEvaluator, self).__exit__(exc_type, exc_value, 
+                                                       traceback)
 
     def finalize(self):
         # Stop accepting new jobs and wait for pending jobs to finish.
         self._pool.close()
         self._pool.join()
         
-        shutil.rmtree(self.root_dir)
+        if self.root_dir:
+            shutil.rmtree(self.root_dir)
         
     def evaluate_experiments(self, scenarios, policies, callback):
         ex_gen = experiment_generator(scenarios, self._msis, policies)
@@ -352,7 +341,6 @@ class IpyparallelEvaluator(BaseEvaluator):
 
         for entry in results:
             callback(*entry)
-        
 
 
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None, 
@@ -432,7 +420,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     outcomes = determine_objects(models, 'outcomes', union=outcome_union)
     nr_of_exp = n_models * n_scenarios * n_policies 
     
-    ema_logging.info("performing {} scenarios * {} policies * {} model(s) = {} experiments".format(n_scenarios, n_policies, n_models, nr_of_exp))
+    ema_logging.info(('performing {} scenarios * {} policies * {} model(s) = '
+                      '{} experiments').format(n_scenarios, n_policies, 
+                                               n_models, nr_of_exp))
     
     callback = DefaultCallback(uncertainties,
                                levers,
@@ -482,8 +472,6 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     NotImplementedError if len(models) > 1
     
     TODO:: constrains are not yet supported
-    TODO:: add an optional single policy/scenario to overwrite the defaults
-    
     
     '''
     if searchover not in ('levers', 'uncertainties'):

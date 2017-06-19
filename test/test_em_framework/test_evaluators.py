@@ -27,6 +27,7 @@ class TestEvaluators(unittest.TestCase):
         model.name = "test"
         mocked_generator.return_value = [1]
         mocked_runner.return_value = mocked_runner # return the mock upon initialization
+        mocked_runner.run_experiment.return_value = {}, {}
         
         evaluator = evaluators.SequentialEvaluator(model)
         evaluator.evaluate_experiments(10, 10, mocked_callback)

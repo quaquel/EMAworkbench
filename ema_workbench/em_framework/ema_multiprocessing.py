@@ -263,7 +263,8 @@ def result_handler(callback, experiment):
     '''
     
     def my_actual_callback(result):
-        callback(experiment, result)
+        outcomes, constraints = result
+        callback(experiment, outcomes, constraints)
     return my_actual_callback
 
 

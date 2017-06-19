@@ -161,39 +161,50 @@ class TimeSeriesOutcome(AbstractOutcome):
     ----------
     name : str
            Name of the outcome.
-    kind : {INFO, MINIMZE, MAXIMIZE}, optional
-    reduce : callable, optional
-             a callable which returns a scalar when called. Is only used
-             when the outcome is used in an optimization context
-    
-    Raises
-    ------
-    ValueError
-        if kind is MINIMIZE or MAXIMIZE and callable is not provided or
-        not a callable
+    variable_name :  str, or collection of str
+    function : callable, optional
     
     Attributes
     ----------
     name : str
     kind : int
-    reduce : callable
+    function : callable
     
     '''   
     
-    def __init__(self, name, kind=AbstractOutcome.INFO, variable_name=None, 
+    def __init__(self, name, variable_name=None, 
                  function=None):
-        super(TimeSeriesOutcome, self).__init__(name, kind, variable_name=variable_name, 
+        super(TimeSeriesOutcome, self).__init__(name, kind=AbstractOutcome.INFO, 
+                                                variable_name=variable_name, 
                                                 function=function)
-        
-        if (not self.kind==AbstractOutcome.INFO) and (not callable(function)):
-            raise ValueError(('function needs to be specified when using'
-                              ' TimeSeriesOutcome in optimization' ))
+
     def process(self, values):
         values = super(TimeSeriesOutcome, self).process(values)
         if not isinstance(values, collections.Iterable):
             raise EMAError("outcome {} should be a collection".format(self.name))
         return values
         
+
+class Constraint(ScalarOutcome):
+    '''Constraints class that can be used when defining constrained 
+    optimization problems.
+    
+    Parameters
+    ----------
+    name : str
+    variable_name : str or collection of str
+    function : callable
+    
+    The function should return the distance from the feasibility threshold,
+    given the model outputs with a variable name. The distance should be
+    0 if the constraint is met.  
+    
+    '''
+
+    def __init__(self, name, variable_name, function):
+        super(Constraint, self).__init__(name, kind=AbstractOutcome.INFO, 
+                                         variable_name=variable_name, 
+                                         function=function)
 
 
 def create_outcomes(outcomes, **kwargs):

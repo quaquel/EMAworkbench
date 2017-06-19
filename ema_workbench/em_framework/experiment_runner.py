@@ -103,7 +103,8 @@ class ExperimentRunner(object):
             raise EMAError(("exception in run_model"
                    "\nCaused by: {}: {}".format(type(e).__name__, str(e))))
             
-        output = model.output
+        outcomes = model.outcomes_output
+        constraints = model.constraints_output
         model.reset_model()
         
-        return output      
+        return outcomes, constraints      
