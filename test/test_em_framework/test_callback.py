@@ -61,23 +61,27 @@ class TestDefaultCallback(unittest.TestCase):
         outcomes = [TimeSeriesOutcome("test")]
         model = NamedObject('test')
 
-        experiment = Experiment(0, model, Policy('policy'), Scenario(a=1, b=0), 0)
+        experiment = Experiment(0, model, Policy('policy'), 
+                                Scenario(a=1, b=0), 0)
      
         # case 1 scalar shape = (1)
         callback = DefaultCallback(uncs, [], outcomes, 
                                    nr_experiments=nr_experiments)
-        result = {outcomes[0].name: 1}
-        callback(experiment, result)
+        model_outcomes = {outcomes[0].name: 1}
+        constraints = {}
+        callback(experiment, model_outcomes, constraints)
          
         _, out = callback.get_results()
+        
         self.assertIn(outcomes[0].name, out.keys())
         self.assertEqual(out[outcomes[0].name].shape, (3,))
      
         # case 2 time series shape = (1, nr_time_steps)
         callback = DefaultCallback(uncs, [], outcomes, 
                                    nr_experiments=nr_experiments)
-        result = {outcomes[0].name: np.random.rand(10)}
-        callback(experiment, result)
+        model_outcomes = {outcomes[0].name: np.random.rand(10)}
+        constraints = {}
+        callback(experiment, model_outcomes, constraints)
           
         _, out = callback.get_results()
         self.assertIn(outcomes[0].name, out.keys())
@@ -86,8 +90,9 @@ class TestDefaultCallback(unittest.TestCase):
         # case 3 maps etc. shape = (x,y)
         callback = DefaultCallback(uncs, [], outcomes, 
                                    nr_experiments=nr_experiments)
-        result = {outcomes[0].name: np.random.rand(2,2)}
-        callback(experiment,result)
+        model_outcomes = {outcomes[0].name: np.random.rand(2,2)}
+        constraints = {}
+        callback(experiment, model_outcomes, constraints)
           
         _, out = callback.get_results()
         self.assertIn(outcomes[0].name, out.keys())
@@ -96,15 +101,18 @@ class TestDefaultCallback(unittest.TestCase):
         # case 4 assert raises EMAError
         callback = DefaultCallback(uncs, [], outcomes, 
                                    nr_experiments=nr_experiments)
-        result = {outcomes[0].name: np.random.rand(2,2,2)}
-        self.assertRaises(EMAError, callback, experiment, result)
+        model_outcomes = {outcomes[0].name: np.random.rand(2,2,2)}
+        constraints = {}
+        self.assertRaises(EMAError, callback, experiment, model_outcomes, 
+                          constraints)
         
         # KeyError
         with mock.patch('ema_workbench.util.ema_logging.debug') as mocked_logging:
             callback = DefaultCallback(uncs, [], outcomes, 
                            nr_experiments=nr_experiments)
-            result = {'incorrect': np.random.rand(2,)}
-            callback(experiment, result)
+            model_outcomes = {'incorrect': np.random.rand(2,)}
+            constraints = {}
+            callback(experiment, model_outcomes, constraints)
             
             for outcome in outcomes:
                 mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
@@ -130,8 +138,9 @@ class TestDefaultCallback(unittest.TestCase):
                                    outcomes, 
                                    nr_experiments=nr_experiments,
                                    reporting_interval=1)
-        result = {outcomes[0].name: 1}
-        callback(experiment, result)
+        model_outcomes = {outcomes[0].name: 1}
+        constraints = {}
+        callback(experiment, model_outcomes, constraints)
          
         experiments, _ = callback.get_results()
         design = case
@@ -145,8 +154,7 @@ class TestDefaultCallback(unittest.TestCase):
             entry_b = design[name]
             
             self.assertEqual(entry_a, entry_b, "failed for "+name)
-            
-            
+             
         # with levers
         nr_experiments = 3
         uncs = [RealParameter("a", 0, 1),
@@ -166,8 +174,9 @@ class TestDefaultCallback(unittest.TestCase):
                                    outcomes, 
                                    nr_experiments=nr_experiments,
                                    reporting_interval=1)
-        result = {outcomes[0].name: 1}
-        callback(experiment, result)
+        model_outcomes = {outcomes[0].name: 1}
+        constraints = {}
+        callback(experiment, model_outcomes, constraints)
          
         experiments, _ = callback.get_results()
         design = case

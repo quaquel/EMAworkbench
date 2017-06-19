@@ -16,8 +16,8 @@ except ImportError:
 
 from ema_workbench.em_framework.model import Model, FileModel
 from ema_workbench.em_framework.parameters import (RealParameter, Policy, 
-                                                   Scenario,
-    CategoricalParameter, Category)
+                                                   Scenario, Category,
+                                                   CategoricalParameter)
 from ema_workbench.util import EMAError
 
 class FileModelTest(FileModel):

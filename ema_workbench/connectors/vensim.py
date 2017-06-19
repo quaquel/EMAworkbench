@@ -329,8 +329,6 @@ class BaseVensimModel(FileModel):
                   each run.  
         
         """
-#         super(VensimModel, self).run_model(scenario, policy)
-                
         if self.cin_file:
             cin_file = os.path.join(self.working_directory,self.cin_file)
             
@@ -345,9 +343,6 @@ class BaseVensimModel(FileModel):
             # ask the lookup to transform the retrieved uncertainties to the 
             # proper lookup value
             experiment[lookup_uncertainty.name] = lookup_uncertainty.transform(experiment)
-  
-#         constants = {entry.name:entry.value for entry in self.constants}
-#         experiment = combine(ex, self.policy, constants)
   
         for key, value in experiment.items():
             set_value(key, value)
@@ -373,7 +368,7 @@ class BaseVensimModel(FileModel):
         results = {}
         error = False
         result_filename = os.path.join(self.working_directory, self.result_file)
-        for variable in self.outcome_variables:
+        for variable in self.output_variables:
             debug("getting data for %s" %variable)            
             
             res = get_data(result_filename, variable)

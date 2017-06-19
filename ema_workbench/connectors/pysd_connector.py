@@ -53,7 +53,7 @@ class BasePysdModel(AbstractModel):
     @method_logger
     def run_experiment(self, experiment):
         res = self.model.run(params=experiment,
-                             return_columns=self.outcome_variables)
+                             return_columns=self.output_variables)
         
         # EMA wants output formatted properly
         output ={col: series.as_matrix() for col, series in res.iteritems()}

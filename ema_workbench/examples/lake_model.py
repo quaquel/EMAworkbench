@@ -15,8 +15,7 @@ from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            ema_logging, MultiprocessingEvaluator)
-from ema_workbench.em_framework.evaluators import MC, SequentialEvaluator
-from ema_workbench.em_framework.parameters import CategoricalParameter
+from ema_workbench.em_framework.evaluators import MC
 
 
 def lake_problem(
@@ -92,7 +91,6 @@ if __name__ == '__main__':
     # generate some random policies by sampling over levers
     n_scenarios = 100
     n_policies = 4
-    
      
     with MultiprocessingEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies,

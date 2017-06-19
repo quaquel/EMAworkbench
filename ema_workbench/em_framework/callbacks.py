@@ -76,7 +76,7 @@ class AbstractCallback(object):
         self.reporting_interval = reporting_interval
             
     @abc.abstractmethod
-    def __call__(self, experiment, result):
+    def __call__(self, experiment, outcomes, constraints):
         '''
         Method responsible for storing results. The implementation in this
         class only keeps track of how many runs have been completed and 
@@ -87,8 +87,10 @@ class AbstractCallback(object):
         Parameters
         ----------
         experiment: Experiment instance
-        result: dict
-                the result dict
+        outcomes: dict
+                the outcomes dict
+        constraints: dict
+                the outcomes dict
         
         '''
         #
@@ -208,12 +210,12 @@ class DefaultCallback(AbstractCallback):
         case = tuple(case)
         self.cases[experiment.experiment_id] = case
             
-    def _store_result(self, case_id, result):
+    def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
             ema_logging.debug("storing {}".format(outcome))
             
             try:
-                outcome_res = result[outcome]
+                outcome_res = outcomes[outcome]
             except KeyError:
                 ema_logging.debug("%s not specified as outcome in msi" % outcome)
             else:
@@ -232,21 +234,22 @@ class DefaultCallback(AbstractCallback):
                     self.results[outcome][:] = np.NAN
                     self.results[outcome][case_id, ] = outcome_res
     
-    def __call__(self, experiment, result ):
+    def __call__(self, experiment, outcomes, constraints):
         '''
         Method responsible for storing results. This method calls 
         :meth:`super` first, thus utilizing the logging provided there
         
-        
-        
         Parameters
         ----------
         experiment: Experiment instance
-        result: dict
-                the result dict
+        outcomes: dict
+                the outcomes dict
+        constraints: dict
+                the outcomes dict
         
         '''
-        super(DefaultCallback, self).__call__(experiment, result)
+        super(DefaultCallback, self).__call__(experiment, outcomes, 
+                                              constraints)
 
         self.lock.acquire()
                            
@@ -254,7 +257,7 @@ class DefaultCallback(AbstractCallback):
         self._store_case(experiment)
         
         #store results
-        self._store_result(experiment.experiment_id, result)
+        self._store_outcomes(experiment.experiment_id, outcomes)
         
         self.lock.release()
         
