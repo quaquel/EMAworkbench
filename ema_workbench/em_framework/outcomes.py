@@ -5,6 +5,8 @@ Module for outcome classes
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import abc
+import collections
+import numbers
 import six
 import warnings
 
@@ -144,6 +146,12 @@ class ScalarOutcome(AbstractOutcome):
                                             variable_name=variable_name,
                                             function=function)
 
+    def process(self, values):
+        values = super(ScalarOutcome, self).process(values)
+        if not isinstance(values, numbers.Number):
+            raise EMAError("outcome {} should be a scalar".format(self.name))
+        return values
+        
 
 class TimeSeriesOutcome(AbstractOutcome):
     '''
@@ -180,6 +188,13 @@ class TimeSeriesOutcome(AbstractOutcome):
         if (not self.kind==AbstractOutcome.INFO) and (not callable(function)):
             raise ValueError(('function needs to be specified when using'
                               ' TimeSeriesOutcome in optimization' ))
+    def process(self, values):
+        values = super(TimeSeriesOutcome, self).process(values)
+        if not isinstance(values, collections.Iterable):
+            raise EMAError("outcome {} should be a collection".format(self.name))
+        return values
+        
+
 
 def create_outcomes(outcomes, **kwargs):
     '''Helper function for creating multiple outcomes

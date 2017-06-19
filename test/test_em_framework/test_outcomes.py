@@ -119,5 +119,46 @@ class TestTimeSeriesOutcome(TestScalarOutcome):
     outcome_class = TimeSeriesOutcome
     outcome_klass = "TimeSeriesOutcome"
 
+    def test_process(self):
+            name = 'test'
+            outcome = self.outcome_class(name)
+            
+            outputs = [[1]]
+            self.assertEqual(outcome.process(outputs), outputs[0])
+    
+            name = 'test'
+            function = mock.Mock()
+            function.return_value = [2]
+            outcome = self.outcome_class(name, function=function)
+            
+            outputs = [1]
+            self.assertEqual(outcome.process(outputs), [2])
+            function.assert_called_once()
+    
+    
+            name = 'test'
+            function = mock.Mock()
+            function.return_value = [2]
+            variable_name = ['a', 'b']
+            
+            outcome = self.outcome_class(name, function=function, 
+                                    variable_name=variable_name)
+            
+            outputs = [1, 2]
+            self.assertEqual(outcome.process(outputs), [2])
+            function.assert_called_once()
+            function.assert_called_with(1, 2)
+    
+            with self.assertRaises(ValueError):
+                name = 'test'
+                function = mock.Mock()
+                function.return_value = [2]
+                variable_name = ['a', 'b']
+                
+                outcome = self.outcome_class(name, function=function, 
+                                        variable_name=variable_name)
+                
+                outcome.process([1])
+
 if __name__ == "__main__":
     unittest.main()
