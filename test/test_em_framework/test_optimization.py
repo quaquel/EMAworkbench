@@ -126,6 +126,7 @@ class TestOptimization(unittest.TestCase):
         mocked_model.uncertainties = [RealParameter('c', 0, 1),
                                       RealParameter('d', 0, 1)]
         mocked_model.outcomes = [ScalarOutcome('x'), ScalarOutcome('y')]
+        mocked_model.constraints = []
         
         searchover = 'levers'
         problem = to_problem(mocked_model, searchover)
