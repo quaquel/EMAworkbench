@@ -13,7 +13,6 @@ from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
-from patsy import constraint
 
 try:
     from platypus import EpsNSGAII  # @UnresolvedImport
@@ -22,6 +21,8 @@ try:
 except ImportError:
     warnings.warn("platypus based optimization not available", ImportWarning)
     class PlatypusProblem(object):
+        constraints = []
+        
         def __init__(self, *args, **kwargs):
             pass 
     EpsNSGAII = None
