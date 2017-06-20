@@ -16,12 +16,15 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
+import collections
 from threading import Lock
 
 import numpy as np
+import pandas as pd
 
 from ..util import ema_logging, ema_exceptions
 from .parameters import CategoricalParameter, IntegerParameter
+from sqlalchemy.orm.collections import collection
 
 #
 # Created on 22 Jan 2013
@@ -66,6 +69,7 @@ class AbstractCallback(object):
     def __init__(self, 
                  uncertainties, 
                  outcomes,
+                 constraints,
                  levers,
                  nr_experiments,
                  reporting_interval=None):
@@ -129,11 +133,14 @@ class DefaultCallback(AbstractCallback):
     results = {}
     
     shape_error_msg = "can only save up to 2d arrays, this array is {}d"
+    constraint_error_msg = ('can only save 1d arrays for constraint, '
+                            'this array is {}d')
     
     def __init__(self, 
                  uncs, 
                  levers,
                  outcomes, 
+                 constraints,
                  nr_experiments, 
                  reporting_interval=100):
         '''
@@ -146,6 +153,8 @@ class DefaultCallback(AbstractCallback):
                 are being run.
         outcomes : list
                    a list of outcomes
+        constraints : list
+                      a list of constraints
         nr_experiments : int
                          the total number of experiments to be executed
         reporting_interval : int 
@@ -156,6 +165,7 @@ class DefaultCallback(AbstractCallback):
         super(DefaultCallback, self).__init__(uncs, 
                                               levers,
                                               outcomes, 
+                                              constraints,
                                               nr_experiments, 
                                               reporting_interval)
         self.i = 0
@@ -164,6 +174,11 @@ class DefaultCallback(AbstractCallback):
         self.lock = Lock()
         
         self.outcomes = [outcome.name for outcome in outcomes]
+        
+        self.constraintnames = [c.name for c in constraints]
+        self.constraints = pd.DataFrame(np.empty((nr_experiments, 
+                                              len(self.constraintnames))), 
+                                              columns=self.constraintnames)
 
         #determine data types of parameters
         self.dtypes = []
@@ -182,7 +197,6 @@ class DefaultCallback(AbstractCallback):
         self.dtypes.append((str('scenario_id'), object))
         self.dtypes.append((str('policy'), object))
         self.dtypes.append((str('model'), object))
-        
         
         self.cases = np.empty((nr_experiments,), dtype=self.dtypes)
         self.cases[:] = np.NAN
@@ -233,7 +247,23 @@ class DefaultCallback(AbstractCallback):
                     self.results[outcome] = np.empty(shape)
                     self.results[outcome][:] = np.NAN
                     self.results[outcome][case_id, ] = outcome_res
-    
+
+    def _store_constraints(self, experiment_id, constraints):
+        temp_constraints = collections.defaultdict(lambda:np.nan)
+        
+        for constraint in self.constraintnames:
+            ema_logging.debug("storing {}".format(constraint))
+            
+            try:
+                constraint_res = constraints[constraint]
+            except KeyError:
+                ema_logging.debug(('{} not specified as '
+                                   'constraint in msi').format(constraint))
+            temp_constraints[constraint] = constraint_res
+            
+        self.constraints.iloc[experiment_id] = temp_constraints
+
+
     def __call__(self, experiment, outcomes, constraints):
         '''
         Method responsible for storing results. This method calls 
@@ -256,8 +286,11 @@ class DefaultCallback(AbstractCallback):
         #store the case
         self._store_case(experiment)
         
-        #store results
+        #store outcomes
         self._store_outcomes(experiment.experiment_id, outcomes)
+        
+        #store constraints
+        self._store_constraints(experiment.experiment_id, constraints)
         
         self.lock.release()
         

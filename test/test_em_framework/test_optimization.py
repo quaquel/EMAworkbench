@@ -38,23 +38,26 @@ class TestProblem(unittest.TestCase):
         parameters = [mock.Mock(), mock.Mock()]
         parameter_names = ['a', 'b']
         outcome_names = ['x', 'y']
+        constraint_names = ['n']
         
         problem = Problem(searchover, parameters, parameter_names, 
-                          outcome_names)
+                          outcome_names,constraint_names)
 
         self.assertEqual(searchover, problem.searchover)
         self.assertEqual(parameters, problem.parameters)
         self.assertEqual(parameter_names, problem.parameter_names)
         self.assertEqual(outcome_names, problem.outcome_names)
+        self.assertEqual(constraint_names, problem.constraint_names)
         
         searchover = 'uncertainties'
         problem = Problem(searchover, parameters, parameter_names, 
-                          outcome_names)
+                          outcome_names, constraint_names)
 
         self.assertEqual(searchover, problem.searchover)
         self.assertEqual(parameters, problem.parameters)
         self.assertEqual(parameter_names, problem.parameter_names)
         self.assertEqual(outcome_names, problem.outcome_names)
+        self.assertEqual(constraint_names, problem.constraint_names)
     
     def test_robust_problem(self):
         parameters = [mock.Mock(), mock.Mock()]
@@ -62,14 +65,17 @@ class TestProblem(unittest.TestCase):
         outcome_names = ['x', 'y']
         scenarios = 10
         robustness_functions = [mock.Mock(), mock.Mock()]
+        constraint_names = ['n']
         
         problem = RobustProblem(parameters, parameter_names, outcome_names, 
-                                scenarios, robustness_functions)
+                                scenarios, robustness_functions, 
+                                constraint_names)
         
         self.assertEqual('robust', problem.searchover)
         self.assertEqual(parameters, problem.parameters)
         self.assertEqual(parameter_names, problem.parameter_names)
-        self.assertEqual(outcome_names, problem.outcome_names)      
+        self.assertEqual(outcome_names, problem.outcome_names)
+        self.assertEqual(constraint_names, problem.constraint_names)      
 
     
 class TestOptimization(unittest.TestCase):

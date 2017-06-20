@@ -79,13 +79,30 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     
     @property
     def outcomes_output(self):
-        data = {outcome.name: self._output[outcome.name] for outcome in self.outcomes}
-        return data
+        return self._outcomes_output
+
+    @outcomes_output.setter
+    def outcomes_output(self, outputs):
+        for outcome in self.outcomes:
+            data = [outputs[var] for var in outcome.variable_name]
+            self._outcomes_output[outcome.name] = outcome.process(data)
 
     @property
     def constraints_output(self):
-        data = {c.name: self._output[c.name] for c in self.constraints}
-        return data
+        return self._constraints_output
+
+    @constraints_output.setter
+    def constraints_output(self, value):
+        try:
+            experiment, output = value
+        except ValueError:
+            raise ValueError("Pass an iterable with two items")
+        else:
+            for constraint in self.constraints:
+                data = [experiment[var] for var in constraint.parameter_names]
+                data += [output[var] for var in constraint.outcome_names]
+                constraint_value = constraint.process(data)
+                self._constraints_output[constraint.name] = constraint_value
 
     @property
     def output(self):
@@ -95,30 +112,18 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
     @output.setter
     def output(self, outputs):
+        warnings.warn('deprecated, use outcome_output instead')
         for outcome in self.outcomes:
             data = [outputs[var] for var in outcome.variable_name]
-            self._output[outcome.name] = outcome.process(data)
-        
-        for constraint in self.constraints:
-            data = [outputs[var] for var in constraint.variable_name]
-            self._output[outcome.name] = constraint.process(data)
+            self._outcomes_output[outcome.name] = outcome.process(data)
     
     @property
     def output_variables(self):
         if self._output_variables is None:
             self._output_variables = [var for o in self.outcomes for var in 
                                        o.variable_name]
-            self._output_variables += [var for c in self.constraints for var in 
-                                       c.variable_name]
+
         return self._output_variables
-    
-#     @property
-#     def outcome_variables(self):
-#         warnings.warn('deprecated, use output_variables instead')
-#         if self._output_variables is None:
-#             self._output_variables = [var for o in self.outcomes for var in 
-#                                        o.variable_name]
-#         return self._output_variables
      
     uncertainties = NamedObjectMapDescriptor(Parameter)
     levers = NamedObjectMapDescriptor(Parameter)
@@ -149,7 +154,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
                             characters")
 
         self._output_variables = None
-        self._output = {}
+        self._outcomes_output = {}
+        self._constraints_output = {}
         
     @method_logger
     def model_init(self, policy):
@@ -233,7 +239,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         if not self.initialized(policy):
             self.model_init(policy)
         
-        #TODO:: here we need to add policies and constants in some manner
+        #TODO:: here we need to add constants in some manner
         self._transform(scenario, self.uncertainties)
         self._transform(policy, self.levers)
 
@@ -271,7 +277,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         implementation only sets the outputs to an empty dict. 
 
         """
-        self._output = {}
+        self._outcome_output = {}
+        self._constraints_output = {}
     
     @method_logger
     def cleanup(self):
@@ -360,7 +367,8 @@ class Replicator(AbstractModel):
             for key, value in output.items():
                 outputs[key].append(value)
             
-        self.output = outputs
+        self.outcomes_output = outputs
+        self.constraints_output = (partial_experiment, outputs)
 
 
 class SingleReplication(AbstractModel):
@@ -380,7 +388,11 @@ class SingleReplication(AbstractModel):
         # TODO:: should this not be moved up?
         constants = {c.name:c.value for c in self.constants}
         experiment = combine(scenario, self.policy, constants)
-        self.output = self.run_experiment(experiment)
+        
+        outputs = self.run_experiment(experiment)
+        
+        self.outcomes_output = outputs
+        self.constraints_output = (experiment, outputs)
 
 
 class BaseModel(AbstractModel):

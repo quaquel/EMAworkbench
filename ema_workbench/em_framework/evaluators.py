@@ -132,16 +132,19 @@ class BaseEvaluator(object):
         else:
             raise NotImplementedError()
         
-        experiments, outcomes = perform_experiments(self._msis, 
+        callback = perform_experiments(self._msis, 
                                         scenarios=scenarios, policies=policies, 
-                                        evaluator=self)
+                                        evaluator=self, return_callback=True)
+
+        experiments, outcomes = callback.get_results()
+        constraints = callback.constraints
 
         if searchover in ('levers', 'uncertainties'):
-            evaluate(jobs_collection, experiments, outcomes, 
+            evaluate(jobs_collection, experiments, outcomes, constraints,
                       problem)
         else:
             evaluate_robust(jobs_collection, experiments, outcomes, 
-                             problem)
+                            constraints, problem)
             
         return jobs
 
@@ -346,7 +349,8 @@ class IpyparallelEvaluator(BaseEvaluator):
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None, 
                         reporting_interval=None, uncertainty_union=False, 
                         lever_union=False, outcome_union=False, 
-                        uncertainty_sampling=LHS, levers_sampling=LHS):
+                        uncertainty_sampling=LHS, levers_sampling=LHS,
+                        callback=None, return_callback=False):
     '''sample uncertainties and levers, and perform the resulting experiments
     on each of the models
     
@@ -361,6 +365,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     lever_union : boolean, optional
     uncertainty_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
+    callback  : Callback instance, optional
+    return_callback : boolean, optional
     
     
     '''
@@ -416,6 +422,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         n_models = len(models)
     except TypeError:
         n_models = 1
+        
+    constraints = determine_objects(models, "constraints", union=True)
 
     outcomes = determine_objects(models, 'outcomes', union=outcome_union)
     nr_of_exp = n_models * n_scenarios * n_policies 
@@ -424,11 +432,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                       '{} experiments').format(n_scenarios, n_policies, 
                                                n_models, nr_of_exp))
     
-    callback = DefaultCallback(uncertainties,
-                               levers,
-                               outcomes,
-                               nr_of_exp,
-                               reporting_interval=reporting_interval)
+    if not callback:
+        callback = DefaultCallback(uncertainties, levers,outcomes, constraints,
+                           nr_of_exp, reporting_interval=reporting_interval)
     
     if not evaluator:
         evaluator = SequentialEvaluator(models)
@@ -442,8 +448,12 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         'got {}'.format(callback.i),
                         '{}'.format(type(callback))))
        
-    results = callback.get_results()
     ema_logging.info("experiments finished")
+    
+    if return_callback:
+        return callback
+    
+    results = callback.get_results()
     return results
 
 
@@ -503,8 +513,6 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     ema_logging.info(message.format(len(optimizer.algorithm.archive)))
 
     return results
-
-
     
 
 def robust_optimize(model, robustness_functions, scenarios, 
