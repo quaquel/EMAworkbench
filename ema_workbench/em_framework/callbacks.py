@@ -24,7 +24,6 @@ import pandas as pd
 
 from ..util import ema_logging, ema_exceptions
 from .parameters import CategoricalParameter, IntegerParameter
-from sqlalchemy.orm.collections import collection
 
 #
 # Created on 22 Jan 2013
