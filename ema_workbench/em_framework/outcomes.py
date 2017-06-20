@@ -201,11 +201,35 @@ class Constraint(ScalarOutcome):
     
     '''
 
-    def __init__(self, name, variable_name, function):
+    def __init__(self, name, parameter_names=None, outcome_names=None, 
+                 function=None):
+        assert callable(function)
+        if not parameter_names:
+            parameter_names = []
+        elif isinstance(parameter_names, six.string_types):
+            parameter_names = [parameter_names]
+            
+        if not outcome_names:
+            outcome_names = []
+        elif isinstance(outcome_names, six.string_types):
+            outcome_names = [outcome_names]
+        
+        variable_names = parameter_names + outcome_names
+        
         super(Constraint, self).__init__(name, kind=AbstractOutcome.INFO, 
-                                         variable_name=variable_name, 
+                                         variable_name=variable_names, 
                                          function=function)
+        
 
+        
+        self.parameter_names = parameter_names
+        self.outcome_names = outcome_names
+
+    def process(self, values):
+        value = super(Constraint, self).process(values)
+        assert value >= 0
+        return value
+        
 
 def create_outcomes(outcomes, **kwargs):
     '''Helper function for creating multiple outcomes

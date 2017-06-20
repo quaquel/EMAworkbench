@@ -13,6 +13,7 @@ from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
+from patsy import constraint
 
 try:
     from platypus import EpsNSGAII  # @UnresolvedImport
@@ -39,9 +40,9 @@ class Problem(PlatypusProblem):
     and the type of search'''
     
     def __init__(self, searchover, parameters, parameter_names,
-                 outcome_names, reference=None):
+                 outcome_names, constraint_names, reference=None):
         super(Problem, self).__init__(len(parameters), len(outcome_names) , 
-                                      nconstrs=0)
+                                      nconstrs=len(constraint_names))
         assert len(parameters) == len(parameter_names)
         assert searchover in ('levers', 'uncertainties', 'robust')
         
@@ -56,6 +57,7 @@ class Problem(PlatypusProblem):
         self.parameters = parameters
         self.parameter_names = parameter_names
         self.outcome_names = outcome_names
+        self.constraint_names = constraint_names
         self.reference = reference if reference else 0 
 
 
@@ -65,9 +67,11 @@ class RobustProblem(Problem):
     
     
     def __init__(self, parameters, parameter_names,
-                 outcome_names, scenarios, robustness_functions):
+                 outcome_names, scenarios, robustness_functions, 
+                 constraint_names):
         super(RobustProblem, self).__init__('robust', parameters, 
-                                            parameter_names, outcome_names)
+                                            parameter_names, outcome_names,
+                                            constraint_names)
         assert len(robustness_functions) == len(outcome_names)        
         self.scenarios = scenarios
         self.robustness_functions = robustness_functions
@@ -103,11 +107,13 @@ def to_problem(model, searchover, reference=None):
                 outcome.kind != AbstractOutcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
     
+    constraint_names = [c.name for c in model.constraints]
     
     problem = Problem(searchover, decision_variables, dvnames,
-                      outcome_names, reference=reference)
+                      outcome_names, constraint_names, reference=reference)
     problem.types = to_platypus_types(decision_variables)
     problem.directions = [outcome.kind for outcome in outcomes]
+    problem.constraints[:] = "==0"
 
     return problem
 
@@ -135,11 +141,14 @@ def to_robust_problem(model, scenarios, robustness_functions):
     outcomes = robustness_functions
     outcome_names = [outcome.name for outcome in outcomes]
     
+    constraint_names = [c.name for c in model.constraints]
+    
     problem = RobustProblem(decision_variables, dvnames, outcome_names, 
-                            scenarios, robustness_functions)
+                            scenarios, robustness_functions, constraint_names)
     
     problem.types = to_platypus_types(decision_variables)
     problem.directions = [outcome.kind for outcome in outcomes]
+    problem.constraints[:] = "==0"
 
     return problem
 
@@ -230,10 +239,11 @@ def process_robust(jobs):
     return scenarios, policies
 
 
-def evaluate(jobs_collection, experiments, outcomes, problem):
+def evaluate(jobs_collection, experiments, outcomes, constraints, problem):
     
     searchover = problem.searchover
     outcome_names = problem.outcome_names
+    constraint_names = problem.constraint_names
     
     if searchover=='levers':
         column = 'policy'
@@ -243,14 +253,21 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
     for entry, job in jobs_collection:
         logical = experiments[column] == entry.name
         job_outcomes = [outcomes[key][logical][0] for key in outcome_names]
+        job_constraints = [constraints.loc[logical, c].values[0] for c in 
+                           constraint_names]
         
-        job.solution.problem.function = lambda x: job_outcomes
+        if constraint_names:
+            job.solution.problem.function = lambda _: (job_outcomes, 
+                                                       job_constraints)
+        else:
+            job.solution.problem.function = lambda _: job_outcomes
         job.solution.evaluate()
 
 
 def evaluate_robust(jobs_collection, experiments, outcomes,
-                     problem):
+                    constraints, problem):
     robustness_functions = problem.robustness_functions
+    constraint_names = problem.constraint_names
     
     for entry, job in jobs_collection:
         logical = experiments['policy'] == entry.name
@@ -261,5 +278,12 @@ def evaluate_robust(jobs_collection, experiments, outcomes,
                     rf.variable_name]
             job_outcomes.append(rf.function(*data))
         
-        job.solution.problem.function = lambda x: job_outcomes
+        job_constraints = [constraints.loc[logical, c][0] for c in constraint_names]
+        
+        if job_constraints is not None:
+            job.solution.problem.function = lambda _: (job_outcomes, job_constraints)
+        else:
+            job.solution.problem.function = lambda _: job_outcomes
+        
+#         job.solution.problem.function = lambda x: job_outcomes
         job.solution.evaluate()

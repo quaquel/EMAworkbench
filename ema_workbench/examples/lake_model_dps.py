@@ -21,6 +21,7 @@ from scipy.optimize import brentq
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant, 
                            ema_logging, MultiprocessingEvaluator)
 from ema_workbench.em_framework.parameters import Scenario
+from ema_workbench.em_framework.outcomes import Constraint
 
 # Created on 1 Jun 2017
 #
@@ -108,6 +109,10 @@ def lake_problem(
 
     return max_P, utility, inertia, reliability
 
+def constraint1(reliability):
+    score = reliability-0.8
+    return max(score, 0)
+
 if __name__ == '__main__':
     
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -143,6 +148,12 @@ if __name__ == '__main__':
     lake_model.constants = [Constant('alpha', 0.41),
                             Constant('nsamples', 100),
                             Constant('myears', 100)]
+    
+
+    
+#     lake_model.constraints = [Constraint("reliability constraint", 
+#                                          outcome_names='reliability', 
+#                                          function=constraint1)]
     
     # reference is optional, but can be used to implement search for
     # various user specified scenarios along the lines suggested by
