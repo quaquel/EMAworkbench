@@ -102,7 +102,7 @@ def lake_problem(
             average_daily_P[t] += X[t]/nsamples
     
         reliability += np.sum(X < Pcrit)/(nsamples*myears)
-        inertia += np.sum(np.absolute(np.diff(decisions) > 0.02)) / (nsamples*myears)
+        inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples*myears)
         utility += np.sum(alpha*decisions*np.power(delta, np.arange(myears))) / nsamples
     max_P = np.max(average_daily_P)
 
@@ -163,4 +163,4 @@ if __name__ == '__main__':
     with MultiprocessingEvaluator(lake_model) as evaluator:
         evaluator.robust_optimize(robustnes_functions, scenarios, nfe=nfe, 
                                 epsilons=[0.1,]*len(robustnes_functions),
-                                population_size=25)
+                                population_size=5)

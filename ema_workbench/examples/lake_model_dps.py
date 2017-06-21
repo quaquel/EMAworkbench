@@ -21,7 +21,6 @@ from scipy.optimize import brentq
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant, 
                            ema_logging, MultiprocessingEvaluator)
 from ema_workbench.em_framework.parameters import Scenario
-from ema_workbench.em_framework.outcomes import Constraint
 
 # Created on 1 Jun 2017
 #
@@ -103,7 +102,7 @@ def lake_problem(
             average_daily_P[t] += X[t]/nsamples
     
         reliability += np.sum(X < Pcrit)/(nsamples*myears)
-        inertia += np.sum(np.absolute(np.diff(decisions) > 0.02)) / (nsamples*myears)
+        inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples*myears)
         utility += np.sum(alpha*decisions*np.power(delta, np.arange(myears))) / nsamples
     max_P = np.max(average_daily_P)
 
@@ -150,10 +149,6 @@ if __name__ == '__main__':
                             Constant('myears', 100)]
     
 
-    
-#     lake_model.constraints = [Constraint("reliability constraint", 
-#                                          outcome_names='reliability', 
-#                                          function=constraint1)]
     
     # reference is optional, but can be used to implement search for
     # various user specified scenarios along the lines suggested by
