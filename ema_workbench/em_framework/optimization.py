@@ -142,7 +142,8 @@ def to_robust_problem(model, scenarios, robustness_functions):
     outcomes = robustness_functions
     outcome_names = [outcome.name for outcome in outcomes]
     
-    constraint_names = [c.name for c in model.constraints]
+    constraints = determine_parameters(model, 'constraints', union=True)
+    constraint_names = [c.name for c in constraints]
     
     problem = RobustProblem(decision_variables, dvnames, outcome_names, 
                             scenarios, robustness_functions, constraint_names)
@@ -277,11 +278,12 @@ def evaluate_robust(jobs_collection, experiments, outcomes,
         for rf in robustness_functions:
             data = [outcomes[var_name][logical] for var_name in 
                     rf.variable_name]
-            job_outcomes.append(rf.function(*data))
+            score = rf.function(*data)
+            job_outcomes.append(score)
         
         job_constraints = [constraints.loc[logical, c][0] for c in constraint_names]
         
-        if job_constraints is not None:
+        if job_constraints:
             job.solution.problem.function = lambda _: (job_outcomes, job_constraints)
         else:
             job.solution.problem.function = lambda _: job_outcomes
