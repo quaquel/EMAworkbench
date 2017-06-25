@@ -481,8 +481,6 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     EMAError if searchover is not one of 'uncertainties' or 'levers'
     NotImplementedError if len(models) > 1
     
-    TODO:: constrains are not yet supported
-    
     '''
     if searchover not in ('levers', 'uncertainties'):
         raise EMAError(("searchover should be one of 'levers' or"

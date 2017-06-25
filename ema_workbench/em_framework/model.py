@@ -186,7 +186,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
             del policy[k]
                 
         
-
+    @method_logger
     def _transform(self, sampled_parameters, parameters):
         
         if not parameters:

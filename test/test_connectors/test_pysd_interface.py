@@ -12,7 +12,7 @@ from ema_workbench.em_framework import (perform_experiments, RealParameter,
 from ema_workbench.connectors.pysd_connector import PysdModel
 from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
-#TODO:: model classes should be tested for their pickleability prior to
+# TODO:: model classes should be tested for their pickleability prior to
 # initialization 
 
 class TestPySDConnector(unittest.TestCase):
