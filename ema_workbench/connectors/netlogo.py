@@ -13,7 +13,6 @@ except ImportError:
 import os
 
 import numpy as np
-import six
 
 from ..em_framework.model import FileModel
 from ..util.ema_logging import method_logger
@@ -71,7 +70,8 @@ class BaseNetLogoModel(FileModel):
         separate working directory prior to calling `model_init`.
         
         """
-        super(BaseNetLogoModel, self).__init__(name, wd=wd, model_file=model_file)
+        super(BaseNetLogoModel, self).__init__(name, wd=wd, 
+                                               model_file=model_file)
     
         self.run_length = None
        

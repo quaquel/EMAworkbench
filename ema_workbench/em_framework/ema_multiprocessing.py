@@ -271,13 +271,16 @@ def result_handler(callback, experiment):
 def add_tasks(pool, experiments, callback):
     '''add experiments to pool
     
+    Parameters
+    ----------
+    pool : Pool instance
+    experiments : collection
+    callback : callable
+    
     '''
     
     results = []
     for e in experiments:
-        
-        # TODO:: code won't work on Python 3.4 or lower
-        # error_callback only exists in 3.5 and up
         res = pool.apply_async(worker, [e], 
                                      callback=result_handler(callback, e))
         results.append(res)

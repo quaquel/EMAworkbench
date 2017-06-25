@@ -60,6 +60,16 @@ def find_netlogo(path):
 
 def find_jars(path):
     '''find all jars in directory and return as list
+    
+    Parameters
+    ----------
+    path : str
+    
+    
+    Returns
+    -------
+    list
+    
     '''
     
     jars = []
@@ -71,7 +81,19 @@ def find_jars(path):
 
 
 def establish_netlogoversion(path):
-    # TODO: python3 compliance
+    '''helper function to establish which version of netlogo is installed
+    
+    Parameters
+    ----------
+    path : str
+    
+    Returns
+    -------
+    str
+    
+    '''
+    
+    
     pattern = re.compile(r'(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$')
     
     netlogo = os.path.basename(os.path.normpath(path))
