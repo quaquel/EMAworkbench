@@ -13,9 +13,6 @@ import operator
 import os
 import six
 import warnings
-from ema_workbench.util import ema_logging
-from ema_workbench.em_framework.parameters import CategoricalParameter
-
 
 try:
     from collections import MutableMapping
@@ -25,10 +22,9 @@ except ImportError:
 from collections import defaultdict
 
 from .util import (NamedObject, combine, NamedObjectMapDescriptor)
-from .parameters import Parameter, Constant
+from .parameters import Parameter, Constant, CategoricalParameter
 from .outcomes import AbstractOutcome, Constraint
-
-from ..util import debug, EMAError
+from ..util import debug, EMAError, ema_logging
 from ..util.ema_logging import method_logger
 
 # Created on 23 dec. 2010
@@ -36,21 +32,19 @@ from ..util.ema_logging import method_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 # 
 
-__all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator', 
+__all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator',
            'SingleReplication']
 
-#==============================================================================
-# abstract Model class 
-#==============================================================================
+
 class ModelMeta(abc.ABCMeta):
-    
+
     def __new__(mcls, name, bases, namespace):  # @NoSelf
-        
+
         for key, value in namespace.items():
             if isinstance(value, NamedObjectMapDescriptor):
                 value.name = key
                 value.internal_name = '_'+key
-       
+
         return abc.ABCMeta.__new__(mcls, name, bases, namespace)
 
 
@@ -60,8 +54,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     for performing EMA. This is an abstract base class and cannot be used 
     directly. When extending this class :meth:`model_init` and 
     :meth:`run_model` have to be implemented. 
-    
-    
+
     Attributes
     ----------
     uncertainties : listlike
@@ -74,9 +67,9 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
            alphanumerical name of model structure interface
     output : dict
              this should be a dict with the names of the outcomes as key
-    
+
     '''
-    
+
     @property
     def outcomes_output(self):
         return self._outcomes_output
@@ -116,7 +109,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         for outcome in self.outcomes:
             data = [outputs[var] for var in outcome.variable_name]
             self._outcomes_output[outcome.name] = outcome.process(data)
-    
+
     @property
     def output_variables(self):
         if self._output_variables is None:
@@ -124,28 +117,26 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
                                        o.variable_name]
 
         return self._output_variables
-     
+
     uncertainties = NamedObjectMapDescriptor(Parameter)
     levers = NamedObjectMapDescriptor(Parameter)
     outcomes = NamedObjectMapDescriptor(AbstractOutcome)
     constants = NamedObjectMapDescriptor(Constant)
     constraints = NamedObjectMapDescriptor(Constraint)
-        
+
     def __init__(self, name):
-        """
-        interface to the model
-        
+        """interface to the model
+
         Parameters
         ----------
         name : str
                name of the modelInterface. The name should contain only
                alpha-numerical characters.        
 
-               
         Raises
         ------
         EMAError if name contains non alpha-numerical characters
-        
+
         """
         super(AbstractModel, self).__init__(name)
 
@@ -156,23 +147,22 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         self._output_variables = None
         self._outcomes_output = {}
         self._constraints_output = {}
-        
+
     @method_logger
     def model_init(self, policy):
-        '''
-        Method called to initialize the model.
-        
+        '''Method called to initialize the model.
+
         Parameters
         ----------
         policy : dict
                  policy to be run.
  
-        
+
         Note
         ----
         This method should always be implemented. Although in simple cases, a 
         simple pass can suffice.
-         
+
         '''
         self.policy = policy
 
@@ -181,20 +171,19 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
             if hasattr(self, key):
                 setattr(self, key, value)
                 remove.append(key)
-        
+
         for k in remove:
             del policy[k]
-                
-        
+
     @method_logger
     def _transform(self, sampled_parameters, parameters):
-        
+
         if not parameters:
             # no parameters defined, so nothing to transform, mainly
             # useful for manual specification of scenario /  policy
             # without having to define uncertainties / levers
             return
-        
+
         temp = {}
         for par in parameters:
             # only keep uncertainties that exist in this model
@@ -212,33 +201,31 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
                 if par.multivalue == True:
                     multivalue = True
                     values = value
-            
+
             # translate uncertainty name to variable name
             for i, varname in enumerate(par.variable_name):
                 # a bit hacky implementation, investigate some kind of 
                 # zipping of variable_names and values
                 if multivalue:
                     value = values[i]
-                
+
                 temp[varname] = value
-        
+
         sampled_parameters.data = temp
 
     @method_logger    
     def run_model(self, scenario, policy):
-        """
-        Method for running an instantiated model structure. 
-        
+        """Method for running an instantiated model structure. 
+
         Parameters
         ----------
         scenario : Scenario instance
         policy : Policy instance
-        
-        
+
         """
         if not self.initialized(policy):
             self.model_init(policy)
-        
+
         #TODO:: here we need to add constants in some manner
         self._transform(scenario, self.uncertainties)
         self._transform(policy, self.levers)
@@ -250,9 +237,9 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         Parameters
         ----------
         policy : a Policy instance
-        
+
         '''
-        
+
         try:
             return self.policy.name == policy.name
         except AttributeError:
@@ -260,76 +247,76 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
     @method_logger
     def retrieve_output(self):
-        """
-        Method for retrieving output after a model run.
-        
+        """Method for retrieving output after a model run.
+
         Returns
         -------
         dict with the results of a model run. 
         """
         warnings.warn('deprecated, use model.output instead')
         return self.output
-    
+
     @method_logger
     def reset_model(self):
-        """
-        Method for reseting the model to its initial state. The default
+        """ Method for reseting the model to its initial state. The default
         implementation only sets the outputs to an empty dict. 
 
         """
         self._outcome_output = {}
         self._constraints_output = {}
-    
+
     @method_logger
     def cleanup(self):
         '''
         This model is called after finishing all the experiments, but 
         just prior to returning the results. This method gives a hook for
         doing any cleanup, such as closing applications. 
-        
+
         In case of running in parallel, this method is called during 
         the cleanup of the pool, just prior to removing the temporary 
         directories. 
-        
+
         '''
         pass
-    
+
     def as_dict(self):
         '''returns a dict representation of the model'''
-        
+
         def join_attr(field):
             joined = ', '.join([repr(entry) for entry in 
                                 sorted(field, key=operator.attrgetter('name'))])
             return '[{}]'.format(joined)
         model_spec = {}
-        
+
         klass = self.__class__.__name__
         name = self.name
-                
+
         uncs = ''
         for uncertainty in self.uncertainties:
             uncs += '\n' + repr(uncertainty)
-            
+
         model_spec['class'] = klass
         model_spec['name'] = name
         model_spec['uncertainties'] = join_attr(self.uncertainties)
         model_spec['outcomes'] = join_attr(self.outcomes)
         model_spec['constants'] = join_attr(self.constants)
-            
+
         return model_spec
 
+
 class Replicator(AbstractModel):
+
     @property
     def replications(self):
         return self._replications
-    
+
     @replications.setter
     def replications(self, replications):
-        
+
         # int
         if isinstance(replications, int):
             # TODO:: use a repeating generator instead
-        
+
             self._replications = [{} for _ in range(replications)]
             self.nreplications = replications
         elif isinstance(replications, list):
@@ -341,72 +328,67 @@ class Replicator(AbstractModel):
 
     @method_logger
     def run_model(self, scenario, policy):
-        """
-        Method for running an instantiated model structure. 
-        
+        """ Method for running an instantiated model structure. 
+
         Parameters
         ----------
         scenario : Scenario instance
         policy : Policy instance
-        
-        
+
         """
         super(Replicator, self).run_model(scenario, policy)
-        
+
         constants = {c.name:c.value for c in self.constants}
-        
         outputs = defaultdict(list)
-        
+
         policy = copy.deepcopy(self.policy)
         partial_experiment = combine(scenario, policy, constants)
-        
+
         for _, rep in enumerate(self.replications):
             experiment = copy.deepcopy(partial_experiment)
             experiment = combine(experiment, rep)
             output = self.run_experiment(experiment)
             for key, value in output.items():
                 outputs[key].append(value)
-            
+
         self.outcomes_output = outputs
         self.constraints_output = (partial_experiment, outputs)
 
 
 class SingleReplication(AbstractModel):
+
     @method_logger
     def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
-        
+
         Parameters
         ----------
         scenario : Scenario instance
         policy : Policy instance
-        
-        
+
         """
         super(SingleReplication, self).run_model(scenario, policy) 
         # TODO:: should this not be moved up?
         constants = {c.name:c.value for c in self.constants}
         experiment = combine(scenario, self.policy, constants)
-        
+
         outputs = self.run_experiment(experiment)
-        
+
         self.outcomes_output = outputs
         self.constraints_output = (experiment, outputs)
 
 
 class BaseModel(AbstractModel):
-    '''
-    generic class for working with models implemented as a Python callable 
-    
+    ''' generic class for working with models implemented as a Python callable 
+
     Parameters
     ----------
     name : str
     function : callable
                a function with each of the uncertain parameters as a keyword
                argument
-    
-    
+
     Attributes
     ----------
     uncertainties : listlike
@@ -423,31 +405,28 @@ class BaseModel(AbstractModel):
                         absolute path, all file operations in the model
                         structure interface should be resolved from this
                         directory. 
-    
+
     '''
 
-    
     def __init__(self, name, function=None):
         super(BaseModel, self).__init__(name)
-        
+
         if not callable(function):
             raise ValueError('function should be callable')
-        
+
         self.function = function
 
     @method_logger
     def run_experiment(self, experiment):
-        """
-        Method for running an instantiated model structure. 
-        
+        """ Method for running an instantiated model structure. 
+
         Parameters
         ----------
         experiment : dict like
-        
-        
+
         """
         model_output = self.function(**experiment)
-        
+
         # TODO: might it be possible to somehow abstract this
         # perhaps expose a get_data on modelInterface?
         # different connectors can than implement only this
@@ -463,7 +442,7 @@ class BaseModel(AbstractModel):
                 value = model_output[i]
             results[variable] = value
         return results
-        
+
     def as_dict(self):
         model_specs = super(BaseModel, self).as_dict()
         model_specs['function'] = self.function
@@ -475,10 +454,11 @@ class BaseModel(AbstractModel):
 # Solution, have an intermediate class, WorkingDirectoryModel
 # FileModel than extents that class with the model_file
 class FileModel(AbstractModel):
+
     @property
     def working_directory(self):
         return self._working_directory
-    
+
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
@@ -487,9 +467,7 @@ class FileModel(AbstractModel):
 
     def __init__(self, name, wd=None, model_file=None):
         """interface to the model
-        
-        interface to the model
-        
+
         Parameters
         ----------
         name : str
@@ -499,14 +477,14 @@ class FileModel(AbstractModel):
                             working_directory for the model. 
         model_file  : str
                      The model file relative to working directory
-               
+
         Raises
         ------
         EMAError 
             if name contains non alpha-numerical characters
         ValueError
             if model_file cannot be found
-        
+
         """
         super(FileModel, self).__init__(name)
         self.working_directory = wd
@@ -514,7 +492,7 @@ class FileModel(AbstractModel):
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
             raise ValueError('cannot find model file')
-        
+
         self.model_file = model_file
 
     def as_dict(self):
@@ -522,6 +500,7 @@ class FileModel(AbstractModel):
         model_specs['model_file'] = self.model_file
         model_specs['working_directory'] = self.working_directory
         return model_specs
+
 
 class Model(SingleReplication, BaseModel):
     pass
