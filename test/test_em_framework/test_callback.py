@@ -16,7 +16,7 @@ from ema_workbench.em_framework.callbacks import DefaultCallback
 from ema_workbench.em_framework.parameters import (CategoricalParameter,
                                                       RealParameter, 
                                                       IntegerParameter)
-from ema_workbench.em_framework.parameters import Policy, Scenario, Experiment
+from ema_workbench.em_framework.parameters import Policy, Scenario, Case
 from ema_workbench.util import EMAError
 from ema_workbench.em_framework.outcomes import TimeSeriesOutcome 
 from ema_workbench.em_framework.util import NamedObject
@@ -65,7 +65,7 @@ class TestDefaultCallback(unittest.TestCase):
         constraints = []
         model = NamedObject('test')
 
-        experiment = Experiment(0, model, Policy('policy'), 
+        experiment = Case(0, model, Policy('policy'), 
                                 Scenario(a=1, b=0), 0)
      
         # case 1 scalar shape = (1)
@@ -136,7 +136,7 @@ class TestDefaultCallback(unittest.TestCase):
         model = NamedObject('test')
         policy  = Policy('policy')
         scenario = Scenario(**case)
-        experiment = Experiment(0, model.name, policy, scenario, 0)
+        experiment = Case(0, model.name, policy, scenario, 0)
      
         callback = DefaultCallback(uncs, [],outcomes, constraints,
                                    nr_experiments=nr_experiments,
@@ -170,7 +170,7 @@ class TestDefaultCallback(unittest.TestCase):
         model = NamedObject('test')
         policy  = Policy('policy', c=1, d=1)
         scenario = Scenario(**case)
-        experiment = Experiment(0, model.name, policy, scenario, 0)
+        experiment = Case(0, model.name, policy, scenario, 0)
      
         callback = DefaultCallback(uncs, levers,outcomes,constraints, 
                                    nr_experiments=nr_experiments,
