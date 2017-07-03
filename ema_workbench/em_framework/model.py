@@ -22,7 +22,7 @@ except ImportError:
 from collections import defaultdict
 
 from .util import (NamedObject, combine, NamedObjectMapDescriptor)
-from .parameters import Parameter, Constant, CategoricalParameter
+from .parameters import Parameter, Constant, CategoricalParameter, Experiment
 from .outcomes import AbstractOutcome, Constraint
 from ..util import debug, EMAError, ema_logging
 from ..util.ema_logging import method_logger
@@ -344,9 +344,11 @@ class Replicator(AbstractModel):
         policy = copy.deepcopy(self.policy)
         partial_experiment = combine(scenario, policy, constants)
 
-        for _, rep in enumerate(self.replications):
-            experiment = copy.deepcopy(partial_experiment)
-            experiment = combine(experiment, rep)
+        for i, rep in enumerate(self.replications):
+            rep.id = i
+            experiment = Experiment(scenario, policy, constants, rep)
+#             experiment = copy.deepcopy(partial_experiment)
+#             experiment = combine(experiment, rep)
             output = self.run_experiment(experiment)
             for key, value in output.items():
                 outputs[key].append(value)
@@ -371,7 +373,12 @@ class SingleReplication(AbstractModel):
         super(SingleReplication, self).run_model(scenario, policy) 
         # TODO:: should this not be moved up?
         constants = {c.name:c.value for c in self.constants}
-        experiment = combine(scenario, self.policy, constants)
+        
+        # TODO:: have a separate experiment object?
+        # combine would then be replaced with a call to instantiate
+        # an experiment
+        experiment = Experiment(scenario, self.policy, constants)
+#         experiment = combine(scenario, self.policy, constants)
 
         outputs = self.run_experiment(experiment)
 

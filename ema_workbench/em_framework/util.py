@@ -39,10 +39,10 @@ class NamedObject(object):
 class Counter(object):
     '''helper function for generating counter based names for NamedDicts'''
     
-    def __init__(self):
-        self._counter = itertools.count()
+    def __init__(self, startfrom=0):
+        self._counter = itertools.count(startfrom)
     
-    def __call__(self, named_dict):
+    def __call__(self, *args):
         return six.next(self._counter)
 
     

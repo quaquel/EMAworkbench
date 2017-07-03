@@ -16,8 +16,8 @@ import unittest
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
 from ema_workbench.em_framework.model import Model, AbstractModel
 from ema_workbench.util import EMAError, CaseError
-from ema_workbench.em_framework.parameters import Policy, Experiment, Scenario,\
-    RealParameter
+from ema_workbench.em_framework.parameters import (Policy, Case, Scenario,
+                                                   RealParameter)
 
 class ExperimentRunnerTestCase(unittest.TestCase):
     
@@ -42,10 +42,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
 
         runner = ExperimentRunner(msis)
         
-        experiment = Experiment('test',
-                                mockMSI.name,
-                                Policy('none'),  
-                                Scenario(a=1, b=2), 0)
+        experiment = Case('test', mockMSI.name, Policy('none'),
+                          Scenario(a=1, b=2), 0)
         
         runner.run_experiment(experiment)
         
@@ -62,15 +60,15 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         mockMSI.run_model.side_effect = Exception('some exception')
         msis = NamedObjectMap(AbstractModel)
         msis['test'] = mockMSI
-        
+
         runner = ExperimentRunner(msis)
-    
-        experiment = Experiment('test',mockMSI.name,Policy('none'),  
-                      Scenario(a=1, b=2),0)
+
+        experiment = Case('test',mockMSI.name,Policy('none'),
+                          Scenario(a=1, b=2),0)
 
         with self.assertRaises(EMAError):
             runner.run_experiment(experiment)
-           
+
         # assert handling of case error
         mockMSI = mock.Mock(spec=Model)
         mockMSI.name = 'test'
@@ -78,10 +76,9 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         msis = NamedObjectMap(AbstractModel)
         msis['test'] = mockMSI
         runner = ExperimentRunner(msis)
-    
-        experiment = Experiment('test',mockMSI.name,Policy('none'),  
-                      Scenario(a=1, b=2),0)
 
+        experiment = Case('test',mockMSI.name,Policy('none'),
+                          Scenario(a=1, b=2),0)
         runner.run_experiment(experiment)
         
 if __name__ == "__main__":
