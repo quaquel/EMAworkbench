@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from analysis._plotting import pairs_scatter, pairs_density, pairs_lines
+from analysis.pairs_plotting import pairs_scatter, pairs_density, pairs_lines
 from expWorkbench.util import load_results
 
 #load the data

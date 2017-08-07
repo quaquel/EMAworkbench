@@ -2,103 +2,35 @@
 Created on 20 dec. 2010
 
 This file illustrated the use of the workbench for a model 
-specified in Python itself. The example is based on `Pruyt & Hamarat http://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
+specified in Python itself. The example is based on `Pruyt & Hamarat <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
 For comparison, run both this model and the flu_vensim_no_policy_example.py and 
-compare the differences. 
+compare the results. 
 
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 '''
+from __future__ import (absolute_import, print_function, division, 
+                        unicode_literals)
 
 import numpy as np
 from numpy import sin, min
 from scipy import exp
 import matplotlib.pyplot as plt
 
-from expWorkbench import ModelStructureInterface, ModelEnsemble,\
-                         ParameterUncertainty, Outcome
+from ema_workbench import (Model, RealParameter, TimeSeriesOutcome, 
+                           perform_experiments, ema_logging)
                          
-from analysis.plotting import lines, KDE                         
+from ema_workbench.analysis.plotting import lines
+from ema_workbench.analysis.plotting_util import KDE                         
 
 
-class MexicanFlu(ModelStructureInterface):
-
-    uncertainties = [ParameterUncertainty((0, 0.5), "x11"), #k1
-                     ParameterUncertainty((0, 0.5), "x12"), #k2
-                     ParameterUncertainty((0.0001, 0.1), "x21"), #k3
-                     ParameterUncertainty((0.0001, 0.1), "x22"), #k4
-                     ParameterUncertainty((0, 0.5), "x31"), #k5
-                     ParameterUncertainty((0, 0.5), "x32"), #k6
-                     ParameterUncertainty((0, 0.9), "x41"), #k7
-                     ParameterUncertainty((0, 0.5), "x51"), #k8
-                     ParameterUncertainty((0, 0.5), "x52"), #k9
-                     ParameterUncertainty((0, 0.8), "x61"), #k10
-                     ParameterUncertainty((0, 0.8), "x62"), #k11
-                     ParameterUncertainty((1,1), "x71"), #k12
-                     ParameterUncertainty((1,1), "x72"), #k13
-                     ParameterUncertainty((1, 10), "x81"), #k14
-                     ParameterUncertainty((1,10), "x82"), #k15
-                     ParameterUncertainty((0, 0.1), "x91"), #k16
-                     ParameterUncertainty((0, 0.1), "x92"), #k17
-                     ParameterUncertainty((0, 200), "x101"), #k18
-                     ParameterUncertainty((0, 200), "x102")
-                     ] #k19
-    
-    outcomes = [Outcome("TIME", time=True),
-                Outcome("deceased_population_region_1", time=True),
-                ]
-    
-    def __init__(self, workingDirectory, name):
-        super(MexicanFlu, self).__init__(workingDirectory, name)
-
-    def model_init(self, policy, kwargs):
-        pass
-
-    def run_model(self, kwargs):
-        """Method for running an instantiated model structure """
-        
-        x11 = kwargs['x11']
-        x12 = kwargs['x12']
-        x21 = kwargs['x21']
-        x22 = kwargs['x22']
-        x31 = kwargs['x31']
-        x32 = kwargs['x32']
-        x41 = kwargs['x41']
-        x51 = kwargs['x51']
-        x52 = kwargs['x52']
-        x61 = kwargs['x61']
-        x62 = kwargs['x62']
-        x71 = kwargs['x71']
-        x72 = kwargs['x72']
-        x81 = kwargs['x81']
-        x82 = kwargs['x82']
-        x91 = kwargs['x91']
-        x92 = kwargs['x92']
-        x101 = kwargs['x101']
-        x102  = kwargs['x102']
-        
-        results = RunFluModel(x11, x12, x21, x22, x31, x32, x41, x51, x52, x61, 
-                              x62, x71, x72, x81, x82, x91, x92, x101, x102)
-        for i, outcome in enumerate(self.outcomes):
-            result = results[i]
-            self.output[outcome.name] = np.asarray(result)
-    
-    def retrieve_output(self):
-        """Method for retrieving output after a model run """
-        return self.output
-   
-    def reset_model(self):
-        """Method for reseting the model to its initial state before runModel was called"""
-        self.output = {}
-
-
-#============================================================================================
+#==============================================================================
 #
 #    the model itself
 #
-#============================================================================================
+#==============================================================================
 
 FINAL_TIME = 48
 INITIAL_TIME = 0
@@ -112,7 +44,8 @@ switch_immunity_cap = 1.0
 def LookupFunctionX(variable,start,end,step,skew,growth,v=0.5):
     return start + ((end-start)/((1+skew*exp(-growth*(variable-step)))**(1/v)))
 
-def RunFluModel(x11,x12,x21,x22,x31,x32,x41,x51,x52,x61,x62,x71,x72,x81,x82,x91,x92,x101,x102): 
+def flu_model(x11=0,x12=0,x21=0,x22=0,x31=0,x32=0,x41=0,x51=0,x52=0,x61=0,
+                x62=0,x81=0,x82=0,x91=0,x92=0,x101=0,x102=0): 
     #Assigning initial values
     additional_seasonal_immune_population_fraction_R1 = float(x11)
     additional_seasonal_immune_population_fraction_R2 = float(x12)
@@ -132,8 +65,8 @@ def RunFluModel(x11,x12,x21,x22,x31,x32,x41,x51,x52,x61,x62,x71,x72,x81,x82,x91,
     recovery_time_region_1 = float(x61) 
     recovery_time_region_2 = float(x62) 
     
-    susceptible_to_immune_population_delay_time_region_1 = float(x71)
-    susceptible_to_immune_population_delay_time_region_2 = float(x72)
+    susceptible_to_immune_population_delay_time_region_1 = 1
+    susceptible_to_immune_population_delay_time_region_2 = 1
     
     root_contact_rate_region_1 = float(x81)
     root_contact_rate_region_2 = float(x82)
@@ -182,7 +115,7 @@ def RunFluModel(x11,x12,x21,x22,x31,x32,x41,x51,x52,x61,x62,x71,x72,x81,x82,x91,
      
     Max_infected = 0
 
-    for time in xrange(int(INITIAL_TIME/TIME_STEP), int(FINAL_TIME/TIME_STEP)):
+    for time in range(int(INITIAL_TIME/TIME_STEP), int(FINAL_TIME/TIME_STEP)):
         runTime.append(runTime[-1]+TIME_STEP)
         total_population_region_1 = infected_population_region_1 + recovered_population_region_1 + susceptible_population_region_1 + immune_population_region_1
         total_population_region_2 = infected_population_region_2 + recovered_population_region_2 + susceptible_population_region_2 + immune_population_region_2
@@ -295,22 +228,40 @@ def RunFluModel(x11,x12,x21,x22,x31,x32,x41,x51,x52,x61,x62,x71,x72,x81,x82,x91,
         deceased_population_region_2.append(deceased_population_region_2_NEXT)
         
         #End of main code
-    return (runTime, deceased_population_region_1) #, Max_infected, Max_time)
-
-        
-if __name__ == "__main__":
-    import expWorkbench.ema_logging as logging
-    np.random.seed(150) #set the seed for replication purposes
-    logging.log_to_stderr(logging.INFO)
     
-    fluModel = MexicanFlu(None, "mexicanFluExample")
-    ensemble = ModelEnsemble()
-    ensemble.parallel = True
-    ensemble.set_model_structure(fluModel)
+    
+    return {"TIME":runTime,
+            "deceased_population_region_1":deceased_population_region_1} 
+
+
+if __name__ == '__main__':
+    ema_logging.log_to_stderr(ema_logging.INFO)
+    
+    model = Model('mexicanFlu', function=flu_model)
+    model.uncertainties = [RealParameter('x11', 0, 0.5),
+                           RealParameter('x12', 0, 0.5),
+                           RealParameter('x21', 0.0001, 0.1),
+                           RealParameter('x22', 0.0001, 0.1),
+                           RealParameter('x31', 0, 0.5),
+                           RealParameter('x32', 0, 0.5),
+                           RealParameter('x41', 0, 0.9),
+                           RealParameter('x51', 0, 0.5),
+                           RealParameter('x52', 0, 0.5),
+                           RealParameter('x61', 0, 0.8),
+                           RealParameter('x62', 0, 0.8),
+                           RealParameter('x81', 1, 10),
+                           RealParameter('x82', 1, 10),
+                           RealParameter('x91', 0, 0.1),
+                           RealParameter('x92', 0, 0.1),
+                           RealParameter('x101', 0, 200),
+                           RealParameter('x102', 0, 200)] 
+    
+    model.outcomes = [TimeSeriesOutcome("TIME"),
+                      TimeSeriesOutcome("deceased_population_region_1")]
     
     nr_experiments = 500
-    results = ensemble.perform_experiments(nr_experiments, reporting_interval=100)
-
+    results = perform_experiments(model, nr_experiments, parallel=True)
+ 
     lines(results, outcomes_to_show="deceased_population_region_1", 
           show_envelope=True, density=KDE, titles=None, 
           experiments_to_show=np.arange(0, nr_experiments, 10)

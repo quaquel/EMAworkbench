@@ -1,0 +1,15 @@
+/outcomes.pyc
+/__init__.pyc
+/callbacks.pyc
+/ema_exceptions.pyc
+/ema_logging.pyc
+/ema_optimization.pyc
+/ema_parallel.pyc
+/model_ensemble.pyc
+/model.pyc
+/pool.pyc
+/samplers.pyc
+/uncertainties.pyc
+/util.pyc
+/vensim.pyc
+/vensimDLLwrapper.pyc

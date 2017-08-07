@@ -8,8 +8,11 @@ Glossary
      the lower bound to the upper bound. A parameter uncertainty  can be either 
      real valued or discrete valued.
    categorical uncertainty
-      An uncertianty is categorical if there is not a range but a set of 
-      possibilities over wich one wants to sample.
+      An uncertainty is categorical if there is not a range but a set of 
+      possibilities over which one wants to sample.
+   lookup uncertainty
+	  vensim specific extension to categorical uncertainty for handling
+	  lookups in various ways
    uncertainty space
       the space created by the set of uncertainties
    ensemble
@@ -37,8 +40,11 @@ Glossary
       An experiment is a complete specification for a run. It specifies the 
       case, the name of the policy, and the name of the model.
    policy
-      
+      a policy is by definition an object with a name attribute. So,
+      policy['name'] most return the name of the policy
    result
-      
+      the combination of an experiment and the associated outcomes for the
+      experiment
    outcome
-      
+      the data of interest produced by a model given an experiment
+

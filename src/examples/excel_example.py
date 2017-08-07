@@ -10,55 +10,35 @@ This excel file implements a simple predator prey model.
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import matplotlib.pyplot as plt
+from __future__ import (division, print_function, absolute_import, 
+                        unicode_literals)
 
-from expWorkbench import ModelEnsemble, ParameterUncertainty,\
-                         Outcome, ema_logging
-from expWorkbench.excel import ExcelModelStructureInterface
-from analysis.plotting import lines
+from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
+                           perform_experiments)
 
-class ExcelModel(ExcelModelStructureInterface):
-    
-    uncertainties = [ParameterUncertainty((0.01, 0.2),
-                                          "K2"), #we can refer to a cell in the normal way
-                     ParameterUncertainty((450,550),
-                                          "KKK"), # we can also use named cells
-                     ParameterUncertainty((0.05,0.15),
-                                          "rP"),
-                     ParameterUncertainty((0.00001,0.25),
-                                          "aaa"),
-                     ParameterUncertainty((0.45,0.55),
-                                          "tH"),
-                     ParameterUncertainty((0.1,0.3),
-                                          "kk")]
-    
-    #specification of the outcomes
-    outcomes = [Outcome("B4:B1076", time=True),  #we can refer to a range in the normal way
-                Outcome("P_t", time=True)] # we can also use named range
-    
-    #name of the sheet
-    sheet = "Sheet1"
-    
-    #relative path to the Excel file
-    workbook = r'\excel example.xlsx'
-    
+from ema_workbench.connectors.excel import ExcelModel
+
 
 if __name__ == "__main__":    
-    logger = ema_logging.log_to_stderr(level=ema_logging.INFO)
+    ema_logging.log_to_stderr(level=ema_logging.DEBUG)
     
-    model = ExcelModel(r"..\..\models\excelModel", "predatorPrey")
+    model = ExcelModel("predatorPrey", wd="./models/excelModel",
+                      model_file='/excel example.xlsx')
+    model.uncertainties = [RealParameter("K2", 0.01, 0.2), #we can refer to a cell in the normal way
+                           RealParameter("KKK", 450,550), # we can also use named cells
+                           RealParameter("rP", 0.05,0.15),
+                           RealParameter("aaa", 0.00001,0.25),
+                           RealParameter("tH", 0.45,0.55),
+                           RealParameter("kk", 0.1,0.3)]
     
-    ensemble = ModelEnsemble()
-    ensemble.set_model_structure(model) 
+    #specification of the outcomes
+    model.outcomes = [TimeSeriesOutcome("B4:B1076"),  #we can refer to a range in the normal way
+                      TimeSeriesOutcome("P_t")] # we can also use named range
+    
+    #name of the sheet
+    model.sheet = "Sheet1"
+    
+    results = perform_experiments(model, 100, parallel=True, reporting_interval=1)
+    
+    print("blaat")
 
-    ensemble.parallel = True #turn on parallel computing
-    ensemble.processes = 2 #using only 2 cores 
-    
-    #generate 100 cases
-    results = ensemble.perform_experiments(10) 
-    
-    lines(results)
-    plt.show()
-    
-    #save results
-#    save_results(results, r'..\..\excel runs.cPickle')

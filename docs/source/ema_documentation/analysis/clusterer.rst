@@ -2,5 +2,5 @@
 :mod:`clusterer`
 ****************
 
-.. automodule:: clusterer
+.. automodule:: ema_workbench.analysis.clusterer
    :members:

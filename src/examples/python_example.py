@@ -6,34 +6,32 @@ It's main purpose has been to test the parallel processing functionality
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from expWorkbench import ModelEnsemble, ModelStructureInterface,\
-                         ParameterUncertainty, Outcome
+from __future__ import (absolute_import, print_function, division,
+                        unicode_literals)
 
-class SimplePythonModel(ModelStructureInterface):
-    '''
-    This class represents a simple example of how one can extent the basic
-    ModelStructureInterface in order to do EMA on a simple model coded in
-    Python directly
-    '''
-    
-    #specify uncertainties
-    uncertainties = [ParameterUncertainty((0.1, 10), "x1"),
-                     ParameterUncertainty((-0.01,0.01), "x2"),
-                     ParameterUncertainty((-0.01,0.01), "x3")]
-   
-    #specify outcomes 
-    outcomes = [Outcome('y')]
+from ema_workbench import (Model, RealParameter, ScalarOutcome, ema_logging,
+                           perform_experiments)
 
-    def model_init(self, policy, kwargs):
-        pass
-    
-    def run_model(self, case):
-        """Method for running an instantiated model structure """
-        self.output[self.outcomes[0].name] =  case['x1']*case['x2']+case['x3']
-    
+def some_model(x1=None, x2=None, x3=None):
+    return {'y':x1*x2+x3}
 
 if __name__ == '__main__':
-    model = SimplePythonModel(None, 'simpleModel') #instantiate the model
-    ensemble = ModelEnsemble() #instantiate an ensemble
-    ensemble.set_model_structure(model) #set the model on the ensemble
-    results = ensemble.perform_experiments(1000) #generate 1000 cases
+    ema_logging.LOG_FORMAT = '[%(name)s/%(levelname)s/%(processName)s] %(message)s'
+    ema_logging.log_to_stderr(ema_logging.INFO)
+    
+    model = Model('simpleModel', function=some_model) #instantiate the model
+
+    #specify uncertainties
+    model.uncertainties = [RealParameter("x1", 0.1, 10),
+                           RealParameter("x2", -0.01,0.01),
+                           RealParameter("x3", -0.01,0.01)]
+    #specify outcomes 
+    model.outcomes = [ScalarOutcome('y')]
+
+    results = perform_experiments(model, 100)
+
+#     ensemble = ModelEnsemble() #instantiate an ensemble
+#     ensemble.model_structure = model #set the model on the ensemble
+#     results = ensemble.perform_experiments(100, reporting_interval=1) #run 1000 experiments
+    
+

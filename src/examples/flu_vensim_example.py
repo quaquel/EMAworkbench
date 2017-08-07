@@ -8,88 +8,60 @@ is the same as used in fluExample
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
-from expWorkbench import ModelEnsemble, ParameterUncertainty,\
-                         Outcome, save_results, ema_logging
-from expWorkbench.vensim import VensimModelStructureInterface 
+from __future__ import (division, unicode_literals, print_function, 
+                        absolute_import)
 
-class FluModel(VensimModelStructureInterface):
+import numpy as np
 
-    #base case model
-    modelFile = r'\FLUvensimV1basecase.vpm'
-        
-    #outcomes
-    outcomes = [Outcome('deceased population region 1', time=True),
-                Outcome('infected fraction R1', time=True)]
- 
-    #Plain Parametric Uncertainties 
-    uncertainties = [
-        ParameterUncertainty((0, 0.5), 
-                             "additional seasonal immune population fraction R1"),
-        ParameterUncertainty((0, 0.5), 
-                             "additional seasonal immune population fraction R2"),
-        ParameterUncertainty((0.0001, 0.1), 
-                             "fatality ratio region 1"),
-        ParameterUncertainty((0.0001, 0.1), 
-                             "fatality rate region 2"),
-        ParameterUncertainty((0, 0.5), 
-                             "initial immune fraction of the population of region 1"),
-        ParameterUncertainty((0, 0.5), 
-                             "initial immune fraction of the population of region 2"),
-        ParameterUncertainty((0, 0.9), 
-                             "normal interregional contact rate"),
-        ParameterUncertainty((0, 0.5), 
-                             "permanent immune population fraction R1"),
-        ParameterUncertainty((0, 0.5), 
-                             "permanent immune population fraction R2"),
-        ParameterUncertainty((0.1, 0.75), 
-                             "recovery time region 1"),
-        ParameterUncertainty((0.1, 0.75), 
-                             "recovery time region 2"),
-        ParameterUncertainty((0.5,2), 
-                             "susceptible to immune population delay time region 1"),
-        ParameterUncertainty((0.5,2), 
-                             "susceptible to immune population delay time region 2"),
-        ParameterUncertainty((0.01, 5), 
-                             "root contact rate region 1"),
-        ParameterUncertainty((0.01, 5), 
-                             "root contact ratio region 2"),
-        ParameterUncertainty((0, 0.15), 
-                             "infection ratio region 1"),
-        ParameterUncertainty((0, 0.15), 
-                             "infection rate region 2"),
-        ParameterUncertainty((10, 100), 
-                             "normal contact rate region 1"),
-        ParameterUncertainty((10, 200), 
-                             "normal contact rate region 2")]
-                         
-    def model_init(self, policy, kwargs):
-        '''initializes the model'''
-        
-        try:
-            self.modelFile = policy['file']
-        except KeyError:
-            ema_logging.warning("key 'file' not found in policy")
-        super(FluModel, self).model_init(policy, kwargs)
-        
-if __name__ == "__main__":
+from ema_workbench import (RealParameter,TimeSeriesOutcome, ema_logging,
+                           ScalarOutcome, perform_experiments)
+from ema_workbench.em_framework.parameters import Policy
+from ema_workbench.connectors.vensim import VensimModel 
+
+if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
-        
-    model = FluModel(r'..\..\models\flu', "fluCase")
-    ensemble = ModelEnsemble()
-    ensemble.set_model_structure(model)
+
+    model = VensimModel("fluCase", wd=r'./models/flu',
+                        model_file = r'FLUvensimV1basecase.vpm')
+            
+    #outcomes
+    model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
+                      TimeSeriesOutcome('infected fraction R1'),
+                      ScalarOutcome('max infection fraction', 
+                                    variable_name='infected fraction R1', 
+                                    function=np.max)]
     
+    #Plain Parametric Uncertainties 
+    model.uncertainties = [
+        RealParameter('additional seasonal immune population fraction R1', 0, 0.5),
+        RealParameter('additional seasonal immune population fraction R2', 0, 0.5),
+        RealParameter('fatality ratio region 1', 0.0001, 0.1),
+        RealParameter('fatality rate region 2', 0.0001, 0.1),
+        RealParameter('initial immune fraction of the population of region 1', 0, 0.5),
+        RealParameter('initial immune fraction of the population of region 2', 0, 0.5),
+        RealParameter('normal interregional contact rate', 0, 0.9),
+        RealParameter('permanent immune population fraction R1', 0, 0.5),
+        RealParameter('permanent immune population fraction R2', 0, 0.5),
+        RealParameter('recovery time region 1', 0.1, 0.75),
+        RealParameter('recovery time region 2', 0.1, 0.75),
+        RealParameter('susceptible to immune population delay time region 1', 0.5, 2),
+        RealParameter('susceptible to immune population delay time region 2', 0.5, 2),
+        RealParameter('root contact rate region 1', 0.01, 5),
+        RealParameter('root contact ratio region 2', 0.01, 5),
+        RealParameter('infection ratio region 1', 0, 0.15),
+        RealParameter('infection rate region 2', 0, 0.15),
+        RealParameter('normal contact rate region 1', 10, 100),
+        RealParameter('normal contact rate region 2', 10, 200)]
+ 
     #add policies
-    policies = [{'name': 'no policy',
-                 'file': r'\FLUvensimV1basecase.vpm'},
-                {'name': 'static policy',
-                 'file': r'\FLUvensimV1static.vpm'},
-                {'name': 'adaptive policy',
-                 'file': r'\FLUvensimV1dynamic.vpm'}
+    policies = [Policy('no policy',
+                       model_file=r'FLUvensimV1basecase.vpm'),
+                Policy('static policy',
+                       model_file=r'FLUvensimV1static.vpm'),
+                Policy('adaptive policy',
+                       model_file=r'FLUvensimV1dynamic.vpm')
                 ]
-    ensemble.add_policies(policies)
-
-    ensemble.parallel = True #turn on parallel processing
-
-    results = ensemble.perform_experiments(1000)
-    
-    save_results(results, r'./data/1000 flu cases.bz2')
+     
+     
+    results = perform_experiments(model, 1000, policies=policies, 
+                                  parallel=True)
