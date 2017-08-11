@@ -519,7 +519,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
 
 def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
-                    **kwargs):
+                    callback=callback, **kwargs):
     '''perform robust optimization
 
     Parameters
@@ -552,8 +552,10 @@ def robust_optimize(model, robustness_functions, scenarios,
     # solve the optimization problem
     if not evaluator:
         evaluator = SequentialEvaluator(model)
-
+    
     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
+    callback = functools.partial(callback, optimizer)
+    evaluator.callback = callback
     optimizer.run(nfe)
 
     results = to_dataframe(optimizer, problem.parameter_names,
