@@ -84,7 +84,7 @@ class ExperimentRunner(object):
         ema_logging.debug(self.log_message.format(scenario_id=scenario_id,
                                                   policy_name=policy_name,
                                                   model_name=model_name))
-        scenario = experiment.scenario.copy()
+        scenario = experiment.scenario
         try:
             model.run_model(scenario, policy)
         except CaseError as e:
