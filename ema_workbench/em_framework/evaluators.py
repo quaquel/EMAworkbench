@@ -112,7 +112,6 @@ class BaseEvaluator(object):
         '''makes ema_workbench evaluators compatible with Platypus evaluators
         as used by platypus algorithms'''
 
-        # TODO:: still needs to be added to robust_optimize
         self.callback()
 
         problem = jobs[0].solution.problem
@@ -133,12 +132,18 @@ class BaseEvaluator(object):
         try:
             n_scenarios = len(scenarios)
         except TypeError:
-            n_scenarios = 1
+            try:
+                n_scenarios = int(scenarios)
+            except TypeError:
+                n_scenarios = 1
 
         try:
             n_policies = len(policies)
         except TypeError:
-            n_policies = 1
+            try: 
+                n_policies = int(policies)
+            except TypeError:
+                n_policies = 1
 
         # overwrite the default 10 progress reports  with 5 reports
         rp = int(max(1, n_scenarios*n_policies/5))
@@ -554,8 +559,10 @@ def robust_optimize(model, robustness_functions, scenarios,
         evaluator = SequentialEvaluator(model)
     
     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
+    
     callback = functools.partial(callback, optimizer)
     evaluator.callback = callback
+    
     optimizer.run(nfe)
 
     results = to_dataframe(optimizer, problem.parameter_names,
