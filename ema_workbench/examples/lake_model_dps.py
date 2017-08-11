@@ -50,7 +50,7 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
     
     '''
     
-    rule = w1*(abs(xt-c1/r1))**3+(1-w1)*(abs(xt-c2/r2)**3)
+    rule = w1*(abs(xt-c1)/r1)**3+(1-w1)*(abs(xt-c2)/r2)**3
     at1 = max(rule, 0.01)
     at = min(at1, 0.1)
     

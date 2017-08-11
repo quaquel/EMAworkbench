@@ -14,6 +14,7 @@ import shutil
 import string
 import threading
 import warnings
+import functools
 
 warnings.simplefilter("once", ImportWarning)
 
@@ -111,6 +112,9 @@ class BaseEvaluator(object):
         '''makes ema_workbench evaluators compatible with Platypus evaluators
         as used by platypus algorithms'''
 
+        # TODO:: still needs to be added to robust_optimize
+        self.callback()
+
         problem = jobs[0].solution.problem
         searchover = problem.searchover
 
@@ -126,7 +130,19 @@ class BaseEvaluator(object):
         else:
             raise NotImplementedError()
 
-        callback = perform_experiments(self._msis,
+        try:
+            n_scenarios = len(scenarios)
+        except TypeError:
+            n_scenarios = 1
+
+        try:
+            n_policies = len(policies)
+        except TypeError:
+            n_policies = 1
+
+        # overwrite the default 10 progress reports  with 5 reports
+        rp = int(max(1, n_scenarios*n_policies/5))
+        callback = perform_experiments(self._msis, reporting_interval=rp,
                                        scenarios=scenarios, policies=policies,
                                        evaluator=self, return_callback=True)
 
@@ -439,9 +455,12 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     return results
 
 
+def callback(optimizer):
+    pass
+
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
-             **kwargs):
+             callback=callback, **kwargs):
     '''optimize the model
 
     Parameters
@@ -450,7 +469,9 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     algorithm : a valid Platypus optimization algorithm
     nfe : int
     searchover : {'uncertainties', 'levers'}
-    kwargs : aditional argumenst to pass on to algorithm
+    kwargs : additional arguments to pass on to algorithm
+    callback : callable
+               called every generation with the optimizer as arg
 
     Returns
     -------
@@ -482,6 +503,10 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
         evaluator = SequentialEvaluator(models)
 
     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
+    
+    callback = functools.partial(callback, optimizer)
+    evaluator.callback = callback
+    
     optimizer.run(nfe)
     results = to_dataframe(optimizer, problem.parameter_names,
                            problem.outcome_names)

@@ -8,7 +8,6 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
-import copy
 import operator
 import os
 import six
@@ -303,6 +302,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
         return model_spec
 
+class MyDict(dict):
+    pass
 
 class Replicator(AbstractModel):
 
@@ -317,11 +318,12 @@ class Replicator(AbstractModel):
         if isinstance(replications, int):
             # TODO:: use a repeating generator instead
 
-            self._replications = [{} for _ in range(replications)]
+            self._replications = [MyDict() for _ in range(replications)]
             self.nreplications = replications
         elif isinstance(replications, list):
             # should we check if all are dict?
-            self._replications = replications
+            # TODO:: this needs testing
+            self._replications = [MyDict(**entry) for entry in replications]
             self.nreplications = len(replications) 
         else:
             raise TypeError("replications should be int or list not {}".format(type(replications)))
@@ -337,18 +339,15 @@ class Replicator(AbstractModel):
 
         """
         super(Replicator, self).run_model(scenario, policy)
-
+        
         constants = {c.name:c.value for c in self.constants}
         outputs = defaultdict(list)
-
-        policy = copy.deepcopy(self.policy)
-        partial_experiment = combine(scenario, policy, constants)
+        partial_experiment = combine(scenario, self.policy, constants)
 
         for i, rep in enumerate(self.replications):
+            ema_logging.debug("replication {}".format(i))
             rep.id = i
-            experiment = Experiment(scenario, policy, constants, rep)
-#             experiment = copy.deepcopy(partial_experiment)
-#             experiment = combine(experiment, rep)
+            experiment = Experiment(scenario, self.policy, constants, rep)
             output = self.run_experiment(experiment)
             for key, value in output.items():
                 outputs[key].append(value)
@@ -378,7 +377,6 @@ class SingleReplication(AbstractModel):
         # combine would then be replaced with a call to instantiate
         # an experiment
         experiment = Experiment(scenario, self.policy, constants)
-#         experiment = combine(scenario, self.policy, constants)
 
         outputs = self.run_experiment(experiment)
 
