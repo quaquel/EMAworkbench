@@ -129,25 +129,8 @@ class BaseEvaluator(object):
         else:
             raise NotImplementedError()
 
-        try:
-            n_scenarios = len(scenarios)
-        except TypeError:
-            try:
-                n_scenarios = int(scenarios)
-            except TypeError:
-                n_scenarios = 1
-
-        try:
-            n_policies = len(policies)
-        except TypeError:
-            try: 
-                n_policies = int(policies)
-            except TypeError:
-                n_policies = 1
-
         # overwrite the default 10 progress reports  with 5 reports
-        rp = int(max(1, n_scenarios*n_policies/5))
-        callback = perform_experiments(self._msis, reporting_interval=rp,
+        callback = perform_experiments(self._msis, reporting_frequency=3,
                                        scenarios=scenarios, policies=policies,
                                        evaluator=self, return_callback=True)
 
@@ -164,9 +147,10 @@ class BaseEvaluator(object):
         return jobs
 
     def perform_experiments(self, scenarios=0, policies=0,
-                            reporting_interval=None, uncertainty_union=False,
-                            lever_union=False, outcome_union=False,
-                            uncertainty_sampling=LHS, levers_sampling=LHS):
+                            reporting_interval=None, reporting_frequency=10,
+                            uncertainty_union=False, lever_union=False, 
+                            outcome_union=False, uncertainty_sampling=LHS, 
+                            levers_sampling=LHS):
         '''convenience method for performing experiments.
 
         is forwarded to :func:perform_experiments, with evaluator and models
@@ -176,6 +160,7 @@ class BaseEvaluator(object):
         return perform_experiments(self._msis, scenarios=scenarios,
                                    policies=policies, evaluator=self,
                                    reporting_interval=reporting_interval,
+                                   reporting_frequency=reporting_frequency,
                                    uncertainty_union=uncertainty_union,
                                    lever_union=lever_union,
                                    outcome_union=outcome_union,
@@ -351,10 +336,11 @@ class IpyparallelEvaluator(BaseEvaluator):
 
 
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
-                        reporting_interval=None, uncertainty_union=False,
-                        lever_union=False, outcome_union=False,
-                        uncertainty_sampling=LHS, levers_sampling=LHS,
-                        callback=None, return_callback=False):
+                        reporting_interval=None, reporting_frequency=10, 
+                        uncertainty_union=False, lever_union=False, 
+                        outcome_union=False, uncertainty_sampling=LHS, 
+                        levers_sampling=LHS, callback=None,
+                        return_callback=False):
     '''sample uncertainties and levers, and perform the resulting experiments
     on each of the models
 
@@ -365,6 +351,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     policies :  int or collection of Policy instances, optional
     evaluator : Evaluator instance, optional
     reporting interval : int, optional
+    reporting_frequency: int, optional
     uncertainty_union : boolean, optional
     lever_union : boolean, optional
     uncertainty_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
@@ -438,7 +425,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     if not callback:
         callback = DefaultCallback(uncertainties, levers, outcomes,
                                    constraints, nr_of_exp,
-                                   reporting_interval=reporting_interval)
+                                   reporting_interval=reporting_interval,
+                                   reporting_frequency=reporting_frequency)
 
     if not evaluator:
         evaluator = SequentialEvaluator(models)
