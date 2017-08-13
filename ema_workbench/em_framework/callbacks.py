@@ -52,13 +52,16 @@ class AbstractCallback(object):
     reporting_interval : int, optional
                          the interval at which to provide progress information
                          via logging.
+    reporting_frequency: int, optional
+                         the total number of progress logs
+
 
     Attributes
     ----------
     i : int
         a counter that keeps track of how many experiments have been saved
-    reporting_interval : int
-                         the frequency at which to log progress
+    reporting_interval : int, 
+                         the interval between progress logs
 
     '''
     __metaclass__ = abc.ABCMeta
@@ -67,9 +70,11 @@ class AbstractCallback(object):
     reporting_interval = 100
 
     def __init__(self, uncertainties, outcomes, constraints, levers,
-                 nr_experiments, reporting_interval=None):
+                 nr_experiments, reporting_interval=None,
+                 reporting_frequency=10):
         if reporting_interval is None:
-            reporting_interval = max(1, int(round(nr_experiments / 10)))
+            reporting_interval = max(1,
+                             int(round(nr_experiments/reporting_frequency)))
 
         self.reporting_interval = reporting_interval
 
@@ -130,7 +135,7 @@ class DefaultCallback(AbstractCallback):
                             'this array is {}d')
 
     def __init__(self, uncs, levers, outcomes, constraints, nr_experiments,
-                 reporting_interval=100):
+                 reporting_interval=100, reporting_frequency=10):
         '''
 
         Parameters
@@ -144,14 +149,16 @@ class DefaultCallback(AbstractCallback):
                       a list of constraints
         nr_experiments : int
                          the total number of experiments to be executed
-        reporting_interval : int
-                             the interval at which to provide progress
-                             information via logging.
+        reporting_interval : int, optional
+                             the interval between progress logs
+        reporting_frequency: int, optional
+                             the total number of progress logs
 
         '''
         super(DefaultCallback, self).__init__(uncs, levers, outcomes,
                                               constraints, nr_experiments,
-                                              reporting_interval)
+                                              reporting_interval, 
+                                              reporting_frequency)
         self.i = 0
         self.cases = None
         self.results = {}
