@@ -89,7 +89,7 @@ def plot_envelope(ax, j, time, value, fill):
     minimum = np.min(value, axis=0)
     maximum = np.max(value, axis=0)
 
-    color = COLOR_LIST[j]
+    color = get_color(j)
     
     if fill:
 #        ax.plot(time, minimum, color=color, alpha=0.3)
@@ -119,9 +119,9 @@ def plot_histogram(ax, values, log):
     
     '''
     if isinstance(values, list):
-        color = COLOR_LIST[0:len(values)]
+        color = [get_color(i) for i in range(len(values))]
     else:
-        color=COLOR_LIST[0]
+        color=get_color(0)
     a = ax.hist(values, 
              bins=11, 
              orientation='horizontal',
@@ -150,7 +150,7 @@ def plot_kde(ax, values, log):
 
 
     for j, value in enumerate(values):        
-        color = COLOR_LIST[j]
+        color = get_color(j)
         kde_x, kde_y = determine_kde(value)
         ax.plot(kde_x, kde_y, c=color, ms=1, markevery=20)
     
@@ -214,7 +214,7 @@ def plot_violinplot(ax, value, log, group_labels=None):
             
             scl = 1 / (v.max() / 0.4)
             v = v*scl #scaling the violin to the available space
-            ax.fill_betweenx(x,p-v,p+v,facecolor=COLOR_LIST[p],alpha=0.6, lw=1.5)
+            ax.fill_betweenx(x,p-v,p+v,facecolor=get_color(p),alpha=0.6, lw=1.5)
             
             for percentile in [25, 75]:
                 quant = scoreatpercentile(data.ravel(), percentile)
@@ -390,8 +390,10 @@ def make_legend(categories,
     some_identifiers = []
     labels = []
     for i, category in enumerate(categories):
+        color = get_color(i)
+        
         if legend_type == LINE:    
-            artist = plt.Line2D([0,1], [0,1], color=COLOR_LIST[i], 
+            artist = plt.Line2D([0,1], [0,1], color=color, 
                                 alpha=alpha) #TODO
         elif legend_type == SCATTER:
 #             marker_obj = mpl.markers.MarkerStyle('o')
@@ -405,11 +407,11 @@ def make_legend(categories,
 #                                         )
             # TODO work arround, should be a proper proxyartist for scatter legends
             artist = mpl.lines.Line2D([0],[0], linestyle="none", 
-                                      c=COLOR_LIST[i], marker = 'o')
+                                      c=color, marker = 'o')
 
         elif legend_type == PATCH:
-            artist = plt.Rectangle((0,0), 1,1, edgecolor=COLOR_LIST[i],
-                                   facecolor=COLOR_LIST[i], alpha=alpha)
+            artist = plt.Rectangle((0,0), 1,1, edgecolor=color,
+                                   facecolor=color, alpha=alpha)
 
         some_identifiers.append(artist)
         
@@ -841,3 +843,10 @@ def make_grid(outcomes_to_show, density=False):
     figure = plt.figure()
     return figure, grid
 
+def get_color(index):
+    '''helper function for cycling over color list if the number of items
+    is higher than the legnth of the color list
+    '''
+    corrected_index = index % len(COLOR_LIST)
+    return COLOR_LIST[corrected_index]
+    

@@ -17,8 +17,6 @@ from ..util import ema_logging
 import itertools
 
 
-COLOR_LIST = itertools.cycle(COLOR_LIST)
-
 # Created on May 24, 2015
 # 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -351,10 +349,11 @@ class OutputFormatterMixin(object):
         # plot.
         norm_box_lims =  [_normalize(box_lim, box_init, uncs) for 
                                         box_lim in box_lims[0:-1]]
-                        
+        colors = itertools.cycle(COLOR_LIST)
+
         if together:
             fig, ax = _setup_figure(uncs)
-            color = next(COLOR_LIST)
+            color = next(colors)
             
             for i, u in enumerate(uncs):
                 # we want to have the most restricted dimension
@@ -369,7 +368,7 @@ class OutputFormatterMixin(object):
             return fig
         else:
             figs = []
-            color = next(COLOR_LIST)
+            color = next(colors)
             for j, norm_box_lim in enumerate(norm_box_lims):
                 fig, ax = _setup_figure(uncs)
                 figs.append(fig)
@@ -382,7 +381,7 @@ class OutputFormatterMixin(object):
             return figs
     
     @staticmethod  
-    def _plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color):
+    def _plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax):
         '''
         
         Parameters:
@@ -404,6 +403,7 @@ class OutputFormatterMixin(object):
             
         y = xi-j*0.1
         
+        color = COLOR_LIST[0]
         if dtype == object:
             elements = sorted(list(box_init[u][0]))
             max_value = (len(elements)-1)
