@@ -15,11 +15,11 @@ import numpy as np
 import six
 from matplotlib.patches import ConnectionPatch
 
-from . import plotting_util
+# from . import plotting_util
 from .plotting_util import (prepare_data, simple_kde, group_density, make_grid,
                            make_legend, plot_envelope, simple_density,
                            do_titles, do_ylabels, TIME, ENV_LIN, ENVELOPE,
-                           LINES, PATCH, LINE, TIGHT)
+                           LINES, PATCH, LINE, TIGHT, KDE, get_color)
 from ..util import debug, warning, EMAError
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -499,7 +499,7 @@ def plot_lines_with_envelopes(results,
                 value = outcomes[key][outcome_to_plot]
                 full_value = full_outcomes[key][outcome_to_plot]
                 ax.plot(time.T[:, np.newaxis], value.T, 
-                        c=plotting_util.COLOR_LIST[j])
+                        c=get_color(j))
             
             if density:
                 group_density(ax_d, density, full_outcomes, outcome_to_plot, 
@@ -564,7 +564,7 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
         value = outcomes[key]
         value = value[outcome_to_plot]
 
-        color = plotting_util.COLOR_LIST[j]
+        color = get_color(j)
         ax.plot(time.T[:, np.newaxis], value.T, c=color, ms=1, markevery=5)
     
     if density:
@@ -689,7 +689,7 @@ def multiple_densities(results,
                        outcomes_to_show=[],
                        group_by = None,
                        grouping_specifiers = None,
-                       density=plotting_util.KDE,
+                       density=KDE,
                        legend=True,
                        titles={},
                        ylabels={},

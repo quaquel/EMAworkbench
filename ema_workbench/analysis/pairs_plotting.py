@@ -11,9 +11,9 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
-from . import plotting_util
-from .plotting_util import SCATTER, LINE
-from .plotting_util import prepare_pairs_data, make_legend
+# from . import plotting_util
+from .plotting_util import (SCATTER, LINE, get_color, prepare_pairs_data,
+                            make_legend)
 from ..util import debug, info
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -101,7 +101,7 @@ def pairs_lines(results,
             for x, entry in enumerate(grouping_labels):
                 data1 = outcomes[entry][field1]
                 data2 = outcomes[entry][field2]
-                color = plotting_util.COLOR_LIST[x]
+                color = get_color(x)
                 if i==j: 
                     color = 'white'
                 simple_pairs_lines(ax, data1, data2, color)
@@ -457,7 +457,7 @@ def pairs_scatter(results,
                 y_data = outcomes[group][field1]
                 x_data = outcomes[group][field2]
                 
-                facecolor = plotting_util.COLOR_LIST[x]
+                facecolor = get_color(x)
                 edgecolor = 'k'
                 if i==j: 
                     facecolor = 'white'
@@ -468,7 +468,7 @@ def pairs_scatter(results,
             y_data = outcomes[field1]
             x_data = outcomes[field2]
 
-            facecolor = 'b'
+            facecolor = get_color(0)
             edgecolor = 'k'
             if i==j: 
                 facecolor = 'white'
