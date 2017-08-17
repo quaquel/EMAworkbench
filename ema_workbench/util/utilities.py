@@ -20,7 +20,7 @@ import tarfile
 
 from matplotlib.mlab import rec2csv
 import numpy as np
-from numpy.lib import recfunctions
+# from numpy.lib import recfunctions
 
 import pandas as pd
 from pandas.io.parsers import read_csv
