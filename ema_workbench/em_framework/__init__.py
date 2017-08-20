@@ -12,10 +12,10 @@ __all__ = ["ema_parallel", "parameters"
            "get_SALib_problem", "FASTSampler"
            "peform_experiments", 'optimize', "IpyparallelEvaluator", 
            "MultiprocessingEvaluator", "SequentialEvaluator"
-           ]
+           'ReplicatorModel']
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
-from .model import Model, FileModel
+from .model import Model, FileModel, ReplicatorModel
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                      Scenario, Policy, Constant, Experiment, create_parameters,
                      parameters_to_csv, Category, experiment_generator)
