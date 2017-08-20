@@ -32,7 +32,7 @@ from ..util.ema_logging import method_logger
 # 
 
 __all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator',
-           'SingleReplication']
+           'SingleReplication', 'ReplicatorModel']
 
 
 class ModelMeta(abc.ABCMeta):
@@ -508,4 +508,7 @@ class FileModel(AbstractModel):
 
 
 class Model(SingleReplication, BaseModel):
+    pass
+
+class ReplicatorModel(Replicator, BaseModel):
     pass
