@@ -69,7 +69,7 @@ setup(
     description     = 'exploratory modelling in Python',
     long_description= LONG_DESCRIPTION,
     author          = 'Jan Kwakkel',
-    author_email    = 'j.h.kwakkel@tudelft',
+    author_email    = 'j.h.kwakkel@tudelft.nl',
     packages        = PACKAGES,
     package_data    = {'ema_workbench': EXAMPLE_DATA+JAVA},
     url             = 'https://github.com/quaquel/EMAworkbench',
