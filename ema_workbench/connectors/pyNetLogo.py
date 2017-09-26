@@ -17,6 +17,7 @@ import pandas as pd
 import jpype
 
 from ..util.ema_logging import debug, info, warning
+from ema_workbench.util import ema_logging
 
 __all__ = ['NetLogoException',
            'NetLogoLink']
@@ -226,8 +227,11 @@ class NetLogoLink():
                 debug('set state to headless on mac os')
                 jpype.java.lang.System.setProperty("java.awt.headless", "true");            
             
-        
-        link = jpype.JClass(module_name[netlogo_version])
+        try:
+            link = jpype.JClass(module_name[netlogo_version])
+        except Exception as e:
+            ema_logging.warning("can't find class for netlogo version"+netlogo_version)
+            raise e
         debug('NetLogoLink class found')
 
         if sys.platform == 'darwin' and gui:
