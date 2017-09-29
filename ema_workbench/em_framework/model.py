@@ -454,11 +454,49 @@ class BaseModel(AbstractModel):
         return model_specs
 
 
-# TODO:: is it required that FileModel has a model_file?
-# might instead be some data files used by a Python Process
-# Solution, have an intermediate class, WorkingDirectoryModel
-# FileModel than extents that class with the model_file
-class FileModel(AbstractModel):
+class WorkingDirectoryModel(AbstractModel):
+    '''TODO:: to be moved to ema_workbench'''
+    
+    @property
+    def working_directory(self):
+        return self._working_directory
+
+    @working_directory.setter
+    def working_directory(self, path):
+        wd = os.path.abspath(path)
+        debug('setting working directory to '+ wd)
+        self._working_directory = wd
+
+    def __init__(self, name, wd=None):
+        """interface to the model
+        Parameters
+        ----------
+        name : str
+               name of the modelInterface. The name should contain only
+               alpha-numerical characters.        
+        working_directory : str
+                            working_directory for the model. 
+        Raises
+        ------
+        EMAError 
+            if name contains non alpha-numerical characters
+        ValueError
+            if working_directory does not exist
+        """
+        super(WorkingDirectoryModel, self).__init__(name)
+        self.working_directory = wd
+        
+        if not os.path.exists(self.working_directory):
+            raise ValueError("{} does not exist".format(self.working_directory))
+
+
+    def as_dict(self):
+        model_specs = super(WorkingDirectoryModel, self).as_dict()
+        model_specs['working_directory'] = self.working_directory
+        return model_specs
+
+
+class FileModel(WorkingDirectoryModel):
 
     @property
     def working_directory(self):
@@ -481,7 +519,7 @@ class FileModel(AbstractModel):
         working_directory : str
                             working_directory for the model. 
         model_file  : str
-                     The model file relative to working directory
+                     the name of the model file
 
         Raises
         ------
@@ -491,8 +529,8 @@ class FileModel(AbstractModel):
             if model_file cannot be found
 
         """
-        super(FileModel, self).__init__(name)
-        self.working_directory = wd
+        super(FileModel, self).__init__(name, wd=wd)
+
 
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
@@ -503,7 +541,6 @@ class FileModel(AbstractModel):
     def as_dict(self):
         model_specs = super(FileModel, self).as_dict()
         model_specs['model_file'] = self.model_file
-        model_specs['working_directory'] = self.working_directory
         return model_specs
 
 
