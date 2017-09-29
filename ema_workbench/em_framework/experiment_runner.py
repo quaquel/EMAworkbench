@@ -90,6 +90,7 @@ class ExperimentRunner(object):
         except CaseError as e:
             ema_logging.warning(str(e))
         except Exception as e:
+            ema_logging.exception(str(e))
             try:
                 self.cleanup()
             except Exception:
