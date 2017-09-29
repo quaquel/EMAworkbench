@@ -418,7 +418,7 @@ def experiment_generator(scenarios, model_structures, policies):
     Notes
     -----
     this generator is essentially three nested loops: for each model structure,
-    for each policy, for each experiment, run the experiment. This means 
+    for each policy, for each scenario, return the experiment. This means 
     that designs should not be a generator because this will be exhausted after
     the running the first policy on the first model. 
     
@@ -428,8 +428,8 @@ def experiment_generator(scenarios, model_structures, policies):
     for i, job in enumerate(jobs):
         msi, policy, scenario = job
         name = '{} {} {}'.format(msi.name, policy.name, i)
-        experiment = Case(name, msi.name, policy, scenario, i)
-        yield experiment
+        case = Case(name, msi.name, policy, scenario, i)
+        yield case
 
 
 def parameters_to_csv(parameters, file_name):
