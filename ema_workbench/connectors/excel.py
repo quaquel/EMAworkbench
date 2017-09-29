@@ -33,11 +33,11 @@ class BaseExcelModel(FileModel):
     The provided implementation here does work with :mod:`parallel_ema`.
     
     '''
-    
     com_warning_msg = "com error: no cell(s) named %s found"
-    
+
     def __init__(self, name, wd=None, model_file=None):
-        super(BaseExcelModel, self).__init__(name, wd=wd, model_file=model_file)
+        super(BaseExcelModel, self).__init__(name, wd=wd,
+                                             model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
         self.xl = None
@@ -45,7 +45,7 @@ class BaseExcelModel(FileModel):
         #: Reference to the workbook. This attribute is `None` until
         #: model_init has been invoked.
         self.wb = None
-    
+
         #: Name of the sheet on which one want to set values
         self.sheet = None
 
@@ -53,10 +53,11 @@ class BaseExcelModel(FileModel):
     def workbook(self):
         return self.model_file
 
+    @method_logger
     def model_init(self, policy):
         '''
         Method called to initialize the model.
-        
+
         Parameters
         ----------
         policy : dict
@@ -66,25 +67,24 @@ class BaseExcelModel(FileModel):
                  gives users to the ability to pass any additional 
                  arguments. 
         
-        
         '''
         super(BaseExcelModel, self).model_init(policy)
-        
+
         if not self.xl:
             try:
                 ema_logging.debug("trying to start Excel")
                 self.xl = win32com.client.Dispatch("Excel.Application")
-                ema_logging.debug("Excel started") 
+                ema_logging.debug("Excel started")
             except com_error as e:
                 raise EMAError(str(e))
         
-        # TODO for some strange reason, init is called for every replication
         if not self.wb:
             ema_logging.debug("trying to open workbook")
             wb = os.path.join(self.working_directory, self.workbook)
             self.wb = self.xl.Workbooks.Open(wb)
             ema_logging.debug("workbook opened")
             ema_logging.debug(self.working_directory)
+
 
     @method_logger
     def run_experiment(self, experiment):
@@ -101,46 +101,51 @@ class BaseExcelModel(FileModel):
 
         Parameters
         ----------
-        scenario : Scenario instance
-        policy : Policy instance
-        
+        experiment : Experiment instance
+
+        Returns
+        ------
+        dict
         
         """
-#         super(ExcelModel, self).run_model(scenario, policy)
-        
         #find right sheet
         try:
             sheet = self.wb.Sheets(self.sheet)
-        except Exception :
+        except Exception:
             ema_logging.warning("com error: sheet not found")
             self.cleanup()
             raise
-        
+
         #set values on sheet
         for key, value in experiment.items():
             try:
-                sheet.Range(key).Value = value 
+                sheet.Range(key).Value = value
             except com_error:
                 ema_logging.warning("com error: no cell(s) named %s found" % key,)
 
         #get results
         results = {}
-        for variable in self.outcome_variables:
-            try:
-                output = sheet.Range(variable).Value
-            except com_error:
-                ema_logging.warning(self.com_warning_msg.format(variable))	
-                continue
-            results[variable] = output
-            
+        for outcome in self.outcomes:
+            for entry in outcome.variable_name:
+                try:
+                    output = sheet.Range(entry).Value
+                except com_error:
+                    ema_logging.warning(self.com_warning_msg.format(entry))	
+                    raise
+                else:
+                    results[entry] = output
+
         return results
 
 
+    @method_logger
     def cleanup(self):
         ''' cleaning up prior to finishing performing experiments. This will 
         close the workbook and close Excel'''
-        
-        ema_logging.debug("cleaning up")
+
+        # TODO:: if we know the pid for the associated excel process
+        # we might forcefully close that process, helps in case of errors
+
         if self.wb:
             self.wb.Close(False)
             del self.wb
@@ -148,9 +153,9 @@ class BaseExcelModel(FileModel):
             self.xl.DisplayAlerts = False
             self.xl.Quit()
             del self.xl
-        
+
         self.xl = None
         self.wb = None
-        
+
 class ExcelModel(SingleReplication, BaseExcelModel):
     pass

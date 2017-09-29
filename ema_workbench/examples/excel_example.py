@@ -21,10 +21,10 @@ from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
 
 if __name__ == "__main__":    
-    ema_logging.log_to_stderr(level=ema_logging.DEBUG)
+    ema_logging.log_to_stderr(level=ema_logging.INFO)
     
     model = ExcelModel("predatorPrey", wd="./models/excelModel",
-                      model_file='/excel example.xlsx')
+                      model_file='excel example.xlsx')
     model.uncertainties = [RealParameter("K2", 0.01, 0.2), #we can refer to a cell in the normal way
                            RealParameter("KKK", 450,550), # we can also use named cells
                            RealParameter("rP", 0.05,0.15),
@@ -42,6 +42,4 @@ if __name__ == "__main__":
     with MultiprocessingEvaluator(model) as evaluator:
         results = perform_experiments(model, 100, reporting_interval=1,
                                       evaluator=evaluator)
-    
-    print("blaat")
 
