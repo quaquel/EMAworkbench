@@ -84,7 +84,7 @@ class AbstractOutcome(Variable):
             try:
                 n_values = len(values)
             except TypeError:
-                len_val = None
+                n_values = None
                 
             if (n_values==None) and (n_variables==1):
                 return self.function(values)

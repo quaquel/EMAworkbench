@@ -8,6 +8,6 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
                            IpyparallelEvaluator, ReplicatorModel)
 
 from . import util
-from .util import save_results, load_results, ema_logging, EMAError
+from .util import save_results, load_results, ema_logging, EMAError 
 
 __version__ = '1.0.0'

@@ -42,6 +42,7 @@ from ..util import ema_logging, EMAError
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+# TODO:: replace with enum
 LHS = 'lhs'
 MC = 'mc'
 FF = 'ff'
