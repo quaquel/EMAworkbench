@@ -9,7 +9,7 @@ __all__ = ["ema_parallel", "parameters"
            "RealParameter", "IntegerParameter", "CategoricalParameter",
            "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
-           "get_SALib_problem", "FASTSampler"
+           "get_SALib_problem", "FASTSampler",
            "peform_experiments", 'optimize', "IpyparallelEvaluator", 
            "MultiprocessingEvaluator", "SequentialEvaluator"
            'ReplicatorModel']

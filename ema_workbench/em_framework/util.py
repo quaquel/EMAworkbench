@@ -243,9 +243,3 @@ def determine_objects(models, attribute, union=True):
         for key in params_to_remove:
             del named_objects[key]
     return named_objects
-
-
-
-    
-    
-    
