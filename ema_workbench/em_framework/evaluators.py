@@ -333,7 +333,9 @@ class IpyparallelEvaluator(BaseEvaluator):
                               ex_gen, ordered=False, block=False)
 
         for entry in results:
-            callback(*entry)
+            experiment, results = entry
+            outcomes, constraints = results
+            callback(experiment, outcomes, constraints)
 
 
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
