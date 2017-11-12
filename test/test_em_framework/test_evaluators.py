@@ -68,7 +68,7 @@ class TestEvaluators(unittest.TestCase):
         
         client = mock.MagicMock(spec=ipyparallel.Client)
         lb_view = mock.Mock()
-        lb_view.map.return_value = [(1,1)]
+        lb_view.map.return_value = [(1,({},{}))]
         
         client.load_balanced_view.return_value = lb_view 
         
