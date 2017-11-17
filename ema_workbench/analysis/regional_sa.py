@@ -10,6 +10,7 @@ zoom in on any given uncertainty in more detail.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
+import math
 import operator
 
 import matplotlib.pyplot as plt
@@ -165,7 +166,7 @@ def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
         ax.set_xticklabels([])
 
         
-def plot_cdf(ax, unc, x, y, discrete=False,
+def plot_individual_cdf(ax, unc, x, y, discrete=False,
             legend=False, xticklabels_on=False,
             yticklabels_on=False, ccdf=False):
     '''plot cdf for x conditional on y
@@ -234,7 +235,7 @@ def plot_cdfs(x, y, ccdf=False):
     cp = sns.color_palette()
     
     n_col = 4
-    n_row = len(uncs)//n_col +1
+    n_row = math.ceil(len(uncs)/n_col)
     size = 3 
     aspect = 1
     figsize = n_col * size * aspect, n_row * size
@@ -252,14 +253,12 @@ def plot_cdfs(x, y, ccdf=False):
         data = x[unc]
         if x.dtype[unc] == np.dtype('O'):
             discrete = True
-        plot_cdf(ax, unc, data, y, discrete, ccdf=ccdf)
+        plot_individual_cdf(ax, unc, data, y, discrete, ccdf=ccdf)
     
     # last row might contain empty axis, 
     # let's make them disappear
-    i_row = len(uncs) // n_col
-    i_col = len(uncs) % n_col
-    for i_col in range(i_col, n_col):
-        ax = axes[i_row, i_col]
+    for j_col in range(i_col+1, n_col):
+        ax = axes[i_row, j_col]
         ax.set_xticklabels([])
         ax.set_xticks([])
         ax.set_yticklabels([])
