@@ -12,6 +12,6 @@ scikit-learn
 seaborn
 matplotlib
 pyzmq
-
+mpldatacursor
 pysd
 salib
