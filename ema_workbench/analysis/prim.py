@@ -23,11 +23,12 @@ from operator import itemgetter
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
+import mpldatacursor
 import numpy as np
 import numpy.lib.recfunctions as rf
 import pandas as pd
 import six
-from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
 from scipy.stats import binom
 
 try:
@@ -504,14 +505,30 @@ class PrimBox(object):
                     ax, ncol=5, alpha=1)
         return fig
     
-    def show_tradeoff(self):
+    def show_tradeoff(self, cmap=mpl.cm.viridis): #@UndefinedVariable
         '''Visualize the trade off between coverage and density. Color is used
-        to denote the number of restricted dimensions.'''
+        to denote the number of restricted dimensions. 
+        
+        if available, mpld3 or matplotlib interactivity is used to enable
+        exploring the points on the trade off curve in more detail.
+        
+        Parameters
+        ----------
+        cmap : valid matplotlib colormap
+        
+        Returns
+        -------
+        a Figure instance
+        
+        
+        ..note:: mpld3 is no longer actively maintained and broken on python 
+        3.5 and higher. use %matplotlib notebook in Jupyter.
+        
+        '''
        
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect='equal')
         
-        cmap = mpl.cm.YlGnBu_r #@UndefinedVariable
         boundaries = np.arange(-0.5, 
                                max(self.peeling_trajectory['res dim'])+1.5, 
                                step=1)
@@ -570,7 +587,23 @@ class PrimBox(object):
     
             tooltip = mpld3.plugins.PointHTMLTooltip(p, labels, voffset=10, 
                                                hoffset=10, css=css)  
-            mpld3.plugins.connect(fig, tooltip)        
+            mpld3.plugins.connect(fig, tooltip)
+        
+        def formatter(**kwargs):
+            i = kwargs.get("ind")[0]
+            data = self.peeling_trajectory.ix[i]
+            return (("Box %d\n" +
+                     "Coverage: %2.1f%%\n" +
+                     "Density: %2.1f%%\n" +
+                     "Mass: %2.1f%%\n" +
+                     "Res Dim: %d") % (i,
+                                       100*data["coverage"],
+                                       100*data["density"],
+                                       100*data["mass"],
+                                       data["res dim"]))
+    
+        mpldatacursor.datacursor(formatter=formatter, draggable=True,
+                                 display='multiple')        
         
         return fig
     
