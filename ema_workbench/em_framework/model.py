@@ -90,8 +90,9 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         except ValueError:
             raise ValueError("Pass an iterable with two items")
         else:
+            data = []
             for constraint in self.constraints:
-                data = [experiment[var] for var in constraint.parameter_names]
+                data += [experiment[var] for var in constraint.parameter_names]
                 data += [output[var] for var in constraint.outcome_names]
                 constraint_value = constraint.process(data)
                 self._constraints_output[constraint.name] = constraint_value
@@ -353,7 +354,11 @@ class Replicator(AbstractModel):
                 outputs[key].append(value)
 
         self.outcomes_output = outputs
-        self.constraints_output = (partial_experiment, outputs)
+        
+        # perhaps set constraints with the outcomes instead
+        # this avoids double processing, it also means that 
+        # each constraint needs to apply to an actual outcome
+        self.constraints_output = (partial_experiment, self.outcomes_output)
 
 
 class SingleReplication(AbstractModel):
@@ -381,7 +386,7 @@ class SingleReplication(AbstractModel):
         outputs = self.run_experiment(experiment)
 
         self.outcomes_output = outputs
-        self.constraints_output = (experiment, outputs)
+        self.constraints_output = (experiment, outcomes_output)
 
 
 class BaseModel(AbstractModel):
@@ -455,7 +460,7 @@ class BaseModel(AbstractModel):
 
 
 class WorkingDirectoryModel(AbstractModel):
-    '''TODO:: to be moved to ema_workbench'''
+    '''Base class for a model that needs its dedicated working directory'''
     
     @property
     def working_directory(self):
