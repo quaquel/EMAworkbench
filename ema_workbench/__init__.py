@@ -5,9 +5,10 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
                            IntegerParameter, perform_experiments, optimize,
                            ScalarOutcome, TimeSeriesOutcome, Constant, 
                            Scenario, Policy, MultiprocessingEvaluator, 
-                           IpyparallelEvaluator, ReplicatorModel)
+                           IpyparallelEvaluator, SequentialEvaluator,
+                           ReplicatorModel, Constraint)
 
 from . import util
 from .util import save_results, load_results, ema_logging, EMAError 
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
