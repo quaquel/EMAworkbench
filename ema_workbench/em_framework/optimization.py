@@ -15,7 +15,7 @@ from .samplers import determine_parameters
 from .util import determine_objects
 
 try:
-    from platypus import EpsNSGAII  # @UnresolvedImport
+    from platypus import EpsNSGAII, Hypervolume  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
     import platypus
 except ImportError:
@@ -28,12 +28,13 @@ except ImportError:
     EpsNSGAII = None
     platypus = None
 
+
 # Created on 5 Jun 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = []
-
+__all__ = ["Problem", "Robust_Problem", "EpsilonProgress", "HyperVolume",
+           "Convergence"]
 
 class Problem(PlatypusProblem):
     '''small extension to Platypus problem object, includes information on
@@ -290,3 +291,65 @@ def evaluate_robust(jobs_collection, experiments, outcomes,
         
 #         job.solution.problem.function = lambda x: job_outcomes
         job.solution.evaluate()
+        
+class AbstractConvergenceMetric(object):
+    '''base convergence metric class'''
+    
+    def __init__(self, name):
+        self.name = name
+    
+    def __call__(self, optimizer):
+        raise NotImplementedError
+
+
+class EpsilonProgress(AbstractConvergenceMetric):
+    '''epsilon progress convergence metric class'''
+    def __init__(self):
+        super(EpsilonProgress, self).__init__("epsilon_progress")
+    
+    def __call__(self, optimizer):
+        return optimizer.algorithm.archive.improvements
+
+    
+class HyperVolume(AbstractConvergenceMetric):
+    '''Hypervolume convergence metric class
+    
+    Parameters
+    ---------
+    minimum : numpy array
+    maximum : numpy array
+    
+    
+    '''
+    
+    def __init__(self, minimum, maximum):
+        super(HyperVolume, self).__init__("hypervolume")
+        self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
+        
+    def __call__(self, optimizer):
+        return self.hypervolume_func.calculate(optimizer.algorithm.archive)
+
+
+class Convergence(object):
+    '''helper class for tracking convergence of optimization'''
+    
+    valid_metrics = set(["hypervolume", "epsilon_progress"])
+    
+    def __init__(self, metrics):
+        if metrics is None:
+            metrics = []
+        
+        self.metrics = metrics
+        
+        for metric in metrics:
+            assert metric.name in self.valid_metrics
+            setattr(self, metric.name, [])
+        
+    def __call__(self, optimizer):
+        for metric in self.metrics:
+            getattr(self, metric.name).append(metric(optimizer))
+            
+    def to_dataframe(self):
+        progress = {metric.name:getattr(self, metric.name) for metric in 
+                    self.metrics}
+        return pd.DataFrame.from_dict(progress)
