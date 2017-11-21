@@ -5,7 +5,7 @@ from __future__ import (absolute_import, unicode_literals, division,
 __all__ = ["ema_parallel", "parameters"
            "model", "outcomes", "samplers", 
            "Model", 'FileModel', "ModelEnsemble",
-           "Outcome", "ScalarOutcome", "TimeSeriesOutcome",
+           "Outcome", "ScalarOutcome", "TimeSeriesOutcome", "Constraint",
            "RealParameter", "IntegerParameter", "CategoricalParameter",
            "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
@@ -14,7 +14,7 @@ __all__ = ["ema_parallel", "parameters"
            "MultiprocessingEvaluator", "SequentialEvaluator"
            'ReplicatorModel']
 
-from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome
+from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome, Constraint
 from .model import Model, FileModel, ReplicatorModel
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                      Scenario, Policy, Constant, Experiment, create_parameters,
