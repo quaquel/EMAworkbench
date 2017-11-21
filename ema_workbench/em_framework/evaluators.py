@@ -27,7 +27,7 @@ from .model import AbstractModel
 from .optimization import (evaluate_robust, evaluate, EpsNSGAII,
                            to_dataframe, to_problem, to_robust_problem,
                            process_levers, process_uncertainties,
-                           process_robust)
+                           process_robust, Convergence)
 from .outcomes import ScalarOutcome, AbstractOutcome
 from .parameters import (experiment_generator, Scenario, Policy)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
@@ -451,12 +451,10 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     return results
 
 
-def callback(optimizer):
-    pass
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
-             callback=callback, **kwargs):
+             convergence=None, **kwargs):
     '''optimize the model
 
     Parameters
@@ -466,8 +464,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     nfe : int
     searchover : {'uncertainties', 'levers'}
     kwargs : additional arguments to pass on to algorithm
-    callback : callable
-               called every generation with the optimizer as arg
+    convergence : function or collection of functions, optional
 
     Returns
     -------
@@ -500,22 +497,29 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
 
     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
     
-    callback = functools.partial(callback, optimizer)
+    
+    convergence = Convergence(convergence)
+    callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
     
     optimizer.run(nfe)
     results = to_dataframe(optimizer, problem.parameter_names,
                            problem.outcome_names)
-
+    convergence = convergence.to_dataframe()
+    
     message = "optimization completed, found {} solutions"
     ema_logging.info(message.format(len(optimizer.algorithm.archive)))
 
-    return results
+    if convergence.empty:
+        return results
+    else:
+        return results, convergence
+    
 
 
 def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
-                    callback=callback, **kwargs):
+                    convergence=None, **kwargs):
     '''perform robust optimization
 
     Parameters
@@ -551,15 +555,21 @@ def robust_optimize(model, robustness_functions, scenarios,
     
     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
     
-    callback = functools.partial(callback, optimizer)
+    convergence = Convergence(convergence)
+    callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
     
     optimizer.run(nfe)
 
     results = to_dataframe(optimizer, problem.parameter_names,
                            problem.outcome_names)
-
+    convergence = convergence.to_dataframe()
+    
     message = "optimization completed, found {} solutions"
     ema_logging.info(message.format(len(optimizer.algorithm.archive)))
 
-    return results
+    if convergence.empty:
+        return results
+    else:
+        return results, convergence
+    
