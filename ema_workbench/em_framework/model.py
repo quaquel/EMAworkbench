@@ -386,7 +386,7 @@ class SingleReplication(AbstractModel):
         outputs = self.run_experiment(experiment)
 
         self.outcomes_output = outputs
-        self.constraints_output = (experiment, outcomes_output)
+        self.constraints_output = (experiment, self.outcomes_output)
 
 
 class BaseModel(AbstractModel):
