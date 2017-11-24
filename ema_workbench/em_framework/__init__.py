@@ -12,7 +12,8 @@ __all__ = ["ema_parallel", "parameters"
            "get_SALib_problem", "FASTSampler",
            "peform_experiments", 'optimize', "IpyparallelEvaluator", 
            "MultiprocessingEvaluator", "SequentialEvaluator"
-           'ReplicatorModel']
+           'ReplicatorModel', "EpsilonProgress", "HyperVolume",
+           "Convergence", "ArchiveLogger"]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome, Constraint
 from .model import Model, FileModel, ReplicatorModel
@@ -26,3 +27,5 @@ from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler,
                              get_SALib_problem)
 from .evaluators import (perform_experiments, optimize, IpyparallelEvaluator, 
                          MultiprocessingEvaluator, SequentialEvaluator)
+from .optimization import (Convergence, HyperVolume, EpsilonProgress,
+                           ArchiveLogger)
