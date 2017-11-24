@@ -496,8 +496,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
         evaluator = SequentialEvaluator(models)
 
     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
-    
-    
+        
     convergence = Convergence(convergence)
     callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback

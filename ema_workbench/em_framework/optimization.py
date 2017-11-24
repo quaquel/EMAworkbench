@@ -5,6 +5,7 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                                         division)
 
+import os
 import pandas as pd
 import warnings
 
@@ -34,7 +35,7 @@ except ImportError:
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ["Problem", "Robust_Problem", "EpsilonProgress", "HyperVolume",
-           "Convergence"]
+           "Convergence", "ArchiveLogger"]
 
 class Problem(PlatypusProblem):
     '''small extension to Platypus problem object, includes information on
@@ -297,6 +298,7 @@ class AbstractConvergenceMetric(object):
     
     def __init__(self, name):
         self.name = name
+        self.results = []
     
     def __call__(self, optimizer):
         raise NotImplementedError
@@ -308,7 +310,7 @@ class EpsilonProgress(AbstractConvergenceMetric):
         super(EpsilonProgress, self).__init__("epsilon_progress")
     
     def __call__(self, optimizer):
-        return optimizer.algorithm.archive.improvements
+        self.results.append(optimizer.algorithm.archive.improvements)
 
     
 class HyperVolume(AbstractConvergenceMetric):
@@ -327,13 +329,45 @@ class HyperVolume(AbstractConvergenceMetric):
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
         
     def __call__(self, optimizer):
-        return self.hypervolume_func.calculate(optimizer.algorithm.archive)
+        self.results.append(self.hypervolume_func.calculate(optimizer.algorithm.archive))
 
+class ArchiveLogger(AbstractConvergenceMetric):
+    '''Helper class to write the archive to disk at each iteration
+    
+    Parameters
+    ----------
+    directory : str
+    decision_varnames : list of str
+    outcome_varnames : list of str
+    base_filename : str, optional
+    
+    TODO:: put it in a tarbal instead of dedicated directory
+    
+    '''
+    
+    def __init__(self, directory, decision_varnames, 
+                 outcome_varnames, base_filename='archive'):
+        super(ArchiveLogger, self).__init__('archive_logger')
+        self.directory = os.path.abspath(directory)
+        self.base = base_filename
+        self.decision_varnames = decision_varnames
+        self.outcome_varnames = outcome_varnames
+        self.index = 0
+        
+    def __call__(self, optimizer):
+        self.index += 1
+        
+        fn = os.path.join(self.directory, '{}_{}.csv'.format(self.base, self.index))
+        
+        archive = to_dataframe(optimizer, self.decision_varnames, 
+                               self.outcome_varnames)
+        archive.to_csv(fn)
+        
 
 class Convergence(object):
     '''helper class for tracking convergence of optimization'''
     
-    valid_metrics = set(["hypervolume", "epsilon_progress"])
+    valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
     
     def __init__(self, metrics):
         if metrics is None:
@@ -343,13 +377,12 @@ class Convergence(object):
         
         for metric in metrics:
             assert metric.name in self.valid_metrics
-            setattr(self, metric.name, [])
         
     def __call__(self, optimizer):
         for metric in self.metrics:
-            getattr(self, metric.name).append(metric(optimizer))
+            metric(optimizer)
             
     def to_dataframe(self):
-        progress = {metric.name:getattr(self, metric.name) for metric in 
-                    self.metrics}
+        progress = {metric.name:metric.results for metric in 
+                    self.metrics if metric.results}
         return pd.DataFrame.from_dict(progress)
