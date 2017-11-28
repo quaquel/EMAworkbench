@@ -1571,6 +1571,7 @@ class MultiBoxesPrim(Prim):
     
     
     TODO:: we need a better name for this
+    TODO:: should become a kwarg on normal prim
     
     '''
     
@@ -1584,6 +1585,5 @@ class MultiBoxesPrim(Prim):
         # set the indices
         for box in self._boxes:
             self.y[box.yi] = 0
-        print(np.sum(self.y))
         
         self.yi_remaining = self.yi
