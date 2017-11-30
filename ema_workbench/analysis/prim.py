@@ -354,7 +354,7 @@ class PrimBox(object):
                 x = [entry/max_value for entry in x]
                 
                 for xi, label in zip(x, values):
-                    ax.text(xi, y-0.1, label, ha='center', va='center',
+                    ax.text(xi, y-0.2, label, ha='center', va='center',
                            bbox=props, color='blue', fontweight='normal')
 
             else:
