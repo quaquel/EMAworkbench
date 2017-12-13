@@ -14,7 +14,6 @@ from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
-from ema_workbench.examples.model_debugger import variable
 
 try:
     from platypus import EpsNSGAII, Hypervolume  # @UnresolvedImport
