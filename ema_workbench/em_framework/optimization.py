@@ -14,6 +14,7 @@ from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
+from ema_workbench.examples.model_debugger import variable
 
 try:
     from platypus import EpsNSGAII, Hypervolume  # @UnresolvedImport
@@ -222,8 +223,10 @@ def process_uncertainties(jobs):
     scenarios = []
 
     for i, platypus_job in enumerate(jobs):
+        variables = transform_variables(problem, 
+                                        platypus_job.solution.variables)
         variables = dict(zip(platypus_job.solution.problem.parameter_names, 
-                             platypus_job.solution.variables))
+                             variables))
         name = str(i)
         job = Scenario(name=name, **variables)
         scenarios.append(job)
@@ -248,15 +251,10 @@ def process_levers(jobs):
     policies = []
     
     for i, platypus_job in enumerate(jobs):
-        job_variables = platypus_job.solution.variables
-        converted_vars = []
-        for type, var in zip(problem.types, job_variables):  # @ReservedAssignment
-            if isinstance(type, platypus.Integer):
-                var = type.decode(var)
-            converted_vars.append(var)
-        
+        variables = transform_variables(problem, 
+                                        platypus_job.solution.variables)
         variables = dict(zip(platypus_job.solution.problem.parameter_names, 
-                             converted_vars))
+                             variables))
         name = str(i)
         job = Policy(name=name, **variables)
         policies.append(job)
@@ -282,6 +280,17 @@ def process_robust(jobs):
     scenarios = jobs[0].solution.problem.scenarios
 
     return scenarios, policies
+
+
+def transform_variables(problem, variables):
+    '''helper function for transforming platypus variables'''
+    
+    converted_vars = []
+    for type, var in zip(problem.types, variables):  # @ReservedAssignment
+        if isinstance(type, platypus.Integer):
+            var = type.decode(var)
+        converted_vars.append(var)
+    return converted_vars
 
 
 def evaluate(jobs_collection, experiments, outcomes, problem):
