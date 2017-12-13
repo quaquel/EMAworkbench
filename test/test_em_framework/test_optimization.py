@@ -16,7 +16,7 @@ except ImportError:
 from ema_workbench.em_framework.model import Model
 from ema_workbench.em_framework.parameters import RealParameter,\
     IntegerParameter, CategoricalParameter
-from ema_workbench.em_framework.outcomes import ScalarOutcome
+from ema_workbench.em_framework.outcomes import ScalarOutcome, Constraint
 from ema_workbench.em_framework.optimization import (Problem, RobustProblem, 
              to_dataframe, to_platypus_types, to_problem, to_robust_problem,
              process_levers, process_uncertainties, process_robust)
@@ -38,26 +38,31 @@ class TestProblem(unittest.TestCase):
         parameters = [mock.Mock(), mock.Mock()]
         parameter_names = ['a', 'b']
         outcome_names = ['x', 'y']
-        constraint_names = ['n']
+        
+        constraints = [Constraint('n', function= lambda x:x)] 
         
         problem = Problem(searchover, parameters, parameter_names, 
-                          outcome_names,constraint_names)
+                          outcome_names,constraints)
 
         self.assertEqual(searchover, problem.searchover)
         self.assertEqual(parameters, problem.parameters)
         self.assertEqual(parameter_names, problem.parameter_names)
         self.assertEqual(outcome_names, problem.outcome_names)
-        self.assertEqual(constraint_names, problem.constraint_names)
+        self.assertEqual(constraints, problem.ema_constraints)
+        self.assertEqual([c.name for c in constraints], 
+                         problem.constraint_names)
         
         searchover = 'uncertainties'
         problem = Problem(searchover, parameters, parameter_names, 
-                          outcome_names, constraint_names)
+                          outcome_names, constraints)
 
         self.assertEqual(searchover, problem.searchover)
         self.assertEqual(parameters, problem.parameters)
         self.assertEqual(parameter_names, problem.parameter_names)
         self.assertEqual(outcome_names, problem.outcome_names)
-        self.assertEqual(constraint_names, problem.constraint_names)
+        self.assertEqual(constraints, problem.ema_constraints)
+        self.assertEqual([c.name for c in constraints], 
+                         problem.constraint_names)
     
     def test_robust_problem(self):
         parameters = [mock.Mock(), mock.Mock()]
@@ -65,18 +70,19 @@ class TestProblem(unittest.TestCase):
         outcome_names = ['x', 'y']
         scenarios = 10
         robustness_functions = [mock.Mock(), mock.Mock()]
-        constraint_names = ['n']
+        constraints = [Constraint('n', function= lambda x:x)] 
         
         problem = RobustProblem(parameters, parameter_names, outcome_names, 
                                 scenarios, robustness_functions, 
-                                constraint_names)
+                                constraints)
         
         self.assertEqual('robust', problem.searchover)
         self.assertEqual(parameters, problem.parameters)
         self.assertEqual(parameter_names, problem.parameter_names)
         self.assertEqual(outcome_names, problem.outcome_names)
-        self.assertEqual(constraint_names, problem.constraint_names)      
-
+        self.assertEqual(constraints, problem.ema_constraints)
+        self.assertEqual([c.name for c in constraints], 
+                         problem.constraint_names)
     
 class TestOptimization(unittest.TestCase):
     @mock.patch('ema_workbench.em_framework.optimization.platypus')
@@ -126,7 +132,6 @@ class TestOptimization(unittest.TestCase):
         mocked_model.uncertainties = [RealParameter('c', 0, 1),
                                       RealParameter('d', 0, 1)]
         mocked_model.outcomes = [ScalarOutcome('x'), ScalarOutcome('y')]
-        mocked_model.constraints = []
         
         searchover = 'levers'
         problem = to_problem(mocked_model, searchover)
