@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'ema_workbench'
-copyright = u'2011-2016, J.H. Kwakkel'
+copyright = u'2011-2017, J.H. Kwakkel'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

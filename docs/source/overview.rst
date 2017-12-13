@@ -63,7 +63,7 @@ to their own model.
 Analysis
 ========
 
-The ananlysis package contains a variety of analysis and visualization 
+The anlysis package contains a variety of analysis and visualization 
 techniques for analysing the results from the exploratory modeling. The 
 analysis scripts are tailored for use in combination with the workbench, but 
 they can also be used on their own with data generated in some other manner.
@@ -93,5 +93,6 @@ they can also be used on their own with data generated in some other manner.
 
 * various plotting functions (:mod:`plotting`)
 * pair wise plots (:mod:`pairs_plotting`)
+* parallel coordinate plots (:mod:`parcoords`)
 * support for converting figures to black and white (:mod:`b_an_w_plotting`) 
 
