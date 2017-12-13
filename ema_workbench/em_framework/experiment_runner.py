@@ -106,7 +106,6 @@ class ExperimentRunner(object):
                             "\nCaused by: {}: {}".format(errortype, str(e))))
 
         outcomes = model.outcomes_output
-        constraints = model.constraints_output
         model.reset_model()
 
-        return outcomes, constraints
+        return outcomes

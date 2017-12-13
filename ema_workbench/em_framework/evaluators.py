@@ -136,14 +136,11 @@ class BaseEvaluator(object):
                                        evaluator=self, return_callback=True)
 
         experiments, outcomes = callback.get_results()
-        constraints = callback.constraints
 
         if searchover in ('levers', 'uncertainties'):
-            evaluate(jobs_collection, experiments, outcomes, constraints,
-                     problem)
+            evaluate(jobs_collection, experiments, outcomes, problem)
         else:
-            evaluate_robust(jobs_collection, experiments, outcomes,
-                            constraints, problem)
+            evaluate_robust(jobs_collection, experiments, outcomes, problem)
 
         return jobs
 
@@ -169,7 +166,7 @@ class BaseEvaluator(object):
                                    levers_sampling=levers_sampling)
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
-                 reference=None, **kwargs):
+                 reference=None, constraints=None, **kwargs):
         '''convenience method for outcome optimization.
 
         is forwarded to :func:optimize, with evaluator and models
@@ -178,7 +175,7 @@ class BaseEvaluator(object):
         '''
         return optimize(self._msis, algorithm=algorithm, nfe=nfe,
                         searchover=searchover, evaluator=self,
-                        reference=reference, **kwargs)
+                        reference=reference, constraints=constraints, **kwargs)
 
     def robust_optimize(self, robustness_functions, scenarios,
                         algorithm=EpsNSGAII, nfe=10000, **kwargs):
@@ -213,8 +210,8 @@ class SequentialEvaluator(BaseEvaluator):
         cwd = os.getcwd()
         runner = ExperimentRunner(models)
         for experiment in ex_gen:
-            outcomes, constraints = runner.run_experiment(experiment)
-            callback(experiment, outcomes, constraints)
+            outcomes = runner.run_experiment(experiment)
+            callback(experiment, outcomes)
         runner.cleanup()
         os.chdir(cwd)
 
@@ -333,9 +330,7 @@ class IpyparallelEvaluator(BaseEvaluator):
                               ex_gen, ordered=False, block=False)
 
         for entry in results:
-            experiment, results = entry
-            outcomes, constraints = results
-            callback(experiment, outcomes, constraints)
+            callback(*entry)
 
 
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
@@ -416,7 +411,6 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     except TypeError:
         n_models = 1
 
-    constraints = determine_objects(models, "constraints", union=True)
     outcomes = determine_objects(models, 'outcomes', union=outcome_union)
 
     nr_of_exp = n_models * n_scenarios * n_policies
@@ -426,8 +420,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                                                n_models, nr_of_exp))
 
     if not callback:
-        callback = DefaultCallback(uncertainties, levers, outcomes,
-                                   constraints, nr_of_exp,
+        callback = DefaultCallback(uncertainties, levers, outcomes, nr_of_exp,
                                    reporting_interval=reporting_interval,
                                    reporting_frequency=reporting_frequency)
 
@@ -454,7 +447,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
-             convergence=None, **kwargs):
+             convergence=None, constraints=None,**kwargs):
     '''optimize the model
 
     Parameters
@@ -465,6 +458,8 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     searchover : {'uncertainties', 'levers'}
     kwargs : additional arguments to pass on to algorithm
     convergence : function or collection of functions, optional
+    constraints : list, optional
+    kwargs : any additional arguments will be passed on to algorithm
 
     Returns
     -------
@@ -489,36 +484,38 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     except TypeError:
         pass
 
-    problem = to_problem(models, searchover, reference=reference)
+    problem = to_problem(models, searchover, constraints, reference=reference)
 
-    # solve the optimization problem
-    if not evaluator:
-        evaluator = SequentialEvaluator(models)
+    return _optimize(problem, models, evaluator, algorithm, convergence, nfe,
+                     **kwargs)
 
-    optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
-        
-    convergence = Convergence(convergence)
-    callback = functools.partial(convergence, optimizer)
-    evaluator.callback = callback
-    
-    optimizer.run(nfe)
-    results = to_dataframe(optimizer, problem.parameter_names,
-                           problem.outcome_names)
-    convergence = convergence.to_dataframe()
-    
-    message = "optimization completed, found {} solutions"
-    ema_logging.info(message.format(len(optimizer.algorithm.archive)))
-
-    if convergence.empty:
-        return results
-    else:
-        return results, convergence
-    
+#     # solve the optimization problem
+#     if not evaluator:
+#         evaluator = SequentialEvaluator(models)
+# 
+#     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
+#         
+#     convergence = Convergence(convergence)
+#     callback = functools.partial(convergence, optimizer)
+#     evaluator.callback = callback
+#     
+#     optimizer.run(nfe)
+#     results = to_dataframe(optimizer, problem.parameter_names,
+#                            problem.outcome_names)
+#     convergence = convergence.to_dataframe()
+#     
+#     message = "optimization completed, found {} solutions"
+#     ema_logging.info(message.format(len(optimizer.algorithm.archive)))
+# 
+#     if convergence.empty:
+#         return results
+#     else:
+#         return results, convergence
 
 
 def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
-                    convergence=None, **kwargs):
+                    convergence=None, constraints=None, **kwargs):
     '''perform robust optimization
 
     Parameters
@@ -529,6 +526,7 @@ def robust_optimize(model, robustness_functions, scenarios,
     evaluator : Evaluator instance
     algorithm : platypus Algorithm instance
     nfe : int
+    constraints : list
     kwargs : any additional arguments will be passed on to algorithm
 
     Raises
@@ -546,11 +544,40 @@ def robust_optimize(model, robustness_functions, scenarios,
         assert(rf.kind != AbstractOutcome.INFO)
         assert(rf.function is not None)
 
-    problem = to_robust_problem(model, scenarios, robustness_functions)
+    problem = to_robust_problem(model, scenarios, constraints,
+                                robustness_functions)
 
+    return _optimize(problem, model, evaluator, algorithm, convergence, nfe,
+                     **kwargs)
+
+#     # solve the optimization problem
+#     if not evaluator:
+#         evaluator = SequentialEvaluator(model)
+#     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
+#     
+#     convergence = Convergence(convergence)
+#     callback = functools.partial(convergence, optimizer)
+#     evaluator.callback = callback
+#     
+#     optimizer.run(nfe)
+# 
+#     results = to_dataframe(optimizer, problem.parameter_names,
+#                            problem.outcome_names)
+#     convergence = convergence.to_dataframe()
+#     
+#     message = "optimization completed, found {} solutions"
+#     ema_logging.info(message.format(len(optimizer.algorithm.archive)))
+# 
+#     if convergence.empty:
+#         return results
+#     else:
+#         return results, convergence
+    
+def _optimize(problem, models, evaluator, algorithm, convergence, nfe, 
+              **kwargs):
     # solve the optimization problem
     if not evaluator:
-        evaluator = SequentialEvaluator(model)
+        evaluator = SequentialEvaluator(models)
     
     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
     
@@ -570,5 +597,4 @@ def robust_optimize(model, robustness_functions, scenarios,
     if convergence.empty:
         return results
     else:
-        return results, convergence
-    
+        return results, convergence   

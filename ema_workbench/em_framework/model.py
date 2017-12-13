@@ -79,23 +79,23 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
             data = [outputs[var] for var in outcome.variable_name]
             self._outcomes_output[outcome.name] = outcome.process(data)
 
-    @property
-    def constraints_output(self):
-        return self._constraints_output
-
-    @constraints_output.setter
-    def constraints_output(self, value):
-        try:
-            experiment, output = value
-        except ValueError:
-            raise ValueError("Pass an iterable with two items")
-        else:
-            data = []
-            for constraint in self.constraints:
-                data += [experiment[var] for var in constraint.parameter_names]
-                data += [output[var] for var in constraint.outcome_names]
-                constraint_value = constraint.process(data)
-                self._constraints_output[constraint.name] = constraint_value
+#     @property
+#     def constraints_output(self):
+#         return self._constraints_output
+# 
+#     @constraints_output.setter
+#     def constraints_output(self, value):
+#         try:
+#             experiment, output = value
+#         except ValueError:
+#             raise ValueError("Pass an iterable with two items")
+#         else:
+#             
+#             for constraint in self.constraints:
+#                 data = [experiment[var] for var in constraint.parameter_names]
+#                 data += [output[var] for var in constraint.outcome_names]
+#                 constraint_value = constraint.process(data)
+#                 self._constraints_output[constraint.name] = constraint_value
 
     @property
     def output(self):
@@ -122,7 +122,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     levers = NamedObjectMapDescriptor(Parameter)
     outcomes = NamedObjectMapDescriptor(AbstractOutcome)
     constants = NamedObjectMapDescriptor(Constant)
-    constraints = NamedObjectMapDescriptor(Constraint)
+#     constraints = NamedObjectMapDescriptor(Constraint)
 
     def __init__(self, name):
         """interface to the model
