@@ -484,7 +484,8 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     except TypeError:
         pass
 
-    problem = to_problem(models, searchover, constraints, reference=reference)
+    problem = to_problem(models, searchover, constraints=constraints, 
+                         reference=reference)
 
     return _optimize(problem, models, evaluator, algorithm, convergence, nfe,
                      **kwargs)
@@ -544,8 +545,8 @@ def robust_optimize(model, robustness_functions, scenarios,
         assert(rf.kind != AbstractOutcome.INFO)
         assert(rf.function is not None)
 
-    problem = to_robust_problem(model, scenarios, constraints,
-                                robustness_functions)
+    problem = to_robust_problem(model, scenarios, constraints=constraints,
+                                robustness_functions=robustness_functions)
 
     return _optimize(problem, model, evaluator, algorithm, convergence, nfe,
                      **kwargs)
