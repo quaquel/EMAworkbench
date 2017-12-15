@@ -14,4 +14,4 @@ matplotlib
 pyzmq
 mpldatacursor
 pysd
-salib
+salib==1.1
