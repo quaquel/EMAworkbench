@@ -11,4 +11,4 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
 from . import util
 from .util import save_results, load_results, ema_logging, EMAError 
 
-__version__ = '1.0.1'
+__version__ = '1.1.0'
