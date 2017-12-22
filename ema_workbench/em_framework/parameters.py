@@ -284,21 +284,21 @@ class CategoricalParameter(IntegerParameter):
         
         return self.categories[index]
         
-    def transform(self, value):
-        '''return index of category
-        
-        Parameters
-        ----------
-        name : int
-               index for which you want the category
-               
-        Raises
-        ------
-        IndexError
-            if value is out of bounds
-        '''
-        warnings.warn('deprecated, use cat_for_index instead')
-        return self.cat_for_index(value)
+#     def transform(self, value):
+#         '''return index of category
+#         
+#         Parameters
+#         ----------
+#         name : int
+#                index for which you want the category
+#                
+#         Raises
+#         ------
+#         IndexError
+#             if value is out of bounds
+#         '''
+#         warnings.warn('deprecated, use cat_for_index instead')
+#         return self.cat_for_index(value)
     
     def invert(self, name):
         ''' invert a category to an integer

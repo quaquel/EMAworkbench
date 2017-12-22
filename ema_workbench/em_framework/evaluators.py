@@ -25,9 +25,9 @@ from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (evaluate_robust, evaluate, EpsNSGAII,
-                           to_dataframe, to_problem, to_robust_problem,
+                           to_problem, to_robust_problem,
                            process_levers, process_uncertainties,
-                           process_robust, Convergence)
+                           process_robust, _optimize)
 from .outcomes import ScalarOutcome, AbstractOutcome
 from .parameters import (experiment_generator, Scenario, Policy)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
@@ -444,7 +444,6 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     return results
 
 
-
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
              convergence=None, constraints=None,**kwargs):
@@ -487,32 +486,12 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     problem = to_problem(models, searchover, constraints=constraints, 
                          reference=reference)
 
-    return _optimize(problem, models, evaluator, algorithm, convergence, nfe,
+    # solve the optimization problem
+    if not evaluator:
+        evaluator = SequentialEvaluator(models)
+
+    return _optimize(problem, evaluator, algorithm, convergence, nfe,
                      **kwargs)
-
-#     # solve the optimization problem
-#     if not evaluator:
-#         evaluator = SequentialEvaluator(models)
-# 
-#     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
-#         
-#     convergence = Convergence(convergence)
-#     callback = functools.partial(convergence, optimizer)
-#     evaluator.callback = callback
-#     
-#     optimizer.run(nfe)
-#     results = to_dataframe(optimizer, problem.parameter_names,
-#                            problem.outcome_names)
-#     convergence = convergence.to_dataframe()
-#     
-#     message = "optimization completed, found {} solutions"
-#     ema_logging.info(message.format(len(optimizer.algorithm.archive)))
-# 
-#     if convergence.empty:
-#         return results
-#     else:
-#         return results, convergence
-
 
 def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
@@ -548,54 +527,9 @@ def robust_optimize(model, robustness_functions, scenarios,
     problem = to_robust_problem(model, scenarios, constraints=constraints,
                                 robustness_functions=robustness_functions)
 
-    return _optimize(problem, model, evaluator, algorithm, convergence, nfe,
-                     **kwargs)
-
-#     # solve the optimization problem
-#     if not evaluator:
-#         evaluator = SequentialEvaluator(model)
-#     optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
-#     
-#     convergence = Convergence(convergence)
-#     callback = functools.partial(convergence, optimizer)
-#     evaluator.callback = callback
-#     
-#     optimizer.run(nfe)
-# 
-#     results = to_dataframe(optimizer, problem.parameter_names,
-#                            problem.outcome_names)
-#     convergence = convergence.to_dataframe()
-#     
-#     message = "optimization completed, found {} solutions"
-#     ema_logging.info(message.format(len(optimizer.algorithm.archive)))
-# 
-#     if convergence.empty:
-#         return results
-#     else:
-#         return results, convergence
-    
-def _optimize(problem, models, evaluator, algorithm, convergence, nfe, 
-              **kwargs):
     # solve the optimization problem
     if not evaluator:
-        evaluator = SequentialEvaluator(models)
-    
-    optimizer = algorithm(problem, evaluator=evaluator, **kwargs)
-    
-    convergence = Convergence(convergence)
-    callback = functools.partial(convergence, optimizer)
-    evaluator.callback = callback
-    
-    optimizer.run(nfe)
+        evaluator = SequentialEvaluator(model)
 
-    results = to_dataframe(optimizer, problem.parameter_names,
-                           problem.outcome_names)
-    convergence = convergence.to_dataframe()
-    
-    message = "optimization completed, found {} solutions"
-    ema_logging.info(message.format(len(optimizer.algorithm.archive)))
-
-    if convergence.empty:
-        return results
-    else:
-        return results, convergence   
+    return _optimize(problem, evaluator, algorithm, convergence, nfe,
+                     **kwargs)

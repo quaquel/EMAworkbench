@@ -33,7 +33,7 @@ workbench, we can then open the modified model in Vensim and spot the error.
 
 The following script can be used for this purpose.
 
-.. literalinclude:: ../../examples/model_debugger.py
+.. literalinclude:: ../../ema_workbench/examples/model_debugger.py
    :linenos:
 
  

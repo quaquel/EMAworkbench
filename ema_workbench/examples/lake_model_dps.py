@@ -20,7 +20,9 @@ from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant, 
                            ema_logging, MultiprocessingEvaluator)
-from ema_workbench.em_framework.parameters import Scenario
+from ema_workbench.em_framework.parameters import Scenario,\
+    CategoricalParameter
+from datashape.coretypes import Categorical
 
 # Created on 1 Jun 2017
 #
@@ -108,10 +110,6 @@ def lake_problem(
 
     return max_P, utility, inertia, reliability
 
-def constraint1(reliability):
-    score = reliability-0.8
-    return max(score, 0)
-
 if __name__ == '__main__':
     
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -130,7 +128,7 @@ if __name__ == '__main__':
                          RealParameter("c2", -2, 2),
                          RealParameter("r1", 0, 2), 
                          RealParameter("r2", 0, 2), 
-                         RealParameter("w1", 0, 1)
+                         CategoricalParameter("w1", np.linspace(0, 1, 10))
                          ]
     
     #specify outcomes 

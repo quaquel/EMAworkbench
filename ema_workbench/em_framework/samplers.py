@@ -146,7 +146,6 @@ class AbstractSampler(object):
 class LHSSampler(AbstractSampler):
     """
     generates a Latin Hypercube sample for each of the parameters
-    in case of categorical parameters, it handles the transform as well
     """
     
     def __init__(self):
@@ -198,9 +197,6 @@ class MonteCarloSampler(AbstractSampler):
     """
     generates a Monte Carlo sample for each of the parameters. 
     
-    
-    In case of a CategoricalParameter it also handles the transformation from 
-    integers back to categories
     """
     
     def __init__(self):
@@ -487,7 +483,7 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
     n_samples : int
     union : bool, optional
             in case of multiple models, sample over the union of
-            uncertainties, or over the intersection of the uncertianties
+            uncertainties, or over the intersection of the uncertainties
     sampler : Sampler instance, optional
     
     Returns
