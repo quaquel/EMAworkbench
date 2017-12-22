@@ -15,4 +15,3 @@ matplotlib
 pyzmq
 mpldatacursor
 pysd
-salib

@@ -13,12 +13,19 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 __all__ = ["SobolSampler", "MorrisSampler", "FASTSampler", 'get_SALib_problem']
 
-from SALib.sample import saltelli, morris, fast_sampler
-
 import operator
+import warnings
 
 from .samplers import DefaultDesigns
 from .parameters import CategoricalParameter, IntegerParameter
+
+try:
+    import SALib
+except ImportError:
+    warnings.warn("SALib samplers not available", ImportWarning)
+    SALib = None
+
+
 
 
 def get_SALib_problem(uncertainties):
@@ -132,7 +139,7 @@ class SobolSampler(SALibSampler):
         super(SobolSampler, self).__init__()
     
     def sample(self, problem, size):
-        return saltelli.sample(problem, size, 
+        return SALib.sample.saltelli.sample(problem, size, 
                                   calc_second_order=self.second_order)
     
     
@@ -165,8 +172,9 @@ class MorrisSampler(SALibSampler):
         
 
     def sample(self, problem, size):
-        return morris.sample(problem, size, self.num_levels, self.grid_jump, 
-                         self.optimal_trajectories, self.local_optimization)   
+        return SALib.sample.morris.sample(problem, size, self.num_levels, 
+                                  self.grid_jump, self.optimal_trajectories, 
+                                  self.local_optimization)   
         
 class FASTSampler(SALibSampler):
     '''Sampler generating a Fourier Amplitude Sensitivity Test (FAST) using 
@@ -188,4 +196,4 @@ class FASTSampler(SALibSampler):
         self.m = m
 
     def sample(self, problem, size):
-        return fast_sampler(self.n, self.m)  
+        return SALib.sample.fast_sampler(self.n, self.m)  
