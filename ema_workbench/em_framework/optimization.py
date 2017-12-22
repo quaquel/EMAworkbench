@@ -5,8 +5,11 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                                         division)
 
+import copy
+import functools
 import os
 import pandas as pd
+import random
 import warnings
 
 from .outcomes import AbstractOutcome
@@ -14,6 +17,7 @@ from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
+from ..util import ema_logging
 
 try:
     from platypus import EpsNSGAII, Hypervolume  # @UnresolvedImport
@@ -34,22 +38,22 @@ except ImportError:
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["Problem", "Robust_Problem", "EpsilonProgress", "HyperVolume",
-           "Convergence", "ArchiveLogger"]
+__all__ = ["Problem", "RobustProblem", "EpsilonProgress", "HyperVolume",
+           "Convergence", "ArchiveLogger", "op"]
 
 class Problem(PlatypusProblem):
     '''small extension to Platypus problem object, includes information on
     the names of the decision variables, the names of the outcomes,
     and the type of search'''
 
-    def __init__(self, searchover, parameters, parameter_names,
+    def __init__(self, searchover, parameters,
                  outcome_names, constraints, reference=None):
         if constraints is None:
             constraints = []
 
         super(Problem, self).__init__(len(parameters), len(outcome_names) , 
                                       nconstrs=len(constraints))
-        assert len(parameters) == len(parameter_names)
+#         assert len(parameters) == len(parameter_names)
         assert searchover in ('levers', 'uncertainties', 'robust')
 
         if searchover=='levers':
@@ -61,7 +65,7 @@ class Problem(PlatypusProblem):
 
         self.searchover = searchover
         self.parameters = parameters
-        self.parameter_names = parameter_names
+#         self.parameter_names = parameter_names
         self.outcome_names = outcome_names
         self.ema_constraints = constraints
         self.constraint_names = [c.name for c in constraints]
@@ -72,11 +76,11 @@ class RobustProblem(Problem):
     '''small extension to Problem object for robust optimization, adds the 
     scenarios and the robustness functions'''
 
-    def __init__(self, parameters, parameter_names,
+    def __init__(self, parameters,
                  outcome_names, scenarios, robustness_functions, 
                  constraints):
         super(RobustProblem, self).__init__('robust', parameters, 
-                                            parameter_names, outcome_names,
+                                            outcome_names,
                                             constraints)
         assert len(robustness_functions) == len(outcome_names)        
         self.scenarios = scenarios
@@ -107,14 +111,13 @@ def to_problem(model, searchover, reference=None, constraints=None):
     
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, searchover, union=True)
-    dvnames = [dv.name for dv in decision_variables]
 
     outcomes = determine_objects(model,'outcomes')
     outcomes = [outcome for outcome in outcomes if 
                 outcome.kind != AbstractOutcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
     
-    problem = Problem(searchover, decision_variables, dvnames,
+    problem = Problem(searchover, decision_variables,
                       outcome_names, constraints, reference=reference)
     problem.types = to_platypus_types(decision_variables)
     problem.directions = [outcome.kind for outcome in outcomes]
@@ -142,12 +145,11 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
 
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, 'levers', union=True)
-    dvnames = [dv.name for dv in decision_variables]
 
     outcomes = robustness_functions
     outcome_names = [outcome.name for outcome in outcomes]
 
-    problem = RobustProblem(decision_variables, dvnames, outcome_names, 
+    problem = RobustProblem(decision_variables, outcome_names, 
                             scenarios, robustness_functions, constraints)
 
     problem.types = to_platypus_types(decision_variables)
@@ -163,7 +165,7 @@ def to_platypus_types(decision_variables):
     #TODO:: should categorical not be platypus.Subset, with size == 1?
     _type_mapping = {RealParameter: platypus.Real,
                      IntegerParameter: platypus.Integer,
-                     CategoricalParameter: platypus.Permutation}  
+                     CategoricalParameter: platypus.Subset}  
     types = []
     for dv in decision_variables:
         klass = _type_mapping[type(dv)]
@@ -171,7 +173,7 @@ def to_platypus_types(decision_variables):
         if not isinstance(dv, CategoricalParameter):
             decision_variable = klass(dv.lower_bound, dv.upper_bound)
         else:
-            decision_variable = klass(dv.categories)
+            decision_variable = klass(dv.categories, 1)
 
         types.append(decision_variable)
     return types
@@ -194,7 +196,10 @@ def to_dataframe(optimizer, dvnames, outcome_names):
 
     solutions = []
     for solution in platypus.unique(platypus.nondominated(optimizer.result)):
-        decision_vars = dict(zip(dvnames, solution.variables))
+        vars = transform_variables(solution.problem, # @ReservedAssignment
+                                   solution.variables)  
+        
+        decision_vars = dict(zip(dvnames, vars))
         decision_out = dict(zip(outcome_names, solution.objectives))
 
         result = decision_vars.copy()
@@ -220,15 +225,12 @@ def process_uncertainties(jobs):
     '''
     problem = jobs[0].solution.problem
     scenarios = []
-
-    for i, platypus_job in enumerate(jobs):
-        variables = transform_variables(problem, 
-                                        platypus_job.solution.variables)
-        variables = dict(zip(platypus_job.solution.problem.parameter_names, 
-                             variables))
+    
+    jobs = _process(jobs, problem)
+    for i, job in enumerate(jobs):
         name = str(i)
-        job = Scenario(name=name, **variables)
-        scenarios.append(job)
+        scenario = Scenario(name=name, **job)
+        scenarios.append(scenario)
 
     policies = problem.reference
 
@@ -248,19 +250,34 @@ def process_levers(jobs):
     '''
     problem = jobs[0].solution.problem
     policies = []
-    
-    for i, platypus_job in enumerate(jobs):
-        variables = transform_variables(problem, 
-                                        platypus_job.solution.variables)
-        variables = dict(zip(platypus_job.solution.problem.parameter_names, 
-                             variables))
+    jobs = _process(jobs, problem)
+    for i, job in enumerate(jobs):
         name = str(i)
-        job = Policy(name=name, **variables)
+        job = Policy(name=name, **job)
         policies.append(job)
     
     scenarios = problem.reference
     
     return scenarios, policies
+
+def _process(jobs, problem):
+    '''helper function to transform platypus job to dict with correct
+    values for workbench'''
+    
+    processed_jobs = []
+    for job in jobs:
+        variables = transform_variables(problem, 
+                                        job.solution.variables)
+        processed_job = {}
+        for param, var in zip(problem.parameters, variables):
+            try:
+                var = var.value
+            except AttributeError:
+                pass
+            processed_job[param.name] = var
+        processed_jobs.append(processed_job)
+    return processed_jobs
+
 
 
 def process_robust(jobs):
@@ -286,8 +303,12 @@ def transform_variables(problem, variables):
     
     converted_vars = []
     for type, var in zip(problem.types, variables):  # @ReservedAssignment
-        if isinstance(type, platypus.Integer):
-            var = type.decode(var)
+        var = type.decode(var)
+        try:
+            var = var[0]
+        except TypeError:
+            pass
+        
         converted_vars.append(var)
     return converted_vars
 
@@ -466,3 +487,105 @@ class Convergence(object):
         progress = {metric.name:metric.results for metric in 
                     self.metrics if metric.results}
         return pd.DataFrame.from_dict(progress)
+
+class CombinedVariator(platypus.Variator):
+    def __init__(self, probability=1):
+        super(CombinedVariator, self).__init__(2)
+        self.probability = probability
+        self.SBX = platypus.SBX()
+        
+    def evolve(self, parents):
+        child1 = copy.deepcopy(parents[0])
+        child2 = copy.deepcopy(parents[1])
+        problem = child1.problem
+
+        if random.uniform(0.0, 1.0) <= self.probability:
+            # we will evolve the individual
+            for i, type in enumerate(problem.types):  # @ReservedAssignment
+                klass = type.__class__
+                child1, child2 = self._variators[klass](self, child1, child2, i, type)
+
+        return [child1, child2]
+    
+    def evolve_real(self, child1, child2, i, type):  # @ReservedAssignment
+        # SBX
+        if random.uniform(0.0, 1.0) <= 0.5:
+            x1 = float(child1.variables[i])
+            x2 = float(child2.variables[i])
+            lb = type.min_value
+            ub = type.max_value
+            
+            x1, x2 = self.SBX.sbx_crossover(x1, x2, lb, ub)
+            
+            child1.variables[i] = x1
+            child2.variables[i] = x2
+            child1.evaluated = False
+            child2.evaluated = False
+        return child1, child2
+        
+    def evolve_integer(self, child1, child2, i, type):  # @ReservedAssignment
+        # HUX()
+        for j in range(type.nbits):
+            if child1.variables[i][j] != child2.variables[i][j]:
+                if bool(random.getrandbits(1)):
+                    child1.variables[i][j] = not child1.variables[i][j]
+                    child2.variables[i][j] = not child2.variables[i][j]
+                    child1.evaluated = False
+                    child2.evaluated = False
+        return child1, child2
+    
+    def evolve_categorical(self, child1, child2, i, type):  # @ReservedAssignment
+        # SSX()
+        # can probably be implemented in a simple manner, since size
+        # of subset is fixed to 1
+        if random.uniform(0.0, 1.0) <= 1:
+            s1 = set(child1.variables[i])
+            s2 = set(child2.variables[i])
+            
+            for j in range(type.size):
+                if child2.variables[i][j] not in s1 and child1.variables[i][j] not in s2 and random.uniform(0.0, 1.0) < 0.5:
+                    temp = child1.variables[i][j]
+                    child1.variables[i][j] = child2.variables[i][j]
+                    child2.variables[i][j] = temp
+
+            child1.evaluated = False
+            child2.evaluated = False   
+        return child1, child2  
+
+    _variators = {platypus.Real : evolve_real,
+                  platypus.Integer : evolve_integer,
+                  platypus.Subset : evolve_categorical}
+    
+def _optimize(problem, evaluator, algorithm, convergence, nfe, 
+              **kwargs):
+    
+    klass = problem.types[0].__class__
+    
+    if all([isinstance(t, klass) for t in problem.types]):
+        variator = None
+    else:
+        # TODO:: need to make my own variator, where the variator
+        # is dependend on the type, for each of three types we have
+        # we use the default from Platypus
+        variator = CombinedVariator()
+        
+    optimizer = algorithm(problem, evaluator=evaluator, variator=variator,
+                          **kwargs)
+    
+    convergence = Convergence(convergence)
+    callback = functools.partial(convergence, optimizer)
+    evaluator.callback = callback
+    
+    optimizer.run(nfe)
+
+    results = to_dataframe(optimizer, problem.parameter_names,
+                           problem.outcome_names)
+    convergence = convergence.to_dataframe()
+    
+    message = "optimization completed, found {} solutions"
+    ema_logging.info(message.format(len(optimizer.algorithm.archive)))
+
+    if convergence.empty:
+        return results
+    else:
+        return results, convergence   

@@ -87,12 +87,20 @@ class TestProblem(unittest.TestCase):
 class TestOptimization(unittest.TestCase):
     @mock.patch('ema_workbench.em_framework.optimization.platypus')
     def test_to_dataframe(self, mocked_platypus):
+        problem = mock.Mock()
+        type = mocked_platypus.Real  # @ReservedAssignment
+        type.decode.side_effect = AttributeError()
+        problem.types = [type, type]
+        
         result1 = mock.Mock()
         result1.variables = [0,0]
         result1.objectives = [1,1]
+        result1.problem = problem
+        
         result2 = mock.Mock()
         result2.variables = [1,1]
         result2.objectives = [0,0]
+        result2.problem = problem
 
         data = [result1, result2]
         
@@ -122,7 +130,7 @@ class TestOptimization(unittest.TestCase):
         types = to_platypus_types(dv)
         self.assertTrue(str(types[0]).find("platypus.Real") != -1)
         self.assertTrue(str(types[1]).find("platypus.Integer") != -1)
-        self.assertTrue(str(types[2]).find("platypus.Permutation") != -1)
+        self.assertTrue(str(types[2]).find("platypus.Subset") != -1)
 
     @mock.patch('ema_workbench.em_framework.optimization.platypus')
     def test_to_problem(self, mocked_platypus):

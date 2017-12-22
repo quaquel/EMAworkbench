@@ -18,19 +18,19 @@ import sys, os, re
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 
-sys.path.append(os.path.abspath('../../src/'))
+sys.path.append(os.path.abspath('../../'))
 
 
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.3'
+# needs_sphinx = '1.3'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 
               'sphinx.ext.doctest', 
-              'sphinx.ext.pngmath',
+              'sphinx.ext.imgmath',
               'sphinx.ext.napoleon',
               'matplotlib.sphinxext.only_directives',
               'matplotlib.sphinxext.plot_directive',
@@ -157,7 +157,7 @@ html_sidebars = {'**':["localtoc.html",
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-html_additional_pages = {'gallery':'gallery.html'}
+# html_additional_pages = None
 
 # If false, no module index is generated.
 #html_domain_indices = True

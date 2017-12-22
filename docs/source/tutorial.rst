@@ -67,7 +67,7 @@ sampling are also readily available. Read the documentation for
 
 .. rubric:: The complete code:
 
-.. literalinclude:: ../../examples/python_example.py
+.. literalinclude:: ../../ema_workbench/examples/python_example.py
    :linenos:
 
 .. _A-simple-model-in-Vensim:
@@ -122,7 +122,7 @@ code, messages on progress or on errors will be shown.
 
 .. rubric:: The complete code
 
-.. literalinclude:: ../../examples/vensim_example.py
+.. literalinclude:: ../../ema_workbench/examples/vensim_example.py
    :linenos:
 
 .. _A-simple-model-in-Excel:
@@ -141,7 +141,7 @@ the decimal separator and thousands separator are set correctly in Excel. This
 can be checked via file > options > advanced. These separators should follow
 the `anglo saxon convention <http://en.wikipedia.org/wiki/Decimal_mark>`_. 
 
-.. literalinclude:: ../../examples/excel_example.py
+.. literalinclude:: ../../ema_workbench/examples/excel_example.py
    :linenos:
 
 The example is relatively straight forward. We instantiate an excel model, we
@@ -244,7 +244,7 @@ normal contact rate region 2                             10             200
 
 Together, this results in the following code:
 
-.. literalinclude:: ../../examples/flu_vensim_no_policy_example.py
+.. literalinclude:: ../../ema_workbench/examples/flu_vensim_no_policy_example.py
    :linenos:
 
 We can now instantiate the model, instantiate an ensemble, and set the model on 
@@ -378,7 +378,7 @@ argument ::
 We can now proceed in the same way as before, and perform a series of
 experiments. Together, this results in the following code:
 
-.. literalinclude:: ../../examples/flu_vensim_example.py
+.. literalinclude:: ../../ema_workbench/examples/flu_vensim_example.py
    :linenos:
 
 comparison of results
@@ -390,7 +390,7 @@ But using :func:`pairs_scatter`. It shows for the three different policies
 their behavior on the total number of deaths, the height of the heigest peak
 of the pandemic, and the point in time at which this peak was reached. 
 
-.. literalinclude:: ../../examples/flu_pairsplot.py
+.. literalinclude:: ../../ema_workbench/examples/flu_pairsplot.py
    :linenos:
 
 .. rubric:: no policy
