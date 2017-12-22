@@ -7,7 +7,7 @@ ipython
 ipyparallel
 JPype1
 jupyter
-salib==1.0
+salib
 mpld3
 scikit-learn
 seaborn
