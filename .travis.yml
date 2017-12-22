@@ -21,7 +21,7 @@ install:
 - conda config --set always_yes yes --set changeps1 no
 - conda install -c conda conda-env
 - conda update -q conda --no-deps
-- conda info -a # Useful for debugging any issues with conda
+#- conda info -a # Useful for debugging any issues with conda
 - conda install --yes $DEPS # Replace dep1 dep2 ... with your dependencies
 - pip install zmq # zmq is not available via conda for some reason
 - pip install pydot
