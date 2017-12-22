@@ -21,7 +21,7 @@ install:
 - conda config --set always_yes yes --set changeps1 no
 - conda install -c conda conda-env
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-    conda install -c conda-forge futures 
+    conda install -c conda-forge futures;
   fi
 - conda update -q conda --no-deps
 - conda info -a # Useful for debugging any issues with conda
