@@ -7,6 +7,7 @@ ipython
 ipyparallel
 JPype1
 jupyter
+salib==1.0
 mpld3
 scikit-learn
 seaborn
@@ -14,4 +15,3 @@ matplotlib
 pyzmq
 mpldatacursor
 pysd
-salib==1.1

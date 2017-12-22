@@ -36,29 +36,24 @@ class TestProblem(unittest.TestCase):
         # evil way to mock super
         searchover = 'levers'
         parameters = [mock.Mock(), mock.Mock()]
-        parameter_names = ['a', 'b']
         outcome_names = ['x', 'y']
         
         constraints = [Constraint('n', function= lambda x:x)] 
         
-        problem = Problem(searchover, parameters, parameter_names, 
-                          outcome_names,constraints)
+        problem = Problem(searchover, parameters, outcome_names,constraints)
 
         self.assertEqual(searchover, problem.searchover)
         self.assertEqual(parameters, problem.parameters)
-        self.assertEqual(parameter_names, problem.parameter_names)
         self.assertEqual(outcome_names, problem.outcome_names)
         self.assertEqual(constraints, problem.ema_constraints)
         self.assertEqual([c.name for c in constraints], 
                          problem.constraint_names)
         
         searchover = 'uncertainties'
-        problem = Problem(searchover, parameters, parameter_names, 
-                          outcome_names, constraints)
+        problem = Problem(searchover, parameters, outcome_names, constraints)
 
         self.assertEqual(searchover, problem.searchover)
         self.assertEqual(parameters, problem.parameters)
-        self.assertEqual(parameter_names, problem.parameter_names)
         self.assertEqual(outcome_names, problem.outcome_names)
         self.assertEqual(constraints, problem.ema_constraints)
         self.assertEqual([c.name for c in constraints], 
@@ -66,19 +61,17 @@ class TestProblem(unittest.TestCase):
     
     def test_robust_problem(self):
         parameters = [mock.Mock(), mock.Mock()]
-        parameter_names = ['a', 'b']
         outcome_names = ['x', 'y']
         scenarios = 10
         robustness_functions = [mock.Mock(), mock.Mock()]
         constraints = [Constraint('n', function= lambda x:x)] 
         
-        problem = RobustProblem(parameters, parameter_names, outcome_names, 
+        problem = RobustProblem(parameters, outcome_names, 
                                 scenarios, robustness_functions, 
                                 constraints)
         
         self.assertEqual('robust', problem.searchover)
         self.assertEqual(parameters, problem.parameters)
-        self.assertEqual(parameter_names, problem.parameter_names)
         self.assertEqual(outcome_names, problem.outcome_names)
         self.assertEqual(constraints, problem.ema_constraints)
         self.assertEqual([c.name for c in constraints], 
@@ -89,7 +82,7 @@ class TestOptimization(unittest.TestCase):
     def test_to_dataframe(self, mocked_platypus):
         problem = mock.Mock()
         type = mocked_platypus.Real  # @ReservedAssignment
-        type.decode.side_effect = AttributeError()
+        type.decode.return_value = 0
         problem.types = [type, type]
         
         result1 = mock.Mock()
@@ -98,7 +91,7 @@ class TestOptimization(unittest.TestCase):
         result1.problem = problem
         
         result2 = mock.Mock()
-        result2.variables = [1,1]
+        result2.variables = [0,0]
         result2.objectives = [0,0]
         result2.problem = problem
 
@@ -190,7 +183,6 @@ class TestRobustOptimization(unittest.TestCase):
         self.assertEqual('robust', problem.searchover)
         for entry in problem.parameters:
             self.assertIn(entry.name, mocked_model.levers.keys())
-        self.assertEqual(['a', 'b'], problem.parameter_names)
         self.assertEqual(['mean x', 'mean y'], problem.outcome_names)   
         
     def test_process_robust(self):
