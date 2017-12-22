@@ -1,5 +1,4 @@
-six
-setuptools
+pyscaffold==2.5.7
 future
 futures
 numpy
