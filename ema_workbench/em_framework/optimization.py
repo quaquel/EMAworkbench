@@ -20,8 +20,10 @@ from .util import determine_objects
 from ..util import ema_logging
 
 try:
-    from platypus import EpsNSGAII, Hypervolume  # @UnresolvedImport
+    from platypus import (EpsNSGAII, Hypervolume, Variator, Real, Integer, 
+                          Subset)   # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
+
     import platypus
 except ImportError:
     warnings.warn("platypus based optimization not available", ImportWarning)
@@ -30,8 +32,14 @@ except ImportError:
         
         def __init__(self, *args, **kwargs):
             pass 
+    
+    class Variator(object):
+        def __init__(self, *args, **kwargs):
+            pass    
+    
     EpsNSGAII = None
     platypus = None
+    Real = Integer = Subset = None
 
 
 # Created on 5 Jun 2017
@@ -76,9 +84,8 @@ class RobustProblem(Problem):
     '''small extension to Problem object for robust optimization, adds the 
     scenarios and the robustness functions'''
 
-    def __init__(self, parameters,
-                 outcome_names, scenarios, robustness_functions, 
-                 constraints):
+    def __init__(self, parameters, outcome_names, scenarios, 
+                 robustness_functions, constraints):
         super(RobustProblem, self).__init__('robust', parameters, 
                                             outcome_names,
                                             constraints)
@@ -488,7 +495,7 @@ class Convergence(object):
                     self.metrics if metric.results}
         return pd.DataFrame.from_dict(progress)
 
-class CombinedVariator(platypus.Variator):
+class CombinedVariator(Variator):
     def __init__(self, probability=1):
         super(CombinedVariator, self).__init__(2)
         self.probability = probability
@@ -552,9 +559,9 @@ class CombinedVariator(platypus.Variator):
             child2.evaluated = False   
         return child1, child2  
 
-    _variators = {platypus.Real : evolve_real,
-                  platypus.Integer : evolve_integer,
-                  platypus.Subset : evolve_categorical}
+    _variators = {Real : evolve_real,
+                  Integer : evolve_integer,
+                  Subset : evolve_categorical}
     
 def _optimize(problem, evaluator, algorithm, convergence, nfe, 
               **kwargs):

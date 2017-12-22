@@ -17,9 +17,6 @@ from sklearn.ensemble import (ExtraTreesClassifier, ExtraTreesRegressor,
                               RandomForestClassifier, RandomForestRegressor)
 from sklearn.feature_selection.univariate_selection import (f_regression,
                                                             f_classif, chi2)
-from sklearn.linear_model.least_angle import LassoLarsCV
-from sklearn.linear_model.randomized_l1 import (RandomizedLogisticRegression,
-                                                RandomizedLasso)
 
 from .scenario_discovery_util import CLASSIFICATION, REGRESSION
 
@@ -224,74 +221,6 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     return importances, forest
 
 
-def get_lasso_feature_scores(x, y, mode=CLASSIFICATION, scaling=0.5, 
-                             sample_fraction=0.75, n_resampling=200,
-                             random_state=None):
-    '''
-    Calculate features scores using a randomized lasso (regression) or 
-    randomized logistic regression (classification). This is also known as 
-    stability selection.
-    
-    see http://scikit-learn.org/stable/modules/feature_selection.html for 
-    details. 
-    
-    Parameters
-    ----------   
-    x : structured array
-    y : 1D nd.array
-    mode : {CLASSIFICATION, REGRESSION}
-    scaling : float, optional
-              scaling parameter, should be between 0 and 1
-    sample_fraction : float, optional
-                      the fraction of samples to used in each randomized 
-                      dataset
-    n_resmpling : int, optional
-                  the number of times the model is trained on a random subset 
-                  of the data
-    random_state : int, optional
-                   if it is an int, it specifies the seed to use, defaults to 
-                   None.
-                         
-    Returns
-    -------
-    pandas DataFrame
-        sorted in descending order of tuples with uncertainty and feature 
-        scores         
-         
-    '''
-    x, uncs = _prepare_experiments(x)
-    
-    if mode==CLASSIFICATION:
-
-        lfs = RandomizedLogisticRegression(scaling=scaling, 
-                                           sample_fraction=sample_fraction,
-                                           n_resampling=n_resampling, 
-                                           random_state=random_state)
-        lfs.fit(x,y)
-    elif  mode==REGRESSION:
-        # we use LassoLarsCV to determine alpha see
-        # http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html
-        lars_cv = LassoLarsCV(cv=6).fit(x, y,)
-        alphas = np.linspace(lars_cv.alphas_[0], .1 * lars_cv.alphas_[0], 6)
-        
-        # fit the randomized lasso        
-        lfs = RandomizedLasso(alpha=alphas,scaling=scaling, 
-                              sample_fraction=sample_fraction,
-                              n_resampling=n_resampling,
-                              random_state=random_state)
-        lfs.fit(x, y)
-    else:
-        raise ValueError('{} invalid value for mode'.format(mode))
-
-    importances = lfs.scores_
-    importances = zip(uncs, importances)
-    importances = list(importances)
-    importances.sort(key=itemgetter(1), reverse=True)
-    importances = pd.DataFrame(importances)
-
-
-    return importances
-
 def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250, 
                           max_features='auto', max_depth=None, 
                           min_samples_split=2, min_samples_leaf=1, 
@@ -370,7 +299,6 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     return importances, extra_trees
 
 algorithms = {'extra trees' : get_ex_feature_scores,
-              'lasso' : get_lasso_feature_scores,
               'random forest' : get_rf_feature_scores,
               'univariate' : get_univariate_feature_scores}
 
@@ -384,7 +312,7 @@ def get_feature_scores_all(x, y, alg='extra trees', mode=REGRESSION,
     x : numpy structured array
     y : dict of 1d numpy arrays
         the outcomes, with a string as key, and a 1D array for each outcome
-    alg : {'extra trees', 'lasso', 'random forest', 'univariate'}, optional
+    alg : {'extra trees', 'random forest', 'univariate'}, optional
     mode : {REGRESSION, CLASSIFICATION}, optional
     kwargs : dict, optional
              any remaining keyword arguments will be passed to the specific
