@@ -1,4 +1,5 @@
-ez_setup
+six
+setuptools
 future
 futures
 numpy
