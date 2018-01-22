@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.lib.recfunctions as recfunctions
 import pandas as pd
+import scipy as sp
 
 from .plotting_util import COLOR_LIST
 from ..util import ema_logging
@@ -275,6 +276,28 @@ def _in_box(x, boxlim):
     
     return indices
 
+
+def _calculate_quasip(x, y, box, Hbox, Tbox):
+    indices = _in_box(x, box)
+    yi = y[indices]
+    
+    # total nr. of cases in box with one restriction removed
+    Tj = yi.shape[0]  
+    
+    # total nr. of cases of interest in box with one restriction 
+    # removed
+    Hj = np.sum(yi)
+    
+    p = Hj/Tj
+    
+    Hbox = int(Hbox)
+    Tbox = int(Tbox)
+    
+    # force one sided
+    qp = sp.stats.binom_test(Hbox, Tbox, p, alternative='greater')
+    
+    return qp
+    
 
 class OutputFormatterMixin(object):
     __metaclass__ = abc.ABCMeta

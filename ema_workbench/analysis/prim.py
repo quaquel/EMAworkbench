@@ -16,6 +16,7 @@ ipython notebook.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
+import collections
 import copy
 import math
 from operator import itemgetter
@@ -29,7 +30,6 @@ import numpy as np
 import numpy.lib.recfunctions as rf
 import pandas as pd
 import six
-from scipy.stats import binom
 
 try:
     import mpld3
@@ -305,13 +305,13 @@ class PrimBox(object):
         
         for unc in uncs:
             values = self.box_lims[i][unc][:]
-            box_lim.loc[unc] = [values[0], values[1], qp_values[unc]]
+            box_lim.loc[unc] = [values[0], values[1], str(qp_values[unc])]
         
         print(box_lim)
         print()
         
     def _inspect_graph(self,  i, uncs, qp_values, 
-                       ticklabel_formatter="{} ({:.2g})",
+                       ticklabel_formatter="{} ({})",
                        boxlim_formatter="{: .2g}", 
                        table_formatter='{:.3g}'):
         '''Helper function for visualizing box statistics in 
@@ -326,7 +326,6 @@ class PrimBox(object):
         norm_box_lim =  sdutil._normalize(box_lim, box_lim_init, uncs)
         
         fig, ax = sdutil._setup_figure(uncs)
-#         color = COLOR_LIST[0]
         for j, u in enumerate(uncs):
             # we want to have the most restricted dimension
             # at the top of the figure
@@ -345,7 +344,6 @@ class PrimBox(object):
 
         
             if dtype == object:
-                pass
                 elements = sorted(list(box_lim_init[u][0]))
                 max_value = (len(elements)-1)
                 values = box_lim[u][0]
@@ -388,7 +386,17 @@ class PrimBox(object):
                        bbox=props, color='black', fontweight='normal')
                 
             # set y labels
-            labels = [ticklabel_formatter.format(u, qp_values[u]) for u in uncs]
+            qp_formatted = {}
+            for key, value in qp_values.items():
+                if len(value) == 1:
+                    value  = '{:.2g}'.format(value[0])
+                else:
+                    value = '{:.2g}, {:.2g}'.format(*value)
+                qp_formatted[key] = value
+            
+            labels = [ticklabel_formatter.format(u, qp_formatted[u]) for u in
+                      uncs]
+            
             labels = labels[::-1]
             ax.set_yticklabels(labels)
 
@@ -650,30 +658,53 @@ class PrimBox(object):
         # total nr. of cases of interest in box
         Hbox = self.peeling_trajectory['coverage'][i] * self.prim.t_coi  
         
-        qp_values = {}
+        x = self.prim.x[self.prim.yi_remaining]
+        y = self.prim.y[self.prim.yi_remaining]
+
+        
+        qp_values = collections.defaultdict(list)
         
         for u in restricted_dims:
-            temp_box = copy.deepcopy(box_lim)
-            temp_box[u] = self.box_lims[0][u]
+            unlimited = self.box_lims[0][u] 
+            limits = box_lim[u]
+            
+            if limits[0] == limits[1]:
+                temp_box = copy.deepcopy(box_lim)
+                temp_box[u] = unlimited
+                
+                qp = sdutil._calculate_quasip(x, y, temp_box, 
+                                              Hbox, Tbox)
+                
+                qp_values[u].append(qp)
+            else:
+                for direction in (0,1):
+                    if unlimited[direction] != limits[direction]:
+                        temp_box = copy.deepcopy(box_lim)
+                        temp_box[u][direction] = unlimited[direction]
+                        
+                        qp = sdutil._calculate_quasip(x, y, temp_box, 
+                                                      Hbox, Tbox)
+                       
+                        qp_values[u].append(qp)
         
-            indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], 
-                                     temp_box)
-            indices = self.prim.yi_remaining[indices]
-            
-            # total nr. of cases in box with one restriction removed
-            Tj = indices.shape[0]  
-            
-            # total nr. of cases of interest in box with one restriction 
-            # removed
-            Hj = np.sum(self.prim.y[indices])
-            
-            p = Hj/Tj
-            
-            Hbox = int(Hbox)
-            Tbox = int(Tbox)
-            
-            qp = binom.sf(Hbox-1, Tbox, p)
-            qp_values[u] = qp
+#             indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining], 
+#                                      temp_box)
+#             indices = self.prim.yi_remaining[indices]
+#             
+#             # total nr. of cases in box with one restriction removed
+#             Tj = indices.shape[0]  
+#             
+#             # total nr. of cases of interest in box with one restriction 
+#             # removed
+#             Hj = np.sum(self.prim.y[indices])
+#             
+#             p = Hj/Tj
+#             
+#             Hbox = int(Hbox)
+#             Tbox = int(Tbox)
+#             
+#             qp = binom.sf(Hbox-1, Tbox, p)
+#             qp_values[u] = qp
             
         return qp_values
 
