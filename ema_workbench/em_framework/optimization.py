@@ -53,6 +53,10 @@ class Problem(PlatypusProblem):
     '''small extension to Platypus problem object, includes information on
     the names of the decision variables, the names of the outcomes,
     and the type of search'''
+    
+    @property
+    def parameter_names(self):
+        return [e.name for e in self.parameters]
 
     def __init__(self, searchover, parameters,
                  outcome_names, constraints, reference=None):
@@ -496,72 +500,135 @@ class Convergence(object):
         return pd.DataFrame.from_dict(progress)
 
 class CombinedVariator(Variator):
-    def __init__(self, probability=1):
+    # TODO:: this seems to miss mutation
+    # probably need to Instantiate a GAOperator class
+    # with this CombinedVariator for the variation argument
+    # and a similar class for the mutation argument
+    
+    def __init__(self, crossover_prob=0.5, mutation_prob=1):
         super(CombinedVariator, self).__init__(2)
-        self.probability = probability
         self.SBX = platypus.SBX()
+        self.crossover_prob = crossover_prob
+        self.mutation_prob = mutation_prob
         
     def evolve(self, parents):
         child1 = copy.deepcopy(parents[0])
         child2 = copy.deepcopy(parents[1])
         problem = child1.problem
-
-        if random.uniform(0.0, 1.0) <= self.probability:
-            # we will evolve the individual
-            for i, type in enumerate(problem.types):  # @ReservedAssignment
+        
+        # crossover
+        # we will evolve the individual
+        for i, type in enumerate(problem.types):  # @ReservedAssignment
+            if random.random() <= self.crossover_prob:
                 klass = type.__class__
-                child1, child2 = self._variators[klass](self, child1, child2, i, type)
-
+                child1, child2 = self._crossover[klass](self, child1, child2, i, type)
+                child1.evaluated = False
+                child2.evaluated = False
+        
+        # mutate
+        for child in [child1, child2]:
+            for i, type in enumerate(problem.types):  # @ReservedAssignment
+                if random.random() <= self.mutation_prob:
+                    klass = type.__class__
+                    child = self._mutate[klass](self, child, i, type)
+                    child.evaluated = False
+        
         return [child1, child2]
     
-    def evolve_real(self, child1, child2, i, type):  # @ReservedAssignment
-        # SBX
-        if random.uniform(0.0, 1.0) <= 0.5:
-            x1 = float(child1.variables[i])
-            x2 = float(child2.variables[i])
-            lb = type.min_value
-            ub = type.max_value
-            
-            x1, x2 = self.SBX.sbx_crossover(x1, x2, lb, ub)
-            
-            child1.variables[i] = x1
-            child2.variables[i] = x2
-            child1.evaluated = False
-            child2.evaluated = False
+    def crossover_real(self, child1, child2, i, type):  # @ReservedAssignment
+        # sbx
+        x1 = float(child1.variables[i])
+        x2 = float(child2.variables[i])
+        lb = type.min_value
+        ub = type.max_value
+        
+        x1, x2 = self.SBX.sbx_crossover(x1, x2, lb, ub)
+        
+        child1.variables[i] = x1
+        child2.variables[i] = x2
+
         return child1, child2
         
-    def evolve_integer(self, child1, child2, i, type):  # @ReservedAssignment
+    def crossover_integer(self, child1, child2, i, type):  # @ReservedAssignment
         # HUX()
         for j in range(type.nbits):
             if child1.variables[i][j] != child2.variables[i][j]:
                 if bool(random.getrandbits(1)):
                     child1.variables[i][j] = not child1.variables[i][j]
                     child2.variables[i][j] = not child2.variables[i][j]
-                    child1.evaluated = False
-                    child2.evaluated = False
         return child1, child2
     
-    def evolve_categorical(self, child1, child2, i, type):  # @ReservedAssignment
+    def crossover_categorical(self, child1, child2, i, type):  # @ReservedAssignment
         # SSX()
         # can probably be implemented in a simple manner, since size
         # of subset is fixed to 1
-        if random.uniform(0.0, 1.0) <= 1:
-            s1 = set(child1.variables[i])
-            s2 = set(child2.variables[i])
-            
-            for j in range(type.size):
-                if child2.variables[i][j] not in s1 and child1.variables[i][j] not in s2 and random.uniform(0.0, 1.0) < 0.5:
-                    temp = child1.variables[i][j]
-                    child1.variables[i][j] = child2.variables[i][j]
-                    child2.variables[i][j] = temp
-
-            child1.evaluated = False
-            child2.evaluated = False   
+        s1 = set(child1.variables[i])
+        s2 = set(child2.variables[i])
+        
+        for j in range(type.size):
+            if (child2.variables[i][j] not in s1) and \
+               (child1.variables[i][j] not in s2) and \
+               (random.random() < 0.5):
+                temp = child1.variables[i][j]
+                child1.variables[i][j] = child2.variables[i][j]
+                child2.variables[i][j] = temp
+ 
         return child1, child2  
 
-    _variators = {Real : evolve_real,
-                  Integer : evolve_integer,
-                  Subset : evolve_categorical}
+    def mutate_real(self, child, i, type, distribution_index=20):  # @ReservedAssignment
+        # PM
+        x = child.variables[i]
+        lower = type.min_value
+        upper = type.max_value
+        
+        u = random.random()
+        dx = upper - lower
+        
+        if u < 0.5:
+            bl = (x - lower) / dx
+            b = 2.0*u + (1.0 - 2.0*u)*pow(1.0 - bl, distribution_index + 1.0)
+            delta = pow(b, 1.0 / (distribution_index + 1.0)) - 1.0
+        else:
+            bu = (upper - x) / dx
+            b = 2.0*(1.0 - u) + 2.0*(u - 0.5)*pow(1.0 - bu, distribution_index + 1.0)
+            delta = 1.0 - pow(b, 1.0 / (distribution_index + 1.0))
+            
+        x = x + delta*dx
+        x = max(lower, min(x, upper))
+        
+        child.variables[i] = x  
+        return child
+        
+    def mutate_integer(self, child, i, type, probability=1): # @ReservedAssignment
+        # bitflip
+        for j in range(type.nbits):
+            if random.random() <= probability:
+                child.variables[i][j] = not child.variables[i][j]
+        return child
+    
+    def mutate_categorical(self, child, i, type):  # @ReservedAssignment
+        # replace
+        probability = 1/type.size
+        
+        if random.random() <= probability:
+            subset = child.variables[i]
+            
+            if len(subset) < len(type.elements):
+                i = random.randrange(len(subset))
+
+                nonmembers = list(set(type.elements) - set(subset))
+                j = random.randrange(len(nonmembers))
+                subset[i] = nonmembers[j]
+                
+        return child
+
+    _crossover = {Real : crossover_real,
+                  Integer : crossover_integer,
+                  Subset : crossover_categorical}
+    
+    _mutate = {Real : mutate_real,
+               Integer : mutate_integer,
+               Subset : mutate_categorical}
     
 def _optimize(problem, evaluator, algorithm, convergence, nfe, 
               **kwargs):
