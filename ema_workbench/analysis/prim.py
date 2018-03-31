@@ -35,7 +35,7 @@ try:
     import mpld3
 except ImportError:
     global mpld3
-    mpdl3 = None
+    mpld3 = None
 
 from .plotting_util import make_legend
 from ..util import info, debug, EMAError
