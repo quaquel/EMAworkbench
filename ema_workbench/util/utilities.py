@@ -27,6 +27,7 @@ from pandas.io.parsers import read_csv
 
 from .ema_logging import info, debug
 from .ema_exceptions import EMAError
+import ema_workbench
 
 PY3 = sys.version_info[0] == 3
 if PY3:
@@ -40,7 +41,7 @@ else:
 
 __all__ = ['load_results',
            'save_results',
-           'experiments_to_cases',
+           'experiments_to_scenarios',
            'merge_results'
            ]
 
@@ -214,32 +215,40 @@ def save_results(results, file_name):
     info("results saved successfully to {}".format(file_name))
     
 
-def experiments_to_cases(experiments):
+def experiments_to_scenarios(experiments, model=None):
     '''
     
-    This function transform a structured x array into a list
-    of case dicts. This can then for example be used as an argument for 
-    running :meth:`~em_framework.model_ensemble.ModelEnsemble.perform_experiments`.
+    This function transform a structured experiments array into a list
+    of Scenarios. 
+    
+    If model is provided, the uncertainties of the model are used. 
+    Otherwise, it is assumed that all non-default columns are
+    uncertainties. 
     
     Parameters
     ----------    
     experiments : numpy structured array
                   a structured array containing experiments
+    model : ModelInstance, optional
     
     Returns
     -------
-    a list of case dicts.
+    a list of Scenarios
     
     '''
     #get the names of the uncertainties
-    uncertainties = [entry[0] for entry in experiments.dtype.descr]
-    
-    #remove policy and model, leaving only the case related uncertainties
-    try:
-        uncertainties.pop(uncertainties.index('policy'))
-        uncertainties.pop(uncertainties.index('model'))
-    except:
-        pass
+    if model==None:
+        uncertainties = [entry[0] for entry in experiments.dtype.descr]
+        
+        #remove policy and model, leaving only the case related uncertainties
+        try:
+            uncertainties.pop(uncertainties.index('policy'))
+            uncertainties.pop(uncertainties.index('model'))
+            uncertainties.pop(uncertainties.index('scenario_id'))
+        except:
+            pass
+    else:
+        uncertainties = [u.name for u in model.uncertainties]
     
     #make list of of tuples of tuples
     cases = []
@@ -256,8 +265,10 @@ def experiments_to_cases(experiments):
         if case_tuple not in cache:
             cases.append(case)
             cache.add((case_tuple))
+            
+    scenarios = [ema_workbench.em_framework.parameters.Scenario(**entry) for entry in cases]
     
-    return cases
+    return scenarios
 
 
 def merge_results(results1, results2, downsample=None):
