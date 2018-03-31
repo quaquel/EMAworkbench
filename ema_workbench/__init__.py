@@ -9,6 +9,7 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
                            ReplicatorModel, Constraint)
 
 from . import util
-from .util import save_results, load_results, ema_logging, EMAError 
+from .util import (save_results, load_results, ema_logging, EMAError,
+                   experiments_to_scenarios) 
 
-__version__ = '1.1.1'
+__version__ = '1.1.2'
