@@ -114,7 +114,7 @@ class BaseEvaluator(object):
         as used by platypus algorithms'''
 
         self.callback()
-
+        
         problem = jobs[0].solution.problem
         searchover = problem.searchover
 
