@@ -481,7 +481,10 @@ class Convergence(object):
 
     valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
 
-    def __init__(self, metrics):
+    def __init__(self, metrics, max_nfe):
+        self.max_nfe = max_nfe
+        self.generation = -1
+        
         if metrics is None:
             metrics = []
 
@@ -491,6 +494,11 @@ class Convergence(object):
             assert metric.name in self.valid_metrics
 
     def __call__(self, optimizer):
+        self.generation +=1
+        nfe = optimizer.algorithm.nfe
+        
+        ema_logging.info("generation {}: {}/{} nfe".format(self.generation, nfe, self.max_nfe))
+        
         for metric in self.metrics:
             metric(optimizer)
 
@@ -646,7 +654,7 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
     optimizer = algorithm(problem, evaluator=evaluator, variator=variator,
                           **kwargs)
     
-    convergence = Convergence(convergence)
+    convergence = Convergence(convergence, nfe)
     callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
     
