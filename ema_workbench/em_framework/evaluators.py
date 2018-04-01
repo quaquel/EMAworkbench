@@ -14,7 +14,6 @@ import shutil
 import string
 import threading
 import warnings
-import functools
 
 warnings.simplefilter("once", ImportWarning)
 
@@ -33,6 +32,7 @@ from .parameters import (experiment_generator, Scenario, Policy)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
                        PartialFactorialSampler, sample_levers,
                        sample_uncertainties)
+
 # TODO:: should become optional import
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
 from .util import NamedObjectMap, determine_objects
