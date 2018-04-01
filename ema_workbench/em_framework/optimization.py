@@ -507,6 +507,7 @@ class Convergence(object):
                     self.metrics if metric.results}
         return pd.DataFrame.from_dict(progress)
 
+
 class CombinedVariator(Variator):
     # TODO:: this seems to miss mutation
     # probably need to Instantiate a GAOperator class
@@ -535,13 +536,21 @@ class CombinedVariator(Variator):
         
         # mutate
         for child in [child1, child2]:
-            for i, type in enumerate(problem.types):  # @ReservedAssignment
-                if random.random() <= self.mutation_prob:
-                    klass = type.__class__
-                    child = self._mutate[klass](self, child, i, type)
-                    child.evaluated = False
+            self.mutate(child)
+
         
         return [child1, child2]
+    
+    
+    def mutate(self, child):
+        problem  = child.problem
+        
+        for i, type in enumerate(problem.types):  # @ReservedAssignment
+            if random.random() <= self.mutation_prob:
+                klass = type.__class__
+                child = self._mutate[klass](self, child, i, type)
+                child.evaluated = False
+
     
     def crossover_real(self, child1, child2, i, type):  # @ReservedAssignment
         # sbx
@@ -637,7 +646,47 @@ class CombinedVariator(Variator):
     _mutate = {Real : mutate_real,
                Integer : mutate_integer,
                Subset : mutate_categorical}
+
+
+class CombinedMutator(CombinedVariator):
+    mutation_prob = 1.0
     
+    def evolve(self, parents):
+        ema_logging.info(parents)
+        
+        problem = parents[0].problem
+        children = []
+        
+        
+        for parent in parents:
+            child = copy.deepcopy(parent)
+            for i, type in enumerate(problem.types):  # @ReservedAssignment
+                if random.random() <= self.mutation_prob:
+                    klass = type.__class__
+                    child = self._mutate[klass](self, child, i, type)
+                    child.evaluated = False
+            
+            self.mutate(child)
+            children.append(child)
+        return children
+
+    def mutate_categorical(self, child, i, type):  # @ReservedAssignment
+        child.variables[i] = random.choice(type.elements) 
+        return child
+
+    def mutate_integer(self, child, i, type):  # @ReservedAssignment
+        child.variables[i] = random.randint(type.min_value, type.max_value) 
+        return child
+
+    def mutate_real(self, child, i, type):  # @ReservedAssignment
+        child.variables[i] = random.uniform(type.min_value, type.max_value) 
+        return child
+
+    _mutate = {Real : mutate_real,
+               Integer : mutate_integer,
+               Subset : mutate_categorical}
+
+
 def _optimize(problem, evaluator, algorithm, convergence, nfe, 
               **kwargs):
     
@@ -646,13 +695,12 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
     if all([isinstance(t, klass) for t in problem.types]):
         variator = None
     else:
-        # TODO:: need to make my own variator, where the variator
-        # is dependend on the type, for each of three types we have
-        # we use the default from Platypus
         variator = CombinedVariator()
-        
-    optimizer = algorithm(problem, evaluator=evaluator, variator=variator,
-                          **kwargs)
+    mutator = CombinedMutator()
+    
+    optimizer = algorithm(problem, evaluator=evaluator, variator=variator, 
+                          log_frequency=500, **kwargs)
+    optimizer.mutator = mutator
     
     convergence = Convergence(convergence, nfe)
     callback = functools.partial(convergence, optimizer)
