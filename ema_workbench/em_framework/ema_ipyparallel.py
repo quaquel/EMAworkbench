@@ -173,7 +173,7 @@ class LogWatcher(LoggingConfigurable):
     # internals
     stream = Instance('zmq.eventloop.zmqstream.ZMQStream', allow_none=True)
     context = Instance(zmq.Context)
-    loop = Instance(zmq.eventloop.ioloop.IOLoop)  # @UndefinedVariable
+    loop = Instance('tornado.ioloop.IOLoop')  # @UndefinedVariable
 
     def _url_default(self):
         return 'tcp://%s:20202' % localhost()
