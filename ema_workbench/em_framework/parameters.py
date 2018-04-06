@@ -188,8 +188,6 @@ class IntegerParameter(Parameter):
     
     def __init__(self, name, lower_bound, upper_bound, resolution=None, 
                  default=None, variable_name=None, pff=False):
-        upper_bound += 1 # sp.stats.dist.randint is closed upper interval
-        
         super(IntegerParameter, self).__init__(name, lower_bound, upper_bound, 
                                     resolution=resolution, default=default,
                                     variable_name=variable_name, pff=pff)
@@ -209,7 +207,8 @@ class IntegerParameter(Parameter):
         
     @property
     def params(self):
-        return (self.lower_bound, self.upper_bound)
+        # scipy.stats.randit uses closed upper bound, hence the +1
+        return (self.lower_bound, self.upper_bound+1)
     
 
 class CategoricalParameter(IntegerParameter):
@@ -237,9 +236,9 @@ class CategoricalParameter(IntegerParameter):
     def __init__(self, name, categories, default=None, variable_name=None, 
                  pff=False, multivalue=False):
         lower_bound = 0
-        upper_bound = len(categories)
+        upper_bound = len(categories)-1
         
-        if upper_bound == 1:
+        if upper_bound == 0:
             raise ValueError('there should be more than 1 category')
 
         super(CategoricalParameter, self).__init__(name, lower_bound, 
