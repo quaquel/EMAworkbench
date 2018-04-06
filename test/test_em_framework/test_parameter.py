@@ -158,7 +158,7 @@ class IntegerParameterTestCase(unittest.TestCase):
         par = parameters.IntegerParameter(name, lower_bound, upper_bound, 
                                           resolution)
         
-        self.assertEqual(par.params, (0, 2))
+        self.assertEqual(par.params, (0, 3))
     
     
 class CategoricalParameterTestCase(unittest.TestCase):
@@ -170,7 +170,7 @@ class CategoricalParameterTestCase(unittest.TestCase):
         self.assertEqual(par.name, name)
         self.assertEqual(par.resolution, [0,1])
         self.assertEqual(par.lower_bound, 0)
-        self.assertEqual(par.upper_bound, 2)
+        self.assertEqual(par.upper_bound, 1)
     
 #     def test_comparison(self):
 #         name = 'test'
