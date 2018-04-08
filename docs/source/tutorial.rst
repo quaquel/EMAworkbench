@@ -103,11 +103,10 @@ Note that we are using a TimeSeriesOutcome, because vensim results are time
 series. We can now simply run this model by calling 
 :func:`perform_experiments`. ::
 
-   perform_experiments(model, 1000, parallel=True)
+with MultiprocessingEvaluator(model) as evaluator:
+    results = evaluator.perform_experiments(1000)
 
-Here we add a new keyword argument, parallel, which tells the workbench
-that the experiments can be run in parallel making use of the multiple cores
-your computer has available.
+We now use a evaluator, which ensures that the code is executed in parallel. 
 
 Is it generally good practice to first run a model a small number of times 
 sequentially prior to running in parallel. In this way, bugs etc. can be 
@@ -212,8 +211,7 @@ We are interested in two outcomes:
    duration of the simulation.
  * **peak infected fraction**: the fraction of the population that is infected.
  
-These are added to :attr:`self.outcomes`. `time` is set to True, meaning we want
-their values over the entire run.
+These are added to :attr:`self.outcomes`, using the TimeSeriesOutcome class.
 
 The table below is adapted from `Pruyt & Hamarat (2010) <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf>`_.
 It shows the uncertainties, and their bounds. These are added to
@@ -301,7 +299,7 @@ Assuming we have imported :class:`~model_ensemblel.ModelEnsemble` and
                          "normal contact rate region 2")]
 
     nr_experiments = 100
-    results = perform_experiments(model, nr_experiments, parallel=True)
+    results = perform_experiments(model, nr_experiments)
 
 We now have generated a 1000 cases and can proceed to analyse the results using
 various analysis scripts. As a first step, one can look at the individual runs
@@ -309,7 +307,7 @@ using a line plot using :func:`~graphs.lines`. See :mod:`plotting` for some
 more visualizations using results from performing EMA on :class:`FluModel`. ::
 
    import matplotlib.pyplot as plt 
-   from analysis.plotting import lines
+   from ema_workbench.analysis.plotting import lines
    
    figure = lines(results, density=True) #show lines, and end state density
    plt.show() #show figure
@@ -328,7 +326,7 @@ For further analysis, it is generally convenient, to generate the results
 for a series of experiments and save these results. One can then use these
 saved results in various analysis scripts. ::
 
-   from expWorkbench.util import save_results
+   from ema_workbench import save_results
    save_results(results, r'./1000 runs.tar.gz')
 
 The above code snippet shows how we can use :func:`~util.save_results` for
@@ -372,8 +370,7 @@ executing the policies, we update this attribute for each policy. We can pass
 these policies to :func:`perform_experiment` as an additional keyword 
 argument ::
 
-    results = perform_experiments(model, 1000, policies=policies, 
-                                  parallel=True)
+    results = perform_experiments(model, 1000, policies=policies)
                                   
 We can now proceed in the same way as before, and perform a series of
 experiments. Together, this results in the following code:
