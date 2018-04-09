@@ -80,7 +80,7 @@ def discretize(data, nbins=3, with_labels=False):
     return discretized
 
 
-def dim_ratios(axis, figsize, side_colors_ratio=0.05):
+def dim_ratios(axis, figsize):
     """Get the proportions of the figure taken up by each axes
     
     adapted from seaborn
@@ -116,7 +116,7 @@ def plot_line(ax, axis, i, lw, length):
 
         
 def plot_category(ax, axis, i, label, pos):
-    '''helper function for ploting label'''
+    '''helper function for plotting label'''
     
     if axis==0:
         ax.text(i, pos, label, ha='center', va='center')
@@ -192,7 +192,12 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         levels = [index.values.tolist()]
         indices = zip(index.values)
 
+    if axis == 1:
+        indices = indices[::-1]
+
+
     last = indices[0]
+    
     plot_line(ax, axis, 0, 1, 0) # first line
     plot_line(ax, axis, len(indices), 1, 0) #last line
     
@@ -210,7 +215,9 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
     if plot_cats:
         for p in range(0, nr_levels):
             pos = 1/(2*nr_levels) + p /(nr_levels)
-            plot_category(ax, axis, 0+offsets[p]*len(index), last[p], pos)
+            plot_category(ax, axis, 0+offsets[p]*len(index), 
+                          last[p], pos)
+
 
     for i, entry in enumerate(indices[1::]):
         i +=1
@@ -224,6 +231,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
                 break
 
         last = entry    
+        
         plot_line(ax, axis, i, lw, length)
 
         if plot_cats:
@@ -273,8 +281,8 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
                                   height_ratios=height_ratios)
     
         ax_plot = fig.add_subplot(gs[2,2])
-        ax_rows = fig.add_subplot(gs[2, 0:2], axisbg="white")
-        ax_cols = fig.add_subplot(gs[0:2, 2], axisbg="white")
+        ax_rows = fig.add_subplot(gs[2, 0:2], facecolor="white")
+        ax_cols = fig.add_subplot(gs[0:2, 2], facecolor="white")
         cax = fig.add_subplot(gs[0, 0])
     
         # actual plotting
@@ -328,8 +336,8 @@ def make_pivot_table(data, rows=None, columns=None, values=None):
     return stacked
 
 
-def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
-                     nbins=3):
+def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True, 
+                      nbins=3):
     ''' convenience function for easily creating a pivot plot
     
     Parameters
