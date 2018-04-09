@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 
 from ema_workbench.util.utilities import (save_results, load_results,
-                                          get_ema_project_home_dir)
+                              merge_results, get_ema_project_home_dir)
 
 
 def setUpModule():
@@ -121,7 +121,18 @@ class ExperimentsToCasesTestCase(unittest.TestCase):
     pass
 
 class MergeResultsTestCase(unittest.TestCase):
-    pass
+    
+    def test_merge_results(self):
+        results1 = load_results('../data/1000 runs scarcity.tar.gz')
+        results2 = load_results('../data/1000 runs scarcity.tar.gz')
+        
+        n1 = results1[0].shape[0]
+        n2 = results2[0].shape[0]
+        
+        merged = merge_results(results1, results2)
+        
+        self.assertEqual(merged[0].shape[0], n1+n2)
+    
 
 class ConfigTestCase(unittest.TestCase):
     def test_get_home_dir(self):
