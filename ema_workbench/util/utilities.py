@@ -317,7 +317,7 @@ def merge_results(results1, results2, downsample=None):
     merged_exp[old_exp.shape[0]::] = new_exp
     
     #only merge the results that are in both
-    keys = old_res.keys()
+    keys = list(old_res.keys())
     [keys.append(key) for key in new_res.keys()]
     keys = set(keys)
     info("intersection of keys: %s" % keys)
@@ -338,7 +338,7 @@ def merge_results(results1, results2, downsample=None):
             slice_value = downsample
             
         merged_value = np.empty((i,j))
-        debug("merged shape: %s" % merged_value.shape)
+        debug("merged shape: {}".format(merged_value.shape))
         
         merged_value[0:old_value.shape[0], :] = old_value[:, ::slice_value]
         merged_value[old_value.shape[0]::, :] = new_value[:, ::slice_value]
