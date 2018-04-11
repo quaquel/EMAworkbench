@@ -23,8 +23,6 @@ The core package contains the core functionality for setting up, designing,
 and performing series of computational experiments on one or more models 
 simultaneously. 
 
-* Model ensemble (:mod:`ema_workbench.em_framework.model_ensemble`): the class 
-  responsbile for setting up and performing experiments.
 * Model (:mod:`ema_workbench.em_framework.model`): an abstract base class for 
   specifying the interface to the model on which you want to perform 
   exploratory modeling.
@@ -33,11 +31,8 @@ simultaneously.
 * Uncertainties (:mod:`ema_workbench.em_framework.uncertainties`): various 
   types of uncertainty classes that can be used to specify the uncertainties in 
   a model interface.
-* Support for parallelization (:mod:`ema_workbench.em_framework.ema_parallel`): 
-  the executing of computational experiments is embarrassingly parallel. The 
-  workbench supports this. One can leverage the power of multiple cores on 
-  a single machine, but also an entire cluster. Wrappers are offered for
-  using both the multiprocessing library and the ipython parallel library.  
+* Evaluators (:mod:`ema_workbench.em_framework.evaluators`): various evaluators
+  for running experiments in sequence or in parallel.
 
 .. _connectors:
 
@@ -47,7 +42,7 @@ Connectors
 
 The connectors package contains connectors to some existing simulation modeling
 environments. For each of these, a standard ModelStructureInterface class is
-provided that users can use as a startingpoint for specifying the interface
+provided that users can use as a starting point for specifying the interface
 to their own model. 
 
 * Vensim connector (:mod:`vensim`): This enables controlling (e.g. setting 

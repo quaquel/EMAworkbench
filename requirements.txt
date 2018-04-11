@@ -3,13 +3,15 @@ futures
 numpy
 scipy
 pandas
+ipython
+ipyparallel
+JPype1
 jupyter
-JPype1 == 0.5.7
 mpld3
 scikit-learn
 seaborn
 matplotlib
 pyzmq
-jupyter
-deap
+
 pysd
+salib
