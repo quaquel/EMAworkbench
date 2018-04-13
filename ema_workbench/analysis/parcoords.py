@@ -68,7 +68,7 @@ def setup_parallel_plot(labels, minima, maxima, fs=14, rot=90):
     
     # for the last axis, we need 2 ticks (also for the right hand side
     ax.xaxis.set_major_locator(ticker.FixedLocator([i, i+1]))
-    ax.xaxis.set_ticklabels(labels[i-1:i+1], fontsize=fs)
+    ax.xaxis.set_ticklabels(labels[i-1:i+1], fontsize=fs, rotation=rot)
 
     label = labels[-1]
     max_label = "{:.2f}".format(maxima[label])
