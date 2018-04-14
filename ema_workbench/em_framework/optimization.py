@@ -484,6 +484,7 @@ class Convergence(object):
     def __init__(self, metrics, max_nfe):
         self.max_nfe = max_nfe
         self.generation = -1
+        self.index = []
         
         if metrics is None:
             metrics = []
@@ -494,8 +495,10 @@ class Convergence(object):
             assert metric.name in self.valid_metrics
 
     def __call__(self, optimizer):
-        self.generation +=1
         nfe = optimizer.algorithm.nfe
+        
+        self.generation +=1
+        self.index.append(nfe)
         
         ema_logging.info("generation {}: {}/{} nfe".format(self.generation, nfe, self.max_nfe))
         
@@ -505,7 +508,13 @@ class Convergence(object):
     def to_dataframe(self):
         progress = {metric.name:metric.results for metric in 
                     self.metrics if metric.results}
-        return pd.DataFrame.from_dict(progress)
+        
+        progress = pd.DataFrame.from_dict(progress)
+        
+        if not progress.empty:
+            progress['nfe'] = self.index
+        
+        return progress
 
 
 class CombinedVariator(Variator):
@@ -707,7 +716,7 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
     evaluator.callback = callback
     
     optimizer.run(nfe)
-
+    
     results = to_dataframe(optimizer, problem.parameter_names,
                            problem.outcome_names)
     convergence = convergence.to_dataframe()
