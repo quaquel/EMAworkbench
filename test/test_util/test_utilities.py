@@ -3,7 +3,8 @@ Created on 22 nov. 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (absolute_import, print_function, division)
+from __future__ import (absolute_import, print_function, division, 
+                        unicode_literals)
 import os
 import unittest
 
@@ -83,41 +84,48 @@ class LoadResultsTestCase(unittest.TestCase):
         # test for 3d
     
         nr_experiments = 10000
+        
         experiments = np.recarray((nr_experiments,),
                                dtype=[('x', float), ('y', float)])
-        outcome_a = np.zeros((nr_experiments,1))
         
+        experiments['x'] = np.random.rand(nr_experiments)
+        experiments['y'] = np.random.rand(nr_experiments)
+        
+        outcome_a = np.zeros((nr_experiments,1))
         results = (experiments, {'a': outcome_a})
         
-        save_results(results, u'../data/test.tar.gz')
-        experiments, outcomes  = load_results(u'../data/test.tar.gz')
+        save_results(results, '../data/test.tar.gz')
+        loaded_experiments, outcomes  = load_results('../data/test.tar.gz')
         
-        logical = np.allclose(outcomes['a'],outcome_a)
+        self.assertTrue(np.all(np.allclose(outcomes['a'],outcome_a)))
+        self.assertTrue(np.all(np.allclose(experiments['x'],loaded_experiments['x'])))
+        self.assertTrue(np.all(np.allclose(experiments['y'],loaded_experiments['y'])))        
         
         os.remove('../data/test.tar.gz')
         
-#         if logical:
-#             ema_logging.info('1d loaded successfully')
         
         nr_experiments = 1000
         nr_timesteps = 100
         nr_replications = 10
         experiments = np.recarray((nr_experiments,),
                                dtype=[('x', float), ('y', float)])
+        experiments['x'] = np.random.rand(nr_experiments)
+        experiments['y'] = np.random.rand(nr_experiments)
+        
         outcome_a = np.zeros((nr_experiments,nr_timesteps,nr_replications))
          
         results = (experiments, {'a': outcome_a})
         save_results(results, '../data/test.tar.gz')
-        experiments, outcomes = load_results('../data/test.tar.gz')
-        
-        logical = np.allclose(outcomes['a'],outcome_a)
+        loaded_experiments, outcomes = load_results('../data/test.tar.gz')
         
         os.remove('../data/test.tar.gz')
         
-#         if logical:
-#             ema_logging.info('3d loaded successfully')
-    
-class ExperimentsToCasesTestCase(unittest.TestCase):
+        self.assertTrue(np.all(np.allclose(outcomes['a'],outcome_a)))
+        self.assertTrue(np.all(np.allclose(experiments['x'],loaded_experiments['x'])))
+        self.assertTrue(np.all(np.allclose(experiments['y'],loaded_experiments['y'])))        
+        
+        
+class ExperimentsToScenariosTestCase(unittest.TestCase):
     pass
 
 class MergeResultsTestCase(unittest.TestCase):
