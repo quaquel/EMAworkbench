@@ -27,9 +27,9 @@ from ..util import debug, EMAError, ema_logging
 from ..util.ema_logging import method_logger
 
 # Created on 23 dec. 2010
-# 
+#
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-# 
+#
 
 __all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator',
            'SingleReplication', 'ReplicatorModel']
@@ -82,7 +82,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 #     @property
 #     def constraints_output(self):
 #         return self._constraints_output
-# 
+#
 #     @constraints_output.setter
 #     def constraints_output(self, value):
 #         try:
@@ -90,7 +90,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 #         except ValueError:
 #             raise ValueError("Pass an iterable with two items")
 #         else:
-#             
+#
 #             for constraint in self.constraints:
 #                 data = [experiment[var] for var in constraint.parameter_names]
 #                 data += [output[var] for var in constraint.outcome_names]
@@ -100,7 +100,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     @property
     def output(self):
         warnings.warn('deprecated, use outcome_output instead')
-        data = {outcome.name: self._output[outcome.name] for outcome in self.outcomes}
+        data = {outcome.name: self._output[outcome.name]
+                for outcome in self.outcomes}
         return data
 
     @output.setter
@@ -113,8 +114,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     @property
     def output_variables(self):
         if self._output_variables is None:
-            self._output_variables = [var for o in self.outcomes for var in 
-                                       o.variable_name]
+            self._output_variables = [var for o in self.outcomes for var in
+                                      o.variable_name]
 
         return self._output_variables
 
@@ -156,7 +157,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         ----------
         policy : dict
                  policy to be run.
- 
+
 
         Note
         ----
@@ -204,7 +205,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
             # translate uncertainty name to variable name
             for i, varname in enumerate(par.variable_name):
-                # a bit hacky implementation, investigate some kind of 
+                # a bit hacky implementation, investigate some kind of
                 # zipping of variable_names and values
                 if multivalue:
                     value = values[i]
@@ -213,7 +214,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
         sampled_parameters.data = temp
 
-    @method_logger    
+    @method_logger
     def run_model(self, scenario, policy):
         """Method for running an instantiated model structure. 
 
@@ -226,7 +227,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         if not self.initialized(policy):
             self.model_init(policy)
 
-        #TODO:: here we need to add constants in some manner
+        # TODO:: here we need to add constants in some manner
         self._transform(scenario, self.uncertainties)
         self._transform(policy, self.levers)
 
@@ -283,7 +284,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         '''returns a dict representation of the model'''
 
         def join_attr(field):
-            joined = ', '.join([repr(entry) for entry in 
+            joined = ', '.join([repr(entry) for entry in
                                 sorted(field, key=operator.attrgetter('name'))])
             return '[{}]'.format(joined)
         model_spec = {}
@@ -303,8 +304,10 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
         return model_spec
 
+
 class MyDict(dict):
     pass
+
 
 class Replicator(AbstractModel):
 
@@ -325,9 +328,10 @@ class Replicator(AbstractModel):
             # should we check if all are dict?
             # TODO:: this needs testing
             self._replications = [MyDict(**entry) for entry in replications]
-            self.nreplications = len(replications) 
+            self.nreplications = len(replications)
         else:
-            raise TypeError("replications should be int or list not {}".format(type(replications)))
+            raise TypeError(
+                "replications should be int or list not {}".format(type(replications)))
 
     @method_logger
     def run_model(self, scenario, policy):
@@ -340,8 +344,8 @@ class Replicator(AbstractModel):
 
         """
         super(Replicator, self).run_model(scenario, policy)
-        
-        constants = {c.name:c.value for c in self.constants}
+
+        constants = {c.name: c.value for c in self.constants}
         outputs = defaultdict(list)
         partial_experiment = combine(scenario, self.policy, constants)
 
@@ -354,9 +358,9 @@ class Replicator(AbstractModel):
                 outputs[key].append(value)
 
         self.outcomes_output = outputs
-        
+
         # perhaps set constraints with the outcomes instead
-        # this avoids double processing, it also means that 
+        # this avoids double processing, it also means that
         # each constraint needs to apply to an actual outcome
         self.constraints_output = (partial_experiment, self.outcomes_output)
 
@@ -374,10 +378,10 @@ class SingleReplication(AbstractModel):
         policy : Policy instance
 
         """
-        super(SingleReplication, self).run_model(scenario, policy) 
+        super(SingleReplication, self).run_model(scenario, policy)
         # TODO:: should this not be moved up?
-        constants = {c.name:c.value for c in self.constants}
-        
+        constants = {c.name: c.value for c in self.constants}
+
         # TODO:: have a separate experiment object?
         # combine would then be replaced with a call to instantiate
         # an experiment
@@ -441,13 +445,13 @@ class BaseModel(AbstractModel):
         # perhaps expose a get_data on modelInterface?
         # different connectors can than implement only this
         # get method
-        results  = {}
+        results = {}
         for i, variable in enumerate(self.output_variables):
             try:
                 value = model_output[variable]
             except KeyError:
-                ema_logging.warning(variable +' not found in model output')
-                value  = None
+                ema_logging.warning(variable + ' not found in model output')
+                value = None
             except TypeError:
                 value = model_output[i]
             results[variable] = value
@@ -461,7 +465,7 @@ class BaseModel(AbstractModel):
 
 class WorkingDirectoryModel(AbstractModel):
     '''Base class for a model that needs its dedicated working directory'''
-    
+
     @property
     def working_directory(self):
         return self._working_directory
@@ -469,7 +473,7 @@ class WorkingDirectoryModel(AbstractModel):
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
-        debug('setting working directory to '+ wd)
+        debug('setting working directory to ' + wd)
         self._working_directory = wd
 
     def __init__(self, name, wd=None):
@@ -490,10 +494,10 @@ class WorkingDirectoryModel(AbstractModel):
         """
         super(WorkingDirectoryModel, self).__init__(name)
         self.working_directory = wd
-        
-        if not os.path.exists(self.working_directory):
-            raise ValueError("{} does not exist".format(self.working_directory))
 
+        if not os.path.exists(self.working_directory):
+            raise ValueError("{} does not exist".format(
+                self.working_directory))
 
     def as_dict(self):
         model_specs = super(WorkingDirectoryModel, self).as_dict()
@@ -510,7 +514,7 @@ class FileModel(WorkingDirectoryModel):
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
-        debug('setting working directory to '+ wd)
+        debug('setting working directory to ' + wd)
         self._working_directory = wd
 
     def __init__(self, name, wd=None, model_file=None):
@@ -536,7 +540,6 @@ class FileModel(WorkingDirectoryModel):
         """
         super(FileModel, self).__init__(name, wd=wd)
 
-
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
             raise ValueError('cannot find model file')
@@ -551,6 +554,7 @@ class FileModel(WorkingDirectoryModel):
 
 class Model(SingleReplication, BaseModel):
     pass
+
 
 class ReplicatorModel(Replicator, BaseModel):
     pass

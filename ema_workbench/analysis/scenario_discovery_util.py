@@ -19,7 +19,7 @@ import itertools
 
 
 # Created on May 24, 2015
-# 
+#
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 REGRESSION = 'regression'
@@ -37,60 +37,60 @@ def _get_sorted_box_lims(boxes, box_init):
     '''Sort the uncertainties for each box in boxes based on a normalization
     given box_init. Unrestricted dimensions are dropped. The sorting is based
     on the normalization of the first box in boxes. 
-    
+
     Parameters
     ----------
     boxes : list of numpy structured arrays
     box_init : numpy structured array
-    
+
     Returns
     -------
     tuple 
         with the sorted boxes, and the list of restricted uncertainties
-    
+
     '''
-        
+
     # determine the uncertainties that are being restricted
     # in one or more boxes
     uncs = set()
     for box in boxes:
-        us  = _determine_restricted_dims(box, box_init).tolist()
+        us = _determine_restricted_dims(box, box_init).tolist()
         uncs = uncs.union(us)
     uncs = np.asarray(list(uncs))
 
     # normalize the range for the first box
     box_lim = boxes[0]
     nbl = _normalize(box_lim, box_init, uncs)
-    box_size = nbl[:,1]-nbl[:,0]
-    
-    # sort the uncertainties based on the normalized size of the 
+    box_size = nbl[:, 1]-nbl[:, 0]
+
+    # sort the uncertainties based on the normalized size of the
     # restricted dimensions
     uncs = uncs[np.argsort(box_size)]
     box_lims = [box for box in boxes]
-    
+
     return box_lims, uncs.tolist()
 
 
 def _make_box(x):
     '''
     Make a box that encompasses all the data
-    
+
     Parameters
     ----------
     x : structured numpy array
-    
-    
+
+
     '''
-    
+
     box = np.zeros((2, ), x.dtype)
-    
+
     names = recfunctions.get_names(x.dtype)
-    
+
     for name in names:
-        dtype = x.dtype.fields.get(name)[0] 
+        dtype = x.dtype.fields.get(name)[0]
         mask = np.ma.getmaskarray(x[name])
-        values = x[name][mask==False]
-        
+        values = x[name][mask == False]
+
         if dtype == 'object':
             try:
                 values = set(values)
@@ -100,18 +100,18 @@ def _make_box(x):
             else:
                 box[name][:] = values
         else:
-            box[name][0] = np.min(values, axis=0) 
-            box[name][1] = np.max(values, axis=0)    
-    return box  
+            box[name][0] = np.min(values, axis=0)
+            box[name][1] = np.max(values, axis=0)
+    return box
 
 
 def _normalize(box_lim, box_init, uncertainties):
     '''Normalize the given box lim to the unit interval derived
     from box init for the specified uncertainties.
-    
+
     Categorical uncertainties are normalized based on fractionated. So
     value specifies the fraction of categories in the box_lim. 
-    
+
     Parameters
     ----------
     box_lim : a numpy structured array.
@@ -124,17 +124,17 @@ def _normalize(box_lim, box_init, uncertainties):
     -------
     ndarray
         a numpy array of the shape (2, len(uncertainties) with the box limits.
-    
-    
+
+
     '''
-    
+
     # normalize the range for the first box
     norm_box_lim = np.zeros((len(uncertainties), box_lim.shape[0]))
-    
+
     for i, u in enumerate(uncertainties):
         dtype = box_lim.dtype.fields[u][0]
-        if dtype ==np.dtype(object):
-            nu = len(box_lim[u][0])/ len(box_init[u][0])
+        if dtype == np.dtype(object):
+            nu = len(box_lim[u][0]) / len(box_init[u][0])
             nl = 0
         else:
             lower, upper = box_lim[u]
@@ -149,42 +149,43 @@ def _normalize(box_lim, box_init, uncertainties):
 
 def _determine_restricted_dims(box_lims, box_init):
     '''
-    
+
     determine which dimensions of the given box are restricted compared 
     to compared to the initial box that contains all the data
-    
+
     Parameters
     ----------
     box_lims : structured numpy array
                a specific box limit
     box_init : structured numpy array
                the initial box containing all data points
-    
+
     '''
 
     logical = _compare(box_init, box_lims)
-    u = np.asarray(recfunctions.get_names(box_lims.dtype), 
+    u = np.asarray(recfunctions.get_names(box_lims.dtype),
                    dtype=object)
-    dims = u[logical==False]
+    dims = u[logical == False]
     return dims
 
 
 def _determine_nr_restricted_dims(box_lims, box_init):
     '''
-    
+
     determine the number of restriced dimensions of a box given
     compared to the inital box that contains all the data
-    
+
     Parameters
     ----------
     box_lims : structured numpy array
                a specific box limit
     box_init : structured numpy array
                the initial box containing all data points
-    
+
     '''
 
     return _determine_restricted_dims(box_lims, box_init).shape[0]
+
 
 def _compare(a, b):
     '''compare two boxes, for each dimension return True if the
@@ -194,67 +195,67 @@ def _compare(a, b):
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
         logical[i] = logical[i] &\
-                    (a[name][0] == b[name][0]) &\
-                    (a[name][1] == b[name][1])
+            (a[name][0] == b[name][0]) &\
+            (a[name][1] == b[name][1])
     return logical
 
 
 def _setup_figure(uncs):
     '''
-    
+
     helper function for creating the basic layout for the figures that
     show the box lims.
-    
+
     '''
     nr_unc = len(uncs)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    
+
     # create the shaded grey background
     rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc+1.5,
-                                 alpha=0.25,  
+                                 alpha=0.25,
                                  facecolor="#C0C0C0",
                                  edgecolor="#C0C0C0")
     ax.add_patch(rect)
     ax.set_xlim(xmin=-0.2, xmax=1.2)
-    ax.set_ylim(ymin= -0.5, ymax=nr_unc-0.5)
+    ax.set_ylim(ymin=-0.5, ymax=nr_unc-0.5)
     ax.yaxis.set_ticks([y for y in range(nr_unc)])
     ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
-    ax.set_yticklabels(uncs[::-1]) 
+    ax.set_yticklabels(uncs[::-1])
     return fig, ax
 
 
 def _in_box(x, boxlim):
     '''
-     
+
     returns the indices of the data points that are within the 
     box_lims.
-    
+
     Parameters
     ----------
     x : numpy structured array
     boxlim : numpy structured array
-    
-    
+
+
     Returns
     -------
     ndarray
         valid numpy indices on x
-    
+
     '''
     logical = np.ones(x.shape[0], dtype=np.bool)
-    
+
     dims = recfunctions.get_names(boxlim.dtype)
 
     for name in dims:
         value = x.dtype.fields.get(name)[0]
-        
+
         if value == 'object':
             entries = boxlim[name][0]
-            l = np.ones( (x.shape[0], len(entries)), dtype=np.bool)
-            for i,entry in enumerate(entries):
+            l = np.ones((x.shape[0], len(entries)), dtype=np.bool)
+            for i, entry in enumerate(entries):
                 if type(list(entries)[0]) not in (str, float, int):
-                    bools = []                
+                    bools = []
                     for element in list(x[name]):
                         if element == entry:
                             bools.append(True)
@@ -266,60 +267,60 @@ def _in_box(x, boxlim):
             l = np.any(l, axis=1)
             logical = logical & l
         else:
-            logical = logical & (boxlim[name][0] <= x[name] )&\
-                                        (x[name] <= boxlim[name][1])                
-    
-    indices = np.where(logical==True)
-    
-    assert len(indices)==1
+            logical = logical & (boxlim[name][0] <= x[name]) &\
+                (x[name] <= boxlim[name][1])
+
+    indices = np.where(logical == True)
+
+    assert len(indices) == 1
     indices = indices[0]
-    
+
     return indices
 
 
 def _calculate_quasip(x, y, box, Hbox, Tbox):
     indices = _in_box(x, box)
     yi = y[indices]
-    
+
     # total nr. of cases in box with one restriction removed
-    Tj = yi.shape[0]  
-    
-    # total nr. of cases of interest in box with one restriction 
+    Tj = yi.shape[0]
+
+    # total nr. of cases of interest in box with one restriction
     # removed
     Hj = np.sum(yi)
-    
+
     p = Hj/Tj
-    
+
     Hbox = int(Hbox)
     Tbox = int(Tbox)
-    
+
     # force one sided
     qp = sp.stats.binom_test(Hbox, Tbox, p, alternative='greater')
-    
+
     return qp
-    
+
 
 class OutputFormatterMixin(object):
     __metaclass__ = abc.ABCMeta
-    
+
     @abc.abstractproperty
     def boxes(self):
         '''Property for getting a list of box limits'''
-        
+
         raise NotImplementedError
-    
+
     @abc.abstractproperty
     def stats(self):
         '''property for getting a list of dicts containing the statistics
         for each box'''
-        
+
         raise NotImplementedError
-    
+
     def boxes_to_dataframe(self):
         '''convert boxes to pandas dataframe'''
-        
+
         boxes = self.boxes
-            
+
         # determine the restricted dimensions
         # print only the restricted dimension
         box_lims, uncs = _get_sorted_box_lims(boxes, _make_box(self.x))
@@ -330,63 +331,63 @@ class OutputFormatterMixin(object):
             if value[0] == object:
                 dtype = object
                 break
-                
+
         columns = pd.MultiIndex.from_product([index,
-                                              ['min', 'max',]])
+                                              ['min', 'max', ]])
         df_boxes = pd.DataFrame(np.zeros((len(uncs), nr_boxes*2)),
-                               index=uncs,
-                               dtype=dtype,
-                               columns=columns)
+                                index=uncs,
+                                dtype=dtype,
+                                columns=columns)
 
         for i, box in enumerate(box_lims):
             for unc in uncs:
                 values = box[unc][:]
-                values = pd.Series(values, 
-                                   index=['min','max'])
-                df_boxes.ix[unc][index[i]] = values   
-        return df_boxes 
-    
+                values = pd.Series(values,
+                                   index=['min', 'max'])
+                df_boxes.ix[unc][index[i]] = values
+        return df_boxes
+
     def stats_to_dataframe(self):
         '''convert stats to pandas dataframe'''
-        
+
         stats = self.stats
-        
+
         index = pd.Index(['box {}'.format(i+1) for i in range(len(stats))])
-        
+
         return pd.DataFrame(stats, index=index)
-    
+
     def display_boxes(self, together=False):
         '''display boxes
-        
+
         Parameters
         ----------
         together : bool, otional
-        
+
         '''
         box_init = _make_box(self.x)
         box_lims, uncs = _get_sorted_box_lims(self.boxes, box_init)
 
         # normalize the box lims
-        # we don't need to show the last box, for this is the 
+        # we don't need to show the last box, for this is the
         # box_init, which is visualized by a grey area in this
         # plot.
-        norm_box_lims =  [_normalize(box_lim, box_init, uncs) for 
-                                        box_lim in box_lims[0:-1]]
+        norm_box_lims = [_normalize(box_lim, box_init, uncs) for
+                         box_lim in box_lims[0:-1]]
         colors = itertools.cycle(COLOR_LIST)
 
         if together:
             fig, ax = _setup_figure(uncs)
             color = next(colors)
-            
+
             for i, u in enumerate(uncs):
                 # we want to have the most restricted dimension
                 # at the top of the figure
                 xi = len(uncs) - i - 1
-                
+
                 for j, norm_box_lim in enumerate(norm_box_lims):
                     self._plot_unc(box_init, xi, i, j, norm_box_lim,
                                    box_lims[j], u, ax, color)
-           
+
             plt.tight_layout()
             return fig
         else:
@@ -397,16 +398,16 @@ class OutputFormatterMixin(object):
                 figs.append(fig)
                 for i, u in enumerate(uncs):
                     xi = len(uncs) - i - 1
-                    self._plot_unc(box_init, xi, i, j, norm_box_lim, 
+                    self._plot_unc(box_init, xi, i, j, norm_box_lim,
                                    box_lims[j], u, ax, color)
-        
+
                 plt.tight_layout()
             return figs
-    
-    @staticmethod  
+
+    @staticmethod
     def _plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax):
         '''
-        
+
         Parameters:
         ----------
         xi : int 
@@ -419,28 +420,26 @@ class OutputFormatterMixin(object):
             the uncertainty being plotted:
         ax : axes instance
              the ax on which to plot
-        
+
         '''
 
         dtype = box_init[u].dtype
-            
+
         y = xi-j*0.1
-        
+
         color = COLOR_LIST[0]
         if dtype == object:
             elements = sorted(list(box_init[u][0]))
             max_value = (len(elements)-1)
             box_lim = box_lim[u][0]
-            x = [elements.index(entry) for entry in 
+            x = [elements.index(entry) for entry in
                  box_lim]
             x = [entry/max_value for entry in x]
             y = [y] * len(x)
-            
-            ax.scatter(x,y,  edgecolor=color,
+
+            ax.scatter(x, y,  edgecolor=color,
                        facecolor=color)
-            
+
         else:
             ax.plot(norm_box_lim[i], (y, y),
                     c=color)
-        
-        

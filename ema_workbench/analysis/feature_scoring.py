@@ -21,13 +21,13 @@ from sklearn.feature_selection.univariate_selection import (f_regression,
 from .scenario_discovery_util import CLASSIFICATION, REGRESSION
 
 # Created on Jul 9, 2014
-# 
+#
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 #
 # TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
 
 
-__al__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2', 
+__al__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2',
           'get_univariate_feature_scores', 'get_rf_feature_scores',
           'get_lasso_feature_scores', 'get_feature_scores_all']
 
@@ -46,29 +46,29 @@ def _prepare_experiments(experiments):
     Parameters
     ----------
     experiments : structured array
-    
+
     Returns
     -------
     ndarray
-    
+
     '''
-    experiments = recfunctions.drop_fields(experiments, "scenario_id", 
+    experiments = recfunctions.drop_fields(experiments, "scenario_id",
                                            asrecarray=True)
     uncs = recfunctions.get_names(experiments.dtype)
 
     temp_experiments = np.zeros((experiments.shape[0], len(uncs)))
-    
+
     for i, u in enumerate(uncs):
-        try: 
-            temp_experiments[:,i] = experiments[u].astype(np.float)
+        try:
+            temp_experiments[:, i] = experiments[u].astype(np.float)
         except ValueError:
-            
+
             data = experiments[u]
             entries = sorted(list(set(data)))
-            
+
             for j, entry in enumerate(entries):
-                temp_experiments[data==entry,i] = j
-    
+                temp_experiments[data == entry, i] = j
+
     return temp_experiments, uncs
 
 
@@ -76,28 +76,28 @@ def _prepare_outcomes(outcomes, classify):
     '''
     transform the outcomes dict into a vector with either the class allocation
     or the value.
-    
+
     Parameters
     ----------
     outcomes : dict 
                the outcomes dict
     classify : callable or str
                a classify function or variable analogous to PRIM
-               
+
     Returns
     -------
     1d ndarray 
         the return from classify
     bool
         data is categorical (True) or continuous (False)
-    
+
     Raises
     --------
     TypeError 
         if classify is neither a StringType nor a callable
     KeyError 
         if classify is a string which is not a key in the outcomes dict.
-    
+
     '''
     if isinstance(classify, six.string_types):
         try:
@@ -107,20 +107,20 @@ def _prepare_outcomes(outcomes, classify):
         categorical = False
     elif callable(classify):
         y = classify(outcomes)
-        categorical=True
+        categorical = True
     else:
         raise TypeError("unknown type for classify")
-    
+
     return y, categorical
 
 
-def get_univariate_feature_scores(x,y, score_func=F_CLASSIFICATION):
+def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
     '''
-    
+
     calculate feature scores using univariate statistical tests. In case of
     categorical data, chi square or the Anova F value is used. In case of 
     continuous data the Anova F value is used. 
-    
+
     Parameters
     ----------
     x : structured array
@@ -133,27 +133,27 @@ def get_univariate_feature_scores(x,y, score_func=F_CLASSIFICATION):
     pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature 
         scores (i.e. p values in this case).
-    
-    
+
+
     '''
     x, uncs = _prepare_experiments(x)
-    
+
     pvalues = score_func(x, y)[1]
     pvalues = np.asarray(pvalues)
 
     pvalues = zip(uncs, pvalues)
     pvalues = list(pvalues)
     pvalues.sort(key=itemgetter(1))
-    
+
     pvalues = pd.DataFrame(pvalues)
-    
+
     return pvalues
 
 
-def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250, 
-                          max_features='auto', max_depth=None, 
-                          min_samples_split=2, min_samples_leaf=1, 
-                          bootstrap=True, oob_score=True, random_state=None): 
+def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
+                          max_features='auto', max_depth=None,
+                          min_samples_split=2, min_samples_leaf=1,
+                          bootstrap=True, oob_score=True, random_state=None):
     '''
     Get feature scores using a random forest
 
@@ -178,7 +178,7 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
                 see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     random_state : int, optional
                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-    
+
     Returns
     -------
     pandas DataFrame
@@ -186,29 +186,29 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
         scores 
     object
         either RandomForestClassifier or RandomForestRegressor
-    
+
     '''
     x, uncs = _prepare_experiments(x)
-    
-    if mode==CLASSIFICATION:
+
+    if mode == CLASSIFICATION:
         rfc = RandomForestClassifier
-        criterion='gini'
-    elif mode==REGRESSION:
+        criterion = 'gini'
+    elif mode == REGRESSION:
         rfc = RandomForestRegressor
         criterion = 'mse'
     else:
         raise ValueError('{} not valid for mode'.format(mode))
-    
-    forest = rfc(n_estimators=nr_trees, 
-                criterion=criterion, 
-                max_features=max_features, 
-                max_depth=max_depth,
-                min_samples_split=min_samples_split,
-                min_samples_leaf=min_samples_leaf,
-                bootstrap=bootstrap,
-                oob_score=oob_score,
-                random_state=random_state)
-    forest.fit(x,y)
+
+    forest = rfc(n_estimators=nr_trees,
+                 criterion=criterion,
+                 max_features=max_features,
+                 max_depth=max_depth,
+                 min_samples_split=min_samples_split,
+                 min_samples_leaf=min_samples_leaf,
+                 bootstrap=bootstrap,
+                 oob_score=oob_score,
+                 random_state=random_state)
+    forest.fit(x, y)
 
     importances = forest.feature_importances_
 
@@ -221,11 +221,11 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     return importances, forest
 
 
-def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250, 
-                          max_features='auto', max_depth=None, 
-                          min_samples_split=2, min_samples_leaf=1, 
+def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
+                          max_features='auto', max_depth=None,
+                          min_samples_split=2, min_samples_leaf=1,
                           min_weight_fraction_leaf=0, max_leaf_nodes=None,
-                          bootstrap=True, oob_score=True, random_state=None): 
+                          bootstrap=True, oob_score=True, random_state=None):
     '''
     Get feature scores using extra trees
 
@@ -254,7 +254,7 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
                 see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     random_state : int, optional
                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
-    
+
     Returns
     -------
     pandas DataFrame
@@ -262,22 +262,22 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
         scores 
     object
         either ExtraTreesClassifier or ExtraTreesRegressor
-    
+
     '''
     x, uncs = _prepare_experiments(x)
-    
-    if mode==CLASSIFICATION:
+
+    if mode == CLASSIFICATION:
         etc = ExtraTreesClassifier
-        criterion='gini'
-    elif mode==REGRESSION:
+        criterion = 'gini'
+    elif mode == REGRESSION:
         etc = ExtraTreesRegressor
         criterion = 'mse'
     else:
         raise ValueError('{} not valid for mode'.format(mode))
-    
-    extra_trees = etc(n_estimators=nr_trees, 
-                      criterion=criterion, 
-                      max_features=max_features, 
+
+    extra_trees = etc(n_estimators=nr_trees,
+                      criterion=criterion,
+                      max_features=max_features,
                       max_depth=max_depth,
                       min_samples_split=min_samples_split,
                       min_samples_leaf=min_samples_leaf,
@@ -286,7 +286,7 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
                       bootstrap=bootstrap,
                       oob_score=oob_score,
                       random_state=random_state)
-    extra_trees.fit(x,y)
+    extra_trees.fit(x, y)
 
     importances = extra_trees.feature_importances_
 
@@ -298,15 +298,17 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
 
     return importances, extra_trees
 
-algorithms = {'extra trees' : get_ex_feature_scores,
-              'random forest' : get_rf_feature_scores,
-              'univariate' : get_univariate_feature_scores}
+
+algorithms = {'extra trees': get_ex_feature_scores,
+              'random forest': get_rf_feature_scores,
+              'univariate': get_univariate_feature_scores}
+
 
 def get_feature_scores_all(x, y, alg='extra trees', mode=REGRESSION,
-                   **kwargs):
+                           **kwargs):
     '''perform feature scoring for all outcomes using the specified feature 
     scoring algorithm
-    
+
     Parameters
     ----------
     x : numpy structured array
@@ -317,18 +319,18 @@ def get_feature_scores_all(x, y, alg='extra trees', mode=REGRESSION,
     kwargs : dict, optional
              any remaining keyword arguments will be passed to the specific
              feature scoring algorithm
-    
+
     Returns
     -------
     DataFrame instance
-    
-    
+
+
     '''
     complete = None
     for key, value in y.items():
-        fs, _ = algorithms[alg](x,value,mode=mode, **kwargs)
+        fs, _ = algorithms[alg](x, value, mode=mode, **kwargs)
 
-        fs = fs.rename(columns={1:key})
+        fs = fs.rename(columns={1: key})
         fs = fs.set_index(0)
 
         if complete is None:
@@ -337,4 +339,3 @@ def get_feature_scores_all(x, y, alg='extra trees', mode=REGRESSION,
             complete = complete.append(fs.T)
 
     return complete.T
-

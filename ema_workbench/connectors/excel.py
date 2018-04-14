@@ -10,7 +10,7 @@ from __future__ import (absolute_import, print_function, division,
 import os
 
 import win32com.client  # @UnresolvedImport
-from win32com.universal import com_error # @UnresolvedImport
+from win32com.universal import com_error  # @UnresolvedImport
 
 from ..util import ema_logging, EMAError
 from ..em_framework.model import FileModel
@@ -18,20 +18,21 @@ from ema_workbench.em_framework.model import SingleReplication
 from ..util.ema_logging import method_logger
 
 # Created on 19 sep. 2011
-# 
+#
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 
 class BaseExcelModel(FileModel):
     '''
-    
+
     Base class for connecting the EMA workbench to models in Excel. To 
     automate this connection as much as possible. This implementation relies
     on naming cells in Excel. These names can then be used here as names
     for the uncertainties and the outcomes. See e.g. `this site <http://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
     for details on naming cells and sets of cells. 
-    
+
     The provided implementation here does work with :mod:`parallel_ema`.
-    
+
     '''
     com_warning_msg = "com error: no cell(s) named %s found"
 
@@ -41,7 +42,7 @@ class BaseExcelModel(FileModel):
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
         self.xl = None
-    
+
         #: Reference to the workbook. This attribute is `None` until
         #: model_init has been invoked.
         self.wb = None
@@ -66,7 +67,7 @@ class BaseExcelModel(FileModel):
                  keyword arguments to be used by model_intit. This
                  gives users to the ability to pass any additional 
                  arguments. 
-        
+
         '''
         super(BaseExcelModel, self).model_init(policy)
 
@@ -77,14 +78,13 @@ class BaseExcelModel(FileModel):
                 ema_logging.debug("Excel started")
             except com_error as e:
                 raise EMAError(str(e))
-        
+
         if not self.wb:
             ema_logging.debug("trying to open workbook")
             wb = os.path.join(self.working_directory, self.workbook)
             self.wb = self.xl.Workbooks.Open(wb)
             ema_logging.debug("workbook opened")
             ema_logging.debug(self.working_directory)
-
 
     @method_logger
     def run_experiment(self, experiment):
@@ -106,9 +106,9 @@ class BaseExcelModel(FileModel):
         Returns
         ------
         dict
-        
+
         """
-        #find right sheet
+        # find right sheet
         try:
             sheet = self.wb.Sheets(self.sheet)
         except Exception:
@@ -116,27 +116,27 @@ class BaseExcelModel(FileModel):
             self.cleanup()
             raise
 
-        #set values on sheet
+        # set values on sheet
         for key, value in experiment.items():
             try:
                 sheet.Range(key).Value = value
             except com_error:
-                ema_logging.warning("com error: no cell(s) named %s found" % key,)
+                ema_logging.warning(
+                    "com error: no cell(s) named %s found" % key,)
 
-        #get results
+        # get results
         results = {}
         for outcome in self.outcomes:
             for entry in outcome.variable_name:
                 try:
                     output = sheet.Range(entry).Value
                 except com_error:
-                    ema_logging.warning(self.com_warning_msg.format(entry))	
+                    ema_logging.warning(self.com_warning_msg.format(entry))
                     raise
                 else:
                     results[entry] = output
 
         return results
-
 
     @method_logger
     def cleanup(self):
@@ -156,6 +156,7 @@ class BaseExcelModel(FileModel):
 
         self.xl = None
         self.wb = None
+
 
 class ExcelModel(SingleReplication, BaseExcelModel):
     pass
