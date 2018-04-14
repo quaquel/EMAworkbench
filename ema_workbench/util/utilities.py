@@ -178,7 +178,10 @@ def save_results(results, file_name):
     with tarfile.open(file_name, 'w:gz') as z:
         # write the x to the zipfile
         experiments_file = WriterFile()
-        rec2csv(experiments, experiments_file, withheader=True)
+        
+        header = ','.join(experiments.dtype.names)
+        np.savetxt(experiments_file, experiments, delimiter=',', header=header)
+#         rec2csv(experiments, experiments_file, withheader=True)
         add_file(z, experiments_file.getvalue(), 'experiments.csv')
         
         # write experiment metadata
