@@ -355,7 +355,7 @@ class Policy(NamedDict):
         
 
 class Scenario(NamedDict):
-    # we need to start from 1 so experiment id is known
+    # we need to start from 1 so scenario id is known
     id_counter = Counter(1)
     
     def __init__(self, name=Counter(), **kwargs):
@@ -367,7 +367,9 @@ class Case(NamedObject):
     '''A convenience object that contains a specification
     of the model, policy, and scenario to run
 
-    TODO:: we need a better name for this
+    TODO:: we need a better name for this. probably this should be
+    named Experiment, while Experiment should be
+    ExperimentReplication
 
     '''
 
