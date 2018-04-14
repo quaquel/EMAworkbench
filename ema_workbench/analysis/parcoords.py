@@ -17,7 +17,8 @@ from pandas.api.types import CategoricalDtype
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = []
+__all__ = ['ParallelAxes', 
+           'get_limits']
 
 def setup_parallel_plot(labels, minima, maxima, fs=14, rot=90):
     '''helper function for setting up the parallel axes plot
