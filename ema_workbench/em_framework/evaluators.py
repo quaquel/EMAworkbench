@@ -493,6 +493,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     return _optimize(problem, evaluator, algorithm, convergence, nfe,
                      **kwargs)
 
+
 def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
                     convergence=None, constraints=None, **kwargs):
