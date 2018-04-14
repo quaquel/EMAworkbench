@@ -114,7 +114,7 @@ class BaseEvaluator(object):
         as used by platypus algorithms'''
 
         self.callback()
-        
+
         problem = jobs[0].solution.problem
         searchover = problem.searchover
 
@@ -146,8 +146,8 @@ class BaseEvaluator(object):
 
     def perform_experiments(self, scenarios=0, policies=0,
                             reporting_interval=None, reporting_frequency=10,
-                            uncertainty_union=False, lever_union=False, 
-                            outcome_union=False, uncertainty_sampling=LHS, 
+                            uncertainty_union=False, lever_union=False,
+                            outcome_union=False, uncertainty_sampling=LHS,
                             levers_sampling=LHS):
         '''convenience method for performing experiments.
 
@@ -334,9 +334,9 @@ class IpyparallelEvaluator(BaseEvaluator):
 
 
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
-                        reporting_interval=None, reporting_frequency=10, 
-                        uncertainty_union=False, lever_union=False, 
-                        outcome_union=False, uncertainty_sampling=LHS, 
+                        reporting_interval=None, reporting_frequency=10,
+                        uncertainty_union=False, lever_union=False,
+                        outcome_union=False, uncertainty_sampling=LHS,
                         levers_sampling=LHS, callback=None,
                         return_callback=False):
     '''sample uncertainties and levers, and perform the resulting experiments
@@ -446,7 +446,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
-             convergence=None, constraints=None,**kwargs):
+             convergence=None, constraints=None, **kwargs):
     '''optimize the model
 
     Parameters
@@ -483,7 +483,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     except TypeError:
         pass
 
-    problem = to_problem(models, searchover, constraints=constraints, 
+    problem = to_problem(models, searchover, constraints=constraints,
                          reference=reference)
 
     # solve the optimization problem

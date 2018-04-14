@@ -12,18 +12,20 @@ import matplotlib.pyplot as plt
 from ema_workbench import ema_logging, load_results
 from ema_workbench.analysis import prim
 
-ema_logging.log_to_stderr(ema_logging.INFO);
+ema_logging.log_to_stderr(ema_logging.INFO)
 
 default_flow = 2.178849944502783e7
+
 
 def classify(outcomes):
     ooi = 'throughput Rotterdam'
     outcome = outcomes[ooi]
     outcome = outcome/default_flow
-    
+
     classes = np.zeros(outcome.shape[0])
-    classes[outcome<1] = 1
+    classes[outcome < 1] = 1
     return classes
+
 
 fn = r'./data/5000 runs WCM.tar.gz'
 results = load_results(fn)

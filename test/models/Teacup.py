@@ -1,15 +1,14 @@
-
 """
-Python model /Users/jhkwakkel/EMAworkbench/test/test_connectors/../models/Teacup.py
-Translated using PySD version 0.7.2
+Python model "Teacup.py"
+Translated using PySD version 0.8.3
 """
 from __future__ import division
 import numpy as np
 from pysd import utils
 import xarray as xr
 
-from pysd.functions import cache
-from pysd import functions
+from pysd.py_backend.functions import cache
+from pysd.py_backend import functions
 
 _subscript_dict = {}
 
@@ -23,16 +22,21 @@ _namespace = {
     'FINAL TIME': 'final_time',
     'INITIAL TIME': 'initial_time',
     'SAVEPER': 'saveper',
-    'TIME STEP': 'time_step'}
+    'TIME STEP': 'time_step'
+}
+
+__pysd_version__ = "0.8.3"
 
 
 @cache('run')
 def characteristic_time():
     """
     Characteristic Time
-    -------------------
-    (characteristic_time)
+
     Minutes
+
+    constant
+
 
     """
     return 10
@@ -42,11 +46,13 @@ def characteristic_time():
 def heat_loss_to_room():
     """
     Heat Loss to Room
-    -----------------
-    (heat_loss_to_room)
+
     Degrees/Minute
-    This is the rate at which heat flows from the cup into the room. We can
-                ignore it at this point.
+
+    component
+
+    This is the rate at which heat flows from the cup into the room. We can 
+        ignore it at this point.
     """
     return (teacup_temperature() - room_temperature()) / characteristic_time()
 
@@ -55,8 +61,10 @@ def heat_loss_to_room():
 def room_temperature():
     """
     Room Temperature
-    ----------------
-    (room_temperature)
+
+
+
+    constant
 
 
     """
@@ -67,9 +75,11 @@ def room_temperature():
 def teacup_temperature():
     """
     Teacup Temperature
-    ------------------
-    (teacup_temperature)
+
     Degrees
+
+    component
+
 
     """
     return integ_teacup_temperature()
@@ -79,9 +89,11 @@ def teacup_temperature():
 def final_time():
     """
     FINAL TIME
-    ----------
-    (final_time)
+
     Minute
+
+    constant
+
     The final time for the simulation.
     """
     return 30
@@ -91,9 +103,11 @@ def final_time():
 def initial_time():
     """
     INITIAL TIME
-    ------------
-    (initial_time)
+
     Minute
+
+    constant
+
     The initial time for the simulation.
     """
     return 0
@@ -103,9 +117,11 @@ def initial_time():
 def saveper():
     """
     SAVEPER
-    -------
-    (saveper)
+
     Minute [0,?]
+
+    component
+
     The frequency with which output is stored.
     """
     return time_step()
@@ -115,32 +131,14 @@ def saveper():
 def time_step():
     """
     TIME STEP
-    ---------
-    (time_step)
+
     Minute [0,?]
+
+    constant
+
     The time step for the simulation.
     """
     return 0.125
 
 
 integ_teacup_temperature = functions.Integ(lambda: -heat_loss_to_room(), lambda: 180)
-
-
-@cache('step')
-def time():
-    """
-    TIME
-    ----
-    (time)
-    None
-    The time of the model
-    """
-    return _t
-
-
-def time():
-    return _t
-
-
-functions.time = time
-functions._stage = lambda: _stage

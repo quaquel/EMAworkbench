@@ -6,7 +6,6 @@ from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
 
-
 # Created on 12 Jan 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -26,15 +25,13 @@ except ImportError:
     SALib = None
 
 
-
-
 def get_SALib_problem(uncertainties):
     '''returns a dict with a problem specificatin as required by SALib'''
-    
+
     _warning = False
     uncertainties = sorted(uncertainties, key=operator.attrgetter('name'))
     bounds = []
-    
+
     for uncertainty in uncertainties:
         values = uncertainty.lower_bound, uncertainty.upper_bound
         bounds.append(values)
@@ -44,6 +41,7 @@ def get_SALib_problem(uncertainties):
                'bounds': bounds}
     return problem
 
+
 class SALibSampler(object):
 
     def generate_samples(self, uncertainties, size):
@@ -51,7 +49,7 @@ class SALibSampler(object):
         The main method of :class: `~sampler.Sampler` and its 
         children. This will call the sample method for each of the 
         uncertainties and return the resulting designs. 
-        
+
         Parameters
         ----------
         uncertainties : collection
@@ -60,38 +58,39 @@ class SALibSampler(object):
                         instances.
         size : int
                the number of samples to generate.
-        
-        
+
+
         Returns
         -------
         dict
             dict with the uncertainty.name as key, and the sample as value
-        
+
         '''
-        
+
         problem = get_SALib_problem(uncertainties)
         samples = self.sample(problem, size)
-        samples = {unc.name:samples[:,i] for i, unc in enumerate(uncertainties)}
-        
+        samples = {unc.name: samples[:, i]
+                   for i, unc in enumerate(uncertainties)}
+
         # handle integer and categorical uncertainties
         for uncertainty in uncertainties:
             sample = samples[uncertainty.name]
-            
+
             if isinstance(uncertainty, CategoricalParameter):
-                sample = [uncertainty.cat_for_index(int(entry)) for entry in 
+                sample = [uncertainty.cat_for_index(int(entry)) for entry in
                           sample]
             elif isinstance(uncertainty, IntegerParameter):
                 sample = (int(entry) for entry in sample)
 
             samples[uncertainty.name] = sample
-        
+
         return samples
-    
+
     def generate_designs(self,  parameters, nr_samples):
         '''external interface to sampler. Returns the computational experiments
         over the specified parameters, for the given number of samples for each
         parameter.
-        
+
         Parameters
         ----------
         parameters : list 
@@ -99,8 +98,8 @@ class SALibSampler(object):
                         experimental designs
         nr_samples : int
                      the number of samples to draw for each parameter
-        
-        
+
+
         Returns
         -------
         generator
@@ -108,45 +107,44 @@ class SALibSampler(object):
             combining the parameters
         int
             the number of experimental designs
-        
+
         '''
         parameters = sorted(parameters, key=operator.attrgetter('name'))
         sampled_parameters = self.generate_samples(parameters, nr_samples)
-        
+
         nr_designs = next(iter(sampled_parameters.values())).shape[0]
 
         params = sorted(sampled_parameters.keys())
-        designs = zip(*[sampled_parameters[u] for u in params]) 
+        designs = zip(*[sampled_parameters[u] for u in params])
         designs = DefaultDesigns(designs, parameters, nr_designs)
-        
+
         return designs
+
 
 class SobolSampler(SALibSampler):
     '''Sampler generating a Sobol design using SALib
-    
+
     Parameters
     ----------
     second_order : bool, optional
                    indicates whether second order effects should be included
-    
+
     '''
-    
-    
+
     def __init__(self, second_order=True):
         self.second_order = second_order
         self._warning = False
-        
+
         super(SobolSampler, self).__init__()
-    
+
     def sample(self, problem, size):
-        return SALib.sample.saltelli.sample(problem, size, 
-                                  calc_second_order=self.second_order)
-    
-    
+        return SALib.sample.saltelli.sample(problem, size,
+                                            calc_second_order=self.second_order)
+
 
 class MorrisSampler(SALibSampler):
     '''Sampler generating a morris design using SALib
-    
+
     Parameters
     ----------
     num_levels : int
@@ -161,25 +159,24 @@ class MorrisSampler(SALibSampler):
         Stating this variable to be true causes the function to ignore gurobi.
     '''
 
-    
-    def __init__(self, num_levels, grid_jump, optimal_trajectories=None, 
+    def __init__(self, num_levels, grid_jump, optimal_trajectories=None,
                  local_optimization=False):
         super(MorrisSampler, self).__init__()
         self.num_levels = num_levels
         self.grid_jump = grid_jump
         self.optimal_trajectories = optimal_trajectories
         self.local_optimization = local_optimization
-        
 
     def sample(self, problem, size):
-        return SALib.sample.morris.sample(problem, size, self.num_levels, 
-                                  self.grid_jump, self.optimal_trajectories, 
-                                  self.local_optimization)   
-        
+        return SALib.sample.morris.sample(problem, size, self.num_levels,
+                                          self.grid_jump, self.optimal_trajectories,
+                                          self.local_optimization)
+
+
 class FASTSampler(SALibSampler):
     '''Sampler generating a Fourier Amplitude Sensitivity Test (FAST) using 
     SALib
-    
+
     Parameters
     ----------
     n : int
@@ -189,11 +186,10 @@ class FASTSampler(SALibSampler):
         Fourier series decomposition 
     '''
 
-    
     def __init__(self, n, m=4):
         super(MorrisSampler, self).__init__()
         self.n = n
         self.m = m
 
     def sample(self, problem, size):
-        return SALib.sample.fast_sampler(self.n, self.m)  
+        return SALib.sample.fast_sampler(self.n, self.m)

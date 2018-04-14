@@ -17,25 +17,25 @@ from matplotlib.patches import ConnectionPatch
 
 # from . import plotting_util
 from .plotting_util import (prepare_data, simple_kde, group_density, make_grid,
-                           make_legend, plot_envelope, simple_density,
-                           do_titles, do_ylabels, TIME, ENV_LIN, ENVELOPE,
-                           LINES, PATCH, LINE, TIGHT, KDE, get_color)
+                            make_legend, plot_envelope, simple_density,
+                            do_titles, do_ylabels, TIME, ENV_LIN, ENVELOPE,
+                            LINES, PATCH, LINE, TIGHT, KDE, get_color)
 from ..util import debug, warning, EMAError
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['lines', 
-           'envelopes', 
-           'kde_over_time', 
+__all__ = ['lines',
+           'envelopes',
+           'kde_over_time',
            'multiple_densities']
 
 TIME_LABEL = 'Time'
 
 
-def envelopes(results, 
-              outcomes_to_show = [],
-              group_by = None,
-              grouping_specifiers = None,
+def envelopes(results,
+              outcomes_to_show=[],
+              group_by=None,
+              grouping_specifiers=None,
               density=None,
               fill=False,
               legend=True,
@@ -89,13 +89,13 @@ def envelopes(results,
     axes : dict
            dict with outcome as key, and axes as value. Density axes' are
            indexed by the outcome followed by _density.
-        
+
     Note
     ----
     the current implementation is limited to seven different categories in case 
     of group_by, categories, and/or discretesize. This limit is due to the colors 
     specified in COLOR_LIST.
-    
+
     Examples
     --------
 
@@ -115,42 +115,42 @@ def envelopes(results,
     '''
     debug("generating envelopes")
     results = copy.deepcopy(results)
-   
+
     prepared_data = prepare_data(results, outcomes_to_show, group_by,
                                  grouping_specifiers)
     outcomes, outcomes_to_show, time, grouping_labels = prepared_data
-    
+
     figure, grid = make_grid(outcomes_to_show, density)
-    
+
     # do the plotting
     axes_dict = {}
     for i, outcome_to_plot in enumerate(outcomes_to_show):
-        ax = figure.add_subplot(grid[i,0])
+        ax = figure.add_subplot(grid[i, 0])
         axes_dict[outcome_to_plot] = ax
-        
-        ax_d= None
+
+        ax_d = None
         if density:
-            ax_d = figure.add_subplot(grid[i,1], sharey=ax)
+            ax_d = figure.add_subplot(grid[i, 1], sharey=ax)
             axes_dict[outcome_to_plot+"_density"] = ax_d
-    
+
         if group_by:
-            group_by_envelopes(outcomes,outcome_to_plot, time, density,
+            group_by_envelopes(outcomes, outcome_to_plot, time, density,
                                ax, ax_d, fill, grouping_labels, log)
         else:
             single_envelope(outcomes, outcome_to_plot, time, density,
                             ax, ax_d, fill, log)
-            
+
         if ax_d:
             for tl in ax_d.get_yticklabels():
                 tl.set_visible(False)
-        
+
         ax.set_xlabel(TIME_LABEL)
         do_ylabels(ax, ylabels, outcome_to_plot)
         do_titles(ax, titles, outcome_to_plot)
 
     if legend and group_by:
-        gs1 = grid[0,0]
-        
+        gs1 = grid[0, 0]
+
         for ax in figure.axes:
             gs2 = ax._subplotspec
             if all((gs1._gridspec == gs2._gridspec,
@@ -158,14 +158,14 @@ def envelopes(results,
                     gs1.num2 == gs2.num2)):
                 break
         if fill:
-            make_legend(grouping_labels, ax, alpha=0.3, 
+            make_legend(grouping_labels, ax, alpha=0.3,
                         legend_type=PATCH)
         else:
             make_legend(grouping_labels, ax, legend_type=LINE)
-    
+
     if TIGHT:
         grid.tight_layout(figure)
-    
+
     return figure, axes_dict
 
 
@@ -176,7 +176,7 @@ def group_by_envelopes(outcomes,
                        ax,
                        ax_d,
                        fill,
-                       group_labels, 
+                       group_labels,
                        log):
     ''' Helper function, responsible for generating an envelope plot based on
     a grouping. 
@@ -200,23 +200,23 @@ def group_by_envelopes(outcomes,
     log : bool
 
     '''
-    
+
     for j, key in enumerate(group_labels):
         value = outcomes[key]
         value = value[outcome_to_plot]
         try:
-            plot_envelope(ax, j, time, value,fill)
+            plot_envelope(ax, j, time, value, fill)
         except ValueError:
             warning("value error when plotting for %s" % (key))
             raise
-    
+
     if density:
-        group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, 
+        group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
                       log)
-    
+
         ax_d.get_yaxis().set_view_interval(
-                     ax.get_yaxis().get_view_interval()[0],
-                     ax.get_yaxis().get_view_interval()[1])
+            ax.get_yaxis().get_view_interval()[0],
+            ax.get_yaxis().get_view_interval()[1])
 
 
 def single_envelope(outcomes,
@@ -225,7 +225,7 @@ def single_envelope(outcomes,
                     density,
                     ax,
                     ax_d,
-                    fill, 
+                    fill,
                     log):
     '''
 
@@ -251,16 +251,16 @@ def single_envelope(outcomes,
 
     '''
     value = outcomes[outcome_to_plot]
-    
-    plot_envelope(ax, 0, time, value,fill)
+
+    plot_envelope(ax, 0, time, value, fill)
     if density:
         simple_density(density, value, ax_d, ax, log)
 
-          
-def lines(results, 
-          outcomes_to_show = [],
-          group_by = None,
-          grouping_specifiers = None,
+
+def lines(results,
+          outcomes_to_show=[],
+          group_by=None,
+          grouping_specifiers=None,
           density='',
           legend=True,
           titles={},
@@ -320,7 +320,7 @@ def lines(results,
     axes : dict
            dict with outcome as key, and axes as value. Density axes' are
            indexed by the outcome followed by _density.
-    
+
     Note
     ----
     the current implementation is limited to seven different categories in case 
@@ -328,21 +328,21 @@ def lines(results,
     specified in COLOR_LIST.
 
     '''
-    
+
     debug("generating line graph")
 
     # make sure we have the data
     results = copy.deepcopy(results)
 
     if show_envelope:
-        return plot_lines_with_envelopes(results, 
-                                outcomes_to_show=outcomes_to_show, 
-                                group_by=group_by, legend=legend, 
-                                density=density, 
-                                grouping_specifiers=grouping_specifiers, 
-                                experiments_to_show=experiments_to_show, 
-                                titles=titles, ylabels=ylabels, log=log)
-    
+        return plot_lines_with_envelopes(results,
+                                         outcomes_to_show=outcomes_to_show,
+                                         group_by=group_by, legend=legend,
+                                         density=density,
+                                         grouping_specifiers=grouping_specifiers,
+                                         experiments_to_show=experiments_to_show,
+                                         titles=titles, ylabels=ylabels, log=log)
+
     if experiments_to_show is not None:
         experiments, outcomes = results
         experiments = experiments[experiments_to_show]
@@ -351,7 +351,7 @@ def lines(results,
             new_outcomes[key] = value[experiments_to_show]
         results = experiments, new_outcomes
 
-    data = prepare_data(results, outcomes_to_show, group_by, 
+    data = prepare_data(results, outcomes_to_show, group_by,
                         grouping_specifiers)
     outcomes, outcomes_to_show, time, grouping_labels = data
 
@@ -360,19 +360,19 @@ def lines(results,
 
     # do the plotting
     for i, outcome_to_plot in enumerate(outcomes_to_show):
-        ax = figure.add_subplot(grid[i,0])
+        ax = figure.add_subplot(grid[i, 0])
         axes_dict[outcome_to_plot] = ax
-        
-        ax_d= None
+
+        ax_d = None
         if density:
-            ax_d = figure.add_subplot(grid[i,1], sharey=ax)
+            ax_d = figure.add_subplot(grid[i, 1], sharey=ax)
             axes_dict[outcome_to_plot+"_density"] = ax_d
-            
+
             for tl in ax_d.get_yticklabels():
                 tl.set_visible(False)
-    
+
         if group_by:
-            group_by_lines(outcomes,outcome_to_plot, time, density,
+            group_by_lines(outcomes, outcome_to_plot, time, density,
                            ax, ax_d, grouping_labels, log)
         else:
             simple_lines(outcomes, outcome_to_plot, time, density,
@@ -380,29 +380,29 @@ def lines(results,
         ax.set_xlabel(TIME_LABEL)
         do_ylabels(ax, ylabels, outcome_to_plot)
         do_titles(ax, titles, outcome_to_plot)
-            
+
     if legend and group_by:
-        gs1 = grid[0,0]
-        
+        gs1 = grid[0, 0]
+
         for ax in figure.axes:
             gs2 = ax._subplotspec
             if all((gs1._gridspec == gs2._gridspec,
                     gs1.num1 == gs2.num1,
                     gs1.num2 == gs2.num2)):
-                break        
-        
+                break
+
         make_legend(grouping_labels, ax)
-    
+
     if TIGHT:
         grid.tight_layout(figure)
-    
+
     return figure, axes_dict
 
 
-def plot_lines_with_envelopes(results, 
-                              outcomes_to_show = [],
-                              group_by = None,
-                              grouping_specifiers = None,
+def plot_lines_with_envelopes(results,
+                              outcomes_to_show=[],
+                              group_by=None,
+                              grouping_specifiers=None,
                               density='',
                               legend=True,
                               titles={},
@@ -458,39 +458,37 @@ def plot_lines_with_envelopes(results,
         dict with outcome as key, and axes as value. Density axes' are
         indexed by the outcome followed by _density
     '''
-   
+
     full_outcomes = prepare_data(results, outcomes_to_show, group_by,
-                             grouping_specifiers)[0]
-   
+                                 grouping_specifiers)[0]
+
     experiments, outcomes = results
     experiments = experiments[experiments_to_show]
-    new_outcomes={}
+    new_outcomes = {}
     for key, value in outcomes.items():
         new_outcomes[key] = value[experiments_to_show]
     results = experiments, new_outcomes
 
-    data = prepare_data(results, outcomes_to_show, group_by, 
+    data = prepare_data(results, outcomes_to_show, group_by,
                         grouping_specifiers)
     outcomes, outcomes_to_show, time, grouping_labels = data
-    
-
 
     figure, grid = make_grid(outcomes_to_show, density)
     axes_dict = {}
 
     # do the plotting
     for i, outcome_to_plot in enumerate(outcomes_to_show):
-        ax = figure.add_subplot(grid[i,0])
+        ax = figure.add_subplot(grid[i, 0])
         axes_dict[outcome_to_plot] = ax
-        
-        ax_d= None
+
+        ax_d = None
         if density:
-            ax_d = figure.add_subplot(grid[i,1], sharey=ax)
+            ax_d = figure.add_subplot(grid[i, 1], sharey=ax)
             axes_dict[outcome_to_plot+"_density"] = ax_d
-            
+
             for tl in ax_d.get_yticklabels():
                 tl.set_visible(False)
-    
+
         if group_by:
             for j, key in enumerate(grouping_labels):
                 full_value = full_outcomes[key][outcome_to_plot]
@@ -498,34 +496,34 @@ def plot_lines_with_envelopes(results,
             for j, key in enumerate(grouping_labels):
                 value = outcomes[key][outcome_to_plot]
                 full_value = full_outcomes[key][outcome_to_plot]
-                ax.plot(time.T[:, np.newaxis], value.T, 
+                ax.plot(time.T[:, np.newaxis], value.T,
                         c=get_color(j))
-            
+
             if density:
-                group_density(ax_d, density, full_outcomes, outcome_to_plot, 
+                group_density(ax_d, density, full_outcomes, outcome_to_plot,
                               grouping_labels, log)
-               
+
                 ax_d.get_yaxis().set_view_interval(
-                             ax.get_yaxis().get_view_interval()[0],
-                             ax.get_yaxis().get_view_interval()[1])
-            
+                    ax.get_yaxis().get_view_interval()[0],
+                    ax.get_yaxis().get_view_interval()[1])
+
         else:
             value = full_outcomes[outcome_to_plot]
             plot_envelope(ax, 0, time, value, fill=True)
             if density:
                 simple_density(density, value, ax_d, ax, log)
-            
+
             value = outcomes[outcome_to_plot]
             ax.plot(time.T, value.T)
-        
-        ax.set_xlim(xmin=time[0] , xmax=time[-1])
+
+        ax.set_xlim(xmin=time[0], xmax=time[-1])
         ax.set_xlabel(TIME_LABEL)
         do_ylabels(ax, ylabels, outcome_to_plot)
         do_titles(ax, titles, outcome_to_plot)
 
     if legend and group_by:
-        gs1 = grid[0,0]
-        
+        gs1 = grid[0, 0]
+
         for ax in figure.axes:
             gs2 = ax._subplotspec
             if all((gs1._gridspec == gs2._gridspec,
@@ -533,10 +531,10 @@ def plot_lines_with_envelopes(results,
                     gs1.num2 == gs2.num2)):
                 break
         make_legend(grouping_labels, ax)
-    
+
     if TIGHT:
         grid.tight_layout(figure)
-    
+
     return figure, axes_dict
 
 
@@ -545,7 +543,7 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
     '''
 
     Helper function responsible for generating a grouped lines plot. 
- 
+
     Parameters
     ----------
     results : tupule
@@ -559,21 +557,21 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
     log : bool
 
     '''
-    
+
     for j, key in enumerate(group_by_labels):
         value = outcomes[key]
         value = value[outcome_to_plot]
 
         color = get_color(j)
         ax.plot(time.T[:, np.newaxis], value.T, c=color, ms=1, markevery=5)
-    
+
     if density:
-        group_density(ax_d, density, outcomes, outcome_to_plot, 
+        group_density(ax_d, density, outcomes, outcome_to_plot,
                       group_by_labels, log)
-        
+
         ax_d.get_yaxis().set_view_interval(
-                     ax.get_yaxis().get_view_interval()[0],
-                     ax.get_yaxis().get_view_interval()[1])
+            ax.get_yaxis().get_view_interval()[0],
+            ax.get_yaxis().get_view_interval()[1])
 
 
 def simple_lines(outcomes, outcome_to_plot, time, density,
@@ -593,20 +591,20 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
     ax_d : Axes instance
     log : bool
 
-    '''    
+    '''
     value = outcomes[outcome_to_plot]
     ax.plot(time.T, value.T)
     if density:
         simple_density(density, value, ax_d, ax, log)
 
 
-def kde_over_time(results, 
-                  outcomes_to_show = [],
-                  group_by = None,
-                  grouping_specifiers = None,
+def kde_over_time(results,
+                  outcomes_to_show=[],
+                  group_by=None,
+                  grouping_specifiers=None,
                   results_to_show=None,
                   colormap='coolwarm',
-#                  color_bar=False,
+                  #                  color_bar=False,
                   log=True):
     '''
 
@@ -641,20 +639,20 @@ def kde_over_time(results,
     dict
         dict with outcome as key, and axes as value. Density axes' are
         indexed by the outcome followed by _density
-       
+
     '''
     # TODO:: a colorbar boolean should be added. This controls whether a
     #        colorbar is shown for each axes.
     results = copy.deepcopy(results)
 
-    #determine the minima and maxima over all runs
+    # determine the minima and maxima over all runs
     minima = {}
     maxima = {}
     for key, value in results[1].items():
         minima[key] = np.min(value)
         maxima[key] = np.max(value)
 
-    prepared_data = prepare_data(results, outcomes_to_show, group_by, 
+    prepared_data = prepare_data(results, outcomes_to_show, group_by,
                                  grouping_specifiers)
     outcomes, outcomes_to_show, time, grouping_specifiers = prepared_data
     del time
@@ -663,7 +661,7 @@ def kde_over_time(results,
         figures = []
         axes_dicts = {}
         for key, value in outcomes.items():
-            fig, axes_dict = simple_kde(value, outcomes_to_show, colormap, log, 
+            fig, axes_dict = simple_kde(value, outcomes_to_show, colormap, log,
                                         minima, maxima)
             fig.suptitle(key)
             figures.append(fig)
@@ -672,7 +670,7 @@ def kde_over_time(results,
         for outcome in outcomes_to_show:
             vmax = -1
             for entry in axes_dicts.values():
-                vmax =  max(entry[outcome].images[0].norm.vmax, vmax)
+                vmax = max(entry[outcome].images[0].norm.vmax, vmax)
             for entry in axes_dicts.values():
                 ax = entry[outcome]
                 ax.images[0].set_clim(vmin=0, vmax=vmax)
@@ -685,10 +683,10 @@ def kde_over_time(results,
 
 
 def multiple_densities(results,
-                       points_in_time=[], 
+                       points_in_time=[],
                        outcomes_to_show=[],
-                       group_by = None,
-                       grouping_specifiers = None,
+                       group_by=None,
+                       grouping_specifiers=None,
                        density=KDE,
                        legend=True,
                        titles={},
@@ -745,25 +743,25 @@ def multiple_densities(results,
     axes : dict
            dict with outcome as key, and axes as value. Density axes' are
            indexed by the outcome followed by _density.
-    
+
     Note
     ---- 
     the current implementation is limited to seven different categories in
     case of group_by, categories, and/or discretesize. This limit is due to the 
     colors specified in COLOR_LIST.
-    
+
     Note
     ----
     the connection patches are for some reason not drawn if log scaling is 
     used for the density plots. This appears to be an issue in matplotlib 
     itself.
-    
+
     '''
     if not outcomes_to_show:
-        outcomes_to_show =  results[1].keys()
+        outcomes_to_show = results[1].keys()
         outcomes_to_show.remove(TIME)
     elif isinstance(outcomes_to_show, six.string_types):
-        outcomes_to_show=[outcomes_to_show]
+        outcomes_to_show = [outcomes_to_show]
 
     axes_dicts = {}
     figures = []
@@ -782,12 +780,12 @@ def multiple_densities(results,
                     new_outcomes[key] = value[experiments_to_show]
                 temp_results = experiments, new_outcomes
 
-        data = prepare_data(temp_results, [outcome_to_show], group_by, 
+        data = prepare_data(temp_results, [outcome_to_show], group_by,
                             grouping_specifiers)
         outcomes, outcomes_to_show, time, grouping_labels = data
         del outcomes_to_show
 
-        #start of plotting
+        # start of plotting
         fig = plt.figure()
         figures.append(fig)
 
@@ -795,43 +793,43 @@ def multiple_densities(results,
         if not points_in_time:
             raise EMAError("no points in time specified")
         if len(points_in_time) == 1:
-            ax_env = plt.subplot2grid((2,3), (0,0), colspan=3)
-            ax1 = plt.subplot2grid((2,3), (1,1), sharey=ax_env )
+            ax_env = plt.subplot2grid((2, 3), (0, 0), colspan=3)
+            ax1 = plt.subplot2grid((2, 3), (1, 1), sharey=ax_env)
             kde_axes = [ax1]
         elif len(points_in_time) == 2:
-            ax_env = plt.subplot2grid((2,2), (0,0), colspan=2)
-            ax1 = plt.subplot2grid((2,2), (1,0), sharey=ax_env)
-            ax2 = plt.subplot2grid((2,2), (1,1), sharex=ax1, sharey=ax_env)
+            ax_env = plt.subplot2grid((2, 2), (0, 0), colspan=2)
+            ax1 = plt.subplot2grid((2, 2), (1, 0), sharey=ax_env)
+            ax2 = plt.subplot2grid((2, 2), (1, 1), sharex=ax1, sharey=ax_env)
             kde_axes = [ax1, ax2]
         elif len(points_in_time) == 3:
-            ax_env = plt.subplot2grid((2,3), (0,0), colspan=3)
-            ax1 = plt.subplot2grid((2,3), (1,0), sharey=ax_env)
-            ax2 = plt.subplot2grid((2,3), (1,1), sharex=ax1, sharey=ax_env)
-            ax3 = plt.subplot2grid((2,3), (1,2), sharex=ax1, sharey=ax_env)
+            ax_env = plt.subplot2grid((2, 3), (0, 0), colspan=3)
+            ax1 = plt.subplot2grid((2, 3), (1, 0), sharey=ax_env)
+            ax2 = plt.subplot2grid((2, 3), (1, 1), sharex=ax1, sharey=ax_env)
+            ax3 = plt.subplot2grid((2, 3), (1, 2), sharex=ax1, sharey=ax_env)
             kde_axes = [ax1, ax2, ax3]
         elif len(points_in_time) == 4:
-            ax_env = plt.subplot2grid((2,4), (0,1), colspan=2)
-            ax1 = plt.subplot2grid((2,4), (1,0), sharey=ax_env )
-            ax2 = plt.subplot2grid((2,4), (1,1), sharex=ax1, sharey=ax_env)
-            ax3 = plt.subplot2grid((2,4), (1,2), sharex=ax1, sharey=ax_env)
-            ax4 = plt.subplot2grid((2,4), (1,3), sharex=ax1, sharey=ax_env)
+            ax_env = plt.subplot2grid((2, 4), (0, 1), colspan=2)
+            ax1 = plt.subplot2grid((2, 4), (1, 0), sharey=ax_env)
+            ax2 = plt.subplot2grid((2, 4), (1, 1), sharex=ax1, sharey=ax_env)
+            ax3 = plt.subplot2grid((2, 4), (1, 2), sharex=ax1, sharey=ax_env)
+            ax4 = plt.subplot2grid((2, 4), (1, 3), sharex=ax1, sharey=ax_env)
             kde_axes = [ax1, ax2, ax3, ax4]
         elif len(points_in_time) == 5:
-            ax_env = plt.subplot2grid((2,5), (0,1), colspan=3)
-            ax1 = plt.subplot2grid((2,5), (1,0), sharey=ax_env)
-            ax2 = plt.subplot2grid((2,5), (1,1), sharex=ax1, sharey=ax_env)
-            ax3 = plt.subplot2grid((2,5), (1,2), sharex=ax1, sharey=ax_env)
-            ax4 = plt.subplot2grid((2,5), (1,3), sharex=ax1, sharey=ax_env)
-            ax5 = plt.subplot2grid((2,5), (1,4), sharex=ax1, sharey=ax_env)
+            ax_env = plt.subplot2grid((2, 5), (0, 1), colspan=3)
+            ax1 = plt.subplot2grid((2, 5), (1, 0), sharey=ax_env)
+            ax2 = plt.subplot2grid((2, 5), (1, 1), sharex=ax1, sharey=ax_env)
+            ax3 = plt.subplot2grid((2, 5), (1, 2), sharex=ax1, sharey=ax_env)
+            ax4 = plt.subplot2grid((2, 5), (1, 3), sharex=ax1, sharey=ax_env)
+            ax5 = plt.subplot2grid((2, 5), (1, 4), sharex=ax1, sharey=ax_env)
             kde_axes = [ax1, ax2, ax3, ax4, ax5]
         elif len(points_in_time) == 6:
-            ax_env = plt.subplot2grid((2,6), (0,1), colspan=4)
-            ax1 = plt.subplot2grid((2,6), (1,0), sharey=ax_env)
-            ax2 = plt.subplot2grid((2,6), (1,1), sharex=ax1, sharey=ax_env)
-            ax3 = plt.subplot2grid((2,6), (1,2), sharex=ax1, sharey=ax_env)
-            ax4 = plt.subplot2grid((2,6), (1,3), sharex=ax1, sharey=ax_env)
-            ax5 = plt.subplot2grid((2,6), (1,4), sharex=ax1, sharey=ax_env)
-            ax6 = plt.subplot2grid((2,6), (1,5), sharex=ax1, sharey=ax_env)
+            ax_env = plt.subplot2grid((2, 6), (0, 1), colspan=4)
+            ax1 = plt.subplot2grid((2, 6), (1, 0), sharey=ax_env)
+            ax2 = plt.subplot2grid((2, 6), (1, 1), sharex=ax1, sharey=ax_env)
+            ax3 = plt.subplot2grid((2, 6), (1, 2), sharex=ax1, sharey=ax_env)
+            ax4 = plt.subplot2grid((2, 6), (1, 3), sharex=ax1, sharey=ax_env)
+            ax5 = plt.subplot2grid((2, 6), (1, 4), sharex=ax1, sharey=ax_env)
+            ax6 = plt.subplot2grid((2, 6), (1, 5), sharex=ax1, sharey=ax_env)
 
             kde_axes = [ax1, ax2, ax3, ax4, ax5, ax6, ]
         else:
@@ -841,17 +839,17 @@ def multiple_densities(results,
         for n, entry in enumerate(kde_axes):
             axes_dict["density_%s" % n] = entry
 
-            #turn of ticks for all but the first density            
+            # turn of ticks for all but the first density
             if n > 0:
                 for tl in entry.get_yticklabels():
                     tl.set_visible(False)
-            
-        # bit of a trick to avoid duplicating code. If no subgroups are 
+
+        # bit of a trick to avoid duplicating code. If no subgroups are
         # specified, nest the outcomes one step deeper in de dict so the
         # iteration below can proceed normally.
         if not grouping_labels:
-            grouping_labels=[""]
-            outcomes[""]=outcomes
+            grouping_labels = [""]
+            outcomes[""] = outcomes
 
         for j, key in enumerate(grouping_labels):
             value = outcomes[key][outcome_to_show]
@@ -862,7 +860,7 @@ def multiple_densities(results,
                 ax_env.plot(time.T, value.T)
             elif plot_type == ENV_LIN:
                 plot_envelope(ax_env, j, time, value, fill=True)
-                if experiments_to_show!=None:
+                if experiments_to_show != None:
                     ax_env.plot(time.T, value[experiments_to_show].T)
                 else:
                     ax_env.plot(time.T, value.T)
@@ -874,29 +872,30 @@ def multiple_densities(results,
 
         for i, ax in enumerate(kde_axes):
             time_value = points_in_time[i]
-            index = np.where(time==points_in_time[i])[0][0]
+            index = np.where(time == points_in_time[i])[0][0]
 
-            group_density(ax, density, outcomes, outcome_to_show, 
+            group_density(ax, density, outcomes, outcome_to_show,
                           grouping_labels, index=index, log=log)
 
         min_y, max_y = ax_env.get_ylim()
-        ax_env.autoscale(enable=False, axis='y')  
+        ax_env.autoscale(enable=False, axis='y')
 
         for i, ax in enumerate(kde_axes):
-            time_value = points_in_time[i]            
+            time_value = points_in_time[i]
 
-            ax_env.plot([time_value,time_value], 
-                        [min_y,max_y], c='k', ls='--')
-            con = ConnectionPatch(xyA=(time_value, min_y), 
-                                  xyB=(ax.get_xlim()[0],max_y), coordsA="data", 
+            ax_env.plot([time_value, time_value],
+                        [min_y, max_y], c='k', ls='--')
+            con = ConnectionPatch(xyA=(time_value, min_y),
+                                  xyB=(ax.get_xlim()[0],
+                                       max_y), coordsA="data",
                                   coordsB="data", axesA=ax_env, axesB=ax)
             ax_env.add_artist(con)
 
         if legend and group_by:
             lt = PATCH
             alpha = 0.3
-            if plot_type==LINES:
+            if plot_type == LINES:
                 lt = LINE
                 alpha = 1
-            make_legend(grouping_labels, ax_env, legend_type=lt,alpha=alpha)
+            make_legend(grouping_labels, ax_env, legend_type=lt, alpha=alpha)
     return figures, axes_dicts

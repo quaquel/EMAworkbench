@@ -21,4 +21,3 @@ try:
     from . import pysd_connector
 except ImportError:
     warnings.warn("pysd connector not available", ImportWarning)
-

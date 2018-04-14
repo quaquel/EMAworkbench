@@ -20,11 +20,11 @@ from ema_workbench.analysis import dimensional_stacking
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
-#load data
+# load data
 fn = './data/1000 flu cases no policy.tar.gz'
 x, outcomes = load_results(fn)
 
-y = outcomes['deceased population region 1'][:,-1] > 1000000
-    
+y = outcomes['deceased population region 1'][:, -1] > 1000000
+
 dimensional_stacking.create_pivot_plot(x, y, 2)
 plt.show()

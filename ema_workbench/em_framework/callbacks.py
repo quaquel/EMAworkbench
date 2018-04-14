@@ -74,7 +74,7 @@ class AbstractCallback(object):
                  reporting_frequency=10):
         if reporting_interval is None:
             reporting_interval = max(1,
-                             int(round(nr_experiments/reporting_frequency)))
+                                     int(round(nr_experiments/reporting_frequency)))
 
         self.reporting_interval = reporting_interval
 
@@ -153,7 +153,7 @@ class DefaultCallback(AbstractCallback):
         '''
         super(DefaultCallback, self).__init__(uncs, levers, outcomes,
                                               nr_experiments,
-                                              reporting_interval, 
+                                              reporting_interval,
                                               reporting_frequency)
         self.i = 0
         self.cases = None

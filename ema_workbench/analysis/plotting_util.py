@@ -59,21 +59,23 @@ LINE = 'line'
 PATCH = 'patch'
 SCATTER = 'scatter'
 
-#see http://matplotlib.sourceforge.net/users/customizing.html for details
+# see http://matplotlib.sourceforge.net/users/customizing.html for details
 #mpl.rcParams['savefig.dpi'] = 600
 #mpl.rcParams['axes.formatter.limits'] = (-5, 5)
 #mpl.rcParams['font.family'] = 'serif'
 #mpl.rcParams['font.serif'] = 'Times New Roman'
 #mpl.rcParams['font.size'] = 12.0
 
-#==============================================================================
+# ==============================================================================
 # actual plotting functions
-#==============================================================================
+# ==============================================================================
+
+
 def plot_envelope(ax, j, time, value, fill):
     '''
-    
+
     Helper function, responsible for plotting an envelope.
-    
+
     Parameters
     ----------
     ax : axes instance
@@ -81,23 +83,23 @@ def plot_envelope(ax, j, time, value, fill):
     time : ndarray
     value : ndarray
     fill : bool
-    
-    
+
+
     '''
-    
-    #plot minima and maxima
+
+    # plot minima and maxima
     minimum = np.min(value, axis=0)
     maximum = np.max(value, axis=0)
 
     color = get_color(j)
-    
+
     if fill:
-#        ax.plot(time, minimum, color=color, alpha=0.3)
-#        ax.plot(time, maximum, color=color, alpha=0.3)
-        ax.fill_between(time, 
+        #        ax.plot(time, minimum, color=color, alpha=0.3)
+        #        ax.plot(time, maximum, color=color, alpha=0.3)
+        ax.fill_between(time,
                         minimum,
                         maximum,
-                        facecolor=color, 
+                        facecolor=color,
                         alpha=0.3,
                         )
     else:
@@ -107,7 +109,7 @@ def plot_envelope(ax, j, time, value, fill):
 
 def plot_histogram(ax, values, log):
     '''
-    
+
     Helper function, responsible for plotting a histogram
 
     Parameters
@@ -115,20 +117,20 @@ def plot_histogram(ax, values, log):
     ax : axes instance
     values : ndarray
     log : bool
-    
-    
+
+
     '''
     if isinstance(values, list):
         color = [get_color(i) for i in range(len(values))]
     else:
-        color=get_color(0)
-    a = ax.hist(values, 
-             bins=11, 
-             orientation='horizontal',
-             histtype='bar', 
-             normed = True,
-             color=color,
-             log=log)
+        color = get_color(0)
+    a = ax.hist(values,
+                bins=11,
+                orientation='horizontal',
+                histtype='bar',
+                normed=True,
+                color=color,
+                log=log)
     if not log:
         ax.set_xticks([0, ax.get_xbound()[1]])
     return a
@@ -136,7 +138,7 @@ def plot_histogram(ax, values, log):
 
 def plot_kde(ax, values, log):
     '''
-    
+
     Helper function, responsible for plotting a KDE.
 
     Parameters
@@ -144,30 +146,29 @@ def plot_kde(ax, values, log):
     ax : axes instance
     values : ndarray
     log : bool
-    
-    
+
+
     '''
 
-
-    for j, value in enumerate(values):        
+    for j, value in enumerate(values):
         color = get_color(j)
         kde_x, kde_y = determine_kde(value)
         ax.plot(kde_x, kde_y, c=color, ms=1, markevery=20)
-    
+
         if log:
             ax.set_xscale('log')
         else:
-            ax.set_xticks([int(0), 
-                          ax.get_xaxis().
-                          get_view_interval()[1]])
-            labels =["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
+            ax.set_xticks([int(0),
+                           ax.get_xaxis().
+                           get_view_interval()[1]])
+            labels = ["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
             ax.set_xticklabels(labels)
 
 
 def plot_boxplots(ax, values, log, group_labels=None):
     '''
     helper function for plotting a boxplot
-    
+
     Parameters
     ----------
     ax : axes instance
@@ -175,13 +176,12 @@ def plot_boxplots(ax, values, log, group_labels=None):
     log : bool
     group_labels : list of str, optional
 
-    
+
     '''
-    
+
     if log:
         warning("log option ignored for boxplot")
-    
-    
+
     ax.boxplot(values)
     if group_labels:
         ax.set_xticklabels(group_labels, rotation='vertical')
@@ -190,7 +190,7 @@ def plot_boxplots(ax, values, log, group_labels=None):
 def plot_violinplot(ax, value, log, group_labels=None):
     '''
     helper function for plotting violin plots on axes
-    
+
     Parameters
     ----------
     ax : axes instance
@@ -199,45 +199,47 @@ def plot_violinplot(ax, value, log, group_labels=None):
     group_labels : list of str, optional
 
     '''
-    
+
     if log:
         warning("log option ignored for violin plot")
-    
+
     pos = range(len(value))
     dist = max(pos)-min(pos)
-    _ = min(0.15*max(dist,1.0),0.5)
-    for data, p in zip(value,pos):
-        if len(data)>0:
-            kde = gaussian_kde(data) #calculates the kernel density
-            x = np.linspace(np.min(data),np.max(data),250.) # support for violin
-            v = kde.evaluate(x) #violin profile (density curve)
-            
+    _ = min(0.15*max(dist, 1.0), 0.5)
+    for data, p in zip(value, pos):
+        if len(data) > 0:
+            kde = gaussian_kde(data)  # calculates the kernel density
+            x = np.linspace(np.min(data), np.max(data),
+                            250.)  # support for violin
+            v = kde.evaluate(x)  # violin profile (density curve)
+
             scl = 1 / (v.max() / 0.4)
-            v = v*scl #scaling the violin to the available space
-            ax.fill_betweenx(x,p-v,p+v,facecolor=get_color(p),alpha=0.6, lw=1.5)
-            
+            v = v*scl  # scaling the violin to the available space
+            ax.fill_betweenx(
+                x, p-v, p+v, facecolor=get_color(p), alpha=0.6, lw=1.5)
+
             for percentile in [25, 75]:
                 quant = scoreatpercentile(data.ravel(), percentile)
-                q_x = kde.evaluate(quant) * scl 
+                q_x = kde.evaluate(quant) * scl
                 q_x = [p - q_x, p + q_x]
                 ax.plot(q_x, [quant, quant], linestyle=":", c='k')
             med = np.median(data)
-            m_x = kde.evaluate(med) * scl 
+            m_x = kde.evaluate(med) * scl
             m_x = [p - m_x, p + m_x]
-            ax.plot(m_x, [med, med], linestyle="--", c='k', lw=1.5)            
-        
+            ax.plot(m_x, [med, med], linestyle="--", c='k', lw=1.5)
+
     if group_labels:
         labels = group_labels[:]
         labels.insert(0, '')
         ax.set_xticklabels(labels, rotation='vertical')
 
- 
-def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, 
+
+def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
                   log=False, index=-1):
     '''
     helper function for plotting densities in case of grouped data
-    
-    
+
+
     Parameters
     ----------
     ax_d : axes instance
@@ -247,30 +249,28 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
     group_labels : list of str
     log : bool, optional
     index : int, optional
-    
+
     Raises
     ------
     EMAError
         if density is unkown
-    
+
     '''
-    
-    
-    
-    if density==HIST:
-        values = [outcomes[key][outcome_to_plot][:,index] for key in 
+
+    if density == HIST:
+        values = [outcomes[key][outcome_to_plot][:, index] for key in
                   group_labels]
         plot_histogram(ax_d, values, log)
-    elif density==BOXPLOT:
-        values = [outcomes[key][outcome_to_plot][:,index] for key in 
+    elif density == BOXPLOT:
+        values = [outcomes[key][outcome_to_plot][:, index] for key in
                   group_labels]
         plot_boxplots(ax_d, values, log, group_labels)
-    elif density==VIOLIN:
-        values = [outcomes[key][outcome_to_plot][:,index] for key in 
+    elif density == VIOLIN:
+        values = [outcomes[key][outcome_to_plot][:, index] for key in
                   group_labels]
         plot_violinplot(ax_d, values, log, group_labels=group_labels)
-    elif density==KDE:
-        values = [outcomes[key][outcome_to_plot][:,index] for key in 
+    elif density == KDE:
+        values = [outcomes[key][outcome_to_plot][:, index] for key in
                   group_labels]
         plot_kde(ax_d, values, log)
     else:
@@ -279,9 +279,9 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
 
 def simple_density(density, value, ax_d, ax, log):
     '''
-    
+
     Helper function, responsible for producing a density plot
-    
+
     Parameters
     ----------
     density : {HIST, BOXPLOT, VIOLIN, KDE}
@@ -289,32 +289,32 @@ def simple_density(density, value, ax_d, ax, log):
     ax_d : axes instance
     ax : axes instance
     log : bool
-    
+
     '''
-    
-    if density==KDE:
-        plot_kde(ax_d, [value[:,-1]], log)
-    elif density==HIST:
-        plot_histogram(ax_d, value[:,-1], log)
-    elif density==BOXPLOT:
-        plot_boxplots(ax_d, value[:,-1], log)
-    elif density==VIOLIN:
-        plot_violinplot(ax_d, [value[:,-1]], log)
+
+    if density == KDE:
+        plot_kde(ax_d, [value[:, -1]], log)
+    elif density == HIST:
+        plot_histogram(ax_d, value[:, -1], log)
+    elif density == BOXPLOT:
+        plot_boxplots(ax_d, value[:, -1], log)
+    elif density == VIOLIN:
+        plot_violinplot(ax_d, [value[:, -1]], log)
     else:
         raise EMAError("unknown density plot type")
-        
+
     ax_d.get_yaxis().set_view_interval(
-                 ax.get_yaxis().get_view_interval()[0],
-                 ax.get_yaxis().get_view_interval()[1]) 
+        ax.get_yaxis().get_view_interval()[0],
+        ax.get_yaxis().get_view_interval()[1])
     ax_d.set_ylim(ymin=ax.get_yaxis().get_view_interval()[0],
-              ymax=ax.get_yaxis().get_view_interval()[1])
+                  ymax=ax.get_yaxis().get_view_interval()[1])
 
 
 def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     '''
-    
+
     Helper function for generating a density heatmap over time
-    
+
     Parameters
     ----------
     outcomes : dict
@@ -323,33 +323,33 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     log : bool
     minima : dict
     maxima : dict
-    
+
     '''
 
     figure, grid = make_grid(outcomes_to_show)
     axes_dict = {}
-    
+
     # do the plotting
     for i, outcome_to_plot in enumerate(outcomes_to_show):
-        ax = figure.add_subplot(grid[i,0])
+        ax = figure.add_subplot(grid[i, 0])
         axes_dict[outcome_to_plot] = ax
-        
+
         outcome = outcomes[outcome_to_plot]
-        
+
         size_kde = 100
         np.zeros
         kde_over_time = np.zeros(shape=(size_kde, outcome.shape[1]))
         ymin = minima[outcome_to_plot]
         ymax = maxima[outcome_to_plot]
-        
-        #make kde over time
+
+        # make kde over time
         for j in range(outcome.shape[1]):
             kde_x = determine_kde(outcome[:, j], size_kde, ymin, ymax)[0]
             if log:
                 kde_x = np.log(kde_x+1)
             kde_over_time[:, j] = kde_x
-        ax.matshow(kde_over_time, 
-                    cmap=cm.__dict__[colormap])
+        ax.matshow(kde_over_time,
+                   cmap=cm.__dict__[colormap])
 #        a = ax.get_yticklabels()
 #        b = len(a)
 #        c = ymax-ymin/b
@@ -359,7 +359,7 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
         ax.set_yticklabels([])
         ax.set_xlabel("time")
         ax.set_ylabel(outcome_to_plot)
-        
+
     return figure, axes_dict
 
 
@@ -384,83 +384,83 @@ def make_legend(categories,
                   plots
     alpha : float
             the alpha of the artists
-    
+
     '''
-    
+
     some_identifiers = []
     labels = []
     for i, category in enumerate(categories):
         color = get_color(i)
-        
-        if legend_type == LINE:    
-            artist = plt.Line2D([0,1], [0,1], color=color, 
-                                alpha=alpha) #TODO
+
+        if legend_type == LINE:
+            artist = plt.Line2D([0, 1], [0, 1], color=color,
+                                alpha=alpha)  # TODO
         elif legend_type == SCATTER:
-#             marker_obj = mpl.markers.MarkerStyle('o')
-#             path = marker_obj.get_path().transformed(
-#                              marker_obj.get_transform())
-#             artist  = mpl.collections.PathCollection((path,),
-#                                         sizes = [20],
-#                                         facecolors = COLOR_LIST[i],
-#                                         edgecolors = 'k',
-#                                         offsets = (0,0)
-#                                         )
+            #             marker_obj = mpl.markers.MarkerStyle('o')
+            #             path = marker_obj.get_path().transformed(
+            #                              marker_obj.get_transform())
+            #             artist  = mpl.collections.PathCollection((path,),
+            #                                         sizes = [20],
+            #                                         facecolors = COLOR_LIST[i],
+            #                                         edgecolors = 'k',
+            #                                         offsets = (0,0)
+            #                                         )
             # TODO work arround, should be a proper proxyartist for scatter legends
-            artist = mpl.lines.Line2D([0],[0], linestyle="none", 
-                                      c=color, marker = 'o')
+            artist = mpl.lines.Line2D([0], [0], linestyle="none",
+                                      c=color, marker='o')
 
         elif legend_type == PATCH:
-            artist = plt.Rectangle((0,0), 1,1, edgecolor=color,
+            artist = plt.Rectangle((0, 0), 1, 1, edgecolor=color,
                                    facecolor=color, alpha=alpha)
 
         some_identifiers.append(artist)
-        
+
         if type(category) == tuple:
-            label =  '%.2f - %.2f' % category 
+            label = '%.2f - %.2f' % category
         else:
             label = category
-        
+
         labels.append(str(label))
-    
+
     ax.legend(some_identifiers, labels, ncol=ncol,
-                      loc=3, borderaxespad=0.1,
-                      mode='expand', bbox_to_anchor=(0., 1.1, 1., .102))
+              loc=3, borderaxespad=0.1,
+              mode='expand', bbox_to_anchor=(0., 1.1, 1., .102))
 
 
-def determine_kde(data, 
+def determine_kde(data,
                   size_kde=1000,
                   ymin=None,
                   ymax=None):
     '''
-    
+
     Helper function responsible for performing a KDE    
-    
+
     Parameters
     ----------
     data : ndarray
     size_kde : int, optional
     ymin : float, optional
     ymax : float, optional
-    
+
     Returns
     -------
     ndarray
         x values for kde
     ndarray
         y values for kde
-        
+
     ..note:: x and y values are based on rotation as used in density 
              plots for end states.
-    
-    
+
+
     '''
     if not ymin:
         ymin = np.min(data)
     if not ymax:
         ymax = np.max(data)
-    
+
     kde_y = np.linspace(ymin, ymax, size_kde)
-    
+
     try:
         kde_x = kde.gaussian_kde(data)
         kde_x = kde_x.evaluate(kde_y)
@@ -473,9 +473,10 @@ def determine_kde(data,
     except Exception as e:
         warning(e)
         kde_x = np.zeros(kde_y.shape)
-    
+
     return kde_x, kde_y
-        
+
+
 def filter_scalar_outcomes(outcomes):
     '''
     Helper function that removes non time series outcomes from all the 
@@ -484,19 +485,19 @@ def filter_scalar_outcomes(outcomes):
     Parameters
     ----------
     outcomes : dict
-    
+
     Returns
     -------
     dict
         the filtered outcomes
-    
-    
+
+
     '''
     outcomes_to_remove = []
     for key, value in outcomes.items():
-        if len(value.shape) <2:
+        if len(value.shape) < 2:
             outcomes_to_remove.append(key)
-            info("%s not shown because it is not time series data" %key)
+            info("%s not shown because it is not time series data" % key)
     [outcomes.pop(entry) for entry in outcomes_to_remove]
     return outcomes
 
@@ -505,16 +506,16 @@ def determine_time_dimension(outcomes):
     '''
     helper function for determining or creating time dimension
 
-    
+
     Parameters
     ----------
     outcomes : dict
-    
+
     Returns
     -------
     ndarray
-    
-    
+
+
     '''
 
     time = None
@@ -525,12 +526,12 @@ def determine_time_dimension(outcomes):
     except KeyError:
         values = iter(outcomes.values())
         for value in values:
-            if len(value.shape)==2:
-                time =  np.arange(0, value.shape[1])
+            if len(value.shape) == 2:
+                time = np.arange(0, value.shape[1])
                 break
     if time is None:
         info("no time dimension found in results")
-    return time, outcomes    
+    return time, outcomes
 
 
 def group_results(experiments, outcomes, group_by, grouping_specifiers,
@@ -539,7 +540,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
     Helper function that takes the experiments and results and returns a list 
     based on groupings. Each element in the dictionary contains the experiments 
     and results for a particular group, the key is the grouping specifier.
-    
+
     Parameters
     ----------
     experiments : recarray
@@ -558,50 +559,51 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
                     In case of 'index', the iterable should be a dictionary 
                     with the name for each group as key and the value being a 
                     valid index for numpy.ndarray.
-    
+
     Returns 
+    -------
     dict
         A dictionary with the experiments and results for each group, the 
         grouping specifier is used as key
-             
+
     ..note:: In case of grouping by parameter uncertainty, the list of 
              grouping specifiers is sorted. The traversal assumes half open
              intervals, where the upper limit of each interval is open, except 
              for the last interval which is closed.
-    
+
     '''
     groups = {}
     if group_by != 'index':
         column_to_group_by = experiments[group_by]
-    
+
     for label, specifier in zip(grouping_labels, grouping_specifiers):
         if isinstance(specifier, tuple):
             # the grouping is a continuous uncertainty
             lower_limit, upper_limit = specifier
-            
-            #check whether it is the last grouping specifier
+
+            # check whether it is the last grouping specifier
             if grouping_specifiers.index(specifier) ==\
-                len(grouping_specifiers)-1:
-                #last case
-                
-                logical = (column_to_group_by>=lower_limit) &\
-                           (column_to_group_by<=upper_limit)
+                    len(grouping_specifiers)-1:
+                # last case
+
+                logical = (column_to_group_by >= lower_limit) &\
+                    (column_to_group_by <= upper_limit)
             else:
-                logical = (column_to_group_by>=lower_limit) &\
-                           (column_to_group_by<upper_limit)
-        elif group_by =='index':
+                logical = (column_to_group_by >= lower_limit) &\
+                    (column_to_group_by < upper_limit)
+        elif group_by == 'index':
             # the grouping is based on indices
             logical = specifier
         else:
             # the grouping is an integer or categorical uncertainty
-            logical = column_to_group_by==specifier
-        
+            logical = column_to_group_by == specifier
+
         group_outcomes = {}
         for key, value in outcomes.items():
             value = value[logical]
             group_outcomes[key] = value
         groups[label] = (experiments[logical], group_outcomes)
-        
+
     return groups
 
 
@@ -609,26 +611,27 @@ def make_continuous_grouping_specifiers(array, nr_of_groups=5):
     '''
     Helper function for discretesizing a continuous array. By default, the 
     array is split into 5 equally wide intervals.
-    
+
     Parameters
     ----------
     array : ndarray
             a 1-d array that is to be turned into discrete intervals.
     nr_of_groups : int, optional
-    
+
     Returns
     -------
     list of tuples 
         list of tuples with the lower and upper bound of the intervals. 
-    
+
+
     .. note:: this code only produces intervals. :func:`group_results` uses
               these intervals in half-open fashion, apart from the last 
               interval: [a, b), [b,c), [c,d]. That is, both the end point
               and the start point of the range of the continuous array are 
               included.
-    
+
     '''
-    
+
     minimum = np.min(array)
     maximum = np.max(array)
     step = (maximum-minimum)/nr_of_groups
@@ -638,14 +641,14 @@ def make_continuous_grouping_specifiers(array, nr_of_groups=5):
     return a
 
 
-def prepare_pairs_data(results, 
-                        outcomes_to_show=None,
-                        group_by=None,
-                        grouping_specifiers=None,
-                        point_in_time=-1,
-                        filter_scalar=True):
+def prepare_pairs_data(results,
+                       outcomes_to_show=None,
+                       group_by=None,
+                       grouping_specifiers=None,
+                       point_in_time=-1,
+                       filter_scalar=True):
     '''
-    
+
     Parameters
     ----------
     results : tuple
@@ -654,32 +657,33 @@ def prepare_pairs_data(results,
     grouping_specifiers : iterable, optional
     point_in_time : int, optional
     filter_scalar : bool, optional
-       
+
     '''
     if isinstance(outcomes_to_show, six.string_types):
-        raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
-    
+        raise EMAError(
+            "for pair wise plotting, more than one outcome needs to be provided")
+
     results = copy.deepcopy(results)
-    
-    outcomes, outcomes_to_show, time, grouping_labels = prepare_data(results, 
-                                                        outcomes_to_show,
-                                                        group_by,
-                                                        grouping_specifiers,
-                                                        filter_scalar)
+
+    outcomes, outcomes_to_show, time, grouping_labels = prepare_data(results,
+                                                                     outcomes_to_show,
+                                                                     group_by,
+                                                                     grouping_specifiers,
+                                                                     filter_scalar)
 
     def filter_outcomes(outcomes, point_in_time):
         new_outcomes = {}
         for key, value in outcomes.items():
-            if len(value.shape)==2:
+            if len(value.shape) == 2:
                 new_outcomes[key] = value[:, point_in_time]
             else:
                 new_outcomes[key] = value
         return new_outcomes
-    
+
     if point_in_time:
         if point_in_time != -1:
-            point_in_time = np.where(time==point_in_time)
-        
+            point_in_time = np.where(time == point_in_time)
+
         if group_by:
             new_outcomes = {}
             for key, value in outcomes.items():
@@ -687,7 +691,7 @@ def prepare_pairs_data(results,
             outcomes = new_outcomes
         else:
             outcomes = filter_outcomes(outcomes, point_in_time)
-    return outcomes, outcomes_to_show, grouping_labels 
+    return outcomes, outcomes_to_show, grouping_labels
 
 
 def prepare_data(results,
@@ -696,7 +700,7 @@ def prepare_data(results,
                  grouping_specifiers=None,
                  filter_scalar=True):
     '''
-    
+
     Parameters
     ----------
     results : tuple
@@ -704,10 +708,10 @@ def prepare_data(results,
     group_by : str, optional
     grouping_specifiers : iterable, optional
     filter_scalar : bool, optional
-    
+
     '''
 
-    #unravel results
+    # unravel results
     experiments, outcomes = results
 
     temp_outcomes = {}
@@ -716,7 +720,7 @@ def prepare_data(results,
     if outcomes_to_show:
         if isinstance(outcomes_to_show, six.string_types):
             outcomes_to_show = [outcomes_to_show]
-            
+
         for entry in outcomes_to_show:
             temp_outcomes[entry] = copy.deepcopy(outcomes[entry])
 
@@ -727,20 +731,21 @@ def prepare_data(results,
         outcomes = filter_scalar_outcomes(outcomes)
     if not outcomes_to_show:
         outcomes_to_show = outcomes.keys()
-        
+
     # group the data if desired
     if group_by:
         if not grouping_specifiers:
-            #no grouping specifier, so infer from the data
-            if group_by=='index':
-                raise EMAError("no grouping specifiers provided while trying to group on index")
+            # no grouping specifier, so infer from the data
+            if group_by == 'index':
+                raise EMAError(
+                    "no grouping specifiers provided while trying to group on index")
             else:
                 column_to_group_by = experiments[group_by]
                 if column_to_group_by.dtype == np.object:
                     grouping_specifiers = set(column_to_group_by)
                 else:
-                    grouping_specifiers = make_continuous_grouping_specifiers(column_to_group_by, 
-                                                        grouping_specifiers)
+                    grouping_specifiers = make_continuous_grouping_specifiers(column_to_group_by,
+                                                                              grouping_specifiers)
             grouping_labels = grouping_specifiers = sorted(grouping_specifiers)
         else:
             if isinstance(grouping_specifiers, six.string_types):
@@ -748,21 +753,20 @@ def prepare_data(results,
                 grouping_labels = grouping_specifiers
             elif isinstance(grouping_specifiers, dict):
                 grouping_labels = sorted(grouping_specifiers.keys())
-                grouping_specifiers = [grouping_specifiers[key] for key in 
+                grouping_specifiers = [grouping_specifiers[key] for key in
                                        grouping_labels]
             else:
                 grouping_labels = grouping_specifiers
-                
-        
-        outcomes = group_results(experiments, outcomes, group_by,\
+
+        outcomes = group_results(experiments, outcomes, group_by,
                                  grouping_specifiers, grouping_labels)
-        
+
         new_outcomes = {}
         for key, value in outcomes.items():
             new_outcomes[key] = value[1]
         outcomes = new_outcomes
     else:
-        grouping_labels=[]
+        grouping_labels = []
 
     return outcomes, outcomes_to_show, time, grouping_labels
 
@@ -770,7 +774,7 @@ def prepare_data(results,
 def do_titles(ax, titles, outcome):
     '''
     Helper function for setting the title on an ax
-    
+
     Parameters
     ----------
     ax : axes instance
@@ -778,9 +782,9 @@ def do_titles(ax, titles, outcome):
              a dict which maps outcome names to titles
     outcome : str
               the outcome plotted in the ax.
-    
+
     '''
-    
+
     if isinstance(titles, dict):
         if not titles:
             ax.set_title(outcome)
@@ -788,7 +792,8 @@ def do_titles(ax, titles, outcome):
             try:
                 ax.set_title(titles[outcome])
             except KeyError:
-                warning("key error in do_titles, no title provided for `%s`" % (outcome))
+                warning(
+                    "key error in do_titles, no title provided for `%s`" % (outcome))
                 ax.set_title(outcome)
 
 
@@ -803,9 +808,9 @@ def do_ylabels(ax, ylabels, outcome):
              a dict which maps outcome names to y labels
     outcome : str
               the outcome plotted in the ax.
-    
+
     '''
-    
+
     if isinstance(ylabels, dict):
         if not ylabels:
             ax.set_ylabel(outcome)
@@ -813,8 +818,9 @@ def do_ylabels(ax, ylabels, outcome):
             try:
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
-                warning("key error in do_ylabels, no ylabel provided for `%s`" % (outcome))
-                ax.set_ylabel(outcome)    
+                warning(
+                    "key error in do_ylabels, no ylabel provided for `%s`" % (outcome))
+                ax.set_ylabel(outcome)
 
 
 def make_grid(outcomes_to_show, density=False):
@@ -827,21 +833,21 @@ def make_grid(outcomes_to_show, density=False):
     outcomes_to_show : list of str
                        the list of outcomes to show
     density: boolean : bool, optional
-    
+
     '''
 
-    
     # make the plotting grid
     if density:
         grid = gridspec.GridSpec(len(outcomes_to_show), 2,
-                                 width_ratios = [4, 1])
+                                 width_ratios=[4, 1])
     else:
-        grid = gridspec.GridSpec(len(outcomes_to_show), 1) 
-    grid.update(wspace = 0.1,
-                hspace = 0.4)
-    
+        grid = gridspec.GridSpec(len(outcomes_to_show), 1)
+    grid.update(wspace=0.1,
+                hspace=0.4)
+
     figure = plt.figure()
     return figure, grid
+
 
 def get_color(index):
     '''helper function for cycling over color list if the number of items
@@ -849,4 +855,3 @@ def get_color(index):
     '''
     corrected_index = index % len(COLOR_LIST)
     return COLOR_LIST[corrected_index]
-    

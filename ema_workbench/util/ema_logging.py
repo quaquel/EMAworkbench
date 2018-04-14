@@ -16,21 +16,21 @@ import logging
 from logging import Handler, DEBUG, INFO
 
 # Created on 23 dec. 2010
-# 
+#
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ =['debug',
-          'info',
-          'warning',
-          'error',
-          'exception',
-          'critical',
-          'get_logger',
-          'log_to_stderr',
-          'DEBUG',
-          'INFO',
-          'DEFAULT_LEVEL',
-          'LOGGER_NAME']
+__all__ = ['debug',
+           'info',
+           'warning',
+           'error',
+           'exception',
+           'critical',
+           'get_logger',
+           'log_to_stderr',
+           'DEBUG',
+           'INFO',
+           'DEFAULT_LEVEL',
+           'LOGGER_NAME']
 
 _logger = None
 LOGGER_NAME = "EMA"
@@ -39,8 +39,10 @@ INFO = INFO
 
 LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
 
+
 def method_logger(func):
     classname = inspect.getouterframes(inspect.currentframe())[1][3]
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         # hack, because log is applied to methods, we can get
@@ -51,10 +53,11 @@ def method_logger(func):
         return res
     return wrapper
 
+
 def debug(msg, *args, **kwargs):
     '''
     convenience function for logger.debug
-    
+
     Parameters
     ----------
     msg : str
@@ -63,7 +66,7 @@ def debug(msg, *args, **kwargs):
            args to pass on to the logger
     kwargs : dict
              kwargs to pass on to the logger
-    
+
     '''
     if _logger:
         _logger.debug(msg, *args, **kwargs)
@@ -72,7 +75,7 @@ def debug(msg, *args, **kwargs):
 def info(msg, *args):
     '''
     convenience function for logger.info
-        
+
     Parameters
     ----------
     msg : str
@@ -81,7 +84,7 @@ def info(msg, *args):
            args to pass on to the logger
     kwargs : dict
              kwargs to pass on to the logger
-    
+
     '''
     if _logger:
         _logger.info(msg, *args)
@@ -90,7 +93,7 @@ def info(msg, *args):
 def warning(msg, *args):
     '''
     convenience function for logger.warning
-    
+
     Parameters
     ----------
     msg : str
@@ -100,7 +103,7 @@ def warning(msg, *args):
     kwargs : dict
              kwargs to pass on to the logger
 
-    '''    
+    '''
     if _logger:
         _logger.warning(msg, *args)
 
@@ -108,7 +111,7 @@ def warning(msg, *args):
 def error(msg, *args):
     '''
     convenience function for logger.error
-    
+
     Parameters
     ----------
     msg : str
@@ -118,7 +121,7 @@ def error(msg, *args):
     kwargs : dict
              kwargs to pass on to the logger
 
-    '''  
+    '''
     if _logger:
         _logger.error(msg, *args)
 
@@ -126,7 +129,7 @@ def error(msg, *args):
 def exception(msg, *args):
     '''
     convenience function for logger.exception
-    
+
     Parameters
     ----------
     msg : str
@@ -136,7 +139,7 @@ def exception(msg, *args):
     kwargs : dict
              kwargs to pass on to the logger
 
-    '''      
+    '''
     if _logger:
         _logger.exception(msg, *args)
 
@@ -144,7 +147,7 @@ def exception(msg, *args):
 def critical(msg, *args):
     '''
     convenience function for logger.critical
-    
+
     Parameters
     ----------
     msg : str
@@ -154,7 +157,7 @@ def critical(msg, *args):
     kwargs : dict
              kwargs to pass on to the logger
 
-    '''      
+    '''
     if _logger:
         _logger.critical(msg, *args)
 
@@ -166,10 +169,10 @@ def get_logger():
     Returns
     -------
     the logger of the EMA workbench
-    
+
     '''
     global _logger
-    
+
     if not _logger:
         _logger = logging.getLogger(LOGGER_NAME)
         _logger.handlers = []
@@ -182,25 +185,25 @@ def get_logger():
 def log_to_stderr(level=None):
     '''
     Turn on logging and add a handler which prints to stderr
-    
+
     Parameters
     ----------
     level : int
             minimum level of the messages that will be logged
-    
+
     '''
-    
+
     if not level:
         level = DEFAULT_LEVEL
 
     logger = get_logger()
-    
+
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
         if (isinstance(entry, logging.StreamHandler)) and\
            (entry.formatter._fmt == LOG_FORMAT):
-                return logger
-    
+            return logger
+
     formatter = logging.Formatter(LOG_FORMAT)
     handler = logging.StreamHandler()
     handler.setLevel(level)
@@ -214,26 +217,26 @@ def log_to_stderr(level=None):
 class NullHandler(Handler):
     '''
     convenience handler that does nothing
-    
+
     '''
-    
+
     def emit(self, record):
         pass
 
- 
+
 # class TlsSMTPHandler(SMTPHandler):
 #     '''
 #     class for using gmail as a server for sending e-mails contain
 #     logging messages
 #     '''
-#     
+#
 #     def emit(self, record):
 #         '''
 #         Emit a record.
-#  
+#
 #         Format the record and send it to the specified addressees.
 #         code found `online <http://mynthon.net/howto/-/python/python%20-%20logging.SMTPHandler-how-to-use-gmail-smtp-server.txt>`_
-#         
+#
 #         '''
 #         try:
 #             import smtplib

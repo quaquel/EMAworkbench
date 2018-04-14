@@ -1,5 +1,5 @@
 
-from __future__ import (absolute_import, print_function, unicode_literals, 
+from __future__ import (absolute_import, print_function, unicode_literals,
                         division)
 
 import sys
@@ -9,6 +9,7 @@ from contextlib import contextmanager
 import traceback
 
 set_backend = "import matplotlib\nmatplotlib.use('Agg')\n"
+
 
 @contextmanager
 def redirected_output(new_stdout=None, new_stderr=None):
@@ -24,6 +25,7 @@ def redirected_output(new_stdout=None, new_stderr=None):
         sys.stdout = save_stdout
         sys.stderr = save_stderr
 
+
 def run_exectests(test_dir, log_path='exectests.log'):
 
     test_files = glob.glob(os.path.join(test_dir, '*.py'))
@@ -38,24 +40,23 @@ def run_exectests(test_dir, log_path='exectests.log'):
                 try:
                     code = compile(set_backend + open(fname, 'r').read(),
                                    fname, 'exec')
-                    exec(code, {'__name__':'__main__'}, {})
+                    exec(code, {'__name__': '__main__'}, {})
                     passed.append(fname)
                 except:
                     traceback.print_exc()
                     failed.append(fname)
                     pass
 
-    print(">> Passed %i/%i tests: " %(len(passed), len(test_files)))
+    print(">> Passed %i/%i tests: " % (len(passed), len(test_files)))
     print("Passed: " + ', '.join(passed))
     print("Failed: " + ', '.join(failed))
     print("See %s for details" % log_path)
 
     return passed, failed
 
+
 if __name__ == '__main__':
     try:
         run_exectests(*sys.argv[1:])
     except:
         run_exectests(os.getcwd())
-
-

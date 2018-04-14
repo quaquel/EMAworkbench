@@ -209,7 +209,8 @@ class LogWatcher(LoggingConfigurable):
         else:
             for topic in self.topics:
                 self.log.debug("Subscribing to: %r" % (topic))
-                self.stream.setsockopt(zmq.SUBSCRIBE, topic)  # @UndefinedVariable
+                # @UndefinedVariable
+                self.stream.setsockopt(zmq.SUBSCRIBE, topic)
 
     def _extract_level(self, topic_str):
         """Turn 'engine.0.INFO.extra' into (logging.INFO, 'engine.0.extra')"""
