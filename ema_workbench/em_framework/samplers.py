@@ -190,6 +190,12 @@ class LHSSampler(AbstractSampler):
         np.random.shuffle(perc)
         smp = stats.uniform(perc,1./siz).rvs() 
         v = dist(*parms).ppf(smp)
+        
+        # corner case fix (try siz=49) 
+        # is not a proper fix, it means that perc is wrong
+        # so your intervals are wrong
+        v = v[np.isnan(v)==False]
+        
         return v
     
         
