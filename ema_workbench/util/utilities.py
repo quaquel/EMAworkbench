@@ -181,9 +181,10 @@ def save_results(results, file_name):
         # write the x to the zipfile
         experiments_file = WriterFile()
 
-#         header = ','.join(experiments.dtype.names)
-#         np.savetxt(experiments_file, experiments, delimiter=',', header=header)
-        rec2csv(experiments, experiments_file, withheader=True)
+        data = pd.DataFrame.from_records(experiments)
+        data.to_csv(experiments_file, header=True, encoding='UTF-8', index=False)
+
+#         rec2csv(experiments, experiments_file, withheader=True)
         add_file(z, experiments_file.getvalue(), 'experiments.csv')
 
         # write experiment metadata
