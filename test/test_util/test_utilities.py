@@ -86,7 +86,7 @@ class LoadResultsTestCase(unittest.TestCase):
         nr_experiments = 10000
         
         experiments = np.recarray((nr_experiments,),
-                               dtype=[('x', float), ('y', float)])
+                               dtype=[('x', np.float), ('y', np.float)])
         
         experiments['x'] = np.random.rand(nr_experiments)
         experiments['y'] = np.random.rand(nr_experiments)
@@ -108,7 +108,7 @@ class LoadResultsTestCase(unittest.TestCase):
         nr_timesteps = 100
         nr_replications = 10
         experiments = np.recarray((nr_experiments,),
-                               dtype=[('x', float), ('y', float)])
+                               dtype=[('x', np.float), ('y', np.float)])
         experiments['x'] = np.random.rand(nr_experiments)
         experiments['y'] = np.random.rand(nr_experiments)
         
