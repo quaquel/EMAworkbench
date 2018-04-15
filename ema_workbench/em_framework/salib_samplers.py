@@ -19,10 +19,10 @@ from .samplers import DefaultDesigns
 from .parameters import CategoricalParameter, IntegerParameter
 
 try:
-    import SALib
+    from SALib.sample import saltelli, morris, fast_sampler
 except ImportError:
     warnings.warn("SALib samplers not available", ImportWarning)
-    SALib = None
+    saltelli = morris = fast_sampler = None
 
 
 def get_SALib_problem(uncertainties):
@@ -138,8 +138,8 @@ class SobolSampler(SALibSampler):
         super(SobolSampler, self).__init__()
 
     def sample(self, problem, size):
-        return SALib.sample.saltelli.sample(problem, size,
-                                            calc_second_order=self.second_order)
+        return saltelli.sample(problem, size,
+                               calc_second_order=self.second_order)
 
 
 class MorrisSampler(SALibSampler):
@@ -168,9 +168,9 @@ class MorrisSampler(SALibSampler):
         self.local_optimization = local_optimization
 
     def sample(self, problem, size):
-        return SALib.sample.morris.sample(problem, size, self.num_levels,
-                                          self.grid_jump, self.optimal_trajectories,
-                                          self.local_optimization)
+        return morris.sample(problem, size, self.num_levels,
+                             self.grid_jump, self.optimal_trajectories,
+                             self.local_optimization)
 
 
 class FASTSampler(SALibSampler):
@@ -192,4 +192,4 @@ class FASTSampler(SALibSampler):
         self.m = m
 
     def sample(self, problem, size):
-        return SALib.sample.fast_sampler(self.n, self.m)
+        return fast_sampler(self.n, self.m)
