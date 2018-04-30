@@ -356,6 +356,14 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
     callback  : Callback instance, optional
     return_callback : boolean, optional
+    
+    Returns
+    -------
+    tuple
+        the experiments as a numpy recarray, and a dict
+        with the name of an outcome as key, and the associated scores
+        as numpy array. Experiments and outcomes are alinged on index.
+    
 
     '''
     if not scenarios and not policies:

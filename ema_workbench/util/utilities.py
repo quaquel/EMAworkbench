@@ -153,7 +153,7 @@ def save_results(results, file_name):
     Parameters
     ----------    
     results : tuple
-              the return of run_experiments
+              the return of perform_experiments
     file_name : str
                 the path of the file
 
