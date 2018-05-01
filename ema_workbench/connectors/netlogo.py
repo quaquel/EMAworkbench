@@ -46,17 +46,26 @@ class BaseNetLogoModel(FileModel):
     '''
     command_format = "set {0} {1}"
 
-    def __init__(self, name, wd=None, model_file=None):
+    def __init__(self, name, wd=None, model_file=None, netlogo_home=None,
+                 netlogo_version=None, jvm_home=None, gui=False):
         """
         init of class
 
         Parameters
         ----------
-        working_directory : str
-                            working_directory for the model. 
+        wd   : str
+               working directory for the model. 
         name : str
                name of the modelInterface. The name should contain only
                alpha-numerical characters.
+        netlogo_home : str, optional
+               Path to the NetLogo installation directory (required on Linux)
+        netlogo_version : {'6','5'}, optional
+               Used to choose command syntax for link methods (required on Linux)
+        jvm_home : str, optional
+               Java home directory for Jpype
+        gui : bool, optional
+               If true, displays the NetLogo GUI (not supported on Mac)
 
         Raises
         ------
@@ -75,6 +84,10 @@ class BaseNetLogoModel(FileModel):
                                                model_file=model_file)
 
         self.run_length = None
+        self.netlogo_home = netlogo_home
+        self.netlogo_version = netlogo_version
+        self.jvm_home = jvm_home
+        self.gui = gui
 
     @method_logger
     def model_init(self, policy):
@@ -93,7 +106,10 @@ class BaseNetLogoModel(FileModel):
         '''
         super(BaseNetLogoModel, self).model_init(policy)
         debug("trying to start NetLogo")
-        self.netlogo = pyNetLogo.NetLogoLink()
+        self.netlogo = pyNetLogo.NetLogoLink(netlogo_home=self.netlogo_home,
+                                             netlogo_version=self.netlogo_version, 
+                                             jvm_home=self.jvm_home,
+                                             gui=self.gui)
         debug("netlogo started")
         path = os.path.join(self.working_directory, self.model_file)
         self.netlogo.load_model(path)
