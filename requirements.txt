@@ -1,5 +1,7 @@
 pyscaffold==2.5.7
 sphinx>=1.4
+ipykernel
+nbsphinx
 future
 futures
 numpy
