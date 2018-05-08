@@ -50,7 +50,10 @@ the details of the API.
    
    ./overview.rst
    ./installation.rst
-   ./tutorial.rst
+   ./indepth_tutorial/general-introduction.ipynb
+   ./indepth_tutorial/open-exploration.ipynb
+   ./indepth_tutorial/directed-search.ipynb
+   ./basic_tutorial.rst
    ./vensim-tips-and-tricks.rst
    ./api_index.rst
    ./ema_documentation/glossary.rst

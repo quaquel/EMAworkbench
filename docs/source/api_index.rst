@@ -29,7 +29,6 @@ Connectors
    ../../ema_documentation/connectors/vensimDLLwrapper.rst
    ../../ema_documentation/connectors/pysd_connector.rst
    ../../ema_documentation/connectors/netlogo.rst
-   ../../ema_documentation/connectors/pyNetLogo.rst
    ../../ema_documentation/connectors/excel.rst
 
 Analysis

@@ -105,12 +105,13 @@ class BaseNetLogoModel(FileModel):
 
         '''
         super(BaseNetLogoModel, self).model_init(policy)
-        debug("trying to start NetLogo")
-        self.netlogo = pyNetLogo.NetLogoLink(netlogo_home=self.netlogo_home,
-                                             netlogo_version=self.netlogo_version, 
-                                             jvm_home=self.jvm_home,
-                                             gui=self.gui)
-        debug("netlogo started")
+        if not hasattr(self,'netlogo'):
+            debug("trying to start NetLogo")
+            self.netlogo = pyNetLogo.NetLogoLink(netlogo_home=self.netlogo_home,
+                                                 netlogo_version=self.netlogo_version, 
+                                                 jvm_home=self.jvm_home,
+                                                 gui=self.gui)
+            debug("netlogo started")
         path = os.path.join(self.working_directory, self.model_file)
         self.netlogo.load_model(path)
         debug("model opened")
