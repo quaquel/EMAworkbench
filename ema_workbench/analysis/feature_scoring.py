@@ -236,7 +236,7 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     mode : {CLASSIFICATION, REGRESSION}
     nr_trees : int, optional
                nr. of trees in forest (default=250)
-    max_features : int, optional
+    max_features : int, float, string or None, optional
                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     max_depth : int, optional 
                 see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html

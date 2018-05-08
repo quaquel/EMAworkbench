@@ -1,4 +1,5 @@
 pyscaffold==2.5.7
+sphinx>=1.4
 future
 futures
 numpy

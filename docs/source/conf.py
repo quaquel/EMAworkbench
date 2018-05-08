@@ -30,10 +30,11 @@ sys.path.append(os.path.abspath('../../'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 
               'sphinx.ext.doctest', 
-              'sphinx.ext.imgmath',
               'sphinx.ext.napoleon',
+              'sphinx.ext.mathjax',
               'matplotlib.sphinxext.only_directives',
               'matplotlib.sphinxext.plot_directive',
+              'nbsphinx',
               ]
  
 # Add any paths that contain templates here, relative to this directory.
@@ -85,7 +86,7 @@ release = '{}.{}.{}'.format(*version_info)
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

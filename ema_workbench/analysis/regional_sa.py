@@ -22,8 +22,7 @@ import seaborn as sns
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['plot_cdf',
-           'plot_cdfs']
+__all__ = ['plot_cdfs']
 
 cp = sns.color_palette()
 
@@ -216,8 +215,8 @@ def plot_individual_cdf(ax, unc, x, y, discrete=False,
 
 
 def plot_cdfs(x, y, ccdf=False):
-    '''plot cumulative density functions for each column in x, based on the 
-    classification specified in y.
+    '''plot cumulative density functions for each column in x, based on 
+    the  classification specified in y.
 
     Parameters
     ----------
@@ -227,6 +226,11 @@ def plot_cdfs(x, y, ccdf=False):
         the categorization for the data
     ccdf : bool, optional
            if true, plot a complementary cdf instead of a normal cdf.
+           
+           
+    Returns
+    -------
+    a matplotlib Figure instance
 
     '''
     x = rf.drop_fields(x, "scenario_id", asrecarray=True)
