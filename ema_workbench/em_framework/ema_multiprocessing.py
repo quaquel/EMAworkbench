@@ -15,11 +15,13 @@ import threading
 import time
 import shutil
 import traceback
+import queue
 
 from ..util import ema_logging
 from .experiment_runner import ExperimentRunner
 from .util import NamedObjectMap
 from .model import AbstractModel
+import functools
 
 # Created on 22 Feb 2017
 #
@@ -165,7 +167,7 @@ def worker(experiment):
 
     '''
     global experiment_runner
-    return experiment_runner.run_experiment(experiment)
+    return experiment, experiment_runner.run_experiment(experiment)
 
 
 class SubProcessLogHandler(logging.Handler):
@@ -254,18 +256,48 @@ class LogQueueReader(threading.Thread):
                 traceback.print_exc(file=sys.stderr)
 
 
-def result_handler(callback, experiment):
-    '''handler for the results
+class ExperimentFeeder(threading.Thread):
+    
+    def __init__(self, pool, results_queue, experiments):
+        threading.Thread.__init__(self, name="task feeder")
+        self.pool = pool
+        self.experiments = experiments
+        self.results_queue = results_queue
+        
+        self.daemon = True
 
-    to link experiment and output, we use a functional programming
-    trick.
+    def run(self):
+        for experiment in self.experiments:
+            result = self.pool.apply_async(worker, [experiment])
+            self.results_queue.put(result)
 
-    '''
 
-    def my_actual_callback(outcome):
-        callback(experiment, outcome)
-
-    return my_actual_callback
+class ResultsReader(threading.Thread):
+    
+    def __init__(self, queue, callback):
+        threading.Thread.__init__(self, name="results reader")
+        self.queue = queue
+        self.callback = callback
+        self.daemon = True
+    
+    def run(self):
+        while True:
+            try:
+                result = self.queue.get()
+                # get the logger for this record
+                if result is None:
+                    ema_logging.debug("none received")
+                    break
+                
+                self.callback(*result.get())
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except EOFError:
+                break
+            except TypeError:
+                break
+            except:
+                traceback.print_exc(file=sys.stderr)
 
 
 def add_tasks(pool, experiments, callback):
@@ -278,11 +310,14 @@ def add_tasks(pool, experiments, callback):
     callback : callable
 
     '''
-    results = []
-    for e in experiments:
-        res = pool.apply_async(worker, [e],
-                               callback=result_handler(callback, e))
-        results.append(res)
-
-    for res in results:
-        res.wait()
+    
+    results_queue = queue.Queue()
+    
+    feeder = ExperimentFeeder(pool, results_queue, experiments)
+    reader = ResultsReader(results_queue, callback)
+    feeder.start()
+    reader.start()
+    
+    feeder.join()
+    results_queue.put(None)
+    reader.join()

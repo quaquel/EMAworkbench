@@ -16,11 +16,8 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
-import collections
-from threading import Lock
 
 import numpy as np
-import pandas as pd
 
 from ..util import ema_logging, ema_exceptions
 from .parameters import CategoricalParameter, IntegerParameter
@@ -117,7 +114,7 @@ class AbstractCallback(object):
 class DefaultCallback(AbstractCallback):
     """
     default callback system
-    callback can be used in performExperiments as a means for specifying
+    callback can be used in perform_experiments as a means for specifying
     the way in which the results should be handled. If no callback is
     specified, this default implementation is used. This one can be
     overwritten or replaced with a callback of your own design. For
@@ -158,7 +155,6 @@ class DefaultCallback(AbstractCallback):
         self.i = 0
         self.cases = None
         self.results = {}
-        self.lock = Lock()
 
         self.outcomes = [outcome.name for outcome in outcomes]
 
@@ -246,15 +242,11 @@ class DefaultCallback(AbstractCallback):
         '''
         super(DefaultCallback, self).__call__(experiment, outcomes)
 
-        self.lock.acquire()
-
         # store the case
         self._store_case(experiment)
 
         # store outcomes
         self._store_outcomes(experiment.experiment_id, outcomes)
-
-        self.lock.release()
 
     def get_results(self):
         return self.cases, self.results
