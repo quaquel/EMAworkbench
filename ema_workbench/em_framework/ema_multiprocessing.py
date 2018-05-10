@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
 from collections import defaultdict
+
 import io
 import logging
 import multiprocessing
@@ -21,7 +22,7 @@ from ..util import ema_logging
 from .experiment_runner import ExperimentRunner
 from .util import NamedObjectMap
 from .model import AbstractModel
-import functools
+
 
 # Created on 22 Feb 2017
 #
