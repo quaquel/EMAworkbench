@@ -260,6 +260,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
         self._pool = multiprocessing.Pool(self.n_processes, initializer,
                                           (self._msis, log_queue, loglevel,
                                            self.root_dir))
+        
+        self._pool._taskqueue.maxsize = self._pool._processes * 5
         ema_logging.info("pool started")
         return self
 
