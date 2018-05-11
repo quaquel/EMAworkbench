@@ -148,11 +148,11 @@ class BaseEvaluator(object):
                             reporting_interval=None, reporting_frequency=10,
                             uncertainty_union=False, lever_union=False,
                             outcome_union=False, uncertainty_sampling=LHS,
-                            levers_sampling=LHS):
+                            levers_sampling=LHS, callback=None):
         '''convenience method for performing experiments.
 
-        is forwarded to :func:perform_experiments, with evaluator and models
-        arguments added in.
+        is forwarded to :func:perform_experiments, with evaluator and
+        models arguments added in.
 
         '''
         return perform_experiments(self._msis, scenarios=scenarios,
@@ -163,7 +163,8 @@ class BaseEvaluator(object):
                                    lever_union=lever_union,
                                    outcome_union=outcome_union,
                                    uncertainty_sampling=uncertainty_sampling,
-                                   levers_sampling=levers_sampling)
+                                   levers_sampling=levers_sampling,
+                                   callback=callback)
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
                  reference=None, constraints=None, **kwargs):
@@ -430,9 +431,13 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                                                n_models, nr_of_exp))
 
     if not callback:
-        callback = DefaultCallback(uncertainties, levers, outcomes, nr_of_exp,
-                                   reporting_interval=reporting_interval,
-                                   reporting_frequency=reporting_frequency)
+        callback = DefaultCallback(uncertainties, levers, outcomes, 
+                       nr_of_exp, reporting_interval=reporting_interval,
+                       reporting_frequency=reporting_frequency)
+    else:
+        callback = callback(uncertainties, levers, outcomes, nr_of_exp,
+                           reporting_interval=reporting_interval,
+                           reporting_frequency=reporting_frequency)        
 
     if not evaluator:
         evaluator = SequentialEvaluator(models)

@@ -90,10 +90,9 @@ if __name__ == '__main__':
                             Constant('nsamples', 150)]
 
     # generate some random policies by sampling over levers
-    n_scenarios = 10000
+    n_scenarios = 1000
     n_policies = 4
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies,
-                                            levers_sampling=MC,
-                                            reporting_interval=100)
+                                            levers_sampling=MC)
