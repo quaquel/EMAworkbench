@@ -16,6 +16,9 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
+import csv
+import os
+import shutil
 
 import numpy as np
 
@@ -250,3 +253,102 @@ class DefaultCallback(AbstractCallback):
 
     def get_results(self):
         return self.cases, self.results
+    
+
+class FileBasedCallback(AbstractCallback):
+    
+    def __init__(self, uncs, levers, outcomes, nr_experiments, 
+        reporting_interval=100, reporting_frequency=10):
+        super(FileBasedCallback, self).__init__(uncs, levers, outcomes,
+                nr_experiments, reporting_interval=reporting_interval,
+                reporting_frequency=reporting_frequency)
+        
+        self.i = 0
+        self.nr_experiments = nr_experiments
+        self.outcomes = [outcome.name for outcome in outcomes]
+        self.parameters = [parameter.name for parameter in uncs+levers]
+ 
+        self.directory = './temp'
+        if os.path.exists(self.directory):
+            shutil.rmtree(self.directory)
+        os.makedirs(self.directory)
+        
+        self.experiments_fh = open(os.path.join(self.directory,
+                                                'experiments.csv'), 'w')
+        
+        header = self.parameters + ['scenario_id', 'policy', 'model']
+        writer = csv.writer(self.experiments_fh)
+        writer.writerow(header)
+        
+        self.outcome_fhs = {}
+        for outcome in self.outcomes:
+            self.outcome_fhs[outcome] = open(os.path.join(self.directory,
+                                                outcome+'.csv'), 'w')
+
+    def _store_case(self, experiment):
+        scenario = experiment.scenario
+        policy = experiment.policy
+        
+        case = []
+        for parameter in self.parameters:
+            try:
+                value = scenario[parameter]
+            except KeyError:
+                try:
+                    value = policy[parameter]
+                except KeyError:
+                    value = np.nan
+            finally:
+                case.append(value)
+
+        case.append(scenario.name)
+        case.append(policy.name)
+        case.append(experiment.model_name)
+
+        writer = csv.writer(self.experiments_fh)
+        writer.writerow(case)
+        
+    def _store_outcomes(self, outcomes):
+        for outcome in self.outcomes:
+            data = outcomes[outcome]
+            
+            try:
+                data = [str(entry) for entry in data]
+            except TypeError:
+                data = [str(data)]
+            
+            fh = self.outcome_fhs[outcome]
+            writer = csv.writer(fh)
+            writer.writerow(data)
+
+    def __call__(self, experiment, outcomes):
+        '''
+        Method responsible for storing results. This method calls
+        :meth:`super` first, thus utilizing the logging provided there.
+
+        Parameters
+        ----------
+        experiment: Experiment instance
+        outcomes: dict
+                the outcomes dict
+
+        '''
+        super(FileBasedCallback, self).__call__(experiment, outcomes)
+
+        # store the case
+        self._store_case(experiment)
+
+        # store outcomes
+        self._store_outcomes(outcomes)
+    
+    def get_results(self):
+        
+        # metadata
+        
+        self.experiments_fh.close()
+        for value in self.outcome_fhs.items():
+            value.close
+        
+        
+        
+        return self.directory
