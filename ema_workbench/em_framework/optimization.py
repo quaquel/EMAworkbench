@@ -667,7 +667,7 @@ class CombinedMutator(CombinedVariator):
     mutation_prob = 1.0
 
     def evolve(self, parents):
-        ema_logging.info(parents)
+        ema_logging.debug(parents)
 
         problem = parents[0].problem
         children = []
@@ -680,7 +680,7 @@ class CombinedMutator(CombinedVariator):
                     child = self._mutate[klass](self, child, i, type)
                     child.evaluated = False
 
-            self.mutate(child)
+#             self.mutate(child)
             children.append(child)
         return children
 
@@ -689,7 +689,8 @@ class CombinedMutator(CombinedVariator):
         return child
 
     def mutate_integer(self, child, i, type):  # @ReservedAssignment
-        child.variables[i] = random.randint(type.min_value, type.max_value)
+        child.variables[i] = type.encode(random.randint(type.min_value, 
+                                                        type.max_value))
         return child
 
     def mutate_real(self, child, i, type):  # @ReservedAssignment
