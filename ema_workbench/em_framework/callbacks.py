@@ -32,7 +32,8 @@ from .parameters import CategoricalParameter, IntegerParameter
 #
 
 __all__ = ['AbstractCallback',
-           'DefaultCallback']
+           'DefaultCallback',
+           'FileBasedCallback']
 
 
 class AbstractCallback(object):
@@ -256,6 +257,28 @@ class DefaultCallback(AbstractCallback):
     
 
 class FileBasedCallback(AbstractCallback):
+    '''
+    Callback that stores data in csv files while running
+    
+    Parameters
+    ----------
+    uncs : collection of Parameter instances
+    levers : collection of Parameter instances
+    outcomes : collection of Outcome instances
+    nr_experiments : int
+    reporting_interval : int, optional 
+    reporting_frequency : int, optional
+    
+    the data is stored in ./temp, relative to the current
+    working directory. If this directory already exists, it will be
+    overwritten.
+    
+    Warnings
+    --------
+    This class is still in beta. API is expected to change over the
+    coming months.
+    
+    '''
     
     def __init__(self, uncs, levers, outcomes, nr_experiments, 
         reporting_interval=100, reporting_frequency=10):
@@ -268,7 +291,7 @@ class FileBasedCallback(AbstractCallback):
         self.outcomes = [outcome.name for outcome in outcomes]
         self.parameters = [parameter.name for parameter in uncs+levers]
  
-        self.directory = './temp'
+        self.directory = os.path.abspath('./temp')
         if os.path.exists(self.directory):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
@@ -343,12 +366,10 @@ class FileBasedCallback(AbstractCallback):
     
     def get_results(self):
         
-        # metadata
+        # TODO:: metadata
         
         self.experiments_fh.close()
         for value in self.outcome_fhs.items():
             value.close
-        
-        
         
         return self.directory
