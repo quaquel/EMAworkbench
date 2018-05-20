@@ -82,7 +82,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 #     @property
 #     def constraints_output(self):
 #         return self._constraints_output
-#
+# 
 #     @constraints_output.setter
 #     def constraints_output(self, value):
 #         try:
@@ -90,7 +90,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 #         except ValueError:
 #             raise ValueError("Pass an iterable with two items")
 #         else:
-#
+# 
 #             for constraint in self.constraints:
 #                 data = [experiment[var] for var in constraint.parameter_names]
 #                 data += [output[var] for var in constraint.outcome_names]
@@ -394,14 +394,15 @@ class SingleReplication(AbstractModel):
 
 
 class BaseModel(AbstractModel):
-    ''' generic class for working with models implemented as a Python callable 
+    ''' generic class for working with models implemented as a Python
+    callable 
 
     Parameters
     ----------
     name : str
     function : callable
-               a function with each of the uncertain parameters as a keyword
-               argument
+               a function with each of the uncertain parameters as a
+               keyword argument
 
     Attributes
     ----------
