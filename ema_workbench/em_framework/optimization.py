@@ -352,7 +352,7 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
                                                 constraints)
         job_outcomes = [outcomes[key][logical][0] for key in outcome_names]
 
-        if constraints:
+        if job_constraints:
             job.solution.problem.function = lambda _: (job_outcomes,
                                                        job_constraints)
         else:
