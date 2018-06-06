@@ -68,14 +68,13 @@ class AbstractCallback(object):
     __metaclass__ = abc.ABCMeta
 
     i = 0
-    reporting_interval = 100
-
+    
     def __init__(self, uncertainties, outcomes, levers,
                  nr_experiments, reporting_interval=None,
                  reporting_frequency=10):
         if reporting_interval is None:
             reporting_interval = max(1,
-                                     int(round(nr_experiments/reporting_frequency)))
+                        int(round(nr_experiments/reporting_frequency)))
 
         self.reporting_interval = reporting_interval
 
