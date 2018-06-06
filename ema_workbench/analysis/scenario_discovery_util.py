@@ -279,6 +279,19 @@ def _in_box(x, boxlim):
 
 
 def _calculate_quasip(x, y, box, Hbox, Tbox):
+    '''
+    
+    Parameters
+    ----------
+    x : recarray
+    y : np.array
+    box : recarray
+    Hbox : int
+    Tbox : int
+    
+    '''
+    
+    
     indices = _in_box(x, box)
     yi = y[indices]
 
