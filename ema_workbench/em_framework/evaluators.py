@@ -78,6 +78,7 @@ class BaseEvaluator(object):
     ValueError
 
     '''
+    reporting_frequency = 3
 
     def __init__(self, msis):
         super(BaseEvaluator, self).__init__()
@@ -131,9 +132,10 @@ class BaseEvaluator(object):
             raise NotImplementedError()
 
         # overwrite the default 10 progress reports  with 5 reports
-        callback = perform_experiments(self._msis, reporting_frequency=3,
-                                       scenarios=scenarios, policies=policies,
-                                       evaluator=self, return_callback=True)
+        callback = perform_experiments(self._msis, evaluator=self,
+                        reporting_frequency=self.reporting_frequency,
+                        scenarios=scenarios, policies=policies,
+                        return_callback=True)
 
         experiments, outcomes = callback.get_results()
 
@@ -174,7 +176,7 @@ class BaseEvaluator(object):
         arguments added in.
 
         '''
-        return optimize(self._msis, algorithm=algorithm, nfe=nfe,
+        return optimize(self._msis, algorithm=algorithm, nfe=int(nfe),
                         searchover=searchover, evaluator=self,
                         reference=reference, constraints=constraints, **kwargs)
 
@@ -547,5 +549,5 @@ def robust_optimize(model, robustness_functions, scenarios,
     if not evaluator:
         evaluator = SequentialEvaluator(model)
 
-    return _optimize(problem, evaluator, algorithm, convergence, nfe,
-                     **kwargs)
+    return _optimize(problem, evaluator, algorithm, convergence,
+                     int(nfe), **kwargs)
