@@ -3,7 +3,8 @@ Created on May 26, 2015
 
 @author: jhkwakkel
 '''
-import numpy as np
+from __future__ import (print_function)
+
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.cart as cart
@@ -15,18 +16,16 @@ ema_logging.log_to_stderr(level=ema_logging.INFO)
 def classify(data):
     # get the output for deceased population
     result = data['deceased population region 1']
-
-    # make an empty array of length equal to number of cases
-    classes = np.zeros(result.shape[0])
-
-    # if deceased population is higher then 1.000.000 people, classify as 1
-    classes[result[:, -1] > 1000000] = 1
+    
+    # if deceased population is higher then 1.000.000 people, 
+    # classify as 1
+    classes = result[:, -1] > 1000000
 
     return classes
 
 
 # load data
-fn = r'./data/1000 flu cases.tar.gz'
+fn = './data/1000 flu cases with policies.tar.gz'
 results = load_results(fn)
 experiments, results = results
 
@@ -45,8 +44,8 @@ cart_alg = cart.setup_cart(results, classify, mass_min=0.05)
 cart_alg.build_tree()
 
 # print cart to std_out
-print cart_alg.stats_to_dataframe()
-print cart_alg.boxes_to_dataframe()
+print(cart_alg.stats_to_dataframe())
+print(cart_alg.boxes_to_dataframe())
 
 # visualize
 cart_alg.display_boxes(together=True)
