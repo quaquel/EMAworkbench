@@ -13,12 +13,10 @@ from __future__ import (absolute_import, print_function, unicode_literals,
 
 import numpy as np
 
-from ema_workbench import (TimeSeriesOutcome, ScalarOutcome, ema_logging,
-                           perform_experiments)
-from ema_workbench.em_framework.parameters import Policy, create_parameters
-
+from ema_workbench import (TimeSeriesOutcome, ScalarOutcome, ema_logging, Policy,
+                           MultiprocessingEvaluator, save_results)
+from ema_workbench.em_framework.parameters import create_parameters
 from ema_workbench.connectors.vensim import VensimModel
-from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
 
 def time_of_max(infected_fraction, time):
@@ -30,8 +28,8 @@ def time_of_max(infected_fraction, time):
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModel("fluCase", wd=r'./models/flu',
-                        model_file=r'/FLUvensimV1basecase.vpm')
+    model = VensimModel("fluCase", wd='./models/flu',
+                        model_file='FLUvensimV1basecase.vpm')
 
     # outcomes
     model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
@@ -50,13 +48,14 @@ if __name__ == '__main__':
 
     # add policies
     policies = [Policy('no policy',
-                       model_file=r'/FLUvensimV1basecase.vpm'),
+                       model_file='FLUvensimV1basecase.vpm'),
                 Policy('static policy',
-                       model_file=r'/FLUvensimV1static.vpm'),
+                       model_file='FLUvensimV1static.vpm'),
                 Policy('adaptive policy',
-                       model_file=r'/FLUvensimV1dynamic.vpm')
+                       model_file='FLUvensimV1dynamic.vpm')
                 ]
 
-    with MultiprocessingEvaluator(model, 2) as evaluator:
-        results = perform_experiments(model, 1000, policies=policies,
-                                      evaluator == evaluator)
+    with MultiprocessingEvaluator(model, n_processes=4) as evaluator:
+        results = evaluator.perform_experiments(1000, policies=policies)
+
+    save_results(results, './data/1000 flu cases with policies.tar.gz')
