@@ -16,7 +16,6 @@ import operator
 import warnings
 
 from .samplers import DefaultDesigns
-from .parameters import CategoricalParameter, IntegerParameter
 
 try:
     from SALib.sample import saltelli, morris, fast_sampler
@@ -71,18 +70,6 @@ class SALibSampler(object):
         samples = self.sample(problem, size)
         samples = {unc.name: samples[:, i]
                    for i, unc in enumerate(uncertainties)}
-
-        # handle integer and categorical uncertainties
-        for uncertainty in uncertainties:
-            sample = samples[uncertainty.name]
-
-            if isinstance(uncertainty, CategoricalParameter):
-                sample = [uncertainty.cat_for_index(int(entry)) for entry in
-                          sample]
-            elif isinstance(uncertainty, IntegerParameter):
-                sample = (int(entry) for entry in sample)
-
-            samples[uncertainty.name] = sample
 
         return samples
 
