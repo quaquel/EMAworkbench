@@ -19,10 +19,8 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
-                           ema_logging, MultiprocessingEvaluator)
-from ema_workbench.em_framework.parameters import Scenario,\
-    CategoricalParameter
-from datashape.coretypes import Categorical
+                           ema_logging, MultiprocessingEvaluator, 
+                           CategoricalParameter, Scenario)
 
 # Created on 1 Jun 2017
 #
@@ -74,6 +72,7 @@ def lake_problem(
     r1=0.5,
     r2=0.5,
         w1=0.5):
+    
     Pcrit = brentq(lambda x: x**q/(1+x**q) - b*x, 0.01, 1.5)
 
     X = np.zeros((myears,))
@@ -134,7 +133,6 @@ if __name__ == '__main__':
                          RealParameter("r2", 0, 2),
                          CategoricalParameter("w1", np.linspace(0, 1, 10))
                          ]
-
     # specify outcomes
     lake_model.outcomes = [ScalarOutcome('max_P',
                                          kind=ScalarOutcome.MINIMIZE),  # @UndefinedVariable
@@ -156,5 +154,6 @@ if __name__ == '__main__':
     reference = Scenario('reference', b=0.4, q=2, mean=0.02, stdev=0.01)
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        evaluator.optimize(searchover='levers', nfe=1000,
-                           epsilons=[0.1, ]*len(lake_model.outcomes), reference=reference)
+        evaluator.optimize(searchover='levers', nfe=100000,
+                           epsilons=[0.1, ]*len(lake_model.outcomes),
+                           reference=reference)
