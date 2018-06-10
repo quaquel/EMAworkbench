@@ -593,6 +593,7 @@ class CombinedVariator(Variator):
         # SSX()
         # can probably be implemented in a simple manner, since size
         # of subset is fixed to 1
+
         s1 = set(child1.variables[i])
         s2 = set(child2.variables[i])
 
@@ -646,11 +647,15 @@ class CombinedVariator(Variator):
             subset = child.variables[i]
 
             if len(subset) < len(type.elements):
-                i = random.randrange(len(subset))
+                j = random.randrange(len(subset))
 
                 nonmembers = list(set(type.elements) - set(subset))
-                j = random.randrange(len(nonmembers))
-                subset[i] = nonmembers[j]
+                k = random.randrange(len(nonmembers))
+                subset[j] = nonmembers[k]
+                
+            len(subset)
+                
+            child.variables[i]  = subset
 
         return child
 
@@ -685,7 +690,7 @@ class CombinedMutator(CombinedVariator):
         return children
 
     def mutate_categorical(self, child, i, type):  # @ReservedAssignment
-        child.variables[i] = random.choice(type.elements)
+        child.variables[i] = [random.choice(type.elements)]
         return child
 
     def mutate_integer(self, child, i, type):  # @ReservedAssignment
