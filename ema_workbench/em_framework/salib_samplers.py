@@ -4,6 +4,8 @@ Samplers for working with SALib
 '''
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
+from pandas._libs.parsers import Categorical
+from ema_workbench.em_framework.parameters import CategoricalParameter
 
 
 # Created on 12 Jan 2017
@@ -15,7 +17,11 @@ __all__ = ["SobolSampler", "MorrisSampler", "FASTSampler", 'get_SALib_problem']
 import operator
 import warnings
 
+import numpy as np
+
 from .samplers import DefaultDesigns
+from .parameters import IntegerParameter
+
 
 try:
     from SALib.sample import saltelli, morris, fast_sampler
@@ -32,7 +38,7 @@ def get_SALib_problem(uncertainties):
     bounds = []
 
     for uncertainty in uncertainties:
-        values = uncertainty.lower_bound, uncertainty.upper_bound
+        values = uncertainty.params
         bounds.append(values)
 
     problem = {'num_vars': len(uncertainties),
@@ -68,10 +74,15 @@ class SALibSampler(object):
 
         problem = get_SALib_problem(uncertainties)
         samples = self.sample(problem, size)
-        samples = {unc.name: samples[:, i]
-                   for i, unc in enumerate(uncertainties)}
+        
+        temp = {}
+        for i, unc in enumerate(uncertainties):
+            sample = samples[:, i]
+            if isinstance(unc, IntegerParameter):
+                sample = np.floor(sample)
+            temp[unc.name] = sample
 
-        return samples
+        return temp
 
     def generate_designs(self,  parameters, nr_samples):
         '''external interface to sampler. Returns the computational experiments
