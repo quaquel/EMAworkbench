@@ -111,11 +111,11 @@ class BaseEvaluator(object):
         raise NotImplementedError
 
     def evaluate_all(self, jobs, **kwargs):
-        '''makes ema_workbench evaluators compatible with Platypus evaluators
-        as used by platypus algorithms'''
-
+        '''makes ema_workbench evaluators compatible with Platypus
+        evaluators as used by platypus algorithms
+        '''
         self.callback()
-
+        
         problem = jobs[0].solution.problem
         searchover = problem.searchover
 
@@ -212,6 +212,7 @@ class SequentialEvaluator(BaseEvaluator):
 
         cwd = os.getcwd()
         runner = ExperimentRunner(models)
+        
         for experiment in ex_gen:
             outcomes = runner.run_experiment(experiment)
             callback(experiment, outcomes)
