@@ -4,8 +4,6 @@ Samplers for working with SALib
 '''
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
-from pandas._libs.parsers import Categorical
-from ema_workbench.em_framework.parameters import CategoricalParameter
 
 
 # Created on 12 Jan 2017
