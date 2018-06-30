@@ -31,12 +31,6 @@ import numpy.lib.recfunctions as rf
 import pandas as pd
 import six
 
-try:
-    import mpld3
-except ImportError:
-    global mpld3
-    mpld3 = None
-
 from .plotting_util import make_legend
 from ..util import info, debug, EMAError
 from . import scenario_discovery_util as sdutil
@@ -215,7 +209,7 @@ class PrimBox(object):
     coverage = CurEntry('coverage')
     density = CurEntry('density')
     mean = CurEntry('mean')
-    res_dim = CurEntry('res dim')
+    res_dim = CurEntry('res_dim')
     mass = CurEntry('mass')
 
     _frozen = False
@@ -235,10 +229,18 @@ class PrimBox(object):
         self.prim = prim
 
         # peeling and pasting trajectory
-        colums = ['coverage', 'density', 'mean', 'res dim', 'mass']
+        colums = ['coverage', 'density', 'mean', 'res_dim', 'mass', 'id']
         self.peeling_trajectory = pd.DataFrame(columns=colums)
 
         self.box_lims = []
+        
+        columns = ['name', 'lower', 'upper', 'minimum', 'maximum', 'qp_lower',
+                   'qp_upper', 'id']
+        self.boxes_quantitative = pd.DataFrame(columns=columns)
+        
+        columns = ['item', 'name', 'n_items', 'x', 'id']
+        self.boxes_nominal = pd.DataFrame(columns=columns)
+        
         self._cur_box = -1
 
         # indices van data in box
@@ -277,9 +279,14 @@ class PrimBox(object):
             i = self._cur_box
 
         stats = self.peeling_trajectory.iloc[i].to_dict()
-        stats['restricted_dim'] = stats['res dim']
-
-        qp_values = self._calculate_quasi_p(i)
+        stats['restricted_dim'] = stats['res_dim']
+        
+        # TODO:: setup qp-values for regression
+        # TODO:: move to long form data
+        if self.prim.mode == sdutil.BINARY:
+            qp_values = self._calculate_quasi_p(i)
+        else:
+            qp_values = {}
         uncs = [(key, value) for key, value in qp_values.items()]
         uncs.sort(key=itemgetter(1))
         uncs = [uncs[0] for uncs in uncs]
@@ -474,22 +481,56 @@ class PrimBox(object):
 
         '''
         self.yi = indices
-
-        y = self.prim.y[self.yi]
-
         self.box_lims.append(box_lims)
 
+        # peeling trajectory
+        i = self.peeling_trajectory.shape[0]
+        y = self.prim.y[self.yi]
         coi = self.prim.determine_coi(self.yi)
 
         data = {'coverage': coi/self.prim.t_coi,
                 'density': coi/y.shape[0],
                 'mean': np.mean(y),
-                'res dim': sdutil._determine_nr_restricted_dims(self.box_lims[-1],
+                'res_dim': sdutil._determine_nr_restricted_dims(self.box_lims[-1],
                                                                 self.prim.box_init),
-                'mass': y.shape[0]/self.prim.n}
+                'mass': y.shape[0]/self.prim.n,
+                'id': i}
         new_row = pd.DataFrame([data])
         self.peeling_trajectory = self.peeling_trajectory.append(new_row,
-                                                                 ignore_index=True)
+                                                            ignore_index=True,
+                                                            sort=True)
+
+        # boxlims
+        qp = self._calculate_quasi_p(i)
+        res_dim = qp.keys()
+        quantitative_res_dim = [dim for dim in res_dim if box_lims.dtype[dim] 
+                                in (np.float, np.int)]
+        nominal_res_dim = list(set(res_dim) - set(quantitative_res_dim))
+        df = pd.DataFrame.from_records(box_lims)
+        
+        box = df[quantitative_res_dim]
+        box.index = ['lower', 'upper']
+        box = box.T
+        box['name'] = box.index
+        box['id'] = int(i)
+        
+        
+        box_init = pd.DataFrame.from_records(self.box_lims[0])
+        box['minimum'] = box_init[quantitative_res_dim].T.iloc[:, 0]
+        box['maximum'] = box_init[quantitative_res_dim].T.iloc[:, 1]
+        box = box.join(pd.DataFrame(qp, index=['qp_lower', 'qp_upper']).T)        
+        self.boxes_quantitative = self.boxes_quantitative.append(box, sort=False)
+
+        for dim in nominal_res_dim:
+            # TODO:: qp values
+#             all_items = self.box_lims[0][dim][0]
+            items = df[nominal_res_dim].loc[0,:].values[0]
+            for j, item in enumerate(items):
+                entry = dict(name=dim, n_items=len(items)+1, item=item, id=int(i),
+                             x=j/len(items))
+                self.boxes_nominal= self.boxes_nominal.append(entry,
+                                                          ignore_index=True,
+                                                          sort=False)
 
         self._cur_box = len(self.peeling_trajectory)-1
 
@@ -506,7 +547,7 @@ class PrimBox(object):
         ax.plot(self.peeling_trajectory['mass'], label="mass")
         ax.plot(self.peeling_trajectory['coverage'], label="coverage")
         ax.plot(self.peeling_trajectory['density'], label="density")
-        par.plot(self.peeling_trajectory['res dim'], label="restricted dims")
+        par.plot(self.peeling_trajectory['res_dim'], label="restricted dims")
         ax.grid(True, which='both')
         ax.set_ylim(ymin=0, ymax=1)
 
@@ -541,14 +582,14 @@ class PrimBox(object):
         ax = fig.add_subplot(111, aspect='equal')
 
         boundaries = np.arange(-0.5,
-                               max(self.peeling_trajectory['res dim'])+1.5,
+                               max(self.peeling_trajectory['res_dim'])+1.5,
                                step=1)
         ncolors = cmap.N
         norm = mpl.colors.BoundaryNorm(boundaries, ncolors)
 
         p = ax.scatter(self.peeling_trajectory['coverage'],
                        self.peeling_trajectory['density'],
-                       c=self.peeling_trajectory['res dim'],
+                       c=self.peeling_trajectory['res_dim'],
                        norm=norm,
                        cmap=cmap)
         ax.set_ylabel('density')
@@ -557,50 +598,12 @@ class PrimBox(object):
         ax.set_xlim(xmin=0, xmax=1.2)
 
         ticklocs = np.arange(0,
-                             max(self.peeling_trajectory['res dim'])+1,
+                             max(self.peeling_trajectory['res_dim'])+1,
                              step=1)
         cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
         cb.set_label("nr. of restricted dimensions")
 
         # make the tooltip tables
-        if mpld3:
-            # Define some CSS to control our custom labels
-            css = """
-            table
-            {
-              border-collapse: collapse;
-            }
-            th
-            {
-              background-color:  rgba(255,255,255,0.6);;;
-            }
-            td
-            {
-              background-color: rgba(255,255,255,0.6);;
-            }
-            table, th, td
-            {
-              font-family:Tahoma, Tahoma, sans-serif;
-              font-size: 16px;
-              border: 1px solid black;
-              text-align: right;
-            }
-            """
-
-            labels = []
-            columns_to_include = ['coverage', 'density', 'mass', 'res dim']
-
-            def frmt(x): return '{:.2f}'.format(x)
-            for i in range(len(self.peeling_trajectory['coverage'])):
-                label = self.peeling_trajectory.ix[[i], columns_to_include].T
-                label.columns = ['box {0}'.format(i)]
-                # .to_html() is unicode; so make leading 'u' go away with str()
-                labels.append(str(label.to_html(float_format=frmt)))
-
-            tooltip = mpld3.plugins.PointHTMLTooltip(p, labels, voffset=10,
-                                                     hoffset=10, css=css)
-            mpld3.plugins.connect(fig, tooltip)
-
         def formatter(**kwargs):
             i = kwargs.get("ind")[0]
             data = self.peeling_trajectory.ix[i]
@@ -612,7 +615,7 @@ class PrimBox(object):
                                        100*data["coverage"],
                                        100*data["density"],
                                        100*data["mass"],
-                                       data["res dim"]))
+                                       data["res_dim"]))
 
         mpldatacursor.datacursor(formatter=formatter, draggable=True,
                                  display='multiple')
@@ -654,7 +657,7 @@ class PrimBox(object):
 
         box_lim = self.box_lims[i]
         restricted_dims = list(sdutil._determine_restricted_dims(box_lim,
-                                                                 self.prim.box_init))
+                                                         self.prim.box_init))
 
         # total nr. of cases in box
         Tbox = self.peeling_trajectory['mass'][i] * self.prim.n
@@ -670,45 +673,22 @@ class PrimBox(object):
         for u in restricted_dims:
             unlimited = self.box_lims[0][u]
             limits = box_lim[u]
-
-            if limits[0] == limits[1]:
+            if box_lim.dtype[u] == object:
                 temp_box = copy.deepcopy(box_lim)
-                temp_box[u] = unlimited
-
+                temp_box[u][0] = unlimited[0]
                 qp = sdutil._calculate_quasip(x, y, temp_box,
                                               Hbox, Tbox)
-
                 qp_values[u].append(qp)
             else:
                 for direction in (0, 1):
                     if unlimited[direction] != limits[direction]:
                         temp_box = copy.deepcopy(box_lim)
                         temp_box[u][direction] = unlimited[direction]
-
                         qp = sdutil._calculate_quasip(x, y, temp_box,
                                                       Hbox, Tbox)
-
-                        qp_values[u].append(qp)
-
-#             indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining],
-#                                      temp_box)
-#             indices = self.prim.yi_remaining[indices]
-#
-#             # total nr. of cases in box with one restriction removed
-#             Tj = indices.shape[0]
-#
-#             # total nr. of cases of interest in box with one restriction
-#             # removed
-#             Hj = np.sum(self.prim.y[indices])
-#
-#             p = Hj/Tj
-#
-#             Hbox = int(Hbox)
-#             Tbox = int(Tbox)
-#
-#             qp = binom.sf(Hbox-1, Tbox, p)
-#             qp_values[u] = qp
-
+                    else:
+                        qp = 0.0
+                    qp_values[u].append(qp)
         return qp_values
 
     def _format_stats(self, nr, stats):
@@ -762,12 +742,14 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
         x = rf.drop_fields(results[0], drop_names, asrecarray=True)
     if isinstance(classify, six.string_types):
         y = results[1][classify]
+        mode = sdutil.REGRESSION
     elif callable(classify):
         y = classify(results[1])
+        mode = sdutil.BINARY
     else:
         raise TypeError("unknown type for classify")
 
-    return Prim(x, y, threshold=threshold, **kwargs)
+    return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
 
 
 class Prim(sdutil.OutputFormatterMixin):
@@ -796,7 +778,16 @@ class Prim(sdutil.OutputFormatterMixin):
                minimum mass of a box (default = 0.05). 
     threshold_type : {ABOVE, BELOW}
                      whether to look above or below the threshold value
-
+    mode : {'binary', 'classification'}, optional
+            indicated whether PRIM is used for regression, or for scenario
+            classification in which case y should be a binary vector
+    update_function = {'default', 'guivarch'}, optional
+                      controls behavior of PRIM after having found a first box.
+                      use either the default behavior were all poinst are 
+                      removed, or the procedure suggested by guivarch et al
+                      (2016) doi:10.1016/j.envsoft.2016.03.006 to simply set 
+                      all points to be no longer of interest (only valid in 
+                      binary mode). 
 
     See also
     --------
@@ -807,15 +798,11 @@ class Prim(sdutil.OutputFormatterMixin):
 
     message = "{0} points remaining, containing {1} cases of interest"
 
-    def __init__(self,
-                 x,
-                 y,
-                 threshold,
-                 obj_function=LENIENT1,
-                 peel_alpha=0.05,
-                 paste_alpha=0.05,
-                 mass_min=0.05,
-                 threshold_type=ABOVE):
+    def __init__(self, x, y, threshold, obj_function=LENIENT1,peel_alpha=0.05,
+                 paste_alpha=0.05, mass_min=0.05, threshold_type=ABOVE,
+                 mode=sdutil.BINARY, update_function='default'):
+        assert mode in {sdutil.BINARY, sdutil.REGRESSION}
+        assert self._assert_mode(y, mode, update_function)
 
         # preprocess x
         x = rf.drop_fields(x, "scenario_id", asrecarray=True)
@@ -827,6 +814,9 @@ class Prim(sdutil.OutputFormatterMixin):
 
         self.x = x
         self.y = y
+        self.mode = mode
+
+        self._update_yi_remaining = self._update_functions[update_function]
 
         if len(self.y.shape) > 1:
             raise PrimException("y is not a 1-d array")
@@ -854,7 +844,7 @@ class Prim(sdutil.OutputFormatterMixin):
         # make a list in which the identified boxes can be put
         self._boxes = []
 
-        self._update_yi_remaining()
+        self._update_yi_remaining(self)
 
     @property
     def boxes(self):
@@ -980,7 +970,7 @@ class Prim(sdutil.OutputFormatterMixin):
         '''Execute one iteration of the PRIM algorithm. That is, find one
         box, starting from the current state of Prim.'''
         # set the indices
-        self._update_yi_remaining()
+        self._update_yi_remaining(self)
 
         # make boxes already found immutable
         for box in self._boxes:
@@ -1063,7 +1053,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
         return coi
 
-    def _update_yi_remaining(self):
+    def _update_yi_remaining_default(self):
         '''
 
         Update yi_remaining in light of the state of the boxes associated
@@ -1076,6 +1066,20 @@ class Prim(sdutil.OutputFormatterMixin):
         for box in self._boxes:
             logical[box.yi] = False
         self.yi_remaining = self.yi[logical]
+
+    def _update_yi_remaining_guivarch(self):
+        '''
+
+        Update yi_remaining in light of the state of the boxes associated
+        with this prim instance using the modified version from 
+        Guivarch et al (2016) doi:10.1016/j.envsoft.2016.03.006
+
+        '''
+        # set the indices
+        for box in self._boxes:
+            self.y[box.yi] = 0
+
+        self.yi_remaining = self.yi
 
     def _peel(self, box):
         '''
@@ -1531,6 +1535,13 @@ class Prim(sdutil.OutputFormatterMixin):
                     "%s has dtype object and can thus not be rotated" % key)
         return True
 
+    def _assert_mode(self, y, mode, update_function):
+        if mode == sdutil.BINARY:
+            return set(np.unique(y)) == {0, 1}
+        if update_function == 'guivarch':
+            return False
+        return True
+
     def _rotate_subset(self, value, orig_experiments, logical):
         '''
         rotate a subset
@@ -1603,26 +1614,27 @@ class Prim(sdutil.OutputFormatterMixin):
                       LENIENT1: _lenient1_obj_func,
                       ORIGINAL: _original_obj_func}
 
+    _update_functions = {'default': _update_yi_remaining_default,
+                         'guivarch': _update_yi_remaining_guivarch}
 
-class MultiBoxesPrim(Prim):
-    '''Modification of PRIM's handling of multiple boxes, based on the
-    suggestion of Guivarch et al (2016) doi:10.1016/j.envsoft.2016.03.006
-
-
-    TODO:: we need a better name for this
-    TODO:: should become a kwarg on normal prim
-
-    '''
-
-    def _update_yi_remaining(self):
-        '''
-
-        Update yi_remaining in light of the state of the boxes associated
-        with this prim instance.
-
-        '''
-        # set the indices
-        for box in self._boxes:
-            self.y[box.yi] = 0
-
-        self.yi_remaining = self.yi
+# class MultiBoxesPrim(Prim):
+#     '''Modification of PRIM's handling of multiple boxes, based on the
+#     suggestion of Guivarch et al (2016) doi:10.1016/j.envsoft.2016.03.006
+# 
+# 
+#     we need a better name for this
+# 
+#     '''
+# 
+#     def _update_yi_remaining(self):
+#         '''
+# 
+#         Update yi_remaining in light of the state of the boxes associated
+#         with this prim instance.
+# 
+#         '''
+#         # set the indices
+#         for box in self._boxes:
+#             self.y[box.yi] = 0
+# 
+#         self.yi_remaining = self.yi
