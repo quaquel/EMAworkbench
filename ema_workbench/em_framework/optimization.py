@@ -48,13 +48,18 @@ except ImportError:
             pass
 
     class TournamentSelector(object):
+        def __init__(self, *args, **kwargs):
+            pass
+        
         def __call__(self, *args, **kwargs):
             pass
+        
+    class EpsilonProgressContinuation(object):
+        pass
 
     EpsNSGAII = None
     platypus = None
     Real = Integer = Subset = None
-    EpsilonProgressContinuation = None
 
 
 
