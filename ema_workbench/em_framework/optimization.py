@@ -43,11 +43,19 @@ except ImportError:
         def __init__(self, *args, **kwargs):
             pass
 
+    class RandomGenerator(object):
+        def __call__(self, *args, **kwargs):
+            pass
+
+    class TournamentSelector(object):
+        def __call__(self, *args, **kwargs):
+            pass
+
     EpsNSGAII = None
     platypus = None
     Real = Integer = Subset = None
     EpsilonProgressContinuation = None
-    RandomGenerator = None
+
 
 
 # Created on 5 Jun 2017
