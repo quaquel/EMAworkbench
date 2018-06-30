@@ -46,6 +46,7 @@ except ImportError:
     EpsNSGAII = None
     platypus = None
     Real = Integer = Subset = None
+    EpsilonProgressContinuation = None
 
 
 # Created on 5 Jun 2017
