@@ -128,7 +128,7 @@ def plot_histogram(ax, values, log):
                 bins=11,
                 orientation='horizontal',
                 histtype='bar',
-                normed=True,
+                density=True,
                 color=color,
                 log=log)
     if not log:
