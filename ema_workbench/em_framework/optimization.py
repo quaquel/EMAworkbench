@@ -47,6 +47,7 @@ except ImportError:
     platypus = None
     Real = Integer = Subset = None
     EpsilonProgressContinuation = None
+    RandomGenerator = None
 
 
 # Created on 5 Jun 2017
