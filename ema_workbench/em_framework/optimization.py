@@ -7,6 +7,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 import copy
 import functools
+import math
 import os
 import pandas as pd
 import random
@@ -18,10 +19,14 @@ from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
 from .samplers import determine_parameters
 from .util import determine_objects
 from ..util import ema_logging
+from ema_workbench.util.ema_exceptions import EMAError
 
 try:
     from platypus import (EpsNSGAII, Hypervolume, Variator, Real, Integer,
-                          Subset)   # @UnresolvedImport
+                    Subset, EpsilonProgressContinuation, RandomGenerator,
+                    TournamentSelector, NSGAII, EpsilonBoxArchive, Multimethod,
+                    GAOperator, SBX, PM, PCX, DifferentialEvolution, UNDX, SPX, 
+                    UM, Solution)   # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
 
     import platypus
@@ -129,6 +134,10 @@ def to_problem(model, searchover, reference=None, constraints=None):
     outcomes = [outcome for outcome in outcomes if
                 outcome.kind != AbstractOutcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
+    
+    if not outcomes:
+        raise EMAError(("no outcomes specified to optimize over, "
+                        "all outcomes are of kind=INFO"))
 
     problem = Problem(searchover, decision_variables,
                       outcome_names, constraints, reference=reference)
@@ -160,7 +169,13 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     decision_variables = determine_parameters(model, 'levers', union=True)
 
     outcomes = robustness_functions
+    outcomes = [outcome for outcome in outcomes if
+                outcome.kind != AbstractOutcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
+
+    if not outcomes:
+        raise EMAError(("no outcomes specified to optimize over, "
+                         "all outcomes are of kind=INFO"))
 
     problem = RobustProblem(decision_variables, outcome_names,
                             scenarios, robustness_functions, constraints)
@@ -482,6 +497,20 @@ class ArchiveLogger(AbstractConvergenceMetric):
         archive.to_csv(fn)
 
 
+class OperatorProbabilities(AbstractConvergenceMetric):
+
+    def __init__(self, name, index):
+        super(OperatorProbabilities, self).__init__(name)
+        self.index = index
+
+    def __call__(self, optimizer):
+        try:
+            props = optimizer.algorithm.variator.probabilities
+            self.results.append(props[self.index])
+        except AttributeError:
+            pass
+
+
 class Convergence(object):
     '''helper class for tracking convergence of optimization'''
 
@@ -525,10 +554,6 @@ class Convergence(object):
 
 
 class CombinedVariator(Variator):
-    # TODO:: this seems to miss mutation
-    # probably need to Instantiate a GAOperator class
-    # with this CombinedVariator for the variation argument
-    # and a similar class for the mutation argument
 
     def __init__(self, crossover_prob=0.5, mutation_prob=1):
         super(CombinedVariator, self).__init__(2)
@@ -669,6 +694,17 @@ class CombinedVariator(Variator):
 
 
 class CombinedMutator(CombinedVariator):
+    '''Data type aware Uniform mutator
+    
+    Overwrites the mutator on the algorithm as used by adaptive time
+    continuation.
+    
+    This is a dirty hack, mutator should be a keyword argument on 
+    epsilon-NSGAII. Would require separating out explicitly the algorithm
+    kwargs and the AdaptiveTimeContinuation kwargs.  
+    
+    '''
+    
     mutation_prob = 1.0
 
     def evolve(self, parents):
@@ -685,7 +721,6 @@ class CombinedMutator(CombinedVariator):
                     child = self._mutate[klass](self, child, i, type)
                     child.evaluated = False
 
-#             self.mutate(child)
             children.append(child)
         return children
 
@@ -739,3 +774,162 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
         return results
     else:
         return results, convergence
+
+
+class GenerationalBorg(EpsilonProgressContinuation):
+    '''A generational implementation of the BORG Framework
+    
+    This algorithm adopts Epsilon Progress Continuation, and Auto Adaptive
+    Operator Selection, but embeds them within the NSGAII generational
+    algorithm, rather than the steady state implementation used by the BORG
+    algorithm.  
+    
+    Note:: limited to RealParameters only. 
+    
+    '''
+    
+    def __init__(self, problem, epsilons, population_size=100,
+                 generator=RandomGenerator(), selector=TournamentSelector(2),
+                 variator=None, **kwargs):
+        
+        L = len(problem.nvars)
+        p = 1/L
+        
+        # Parameterization taken from
+        # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
+        variators = [GAOperator(SBX(probability=1.0, distribution_index=15.0),
+                               PM(probability=p, distribution_index=20.0)),
+                    GAOperator(PCX(nparents=3, noffspring=2, eta=0.1, zeta=0.1),
+                               PM(probability =p, distribution_index=20.0)),
+                    GAOperator(DifferentialEvolution(crossover_rate=0.6,
+                                                     step_size=0.6),
+                               PM(probability=p, distribution_index=20.0)),
+                    GAOperator(UNDX(nparents= 3, noffspring=2, zeta=0.5,
+                                    eta=0.35/math.sqrt(L)),
+                               PM(probability= p, distribution_index=20.0)),
+                    GAOperator(SPX(nparents=L+1, noffspring=L+1, 
+                                   expansion=math.sqrt(L+2)),
+                               PM(probability=p, distribution_index=20.0)),
+                    UM(probability = 1/L)]
+        
+        variator = Multimethod(self, variators)
+        
+        super(GenerationalBorg, self).__init__(
+                NSGAII(problem,
+                       population_size,
+                       generator,
+                       selector,
+                       variator,
+                       EpsilonBoxArchive(epsilons),
+                       **kwargs))
+
+
+# class GeneAsGenerationalBorg(EpsilonProgressContinuation):
+#     '''A generational implementation of the BORG Framework, combined with 
+#     the GeneAs appraoch for heterogenously typed decision variables
+#     
+#     This algorithm adopts Epsilon Progress Continuation, and Auto Adaptive
+#     Operator Selection, but embeds them within the NSGAII generational
+#     algorithm, rather than the steady state implementation used by the BORG
+#     algorithm.  
+#     
+#     Note:: limited to RealParameters only. 
+#     
+#     '''
+#     
+#     # TODO::
+#     # Addressing the limitation to RealParameters is non-trivial. The best
+#     # option seems to be to extent MultiMethod. Have a set of GAoperators
+#     # for each datatype. 
+#     # next Iterate over datatypes and apply the appropriate operator. 
+#     # Implementing this in platypus is non-trivial. We probably need to do some
+#     # dirty hacking to create 'views' on the relevant part of the 
+#     # solution that is to be modified by the operator
+#     # 
+#     # A possible solution is to create a wrapper class for the operators
+#     # This class would create the 'view' on the solution. This view should 
+#     # also have a fake problem description because the number of 
+#     # decision variables is sometimes used by operators. After applying the 
+#     # operator to the view, we can than take the results and set these on the 
+#     # actual solution
+#     #
+#     # Also: How many operators are there for Integers and Subsets?
+#     
+#     def __init__(self, problem, epsilons, population_size=100,
+#                  generator=RandomGenerator(), selector=TournamentSelector(2),
+#                  variator=None, **kwargs):
+#         
+#         L = len(problem.parameters)
+#         p = 1/L
+#         
+#         # Parameterization taken from
+#         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
+#         real_variators = [GAOperator(SBX(probability=1.0, distribution_index=15.0),
+#                                PM(probability=p, distribution_index=20.0)),
+#                     GAOperator(PCX(nparents=3, noffspring=2, eta=0.1, zeta=0.1),
+#                                PM(probability =p, distribution_index=20.0)),
+#                     GAOperator(DifferentialEvolution(crossover_rate=0.6,
+#                                                      step_size=0.6),
+#                                PM(probability=p, distribution_index=20.0)),
+#                     GAOperator(UNDX(nparents= 3, noffspring=2, zeta=0.5,
+#                                     eta=0.35/math.sqrt(L)),
+#                                PM(probability= p, distribution_index=20.0)),
+#                     GAOperator(SPX(nparents=L+1, noffspring=L+1, 
+#                                    expansion=math.sqrt(L+2)),
+#                                PM(probability=p, distribution_index=20.0)),
+#                     UM(probability = 1/L)]
+#         
+#         # TODO
+#         integer_variators = []
+#         subset_variators = []
+#         
+#         variators = [VariatorWrapper(variator) for variator in real_variators]
+#         variator = Multimethod(self, variators)
+#         
+#         super(GenerationalBorg, self).__init__(
+#                 NSGAII(problem,
+#                        population_size,
+#                        generator,
+#                        selector,
+#                        variator,
+#                        EpsilonBoxArchive(epsilons),
+#                        **kwargs))
+# 
+# 
+# class VariatorWrapper(object):
+#     def __init__(self, actual_variator, indices, problem):
+#         '''
+#         
+#         Parameters
+#         ----------
+#         actual_variator : underlying GAOperator
+#         indices : np.array
+#                   indices to which the variator should be applied
+#         probem :  a representation of the problem considering only the 
+#                   same kind of Parameters
+#         
+#         '''
+#         self.variator = actual_variator
+#         self.indices = indices
+#         
+#     def evolve(self, parents):
+        
+        fake_parents = [self.create_view[p] for p in parents]
+        fake_children = self.variator.evolve(fake_parents)
+        
+        # tricky, no 1 to 1 mapping between parents and children
+        # some methods have 3 parents, one child
+        children = [map_back]
+        
+        pass
+    
+    def create_view(self, parent):
+        view = Solution(self.problem)
+        self.variables = parent.variables[self.indices][:]
+        self.objectives = parent.objectives[:]
+        self.constraints = parent.constraints[:]
+        self.evaluated = parent.evaluated
+        return view
+    
+    def map_back(self, view, parent):
+        pass
