@@ -14,12 +14,11 @@ except ImportError:
     import mock
 
 from ema_workbench.em_framework.model import Model
-from ema_workbench.em_framework.parameters import RealParameter,\
-    IntegerParameter, CategoricalParameter
+from ema_workbench.em_framework.parameters import (RealParameter,
+                                       IntegerParameter, CategoricalParameter)
 from ema_workbench.em_framework.outcomes import ScalarOutcome, Constraint
 from ema_workbench.em_framework.optimization import (Problem, RobustProblem, 
-             to_dataframe, to_platypus_types, to_problem, to_robust_problem,
-             process_levers, process_uncertainties, process_robust)
+             to_dataframe, to_platypus_types, to_problem, to_robust_problem)
 
 # Created on 6 Jun 2017
 #
@@ -132,7 +131,8 @@ class TestOptimization(unittest.TestCase):
                                RealParameter('b', 0, 1)]
         mocked_model.uncertainties = [RealParameter('c', 0, 1),
                                       RealParameter('d', 0, 1)]
-        mocked_model.outcomes = [ScalarOutcome('x'), ScalarOutcome('y')]
+        mocked_model.outcomes = [ScalarOutcome('x', kind=1),
+                                 ScalarOutcome('y', kind=1)]
         
         searchover = 'levers'
         problem = to_problem(mocked_model, searchover)
@@ -142,7 +142,7 @@ class TestOptimization(unittest.TestCase):
             self.assertIn(entry.name, mocked_model.levers.keys())
             self.assertIn(entry, list(mocked_model.levers))
         for entry in problem.outcome_names:
-            self.assertIn(entry.name, mocked_model.outcomes.keys())
+            self.assertIn(entry, mocked_model.outcomes.keys())
  
         searchover = 'uncertainties'        
         problem = to_problem(mocked_model, searchover)
@@ -152,7 +152,7 @@ class TestOptimization(unittest.TestCase):
             self.assertIn(entry.name, mocked_model.uncertainties.keys())
             self.assertIn(entry, list(mocked_model.uncertainties))
         for entry in problem.outcome_names:
-            self.assertIn(entry.name, mocked_model.outcomes.keys())
+            self.assertIn(entry, mocked_model.outcomes.keys())
             
     def test_process_levers(self):
         pass
@@ -173,9 +173,11 @@ class TestRobustOptimization(unittest.TestCase):
         
         scenarios = 5
         robustness_functions = [ScalarOutcome('mean x', variable_name='x',
-                                              function=mock.Mock()), 
+                                              function=mock.Mock(),
+                                              kind='maximize'), 
                                 ScalarOutcome('mean y', variable_name='y', 
-                                              function=mock.Mock())]
+                                              function=mock.Mock(),
+                                              kind='maximize')]
         
         problem = to_robust_problem(mocked_model, scenarios, 
                                     robustness_functions)

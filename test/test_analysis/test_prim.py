@@ -54,7 +54,7 @@ class PrimBoxTestCase(unittest.TestCase):
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        self.assertEqual(box.peeling_trajectory.shape, (1,5))
+        self.assertEqual(box.peeling_trajectory.shape, (1,6))
     
     def test_select(self):
         x = np.array([(0,1,2),
@@ -127,7 +127,7 @@ class PrimBoxTestCase(unittest.TestCase):
         self.assertEqual(box.peeling_trajectory['mean'][1], 1)
         self.assertEqual(box.peeling_trajectory['coverage'][1], 1)
         self.assertEqual(box.peeling_trajectory['density'][1], 1)
-        self.assertEqual(box.peeling_trajectory['res dim'][1], 1)
+        self.assertEqual(box.peeling_trajectory['res_dim'][1], 1)
         self.assertEqual(box.peeling_trajectory['mass'][1], 2/3)
     
     def test_drop_restriction(self):
@@ -169,7 +169,7 @@ class PrimBoxTestCase(unittest.TestCase):
         self.assertEqual(box.peeling_trajectory['mean'][2], 1)
         self.assertEqual(box.peeling_trajectory['coverage'][2], 1)
         self.assertEqual(box.peeling_trajectory['density'][2], 1)
-        self.assertEqual(box.peeling_trajectory['res dim'][2], 1)
+        self.assertEqual(box.peeling_trajectory['res_dim'][2], 1)
         self.assertEqual(box.peeling_trajectory['mass'][2], 2/3)        
 
     
@@ -304,7 +304,7 @@ class PrimTestCase(unittest.TestCase):
                             ('c', np.float)])
         y = np.array([0,1,2])
         
-        prim_obj = prim.Prim(x,y, threshold=0.5)
+        prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
         box_init = prim_obj.box_init
         
         # some test on the box
@@ -325,7 +325,7 @@ class PrimTestCase(unittest.TestCase):
         y = np.array([0,1,2])
         
         x = np.ma.array(x)
-        prim_obj = prim.Prim(x,y, threshold=0.5)
+        prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
         box_init = prim_obj.box_init
          
         # some test on the box
@@ -344,7 +344,7 @@ class PrimTestCase(unittest.TestCase):
         x['b'] = [0,1,2,3,4,5,6,7,8,9]
         x['c'] = ['a','b','a','b','a','a','b','a','b','a', ]
         
-        prim_obj = prim.Prim(x,y, threshold=0.5)
+        prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
         box_init = prim_obj.box_init
          
         # some test on the box
@@ -369,7 +369,7 @@ class PrimTestCase(unittest.TestCase):
 #         x['b'] = np.ma.masked_invalid(x['b'])
 #         x['c'][4] = np.ma.masked
         
-        prim_obj = prim.Prim(x,y, threshold=0.5)
+        prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
         box_init = prim_obj.box_init
          
         # some test on the box
@@ -380,18 +380,13 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box_init['c'][0]==set(['a','b']))
         self.assertTrue(box_init['c'][1]==set(['a','b'])) 
 
-    def test_setup_prim_exceptions(self):
+    def test_prim_exceptions(self):
         results = utilities.load_flu_data()
-        self.assertRaises(prim.PrimException, 
-                          prim.setup_prim,
-                          results, 
-                          'deceased population region 1', 
-                          threshold=0.8)
+        x, outcomes = results
+        y = outcomes['deceased population region 1']
         
-        def faulty_classify(outcomes):
-            return outcomes['deceased population region 1'][:, 0:10]
-        self.assertRaises(prim.PrimException, prim.setup_prim, results, 
-                          faulty_classify, threshold=0.8)
+        self.assertRaises(prim.PrimException, prim.Prim,
+                          x, y, threshold=0.8, mode='regression')
 
     def test_find_box(self):
         results = utilities.load_flu_data()
@@ -400,13 +395,13 @@ class PrimTestCase(unittest.TestCase):
         prim_obj = prim.setup_prim(results, classify, 
                                    threshold=0.8)
         box_1 = prim_obj.find_box()
-        prim_obj._update_yi_remaining()
+        prim_obj._update_yi_remaining(prim_obj)
         
         after_find = box_1.yi.shape[0] + prim_obj.yi_remaining.shape[0]
         self.assertEqual(after_find, prim_obj.y.shape[0])
         
         box_2 = prim_obj.find_box()
-        prim_obj._update_yi_remaining()
+        prim_obj._update_yi_remaining(prim_obj)
         
         after_find = box_1.yi.shape[0] +\
                      box_2.yi.shape[0] +\
