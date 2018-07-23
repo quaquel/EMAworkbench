@@ -378,7 +378,8 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
         # TODO:: only retain uncertainties
         job_experiment = experiments[logical]
 
-        job_constraints = _evaluate_constraints(job_experiment, job_outcomes,
+        data = {k:v[logical][0] for k, v in outcomes.items()}
+        job_constraints = _evaluate_constraints(job_experiment, data,
                                                 constraints)
         job_outcomes = [outcomes[key][logical][0] for key in outcome_names]
 
