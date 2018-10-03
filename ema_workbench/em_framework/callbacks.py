@@ -21,6 +21,7 @@ import os
 import shutil
 
 import numpy as np
+import pandas as pd
 
 from ..util import ema_logging, ema_exceptions
 from .parameters import CategoricalParameter, IntegerParameter
@@ -95,10 +96,9 @@ class AbstractCallback(object):
 
         '''
         #
-        # TODO:: replace with optional tqdm based progress bar
-        # http://thelivingpearl.com/2012/12/31/creating-progress-bars-with-python/
-        # idea: have a bar that ships with workbench, which is used as a
-        # fallback if tqdm is not available
+        # TODO:: https://github.com/alexanderkuk/log-progress 
+        # can we detect whether we are running within Jupyter?
+        # yes: https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook 
         self.i += 1
         ema_logging.debug(str(self.i)+" cases completed")
 
@@ -108,21 +108,21 @@ class AbstractCallback(object):
     @abc.abstractmethod
     def get_results(self):
         """
-        method for retrieving the results. Called after all experiments have
-        been completed. Any extension of AbstractCallback needs to implement
-        this method.
+        method for retrieving the results. Called after all experiments 
+        have been completed. Any extension of AbstractCallback needs to
+        implement this method.
         """
 
 
 class DefaultCallback(AbstractCallback):
     """
     default callback system
-    callback can be used in perform_experiments as a means for specifying
-    the way in which the results should be handled. If no callback is
-    specified, this default implementation is used. This one can be
-    overwritten or replaced with a callback of your own design. For
-    example if you prefer to store the result in a database or write
-    them to a text file
+    callback can be used in perform_experiments as a means for 
+    specifying the way in which the results should be handled. If no 
+    callback is specified, this default implementation is used. This 
+    one can be overwritten or replaced with a callback of your own
+    design. For example if you prefer to store the result in a database
+    or write them to a text file
     """
     i = 0
     cases = None
@@ -162,7 +162,7 @@ class DefaultCallback(AbstractCallback):
         self.outcomes = [outcome.name for outcome in outcomes]
 
         # determine data types of parameters
-        self.dtypes = []
+        columns = {}
         self.parameters = []
 
         for parameter in uncs + levers:
@@ -174,36 +174,30 @@ class DefaultCallback(AbstractCallback):
                 dataType = object
             elif isinstance(parameter, IntegerParameter):
                 dataType = int
-            self.dtypes.append((str(name), dataType))
-        self.dtypes.append((str('scenario_id'), object))
-        self.dtypes.append((str('policy'), object))
-        self.dtypes.append((str('model'), object))
+            columns[str(name)] = dataType
+        columns['scenario'] = object
+        columns['policy'] = object
+        columns['model'] = object
 
-        self.cases = np.empty((nr_experiments,), dtype=self.dtypes)
-        self.cases[:] = np.NAN
+        self.cases = pd.DataFrame(index=np.arange(nr_experiments),
+                                  columns=columns)
         self.nr_experiments = nr_experiments
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
         policy = experiment.policy
+        index = experiment.experiment_id
 
-        case = []
-        for parameter in self.parameters:
-            try:
-                value = scenario[parameter]
-            except KeyError:
-                try:
-                    value = policy[parameter]
-                except KeyError:
-                    value = np.nan
-            finally:
-                case.append(value)
-
-        case.append(scenario.name)
-        case.append(policy.name)
-        case.append(experiment.model_name)
-        case = tuple(case)
-        self.cases[experiment.experiment_id] = case
+        self.cases.loc[index, 'scenario'] = scenario.name
+        self.cases.loc[index, 'policy'] = policy.name
+        self.cases.loc[index, 'model'] = experiment.model_name
+        
+        for k, v in scenario.items():
+            self.cases.loc[index, k] = v
+            
+        for k, v in policy.items():
+            self.cases.loc[index, k] = v
+        
 
     def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
