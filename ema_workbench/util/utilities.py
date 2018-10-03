@@ -69,32 +69,32 @@ def load_results(file_name):
         if not (hasattr(experiments, 'read')):
             raise EMAError(repr(experiments))
 
-        df = pd.read_csv(experiments)
-        experiments = df.to_records(index=False)
+        experiments = pd.read_csv(experiments)
+#         experiments = df.to_records(index=False)
 #         experiments = recfunctions.drop_fields(experiments, ['index'])
 
         # load experiment metadata
-        metadata = z.extractfile('experiments metadata.csv').readlines()
-
-        metadata_temp = []
-        for entry in metadata:
-            entry = entry.decode('UTF-8')
-            entry = entry.strip()
-            entry = entry.split(",")
-            entry = [str(item) for item in entry]
-            entry = tuple(entry)
-            metadata_temp.append(entry)
-        metadata = metadata_temp
-
-        metadata = np.dtype(metadata)
+#         metadata = z.extractfile('experiments metadata.csv').readlines()
+# 
+#         metadata_temp = []
+#         for entry in metadata:
+#             entry = entry.decode('UTF-8')
+#             entry = entry.strip()
+#             entry = entry.split(",")
+#             entry = [str(item) for item in entry]
+#             entry = tuple(entry)
+#             metadata_temp.append(entry)
+#         metadata = metadata_temp
+# 
+#         metadata = np.dtype(metadata)
 
         # cast experiments to dtype and name specified in metadata
-        temp_experiments = np.zeros((experiments.shape[0],), dtype=metadata)
-        for i, entry in enumerate(experiments.dtype.descr):
-            dtype = metadata[i]
-            name = metadata.descr[i][0]
-            temp_experiments[name][:] = experiments[entry[0]].astype(dtype)
-        experiments = temp_experiments
+#         temp_experiments = np.zeros((experiments.shape[0],), dtype=metadata)
+#         for i, entry in enumerate(experiments.dtype.descr):
+#             dtype = metadata[i]
+#             name = metadata.descr[i][0]
+#             temp_experiments[name][:] = experiments[entry[0]].astype(dtype)
+#         experiments = temp_experiments
 
         # load outcome metadata
         metadata = z.extractfile('outcomes metadata.csv').readlines()
@@ -181,17 +181,15 @@ def save_results(results, file_name):
         # write the x to the zipfile
         experiments_file = WriterFile()
 
-        data = pd.DataFrame.from_records(experiments)
-        data.to_csv(experiments_file, header=True, encoding='UTF-8', index=False)
+        experiments.to_csv(experiments_file, header=True,
+                           encoding='UTF-8', index=False)
 
-#         rec2csv(experiments, experiments_file, withheader=True)
         add_file(z, experiments_file.getvalue(), 'experiments.csv')
 
         # write experiment metadata
-        dtype = experiments.dtype.descr
-        dtype = ["{},{}".format(*entry) for entry in dtype]
-        dtype = "\n".join(dtype)
-        add_file(z, dtype, 'experiments metadata.csv')
+        metadatafile = WriterFile()
+        experiments.dtypes.to_csv(metadatafile)
+        add_file(z, metadatafile.getvalue(), 'experiments metadata.csv')
 
         # write outcome metadata
         outcome_names = outcomes.keys()
@@ -313,20 +311,15 @@ def merge_results(results1, results2, downsample=None):
     '''
 
     # start of merging
-    old_exp, old_res = results1
-    new_exp, new_res = results2
+    exp1, res1 = results1
+    exp2, res2 = results2
 
     # merge x
-    dtypes = old_exp.dtype
-
-    merged_exp = np.empty((old_exp.shape[0]+new_exp.shape[0],), dtype=dtypes)
-    merged_exp[0:old_exp.shape[0]] = old_exp
-    merged_exp[old_exp.shape[0]::] = new_exp
+    merged_exp = pd.concat([exp1, exp2], axis=0)
+    merged_exp.reset_index(drop=True, inplace=True)
 
     # only merge the results that are in both
-    keys = list(old_res.keys())
-    [keys.append(key) for key in new_res.keys()]
-    keys = set(keys)
+    keys = set(res1.keys()).intersection(set(res2.keys()))
     info("intersection of keys: %s" % keys)
 
     # merging results
@@ -334,22 +327,9 @@ def merge_results(results1, results2, downsample=None):
     for key in keys:
         info("merge "+key)
 
-        old_value = old_res.get(key)
-        new_value = new_res.get(key)
-
-        i = old_value.shape[0]+new_value.shape[0]
-        j = old_value.shape[1]
-        slice_value = 1
-        if downsample:
-            j = int(math.ceil(j/downsample))
-            slice_value = downsample
-
-        merged_value = np.empty((i, j))
-        debug("merged shape: {}".format(merged_value.shape))
-
-        merged_value[0:old_value.shape[0], :] = old_value[:, ::slice_value]
-        merged_value[old_value.shape[0]::, :] = new_value[:, ::slice_value]
-
+        value1 = res1.get(key)
+        value2 = res2.get(key)
+        merged_value = np.concatenate([value1, value2])
         merged_res[key] = merged_value
 
     mr = (merged_exp, merged_res)

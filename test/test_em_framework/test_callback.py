@@ -33,9 +33,9 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertEqual(callback.cases.shape[0], 100)
         self.assertEqual(callback.outcomes, [o.name for o in outcomes])
         
-        names = rf.get_names(callback.cases.dtype)
+        names = callback.cases.columns.values.tolist()
         names = set(names)
-        self.assertEqual(names, {'a', 'b', 'policy', 'model', 'scenario_id'})
+        self.assertEqual(names, {'a', 'b', 'policy', 'model', 'scenario'})
         self.assertEqual(callback.results, {})
         
         # with levers
@@ -48,9 +48,9 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertEqual(callback.cases.shape[0], 100)
         self.assertEqual(callback.outcomes, [o.name for o in outcomes])
         
-        names = rf.get_names(callback.cases.dtype)
+        names = callback.cases.columns.values.tolist()
         names = set(names)
-        self.assertEqual(names, {'a', 'b', 'c','policy', 'model', 'scenario_id'})
+        self.assertEqual(names, {'a', 'b', 'c','policy', 'model', 'scenario'})
         self.assertEqual(callback.results, {})
 
     def test_store_results(self):
@@ -136,9 +136,9 @@ class TestDefaultCallback(unittest.TestCase):
         design = case
         design['policy'] = policy.name
         design['model'] = model.name
-        design['scenario_id'] = scenario.name
+        design['scenario'] = scenario.name
         
-        names = rf.get_names(experiments.dtype)
+        names = experiments.columns.values.tolist()
         for name in names:
             entry_a = experiments[name][0]
             entry_b = design[name]
@@ -171,15 +171,12 @@ class TestDefaultCallback(unittest.TestCase):
         design['d'] = 1
         design['policy'] = policy.name
         design['model'] = model.name
-        design['scenario_id'] = scenario.name
+        design['scenario'] = scenario.name
         
-        names = rf.get_names(experiments.dtype)
-        
+        names = experiments.columns.values.tolist()
         for name in names:
             self.assertEqual(experiments[name][0], design[name])
-        
- 
+
 
 if __name__ == "__main__":
     unittest.main()
-    

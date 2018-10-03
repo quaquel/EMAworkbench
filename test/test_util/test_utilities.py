@@ -8,6 +8,7 @@ import os
 import unittest
 
 import numpy as np
+import pandas as pd
 
 from ema_workbench.util.utilities import (save_results, load_results,
                               merge_results, get_ema_project_home_dir)
@@ -30,8 +31,9 @@ class SaveResultsTestCase(unittest.TestCase):
         # test for very large
         
         nr_experiments = 10000
-        experiments = np.recarray((nr_experiments,),
-                               dtype=[('x', float), ('y', float)])
+        experiments = pd.DataFrame(index=np.arange(nr_experiments),
+                                   columns={'x':np.float, 
+                                            'y': np.float})
         outcome_a = np.random.rand(nr_experiments,1)
         
         results = (experiments, {'a': outcome_a})
@@ -44,8 +46,9 @@ class SaveResultsTestCase(unittest.TestCase):
         
         nr_experiments = 10000
         nr_timesteps = 100
-        experiments = np.recarray((nr_experiments,),
-                               dtype=[('x', float), ('y', float)])
+        experiments = pd.DataFrame(index=np.arange(nr_experiments),
+                                   columns={'x':np.float, 
+                                            'y': np.float})
         outcome_a = np.zeros((nr_experiments,nr_timesteps))
         
         results = (experiments, {'a': outcome_a})
@@ -56,8 +59,9 @@ class SaveResultsTestCase(unittest.TestCase):
         nr_experiments = 10000
         nr_timesteps = 100
         nr_replications = 10
-        experiments = np.recarray((nr_experiments,),
-                               dtype=[('x', float), ('y', float)])
+        experiments = pd.DataFrame(index=np.arange(nr_experiments),
+                                   columns={'x':np.float, 
+                                            'y': np.float})
         outcome_a = np.zeros((nr_experiments,nr_timesteps,nr_replications))
          
         results = (experiments, {'a': outcome_a})
@@ -84,9 +88,10 @@ class LoadResultsTestCase(unittest.TestCase):
     
         nr_experiments = 10000
         
-        experiments = np.recarray((nr_experiments,),
-                               dtype=[('x', np.float), ('y', np.float)])
-        
+        experiments = pd.DataFrame(index=np.arange(nr_experiments),
+                                   columns={'x':np.float, 
+                                            'y': np.float})
+            
         experiments['x'] = np.random.rand(nr_experiments)
         experiments['y'] = np.random.rand(nr_experiments)
         
@@ -106,8 +111,9 @@ class LoadResultsTestCase(unittest.TestCase):
         nr_experiments = 1000
         nr_timesteps = 100
         nr_replications = 10
-        experiments = np.recarray((nr_experiments,),
-                               dtype=[('x', np.float), ('y', np.float)])
+        experiments = pd.DataFrame(index=np.arange(nr_experiments),
+                                   columns={'x':np.float, 
+                                            'y': np.float})
         experiments['x'] = np.random.rand(nr_experiments)
         experiments['y'] = np.random.rand(nr_experiments)
         
@@ -149,3 +155,6 @@ class ConfigTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+#     testsuite = unittest.TestSuite()
+#     testsuite.addTest(LoadResultsTestCase("test_load_results"))
+#     unittest.TextTestRunner().run(testsuite)
