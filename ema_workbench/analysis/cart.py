@@ -7,10 +7,15 @@ wrapper around scikit-learn's version of CART.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
+import io
 import math
 
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 import numpy as np
-import numpy.lib.recfunctions as recfunctions
+import pandas as pd
+import seaborn as sns
 import six
 from sklearn import tree
 from sklearn.externals.six import StringIO
@@ -47,18 +52,16 @@ def setup_cart(results, classify, incl_unc=[], mass_min=0.05):
         if classify is not a string or a callable.
 
     """
+    x, outcomes = results
 
-    if not incl_unc:
-        x = np.ma.array(results[0])
-    else:
-        drop_names = set(recfunctions.get_names(
-            results[0].dtype))-set(incl_unc)
-        x = recfunctions.drop_fields(results[0], drop_names, asrecarray=True)
+    if incl_unc:
+        drop_names = set(x.columns.values.tolist()-set(incl_unc))
+        x = x.drop(drop_names, axis=1).values
     if isinstance(classify, six.string_types):
-        y = results[1][classify]
+        y = outcomes[classify]
         mode = sdutil.REGRESSION
     elif callable(classify):
-        y = classify(results[1])
+        y = classify(outcomes)
         mode = sdutil.BINARY
     else:
         raise TypeError("unknown type for classify")
@@ -111,7 +114,7 @@ class CART(sdutil.OutputFormatterMixin):
         ''' init
 
         '''
-        x = recfunctions.drop_fields(x, "scenario_id", asrecarray=True)
+        x = x.drop(["scenario"], axis=1)
 
         self.x = x
         self.y = y
@@ -121,21 +124,10 @@ class CART(sdutil.OutputFormatterMixin):
         # we need to transform the structured array to a ndarray
         # we use dummy variables for each category in case of categorical
         # variables. Integers are treated as floats
-        self.feature_names = []
-        columns = []
-        for unc, dtype in x.dtype.descr:
-            dtype = x.dtype.fields[unc][0]
-            if dtype == np.object:
-                categories = sorted(list(set(x[unc])))
-                for cat in categories:
-                    label = '{}{}{}'.format(unc, self.sep, cat)
-                    self.feature_names.append(label)
-                    columns.append(x[unc] == cat)
-            else:
-                self.feature_names.append(unc)
-                columns.append(x[unc])
-
-        self._x = np.column_stack(columns)
+        dummies = pd.get_dummies(self.x)
+        
+        self.feature_names = dummies.columns.values.tolist()
+        self._x = dummies.values
         self._boxes = None
         self._stats = None
 
@@ -184,7 +176,7 @@ class CART(sdutil.OutputFormatterMixin):
         boxes = []
         for leaf in leafs:
             branch = recurse(left, right, leaf)
-            box = np.copy(box_init)
+            box = box_init.copy()
             for node in branch:
                 direction = node[1]
                 value = node[2]
@@ -192,18 +184,18 @@ class CART(sdutil.OutputFormatterMixin):
 
                 if direction == 'l':
                     try:
-                        box[unc][1] = value
+                        box.loc[1, unc] = value
                     except ValueError:
                         unc, cat = unc.split(self.sep)
                         cats = list(box[unc][0])
                         cats = [str(cat) for cat in cats]
                         cats.pop(cats.index(str(cat)))
-                        box[unc][:] = set(cats)
+                        box.loc[:, unc] = set(cats)
                 else:
                     try:
-                        if (box.dtype.fields[unc][0]) == np.int32:
+                        if box[unc].dtype == np.int32:
                             value = math.ceil(value)
-                        box[unc][0] = value
+                        box.loc[0, unc] = value
                     except (ValueError, KeyError):
                         # we are in the right hand branch, so
                         # the category is included
@@ -290,7 +282,7 @@ class CART(sdutil.OutputFormatterMixin):
                 min_samples_leaf=min_samples)
         self.clf.fit(self._x, self.y)
 
-    def show_tree(self):
+    def show_tree(self, mplfig=True):
         '''return a png of the tree'''
         assert self.clf
         try:
@@ -302,8 +294,15 @@ class CART(sdutil.OutputFormatterMixin):
         tree.export_graphviz(self.clf, out_file=dot_data,
                              feature_names=self.feature_names)
         dot_data = dot_data.getvalue()  # .encode('ascii') # @UndefinedVariable
-        graph = pydot.graph_from_dot_data(dot_data)[0]
+        graph = pydot.graph_from_dot_data(dot_data)
         img = graph.create_png()
+        
+        if mplfig:
+            fig, ax = plt.subplots()
+            ax.imshow(mpimg.imread(io.BytesIO(img)))
+            ax.axis('off')
+            return fig
+        
         return img
 
 
