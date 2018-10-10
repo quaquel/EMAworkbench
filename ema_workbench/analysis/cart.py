@@ -289,7 +289,7 @@ class CART(sdutil.OutputFormatterMixin):
         ----------
         mplfig : bool, optional
                  if true (default) returns a matplotlib figure with the tree,
-                 otherwise, it returns a bytes
+                 otherwise, it returns a png as bytes
         
         
         '''
