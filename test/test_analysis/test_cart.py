@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 
 from ema_workbench.analysis import cart
-from .. import utilities
+from test import utilities
 
 
 def flu_classify(data):
@@ -58,8 +58,10 @@ class CartTestCase(unittest.TestCase):
         
     def test_boxes(self):
         pass
+
     def test_stats(self):
         pass
+
     def test_build_tree(self):
         pass
     
