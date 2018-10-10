@@ -283,7 +283,16 @@ class CART(sdutil.OutputFormatterMixin):
         self.clf.fit(self._x, self.y)
 
     def show_tree(self, mplfig=True):
-        '''return a png of the tree'''
+        '''return a png of the tree
+        
+        Parameters
+        ----------
+        mplfig : bool, optional
+                 if true (default) returns a matplotlib figure with the tree,
+                 otherwise, it returns a bytes
+        
+        
+        '''
         assert self.clf
         try:
             import pydotplus as pydot
