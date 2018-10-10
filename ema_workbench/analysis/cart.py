@@ -15,7 +15,7 @@ import matplotlib.image as mpimg
 
 import numpy as np
 import pandas as pd
-import seaborn as sns
+
 import six
 from sklearn import tree
 from sklearn.externals.six import StringIO
@@ -37,7 +37,7 @@ def setup_cart(results, classify, incl_unc=[], mass_min=0.05):
 
     Parameters
     ----------
-    results : tuple of structured array and dict with numpy arrays
+    results : tuple of DataFrame and dict with numpy arrays
               the return from :meth:`perform_experiments`.
     classify : string, function or callable
                either a string denoting the outcome of interest to 
@@ -78,8 +78,8 @@ class CART(sdutil.OutputFormatterMixin):
 
     Parameters
     ----------
-    x : recarray
-    y : ndarray
+    x : DataFrame
+    y : 1D ndarray
     mass_min : float, optional
                a value between 0 and 1 indicating the minimum fraction
                of data points in a terminal leaf. Defaults to 0.05, 
@@ -92,7 +92,7 @@ class CART(sdutil.OutputFormatterMixin):
     Attributes
     ----------
     boxes : list
-            list of recarray box lims
+            list of DataFrame box lims
     stats : list
             list of dicts with stats 
 
@@ -107,8 +107,8 @@ class CART(sdutil.OutputFormatterMixin):
     :mod:`prim`
 
     '''
-
-    sep = '?!?'
+    
+    sep = '!?!'
 
     def __init__(self, x, y, mass_min=0.05, mode=sdutil.BINARY):
         ''' init
@@ -124,7 +124,7 @@ class CART(sdutil.OutputFormatterMixin):
         # we need to transform the structured array to a ndarray
         # we use dummy variables for each category in case of categorical
         # variables. Integers are treated as floats
-        dummies = pd.get_dummies(self.x)
+        dummies = pd.get_dummies(self.x, prefix_sep=self.sep)
         
         self.feature_names = dummies.columns.values.tolist()
         self._x = dummies.values
