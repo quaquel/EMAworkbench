@@ -779,7 +779,7 @@ class Prim(sdutil.OutputFormatterMixin):
         assert self._assert_mode(y, mode, update_function)
         
         try:
-            x = x.drop('scenario')
+            x = x.drop(columns='scenario')
         except KeyError:
             pass #scenario column not present
 
