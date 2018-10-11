@@ -31,7 +31,8 @@ fn = r'./data/5000 runs WCM.tar.gz'
 results = load_results(fn)
 
 
-prim_obj = prim.setup_prim(results, classify, mass_min=0.05, threshold=0.75)
+prim_obj = prim.setup_prim(results, classify, mass_min=0.05,
+                           threshold=0.75)
 
 # let's find a first box
 box1 = prim_obj.find_box()
@@ -46,7 +47,7 @@ box1.write_ppt_to_stdout()
 box1.select(44)
 
 # show the resulting box
-prim_obj.show_boxes()
-prim_obj.write_boxes_to_stdout()
+prim_obj.display_boxes()
+print(prim_obj.boxes_to_dataframe())
 
 plt.show()
