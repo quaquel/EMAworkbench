@@ -5,17 +5,18 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
-
+import itertools
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.lib.recfunctions as recfunctions
 import pandas as pd
 import scipy as sp
+import seaborn as sns
+import six
+
 
 from .plotting_util import COLOR_LIST
-from ..util import ema_logging
-import itertools
+
 
 
 # Created on May 24, 2015
@@ -240,7 +241,6 @@ def _in_box(x, boxlim):
     for column, values in x.select_dtypes(np.number).iteritems():
         logical = logical & (boxlim.loc[0, column] <= values) &\
                             (values <= boxlim.loc[1, column])
-
     for column, values in x.select_dtypes(exclude=np.number).iteritems():
         #     for column, values in x.select_dtypes(pd.Categorical).iteritems():
         # Note:: if we force all nno numbered to be categorical, 
@@ -257,6 +257,40 @@ def _in_box(x, boxlim):
     return logical
 
 
+def _setup(results, classify, incl_unc=[]):
+    """helper function for setting up CART or PRIM
+
+    Parameters
+    ----------
+    results : tuple of DataFrame and dict with numpy arrays
+              the return from :meth:`perform_experiments`.
+    classify : string, function or callable
+               either a string denoting the outcome of interest to 
+               use or a function. 
+    incl_unc : list of strings
+
+    Raises
+    ------
+    TypeError 
+        if classify is not a string or a callable.
+
+    """
+    x, outcomes = results
+
+    if incl_unc:
+        drop_names = set(x.columns.values.tolist())-set(incl_unc)
+        x = x.drop(drop_names, axis=1)
+    if isinstance(classify, six.string_types):
+        y = outcomes[classify]
+        mode = REGRESSION
+    elif callable(classify):
+        y = classify(outcomes)
+        mode = BINARY
+    else:
+        raise TypeError("unknown type for classify")
+    
+    return x, y, mode
+
 def _calculate_quasip(x, y, box, Hbox, Tbox):
     '''
     
@@ -268,11 +302,9 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     Hbox : int
     Tbox : int
     
-    '''
-    
-    
-    indices = _in_box(x, box)
-    yi = y[indices]
+    '''    
+    logical = _in_box(x, box)
+    yi = y[logical]
 
     # total nr. of cases in box with one restriction removed
     Tj = yi.shape[0]
@@ -287,7 +319,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     Tbox = int(Tbox)
 
     # force one sided
-    qp = sp.stats.binom_test(Hbox, Tbox, p, alternative='greater')
+    qp = sp.stats.binom_test(Hbox, Tbox, p, alternative='greater')  # @UndefinedVariable
 
     return qp
 
@@ -336,7 +368,7 @@ class OutputFormatterMixin(object):
             for unc in uncs:
                 values = box.loc[:, unc]
                 values = values.rename({0:'min', 1:'max'})
-                df_boxes.ix[unc][index[i]] = values
+                df_boxes.loc[index[i], unc] = values
         return df_boxes
 
     def stats_to_dataframe(self):
@@ -404,7 +436,7 @@ class OutputFormatterMixin(object):
 
     @staticmethod
     def _plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
-                  color):
+                  color=sns.color_palette()[0]):
         '''
 
         Parameters:
