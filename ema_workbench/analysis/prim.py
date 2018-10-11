@@ -25,11 +25,9 @@ import matplotlib as mpl
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
-import mpldatacursor
+
 import numpy as np
-import numpy.lib.recfunctions as rf
 import pandas as pd
-import six
 
 from .plotting_util import make_legend
 from ..util import info, debug, EMAError
@@ -65,31 +63,33 @@ def get_quantile(data, quantile):
                the desired quantile
 
     '''
+    # TODO: compare against series.quantile
+    # deviates in case several items with same value
+    # return data.quantile(quantile, interpolation='midpoint')
+    
     assert quantile > 0
     assert quantile < 1
 
-    data = data.compressed()
-    data = list(data)  # TODO do we really need a list? I doubt it
-    data.sort()
-
+    data = data.sort_values().reset_index(drop=True)
+ 
     i = (len(data)-1)*quantile
     index_lower = int(math.floor(i))
     index_higher = int(math.ceil(i))
-
+ 
     value = 0
-
+ 
     if quantile > 0.5:
         # upper
-        while (data[index_lower] == data[index_higher]) & (index_lower > 0):
+        while (data.iloc[index_lower] == data.iloc[index_higher]) & (index_lower > 0):
             index_lower -= 1
-        value = (data[index_lower]+data[index_higher])/2
+        value = (data.iloc[index_lower]+data.iloc[index_higher])/2
     else:
         # lower
-        while (data[index_lower] == data[index_higher]) & \
+        while (data.iloc[index_lower] == data.iloc[index_higher]) & \
               (index_higher < len(data)-1):
             index_higher += 1
-        value = (data[index_lower]+data[index_higher])/2
-
+        value = (data.iloc[index_lower]+data.iloc[index_higher])/2
+ 
     return value
 
 
@@ -104,11 +104,11 @@ def _pair_wise_scatter(x, y, box_lim, restricted_dims):
 
     Parameters
     ----------
-    x : numpy structured array
+    x : DataFrame
         the experiments
     y : numpy array
         the outcome of interest
-    box_lim : numpy structured array
+    box_lim : DataFrame
               a boxlim
     restricted_dims : list of strings
                       list of uncertainties that define the boxlims
@@ -173,7 +173,7 @@ class CurEntry(object):
     def __init__(self, name):
         self.name = name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, _):
         return instance.peeling_trajectory[self.name][instance._cur_box]
 
     def __set__(self, instance, value):
@@ -220,7 +220,7 @@ class PrimBox(object):
         Parameters
         ----------
         prim : Prim instance
-        box_lims : recarray
+        box_lims : DataFrame
         indices : ndarray
 
 
@@ -340,8 +340,8 @@ class PrimBox(object):
             # at the top of the figure
             xj = len(uncs) - j - 1
 
-            self.prim._plot_unc(box_lim_init, xj, j, 0, norm_box_lim, box_lim,
-                                u, ax)
+            self.prim._plot_unc(box_lim_init, xj, j, 0, norm_box_lim,
+                                box_lim, u, ax)
 
             # new part
             dtype = box_lim_init[u].dtype
@@ -442,7 +442,7 @@ class PrimBox(object):
             raise PrimException("""box has been frozen because PRIM has found 
                                 at least one more recent box""")
 
-        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining],
+        indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining, :],
                                  self.box_lims[i])
         self.yi = self.prim.yi_remaining[indices]
         self._cur_box = i
@@ -462,7 +462,7 @@ class PrimBox(object):
 
         new_box_lim = copy.deepcopy(self.box_lim)
         new_box_lim[uncertainty][:] = self.box_lims[0][uncertainty][:]
-        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining],
+        indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining, :],
                                  new_box_lim)
         indices = self.prim.yi_remaining[indices]
         self.update(new_box_lim, indices)
@@ -474,7 +474,7 @@ class PrimBox(object):
 
         Parameters
         ----------
-        box_lims: numpy recarray
+        box_lims: DataFrame
                   the new box_lims
         indices: ndarray
                  the indices of y that are inside the box
@@ -502,11 +502,13 @@ class PrimBox(object):
 
         # boxlims
         qp = self._calculate_quasi_p(i)
-        res_dim = qp.keys()
-        quantitative_res_dim = [dim for dim in res_dim if box_lims.dtype[dim] 
-                                in (np.float, np.int)]
-        nominal_res_dim = list(set(res_dim) - set(quantitative_res_dim))
-        df = pd.DataFrame.from_records(box_lims)
+        
+        quantitative_res_dim = box_lims.select_dtypes(np.number).keys()
+        nominal_res_dim = box_lims.select_dtypes(exclude=np.number).keys()
+#         quantitative_res_dim = [dim for dim in res_dim if box_lims.dtype[dim] 
+#                                 in (np.float, np.int)]
+#         nominal_res_dim = list(set(res_dim) - set(quantitative_res_dim))
+        df = box_lims.copy()
         
         box = df[quantitative_res_dim]
         box.index = ['lower', 'upper']
@@ -514,8 +516,7 @@ class PrimBox(object):
         box['name'] = box.index
         box['id'] = int(i)
         
-        
-        box_init = pd.DataFrame.from_records(self.box_lims[0])
+        box_init = self.box_lims[0].copy()
         box['minimum'] = box_init[quantitative_res_dim].T.iloc[:, 0]
         box['maximum'] = box_init[quantitative_res_dim].T.iloc[:, 1]
         box = box.join(pd.DataFrame(qp, index=['qp_lower', 'qp_upper']).T)        
@@ -549,7 +550,7 @@ class PrimBox(object):
         ax.plot(self.peeling_trajectory['density'], label="density")
         par.plot(self.peeling_trajectory['res_dim'], label="restricted dims")
         ax.grid(True, which='both')
-        ax.set_ylim(ymin=0, ymax=1)
+        ax.set_ylim(bottom=0, top=1)
 
         fig = plt.gcf()
 
@@ -594,8 +595,8 @@ class PrimBox(object):
                        cmap=cmap)
         ax.set_ylabel('density')
         ax.set_xlabel('coverage')
-        ax.set_ylim(ymin=0, ymax=1.2)
-        ax.set_xlim(xmin=0, xmax=1.2)
+        ax.set_ylim(bottom=0, top=1.2)
+        ax.set_xlim(left=0, right=1.2)
 
         ticklocs = np.arange(0,
                              max(self.peeling_trajectory['res_dim'])+1,
@@ -603,22 +604,6 @@ class PrimBox(object):
         cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
         cb.set_label("nr. of restricted dimensions")
 
-        # make the tooltip tables
-        def formatter(**kwargs):
-            i = kwargs.get("ind")[0]
-            data = self.peeling_trajectory.ix[i]
-            return (("Box %d\n" +
-                     "Coverage: %2.1f%%\n" +
-                     "Density: %2.1f%%\n" +
-                     "Mass: %2.1f%%\n" +
-                     "Res Dim: %d") % (i,
-                                       100*data["coverage"],
-                                       100*data["density"],
-                                       100*data["mass"],
-                                       data["res_dim"]))
-
-        mpldatacursor.datacursor(formatter=formatter, draggable=True,
-                                 display='multiple')
 
         return fig
 
@@ -665,17 +650,17 @@ class PrimBox(object):
         # total nr. of cases of interest in box
         Hbox = self.peeling_trajectory['coverage'][i] * self.prim.t_coi
 
-        x = self.prim.x[self.prim.yi_remaining]
+        x = self.prim.x.loc[self.prim.yi_remaining, :]
         y = self.prim.y[self.prim.yi_remaining]
 
         qp_values = collections.defaultdict(list)
 
         for u in restricted_dims:
-            unlimited = self.box_lims[0][u]
-            limits = box_lim[u]
-            if box_lim.dtype[u] == object:
-                temp_box = copy.deepcopy(box_lim)
-                temp_box[u][0] = unlimited[0]
+            unlimited = self.prim.box_init.loc[:, u]
+            limits = box_lim.loc[:, u]
+            if box_lim.dtypes[u] == object:
+                temp_box = box_lim.copy()
+                temp_box.loc[:, u] = unlimited
                 qp = sdutil._calculate_quasip(x, y, temp_box,
                                               Hbox, Tbox)
                 qp_values[u].append(qp)
@@ -683,7 +668,7 @@ class PrimBox(object):
                 for direction in (0, 1):
                     if unlimited[direction] != limits[direction]:
                         temp_box = copy.deepcopy(box_lim)
-                        temp_box[u][direction] = unlimited[direction]
+                        temp_box.loc[direction, u] = unlimited[direction]
                         qp = sdutil._calculate_quasip(x, y, temp_box,
                                                       Hbox, Tbox)
                     else:
@@ -708,7 +693,7 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     Parameters
     ----------
     results : tuple
-              tuple of structured array and dict with numpy arrays
+              tuple of DataFrame and dict with numpy arrays
               the return from :meth:`perform_experiments`.
     classify : str or callable
                either a string denoting the outcome of interest to 
@@ -735,19 +720,7 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
 
     """
 
-    if not incl_unc:
-        x = np.ma.array(results[0])
-    else:
-        drop_names = set(rf.get_names(results[0].dtype))-set(incl_unc)
-        x = rf.drop_fields(results[0], drop_names, asrecarray=True)
-    if isinstance(classify, six.string_types):
-        y = results[1][classify]
-        mode = sdutil.REGRESSION
-    elif callable(classify):
-        y = classify(results[1])
-        mode = sdutil.BINARY
-    else:
-        raise TypeError("unknown type for classify")
+    x, y, mode = sdutil._setup(results, classify, incl_unc)
 
     return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
 
@@ -755,21 +728,21 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
 class Prim(sdutil.OutputFormatterMixin):
     '''Patient rule induction algorithm
 
-    The implementation of Prim is tailored to interactive use in the context
-    of scenario discovery
+    The implementation of Prim is tailored to interactive use in the
+    context of scenario discovery
 
     Parameters
     ----------
-    x : structured array
+    x : DataFrame
         the independent variables
     y : 1d ndarray
         the dependent variable
     threshold : float
                 the coverage threshold that a box has to meet
     obj_function : {LENIENT1, LENIENT2, ORIGINAL}
-                   the objective function used by PRIM. Defaults to a lenient 
-                   objective function based on the gain of mean divided by the 
-                   loss of mass. 
+                   the objective function used by PRIM. Defaults to a
+                   lenient  objective function based on the gain of
+                   mean divided by the loss of mass. 
     peel_alpha : float, optional 
                  parameter controlling the peeling stage (default = 0.05). 
     paste_alpha : float, optional
@@ -798,19 +771,17 @@ class Prim(sdutil.OutputFormatterMixin):
 
     message = "{0} points remaining, containing {1} cases of interest"
 
-    def __init__(self, x, y, threshold, obj_function=LENIENT1,peel_alpha=0.05,
-                 paste_alpha=0.05, mass_min=0.05, threshold_type=ABOVE,
-                 mode=sdutil.BINARY, update_function='default'):
+    def __init__(self, x, y, threshold, obj_function=LENIENT1, 
+                 peel_alpha=0.05, paste_alpha=0.05, mass_min=0.05,
+                 threshold_type=ABOVE, mode=sdutil.BINARY,
+                 update_function='default'):
         assert mode in {sdutil.BINARY, sdutil.REGRESSION}
         assert self._assert_mode(y, mode, update_function)
-
-        # preprocess x
-        x = rf.drop_fields(x, "scenario_id", asrecarray=True)
-        x = np.ma.array(x)
-        names = rf.get_names(x.dtype)
-        for name in names:
-            logical = pd.isnull(x[name])
-            x[name][logical] = np.ma.masked
+        
+        try:
+            x = x.drop('scenario')
+        except KeyError:
+            pass #scenario column not present
 
         self.x = x
         self.y = y
@@ -1091,14 +1062,12 @@ class Prim(sdutil.OutputFormatterMixin):
 
         mass_old = box.yi.shape[0]/self.n
 
-        x = self.x[box.yi]
+        x = self.x.loc[box.yi, :]
 
         # identify all possible peels
         possible_peels = []
-        for entry in x.dtype.descr:
-            u = entry[0]
-            dtype = x.dtype.fields.get(u)[0].name
-            peels = self._peels[dtype](self, box, u, x)
+        for u, dtype in x.dtypes.iteritems():
+            peels = self._peels[dtype.name](self, box, u, x)
             [possible_peels.append(entry) for entry in peels]
         if not possible_peels:
             # there is no peel identified, so return box
@@ -1110,7 +1079,7 @@ class Prim(sdutil.OutputFormatterMixin):
         for entry in possible_peels:
             i, box_lim = entry
             obj = self.obj_func(self, self.y[box.yi],  self.y[i])
-            non_res_dim = len(x.dtype.descr) -\
+            non_res_dim = x.shape[1] -\
                 sdutil._determine_nr_restricted_dims(box_lim,
                                                      self.box_init)
             score = (obj, non_res_dim, box_lim, i)
@@ -1153,27 +1122,23 @@ class Prim(sdutil.OutputFormatterMixin):
 
         peels = []
         for direction in ['upper', 'lower']:
+            peel_alpha = self.peel_alpha
 
-            if not np.any(np.isnan(x[u])):
-                peel_alpha = self.peel_alpha
+            i = 0
+            if direction == 'upper':
+                peel_alpha = 1-self.peel_alpha
+                i = 1
 
-                i = 0
-                if direction == 'upper':
-                    peel_alpha = 1-self.peel_alpha
-                    i = 1
-
-                box_peel = get_quantile(x[u], peel_alpha)
-                if direction == 'lower':
-                    logical = x[u] >= box_peel
-                    indices = box.yi[logical]
-                if direction == 'upper':
-                    logical = x[u] <= box_peel
-                    indices = box.yi[logical]
-                temp_box = copy.deepcopy(box.box_lims[-1])
-                temp_box[u][i] = box_peel
-                peels.append((indices, temp_box))
-            else:
-                return []
+            box_peel = get_quantile(x.loc[:, u], peel_alpha)
+            if direction == 'lower':
+                logical = x[u] >= box_peel
+                indices = box.yi[logical]
+            if direction == 'upper':
+                logical = x[u] <= box_peel
+                indices = box.yi[logical]
+            temp_box = copy.deepcopy(box.box_lims[-1])
+            temp_box.loc[i, u] = box_peel
+            peels.append((indices, temp_box))
 
         return peels
 
@@ -1208,19 +1173,19 @@ class Prim(sdutil.OutputFormatterMixin):
 
             # determine logical associated with peel value
             if direction == 'lower':
-                if box_peel == box.box_lims[-1][u][i]:
-                    logical = (x[u] > box.box_lims[-1][u][i]) &\
-                              (x[u] <= box.box_lims[-1][u][i+1])
+                if box_peel == box.box_lims[-1].loc[i, u]:
+                    logical = (x[u] > box.box_lims[-1].loc[i, u]) &\
+                              (x[u] <= box.box_lims[-1].loc[i+1, u])
                 else:
                     logical = (x[u] >= box_peel) &\
-                              (x[u] <= box.box_lims[-1][u][i+1])
+                              (x[u] <= box.box_lims[-1].loc[i+1, u])
             if direction == 'upper':
-                if box_peel == box.box_lims[-1][u][i]:
-                    logical = (x[u] < box.box_lims[-1][u][i]) &\
-                              (x[u] >= box.box_lims[-1][u][i-1])
+                if box_peel == box.box_lims[-1].loc[i, u]:
+                    logical = (x[u] < box.box_lims[-1].loc[i, u]) &\
+                              (x[u] >= box.box_lims[-1].loc[i-1, u])
                 else:
                     logical = (x[u] <= box_peel) &\
-                              (x[u] >= box.box_lims[-1][u][i-1])
+                              (x[u] >= box.box_lims[-1].loc[i-1, u])
 
             # determine value of new limit given logical
             if x[logical].shape[0] == 0:
@@ -1236,7 +1201,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
             indices = box.yi[logical]
             temp_box = copy.deepcopy(box.box_lims[-1])
-            temp_box[u][i] = new_limit
+            temp_box.loc[i, u] = new_limit
             peels.append((indices, temp_box))
 
         return peels
@@ -1260,27 +1225,27 @@ class Prim(sdutil.OutputFormatterMixin):
             a list of box lims and the associated indices
 
         '''
-        entries = box.box_lims[-1][u][0]
+        entries = box.box_lims[-1].loc[0, u]
 
         if len(entries) > 1:
             peels = []
             for entry in entries:
-                temp_box = np.copy(box.box_lims[-1])
+                temp_box = box.box_lims[-1].copy()
                 peel = copy.deepcopy(entries)
                 peel.discard(entry)
-                temp_box[u][:] = peel
+                temp_box.loc[:, u] = peel
 
                 if type(list(entries)[0]) not in (str, float,
                                                   int):
                     bools = []
-                    for element in list(x[u]):
+                    for element in x.loc[:, u]:
                         if element != entry:
                             bools.append(True)
                         else:
                             bools.append(False)
                     logical = np.asarray(bools, dtype=bool)
                 else:
-                    logical = x[u] != entry
+                    logical = x.loc[:, u] != entry
                 indices = box.yi[logical]
                 peels.append((indices,  temp_box))
             return peels
@@ -1292,7 +1257,7 @@ class Prim(sdutil.OutputFormatterMixin):
         ''' Executes the pasting phase of the PRIM. Delegates pasting to data 
         type specific helper methods.'''
 
-        x = self.x[self.yi_remaining]
+        x = self.x.loc[self.yi_remaining]
 
         mass_old = box.yi.shape[0]/self.n
 
@@ -1302,7 +1267,7 @@ class Prim(sdutil.OutputFormatterMixin):
         possible_pastes = []
         for u in res_dim:
             debug("pasting "+u)
-            dtype = self.x.dtype.fields.get(u)[0].name
+            dtype = self.x.dtypes[u].name
             pastes = self._pastes[dtype](self, box, u)
             [possible_pastes.append(entry) for entry in pastes]
         if not possible_pastes:
@@ -1315,7 +1280,7 @@ class Prim(sdutil.OutputFormatterMixin):
         for entry in possible_pastes:
             i, box_lim = entry
             obj = self.obj_func(self, self.y[box.yi],  self.y[i])
-            non_res_dim = len(x.dtype.descr) -\
+            non_res_dim = x.shape[1] -\
                 sdutil._determine_nr_restricted_dims(box_lim,
                                                      self.box_init)
             score = (obj, non_res_dim, box_lim, i)
@@ -1360,42 +1325,46 @@ class Prim(sdutil.OutputFormatterMixin):
 
         pastes = []
         for i, direction in enumerate(['lower', 'upper']):
-            box_paste = np.copy(box.box_lims[-1])
+            box_paste = box.box_lims[-1].copy()
             # box containing data candidate for pasting
-            paste_box = np.copy(box.box_lims[-1])
+            paste_box = box.box_lims[-1].copy()
 
             if direction == 'upper':
-                paste_box[u][0] = paste_box[u][1]
-                paste_box[u][1] = self.box_init[u][1]
-                indices = sdutil._in_box(self.x[self.yi_remaining], paste_box)
-                data = self.x[self.yi_remaining][indices][u]
+                paste_box.loc[0, u] = paste_box.loc[1, u]
+                paste_box.loc[1, u] = self.box_init.loc[1, u]
+                indices = sdutil._in_box(self.x.loc[self.yi_remaining],
+                                         paste_box)
+                data = self.x.loc[self.yi_remaining].loc[indices, u]
 
-                paste_value = self.box_init[u][i]
+                paste_value = self.box_init.loc[i, u]
                 if data.shape[0] > 0:
                     paste_value = get_quantile(data, self.paste_alpha)
 
-                assert paste_value >= box.box_lims[-1][u][i]
+                assert paste_value >= box.box_lims[-1].loc[i, u]
 
             elif direction == 'lower':
-                paste_box[u][0] = self.box_init[u][0]
-                paste_box[u][1] = box_paste[u][0]
+                paste_box.loc[0, u] = self.box_init.loc[0, u]
+                paste_box.loc[1, u] = box_paste.loc[0, u]
 
-                indices = sdutil._in_box(self.x[self.yi_remaining], paste_box)
-                data = self.x[self.yi_remaining][indices][u]
+                indices = sdutil._in_box(self.x.loc[self.yi_remaining],
+                                         paste_box)
+                data = self.x.loc[self.yi_remaining].loc[indices, u]
 
-                paste_value = self.box_init[u][i]
+                paste_value = self.box_init.loc[i, u]
                 if data.shape[0] > 0:
                     paste_value = get_quantile(data, 1-self.paste_alpha)
 
-                if not paste_value <= box.box_lims[-1][u][i]:
-                    print("{}, {}".format(paste_value, box.box_lims[-1][u][i]))
+                if not paste_value <= box.box_lims[-1].loc[i, u]:
+                    print("{}, {}".format(paste_value,
+                                          box.box_lims[-1].loc[i, u]))
 
-            dtype = box_paste.dtype.fields[u][0]
+            dtype = box_paste.dtypes[u]
             if dtype == np.int32:
                 paste_value = np.int(paste_value)
 
-            box_paste[u][i] = paste_value
-            indices = sdutil._in_box(self.x[self.yi_remaining], box_paste)
+            box_paste.loc[i, u] = paste_value
+            indices = sdutil._in_box(self.x.loc[self.yi_remaining],
+                                     box_paste)
             indices = self.yi_remaining[indices]
 
             pastes.append((indices, box_paste))
@@ -1423,8 +1392,8 @@ class Prim(sdutil.OutputFormatterMixin):
         '''
         box_lim = box.box_lims[-1]
 
-        c_in_b = box_lim[u][0]
-        c_t = self.box_init[u][0]
+        c_in_b = box_lim.loc[0, u]
+        c_t = self.box_init.loc[0, u]
 
         if len(c_in_b) < len(c_t):
             pastes = []
@@ -1433,10 +1402,11 @@ class Prim(sdutil.OutputFormatterMixin):
                 paste = copy.deepcopy(c_in_b)
                 paste.add(entry)
 
-                box_paste = np.copy(box_lim)
-                box_paste[u][:] = paste
+                box_paste = box_lim.copy()
+                box_paste[u] = [paste, paste]
 
-                indices = sdutil._in_box(self.x[self.yi_remaining], box_paste)
+                indices = sdutil._in_box(self.x.loc[self.yi_remaining],
+                                         box_paste)
                 indices = self.yi_remaining[indices]
                 pastes.append((indices, box_paste))
             return pastes
@@ -1549,7 +1519,7 @@ class Prim(sdutil.OutputFormatterMixin):
         Parameters
         ----------
         value : list of str
-        orig_experiment : numpy structured array
+        orig_experiment : DataFrame
         logical : boolean array
 
         '''

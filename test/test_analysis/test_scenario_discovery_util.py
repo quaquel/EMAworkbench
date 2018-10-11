@@ -26,7 +26,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
                                 columns=['a', 'b', 'c'])
         
         
-        box_lims, uncs = sdutil._get_sorted_box_lims([box_lim], box_init)
+        _, uncs = sdutil._get_sorted_box_lims([box_lim], box_init)
         
         self.assertEqual(uncs, ['c','a'])
     
@@ -96,10 +96,10 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
     
     
     def test_make_box(self):
-        x = pd.DataFrame([(0,1,2),
-                      (2,5,6),
-                      (3,2,1)], 
-                     columns=['a', 'b', 'c'])
+        x = pd.DataFrame([(0, 1, 2, 'a'),
+                          (2, 5, 6, 'b'),
+                          (3, 2, 1, 'c')], 
+                         columns=['a', 'b', 'c', 'd'])
         
         box_lims = sdutil._make_box(x)
         
@@ -112,30 +112,33 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         
         self.assertEqual(np.min(box_lims['c']), 1, 'min c fails')
         self.assertEqual(np.max(box_lims['c']), 6, 'max c fails')
-    
+
+        self.assertEqual(box_lims.loc[0, 'd'],
+                         {'a', 'b', 'c'}, 'min d fails')
+        self.assertEqual(box_lims.loc[1, 'd'], 
+                         {'a', 'b', 'c'}, 'max d fails')    
     
     def test_normalize(self):
-        x = pd.DataFrame([(0,1,2),
-                          (2,5,6),
-                          (3,2,1)], 
-                          columns=['a', 'b', 'c'])
+        x = pd.DataFrame([(0,1,2, 'a'),
+                          (2,5,6, 'b'),
+                          (3,2,1, 'c')], 
+                          columns=['a', 'b', 'c', 'd'])
             
         box_init = sdutil._make_box(x)
         
-        box_lim = pd.DataFrame([(0,1,1),
-                                (2,5,2)],
-                                columns=['a', 'b', 'c'])
+        box_lim = pd.DataFrame([(0,1,1, {'a', 'b'}),
+                                (2,5,2, {'a', 'b'})],
+                                columns=['a', 'b', 'c', 'd'])
         uncs = box_lim.columns.values.tolist()
         normalized = sdutil._normalize(box_lim, box_init, uncs)
         
-        for i, lims in enumerate([(0, 2/3),(0, 1),(0,0.2)]):
+        for i, lims in enumerate([(0, 2/3),(0, 1),(0,0.2), (0, 2/3)]):
             lower, upper = lims
             self.assertAlmostEqual(normalized[i, 0], lower, 
                                    msg='lower unequal for '+uncs[i])
             self.assertAlmostEqual(normalized[i, 1], upper, 
                                    msg='upper unequal for '+uncs[i])
-        
-    
+            
     def test_determine_restricted_dims(self):
         x = np.random.rand(5, 2)
         x = pd.DataFrame(x, columns=['a', 'b'])
