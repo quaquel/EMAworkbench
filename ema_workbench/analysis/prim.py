@@ -549,7 +549,7 @@ class PrimBox(object):
         ax.plot(self.peeling_trajectory['density'], label="density")
         par.plot(self.peeling_trajectory['res_dim'], label="restricted dims")
         ax.grid(True, which='both')
-        ax.set_ylim(ymin=0, ymax=1)
+        ax.set_ylim(bottom=0, top=1)
 
         fig = plt.gcf()
 
@@ -594,8 +594,8 @@ class PrimBox(object):
                        cmap=cmap)
         ax.set_ylabel('density')
         ax.set_xlabel('coverage')
-        ax.set_ylim(ymin=0, ymax=1.2)
-        ax.set_xlim(xmin=0, xmax=1.2)
+        ax.set_ylim(bottom=0, top=1.2)
+        ax.set_xlim(left=0, right=1.2)
 
         ticklocs = np.arange(0,
                              max(self.peeling_trajectory['res_dim'])+1,
