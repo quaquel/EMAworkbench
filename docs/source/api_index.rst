@@ -46,7 +46,6 @@ Analysis
    ../../ema_documentation/analysis/pairs_plotting.rst   
    ../../ema_documentation/analysis/b_and_w_plotting.rst
    ../../ema_documentation/analysis/plotting_util.rst
-   ../../ema_documentation/analysis/clusterer.rst
    ../../ema_documentation/analysis/parcoords.rst
    
 Util

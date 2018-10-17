@@ -516,7 +516,7 @@ def plot_lines_with_envelopes(results,
             value = outcomes[outcome_to_plot]
             ax.plot(time.T, value.T)
 
-        ax.set_xlim(left=time[0], right=time[-1])
+        ax.set_xlim(xmin=time[0], xmax=time[-1])
         ax.set_xlabel(TIME_LABEL)
         do_ylabels(ax, ylabels, outcome_to_plot)
         do_titles(ax, titles, outcome_to_plot)

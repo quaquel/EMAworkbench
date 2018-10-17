@@ -52,7 +52,19 @@ def setup_cart(results, classify, incl_unc=[], mass_min=0.05):
         if classify is not a string or a callable.
 
     """
-    x, y, mode = sdutil._setup(results, classify, incl_unc)
+    x, outcomes = results
+
+    if incl_unc:
+        drop_names = set(x.columns.values.tolist()-set(incl_unc))
+        x = x.drop(drop_names, axis=1).values
+    if isinstance(classify, six.string_types):
+        y = outcomes[classify]
+        mode = sdutil.REGRESSION
+    elif callable(classify):
+        y = classify(outcomes)
+        mode = sdutil.BINARY
+    else:
+        raise TypeError("unknown type for classify")
 
     return CART(x, y, mass_min, mode=mode)
 
@@ -209,9 +221,9 @@ class CART(sdutil.OutputFormatterMixin):
         return self._stats
 
     def _binary_stats(self, box, box_init):
-        logical = sdutil._in_box(self.x, box)
+        indices = sdutil._in_box(self.x, box)
 
-        y_in_box = self.y[logical]
+        y_in_box = self.y[indices]
         box_coi = np.sum(y_in_box)
 
         boxstats = {'coverage': box_coi/np.sum(self.y),
@@ -222,9 +234,9 @@ class CART(sdutil.OutputFormatterMixin):
         return boxstats
 
     def _regression_stats(self, box, box_init):
-        logical = sdutil._in_box(self.x, box)
+        indices = sdutil._in_box(self.x, box)
 
-        y_in_box = self.y[logical]
+        y_in_box = self.y[indices]
 
         boxstats = {'mean': np.mean(y_in_box),
                     'mass': y_in_box.shape[0]/self.y.shape[0],
@@ -233,9 +245,9 @@ class CART(sdutil.OutputFormatterMixin):
         return boxstats
 
     def _classification_stats(self, box, box_init):
-        logical = sdutil._in_box(self.x, box)
+        indices = sdutil._in_box(self.x, box)
 
-        y_in_box = self.y[logical]
+        y_in_box = self.y[indices]
         classes = set(self.y)
         classes = list(classes)
         classes.sort()

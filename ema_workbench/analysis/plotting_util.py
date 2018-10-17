@@ -306,8 +306,8 @@ def simple_density(density, value, ax_d, ax, log):
     ax_d.get_yaxis().set_view_interval(
         ax.get_yaxis().get_view_interval()[0],
         ax.get_yaxis().get_view_interval()[1])
-    ax_d.set_ylim(bottom=ax.get_yaxis().get_view_interval()[0],
-                  top=ax.get_yaxis().get_view_interval()[1])
+    ax_d.set_ylim(ymin=ax.get_yaxis().get_view_interval()[0],
+                  ymax=ax.get_yaxis().get_view_interval()[1])
 
 
 def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
