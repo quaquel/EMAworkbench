@@ -7,99 +7,106 @@ from __future__ import (absolute_import, print_function, division)
 import unittest
 
 import numpy as np
-import pandas as pd
 
 from ema_workbench.analysis import scenario_discovery_util as sdutil
 
 
 class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
     def test_get_sorted_box_lims(self):
-        x = pd.DataFrame([(0,1,2),
-                          (2,5,6),
-                          (3,2,1)], 
-                          columns=['a', 'b', 'c'])
+        x = np.array([(0,1,2),
+                      (2,5,6),
+                      (3,2,1)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float),
+                            ('c', np.float)])
         
         box_init = sdutil._make_box(x)
         
-        box_lim = pd.DataFrame([(0,1,1),
-                                (2,5,2)],
-                                columns=['a', 'b', 'c'])
+        box_lim = np.array([(0,1,1),
+                            (2,5,2)],
+                            dtype=[('a', np.float),
+                                   ('b', np.float),
+                                   ('c', np.float)])
         
         
-        _, uncs = sdutil._get_sorted_box_lims([box_lim], box_init)
+        box_lims, uncs = sdutil._get_sorted_box_lims([box_lim], box_init)
         
         self.assertEqual(uncs, ['c','a'])
     
     def test_in_box(self):
-        x = pd.DataFrame([(0,),
-                          (1,),
-                          (2,),
-                          (3,),
-                          (4,),
-                          (5,),
-                          (6,),
-                          (7,),
-                          (8,),
-                          (9,)], 
-                         columns=['a'])
-        boxlim = pd.DataFrame([(1,),
-                               (8,)], columns=['a'])
-        correct_result = np.array([[1,2,3,4,5,6,7,8]], dtype=np.int).T
-        logical = sdutil._in_box(x, boxlim)
-        result = x.loc[logical]
-        self.assertTrue(np.all(correct_result==result.values))
-
-        x = pd.DataFrame([(0,0),
-                          (1,1),
-                          (2,2),
-                          (3,3),
-                          (4,4),
-                          (5,5),
-                          (6,6),
-                          (7,7),
-                          (8,8),
-                          (9,9)], 
-                         columns=['a', 'b'])
-        boxlim = pd.DataFrame([(1,0),
-                              (8,7)], columns=['a', 'b'])
-        correct_result = np.array([[1,2,3,4,5,6,7]], dtype=np.int).T
-        logical = sdutil._in_box(x, boxlim)
-        result = x.loc[logical]
+        dtype = [('a', np.int)]
+        x = np.array([(0,),
+                      (1,),
+                      (2,),
+                      (3,),
+                      (4,),
+                      (5,),
+                      (6,),
+                      (7,),
+                      (8,),
+                      (9,)], 
+                     dtype=dtype)
+        boxlim = np.array([(1,),
+                           (8,)], dtype=dtype)
+        correct_result = np.array([1,2,3,4,5,6,7,8], dtype=np.int)
+        result = sdutil._in_box(x, boxlim)
+        
         self.assertTrue(np.all(correct_result==result))
 
-        x = pd.DataFrame([(0.1, 0, 'a'),
-                          (1.1, 1, 'a'),
-                          (2.1, 2, 'b'),
-                          (3.1, 3, 'b'),
-                          (4.1, 4, 'c'),
-                          (5.1, 5, 'c'),
-                          (6.1, 6, 'd'),
-                          (7.1, 7, 'd'),
-                          (8.1, 8, 'e'),
-                          (9.1, 9, 'e')], 
-                          columns=['a', 'b', 'c'])
-        boxlim = pd.DataFrame([(1.2, 0, set(['a','b'])),
-                               (8.0, 7, set(['a','b']) )],
-                               columns=['a', 'b', 'c'])
-        correct_result = x.loc[[2,3], :]
-        logical = sdutil._in_box(x, boxlim)
-        result = x.loc[logical]
+        dtype = [('a', np.int),
+                 ('b', np.int)]
+        x = np.array([(0,0),
+                      (1,1),
+                      (2,2),
+                      (3,3),
+                      (4,4),
+                      (5,5),
+                      (6,6),
+                      (7,7),
+                      (8,8),
+                      (9,9)], 
+                     dtype=dtype)
+        boxlim = np.array([(1,0),
+                           (8,7)], dtype=dtype)
+        correct_result = np.array([1,2,3,4,5,6,7], dtype=np.int)
+        result = sdutil._in_box(x, boxlim)
+        
+        self.assertTrue(np.all(correct_result==result))
+    
+        dtype = [('a', np.float),
+                 ('b', np.int),
+                 ('c', np.object)]
+        x = np.array([(0.1, 0, 'a'),
+                      (1.1, 1, 'a'),
+                      (2.1, 2, 'b'),
+                      (3.1, 3, 'b'),
+                      (4.1, 4, 'c'),
+                      (5.1, 5, 'c'),
+                      (6.1, 6, 'd'),
+                      (7.1, 7, 'd'),
+                      (8.1, 8, 'e'),
+                      (9.1, 9, 'e')], 
+                     dtype=dtype)
+        boxlim = np.array([(1.2,0, set(['a','b'])),
+                           (8.0,7, set(['a','b']) )], dtype=dtype)
+        correct_result = np.array([2,3], dtype=np.int)
+        result = sdutil._in_box(x, boxlim)
         self.assertTrue(np.all(correct_result==result))
         
-        boxlim = pd.DataFrame([(0.1, 0, set(['a','b','c','d','e'])),
-                               (9.1, 9, set(['a','b','c','d','e']) )], 
-                               columns=['a', 'b', 'c'])
-        correct_result = x.loc[[0,1,2,3,4,5,6,7,8,9], :]
-        logical = sdutil._in_box(x, boxlim)
-        result = x.loc[logical]
+        boxlim = np.array([(0.1, 0, set(['a','b','c','d','e'])),
+                           (9.1, 9, set(['a','b','c','d','e']) )], dtype=dtype)
+        correct_result = np.array([0,1,2,3,4,5,6,7,8,9], dtype=np.int)
+        result = sdutil._in_box(x, boxlim)
         self.assertTrue(np.all(correct_result==result))
     
     
     def test_make_box(self):
-        x = pd.DataFrame([(0, 1, 2, 'a'),
-                          (2, 5, 6, 'b'),
-                          (3, 2, 1, 'c')], 
-                         columns=['a', 'b', 'c', 'd'])
+        x = np.array([(0,1,2),
+                      (2,5,6),
+                      (3,2,1)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float),
+                            ('c', np.float)])
         
         box_lims = sdutil._make_box(x)
         
@@ -112,36 +119,38 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         
         self.assertEqual(np.min(box_lims['c']), 1, 'min c fails')
         self.assertEqual(np.max(box_lims['c']), 6, 'max c fails')
-
-        self.assertEqual(box_lims.loc[0, 'd'],
-                         {'a', 'b', 'c'}, 'min d fails')
-        self.assertEqual(box_lims.loc[1, 'd'], 
-                         {'a', 'b', 'c'}, 'max d fails')    
+    
     
     def test_normalize(self):
-        x = pd.DataFrame([(0,1,2, 'a'),
-                          (2,5,6, 'b'),
-                          (3,2,1, 'c')], 
-                          columns=['a', 'b', 'c', 'd'])
-            
+        x = np.array([(0,1,2),
+                      (2,5,6),
+                      (3,2,1)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float),
+                            ('c', np.float)])
+        
         box_init = sdutil._make_box(x)
         
-        box_lim = pd.DataFrame([(0,1,1, {'a', 'b'}),
-                                (2,5,2, {'a', 'b'})],
-                                columns=['a', 'b', 'c', 'd'])
-        uncs = box_lim.columns.values.tolist()
+        box_lim = np.array([(0,1,1),
+                            (2,5,2)],
+                            dtype=[('a', np.float),
+                                   ('b', np.float),
+                                   ('c', np.float)])
+        uncs = np.lib.recfunctions.get_names(box_init.dtype) # @UndefinedVariable
         normalized = sdutil._normalize(box_lim, box_init, uncs)
         
-        for i, lims in enumerate([(0, 2/3),(0, 1),(0,0.2), (0, 2/3)]):
+        for i, lims in enumerate([(0, 2/3),(0, 1),(0,0.2)]):
             lower, upper = lims
             self.assertAlmostEqual(normalized[i, 0], lower, 
                                    msg='lower unequal for '+uncs[i])
             self.assertAlmostEqual(normalized[i, 1], upper, 
                                    msg='upper unequal for '+uncs[i])
-            
+        
+    
     def test_determine_restricted_dims(self):
-        x = np.random.rand(5, 2)
-        x = pd.DataFrame(x, columns=['a', 'b'])
+        x = np.random.rand(10, )
+        x = np.asarray(x, dtype=[('a', np.float),
+                                 ('b', np.float)])
 
         
         # all dimensions the same
@@ -151,16 +160,18 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         self.assertEqual(list(u), [])
         
         # dimensions 1 different and dimension 2 the same
-        b = pd.DataFrame([(1,1),
-                          (0,1)], 
-                          columns=['a', 'b'])
+        b = np.array([(1,1),
+                      (0,1)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float)])
         u = sdutil._determine_restricted_dims(b, box_init)
         
         self.assertEqual(list(u), ['a', 'b'])
   
     def test_determine_nr_restricted_dims(self):
-        x = np.random.rand(5, 2)
-        x = pd.DataFrame(x, columns=['a', 'b'])
+        x = np.random.rand(10, )
+        x = np.asarray(x, dtype=[('a', np.float),
+                                 ('b', np.float)])
 
         
         # all dimensions the same
@@ -170,9 +181,10 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         self.assertEqual(n, 0)
         
         # dimensions 1 different and dimension 2 the same
-        b = pd.DataFrame([(1,1),
-                          (0,1)], 
-                          columns=['a', 'b'])
+        b = np.array([(1,1),
+                      (0,1)], 
+                     dtype=[('a', np.float),
+                            ('b', np.float)])
         n = sdutil._determine_nr_restricted_dims( b, box_init)
         self.assertEqual(n, 2)
     
