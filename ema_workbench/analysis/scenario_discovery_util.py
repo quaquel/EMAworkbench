@@ -277,8 +277,12 @@ def _in_box(x, boxlim):
 
     return indices
 
+def fields_view(arr, fields):
+    dtype2 = np.dtype({name:arr.dtype.fields[name] for name in fields})
+    return np.ndarray(arr.shape, dtype2, arr, 0, arr.strides)
 
-def _calculate_quasip(x, y, box, Hbox, Tbox):
+
+def _calculate_quasip(x, y, box, box_init, Hbox, Tbox):
     '''
     
     Parameters
@@ -290,9 +294,14 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     Tbox : int
     
     '''
+    res_dim = _determine_restricted_dims(box, box_init)
     
+    if res_dim.size==0:
+        return np.ones(x.shape[0], dtype=np.bool)
     
-    indices = _in_box(x, box)
+#     indices = _in_box(x[res_dim].copy(), box[res_dim].copy())
+    indices = _in_box(fields_view(x, res_dim), 
+                      fields_view(box, res_dim))
     yi = y[indices]
 
     # total nr. of cases in box with one restriction removed
