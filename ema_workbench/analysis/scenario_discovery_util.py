@@ -152,9 +152,10 @@ def _determine_restricted_dims(box_limits, box_init):
     list of str
     
     '''
-    
-    restricted_dims = [column for column in box_init.columns if not
-           np.all(box_init[column].values == box_limits[column].values)]
+    cols = box_init.columns.values
+    restricted_dims = cols[np.all( box_init.values==box_limits.values, axis=0)==False]
+#     restricted_dims = [column for column in box_init.columns if not
+#            np.all(box_init[column].values == box_limits[column].values)]
     return restricted_dims
 
 
@@ -178,7 +179,7 @@ def _determine_nr_restricted_dims(box_lims, box_init):
 
     '''
 
-    return len(_determine_restricted_dims(box_lims, box_init))
+    return _determine_restricted_dims(box_lims, box_init).shape[0]
 
 
 def _compare(a, b):
@@ -292,7 +293,7 @@ def _setup(results, classify, incl_unc=[]):
     
     return x, y, mode
 
-def _calculate_quasip(x, y, box, Hbox, Tbox):
+def _calculate_quasip(x, y, box, box_init, Hbox, Tbox):
     '''
     
     Parameters
@@ -303,8 +304,10 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     Hbox : int
     Tbox : int
     
-    '''    
-    logical = _in_box(x, box)
+    '''
+    restricted_dims = _determine_restricted_dims(box, box_init)
+        
+    logical = _in_box(x[restricted_dims], box[restricted_dims])
     yi = y[logical]
 
     # total nr. of cases in box with one restriction removed
