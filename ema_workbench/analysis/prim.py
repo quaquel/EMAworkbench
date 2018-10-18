@@ -673,6 +673,7 @@ class PrimBox(object):
                 temp_box = copy.deepcopy(box_lim)
                 temp_box.loc[0, u] = unlimited[0]
                 qp = sdutil._calculate_quasip(x, y, temp_box,
+                                              self.prim.box_init, 
                                               Hbox, Tbox)
                 qp_values[u].append(qp)
             else:
@@ -681,6 +682,7 @@ class PrimBox(object):
                         temp_box = box_lim.copy()
                         temp_box.loc[direction, u] = unlimited[direction]
                         qp = sdutil._calculate_quasip(x, y, temp_box,
+                                                      self.prim.box_init,
                                                       Hbox, Tbox)
                     else:
                         qp = 0.0
