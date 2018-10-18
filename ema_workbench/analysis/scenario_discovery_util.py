@@ -237,17 +237,12 @@ def _in_box(x, boxlim):
         boolean 1D array
 
     '''
-    logical = np.ones(x.shape[0], dtype=np.bool)
+    
+    a = x.select_dtypes(np.number)
+    logical = (boxlim.loc[0] <= a) & (a <= boxlim.loc[1])
+    logical = logical.all(axis=1).values
 
-    for column, values in x.select_dtypes(np.number).iteritems():
-        lower, upper = boxlim.loc[:, column]
-        logical = logical & (lower <= values) &\
-                            (values <= upper)
     for column, values in x.select_dtypes(exclude=np.number).iteritems():
-        #     for column, values in x.select_dtypes(pd.Categorical).iteritems():
-        # Note:: if we force all nno numbered to be categorical, 
-        # either in callback, or at init of CART and PRIM, 
-        # this code could be cleaner because the astype could be removed  
         entries = boxlim.loc[0, column]
         not_present = set(values.cat.categories.values) - entries
 
@@ -293,7 +288,7 @@ def _setup(results, classify, incl_unc=[]):
     
     return x, y, mode
 
-def _calculate_quasip(x, y, box, box_init, Hbox, Tbox):
+def _calculate_quasip(x, y, box, Hbox, Tbox):
     '''
     
     Parameters
@@ -305,9 +300,7 @@ def _calculate_quasip(x, y, box, box_init, Hbox, Tbox):
     Tbox : int
     
     '''
-    restricted_dims = _determine_restricted_dims(box, box_init)
-        
-    logical = _in_box(x[restricted_dims], box[restricted_dims])
+    logical = _in_box(x, box)
     yi = y[logical]
 
     # total nr. of cases in box with one restriction removed
