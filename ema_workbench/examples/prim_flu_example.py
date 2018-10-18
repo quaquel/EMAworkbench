@@ -40,14 +40,14 @@ fn = r'./data/1000 flu cases no policy.tar.gz'
 results = load_results(fn)
 
 # perform prim on modified results tuple
-prim_obj = prim.setup_prim(results, classify, threshold=0.8, threshold_type=1)
+prim_obj = prim.setup_prim(results, classify, threshold=0.8,threshold_type=1)
 
 box_1 = prim_obj.find_box()
 box_1.show_ppt()
 box_1.show_tradeoff()
 box_1.inspect(5, style='graph', boxlim_formatter="{: .2f}")
 box_1.inspect(5)
-box_1.select(5)
+# box_1.select(5)
 box_1.write_ppt_to_stdout()
 box_1.show_pairs_scatter()
 
