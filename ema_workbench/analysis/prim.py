@@ -654,6 +654,7 @@ class PrimBox(object):
         box_lim = self.box_lims[i]
         restricted_dims = list(sdutil._determine_restricted_dims(box_lim,
                                                          self.prim.box_init))
+        box_lim = box_lim[restricted_dims]
 
         # total nr. of cases in box
         Tbox = self.peeling_trajectory['mass'][i] * self.prim.n
@@ -661,7 +662,7 @@ class PrimBox(object):
         # total nr. of cases of interest in box
         Hbox = self.peeling_trajectory['coverage'][i] * self.prim.t_coi
 
-        x = self.prim.x.loc[self.prim.yi_remaining, :]
+        x = self.prim.x.loc[self.prim.yi_remaining, restricted_dims]
         y = self.prim.y[self.prim.yi_remaining]
 
         qp_values = collections.defaultdict(list)
@@ -669,20 +670,19 @@ class PrimBox(object):
         for u in restricted_dims:
             unlimited = self.box_lims[0][u]
             limits = box_lim[u]
+            
             if limits.dtype.name == 'object':
-                temp_box = copy.deepcopy(box_lim)
+                temp_box = box_lim.copy()
                 temp_box.loc[0, u] = unlimited[0]
                 qp = sdutil._calculate_quasip(x, y, temp_box,
-                                              self.prim.box_init, 
                                               Hbox, Tbox)
                 qp_values[u].append(qp)
             else:
-                for direction in (0, 1):
-                    if unlimited[direction] != limits[direction]:
+                for direction, (limit, unlimit) in enumerate(zip(limits, unlimited)):
+                    if unlimit != limit:
                         temp_box = box_lim.copy()
-                        temp_box.loc[direction, u] = unlimited[direction]
+                        temp_box.loc[direction, u] = unlimit
                         qp = sdutil._calculate_quasip(x, y, temp_box,
-                                                      self.prim.box_init,
                                                       Hbox, Tbox)
                     else:
                         qp = 0.0
