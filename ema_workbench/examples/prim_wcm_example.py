@@ -46,7 +46,7 @@ box1.write_ppt_to_stdout()
 box1.select(44)
 
 # show the resulting box
-prim_obj.show_boxes()
-prim_obj.write_boxes_to_stdout()
+prim_obj.display_boxes()
+prim_obj.boxes_to_dataframe()
 
 plt.show()
