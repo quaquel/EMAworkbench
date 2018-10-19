@@ -281,8 +281,11 @@ class PrimBox(object):
         
         # TODO:: setup qp-values for regression
         # TODO:: move to long form data
+        restricted_dims = sdutil._determine_restricted_dims(self.box_lims[i],
+                                                            self.prim.box_init)
+        
         if self.prim.mode == sdutil.BINARY:
-            qp_values = self._calculate_quasi_p(i)
+            qp_values = self._calculate_quasi_p(i, restricted_dims)
         else:
             qp_values = {}
         uncs = [(key, value) for key, value in qp_values.items()]
@@ -440,8 +443,11 @@ class PrimBox(object):
             raise PrimException("""box has been frozen because PRIM has found 
                                 at least one more recent box""")
 
-        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining],
-                                 self.box_lims[i])
+        res_dim = sdutil._determine_restricted_dims(self.box_lims[i],
+                                                    self.prim.box_init)
+
+        indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining, res_dim],
+                                 self.box_lims[i][res_dim])
         self.yi = self.prim.yi_remaining[indices]
         self._cur_box = i
 
@@ -485,12 +491,14 @@ class PrimBox(object):
         i = self.peeling_trajectory.shape[0]
         y = self.prim.y[self.yi]
         coi = self.prim.determine_coi(self.yi)
+        
+        restricted_dims = sdutil._determine_restricted_dims(self.box_lims[-1],
+                                                            self.prim.box_init)
 
         data = {'coverage': coi/self.prim.t_coi,
                 'density': coi/y.shape[0],
                 'mean': np.mean(y),
-                'res_dim': sdutil._determine_nr_restricted_dims(self.box_lims[-1],
-                                                                self.prim.box_init),
+                'res_dim': restricted_dims.shape[0],
                 'mass': y.shape[0]/self.prim.n,
                 'id': i}
         new_row = pd.DataFrame([data])
@@ -499,7 +507,7 @@ class PrimBox(object):
                                                             sort=True)
 
         # boxlims
-        qp = self._calculate_quasi_p(i)
+        qp = self._calculate_quasi_p(i, restricted_dims)
         quantitative_res_dim = np.concatenate((self.prim.x_float_colums,
                                                self.prim.x_int_columns))
         nominal_res_dim = self.prim.x_nominal_columns
@@ -635,7 +643,7 @@ class PrimBox(object):
         print(self.peeling_trajectory)
         print("\n")
 
-    def _calculate_quasi_p(self, i):
+    def _calculate_quasi_p(self, i, restricted_dims):
         '''helper function for calculating quasi-p values as discussed in 
         Bryant and Lempert (2010). This is a one sided  binomial test. 
 
@@ -652,8 +660,6 @@ class PrimBox(object):
         '''
 
         box_lim = self.box_lims[i]
-        restricted_dims = list(sdutil._determine_restricted_dims(box_lim,
-                                                         self.prim.box_init))
         box_lim = box_lim[restricted_dims]
 
         # total nr. of cases in box
@@ -667,6 +673,7 @@ class PrimBox(object):
 
         qp_values = collections.defaultdict(list)
 
+        ## TODO use apply on df?
         for u in restricted_dims:
             unlimited = self.box_lims[0][u]
             limits = box_lim[u]
@@ -1281,22 +1288,23 @@ class Prim(sdutil.OutputFormatterMixin):
         if len(entries) > 1:
             peels = []
             for entry in entries:
-                temp_box = np.copy(box.box_lims[-1])
+                temp_box = box.box_lims[-1].copy()
                 peel = copy.deepcopy(entries)
                 peel.discard(entry)
-                temp_box[u][:] = peel
+                temp_box[u] = [peel, peel]
 
                 if type(list(entries)[0]) not in (str, float,
                                                   int):
-                    bools = []
-                    for element in list(x[u]):
-                        if element != entry:
-                            bools.append(True)
-                        else:
-                            bools.append(False)
-                    logical = np.asarray(bools, dtype=bool)
+                    logical = x[:, j] != entry
+                    
+#                     for element in x[u]:
+#                         if element != entry:
+#                             bools.append(True)
+#                         else:
+#                             bools.append(False)
+#                     logical = np.asarray(bools, dtype=bool)
                 else:
-                    logical = x[u] != entry
+                    logical = x[:, j] != entry
                 indices = box.yi[logical]
                 peels.append((indices,  temp_box))
             return peels

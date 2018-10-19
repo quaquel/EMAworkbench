@@ -47,7 +47,7 @@ box_1.show_ppt()
 box_1.show_tradeoff()
 box_1.inspect(5, style='graph', boxlim_formatter="{: .2f}")
 box_1.inspect(5)
-# box_1.select(5)
+box_1.select(5)
 box_1.write_ppt_to_stdout()
 box_1.show_pairs_scatter()
 

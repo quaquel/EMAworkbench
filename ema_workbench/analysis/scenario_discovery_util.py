@@ -238,9 +238,10 @@ def _in_box(x, boxlim):
 
     '''
     
-    a = x.select_dtypes(np.number)
-    logical = (boxlim.loc[0] <= a) & (a <= boxlim.loc[1])
-    logical = logical.all(axis=1).values
+    a = x.select_dtypes(np.number).values
+    logical = (boxlim.loc[0].values[np.newaxis, :]<= a) &\
+              (a <= boxlim.loc[1].values[np.newaxis, :])
+    logical = logical.all(axis=1)
 
     for column, values in x.select_dtypes(exclude=np.number).iteritems():
         entries = boxlim.loc[0, column]
