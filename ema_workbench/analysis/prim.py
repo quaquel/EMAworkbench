@@ -508,27 +508,27 @@ class PrimBox(object):
 
         # boxlims
         qp = self._calculate_quasi_p(i, restricted_dims)
-        quantitative_res_dim = np.concatenate((self.prim.x_float_colums,
-                                               self.prim.x_int_columns))
-        nominal_res_dim = self.prim.x_nominal_columns
-        df = box_lims.copy()
+        numeric_dims = self.prim.x_numeric_columns 
+        nominal_dims = self.prim.x_nominal_columns
         
-        box = df[quantitative_res_dim]
+        df = box_lims.copy()
+         
+        box = df[numeric_dims]
         box.index = ['lower', 'upper']
         box = box.T
         box['name'] = box.index
         box['id'] = int(i)
         
         box_init = self.box_lims[0]
-        box['minimum'] = box_init[quantitative_res_dim].T.iloc[:, 0]
-        box['maximum'] = box_init[quantitative_res_dim].T.iloc[:, 1]
+        box['minimum'] = box_init[numeric_dims].T.iloc[:, 0]
+        box['maximum'] = box_init[numeric_dims].T.iloc[:, 1]
         box = box.join(pd.DataFrame(qp, index=['qp_lower', 'qp_upper']).T)        
         self.boxes_quantitative = self.boxes_quantitative.append(box, sort=False)
 
-        for dim in nominal_res_dim:
+        for dim in nominal_dims:
             # TODO:: qp values
 #             all_items = self.box_lims[0][dim][0]
-            items = df[nominal_res_dim].loc[0,:].values[0]
+            items = df[nominal_dims].loc[0,:].values[0]
             for j, item in enumerate(items):
                 entry = dict(name=dim, n_items=len(items)+1, item=item, id=int(i),
                              x=j/len(items))
@@ -806,6 +806,9 @@ class Prim(sdutil.OutputFormatterMixin):
         x_int =x.select_dtypes(np.int)
         self.x_int = x_int.values
         self.x_int_columns = x_int.columns.values
+        
+        self.x_numeric_columns = np.concatenate([self.x_float_colums,
+                                                 self.x_int_columns])
         
         x_nominal = x.select_dtypes(exclude=np.number)
         self.x_nominal = x_nominal.values
