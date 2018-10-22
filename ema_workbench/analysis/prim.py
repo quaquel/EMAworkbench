@@ -508,33 +508,33 @@ class PrimBox(object):
 
         # boxlims
         qp = self._calculate_quasi_p(i, restricted_dims)
-        numeric_dims = self.prim.x_numeric_columns 
-        nominal_dims = self.prim.x_nominal_columns
-        
-        df = box_lims.copy()
-         
-        box = df[numeric_dims]
-        box.index = ['lower', 'upper']
-        box = box.T
-        box['name'] = box.index
-        box['id'] = int(i)
-        
-        box_init = self.box_lims[0]
-        box['minimum'] = box_init[numeric_dims].T.iloc[:, 0]
-        box['maximum'] = box_init[numeric_dims].T.iloc[:, 1]
-        box = box.join(pd.DataFrame(qp, index=['qp_lower', 'qp_upper']).T)        
-        self.boxes_quantitative = self.boxes_quantitative.append(box, sort=False)
-
-        for dim in nominal_dims:
-            # TODO:: qp values
-#             all_items = self.box_lims[0][dim][0]
-            items = df[nominal_dims].loc[0,:].values[0]
-            for j, item in enumerate(items):
-                entry = dict(name=dim, n_items=len(items)+1, item=item, id=int(i),
-                             x=j/len(items))
-                self.boxes_nominal= self.boxes_nominal.append(entry,
-                                                          ignore_index=True,
-                                                          sort=False)
+#         numeric_dims = [entry for entry in self.prim.x_numeric_columns if entry in set(restricted_dims)] 
+#         nominal_dims = [entry for entry in self.prim.x_nominal_columns if entry in set(restricted_dims)]
+#         
+#         df = box_lims.copy()
+#          
+#         box = df[numeric_dims]
+#         box = box.rename({0:'lower', 1:'upper'})
+#         box = box.T
+#         box['name'] = box.index
+#         box['id'] = int(i)
+#         
+#         box_init = self.box_lims[0]
+#         box['minimum'] = box_init[numeric_dims].T.iloc[:, 0]
+#         box['maximum'] = box_init[numeric_dims].T.iloc[:, 1]
+#         box = box.join(pd.DataFrame(qp, index=['qp_lower', 'qp_upper']).T)        
+#         self.boxes_quantitative = self.boxes_quantitative.append(box, sort=False)
+# 
+#         for dim in nominal_dims:
+#             # TODO:: qp values
+# #             all_items = self.box_lims[0][dim][0]
+#             items = df[nominal_dims].loc[0,:].values[0]
+#             for j, item in enumerate(items):
+#                 entry = dict(name=dim, n_items=len(items)+1, item=item, id=int(i),
+#                              x=j/len(items))
+#                 self.boxes_nominal= self.boxes_nominal.append(entry,
+#                                                           ignore_index=True,
+#                                                           sort=False)
 
         self._cur_box = len(self.peeling_trajectory)-1
 
@@ -1002,7 +1002,7 @@ class Prim(sdutil.OutputFormatterMixin):
         debug("peeling completed")
 
         # perform pasting phase
-#         box = self._paste(box)
+        box = self._paste(box)
         debug("pasting completed")
 
         message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
@@ -1319,22 +1319,43 @@ class Prim(sdutil.OutputFormatterMixin):
         ''' Executes the pasting phase of the PRIM. Delegates pasting to data 
         type specific helper methods.'''
 
-        x = self.x[self.yi_remaining]
+        x = self.x.loc[self.yi_remaining, :]
 
         mass_old = box.yi.shape[0]/self.n
 
-        res_dim = sdutil._determine_restricted_dims(box.box_lims[-1],
+        # need to break this down by dtype
+        restricted_dims = sdutil._determine_restricted_dims(box.box_lims[-1],
                                                     self.box_init)
+        res_dim = set(restricted_dims)
 
         possible_pastes = []
-        for u in res_dim:
-            debug("pasting "+u)
-            dtype = self.x.dtype.fields.get(u)[0].name
-            pastes = self._pastes[dtype](self, box, u)
-            [possible_pastes.append(entry) for entry in pastes]
-        if not possible_pastes:
-            # there is no peel identified, so return box
-            return box
+        for columns, dtype,  in [(self.x_float_colums, 'float'),
+                                    (self.x_int_columns, 'int'),
+                                    (self.x_nominal_columns, 'object')]:
+            for u in enumerate(columns):
+                if u not in res_dim: continue
+                debug("pasting "+u)
+#                 welke X hier te gebruiken? eigenlijk kan niet 
+#                 op basis van yi_remaining toch zijn?
+#                 voor peel zou je toch gebruik moeten maken van de 
+#                 status van de box? (dus yi van primBox)
+#                 
+#                 voor paste is het nog ingewikkelder, je moet namelijk
+#                 een nieuwe logical maken voor de candidate paste dimensie
+
+                pastes = self._pastes[dtype](self, box, u, x, restricted_dims)
+                [possible_pastes.append(entry) for entry in pastes]
+            if not possible_pastes:
+                # there is no peel identified, so return box
+                return box
+
+#         possible_pastes = []
+#         for u in res_dim:
+#             debug("pasting "+u)
+#             dtype = self.x.dtype.fields.get(u)[0].name
+#             pastes = self._pastes[dtype](self, box, u)
+#             [possible_pastes.append(entry) for entry in pastes]
+
 
         # determine the scores for each peel in order
         # to identify the next candidate box
@@ -1366,18 +1387,18 @@ class Prim(sdutil.OutputFormatterMixin):
             # else return received box
             return box
 
-    def _real_paste(self, box, u):
-        '''
-
-        returns two candidate new boxes, pasted along upper and lower 
-        dimension
+    def _real_paste(self, box, u, x, restricted_dims):
+        ''' returns two candidate new boxes, pasted along upper and
+        lower dimension
 
         Parameters
         ----------
         box : a PrimBox instance
         u : str
             the uncertainty for which to peel
+        x : ndarray
 
+        
         Returns
         -------
         tuple
@@ -1387,49 +1408,49 @@ class Prim(sdutil.OutputFormatterMixin):
 
         pastes = []
         for i, direction in enumerate(['lower', 'upper']):
-            box_paste = np.copy(box.box_lims[-1])
+            box_paste = box.box_lims[-1][restricted_dims].copy()
             # box containing data candidate for pasting
-            paste_box = np.copy(box.box_lims[-1])
+            paste_box = box_paste.copy()
 
-            if direction == 'upper':
-                paste_box[u][0] = paste_box[u][1]
-                paste_box[u][1] = self.box_init[u][1]
-                indices = sdutil._in_box(self.x[self.yi_remaining], paste_box)
-                data = self.x[self.yi_remaining][indices][u]
+            minimum, maximum = self.box_init[u].values
 
-                paste_value = self.box_init[u][i]
-                if data.shape[0] > 0:
-                    paste_value = get_quantile(data, self.paste_alpha)
+            if direction == 'lower':
+                paste_box.loc[:, u] = minimum, box_paste.loc[0, u]
 
-                assert paste_value >= box.box_lims[-1][u][i]
+                indices = sdutil._in_box(x, paste_box)
+                data = x.loc[indices, u]
 
-            elif direction == 'lower':
-                paste_box[u][0] = self.box_init[u][0]
-                paste_box[u][1] = box_paste[u][0]
-
-                indices = sdutil._in_box(self.x[self.yi_remaining], paste_box)
-                data = self.x[self.yi_remaining][indices][u]
-
-                paste_value = self.box_init[u][i]
-                if data.shape[0] > 0:
+                paste_value = minimum
+                if data.size > 0:
                     paste_value = get_quantile(data, 1-self.paste_alpha)
 
                 if not paste_value <= box.box_lims[-1][u][i]:
                     print("{}, {}".format(paste_value, box.box_lims[-1][u][i]))
+            else:  #direction == 'upper':
+                paste_box.loc[0, u] = paste_box.loc[1, u], maximum
+                
+                indices = sdutil._in_box(x, paste_box)
+                data = x.loc[indices, u]
+
+                paste_value = maximum
+                if data.size > 0:
+                    paste_value = get_quantile(data, self.paste_alpha)
+
+                assert paste_value >= box.box_lims[-1].loc[i, u]
 
             dtype = box_paste.dtype.fields[u][0]
             if dtype == np.int32:
                 paste_value = np.int(paste_value)
 
-            box_paste[u][i] = paste_value
-            indices = sdutil._in_box(self.x[self.yi_remaining], box_paste)
-            indices = self.yi_remaining[indices]
+            box_paste.loc[i, u] = paste_value
+            logical = sdutil._in_box(x, box_paste)
+            indices = self.yi_remaining[logical]
 
             pastes.append((indices, box_paste))
 
         return pastes
 
-    def _categorical_paste(self, box, u):
+    def _categorical_paste(self, box, u, x, restricted_dims):
         '''
 
         Return a list of pastes, equal to the number of classes currently
@@ -1440,6 +1461,8 @@ class Prim(sdutil.OutputFormatterMixin):
         box : a PrimBox instance
         u : str
             the uncertainty for which to peel
+        x : ndarray
+
 
         Returns
         -------
