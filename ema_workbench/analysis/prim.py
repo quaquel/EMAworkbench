@@ -674,26 +674,31 @@ class PrimBox(object):
         qp_values = collections.defaultdict(list)
 
         ## TODO use apply on df?
-        for u in restricted_dims:
-            unlimited = self.box_lims[0][u]
-            limits = box_lim[u]
-            
-            if limits.dtype.name == 'object':
-                temp_box = box_lim.copy()
-                temp_box.loc[0, u] = unlimited[0]
-                qp = sdutil._calculate_quasip(x, y, temp_box,
-                                              Hbox, Tbox)
-                qp_values[u].append(qp)
-            else:
-                for direction, (limit, unlimit) in enumerate(zip(limits, unlimited)):
-                    if unlimit != limit:
-                        temp_box = box_lim.copy()
-                        temp_box.loc[direction, u] = unlimit
-                        qp = sdutil._calculate_quasip(x, y, temp_box,
-                                                      Hbox, Tbox)
-                    else:
-                        qp = 0.0
-                    qp_values[u].append(qp)
+        
+        qp_values = box_lim.apply(test, axis=0, args=[x, y, Hbox, Tbox,
+                                                      box_lim,
+                                                      self.box_lims[0]])
+        qp_values = qp_values.to_dict(orient='list')
+#         for u in restricted_dims:
+#             unlimited = self.box_lims[0][u]
+#             limits = box_lim[u]
+#              
+#             if limits.dtype.name == 'object':
+#                 temp_box = box_lim.copy()
+#                 temp_box.loc[0, u] = unlimited[0]
+#                 qp = sdutil._calculate_quasip(x, y, temp_box,
+#                                               Hbox, Tbox)
+#                 qp_values[u].append(qp)
+#             else:
+#                 for direction, (limit, unlimit) in enumerate(zip(limits, unlimited)):
+#                     if unlimit != limit:
+#                         temp_box = box_lim.copy()
+#                         temp_box.loc[direction, u] = unlimit
+#                         qp = sdutil._calculate_quasip(x, y, temp_box,
+#                                                       Hbox, Tbox)
+#                     else:
+#                         qp = 0.0
+#                     qp_values[u].append(qp)
         return qp_values
 
     def _format_stats(self, nr, stats):
@@ -739,6 +744,36 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     x, y, mode = sdutil._setup(results, classify, incl_unc)
 
     return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
+
+
+def test(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
+            if data.size==0:
+                return 
+            
+            u = data.name
+            dtype = data.dtype
+            
+            unlimited = initial_boxlim[u]
+            
+            if dtype == object:
+                temp_box = box_lim.copy()
+                temp_box.loc[u] = unlimited
+                qp = sdutil._calculate_quasip(x, y, temp_box,
+                                              Hbox, Tbox)
+                qp_values = [qp]             
+            else:
+                qp_values = []
+                for direction, (limit, unlimit) in enumerate(zip(data, unlimited)):
+                    if unlimit != limit:
+                        temp_box = box_lim.copy()
+                        temp_box.loc[direction, u] = unlimit
+                        qp = sdutil._calculate_quasip(x, y, temp_box,
+                                                      Hbox, Tbox)
+                    else:
+                        qp = 0.0
+                    qp_values.append(qp)
+            
+            return qp_values
 
 
 class Prim(sdutil.OutputFormatterMixin):
