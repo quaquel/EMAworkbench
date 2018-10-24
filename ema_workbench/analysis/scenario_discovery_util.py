@@ -15,6 +15,9 @@ import seaborn as sns
 import six
 
 
+#TODO::
+import numexpr
+
 from .plotting_util import COLOR_LIST
 
 
@@ -239,8 +242,14 @@ def _in_box(x, boxlim):
     '''
     
     a = x.select_dtypes(np.number).values
-    logical = (boxlim.loc[0].values[np.newaxis, :]<= a) &\
-              (a <= boxlim.loc[1].values[np.newaxis, :])
+#     a = x.select_dtypes(np.number)
+    b = boxlim.loc[0].values[np.newaxis, :]
+    c = boxlim.loc[1].values[np.newaxis, :]
+    
+    logical = numexpr.evaluate('(b <= a) & (a <=c)')
+    
+#     logical = (boxlim.loc[0].values[np.newaxis, :]<= a) &\
+#               (a <= boxlim.loc[1].values[np.newaxis, :])
     logical = logical.all(axis=1)
 
     for column, values in x.select_dtypes(exclude=np.number).iteritems():
@@ -249,7 +258,6 @@ def _in_box(x, boxlim):
 
         if not_present:
             # what other options do we have here....
-#             l = pd.isnull(x[column].astype('category').cat.remove_categories(list(not_present)))
             l = pd.isnull(x[column].cat.remove_categories(list(entries)))
             logical = l & logical
     return logical
