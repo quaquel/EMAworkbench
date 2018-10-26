@@ -16,7 +16,7 @@ import six
 
 
 #TODO::
-import numexpr
+# import numexpr
 
 from .plotting_util import COLOR_LIST
 
@@ -238,18 +238,23 @@ def _in_box(x, boxlim):
     -------
     ndarray
         boolean 1D array
+        
+    Raises
+    ------
+    Attribute error if not numbered columns are not pandas
+    category dtype
 
     '''
     
-    a = x.select_dtypes(np.number).values
-#     a = x.select_dtypes(np.number)
-    b = boxlim.loc[0].values[np.newaxis, :]
-    c = boxlim.loc[1].values[np.newaxis, :]
-    
-    logical = numexpr.evaluate('(b <= a) & (a <=c)')
-    
-#     logical = (boxlim.loc[0].values[np.newaxis, :]<= a) &\
-#               (a <= boxlim.loc[1].values[np.newaxis, :])
+#     a = x.select_dtypes(np.number).values
+#     b = boxlim.loc[0].values[np.newaxis, :]
+#     c = boxlim.loc[1].values[np.newaxis, :]
+#     logical = numexpr.evaluate('(b <= a) & (a <=c)')
+
+    x_numbered = x.select_dtypes(np.number)
+    boxlim_numbered = boxlim.select_dtypes(np.number)
+    logical = (boxlim_numbered.loc[0, :]<= x_numbered) &\
+              (x_numbered <= boxlim_numbered.loc[1, :])
     logical = logical.all(axis=1)
 
     for column, values in x.select_dtypes(exclude=np.number).iteritems():
