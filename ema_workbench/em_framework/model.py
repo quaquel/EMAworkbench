@@ -22,7 +22,7 @@ from collections import defaultdict
 
 from .util import (NamedObject, combine, NamedObjectMapDescriptor)
 from .parameters import Parameter, Constant, CategoricalParameter, Experiment
-from .outcomes import AbstractOutcome, Constraint
+from .outcomes import AbstractOutcome
 from ..util import debug, EMAError, ema_logging
 from ..util.ema_logging import method_logger
 
