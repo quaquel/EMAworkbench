@@ -7,7 +7,7 @@ from __future__ import (absolute_import, print_function, division)
 import unittest
 
 import numpy as np
-import numpy.lib.recfunctions as recfunctions
+import pandas as pd
 
 from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
@@ -40,14 +40,13 @@ def scarcity_classify(outcomes):
     
     return classes
 
+
 class PrimBoxTestCase(unittest.TestCase):
     def test_init(self):
-        x = np.array([(0,1,2),
-                      (2,5,6),
-                      (3,2,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                          columns=['a', 'b', 'c'])
         y = {'y':np.array([0,1,2])}
         results = (x,y)
         
@@ -57,23 +56,19 @@ class PrimBoxTestCase(unittest.TestCase):
         self.assertEqual(box.peeling_trajectory.shape, (1,6))
     
     def test_select(self):
-        x = np.array([(0,1,2),
-                      (2,5,6),
-                      (3,2,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                          columns=['a', 'b', 'c'])
         y = {'y':np.array([1,1,0])}
         results = (x,y)
         
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        new_box_lim = np.array([(0,1,1),
-                                (2,5,6)], 
-                                dtype=[('a', np.float),
-                                        ('b', np.float),
-                                        ('c', np.float)])
+        new_box_lim = pd.DataFrame([(0,1,1),
+                                    (2,5,6)], 
+                                    columns=['a', 'b', 'c'])
         indices = np.array([0,1], dtype=np.int)
         box.update(new_box_lim, indices)
         
@@ -81,46 +76,38 @@ class PrimBoxTestCase(unittest.TestCase):
         self.assertTrue(np.all(box.yi==prim_obj.yi))
     
     def test_inspect(self):
-        x = np.array([(0,1,2),
-                      (2,5,6),
-                      (3,2,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                          columns=['a', 'b', 'c'])
         y = {'y':np.array([1,1,0])}
         results = (x,y)
         
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        new_box_lim = np.array([(0,1,1),
-                                (2,5,6)], 
-                                dtype=[('a', np.float),
-                                        ('b', np.float),
-                                        ('c', np.float)])
+        new_box_lim = pd.DataFrame([(0,1,1),
+                                    (2,5,6)], 
+                                    columns=['a', 'b', 'c'])
         indices = np.array([0,1], dtype=np.int)
         box.update(new_box_lim, indices)
         
         box.inspect(1)
     
     def test_update(self):
-        x = np.array([(0,1,2),
-                      (2,5,6),
-                      (3,2,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                          columns=['a', 'b', 'c'])
         y = {'y':np.array([1,1,0])}
         results = (x,y)
         
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        new_box_lim = np.array([(0,1,1),
-                                (2,5,6)], 
-                                dtype=[('a', np.float),
-                                        ('b', np.float),
-                                        ('c', np.float)])
+        new_box_lim = pd.DataFrame([(0,1,1),
+                                    (2,5,6)], 
+                                    columns=['a', 'b', 'c'])
         indices = np.array([0,1], dtype=np.int)
         box.update(new_box_lim, indices)
         
@@ -131,35 +118,29 @@ class PrimBoxTestCase(unittest.TestCase):
         self.assertEqual(box.peeling_trajectory['mass'][1], 2/3)
     
     def test_drop_restriction(self):
-        x = np.array([(0,1,2),
-                      (2,5,6),
-                      (3,2,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                          columns=['a', 'b', 'c'])
         y = {'y':np.array([1,1,0])}
         results = (x,y)
         
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        new_box_lim = np.array([(0,1,1),
-                                (2,2,6)], 
-                                dtype=[('a', np.float),
-                                        ('b', np.float),
-                                        ('c', np.float)])
+        new_box_lim = pd.DataFrame([(0,1,1),
+                                    (2,2,6)], 
+                                    columns=['a', 'b', 'c'])
         indices = np.array([0,1], dtype=np.int)
         box.update(new_box_lim, indices)
         
         box.drop_restriction('b')
         
-        correct_box_lims = np.array([(0,1,1),
-                                     (2,5,6)], 
-                                    dtype=[('a', np.float),
-                                           ('b', np.float),
-                                           ('c', np.float)])        
+        correct_box_lims = pd.DataFrame([(0,1,1),
+                                         (2,5,6)], 
+                                         columns=['a', 'b', 'c'])        
         box_lims = box.box_lims[-1]
-        names = recfunctions.get_names(correct_box_lims.dtype)
+        names = box_lims.columns
         for entry in names:
             lim_correct = correct_box_lims[entry]
             lim_box = box_lims[entry]
@@ -210,12 +191,10 @@ class PrimTestCase(unittest.TestCase):
         prim.setup_prim(self.results, self.classify, threshold=prim.ABOVE)
     
     def test_boxes(self):
-        x = np.array([(0,1,2),
-                      (2,5,6),
-                      (3,2,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                         columns=['a', 'b', 'c'])
         y = {'y':np.array([0,1,2])}
         results = (x,y)
         
@@ -223,7 +202,6 @@ class PrimTestCase(unittest.TestCase):
         boxes = prim_obj.boxes
         
         self.assertEqual(len(boxes), 1, 'box length not correct')
-        
         
         # real data test case        
         prim_obj = prim.setup_prim(utilities.load_flu_data(), flu_classify,
@@ -239,7 +217,7 @@ class PrimTestCase(unittest.TestCase):
         
         experiments, outcomes = self.results
         
-        unc = recfunctions.get_names(experiments.dtype)
+        unc = experiments.columns.values.tolist()
         
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or higher than the threshold
@@ -268,40 +246,32 @@ class PrimTestCase(unittest.TestCase):
         prim.setup_prim(self.results, self.classify, threshold=prim.ABOVE)
 
     def test_quantile(self):
-        data = np.ma.array([x for x in range(10)])
+        data = pd.Series(np.arange(10))
         self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.1)==0.5)
         self.assertTrue(prim.get_quantile(data, 0.05)==0.5)
         
-        data = np.ma.array(data = [1])
+        data = pd.Series(1)
         self.assertTrue(prim.get_quantile(data, 0.9)==1)
         self.assertTrue(prim.get_quantile(data, 0.95)==1)
         self.assertTrue(prim.get_quantile(data, 0.1)==1)
         self.assertTrue(prim.get_quantile(data, 0.05)==1)
         
-        data = np.ma.array([1,1,2,3,4,5,6,7,8,9,9])
+        data = pd.Series([1,1,2,3,4,5,6,7,8,9,9])
         self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
         self.assertTrue(prim.get_quantile(data, 0.1)==1.5)
         self.assertTrue(prim.get_quantile(data, 0.05)==1.5)        
-        
-        data = np.ma.array([1,1,2,3,4,5,6,7,8,9,9, np.NAN], 
-                           mask=[0,0,0,0,0,0,0,0,0,0,0,1])
-        self.assertTrue(prim.get_quantile(data, 0.9)==8.5)
-        self.assertTrue(prim.get_quantile(data, 0.95)==8.5)
-        self.assertTrue(prim.get_quantile(data, 0.1)==1.5)
-        self.assertTrue(prim.get_quantile(data, 0.05)==1.5)   
+          
         
 
     def test_box_init(self):
         # test init box without NANS
-        x = np.array([(0,1,2),
-                      (2,5,6),
-                      (3,2,7)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,7)], 
+                         columns=['a', 'b', 'c'])
         y = np.array([0,1,2])
         
         prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
@@ -315,60 +285,19 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box_init['c'][0]==2)
         self.assertTrue(box_init['c'][1]==7)  
  
-        # test init box with NANS
-        x = np.array([(0,1,2),
-                      (2,5,np.NAN),
-                      (3,2,7)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float)])
-        y = np.array([0,1,2])
-        
-        x = np.ma.array(x)
-        prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
-        box_init = prim_obj.box_init
-         
-        # some test on the box
-        self.assertTrue(box_init['a'][0]==0)
-        self.assertTrue(box_init['a'][1]==3)
-        self.assertTrue(box_init['b'][0]==1)
-        self.assertTrue(box_init['b'][1]==5)
-        self.assertTrue(box_init['c'][0]==2)
-        self.assertTrue(box_init['c'][1]==7)  
-        
         # heterogenous without NAN
-        dtype = [('a', np.float),('b', np.int), ('c', np.object)]
-        x = np.empty((10, ), dtype=dtype)
-        
-        x['a'] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.7, 0.8, 0.9, 1.0]
-        x['b'] = [0,1,2,3,4,5,6,7,8,9]
-        x['c'] = ['a','b','a','b','a','a','b','a','b','a', ]
-        
-        prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
-        box_init = prim_obj.box_init
-         
-        # some test on the box
-        self.assertTrue(box_init['a'][0]==0.1)
-        self.assertTrue(box_init['a'][1]==1.0)
-        self.assertTrue(box_init['b'][0]==0)
-        self.assertTrue(box_init['b'][1]==9)
-        self.assertTrue(box_init['c'][0]==set(['a','b']))
-        self.assertTrue(box_init['c'][1]==set(['a','b'])) 
- 
-        # heterogenous with NAN
-        dtype = [('a', np.float),('b', np.int), ('c', np.object)]
-        x = np.empty((10, ), dtype=dtype)
-        
-        x[:] = np.NAN
-        x['a'] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.7, 0.8, np.NAN, 1.0]
-        x['b'] = [0,1,2,3,4,5,6,7,8,9]
-        x['c'] = ['a','b','a','b',np.NAN,'a','b','a','b','a', ]
-        
-#         x = np.ma.array(x)
-#         x['a'] = np.ma.masked_invalid(x['a'])
-#         x['b'] = np.ma.masked_invalid(x['b'])
-#         x['c'][4] = np.ma.masked
-        
+        x = pd.DataFrame([[0.1, 0, 'a'],
+                          [0.2, 1, 'b'],
+                          [0.3, 2, 'a'],
+                          [0.4, 3, 'b'],
+                          [0.5, 4, 'a'],
+                          [0.6, 5, 'a'],
+                          [0.7, 6, 'b'],
+                          [0.8, 7, 'a'],
+                          [0.9, 8, 'b'],
+                          [1.0, 9, 'a']], 
+                          columns=['a', 'b', 'c'])
+
         prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
         box_init = prim_obj.box_init
          
@@ -380,6 +309,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box_init['c'][0]==set(['a','b']))
         self.assertTrue(box_init['c'][1]==set(['a','b'])) 
 
+  
     def test_prim_exceptions(self):
         results = utilities.load_flu_data()
         x, outcomes = results
@@ -409,20 +339,20 @@ class PrimTestCase(unittest.TestCase):
         self.assertEqual(after_find, prim_obj.y.shape[0])
                 
     def test_categorical_peel(self):
-        dtype = [('a', np.float),('b', np.object)]
-        x = np.empty((10, ), dtype=dtype)
+        x = pd.DataFrame(list(zip(np.random.rand(10,),
+                                  ['a','b','a','b','a','a','b','a','b','a', ])),
+                         columns=['a', 'b'])
         
-        x['a'] = np.random.rand(10,)
-        x['b'] = ['a','b','a','b','a','a','b','a','b','a', ]
         y = np.random.randint(0,2, (10,))
         y = y.astype(np.int)
         y = {'y':y}
-        results = x,y
+        results = x, y
         classify = 'y'
         
         prim_obj  = prim.setup_prim(results, classify, threshold=0.8)
-        box_lims = np.array([(0, set(['a','b'])),
-                        (1, set(['a','b']))], dtype=dtype )
+        box_lims = pd.DataFrame([(0, set(['a','b'])),
+                                 (1, set(['a','b']))],
+                                 columns=['a', 'b'] )
         box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
         
         u = 'b'
@@ -438,11 +368,10 @@ class PrimTestCase(unittest.TestCase):
         
 
     def test_categorical_paste(self):
-        dtype = [('a', np.float),('b', np.object)]
-        x = np.empty((10, ), dtype=dtype)
+        a = np.random.rand(10,)
+        b = ['a','b','a','b','a','a','b','a','b','a', ]
+        x = pd.DataFrame(list(zip(a,b)), columns=['a', 'b'])
         
-        x['a'] = np.random.rand(10,)
-        x['b'] = ['a','b','a','b','a','a','b','a','b','a', ]
         y = np.random.randint(0,2, (10,))
         y = y.astype(np.int)
         y = {'y':y}
@@ -450,10 +379,10 @@ class PrimTestCase(unittest.TestCase):
         classify = 'y'
         
         prim_obj  = prim.setup_prim(results, classify, threshold=0.8)
-        box_lims = np.array([(0, set(['a',])),
-                        (1, set(['a',]))], dtype=dtype )
+        box_lims = pd.DataFrame([(0, set(['a',])),
+                                 (1, set(['a',]))], columns=['a', 'b'] )
         
-        yi = np.where(x['b']=='a')
+        yi = np.where(x.loc[:,'b']=='a')
         
         box = prim.PrimBox(prim_obj, box_lims, yi)
         
