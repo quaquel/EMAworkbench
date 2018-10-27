@@ -12,15 +12,8 @@ import numpy as np
 import pandas as pd
 import scipy as sp
 import seaborn as sns
-import six
-
-
-#TODO::
-# import numexpr
 
 from .plotting_util import COLOR_LIST
-
-
 
 # Created on May 24, 2015
 #
@@ -246,17 +239,13 @@ def _in_box(x, boxlim):
 
     '''
     
-#     a = x.select_dtypes(np.number).values
-#     b = boxlim.loc[0].values[np.newaxis, :]
-#     c = boxlim.loc[1].values[np.newaxis, :]
-#     logical = numexpr.evaluate('(b <= a) & (a <=c)')
-
     x_numbered = x.select_dtypes(np.number)
     boxlim_numbered = boxlim.select_dtypes(np.number)
-    logical = (boxlim_numbered.loc[0, :]<= x_numbered) &\
-              (x_numbered <= boxlim_numbered.loc[1, :])
+    logical = (boxlim_numbered.loc[0, :].values<= x_numbered.values) &\
+                (x_numbered.values <= boxlim_numbered.loc[1, :].values)
     logical = logical.all(axis=1)
 
+    # TODO:: how to speed this up
     for column, values in x.select_dtypes(exclude=np.number).iteritems():
         entries = boxlim.loc[0, column]
         not_present = set(values.cat.categories.values) - entries
@@ -280,6 +269,11 @@ def _setup(results, classify, incl_unc=[]):
                use or a function. 
     incl_unc : list of strings
 
+    Notes
+    -----
+    CART, PRIM, and feature scoring only work for a 1D numpy array
+    for the dependent variable
+
     Raises
     ------
     TypeError 
@@ -291,7 +285,7 @@ def _setup(results, classify, incl_unc=[]):
     if incl_unc:
         drop_names = set(x.columns.values.tolist())-set(incl_unc)
         x = x.drop(drop_names, axis=1)
-    if isinstance(classify, six.string_types):
+    if isinstance(classify, str):
         y = outcomes[classify]
         mode = REGRESSION
     elif callable(classify):
@@ -300,7 +294,10 @@ def _setup(results, classify, incl_unc=[]):
     else:
         raise TypeError("unknown type for classify")
     
+    assert y.ndim==1
+    
     return x, y, mode
+
 
 def _calculate_quasip(x, y, box, Hbox, Tbox):
     '''
