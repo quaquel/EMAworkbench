@@ -652,8 +652,6 @@ class PrimBox(object):
         x = self.prim.x.loc[self.prim.yi_remaining, restricted_dims]
         y = self.prim.y[self.prim.yi_remaining]
 
-        qp_values = collections.defaultdict(list)
-
         ## TODO use apply on df?
         
         qp_values = box_lim.apply(test, axis=0, args=[x, y, Hbox, Tbox,
