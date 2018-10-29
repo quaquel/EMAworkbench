@@ -80,10 +80,9 @@ class PrimBoxTestCase(unittest.TestCase):
                           (2,5,6),
                           (3,2,1)], 
                           columns=['a', 'b', 'c'])
-        y = {'y':np.array([1,1,0])}
-        results = (x,y)
+        y = np.array([1,1,0])
         
-        prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
+        prim_obj = prim.Prim(x, y, threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
         new_box_lim = pd.DataFrame([(0,1,1),
@@ -278,12 +277,12 @@ class PrimTestCase(unittest.TestCase):
         box_init = prim_obj.box_init
         
         # some test on the box
-        self.assertTrue(box_init['a'][0]==0)
-        self.assertTrue(box_init['a'][1]==3)
-        self.assertTrue(box_init['b'][0]==1)
-        self.assertTrue(box_init['b'][1]==5)
-        self.assertTrue(box_init['c'][0]==2)
-        self.assertTrue(box_init['c'][1]==7)  
+        self.assertTrue(box_init.loc[0, 'a']==0)
+        self.assertTrue(box_init.loc[1, 'a']==3)
+        self.assertTrue(box_init.loc[0, 'b']==1)
+        self.assertTrue(box_init.loc[1, 'b']==5)
+        self.assertTrue(box_init.loc[0, 'c']==2)
+        self.assertTrue(box_init.loc[1, 'c']==7)  
  
         # heterogenous without NAN
         x = pd.DataFrame([[0.1, 0, 'a'],
@@ -297,6 +296,7 @@ class PrimTestCase(unittest.TestCase):
                           [0.9, 8, 'b'],
                           [1.0, 9, 'a']], 
                           columns=['a', 'b', 'c'])
+        y = np.arange(0, x.shape[0])
 
         prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
         box_init = prim_obj.box_init
@@ -356,8 +356,9 @@ class PrimTestCase(unittest.TestCase):
         box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
         
         u = 'b'
-        x = x
-        peels = prim_obj._categorical_peel(box, u, x)
+        x = x.select_dtypes(exclude=np.number).values
+        j = 0
+        peels = prim_obj._categorical_peel(box, u, j, x)
         
         self.assertEqual(len(peels), 2)
         
@@ -371,6 +372,7 @@ class PrimTestCase(unittest.TestCase):
         a = np.random.rand(10,)
         b = ['a','b','a','b','a','a','b','a','b','a', ]
         x = pd.DataFrame(list(zip(a,b)), columns=['a', 'b'])
+        x['b'] = x['b'].astype('category')
         
         y = np.random.randint(0,2, (10,))
         y = y.astype(np.int)
@@ -380,14 +382,14 @@ class PrimTestCase(unittest.TestCase):
         
         prim_obj  = prim.setup_prim(results, classify, threshold=0.8)
         box_lims = pd.DataFrame([(0, set(['a',])),
-                                 (1, set(['a',]))], columns=['a', 'b'] )
+                                 (1, set(['a',]))], columns=x.columns)
         
         yi = np.where(x.loc[:,'b']=='a')
         
         box = prim.PrimBox(prim_obj, box_lims, yi)
         
         u = 'b'
-        pastes = prim_obj._categorical_paste(box, u)
+        pastes = prim_obj._categorical_paste(box, u, x, ['b'])
         
         self.assertEqual(len(pastes), 1)
         
