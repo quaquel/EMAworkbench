@@ -463,8 +463,8 @@ class PrimBox(object):
         '''
 
         new_box_lim = copy.deepcopy(self.box_lim)
-        new_box_lim[uncertainty][:] = self.box_lims[0][uncertainty][:]
-        indices = sdutil._in_box(self.prim.x[self.prim.yi_remaining],
+        new_box_lim.loc[:, uncertainty]= self.box_lims[0].loc[:, uncertainty]
+        indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining, :],
                                  new_box_lim)
         indices = self.prim.yi_remaining[indices]
         self.update(new_box_lim, indices)
@@ -654,9 +654,9 @@ class PrimBox(object):
 
         ## TODO use apply on df?
         
-        qp_values = box_lim.apply(test, axis=0, args=[x, y, Hbox, Tbox,
-                                                      box_lim,
-                                                      self.box_lims[0]])
+        qp_values = box_lim.apply(calculate_qp, axis=0, result_type='expand', 
+                                  args=[x, y, Hbox, Tbox, box_lim,
+                                        self.box_lims[0]])
         qp_values = qp_values.to_dict(orient='list')
 #         for u in restricted_dims:
 #             unlimited = self.box_lims[0][u]
@@ -725,34 +725,35 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
 
 
-def test(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
-            if data.size==0:
-                return 
-            
-            u = data.name
-            dtype = data.dtype
-            
-            unlimited = initial_boxlim[u]
-            
-            if dtype == object:
+def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
+    '''Helper function for calculating quasi p-values'''
+    if data.size==0:
+        return []
+    
+    u = data.name
+    dtype = data.dtype
+    
+    unlimited = initial_boxlim[u]
+    
+    if dtype == object:
+        temp_box = box_lim.copy()
+        temp_box.loc[u] = unlimited
+        qp = sdutil._calculate_quasip(x, y, temp_box,
+                                      Hbox, Tbox)
+        qp_values = [qp, qp]             
+    else:
+        qp_values = []
+        for direction, (limit, unlimit) in enumerate(zip(data, unlimited)):
+            if unlimit != limit:
                 temp_box = box_lim.copy()
-                temp_box.loc[u] = unlimited
+                temp_box.loc[direction, u] = unlimit
                 qp = sdutil._calculate_quasip(x, y, temp_box,
                                               Hbox, Tbox)
-                qp_values = [qp]             
             else:
-                qp_values = []
-                for direction, (limit, unlimit) in enumerate(zip(data, unlimited)):
-                    if unlimit != limit:
-                        temp_box = box_lim.copy()
-                        temp_box.loc[direction, u] = unlimit
-                        qp = sdutil._calculate_quasip(x, y, temp_box,
-                                                      Hbox, Tbox)
-                    else:
-                        qp = 0.0
-                    qp_values.append(qp)
-            
-            return qp_values
+                qp = 0.0
+            qp_values.append(qp)
+    
+    return qp_values
 
 
 class Prim(sdutil.OutputFormatterMixin):
@@ -1490,10 +1491,10 @@ class Prim(sdutil.OutputFormatterMixin):
 
 
         '''
-        box_lim = box.box_lims[-1]
+        box_lim = box.box_lims[-1][restricted_dims]
 
-        c_in_b = box_lim[u][0]
-        c_t = self.box_init[u][0]
+        c_in_b = box_lim.loc[0, u]
+        c_t = self.box_init.loc[0, u]
 
         if len(c_in_b) < len(c_t):
             pastes = []
@@ -1502,10 +1503,11 @@ class Prim(sdutil.OutputFormatterMixin):
                 paste = copy.deepcopy(c_in_b)
                 paste.add(entry)
 
-                box_paste = np.copy(box_lim)
-                box_paste[u][:] = paste
+                box_paste = box_lim.copy()
+                box_paste.loc[:, u] = [paste, paste]
 
-                indices = sdutil._in_box(self.x[self.yi_remaining], box_paste)
+                indices = sdutil._in_box(x, 
+                                         box_paste)
                 indices = self.yi_remaining[indices]
                 pastes.append((indices, box_paste))
             return pastes
