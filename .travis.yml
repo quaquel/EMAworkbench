@@ -24,7 +24,6 @@ install:
 - pip install pysd
 - pip install nose-exclude
 - pip install salib
-- pip install mpldatacursor
 - pip install future
 # jpype installation code to be added
 
