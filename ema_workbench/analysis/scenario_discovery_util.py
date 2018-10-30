@@ -439,14 +439,18 @@ def plot_box(boxlim, qp_values, box_init, uncs,
         # remove x tick labels
         ax.set_xticklabels([])
 
-        # add table to the left
-        ax.table(cellText=[[coverage], [density]],
-                 colWidths=[0.1]*2,
-                 rowLabels=['coverage', 'density'],
-                 colLabels=None,
-                 loc='right',
-                 bbox=[1.2, 0.9, 0.1, 0.1])
+    coverage = table_formatter.format(coverage)
+    density = table_formatter.format(density)
 
+    # add table to the left
+    ax.table(cellText=[[coverage], [density]],
+             colWidths=[0.1]*2,
+             rowLabels=['coverage', 'density'],
+             colLabels=None,
+             loc='right',
+             bbox=[1.2, 0.9, 0.1, 0.1],)
+    plt.subplots_adjust(left=0.1, right=0.75)
+    
     return fig
 
 
