@@ -332,6 +332,124 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     return qp
 
 
+def plot_box(boxlim, qp_values, box_init, uncs,
+             coverage, density,
+             ticklabel_formatter="{} ({})",
+             boxlim_formatter="{: .2g}",
+             table_formatter="{:.3g})"):
+    '''Helper function for parallel coordinate style visualization
+    of a box
+    
+    Parameters
+    ----------
+    boxlim : DataFrame
+    qp_values : dict
+    box_init : DataFrame
+    uncs : list
+    coverage : float
+    density : float
+    ticklabel_formatter : str
+    boxlim_formatter : str
+    table_formatter : str
+    
+    Returns
+    -------
+    a Figure instance 
+    
+    
+    '''
+    norm_box_lim = _normalize(boxlim, box_init, uncs)
+
+    fig, ax = _setup_figure(uncs)
+    for j, u in enumerate(uncs):
+        # we want to have the most restricted dimension
+        # at the top of the figure
+        xj = len(uncs) - j - 1
+
+        OutputFormatterMixin._plot_unc(box_init, xj, j, 0, norm_box_lim,
+                                              boxlim, u, ax)
+
+        # new part
+        dtype = box_init[u].dtype
+
+        props = {'facecolor': 'white',
+                 'edgecolor': 'white',
+                 'alpha': 0.25}
+        y = xj
+
+        if dtype == object:
+            elements = sorted(list(box_init[u][0]))
+            max_value = (len(elements)-1)
+            values = boxlim.loc[0, u]
+            x = [elements.index(entry) for entry in
+                 values]
+            x = [entry/max_value for entry in x]
+
+            for xi, label in zip(x, values):
+                ax.text(xi, y-0.2, label, ha='center', va='center',
+                        bbox=props, color='blue', fontweight='normal')
+
+        else:
+            props = {'facecolor': 'white',
+                     'edgecolor': 'white',
+                     'alpha': 0.25}
+
+            # plot limit text labels
+            x = norm_box_lim[j, 0]
+
+            if not np.allclose(x, 0):
+                label = boxlim_formatter.format(boxlim.loc[0, u])
+                ax.text(x, y-0.2, label, ha='center', va='center',
+                        bbox=props, color='blue', fontweight='normal')
+
+            x = norm_box_lim[j][1]
+            if not np.allclose(x, 1):
+                label = boxlim_formatter.format(boxlim.loc[1, u])
+                ax.text(x, y-0.2, label, ha='center', va='center',
+                        bbox=props, color='blue', fontweight='normal')
+
+            # plot uncertainty space text labels
+            x = 0
+            label = boxlim_formatter.format(box_init.loc[0, u])
+            ax.text(x-0.01, y, label, ha='right', va='center',
+                    bbox=props, color='black', fontweight='normal')
+
+            x = 1
+            label = boxlim_formatter.format(box_init.loc[1, u])
+            ax.text(x+0.01, y, label, ha='left', va='center',
+                    bbox=props, color='black', fontweight='normal')
+
+        # set y labels
+        qp_formatted = {}
+        for key, values in qp_values.items():
+            values = [vi for vi in values if vi!=-1]
+            
+            if len(values) == 1:
+                value = '{:.2g}'.format(values[0])
+            else:
+                value = '{:.2g}, {:.2g}'.format(*values)
+            qp_formatted[key] = value
+
+        labels = [ticklabel_formatter.format(u, qp_formatted[u]) for u in
+                  uncs]
+
+        labels = labels[::-1]
+        ax.set_yticklabels(labels)
+
+        # remove x tick labels
+        ax.set_xticklabels([])
+
+        # add table to the left
+        ax.table(cellText=[[coverage], [density]],
+                 colWidths=[0.1]*2,
+                 rowLabels=['coverage', 'density'],
+                 colLabels=None,
+                 loc='right',
+                 bbox=[1.2, 0.9, 0.1, 0.1])
+
+    return fig
+
+
 class OutputFormatterMixin(object):
     __metaclass__ = abc.ABCMeta
 
@@ -396,6 +514,8 @@ class OutputFormatterMixin(object):
         together : bool, otional
 
         '''
+        # TODO:: use plot_box function
+        
         box_init = _make_box(self.x)
         box_lims, uncs = _get_sorted_box_lims(self.boxes, box_init)
 
@@ -426,7 +546,6 @@ class OutputFormatterMixin(object):
         else:
             figs = []
             colors = itertools.cycle(COLOR_LIST)
-            
             
             for j, norm_box_lim in enumerate(norm_box_lims):
                 fig, ax = _setup_figure(uncs)
