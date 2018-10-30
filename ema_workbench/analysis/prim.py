@@ -563,7 +563,7 @@ class PrimBox(object):
         
         texts3 = nominal.mark_text(baseline='top', 
                                    dy=5, align='center').encode(
-            text='item'
+            text='item:N'
         )
         
         layered = alt.layer(lines, texts1, texts2, rect, nominal,
@@ -854,7 +854,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
         # preprocess x
         try:
-            x.drop(columns='scenario_id', inplace=True)
+            x.drop(columns='scenario', inplace=True)
         except KeyError:
             pass
         

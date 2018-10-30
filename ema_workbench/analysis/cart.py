@@ -1,7 +1,6 @@
 '''
-A scenario discovery oriented implementation of CART. It essentially is a 
-wrapper around scikit-learn's version of CART. 
-
+A scenario discovery oriented implementation of CART. It essentially is
+a wrapper around scikit-learn's version of CART. 
 
 '''
 from __future__ import (absolute_import, print_function, division,
@@ -114,7 +113,11 @@ class CART(sdutil.OutputFormatterMixin):
         ''' init
 
         '''
-        x = x.drop(["scenario"], axis=1)
+        
+        try:
+            x = x.drop(["scenario"], axis=1)
+        except KeyError:
+            pass
 
         self.x = x
         self.y = y
