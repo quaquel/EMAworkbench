@@ -19,7 +19,15 @@ from __future__ import (absolute_import, print_function, division,
 import copy
 import math
 from operator import itemgetter
+import warnings
 
+try:
+    import altair as alt
+except ImportError:
+    alt = None
+    warnings.warn(("altair based interactive "
+                   "inspection not available"), ImportWarning)
+    
 import matplotlib as mpl
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
@@ -329,6 +337,7 @@ class PrimBox(object):
         self.peeling_trajectory = pd.DataFrame(columns=colums)
 
         self.box_lims = []
+        self.qp = []
         
         columns = ['name', 'lower', 'upper', 'minimum', 'maximum', 'qp_lower',
                    'qp_upper', 'id']
@@ -377,15 +386,8 @@ class PrimBox(object):
         stats = self.peeling_trajectory.iloc[i].to_dict()
         stats['restricted_dim'] = stats['res_dim']
         
-        # TODO:: setup qp-values for regression
-        # TODO:: move to long form data
-        restricted_dims = sdutil._determine_restricted_dims(self.box_lims[i],
-                                                            self.prim.box_init)
-        
-        if self.prim.mode == sdutil.BINARY:
-            qp_values = self._calculate_quasi_p(i, restricted_dims)
-        else:
-            qp_values = {}
+        qp_values = self.qp[i]
+            
         uncs = [(key, value) for key, value in qp_values.items()]
         uncs.sort(key=itemgetter(1))
         uncs = [uncs[0] for uncs in uncs]
@@ -433,10 +435,140 @@ class PrimBox(object):
                                boxlim_formatter=boxlim_formatter,
                                table_formatter=table_formatter)
 
+    def inspect_tradeoff(self):
+        boxes = []
+        nominal_vars = []
+        quantitative_dims = set(self.prim.x_float_colums.tolist() +\
+                                self.prim.x_int_columns.tolist())
+        nominal_dims = set(self.prim.x_nominal_columns)
+        
+        box_zero = self.box_lims[0]
+        
+        for i, (entry, qp) in enumerate(zip(self.box_lims, self.qp)):
+            qp = pd.DataFrame(qp, index=['qp_lower', 'qp_upper'])
+            dims = qp.columns.tolist()
+            quantitative_res_dim = [e for e in dims if e in quantitative_dims]
+            nominal_res_dims = [e for e in dims if e in nominal_dims]
+            
+            # handle quantitative
+            df = entry
+            
+            box = df[quantitative_res_dim]
+            box.index = ['x1', 'x2']
+            box = box.T
+            box['name'] = box.index
+            box['id'] = int(i)
+            box['minimum'] = box_zero[quantitative_res_dim].T.iloc[:, 0]
+            box['maximum'] = box_zero[quantitative_res_dim].T.iloc[:, 1]
+            box = box.join(qp.T)
+            boxes.append(box)
+            
+            # handle nominal
+            for dim in nominal_res_dims:
+#                 TODO:: qp values
+#                 all_items = box_zero[dim][0]
+                items = df[nominal_res_dims].loc[0,:].values[0]
+                for j, item in enumerate(items):
+                    entry = dict(name=dim, n_items=len(items)+1, item=item, id=int(i),
+                                 x=j/len(items))
+                    nominal_vars.append(entry)
+            
+        boxes = pd.concat(boxes)
+        nominal_vars = pd.DataFrame(nominal_vars)
+
+        width = 400
+        height = width
+        
+        point_selector = alt.selection_single(fields=['id'])
+
+        peeling = self.peeling_trajectory.copy()
+        peeling['id'] = peeling.index
+
+        chart = alt.Chart(peeling).mark_circle(size=75).encode(
+            x='coverage:Q',
+            y='density:Q',
+            color=alt.Color('res_dim:O',
+                            scale=alt.Scale(range=sns.color_palette('YlGnBu', n_colors=8).as_hex())),
+            opacity=alt.condition(point_selector, alt.value(1),
+                                  alt.value(0.4))
+        ).properties(
+            selection=point_selector
+        ).properties(
+            width=width,
+            height=height
+        )
+        
+        
+        # conda update -c conda-forge altair to 2.1
+        # move this to encoding tooltip=[<list of items>]
+        chart.encoding.tooltip = [
+            {"type": "ordinal", "field": "id"},
+            {"type": "quantitative", "field": "coverage", "format" : ".2"},
+            {"type": "quantitative", "field": "density", "format" : ".2"},
+            {"type": "ordinal", "field": "res_dim", }
+        ]
+        
+        base = alt.Chart(boxes).encode(
+            x=alt.X('x_lower:Q', axis=alt.Axis(grid=False,
+                                               title='box limits', labels=False),
+                    scale=alt.Scale(domain=(0, 1), padding=0.1)),
+            x2='x_upper:Q',
+            y=alt.Y('name:N', scale=alt.Scale(padding=1.0))
+        ).transform_calculate(
+            x_lower='(datum.x1-datum.minimum)/(datum.maximum-datum.minimum)',
+            x_upper='(datum.x2-datum.minimum)/(datum.maximum-datum.minimum)'
+        ).transform_filter(
+            point_selector
+        ).properties(
+            width=width,
+        )
+        
+        lines = base.mark_rule()
+        
+        texts1 = base.mark_text(baseline='top', dy=5, align='left').encode(
+            text=alt.Text('text:O') 
+        ).transform_calculate(
+            text=('datum.qp_lower>0?'
+                  'format(datum.x1, ".2")+" ("+format(datum.qp_lower, ".1~g")+")" :'
+                  'format(datum.x1, ".2")')
+        )
+        
+        texts2 = base.mark_text(baseline='top', dy=5, align='right').encode(
+            text=alt.Text('text:O'),
+            x='x_upper:Q'
+        ).transform_calculate(
+            text=('datum.qp_upper>0?'
+                  'format(datum.x2, ".2")+" ("+format(datum.qp_upper, ".1")+")" :'
+                  'format(datum.x2, ".2")')
+        )
+        
+        data = pd.DataFrame([dict(start=0, end=1)])
+        rect = alt.Chart(data).mark_rect(opacity=0.05).encode(
+            x='start:Q',
+            x2='end:Q',
+        )
+        
+        nominal = alt.Chart(nominal_vars).mark_point().encode(
+            x='x:Q',
+            y='name:N', 
+        ).transform_filter(
+            point_selector
+        ).properties(
+            width=width,
+        )   
+        
+        texts3 = nominal.mark_text(baseline='top', dy=5, align='center').encode(
+            text='item'
+        )
+        
+        layered = alt.layer(lines, texts1, texts2, rect, nominal, texts3)
+        
+        return chart & layered
+    
     def select(self, i):
         '''        
-        select an entry from the peeling and pasting trajectory and update
-        the prim box to this selected box.
+        select an entry from the peeling and pasting trajectory and
+        update the prim box to this selected box.
 
         Parameters
         ----------
@@ -445,23 +577,26 @@ class PrimBox(object):
 
         '''
         if self._frozen:
-            raise PrimException("""box has been frozen because PRIM has found 
-                                at least one more recent box""")
+            raise PrimException(("box has been frozen because PRIM "
+                                 "has found at least one more recent "
+                                 "box"))
 
         res_dim = sdutil._determine_restricted_dims(self.box_lims[i],
                                                     self.prim.box_init)
 
-        indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining, res_dim],
+        indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining,
+                                                 res_dim],
                                  self.box_lims[i][res_dim])
         self.yi = self.prim.yi_remaining[indices]
         self._cur_box = i
 
     def drop_restriction(self, uncertainty):
         '''
-        drop the restriction on the specified dimension. That is, replace
-        the limits in the chosen box with a new box where for the specified 
-        uncertainty the limits of the initial box are being used. The resulting
-        box is added to the peeling trajectory.
+        drop the restriction on the specified dimension. That is,
+        replace the limits in the chosen box with a new box where for
+        the specified uncertainty the limits of the initial box are
+        being used. The resulting box is added to the peeling
+        trajectory.
 
         Parameters
         ----------
@@ -508,39 +643,11 @@ class PrimBox(object):
                 'id': i}
         new_row = pd.DataFrame([data])
         self.peeling_trajectory = self.peeling_trajectory.append(new_row,
-                                                            ignore_index=True,
-                                                            sort=True)
+                                            ignore_index=True,sort=True)
 
         # boxlims
         qp = self._calculate_quasi_p(i, restricted_dims)
-#         numeric_dims = [entry for entry in self.prim.x_numeric_columns if entry in set(restricted_dims)] 
-#         nominal_dims = [entry for entry in self.prim.x_nominal_columns if entry in set(restricted_dims)]
-#         
-#         df = box_lims.copy()
-#          
-#         box = df[numeric_dims]
-#         box = box.rename({0:'lower', 1:'upper'})
-#         box = box.T
-#         box['name'] = box.index
-#         box['id'] = int(i)
-#         
-#         box_init = self.box_lims[0]
-#         box['minimum'] = box_init[numeric_dims].T.iloc[:, 0]
-#         box['maximum'] = box_init[numeric_dims].T.iloc[:, 1]
-#         box = box.join(pd.DataFrame(qp, index=['qp_lower', 'qp_upper']).T)        
-#         self.boxes_quantitative = self.boxes_quantitative.append(box, sort=False)
-# 
-#         for dim in nominal_dims:
-#             # TODO:: qp values
-# #             all_items = self.box_lims[0][dim][0]
-#             items = df[nominal_dims].loc[0,:].values[0]
-#             for j, item in enumerate(items):
-#                 entry = dict(name=dim, n_items=len(items)+1, item=item, id=int(i),
-#                              x=j/len(items))
-#                 self.boxes_nominal= self.boxes_nominal.append(entry,
-#                                                           ignore_index=True,
-#                                                           sort=False)
-
+        self.qp.append(qp)
         self._cur_box = len(self.peeling_trajectory)-1
 
     def show_ppt(self):
@@ -562,16 +669,14 @@ class PrimBox(object):
 
         fig = plt.gcf()
 
-        make_legend(['mean', 'mass', 'coverage', 'density', 'restricted_dim'],
+        make_legend(['mean', 'mass', 'coverage', 'density',
+                     'restricted_dim'],
                     ax, ncol=5, alpha=1)
         return fig
 
     def show_tradeoff(self, cmap=mpl.cm.viridis):  # @UndefinedVariable
-        '''Visualize the trade off between coverage and density. Color is used
-        to denote the number of restricted dimensions. 
-
-        if available, mpld3 or matplotlib interactivity is used to enable
-        exploring the points on the trade off curve in more detail.
+        '''Visualize the trade off between coverage and density. Color
+        is used to denote the number of restricted dimensions. 
 
         Parameters
         ----------
@@ -580,10 +685,6 @@ class PrimBox(object):
         Returns
         -------
         a Figure instance
-
-
-        ..note:: mpld3 is no longer actively maintained and broken on python 
-        3.5 and higher. use %matplotlib notebook in Jupyter.
 
         '''
 
@@ -614,19 +715,28 @@ class PrimBox(object):
 
         return fig
 
-    def show_pairs_scatter(self):
+    def show_pairs_scatter(self, i):
         '''
 
         make a pair wise scatter plot of all the restricted dimensions
         with color denoting whether a given point is of interest or not
         and the boxlims superimposed on top.
+        
+        
+        Parameters
+        ----------
+        i : int
+        
+        Returns
+        -------
+        seaborn PairGrid
 
         '''
-        resdim = sdutil._determine_restricted_dims(self.box_lim,
+        resdim = sdutil._determine_restricted_dims(self.box_lims[i],
                                                     self.prim.box_init)
         
         return _pair_wise_scatter(self.prim.x, self.prim.y,
-                                  self.box_lim, self.prim.box_init,
+                                  self.box_lims[i], self.prim.box_init,
                                   resdim)
                   
     def write_ppt_to_stdout(self):
