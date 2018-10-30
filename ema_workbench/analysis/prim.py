@@ -467,7 +467,6 @@ class PrimBox(object):
             # handle nominal
             for dim in nominal_res_dims:
 #                 TODO:: qp values
-#                 all_items = box_zero[dim][0]
                 items = df[nominal_res_dims].loc[0,:].values[0]
                 for j, item in enumerate(items):
                     entry = dict(name=dim, n_items=len(items)+1,
@@ -1728,25 +1727,3 @@ class Prim(sdutil.OutputFormatterMixin):
 
     _update_functions = {'default': _update_yi_remaining_default,
                          'guivarch': _update_yi_remaining_guivarch}
-
-# class MultiBoxesPrim(Prim):
-#     '''Modification of PRIM's handling of multiple boxes, based on the
-#     suggestion of Guivarch et al (2016) doi:10.1016/j.envsoft.2016.03.006
-# 
-# 
-#     we need a better name for this
-# 
-#     '''
-# 
-#     def _update_yi_remaining(self):
-#         '''
-# 
-#         Update yi_remaining in light of the state of the boxes associated
-#         with this prim instance.
-# 
-#         '''
-#         # set the indices
-#         for box in self._boxes:
-#             self.y[box.yi] = 0
-# 
-#         self.yi_remaining = self.yi
