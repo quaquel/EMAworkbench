@@ -119,12 +119,13 @@ def _pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
 
     '''
     
+
     x = x[restricted_dims]
     data = x.copy()
     
     # TODO:: have option to change 
     # diag to CDF, gives you effectively the 
-    # regional sensitivity analsyis results
+    # regional sensitivity analysis results
     categorical_columns = data.select_dtypes('category').columns.values
     categorical_mappings = {}
     for column in categorical_columns:
@@ -217,8 +218,8 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
                use or a function. 
     threshold : double
                 the minimum score on the density of the last box
-                on the peeling trajectory. In case of a binary classification,
-                this should be between 0 and 1. 
+                on the peeling trajectory. In case of a binary
+                classification, this should be between 0 and 1. 
     incl_unc : list of str, optional
                list of uncertainties to include in prim analysis
     kwargs : dict
@@ -257,7 +258,8 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
         qp_values = [qp, -1]             
     else:
         qp_values = []
-        for direction, (limit, unlimit) in enumerate(zip(data, unlimited)):
+        for direction, (limit, unlimit) in enumerate(zip(data,
+                                                         unlimited)):
             if unlimit != limit:
                 temp_box = box_lim.copy()
                 temp_box.loc[direction, u] = unlimit
@@ -333,14 +335,15 @@ class PrimBox(object):
         self.prim = prim
 
         # peeling and pasting trajectory
-        colums = ['coverage', 'density', 'mean', 'res_dim', 'mass', 'id']
+        colums = ['coverage', 'density', 'mean', 'res_dim',
+                  'mass', 'id']
         self.peeling_trajectory = pd.DataFrame(columns=colums)
 
         self.box_lims = []
         self.qp = []
         
-        columns = ['name', 'lower', 'upper', 'minimum', 'maximum', 'qp_lower',
-                   'qp_upper', 'id']
+        columns = ['name', 'lower', 'upper', 'minimum', 'maximum',
+                   'qp_lower', 'qp_upper', 'id']
         self.boxes_quantitative = pd.DataFrame(columns=columns)
         
         columns = ['item', 'name', 'n_items', 'x', 'id']
@@ -353,9 +356,9 @@ class PrimBox(object):
 
     def __getattr__(self, name):
         '''
-        used here to give box_lim same behaviour as coverage, density, mean
-        res_dim, and mass. That is, it will return the box lim associated with
-        the currently selected box. 
+        used here to give box_lim same behaviour as coverage, density,
+        mean, res_dim, and mass. That is, it will return the box lim
+        associated with the currently selected box. 
         '''
 
         if name == 'box_lim':
@@ -364,10 +367,8 @@ class PrimBox(object):
             raise AttributeError
 
     def inspect(self, i=None, style='table', **kwargs):
-        '''
-
-        Write the stats and box limits of the user specified box to standard 
-        out. if i is not provided, the last box will be printed
+        '''Write the stats and box limits of the user specified box to
+        standard out. if i is not provided, the last box will be printed
 
         Parameters
         ----------
@@ -376,8 +377,8 @@ class PrimBox(object):
         style : {'table', 'graph'}
                 the style of the visualization
 
-        additional kwargs are passed to the helper function that generates
-        the table or graph
+        additional kwargs are passed to the helper function that
+        generates the table or graph
 
         '''
         if i == None:
@@ -469,7 +470,8 @@ class PrimBox(object):
 #                 all_items = box_zero[dim][0]
                 items = df[nominal_res_dims].loc[0,:].values[0]
                 for j, item in enumerate(items):
-                    entry = dict(name=dim, n_items=len(items)+1, item=item, id=int(i),
+                    entry = dict(name=dim, n_items=len(items)+1,
+                                 item=item, id=int(i),
                                  x=j/len(items))
                     nominal_vars.append(entry)
             
@@ -502,9 +504,12 @@ class PrimBox(object):
         # conda update -c conda-forge altair to 2.1
         # move this to encoding tooltip=[<list of items>]
         chart.encoding.tooltip = [
-            {"type": "ordinal", "field": "id"},
-            {"type": "quantitative", "field": "coverage", "format" : ".2"},
-            {"type": "quantitative", "field": "density", "format" : ".2"},
+            {"type": "ordinal", 
+             "field": "id"},
+            {"type": "quantitative",
+             "field": "coverage", "format" : ".2"},
+            {"type": "quantitative",
+             "field": "density", "format" : ".2"},
             {"type": "ordinal", "field": "res_dim", }
         ]
         
@@ -557,11 +562,13 @@ class PrimBox(object):
             width=width,
         )   
         
-        texts3 = nominal.mark_text(baseline='top', dy=5, align='center').encode(
+        texts3 = nominal.mark_text(baseline='top', 
+                                   dy=5, align='center').encode(
             text='item'
         )
         
-        layered = alt.layer(lines, texts1, texts2, rect, nominal, texts3)
+        layered = alt.layer(lines, texts1, texts2, rect, nominal,
+                            texts3)
         
         return chart & layered
     
@@ -710,28 +717,28 @@ class PrimBox(object):
         ticklocs = np.arange(0,
                              max(self.peeling_trajectory['res_dim'])+1,
                              step=1)
-        cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs, drawedges=True)
+        cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs,
+                          drawedges=True)
         cb.set_label("nr. of restricted dimensions")
 
         return fig
 
-    def show_pairs_scatter(self, i):
-        '''
-
-        make a pair wise scatter plot of all the restricted dimensions
-        with color denoting whether a given point is of interest or not
-        and the boxlims superimposed on top.
-        
+    def show_pairs_scatter(self, i=None):
+        ''' Make a pair wise scatter plot of all the restricted
+        dimensions with color denoting whether a given point is of
+        interest or not and the boxlims superimposed on top.
         
         Parameters
         ----------
-        i : int
+        i : int, optional
         
         Returns
         -------
         seaborn PairGrid
 
         '''
+        if i == None:
+            i = self._cur_box
         resdim = sdutil._determine_restricted_dims(self.box_lims[i],
                                                     self.prim.box_init)
         
@@ -745,14 +752,15 @@ class PrimBox(object):
         print("\n")
 
     def _calculate_quasi_p(self, i, restricted_dims):
-        '''helper function for calculating quasi-p values as discussed in 
-        Bryant and Lempert (2010). This is a one sided  binomial test. 
+        '''helper function for calculating quasi-p values as discussed
+        in Bryant and Lempert (2010). This is a one sided  binomial
+        test. 
 
         Parameters
         ----------
         i : int
-            the specific box in the peeling trajectory for which the quasi-p 
-            values are to be calculated.
+            the specific box in the peeling trajectory for which the
+            quasi-p values are to be calculated.
 
         Returns
         -------
@@ -778,32 +786,12 @@ class PrimBox(object):
                                   args=[x, y, Hbox, Tbox, box_lim,
                                         self.box_lims[0]])
         qp_values = qp_values.to_dict(orient='list')
-#         for u in restricted_dims:
-#             unlimited = self.box_lims[0][u]
-#             limits = box_lim[u]
-#              
-#             if limits.dtype.name == 'object':
-#                 temp_box = box_lim.copy()
-#                 temp_box.loc[0, u] = unlimited[0]
-#                 qp = sdutil._calculate_quasip(x, y, temp_box,
-#                                               Hbox, Tbox)
-#                 qp_values[u].append(qp)
-#             else:
-#                 for direction, (limit, unlimit) in enumerate(zip(limits, unlimited)):
-#                     if unlimit != limit:
-#                         temp_box = box_lim.copy()
-#                         temp_box.loc[direction, u] = unlimit
-#                         qp = sdutil._calculate_quasip(x, y, temp_box,
-#                                                       Hbox, Tbox)
-#                     else:
-#                         qp = 0.0
-#                     qp_values[u].append(qp)
         return qp_values
 
-    def _format_stats(self, nr, stats):
-        '''helper function for formating box stats'''
-        row = self.stats_format.format(nr, **stats)
-        return row
+#     def _format_stats(self, nr, stats):
+#         '''helper function for formating box stats'''
+#         row = self.stats_format.format(nr, **stats)
+#         return row
 
 
 class PrimException(Exception):
@@ -814,8 +802,8 @@ class PrimException(Exception):
 class Prim(sdutil.OutputFormatterMixin):
     '''Patient rule induction algorithm
 
-    The implementation of Prim is tailored to interactive use in the context
-    of scenario discovery
+    The implementation of Prim is tailored to interactive use in the
+    context of scenario discovery
 
     Parameters
     ----------
