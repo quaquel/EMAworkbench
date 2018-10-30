@@ -16,19 +16,18 @@ ipython notebook.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-import collections
 import copy
 import math
 from operator import itemgetter
 
 import matplotlib as mpl
-import matplotlib.gridspec as gridspec
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
 
 import numpy as np
-import numpy.lib.recfunctions as rf
 import pandas as pd
+import seaborn as sns
 
 from .plotting_util import make_legend
 from ..util import info, debug, EMAError
@@ -89,7 +88,7 @@ def get_quantile(data, quantile):
     return value
 
 
-def _pair_wise_scatter(x, y, box_lim, restricted_dims):
+def _pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
     ''' helper function for pair wise scatter plotting
 
     #TODO the cases of interest should be in red rather than in blue
@@ -100,66 +99,167 @@ def _pair_wise_scatter(x, y, box_lim, restricted_dims):
 
     Parameters
     ----------
-    x : numpy structured array
+    x : DataFrame
         the experiments
     y : numpy array
         the outcome of interest
-    box_lim : numpy structured array
+    box_lim : DataFrame
               a boxlim
-    restricted_dims : list of strings
+    box_init : DataFrame
+    restricted_dims : collection of strings
                       list of uncertainties that define the boxlims
 
     '''
+    
+    x = x[restricted_dims]
+    data = x.copy()
+    
+    # TODO:: have option to change 
+    # diag to CDF, gives you effectively the 
+    # regional sensitivity analsyis results
+    categorical_columns = data.select_dtypes('category').columns.values
+    categorical_mappings = {}
+    for column in categorical_columns:
 
-    restricted_dims = list(restricted_dims)
-    combis = [(field1, field2) for field1 in restricted_dims
-              for field2 in restricted_dims]
+        # reorder categorical data so we
+        # can capture them in a single column
+        categories_inbox = boxlim.loc[0, column]
+        categories_all = box_init.loc[0, column]
+        missing = categories_all - categories_inbox
+        categories = list(categories_inbox) + list(missing)
+        data[column] = data[column].cat.set_categories(categories)
 
-    grid = gridspec.GridSpec(len(restricted_dims), len(restricted_dims))
-    grid.update(wspace=0.1,
-                hspace=0.1)
-    figure = plt.figure()
+        # keep the mapping for updating ticklabels
+        categorical_mappings[column] = dict(enumerate(data[column].cat.categories))
 
-    for field1, field2 in combis:
-        i = restricted_dims.index(field1)
-        j = restricted_dims.index(field2)
-        ax = figure.add_subplot(grid[i, j])
-        ec = 'b'
-        fc = 'b'
+        # replace column with codes
+        data[column] = data[column].cat.codes
 
-        if field1 == field2:
-            ec = 'white'
-            fc = 'white'
+    data['y'] = y # for testing 
+    grid = sns.pairplot(data=data, hue='y', vars=x.columns.values)
 
-        # scatter points
-        for n in [0, 1]:
-            x_n = x[y == n]
-            x_1 = x_n[field2]
-            x_2 = x_n[field1]
+    cats = set(categorical_columns)
+    for row, ylabel in zip(grid.axes, grid.y_vars):
+        ylim = boxlim[ylabel]
 
-            if (n == 0):
-                fc = 'white'
-            elif ec == 'b':
-                fc = 'b'
+        if ylabel in cats:
+            y = -0.2
+            height = len(ylim[0])-0.6 # 2 * 0.2
+        else:
+            y = ylim[0]
+            height = ylim[1] - ylim[0]
 
-            ax.scatter(x_1, x_2, facecolor=fc, edgecolor=ec, s=10)
+        for ax, xlabel in zip(row, grid.x_vars):
+            if ylabel == xlabel: continue
 
-        # draw boxlim
-        if field1 != field2:
-            x_1 = box_lim[field2]
-            x_2 = box_lim[field1]
+            if xlabel in cats:
+                xlim = boxlim.loc[0, xlabel]
+                x = -0.2
+                width = len(xlim)-0.6 # 2 * 0.2
+            else:
+                xlim = boxlim[xlabel]
+                x = xlim[0]
+                width = xlim[1] - xlim[0]
 
-            for n in [0, 1]:
-                ax.plot(x_1,
-                        [x_2[n], x_2[n]], c='r', linewidth=3)
-                ax.plot([x_1[n], x_1[n]],
-                        x_2, c='r', linewidth=3)
+            xy = x, y
+            box = patches.Rectangle(xy, width, height, edgecolor='red',
+                                    facecolor='none', lw=3)
+            ax.add_patch(box)
 
-#         #reuse labeling function from pairs_plotting
-#         pairs_plotting.do_text_ticks_labels(ax, i, j, field1, field2, None,
-#                                             restricted_dims)
+    # do the yticklabeling for categorical rows
+    for row, ylabel in zip(grid.axes, grid.y_vars):
+        if ylabel in cats:
+            ax = row[0]
+            labels = []
+            for entry in ax.get_yticklabels():
+                _, value = entry.get_position()
+                try:
+                    label = categorical_mappings[ylabel][value]
+                except KeyError:
+                    label = ''
+                labels.append(label)
+            ax.set_yticklabels(labels)
 
-    return figure
+    # do the xticklabeling for categorical columns
+    for ax, xlabel in zip(grid.axes[-1], grid.x_vars):
+        if xlabel in cats:
+            labels = []
+            locs = []
+            mapping = categorical_mappings[ylabel]
+            for i in range(-1, len(mapping)+1):
+                locs.append(i)
+                try:
+                    label = categorical_mappings[xlabel][i]
+                except KeyError:
+                    label = ''
+                labels.append(label)
+            ax.set_xticks(locs)
+            ax.set_xticklabels(labels, rotation=90)
+    return grid
+
+def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
+    """Helper function for setting up the prim algorithm
+    Parameters
+    ----------
+    results : tuple
+              tuple of DataFrame and dict with numpy arrays
+              the return from :meth:`perform_experiments`.
+    classify : str or callable
+               either a string denoting the outcome of interest to 
+               use or a function. 
+    threshold : double
+                the minimum score on the density of the last box
+                on the peeling trajectory. In case of a binary classification,
+                this should be between 0 and 1. 
+    incl_unc : list of str, optional
+               list of uncertainties to include in prim analysis
+    kwargs : dict
+             valid keyword arguments for prim.Prim
+    Returns
+    -------
+    a Prim instance
+    Raises
+    ------
+    PrimException 
+        if data resulting from classify is not a 1-d array. 
+    TypeError 
+        if classify is not a string or a callable.
+    """
+
+    x, y, mode = sdutil._setup(results, classify, incl_unc)
+
+    return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
+
+
+def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
+    '''Helper function for calculating quasi p-values'''
+    if data.size==0:
+        return [-1, -1]
+    
+    u = data.name
+    dtype = data.dtype
+    
+    unlimited = initial_boxlim[u]
+    
+    if dtype == object:
+        temp_box = box_lim.copy()
+        temp_box.loc[u] = unlimited
+        qp = sdutil._calculate_quasip(x, y, temp_box,
+                                      Hbox, Tbox)
+        qp_values = [qp, -1]             
+    else:
+        qp_values = []
+        for direction, (limit, unlimit) in enumerate(zip(data, unlimited)):
+            if unlimit != limit:
+                temp_box = box_lim.copy()
+                temp_box.loc[direction, u] = unlimit
+                qp = sdutil._calculate_quasip(x, y, temp_box,
+                                              Hbox, Tbox)
+            else:
+                qp = -1
+            qp_values.append(qp)
+    
+    return qp_values
 
 
 class CurEntry(object):
@@ -169,7 +269,7 @@ class CurEntry(object):
     def __init__(self, name):
         self.name = name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, _):
         return instance.peeling_trajectory[self.name][instance._cur_box]
 
     def __set__(self, instance, value):
@@ -325,106 +425,13 @@ class PrimBox(object):
         '''Helper function for visualizing box statistics in 
         graph form'''
 
-        # normalize the box lims
-        # we don't need to show the last box, for this is the
-        # box_init, which is visualized by a grey area in this
-        # plot.
-        box_lim_init = self.prim.box_init
-        box_lim = self.box_lims[i]
-        norm_box_lim = sdutil._normalize(box_lim, box_lim_init, uncs)
-
-        fig, ax = sdutil._setup_figure(uncs)
-        for j, u in enumerate(uncs):
-            # we want to have the most restricted dimension
-            # at the top of the figure
-            xj = len(uncs) - j - 1
-
-            self.prim._plot_unc(box_lim_init, xj, j, 0, norm_box_lim, box_lim,
-                                u, ax)
-
-            # new part
-            dtype = box_lim_init[u].dtype
-
-            props = {'facecolor': 'white',
-                     'edgecolor': 'white',
-                     'alpha': 0.25}
-            y = xj
-
-            if dtype == object:
-                elements = sorted(list(box_lim_init[u][0]))
-                max_value = (len(elements)-1)
-                values = box_lim[u][0]
-                x = [elements.index(entry) for entry in
-                     values]
-                x = [entry/max_value for entry in x]
-
-                for xi, label in zip(x, values):
-                    ax.text(xi, y-0.2, label, ha='center', va='center',
-                            bbox=props, color='blue', fontweight='normal')
-
-            else:
-                props = {'facecolor': 'white',
-                         'edgecolor': 'white',
-                         'alpha': 0.25}
-
-                # plot limit text labels
-                x = norm_box_lim[j][0]
-
-                if not np.allclose(x, 0):
-                    label = boxlim_formatter.format(self.box_lims[i][u][0])
-                    ax.text(x, y-0.2, label, ha='center', va='center',
-                            bbox=props, color='blue', fontweight='normal')
-
-                x = norm_box_lim[j][1]
-                if not np.allclose(x, 1):
-                    label = boxlim_formatter.format(self.box_lims[i][u][1])
-                    ax.text(x, y-0.2, label, ha='center', va='center',
-                            bbox=props, color='blue', fontweight='normal')
-
-                # plot uncertainty space text labels
-                x = 0
-                label = boxlim_formatter.format(box_lim_init[u][0])
-                ax.text(x-0.01, y, label, ha='right', va='center',
-                        bbox=props, color='black', fontweight='normal')
-
-                x = 1
-                label = boxlim_formatter.format(box_lim_init[u][1])
-                ax.text(x+0.01, y, label, ha='left', va='center',
-                        bbox=props, color='black', fontweight='normal')
-
-            # set y labels
-            qp_formatted = {}
-            for key, value in qp_values.items():
-                if len(value) == 1:
-                    value = '{:.2g}'.format(value[0])
-                else:
-                    value = '{:.2g}, {:.2g}'.format(*value)
-                qp_formatted[key] = value
-
-            labels = [ticklabel_formatter.format(u, qp_formatted[u]) for u in
-                      uncs]
-
-            labels = labels[::-1]
-            ax.set_yticklabels(labels)
-
-            # remove x tick labels
-            ax.set_xticklabels([])
-
-            # add table to the left
-            coverage = table_formatter.format(
-                self.peeling_trajectory['coverage'][i])
-            density = table_formatter.format(
-                self.peeling_trajectory['density'][i])
-
-            ax.table(cellText=[[coverage], [density]],
-                     colWidths=[0.1]*2,
-                     rowLabels=['coverage', 'density'],
-                     colLabels=None,
-                     loc='right',
-                     bbox=[1.2, 0.9, 0.1, 0.1])
-
-#             plt.tight_layout()
-        return fig
+        return sdutil.plot_box(self.box_lims[i], qp_values,
+                               self.prim.box_init, uncs, 
+                               self.peeling_trajectory.loc[i, 'coverage'], 
+                               self.peeling_trajectory.loc[i, "density"],
+                               ticklabel_formatter=ticklabel_formatter,
+                               boxlim_formatter=boxlim_formatter,
+                               table_formatter=table_formatter)
 
     def select(self, i):
         '''        
@@ -615,10 +622,13 @@ class PrimBox(object):
         and the boxlims superimposed on top.
 
         '''
-        return _pair_wise_scatter(self.prim.x, self.prim.y, self.box_lim,
-                                  sdutil._determine_restricted_dims(self.box_lim,
-                                                                    self.prim.box_init))
-
+        resdim = sdutil._determine_restricted_dims(self.box_lim,
+                                                    self.prim.box_init)
+        
+        return _pair_wise_scatter(self.prim.x, self.prim.y,
+                                  self.box_lim, self.prim.box_init,
+                                  resdim)
+                  
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''
         print(self.peeling_trajectory)
@@ -689,71 +699,6 @@ class PrimBox(object):
 class PrimException(Exception):
     '''Base exception class for prim related exceptions'''
     pass
-
-
-def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
-    """Helper function for setting up the prim algorithm
-    Parameters
-    ----------
-    results : tuple
-              tuple of DataFrame and dict with numpy arrays
-              the return from :meth:`perform_experiments`.
-    classify : str or callable
-               either a string denoting the outcome of interest to 
-               use or a function. 
-    threshold : double
-                the minimum score on the density of the last box
-                on the peeling trajectory. In case of a binary classification,
-                this should be between 0 and 1. 
-    incl_unc : list of str, optional
-               list of uncertainties to include in prim analysis
-    kwargs : dict
-             valid keyword arguments for prim.Prim
-    Returns
-    -------
-    a Prim instance
-    Raises
-    ------
-    PrimException 
-        if data resulting from classify is not a 1-d array. 
-    TypeError 
-        if classify is not a string or a callable.
-    """
-
-    x, y, mode = sdutil._setup(results, classify, incl_unc)
-
-    return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
-
-
-def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
-    '''Helper function for calculating quasi p-values'''
-    if data.size==0:
-        return []
-    
-    u = data.name
-    dtype = data.dtype
-    
-    unlimited = initial_boxlim[u]
-    
-    if dtype == object:
-        temp_box = box_lim.copy()
-        temp_box.loc[u] = unlimited
-        qp = sdutil._calculate_quasip(x, y, temp_box,
-                                      Hbox, Tbox)
-        qp_values = [qp, qp]             
-    else:
-        qp_values = []
-        for direction, (limit, unlimit) in enumerate(zip(data, unlimited)):
-            if unlimit != limit:
-                temp_box = box_lim.copy()
-                temp_box.loc[direction, u] = unlimit
-                qp = sdutil._calculate_quasip(x, y, temp_box,
-                                              Hbox, Tbox)
-            else:
-                qp = 0.0
-            qp_values.append(qp)
-    
-    return qp_values
 
 
 class Prim(sdutil.OutputFormatterMixin):
