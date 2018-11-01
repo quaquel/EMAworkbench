@@ -8,9 +8,12 @@ from __future__ import (absolute_import, print_function, division,
 import unittest
 
 import numpy as np
+import pandas as pd
 
 from ema_workbench.analysis import cart
 from test import utilities
+
+from ema_workbench.analysis.scenario_discovery_util import BINARY, REGRESSION, CLASSIFICATION
 
 
 def flu_classify(data):
@@ -43,7 +46,31 @@ class CartTestCase(unittest.TestCase):
     def test_setup_cart(self):
         results = utilities.load_flu_data()
         
-        cart_algorithm = cart.setup_cart(results, flu_classify, mass_min=0.05)
+        alg = cart.setup_cart(results, flu_classify,
+                              mass_min=0.05)
+        
+        self.assertTrue(alg.mode==BINARY)
+
+        x, outcomes = results
+        y = {k:v[:, -1] for k,v in outcomes.items()}
+        temp_results = (x,y)
+        alg = cart.setup_cart(temp_results,
+                              'deceased population region 1',
+                              mass_min=0.05)
+        self.assertTrue(alg.mode==REGRESSION)
+
+        n_cols = 5
+        unc = x.columns.values[0:n_cols]
+        alg = cart.setup_cart(results,
+                              flu_classify,
+                              mass_min=0.05,
+                              incl_unc=unc)
+        self.assertTrue(alg.mode==BINARY)
+        self.assertTrue(alg.x.shape[1]==n_cols)
+
+        with self.assertRaises(TypeError):
+            alg = cart.setup_cart(results, 10,
+                                  mass_min=0.05)
         
         # setup can be generalized --> cart and prim essentially the same
         # underlying code so move to sdutil
@@ -60,10 +87,71 @@ class CartTestCase(unittest.TestCase):
         pass
 
     def test_stats(self):
-        pass
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                          columns=['a', 'b', 'c'])
+        
+
+        box = pd.DataFrame([(0,1,1),
+                            (3,5,3)], 
+                            columns=['a', 'b', 'c'])
+
+        y = np.array([0,1,1])
+        alg = cart.CART(x,y, mode=BINARY)
+        alg._boxes = [box]
+        alg.clf = "something"
+        stats = alg.stats[0]
+                
+        self.assertEqual(stats['coverage'], 0.5)
+        self.assertEqual(stats['density'], 0.5)
+        self.assertEqual(stats['res dim'], 1)
+        self.assertEqual(stats['mass'], 2/3)
+        
+        y = np.array([0,1,2])
+        alg = cart.CART(x,y, mode=REGRESSION)
+        alg._boxes = [box]
+        alg.clf = "something"
+        stats = alg.stats[0]
+
+        self.assertEqual(stats['mean'], 1)
+        self.assertEqual(stats['res dim'], 1)
+        self.assertEqual(stats['mass'], 2/3)
+
+        y = np.array([0,1,2])
+        alg = cart.CART(x,y, mode=CLASSIFICATION)
+        alg._boxes = [box]
+        alg.clf = "something"
+        stats = alg.stats[0]
+        
+        self.assertEqual(stats['gini'], 0.5)
+        self.assertEqual(stats['box_composition'], [1, 0, 1])
+        self.assertEqual(stats['res dim'], 1)
+        self.assertEqual(stats['mass'], 2/3)
+        
+        self.assertEqual(stats, alg.stats[0])
+
 
     def test_build_tree(self):
-        pass
+        results = utilities.load_flu_data()
+        
+        alg = cart.setup_cart(results, flu_classify,
+                              mass_min=0.05)
+        alg.build_tree()
+        
+        self.assertTrue(isinstance(alg.clf,
+                                   cart.tree.DecisionTreeClassifier))
+
+        x, outcomes = results
+        y = {k:v[:, -1] for k,v in outcomes.items()}
+        temp_results = (x,y)
+        alg = cart.setup_cart(temp_results,
+                              'deceased population region 1',
+                              mass_min=0.05)
+        alg.build_tree()
+        self.assertTrue(isinstance(alg.clf,
+                                   cart.tree.DecisionTreeRegressor))
+        
     
         
 if __name__ == '__main__':

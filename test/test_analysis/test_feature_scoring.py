@@ -11,7 +11,8 @@ import numpy as np
 import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble.forest import RandomForestRegressor
+from sklearn.ensemble.forest import RandomForestRegressor, ExtraTreesClassifier,\
+    ExtraTreesRegressor
 
 from ema_workbench.analysis import feature_scoring as fs
 from ema_workbench.analysis.feature_scoring import F_CLASSIFICATION, CHI2, F_REGRESSION
@@ -155,6 +156,38 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertEqual(len(scores), len(x.columns))
         self.assertTrue(isinstance(forest, RandomForestRegressor))
         
+    def test_get_ex_feature_scores(self):
+        x, outcomes = utilities.load_flu_data()
+        y = outcomes['deceased population region 1'][:, -1] > 1000000
+                
+        scores, forest = fs.get_ex_feature_scores(x,y, mode=CLASSIFICATION,
+                                                  random_state=10)
+        
+        self.assertEqual(len(scores), len(x.columns))
+        self.assertTrue(isinstance(forest, ExtraTreesClassifier))
+        
+        
+        self.assertRaises(ValueError, fs.get_ex_feature_scores, x,y, 
+                          mode='illegal argument')
+        
+        y = outcomes['deceased population region 1'][:,-1]
+        scores, forest = fs.get_ex_feature_scores(x,y, mode=REGRESSION, 
+                                                  random_state=10)
+        
+        self.assertEqual(len(scores), len(x.columns))
+        self.assertTrue(isinstance(forest, ExtraTreesRegressor))
+
+    def test_get_feature_scores_all(self):
+        x, outcomes = utilities.load_flu_data()
+
+        # we have timeseries so we need scalars
+        y = {'deceased population':outcomes['deceased population region 1'][:, -1],
+             'max. infected fraction':np.max(outcomes['infected fraction R1'], axis=1)}
+        scores = fs.get_feature_scores_all(x,y)
+        
+        self.assertEqual(len(scores), len(x.columns))
+        self.assertTrue(scores.ndim==2)
+
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)   
     unittest.main()
