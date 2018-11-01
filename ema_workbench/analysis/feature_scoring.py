@@ -45,31 +45,27 @@ def _prepare_experiments(experiments):
 
     Parameters
     ----------
-    experiments : structured array
+    experiments :DataFrame
 
     Returns
     -------
-    ndarray
+    ndarray, list
 
     '''
-    experiments = recfunctions.drop_fields(experiments, "scenario_id",
-                                           asrecarray=True)
-    uncs = recfunctions.get_names(experiments.dtype)
+    try:
+        experiments = experiments.drop('scenario')
+    except KeyError:
+        pass
+    
+    x = experiments.copy()
+    
+    x_nominal = x.select_dtypes(exclude=np.number)
+    x_nominal_columns = x_nominal.columns.values 
 
-    temp_experiments = np.zeros((experiments.shape[0], len(uncs)))
+    for column in x_nominal_columns:
+        x[column] = x[column].astype('category').cat.codes
 
-    for i, u in enumerate(uncs):
-        try:
-            temp_experiments[:, i] = experiments[u].astype(np.float)
-        except ValueError:
-
-            data = experiments[u]
-            entries = sorted(list(set(data)))
-
-            for j, entry in enumerate(entries):
-                temp_experiments[data == entry, i] = j
-
-    return temp_experiments, uncs
+    return x.values, x.columns.tolist()
 
 
 def _prepare_outcomes(outcomes, classify):
