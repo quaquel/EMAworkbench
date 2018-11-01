@@ -862,7 +862,7 @@ class Prim(sdutil.OutputFormatterMixin):
         self.x_float = x_float.values
         self.x_float_colums = x_float.columns.values
         
-        x_int =x.select_dtypes(np.int)
+        x_int = x.select_dtypes(np.int)
         self.x_int = x_int.values
         self.x_int_columns = x_int.columns.values
         
