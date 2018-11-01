@@ -149,7 +149,7 @@ class MergeResultsTestCase(unittest.TestCase):
 
 class ConfigTestCase(unittest.TestCase):
     def test_get_home_dir(self):
-        home_dir = get_ema_project_home_dir()
+        _ = get_ema_project_home_dir()
         
 
 
