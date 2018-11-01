@@ -8,6 +8,8 @@ from __future__ import (absolute_import, print_function, division)
 import unittest
 
 import numpy as np
+import pandas as pd
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble.forest import RandomForestRegressor
 
@@ -19,13 +21,10 @@ from test import utilities
 
 class FeatureScoringTestCase(unittest.TestCase):
     def test_prepare_experiments(self):
-        x = np.array([(0,1,2,1),
-                      (2,5,6,1),
-                      (3,2,1,1)], 
-                     dtype=[('a', np.float),
-                            ('b', np.float),
-                            ('c', np.float),
-                            ('d', np.float)])
+        x = pd.DataFrame([(0,1,2,1),
+                          (2,5,6,1),
+                          (3,2,1,1)], 
+                     columns=['a', 'b', 'c', 'd'])
         x, _ = fs._prepare_experiments(x)
         
         correct = np.array([[0,1,2,1],
@@ -35,12 +34,12 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertTrue(np.all(x==correct))
         
         # heterogeneous without NAN
-        dtype = [('a', np.float),('b', np.int), ('c', np.object)]
-        x = np.empty((10, ), dtype=dtype)
         
-        x['a'] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-        x['b'] = [0,1,2,3,4,5,6,7,8,9]
-        x['c'] = ['a','b','a','b','a','a','b','a','b','a', ]
+        x = pd.DataFrame({'a':[0.1, 0.2, 0.3, 0.4, 0.5,
+                               0.6, 0.7, 0.8, 0.9, 1.0],
+                          'b':[0,1,2,3,4,5,6,7,8,9],
+                          'c':['a','b','a','b','a','a',
+                               'b','a','b','a', ]})
         x, _ = fs._prepare_experiments(x)
        
         correct = np.array([[0.1, 0, 0],
@@ -110,16 +109,16 @@ class FeatureScoringTestCase(unittest.TestCase):
         # f classify
         scores = fs.get_univariate_feature_scores(x,y, 
                                                   score_func=F_CLASSIFICATION)
-        self.assertEqual(len(scores), len(x.dtype.fields))
+        self.assertEqual(len(scores), len(x.columns))
 
         # chi2
         scores = fs.get_univariate_feature_scores(x,y, score_func=CHI2)
-        self.assertEqual(len(scores), len(x.dtype.fields))
+        self.assertEqual(len(scores), len(x.columns))
         
         # f regression
         y= outcomes['deceased population region 1'][:,-1]
         scores = fs.get_univariate_feature_scores(x,y, score_func=F_REGRESSION)
-        self.assertEqual(len(scores), len(x.dtype.fields))
+        self.assertEqual(len(scores), len(x.columns))
         
    
     def test_get_rf_feature_scores(self):
@@ -142,7 +141,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         scores, forest = fs.get_rf_feature_scores(x,y, mode=CLASSIFICATION,
                                                   random_state=10)
         
-        self.assertEqual(len(scores), len(x.dtype.fields))
+        self.assertEqual(len(scores), len(x.columns))
         self.assertTrue(isinstance(forest, RandomForestClassifier))
         
         
@@ -153,7 +152,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         scores, forest = fs.get_rf_feature_scores(x,y, mode=REGRESSION, 
                                                   random_state=10)
         
-        self.assertEqual(len(scores), len(x.dtype.fields))
+        self.assertEqual(len(scores), len(x.columns))
         self.assertTrue(isinstance(forest, RandomForestRegressor))
         
 if __name__ == '__main__':
