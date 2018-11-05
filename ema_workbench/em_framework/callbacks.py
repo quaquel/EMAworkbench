@@ -162,25 +162,32 @@ class DefaultCallback(AbstractCallback):
         self.outcomes = [outcome.name for outcome in outcomes]
 
         # determine data types of parameters
-        columns = {}
+        columns = []
+        dtypes = []
         self.parameters = []
 
         for parameter in uncs + levers:
             name = parameter.name
             self.parameters.append(name)
-            dataType = float
+            dataType = 'float'
 
             if isinstance(parameter, CategoricalParameter):
-                dataType = object
+                dataType = 'object'
             elif isinstance(parameter, IntegerParameter):
-                dataType = int
-            columns[str(name)] = dataType
-        columns['scenario'] = object
-        columns['policy'] = object
-        columns['model'] = object
-
-        self.cases = pd.DataFrame(index=np.arange(nr_experiments),
+                dataType = 'int'
+            columns.append(name)
+            dtypes.append(dataType)
+            
+        for name in ['scenario', 'policy', 'model']:
+            columns.append(name)
+            dtypes.append('object')
+                
+        df = pd.DataFrame(index=np.arange(nr_experiments),
                                   columns=columns)
+        
+        for name, dtype in zip(columns, dtypes):
+            df[name] = df[name].astype(dtype)
+        self.cases = df
         self.nr_experiments = nr_experiments
 
     def _store_case(self, experiment):
