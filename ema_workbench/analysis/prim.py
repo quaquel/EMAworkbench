@@ -25,7 +25,7 @@ import matplotlib as mpl
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
-import mpldatacursor
+
 import numpy as np
 import numpy.lib.recfunctions as rf
 import pandas as pd
@@ -34,6 +34,8 @@ import six
 from .plotting_util import make_legend
 from ..util import info, debug, EMAError
 from . import scenario_discovery_util as sdutil
+
+import warnings
 
 # Created on 22 feb. 2013
 #
@@ -617,8 +619,14 @@ class PrimBox(object):
                                        100*data["mass"],
                                        data["res_dim"]))
 
-        mpldatacursor.datacursor(formatter=formatter, draggable=True,
-                                 display='multiple')
+        try:
+            import mpldatacursor
+                
+            mpldatacursor.datacursor(formatter=formatter, draggable=True,
+                                     display='multiple')
+        except ImportError:
+            warnings.warn("mpldatacursor not installed", ImportWarning)
+
 
         return fig
 
