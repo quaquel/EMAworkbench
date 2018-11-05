@@ -12,4 +12,4 @@ from . import util
 from .util import (save_results, load_results, ema_logging, EMAError,
                    experiments_to_scenarios)
 
-__version__ = '1.3'
+__version__ = '1.3.1'
