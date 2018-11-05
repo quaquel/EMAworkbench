@@ -139,7 +139,7 @@ if __name__ == '__main__':
                            ScalarOutcome('utility',
                                          kind=ScalarOutcome.MAXIMIZE),  # @UndefinedVariable
                            ScalarOutcome('inertia',
-                                         kind=ScalarOutcome.MINIMIZE),  # @UndefinedVariable
+                                         kind=ScalarOutcome.MAXIMIZE),  # @UndefinedVariable
                            ScalarOutcome('reliability',
                                          kind=ScalarOutcome.MAXIMIZE)]  # @UndefinedVariable
 
