@@ -1,7 +1,6 @@
 from __future__ import (absolute_import, unicode_literals, division,
                         print_function)
-
-
+import warnings
 __all__ = ["ema_parallel", "parameters"
            "model", "outcomes", "samplers",
            "Model", 'FileModel', "ModelEnsemble",
@@ -25,7 +24,16 @@ from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
                        sample_uncertainties)
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler,
                              get_SALib_problem)
-from .evaluators import (perform_experiments, optimize, IpyparallelEvaluator,
+from .evaluators import (perform_experiments, optimize,
                          MultiprocessingEvaluator, SequentialEvaluator)
 from .optimization import (Convergence, HyperVolume, EpsilonProgress,
                            ArchiveLogger)
+
+
+try:
+    from .evaluators import IpyparallelEvaluator
+except ImportError:
+    IpyparallelEvaluator = None
+    warnings.warn("ipyparallel not available", ImportWarning)
+
+del warnings
