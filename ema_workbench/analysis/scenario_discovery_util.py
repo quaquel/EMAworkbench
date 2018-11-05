@@ -297,11 +297,10 @@ def _calculate_quasip(x, y, box, box_init, Hbox, Tbox):
     res_dim = _determine_restricted_dims(box, box_init)
     
     if res_dim.size==0:
-        return np.ones(x.shape[0], dtype=np.bool)
-    
-#     indices = _in_box(x[res_dim].copy(), box[res_dim].copy())
-    indices = _in_box(fields_view(x, res_dim), 
-                      fields_view(box, res_dim))
+        indices = np.ones(x.shape[0], dtype=np.bool)
+    else:
+        indices = _in_box(fields_view(x, res_dim), 
+                          fields_view(box, res_dim))
     yi = y[indices]
 
     # total nr. of cases in box with one restriction removed
