@@ -1302,7 +1302,7 @@ class Prim(sdutil.OutputFormatterMixin):
             if direction == 'upper':
                 if box_peel == box_lim.loc[i, u]:
                     logical = (xj < box_lim.loc[i, u]) &\
-                              (xj >= box_lim[i-1, u])
+                              (xj >= box_lim.loc[i-1, u])
                 else:
                     logical = (xj <= box_peel) &\
                               (xj >= box_lim.loc[i-1, u])
