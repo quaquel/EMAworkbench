@@ -250,13 +250,7 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
     
     unlimited = initial_boxlim[u]
     
-    if dtype == object:
-        temp_box = box_lim.copy()
-        temp_box.loc[u] = unlimited
-        qp = sdutil._calculate_quasip(x, y, temp_box,
-                                      Hbox, Tbox)
-        qp_values = [qp, -1]             
-    else:
+    if np.issubdtype(dtype, np.number):
         qp_values = []
         for direction, (limit, unlimit) in enumerate(zip(data,
                                                          unlimited)):
@@ -268,6 +262,12 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
             else:
                 qp = -1
             qp_values.append(qp)
+    else:
+        temp_box = box_lim.copy()
+        temp_box.loc[:, u] = unlimited
+        qp = sdutil._calculate_quasip(x, y, temp_box,
+                                      Hbox, Tbox)
+        qp_values = [qp, -1]  
     
     return qp_values
 
@@ -1058,6 +1058,7 @@ class Prim(sdutil.OutputFormatterMixin):
         debug("peeling completed")
 
         # perform pasting phase
+#         TODO:: fixme
         box = self._paste(box)
         debug("pasting completed")
 
@@ -1381,8 +1382,6 @@ class Prim(sdutil.OutputFormatterMixin):
         ''' Executes the pasting phase of the PRIM. Delegates pasting
         to data type specific helper methods.'''
 
-        x = self.x.loc[self.yi_remaining, :]
-
         mass_old = box.yi.shape[0]/self.n
 
         # need to break this down by dtype
@@ -1390,34 +1389,25 @@ class Prim(sdutil.OutputFormatterMixin):
                                                     self.box_init)
         res_dim = set(restricted_dims)
 
+        x = self.x.loc[self.yi_remaining, :]
+
+        # identify all possible pastes
         possible_pastes = []
-        for columns, dtype,  in [(self.x_float_colums, 'float'),
-                                    (self.x_int_columns, 'int'),
-                                    (self.x_nominal_columns, 'object')]:
-            for u in enumerate(columns):
+        for columns, dtype,  in [(self.x_float_colums,
+                                     'float'),
+                                    (self.x_int_columns,
+                                     'int'),
+                                    (self.x_nominal_columns,
+                                     'object')]:
+            for i, u in enumerate(columns):
                 if u not in res_dim: continue
                 debug("pasting "+u)
-#                 welke X hier te gebruiken? eigenlijk kan niet 
-#                 op basis van yi_remaining toch zijn?
-#                 voor peel zou je toch gebruik moeten maken van de 
-#                 status van de box? (dus yi van primBox)
-#                 
-#                 voor paste is het nog ingewikkelder, je moet namelijk
-#                 een nieuwe logical maken voor de candidate paste dimensie
-
-                pastes = self._pastes[dtype](self, box, u, x, restricted_dims)
+                pastes = self._pastes[dtype](self, box, u, x,
+                                             restricted_dims)
                 [possible_pastes.append(entry) for entry in pastes]
             if not possible_pastes:
                 # there is no peel identified, so return box
                 return box
-
-#         possible_pastes = []
-#         for u in res_dim:
-#             debug("pasting "+u)
-#             dtype = self.x.dtype.fields.get(u)[0].name
-#             pastes = self._pastes[dtype](self, box, u)
-#             [possible_pastes.append(entry) for entry in pastes]
-
 
         # determine the scores for each peel in order
         # to identify the next candidate box
@@ -1425,7 +1415,7 @@ class Prim(sdutil.OutputFormatterMixin):
         for entry in possible_pastes:
             i, box_lim = entry
             obj = self.obj_func(self, self.y[box.yi],  self.y[i])
-            non_res_dim = len(x.dtype.descr) -\
+            non_res_dim = len(x.columns) -\
                 sdutil._determine_nr_restricted_dims(box_lim,
                                                      self.box_init)
             score = (obj, non_res_dim, box_lim, i)
@@ -1449,7 +1439,7 @@ class Prim(sdutil.OutputFormatterMixin):
             # else return received box
             return box
 
-    def _real_paste(self, box, u, x, restricted_dims):
+    def _real_paste(self, box, u, x, resdim):
         ''' returns two candidate new boxes, pasted along upper and
         lower dimension
 
@@ -1469,29 +1459,30 @@ class Prim(sdutil.OutputFormatterMixin):
         '''
 
         pastes = []
+        boxlim = box.box_lims[-1]
+        
         for i, direction in enumerate(['lower', 'upper']):
-            box_paste = box.box_lims[-1][restricted_dims].copy()
+            box_paste = boxlim.copy()
             # box containing data candidate for pasting
-            paste_box = box_paste.copy()
+            paste_box = boxlim.copy()
 
             minimum, maximum = self.box_init[u].values
 
             if direction == 'lower':
                 paste_box.loc[:, u] = minimum, box_paste.loc[0, u]
 
-                indices = sdutil._in_box(x, paste_box)
+                indices = sdutil._in_box(x[resdim], paste_box[resdim])
                 data = x.loc[indices, u]
 
                 paste_value = minimum
                 if data.size > 0:
                     paste_value = get_quantile(data, 1-self.paste_alpha)
 
-                if not paste_value <= box.box_lims[-1][u][i]:
-                    print("{}, {}".format(paste_value, box.box_lims[-1].loc[i, u]))
+                assert paste_value <= boxlim.loc[i, u]
             else:  #direction == 'upper':
-                paste_box.loc[0, u] = paste_box.loc[1, u], maximum
+                paste_box.loc[:, u] = paste_box.loc[1, u], maximum
                 
-                indices = sdutil._in_box(x, paste_box)
+                indices = sdutil._in_box(x[resdim], paste_box[resdim])
                 data = x.loc[indices, u]
 
                 paste_value = maximum
@@ -1500,19 +1491,19 @@ class Prim(sdutil.OutputFormatterMixin):
 
                 assert paste_value >= box.box_lims[-1].loc[i, u]
 
-            dtype = box_paste.dtype.fields[u][0]
+            dtype = box_paste[u].dtype
             if dtype == np.int32:
                 paste_value = np.int(paste_value)
 
             box_paste.loc[i, u] = paste_value
-            logical = sdutil._in_box(x, box_paste)
+            logical = sdutil._in_box(x[resdim], box_paste[resdim])
             indices = self.yi_remaining[logical]
 
             pastes.append((indices, box_paste))
 
         return pastes
 
-    def _categorical_paste(self, box, u, x, restricted_dims):
+    def _categorical_paste(self, box, u, x, resdim):
         '''
 
         Return a list of pastes, equal to the number of classes currently
@@ -1533,7 +1524,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
 
         '''
-        box_lim = box.box_lims[-1][restricted_dims]
+        box_lim = box.box_lims[-1]
 
         c_in_b = box_lim.loc[0, u]
         c_t = self.box_init.loc[0, u]
@@ -1548,8 +1539,8 @@ class Prim(sdutil.OutputFormatterMixin):
                 box_paste = box_lim.copy()
                 box_paste.loc[:, u] = [paste, paste]
 
-                indices = sdutil._in_box(x, 
-                                         box_paste)
+                indices = sdutil._in_box(x[resdim], 
+                                         box_paste[resdim])
                 indices = self.yi_remaining[indices]
                 pastes.append((indices, box_paste))
             return pastes
@@ -1559,10 +1550,10 @@ class Prim(sdutil.OutputFormatterMixin):
 
     def _lenient1_obj_func(self, y_old, y_new):
         r'''
-        the default objective function used by prim, instead of the original
-        objective function, This function can cope with continuous, integer, 
-        and categorical uncertainties. The basic idea is that the gain in mean
-        is divided by the loss in mass. 
+        the default objective function used by prim, instead of the
+        original objective function, This function can cope with
+        continuous, integer, and categorical uncertainties. The basic
+        idea is that the gain in mean is divided by the loss in mass. 
 
         .. math::
 
@@ -1576,9 +1567,10 @@ class Prim(sdutil.OutputFormatterMixin):
         :math:`y_{i}` and :math:`y` respectively. So, this objective 
         function looks for the difference between  the mean of the old 
         box and the new box, divided by the change in the  number of 
-        data points in the box. This objective function offsets a problem 
-        in case of categorical data where the normal objective function often 
-        results in boxes mainly based on the categorical data.  
+        data points in the box. This objective function offsets a
+        problem in case of categorical data where the normal objective
+        function often results in boxes mainly based on the categorical
+        data.  
 
         '''
         mean_old = np.mean(y_old)
@@ -1628,8 +1620,8 @@ class Prim(sdutil.OutputFormatterMixin):
         return obj
 
     def _original_obj_func(self, y_old, y_new):
-        ''' The original objective function: the mean of the data inside the 
-        box'''
+        ''' The original objective function: the mean of the data
+        inside the box'''
 
         if y_new.shape[0] > 0:
             return np.mean(y_new)
@@ -1638,8 +1630,8 @@ class Prim(sdutil.OutputFormatterMixin):
 
     def _assert_dtypes(self, keys, dtypes):
         '''
-        helper fucntion that checks whether none of the provided keys has
-        a dtype object as value.
+        helper fucntion that checks whether none of the provided keys
+        has a dtype object as value.
         '''
 
         for key in keys:
