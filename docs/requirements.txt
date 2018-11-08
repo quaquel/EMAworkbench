@@ -15,5 +15,5 @@ scikit-learn
 seaborn
 matplotlib
 pyzmq
-mpldatacursor
 pysd
+setuptools>=12
