@@ -1,0 +1,12 @@
+# .readthedocs.yml
+
+requirements_file: docs/requirements.txt
+
+build:
+  image: latest
+
+python:
+  version: 3.6
+  use_system_site_packages: true
+  setup_py_install: true
+  pip_install: true
