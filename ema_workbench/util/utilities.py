@@ -70,22 +70,20 @@ def load_results(file_name):
             raise EMAError(repr(experiments))
 
         experiments = pd.read_csv(experiments)
-#         experiments = df.to_records(index=False)
-#         experiments = recfunctions.drop_fields(experiments, ['index'])
 
         # load experiment metadata
-#         metadata = z.extractfile('experiments metadata.csv').readlines()
-# 
-#         metadata_temp = []
-#         for entry in metadata:
-#             entry = entry.decode('UTF-8')
-#             entry = entry.strip()
-#             entry = entry.split(",")
-#             entry = [str(item) for item in entry]
-#             entry = tuple(entry)
-#             metadata_temp.append(entry)
+        metadata = z.extractfile('experiments metadata.csv').readlines()
+ 
+        metadata_temp = []
+        for entry in metadata:
+            entry = entry.decode('UTF-8')
+            entry = entry.strip()
+            entry = entry.split(",")
+            name, dtype = [str(item) for item in entry]
+            if np.dtype(dtype)==object:
+                experiments[name] = experiments[name].astype('category') 
 #         metadata = metadata_temp
-# 
+ 
 #         metadata = np.dtype(metadata)
 
         # cast experiments to dtype and name specified in metadata
