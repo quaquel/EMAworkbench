@@ -1,7 +1,5 @@
 # .readthedocs.yml
 
-requirements_file: docs/requirements.txt
-
 build:
   image: latest
 
@@ -10,3 +8,4 @@ python:
   use_system_site_packages: true
   setup_py_install: false
   pip_install: true
+  requirements_file: docs/requirements.txt
