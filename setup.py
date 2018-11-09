@@ -74,6 +74,7 @@ setup(
     package_data    = {'ema_workbench': EXAMPLE_DATA+JAVA},
     url             = 'https://github.com/quaquel/EMAworkbench',
     license         = 'BSD 3-Clause',
-    install_requires=["platypus-opt>1",],
+    install_requires=['SALib>1.1',
+                      "platypus-opt>1",],
     platforms       = "Linux, Mac OS X, Windows",
 )
