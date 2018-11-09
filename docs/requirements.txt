@@ -17,3 +17,4 @@ matplotlib
 pyzmq
 pysd
 setuptools>=12
+salib
