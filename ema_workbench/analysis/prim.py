@@ -17,9 +17,11 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import copy
+import logging
 import math
 from operator import itemgetter
 import warnings
+from ema_workbench.util import ema_logging
 
 try:
     import altair as alt
@@ -38,8 +40,11 @@ import pandas as pd
 import seaborn as sns
 
 from .plotting_util import make_legend
-from ..util import info, debug, EMAError
+from ..util import EMAError, LOGGER_NAME
 from . import scenario_discovery_util as sdutil
+
+_logger = logging.getLogger('{}.{}'.format(LOGGER_NAME, __name__))
+
 
 # Created on 22 feb. 2013
 #
@@ -341,6 +346,8 @@ class PrimBox(object):
 
         self.box_lims = []
         self.qp = []
+        self._resampled = []
+        self.yi_initial = indices[:]
         
         columns = ['name', 'lower', 'upper', 'minimum', 'maximum',
                    'qp_lower', 'qp_upper', 'id']
@@ -368,7 +375,8 @@ class PrimBox(object):
 
     def inspect(self, i=None, style='table', **kwargs):
         '''Write the stats and box limits of the user specified box to
-        standard out. if i is not provided, the last box will be printed
+        standard out. if i is not provided, the last box will be
+        printed
 
         Parameters
         ----------
@@ -570,6 +578,75 @@ class PrimBox(object):
                             texts3)
         
         return chart & layered
+    
+    
+    def resample(self, i=None, iterations=10, p=1/2):
+        '''Calculate resample statistics for candidate box i
+        
+        Parameters
+        ----------
+        i : int, optional
+        iterations : int, optional
+        p : float, optional
+        
+        
+        Returns
+        -------
+        DataFrame
+        
+        '''
+        if i == None:
+            i = self._cur_box
+
+        x = self.prim.x.loc[self.yi_initial, :]
+        y = self.prim.y[self.yi_initial]
+        
+        if len(self._resampled) < iterations: 
+#             with temporary_filter(_logger, INFO):
+# 
+#             # temporarily disable logging from prim
+#             
+#             class NoParsingFilter(logging.Filter):
+#                 def filter(self, record):
+#                     return not record.getMessage().startswith('parsing')
+# 
+#             _logger.addFilter(NoParsingFilter())
+            
+            for _ in range(len(self._resampled), iterations):
+                index = np.random.choice(x.index, size=int(x.shape[0]*p),
+                                         replace=False)
+                x_temp = x.loc[index, :].reset_index(drop=True)
+                y_temp = y[index]
+                
+                box = Prim(x_temp, y_temp, threshold=0.1,
+                           peel_alpha=self.prim.peel_alpha,
+                           paste_alpha=self.prim.paste_alpha).find_box()
+                self._resampled.append(box)
+        
+        counters = []
+        for _ in range(2):
+            counter = {column:0.0 for column in x.columns}
+            counters.append(counter)
+            
+        coverage = self.peeling_trajectory.coverage[i]
+        density = self.peeling_trajectory.density[i]
+        
+        for box in self._resampled:
+            coverage_index = (box.peeling_trajectory.coverage-coverage).abs().idxmin()
+            density_index = (box.peeling_trajectory.density-density).abs().idxmin()
+            for counter, index in zip(counters, [coverage_index,
+                                                 density_index]):
+                for unc in box.qp[index].keys():
+                    counter[unc]+=1/iterations
+        
+        scores = pd.DataFrame(counters,
+                              index=['reproduce coverage',
+                                     'reproduce density'],
+                              columns=box.box_lim.columns).T*100
+        return scores.sort_values(by=['reproduce coverage',
+                                      'reproduce density'],
+                      ascending=False)
+
     
     def select(self, i):
         '''        
@@ -1043,11 +1120,11 @@ class Prim(sdutil.OutputFormatterMixin):
             box._frozen = True
 
         if self.yi_remaining.shape[0] == 0:
-            info("no data remaining")
+            _logger.info("no data remaining")
             return
 
         # log how much data and how many coi are remaining
-        info(self.message.format(self.yi_remaining.shape[0],
+        _logger.info(self.message.format(self.yi_remaining.shape[0],
                                  self.determine_coi(self.yi_remaining)))
 
         # make a new box that contains all the remaining data points
@@ -1055,12 +1132,12 @@ class Prim(sdutil.OutputFormatterMixin):
 
         #  perform peeling phase
         box = self._peel(box)
-        debug("peeling completed")
+        _logger.debug("peeling completed")
 
         # perform pasting phase
 #         TODO:: fixme
         box = self._paste(box)
-        debug("pasting completed")
+        _logger.debug("pasting completed")
 
         message = ("mean: {0}, mass: {1}, coverage: {2}, "
                    "density: {3} restricted_dimensions: {4}")
@@ -1072,17 +1149,17 @@ class Prim(sdutil.OutputFormatterMixin):
 
         if (self.threshold_type == ABOVE) &\
            (box.mean >= self.threshold):
-            info(message)
+            _logger.info(message)
             self._boxes.append(box)
             return box
         elif (self.threshold_type == BELOW) &\
                 (box.mean <= self.threshold):
-            info(message)
+            _logger.info(message)
             self._boxes.append(box)
             return box
         else:
             # make a dump box
-            info('box does not meet threshold criteria, value is {}, returning dump box'.format(
+            _logger.info('box does not meet threshold criteria, value is {}, returning dump box'.format(
                 box.mean))
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self._boxes.append(box)
@@ -1401,7 +1478,7 @@ class Prim(sdutil.OutputFormatterMixin):
                                      'object')]:
             for i, u in enumerate(columns):
                 if u not in res_dim: continue
-                debug("pasting "+u)
+                _logger.debug("pasting "+u)
                 pastes = self._pastes[dtype](self, box, u, x,
                                              restricted_dims)
                 [possible_pastes.append(entry) for entry in pastes]
