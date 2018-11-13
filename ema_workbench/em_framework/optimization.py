@@ -20,6 +20,8 @@ from .samplers import determine_parameters
 from .util import determine_objects
 from ..util import ema_logging
 from ema_workbench.util.ema_exceptions import EMAError
+from ema_workbench.util.ema_logging import temporary_filter, INFO
+from ema_workbench.em_framework import callbacks, evaluators
 
 try:
     from platypus import (EpsNSGAII, Hypervolume, Variator, Real, Integer,
@@ -777,7 +779,9 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
     callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
 
-    optimizer.run(nfe)
+    with temporary_filter(name=[callbacks.__name__,
+                                evaluators.__name__], level=INFO):
+        optimizer.run(nfe)
 
     results = to_dataframe(optimizer, problem.parameter_names,
                            problem.outcome_names)

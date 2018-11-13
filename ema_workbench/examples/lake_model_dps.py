@@ -21,6 +21,7 @@ from scipy.optimize import brentq
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            ema_logging, MultiprocessingEvaluator, 
                            CategoricalParameter, Scenario)
+from ema_workbench.em_framework.evaluators import SequentialEvaluator
 
 # Created on 1 Jun 2017
 #
