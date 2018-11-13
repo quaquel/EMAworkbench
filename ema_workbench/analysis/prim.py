@@ -17,7 +17,6 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import copy
-import logging
 import math
 from operator import itemgetter
 import warnings
@@ -40,11 +39,9 @@ import pandas as pd
 import seaborn as sns
 
 from .plotting_util import make_legend
-from ..util import EMAError, LOGGER_NAME
+from ..util import (EMAError, debug, INFO, temporary_filter,
+                    get_module_logger)
 from . import scenario_discovery_util as sdutil
-
-_logger = logging.getLogger('{}.{}'.format(LOGGER_NAME, __name__))
-
 
 # Created on 22 feb. 2013
 #
@@ -61,6 +58,8 @@ ORIGINAL = 'original'
 ABOVE = 1
 BELOW = -1
 PRECISION = '.2f'
+
+_logger = get_module_logger(__name__)
 
 
 def get_quantile(data, quantile):
@@ -602,26 +601,18 @@ class PrimBox(object):
         y = self.prim.y[self.yi_initial]
         
         if len(self._resampled) < iterations: 
-#             with temporary_filter(_logger, INFO):
-# 
-#             # temporarily disable logging from prim
-#             
-#             class NoParsingFilter(logging.Filter):
-#                 def filter(self, record):
-#                     return not record.getMessage().startswith('parsing')
-# 
-#             _logger.addFilter(NoParsingFilter())
-            
-            for _ in range(len(self._resampled), iterations):
-                index = np.random.choice(x.index, size=int(x.shape[0]*p),
-                                         replace=False)
-                x_temp = x.loc[index, :].reset_index(drop=True)
-                y_temp = y[index]
-                
-                box = Prim(x_temp, y_temp, threshold=0.1,
-                           peel_alpha=self.prim.peel_alpha,
-                           paste_alpha=self.prim.paste_alpha).find_box()
-                self._resampled.append(box)
+            with temporary_filter(ema_logging.LOGGER_NAME, INFO, 'find_box'):
+                for j in range(len(self._resampled), iterations):
+                    _logger.info('resample {}'.format(j))
+                    index = np.random.choice(x.index, size=int(x.shape[0]*p),
+                                             replace=False)
+                    x_temp = x.loc[index, :].reset_index(drop=True)
+                    y_temp = y[index]
+                    
+                    box = Prim(x_temp, y_temp, threshold=0.1,
+                               peel_alpha=self.prim.peel_alpha,
+                               paste_alpha=self.prim.paste_alpha).find_box()
+                    self._resampled.append(box)
         
         counters = []
         for _ in range(2):
@@ -1132,12 +1123,12 @@ class Prim(sdutil.OutputFormatterMixin):
 
         #  perform peeling phase
         box = self._peel(box)
-        _logger.debug("peeling completed")
+        debug("peeling completed")
 
         # perform pasting phase
 #         TODO:: fixme
         box = self._paste(box)
-        _logger.debug("pasting completed")
+        debug("pasting completed")
 
         message = ("mean: {0}, mass: {1}, coverage: {2}, "
                    "density: {3} restricted_dimensions: {4}")
@@ -1159,8 +1150,9 @@ class Prim(sdutil.OutputFormatterMixin):
             return box
         else:
             # make a dump box
-            _logger.info('box does not meet threshold criteria, value is {}, returning dump box'.format(
-                box.mean))
+            _logger.info(('box does not meet threshold criteria, '
+                          'value is {}, returning dump box').format(
+                                                            box.mean))
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self._boxes.append(box)
             return box
@@ -1478,7 +1470,7 @@ class Prim(sdutil.OutputFormatterMixin):
                                      'object')]:
             for i, u in enumerate(columns):
                 if u not in res_dim: continue
-                _logger.debug("pasting "+u)
+                debug("pasting "+u)
                 pastes = self._pastes[dtype](self, box, u, x,
                                              restricted_dims)
                 [possible_pastes.append(entry) for entry in pastes]
