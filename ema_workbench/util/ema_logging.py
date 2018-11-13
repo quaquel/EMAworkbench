@@ -11,6 +11,7 @@ from __future__ import (absolute_import, print_function, division,
 
 from functools import wraps
 import inspect
+from contextlib import contextmanager
 
 import logging
 from logging import Handler, DEBUG, INFO
@@ -26,19 +27,124 @@ __all__ = ['debug',
            'exception',
            'critical',
            'get_logger',
+           'get_module_logger',
            'log_to_stderr',
+           'temporary_filter',
            'DEBUG',
            'INFO',
            'DEFAULT_LEVEL',
            'LOGGER_NAME']
 
 _logger = None
+_module_loggers = {}
 LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
 INFO = INFO
 
 LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
 
+
+def create_module_logger(name=None):
+    if name is None:
+        frm = inspect.stack()[1]
+        mod = inspect.getmodule(frm[0])
+        name = mod.__name__
+    logger = logging.getLogger("{}.{}".format(LOGGER_NAME, name))
+
+    _module_loggers[name] = logger
+    return logger
+
+def get_module_logger(name):
+    try:
+        logger = _module_loggers[name]
+    except KeyError:
+        logger = create_module_logger(name)
+    
+    return logger
+
+class TemporaryFilter(logging.Filter):
+    
+    def __init__(self, *args, level=0, funcname=None, **kwargs):
+        super(TemporaryFilter, self).__init__(*args, **kwargs)
+        self.level = level
+        self.funcname = funcname
+    
+    def filter(self, record):
+        if self.funcname:
+            if self.funcname != record.funcName:
+                return True  
+        
+        return record.levelno > self.level
+
+
+@contextmanager
+def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
+    ''' temporary filter log message
+    
+    Params
+    ------
+    name : str or list of str, optional
+           logger on which to apply the filter. 
+    level: int, or list of int, optional
+           don't log message of this level or lower
+    funcname : str or list of str, optional
+            don't log message of this function
+    
+    all modules have their own unique logger 
+    (e.g. ema_workbench.analysis.prim)
+    
+    TODO:: probably all three should beoptionally be a list so you
+    might filter multiple log message from different functions
+    
+    
+    '''
+    if isinstance(name, str):
+        names = [name]
+    else:
+        names = name
+    
+    if isinstance(level, int):
+        levels = [level]
+    else:
+        levels = level
+    
+    if isinstance(functname, str) or functname==None:
+        functnames = [functname]
+    else:
+        functnames = functname
+    # get logger
+    # add filter
+    max_length = max(len(names), len(levels), len(functnames))
+    
+    # make a list equal lengths?
+    if len(names) < max_length:
+        names = [name,]*max_length
+    if len(levels) < max_length:
+        levels = [level,]*max_length
+    if len(functnames) < max_length:
+        functnames = [functname, ]* max_length
+    
+    filters = {}
+    for name, level, functname in zip(names, levels, functnames):
+        logger = get_module_logger(name)
+        filter = TemporaryFilter(level=level, funcname=functname)  # @ReservedAssignment
+        
+        if logger == _logger:
+            # root logger, add filter to handler rather than logger
+            # because filters don't propagate for some unclear reason
+            for handler in logger.handlers:
+                handler.addFilter(filter)
+                filters[filter] = handler
+        else:
+            logger.addFilter(filter)
+            filters[filter] = logger 
+            
+    yield
+    
+    for k, v in filters.items():
+        v.removeFilter(k)
+
+    
 
 def method_logger(func):
     classname = inspect.getouterframes(inspect.currentframe())[1][3]
@@ -68,8 +174,13 @@ def debug(msg, *args, **kwargs):
              kwargs to pass on to the logger
 
     '''
+    frm = inspect.stack()[1]
+    mod = inspect.getmodule(frm[0])
+    name = mod.__name__    
+    logger = get_module_logger(name)
+    
     if _logger:
-        _logger.debug(msg, *args, **kwargs)
+        logger.debug(msg, *args, **kwargs)
 
 
 def info(msg, *args):
@@ -86,8 +197,13 @@ def info(msg, *args):
              kwargs to pass on to the logger
 
     '''
+    frm = inspect.stack()[1]
+    mod = inspect.getmodule(frm[0])
+    name = mod.__name__    
+    logger = get_module_logger(name)
+    
     if _logger:
-        _logger.info(msg, *args)
+        logger.info(msg, *args)
 
 
 def warning(msg, *args):
@@ -104,8 +220,13 @@ def warning(msg, *args):
              kwargs to pass on to the logger
 
     '''
+    frm = inspect.stack()[1]
+    mod = inspect.getmodule(frm[0])
+    name = mod.__name__    
+    logger = get_module_logger(name)
+    
     if _logger:
-        _logger.warning(msg, *args)
+        logger.warning(msg, *args)
 
 
 def error(msg, *args):
@@ -122,8 +243,13 @@ def error(msg, *args):
              kwargs to pass on to the logger
 
     '''
+    frm = inspect.stack()[1]
+    mod = inspect.getmodule(frm[0])
+    name = mod.__name__    
+    logger = get_module_logger(name)
+
     if _logger:
-        _logger.error(msg, *args)
+        logger.error(msg, *args)
 
 
 def exception(msg, *args):
@@ -140,8 +266,13 @@ def exception(msg, *args):
              kwargs to pass on to the logger
 
     '''
+    frm = inspect.stack()[1]
+    mod = inspect.getmodule(frm[0])
+    name = mod.__name__    
+    logger = get_module_logger(name)
+    
     if _logger:
-        _logger.exception(msg, *args)
+        logger.exception(msg, *args)
 
 
 def critical(msg, *args):
@@ -158,8 +289,13 @@ def critical(msg, *args):
              kwargs to pass on to the logger
 
     '''
+    frm = inspect.stack()[1]
+    mod = inspect.getmodule(frm[0])
+    name = mod.__name__    
+    logger = get_module_logger(name)    
+
     if _logger:
-        _logger.critical(msg, *args)
+        logger.critical(msg, *args)
 
 
 def get_logger():
@@ -178,6 +314,7 @@ def get_logger():
         _logger.handlers = []
         _logger.addHandler(NullHandler())
         _logger.setLevel(DEBUG)
+        _module_loggers[LOGGER_NAME] = _logger
 
     return _logger
 

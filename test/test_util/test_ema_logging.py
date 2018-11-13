@@ -6,6 +6,7 @@ Created on Jul 28, 2015
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 import logging
+import ema_workbench
 
 try:
     import unittest.mock as mock
@@ -26,6 +27,7 @@ class TestEmaLogging(unittest.TestCase):
         ema_logging.log_to_stderr(ema_logging.DEBUG)
         
         with mock.patch('ema_workbench.util.ema_logging._logger') as mocked_logger:
+            ema_logging._module_loggers[__name__] = mocked_logger
             message = 'test message'
             ema_logging.debug(message)
             mocked_logger.debug.assert_called_with(message)
