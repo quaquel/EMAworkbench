@@ -13,6 +13,7 @@ import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import scipy.stats.kde as kde
 import seaborn as sns
 import six
@@ -493,13 +494,14 @@ def filter_scalar_outcomes(outcomes):
 
 
     '''
-    outcomes_to_remove = []
+    temp = {}
     for key, value in outcomes.items():
-        if len(value.shape) < 2:
-            outcomes_to_remove.append(key)
-            info("%s not shown because it is not time series data" % key)
-    [outcomes.pop(entry) for entry in outcomes_to_remove]
-    return outcomes
+        if value.ndim < 2:
+            info(("{} not shown because it is "
+                  "not time series data").format(key))
+        else:
+            temp[key] = value
+    return temp
 
 
 def determine_time_dimension(outcomes):
@@ -526,7 +528,7 @@ def determine_time_dimension(outcomes):
     except KeyError:
         values = iter(outcomes.values())
         for value in values:
-            if len(value.shape) == 2:
+            if value.ndim == 2:
                 time = np.arange(0, value.shape[1])
                 break
     if time is None:
@@ -574,7 +576,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
     '''
     groups = {}
     if group_by != 'index':
-        column_to_group_by = experiments[group_by]
+        column_to_group_by = experiments.loc[:, group_by]
 
     for label, specifier in zip(grouping_labels, grouping_specifiers):
         if isinstance(specifier, tuple):
@@ -694,37 +696,34 @@ def prepare_pairs_data(results,
     return outcomes, outcomes_to_show, grouping_labels
 
 
-def prepare_data(results,
-                 outcomes_to_show=None,
-                 group_by=None,
-                 grouping_specifiers=None,
+def prepare_data(experiments, outcomes, outcomes_to_show=None,
+                 group_by=None, grouping_specifiers=None,
                  filter_scalar=True):
-    '''
+    '''Helper function for preparing datasets prior to plotting
 
     Parameters
     ----------
-    results : tuple
+    experiments : DataFrame
+    outcomes : dict
     outcomes_to_show : list of str, optional
     group_by : str, optional
     grouping_specifiers : iterable, optional
     filter_scalar : bool, optional
 
     '''
+    experiments = experiments.copy()
+    outcomes = copy.copy(outcomes)
 
-    # unravel results
-    experiments, outcomes = results
-
+    time, outcomes = determine_time_dimension(outcomes)
     temp_outcomes = {}
-
+    
     # remove outcomes that are not to be shown
     if outcomes_to_show:
         if isinstance(outcomes_to_show, six.string_types):
             outcomes_to_show = [outcomes_to_show]
 
         for entry in outcomes_to_show:
-            temp_outcomes[entry] = copy.deepcopy(outcomes[entry])
-
-    time, outcomes = determine_time_dimension(outcomes)
+            temp_outcomes[entry] = outcomes[entry]
 
     # filter the outcomes to exclude scalar values
     if filter_scalar:
@@ -737,11 +736,12 @@ def prepare_data(results,
         if not grouping_specifiers:
             # no grouping specifier, so infer from the data
             if group_by == 'index':
-                raise EMAError(
-                    "no grouping specifiers provided while trying to group on index")
+                raise EMAError(("no grouping specifiers provided while "
+                                "trying to group on index"))
             else:
                 column_to_group_by = experiments[group_by]
-                if column_to_group_by.dtype == np.object:
+                if (column_to_group_by.dtype == np.object) or\
+                    (column_to_group_by.dtype=='category'):
                     grouping_specifiers = set(column_to_group_by)
                 else:
                     grouping_specifiers = make_continuous_grouping_specifiers(column_to_group_by,
