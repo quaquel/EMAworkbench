@@ -32,8 +32,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest', 
               'sphinx.ext.napoleon',
               'sphinx.ext.mathjax',
-              'matplotlib.sphinxext.only_directives',
-              'matplotlib.sphinxext.plot_directive',
+#               'matplotlib.sphinxext.only_directives',
+#               'matplotlib.sphinxext.plot_directive',
               'nbsphinx',
               ]
  
