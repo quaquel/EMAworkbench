@@ -10,7 +10,6 @@ from __future__ import (absolute_import, print_function, division,
 from operator import itemgetter
 
 import numpy as np
-import numpy.lib.recfunctions as recfunctions
 import pandas as pd
 import six
 from sklearn.ensemble import (ExtraTreesClassifier, ExtraTreesRegressor,
