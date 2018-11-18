@@ -125,7 +125,8 @@ def plot_category(ax, axis, i, label, pos):
         ax.text(pos, i, label, ha='center', va='center')
 
 
-def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
+def plot_index(ax, ax_plot, axis, index, plot_labels=True,
+               plot_cats=True):
     '''helper function for visualizing the hierarchical index
 
     Parameters
@@ -190,7 +191,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
     except AttributeError:
         nr_levels = 1
         levels = [index.values.tolist()]
-        indices = zip(index.values)
+        indices = list(zip(index.values))
 
     if axis == 1:
         indices = indices[::-1]
@@ -306,35 +307,8 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
     return fig
 
 
-def make_pivot_table(data, rows=None, columns=None, values=None):
-    ''' Make a pivot table
-
-    work around for fact that dropna=False kwarg on pivot tables
-    results in column and row names being dropped
-
-    Parameters
-    ----------
-    data : DataFrame
-    rows : iterable of str
-    columns : iterable of str
-    values : str
-
-    Returns
-    -------
-    DataFrame
-
-    '''
-
-    stacked = pd.pivot_table(data, values=values, index=rows,
-                             columns=columns, dropna=False)
-    stacked.index.names = rows
-    stacked.columns.names = columns
-
-    return stacked
-
-
 def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
-                      nbins=3):
+                      nbins=3, bin_labels=False):
     ''' convenience function for easily creating a pivot plot
 
     Parameters
@@ -352,6 +326,9 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     nbins : int, optional
             number of bins to use when discretizing continuous uncertain 
             factors
+    bin_labels : bool, optional
+                 if True show bin interval / name, otherwise show
+                 only a number
 
     Returns
     -------
@@ -373,14 +350,15 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     rows = [entry for entry in scores[0:n:2]]
     columns = [entry for entry in scores[1:n:2]]
 
-    discretized_x = discretize(x, nbins=nbins)
+    discretized_x = discretize(x, nbins=nbins,
+                               with_labels=bin_labels)
 
     ooi_label = 'y'
     ooi = pd.DataFrame(y[:, np.newaxis], columns=[ooi_label])
 
     x_y_concat = pd.concat([discretized_x, ooi], axis=1)
-    pvt = make_pivot_table(x_y_concat, rows=rows, columns=columns,
-                           values=ooi_label)
+    pvt = pd.pivot_table(x_y_concat, values=ooi_label, index=rows,
+                            columns=columns, dropna=False)
 
     fig = plot_pivot_table(pvt, plot_labels=labels,
                            plot_cats=categories)
