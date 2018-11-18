@@ -9,11 +9,9 @@ from __future__ import (absolute_import, print_function, division,
 import copy
 
 import matplotlib as mpl
-import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import scipy.stats.kde as kde
 import seaborn as sns
 import six
@@ -72,7 +70,7 @@ SCATTER = 'scatter'
 # ==============================================================================
 
 
-def plot_envelope(ax, j, time, value, fill):
+def plot_envelope(ax, j, time, value, fill=False):
     '''
 
     Helper function, responsible for plotting an envelope.
@@ -326,19 +324,18 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     maxima : dict
 
     '''
+    size_kde = 100
+    fig, axes = plt.subplots(len(outcomes_to_show), squeeze=False)
+    axes = axes[:, 0]
 
-    figure, grid = make_grid(outcomes_to_show)
     axes_dict = {}
 
     # do the plotting
-    for i, outcome_to_plot in enumerate(outcomes_to_show):
-        ax = figure.add_subplot(grid[i, 0])
+    for outcome_to_plot, ax in zip(outcomes_to_show, axes):
         axes_dict[outcome_to_plot] = ax
 
         outcome = outcomes[outcome_to_plot]
 
-        size_kde = 100
-        np.zeros
         kde_over_time = np.zeros(shape=(size_kde, outcome.shape[1]))
         ymin = minima[outcome_to_plot]
         ymax = maxima[outcome_to_plot]
@@ -346,22 +343,19 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
         # make kde over time
         for j in range(outcome.shape[1]):
             kde_x = determine_kde(outcome[:, j], size_kde, ymin, ymax)[0]
+            kde_x = kde_x/np.max(kde_x)
+            
             if log:
                 kde_x = np.log(kde_x+1)
             kde_over_time[:, j] = kde_x
-        ax.matshow(kde_over_time,
-                   cmap=cm.__dict__[colormap])
-#        a = ax.get_yticklabels()
-#        b = len(a)
-#        c = ymax-ymin/b
-#        d = ymax+c
-#        e = np.arange(ymin, d, c)
+        
+        sns.heatmap(kde_over_time[::-1,:], ax=ax, cmap=colormap, cbar=True)
         ax.set_xticklabels([])
         ax.set_yticklabels([])
         ax.set_xlabel("time")
         ax.set_ylabel(outcome_to_plot)
 
-    return figure, axes_dict
+    return fig, axes_dict
 
 
 def make_legend(categories,
@@ -604,7 +598,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
         for key, value in outcomes.items():
             value = value[logical]
             group_outcomes[key] = value
-        groups[label] = (experiments[logical], group_outcomes)
+        groups[label] = (experiments.loc[logical,:], group_outcomes)
 
     return groups
 
@@ -643,7 +637,7 @@ def make_continuous_grouping_specifiers(array, nr_of_groups=5):
     return a
 
 
-def prepare_pairs_data(results,
+def prepare_pairs_data(experiments, outcomes,
                        outcomes_to_show=None,
                        group_by=None,
                        grouping_specifiers=None,
@@ -665,9 +659,7 @@ def prepare_pairs_data(results,
         raise EMAError(
             "for pair wise plotting, more than one outcome needs to be provided")
 
-    results = copy.deepcopy(results)
-
-    outcomes, outcomes_to_show, time, grouping_labels = prepare_data(results,
+    outcomes, outcomes_to_show, time, grouping_labels = prepare_data(experiments, outcomes,
                                                                      outcomes_to_show,
                                                                      group_by,
                                                                      grouping_specifiers,

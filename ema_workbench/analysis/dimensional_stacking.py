@@ -62,10 +62,9 @@ def discretize(data, nbins=3, with_labels=False):
             n_unique = column_data.unique().shape[0]
             if n_unique <= n:
                 n = n_unique
-        elif entry == np.dtype(object):
+        elif entry.name == 'category':
             n_unique = column_data.unique().shape[0]
             n = n_unique
-            column_data = column_data.astype('category')
             column_data = column_data.cat.rename_categories(
                 [x for x in range(1, n+1)])
 
@@ -74,7 +73,8 @@ def discretize(data, nbins=3, with_labels=False):
             indices = pd.cut(column_data, n,
                              labels=labels)
         else:
-            indices = pd.cut(column_data, n, retbins=False, labels=False)
+            indices = pd.cut(column_data, n, retbins=False,
+                             labels=False)
 
         discretized[column] = indices
 
@@ -339,12 +339,12 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
 
     Parameters
     ----------
-    x : structured array
+    x : DataFrame
     y : 1d ndarray
     nr_levels : int, optional
                 the number of levels in the pivot table. The number of 
-                uncertain factors included in the pivot table is two times the 
-                number of levels.
+                uncertain factors included in the pivot table is two
+                times the number of levels.
     labels : bool, optional
              display names of uncertain factors
     categories : bool, optional
@@ -358,11 +358,11 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     Figure
 
 
-    This function performs feature scoring using random forests, selects a 
-    number of high scoring factors based on the specified number of levels, 
-    creates a pivot table, and visualizes the table. This is a convenience 
-    function. For more control over the process, use the code in this function 
-    as a template. 
+    This function performs feature scoring using random forests, selects
+    a number of high scoring factors based on the specified number of
+    levels, creates a pivot table, and visualizes the table. This is a
+    convenience  function. For more control over the process, use the
+    code in this function as a template. 
 
     '''
     scores = feature_scoring.get_ex_feature_scores(x, y)[0]
@@ -373,8 +373,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     rows = [entry for entry in scores[0:n:2]]
     columns = [entry for entry in scores[1:n:2]]
 
-    data = pd.DataFrame.from_records(x)
-    discretized_x = discretize(data, nbins=nbins)
+    discretized_x = discretize(x, nbins=nbins)
 
     ooi_label = 'y'
     ooi = pd.DataFrame(y[:, np.newaxis], columns=[ooi_label])
@@ -383,6 +382,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     pvt = make_pivot_table(x_y_concat, rows=rows, columns=columns,
                            values=ooi_label)
 
-    fig = plot_pivot_table(pvt, plot_labels=labels, plot_cats=categories)
+    fig = plot_pivot_table(pvt, plot_labels=labels,
+                           plot_cats=categories)
 
     return fig

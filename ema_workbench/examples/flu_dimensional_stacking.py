@@ -1,15 +1,10 @@
 '''
 
-This file illustrated the use of the workbench for doing 
-a PRIM analysis.
-
-The data was generated using a system dynamics models implemented in Vensim.
-See flu_example.py for the code. The dataset was generated using 32 bit Python.
-Therefore, this example will not work if you are running 64 bit Python. 
+This file illustrated the use of the workbench for using dimensional
+stacking for scenario discovery
 
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-                chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 '''
 from __future__ import (division, print_function, unicode_literals)

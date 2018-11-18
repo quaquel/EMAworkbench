@@ -13,31 +13,32 @@ from ema_workbench.analysis.pairs_plotting import (pairs_density, pairs_lines,
 from .. import utilities
 
 def test_pairs_lines():
-    results = utilities.load_eng_trans_data() 
-    pairs_lines(results)
+    experiments, outcomes = utilities.load_eng_trans_data() 
+    pairs_lines(experiments, outcomes)
     
-    pairs_lines(results, group_by='policy')
+    pairs_lines(experiments, outcomes, group_by='policy')
     plt.draw()
     plt.close('all')
 
 def test_pairs_density():
-    results =  utilities.load_eng_trans_data() 
-    pairs_density(results)
-    pairs_density(results, colormap='binary')
+    experiments, outcomes =  utilities.load_eng_trans_data() 
+    pairs_density(experiments, outcomes)
+    pairs_density(experiments, outcomes, colormap='binary')
 
-    pairs_density(results, group_by='policy', grouping_specifiers=['no policy'])
+    pairs_density(experiments, outcomes, group_by='policy',
+                  grouping_specifiers=['no policy'])
     plt.draw()
     plt.close('all')
 
 def test_pairs_scatter():
-    results = utilities.load_eng_trans_data()
+    experiments, outcomes = utilities.load_eng_trans_data()
     
-    pairs_scatter(results)
+    pairs_scatter(experiments, outcomes)
     
-    pairs_scatter(results, group_by='policy',
+    pairs_scatter(experiments, outcomes, group_by='policy',
                   grouping_specifiers='basic policy', legend=False)
     
-    pairs_scatter(results, group_by='policy', 
+    pairs_scatter(experiments, outcomes, group_by='policy', 
                   grouping_specifiers=['no policy', 'adaptive policy'])
     plt.draw()
     plt.close('all')

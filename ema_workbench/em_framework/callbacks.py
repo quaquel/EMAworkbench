@@ -182,11 +182,10 @@ class DefaultCallback(AbstractCallback):
             columns.append(name)
             dtypes.append('object')
                 
-        df = pd.DataFrame(index=np.arange(nr_experiments),
-                                  columns=columns)
+        df = pd.DataFrame(index=np.arange(nr_experiments))
         
         for name, dtype in zip(columns, dtypes):
-            df[name] = df[name].astype(dtype)
+            df[name] = pd.Series(dtype=dtype)
         self.cases = df
         self.nr_experiments = nr_experiments
 

@@ -21,7 +21,7 @@ from ..util import debug, info
 __all__ = ['pairs_scatter', 'pairs_lines', 'pairs_density']
 
 
-def pairs_lines(results,
+def pairs_lines(experiments, outcomes,
                 outcomes_to_show=[],
                 group_by=None,
                 grouping_specifiers=None,
@@ -37,8 +37,8 @@ def pairs_lines(results,
 
     Parameters
     ----------
-    results : tuple
-              return from perform_experiments.
+    experiments : DataFrame
+    outcomes : dict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot.
     group_by : str, optional
@@ -75,7 +75,7 @@ def pairs_lines(results,
     # unravel return from run_experiments
     debug("making a pars lines plot")
 
-    prepared_data = prepare_pairs_data(results, outcomes_to_show, group_by,
+    prepared_data = prepare_pairs_data(experiments, outcomes, outcomes_to_show, group_by,
                                        grouping_specifiers, None)
     outcomes, outcomes_to_show, grouping_labels = prepared_data
 
@@ -153,7 +153,7 @@ def simple_pairs_lines(ax, y_data, x_data, color):
                marker='+')
 
 
-def pairs_density(results,
+def pairs_density(experiments, outcomes,
                   outcomes_to_show=[],
                   group_by=None,
                   grouping_specifiers=None,
@@ -176,8 +176,8 @@ def pairs_density(results,
 
     Parameters
     ----------
-    results : tuple
-              return from perform_experiments.
+    experiments : DataFrame
+    outcomes : dict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot.
     group_by : str, optional
@@ -220,7 +220,7 @@ def pairs_density(results,
     '''
     debug("generating pairwise density plot")
 
-    prepared_data = prepare_pairs_data(results, outcomes_to_show, group_by,
+    prepared_data = prepare_pairs_data(experiments, outcomes, outcomes_to_show, group_by,
                                        grouping_specifiers, point_in_time,
                                        filter_scalar)
     outcomes, outcomes_to_show, grouping_specifiers = prepared_data
@@ -370,7 +370,7 @@ def simple_pairs_density(outcomes,
     return figure, axes_dict
 
 
-def pairs_scatter(results,
+def pairs_scatter(experiments, outcomes,
                   outcomes_to_show=[],
                   group_by=None,
                   grouping_specifiers=None,
@@ -386,8 +386,8 @@ def pairs_scatter(results,
 
     Parameters
     ----------
-    results : tuple
-              return from perform_experiments.
+    experiments : DataFrame
+    outcomes : dict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot.
     group_by : str, optional
@@ -429,7 +429,7 @@ def pairs_scatter(results,
 
     debug("generating pairwise scatter plot")
 
-    prepared_data = prepare_pairs_data(results, outcomes_to_show, group_by,
+    prepared_data = prepare_pairs_data(experiments, outcomes, outcomes_to_show, group_by,
                                        grouping_specifiers, point_in_time,
                                        filter_scalar)
     outcomes, outcomes_to_show, grouping_labels = prepared_data

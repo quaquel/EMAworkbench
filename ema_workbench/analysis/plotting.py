@@ -338,9 +338,7 @@ def lines(experiments,
 
     if experiments_to_show is not None:
         experiments = experiments.loc[experiments_to_show, :]
-        new_outcomes = {}
-        for key, value in outcomes.items():
-            new_outcomes[key] = value[experiments_to_show]
+        outcomes = {k:v[experiments_to_show] for k,v in outcomes.items()}
 
     data = prepare_data(experiments, outcomes, outcomes_to_show,
                         group_by, grouping_specifiers)
@@ -630,8 +628,6 @@ def kde_over_time(experiments,
         indexed by the outcome followed by _density
 
     '''
-    # TODO:: a colorbar boolean should be added. This controls whether a
-    #        colorbar is shown for each axes.
 
     # determine the minima and maxima over all runs
     minima = {}
@@ -657,15 +653,6 @@ def kde_over_time(experiments,
             figures.append(fig)
             axes_dicts[key] = axes_dict
 
-        for outcome in outcomes_to_show:
-            vmax = -1
-            for entry in axes_dicts.values():
-                vmax = max(entry[outcome].images[0].norm.vmax, vmax)
-            for entry in axes_dicts.values():
-                ax = entry[outcome]
-                ax.images[0].set_clim(vmin=0, vmax=vmax)
-            del vmax
-
         return figures, axes_dicts
     else:
         return simple_kde(outcomes, outcomes_to_show, colormap, log,
@@ -684,7 +671,8 @@ def multiple_densities(experiments,
                        ylabels={},
                        experiments_to_show=None,
                        plot_type=ENVELOPE,
-                       log=False):
+                       log=False,
+                       **kwargs):
     ''' Make an envelope plot with multiple density plots over the run time
 
     Parameters
@@ -737,9 +725,9 @@ def multiple_densities(experiments,
 
     Note
     ---- 
-    the current implementation is limited to seven different categories in
-    case of group_by, categories, and/or discretesize. This limit is due to the 
-    colors specified in COLOR_LIST.
+    the current implementation is limited to seven different categories
+    in case of group_by, categories, and/or discretesize. This limit is
+    due to the colors specified in COLOR_LIST.
 
     Note
     ----
@@ -749,32 +737,21 @@ def multiple_densities(experiments,
 
     '''
     if not outcomes_to_show:
-        outcomes_to_show = outcomes.keys()
+        outcomes_to_show = [k for k, v in outcomes.items() if v.ndim==2]
         outcomes_to_show.remove(TIME)
     elif isinstance(outcomes_to_show, six.string_types):
         outcomes_to_show = [outcomes_to_show]
 
+    data = prepare_data(experiments, outcomes, 
+                        outcomes_to_show, group_by,
+                        grouping_specifiers)
+    outcomes, _, time, grouping_labels = data
+
     axes_dicts = {}
     figures = []
     for outcome_to_show in outcomes_to_show:
-        temp_results = experiments.copy()
         axes_dict = {}
         axes_dicts[outcome_to_show] = axes_dict
-
-        if plot_type != ENV_LIN:
-            # standard way of pre processing data
-            if experiments_to_show != None:
-                experiments, outcomes = temp_results
-                experiments = experiments[experiments_to_show]
-                new_outcomes = {}
-                for key, value in outcomes.items():
-                    new_outcomes[key] = value[experiments_to_show]
-                temp_results = experiments, new_outcomes
-
-        data = prepare_data(temp_results, [outcome_to_show], group_by,
-                            grouping_specifiers)
-        outcomes, outcomes_to_show, time, grouping_labels = data
-        del outcomes_to_show
 
         # start of plotting
         fig = plt.figure()
@@ -821,7 +798,6 @@ def multiple_densities(experiments,
             ax4 = plt.subplot2grid((2, 6), (1, 3), sharex=ax1, sharey=ax_env)
             ax5 = plt.subplot2grid((2, 6), (1, 4), sharex=ax1, sharey=ax_env)
             ax6 = plt.subplot2grid((2, 6), (1, 5), sharex=ax1, sharey=ax_env)
-
             kde_axes = [ax1, ax2, ax3, ax4, ax5, ax6, ]
         else:
             raise EMAError("too many points in time provided")
@@ -836,7 +812,7 @@ def multiple_densities(experiments,
                     tl.set_visible(False)
 
         # bit of a trick to avoid duplicating code. If no subgroups are
-        # specified, nest the outcomes one step deeper in de dict so the
+        # specified, nest the outcomes one step deeper in the dict so the
         # iteration below can proceed normally.
         if not grouping_labels:
             grouping_labels = [""]
@@ -846,11 +822,11 @@ def multiple_densities(experiments,
             value = outcomes[key][outcome_to_show]
 
             if plot_type == ENVELOPE:
-                plot_envelope(ax_env, j, time, value, fill=False)
+                plot_envelope(ax_env, j, time, value, **kwargs)
             elif plot_type == LINES:
                 ax_env.plot(time.T, value.T)
             elif plot_type == ENV_LIN:
-                plot_envelope(ax_env, j, time, value, fill=True)
+                plot_envelope(ax_env, j, time, value, **kwargs)
                 if experiments_to_show != None:
                     ax_env.plot(time.T, value[experiments_to_show].T)
                 else:
@@ -861,9 +837,8 @@ def multiple_densities(experiments,
             do_ylabels(ax_env, ylabels, outcome_to_show)
             do_titles(ax_env, titles, outcome_to_show)
 
-        for i, ax in enumerate(kde_axes):
-            time_value = points_in_time[i]
-            index = np.where(time == points_in_time[i])[0][0]
+        for ax, time_value in zip(kde_axes, points_in_time):
+            index = np.where(time==time_value)[0][0]
 
             group_density(ax, density, outcomes, outcome_to_show,
                           grouping_labels, index=index, log=log)
@@ -871,6 +846,8 @@ def multiple_densities(experiments,
         min_y, max_y = ax_env.get_ylim()
         ax_env.autoscale(enable=False, axis='y')
 
+        # draw line to connect each point in time in the main plot
+        # to the associated density plot
         for i, ax in enumerate(kde_axes):
             time_value = points_in_time[i]
 
