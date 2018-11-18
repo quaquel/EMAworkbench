@@ -269,8 +269,8 @@ def lines(experiments,
 
     Parameters
     ----------
-    results : tuple
-              return from :meth:`perform_experiments`.
+    experiments : DataFrame
+    outcomes : dict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot. If empty, 
                        all outcomes are plotted. **Note**:  just names.
@@ -408,8 +408,8 @@ def plot_lines_with_envelopes(experiments,
 
     Parameters
     ----------
-    results : tupule
-              return from :meth:`perform_experiments`.
+    experiments : DataFrame
+    outcomes : dict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot. If empty, 
                        all outcomes are plotted. **Note**:  just names.
@@ -572,8 +572,7 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
 
     Parameters
     ----------
-    results : tupule
-              return from :meth:`perform_experiments`.
+    outcomes : dict
     outcomes_to_plot : str
     time : str
     density : {None, HIST, KDE, VIOLIN, BOXPLOT}
@@ -601,22 +600,23 @@ def kde_over_time(experiments,
 
     Parameters
     ----------
-    results : tupule
-              return from :meth:`perform_experiments`.
+    experiments : DataFrame
+    outcomes : dict
     outcomes_to_show : list of str, optional
-                       list of outcome of interest you want to plot. If empty, 
-                       all outcomes are plotted. **Note**:  just names.
+                       list of outcome of interest you want to plot. If
+                       empty, all outcomes are plotted. 
+                       **Note**:  just names.
     group_by : str, optional
-               name of the column in the cases array to group results by. 
-               Alternatively, `index` can be used to use indexing arrays as the
-               basis for grouping.
+               name of the column in the cases array to group results
+               by. Alternatively, `index` can be used to use indexing
+               arrays as the basis for grouping.
     grouping_specifiers : iterable or dict, optional
-                          set of categories to be used as a basis for grouping 
-                          by. Grouping_specifiers is only meaningful if 
-                          group_by is provided as well. In case of grouping by 
-                          index, the grouping specifiers should be in a 
-                          dictionary where the key denotes the name of the 
-                          group. 
+                          set of categories to be used as a basis for
+                          grouping by. Grouping_specifiers is only
+                          meaningful if group_by is provided as well.
+                          In case of grouping by index, the grouping
+                          specifiers should be in a dictionary where
+                          the key denotes the name of the group. 
     colormap : str, optional
                valid matplotlib color map name
     log : bool, optional
@@ -672,7 +672,8 @@ def kde_over_time(experiments,
                           minima, maxima)
 
 
-def multiple_densities(results,
+def multiple_densities(experiments,
+                       outcomes,
                        points_in_time=[],
                        outcomes_to_show=[],
                        group_by=None,
@@ -688,8 +689,8 @@ def multiple_densities(results,
 
     Parameters
     ----------
-    results : tupule
-              return from :meth:`perform_experiments`.
+    experiments : DataFrame
+    outcomes : dict
     points_in_time : list 
                      a list of points in time for which you want to see the 
                      density. At the moment  up to 6 points in time are 
@@ -748,7 +749,7 @@ def multiple_densities(results,
 
     '''
     if not outcomes_to_show:
-        outcomes_to_show = results[1].keys()
+        outcomes_to_show = outcomes.keys()
         outcomes_to_show.remove(TIME)
     elif isinstance(outcomes_to_show, six.string_types):
         outcomes_to_show = [outcomes_to_show]
@@ -756,7 +757,7 @@ def multiple_densities(results,
     axes_dicts = {}
     figures = []
     for outcome_to_show in outcomes_to_show:
-        temp_results = copy.deepcopy(results)
+        temp_results = experiments.copy()
         axes_dict = {}
         axes_dicts[outcome_to_show] = axes_dict
 
