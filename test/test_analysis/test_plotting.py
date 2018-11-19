@@ -77,7 +77,6 @@ def test_group_results():
     for value in groups.values():
         total_data += value[0].shape[0]
     print(experiments.shape[0], total_data)   
-
     
     # test categorical type
     grouping_specifiers = set(experiments["policy"])
@@ -372,7 +371,10 @@ def test_kde_over_time():
 def test_multiple_densities():
     experiments, outcomes = utilities.load_eng_trans_data()
     ooi = 'total fraction new technologies'
-    
+
+    multiple_densities(experiments, outcomes, 
+                  group_by="policy", 
+                  points_in_time = [2010])
     multiple_densities(experiments, outcomes, 
                   outcomes_to_show=ooi, 
                   group_by="policy", 
@@ -458,7 +460,6 @@ def test_multiple_densities():
                   density=VIOLIN,
                   experiments_to_show=[1,2,10],
                   log=True)
-
     
     plt.draw()
     plt.close('all')

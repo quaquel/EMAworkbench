@@ -25,9 +25,6 @@ COLOR_LIST = sns.color_palette()
 '''Default color list'''
 sns.set_palette(COLOR_LIST)
 
-TIGHT = False
-'''Parameter controlling whether tight layout from matplotlib should be used'''
-
 TIME = "TIME"
 '''Default key for time'''
 

@@ -316,7 +316,7 @@ def set_ax_legend_to_bw(ax, style, colormap, line_style='continuous'):
 
 
 def set_fig_to_bw(fig, style=HATCHING,
-                  line_style='continuous', all_colors=None):
+                  line_style='continuous'):
     """
     TODO it would be nice if for lines you can select either markers, gray
     scale, or simple black
@@ -335,9 +335,7 @@ def set_fig_to_bw(fig, style=HATCHING,
           the figure to transform to black and white
     style : {HATCHING, GREYSCALE}
             parameter controlling how collections are transformed.
-    line_style: str
-                linestyle to use for converting, can be continuous, black
-                or None
+    line_style: str, {'continuous', 'black', None}
 
     """
     all_colors = _identify_colors(fig)
@@ -357,9 +355,9 @@ def set_fig_to_bw(fig, style=HATCHING,
         colormap[color]['fill'] = str(relative_color)
 
     for ax in fig.get_axes():
-        set_ax_lines_bw(ax, colormap)
+        set_ax_lines_bw(ax, colormap, line_style)
         set_ax_patches_bw(ax, colormap)
         set_ax_collections_to_bw(ax, style, colormap)
-        set_ax_legend_to_bw(ax, style, colormap)
+        set_ax_legend_to_bw(ax, style, colormap, line_style)
 
     set_legend_to_bw(fig.legends, style, colormap)

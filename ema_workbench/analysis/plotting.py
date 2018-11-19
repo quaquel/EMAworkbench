@@ -8,18 +8,17 @@ be used as is, or serve as an example for writing your own code.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-import copy
-
 import matplotlib.pyplot as plt
 import numpy as np
 import six
 from matplotlib.patches import ConnectionPatch
 
 # from . import plotting_util
-from .plotting_util import (prepare_data, simple_kde, group_density, make_grid,
-                            make_legend, plot_envelope, simple_density,
-                            do_titles, do_ylabels, TIME, ENV_LIN, ENVELOPE,
-                            LINES, PATCH, LINE, TIGHT, KDE, get_color)
+from .plotting_util import (prepare_data, simple_kde, group_density,
+                            make_grid, make_legend, plot_envelope,
+                            simple_density, do_titles, do_ylabels, TIME,
+                            ENV_LIN, ENVELOPE, LINES, PATCH, LINE,
+                            KDE, get_color)
 from ..util import debug, exception, EMAError
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -43,11 +42,13 @@ def envelopes(experiments,
               titles={},
               ylabels={},
               log=False):
-    ''' Make envelop plots. An envelope shows over time the minimum and maximum 
-    value for a set of runs over time. It is thus to be used in case of time 
-    series data. The function will try to find a result labeled "TIME". If this
-    is present, these values will be used on the X-axis. In case of Vensim 
-    models, TIME is present by default.
+    ''' Make envelop plots. 
+    
+    An envelope shows over time the minimum and maximum  value for a set
+    of runs over time. It is thus to be used in case of time series
+    data. The function will try to find a result labeled "TIME". If this
+    is present, these values will be used on the X-axis. In case of
+    Vensim models, TIME is present by default.
 
     Parameters
     ----------
@@ -59,12 +60,12 @@ def envelopes(experiments,
                Alternatively, `index` can be used to use indexing
                arrays as the basis for grouping.
     grouping_specifiers : iterable or dict, optional
-                          set of categories to be used as a basis for grouping 
-                          by. Grouping_specifiers is only meaningful if 
-                          group_by is provided as well. In case of grouping by 
-                          index, the grouping specifiers should be in a 
-                          dictionary where the key denotes the name of the 
-                          group. 
+                          set of categories to be used as a basis for
+                          grouping by. Grouping_specifiers is only
+                          meaningful if group_by is provided as well.
+                          In case of grouping by index, the grouping
+                          specifiers should be in a  dictionary where
+                          the key denotes the name of the group. 
     density : {None, HIST, KDE, VIOLIN, BOXPLOT}, optional
     fill : bool, optional
     legend : bool, optional
@@ -161,9 +162,6 @@ def envelopes(experiments,
                         legend_type=PATCH)
         else:
             make_legend(grouping_labels, ax, legend_type=LINE)
-
-    if TIGHT:
-        grid.tight_layout(figure)
 
     return figure, axes_dict
 
@@ -382,9 +380,6 @@ def lines(experiments,
 
         make_legend(grouping_labels, ax)
 
-    if TIGHT:
-        grid.tight_layout(figure)
-
     return figure, axes_dict
 
 
@@ -519,9 +514,6 @@ def plot_lines_with_envelopes(experiments,
                     gs1.num2 == gs2.num2)):
                 break
         make_legend(grouping_labels, ax)
-
-    if TIGHT:
-        grid.tight_layout(figure)
 
     return figure, axes_dict
 
