@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # from . import plotting_util
-from .plotting_util import (SCATTER, LINE, get_color, prepare_pairs_data,
-                            make_legend)
+from .plotting_util import (SCATTER, LINE, get_color,
+                            prepare_pairs_data, make_legend)
 from ..util import debug, info
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -166,8 +166,8 @@ def pairs_density(experiments, outcomes,
     '''
 
     Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_ 
-    hexbin density multiplot. In case of time-series data, the end states are 
-    used.
+    hexbin density multiplot. In case of time-series data, the end
+    states are used.
 
     hexbin makes hexagonal binning plot of x versus y, where x, y are 1-D 
     sequences of the same length, N. If C is None (the default), this is a 

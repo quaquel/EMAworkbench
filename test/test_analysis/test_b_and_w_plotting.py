@@ -9,8 +9,8 @@ from __future__ import (absolute_import, print_function, division,
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ema_workbench.analysis.b_and_w_plotting import (set_fig_to_bw, HATCHING, 
-                                                     GREYSCALE)
+from ema_workbench.analysis.b_and_w_plotting import (set_fig_to_bw, 
+    HATCHING, GREYSCALE, )
 
 
 def test_scatter():
@@ -41,6 +41,29 @@ def test_fill_between():
     
     plt.draw()
 
+
+def test_lines():
+    x = np.linspace(0, 1)
+    y = np.sin(4 * np.pi * x) * np.exp(-5 * x)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, c='k')
+    set_fig_to_bw(fig, style=GREYSCALE)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, '-', c='k')
+    set_fig_to_bw(fig, style=GREYSCALE, line_style='black')
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, '-', c='k')
+    set_fig_to_bw(fig, style=GREYSCALE, line_style=None)
+    
+    plt.draw()    
+    
+
 def test_fig_legend():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -59,6 +82,25 @@ def test_fig_legend():
     ax.legend()
     
     set_fig_to_bw(fig, style=GREYSCALE)
+    
+    x = np.linspace(0, 1)
+    y = np.sin(4 * np.pi * x) * np.exp(-5 * x)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, '-', c='k', label='test')
+    ax.legend()
+    set_fig_to_bw(fig, line_style='black')
+    
+    y1 = np.sin(4 * np.pi * x) * np.exp(-5 * x)
+    y2 = np.cos(4 * np.pi * x) * np.exp(-5 * x)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.fill_between(x, y1, y2,label='test')
+    ax.legend()
+    set_fig_to_bw(fig, style=GREYSCALE)
+    
     plt.draw()
     
 
@@ -66,4 +108,5 @@ if __name__ == "__main__":
     test_scatter()
     test_fill_between()
     test_fig_legend()
+    test_lines()
 #     plt.show()

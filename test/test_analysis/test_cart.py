@@ -9,6 +9,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 
 from ema_workbench.analysis import cart
 from test import utilities
@@ -84,7 +85,16 @@ class CartTestCase(unittest.TestCase):
         
         
     def test_boxes(self):
-        pass
+        np.random.seed(42)
+        x = pd.DataFrame(np.random.rand(1000,2), columns=['a', 'b'])
+        y = (x.a>0.5) & (x.b <0.5)
+        alg = cart.CART(x,y, mode=BINARY)
+        alg.build_tree()
+        
+        boxes = alg.boxes
+        
+        self.assertEqual(len(boxes), 3)
+
 
     def test_stats(self):
         x = pd.DataFrame([(0,1,2),
@@ -152,7 +162,19 @@ class CartTestCase(unittest.TestCase):
         self.assertTrue(isinstance(alg.clf,
                                    cart.tree.DecisionTreeRegressor))
         
-    
+    def test_show_tree(self):
+        results = utilities.load_flu_data()
+        
+        alg = cart.setup_cart(results, flu_classify,
+                              mass_min=0.05)
+        alg.build_tree()
+        
+        fig = alg.show_tree(mplfig=True)
+        bytestream = alg.show_tree(mplfig=False)
+        
+        self.assertTrue(isinstance(fig, mpl.figure.Figure))
+        self.assertTrue(isinstance(bytestream, bytes))
+        
         
 if __name__ == '__main__':
         unittest.main()
