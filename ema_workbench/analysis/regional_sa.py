@@ -73,8 +73,8 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
             freqs.append((cat, freq))
 
         freqs.sort(key=operator.itemgetter(1))
-        cats = map(operator.itemgetter(0), freqs)
-        freqs = map(operator.itemgetter(1), freqs)
+        cats = list(map(operator.itemgetter(0), freqs))
+        freqs = list(map(operator.itemgetter(1), freqs))
 
         cum_freq = 0
         for j, freq in enumerate(freqs):
@@ -113,12 +113,12 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
         for i, cat in enumerate(cats):
             ax.text(i*1+0.5, -0.1, cat, ha='center', rotation=45)
 
-    ax.set_ylim(ymin=-0.01, ymax=1.01)
+    ax.set_ylim(bottom=-0.01, top=1.01)
 
     xmin = -0.02*n_cat
     xmax = n_cat+0.02*n_cat
     ax.set_xticks(np.linspace(xmin, xmax, 4))
-    ax.set_xlim(xmin=xmin, xmax=xmax)
+    ax.set_xlim(left=xmin, right=xmax)
 
 
 def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
@@ -138,24 +138,24 @@ def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
     '''
 
     for i in range(np.max(y)+1):
-        data_i = x[y == i]
+        data_i = x[y==i]
         sorted_data = np.sort(data_i)
         yvals = np.arange(len(sorted_data))/float(len(sorted_data))
         if ccdf:
             yvals = 1 - yvals
         ax.plot(sorted_data, yvals, color=cp[i+1], label='{}'.format(i))
 
-    x0 = min(x)
-    x1 = max(x)
+    x0 = x.min()
+    x1 = x.max()
 
-    sorted_data = np.sort(x)
+    sorted_data = x.sort_values()
     yvals = np.arange(len(x))/float(len(x))
     if ccdf:
         yvals = 1 - yvals
 
     ax.plot(sorted_data, yvals, c='darkgrey', lw=1)
 
-    ax.set_xlim(xmin=x0, xmax=x1)
+    ax.set_xlim(left=x0, right=x1)
     xticklocs = np.linspace(x0, x1, 4)
     ax.set_xticks(xticklocs)
     if xticklabels_on:
@@ -220,7 +220,7 @@ def plot_cdfs(x, y, ccdf=False):
 
     Parameters
     ----------
-    x : recarray
+    x : DataFrame
         the experiments to use in the cdfs
     y : ndaray 
         the categorization for the data
@@ -233,8 +233,14 @@ def plot_cdfs(x, y, ccdf=False):
     a matplotlib Figure instance
 
     '''
-    x = rf.drop_fields(x, "scenario_id", asrecarray=True)
-    uncs = rf.get_names(x.dtype)
+    x = x.copy()
+    
+    try:
+        x = x.drop('scenario', axis=1)
+    except KeyError:
+        pass
+    
+    uncs = x.columns.tolist()
     cp = sns.color_palette()
 
     n_col = 4
@@ -254,7 +260,7 @@ def plot_cdfs(x, y, ccdf=False):
         ax = axes[i_row, i_col]
 
         data = x[unc]
-        if x.dtype[unc] == np.dtype('O'):
+        if data.dtype.name == 'category':
             discrete = True
         plot_individual_cdf(ax, unc, data, y, discrete, ccdf=ccdf)
 
