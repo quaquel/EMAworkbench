@@ -19,7 +19,7 @@ install:
 - conda info -a # Useful for debugging any issues with conda
 - conda install --yes $DEPS # Replace dep1 dep2 ... with your dependencies
 - pip install zmq # zmq is not available via conda for some reason
-- pip install pydot
+- pip install pydotplus
 - pip install coveralls
 - pip install pysd
 - pip install nose-exclude
