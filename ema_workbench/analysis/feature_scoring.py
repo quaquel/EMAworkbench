@@ -26,9 +26,9 @@ from .scenario_discovery_util import CLASSIFICATION, REGRESSION
 # TODO:: look at http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
 
 
-__al__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2',
+__all__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2',
           'get_univariate_feature_scores', 'get_rf_feature_scores',
-          'get_lasso_feature_scores', 'get_feature_scores_all']
+          'get_ex_feature_scores', 'get_feature_scores_all']
 
 F_REGRESSION = f_regression
 
