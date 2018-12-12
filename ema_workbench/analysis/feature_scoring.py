@@ -331,6 +331,6 @@ def get_feature_scores_all(x, y, alg='extra trees', mode=REGRESSION,
         if complete is None:
             complete = fs.T
         else:
-            complete = complete.append(fs.T)
+            complete = complete.append(fs.T, sort=True)
 
     return complete.T
