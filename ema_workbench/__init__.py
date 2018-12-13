@@ -1,7 +1,7 @@
 from __future__ import (absolute_import)
 from . import analysis
 from . import em_framework
-from .em_framework import (Model, RealParameter, CategoricalParameter,
+from .em_framework import (Model, RealParameter, CategoricalParameter, BinaryParameter,
                            IntegerParameter, perform_experiments, optimize,
                            ScalarOutcome, TimeSeriesOutcome, Constant,
                            Scenario, Policy, MultiprocessingEvaluator,
