@@ -572,6 +572,8 @@ class DefaultDesigns(object):
 
         return design_generator(self.designs, self.parameters, self.kind)
 
+    def __repr__(self):
+        return f"<ema_workbench.DefaultDesigns, {self.n} designs on {len(self.params)} parameters>"
 
 class PartialFactorialDesigns(object):
 
