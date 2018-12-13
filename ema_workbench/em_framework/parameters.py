@@ -314,6 +314,19 @@ class CategoricalParameter(IntegerParameter):
 
         return representation
 
+class BinaryParameter(CategoricalParameter):
+    ''' a categorical model input parameter that is only True or False
+
+    Parameters
+    ----------
+    name : str
+    '''
+
+    def __init__(self, name, default=None, ):
+        super(BinaryParameter, self).__init__(name, categories=[False, True], default=default)
+
+
+
 
 class BooleanParameter(IntegerParameter):
     ''' boolean model input parameter
