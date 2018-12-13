@@ -415,7 +415,7 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
             job_outcomes.append(score)
 
         # TODO:: only retain levers
-        job_experiment = experiments[logical][0]
+        job_experiment = experiments[logical].iloc[0]
         job_constraints = _evaluate_constraints(job_experiment,
                                                 job_outcomes_dict,
                                                 constraints)
