@@ -567,8 +567,12 @@ class Convergence(object):
 
         progress = pd.DataFrame.from_dict(progress)
 
-        if not progress.empty:
-            progress['nfe'] = self.index
+        try:
+            if not progress.empty:
+                progress['nfe'] = self.index
+        except:
+            ema_logging.warning("self.index={}".format(self.index))
+            ema_logging.warning("progress={}".format(progress))
 
         return progress
 
