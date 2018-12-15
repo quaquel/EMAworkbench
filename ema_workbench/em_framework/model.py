@@ -149,7 +149,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         self._outcomes_output = {}
         self._constraints_output = {}
 
-    @method_logger
+    #@method_logger
     def model_init(self, policy):
         '''Method called to initialize the model.
 
@@ -176,7 +176,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         for k in remove:
             del policy[k]
 
-    @method_logger
+    #@method_logger
     def _transform(self, sampled_parameters, parameters):
 
         if not parameters:
@@ -214,7 +214,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
         sampled_parameters.data = temp
 
-    @method_logger
+    #@method_logger
     def run_model(self, scenario, policy):
         """Method for running an instantiated model structure. 
 
@@ -231,7 +231,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         self._transform(scenario, self.uncertainties)
         self._transform(policy, self.levers)
 
-    @method_logger
+    #@method_logger
     def initialized(self, policy):
         '''check if model has been initialized 
 
@@ -246,7 +246,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         except AttributeError:
             return False
 
-    @method_logger
+    #@method_logger
     def retrieve_output(self):
         """Method for retrieving output after a model run.
 
@@ -257,7 +257,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         warnings.warn('deprecated, use model.output instead')
         return self.output
 
-    @method_logger
+    #@method_logger
     def reset_model(self):
         """ Method for reseting the model to its initial state. The default
         implementation only sets the outputs to an empty dict. 
@@ -266,7 +266,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         self._outcome_output = {}
         self._constraints_output = {}
 
-    @method_logger
+    #@method_logger
     def cleanup(self):
         '''
         This model is called after finishing all the experiments, but 
@@ -333,7 +333,7 @@ class Replicator(AbstractModel):
             raise TypeError(
                 "replications should be int or list not {}".format(type(replications)))
 
-    @method_logger
+    #@method_logger
     def run_model(self, scenario, policy):
         """ Method for running an instantiated model structure. 
 
@@ -367,7 +367,7 @@ class Replicator(AbstractModel):
 
 class SingleReplication(AbstractModel):
 
-    @method_logger
+    #@method_logger
     def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
@@ -431,7 +431,7 @@ class BaseModel(AbstractModel):
 
         self.function = function
 
-    @method_logger
+    #@method_logger
     def run_experiment(self, experiment):
         """ Method for running an instantiated model structure. 
 

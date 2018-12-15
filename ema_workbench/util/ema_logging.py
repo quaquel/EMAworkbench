@@ -174,13 +174,14 @@ def debug(msg, *args, **kwargs):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-    
-    if _logger:
-        logger.debug(msg, *args, **kwargs)
+    # frm = inspect.stack()[1]
+    # mod = inspect.getmodule(frm[0])
+    # name = mod.__name__
+    # logger = get_module_logger(name)
+    #
+    # if _logger:
+    #     logger.debug(msg, *args, **kwargs)
+    pass
 
 
 def info(msg, *args):
@@ -197,14 +198,14 @@ def info(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-    
-    if _logger:
-        logger.info(msg, *args)
-
+    # frm = inspect.stack()[1]
+    # mod = inspect.getmodule(frm[0])
+    # name = mod.__name__
+    # logger = get_module_logger(name)
+    #
+    # if _logger:
+    #     logger.info(msg, *args)
+    pass
 
 def warning(msg, *args):
     '''
@@ -220,14 +221,14 @@ def warning(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-    
-    if _logger:
-        logger.warning(msg, *args)
-
+    # frm = inspect.stack()[1]
+    # mod = inspect.getmodule(frm[0])
+    # name = mod.__name__
+    # logger = get_module_logger(name)
+    #
+    # if _logger:
+    #     logger.warning(msg, *args)
+    pass
 
 def error(msg, *args):
     '''
@@ -243,14 +244,14 @@ def error(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-
-    if _logger:
-        logger.error(msg, *args)
-
+    # frm = inspect.stack()[1]
+    # mod = inspect.getmodule(frm[0])
+    # name = mod.__name__
+    # logger = get_module_logger(name)
+    #
+    # if _logger:
+    #     logger.error(msg, *args)
+    pass
 
 def exception(msg, *args):
     '''
@@ -266,14 +267,14 @@ def exception(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-    
-    if _logger:
-        logger.exception(msg, *args)
-
+    # frm = inspect.stack()[1]
+    # mod = inspect.getmodule(frm[0])
+    # name = mod.__name__
+    # logger = get_module_logger(name)
+    #
+    # if _logger:
+    #     logger.exception(msg, *args)
+    pass
 
 def critical(msg, *args):
     '''
@@ -289,14 +290,14 @@ def critical(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)    
-
-    if _logger:
-        logger.critical(msg, *args)
-
+    # frm = inspect.stack()[1]
+    # mod = inspect.getmodule(frm[0])
+    # name = mod.__name__
+    # logger = get_module_logger(name)
+    #
+    # if _logger:
+    #     logger.critical(msg, *args)
+    pass
 
 def get_logger():
     '''
