@@ -349,6 +349,8 @@ class Policy(NamedDict):
 
         return [self[param.name] for param in parameters]
 
+    def __repr__(self):
+        return "<ema_workbench.Policy {}>".format(super(Policy, self).__repr__())
 
 class Scenario(NamedDict):
     # we need to start from 1 so scenario id is known
@@ -357,6 +359,9 @@ class Scenario(NamedDict):
     def __init__(self, name=Counter(), **kwargs):
         super(Scenario, self).__init__(name, **kwargs)
         self.id = Scenario.id_counter()
+
+    def __repr__(self):
+        return "<ema_workbench.Scenario {}>".format(super(Scenario, self).__repr__())
 
 
 class Case(NamedObject):
