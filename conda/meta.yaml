@@ -1,0 +1,41 @@
+package:
+  name: ema_workbench
+  version: "1.3"
+
+source:
+  path: ../
+
+requirements:
+  build:
+    - python {{ python }}
+    - setuptools
+  run:
+    - python {{ python }}
+    - setuptools_scm
+    - pyscaffold
+    - sphinx
+    - ipykernel
+    - nbsphinx
+    - numpy
+    - scipy
+    - pandas
+    - ipython
+    - ipyparallel
+    - jupyter
+    - mpld3
+    - scikit-learn
+    - seaborn
+    - matplotlib
+    - pyzmq
+    - mpldatacursor
+    - platypus-opt
+    - altair
+    - pydot
+    
+test:
+  imports:
+    - ema_workbench
+
+about:
+  home: https://github.com/jpn--/EMAworkbench
+  license_file: LICENSE.md

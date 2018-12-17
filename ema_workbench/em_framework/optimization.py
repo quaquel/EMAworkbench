@@ -14,7 +14,7 @@ import random
 import warnings
 
 from .outcomes import AbstractOutcome
-from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
+from .parameters import (IntegerParameter, RealParameter, CategoricalParameter, BinaryParameter,
                          Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
@@ -210,7 +210,9 @@ def to_platypus_types(decision_variables):
     # TODO:: should categorical not be platypus.Subset, with size == 1?
     _type_mapping = {RealParameter: platypus.Real,
                      IntegerParameter: platypus.Integer,
-                     CategoricalParameter: platypus.Subset}
+                     CategoricalParameter: platypus.Subset,
+                     BinaryParameter: platypus.Subset,
+                     }
     types = []
     for dv in decision_variables:
         klass = _type_mapping[type(dv)]
@@ -414,7 +416,7 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
             job_outcomes.append(score)
 
         # TODO:: only retain levers
-        job_experiment = experiments[logical][0]
+        job_experiment = experiments[logical].iloc[0]
         job_constraints = _evaluate_constraints(job_experiment,
                                                 job_outcomes_dict,
                                                 constraints)
