@@ -18,8 +18,7 @@ from ..em_framework.model import FileModel
 from ..util.ema_logging import method_logger
 from ..util import warning, debug
 
-
-from . import pyNetLogo
+import pyNetLogo
 
 # Created on 15 mrt. 2013
 #
