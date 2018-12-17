@@ -160,7 +160,7 @@ def method_logger(func):
     return wrapper
 
 
-def debug(msg, *args, **kwargs):
+def debug_deep(msg, *args, **kwargs):
     '''
     convenience function for logger.debug
 
@@ -183,6 +183,24 @@ def debug(msg, *args, **kwargs):
         logger.debug(msg, *args, **kwargs)
 
 
+def debug(msg, *args, **kwargs):
+    '''
+    convenience function for logger.debug
+
+    Parameters
+    ----------
+    msg : str
+          msg to log
+    args : list
+           args to pass on to the logger
+    kwargs : dict
+             kwargs to pass on to the logger
+
+    '''
+    if _logger:
+        _logger.debug(msg, *args, **kwargs)
+
+
 def info(msg, *args):
     '''
     convenience function for logger.info
@@ -197,13 +215,8 @@ def info(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-    
     if _logger:
-        logger.info(msg, *args)
+        _logger.info(msg, *args)
 
 
 def warning(msg, *args):
@@ -220,13 +233,8 @@ def warning(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-    
     if _logger:
-        logger.warning(msg, *args)
+        _logger.warning(msg, *args)
 
 
 def error(msg, *args):
@@ -243,13 +251,8 @@ def error(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-
     if _logger:
-        logger.error(msg, *args)
+        _logger.error(msg, *args)
 
 
 def exception(msg, *args):
@@ -266,13 +269,8 @@ def exception(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-    
     if _logger:
-        logger.exception(msg, *args)
+        _logger.exception(msg, *args)
 
 
 def critical(msg, *args):
@@ -289,13 +287,8 @@ def critical(msg, *args):
              kwargs to pass on to the logger
 
     '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)    
-
     if _logger:
-        logger.critical(msg, *args)
+        _logger.critical(msg, *args)
 
 
 def get_logger():
