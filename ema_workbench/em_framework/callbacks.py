@@ -194,15 +194,15 @@ class DefaultCallback(AbstractCallback):
         policy = experiment.policy
         index = experiment.experiment_id
 
-        self.cases.loc[index, 'scenario'] = scenario.name
-        self.cases.loc[index, 'policy'] = policy.name
-        self.cases.loc[index, 'model'] = experiment.model_name
+        self.cases.at[index, 'scenario'] = scenario.name
+        self.cases.at[index, 'policy'] = policy.name
+        self.cases.at[index, 'model'] = experiment.model_name
         
         for k, v in scenario.items():
-            self.cases.loc[index, k] = v
+            self.cases.at[index, k] = v
             
         for k, v in policy.items():
-            self.cases.loc[index, k] = v
+            self.cases.at[index, k] = v
         
 
     def _store_outcomes(self, case_id, outcomes):
