@@ -286,15 +286,16 @@ class CART(sdutil.OutputFormatterMixin):
                 min_samples_leaf=min_samples)
         self.clf.fit(self._x, self.y)
 
-    def show_tree(self, mplfig=True):
+    def show_tree(self, mplfig=True, format='png'):
         '''return a png of the tree
         
         Parameters
         ----------
         mplfig : bool, optional
                  if true (default) returns a matplotlib figure with the tree,
-                 otherwise, it returns a png as bytes
-        
+                 otherwise, it returns the output as bytes
+        format : {'png', 'svg'}, default 'png'
+                 Gives a format of the output.
         
         '''
         assert self.clf
@@ -307,15 +308,19 @@ class CART(sdutil.OutputFormatterMixin):
         tree.export_graphviz(self.clf, out_file=dot_data,
                              feature_names=self.feature_names)
         dot_data = dot_data.getvalue()  # .encode('ascii') # @UndefinedVariable
-        graph = pydot.graph_from_dot_data(dot_data)
-        img = graph.create_png()
-        
-        if mplfig:
-            fig, ax = plt.subplots()
-            ax.imshow(mpimg.imread(io.BytesIO(img)))
-            ax.axis('off')
-            return fig
-        
+        graph = pydot.graph_from_dot_data(dot_data)[0]
+        if format == 'png':
+            img = graph.create_png()
+            if mplfig:
+                fig, ax = plt.subplots()
+                ax.imshow(mpimg.imread(io.BytesIO(img)))
+                ax.axis('off')
+                return fig
+        elif format == 'svg':
+            img = graph.create_svg()
+        else:
+            raise TypeError('''format must be in {'png', 'svg'}''')
+
         return img
 
 
