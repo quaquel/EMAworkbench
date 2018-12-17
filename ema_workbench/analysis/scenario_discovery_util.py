@@ -31,9 +31,9 @@ CLASSIFICATION = 'classification'
 
 
 def _get_sorted_box_lims(boxes, box_init):
-    '''Sort the uncertainties for each box in boxes based on a normalization
-    given box_init. Unrestricted dimensions are dropped. The sorting is based
-    on the normalization of the first box in boxes. 
+    '''Sort the uncertainties for each box in boxes based on a
+    normalization given box_init. Unrestricted dimensions are dropped.
+    The sorting is based on the normalization of the first box in boxes. 
 
     Parameters
     ----------
