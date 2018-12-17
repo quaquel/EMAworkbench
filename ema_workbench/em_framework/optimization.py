@@ -568,7 +568,11 @@ class Convergence(object):
         progress = pd.DataFrame.from_dict(progress)
 
         if not progress.empty:
-            progress['nfe'] = self.index
+            try:
+                progress['nfe'] = self.index
+            except ValueError as err:
+                progress['nfe'] = -1
+                warnings.warn(str(err))
 
         return progress
 
