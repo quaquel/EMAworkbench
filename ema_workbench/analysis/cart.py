@@ -308,7 +308,7 @@ class CART(sdutil.OutputFormatterMixin):
         tree.export_graphviz(self.clf, out_file=dot_data,
                              feature_names=self.feature_names)
         dot_data = dot_data.getvalue()  # .encode('ascii') # @UndefinedVariable
-        graph = pydot.graph_from_dot_data(dot_data)[0]
+        graph = pydot.graph_from_dot_data(dot_data)
         if format == 'png':
             img = graph.create_png()
             if mplfig:
