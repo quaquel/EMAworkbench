@@ -62,7 +62,7 @@ class AbstractOutcome(Variable):
     MAXIMIZE = 1
     INFO = 0
 
-    def __init__(self, name, kind=INFO, variable_name=None, function=None):
+    def __init__(self, name, kind=INFO, variable_name=None, function=None, expected_range=None):
         super(AbstractOutcome, self).__init__(name)
 
         if function is not None and not callable(function):
@@ -71,10 +71,12 @@ class AbstractOutcome(Variable):
             if (not isinstance(variable_name, six.string_types)) and (not all(isinstance(elem, six.string_types) for elem in variable_name)):
                 raise ValueError(
                     'variable name must be a string or list of strings')
-
+        if expected_range is not None and len(expected_range) != 2:
+            raise ValueError('expected_range must be a min-max tuple')
         self.kind = kind
         self.variable_name = variable_name
         self.function = function
+        self._expected_range = expected_range
 
     def process(self, values):
         if self.function:
@@ -122,6 +124,10 @@ class AbstractOutcome(Variable):
 
         return rep
 
+    def expected_range(self):
+        if self._expected_range is None:
+            raise ValueError('no expected_range is set for {}'.format(self.variable_name))
+        return self._expected_range
 
 class ScalarOutcome(AbstractOutcome):
     '''
@@ -141,10 +147,11 @@ class ScalarOutcome(AbstractOutcome):
     '''
 
     def __init__(self, name, kind=AbstractOutcome.INFO, variable_name=None,
-                 function=None):
+                 function=None, expected_range=None):
         super(ScalarOutcome, self).__init__(name, kind,
                                             variable_name=variable_name,
-                                            function=function)
+                                            function=function,
+                                            expected_range=expected_range)
 
     def process(self, values):
         values = super(ScalarOutcome, self).process(values)
@@ -173,10 +180,11 @@ class TimeSeriesOutcome(AbstractOutcome):
     '''
 
     def __init__(self, name, variable_name=None,
-                 function=None):
+                 function=None, expected_range=None):
         super(TimeSeriesOutcome, self).__init__(name, kind=AbstractOutcome.INFO,
                                                 variable_name=variable_name,
-                                                function=function)
+                                                function=function,
+                                                expected_range=expected_range)
 
     def process(self, values):
         values = super(TimeSeriesOutcome, self).process(values)
