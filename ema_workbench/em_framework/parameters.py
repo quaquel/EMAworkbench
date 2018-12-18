@@ -328,13 +328,10 @@ class BooleanParameter(IntegerParameter):
 
     '''
 
-    def __init__(self, name, default=None, variable_name=None, pff=False):
-        lower_bound = 0
-        upper_bound = 1
-
+    def __init__(self, name, default=None, variable_name=None,
+                 pff=False):
         super(BooleanParameter, self).__init__(
-            name, lower_bound,
-            upper_bound, resolution=None, default=default,
+            name, 0, 1, resolution=None, default=default,
             variable_name=variable_name, pff=pff)
 
         self.categories = [False, True]
