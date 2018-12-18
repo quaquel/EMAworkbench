@@ -26,7 +26,7 @@ import operator
 import scipy.stats as stats
 
 from . import util
-from .parameters import (IntegerParameter, Policy, Scenario)
+from .parameters import (IntegerParameter, Policy, Scenario, BooleanParameter)
 
 # Created on 16 aug. 2011
 #
@@ -647,6 +647,8 @@ def design_generator(designs, params, kind):
         for param, value in zip(params, design):
             if isinstance(param, IntegerParameter):
                 value = int(value)
+            if isinstance(param, BooleanParameter):
+                value = bool(value)
             if isinstance(param, CategoricalParameter):
                 # categorical parameter is an integer parameter, so
                 # conversion to int is already done

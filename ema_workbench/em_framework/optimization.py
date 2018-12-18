@@ -14,8 +14,9 @@ import random
 import warnings
 
 from .outcomes import AbstractOutcome
+
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
-                         Scenario, Policy)
+                         BooleanParameter, Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
 from ..util import ema_logging
@@ -140,9 +141,6 @@ def to_problem(model, searchover, reference=None, constraints=None):
     Problem instance
 
     '''
-    _type_mapping = {RealParameter: platypus.Real,
-                     IntegerParameter: platypus.Integer,
-                     CategoricalParameter: platypus.Permutation}
 
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, searchover, union=True)
@@ -210,12 +208,15 @@ def to_platypus_types(decision_variables):
     # TODO:: should categorical not be platypus.Subset, with size == 1?
     _type_mapping = {RealParameter: platypus.Real,
                      IntegerParameter: platypus.Integer,
-                     CategoricalParameter: platypus.Subset}
+                     CategoricalParameter: platypus.Subset,
+                     BooleanParameter: platypus.Subset,
+                     }
+
     types = []
     for dv in decision_variables:
         klass = _type_mapping[type(dv)]
 
-        if not isinstance(dv, CategoricalParameter):
+        if not isinstance(dv, (CategoricalParameter, BooleanParameter)):
             decision_variable = klass(dv.lower_bound, dv.upper_bound)
         else:
             decision_variable = klass(dv.categories, 1)
@@ -933,23 +934,23 @@ class GenerationalBorg(EpsilonProgressContinuation):
 #         self.indices = indices
 #         
 #     def evolve(self, parents):
-        
-        fake_parents = [self.create_view[p] for p in parents]
-        fake_children = self.variator.evolve(fake_parents)
-        
-        # tricky, no 1 to 1 mapping between parents and children
-        # some methods have 3 parents, one child
-        children = [map_back]
-        
-        pass
-    
-    def create_view(self, parent):
-        view = Solution(self.problem)
-        self.variables = parent.variables[self.indices][:]
-        self.objectives = parent.objectives[:]
-        self.constraints = parent.constraints[:]
-        self.evaluated = parent.evaluated
-        return view
-    
-    def map_back(self, view, parent):
-        pass
+#         
+#         fake_parents = [self.create_view[p] for p in parents]
+#         fake_children = self.variator.evolve(fake_parents)
+#         
+#         # tricky, no 1 to 1 mapping between parents and children
+#         # some methods have 3 parents, one child
+#         children = [map_back]
+#         
+#         pass
+#     
+#     def create_view(self, parent):
+#         view = Solution(self.problem)
+#         self.variables = parent.variables[self.indices][:]
+#         self.objectives = parent.objectives[:]
+#         self.constraints = parent.constraints[:]
+#         self.evaluated = parent.evaluated
+#         return view
+#     
+#     def map_back(self, view, parent):
+#         pass
