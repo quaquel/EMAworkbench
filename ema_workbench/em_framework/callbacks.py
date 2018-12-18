@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 
 from ..util import ema_logging, ema_exceptions
-from .parameters import CategoricalParameter, IntegerParameter
+from .parameters import CategoricalParameter, IntegerParameter, BooleanParameter
 
 #
 # Created on 22 Jan 2013
@@ -173,6 +173,8 @@ class DefaultCallback(AbstractCallback):
 
             if isinstance(parameter, CategoricalParameter):
                 dataType = 'object'
+            elif isinstance(parameter, BooleanParameter):
+                dataType = 'bool'
             elif isinstance(parameter, IntegerParameter):
                 dataType = 'int'
             columns.append(name)

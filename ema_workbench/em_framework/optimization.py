@@ -14,7 +14,7 @@ import random
 import warnings
 
 from .outcomes import AbstractOutcome
-from .parameters import (IntegerParameter, RealParameter, CategoricalParameter, BinaryParameter,
+from .parameters import (IntegerParameter, RealParameter, CategoricalParameter, BooleanParameter,
                          Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
@@ -140,9 +140,6 @@ def to_problem(model, searchover, reference=None, constraints=None):
     Problem instance
 
     '''
-    _type_mapping = {RealParameter: platypus.Real,
-                     IntegerParameter: platypus.Integer,
-                     CategoricalParameter: platypus.Permutation}
 
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, searchover, union=True)
@@ -211,13 +208,13 @@ def to_platypus_types(decision_variables):
     _type_mapping = {RealParameter: platypus.Real,
                      IntegerParameter: platypus.Integer,
                      CategoricalParameter: platypus.Subset,
-                     BinaryParameter: platypus.Subset,
+                     BooleanParameter: platypus.Subset,
                      }
     types = []
     for dv in decision_variables:
         klass = _type_mapping[type(dv)]
 
-        if not isinstance(dv, CategoricalParameter):
+        if not isinstance(dv, (CategoricalParameter, BooleanParameter)):
             decision_variable = klass(dv.lower_bound, dv.upper_bound)
         else:
             decision_variable = klass(dv.categories, 1)
