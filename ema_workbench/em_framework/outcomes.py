@@ -23,15 +23,6 @@ from ema_workbench.util.ema_exceptions import EMAError
 __all__ = ['Outcome', 'ScalarOutcome', 'TimeSeriesOutcome']
 
 
-def Outcome(name, time=False):
-    if time:
-        warnings.warn('Deprecated, use TimeSeriesOutcome instead')
-        return ScalarOutcome(name)
-    else:
-        warnings.warn('Deprecated, use ScalarOutcome instead')
-        return TimeSeriesOutcome(name)
-
-
 class AbstractOutcome(Variable):
     '''
     Base Outcome class
@@ -47,8 +38,11 @@ class AbstractOutcome(Variable):
                     supply the variable name as an optional argument,
                     if not provided, defaults to name
     function : callable, optional
-               a callable to perform postprocessing on data retrieved from
-               model
+               a callable to perform postprocessing on data retrieved
+               from model
+    expected_range : 2 tuple, optional
+                     expected min and max value for outcome,
+                     used by HyperVolume convergence metric
 
     Attributes
     ----------
@@ -62,13 +56,15 @@ class AbstractOutcome(Variable):
     MAXIMIZE = 1
     INFO = 0
 
-    def __init__(self, name, kind=INFO, variable_name=None, function=None, expected_range=None):
+    def __init__(self, name, kind=INFO, variable_name=None, 
+                 function=None, expected_range=None):
         super(AbstractOutcome, self).__init__(name)
 
         if function is not None and not callable(function):
             raise ValueError('function must be a callable')
         if variable_name:
-            if (not isinstance(variable_name, six.string_types)) and (not all(isinstance(elem, six.string_types) for elem in variable_name)):
+            if (not isinstance(variable_name, six.string_types)) and\
+               (not all(isinstance(elem, six.string_types) for elem in variable_name)):
                 raise ValueError(
                     'variable name must be a string or list of strings')
         if expected_range is not None and len(expected_range) != 2:
@@ -138,6 +134,17 @@ class ScalarOutcome(AbstractOutcome):
     name : str
            Name of the outcome.
     kind : {INFO, MINIMZE, MAXIMIZE}, optional
+    variable_name : str, optional
+                    if the name of the outcome in the underlying model
+                    is different from the name of the outcome, you can 
+                    supply the variable name as an optional argument,
+                    if not provided, defaults to name
+    function : callable, optional
+               a callable to perform postprocessing on data retrieved
+               from model
+    expected_range : 2 tuple, optional
+                     expected min and max value for outcome,
+                     used by HyperVolume convergence metric    
 
     Attributes
     ----------
@@ -168,8 +175,17 @@ class TimeSeriesOutcome(AbstractOutcome):
     ----------
     name : str
            Name of the outcome.
-    variable_name :  str, or collection of str
+    variable_name : str, optional
+                    if the name of the outcome in the underlying model
+                    is different from the name of the outcome, you can 
+                    supply the variable name as an optional argument,
+                    if not provided, defaults to name
     function : callable, optional
+               a callable to perform postprocessing on data retrieved
+               from model
+    expected_range : 2 tuple, optional
+                     expected min and max value for outcome,
+                     used by HyperVolume convergence metric
 
     Attributes
     ----------
