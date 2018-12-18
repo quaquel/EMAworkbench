@@ -325,6 +325,19 @@ class BinaryParameter(CategoricalParameter):
     def __init__(self, name, default=None, ):
         super(BinaryParameter, self).__init__(name, categories=[False, True], default=default)
 
+    def __repr__(self):
+        if self.resolution:
+            return "BinaryParameter.T"
+        else:
+            return "BinaryParameter.F"
+
+    @property
+    def T(self):
+        return Category("True", True)
+
+    @property
+    def F(self):
+        return Category("False", False)
 
 
 
