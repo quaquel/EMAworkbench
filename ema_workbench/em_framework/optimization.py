@@ -465,6 +465,15 @@ class EpsilonProgress(AbstractConvergenceMetric):
 class HyperVolume(AbstractConvergenceMetric):
     '''Hypervolume convergence metric class
 
+    This metric is derived from a hyper-volume measure, which describes the
+    multi-dimensional volume of space contained within the pareto front. When
+    computed with minimum and maximums, it describes the ratio of dominated
+    outcomes to all possible outcomes in the extent of the space.  Getting this
+    number to be high or low is not necessarily important, as not all outcomes
+    within the min-max range will be feasible.  But, having the hypervolume remain
+    fairly stable over multiple generations of the evolutionary algorithm provides
+    an indicator of convergence.
+
     Parameters
     ---------
     minimum : numpy array
@@ -480,6 +489,10 @@ class HyperVolume(AbstractConvergenceMetric):
         self.results.append(self.hypervolume_func.calculate(
             optimizer.algorithm.archive))
 
+    @classmethod
+    def from_outcomes(cls, outcomes):
+        ranges = [_.expected_range() for _ in outcomes]
+        return cls([_[0] for _ in ranges], [_[1] for _ in ranges])
 
 class ArchiveLogger(AbstractConvergenceMetric):
     '''Helper class to write the archive to disk at each iteration
