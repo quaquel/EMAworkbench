@@ -41,7 +41,7 @@ LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
 INFO = INFO
 
-LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
+LOG_FORMAT = '[%(processName)s/%(levelname)s %(asctime)s] %(message)s'
 
 
 def create_module_logger(name=None):
