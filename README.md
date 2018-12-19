@@ -1,5 +1,6 @@
 ## Exploratory Modeling workbench
-This is a relatively stable version of the EMA workbench currently under 
+
+This is a slightly modified version of the EMA workbench currently under 
 development at Delft University of Technology. Documentation can be found 
 online: https://emaworkbench.readthedocs.io/en/latest/
 
@@ -16,3 +17,7 @@ Delft University of Technology.
 
 The workbench is available from pip, and is compatible with both Python 2 and
 3. For further installation details, see read the docs. 
+
+This version is also available through conda:
+
+    conda install ema_workbench -c jpn
