@@ -9,8 +9,9 @@ __all__ = ["ema_parallel", "parameters"
            "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
            "get_SALib_problem", "FASTSampler",
-           "peform_experiments", 'optimize', "IpyparallelEvaluator",
-           "MultiprocessingEvaluator", "SequentialEvaluator"
+           "perform_experiments", 'optimize', "IpyparallelEvaluator",
+           "MultiprocessingEvaluator", "SequentialEvaluator",
+           "DistributedEvaluator",
            'ReplicatorModel', "EpsilonProgress", "HyperVolume",
            "Convergence", "ArchiveLogger"]
 
@@ -35,5 +36,11 @@ try:
 except ImportError:
     IpyparallelEvaluator = None
     warnings.warn("ipyparallel not available", ImportWarning)
+
+try:
+    from .ema_distributed import DistributedEvaluator
+except ImportError:
+    DistributedEvaluator = None
+    warnings.warn("dask.distributed not available", ImportWarning)
 
 del warnings

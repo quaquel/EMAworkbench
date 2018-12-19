@@ -2,15 +2,15 @@
 
 A scenario discovery oriented implementation of PRIM.
 
-The implementation of prim provided here is datatype aware, so
+The implementation of prim provided here is data type aware, so
 categorical variables will be handled appropriately. It also uses a 
 non-standard objective function in the peeling and pasting phase of the
 algorithm. This algorithm looks at the increase in the mean divided 
 by the amount of data removed. So essentially, it uses something akin
 to the first order derivative of the original objective function. 
 
-The implementation is designed for interactive use in combination with the
-ipython notebook. 
+The implementation is designed for interactive use in combination with
+the jupyter notebook. 
 
 '''
 from __future__ import (absolute_import, print_function, division,
@@ -422,8 +422,9 @@ class PrimBox(object):
                                columns=columns)
 
         for unc in uncs:
-            values = self.box_lims[i][unc][:]
-            box_lim.loc[unc] = [values[0], values[1], str(qp_values[unc])]
+            values = self.box_lims[i][unc]
+            box_lim.loc[unc] = [values[0], values[1],
+                                str(qp_values[unc])]
 
         print(box_lim)
         print()
@@ -806,13 +807,14 @@ class PrimBox(object):
         '''
         if i == None:
             i = self._cur_box
+
         resdim = sdutil._determine_restricted_dims(self.box_lims[i],
                                                     self.prim.box_init)
-        
+
         return _pair_wise_scatter(self.prim.x, self.prim.y,
                                   self.box_lims[i], self.prim.box_init,
                                   resdim)
-                  
+
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''
         print(self.peeling_trajectory)

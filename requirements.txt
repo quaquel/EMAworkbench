@@ -11,10 +11,8 @@ ipython
 ipyparallel
 JPype1
 jupyter
-mpld3
 scikit-learn
 seaborn
 matplotlib
 pyzmq
-mpldatacursor
 pysd
