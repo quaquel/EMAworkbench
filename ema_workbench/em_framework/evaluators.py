@@ -550,5 +550,8 @@ def robust_optimize(model, robustness_functions, scenarios,
     if not evaluator:
         evaluator = SequentialEvaluator(model)
 
+    if hasattr(convergence, '_members'):
+        convergence = convergence._members
+
     return _optimize(problem, evaluator, algorithm, convergence,
                      int(nfe), **kwargs)
