@@ -14,7 +14,7 @@ import random
 import warnings
 
 from .outcomes import AbstractOutcome
-from .parameters import (IntegerParameter, RealParameter, CategoricalParameter, BinaryParameter,
+from .parameters import (IntegerParameter, RealParameter, CategoricalParameter, BooleanParameter,
                          Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
@@ -211,7 +211,7 @@ def to_platypus_types(decision_variables):
     _type_mapping = {RealParameter: platypus.Real,
                      IntegerParameter: platypus.Integer,
                      CategoricalParameter: platypus.Subset,
-                     BinaryParameter: platypus.Subset,
+                     BooleanParameter: platypus.Subset,
                      }
     types = []
     for dv in decision_variables:
