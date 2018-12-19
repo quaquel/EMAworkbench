@@ -17,7 +17,7 @@ from ema_workbench.em_framework.util import (NamedObject, Variable,
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['Parameter', 'RealParameter', 'IntegerParameter',
+__all__ = ['Parameter', 'RealParameter', 'IntegerParameter', 'BooleanParameter',
            'CategoricalParameter', 'create_parameters',
            'experiment_generator']
 
@@ -314,16 +314,43 @@ class CategoricalParameter(IntegerParameter):
 
         return representation
 
-class BinaryParameter(CategoricalParameter):
-    ''' a categorical model input parameter that is only True or False
+
+class BooleanParameter(IntegerParameter):
+    ''' boolean model input parameter
+
+    A BooleanParameter is similar to a CategoricalParameter, except
+    the category values can only be True or False.
 
     Parameters
     ----------
     name : str
+    variable_name : str, or list of str
+
     '''
 
-    def __init__(self, name, default=None, ):
-        super(BinaryParameter, self).__init__(name, categories=[False, True], default=default)
+    def __init__(self, name, default=None, variable_name=None, pff=False):
+        lower_bound = 0
+        upper_bound = 1
+
+        super(BooleanParameter, self).__init__(
+            name, lower_bound,
+            upper_bound, resolution=None, default=default,
+            variable_name=variable_name, pff=pff)
+
+        self.categories = [False, True]
+        self.resolution = [0, 1]
+
+    def __repr__(self, *args, **kwargs):
+        template1 = 'BooleanParameter(\'{}\', default={})'
+        template2 = 'BooleanParameter(\'{}\', )'
+
+        if self.default:
+            representation = template1.format(self.name,
+                                              self.default)
+        else:
+            representation = template2.format(self.name, )
+
+        return representation
 
 
 
@@ -349,8 +376,9 @@ class Policy(NamedDict):
 
         return [self[param.name] for param in parameters]
 
+
     def __repr__(self):
-        return "<ema_workbench.Policy {}>".format(super(Policy, self).__repr__())
+        return "Policy({})".format(super(Policy, self).__repr__())
 
 class Scenario(NamedDict):
     # we need to start from 1 so scenario id is known
@@ -361,7 +389,7 @@ class Scenario(NamedDict):
         self.id = Scenario.id_counter()
 
     def __repr__(self):
-        return "<ema_workbench.Scenario {}>".format(super(Scenario, self).__repr__())
+        return "Scenario({})".format(super(Scenario, self).__repr__())
 
 
 class Case(NamedObject):
@@ -524,7 +552,9 @@ def create_parameters(uncertainties, **kwargs):
 
     parameter_map = {'int': IntegerParameter,
                      'real': RealParameter,
-                     'cat': CategoricalParameter}
+                     'cat': CategoricalParameter,
+                     'bool': BooleanParameter,
+                     }
 
     # check if names column is there
     if ('NAME' not in uncertainties) and ('name' not in uncertainties):
