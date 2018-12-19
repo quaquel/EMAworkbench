@@ -31,7 +31,12 @@ requirements:
     - platypus-opt
     - altair
     - pydot
-    
+    - dask
+    - distributed
+
+build:
+  noarch: python
+
 test:
   imports:
     - ema_workbench
