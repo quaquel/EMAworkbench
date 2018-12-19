@@ -217,7 +217,7 @@ def to_platypus_types(decision_variables):
     for dv in decision_variables:
         klass = _type_mapping[type(dv)]
 
-        if not isinstance(dv, CategoricalParameter):
+        if not isinstance(dv, (CategoricalParameter, BooleanParameter)):
             decision_variable = klass(dv.lower_bound, dv.upper_bound)
         else:
             decision_variable = klass(dv.categories, 1)
@@ -380,7 +380,7 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
                         for key in outcome_names}
 
         # TODO:: only retain uncertainties
-        job_experiment = experiments[logical]
+        job_experiment = experiments[logical].iloc[0]
 
         data = {k:v[logical][0] for k, v in outcomes.items()}
         job_constraints = _evaluate_constraints(job_experiment, data,
