@@ -578,10 +578,15 @@ class Convergence(object):
         progress = pd.DataFrame.from_dict(progress)
 
         if not progress.empty:
+            progress['nfe'] = -1
             try:
-                progress['nfe'] = self.index
+                # If the convergence metrics have residual results (e.g. from a previous
+                # batch of optimization evaluations), then the length of the current
+                # nfe record in self.index might not match the number of results in the
+                # metrics. We don't necessarily want to discard the previous metric values
+                # so this will preserve them, leaving nfe as -1 for those older rows.
+                progress.iloc[-len(self.index):, progress.columns.get_loc('nfe')] = self.index
             except ValueError as err:
-                progress['nfe'] = -1
                 warnings.warn(str(err))
 
         return progress
