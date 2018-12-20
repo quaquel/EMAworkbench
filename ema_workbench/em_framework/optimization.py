@@ -140,9 +140,6 @@ def to_problem(model, searchover, reference=None, constraints=None):
     Problem instance
 
     '''
-    _type_mapping = {RealParameter: platypus.Real,
-                     IntegerParameter: platypus.Integer,
-                     CategoricalParameter: platypus.Permutation}
 
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, searchover, union=True)
@@ -380,7 +377,7 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
                         for key in outcome_names}
 
         # TODO:: only retain uncertainties
-        job_experiment = experiments[logical].iloc[0]
+        job_experiment = experiments[logical]
 
         data = {k:v[logical][0] for k, v in outcomes.items()}
         job_constraints = _evaluate_constraints(job_experiment, data,
@@ -495,7 +492,6 @@ class HyperVolume(AbstractConvergenceMetric):
         ranges = [_.expected_range() for _ in outcomes]
         return cls([_[0] for _ in ranges], [_[1] for _ in ranges])
 
-
 class ArchiveLogger(AbstractConvergenceMetric):
     '''Helper class to write the archive to disk at each iteration
 
@@ -581,12 +577,17 @@ class Convergence(object):
 
         progress = pd.DataFrame.from_dict(progress)
 
-        try:
-            if not progress.empty:
-                progress['nfe'] = self.index
-        except:
-            ema_logging.warning("self.index={}".format(self.index))
-            ema_logging.warning("progress={}".format(progress))
+        if not progress.empty:
+            progress['nfe'] = -1
+            try:
+                # If the convergence metrics have residual results (e.g. from a previous
+                # batch of optimization evaluations), then the length of the current
+                # nfe record in self.index might not match the number of results in the
+                # metrics. We don't necessarily want to discard the previous metric values
+                # so this will preserve them, leaving nfe as -1 for those older rows.
+                progress.iloc[-len(self.index):, progress.columns.get_loc('nfe')] = self.index
+            except ValueError as err:
+                warnings.warn(str(err))
 
         return progress
 
