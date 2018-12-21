@@ -50,6 +50,11 @@ class BaseExcelModel(FileModel):
         #: Name of the sheet on which one want to set values
         self.sheet = None
 
+        #: Pointers allow pointing named inputs or outputs to excel workbook
+        #: locations.  This can allow keeping the workbench model neat with
+        #: legible names, while not demanding that workbook cells be named.
+        self.pointers = {}
+
     @property
     def workbook(self):
         return self.model_file
@@ -108,28 +113,17 @@ class BaseExcelModel(FileModel):
         dict
 
         """
-        # find right sheet
-        try:
-            sheet = self.wb.Sheets(self.sheet)
-        except Exception:
-            ema_logging.warning("com error: sheet not found")
-            self.cleanup()
-            raise
 
         # set values on sheet
         for key, value in experiment.items():
-            try:
-                sheet.Range(key).Value = value
-            except com_error:
-                ema_logging.warning(
-                    "com error: no cell(s) named %s found" % key,)
+            self.set_wb_value(key, value)
 
         # get results
         results = {}
         for outcome in self.outcomes:
             for entry in outcome.variable_name:
                 try:
-                    output = sheet.Range(entry).Value
+                    output = self.get_wb_value(entry)
                 except com_error:
                     ema_logging.warning(self.com_warning_msg.format(entry))
                     raise
@@ -156,6 +150,94 @@ class BaseExcelModel(FileModel):
 
         self.xl = None
         self.wb = None
+
+    def get_wb_value(self, name):
+        '''extract a value from a cell of the excel workbook
+
+        Parameters
+        ----------
+        name : str
+            A cell reference in the usual Excel manner.  This can be a named cell
+            or in 'A1' type column-row notation.  To specify a worksheet, use
+            'sheetName!A1' or 'sheetName!NamedCell' notation.  If no sheet name is
+            given, the default sheet (if one is set) is assumed.  If no default sheet
+            is set, an exception will be raised.
+
+        Returns
+        -------
+        Number or str
+        '''
+
+
+        if "!" in name:
+            this_sheet, this_range = name.split("!")
+        else:
+            this_sheet, this_range = self.sheet, name
+
+        if this_sheet is None:
+            ema_logging.warning("com error: no default sheet set")
+            self.cleanup()
+            raise EMAError("com error: no default sheet set")
+
+        try:
+            sheet = self.wb.Sheets(this_sheet)
+        except Exception:
+            ema_logging.warning("com error: sheet '{}' not found".format(this_sheet))
+            self.cleanup()
+            raise
+
+        try:
+            value = sheet.Range(this_range).Value
+        except com_error:
+            ema_logging.warning(
+                "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
+            )
+            value = None
+
+        return value
+
+
+    def set_wb_value(self, name, value):
+        '''inject a value into a cell of the excel workbook
+
+        Parameters
+        ----------
+        name : str
+            A cell reference in the usual Excel manner.  This can be a named cell
+            or in 'A1' type column-row notation.  To specify a worksheet, use
+            'sheetName!A1' or 'sheetName!NamedCell' notation.  If no sheet name is
+            given, the default sheet (if one is set) is assumed.  If no default sheet
+            is set, an exception will be raised.
+        value : Number or str
+            The value that will be injected.
+        '''
+
+        name = self.pointers.get(name, name)
+
+        if "!" in name:
+            this_sheet, this_range = name.split("!")
+        else:
+            this_sheet, this_range = self.sheet, name
+
+        if this_sheet is None:
+            ema_logging.warning("com error: no default sheet set")
+            self.cleanup()
+            raise EMAError("com error: no default sheet set")
+
+        try:
+            sheet = self.wb.Sheets(this_sheet)
+        except Exception:
+            ema_logging.warning("com error: sheet '{}' not found".format(this_sheet))
+            self.cleanup()
+            raise
+
+        try:
+            sheet.Range(this_range).Value = value
+        except com_error:
+            ema_logging.warning(
+                "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
+            )
+
 
 
 class ExcelModel(SingleReplication, BaseExcelModel):
