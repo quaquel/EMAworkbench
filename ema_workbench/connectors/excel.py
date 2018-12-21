@@ -252,7 +252,10 @@ class BaseExcelModel(FileModel):
     def get_wb_sheetnames(self):
         '''get the names of all the workbook's worksheets'''
         if self.wb:
-            return [sh.Name for sh in self.wb.Sheets]
+            try:
+                return [sh.Name for sh in self.wb.Sheets]
+            except com_error as err:
+                return ['com_error: {}'.format(err)]
         else:
             return ['error: wb not available']
 
