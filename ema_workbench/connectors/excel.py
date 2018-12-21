@@ -178,6 +178,8 @@ class BaseExcelModel(FileModel):
             self.cleanup()
             raise
 
+        return sheet
+
     def get_wb_value(self, name):
         '''extract a value from a cell of the excel workbook
 
