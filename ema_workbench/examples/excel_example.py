@@ -38,7 +38,7 @@ if __name__ == "__main__":
                       TimeSeriesOutcome("P_t")]  # we can also use named range
 
     # name of the sheet
-    model.sheet = "Sheet1"
+    model.default_sheet = "Sheet1"
 
     with MultiprocessingEvaluator(model) as evaluator:
         results = perform_experiments(model, 100, reporting_interval=1,

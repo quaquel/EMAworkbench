@@ -526,9 +526,9 @@ class FileModel(WorkingDirectoryModel):
         name : str
                name of the modelInterface. The name should contain only
                alpha-numerical characters.        
-        working_directory : str
-                            working_directory for the model. 
-        model_file  : str
+        wd : str
+             working_directory for the model.
+        model_file : str
                      the name of the model file
 
         Raises

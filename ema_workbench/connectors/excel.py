@@ -33,10 +33,35 @@ class BaseExcelModel(FileModel):
 
     The provided implementation here does work with :mod:`parallel_ema`.
 
+    Parameters
+    ----------
+    name : str
+           name of the modelInterface. The name should contain only
+           alpha-numerical characters.
+    wd : str
+         working_directory for the model.
+    model_file : str
+                 the name of the model file
+    default_sheet : str, optional
+                    The name of the default workbook sheet.  Cells and ranges
+                    are assumed to be on this sheet unless they are explicitly
+                    identified as being on other sheets.  If no default_sheet
+                    is set, all references must explicitly name the sheet they
+                    refer to.
+    pointers : dict, optional
+               A dictionary to allow pointing named inputs or outputs
+               to excel workbook locations.  This can allow keeping the workbench
+               model neat with legible names, while not demanding that workbook
+               cells be named.  Each (key, value) pair in pointers maps a key that
+               gives the (concise) name of an input or output for the model to an
+               identfier for that input or output in the Excel workbook, in
+               'sheetName!A1' or 'sheetName!NamedCell' notation (the sheet name
+               is optional if the cell or range exists in the default sheet).
+
     '''
     com_warning_msg = "com error: no cell(s) named %s found"
 
-    def __init__(self, name, wd=None, model_file=None):
+    def __init__(self, name, wd=None, model_file=None, default_sheet=None, pointers=None):
         super(BaseExcelModel, self).__init__(name, wd=wd,
                                              model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
@@ -48,12 +73,14 @@ class BaseExcelModel(FileModel):
         self.wb = None
 
         #: Name of the sheet on which one want to set values
-        self.sheet = None
+        self.default_sheet = None
 
         #: Pointers allow pointing named inputs or outputs to excel workbook
         #: locations.  This can allow keeping the workbench model neat with
         #: legible names, while not demanding that workbook cells be named.
-        self.pointers = {}
+        if pointers is None:
+            pointers = {}
+        self.pointers = pointers
 
     @property
     def workbook(self):
@@ -171,7 +198,7 @@ class BaseExcelModel(FileModel):
         '''
 
         if sheetname is None:
-            sheetname = self.sheet
+            sheetname = self.default_sheet
 
         if sheetname is None:
             ema_logging.warning("com error: no default sheet set")
@@ -212,7 +239,7 @@ class BaseExcelModel(FileModel):
         if "!" in name:
             this_sheet, this_range = name.split("!")
         else:
-            this_sheet, this_range = self.sheet, name
+            this_sheet, this_range = self.default_sheet, name
 
         sheet = self.get_sheet(this_sheet)
 
@@ -247,7 +274,7 @@ class BaseExcelModel(FileModel):
         if "!" in name:
             this_sheet, this_range = name.split("!")
         else:
-            this_sheet, this_range = self.sheet, name
+            this_sheet, this_range = self.default_sheet, name
 
         sheet = self.get_sheet(this_sheet)
 
