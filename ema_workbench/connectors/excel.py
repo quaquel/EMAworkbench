@@ -151,6 +151,33 @@ class BaseExcelModel(FileModel):
         self.xl = None
         self.wb = None
 
+    def get_sheet(self, sheetname=None):
+        '''get a named worksheet, or the default worksheet if set
+
+        Parameters
+        ----------
+        sheetname : str, optional
+        '''
+
+        if sheetname is None:
+            sheetname = self.sheet
+
+        if sheetname is None:
+            ema_logging.warning("com error: no default sheet set")
+            self.cleanup()
+            raise EMAError("com error: no default sheet set")
+
+        if self.wb is None:
+            raise EMAError("wb not open")
+
+        try:
+            sheet = self.wb.Sheets(sheetname)
+        except Exception:
+            ema_logging.warning("com error: sheet '{}' not found".format(sheetname))
+            ema_logging.warning("known sheets: {}".format(", ".join(self.get_wb_sheetnames())))
+            self.cleanup()
+            raise
+
     def get_wb_value(self, name):
         '''extract a value from a cell of the excel workbook
 
@@ -174,17 +201,7 @@ class BaseExcelModel(FileModel):
         else:
             this_sheet, this_range = self.sheet, name
 
-        if this_sheet is None:
-            ema_logging.warning("com error: no default sheet set")
-            self.cleanup()
-            raise EMAError("com error: no default sheet set")
-
-        try:
-            sheet = self.wb.Sheets(this_sheet)
-        except Exception:
-            ema_logging.warning("com error: sheet '{}' not found".format(this_sheet))
-            self.cleanup()
-            raise
+        sheet = self.get_sheet(this_sheet)
 
         try:
             value = sheet.Range(this_range).Value
@@ -219,17 +236,7 @@ class BaseExcelModel(FileModel):
         else:
             this_sheet, this_range = self.sheet, name
 
-        if this_sheet is None:
-            ema_logging.warning("com error: no default sheet set")
-            self.cleanup()
-            raise EMAError("com error: no default sheet set")
-
-        try:
-            sheet = self.wb.Sheets(this_sheet)
-        except Exception:
-            ema_logging.warning("com error: sheet '{}' not found".format(this_sheet))
-            self.cleanup()
-            raise
+        sheet = self.get_sheet(this_sheet)
 
         try:
             sheet.Range(this_range).Value = value
@@ -238,7 +245,12 @@ class BaseExcelModel(FileModel):
                 "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
             )
 
-
+    def get_wb_sheetnames(self):
+        '''get the names of all the workbook's worksheets'''
+        if self.wb:
+            return [sh.Name for sh in self.wb.Sheets]
+        else:
+            return ['error: wb not available']
 
 class ExcelModel(SingleReplication, BaseExcelModel):
     pass
