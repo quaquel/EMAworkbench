@@ -84,7 +84,9 @@ class BaseExcelModel(FileModel):
             except com_error as e:
                 raise EMAError(str(e))
 
-        if not self.wb:
+        # check for self.xl.Workbooks==0 allows us to see if wb was previously closed
+        # and needs to be reopened.
+        if not self.wb or self.xl.Workbooks.Count==0:
             ema_logging.debug("trying to open workbook")
             wb = os.path.join(self.working_directory, self.workbook)
             self.wb = self.xl.Workbooks.Open(wb)
