@@ -143,11 +143,17 @@ class BaseExcelModel(FileModel):
         # we might forcefully close that process, helps in case of errors
 
         if self.wb:
-            self.wb.Close(False)
+            try:
+                self.wb.Close(False)
+            except com_error as err:
+                ema_logging.warning("com error on wb.Close: {}".format(err),)
             del self.wb
         if self.xl:
-            self.xl.DisplayAlerts = False
-            self.xl.Quit()
+            try:
+                self.xl.DisplayAlerts = False
+                self.xl.Quit()
+            except com_error as err:
+                ema_logging.warning("com error on xl.Quit: {}".format(err),)
             del self.xl
 
         self.xl = None
