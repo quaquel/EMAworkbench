@@ -496,6 +496,9 @@ class WorkingDirectoryModel(AbstractModel):
         super(WorkingDirectoryModel, self).__init__(name)
         self.working_directory = wd
 
+        if os.path.abspath(self.working_directory) == os.getcwd():
+            raise ValueError('working directory cannot be current directory')
+
         if not os.path.exists(self.working_directory):
             raise ValueError("{} does not exist".format(
                 self.working_directory))
