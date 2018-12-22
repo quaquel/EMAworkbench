@@ -235,6 +235,7 @@ class BaseExcelModel(FileModel):
         Number or str
         '''
 
+        name = self.pointers.get(name, name)
 
         if "!" in name:
             this_sheet, this_range = name.split("!")
