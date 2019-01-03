@@ -57,11 +57,13 @@ class BaseExcelModel(FileModel):
                identfier for that input or output in the Excel workbook, in
                'sheetName!A1' or 'sheetName!NamedCell' notation (the sheet name
                is optional if the cell or range exists in the default sheet).
+    model_def : str, optional
+                the name of the model definition yaml file, see `load_yaml`.
 
     '''
     com_warning_msg = "com error: no cell(s) named %s found"
 
-    def __init__(self, name, wd=None, model_file=None, default_sheet=None, pointers=None):
+    def __init__(self, name, wd=None, model_file=None, default_sheet=None, pointers=None, model_def=None):
         super(BaseExcelModel, self).__init__(name, wd=wd,
                                              model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
@@ -73,7 +75,7 @@ class BaseExcelModel(FileModel):
         self.wb = None
 
         #: Name of the sheet on which one want to set values
-        self.default_sheet = None
+        self.default_sheet = default_sheet
 
         #: Pointers allow pointing named inputs or outputs to excel workbook
         #: locations.  This can allow keeping the workbench model neat with
@@ -81,6 +83,9 @@ class BaseExcelModel(FileModel):
         if pointers is None:
             pointers = {}
         self.pointers = pointers
+
+        if model_def is not None:
+            self.load_yaml(model_def)
 
     @property
     def workbook(self):
@@ -295,6 +300,79 @@ class BaseExcelModel(FileModel):
                 return ['com_error: {}'.format(err)]
         else:
             return ['error: wb not available']
+
+    def load_yaml(self, yaml_file):
+        '''
+        Load an excel model interface definition from a yaml file.
+
+        Parameters
+        ----------
+        yaml_file : str
+            Filename of the yaml file to load. This file will define the uncertainties, levers, and outcomes.
+        '''
+        import yaml
+        import numbers
+        with open(yaml_file) as yf:
+            definition = yaml.load(yf)
+
+
+        from ..em_framework.parameters import IntegerParameter, BooleanParameter, RealParameter, CategoricalParameter
+        from ..em_framework.outcomes import ScalarOutcome, Constraint
+
+        self.levers = []
+        self.uncertainties = []
+
+        for grouping in ('Levers', 'Uncertainties'):
+
+            _temp = []
+
+            for k, v in definition.get(grouping, {}).items():
+                t = v.get('Type', 'INFER')
+                min_ = v.get('Minimum', 0)
+                max_ = v.get('Maximum')
+
+                if t == 'INFER':
+                    if 'Values' in v:
+                        t = 'CAT'
+                    elif isinstance(max_, numbers.Integral):
+                        t = 'INT'
+                    elif max_ is not None:
+                        t = 'REAL'
+                    else:
+                        t = 'BOOL'
+
+                if t.upper() in ('INT', 'INTEGER',):
+                    if max_ is None:
+                        raise ValueError(f'IntegerParameter {k} must have an explicit Maximum')
+                    _temp.append(IntegerParameter(k, min_, max_))
+                elif t.upper() in ('REAL', 'FLOAT',):
+                    if max_ is None:
+                        raise ValueError(f'RealParameter {k} must have an explicit Maximum')
+                    _temp.append(RealParameter(k, min_, max_))
+                elif t.upper() in ('BOOL', 'BOOLEAN',):
+                    _temp.append(BooleanParameter(k))
+                elif t.upper() in ('CAT', 'BOOLEAN',):
+                    try:
+                        vals = v['Values']
+                    except:
+                        raise ValueError(f'CategoricalParameter {k} must have explicit Values list')
+                    _temp.append(CategoricalParameter(k, vals))
+
+                if 'Cell' in v:
+                    self.pointers[k] = v['Cell']
+
+            if grouping == 'Levers':
+                self.levers = _temp
+            else:
+                self.uncertainties = _temp
+
+
+        _temp = []
+        for k, v in definition.get('Outcomes', {}).items():
+            _temp.append(ScalarOutcome(k))
+            if 'Cell' in v:
+                self.pointers[k] = v['Cell']
+        self.outcomes = _temp
 
 class ExcelModel(SingleReplication, BaseExcelModel):
     pass
