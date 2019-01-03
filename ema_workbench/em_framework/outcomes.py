@@ -8,20 +8,19 @@ import abc
 import collections
 import numbers
 import six
-import warnings
 
 import pandas
 
 from .util import Variable
 from ema_workbench.util.ema_exceptions import EMAError
-
+from ..util import get_module_logger
 
 # Created on 24 mei 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['Outcome', 'ScalarOutcome', 'TimeSeriesOutcome']
-
+_logger = get_module_logger(__name__)
 
 class AbstractOutcome(Variable):
     '''

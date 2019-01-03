@@ -19,7 +19,7 @@ from .plotting_util import (prepare_data, simple_kde, group_density,
                             simple_density, do_titles, do_ylabels, TIME,
                             ENV_LIN, ENVELOPE, LINES, PATCH, LINE,
                             KDE, get_color)
-from ..util import debug, exception, EMAError
+from ..util import EMAError, get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
@@ -27,7 +27,7 @@ __all__ = ['lines',
            'envelopes',
            'kde_over_time',
            'multiple_densities']
-
+_logger = get_module_logger(__name__)
 TIME_LABEL = 'Time'
 
 
@@ -113,7 +113,7 @@ def envelopes(experiments,
     associated with \'no policy\'.
 
     '''
-    debug("generating envelopes")
+    _logger.debug("generating envelopes")
     prepared_data = prepare_data(experiments, outcomes,
                                  outcomes_to_show, group_by, 
                                  grouping_specifiers,
@@ -197,7 +197,7 @@ def group_by_envelopes(outcomes, outcome_to_plot, time, density, ax,
         try:
             plot_envelope(ax, j, time, value, fill)
         except ValueError:
-            exception("value error when plotting for %s" % (key))
+            _logger.exception("value error when plotting for %s" % (key))
             raise
 
     if density:
@@ -320,7 +320,7 @@ def lines(experiments,
 
     '''
 
-    debug("generating line graph")
+    _logger.debug("generating line graph")
 
     # make sure we have the data
     

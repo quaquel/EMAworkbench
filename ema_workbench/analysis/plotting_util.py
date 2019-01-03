@@ -17,9 +17,11 @@ import seaborn as sns
 import six
 from scipy.stats import gaussian_kde, scoreatpercentile
 
-from ..util import EMAError, info, warning
+from ..util import EMAError, get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
+_logger = get_module_logger(__name__)
 
 COLOR_LIST = sns.color_palette()
 '''Default color list'''
@@ -176,7 +178,7 @@ def plot_boxplots(ax, values, log, group_labels=None):
     '''
 
     if log:
-        warning("log option ignored for boxplot")
+        _logger.warning("log option ignored for boxplot")
 
     ax.boxplot(values)
     if group_labels:
@@ -197,7 +199,7 @@ def plot_violinplot(ax, value, log, group_labels=None):
     '''
 
     if log:
-        warning("log option ignored for violin plot")
+        _logger.warning("log option ignored for violin plot")
 
     pos = range(len(value))
     dist = max(pos)-min(pos)
@@ -463,7 +465,7 @@ def determine_kde(data,
 #         best_kde = grid.best_estimator_
 #         kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
     except Exception as e:
-        warning(e)
+        _logger.warning(e)
         kde_x = np.zeros(kde_y.shape)
 
     return kde_x, kde_y
@@ -488,7 +490,7 @@ def filter_scalar_outcomes(outcomes):
     temp = {}
     for key, value in outcomes.items():
         if value.ndim < 2:
-            info(("{} not shown because it is "
+            _logger.info(("{} not shown because it is "
                   "not time series data").format(key))
         else:
             temp[key] = value
@@ -522,8 +524,9 @@ def determine_time_dimension(outcomes):
             if value.ndim == 2:
                 time = np.arange(0, value.shape[1])
                 break
+    
     if time is None:
-        info("no time dimension found in results")
+        _logger.info("no time dimension found in results")
     return time, outcomes
 
 
@@ -781,7 +784,7 @@ def do_titles(ax, titles, outcome):
             try:
                 ax.set_title(titles[outcome])
             except KeyError:
-                warning(
+                _logger.warning(
                     "key error in do_titles, no title provided for `%s`" % (outcome))
                 ax.set_title(outcome)
 
@@ -807,7 +810,7 @@ def do_ylabels(ax, ylabels, outcome):
             try:
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
-                warning(
+                _logger.warning(
                     "key error in do_ylabels, no ylabel provided for `%s`" % (outcome))
                 ax.set_ylabel(outcome)
 

@@ -23,41 +23,17 @@ def tearDownModule():
 
 class TestEmaLogging(unittest.TestCase):
 
-    def test_log_messages(self):
-        ema_logging.log_to_stderr(ema_logging.DEBUG)
-        
-        with mock.patch('ema_workbench.util.ema_logging._logger') as mocked_logger:
-            ema_logging._module_loggers[__name__] = mocked_logger
-            message = 'test message'
-            ema_logging.debug(message)
-            mocked_logger.debug.assert_called_with(message)
-
-            ema_logging.info(message)
-            mocked_logger.info.assert_called_with(message)
-            
-            ema_logging.warning(message)
-            mocked_logger.warning.assert_called_with(message)
-            
-            ema_logging.error(message)
-            mocked_logger.error.assert_called_with(message)
-            
-            ema_logging.exception(message)
-            mocked_logger.exception.assert_called_with(message)
-            
-            ema_logging.critical(message)
-            mocked_logger.critical.assert_called_with(message)            
-
     def test_get_logger(self):
         ema_logging._logger = None
         logger = ema_logging.get_logger()
         self.assertEqual(logger, logging.getLogger(ema_logging.LOGGER_NAME))
         self.assertEqual(len(logger.handlers), 1)
-        self.assertEqual(type(logger.handlers[0]), ema_logging.NullHandler)
+        self.assertEqual(type(logger.handlers[0]), logging.NullHandler)
         
         logger = ema_logging.get_logger()
         self.assertEqual(logger, logging.getLogger(ema_logging.LOGGER_NAME))
         self.assertEqual(len(logger.handlers), 1)
-        self.assertEqual(type(logger.handlers[0]), ema_logging.NullHandler)        
+        self.assertEqual(type(logger.handlers[0]), logging.NullHandler)        
     
     def test_log_to_stderr(self):
         ema_logging._logger = None

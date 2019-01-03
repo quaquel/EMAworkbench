@@ -39,7 +39,7 @@ import pandas as pd
 import seaborn as sns
 
 from .plotting_util import make_legend
-from ..util import (EMAError, debug, INFO, temporary_filter,
+from ..util import (EMAError, temporary_filter, INFO, 
                     get_module_logger)
 from . import scenario_discovery_util as sdutil
 
@@ -50,6 +50,7 @@ from . import scenario_discovery_util as sdutil
 
 __all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox',
            'PrimException', 'MultiBoxesPrim']
+_logger = get_module_logger(__name__)
 
 LENIENT2 = 'lenient2'
 LENIENT1 = 'lenient1'
@@ -59,7 +60,6 @@ ABOVE = 1
 BELOW = -1
 PRECISION = '.2f'
 
-_logger = get_module_logger(__name__)
 
 
 def get_quantile(data, quantile):
@@ -136,8 +136,8 @@ def _pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
 
         # reorder categorical data so we
         # can capture them in a single column
-        categories_inbox = boxlim.loc[0, column]
-        categories_all = box_init.loc[0, column]
+        categories_inbox = boxlim.at[0, column]
+        categories_all = box_init.at[0, column]
         missing = categories_all - categories_inbox
         categories = list(categories_inbox) + list(missing)
         data[column] = data[column].cat.set_categories(categories)
@@ -166,7 +166,7 @@ def _pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
             if ylabel == xlabel: continue
 
             if xlabel in cats:
-                xlim = boxlim.loc[0, xlabel]
+                xlim = boxlim.at[0, xlabel]
                 x = -0.2
                 width = len(xlim)-0.6 # 2 * 0.2
             else:
@@ -260,7 +260,7 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
                                                          unlimited)):
             if unlimit != limit:
                 temp_box = box_lim.copy()
-                temp_box.loc[direction, u] = unlimit
+                temp_box.at[direction, u] = unlimit
                 qp = sdutil._calculate_quasip(x, y, temp_box,
                                               Hbox, Tbox)
             else:
@@ -438,8 +438,8 @@ class PrimBox(object):
 
         return sdutil.plot_box(self.box_lims[i], qp_values,
                                self.prim.box_init, uncs, 
-                               self.peeling_trajectory.loc[i, 'coverage'], 
-                               self.peeling_trajectory.loc[i, "density"],
+                               self.peeling_trajectory.at[i, 'coverage'], 
+                               self.peeling_trajectory.at[i, "density"],
                                ticklabel_formatter=ticklabel_formatter,
                                boxlim_formatter=boxlim_formatter,
                                table_formatter=table_formatter)
@@ -1125,12 +1125,11 @@ class Prim(sdutil.OutputFormatterMixin):
 
         #  perform peeling phase
         box = self._peel(box)
-        debug("peeling completed")
+        _logger.debug("peeling completed")
 
         # perform pasting phase
-#         TODO:: fixme
         box = self._paste(box)
-        debug("pasting completed")
+        _logger.debug("pasting completed")
 
         message = ("mean: {0}, mass: {1}, coverage: {2}, "
                    "density: {3} restricted_dimensions: {4}")
@@ -1472,7 +1471,7 @@ class Prim(sdutil.OutputFormatterMixin):
                                      'object')]:
             for i, u in enumerate(columns):
                 if u not in res_dim: continue
-                debug("pasting "+u)
+                _logger.debug("pasting "+u)
                 pastes = self._pastes[dtype](self, box, u, x,
                                              restricted_dims)
                 [possible_pastes.append(entry) for entry in pastes]

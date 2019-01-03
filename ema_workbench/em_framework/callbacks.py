@@ -23,8 +23,9 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from ..util import ema_logging, ema_exceptions
-from .parameters import CategoricalParameter, IntegerParameter, BooleanParameter
+from ..util import ema_exceptions, get_module_logger
+from .parameters import (CategoricalParameter, IntegerParameter,
+                         BooleanParameter)
 
 #
 # Created on 22 Jan 2013
@@ -35,7 +36,7 @@ from .parameters import CategoricalParameter, IntegerParameter, BooleanParameter
 __all__ = ['AbstractCallback',
            'DefaultCallback',
            'FileBasedCallback']
-
+_logger = get_module_logger(__name__)
 
 class AbstractCallback(object):
     '''
@@ -52,8 +53,8 @@ class AbstractCallback(object):
     nr_experiments : int
                      the total number of experiments to be executed
     reporting_interval : int, optional
-                         the interval at which to provide progress information
-                         via logging.
+                         the interval at which to provide progress
+                         information via logging.
     reporting_frequency: int, optional
                          the total number of progress logs
 
@@ -61,7 +62,8 @@ class AbstractCallback(object):
     Attributes
     ----------
     i : int
-        a counter that keeps track of how many experiments have been saved
+        a counter that keeps track of how many experiments have been
+        saved
     reporting_interval : int, 
                          the interval between progress logs
 
@@ -100,10 +102,10 @@ class AbstractCallback(object):
         # can we detect whether we are running within Jupyter?
         # yes: https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook 
         self.i += 1
-        ema_logging.debug(str(self.i)+" cases completed")
+        _logger.debug(str(self.i)+" cases completed")
 
         if self.i % self.reporting_interval == 0:
-            ema_logging.info(str(self.i)+" cases completed")
+            _logger.info(str(self.i)+" cases completed")
 
     @abc.abstractmethod
     def get_results(self):
@@ -209,13 +211,13 @@ class DefaultCallback(AbstractCallback):
 
     def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
-            ema_logging.debug("storing {}".format(outcome))
+            _logger.debug("storing {}".format(outcome))
 
             try:
                 outcome_res = outcomes[outcome]
             except KeyError:
                 message = "%s not specified as outcome in msi" % outcome
-                ema_logging.debug(message)
+                _logger.debug(message)
             else:
                 try:
                     self.results[outcome][case_id, ] = outcome_res

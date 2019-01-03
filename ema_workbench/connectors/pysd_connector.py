@@ -8,7 +8,6 @@ import os
 import pysd
 
 from ..em_framework.model import AbstractModel
-from ..util import ema_logging
 from ema_workbench.util.ema_logging import method_logger
 from ema_workbench.em_framework.model import SingleReplication
 
@@ -54,7 +53,7 @@ class BasePysdModel(AbstractModel):
             name = name.replace('_', '')
         super(BasePysdModel, self).__init__(name)
 
-    @method_logger
+    @method_logger(__name__)
     def model_init(self, policy, **kwargs):
         AbstractModel.model_init(self, policy, **kwargs)
 
@@ -62,7 +61,7 @@ class BasePysdModel(AbstractModel):
         # or if not initialized
         self.model = pysd.read_vensim(self.mdl_file)
 
-    @method_logger
+    @method_logger(__name__)
     def run_experiment(self, experiment):
         res = self.model.run(params=experiment,
                              return_columns=self.output_variables)

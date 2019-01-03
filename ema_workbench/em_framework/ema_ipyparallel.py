@@ -27,7 +27,7 @@ from . import experiment_runner
 from .ema_multiprocessing import setup_working_directories
 from .model import AbstractModel
 from .util import NamedObjectMap
-from ..util import ema_exceptions, ema_logging
+from ..util import ema_exceptions, ema_logging, get_module_logger
 
 # Created on Jul 16, 2015
 #
@@ -36,6 +36,7 @@ from ..util import ema_exceptions, ema_logging
 SUBTOPIC = ema_logging.LOGGER_NAME
 engine = None
 
+_logger = get_module_logger(__name__)
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
     '''LoggerAdapter that inserts EMA as a topic into log messages
@@ -77,7 +78,7 @@ def start_logwatcher():
         try:
             logwatcher.loop.start()
         except (zmq.error.ZMQError, IOError, OSError):
-            ema_logging.warning('shutting down log watcher')
+            _logger.warning('shutting down log watcher')
         except RuntimeError:
             pass
 
@@ -103,7 +104,7 @@ def set_engine_logger():
     adapter = EngingeLoggerAdapter(logger, SUBTOPIC)
     ema_logging._logger = adapter
 
-    ema_logging.debug('updated logger')
+    _logger.debug('updated logger')
 
 
 def get_engines_by_host(client):
@@ -265,11 +266,11 @@ class Engine(object):
     '''
 
     def __init__(self, engine_id, msis, cwd):
-        ema_logging.debug("starting engine {}".format(engine_id))
+        _logger.debug("starting engine {}".format(engine_id))
         self.engine_id = engine_id
         self.msis = msis
 
-        ema_logging.debug("setting root working directory to {}".format(cwd))
+        _logger.debug("setting root working directory to {}".format(cwd))
         os.chdir(cwd)
 
         models = NamedObjectMap(AbstractModel)

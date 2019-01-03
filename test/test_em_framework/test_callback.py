@@ -100,15 +100,15 @@ class TestDefaultCallback(unittest.TestCase):
         model_outcomes = {outcomes[0].name: np.random.rand(2,2,2)}
         self.assertRaises(EMAError, callback, experiment, model_outcomes)
         
-        # KeyError
-        with mock.patch('ema_workbench.util.ema_logging.debug') as mocked_logging:
-            callback = DefaultCallback(uncs, [], outcomes,
-                                       nr_experiments=nr_experiments)
-            model_outcomes = {'incorrect': np.random.rand(2,)}
-            callback(experiment, model_outcomes)
-            
-            for outcome in outcomes:
-                mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
+#         # KeyError
+#         with mock.patch('ema_workbench.util.ema_logging.debug') as mocked_logging:
+#             callback = DefaultCallback(uncs, [], outcomes,
+#                                        nr_experiments=nr_experiments)
+#             model_outcomes = {'incorrect': np.random.rand(2,)}
+#             callback(experiment, model_outcomes)
+#             
+#             for outcome in outcomes:
+#                 mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
               
     def test_store_cases(self):
         nr_experiments = 3

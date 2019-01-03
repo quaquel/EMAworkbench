@@ -20,15 +20,15 @@ import warnings
 from . import vensimDLLwrapper
 from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
 
+from ..em_framework import TimeSeriesOutcome, FileModel
 from ..em_framework.parameters import (Parameter, RealParameter,
                                        CategoricalParameter)
 from ..em_framework.util import NamedObjectMap
-from ..em_framework import TimeSeriesOutcome, FileModel
+from ..em_framework.model import SingleReplication
 
-from ..util import debug, warning, CaseError, EMAError, EMAWarning
+from ..util import CaseError, EMAError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
-from ema_workbench.em_framework.model import SingleReplication
-from ema_workbench.util import ema_logging
+
 
 # Created on 25 mei 2011
 #
@@ -42,7 +42,7 @@ __all__ = ['be_quiet',
            'get_data',
            'VensimModel',
            'LookupUncertainty']
-
+_logger = get_module_logger(__name__)
 
 def be_quiet():
     '''
@@ -72,11 +72,11 @@ def load_model(file_name):
     .. note: only works for .vpm files
 
     '''
-    debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|"+file_name)
+    _logger.debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|"+file_name)
     try:
         command("SPECIAL>LOADMODEL|"+str(file_name))
     except VensimWarning as w:
-        warning(str(w))
+        _logger.warning(str(w))
         raise VensimError("vensim file not found")
 
 
@@ -94,11 +94,11 @@ def read_cin_file(file_name):
     VensimWarning if the cin file cannot be read.
 
     '''
-    debug("executing COMMAND: SIMULATE>READCIN|"+file_name)
+    _logger.debug("executing COMMAND: SIMULATE>READCIN|"+file_name)
     try:
         command(r"SIMULATE>READCIN|"+str(file_name))
     except VensimWarning as w:
-        debug(str(w))
+        _logger.warning(str(w))
         raise w
 
 
@@ -128,7 +128,7 @@ def set_value(variable, value):
         try:
             command("SIMULATE>SETVAL|"+variable+"="+str(value))
         except VensimWarning:
-            warning('variable: \'' + variable+'\' not found')
+            _logger.warning('variable: \'' + variable+'\' not found')
 
 
 def run_simulation(file_name):
@@ -152,12 +152,12 @@ def run_simulation(file_name):
     file_name = str(file_name)
 
     try:
-        debug(" executing COMMAND: SIMULATE>RUNNAME|"+file_name+"|O")
+        _logger.debug(" executing COMMAND: SIMULATE>RUNNAME|"+file_name+"|O")
         command("SIMULATE>RUNNAME|"+file_name+"|O")
-        debug("MENU>RUN|o")
+        _logger.debug("MENU>RUN|o")
         command("MENU>RUN|o")
     except VensimWarning as w:
-        warning((str(w)))
+        _logger.warning((str(w)))
         raise VensimError(str(w))
 
 
@@ -185,7 +185,7 @@ def get_data(filename, varname, step=1):
     try:
         vval, _ = vensimDLLwrapper.get_data(filename, str(varname))
     except VensimWarning as w:
-        warning(str(w))
+        _logger.warning(str(w))
 
     return vval
 
@@ -270,7 +270,7 @@ class BaseVensimModel(FileModel):
         #: default name of the results file (default: 'Current.vdf')
         self._resultfile = 'Current.vdf'
 
-        debug("vensim interface init completed")
+        _logger.debug("vensim interface init completed")
 
     def model_init(self, policy):
         """
@@ -291,7 +291,7 @@ class BaseVensimModel(FileModel):
         fn = os.path.join(self.working_directory, self.model_file)
         load_model(fn)  # load the model
 
-        debug("model initialized successfully")
+        _logger.debug("model initialized successfully")
 
         be_quiet()  # minimize the screens that are shown
 
@@ -308,7 +308,7 @@ class BaseVensimModel(FileModel):
         except VensimWarning:
             raise EMAWarning(str(VensimWarning))
 
-    @method_logger
+    @method_logger(__name__)
     def run_experiment(self, experiment):
         """
         Method for running an instantiated model structure. 
@@ -337,9 +337,9 @@ class BaseVensimModel(FileModel):
             try:
                 read_cin_file(cin_file)
             except VensimWarning as w:
-                debug(str(w))
+                _logger.debug(str(w))
             else:
-                debug("cin file read successfully")
+                _logger.debug("cin file read successfully")
 
         for lookup_uncertainty in self._lookup_uncertainties:
             # ask the lookup to transform the retrieved uncertainties to the
@@ -349,9 +349,9 @@ class BaseVensimModel(FileModel):
 
         for key, value in experiment.items():
             set_value(key, value)
-        debug("model parameters set successfully")
+        _logger.debug("model parameters set successfully")
 
-        debug("run simulation, results stored in " + self.result_file)
+        _logger.debug("run simulation, results stored in " + self.result_file)
         try:
             run_simulation(self.result_file)
         except VensimError:
@@ -373,7 +373,7 @@ class BaseVensimModel(FileModel):
         result_filename = os.path.join(
             self.working_directory, self.result_file)
         for variable in self.output_variables:
-            debug("getting data for %s" % variable)
+            _logger.debug("getting data for %s" % variable)
 
             res = get_data(result_filename, variable)
             result, er = check_data(np.asarray(res))
@@ -381,7 +381,7 @@ class BaseVensimModel(FileModel):
 
             results[variable] = result
 
-        debug('setting results to output')
+        _logger.debug('setting results to output')
         if error:
             raise CaseError("run not completed", experiment)
 
