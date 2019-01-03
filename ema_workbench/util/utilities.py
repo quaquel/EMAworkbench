@@ -13,19 +13,16 @@ except ImportError:
 
 # import cPickle
 from io import BytesIO, StringIO
-import math
 import os
 import sys
 import tarfile
 
-from matplotlib.mlab import rec2csv
 import numpy as np
-# from numpy.lib import recfunctions
 
 import pandas as pd
 from pandas.io.parsers import read_csv
 
-from .ema_logging import info, debug
+from .ema_logging import info
 from .ema_exceptions import EMAError
 import ema_workbench
 
@@ -113,11 +110,7 @@ def load_results(file_name):
                     try:
                         temp_shape.append(int(entry))
                     except ValueError:
-                        try:
-                            # @UndefinedVariable
-                            temp_shape.append(int(long(entry)))
-                        except NameError:  # we are on python3
-                            temp_shape.append(int(entry[0:-1]))
+                        temp_shape.append(int(entry[0:-1]))
             shape = tuple(temp_shape)
 
             if len(shape) > 2:
