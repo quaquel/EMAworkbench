@@ -71,7 +71,6 @@ def load_results(file_name):
         # load experiment metadata
         metadata = z.extractfile('experiments metadata.csv').readlines()
  
-        metadata_temp = []
         for entry in metadata:
             entry = entry.decode('UTF-8')
             entry = entry.strip()
@@ -79,17 +78,6 @@ def load_results(file_name):
             name, dtype = [str(item) for item in entry]
             if np.dtype(dtype)==object:
                 experiments[name] = experiments[name].astype('category') 
-#         metadata = metadata_temp
- 
-#         metadata = np.dtype(metadata)
-
-        # cast experiments to dtype and name specified in metadata
-#         temp_experiments = np.zeros((experiments.shape[0],), dtype=metadata)
-#         for i, entry in enumerate(experiments.dtype.descr):
-#             dtype = metadata[i]
-#             name = metadata.descr[i][0]
-#             temp_experiments[name][:] = experiments[entry[0]].astype(dtype)
-#         experiments = temp_experiments
 
         # load outcome metadata
         metadata = z.extractfile('outcomes metadata.csv').readlines()
@@ -136,10 +124,10 @@ def load_results(file_name):
 
 def save_results(results, file_name):
     '''
-    save the results to the specified tar.gz file. The results are stored as 
-    csv files. There is an x.csv, and a csv for each outcome. In 
-    addition, there is a metadata csv which contains the datatype information
-    for each of the columns in the x array.
+    save the results to the specified tar.gz file. The results are
+    stored as csv files. There is an x.csv, and a csv for each 
+    outcome. In addition, there is a metadata csv which contains
+    the datatype information for each of the columns in the x array.
 
     Parameters
     ----------    
@@ -267,7 +255,7 @@ def experiments_to_scenarios(experiments, model=None):
     return scenarios
 
 
-def merge_results(results1, results2, downsample=None):
+def merge_results(results1, results2):
     '''
     convenience function for merging the return from 
     :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
@@ -290,9 +278,6 @@ def merge_results(results1, results2, downsample=None):
                first results to be merged
     results2 : tuple
                second results to be merged
-    downsample : int 
-                 should be an integer, will be used in slicing the results
-                 in order to avoid memory problems. 
 
     Returns
     -------
