@@ -14,11 +14,12 @@ import numpy as np
 # from . import plotting_util
 from .plotting_util import (SCATTER, LINE, get_color,
                             prepare_pairs_data, make_legend)
-from ..util import debug, info
+from ..util import get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['pairs_scatter', 'pairs_lines', 'pairs_density']
+_logger = get_module_logger(__name__)
 
 
 def pairs_lines(experiments, outcomes,
@@ -73,7 +74,7 @@ def pairs_lines(experiments, outcomes,
     '''
 
     # unravel return from run_experiments
-    debug("making a pars lines plot")
+    _logger.debug("making a pars lines plot")
 
     prepared_data = prepare_pairs_data(experiments, outcomes, outcomes_to_show, group_by,
                                        grouping_specifiers, None)
@@ -218,7 +219,7 @@ def pairs_density(experiments, outcomes,
         instance
 
     '''
-    debug("generating pairwise density plot")
+    _logger.debug("generating pairwise density plot")
 
     prepared_data = prepare_pairs_data(experiments, outcomes, outcomes_to_show, group_by,
                                        grouping_specifiers, point_in_time,
@@ -422,14 +423,16 @@ def pairs_scatter(experiments, outcomes,
             instance
 
     .. note:: the current implementation is limited to seven different 
-              categories in case of column, categories, and/or discretesize.
-              This limit is due to the colors specified in COLOR_LIST. 
+              categories in case of column, categories, and/or 
+              discretesize. This limit is due to the colors specified
+              in COLOR_LIST. 
 
     '''
 
-    debug("generating pairwise scatter plot")
+    _logger.debug("generating pairwise scatter plot")
 
-    prepared_data = prepare_pairs_data(experiments, outcomes, outcomes_to_show, group_by,
+    prepared_data = prepare_pairs_data(experiments, outcomes, 
+                                       outcomes_to_show, group_by,
                                        grouping_specifiers, point_in_time,
                                        filter_scalar)
     outcomes, outcomes_to_show, grouping_labels = prepared_data

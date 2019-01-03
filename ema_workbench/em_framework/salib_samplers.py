@@ -4,14 +4,6 @@ Samplers for working with SALib
 '''
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
-
-
-# Created on 12 Jan 2017
-#
-# .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
-__all__ = ["SobolSampler", "MorrisSampler", "FASTSampler", 'get_SALib_problem']
-
 import operator
 import warnings
 
@@ -27,6 +19,12 @@ except ImportError:
     warnings.warn("SALib samplers not available", ImportWarning)
     saltelli = morris = fast_sampler = None
 
+# Created on 12 Jan 2017
+#
+# .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
+__all__ = ["SobolSampler", "MorrisSampler", "FASTSampler",
+           'get_SALib_problem']
 
 def get_SALib_problem(uncertainties):
     '''returns a dict with a problem specificatin as required by SALib'''

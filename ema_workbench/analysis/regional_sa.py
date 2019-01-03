@@ -15,7 +15,6 @@ import operator
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.lib.recfunctions as rf
 import seaborn as sns
 
 # Created on Aug 18, 2015

@@ -22,8 +22,7 @@ import numpy as np
 import pandas as pd
 from pandas.io.parsers import read_csv
 
-from .ema_logging import info
-from .ema_exceptions import EMAError
+from . import EMAError, get_module_logger
 import ema_workbench
 
 PY3 = sys.version_info[0] == 3
@@ -41,7 +40,7 @@ __all__ = ['load_results',
            'experiments_to_scenarios',
            'merge_results'
            ]
-
+_logger = get_module_logger(__name__)
 
 def load_results(file_name):
     '''
@@ -118,7 +117,7 @@ def load_results(file_name):
 
             outcomes[outcome] = data
 
-    info("results loaded succesfully from {}".format(file_name))
+    _logger.info("results loaded succesfully from {}".format(file_name))
     return experiments, outcomes
 
 
@@ -195,7 +194,7 @@ def save_results(results, file_name):
                 fh = fh.getvalue()
                 add_file(z, fh, '{}.csv'.format(key))
 
-    info("results saved successfully to {}".format(file_name))
+    _logger.info("results saved successfully to {}".format(file_name))
 
 
 def experiments_to_scenarios(experiments, model=None):
@@ -296,12 +295,12 @@ def merge_results(results1, results2):
 
     # only merge the results that are in both
     keys = set(res1.keys()).intersection(set(res2.keys()))
-    info("intersection of keys: %s" % keys)
+    _logger.info("intersection of keys: %s" % keys)
 
     # merging results
     merged_res = {}
     for key in keys:
-        info("merge "+key)
+        _logger.info("merge "+key)
 
         value1 = res1.get(key)
         value2 = res2.get(key)
@@ -322,9 +321,9 @@ def get_ema_project_home_dir():
         parsed = config.read(fn)
 
         if parsed:
-            info('config loaded from {}'.format(parsed[0]))
+            _logger.info('config loaded from {}'.format(parsed[0]))
         else:
-            info('no config file found')
+            _logger.info('no config file found')
 
         home_dir = config.get('ema_project_home', 'home_dir')
         return home_dir

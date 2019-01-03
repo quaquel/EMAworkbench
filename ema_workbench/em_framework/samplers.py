@@ -8,15 +8,13 @@ Monte Carlo sampling.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
-from ema_workbench.em_framework.parameters import CategoricalParameter
-
-try:
-    from future_builtins import zip
-except ImportError:
-    try:
-        from itertools import izip as zip  # < 2.5 or 3.x
-    except ImportError:
-        pass
+# try:
+#     from future_builtins import zip
+# except ImportError:
+#     try:
+#         from itertools import izip as zip  # < 2.5 or 3.x
+#     except ImportError:
+#         pass
 
 import abc
 import functools
@@ -26,7 +24,8 @@ import operator
 import scipy.stats as stats
 
 from . import util
-from .parameters import (IntegerParameter, Policy, Scenario, BooleanParameter)
+from .parameters import (IntegerParameter, Policy, Scenario,
+                         BooleanParameter, CategoricalParameter)
 
 # Created on 16 aug. 2011
 #
@@ -512,21 +511,17 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
 
 
 def from_experiments(models, experiments):
-    '''generate scenarios from an existing experiments recarray
+    '''generate scenarios from an existing experiments DataFrame
 
     Parameters
     ----------
     models : collection of AbstractModel instances
-    experiments : recarray
+    experiments : DataFrame
 
     Returns
     -------
      generator 
-        yielding Scenario instances
-    collection
-        the collection of parameters over which to sample
-    n_samples
-        the number of scenarios (!= n_samples in case off FF sampling)   
+        yielding Scenario instances 
 
     '''
     policy_names = np.unique(experiments['policy'])
@@ -538,19 +533,14 @@ def from_experiments(models, experiments):
               (experiments['policy'] == policy_names[0])
 
     experiments = experiments[logical]
-    experiments = np.lib.recfunctions.drop_fields(experiments,
-                                                  ['model', 'policy'],
-                                                  asrecarray=True)
 
     uncertainties = util.determine_objects(models, 'uncertainties',
                                            union=True)
-    unc_names = np.lib.recfunctions.get_names(
-        experiments.dtype)  # @UndefinedVariable
-    uncertainties = [uncertainties[unc] for unc in unc_names]
+    samples = {unc.name: experiments[:, unc.name] for unc in
+               uncertainties}
 
-    samples = {unc: experiments[unc] for unc in unc_names}
-
-    scenarios = DefaultDesigns(samples, uncertainties, experiments.shape[0])
+    scenarios = DefaultDesigns(samples, uncertainties,
+                               experiments.shape[0])
     scenarios.kind = Scenario
 
     return scenarios
@@ -603,8 +593,8 @@ class PartialFactorialDesigns(object):
 
 
 def partial_designs_generator(designs):
-    '''generator which combines the full factorial part of the design with
-    the non full factorial part into a single dict
+    '''generator which combines the full factorial part of the design
+    with the non full factorial part into a single dict
 
     Parameters
     ----------

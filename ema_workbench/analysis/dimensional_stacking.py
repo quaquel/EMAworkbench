@@ -22,12 +22,14 @@ import pandas as pd
 import seaborn as sns
 
 from . import feature_scoring
-
+from ..util import get_module_logger
 
 # Created on Nov 13, 2015
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+__all__ = ['create_pivot_plot']
+_logger = get_module_logger(__name__)
 
 def discretize(data, nbins=3, with_labels=False):
     ''' Discretize the data, using the number of bins specified.

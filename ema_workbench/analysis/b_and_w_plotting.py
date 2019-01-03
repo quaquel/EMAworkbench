@@ -17,7 +17,7 @@ import numpy as np
 from matplotlib.collections import PolyCollection, PathCollection
 from matplotlib.colors import ColorConverter
 
-from ema_workbench.util import ema_logging
+from ema_workbench.util import get_module_logger
 from ..util import EMAError
 
 
@@ -26,6 +26,7 @@ from ..util import EMAError
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['set_fig_to_bw']
+_logger = get_module_logger(__name__)
 
 bw_mapping = [{'marker': None, 'dash': (None, None), 'fill': '0.1', 'hatch': '/'},
               {'marker': None, 'dash': [5, 5], 'fill':'0.25', 'hatch':'\\'},
@@ -94,7 +95,7 @@ def set_ax_lines_bw(ax, colormap, line_style='continuous'):
         try:
             mapping = colormap[orig_color]
         except BaseException:
-            ema_logging.warning(
+            _logger.warning(
                 'no mapping specified for color: {}'.format(orig_color))
         else:
             if line_style == 'continuous':
@@ -182,7 +183,7 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
             try:
                 mapping = colormap[orig_color]
             except BaseException:
-                ema_logging.warning(
+                _logger.warning(
                     'no mapping specified for color: {}'.format(orig_color))
             else:
                 new_color = color_converter.to_rgba(mapping['fill'])
@@ -195,7 +196,7 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
         try:
             mapping = colormap[orig_color]
         except BaseException:
-            ema_logging.warning(
+            _logger.warning(
                 'no mapping specified for color: {}'.format(orig_color))
         else:
             collection.update({'facecolors': 'none'})
@@ -282,7 +283,7 @@ def set_legend_to_bw(leg, style, colormap, line_style='continuous'):
                     element.update({'edgecolor': 'black'})
                     element.update({'hatch': colormap[rgb_orig]['hatch']})
                 elif style == GREYSCALE:
-                    ema_logging.info(colormap.keys())
+                    _logger.info(colormap.keys())
                     element.update({'facecolor': colormap[rgb_orig]['fill']})
                     element.update({'edgecolor': colormap[rgb_orig]['fill']})
             else:
@@ -342,12 +343,12 @@ def set_fig_to_bw(fig, style=HATCHING,
 
     if len(all_colors) > len(bw_mapping):
         mapping_cycle = itertools.cycle(bw_mapping)
-        ema_logging.warning(
+        _logger.warning(
             'more colors used than provided in B&W mapping, cycling over mapping')
     else:
         mapping_cycle = bw_mapping
     colormap = dict(zip(all_colors, mapping_cycle))
-    ema_logging.debug(colormap.keys())
+    _logger.debug(colormap.keys())
 
     max_shade = 0.9
     for i, color in enumerate(colormap.keys()):

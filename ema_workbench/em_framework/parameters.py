@@ -9,9 +9,9 @@ import pandas
 import six
 import warnings
 
-from ema_workbench.em_framework.util import (NamedObject, Variable,
-                                             NamedObjectMap, Counter, NamedDict,
-                                             combine)
+from .util import (NamedObject, Variable, NamedObjectMap, Counter,
+                   NamedDict, combine)
+from ..util import get_module_logger
 
 # Created on Jul 14, 2016
 #
@@ -20,7 +20,7 @@ from ema_workbench.em_framework.util import (NamedObject, Variable,
 __all__ = ['Parameter', 'RealParameter', 'IntegerParameter', 'BooleanParameter',
            'CategoricalParameter', 'create_parameters',
            'experiment_generator']
-
+_logger = get_module_logger(__name__)
 
 class Constant(NamedObject):
     '''Constant class, 

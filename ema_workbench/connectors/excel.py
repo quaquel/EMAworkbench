@@ -12,15 +12,17 @@ import os
 import win32com.client  # @UnresolvedImport
 from win32com.universal import com_error  # @UnresolvedImport
 
-from ..util import ema_logging, EMAError
+from ..util import EMAError
 from ..em_framework.model import FileModel
-from ema_workbench.em_framework.model import SingleReplication
-from ..util.ema_logging import method_logger
+from ..em_framework.model import SingleReplication
+from ..util.ema_logging import method_logger, get_module_logger
 
 # Created on 19 sep. 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+
+_logger = get_module_logger(__name__)
 
 class BaseExcelModel(FileModel):
     '''
@@ -54,7 +56,7 @@ class BaseExcelModel(FileModel):
     def workbook(self):
         return self.model_file
 
-    @method_logger
+    @method_logger(__name__)
     def model_init(self, policy):
         '''
         Method called to initialize the model.
@@ -73,20 +75,20 @@ class BaseExcelModel(FileModel):
 
         if not self.xl:
             try:
-                ema_logging.debug("trying to start Excel")
+                _logger.debug("trying to start Excel")
                 self.xl = win32com.client.Dispatch("Excel.Application")
-                ema_logging.debug("Excel started")
+                _logger.debug("Excel started")
             except com_error as e:
                 raise EMAError(str(e))
 
         if not self.wb:
-            ema_logging.debug("trying to open workbook")
+            _logger.debug("trying to open workbook")
             wb = os.path.join(self.working_directory, self.workbook)
             self.wb = self.xl.Workbooks.Open(wb)
-            ema_logging.debug("workbook opened")
-            ema_logging.debug(self.working_directory)
+            _logger.debug("workbook opened")
+            _logger.debug(self.working_directory)
 
-    @method_logger
+    @method_logger(__name__)
     def run_experiment(self, experiment):
         """
         Method for running an instantiated model structures. This 
@@ -112,7 +114,7 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.wb.Sheets(self.sheet)
         except Exception:
-            ema_logging.warning("com error: sheet not found")
+            _logger.warning("com error: sheet not found")
             self.cleanup()
             raise
 
@@ -121,7 +123,7 @@ class BaseExcelModel(FileModel):
             try:
                 sheet.Range(key).Value = value
             except com_error:
-                ema_logging.warning(
+                _logger.warning(
                     "com error: no cell(s) named %s found" % key,)
 
         # get results
@@ -131,14 +133,14 @@ class BaseExcelModel(FileModel):
                 try:
                     output = sheet.Range(entry).Value
                 except com_error:
-                    ema_logging.warning(self.com_warning_msg.format(entry))
+                    _logger.warning(self.com_warning_msg.format(entry))
                     raise
                 else:
                     results[entry] = output
 
         return results
 
-    @method_logger
+    @method_logger(__name__)
     def cleanup(self):
         ''' cleaning up prior to finishing performing experiments. This will 
         close the workbook and close Excel'''
