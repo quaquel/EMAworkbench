@@ -1,7 +1,7 @@
 '''
 
 This module contains various classes that can be used for specifying different
-types of samplers. These different samplers implement basic sampling 
+types of samplers. These different samplers implement basic sampling
 techniques including Full Factorial sampling, Latin Hypercube sampling, and
 Monte Carlo sampling.
 
@@ -43,11 +43,11 @@ __all__ = ['AbstractSampler',
 
 class AbstractSampler(object):
     '''
-    Abstract base class from which different samplers can be derived. 
+    Abstract base class from which different samplers can be derived.
 
-    In the simplest cases, only the sample method needs to be overwritten. 
-    generate_designs` is the only method called by the ensemble class. The 
-    other methods are used internally to generate the designs. 
+    In the simplest cases, only the sample method needs to be overwritten.
+    generate_designs` is the only method called by the ensemble class. The
+    other methods are used internally to generate the designs.
 
     '''
     __metaaclass__ = abc.ABCMeta
@@ -67,16 +67,16 @@ class AbstractSampler(object):
     def sample(self, distribution, params, size):
         '''
         method for sampling a number of samples from a particular distribution.
-        The various samplers differ with respect to their implementation of 
-        this method. 
+        The various samplers differ with respect to their implementation of
+        this method.
 
         Parameters
         ----------
-        distribution : {'uniform', 'integer'} 
+        distribution : {'uniform', 'integer'}
                        the distribution to sample from
         params : tuple
                  the parameters specifying the distribution
-        size : int 
+        size : int
                the number of samples to generate
 
         Returns
@@ -88,14 +88,14 @@ class AbstractSampler(object):
 
     def generate_samples(self, parameters, size):
         '''
-        The main method of :class: `~sampler.Sampler` and its 
-        children. This will call the sample method for each of the 
-        parameters and return the resulting designs. 
+        The main method of :class: `~sampler.Sampler` and its
+        children. This will call the sample method for each of the
+        parameters and return the resulting designs.
 
         Parameters
         ----------
         parameters : collection
-                     a collection of :class:`~parameters.Parameterparamertainty` 
+                     a collection of :class:`~parameters.Parameterparamertainty`
                      and :class:`~parameters.Categoricalparamertainty`
                      instances.
         size : int
@@ -111,14 +111,14 @@ class AbstractSampler(object):
         return {param.name: self.sample(param.dist, param.params, size) for
                 param in parameters}
 
-    def generate_designs(self,  parameters, nr_samples):
+    def generate_designs(self, parameters, nr_samples):
         '''external interface to sampler. Returns the computational experiments
         over the specified parameters, for the given number of samples for each
         parameter.
 
         Parameters
         ----------
-        parameters : list 
+        parameters : list
                         a list of parameters for which to generate the
                         experimental designs
         nr_samples : int
@@ -165,7 +165,7 @@ class LHSSampler(AbstractSampler):
 
         Returns
         -------
-        dict 
+        dict
             with the paramertainty.name as key, and the sample as value
 
         '''
@@ -181,13 +181,13 @@ class LHSSampler(AbstractSampler):
         dist : random number generator from `scipy.stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
         parms : tuple
                 tuple of parameters as required for dist.
-        siz : int 
+        siz : int
               number of samples
 
         '''
-        perc = np.arange(0, 1., 1./siz)
+        perc = np.arange(0, 1., 1. / siz)
         np.random.shuffle(perc)
-        smp = stats.uniform(perc, 1./siz).rvs()
+        smp = stats.uniform(perc, 1. / siz).rvs()
         v = dist(*parms).ppf(smp)
 
         # corner case fix (try siz=49)
@@ -200,7 +200,7 @@ class LHSSampler(AbstractSampler):
 
 class MonteCarloSampler(AbstractSampler):
     """
-    generates a Monte Carlo sample for each of the parameters. 
+    generates a Monte Carlo sample for each of the parameters.
 
     """
 
@@ -222,7 +222,7 @@ class MonteCarloSampler(AbstractSampler):
 
         Returns
         -------
-        dict 
+        dict
             with the paramertainty.name as key, and the sample as value
 
         '''
@@ -234,20 +234,20 @@ class FullFactorialSampler(AbstractSampler):
     '''
     generates a full factorial sample.
 
-    If the parameter is non categorical, the resolution is set the 
-    number of samples. If the parameter is categorical, the specified value 
-    for samples will be ignored and each category will be used instead. 
+    If the parameter is non categorical, the resolution is set the
+    number of samples. If the parameter is categorical, the specified value
+    for samples will be ignored and each category will be used instead.
 
     '''
 
     def __init__(self):
         super(FullFactorialSampler, self).__init__()
 
-    def generate_samples(self,  parameters, size):
+    def generate_samples(self, parameters, size):
         '''
-        The main method of :class: `~sampler.Sampler` and its 
-        children. This will call the sample method for each of the 
-        parameters and return the resulting samples 
+        The main method of :class: `~sampler.Sampler` and its
+        children. This will call the sample method for each of the
+        parameters and return the resulting samples
 
         Parameters
         ----------
@@ -259,7 +259,7 @@ class FullFactorialSampler(AbstractSampler):
 
         Returns
         -------
-        dict 
+        dict
             with the paramertainty.name as key, and the sample as value
         '''
         samples = {}
@@ -278,15 +278,15 @@ class FullFactorialSampler(AbstractSampler):
 
         return samples
 
-    def generate_designs(self,  parameters, nr_samples):
+    def generate_designs(self, parameters, nr_samples):
         '''
-        This method provides an alternative implementation to the default 
+        This method provides an alternative implementation to the default
         implementation provided by :class:`~sampler.Sampler`. This
-        version returns a full factorial design across the parameters. 
+        version returns a full factorial design across the parameters.
 
         Parameters
         ----------
-        parameters : list 
+        parameters : list
                         a list of parameters for which to generate the
                         experimental designs
         nr_samples : int
@@ -321,8 +321,8 @@ class FullFactorialSampler(AbstractSampler):
 
         Parameters
         ----------
-        sampled_parameters : list 
-                        a list of sampled parameters, as 
+        sampled_parameters : list
+                        a list of sampled parameters, as
                         the values return by generate_samples
 
         Returns
@@ -338,8 +338,8 @@ class FullFactorialSampler(AbstractSampler):
 
 class PartialFactorialSampler(AbstractSampler):
     """
-    generates a partial factorial design over the parameters. Any parameter 
-    where factorial is true will be included in a factorial design, while the 
+    generates a partial factorial design over the parameters. Any parameter
+    where factorial is true will be included in a factorial design, while the
     remainder will be sampled using LHS or MC sampling.
 
     Parameters
@@ -395,7 +395,7 @@ class PartialFactorialSampler(AbstractSampler):
 
         Parameters
         ----------
-        parameters : list 
+        parameters : list
                         a list of parameters for which to generate the
                         experimental designs
         nr_samples : int
@@ -494,7 +494,7 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
 
     Returns
     -------
-    generator 
+    generator
         yielding Scenario instances
     collection
         the collection of parameters over which to sample
@@ -520,8 +520,8 @@ def from_experiments(models, experiments):
 
     Returns
     -------
-     generator 
-        yielding Scenario instances 
+     generator
+        yielding Scenario instances
 
     '''
     policy_names = np.unique(experiments['policy'])
@@ -564,6 +564,7 @@ class DefaultDesigns(object):
 
     def __repr__(self):
         return f"<ema_workbench.DefaultDesigns, {self.n} designs on {len(self.params)} parameters>"
+
 
 class PartialFactorialDesigns(object):
 
@@ -618,7 +619,7 @@ def partial_designs_generator(designs):
 
 
 def design_generator(designs, params, kind):
-    '''generator that combines the sampled parameters with their correct 
+    '''generator that combines the sampled parameters with their correct
     name in order to return dicts.
 
     Parameters

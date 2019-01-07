@@ -19,11 +19,10 @@ x, outcomes = load_results(fn)
 
 
 # we have timeseries so we need scalars
-y = {'deceased population':outcomes['deceased population region 1'][:, -1],
-     'max. infected fraction':np.max(outcomes['infected fraction R1'], axis=1)}
+y = {'deceased population': outcomes['deceased population region 1'][:, -1],
+     'max. infected fraction': np.max(outcomes['infected fraction R1'], axis=1)}
 
 
 scores = feature_scoring.get_feature_scores_all(x, y)
 sns.heatmap(scores, annot=True, cmap='viridis')
 plt.show()
-

@@ -17,6 +17,7 @@ from ..util import get_module_logger, EMAError, CaseError
 __all__ = ["ExperimentRunner"]
 _logger = get_module_logger(__name__)
 
+
 class ExperimentRunner(object):
     '''Helper class for running the experiments
 

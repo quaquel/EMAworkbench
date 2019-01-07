@@ -19,7 +19,7 @@ file_name = r'./data/1000 flu cases with policies.tar.gz'
 experiments, outcomes = load_results(file_name)
 
 
-# let's specify a few scenarios that we want to show for 
+# let's specify a few scenarios that we want to show for
 # each of the policies
 scenario_ids = np.arange(0, 1000, 100)
 experiments_to_show = experiments['scenario'].isin(scenario_ids)

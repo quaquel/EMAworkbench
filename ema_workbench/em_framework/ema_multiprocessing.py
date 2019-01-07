@@ -32,6 +32,7 @@ __all__ = []
 
 _logger = get_module_logger(__name__)
 
+
 def initializer(*args):
     '''initializer for a worker process
 
@@ -100,7 +101,7 @@ def setup_logging(queue, log_level):
     '''
 
     # create a logger
-    logger = logging.getLogger(ema_logging.LOGGER_NAME+'.subprocess')
+    logger = logging.getLogger(ema_logging.LOGGER_NAME + '.subprocess')
     ema_logging._logger = logger
     logger.handlers = []
 
@@ -254,18 +255,18 @@ class LogQueueReader(threading.Thread):
                 break
             except TypeError:
                 break
-            except:
+            except BaseException:
                 traceback.print_exc(file=sys.stderr)
 
 
 class ExperimentFeeder(threading.Thread):
-    
+
     def __init__(self, pool, results_queue, experiments):
         threading.Thread.__init__(self, name="task feeder")
         self.pool = pool
         self.experiments = experiments
         self.results_queue = results_queue
-        
+
         self.daemon = True
 
     def run(self):
@@ -275,13 +276,13 @@ class ExperimentFeeder(threading.Thread):
 
 
 class ResultsReader(threading.Thread):
-    
+
     def __init__(self, queue, callback):
         threading.Thread.__init__(self, name="results reader")
         self.queue = queue
         self.callback = callback
         self.daemon = True
-    
+
     def run(self):
         while True:
             try:
@@ -290,7 +291,7 @@ class ResultsReader(threading.Thread):
                 if result is None:
                     _logger.debug("none received")
                     break
-                
+
                 self.callback(*result.get())
             except (KeyboardInterrupt, SystemExit):
                 raise
@@ -298,7 +299,7 @@ class ResultsReader(threading.Thread):
                 break
             except TypeError:
                 break
-            except:
+            except BaseException:
                 traceback.print_exc(file=sys.stderr)
 
 
@@ -312,14 +313,14 @@ def add_tasks(pool, experiments, callback):
     callback : callable
 
     '''
-    
+
     results_queue = queue.Queue()
-    
+
     feeder = ExperimentFeeder(pool, results_queue, experiments)
     reader = ResultsReader(results_queue, callback)
     feeder.start()
     reader.start()
-    
+
     feeder.join()
     results_queue.put(None)
     reader.join()

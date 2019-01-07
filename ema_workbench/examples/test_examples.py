@@ -29,8 +29,7 @@ def redirected_output(new_stdout=None, new_stderr=None):
 def run_exectests(test_dir, log_path='exectests.log'):
 
     test_files = glob.glob(os.path.join(test_dir, '*.py'))
-    test_files = [ex for ex in test_files if ex[0] is not '_']
-    test_files.sort()
+    test_files = sorted([ex for ex in test_files if ex[0] is not '_'])
     passed = []
     failed = []
     with open(log_path, 'w') as f:
@@ -42,7 +41,7 @@ def run_exectests(test_dir, log_path='exectests.log'):
                                    fname, 'exec')
                     exec(code, {'__name__': '__main__'}, {})
                     passed.append(fname)
-                except:
+                except BaseException:
                     traceback.print_exc()
                     failed.append(fname)
                     pass
@@ -58,5 +57,5 @@ def run_exectests(test_dir, log_path='exectests.log'):
 if __name__ == '__main__':
     try:
         run_exectests(*sys.argv[1:])
-    except:
+    except BaseException:
         run_exectests(os.getcwd())

@@ -2,7 +2,7 @@
 
 This example is a proof of principle for how NetLogo models can be
 controlled using pyNetLogo and the ema_workbench. Note that this
-example uses the NetLogo 6 version of the predator prey model that 
+example uses the NetLogo 6 version of the predator prey model that
 comes with NetLogo. If you are using NetLogo 5, replace the model file
 with the one that comes with NetLogo.
 

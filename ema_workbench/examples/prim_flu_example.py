@@ -1,11 +1,11 @@
 '''
 
-This file illustrated the use of the workbench for doing 
+This file illustrated the use of the workbench for doing
 a PRIM analysis.
 
 The data was generated using a system dynamics models implemented in Vensim.
 See flu_example.py for the code. The dataset was generated using 32 bit Python.
-Therefore, this example will not work if you are running 64 bit Python. 
+Therefore, this example will not work if you are running 64 bit Python.
 
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -40,7 +40,7 @@ fn = r'./data/1000 flu cases no policy.tar.gz'
 results = load_results(fn)
 
 # perform prim on modified results tuple
-prim_obj = prim.setup_prim(results, classify, threshold=0.8,threshold_type=1)
+prim_obj = prim.setup_prim(results, classify, threshold=0.8, threshold_type=1)
 
 box_1 = prim_obj.find_box()
 box_1.show_ppt()

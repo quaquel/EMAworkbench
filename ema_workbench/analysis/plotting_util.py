@@ -202,8 +202,8 @@ def plot_violinplot(ax, value, log, group_labels=None):
         _logger.warning("log option ignored for violin plot")
 
     pos = range(len(value))
-    dist = max(pos)-min(pos)
-    _ = min(0.15*max(dist, 1.0), 0.5)
+    dist = max(pos) - min(pos)
+    _ = min(0.15 * max(dist, 1.0), 0.5)
     for data, p in zip(value, pos):
         if len(data) > 0:
             kde = gaussian_kde(data)  # calculates the kernel density
@@ -212,9 +212,9 @@ def plot_violinplot(ax, value, log, group_labels=None):
             v = kde.evaluate(x)  # violin profile (density curve)
 
             scl = 1 / (v.max() / 0.4)
-            v = v*scl  # scaling the violin to the available space
+            v = v * scl  # scaling the violin to the available space
             ax.fill_betweenx(
-                x, p-v, p+v, facecolor=get_color(p), alpha=0.6, lw=1.5)
+                x, p - v, p + v, facecolor=get_color(p), alpha=0.6, lw=1.5)
 
             for percentile in [25, 75]:
                 quant = scoreatpercentile(data.ravel(), percentile)
@@ -243,7 +243,7 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
     ax_d : axes instance
     density : {HIST, BOXPLOT, VIOLIN, KDE}
     outcomes :  dict
-    outcome_to_plot : str 
+    outcome_to_plot : str
     group_labels : list of str
     log : bool, optional
     index : int, optional
@@ -342,13 +342,13 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
         # make kde over time
         for j in range(outcome.shape[1]):
             kde_x = determine_kde(outcome[:, j], size_kde, ymin, ymax)[0]
-            kde_x = kde_x/np.max(kde_x)
-            
+            kde_x = kde_x / np.max(kde_x)
+
             if log:
-                kde_x = np.log(kde_x+1)
+                kde_x = np.log(kde_x + 1)
             kde_over_time[:, j] = kde_x
-        
-        sns.heatmap(kde_over_time[::-1,:], ax=ax, cmap=colormap, cbar=True)
+
+        sns.heatmap(kde_over_time[::-1, :], ax=ax, cmap=colormap, cbar=True)
         ax.set_xticklabels([])
         ax.set_yticklabels([])
         ax.set_xlabel("time")
@@ -369,12 +369,12 @@ def make_legend(categories,
     ----------
     categories : str or tuple
                  the categories in the legend
-    ax : axes instance 
+    ax : axes instance
          the axes with which the legend is associated
     ncol : int
            the number of columns to use
     legend_type : {LINES, SCATTER, PATCH}
-                  whether the legend is linked to lines, patches, or scatter 
+                  whether the legend is linked to lines, patches, or scatter
                   plots
     alpha : float
             the alpha of the artists
@@ -399,7 +399,8 @@ def make_legend(categories,
             #                                         edgecolors = 'k',
             #                                         offsets = (0,0)
             #                                         )
-            # TODO work arround, should be a proper proxyartist for scatter legends
+            # TODO work arround, should be a proper proxyartist for scatter
+            # legends
             artist = mpl.lines.Line2D([0], [0], linestyle="none",
                                       c=color, marker='o')
 
@@ -409,7 +410,7 @@ def make_legend(categories,
 
         some_identifiers.append(artist)
 
-        if type(category) == tuple:
+        if isinstance(category, tuple):
             label = '%.2f - %.2f' % category
         else:
             label = category
@@ -427,7 +428,7 @@ def determine_kde(data,
                   ymax=None):
     '''
 
-    Helper function responsible for performing a KDE    
+    Helper function responsible for performing a KDE
 
     Parameters
     ----------
@@ -443,7 +444,7 @@ def determine_kde(data,
     ndarray
         y values for kde
 
-    ..note:: x and y values are based on rotation as used in density 
+    ..note:: x and y values are based on rotation as used in density
              plots for end states.
 
 
@@ -473,7 +474,7 @@ def determine_kde(data,
 
 def filter_scalar_outcomes(outcomes):
     '''
-    Helper function that removes non time series outcomes from all the 
+    Helper function that removes non time series outcomes from all the
     outcomes.
 
     Parameters
@@ -491,7 +492,7 @@ def filter_scalar_outcomes(outcomes):
     for key, value in outcomes.items():
         if value.ndim < 2:
             _logger.info(("{} not shown because it is "
-                  "not time series data").format(key))
+                          "not time series data").format(key))
         else:
             temp[key] = value
     return temp
@@ -524,7 +525,7 @@ def determine_time_dimension(outcomes):
             if value.ndim == 2:
                 time = np.arange(0, value.shape[1])
                 break
-    
+
     if time is None:
         _logger.info("no time dimension found in results")
     return time, outcomes
@@ -533,8 +534,8 @@ def determine_time_dimension(outcomes):
 def group_results(experiments, outcomes, group_by, grouping_specifiers,
                   grouping_labels):
     '''
-    Helper function that takes the experiments and results and returns a list 
-    based on groupings. Each element in the dictionary contains the experiments 
+    Helper function that takes the experiments and results and returns a list
+    based on groupings. Each element in the dictionary contains the experiments
     and results for a particular group, the key is the grouping specifier.
 
     Parameters
@@ -542,29 +543,29 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
     experiments : recarray
     outcomes : dict
     group_by : str
-               The column in the experiments array to which the grouping 
-               specifiers apply. If the name is'index' it is assumed that the 
+               The column in the experiments array to which the grouping
+               specifiers apply. If the name is'index' it is assumed that the
                grouping specifiers are valid indices for numpy.ndarray.
     grouping_specifiers : iterable
-                    An iterable of grouping specifiers. A grouping 
-                    specifier is a unique identifier in case of grouping by 
-                    categorical uncertainties. It is a tuple in case of 
+                    An iterable of grouping specifiers. A grouping
+                    specifier is a unique identifier in case of grouping by
+                    categorical uncertainties. It is a tuple in case of
                     grouping by a parameter uncertainty. In this cose, the code
-                    treats the tuples as half open intervals, apart from the 
-                    last entry, which is treated as closed on both sides.  
-                    In case of 'index', the iterable should be a dictionary 
-                    with the name for each group as key and the value being a 
+                    treats the tuples as half open intervals, apart from the
+                    last entry, which is treated as closed on both sides.
+                    In case of 'index', the iterable should be a dictionary
+                    with the name for each group as key and the value being a
                     valid index for numpy.ndarray.
 
-    Returns 
+    Returns
     -------
     dict
-        A dictionary with the experiments and results for each group, the 
+        A dictionary with the experiments and results for each group, the
         grouping specifier is used as key
 
-    ..note:: In case of grouping by parameter uncertainty, the list of 
+    ..note:: In case of grouping by parameter uncertainty, the list of
              grouping specifiers is sorted. The traversal assumes half open
-             intervals, where the upper limit of each interval is open, except 
+             intervals, where the upper limit of each interval is open, except
              for the last interval which is closed.
 
     '''
@@ -579,7 +580,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
 
             # check whether it is the last grouping specifier
             if grouping_specifiers.index(specifier) ==\
-                    len(grouping_specifiers)-1:
+                    len(grouping_specifiers) - 1:
                 # last case
 
                 logical = (column_to_group_by >= lower_limit) &\
@@ -598,14 +599,14 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
         for key, value in outcomes.items():
             value = value[logical]
             group_outcomes[key] = value
-        groups[label] = (experiments.loc[logical,:], group_outcomes)
+        groups[label] = (experiments.loc[logical, :], group_outcomes)
 
     return groups
 
 
 def make_continuous_grouping_specifiers(array, nr_of_groups=5):
     '''
-    Helper function for discretesizing a continuous array. By default, the 
+    Helper function for discretesizing a continuous array. By default, the
     array is split into 5 equally wide intervals.
 
     Parameters
@@ -616,22 +617,23 @@ def make_continuous_grouping_specifiers(array, nr_of_groups=5):
 
     Returns
     -------
-    list of tuples 
-        list of tuples with the lower and upper bound of the intervals. 
+    list of tuples
+        list of tuples with the lower and upper bound of the intervals.
 
 
     .. note:: this code only produces intervals. :func:`group_results` uses
-              these intervals in half-open fashion, apart from the last 
+              these intervals in half-open fashion, apart from the last
               interval: [a, b), [b,c), [c,d]. That is, both the end point
-              and the start point of the range of the continuous array are 
+              and the start point of the range of the continuous array are
               included.
 
     '''
 
     minimum = np.min(array)
     maximum = np.max(array)
-    step = (maximum-minimum)/nr_of_groups
-    a = [(minimum+step*x, minimum+step*(x+1)) for x in range(nr_of_groups)]
+    step = (maximum - minimum) / nr_of_groups
+    a = [(minimum + step * x, minimum + step * (x + 1))
+         for x in range(nr_of_groups)]
     assert a[0][0] == minimum
     assert a[-1][1] == maximum
     return a
@@ -659,11 +661,8 @@ def prepare_pairs_data(experiments, outcomes,
         raise EMAError(
             "for pair wise plotting, more than one outcome needs to be provided")
 
-    outcomes, outcomes_to_show, time, grouping_labels = prepare_data(experiments, outcomes,
-                                                                     outcomes_to_show,
-                                                                     group_by,
-                                                                     grouping_specifiers,
-                                                                     filter_scalar)
+    outcomes, outcomes_to_show, time, grouping_labels = prepare_data(
+        experiments, outcomes, outcomes_to_show, group_by, grouping_specifiers, filter_scalar)
 
     def filter_outcomes(outcomes, point_in_time):
         new_outcomes = {}
@@ -708,7 +707,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
 
     time, outcomes = determine_time_dimension(outcomes)
     temp_outcomes = {}
-    
+
     # remove outcomes that are not to be shown
     if outcomes_to_show:
         if isinstance(outcomes_to_show, six.string_types):
@@ -733,11 +732,11 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
             else:
                 column_to_group_by = experiments[group_by]
                 if (column_to_group_by.dtype == np.object) or\
-                    (column_to_group_by.dtype=='category'):
+                        (column_to_group_by.dtype == 'category'):
                     grouping_specifiers = set(column_to_group_by)
                 else:
-                    grouping_specifiers = make_continuous_grouping_specifiers(column_to_group_by,
-                                                                              grouping_specifiers)
+                    grouping_specifiers = make_continuous_grouping_specifiers(
+                        column_to_group_by, grouping_specifiers)
             grouping_labels = grouping_specifiers = sorted(grouping_specifiers)
         else:
             if isinstance(grouping_specifiers, six.string_types):
@@ -785,7 +784,8 @@ def do_titles(ax, titles, outcome):
                 ax.set_title(titles[outcome])
             except KeyError:
                 _logger.warning(
-                    "key error in do_titles, no title provided for `%s`" % (outcome))
+                    "key error in do_titles, no title provided for `%s`" %
+                    (outcome))
                 ax.set_title(outcome)
 
 
@@ -811,14 +811,15 @@ def do_ylabels(ax, ylabels, outcome):
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
                 _logger.warning(
-                    "key error in do_ylabels, no ylabel provided for `%s`" % (outcome))
+                    "key error in do_ylabels, no ylabel provided for `%s`" %
+                    (outcome))
                 ax.set_ylabel(outcome)
 
 
 def make_grid(outcomes_to_show, density=False):
     '''
     Helper function for making the grid that specifies the size and location
-    of the various axes. 
+    of the various axes.
 
     Parameters
     ----------

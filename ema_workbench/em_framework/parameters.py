@@ -17,13 +17,19 @@ from ..util import get_module_logger
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['Parameter', 'RealParameter', 'IntegerParameter', 'BooleanParameter',
-           'CategoricalParameter', 'create_parameters',
-           'experiment_generator']
+__all__ = [
+    'Parameter',
+    'RealParameter',
+    'IntegerParameter',
+    'BooleanParameter',
+    'CategoricalParameter',
+    'create_parameters',
+    'experiment_generator']
 _logger = get_module_logger(__name__)
 
+
 class Constant(NamedObject):
-    '''Constant class, 
+    '''Constant class,
 
     can be used for any parameter that has to be set to a fixed value
 
@@ -65,9 +71,9 @@ class Parameter(Variable):
 
     Raises
     ------
-    ValueError 
+    ValueError
         if lower bound is larger than upper bound
-    ValueError 
+    ValueError
         if entries in resolution are outside range of lower_bound and
         upper_bound
 
@@ -137,14 +143,14 @@ class RealParameter(Parameter):
     name : str
     lower_bound : int or float
     upper_bound : int or float
-    resolution : iterable 
+    resolution : iterable
     variable_name : str, or list of str
 
     Raises
     ------
-    ValueError 
+    ValueError
         if lower bound is larger than upper bound
-    ValueError 
+    ValueError
         if entries in resolution are outside range of lower_bound and
         upper_bound
 
@@ -152,15 +158,22 @@ class RealParameter(Parameter):
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
-        super(RealParameter, self).__init__(name, lower_bound, upper_bound,
-                                            resolution=resolution, default=default,
-                                            variable_name=variable_name, pff=pff)
+        super(
+            RealParameter,
+            self).__init__(
+            name,
+            lower_bound,
+            upper_bound,
+            resolution=resolution,
+            default=default,
+            variable_name=variable_name,
+            pff=pff)
 
         self.dist = Parameter.UNIFORM
 
     @property
     def params(self):
-        return (self.lower_bound, self.upper_bound-self.lower_bound)
+        return (self.lower_bound, self.upper_bound - self.lower_bound)
 
 
 class IntegerParameter(Parameter):
@@ -176,21 +189,28 @@ class IntegerParameter(Parameter):
 
     Raises
     ------
-    ValueError 
+    ValueError
         if lower bound is larger than upper bound
-    ValueError 
+    ValueError
         if entries in resolution are outside range of lower_bound and
         upper_bound, or not an numbers.Integral instance
-    ValueError 
+    ValueError
         if lower_bound or upper_bound is not an numbers.Integral instance
 
     '''
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
-        super(IntegerParameter, self).__init__(name, lower_bound, upper_bound,
-                                               resolution=resolution, default=default,
-                                               variable_name=variable_name, pff=pff)
+        super(
+            IntegerParameter,
+            self).__init__(
+            name,
+            lower_bound,
+            upper_bound,
+            resolution=resolution,
+            default=default,
+            variable_name=variable_name,
+            pff=pff)
 
         lb_int = isinstance(lower_bound, numbers.Integral)
         up_int = isinstance(upper_bound, numbers.Integral)
@@ -208,7 +228,7 @@ class IntegerParameter(Parameter):
     @property
     def params(self):
         # scipy.stats.randit uses closed upper bound, hence the +1
-        return (self.lower_bound, self.upper_bound+1)
+        return (self.lower_bound, self.upper_bound + 1)
 
 
 class CategoricalParameter(IntegerParameter):
@@ -236,14 +256,21 @@ class CategoricalParameter(IntegerParameter):
     def __init__(self, name, categories, default=None, variable_name=None,
                  pff=False, multivalue=False):
         lower_bound = 0
-        upper_bound = len(categories)-1
+        upper_bound = len(categories) - 1
 
         if upper_bound == 0:
             raise ValueError('there should be more than 1 category')
 
-        super(CategoricalParameter, self).__init__(name, lower_bound,
-                                                   upper_bound, resolution=None, default=default,
-                                                   variable_name=variable_name, pff=pff)
+        super(
+            CategoricalParameter,
+            self).__init__(
+            name,
+            lower_bound,
+            upper_bound,
+            resolution=None,
+            default=default,
+            variable_name=variable_name,
+            pff=pff)
         cats = [create_category(cat) for cat in categories]
 
         self._categories = NamedObjectMap(Category)
@@ -314,6 +341,7 @@ class CategoricalParameter(IntegerParameter):
 
         return representation
 
+
 class BinaryParameter(CategoricalParameter):
     ''' a categorical model input parameter that is only True or False
 
@@ -323,9 +351,14 @@ class BinaryParameter(CategoricalParameter):
     '''
 
     def __init__(self, name, default=None, ):
-        super(BinaryParameter, self).__init__(name, categories=[False, True], default=default)
-
-
+        super(
+            BinaryParameter,
+            self).__init__(
+            name,
+            categories=[
+                False,
+                True],
+            default=default)
 
 
 class BooleanParameter(IntegerParameter):
@@ -384,9 +417,9 @@ class Policy(NamedDict):
 
         return [self[param.name] for param in parameters]
 
-
     def __repr__(self):
         return "Policy({})".format(super(Policy, self).__repr__())
+
 
 class Scenario(NamedDict):
     # we need to start from 1 so scenario id is known
@@ -419,7 +452,7 @@ class Case(NamedObject):
 
 
 class Experiment(NamedDict):
-    '''helper class that combines scenario, policy, any constants, and 
+    '''helper class that combines scenario, policy, any constants, and
     replication information (seed etc) into a single dictionary.
 
     '''
@@ -439,8 +472,8 @@ class Experiment(NamedDict):
         self.id = scenario_id * policy_id * replication_id
         name = '{}_{}_{}'.format(scenario.name, policy.name, replication_id)
 
-        super(Experiment, self).__init__(name,
-                                         **combine(scenario, policy, constants))
+        super(Experiment, self).__init__(
+            name, **combine(scenario, policy, constants))
 
 
 def experiment_generator(scenarios, model_structures, policies):
@@ -457,9 +490,9 @@ def experiment_generator(scenarios, model_structures, policies):
     Notes
     -----
     this generator is essentially three nested loops: for each model structure,
-    for each policy, for each scenario, return the experiment. This means 
+    for each policy, for each scenario, return the experiment. This means
     that designs should not be a generator because this will be exhausted after
-    the running the first policy on the first model. 
+    the running the first policy on the first model.
 
     '''
     jobs = itertools.product(model_structures, policies, scenarios)
@@ -481,9 +514,9 @@ def parameters_to_csv(parameters, file_name):
 
 
     The function iterates over the collection and turns these into a data
-    frame prior to storing them. The resulting csv can be loaded using the 
+    frame prior to storing them. The resulting csv can be loaded using the
     create_parameters function. Note that currently we don't store resolution
-    and default attributes. 
+    and default attributes.
 
     '''
 
@@ -527,14 +560,14 @@ def create_parameters(uncertainties, **kwargs):
     list of Parameter instances
 
 
-    This helper function creates uncertainties. It assumes that the 
+    This helper function creates uncertainties. It assumes that the
     DataFrame or csv file has a column titled 'name', optionally a type column
     {int, real, cat}, can be included as well. the remainder of the columns
     are handled as values for the parameters. If type is not specified,
-    the function will try to infer type from the values. 
+    the function will try to infer type from the values.
 
-    Note that this function does not support the resolution and default kwargs 
-    on parameters. 
+    Note that this function does not support the resolution and default kwargs
+    on parameters.
 
     An example of a csv:
 
@@ -543,10 +576,10 @@ def create_parameters(uncertainties, **kwargs):
     an_int,int,1,9,
     a_categorical,cat,a,b,c
 
-    this CSV file would result in 
+    this CSV file would result in
 
-    [RealParameter('a_real', 0, 1.1, resolution=[], default=None), 
-     IntegerParameter('an_int', 1, 9, resolution=[], default=None), 
+    [RealParameter('a_real', 0, 1.1, resolution=[], default=None),
+     IntegerParameter('an_int', 1, 9, resolution=[], default=None),
      CategoricalParameter('a_categorical', ['a', 'b', 'c'], default=None)]
 
     '''
@@ -597,7 +630,9 @@ def create_parameters(uncertainties, **kwargs):
             else:
                 l, u = values
 
-                if isinstance(l, numbers.Integral) and isinstance(u, numbers.Integral):
+                if isinstance(
+                        l, numbers.Integral) and isinstance(
+                        u, numbers.Integral):
                     type = 'int'  # @ReservedAssignment
                 else:
                     type = 'real'  # @ReservedAssignment
@@ -606,8 +641,9 @@ def create_parameters(uncertainties, **kwargs):
             type = types[i]  # @ReservedAssignment
 
             if (type != 'cat') and (len(values) != 2):
-                raise ValueError('too many values specified for {}, is {}, should be 2'.format(
-                    name, values.shape[0]))
+                raise ValueError(
+                    'too many values specified for {}, is {}, should be 2'.format(
+                        name, values.shape[0]))
 
         if type == 'cat':
             uncs.append(parameter_map[type](name, values))

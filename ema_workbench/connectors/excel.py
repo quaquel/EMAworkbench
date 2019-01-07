@@ -1,6 +1,6 @@
 '''
 
-This module provides a base class that can be used to perform EMA on 
+This module provides a base class that can be used to perform EMA on
 Excel models. It relies on `win32com <http://python.net/crew/mhammond/win32/Downloads.html>`_
 
 '''
@@ -24,14 +24,15 @@ from ..util.ema_logging import method_logger, get_module_logger
 
 _logger = get_module_logger(__name__)
 
+
 class BaseExcelModel(FileModel):
     '''
 
-    Base class for connecting the EMA workbench to models in Excel. To 
+    Base class for connecting the EMA workbench to models in Excel. To
     automate this connection as much as possible. This implementation relies
     on naming cells in Excel. These names can then be used here as names
     for the uncertainties and the outcomes. See e.g. `this site <http://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
-    for details on naming cells and sets of cells. 
+    for details on naming cells and sets of cells.
 
     The provided implementation here does work with :mod:`parallel_ema`.
 
@@ -67,8 +68,8 @@ class BaseExcelModel(FileModel):
                  policy to be run.
         kwargs : dict
                  keyword arguments to be used by model_intit. This
-                 gives users to the ability to pass any additional 
-                 arguments. 
+                 gives users to the ability to pass any additional
+                 arguments.
 
         '''
         super(BaseExcelModel, self).model_init(policy)
@@ -91,13 +92,13 @@ class BaseExcelModel(FileModel):
     @method_logger(__name__)
     def run_experiment(self, experiment):
         """
-        Method for running an instantiated model structures. This 
+        Method for running an instantiated model structures. This
         implementation assumes that the names of the uncertainties correspond
-        to the name of the cells in Excel. See e.g. `this site <http://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_ 
-        for details or use Google and search on 'named range'. One of the 
-        requirements on the names is that they cannot contains spaces. 
+        to the name of the cells in Excel. See e.g. `this site <http://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
+        for details or use Google and search on 'named range'. One of the
+        requirements on the names is that they cannot contains spaces.
 
-        For the extraction of results, the same approach is used. That is, 
+        For the extraction of results, the same approach is used. That is,
         this implementation assumes that the name of a :class:`~outcomes.Outcome`
         instance corresponds to the name of a cell, or set of cells.
 
@@ -142,7 +143,7 @@ class BaseExcelModel(FileModel):
 
     @method_logger(__name__)
     def cleanup(self):
-        ''' cleaning up prior to finishing performing experiments. This will 
+        ''' cleaning up prior to finishing performing experiments. This will
         close the workbook and close Excel'''
 
         # TODO:: if we know the pid for the associated excel process

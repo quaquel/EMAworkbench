@@ -1,6 +1,6 @@
 '''
 
-Exceptions and warning used internally by the EMA workbench. In line with 
+Exceptions and warning used internally by the EMA workbench. In line with
 advice given in `PEP 8 <http://www.python.org/dev/peps/pep-0008/>`_.
 '''
 from __future__ import (absolute_import, print_function, division,
@@ -43,9 +43,9 @@ class EMAWarning(EMAError):
 
 class CaseError(EMAError):
     '''
-    error to be used when a particular run creates an error. The character of 
-    the error can be specified as the message, and the actual case that 
-    gave rise to the error. 
+    error to be used when a particular run creates an error. The character of
+    the error can be specified as the message, and the actual case that
+    gave rise to the error.
 
     '''
 
@@ -68,7 +68,7 @@ class CaseError(EMAError):
             c += ":"
             c += str(value)
             c += ', '
-        c += 'policy:'+self.policy
+        c += 'policy:' + self.policy
 
         return self.message + ' case: {' + c + "}"
 

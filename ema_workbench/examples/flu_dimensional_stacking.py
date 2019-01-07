@@ -23,6 +23,6 @@ y = outcomes['deceased population region 1'][:, -1] > 1000000
 
 fig = dimensional_stacking.create_pivot_plot(x, y, 2)
 
-fig.set_size_inches(6,6)
+fig.set_size_inches(6, 6)
 
 plt.show()

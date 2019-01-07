@@ -1,5 +1,5 @@
-'''This module offers a general purpose parallel coordinate plotting Class 
-using matplotlib. 
+'''This module offers a general purpose parallel coordinate plotting Class
+using matplotlib.
 
 
 '''
@@ -45,11 +45,11 @@ def setup_parallel_plot(labels, minima, maxima, fs=14, rot=90):
     # we need one axes less than the shape
     for i, label in enumerate(labels[:-1]):
         i += 1
-        ax = fig.add_subplot(1, nr_columns-1, i,  ylim=(-0.1, 1.1))
+        ax = fig.add_subplot(1, nr_columns - 1, i, ylim=(-0.1, 1.1))
         axes.append(ax)
-        ax.set_xlim([i, i+1])
+        ax.set_xlim([i, i + 1])
         ax.xaxis.set_major_locator(ticker.FixedLocator([i]))
-        ax.xaxis.set_ticklabels([labels[i-1]], rotation=rot, fontsize=fs)
+        ax.xaxis.set_ticklabels([labels[i - 1]], rotation=rot, fontsize=fs)
         ax.xaxis.set_tick_params(bottom=False, top=False)
 
         # let's put our own tick labels
@@ -68,15 +68,15 @@ def setup_parallel_plot(labels, minima, maxima, fs=14, rot=90):
         ax.spines['bottom'].set_visible(False)
 
     # for the last axis, we need 2 ticks (also for the right hand side
-    ax.xaxis.set_major_locator(ticker.FixedLocator([i, i+1]))
-    ax.xaxis.set_ticklabels(labels[i-1:i+1], fontsize=fs, rotation=rot)
+    ax.xaxis.set_major_locator(ticker.FixedLocator([i, i + 1]))
+    ax.xaxis.set_ticklabels(labels[i - 1:i + 1], fontsize=fs, rotation=rot)
 
     label = labels[-1]
     max_label = "{:.2f}".format(maxima[label])
     min_label = "{:.2f}".format(minima[label])
-    max_label = ax.text(i+1, 1.01, max_label, va="bottom",
+    max_label = ax.text(i + 1, 1.01, max_label, va="bottom",
                         ha="center", fontsize=fs)
-    min_label = ax.text(i+1, -0.01, min_label, va="top",
+    min_label = ax.text(i + 1, -0.01, min_label, va="top",
                         ha="center", fontsize=fs)
     tick_labels[label] = (min_label, max_label)
 
@@ -113,14 +113,14 @@ def get_limits(data):
 
 
 class ParallelAxes(object):
-    '''Base class for creating a parallel axis plot. 
+    '''Base class for creating a parallel axis plot.
 
     Parameters
     ----------
     limits : DataFrame
-             A DataFrame specifying the limits for each dimension in the 
-             data set. For categorical data, the first cell should contain all 
-             categories. See get_limits for more details. 
+             A DataFrame specifying the limits for each dimension in the
+             data set. For categorical data, the first cell should contain all
+             categories. See get_limits for more details.
     fontsize : int, optional
                fontsize for defaults text items
     rot : float, optional
@@ -153,13 +153,13 @@ class ParallelAxes(object):
                 cats = limits[column][0]
                 self.recoding[column] = CategoricalDtype(categories=cats,
                                                          ordered=False)
-                limits.ix[:, column] = [0, len(cats)-1]
+                limits.ix[:, column] = [0, len(cats) - 1]
 
         self.normalizer = preprocessing.MinMaxScaler()
         self.normalizer.fit(self.limits)
 
-        fig, axes, ticklabels = setup_parallel_plot(self.axis_labels,
-                                                    limits.min(), limits.max(), fs=self.fontsize, rot=rot)
+        fig, axes, ticklabels = setup_parallel_plot(
+            self.axis_labels, limits.min(), limits.max(), fs=self.fontsize, rot=rot)
         self.fig = fig
         self.axes = axes
         self.ticklabels = ticklabels
@@ -179,11 +179,11 @@ class ParallelAxes(object):
         color : valid mpl color, optional
         label : str, optional
 
-        any additional kwargs will be passed to matplotlib's plot 
+        any additional kwargs will be passed to matplotlib's plot
         method.
 
-        Data is normalized using the limits specified when initializing 
-        ParallelAxis. 
+        Data is normalized using the limits specified when initializing
+        ParallelAxis.
 
         '''
 
@@ -212,8 +212,16 @@ class ParallelAxes(object):
             artists.append(artist)
             labels.append(label)
 
-        self.fig.legend(artists, labels, ncol=1, fontsize=self.fontsize,
-                        loc=2, borderaxespad=0.1, bbox_to_anchor=(1.025, 0.925))
+        self.fig.legend(
+            artists,
+            labels,
+            ncol=1,
+            fontsize=self.fontsize,
+            loc=2,
+            borderaxespad=0.1,
+            bbox_to_anchor=(
+                1.025,
+                0.925))
         plt.tight_layout(h_pad=0, w_pad=0)
         plt.subplots_adjust(wspace=0)
 
@@ -231,7 +239,7 @@ class ParallelAxes(object):
                                         self.axis_labels[1::]):
             plotdata = data.loc[:, [label_i, label_j]]
             j += 1
-            lines = ax.plot([j+1, j+2], plotdata.values.T, **kwargs)
+            lines = ax.plot([j + 1, j + 2], plotdata.values.T, **kwargs)
 
             if label_i in self.flipped_axes:
                 self._update_plot_data(ax, 0, lines=lines)
@@ -346,8 +354,8 @@ class ParallelAxes(object):
         '''
         index = self.limits.columns.get_loc(column)
         if index == 0 or index >= (len(self.axes)):
-            index = min(index, (len(self.axes)-1))
+            index = min(index, (len(self.axes) - 1))
             return (index,)
         else:
-            other_index = index-1
+            other_index = index - 1
             return other_index, index

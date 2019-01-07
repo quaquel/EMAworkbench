@@ -38,6 +38,7 @@ engine = None
 
 _logger = get_module_logger(__name__)
 
+
 class EngingeLoggerAdapter(logging.LoggerAdapter):
     '''LoggerAdapter that inserts EMA as a topic into log messages
 

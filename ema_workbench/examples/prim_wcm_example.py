@@ -20,7 +20,7 @@ default_flow = 2.178849944502783e7
 def classify(outcomes):
     ooi = 'throughput Rotterdam'
     outcome = outcomes[ooi]
-    outcome = outcome/default_flow
+    outcome = outcome / default_flow
 
     classes = np.zeros(outcome.shape[0])
     classes[outcome < 1] = 1

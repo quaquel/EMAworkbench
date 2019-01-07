@@ -1,14 +1,14 @@
 '''
-This module provides functionality for doing dimensional stacking of 
-uncertain factors in order to reveal patterns in the values for a single 
-outcome of interests. It is inspired by the work reported `here <https://www.onepetro.org/conference-paper/SPE-174774-MS>`_ 
-with one deviation. 
+This module provides functionality for doing dimensional stacking of
+uncertain factors in order to reveal patterns in the values for a single
+outcome of interests. It is inspired by the work reported `here <https://www.onepetro.org/conference-paper/SPE-174774-MS>`_
+with one deviation.
 
-Rather than using association rules to identify the 
+Rather than using association rules to identify the
 uncertain factors to use, this code uses random forest based feature scoring
 instead. It is also possible to use the code provided here in combination
 with any other feature scoring or factor prioritization technique instead, or
-by simply selecting uncertain factors in some other manner. 
+by simply selecting uncertain factors in some other manner.
 
 
 '''
@@ -31,6 +31,7 @@ from ..util import get_module_logger
 __all__ = ['create_pivot_plot']
 _logger = get_module_logger(__name__)
 
+
 def discretize(data, nbins=3, with_labels=False):
     ''' Discretize the data, using the number of bins specified.
 
@@ -46,9 +47,9 @@ def discretize(data, nbins=3, with_labels=False):
     discretized
         the discretized data frame
 
-    note:: nbins is currently a constant for all float and integer columns. 
+    note:: nbins is currently a constant for all float and integer columns.
            Categorical data is not discretized. If the number of integers is
-           lower than the number of bins, the integer variable is also not 
+           lower than the number of bins, the integer variable is also not
            discretized.
 
 
@@ -68,7 +69,7 @@ def discretize(data, nbins=3, with_labels=False):
             n_unique = column_data.unique().shape[0]
             n = n_unique
             column_data = column_data.cat.rename_categories(
-                [x for x in range(1, n+1)])
+                [x for x in range(1, n + 1)])
 
         if with_labels:
             labels = ['{}-{}'.format(column, i) for i in range(n)]
@@ -162,8 +163,8 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
         ax.set_xticks([])
 
         if plot_labels:
-            tick_locs = np.linspace(1/(2*len(names)), 1-1/(2*len(names)),
-                                    len(names))
+            tick_locs = np.linspace(
+                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names))
             ax.set_yticks(tick_locs)
             ax.set_yticklabels(names)
         else:
@@ -179,8 +180,8 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
         ax.spines['right'].set_linewidth(1.0)
 
         if plot_labels:
-            tick_locs = np.linspace(1/(2*len(names)), 1-1/(2*len(names)),
-                                    len(names))
+            tick_locs = np.linspace(
+                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names))
             ax.set_xticks(tick_locs)
             ax.set_xticklabels(names, rotation='vertical')
         else:
@@ -210,14 +211,14 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
             offset *= len(entry)
 
         offset *= len(level)
-        offset = 1/(offset*2)
+        offset = 1 / (offset * 2)
 
         offsets[i] = offset
 
     if plot_cats:
         for p in range(0, nr_levels):
-            pos = 1/(2*nr_levels) + p / (nr_levels)
-            plot_category(ax, axis, 0+offsets[p]*len(index),
+            pos = 1 / (2 * nr_levels) + p / (nr_levels)
+            plot_category(ax, axis, 0 + offsets[p] * len(index),
                           last[p], pos)
 
     for i, entry in enumerate(indices[1::]):
@@ -226,8 +227,8 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
 
         for j, item in enumerate(comparison):
             if not item:
-                ratio = j/nr_levels
-                lw = 1 * (1-ratio)
+                ratio = j / nr_levels
+                lw = 1 * (1 - ratio)
                 length = ratio
                 break
 
@@ -238,8 +239,15 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
         if plot_cats:
             # add values
             for p in range(j, nr_levels):
-                pos = 1/(2*nr_levels) + p / (nr_levels)
-                plot_category(ax, axis, i+offsets[p]*len(index), entry[p], pos)
+                pos = 1 / (2 * nr_levels) + p / (nr_levels)
+                plot_category(
+                    ax,
+                    axis,
+                    i +
+                    offsets[p] *
+                    len(index),
+                    entry[p],
+                    pos)
         if axis:
             ax_plot.axhline(i, c="w", lw=lw)
         else:
@@ -318,7 +326,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     x : DataFrame
     y : 1d ndarray
     nr_levels : int, optional
-                the number of levels in the pivot table. The number of 
+                the number of levels in the pivot table. The number of
                 uncertain factors included in the pivot table is two
                 times the number of levels.
     labels : bool, optional
@@ -326,7 +334,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     categories : bool, optional
                  display category names for each uncertain factor
     nbins : int, optional
-            number of bins to use when discretizing continuous uncertain 
+            number of bins to use when discretizing continuous uncertain
             factors
     bin_labels : bool, optional
                  if True show bin interval / name, otherwise show
@@ -341,12 +349,12 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     a number of high scoring factors based on the specified number of
     levels, creates a pivot table, and visualizes the table. This is a
     convenience  function. For more control over the process, use the
-    code in this function as a template. 
+    code in this function as a template.
 
     '''
     scores = feature_scoring.get_ex_feature_scores(x, y)[0]
 
-    n = nr_levels*2
+    n = nr_levels * 2
 
     scores = scores[0].values.tolist()
     rows = [entry for entry in scores[0:n:2]]
@@ -360,7 +368,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
 
     x_y_concat = pd.concat([discretized_x, ooi], axis=1)
     pvt = pd.pivot_table(x_y_concat, values=ooi_label, index=rows,
-                            columns=columns, dropna=False)
+                         columns=columns, dropna=False)
 
     fig = plot_pivot_table(pvt, plot_labels=labels,
                            plot_cats=categories)

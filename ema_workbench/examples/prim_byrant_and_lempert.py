@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from ema_workbench.analysis import prim
 from ema_workbench.util import ema_logging
 
-ema_logging.log_to_stderr(ema_logging.INFO);
+ema_logging.log_to_stderr(ema_logging.INFO)
 
 data = pd.read_csv('./data/bryant et al 2010 data.csv', index_col=False)
 x = data.iloc[:, 2:11]

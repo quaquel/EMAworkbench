@@ -22,6 +22,7 @@ from ..util import get_module_logger
 __all__ = ['Outcome', 'ScalarOutcome', 'TimeSeriesOutcome']
 _logger = get_module_logger(__name__)
 
+
 class AbstractOutcome(Variable):
     '''
     Base Outcome class
@@ -33,7 +34,7 @@ class AbstractOutcome(Variable):
     kind : {INFO, MINIMZE, MAXIMIZE}, optional
     variable_name : str, optional
                     if the name of the outcome in the underlying model
-                    is different from the name of the outcome, you can 
+                    is different from the name of the outcome, you can
                     supply the variable name as an optional argument,
                     if not provided, defaults to name
     function : callable, optional
@@ -55,15 +56,15 @@ class AbstractOutcome(Variable):
     MAXIMIZE = 1
     INFO = 0
 
-    def __init__(self, name, kind=INFO, variable_name=None, 
+    def __init__(self, name, kind=INFO, variable_name=None,
                  function=None, expected_range=None):
         super(AbstractOutcome, self).__init__(name)
 
         if function is not None and not callable(function):
             raise ValueError('function must be a callable')
         if variable_name:
-            if (not isinstance(variable_name, six.string_types)) and\
-               (not all(isinstance(elem, six.string_types) for elem in variable_name)):
+            if (not isinstance(variable_name, six.string_types)) and (
+                    not all(isinstance(elem, six.string_types) for elem in variable_name)):
                 raise ValueError(
                     'variable name must be a string or list of strings')
         if expected_range is not None and len(expected_range) != 2:
@@ -83,11 +84,13 @@ class AbstractOutcome(Variable):
             except TypeError:
                 n_values = None
 
-            if (n_values == None) and (n_variables == 1):
+            if (n_values is None) and (n_variables == 1):
                 return self.function(values)
             elif n_variables != n_values:
-                raise ValueError(('number of variables is {}, '
-                                  'number of outputs is {}').format(n_variables, n_values))
+                raise ValueError(
+                    ('number of variables is {}, '
+                     'number of outputs is {}').format(
+                        n_variables, n_values))
             else:
                 return self.function(*values)
         else:
@@ -121,8 +124,11 @@ class AbstractOutcome(Variable):
 
     def expected_range(self):
         if self._expected_range is None:
-            raise ValueError('no expected_range is set for {}'.format(self.variable_name))
+            raise ValueError(
+                'no expected_range is set for {}'.format(
+                    self.variable_name))
         return self._expected_range
+
 
 class ScalarOutcome(AbstractOutcome):
     '''
@@ -135,7 +141,7 @@ class ScalarOutcome(AbstractOutcome):
     kind : {INFO, MINIMZE, MAXIMIZE}, optional
     variable_name : str, optional
                     if the name of the outcome in the underlying model
-                    is different from the name of the outcome, you can 
+                    is different from the name of the outcome, you can
                     supply the variable name as an optional argument,
                     if not provided, defaults to name
     function : callable, optional
@@ -143,7 +149,7 @@ class ScalarOutcome(AbstractOutcome):
                from model
     expected_range : 2 tuple, optional
                      expected min and max value for outcome,
-                     used by HyperVolume convergence metric    
+                     used by HyperVolume convergence metric
 
     Attributes
     ----------
@@ -176,7 +182,7 @@ class TimeSeriesOutcome(AbstractOutcome):
            Name of the outcome.
     variable_name : str, optional
                     if the name of the outcome in the underlying model
-                    is different from the name of the outcome, you can 
+                    is different from the name of the outcome, you can
                     supply the variable name as an optional argument,
                     if not provided, defaults to name
     function : callable, optional
@@ -196,10 +202,14 @@ class TimeSeriesOutcome(AbstractOutcome):
 
     def __init__(self, name, variable_name=None,
                  function=None, expected_range=None):
-        super(TimeSeriesOutcome, self).__init__(name, kind=AbstractOutcome.INFO,
-                                                variable_name=variable_name,
-                                                function=function,
-                                                expected_range=expected_range)
+        super(
+            TimeSeriesOutcome,
+            self).__init__(
+            name,
+            kind=AbstractOutcome.INFO,
+            variable_name=variable_name,
+            function=function,
+            expected_range=expected_range)
 
     def process(self, values):
         values = super(TimeSeriesOutcome, self).process(values)
@@ -210,7 +220,7 @@ class TimeSeriesOutcome(AbstractOutcome):
 
 
 class Constraint(ScalarOutcome):
-    '''Constraints class that can be used when defining constrained 
+    '''Constraints class that can be used when defining constrained
     optimization problems.
 
     Parameters
@@ -221,7 +231,7 @@ class Constraint(ScalarOutcome):
 
     The function should return the distance from the feasibility threshold,
     given the model outputs with a variable name. The distance should be
-    0 if the constraint is met.  
+    0 if the constraint is met.
 
     '''
 
@@ -286,6 +296,6 @@ def create_outcomes(outcomes, **kwargs):
         elif kind == 'timeseries':
             outcome = TimeSeriesOutcome(name)
         else:
-            raise ValueError('unknown type for '+name)
+            raise ValueError('unknown type for ' + name)
         temp_outcomes.append(outcome)
     return temp_outcomes

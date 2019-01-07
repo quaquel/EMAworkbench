@@ -1,9 +1,9 @@
 '''
 
 Module offers support for performing basic regional sensitivity analysis. The
-module can be used to perform regional sensitivity analysis on all 
-uncertainties specified in the experiment array, as well as the ability to 
-zoom in on any given uncertainty in more detail. 
+module can be used to perform regional sensitivity analysis on all
+uncertainties specified in the experiment array, as well as the ability to
+zoom in on any given uncertainty in more detail.
 
 
 '''
@@ -37,8 +37,8 @@ def build_legend(x, y):
     '''
     proxies = []
     labels = []
-    for i in range(np.max(y)+1):
-        proxy = plt.Line2D([0, 1], [0, 1], color=cp[i+1])
+    for i in range(np.max(y) + 1):
+        proxy = plt.Line2D([0, 1], [0, 1], color=cp[i + 1])
         proxies.append(proxy)
         labels.append('{} (N={})'.format(i, x[y == i].shape[0]))
     proxies.append(plt.Line2D([0, 1], [0, 1], lw=1, color='darkgrey'))
@@ -63,12 +63,12 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
     '''
     cats = sorted(set(x))
     n_cat = len(cats)
-    for i in range(np.max(y)+1):
+    for i in range(np.max(y) + 1):
         data_i = x[y == i]
 
         freqs = []
         for cat in cats:
-            freq = data_i[data_i == cat].shape[0]/data_i.shape[0]
+            freq = data_i[data_i == cat].shape[0] / data_i.shape[0]
             freqs.append((cat, freq))
 
         freqs.sort(key=operator.itemgetter(1))
@@ -84,21 +84,29 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
             if ccdf:
                 freq = 1 - cum_freq
 
-            x_plot = [j*1, j*1+1]
-            y_plot = [freq, ]*2
+            x_plot = [j * 1, j * 1 + 1]
+            y_plot = [freq, ] * 2
 
-            ax.plot(x_plot, y_plot, c=cp[i+1], label=i == 1)
-            ax.scatter(x_plot[0], y_plot[0], edgecolors=cp[i+1], facecolors=cp[i+1],
-                       linewidths=1, zorder=2)
-            ax.scatter(x_plot[1], y_plot[0], edgecolors=cp[i+1], facecolors='white',
-                       linewidths=1, zorder=2)
+            ax.plot(x_plot, y_plot, c=cp[i + 1], label=i == 1)
+            ax.scatter(x_plot[0],
+                       y_plot[0],
+                       edgecolors=cp[i + 1],
+                       facecolors=cp[i + 1],
+                       linewidths=1,
+                       zorder=2)
+            ax.scatter(x_plot[1],
+                       y_plot[0],
+                       edgecolors=cp[i + 1],
+                       facecolors='white',
+                       linewidths=1,
+                       zorder=2)
 
             # misnomer
-            cum_freq_un = (j+1)/n_cat
+            cum_freq_un = (j + 1) / n_cat
             if ccdf:
-                cum_freq_un = (len(freqs)-j-1)/n_cat
+                cum_freq_un = (len(freqs) - j - 1) / n_cat
 
-            ax.plot(x_plot, [cum_freq_un, ]*2, lw=1, c='darkgrey',
+            ax.plot(x_plot, [cum_freq_un, ] * 2, lw=1, c='darkgrey',
                     zorder=1, label='x==y')
             ax.scatter(x_plot[0], cum_freq_un, edgecolors='darkgrey',
                        facecolors='darkgrey', linewidths=1,
@@ -110,12 +118,12 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
     ax.set_xticklabels([])
     if xticklabels_on:
         for i, cat in enumerate(cats):
-            ax.text(i*1+0.5, -0.1, cat, ha='center', rotation=45)
+            ax.text(i * 1 + 0.5, -0.1, cat, ha='center', rotation=45)
 
     ax.set_ylim(bottom=-0.01, top=1.01)
 
-    xmin = -0.02*n_cat
-    xmax = n_cat+0.02*n_cat
+    xmin = -0.02 * n_cat
+    xmax = n_cat + 0.02 * n_cat
     ax.set_xticks(np.linspace(xmin, xmax, 4))
     ax.set_xlim(left=xmin, right=xmax)
 
@@ -127,7 +135,7 @@ def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
 
     Parameters
     ----------
-    ax : matplotlib axes 
+    ax : matplotlib axes
     unc : str
     x  : ndarray
     y : ndarray
@@ -136,19 +144,19 @@ def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
 
     '''
 
-    for i in range(np.max(y)+1):
-        data_i = x[y==i]
+    for i in range(np.max(y) + 1):
+        data_i = x[y == i]
         sorted_data = np.sort(data_i)
-        yvals = np.arange(len(sorted_data))/float(len(sorted_data))
+        yvals = np.arange(len(sorted_data)) / float(len(sorted_data))
         if ccdf:
             yvals = 1 - yvals
-        ax.plot(sorted_data, yvals, color=cp[i+1], label='{}'.format(i))
+        ax.plot(sorted_data, yvals, color=cp[i + 1], label='{}'.format(i))
 
     x0 = x.min()
     x1 = x.max()
 
     sorted_data = x.sort_values()
-    yvals = np.arange(len(x))/float(len(x))
+    yvals = np.arange(len(x)) / float(len(x))
     if ccdf:
         yvals = 1 - yvals
 
@@ -210,40 +218,40 @@ def plot_individual_cdf(ax, unc, x, y, discrete=False,
         ax.set_xlabel(str(unc))
     else:
         x0, x1 = ax.get_xlim()
-        ax.text(x0+0.01*x1, 1, str(unc), va='top', ha='left')
+        ax.text(x0 + 0.01 * x1, 1, str(unc), va='top', ha='left')
 
 
 def plot_cdfs(x, y, ccdf=False):
-    '''plot cumulative density functions for each column in x, based on 
+    '''plot cumulative density functions for each column in x, based on
     the  classification specified in y.
 
     Parameters
     ----------
     x : DataFrame
         the experiments to use in the cdfs
-    y : ndaray 
+    y : ndaray
         the categorization for the data
     ccdf : bool, optional
            if true, plot a complementary cdf instead of a normal cdf.
-           
-           
+
+
     Returns
     -------
     a matplotlib Figure instance
 
     '''
     x = x.copy()
-    
+
     try:
         x = x.drop('scenario', axis=1)
     except KeyError:
         pass
-    
+
     uncs = x.columns.tolist()
     cp = sns.color_palette()
 
     n_col = 4
-    n_row = math.ceil(len(uncs)/n_col)
+    n_row = math.ceil(len(uncs) / n_col)
     size = 3
     aspect = 1
     figsize = n_col * size * aspect, n_row * size
@@ -265,7 +273,7 @@ def plot_cdfs(x, y, ccdf=False):
 
     # last row might contain empty axis,
     # let's make them disappear
-    for j_col in range(i_col+1, n_col):
+    for j_col in range(i_col + 1, n_col):
         ax = axes[i_row, j_col]
         ax.set_xticklabels([])
         ax.set_xticks([])

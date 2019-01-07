@@ -22,6 +22,7 @@ from ..util import EMAError
 
 __all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation']
 
+
 class NamedObject(object):
 
     def __init__(self, name):
@@ -48,7 +49,7 @@ class Variable(NamedObject):
 
     @property
     def variable_name(self):
-        if self._variable_name != None:
+        if self._variable_name is not None:
             return self._variable_name
         else:
             return [self.name]
@@ -96,8 +97,8 @@ class NamedObjectMap(object):
             raise TypeError("can only add " + self.type.__name__ + " objects")
 
         if isinstance(key, six.integer_types):
-            self._data = OrderedDict([(value.name, value) if i == key else (k, v)
-                                      for i, (k, v) in enumerate(six.iteritems(self._data))])
+            self._data = OrderedDict([(value.name, value) if i == key else (
+                k, v) for i, (k, v) in enumerate(six.iteritems(self._data))])
         else:
             if value.name != key:
                 raise ValueError(
@@ -186,15 +187,16 @@ def combine(*args):
 
     Raises
     ------
-    EMAError 
+    EMAError
         if a keyword argument exists in more than one dict
     '''
     experiment = copy.deepcopy(args[0])
     for entry in args[1::]:
         overlap = set(experiment.keys()).intersection(set(entry.keys()))
         if overlap:
-            raise EMAError('parameters exist in {} and {}, overlap is {}'.format(
-                experiment, entry, overlap))
+            raise EMAError(
+                'parameters exist in {} and {}, overlap is {}'.format(
+                    experiment, entry, overlap))
         experiment.update(entry)
 
     return experiment
