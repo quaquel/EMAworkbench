@@ -33,7 +33,7 @@ CLASSIFICATION = 'classification'
 def _get_sorted_box_lims(boxes, box_init):
     '''Sort the uncertainties for each box in boxes based on a
     normalization given box_init. Unrestricted dimensions are dropped.
-    The sorting is based on the normalization of the first box in boxes. 
+    The sorting is based on the normalization of the first box in boxes.
 
     Parameters
     ----------
@@ -42,7 +42,7 @@ def _get_sorted_box_lims(boxes, box_init):
 
     Returns
     -------
-    tuple 
+    tuple
         with the sorted boxes, and the list of restricted uncertainties
 
     '''
@@ -58,7 +58,7 @@ def _get_sorted_box_lims(boxes, box_init):
     # normalize the range for the first box
     box_lim = boxes[0]
     nbl = _normalize(box_lim, box_init, uncs)
-    box_size = nbl[:, 1]-nbl[:, 0]
+    box_size = nbl[:, 1] - nbl[:, 0]
 
     # sort the uncertainties based on the normalized size of the
     # restricted dimensions
@@ -75,7 +75,7 @@ def _make_box(x):
     Parameters
     ----------
     x : DataFrame
-    
+
     Returns
     -------
     DataFrame
@@ -97,20 +97,20 @@ def _normalize(box_lim, box_init, uncertainties):
     from box init for the specified uncertainties.
 
     Categorical uncertainties are normalized based on fractionated. So
-    value specifies the fraction of categories in the box_lim. 
+    value specifies the fraction of categories in the box_lim.
 
     Parameters
     ----------
     box_lim : DataFrame
     box_init :  DataFrame
     uncertainties : list of strings
-                    valid names of columns that exist in both structured 
+                    valid names of columns that exist in both structured
                     arrays.
 
     Returns
     -------
     ndarray
-        a numpy array of the shape (2, len(uncertainties) with the 
+        a numpy array of the shape (2, len(uncertainties) with the
         normalized box limits.
 
 
@@ -126,8 +126,8 @@ def _normalize(box_lim, box_init, uncertainties):
             nl = 0
         else:
             lower, upper = box_lim.loc[:, u]
-            dif = (box_init.loc[1, u]-box_init.loc[0, u])
-            a = 1/dif
+            dif = (box_init.loc[1, u] - box_init.loc[0, u])
+            a = 1 / dif
             b = -1 * box_init.loc[0, u] / dif
             nl = a * lower + b
             nu = a * upper + b
@@ -137,19 +137,20 @@ def _normalize(box_lim, box_init, uncertainties):
 
 def _determine_restricted_dims(box_limits, box_init):
     '''returns a list of dimensions that is restricted
-    
+
     Parameters
     ----------
     box_limits : pd.DataFrame
-    box_init : pd.DataFrame 
-    
+    box_init : pd.DataFrame
+
     Returns
     -------
     list of str
-    
+
     '''
     cols = box_init.columns.values
-    restricted_dims = cols[np.all( box_init.values==box_limits.values, axis=0)==False]
+    restricted_dims = cols[np.all(
+        box_init.values == box_limits.values, axis=0) == False]
 #     restricted_dims = [column for column in box_init.columns if not
 #            np.all(box_init[column].values == box_limits[column].values)]
     return restricted_dims
@@ -167,8 +168,8 @@ def _determine_nr_restricted_dims(box_lims, box_init):
                a specific box limit
     box_init : structured numpy array
                the initial box containing all data points
-               
-               
+
+
     Returns
     -------
     int
@@ -203,13 +204,13 @@ def _setup_figure(uncs):
     ax = fig.add_subplot(111)
 
     # create the shaded grey background
-    rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc+1.5,
+    rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc + 1.5,
                                  alpha=0.25,
                                  facecolor="#C0C0C0",
                                  edgecolor="#C0C0C0")
     ax.add_patch(rect)
     ax.set_xlim(left=-0.2, right=1.2)
-    ax.set_ylim(top=-0.5, bottom=nr_unc-0.5)
+    ax.set_ylim(top=-0.5, bottom=nr_unc - 0.5)
     ax.yaxis.set_ticks([y for y in range(nr_unc)])
     ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
     ax.set_yticklabels(uncs[::-1])
@@ -221,28 +222,28 @@ def _in_box(x, boxlim):
 
     returns the a boolean index indicated which data points are inside
     and which are outside of the given box_lims
-    
+
     Parameters
     ----------
     x : pd.DataFrame
-    boxlim : pd.DataFrame 
-    
+    boxlim : pd.DataFrame
+
     Returns
     -------
     ndarray
         boolean 1D array
-        
+
     Raises
     ------
     Attribute error if not numbered columns are not pandas
     category dtype
 
     '''
-    
+
     x_numbered = x.select_dtypes(np.number)
     boxlim_numbered = boxlim.select_dtypes(np.number)
-    logical = (boxlim_numbered.loc[0, :].values<= x_numbered.values) &\
-                (x_numbered.values <= boxlim_numbered.loc[1, :].values)
+    logical = (boxlim_numbered.loc[0, :].values <= x_numbered.values) &\
+        (x_numbered.values <= boxlim_numbered.loc[1, :].values)
     logical = logical.all(axis=1)
 
     # TODO:: how to speed this up
@@ -265,8 +266,8 @@ def _setup(results, classify, incl_unc=[]):
     results : tuple of DataFrame and dict with numpy arrays
               the return from :meth:`perform_experiments`.
     classify : string, function or callable
-               either a string denoting the outcome of interest to 
-               use or a function. 
+               either a string denoting the outcome of interest to
+               use or a function.
     incl_unc : list of strings
 
     Notes
@@ -276,14 +277,14 @@ def _setup(results, classify, incl_unc=[]):
 
     Raises
     ------
-    TypeError 
+    TypeError
         if classify is not a string or a callable.
 
     """
     x, outcomes = results
 
     if incl_unc:
-        drop_names = set(x.columns.values.tolist())-set(incl_unc)
+        drop_names = set(x.columns.values.tolist()) - set(incl_unc)
         x = x.drop(drop_names, axis=1)
     if isinstance(classify, str):
         y = outcomes[classify]
@@ -293,15 +294,15 @@ def _setup(results, classify, incl_unc=[]):
         mode = BINARY
     else:
         raise TypeError("unknown type for classify")
-    
-    assert y.ndim==1
-    
+
+    assert y.ndim == 1
+
     return x, y, mode
 
 
 def _calculate_quasip(x, y, box, Hbox, Tbox):
     '''
-    
+
     Parameters
     ----------
     x : recarray
@@ -309,7 +310,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     box : DataFrame
     Hbox : int
     Tbox : int
-    
+
     '''
     logical = _in_box(x, box)
     yi = y[logical]
@@ -321,13 +322,14 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     # removed
     Hj = np.sum(yi)
 
-    p = Hj/Tj
+    p = Hj / Tj
 
     Hbox = int(Hbox)
     Tbox = int(Tbox)
 
     # force one sided
-    qp = sp.stats.binom_test(Hbox, Tbox, p, alternative='greater')  # @UndefinedVariable
+    qp = sp.stats.binom_test(
+        Hbox, Tbox, p, alternative='greater')  # @UndefinedVariable
 
     return qp
 
@@ -339,7 +341,7 @@ def plot_box(boxlim, qp_values, box_init, uncs,
              table_formatter="{:.3g})"):
     '''Helper function for parallel coordinate style visualization
     of a box
-    
+
     Parameters
     ----------
     boxlim : DataFrame
@@ -351,12 +353,12 @@ def plot_box(boxlim, qp_values, box_init, uncs,
     ticklabel_formatter : str
     boxlim_formatter : str
     table_formatter : str
-    
+
     Returns
     -------
-    a Figure instance 
-    
-    
+    a Figure instance
+
+
     '''
     norm_box_lim = _normalize(boxlim, box_init, uncs)
 
@@ -367,7 +369,7 @@ def plot_box(boxlim, qp_values, box_init, uncs,
         xj = len(uncs) - j - 1
 
         OutputFormatterMixin._plot_unc(box_init, xj, j, 0, norm_box_lim,
-                                              boxlim, u, ax)
+                                       boxlim, u, ax)
 
         # new part
         dtype = box_init[u].dtype
@@ -379,14 +381,14 @@ def plot_box(boxlim, qp_values, box_init, uncs,
 
         if dtype == object:
             elements = sorted(list(box_init[u][0]))
-            max_value = (len(elements)-1)
+            max_value = (len(elements) - 1)
             values = boxlim.loc[0, u]
             x = [elements.index(entry) for entry in
                  values]
-            x = [entry/max_value for entry in x]
+            x = [entry / max_value for entry in x]
 
             for xi, label in zip(x, values):
-                ax.text(xi, y-0.2, label, ha='center', va='center',
+                ax.text(xi, y - 0.2, label, ha='center', va='center',
                         bbox=props, color='blue', fontweight='normal')
 
         else:
@@ -399,31 +401,31 @@ def plot_box(boxlim, qp_values, box_init, uncs,
 
             if not np.allclose(x, 0):
                 label = boxlim_formatter.format(boxlim.loc[0, u])
-                ax.text(x, y-0.2, label, ha='center', va='center',
+                ax.text(x, y - 0.2, label, ha='center', va='center',
                         bbox=props, color='blue', fontweight='normal')
 
             x = norm_box_lim[j][1]
             if not np.allclose(x, 1):
                 label = boxlim_formatter.format(boxlim.loc[1, u])
-                ax.text(x, y-0.2, label, ha='center', va='center',
+                ax.text(x, y - 0.2, label, ha='center', va='center',
                         bbox=props, color='blue', fontweight='normal')
 
             # plot uncertainty space text labels
             x = 0
             label = boxlim_formatter.format(box_init.loc[0, u])
-            ax.text(x-0.01, y, label, ha='right', va='center',
+            ax.text(x - 0.01, y, label, ha='right', va='center',
                     bbox=props, color='black', fontweight='normal')
 
             x = 1
             label = boxlim_formatter.format(box_init.loc[1, u])
-            ax.text(x+0.01, y, label, ha='left', va='center',
+            ax.text(x + 0.01, y, label, ha='left', va='center',
                     bbox=props, color='black', fontweight='normal')
 
         # set y labels
         qp_formatted = {}
         for key, values in qp_values.items():
-            values = [vi for vi in values if vi!=-1]
-            
+            values = [vi for vi in values if vi != -1]
+
             if len(values) == 1:
                 value = '{:.2g}'.format(values[0])
             else:
@@ -444,13 +446,13 @@ def plot_box(boxlim, qp_values, box_init, uncs,
 
     # add table to the left
     ax.table(cellText=[[coverage], [density]],
-             colWidths=[0.1]*2,
+             colWidths=[0.1] * 2,
              rowLabels=['coverage', 'density'],
              colLabels=None,
              loc='right',
              bbox=[1.2, 0.9, 0.1, 0.1],)
     plt.subplots_adjust(left=0.1, right=0.75)
-    
+
     return fig
 
 
@@ -480,7 +482,7 @@ class OutputFormatterMixin(object):
         box_lims, uncs = _get_sorted_box_lims(boxes, _make_box(self.x))
         nr_boxes = len(boxes)
         dtype = float
-        index = ["box {}".format(i+1) for i in range(nr_boxes)]
+        index = ["box {}".format(i + 1) for i in range(nr_boxes)]
         for value in box_lims[0].dtypes:
             if value == object:
                 dtype = object
@@ -488,16 +490,16 @@ class OutputFormatterMixin(object):
 
         columns = pd.MultiIndex.from_product([index,
                                               ['min', 'max', ]])
-        df_boxes = pd.DataFrame(np.zeros((len(uncs), nr_boxes*2)),
+        df_boxes = pd.DataFrame(np.zeros((len(uncs), nr_boxes * 2)),
                                 index=uncs,
                                 dtype=dtype,
                                 columns=columns)
-        
+
         # TODO should be possible to make more efficient
         for i, box in enumerate(box_lims):
             for unc in uncs:
                 values = box.loc[:, unc]
-                values = values.rename({0:'min', 1:'max'})
+                values = values.rename({0: 'min', 1: 'max'})
                 df_boxes.loc[unc][index[i]] = values
         return df_boxes
 
@@ -506,7 +508,7 @@ class OutputFormatterMixin(object):
 
         stats = self.stats
 
-        index = pd.Index(['box {}'.format(i+1) for i in range(len(stats))])
+        index = pd.Index(['box {}'.format(i + 1) for i in range(len(stats))])
 
         return pd.DataFrame(stats, index=index)
 
@@ -519,7 +521,7 @@ class OutputFormatterMixin(object):
 
         '''
         # TODO:: use plot_box function
-        
+
         box_init = _make_box(self.x)
         box_lims, uncs = _get_sorted_box_lims(self.boxes, box_init)
 
@@ -529,7 +531,7 @@ class OutputFormatterMixin(object):
         # plot.
         norm_box_lims = [_normalize(box_lim, box_init, uncs) for
                          box_lim in box_lims[0:-1]]
-        
+
         if together:
             fig, ax = _setup_figure(uncs)
 
@@ -537,7 +539,7 @@ class OutputFormatterMixin(object):
                 colors = itertools.cycle(COLOR_LIST)
                 # we want to have the most restricted dimension
                 # at the top of the figure
-                
+
                 xi = len(uncs) - i - 1
 
                 for j, norm_box_lim in enumerate(norm_box_lims):
@@ -550,12 +552,12 @@ class OutputFormatterMixin(object):
         else:
             figs = []
             colors = itertools.cycle(COLOR_LIST)
-            
+
             for j, norm_box_lim in enumerate(norm_box_lims):
                 fig, ax = _setup_figure(uncs)
                 ax.set_title('box {}'.format(j))
                 color = next(colors)
-                
+
                 figs.append(fig)
                 for i, u in enumerate(uncs):
                     xi = len(uncs) - i - 1
@@ -572,7 +574,7 @@ class OutputFormatterMixin(object):
 
         Parameters:
         ----------
-        xi : int 
+        xi : int
              the row at which to plot
         i : int
             the index of the uncertainty being plotted
@@ -587,18 +589,18 @@ class OutputFormatterMixin(object):
 
         dtype = box_init[u].dtype
 
-        y = xi-j*0.1
+        y = xi - j * 0.1
 
         if dtype == object:
             elements = sorted(list(box_init[u][0]))
-            max_value = (len(elements)-1)
+            max_value = (len(elements) - 1)
             box_lim = box_lim[u][0]
             x = [elements.index(entry) for entry in
                  box_lim]
-            x = [entry/max_value for entry in x]
+            x = [entry / max_value for entry in x]
             y = [y] * len(x)
 
-            ax.scatter(x, y,  edgecolor=color,
+            ax.scatter(x, y, edgecolor=color,
                        facecolor=color)
 
         else:

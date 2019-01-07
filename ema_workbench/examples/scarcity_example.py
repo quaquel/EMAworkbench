@@ -17,29 +17,29 @@ from ema_workbench.connectors.vensim import VensimModel
 class ScarcityModel(VensimModel):
     def returnsToScale(self, x, speed, scale):
 
-        return (x*1000, scale*1/(1+exp(-1 * speed * (x-50))))
+        return (x * 1000, scale * 1 / (1 + exp(-1 * speed * (x - 50))))
 
     def approxLearning(self, x, speed, scale, start):
-        x = x-start
+        x = x - start
         loc = 1 - scale
-        a = (x*10000, scale*1/(1+exp(speed * x))+loc)
+        a = (x * 10000, scale * 1 / (1 + exp(speed * x)) + loc)
         return a
 
     def f(self, x, speed, loc):
-        return (x/10, loc*1/(1+exp(speed * x)))
+        return (x / 10, loc * 1 / (1 + exp(speed * x)))
 
     def priceSubstite(self, x, speed, begin, end):
         scale = 2 * end
-        start = begin - scale/2
+        start = begin - scale / 2
 
-        return (x+2000, scale*1/(1+exp(-1 * speed * x)) + start)
+        return (x + 2000, scale * 1 / (1 + exp(-1 * speed * x)) + start)
 
     def run_model(self, scenario, policy):
         """Method for running an instantiated model structure """
         kwargs = scenario
         loc = kwargs.pop("lookup shortage loc")
         speed = kwargs.pop("lookup shortage speed")
-        lookup = [self.f(x/10, speed, loc) for x in range(0, 100)]
+        lookup = [self.f(x / 10, speed, loc) for x in range(0, 100)]
         kwargs['shortage price effect lookup'] = lookup
 
         speed = kwargs.pop("lookup price substitute speed")
@@ -92,11 +92,11 @@ if __name__ == "__main__":
         RealParameter("initial in goods", 1500000, 2500000),
 
         RealParameter("average construction time extraction capacity",
-                      1,  10),
-        RealParameter("average lifetime extraction capacity", 20,  40),
+                      1, 10),
+        RealParameter("average lifetime extraction capacity", 20, 40),
         RealParameter("average lifetime recycling capacity", 20, 40),
         RealParameter("initial extraction capacity under construction",
-                      5000,  20000),
+                      5000, 20000),
         RealParameter("initial recycling capacity under construction",
                       5000, 20000),
         RealParameter("initial recycling infrastructure", 5000, 20000),

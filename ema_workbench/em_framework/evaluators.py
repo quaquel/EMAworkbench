@@ -64,6 +64,7 @@ __all__ = ['MultiprocessingEvaluator', 'IpyparallelEvaluator',
            'optimize', 'perform_experiments', 'SequentialEvaluator']
 _logger = get_module_logger(__name__)
 
+
 class BaseEvaluator(object):
     '''evaluator for experiments using a multiprocessing pool
 
@@ -115,7 +116,7 @@ class BaseEvaluator(object):
         evaluators as used by platypus algorithms
         '''
         self.callback()
-        
+
         problem = jobs[0].solution.problem
         searchover = problem.searchover
 
@@ -132,10 +133,13 @@ class BaseEvaluator(object):
             raise NotImplementedError()
 
         # overwrite the default 10 progress reports  with 5 reports
-        callback = perform_experiments(self._msis, evaluator=self,
-                        reporting_frequency=self.reporting_frequency,
-                        scenarios=scenarios, policies=policies,
-                        return_callback=True)
+        callback = perform_experiments(
+            self._msis,
+            evaluator=self,
+            reporting_frequency=self.reporting_frequency,
+            scenarios=scenarios,
+            policies=policies,
+            return_callback=True)
 
         experiments, outcomes = callback.get_results()
 
@@ -212,7 +216,7 @@ class SequentialEvaluator(BaseEvaluator):
 
         cwd = os.getcwd()
         runner = ExperimentRunner(models)
-        
+
         for experiment in ex_gen:
             outcomes = runner.run_experiment(experiment)
             callback(experiment, outcomes)
@@ -258,13 +262,13 @@ class MultiprocessingEvaluator(BaseEvaluator):
             random_part = [random.choice(string.ascii_letters + string.digits)
                            for _ in range(5)]
             random_part = ''.join(random_part)
-            self.root_dir = os.path.abspath("tmp"+random_part)
+            self.root_dir = os.path.abspath("tmp" + random_part)
             os.makedirs(self.root_dir)
 
         self._pool = multiprocessing.Pool(self.n_processes, initializer,
                                           (self._msis, log_queue, loglevel,
                                            self.root_dir))
-        
+
         self._pool._taskqueue.maxsize = self._pool._processes * 5
         _logger.info("pool started")
         return self
@@ -297,7 +301,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
 class IpyparallelEvaluator(BaseEvaluator):
     '''evaluator for using an ipypparallel pool'''
 
-    def __init__(self,  msis, client, **kwargs):
+    def __init__(self, msis, client, **kwargs):
         super(IpyparallelEvaluator, self).__init__(msis, **kwargs)
         self.client = client
 
@@ -362,14 +366,14 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
     callback  : Callback instance, optional
     return_callback : boolean, optional
-    
+
     Returns
     -------
     tuple
         the experiments as a numpy recarray, and a dict
         with the name of an outcome as key, and the associated scores
         as numpy array. Experiments and outcomes are alinged on index.
-    
+
 
     '''
     if not scenarios and not policies:
@@ -430,17 +434,21 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     nr_of_exp = n_models * n_scenarios * n_policies
 
     _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
-                      '{} experiments').format(n_scenarios, n_policies,
-                                               n_models, nr_of_exp))
+                  '{} experiments').format(n_scenarios, n_policies,
+                                           n_models, nr_of_exp))
 
     if not callback:
-        callback = DefaultCallback(uncertainties, levers, outcomes, 
-                       nr_of_exp, reporting_interval=reporting_interval,
-                       reporting_frequency=reporting_frequency)
+        callback = DefaultCallback(
+            uncertainties,
+            levers,
+            outcomes,
+            nr_of_exp,
+            reporting_interval=reporting_interval,
+            reporting_frequency=reporting_frequency)
     else:
         callback = callback(uncertainties, levers, outcomes, nr_of_exp,
-                           reporting_interval=reporting_interval,
-                           reporting_frequency=reporting_frequency)        
+                            reporting_interval=reporting_interval,
+                            reporting_frequency=reporting_frequency)
 
     if not evaluator:
         evaluator = SequentialEvaluator(models)

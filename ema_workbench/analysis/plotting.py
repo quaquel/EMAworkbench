@@ -2,7 +2,7 @@
 
 
 this module provides functions for generating some basic figures. The code can
-be used as is, or serve as an example for writing your own code. 
+be used as is, or serve as an example for writing your own code.
 
 """
 from __future__ import (absolute_import, print_function, division,
@@ -42,8 +42,8 @@ def envelopes(experiments,
               titles={},
               ylabels={},
               log=False):
-    ''' Make envelop plots. 
-    
+    ''' Make envelop plots.
+
     An envelope shows over time the minimum and maximum  value for a set
     of runs over time. It is thus to be used in case of time series
     data. The function will try to find a result labeled "TIME". If this
@@ -56,7 +56,7 @@ def envelopes(experiments,
     outcomes : dict
     outcomes_to_show, str, list of str, optional
     group_by : str, optional
-               name of the column in the experimentsto group results by. 
+               name of the column in the experimentsto group results by.
                Alternatively, `index` can be used to use indexing
                arrays as the basis for grouping.
     grouping_specifiers : iterable or dict, optional
@@ -65,19 +65,19 @@ def envelopes(experiments,
                           meaningful if group_by is provided as well.
                           In case of grouping by index, the grouping
                           specifiers should be in a  dictionary where
-                          the key denotes the name of the group. 
+                          the key denotes the name of the group.
     density : {None, HIST, KDE, VIOLIN, BOXPLOT}, optional
     fill : bool, optional
     legend : bool, optional
     titles : dict, optional
-             a way for controlling whether each of the axes should have a 
-             title. There are three possibilities. If set to None, no title 
-             will be shown for any of the axes. If set to an empty dict, 
-             the default, the title is identical to the name of the outcome of 
-             interest. If you want to override these default names, provide a 
-             dict with the outcome of interest as key and the desired title as 
-             value. This dict need only contain the outcomes for which you 
-             want to use a different title. 
+             a way for controlling whether each of the axes should have a
+             title. There are three possibilities. If set to None, no title
+             will be shown for any of the axes. If set to an empty dict,
+             the default, the title is identical to the name of the outcome of
+             interest. If you want to override these default names, provide a
+             dict with the outcome of interest as key and the desired title as
+             value. This dict need only contain the outcomes for which you
+             want to use a different title.
     ylabels : dict, optional
               way for controlling the ylabels. Works identical to titles.
     log : bool, optional
@@ -92,8 +92,8 @@ def envelopes(experiments,
 
     Note
     ----
-    the current implementation is limited to seven different categories in case 
-    of group_by, categories, and/or discretesize. This limit is due to the colors 
+    the current implementation is limited to seven different categories in case
+    of group_by, categories, and/or discretesize. This limit is due to the colors
     specified in COLOR_LIST.
 
     Examples
@@ -103,19 +103,19 @@ def envelopes(experiments,
     >>> data = util.load_results(r'1000 flu cases.cPickle')
     >>> envelopes(data, group_by='policy')
 
-    will show an envelope for three three different policies, for all the 
+    will show an envelope for three three different policies, for all the
     outcomes of interest. while
 
-    >>> envelopes(data, group_by='policy', categories=['static policy', 
+    >>> envelopes(data, group_by='policy', categories=['static policy',
                   'adaptive policy'])
 
-    will only show results for the two specified policies, ignoring any results 
+    will only show results for the two specified policies, ignoring any results
     associated with \'no policy\'.
 
     '''
     _logger.debug("generating envelopes")
     prepared_data = prepare_data(experiments, outcomes,
-                                 outcomes_to_show, group_by, 
+                                 outcomes_to_show, group_by,
                                  grouping_specifiers,
                                  filter_scalar=True)
     outcomes, outcomes_to_show, time, grouping_labels = prepared_data
@@ -131,7 +131,7 @@ def envelopes(experiments,
         ax_d = None
         if density:
             ax_d = figure.add_subplot(grid[i, 1], sharey=ax)
-            axes_dict[outcome_to_plot+"_density"] = ax_d
+            axes_dict[outcome_to_plot + "_density"] = ax_d
 
         if group_by:
             group_by_envelopes(outcomes, outcome_to_plot, time, density,
@@ -169,7 +169,7 @@ def envelopes(experiments,
 def group_by_envelopes(outcomes, outcome_to_plot, time, density, ax,
                        ax_d, fill, group_labels, log):
     ''' Helper function responsible for generating an envelope plot
-    based on a grouping. 
+    based on a grouping.
 
     Parameters
     ----------
@@ -179,7 +179,7 @@ def group_by_envelopes(outcomes, outcome_to_plot, time, density, ax,
                       the specific outcome to plot
     time : str
            the name of the time dimension
-    density :  {None, HIST, KDE, VIOLIN, BOXPLOT} 
+    density :  {None, HIST, KDE, VIOLIN, BOXPLOT}
     ax : Axes instance
          the ax on which to plot
     ax_d : Axes instance
@@ -229,7 +229,7 @@ def single_envelope(outcomes,
                       the specific outcome to plot
     time : str
            the name of the time dimension
-    density :  {None, HIST, KDE, VIOLIN, BOXPLOT} 
+    density :  {None, HIST, KDE, VIOLIN, BOXPLOT}
     ax : Axes instance
          the ax on which to plot
     ax_d : Axes instance
@@ -259,41 +259,41 @@ def lines(experiments,
           experiments_to_show=None,
           show_envelope=False,
           log=False):
-    '''This function takes the results from :meth:`perform_experiments` and 
-    visualizes these as line plots. It is thus to be used in case of time 
+    '''This function takes the results from :meth:`perform_experiments` and
+    visualizes these as line plots. It is thus to be used in case of time
     series data. The function will try to find a result labeled "TIME". If this
-    is present, these values will be used on the X-axis. In case of Vensim 
-    models, TIME is present by default.  
+    is present, these values will be used on the X-axis. In case of Vensim
+    models, TIME is present by default.
 
     Parameters
     ----------
     experiments : DataFrame
     outcomes : dict
     outcomes_to_show : list of str, optional
-                       list of outcome of interest you want to plot. If empty, 
+                       list of outcome of interest you want to plot. If empty,
                        all outcomes are plotted. **Note**:  just names.
     group_by : str, optional
-               name of the column in the cases array to group results by. 
+               name of the column in the cases array to group results by.
                Alternatively, `index` can be used to use indexing arrays as the
                basis for grouping.
     grouping_specifiers : iterable or dict, optional
-                          set of categories to be used as a basis for grouping 
-                          by. Grouping_specifiers is only meaningful if 
-                          group_by is provided as well. In case of grouping by 
-                          index, the grouping specifiers should be in a 
-                          dictionary where the key denotes the name of the 
-                          group. 
+                          set of categories to be used as a basis for grouping
+                          by. Grouping_specifiers is only meaningful if
+                          group_by is provided as well. In case of grouping by
+                          index, the grouping specifiers should be in a
+                          dictionary where the key denotes the name of the
+                          group.
     density : {None, HIST, KDE, VIOLIN, BOXPLOT}, optional
     legend : bool, optional
     titles : dict, optional
-             a way for controlling whether each of the axes should have a 
-             title. There are three possibilities. If set to None, no title 
-             will be shown for any of the axes. If set to an empty dict, 
-             the default, the title is identical to the name of the outcome of 
-             interest. If you want to override these default names, provide a 
-             dict with the outcome of interest as key and the desired title as 
-             value. This dict need only contain the outcomes for which you 
-             want to use a different title. 
+             a way for controlling whether each of the axes should have a
+             title. There are three possibilities. If set to None, no title
+             will be shown for any of the axes. If set to an empty dict,
+             the default, the title is identical to the name of the outcome of
+             interest. If you want to override these default names, provide a
+             dict with the outcome of interest as key and the desired title as
+             value. This dict need only contain the outcomes for which you
+             want to use a different title.
     ylabels : dict, optional
               way for controlling the ylabels. Works identical to titles.
     experiments_to_show : ndarray, optional
@@ -314,8 +314,8 @@ def lines(experiments,
 
     Note
     ----
-    the current implementation is limited to seven different categories in case 
-    of group_by, categories, and/or discretesize. This limit is due to the colors 
+    the current implementation is limited to seven different categories in case
+    of group_by, categories, and/or discretesize. This limit is due to the colors
     specified in COLOR_LIST.
 
     '''
@@ -323,20 +323,24 @@ def lines(experiments,
     _logger.debug("generating line graph")
 
     # make sure we have the data
-    
+
     if show_envelope:
-        return plot_lines_with_envelopes(experiments,
-                                         outcomes,
-                                         outcomes_to_show=outcomes_to_show,
-                                         group_by=group_by, legend=legend,
-                                         density=density,
-                                         grouping_specifiers=grouping_specifiers,
-                                         experiments_to_show=experiments_to_show,
-                                         titles=titles, ylabels=ylabels, log=log)
+        return plot_lines_with_envelopes(
+            experiments,
+            outcomes,
+            outcomes_to_show=outcomes_to_show,
+            group_by=group_by,
+            legend=legend,
+            density=density,
+            grouping_specifiers=grouping_specifiers,
+            experiments_to_show=experiments_to_show,
+            titles=titles,
+            ylabels=ylabels,
+            log=log)
 
     if experiments_to_show is not None:
         experiments = experiments.loc[experiments_to_show, :]
-        outcomes = {k:v[experiments_to_show] for k,v in outcomes.items()}
+        outcomes = {k: v[experiments_to_show] for k, v in outcomes.items()}
 
     data = prepare_data(experiments, outcomes, outcomes_to_show,
                         group_by, grouping_specifiers)
@@ -353,7 +357,7 @@ def lines(experiments,
         ax_d = None
         if density:
             ax_d = figure.add_subplot(grid[i, 1], sharey=ax)
-            axes_dict[outcome_to_plot+"_density"] = ax_d
+            axes_dict[outcome_to_plot + "_density"] = ax_d
 
             for tl in ax_d.get_yticklabels():
                 tl.set_visible(False)
@@ -397,37 +401,37 @@ def plot_lines_with_envelopes(experiments,
     '''
 
     Helper function for generating a plot which contains both an envelope and
-    lines.  
+    lines.
 
     Parameters
     ----------
     experiments : DataFrame
     outcomes : dict
     outcomes_to_show : list of str, optional
-                       list of outcome of interest you want to plot. If empty, 
+                       list of outcome of interest you want to plot. If empty,
                        all outcomes are plotted. **Note**:  just names.
     group_by : str, optional
-               name of the column in the cases array to group results by. 
+               name of the column in the cases array to group results by.
                Alternatively, `index` can be used to use indexing arrays as the
                basis for grouping.
     grouping_specifiers : iterable or dict, optional
-                          set of categories to be used as a basis for grouping 
-                          by. Grouping_specifiers is only meaningful if 
-                          group_by is provided as well. In case of grouping by 
-                          index, the grouping specifiers should be in a 
-                          dictionary where the key denotes the name of the 
-                          group. 
+                          set of categories to be used as a basis for grouping
+                          by. Grouping_specifiers is only meaningful if
+                          group_by is provided as well. In case of grouping by
+                          index, the grouping specifiers should be in a
+                          dictionary where the key denotes the name of the
+                          group.
     density : {None, HIST, KDE, VIOLIN, BOXPLOT}, optional
     legend : bool, optional
     titles : dict, optional
-             a way for controlling whether each of the axes should have a 
-             title. There are three possibilities. If set to None, no title 
-             will be shown for any of the axes. If set to an empty dict, 
-             the default, the title is identical to the name of the outcome of 
-             interest. If you want to override these default names, provide a 
-             dict with the outcome of interest as key and the desired title as 
-             value. This dict need only contain the outcomes for which you 
-             want to use a different title. 
+             a way for controlling whether each of the axes should have a
+             title. There are three possibilities. If set to None, no title
+             will be shown for any of the axes. If set to an empty dict,
+             the default, the title is identical to the name of the outcome of
+             interest. If you want to override these default names, provide a
+             dict with the outcome of interest as key and the desired title as
+             value. This dict need only contain the outcomes for which you
+             want to use a different title.
     ylabels : dict, optional
               way for controlling the ylabels. Works identical to titles.
     experiments_to_show : ndarray, optional
@@ -446,7 +450,7 @@ def plot_lines_with_envelopes(experiments,
     full_outcomes = prepare_data(experiments, outcomes,
                                  outcomes_to_show, group_by,
                                  grouping_specifiers)[0]
-    
+
     experiments = experiments.loc[experiments_to_show, :]
     temp = {}
     for key, value in outcomes.items():
@@ -467,7 +471,7 @@ def plot_lines_with_envelopes(experiments,
         ax_d = None
         if density:
             ax_d = figure.add_subplot(grid[i, 1], sharey=ax)
-            axes_dict[outcome_to_plot+"_density"] = ax_d
+            axes_dict[outcome_to_plot + "_density"] = ax_d
 
             for tl in ax_d.get_yticklabels():
                 tl.set_visible(False)
@@ -522,7 +526,7 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
                    ax, ax_d, group_by_labels, log):
     '''
 
-    Helper function responsible for generating a grouped lines plot. 
+    Helper function responsible for generating a grouped lines plot.
 
     Parameters
     ----------
@@ -558,7 +562,7 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
                  ax, ax_d, log):
     '''
 
-    Helper function responsible for generating a simple lines plot. 
+    Helper function responsible for generating a simple lines plot.
 
     Parameters
     ----------
@@ -578,7 +582,7 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
 
 
 def kde_over_time(experiments,
-                  outcomes, 
+                  outcomes,
                   outcomes_to_show=[],
                   group_by=None,
                   grouping_specifiers=None,
@@ -594,7 +598,7 @@ def kde_over_time(experiments,
     outcomes : dict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot. If
-                       empty, all outcomes are plotted. 
+                       empty, all outcomes are plotted.
                        **Note**:  just names.
     group_by : str, optional
                name of the column in the cases array to group results
@@ -606,7 +610,7 @@ def kde_over_time(experiments,
                           meaningful if group_by is provided as well.
                           In case of grouping by index, the grouping
                           specifiers should be in a dictionary where
-                          the key denotes the name of the group. 
+                          the key denotes the name of the group.
     colormap : str, optional
                valid matplotlib color map name
     log : bool, optional
@@ -671,35 +675,35 @@ def multiple_densities(experiments,
     ----------
     experiments : DataFrame
     outcomes : dict
-    points_in_time : list 
-                     a list of points in time for which you want to see the 
-                     density. At the moment  up to 6 points in time are 
+    points_in_time : list
+                     a list of points in time for which you want to see the
+                     density. At the moment  up to 6 points in time are
                      supported
     outcomes_to_show : list of str, optional
-                       list of outcome of interest you want to plot. If empty, 
+                       list of outcome of interest you want to plot. If empty,
                        all outcomes are plotted. **Note**:  just names.
     group_by : str, optional
-               name of the column in the cases array to group results by. 
+               name of the column in the cases array to group results by.
                Alternatively, `index` can be used to use indexing arrays as the
                basis for grouping.
     grouping_specifiers : iterable or dict, optional
-                          set of categories to be used as a basis for grouping 
-                          by. Grouping_specifiers is only meaningful if 
-                          group_by is provided as well. In case of grouping by 
-                          index, the grouping specifiers should be in a 
-                          dictionary where the key denotes the name of the 
+                          set of categories to be used as a basis for grouping
+                          by. Grouping_specifiers is only meaningful if
+                          group_by is provided as well. In case of grouping by
+                          index, the grouping specifiers should be in a
+                          dictionary where the key denotes the name of the
                           group.
     density : {KDE, HIST, VIOLIN, BOXPLOT}, optional
     legend : bool, optional
     titles : dict, optional
-             a way for controlling whether each of the axes should have a 
-             title. There are three possibilities. If set to None, no title 
-             will be shown for any of the axes. If set to an empty dict, 
-             the default, the title is identical to the name of the outcome of 
-             interest. If you want to override these default names, provide a 
-             dict with the outcome of interest as key and the desired title as 
-             value. This dict need only contain the outcomes for which you 
-             want to use a different title. 
+             a way for controlling whether each of the axes should have a
+             title. There are three possibilities. If set to None, no title
+             will be shown for any of the axes. If set to an empty dict,
+             the default, the title is identical to the name of the outcome of
+             interest. If you want to override these default names, provide a
+             dict with the outcome of interest as key and the desired title as
+             value. This dict need only contain the outcomes for which you
+             want to use a different title.
     ylabels : dict, optional
               way for controlling the ylabels. Works identical to titles.
     experiments_to_show : ndarray, optional
@@ -710,31 +714,31 @@ def multiple_densities(experiments,
 
     Returns
     -------
-    fig : Figure instance 
+    fig : Figure instance
     axes : dict
            dict with outcome as key, and axes as value. Density axes' are
            indexed by the outcome followed by _density.
 
     Note
-    ---- 
+    ----
     the current implementation is limited to seven different categories
     in case of group_by, categories, and/or discretesize. This limit is
     due to the colors specified in COLOR_LIST.
 
     Note
     ----
-    the connection patches are for some reason not drawn if log scaling is 
-    used for the density plots. This appears to be an issue in matplotlib 
+    the connection patches are for some reason not drawn if log scaling is
+    used for the density plots. This appears to be an issue in matplotlib
     itself.
 
     '''
     if not outcomes_to_show:
-        outcomes_to_show = [k for k, v in outcomes.items() if v.ndim==2]
+        outcomes_to_show = [k for k, v in outcomes.items() if v.ndim == 2]
         outcomes_to_show.remove(TIME)
     elif isinstance(outcomes_to_show, six.string_types):
         outcomes_to_show = [outcomes_to_show]
 
-    data = prepare_data(experiments, outcomes, 
+    data = prepare_data(experiments, outcomes,
                         outcomes_to_show, group_by,
                         grouping_specifiers)
     outcomes, _, time, grouping_labels = data
@@ -819,7 +823,7 @@ def multiple_densities(experiments,
                 ax_env.plot(time.T, value.T)
             elif plot_type == ENV_LIN:
                 plot_envelope(ax_env, j, time, value, **kwargs)
-                if experiments_to_show != None:
+                if experiments_to_show is not None:
                     ax_env.plot(time.T, value[experiments_to_show].T)
                 else:
                     ax_env.plot(time.T, value.T)
@@ -830,7 +834,7 @@ def multiple_densities(experiments,
             do_titles(ax_env, titles, outcome_to_show)
 
         for ax, time_value in zip(kde_axes, points_in_time):
-            index = np.where(time==time_value)[0][0]
+            index = np.where(time == time_value)[0][0]
 
             group_density(ax, density, outcomes, outcome_to_show,
                           grouping_labels, index=index, log=log)

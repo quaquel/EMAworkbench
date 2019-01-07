@@ -1,6 +1,6 @@
 '''
 This module specifies a generic ModelStructureInterface for controlling
-NetLogo models. 
+NetLogo models.
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
@@ -26,6 +26,7 @@ from ..util.ema_logging import method_logger
 
 __all__ = ['NetLogoModel']
 _logger = get_module_logger(__name__)
+
 
 class BaseNetLogoModel(FileModel):
     '''Base class for interfacing with netlogo models. This class
@@ -53,7 +54,7 @@ class BaseNetLogoModel(FileModel):
         Parameters
         ----------
         wd   : str
-               working directory for the model. 
+               working directory for the model.
         name : str
                name of the modelInterface. The name should contain only
                alpha-numerical characters.
@@ -72,10 +73,10 @@ class BaseNetLogoModel(FileModel):
 
         Note
         ----
-        Anything that is relative to `self.working_directory`should be 
-        specified in `model_init` and not in `src`. Otherwise, the code 
-        will not work when running it in parallel. The reason for this is that 
-        the working directory is being updated by parallelEMA to the worker's 
+        Anything that is relative to `self.working_directory`should be
+        specified in `model_init` and not in `src`. Otherwise, the code
+        will not work when running it in parallel. The reason for this is that
+        the working directory is being updated by parallelEMA to the worker's
         separate working directory prior to calling `model_init`.
 
         """
@@ -101,12 +102,13 @@ class BaseNetLogoModel(FileModel):
 
         '''
         super(BaseNetLogoModel, self).model_init(policy)
-        if not hasattr(self,'netlogo'):
+        if not hasattr(self, 'netlogo'):
             _logger.debug("trying to start NetLogo")
-            self.netlogo = pyNetLogo.NetLogoLink(netlogo_home=self.netlogo_home,
-                                                 netlogo_version=self.netlogo_version, 
-                                                 jvm_home=self.jvm_home,
-                                                 gui=self.gui)
+            self.netlogo = pyNetLogo.NetLogoLink(
+                netlogo_home=self.netlogo_home,
+                netlogo_version=self.netlogo_version,
+                jvm_home=self.jvm_home,
+                gui=self.gui)
             _logger.debug("netlogo started")
         path = os.path.join(self.working_directory, self.model_file)
         self.netlogo.load_model(path)
@@ -115,7 +117,7 @@ class BaseNetLogoModel(FileModel):
     @method_logger(__name__)
     def run_experiment(self, experiment):
         """
-        Method for running an instantiated model structure. 
+        Method for running an instantiated model structure.
 
         Parameters
         ----------
@@ -124,7 +126,7 @@ class BaseNetLogoModel(FileModel):
 
         Raises
         ------
-        jpype.JavaException if there is any exception thrown by the netlogo 
+        jpype.JavaException if there is any exception thrown by the netlogo
         model
 
 
@@ -133,8 +135,9 @@ class BaseNetLogoModel(FileModel):
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:
-                _logger.warning('variable {} throws exception: {}'.format(key,
-                                                                  str(e)))
+                _logger.warning(
+                    'variable {} throws exception: {}'.format(
+                        key, str(e)))
 
         _logger.debug("model parameters set successfully")
 
@@ -198,20 +201,20 @@ class BaseNetLogoModel(FileModel):
 
         Returns
         -------
-        dict with the results of a model run. 
+        dict with the results of a model run.
 
         """
         return self.output
 
     def cleanup(self):
         '''
-        This model is called after finishing all the experiments, but 
+        This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
-        doing any cleanup, such as closing applications. 
+        doing any cleanup, such as closing applications.
 
-        In case of running in parallel, this method is called during 
-        the cleanup of the pool, just prior to removing the temporary 
-        directories. 
+        In case of running in parallel, this method is called during
+        the cleanup of the pool, just prior to removing the temporary
+        directories.
 
         '''
         self.netlogo.kill_workspace()

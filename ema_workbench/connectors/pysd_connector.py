@@ -22,7 +22,7 @@ class BasePysdModel(AbstractModel):
     mdl_file: string
         file name of vensim model (e.g. `Teacup.mdl`)
     uncertainties_dict: dictionary
-        convenience parameter for constructing normal uncertainties, in the 
+        convenience parameter for constructing normal uncertainties, in the
         form {'Param 1': (lowerbound, upperbound), 'Param 2':(0,1)}
     outcomes_list: list of model variable names
         gets passed to 'return_columns', so can be model variable names

@@ -1,7 +1,7 @@
 '''
-This module specifies the abstract base class for interfacing with models. 
+This module specifies the abstract base class for interfacing with models.
 Any model that is to be controlled from the workbench is controlled via
-an instance of an extension of this abstract base class. 
+an instance of an extension of this abstract base class.
 
 '''
 from __future__ import (absolute_import, print_function, division,
@@ -35,6 +35,7 @@ __all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator',
            'SingleReplication', 'ReplicatorModel']
 _logger = get_module_logger(__name__)
 
+
 class ModelMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace):  # @NoSelf
@@ -42,7 +43,7 @@ class ModelMeta(abc.ABCMeta):
         for key, value in namespace.items():
             if isinstance(value, NamedObjectMapDescriptor):
                 value.name = key
-                value.internal_name = '_'+key
+                value.internal_name = '_' + key
 
         return abc.ABCMeta.__new__(mcls, name, bases, namespace)
 
@@ -51,12 +52,12 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     '''
     :class:`ModelStructureInterface` is one of the the two main
     classes used for performing EMA. This is an abstract base class
-    and cannot be used directly.  
+    and cannot be used directly.
 
     Attributes
     ----------
     uncertainties : listlike
-                    list of parameter 
+                    list of parameter
     levers : listlike
              list of parameter instances
     outcomes : listlike
@@ -67,7 +68,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
              this should be a dict with the names of the outcomes as
              key
 
-    When extending this class :meth:`model_init` and 
+    When extending this class :meth:`model_init` and
     :meth:`run_model` have to be implemented.
 
     '''
@@ -103,7 +104,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         ----------
         name : str
                name of the modelInterface. The name should contain
-               only alpha-numerical characters.        
+               only alpha-numerical characters.
 
         Raises
         ------
@@ -170,7 +171,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
             multivalue = False
             if isinstance(par, CategoricalParameter):
-                if par.multivalue == True:
+                if par.multivalue:
                     multivalue = True
                     values = value
 
@@ -187,7 +188,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
     @method_logger(__name__)
     def run_model(self, scenario, policy):
-        """Method for running an instantiated model structure. 
+        """Method for running an instantiated model structure.
 
         Parameters
         ----------
@@ -203,7 +204,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
     @method_logger(__name__)
     def initialized(self, policy):
-        '''check if model has been initialized 
+        '''check if model has been initialized
 
         Parameters
         ----------
@@ -222,7 +223,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
         Returns
         -------
-        dict with the results of a model run. 
+        dict with the results of a model run.
         """
         warnings.warn('deprecated, use model.output instead')
         return self.output
@@ -230,7 +231,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     @method_logger(__name__)
     def reset_model(self):
         """ Method for reseting the model to its initial state. The default
-        implementation only sets the outputs to an empty dict. 
+        implementation only sets the outputs to an empty dict.
 
         """
         self._outcome_output = {}
@@ -239,13 +240,13 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     @method_logger(__name__)
     def cleanup(self):
         '''
-        This model is called after finishing all the experiments, but 
+        This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
-        doing any cleanup, such as closing applications. 
+        doing any cleanup, such as closing applications.
 
-        In case of running in parallel, this method is called during 
-        the cleanup of the pool, just prior to removing the temporary 
-        directories. 
+        In case of running in parallel, this method is called during
+        the cleanup of the pool, just prior to removing the temporary
+        directories.
 
         '''
         pass
@@ -254,8 +255,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         '''returns a dict representation of the model'''
 
         def join_attr(field):
-            joined = ', '.join([repr(entry) for entry in
-                                sorted(field, key=operator.attrgetter('name'))])
+            joined = ', '.join([repr(entry) for entry in sorted(
+                field, key=operator.attrgetter('name'))])
             return '[{}]'.format(joined)
         model_spec = {}
 
@@ -301,11 +302,12 @@ class Replicator(AbstractModel):
             self.nreplications = len(replications)
         else:
             raise TypeError(
-                "replications should be int or list not {}".format(type(replications)))
+                "replications should be int or list not {}".format(
+                    type(replications)))
 
     @method_logger(__name__)
     def run_model(self, scenario, policy):
-        """ Method for running an instantiated model structure. 
+        """ Method for running an instantiated model structure.
 
         Parameters
         ----------
@@ -341,7 +343,7 @@ class SingleReplication(AbstractModel):
     @method_logger(__name__)
     def run_model(self, scenario, policy):
         """
-        Method for running an instantiated model structure. 
+        Method for running an instantiated model structure.
 
         Parameters
         ----------
@@ -350,9 +352,9 @@ class SingleReplication(AbstractModel):
 
         """
         super(SingleReplication, self).run_model(scenario, policy)
-        
+
         constants = {c.name: c.value for c in self.constants}
-        
+
         experiment = Experiment(scenario, self.policy, constants)
 
         outputs = self.run_experiment(experiment)
@@ -363,7 +365,7 @@ class SingleReplication(AbstractModel):
 
 class BaseModel(AbstractModel):
     ''' generic class for working with models implemented as a Python
-    callable 
+    callable
 
     Parameters
     ----------
@@ -375,7 +377,7 @@ class BaseModel(AbstractModel):
     Attributes
     ----------
     uncertainties : listlike
-                    list of parameter 
+                    list of parameter
     levers : listlike
              list of parameter instances
     outcomes : listlike
@@ -387,7 +389,7 @@ class BaseModel(AbstractModel):
     working_directory : str
                         absolute path, all file operations in the model
                         structure interface should be resolved from this
-                        directory. 
+                        directory.
 
     '''
 
@@ -401,7 +403,7 @@ class BaseModel(AbstractModel):
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """ Method for running an instantiated model structure. 
+        """ Method for running an instantiated model structure.
 
         Parameters
         ----------
@@ -451,12 +453,12 @@ class WorkingDirectoryModel(AbstractModel):
         ----------
         name : str
                name of the modelInterface. The name should contain only
-               alpha-numerical characters.        
+               alpha-numerical characters.
         working_directory : str
-                            working_directory for the model. 
+                            working_directory for the model.
         Raises
         ------
-        EMAError 
+        EMAError
             if name contains non alpha-numerical characters
         ValueError
             if working_directory does not exist
@@ -493,15 +495,15 @@ class FileModel(WorkingDirectoryModel):
         ----------
         name : str
                name of the modelInterface. The name should contain only
-               alpha-numerical characters.        
+               alpha-numerical characters.
         working_directory : str
-                            working_directory for the model. 
+                            working_directory for the model.
         model_file  : str
                      the name of the model file
 
         Raises
         ------
-        EMAError 
+        EMAError
             if name contains non alpha-numerical characters
         ValueError
             if model_file cannot be found

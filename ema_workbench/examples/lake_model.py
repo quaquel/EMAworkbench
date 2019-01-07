@@ -1,5 +1,5 @@
 '''
-An example of the lake problem using the ema workbench. 
+An example of the lake problem using the ema workbench.
 
 The model itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
@@ -32,7 +32,7 @@ def lake_problem(
     except KeyError:
         decisions = [0, ] * 100
 
-    Pcrit = brentq(lambda x: x**q/(1+x**q) - b*x, 0.01, 1.5)
+    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
     nvars = len(decisions)
     X = np.zeros((nvars,))
     average_daily_P = np.zeros((nvars,))
@@ -48,15 +48,15 @@ def lake_problem(
             size=nvars)
 
         for t in range(1, nvars):
-            X[t] = (1-b)*X[t-1] + X[t-1]**q/(1+X[t-1]**q) + \
-                decisions[t-1] + natural_inflows[t-1]
-            average_daily_P[t] += X[t]/float(nsamples)
+            X[t] = (1 - b) * X[t - 1] + X[t - 1]**q / (1 + X[t - 1]**q) + \
+                decisions[t - 1] + natural_inflows[t - 1]
+            average_daily_P[t] += X[t] / float(nsamples)
 
-        reliability += np.sum(X < Pcrit)/float(nsamples*nvars)
+        reliability += np.sum(X < Pcrit) / float(nsamples * nvars)
 
     max_P = np.max(average_daily_P)
-    utility = np.sum(alpha*decisions*np.power(delta, np.arange(nvars)))
-    inertia = np.sum(np.absolute(np.diff(decisions)) < 0.02)/float(nvars-1)
+    utility = np.sum(alpha * decisions * np.power(delta, np.arange(nvars)))
+    inertia = np.sum(np.absolute(np.diff(decisions)) < 0.02) / float(nvars - 1)
 
     return max_P, utility, inertia, reliability
 

@@ -6,19 +6,19 @@ Created on 11 aug. 2011
 
 
 To be able to debug the Vensim model, a few steps are needed:
-    
-    1.  The case that gave a bug, needs to be saved in a text  file. The entire 
+
+    1.  The case that gave a bug, needs to be saved in a text  file. The entire
         case description should be on a single line.
-    2.  Reform and clean your model ( In the Vensim menu: Model, Reform and 
-        Clean). Choose    
-        
+    2.  Reform and clean your model ( In the Vensim menu: Model, Reform and
+        Clean). Choose
+
          * Equation Order: Alphabetical by group (not really necessary)
          * Equation Format: Terse
-        
-    3.  Save your model as text (File, Save as..., Save as Type: Text Format 
+
+    3.  Save your model as text (File, Save as..., Save as Type: Text Format
         Models
     4.  Run this script
-    5.  If the print in the end is not set([]), but set([array]), the array 
+    5.  If the print in the end is not set([]), but set([array]), the array
         gives the values that where not found and changed
     5.  Run your new model (for example 'new text.mdl')
     6.  Vensim tells you about your critical mistake
@@ -39,7 +39,7 @@ line = 'rainfall : 0.154705633188; adaptation time from non irrigated agricultur
 # we assume the case specification was copied from the logger
 splitOne = line.split(';')
 variable = {}
-for n in range(len(splitOne)-1):
+for n in range(len(splitOne) - 1):
     splitTwo = splitOne[n].split(':')
     variableElement = splitTwo[0]
     # Delete the spaces and other rubish on the sides of the variable name
@@ -68,5 +68,5 @@ for line in open(pathToExistingModel):
             settedValues.append(value)
 
     newModel.write(line)
-notSet = set(variable.keys())-set(settedValues)
+notSet = set(variable.keys()) - set(settedValues)
 print(notSet)

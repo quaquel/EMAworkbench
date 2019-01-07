@@ -25,11 +25,27 @@ from ema_workbench.util.ema_logging import temporary_filter, INFO
 from ema_workbench.em_framework import callbacks, evaluators
 
 try:
-    from platypus import (EpsNSGAII, Hypervolume, Variator, Real, Integer,
-                    Subset, EpsilonProgressContinuation, RandomGenerator,
-                    TournamentSelector, NSGAII, EpsilonBoxArchive, Multimethod,
-                    GAOperator, SBX, PM, PCX, DifferentialEvolution, UNDX, SPX, 
-                    UM)   # @UnresolvedImport
+    from platypus import (
+        EpsNSGAII,
+        Hypervolume,
+        Variator,
+        Real,
+        Integer,
+        Subset,
+        EpsilonProgressContinuation,
+        RandomGenerator,
+        TournamentSelector,
+        NSGAII,
+        EpsilonBoxArchive,
+        Multimethod,
+        GAOperator,
+        SBX,
+        PM,
+        PCX,
+        DifferentialEvolution,
+        UNDX,
+        SPX,
+        UM)  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
 
     import platypus
@@ -53,10 +69,10 @@ except ImportError:
     class TournamentSelector(object):
         def __init__(self, *args, **kwargs):
             pass
-        
+
         def __call__(self, *args, **kwargs):
             pass
-        
+
     class EpsilonProgressContinuation(object):
         pass
 
@@ -71,6 +87,7 @@ except ImportError:
 __all__ = ["Problem", "RobustProblem", "EpsilonProgress", "HyperVolume",
            "Convergence", "ArchiveLogger"]
 _logger = get_module_logger(__name__)
+
 
 class Problem(PlatypusProblem):
     '''small extension to Platypus problem object, includes information on
@@ -108,7 +125,7 @@ class Problem(PlatypusProblem):
 
 
 class RobustProblem(Problem):
-    '''small extension to Problem object for robust optimization, adds the 
+    '''small extension to Problem object for robust optimization, adds the
     scenarios and the robustness functions'''
 
     def __init__(self, parameters, outcome_names, scenarios,
@@ -129,8 +146,8 @@ def to_problem(model, searchover, reference=None, constraints=None):
     model : AbstractModel instance
     searchover : str
     reference : Policy or Scenario instance, optional
-                overwrite the default scenario in case of searching over 
-                levers, or default policy in case of searching over 
+                overwrite the default scenario in case of searching over
+                levers, or default policy in case of searching over
                 uncertainties
     constraints : list, optional
 
@@ -147,7 +164,7 @@ def to_problem(model, searchover, reference=None, constraints=None):
     outcomes = [outcome for outcome in outcomes if
                 outcome.kind != AbstractOutcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
-    
+
     if not outcomes:
         raise EMAError(("no outcomes specified to optimize over, "
                         "all outcomes are of kind=INFO"))
@@ -161,7 +178,11 @@ def to_problem(model, searchover, reference=None, constraints=None):
     return problem
 
 
-def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
+def to_robust_problem(
+        model,
+        scenarios,
+        robustness_functions,
+        constraints=None):
     '''helper function to create RobustProblem object
 
     Parameters
@@ -188,7 +209,7 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
 
     if not outcomes:
         raise EMAError(("no outcomes specified to optimize over, "
-                         "all outcomes are of kind=INFO"))
+                        "all outcomes are of kind=INFO"))
 
     problem = RobustProblem(decision_variables, outcome_names,
                             scenarios, robustness_functions, constraints)
@@ -251,7 +272,7 @@ def to_dataframe(optimizer, dvnames, outcome_names):
 
         solutions.append(result)
 
-    results = pd.DataFrame(solutions, columns=dvnames+outcome_names)
+    results = pd.DataFrame(solutions, columns=dvnames + outcome_names)
     return results
 
 
@@ -379,7 +400,7 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
         # TODO:: only retain uncertainties
         job_experiment = experiments[logical]
 
-        data = {k:v[logical][0] for k, v in outcomes.items()}
+        data = {k: v[logical][0] for k, v in outcomes.items()}
         job_constraints = _evaluate_constraints(job_experiment, data,
                                                 constraints)
         job_outcomes = [outcomes[key][logical][0] for key in outcome_names]
@@ -491,6 +512,7 @@ class HyperVolume(AbstractConvergenceMetric):
     def from_outcomes(cls, outcomes):
         ranges = [_.expected_range() for _ in outcomes]
         return cls([_[0] for _ in ranges], [_[1] for _ in ranges])
+
 
 class ArchiveLogger(AbstractConvergenceMetric):
     '''Helper class to write the archive to disk at each iteration
@@ -677,15 +699,16 @@ class CombinedVariator(Variator):
 
         if u < 0.5:
             bl = (x - lower) / dx
-            b = 2.0*u + (1.0 - 2.0*u)*pow(1.0 - bl, distribution_index + 1.0)
+            b = 2.0 * u + (1.0 - 2.0 * u) * \
+                pow(1.0 - bl, distribution_index + 1.0)
             delta = pow(b, 1.0 / (distribution_index + 1.0)) - 1.0
         else:
             bu = (upper - x) / dx
-            b = 2.0*(1.0 - u) + 2.0*(u - 0.5) * \
+            b = 2.0 * (1.0 - u) + 2.0 * (u - 0.5) * \
                 pow(1.0 - bu, distribution_index + 1.0)
             delta = 1.0 - pow(b, 1.0 / (distribution_index + 1.0))
 
-        x = x + delta*dx
+        x = x + delta * dx
         x = max(lower, min(x, upper))
 
         child.variables[i] = x
@@ -700,7 +723,7 @@ class CombinedVariator(Variator):
 
     def mutate_categorical(self, child, i, type):  # @ReservedAssignment
         # replace
-        probability = 1/type.size
+        probability = 1 / type.size
 
         if random.random() <= probability:
             subset = child.variables[i]
@@ -711,10 +734,10 @@ class CombinedVariator(Variator):
                 nonmembers = list(set(type.elements) - set(subset))
                 k = random.randrange(len(nonmembers))
                 subset[j] = nonmembers[k]
-                
+
             len(subset)
-                
-            child.variables[i]  = subset
+
+            child.variables[i] = subset
 
         return child
 
@@ -729,16 +752,16 @@ class CombinedVariator(Variator):
 
 class CombinedMutator(CombinedVariator):
     '''Data type aware Uniform mutator
-    
+
     Overwrites the mutator on the algorithm as used by adaptive time
     continuation.
-    
-    This is a dirty hack, mutator should be a keyword argument on 
+
+    This is a dirty hack, mutator should be a keyword argument on
     epsilon-NSGAII. Would require separating out explicitly the algorithm
-    kwargs and the AdaptiveTimeContinuation kwargs.  
-    
+    kwargs and the AdaptiveTimeContinuation kwargs.
+
     '''
-    
+
     mutation_prob = 1.0
 
     def evolve(self, parents):
@@ -763,7 +786,7 @@ class CombinedMutator(CombinedVariator):
         return child
 
     def mutate_integer(self, child, i, type):  # @ReservedAssignment
-        child.variables[i] = type.encode(random.randint(type.min_value, 
+        child.variables[i] = type.encode(random.randint(type.min_value,
                                                         type.max_value))
         return child
 
@@ -814,47 +837,47 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
 
 class GenerationalBorg(EpsilonProgressContinuation):
     '''A generational implementation of the BORG Framework
-    
+
     This algorithm adopts Epsilon Progress Continuation, and Auto Adaptive
     Operator Selection, but embeds them within the NSGAII generational
     algorithm, rather than the steady state implementation used by the BORG
-    algorithm.  
-    
-    Note:: limited to RealParameters only. 
-    
+    algorithm.
+
+    Note:: limited to RealParameters only.
+
     '''
-    
+
     def __init__(self, problem, epsilons, population_size=100,
                  generator=RandomGenerator(), selector=TournamentSelector(2),
                  variator=None, **kwargs):
-        
+
         L = len(problem.nvars)
-        p = 1/L
-        
+        p = 1 / L
+
         # Parameterization taken from
         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
         variators = [GAOperator(SBX(probability=1.0, distribution_index=15.0),
-                               PM(probability=p, distribution_index=20.0)),
-                    GAOperator(PCX(nparents=3, noffspring=2, eta=0.1, zeta=0.1),
-                               PM(probability =p, distribution_index=20.0)),
-                    GAOperator(DifferentialEvolution(crossover_rate=0.6,
-                                                     step_size=0.6),
-                               PM(probability=p, distribution_index=20.0)),
-                    GAOperator(UNDX(nparents= 3, noffspring=2, zeta=0.5,
-                                    eta=0.35/math.sqrt(L)),
-                               PM(probability= p, distribution_index=20.0)),
-                    GAOperator(SPX(nparents=L+1, noffspring=L+1, 
-                                   expansion=math.sqrt(L+2)),
-                               PM(probability=p, distribution_index=20.0)),
-                    UM(probability = 1/L)]
-        
+                                PM(probability=p, distribution_index=20.0)),
+                     GAOperator(PCX(nparents=3, noffspring=2, eta=0.1, zeta=0.1),
+                                PM(probability=p, distribution_index=20.0)),
+                     GAOperator(DifferentialEvolution(crossover_rate=0.6,
+                                                      step_size=0.6),
+                                PM(probability=p, distribution_index=20.0)),
+                     GAOperator(UNDX(nparents=3, noffspring=2, zeta=0.5,
+                                     eta=0.35 / math.sqrt(L)),
+                                PM(probability=p, distribution_index=20.0)),
+                     GAOperator(SPX(nparents=L + 1, noffspring=L + 1,
+                                    expansion=math.sqrt(L + 2)),
+                                PM(probability=p, distribution_index=20.0)),
+                     UM(probability=1 / L)]
+
         variator = Multimethod(self, variators)
-        
+
         super(GenerationalBorg, self).__init__(
-                NSGAII(problem,
-                       population_size,
-                       generator,
-                       selector,
-                       variator,
-                       EpsilonBoxArchive(epsilons),
-                       **kwargs))
+            NSGAII(problem,
+                   population_size,
+                   generator,
+                   selector,
+                   variator,
+                   EpsilonBoxArchive(epsilons),
+                   **kwargs))
