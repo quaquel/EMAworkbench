@@ -80,9 +80,9 @@ class SALibSampler(object):
         return temp
 
     def generate_designs(self,  parameters, nr_samples):
-        '''external interface to sampler. Returns the computational experiments
-        over the specified parameters, for the given number of samples for each
-        parameter.
+        '''external interface to sampler. Returns the computational
+        experiments over the specified parameters, for the given number 
+        of samples for each parameter.
 
         Parameters
         ----------
@@ -152,17 +152,16 @@ class MorrisSampler(SALibSampler):
         Stating this variable to be true causes the function to ignore gurobi.
     '''
 
-    def __init__(self, num_levels, grid_jump, optimal_trajectories=None,
-                 local_optimization=False):
+    def __init__(self, num_levels=4, optimal_trajectories=None,
+                 local_optimization=True):
         super(MorrisSampler, self).__init__()
         self.num_levels = num_levels
-        self.grid_jump = grid_jump
         self.optimal_trajectories = optimal_trajectories
         self.local_optimization = local_optimization
 
     def sample(self, problem, size):
         return morris.sample(problem, size, self.num_levels,
-                             self.grid_jump, self.optimal_trajectories,
+                             self.optimal_trajectories,
                              self.local_optimization)
 
 
@@ -172,17 +171,14 @@ class FASTSampler(SALibSampler):
 
     Parameters
     ----------
-    n : int
-        The number of samples to generate
     m : int (default: 4)
         The interference parameter, i.e., the number of harmonics to sum in the
         Fourier series decomposition 
     '''
 
-    def __init__(self, n, m=4):
-        super(MorrisSampler, self).__init__()
-        self.n = n
+    def __init__(self, m=4):
+        super(FASTSampler, self).__init__()
         self.m = m
 
     def sample(self, problem, size):
-        return fast_sampler(self.n, self.m)
+        return fast_sampler.sample(problem, size, self.m)
