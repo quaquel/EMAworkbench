@@ -20,7 +20,7 @@ from logging import DEBUG, INFO
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['get_logger',
+__all__ = ['get_rootlogger',
            'get_module_logger',
            'log_to_stderr',
            'temporary_filter',
@@ -55,7 +55,7 @@ def get_module_logger(name):
 
 _rootlogger = None
 _module_loggers = {}
-_logger = None
+_logger = get_module_logger(__name__)
 
 
 LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
@@ -164,7 +164,7 @@ def method_logger(name):
     return real_decorator
 
 
-def get_logger():
+def get_rootlogger():
     '''
     Returns root logger used by the EMA workbench
 
@@ -173,16 +173,15 @@ def get_logger():
     the logger of the EMA workbench
 
     '''
-    global _logger
+    global _rootlogger
 
-    if not _logger:
-        _logger = logging.getLogger(LOGGER_NAME)
-        _logger.handlers = []
-        _logger.addHandler(logging.NullHandler())
-        _logger.setLevel(DEBUG)
-        _module_loggers[LOGGER_NAME] = _logger
+    if not _rootlogger:
+        _rootlogger = logging.getLogger(LOGGER_NAME)
+        _rootlogger.handlers = []
+        _rootlogger.addHandler(logging.NullHandler())
+        _rootlogger.setLevel(DEBUG)
 
-    return _logger
+    return _rootlogger
 
 
 def log_to_stderr(level=None):
@@ -199,7 +198,7 @@ def log_to_stderr(level=None):
     if not level:
         level = DEFAULT_LEVEL
 
-    logger = get_logger()
+    logger = get_rootlogger()
 
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
