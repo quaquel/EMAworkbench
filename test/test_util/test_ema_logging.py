@@ -3,10 +3,7 @@ Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
 import logging
-import ema_workbench
 
 try:
     import unittest.mock as mock
@@ -25,12 +22,12 @@ class TestEmaLogging(unittest.TestCase):
 
     def test_get_logger(self):
         ema_logging._logger = None
-        logger = ema_logging.get_logger()
+        logger = ema_logging.get_rootlogger()
         self.assertEqual(logger, logging.getLogger(ema_logging.LOGGER_NAME))
         self.assertEqual(len(logger.handlers), 1)
         self.assertEqual(type(logger.handlers[0]), logging.NullHandler)
         
-        logger = ema_logging.get_logger()
+        logger = ema_logging.get_rootlogger()
         self.assertEqual(logger, logging.getLogger(ema_logging.LOGGER_NAME))
         self.assertEqual(len(logger.handlers), 1)
         self.assertEqual(type(logger.handlers[0]), logging.NullHandler)        
