@@ -55,7 +55,7 @@ def get_module_logger(name):
 
 _rootlogger = None
 _module_loggers = {}
-_logger = get_module_logger(__name__)
+_logger = None
 
 
 LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
