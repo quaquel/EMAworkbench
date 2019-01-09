@@ -20,6 +20,7 @@ from sklearn import tree
 from sklearn.externals.six import StringIO
 
 from . import scenario_discovery_util as sdutil
+from ..util import get_module_logger
 
 # Created on May 22, 2015
 #
@@ -28,7 +29,7 @@ from . import scenario_discovery_util as sdutil
 
 __all__ = ['setup_cart',
            'CART']
-
+_logger = get_module_logger(__name__)
 
 def setup_cart(results, classify, incl_unc=None, mass_min=0.05):
     """helper function for performing cart in combination with data

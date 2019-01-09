@@ -363,46 +363,6 @@ class BooleanParameter(IntegerParameter):
         return representation
 
 
-class BooleanParameter(IntegerParameter):
-    ''' boolean model input parameter
-
-    A BooleanParameter is similar to a CategoricalParameter, except
-    the category values can only be True or False.
-
-    Parameters
-    ----------
-    name : str
-    variable_name : str, or list of str
-
-    '''
-
-    def __init__(self, name, default=None, variable_name=None, pff=False):
-        lower_bound = 0
-        upper_bound = 1
-
-        super(BooleanParameter, self).__init__(
-            name, lower_bound,
-            upper_bound, resolution=None, default=default,
-            variable_name=variable_name, pff=pff)
-
-        self.categories = [False, True]
-        self.resolution = [0, 1]
-
-    def __repr__(self, *args, **kwargs):
-        template1 = 'BooleanParameter(\'{}\', default={})'
-        template2 = 'BooleanParameter(\'{}\', )'
-
-        if self.default:
-            representation = template1.format(self.name,
-                                              self.default)
-        else:
-            representation = template2.format(self.name, )
-
-        return representation
-
-
-
-
 class Policy(NamedDict):
     # TODO:: separate id and name
     # if name is not provided fall back on id
