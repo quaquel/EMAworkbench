@@ -14,19 +14,13 @@ import inspect
 from contextlib import contextmanager
 
 import logging
-from logging import Handler, DEBUG, INFO
+from logging import DEBUG, INFO
 
 # Created on 23 dec. 2010
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['debug',
-           'info',
-           'warning',
-           'error',
-           'exception',
-           'critical',
-           'get_logger',
+__all__ = ['get_logger',
            'get_module_logger',
            'log_to_stderr',
            'temporary_filter',
@@ -34,15 +28,9 @@ __all__ = ['debug',
            'INFO',
            'DEFAULT_LEVEL',
            'LOGGER_NAME']
-
-_logger = None
-_module_loggers = {}
 LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
 INFO = INFO
-
-LOG_FORMAT = '[%(processName)s/%(levelname)s %(asctime)s] %(message)s'
-
 
 def create_module_logger(name=None):
     if name is None:
@@ -61,6 +49,14 @@ def get_module_logger(name):
         logger = create_module_logger(name)
     
     return logger
+
+_rootlogger = None
+_module_loggers = {}
+_logger = get_module_logger(__name__)
+
+
+LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
+
 
 class TemporaryFilter(logging.Filter):
     
@@ -144,156 +140,27 @@ def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
     for k, v in filters.items():
         v.removeFilter(k)
 
-    
 
-def method_logger(func):
+def method_logger(name):
+    logger = get_module_logger(name)
     classname = inspect.getouterframes(inspect.currentframe())[1][3]
 
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        # hack, because log is applied to methods, we can get
-        # object instance as first arguments in args
-        debug('calling {} on {}'.format(func.__name__, classname))
-        res = func(*args, **kwargs)
-        debug('completed calling {} on {}'.format(func.__name__, classname))
-        return res
-    return wrapper
-
-
-def debug_deep(msg, *args, **kwargs):
-    '''
-    convenience function for logger.debug
-
-    Parameters
-    ----------
-    msg : str
-          msg to log
-    args : list
-           args to pass on to the logger
-    kwargs : dict
-             kwargs to pass on to the logger
-
-    '''
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    name = mod.__name__    
-    logger = get_module_logger(name)
-    
-    if _logger:
-        logger.debug(msg, *args, **kwargs)
-
-
-def debug(msg, *args, **kwargs):
-    '''
-    convenience function for logger.debug
-
-    Parameters
-    ----------
-    msg : str
-          msg to log
-    args : list
-           args to pass on to the logger
-    kwargs : dict
-             kwargs to pass on to the logger
-
-    '''
-    if _logger:
-        _logger.debug(msg, *args, **kwargs)
-
-
-def info(msg, *args):
-    '''
-    convenience function for logger.info
-
-    Parameters
-    ----------
-    msg : str
-          msg to log
-    args : list
-           args to pass on to the logger
-    kwargs : dict
-             kwargs to pass on to the logger
-
-    '''
-    if _logger:
-        _logger.info(msg, *args)
-
-
-def warning(msg, *args):
-    '''
-    convenience function for logger.warning
-
-    Parameters
-    ----------
-    msg : str
-          msg to log
-    args : list
-           args to pass on to the logger
-    kwargs : dict
-             kwargs to pass on to the logger
-
-    '''
-    if _logger:
-        _logger.warning(msg, *args)
-
-
-def error(msg, *args):
-    '''
-    convenience function for logger.error
-
-    Parameters
-    ----------
-    msg : str
-          msg to log
-    args : list
-           args to pass on to the logger
-    kwargs : dict
-             kwargs to pass on to the logger
-
-    '''
-    if _logger:
-        _logger.error(msg, *args)
-
-
-def exception(msg, *args):
-    '''
-    convenience function for logger.exception
-
-    Parameters
-    ----------
-    msg : str
-          msg to log
-    args : list
-           args to pass on to the logger
-    kwargs : dict
-             kwargs to pass on to the logger
-
-    '''
-    if _logger:
-        _logger.exception(msg, *args)
-
-
-def critical(msg, *args):
-    '''
-    convenience function for logger.critical
-
-    Parameters
-    ----------
-    msg : str
-          msg to log
-    args : list
-           args to pass on to the logger
-    kwargs : dict
-             kwargs to pass on to the logger
-
-    '''
-    if _logger:
-        _logger.critical(msg, *args)
+    def real_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # hack, because log is applied to methods, we can get
+            # object instance as first arguments in args
+            logger.debug('calling {} on {}'.format(func.__name__, classname))
+            res = func(*args, **kwargs)
+            logger.debug('completed calling {} on {}'.format(func.__name__, classname))
+            return res
+        return wrapper
+    return real_decorator
 
 
 def get_logger():
     '''
-    Returns logger used by the EMA workbench
+    Returns root logger used by the EMA workbench
 
     Returns
     -------
@@ -305,7 +172,7 @@ def get_logger():
     if not _logger:
         _logger = logging.getLogger(LOGGER_NAME)
         _logger.handlers = []
-        _logger.addHandler(NullHandler())
+        _logger.addHandler(logging.NullHandler())
         _logger.setLevel(DEBUG)
         _module_loggers[LOGGER_NAME] = _logger
 
@@ -342,17 +209,6 @@ def log_to_stderr(level=None):
     logger.propagate = False
 
     return logger
-
-
-class NullHandler(Handler):
-    '''
-    convenience handler that does nothing
-
-    '''
-
-    def emit(self, record):
-        pass
-
 
 # class TlsSMTPHandler(SMTPHandler):
 #     '''

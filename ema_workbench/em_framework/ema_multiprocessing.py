@@ -18,7 +18,7 @@ import shutil
 import traceback
 import queue
 
-from ..util import ema_logging
+from ..util import get_module_logger, ema_logging
 from .experiment_runner import ExperimentRunner
 from .util import NamedObjectMap
 from .model import AbstractModel
@@ -30,6 +30,7 @@ from .model import AbstractModel
 
 __all__ = []
 
+_logger = get_module_logger(__name__)
 
 def initializer(*args):
     '''initializer for a worker process
@@ -73,7 +74,7 @@ def initializer(*args):
 def finalizer(tmpdir):
     '''cleanup'''
     global experiment_runner
-    ema_logging.info("finalizing")
+    _logger.info("finalizing")
 
     experiment_runner.cleanup()
     del experiment_runner
@@ -141,7 +142,7 @@ def setup_working_directories(models, root_dir):
         tmpdir = os.path.join(root_dir, tmpdir_name)
         os.mkdir(tmpdir)
 
-        ema_logging.debug("setting up working directory: {}".format(tmpdir))
+        _logger.debug("setting up working directory: {}".format(tmpdir))
 
         for key, value in wd_by_model.items():
             # we need a sub directory in the process working directory
@@ -242,7 +243,7 @@ class LogQueueReader(threading.Thread):
                 record = self.queue.get()
                 # get the logger for this record
                 if record is None:
-                    ema_logging.debug("none received")
+                    _logger.debug("none received")
                     break
 
                 logger = logging.getLogger(record.name)
@@ -287,7 +288,7 @@ class ResultsReader(threading.Thread):
                 result = self.queue.get()
                 # get the logger for this record
                 if result is None:
-                    ema_logging.debug("none received")
+                    _logger.debug("none received")
                     break
                 
                 self.callback(*result.get())

@@ -13,20 +13,16 @@ except ImportError:
 
 # import cPickle
 from io import BytesIO, StringIO
-import math
 import os
 import sys
 import tarfile
 
-from matplotlib.mlab import rec2csv
 import numpy as np
-# from numpy.lib import recfunctions
 
 import pandas as pd
 from pandas.io.parsers import read_csv
 
-from .ema_logging import info, debug
-from .ema_exceptions import EMAError
+from . import EMAError, get_module_logger
 import ema_workbench
 
 PY3 = sys.version_info[0] == 3
@@ -44,7 +40,7 @@ __all__ = ['load_results',
            'experiments_to_scenarios',
            'merge_results'
            ]
-
+_logger = get_module_logger(__name__)
 
 def load_results(file_name):
     '''
@@ -74,7 +70,6 @@ def load_results(file_name):
         # load experiment metadata
         metadata = z.extractfile('experiments metadata.csv').readlines()
  
-        metadata_temp = []
         for entry in metadata:
             entry = entry.decode('UTF-8')
             entry = entry.strip()
@@ -82,17 +77,6 @@ def load_results(file_name):
             name, dtype = [str(item) for item in entry]
             if np.dtype(dtype)==object:
                 experiments[name] = experiments[name].astype('category') 
-#         metadata = metadata_temp
- 
-#         metadata = np.dtype(metadata)
-
-        # cast experiments to dtype and name specified in metadata
-#         temp_experiments = np.zeros((experiments.shape[0],), dtype=metadata)
-#         for i, entry in enumerate(experiments.dtype.descr):
-#             dtype = metadata[i]
-#             name = metadata.descr[i][0]
-#             temp_experiments[name][:] = experiments[entry[0]].astype(dtype)
-#         experiments = temp_experiments
 
         # load outcome metadata
         metadata = z.extractfile('outcomes metadata.csv').readlines()
@@ -113,11 +97,7 @@ def load_results(file_name):
                     try:
                         temp_shape.append(int(entry))
                     except ValueError:
-                        try:
-                            # @UndefinedVariable
-                            temp_shape.append(int(long(entry)))
-                        except NameError:  # we are on python3
-                            temp_shape.append(int(entry[0:-1]))
+                        temp_shape.append(int(entry[0:-1]))
             shape = tuple(temp_shape)
 
             if len(shape) > 2:
@@ -137,16 +117,16 @@ def load_results(file_name):
 
             outcomes[outcome] = data
 
-    info("results loaded succesfully from {}".format(file_name))
+    _logger.info("results loaded succesfully from {}".format(file_name))
     return experiments, outcomes
 
 
 def save_results(results, file_name):
     '''
-    save the results to the specified tar.gz file. The results are stored as 
-    csv files. There is an x.csv, and a csv for each outcome. In 
-    addition, there is a metadata csv which contains the datatype information
-    for each of the columns in the x array.
+    save the results to the specified tar.gz file. The results are
+    stored as csv files. There is an x.csv, and a csv for each 
+    outcome. In addition, there is a metadata csv which contains
+    the datatype information for each of the columns in the x array.
 
     Parameters
     ----------    
@@ -214,7 +194,7 @@ def save_results(results, file_name):
                 fh = fh.getvalue()
                 add_file(z, fh, '{}.csv'.format(key))
 
-    info("results saved successfully to {}".format(file_name))
+    _logger.info("results saved successfully to {}".format(file_name))
 
 
 def experiments_to_scenarios(experiments, model=None):
@@ -274,7 +254,7 @@ def experiments_to_scenarios(experiments, model=None):
     return scenarios
 
 
-def merge_results(results1, results2, downsample=None):
+def merge_results(results1, results2):
     '''
     convenience function for merging the return from 
     :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
@@ -297,9 +277,6 @@ def merge_results(results1, results2, downsample=None):
                first results to be merged
     results2 : tuple
                second results to be merged
-    downsample : int 
-                 should be an integer, will be used in slicing the results
-                 in order to avoid memory problems. 
 
     Returns
     -------
@@ -318,12 +295,12 @@ def merge_results(results1, results2, downsample=None):
 
     # only merge the results that are in both
     keys = set(res1.keys()).intersection(set(res2.keys()))
-    info("intersection of keys: %s" % keys)
+    _logger.info("intersection of keys: %s" % keys)
 
     # merging results
     merged_res = {}
     for key in keys:
-        info("merge "+key)
+        _logger.info("merge "+key)
 
         value1 = res1.get(key)
         value2 = res2.get(key)
@@ -344,9 +321,9 @@ def get_ema_project_home_dir():
         parsed = config.read(fn)
 
         if parsed:
-            info('config loaded from {}'.format(parsed[0]))
+            _logger.info('config loaded from {}'.format(parsed[0]))
         else:
-            info('no config file found')
+            _logger.info('no config file found')
 
         home_dir = config.get('ema_project_home', 'home_dir')
         return home_dir

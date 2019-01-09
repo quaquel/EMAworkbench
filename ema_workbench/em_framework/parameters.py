@@ -9,9 +9,9 @@ import pandas
 import six
 import warnings
 
-from ema_workbench.em_framework.util import (NamedObject, Variable,
-                                             NamedObjectMap, Counter, NamedDict,
-                                             combine)
+from .util import (NamedObject, Variable, NamedObjectMap, Counter,
+                   NamedDict, combine)
+from ..util import get_module_logger
 
 # Created on Jul 14, 2016
 #
@@ -20,7 +20,7 @@ from ema_workbench.em_framework.util import (NamedObject, Variable,
 __all__ = ['Parameter', 'RealParameter', 'IntegerParameter', 'BooleanParameter',
            'CategoricalParameter', 'create_parameters',
            'experiment_generator']
-
+_logger = get_module_logger(__name__)
 
 class Constant(NamedObject):
     '''Constant class, 
@@ -311,6 +311,54 @@ class CategoricalParameter(IntegerParameter):
                                               self.default)
         else:
             representation = template2.format(self.name, self.resolution)
+
+        return representation
+
+class BinaryParameter(CategoricalParameter):
+    ''' a categorical model input parameter that is only True or False
+
+    Parameters
+    ----------
+    name : str
+    '''
+
+    def __init__(self, name, default=None, ):
+        super(BinaryParameter, self).__init__(name, categories=[False, True], default=default)
+
+
+
+
+class BooleanParameter(IntegerParameter):
+    ''' boolean model input parameter
+
+    A BooleanParameter is similar to a CategoricalParameter, except
+    the category values can only be True or False.
+
+    Parameters
+    ----------
+    name : str
+    variable_name : str, or list of str
+
+    '''
+
+    def __init__(self, name, default=None, variable_name=None,
+                 pff=False):
+        super(BooleanParameter, self).__init__(
+            name, 0, 1, resolution=None, default=default,
+            variable_name=variable_name, pff=pff)
+
+        self.categories = [False, True]
+        self.resolution = [0, 1]
+
+    def __repr__(self, *args, **kwargs):
+        template1 = 'BooleanParameter(\'{}\', default={})'
+        template2 = 'BooleanParameter(\'{}\', )'
+
+        if self.default:
+            representation = template1.format(self.name,
+                                              self.default)
+        else:
+            representation = template2.format(self.name, )
 
         return representation
 

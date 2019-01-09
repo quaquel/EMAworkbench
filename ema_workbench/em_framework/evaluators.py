@@ -36,7 +36,7 @@ from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
 # TODO:: should become optional import
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
 from .util import NamedObjectMap, determine_objects
-from ..util import ema_logging, EMAError
+from ..util import EMAError, get_module_logger, ema_logging
 
 # Created on 5 Mar 2017
 #
@@ -62,7 +62,7 @@ SAMPLERS = {LHS: LHSSampler,
 
 __all__ = ['MultiprocessingEvaluator', 'IpyparallelEvaluator',
            'optimize', 'perform_experiments', 'SequentialEvaluator']
-
+_logger = get_module_logger(__name__)
 
 class BaseEvaluator(object):
     '''evaluator for experiments using a multiprocessing pool
@@ -203,7 +203,7 @@ class SequentialEvaluator(BaseEvaluator):
         pass
 
     def evaluate_experiments(self, scenarios, policies, callback):
-        ema_logging.info("performing experiments sequentially")
+        _logger.info("performing experiments sequentially")
 
         ex_gen = experiment_generator(scenarios, self._msis, policies)
 
@@ -243,7 +243,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
         log_queue_reader.start()
 
         try:
-            loglevel = ema_logging._logger.getEffectiveLevel()
+            loglevel = ema_logging._rootlogger.getEffectiveLevel()
         except AttributeError:
             loglevel = 30
 
@@ -266,11 +266,11 @@ class MultiprocessingEvaluator(BaseEvaluator):
                                            self.root_dir))
         
         self._pool._taskqueue.maxsize = self._pool._processes * 5
-        ema_logging.info("pool started")
+        _logger.info("pool started")
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        ema_logging.info("terminating pool")
+        _logger.info("terminating pool")
 
         if exc_type is not None:
             # When an exception is thrown stop accepting new jobs
@@ -304,7 +304,7 @@ class IpyparallelEvaluator(BaseEvaluator):
     def initialize(self):
         import ipyparallel
 
-        ema_logging.debug("starting ipyparallel pool")
+        _logger.debug("starting ipyparallel pool")
 
         try:
             TIMEOUT_MAX = threading.TIMEOUT_MAX
@@ -314,13 +314,13 @@ class IpyparallelEvaluator(BaseEvaluator):
         # update loggers on all engines
         self.client[:].apply_sync(set_engine_logger)
 
-        ema_logging.debug("initializing engines")
+        _logger.debug("initializing engines")
         initialize_engines(self.client, self._msis, os.getcwd())
 
         self.logwatcher, self.logwatcher_thread = start_logwatcher()
 
-        ema_logging.debug("successfully started ipyparallel pool")
-        ema_logging.info("performing experiments using ipyparallel")
+        _logger.debug("successfully started ipyparallel pool")
+        _logger.info("performing experiments using ipyparallel")
 
         return self
 
@@ -429,7 +429,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
     nr_of_exp = n_models * n_scenarios * n_policies
 
-    ema_logging.info(('performing {} scenarios * {} policies * {} model(s) = '
+    _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
                       '{} experiments').format(n_scenarios, n_policies,
                                                n_models, nr_of_exp))
 
@@ -453,7 +453,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         'completed. expected {}, got {}').format(nr_of_exp,
                                                                  callback.i))
 
-    ema_logging.info("experiments finished")
+    _logger.info("experiments finished")
 
     if return_callback:
         return callback

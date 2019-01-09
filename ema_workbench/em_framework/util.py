@@ -5,17 +5,9 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 import copy
 from collections import OrderedDict
 
-try:
-    from UserDict import UserDict
-except ImportError:
-    from collections import UserDict
 
-try:
-    # we assume python 2
-    from collections import MutableMapping
-except ImportError:
-    # so it must by python 3
-    from collections.abc import MutableMapping  # @UnusedImport
+from collections import UserDict
+from collections.abc import MutableMapping  # @UnusedImport
 
 import itertools
 import six
@@ -29,7 +21,6 @@ from ..util import EMAError
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation']
-
 
 class NamedObject(object):
 

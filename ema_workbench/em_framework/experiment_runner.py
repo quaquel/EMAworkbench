@@ -8,14 +8,14 @@ from __future__ import (absolute_import, print_function, division,
 import sys
 import traceback
 
-from ..util import ema_logging, EMAError, CaseError
+from ..util import get_module_logger, EMAError, CaseError
 
 # Created on Aug 11, 2015
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ["ExperimentRunner"]
-
+_logger = get_module_logger(__name__)
 
 class ExperimentRunner(object):
     '''Helper class for running the experiments
@@ -81,16 +81,16 @@ class ExperimentRunner(object):
         policy = experiment.policy.copy()
         scenario_id = experiment.scenario.name
 
-        ema_logging.debug(self.log_message.format(scenario_id=scenario_id,
-                                                  policy_name=policy_name,
-                                                  model_name=model_name))
+        _logger.debug(self.log_message.format(scenario_id=scenario_id,
+                                              policy_name=policy_name,
+                                              model_name=model_name))
         scenario = experiment.scenario
         try:
             model.run_model(scenario, policy)
         except CaseError as e:
-            ema_logging.warning(str(e))
+            _logger.warning(str(e))
         except Exception as e:
-            ema_logging.exception(str(e))
+            _logger.exception(str(e))
             try:
                 self.cleanup()
             except Exception:

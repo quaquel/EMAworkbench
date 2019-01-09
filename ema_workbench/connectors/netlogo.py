@@ -5,6 +5,7 @@ NetLogo models.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 from ema_workbench.em_framework.model import Replicator, SingleReplication
+from ema_workbench.util.ema_logging import get_module_logger
 
 try:
     import jpype
@@ -18,14 +19,13 @@ import pyNetLogo
 
 from ..em_framework.model import FileModel
 from ..util.ema_logging import method_logger
-from ..util import warning, debug
 
 # Created on 15 mrt. 2013
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['NetLogoModel']
-
+_logger = get_module_logger(__name__)
 
 class BaseNetLogoModel(FileModel):
     '''Base class for interfacing with netlogo models. This class
@@ -88,7 +88,7 @@ class BaseNetLogoModel(FileModel):
         self.jvm_home = jvm_home
         self.gui = gui
 
-    @method_logger
+    @method_logger(__name__)
     def model_init(self, policy):
         '''
         Method called to initialize the model.
@@ -102,17 +102,17 @@ class BaseNetLogoModel(FileModel):
         '''
         super(BaseNetLogoModel, self).model_init(policy)
         if not hasattr(self,'netlogo'):
-            debug("trying to start NetLogo")
+            _logger.debug("trying to start NetLogo")
             self.netlogo = pyNetLogo.NetLogoLink(netlogo_home=self.netlogo_home,
                                                  netlogo_version=self.netlogo_version, 
                                                  jvm_home=self.jvm_home,
                                                  gui=self.gui)
-            debug("netlogo started")
+            _logger.debug("netlogo started")
         path = os.path.join(self.working_directory, self.model_file)
         self.netlogo.load_model(path)
-        debug("model opened")
+        _logger.debug("model opened")
 
-    @method_logger
+    @method_logger(__name__)
     def run_experiment(self, experiment):
         """
         Method for running an instantiated model structure. 
@@ -133,10 +133,10 @@ class BaseNetLogoModel(FileModel):
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:
-                warning('variable {} throws exception: {}'.format(key,
+                _logger.warning('variable {} throws exception: {}'.format(key,
                                                                   str(e)))
 
-        debug("model parameters set successfully")
+        _logger.debug("model parameters set successfully")
 
         # finish setup and invoke run
         self.netlogo.command("setup")
@@ -179,7 +179,7 @@ class BaseNetLogoModel(FileModel):
         c_middle = " ".join(commands)
 #         c_end = " ".join(end_commands)
         command = " ".join((c_start, c_middle, c_close))
-        debug(command)
+        _logger.debug(command)
         self.netlogo.command(command)
 
         # after the last go, we have not done a write for the outcomes

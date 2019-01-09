@@ -23,7 +23,7 @@ from collections import defaultdict
 from .util import (NamedObject, combine, NamedObjectMapDescriptor)
 from .parameters import Parameter, Constant, CategoricalParameter, Experiment
 from .outcomes import AbstractOutcome
-from ..util import debug, EMAError, ema_logging
+from ..util import EMAError, get_module_logger
 from ..util.ema_logging import method_logger
 
 # Created on 23 dec. 2010
@@ -33,7 +33,7 @@ from ..util.ema_logging import method_logger
 
 __all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator',
            'SingleReplication', 'ReplicatorModel']
-
+_logger = get_module_logger(__name__)
 
 class ModelMeta(abc.ABCMeta):
 
@@ -49,10 +49,9 @@ class ModelMeta(abc.ABCMeta):
 
 class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     '''
-    :class:`ModelStructureInterface` is one of the the two main classes used 
-    for performing EMA. This is an abstract base class and cannot be used 
-    directly. When extending this class :meth:`model_init` and 
-    :meth:`run_model` have to be implemented. 
+    :class:`ModelStructureInterface` is one of the the two main
+    classes used for performing EMA. This is an abstract base class
+    and cannot be used directly.  
 
     Attributes
     ----------
@@ -65,7 +64,11 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     name : str
            alphanumerical name of model structure interface
     output : dict
-             this should be a dict with the names of the outcomes as key
+             this should be a dict with the names of the outcomes as
+             key
+
+    When extending this class :meth:`model_init` and 
+    :meth:`run_model` have to be implemented.
 
     '''
 
@@ -75,38 +78,6 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
     @outcomes_output.setter
     def outcomes_output(self, outputs):
-        for outcome in self.outcomes:
-            data = [outputs[var] for var in outcome.variable_name]
-            self._outcomes_output[outcome.name] = outcome.process(data)
-
-#     @property
-#     def constraints_output(self):
-#         return self._constraints_output
-# 
-#     @constraints_output.setter
-#     def constraints_output(self, value):
-#         try:
-#             experiment, output = value
-#         except ValueError:
-#             raise ValueError("Pass an iterable with two items")
-#         else:
-# 
-#             for constraint in self.constraints:
-#                 data = [experiment[var] for var in constraint.parameter_names]
-#                 data += [output[var] for var in constraint.outcome_names]
-#                 constraint_value = constraint.process(data)
-#                 self._constraints_output[constraint.name] = constraint_value
-
-    @property
-    def output(self):
-        warnings.warn('deprecated, use outcome_output instead')
-        data = {outcome.name: self._output[outcome.name]
-                for outcome in self.outcomes}
-        return data
-
-    @output.setter
-    def output(self, outputs):
-        warnings.warn('deprecated, use outcome_output instead')
         for outcome in self.outcomes:
             data = [outputs[var] for var in outcome.variable_name]
             self._outcomes_output[outcome.name] = outcome.process(data)
@@ -131,8 +102,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         Parameters
         ----------
         name : str
-               name of the modelInterface. The name should contain only
-               alpha-numerical characters.        
+               name of the modelInterface. The name should contain
+               only alpha-numerical characters.        
 
         Raises
         ------
@@ -142,14 +113,14 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         super(AbstractModel, self).__init__(name)
 
         if not self.name.isalnum():
-            raise EMAError("name of model should only contain alpha numerical\
-                            characters")
+            raise EMAError(("name of model should only contain "
+                            "alpha numerical characters"))
 
         self._output_variables = None
         self._outcomes_output = {}
         self._constraints_output = {}
 
-    #@method_logger
+    @method_logger(__name__)
     def model_init(self, policy):
         '''Method called to initialize the model.
 
@@ -161,8 +132,8 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
         Note
         ----
-        This method should always be implemented. Although in simple cases, a 
-        simple pass can suffice.
+        This method should always be implemented. Although in
+        simple cases, a simple pass can suffice.
 
         '''
         self.policy = policy
@@ -176,7 +147,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         for k in remove:
             del policy[k]
 
-    #@method_logger
+    @method_logger(__name__)
     def _transform(self, sampled_parameters, parameters):
 
         if not parameters:
@@ -194,7 +165,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
                 if par.default is not None:
                     value = par.default
                 else:
-                    ema_logging.debug('{} not found'.format(par.name))
+                    _logger.debug('{} not found'.format(par.name))
                     continue
 
             multivalue = False
@@ -214,7 +185,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
 
         sampled_parameters.data = temp
 
-    #@method_logger
+    @method_logger(__name__)
     def run_model(self, scenario, policy):
         """Method for running an instantiated model structure. 
 
@@ -227,11 +198,10 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         if not self.initialized(policy):
             self.model_init(policy)
 
-        # TODO:: here we need to add constants in some manner
         self._transform(scenario, self.uncertainties)
         self._transform(policy, self.levers)
 
-    #@method_logger
+    @method_logger(__name__)
     def initialized(self, policy):
         '''check if model has been initialized 
 
@@ -246,7 +216,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         except AttributeError:
             return False
 
-    #@method_logger
+    @method_logger(__name__)
     def retrieve_output(self):
         """Method for retrieving output after a model run.
 
@@ -257,7 +227,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         warnings.warn('deprecated, use model.output instead')
         return self.output
 
-    #@method_logger
+    @method_logger(__name__)
     def reset_model(self):
         """ Method for reseting the model to its initial state. The default
         implementation only sets the outputs to an empty dict. 
@@ -266,7 +236,7 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
         self._outcome_output = {}
         self._constraints_output = {}
 
-    #@method_logger
+    @method_logger(__name__)
     def cleanup(self):
         '''
         This model is called after finishing all the experiments, but 
@@ -333,7 +303,7 @@ class Replicator(AbstractModel):
             raise TypeError(
                 "replications should be int or list not {}".format(type(replications)))
 
-    #@method_logger
+    @method_logger(__name__)
     def run_model(self, scenario, policy):
         """ Method for running an instantiated model structure. 
 
@@ -350,7 +320,7 @@ class Replicator(AbstractModel):
         partial_experiment = combine(scenario, self.policy, constants)
 
         for i, rep in enumerate(self.replications):
-            ema_logging.debug("replication {}".format(i))
+            _logger.debug("replication {}".format(i))
             rep.id = i
             experiment = Experiment(scenario, self.policy, constants, rep)
             output = self.run_experiment(experiment)
@@ -362,12 +332,13 @@ class Replicator(AbstractModel):
         # perhaps set constraints with the outcomes instead
         # this avoids double processing, it also means that
         # each constraint needs to apply to an actual outcome
-        self.constraints_output = (partial_experiment, self.outcomes_output)
+        self.constraints_output = (partial_experiment,
+                                   self.outcomes_output)
 
 
 class SingleReplication(AbstractModel):
 
-    #@method_logger
+    @method_logger(__name__)
     def run_model(self, scenario, policy):
         """
         Method for running an instantiated model structure. 
@@ -379,12 +350,9 @@ class SingleReplication(AbstractModel):
 
         """
         super(SingleReplication, self).run_model(scenario, policy)
-        # TODO:: should this not be moved up?
+        
         constants = {c.name: c.value for c in self.constants}
-
-        # TODO:: have a separate experiment object?
-        # combine would then be replaced with a call to instantiate
-        # an experiment
+        
         experiment = Experiment(scenario, self.policy, constants)
 
         outputs = self.run_experiment(experiment)
@@ -431,7 +399,7 @@ class BaseModel(AbstractModel):
 
         self.function = function
 
-    #@method_logger
+    @method_logger(__name__)
     def run_experiment(self, experiment):
         """ Method for running an instantiated model structure. 
 
@@ -451,7 +419,7 @@ class BaseModel(AbstractModel):
             try:
                 value = model_output[variable]
             except KeyError:
-                ema_logging.warning(variable + ' not found in model output')
+                _logger.warning(variable + ' not found in model output')
                 value = None
             except TypeError:
                 value = model_output[i]
@@ -474,7 +442,7 @@ class WorkingDirectoryModel(AbstractModel):
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
-        debug('setting working directory to ' + wd)
+        _logger.debug('setting working directory to ' + wd)
         self._working_directory = wd
 
     def __init__(self, name, wd=None):
@@ -496,9 +464,6 @@ class WorkingDirectoryModel(AbstractModel):
         super(WorkingDirectoryModel, self).__init__(name)
         self.working_directory = wd
 
-        if os.path.abspath(self.working_directory) == os.getcwd():
-            raise ValueError('working directory cannot be current directory')
-
         if not os.path.exists(self.working_directory):
             raise ValueError("{} does not exist".format(
                 self.working_directory))
@@ -518,7 +483,7 @@ class FileModel(WorkingDirectoryModel):
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
-        debug('setting working directory to ' + wd)
+        _logger.debug('setting working directory to ' + wd)
         self._working_directory = wd
 
     def __init__(self, name, wd=None, model_file=None):
@@ -529,9 +494,9 @@ class FileModel(WorkingDirectoryModel):
         name : str
                name of the modelInterface. The name should contain only
                alpha-numerical characters.        
-        wd : str
-             working_directory for the model.
-        model_file : str
+        working_directory : str
+                            working_directory for the model. 
+        model_file  : str
                      the name of the model file
 
         Raises

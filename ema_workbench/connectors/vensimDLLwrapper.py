@@ -20,7 +20,7 @@ import sys
 
 import numpy as np
 
-from ..util import info, EMAError, EMAWarning
+from ..util import EMAError, EMAWarning, get_module_logger
 
 try:
     WindowsError  # @UndefinedVariable
@@ -30,7 +30,7 @@ except NameError:
 # Created on 21 okt. 2010
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
+_logger = get_module_logger(__name__)
 
 class VensimWarning(EMAWarning):
     '''
@@ -63,13 +63,13 @@ except WindowsError:
 
 if vensim_single and vensim_double:
     vensim = vensim_single
-    info("both single and double precision vensim available, using single")
+    _logger.info("both single and double precision vensim available, using single")
 elif vensim_single:
     vensim = vensim_single
-    info('using single precision vensim')
+    _logger.info('using single precision vensim')
 elif vensim_double:
     vensim = vensim_double
-    info('using single precision vensim')
+    _logger.info('using single precision vensim')
 else:
     raise ImportError("vensim dll not found")
 del sys

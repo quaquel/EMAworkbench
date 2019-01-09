@@ -4,20 +4,23 @@ import warnings
 __all__ = ["ema_parallel", "parameters"
            "model", "outcomes", "samplers",
            "Model", 'FileModel', "ModelEnsemble",
-           "Outcome", "ScalarOutcome", "TimeSeriesOutcome", "Constraint",
-           "RealParameter", "IntegerParameter", "CategoricalParameter", "BooleanParameter",
-           "Scenario", "Policy", "Experiment", "Constant", "create_parameters",
+           "ScalarOutcome", "TimeSeriesOutcome", "Constraint",
+           "RealParameter", "IntegerParameter", "CategoricalParameter", 
+           "BooleanParameter", "Scenario", "Policy", "Experiment", 
+           "Constant", "create_parameters",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
            "get_SALib_problem", "FASTSampler",
-           "perform_experiments", 'optimize', "IpyparallelEvaluator",
-           "MultiprocessingEvaluator", "SequentialEvaluator",
-           "DistributedEvaluator",
+           "peform_experiments", 'optimize', "IpyparallelEvaluator",
+           "MultiprocessingEvaluator", "SequentialEvaluator"
            'ReplicatorModel', "EpsilonProgress", "HyperVolume",
            "Convergence", "ArchiveLogger"]
 
-from .outcomes import ScalarOutcome, TimeSeriesOutcome, Outcome, Constraint
+from .outcomes import ScalarOutcome, TimeSeriesOutcome, Constraint
 from .model import Model, FileModel, ReplicatorModel
-from .parameters import (RealParameter, IntegerParameter, CategoricalParameter, BooleanParameter,
+
+
+from .parameters import (RealParameter, IntegerParameter, 
+                         CategoricalParameter, BooleanParameter,
                          Scenario, Policy, Constant, Experiment, create_parameters,
                          parameters_to_csv, Category, experiment_generator)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
@@ -36,11 +39,5 @@ try:
 except ImportError:
     IpyparallelEvaluator = None
     warnings.warn("ipyparallel not available", ImportWarning)
-
-try:
-    from .ema_distributed import DistributedEvaluator
-except ImportError:
-    DistributedEvaluator = None
-    warnings.warn("dask.distributed not available", ImportWarning)
 
 del warnings

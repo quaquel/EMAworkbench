@@ -14,11 +14,12 @@ import random
 import warnings
 
 from .outcomes import AbstractOutcome
-from .parameters import (IntegerParameter, RealParameter, CategoricalParameter, BooleanParameter,
-                         Scenario, Policy)
+
+from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
+                         BooleanParameter, Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
-from ..util import ema_logging
+from ..util import get_module_logger
 from ema_workbench.util.ema_exceptions import EMAError
 from ema_workbench.util.ema_logging import temporary_filter, INFO
 from ema_workbench.em_framework import callbacks, evaluators
@@ -28,7 +29,7 @@ try:
                     Subset, EpsilonProgressContinuation, RandomGenerator,
                     TournamentSelector, NSGAII, EpsilonBoxArchive, Multimethod,
                     GAOperator, SBX, PM, PCX, DifferentialEvolution, UNDX, SPX, 
-                    UM, Solution)   # @UnresolvedImport
+                    UM)   # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
 
     import platypus
@@ -63,15 +64,13 @@ except ImportError:
     platypus = None
     Real = Integer = Subset = None
 
-
-
 # Created on 5 Jun 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ["Problem", "RobustProblem", "EpsilonProgress", "HyperVolume",
            "Convergence", "ArchiveLogger"]
-
+_logger = get_module_logger(__name__)
 
 class Problem(PlatypusProblem):
     '''small extension to Platypus problem object, includes information on
@@ -210,6 +209,7 @@ def to_platypus_types(decision_variables):
                      CategoricalParameter: platypus.Subset,
                      BooleanParameter: platypus.Subset,
                      }
+
     types = []
     for dv in decision_variables:
         klass = _type_mapping[type(dv)]
@@ -565,7 +565,7 @@ class Convergence(object):
         self.generation += 1
         self.index.append(nfe)
 
-        ema_logging.info(
+        _logger.info(
             "generation {}: {}/{} nfe".format(self.generation, nfe, self.max_nfe))
 
         for metric in self.metrics:
@@ -578,15 +578,10 @@ class Convergence(object):
         progress = pd.DataFrame.from_dict(progress)
 
         if not progress.empty:
-            progress['nfe'] = -1
             try:
-                # If the convergence metrics have residual results (e.g. from a previous
-                # batch of optimization evaluations), then the length of the current
-                # nfe record in self.index might not match the number of results in the
-                # metrics. We don't necessarily want to discard the previous metric values
-                # so this will preserve them, leaving nfe as -1 for those older rows.
-                progress.iloc[-len(self.index):, progress.columns.get_loc('nfe')] = self.index
+                progress['nfe'] = self.index
             except ValueError as err:
+                progress['nfe'] = -1
                 warnings.warn(str(err))
 
         return progress
@@ -747,7 +742,7 @@ class CombinedMutator(CombinedVariator):
     mutation_prob = 1.0
 
     def evolve(self, parents):
-        ema_logging.debug(parents)
+        _logger.debug(parents)
 
         problem = parents[0].problem
         children = []
@@ -809,7 +804,7 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
     convergence = convergence.to_dataframe()
 
     message = "optimization completed, found {} solutions"
-    ema_logging.info(message.format(len(optimizer.algorithm.archive)))
+    _logger.info(message.format(len(optimizer.algorithm.archive)))
 
     if convergence.empty:
         return results
@@ -863,114 +858,3 @@ class GenerationalBorg(EpsilonProgressContinuation):
                        variator,
                        EpsilonBoxArchive(epsilons),
                        **kwargs))
-
-
-# class GeneAsGenerationalBorg(EpsilonProgressContinuation):
-#     '''A generational implementation of the BORG Framework, combined with 
-#     the GeneAs appraoch for heterogenously typed decision variables
-#     
-#     This algorithm adopts Epsilon Progress Continuation, and Auto Adaptive
-#     Operator Selection, but embeds them within the NSGAII generational
-#     algorithm, rather than the steady state implementation used by the BORG
-#     algorithm.  
-#     
-#     Note:: limited to RealParameters only. 
-#     
-#     '''
-#     
-#     # TODO::
-#     # Addressing the limitation to RealParameters is non-trivial. The best
-#     # option seems to be to extent MultiMethod. Have a set of GAoperators
-#     # for each datatype. 
-#     # next Iterate over datatypes and apply the appropriate operator. 
-#     # Implementing this in platypus is non-trivial. We probably need to do some
-#     # dirty hacking to create 'views' on the relevant part of the 
-#     # solution that is to be modified by the operator
-#     # 
-#     # A possible solution is to create a wrapper class for the operators
-#     # This class would create the 'view' on the solution. This view should 
-#     # also have a fake problem description because the number of 
-#     # decision variables is sometimes used by operators. After applying the 
-#     # operator to the view, we can than take the results and set these on the 
-#     # actual solution
-#     #
-#     # Also: How many operators are there for Integers and Subsets?
-#     
-#     def __init__(self, problem, epsilons, population_size=100,
-#                  generator=RandomGenerator(), selector=TournamentSelector(2),
-#                  variator=None, **kwargs):
-#         
-#         L = len(problem.parameters)
-#         p = 1/L
-#         
-#         # Parameterization taken from
-#         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
-#         real_variators = [GAOperator(SBX(probability=1.0, distribution_index=15.0),
-#                                PM(probability=p, distribution_index=20.0)),
-#                     GAOperator(PCX(nparents=3, noffspring=2, eta=0.1, zeta=0.1),
-#                                PM(probability =p, distribution_index=20.0)),
-#                     GAOperator(DifferentialEvolution(crossover_rate=0.6,
-#                                                      step_size=0.6),
-#                                PM(probability=p, distribution_index=20.0)),
-#                     GAOperator(UNDX(nparents= 3, noffspring=2, zeta=0.5,
-#                                     eta=0.35/math.sqrt(L)),
-#                                PM(probability= p, distribution_index=20.0)),
-#                     GAOperator(SPX(nparents=L+1, noffspring=L+1, 
-#                                    expansion=math.sqrt(L+2)),
-#                                PM(probability=p, distribution_index=20.0)),
-#                     UM(probability = 1/L)]
-#         
-#         # TODO
-#         integer_variators = []
-#         subset_variators = []
-#         
-#         variators = [VariatorWrapper(variator) for variator in real_variators]
-#         variator = Multimethod(self, variators)
-#         
-#         super(GenerationalBorg, self).__init__(
-#                 NSGAII(problem,
-#                        population_size,
-#                        generator,
-#                        selector,
-#                        variator,
-#                        EpsilonBoxArchive(epsilons),
-#                        **kwargs))
-# 
-# 
-# class VariatorWrapper(object):
-#     def __init__(self, actual_variator, indices, problem):
-#         '''
-#         
-#         Parameters
-#         ----------
-#         actual_variator : underlying GAOperator
-#         indices : np.array
-#                   indices to which the variator should be applied
-#         probem :  a representation of the problem considering only the 
-#                   same kind of Parameters
-#         
-#         '''
-#         self.variator = actual_variator
-#         self.indices = indices
-#         
-#     def evolve(self, parents):
-        
-        fake_parents = [self.create_view[p] for p in parents]
-        fake_children = self.variator.evolve(fake_parents)
-        
-        # tricky, no 1 to 1 mapping between parents and children
-        # some methods have 3 parents, one child
-        children = [map_back]
-        
-        pass
-    
-    def create_view(self, parent):
-        view = Solution(self.problem)
-        self.variables = parent.variables[self.indices][:]
-        self.objectives = parent.objectives[:]
-        self.constraints = parent.constraints[:]
-        self.evaluated = parent.evaluated
-        return view
-    
-    def map_back(self, view, parent):
-        pass
