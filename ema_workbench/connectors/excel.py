@@ -121,7 +121,7 @@ class BaseExcelModel(FileModel):
         # check for self.xl.Workbooks==0 allows us to see if wb was previously closed
         # and needs to be reopened.
         if not self.wb or self.xl.Workbooks.Count==0:
-            ema_logging.debug("trying to open workbook")
+            _logger.debug("trying to open workbook")
             wb = os.path.join(self.working_directory, self.workbook)
             self.wb = self.xl.Workbooks.Open(wb)
             _logger.debug("workbook opened")
@@ -183,14 +183,14 @@ class BaseExcelModel(FileModel):
             try:
                 self.wb.Close(False)
             except com_error as err:
-                ema_logging.warning("com error on wb.Close: {}".format(err),)
+                _logger.warning("com error on wb.Close: {}".format(err),)
             del self.wb
         if self.xl:
             try:
                 self.xl.DisplayAlerts = False
                 self.xl.Quit()
             except com_error as err:
-                ema_logging.warning("com error on xl.Quit: {}".format(err),)
+                _logger.warning("com error on xl.Quit: {}".format(err),)
             del self.xl
 
         self.xl = None
@@ -208,7 +208,7 @@ class BaseExcelModel(FileModel):
             sheetname = self.default_sheet
 
         if sheetname is None:
-            ema_logging.warning("com error: no default sheet set")
+            _logger.warning("com error: no default sheet set")
             self.cleanup()
             raise EMAError("com error: no default sheet set")
 
@@ -218,8 +218,8 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.wb.Sheets(sheetname)
         except Exception:
-            ema_logging.warning("com error: sheet '{}' not found".format(sheetname))
-            ema_logging.warning("known sheets: {}".format(", ".join(self.get_wb_sheetnames())))
+            _logger.warning("com error: sheet '{}' not found".format(sheetname))
+            _logger.warning("known sheets: {}".format(", ".join(self.get_wb_sheetnames())))
             self.cleanup()
             raise
 
@@ -254,7 +254,7 @@ class BaseExcelModel(FileModel):
         try:
             value = sheet.Range(this_range).Value
         except com_error:
-            ema_logging.warning(
+            _logger.warning(
                 "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
             )
             value = None
@@ -289,7 +289,7 @@ class BaseExcelModel(FileModel):
         try:
             sheet.Range(this_range).Value = value
         except com_error:
-            ema_logging.warning(
+            _logger.warning(
                 "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
             )
 
