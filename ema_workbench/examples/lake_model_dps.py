@@ -10,9 +10,6 @@ factors into the many objective search process. Environmental Modelling &
 Software 89, 159-171.
 
 '''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
 import math
 import numpy as np
 
@@ -21,7 +18,6 @@ from scipy.optimize import brentq
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            ema_logging, MultiprocessingEvaluator,
                            CategoricalParameter, Scenario)
-from ema_workbench.em_framework.evaluators import SequentialEvaluator
 
 # Created on 1 Jun 2017
 #
