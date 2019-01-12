@@ -18,9 +18,9 @@ from __future__ import (absolute_import, print_function, division,
 
 import copy
 import math
+import matplotlib as mpl
 from operator import itemgetter
 import warnings
-from ema_workbench.util import ema_logging
 
 try:
     import altair as alt
@@ -29,19 +29,15 @@ except ImportError:
     warnings.warn(("altair based interactive "
                    "inspection not available"), ImportWarning)
 
-import matplotlib as mpl
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImport
 
 import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from .plotting_util import make_legend
-from ..util import (EMAError, temporary_filter, INFO,
-                    get_module_logger)
+from ..util import (EMAError, temporary_filter, INFO, get_module_logger,
+                    ema_logging)
 from . import scenario_discovery_util as sdutil
+from .prim_pca import pca_preprocess  # @UnusedImport
 
 # Created on 22 feb. 2013
 #
@@ -49,7 +45,7 @@ from . import scenario_discovery_util as sdutil
 
 
 __all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox',
-           'PrimException', 'MultiBoxesPrim']
+           'PrimException', 'MultiBoxesPrim', "pca_preprocess"]
 _logger = get_module_logger(__name__)
 
 LENIENT2 = 'lenient2'
@@ -99,116 +95,6 @@ def get_quantile(data, quantile):
     return value
 
 
-def _pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
-    ''' helper function for pair wise scatter plotting
-
-    #TODO the cases of interest should be in red rather than in blue
-    # this will give a nice visual insight into the quality of the box
-    # currently it is done through the face color being white or blue
-    # this is not very clear
-
-
-    Parameters
-    ----------
-    x : DataFrame
-        the experiments
-    y : numpy array
-        the outcome of interest
-    box_lim : DataFrame
-              a boxlim
-    box_init : DataFrame
-    restricted_dims : collection of strings
-                      list of uncertainties that define the boxlims
-
-    '''
-
-    x = x[restricted_dims]
-    data = x.copy()
-
-    # TODO:: have option to change
-    # diag to CDF, gives you effectively the
-    # regional sensitivity analysis results
-    categorical_columns = data.select_dtypes('category').columns.values
-    categorical_mappings = {}
-    for column in categorical_columns:
-
-        # reorder categorical data so we
-        # can capture them in a single column
-        categories_inbox = boxlim.at[0, column]
-        categories_all = box_init.at[0, column]
-        missing = categories_all - categories_inbox
-        categories = list(categories_inbox) + list(missing)
-        data[column] = data[column].cat.set_categories(categories)
-
-        # keep the mapping for updating ticklabels
-        categorical_mappings[column] = dict(
-            enumerate(data[column].cat.categories))
-
-        # replace column with codes
-        data[column] = data[column].cat.codes
-
-    data['y'] = y  # for testing
-    grid = sns.pairplot(data=data, hue='y', vars=x.columns.values)
-
-    cats = set(categorical_columns)
-    for row, ylabel in zip(grid.axes, grid.y_vars):
-        ylim = boxlim[ylabel]
-
-        if ylabel in cats:
-            y = -0.2
-            height = len(ylim[0]) - 0.6  # 2 * 0.2
-        else:
-            y = ylim[0]
-            height = ylim[1] - ylim[0]
-
-        for ax, xlabel in zip(row, grid.x_vars):
-            if ylabel == xlabel:
-                continue
-
-            if xlabel in cats:
-                xlim = boxlim.at[0, xlabel]
-                x = -0.2
-                width = len(xlim) - 0.6  # 2 * 0.2
-            else:
-                xlim = boxlim[xlabel]
-                x = xlim[0]
-                width = xlim[1] - xlim[0]
-
-            xy = x, y
-            box = patches.Rectangle(xy, width, height, edgecolor='red',
-                                    facecolor='none', lw=3)
-            ax.add_patch(box)
-
-    # do the yticklabeling for categorical rows
-    for row, ylabel in zip(grid.axes, grid.y_vars):
-        if ylabel in cats:
-            ax = row[0]
-            labels = []
-            for entry in ax.get_yticklabels():
-                _, value = entry.get_position()
-                try:
-                    label = categorical_mappings[ylabel][value]
-                except KeyError:
-                    label = ''
-                labels.append(label)
-            ax.set_yticklabels(labels)
-
-    # do the xticklabeling for categorical columns
-    for ax, xlabel in zip(grid.axes[-1], grid.x_vars):
-        if xlabel in cats:
-            labels = []
-            locs = []
-            mapping = categorical_mappings[ylabel]
-            for i in range(-1, len(mapping) + 1):
-                locs.append(i)
-                try:
-                    label = categorical_mappings[xlabel][i]
-                except KeyError:
-                    label = ''
-                labels.append(label)
-            ax.set_xticks(locs)
-            ax.set_xticklabels(labels, rotation=90)
-    return grid
 
 
 def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
@@ -438,12 +324,12 @@ class PrimBox(object):
         graph form'''
 
         return sdutil.plot_box(self.box_lims[i], qp_values,
-                               self.prim.box_init, uncs,
-                               self.peeling_trajectory.at[i, 'coverage'],
-                               self.peeling_trajectory.at[i, "density"],
-                               ticklabel_formatter=ticklabel_formatter,
-                               boxlim_formatter=boxlim_formatter,
-                               table_formatter=table_formatter)
+                        self.prim.box_init, uncs,
+                        self.peeling_trajectory.at[i, 'coverage'],
+                        self.peeling_trajectory.at[i, "density"],
+                        ticklabel_formatter=ticklabel_formatter,
+                        boxlim_formatter=boxlim_formatter,
+                        table_formatter=table_formatter)
 
     def inspect_tradeoff(self):
         boxes = []
@@ -732,27 +618,7 @@ class PrimBox(object):
 
     def show_ppt(self):
         '''show the peeling and pasting trajectory in a figure'''
-
-        ax = host_subplot(111)
-        ax.set_xlabel("peeling and pasting trajectory")
-
-        par = ax.twinx()
-        par.set_ylabel("nr. restricted dimensions")
-
-        ax.plot(self.peeling_trajectory['mean'], label="mean")
-        ax.plot(self.peeling_trajectory['mass'], label="mass")
-        ax.plot(self.peeling_trajectory['coverage'], label="coverage")
-        ax.plot(self.peeling_trajectory['density'], label="density")
-        par.plot(self.peeling_trajectory['res_dim'], label="restricted dims")
-        ax.grid(True, which='both')
-        ax.set_ylim(bottom=0, top=1)
-
-        fig = plt.gcf()
-
-        make_legend(['mean', 'mass', 'coverage', 'density',
-                     'restricted_dim'],
-                    ax, ncol=5, alpha=1)
-        return fig
+        return sdutil.plot_ppt(self.peeling_trajectory)
 
     def show_tradeoff(self, cmap=mpl.cm.viridis):  # @UndefinedVariable
         '''Visualize the trade off between coverage and density. Color
@@ -767,34 +633,7 @@ class PrimBox(object):
         a Figure instance
 
         '''
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111, aspect='equal')
-
-        boundaries = np.arange(-0.5,
-                               max(self.peeling_trajectory['res_dim']) + 1.5,
-                               step=1)
-        ncolors = cmap.N
-        norm = mpl.colors.BoundaryNorm(boundaries, ncolors)
-
-        p = ax.scatter(self.peeling_trajectory['coverage'],
-                       self.peeling_trajectory['density'],
-                       c=self.peeling_trajectory['res_dim'],
-                       norm=norm,
-                       cmap=cmap)
-        ax.set_ylabel('density')
-        ax.set_xlabel('coverage')
-        ax.set_ylim(bottom=0, top=1.2)
-        ax.set_xlim(left=0, right=1.2)
-
-        ticklocs = np.arange(0,
-                             max(self.peeling_trajectory['res_dim']) + 1,
-                             step=1)
-        cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs,
-                          drawedges=True)
-        cb.set_label("nr. of restricted dimensions")
-
-        return fig
+        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
 
     def show_pairs_scatter(self, i=None):
         ''' Make a pair wise scatter plot of all the restricted
@@ -816,9 +655,10 @@ class PrimBox(object):
         resdim = sdutil._determine_restricted_dims(self.box_lims[i],
                                                    self.prim.box_init)
 
-        return _pair_wise_scatter(self.prim.x, self.prim.y,
-                                  self.box_lims[i], self.prim.box_init,
-                                  resdim)
+        return sdutil.plot_pair_wise_scatter(self.prim.x, self.prim.y,
+                                             self.box_lims[i], 
+                                             self.prim.box_init,
+                                             resdim)
 
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''
@@ -1005,108 +845,6 @@ class Prim(sdutil.OutputFormatterMixin):
             stats.append({key: getattr(box, key) for key in items})
         return stats
 
-    def perform_pca(self, subsets=None, exclude=set()):
-        '''
-
-        WARNING:: code still needs to be tested!!!
-
-        Pre-process the data by performing a pca based rotation on it.
-        This effectively turns the algorithm into PCA-PRIM as described
-        in `Dalal et al (2013) <http://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
-
-        Parameters
-        ----------
-        subsets: dict, optional
-                 expects a dictionary with group name as key and a list of
-                 uncertainty names as values. If this is used, a constrained
-                 PCA-PRIM is executed
-
-                ..note:: the list of uncertainties should not contain
-                         categorical uncertainties.
-        exclude : list of str, optional
-                  the uncertainties that should be excluded from the rotation
-
-        '''
-
-        # transform experiments to numpy array
-        dtypes = self.x.dtype.fields
-        object_dtypes = [key for key, value in dtypes.items()
-                         if value[0] == np.dtype(object)]
-
-        # get experiments of interest
-        # TODO this assumes binary classification!!!!!!!
-        logical = self.y >= self.threshold
-
-        # if no subsets are provided all uncertainties with non dtype object
-        # are in the same subset, the name of this is r, for rotation
-        if not subsets:
-            subsets = {"r": [key for key, value in dtypes.items()
-                             if value[0].name != np.dtype(object)]}
-        else:
-            # remove uncertainties that are in exclude and check whether
-            # uncertainties occur in more then one subset
-            seen = set()
-            for key, value in subsets.items():
-                value = set(value) - set(exclude)
-
-                subsets[key] = list(value)
-                if (seen & value):
-                    raise EMAError(
-                        "uncertainty occurs in more then one subset")
-                else:
-                    seen = seen | set(value)
-
-        # prepare the dtypes for the new rotated experiments recarray
-        new_dtypes = []
-        for key, value in subsets.items():
-            self._assert_dtypes(value, dtypes)
-
-            # the names of the rotated columns are based on the group name
-            # and an index
-            [new_dtypes.append((str("{}_{}".format(key, i)), float)) for i
-             in range(len(value))]
-
-        # add the uncertainties with object dtypes to the end
-        included_object_dtypes = set(object_dtypes) - set(exclude)
-        [new_dtypes.append((name, object)) for name in included_object_dtypes]
-
-        # make a new empty recarray
-        rotated_experiments = np.empty((self.x.shape[0],), dtype=new_dtypes)
-
-        # put the uncertainties with object dtypes already into the new
-        # recarray
-        for name in included_object_dtypes:
-            rotated_experiments[name] = self.x[name]
-
-        # iterate over the subsets, rotate them, and put them into the new
-        # recarray
-        shape = 0
-        for key, value in subsets.items():
-            shape += len(value)
-        rotation_matrix = np.zeros((shape, shape))
-        column_names = []
-        row_names = []
-
-        j = 0
-        for key, value in subsets.items():
-            data = self._rotate_subset(value, self.x, logical)
-            subset_rotation_matrix, subset_experiments = data
-            rotation_matrix[j:j + len(value), j:j + len(value)
-                            ] = subset_rotation_matrix
-            [row_names.append(entry) for entry in value]
-            j += len(value)
-
-            for i in range(len(value)):
-                name = "%s_%s" % (key, i)
-                rotated_experiments[name] = subset_experiments[:, i]
-                [column_names.append(name)]
-
-        self.rotation_matrix = rotation_matrix
-        self.column_names = column_names
-        self.row_names = row_names
-
-        self.x = np.ma.array(rotated_experiments)
-        self.box_init = sdutil._make_box(self.x)
 
     def find_box(self):
         '''Execute one iteration of the PRIM algorithm. That is, find one
@@ -1710,6 +1448,13 @@ class Prim(sdutil.OutputFormatterMixin):
         else:
             return -1
 
+    def _assert_mode(self, y, mode, update_function):
+        if mode == sdutil.BINARY:
+            return set(np.unique(y)) == {0, 1}
+        if update_function == 'guivarch':
+            return False
+        return True
+    
     def _assert_dtypes(self, keys, dtypes):
         '''
         helper fucntion that checks whether none of the provided keys
@@ -1721,70 +1466,6 @@ class Prim(sdutil.OutputFormatterMixin):
                 raise EMAError(
                     "%s has dtype object and can thus not be rotated" % key)
         return True
-
-    def _assert_mode(self, y, mode, update_function):
-        if mode == sdutil.BINARY:
-            return set(np.unique(y)) == {0, 1}
-        if update_function == 'guivarch':
-            return False
-        return True
-
-    def _rotate_subset(self, value, orig_experiments, logical):
-        '''
-        rotate a subset
-
-        Parameters
-        ----------
-        value : list of str
-        orig_experiment : numpy structured array
-        logical : boolean array
-
-        '''
-        list_dtypes = [(name, "<f8") for name in value]
-
-        # cast everything to float
-        drop_names = set(rf.get_names(orig_experiments.dtype)) - set(value)
-        orig_subset = rf.drop_fields(orig_experiments, drop_names,
-                                     asrecarray=True)
-        subset_experiments = orig_subset.astype(list_dtypes).view(
-            '<f8').reshape(orig_experiments.shape[0], len(value))
-
-        # normalize the data
-        mean = np.mean(subset_experiments, axis=0)
-        std = np.std(subset_experiments, axis=0)
-        std[std == 0] = 1  # in order to avoid a devision by zero
-        subset_experiments = (subset_experiments - mean) / std
-
-        # get the experiments of interest
-        experiments_of_interest = subset_experiments[logical]
-
-        # determine the rotation
-        rotation_matrix = self._determine_rotation(experiments_of_interest)
-
-        # apply the rotation
-        subset_experiments = np.dot(subset_experiments, rotation_matrix)
-        return rotation_matrix, subset_experiments
-
-    def _determine_rotation(self, experiments):
-        '''
-        Determine the rotation for the specified experiments
-
-        '''
-        covariance = np.cov(experiments.T)
-
-        eigen_vals, eigen_vectors = np.linalg.eig(covariance)
-
-        indices = np.argsort(eigen_vals)
-        indices = indices[::-1]
-        eigen_vectors = eigen_vectors[:, indices]
-        eigen_vals = eigen_vals[indices]
-
-        # make the eigen vectors unit length
-        for i in range(eigen_vectors.shape[1]):
-            eigen_vectors[:, i] / \
-                np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(eigen_vals[i])
-
-        return eigen_vectors
 
     _peels = {'object': _categorical_peel,
               'int': _discrete_peel,

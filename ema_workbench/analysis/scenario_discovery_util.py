@@ -8,12 +8,14 @@ import abc
 import itertools
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImports
 import numpy as np
 import pandas as pd
 import scipy as sp
 import seaborn as sns
 
-from .plotting_util import COLOR_LIST
+from .plotting_util import COLOR_LIST, make_legend
 
 # Created on May 24, 2015
 #
@@ -192,30 +194,6 @@ def _compare(a, b):
     return logical
 
 
-def _setup_figure(uncs):
-    '''
-
-    helper function for creating the basic layout for the figures that
-    show the box lims.
-
-    '''
-    nr_unc = len(uncs)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    # create the shaded grey background
-    rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc + 1.5,
-                                 alpha=0.25,
-                                 facecolor="#C0C0C0",
-                                 edgecolor="#C0C0C0")
-    ax.add_patch(rect)
-    ax.set_xlim(left=-0.2, right=1.2)
-    ax.set_ylim(top=-0.5, bottom=nr_unc - 0.5)
-    ax.yaxis.set_ticks([y for y in range(nr_unc)])
-    ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
-    ax.set_yticklabels(uncs[::-1])
-    return fig, ax
-
 
 def _in_box(x, boxlim):
     '''
@@ -334,6 +312,138 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     return qp
 
 
+def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
+    ''' helper function for pair wise scatter plotting
+
+    Parameters
+    ----------
+    x : DataFrame
+        the experiments
+    y : numpy array
+        the outcome of interest
+    box_lim : DataFrame
+              a boxlim
+    box_init : DataFrame
+    restricted_dims : collection of strings
+                      list of uncertainties that define the boxlims
+
+    '''
+
+    x = x[restricted_dims]
+    data = x.copy()
+
+    # TODO:: have option to change
+    # diag to CDF, gives you effectively the
+    # regional sensitivity analysis results
+    categorical_columns = data.select_dtypes('category').columns.values
+    categorical_mappings = {}
+    for column in categorical_columns:
+
+        # reorder categorical data so we
+        # can capture them in a single column
+        categories_inbox = boxlim.at[0, column]
+        categories_all = box_init.at[0, column]
+        missing = categories_all - categories_inbox
+        categories = list(categories_inbox) + list(missing)
+        data[column] = data[column].cat.set_categories(categories)
+
+        # keep the mapping for updating ticklabels
+        categorical_mappings[column] = dict(
+            enumerate(data[column].cat.categories))
+
+        # replace column with codes
+        data[column] = data[column].cat.codes
+
+    data['y'] = y  # for testing
+    grid = sns.pairplot(data=data, hue='y', vars=x.columns.values)
+
+    cats = set(categorical_columns)
+    for row, ylabel in zip(grid.axes, grid.y_vars):
+        ylim = boxlim[ylabel]
+
+        if ylabel in cats:
+            y = -0.2
+            height = len(ylim[0]) - 0.6  # 2 * 0.2
+        else:
+            y = ylim[0]
+            height = ylim[1] - ylim[0]
+
+        for ax, xlabel in zip(row, grid.x_vars):
+            if ylabel == xlabel:
+                continue
+
+            if xlabel in cats:
+                xlim = boxlim.at[0, xlabel]
+                x = -0.2
+                width = len(xlim) - 0.6  # 2 * 0.2
+            else:
+                xlim = boxlim[xlabel]
+                x = xlim[0]
+                width = xlim[1] - xlim[0]
+
+            xy = x, y
+            box = patches.Rectangle(xy, width, height, edgecolor='red',
+                                    facecolor='none', lw=3)
+            ax.add_patch(box)
+
+    # do the yticklabeling for categorical rows
+    for row, ylabel in zip(grid.axes, grid.y_vars):
+        if ylabel in cats:
+            ax = row[0]
+            labels = []
+            for entry in ax.get_yticklabels():
+                _, value = entry.get_position()
+                try:
+                    label = categorical_mappings[ylabel][value]
+                except KeyError:
+                    label = ''
+                labels.append(label)
+            ax.set_yticklabels(labels)
+
+    # do the xticklabeling for categorical columns
+    for ax, xlabel in zip(grid.axes[-1], grid.x_vars):
+        if xlabel in cats:
+            labels = []
+            locs = []
+            mapping = categorical_mappings[ylabel]
+            for i in range(-1, len(mapping) + 1):
+                locs.append(i)
+                try:
+                    label = categorical_mappings[xlabel][i]
+                except KeyError:
+                    label = ''
+                labels.append(label)
+            ax.set_xticks(locs)
+            ax.set_xticklabels(labels, rotation=90)
+    return grid
+
+
+def _setup_figure(uncs):
+    '''
+
+    helper function for creating the basic layout for the figures that
+    show the box lims.
+
+    '''
+    nr_unc = len(uncs)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # create the shaded grey background
+    rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc + 1.5,
+                                 alpha=0.25,
+                                 facecolor="#C0C0C0",
+                                 edgecolor="#C0C0C0")
+    ax.add_patch(rect)
+    ax.set_xlim(left=-0.2, right=1.2)
+    ax.set_ylim(top=-0.5, bottom=nr_unc - 0.5)
+    ax.yaxis.set_ticks([y for y in range(nr_unc)])
+    ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
+    ax.set_yticklabels(uncs[::-1])
+    return fig, ax
+
+
+
 def plot_box(boxlim, qp_values, box_init, uncs,
              coverage, density,
              ticklabel_formatter="{} ({})",
@@ -368,8 +478,8 @@ def plot_box(boxlim, qp_values, box_init, uncs,
         # at the top of the figure
         xj = len(uncs) - j - 1
 
-        OutputFormatterMixin._plot_unc(box_init, xj, j, 0, norm_box_lim,
-                                       boxlim, u, ax)
+        plot_unc(box_init, xj, j, 0, norm_box_lim,
+                 boxlim, u, ax)
 
         # new part
         dtype = box_init[u].dtype
@@ -456,6 +566,163 @@ def plot_box(boxlim, qp_values, box_init, uncs,
     return fig
 
 
+def plot_ppt(peeling_trajectory):
+    '''show the peeling and pasting trajectory in a figure'''
+
+    ax = host_subplot(111)
+    ax.set_xlabel("peeling and pasting trajectory")
+
+    par = ax.twinx()
+    par.set_ylabel("nr. restricted dimensions")
+
+    ax.plot(peeling_trajectory['mean'], label="mean")
+    ax.plot(peeling_trajectory['mass'], label="mass")
+    ax.plot(peeling_trajectory['coverage'], label="coverage")
+    ax.plot(peeling_trajectory['density'], label="density")
+    par.plot(peeling_trajectory['res_dim'], label="restricted dims")
+    ax.grid(True, which='both')
+    ax.set_ylim(bottom=0, top=1)
+
+    fig = plt.gcf()
+
+    make_legend(['mean', 'mass', 'coverage', 'density',
+                 'restricted_dim'],
+                ax, ncol=5, alpha=1)
+    return fig
+
+
+def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis):  # @UndefinedVariable
+    '''Visualize the trade off between coverage and density. Color
+    is used to denote the number of restricted dimensions.
+
+    Parameters
+    ----------
+    cmap : valid matplotlib colormap
+
+    Returns
+    -------
+    a Figure instance
+
+    '''
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, aspect='equal')
+
+    boundaries = np.arange(-0.5,
+                           max(peeling_trajectory['res_dim']) + 1.5,
+                           step=1)
+    ncolors = cmap.N
+    norm = mpl.colors.BoundaryNorm(boundaries, ncolors)
+
+    p = ax.scatter(peeling_trajectory['coverage'],
+                   peeling_trajectory['density'],
+                   c=peeling_trajectory['res_dim'],
+                   norm=norm,
+                   cmap=cmap)
+    ax.set_ylabel('density')
+    ax.set_xlabel('coverage')
+    ax.set_ylim(bottom=0, top=1.2)
+    ax.set_xlim(left=0, right=1.2)
+
+    ticklocs = np.arange(0,
+                         max(peeling_trajectory['res_dim']) + 1,
+                         step=1)
+    cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs,
+                      drawedges=True)
+    cb.set_label("nr. of restricted dimensions")
+
+    return fig
+
+
+def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
+             color=sns.color_palette()[0]):
+    '''
+
+    Parameters:
+    ----------
+    xi : int
+         the row at which to plot
+    i : int
+        the index of the uncertainty being plotted
+    j : int
+        the index of the box being plotted
+    u : string
+        the uncertainty being plotted:
+    ax : axes instance
+         the ax on which to plot
+
+    '''
+
+    dtype = box_init[u].dtype
+
+    y = xi - j * 0.1
+
+    if dtype == object:
+        elements = sorted(list(box_init[u][0]))
+        max_value = (len(elements) - 1)
+        box_lim = box_lim[u][0]
+        x = [elements.index(entry) for entry in
+             box_lim]
+        x = [entry / max_value for entry in x]
+        y = [y] * len(x)
+
+        ax.scatter(x, y, edgecolor=color,
+                   facecolor=color)
+
+    else:
+        ax.plot(norm_box_lim[i], (y, y),
+                c=color)
+
+
+def plot_boxes(x, boxes, together):
+
+    box_init = _make_box(x)
+    box_lims, uncs = _get_sorted_box_lims(boxes, box_init)
+
+    # normalize the box lims
+    # we don't need to show the last box, for this is the
+    # box_init, which is visualized by a grey area in this
+    # plot.
+    norm_box_lims = [_normalize(box_lim, box_init, uncs) for
+                     box_lim in box_lims[0:-1]]
+
+    if together:
+        fig, ax = _setup_figure(uncs)
+
+        for i, u in enumerate(uncs):
+            colors = itertools.cycle(COLOR_LIST)
+            # we want to have the most restricted dimension
+            # at the top of the figure
+
+            xi = len(uncs) - i - 1
+
+            for j, norm_box_lim in enumerate(norm_box_lims):
+                color = next(colors)
+                plot_unc(box_init, xi, i, j, norm_box_lim,
+                         box_lims[j], u, ax, color)
+
+        plt.tight_layout()
+        return fig
+    else:
+        figs = []
+        colors = itertools.cycle(COLOR_LIST)
+
+        for j, norm_box_lim in enumerate(norm_box_lims):
+            fig, ax = _setup_figure(uncs)
+            ax.set_title('box {}'.format(j))
+            color = next(colors)
+
+            figs.append(fig)
+            for i, u in enumerate(uncs):
+                xi = len(uncs) - i - 1
+                plot_unc(box_init, xi, i, 0, norm_box_lim,
+                         box_lims[j], u, ax, color)
+
+            plt.tight_layout()
+        return figs
+
+
+
 class OutputFormatterMixin(object):
     __metaclass__ = abc.ABCMeta
 
@@ -512,7 +779,7 @@ class OutputFormatterMixin(object):
 
         return pd.DataFrame(stats, index=index)
 
-    def display_boxes(self, together=False):
+    def show_boxes(self, together=False):
         '''display boxes
 
         Parameters
@@ -520,89 +787,5 @@ class OutputFormatterMixin(object):
         together : bool, otional
 
         '''
-        # TODO:: use plot_box function
-
-        box_init = _make_box(self.x)
-        box_lims, uncs = _get_sorted_box_lims(self.boxes, box_init)
-
-        # normalize the box lims
-        # we don't need to show the last box, for this is the
-        # box_init, which is visualized by a grey area in this
-        # plot.
-        norm_box_lims = [_normalize(box_lim, box_init, uncs) for
-                         box_lim in box_lims[0:-1]]
-
-        if together:
-            fig, ax = _setup_figure(uncs)
-
-            for i, u in enumerate(uncs):
-                colors = itertools.cycle(COLOR_LIST)
-                # we want to have the most restricted dimension
-                # at the top of the figure
-
-                xi = len(uncs) - i - 1
-
-                for j, norm_box_lim in enumerate(norm_box_lims):
-                    color = next(colors)
-                    self._plot_unc(box_init, xi, i, j, norm_box_lim,
-                                   box_lims[j], u, ax, color)
-
-            plt.tight_layout()
-            return fig
-        else:
-            figs = []
-            colors = itertools.cycle(COLOR_LIST)
-
-            for j, norm_box_lim in enumerate(norm_box_lims):
-                fig, ax = _setup_figure(uncs)
-                ax.set_title('box {}'.format(j))
-                color = next(colors)
-
-                figs.append(fig)
-                for i, u in enumerate(uncs):
-                    xi = len(uncs) - i - 1
-                    self._plot_unc(box_init, xi, i, 0, norm_box_lim,
-                                   box_lims[j], u, ax, color)
-
-                plt.tight_layout()
-            return figs
-
-    @staticmethod
-    def _plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
-                  color=sns.color_palette()[0]):
-        '''
-
-        Parameters:
-        ----------
-        xi : int
-             the row at which to plot
-        i : int
-            the index of the uncertainty being plotted
-        j : int
-            the index of the box being plotted
-        u : string
-            the uncertainty being plotted:
-        ax : axes instance
-             the ax on which to plot
-
-        '''
-
-        dtype = box_init[u].dtype
-
-        y = xi - j * 0.1
-
-        if dtype == object:
-            elements = sorted(list(box_init[u][0]))
-            max_value = (len(elements) - 1)
-            box_lim = box_lim[u][0]
-            x = [elements.index(entry) for entry in
-                 box_lim]
-            x = [entry / max_value for entry in x]
-            y = [y] * len(x)
-
-            ax.scatter(x, y, edgecolor=color,
-                       facecolor=color)
-
-        else:
-            ax.plot(norm_box_lim[i], (y, y),
-                    c=color)
+        plot_boxes(self.x, self.boxes, together=together)
+        
