@@ -2,12 +2,8 @@
 support for using the multiprocessing library in combination with the workbench
 
 '''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
 from collections import defaultdict
 
-import io
 import logging
 import multiprocessing
 import os
@@ -106,7 +102,7 @@ def setup_logging(queue, log_level):
     logger.handlers = []
 
     # add the handler
-    handler = SubProcessLogHandler(queue)
+    handler = logging.handlers.QueueHandler(queue)
     handler.setFormatter(ema_logging.LOG_FORMAT)
     logger.addHandler(handler)
 
@@ -171,41 +167,6 @@ def worker(experiment):
     '''
     global experiment_runner
     return experiment, experiment_runner.run_experiment(experiment)
-
-
-class SubProcessLogHandler(logging.Handler):
-    """handler used by subprocesses
-
-    It simply puts items on a Queue for the main process to log.
-
-    adapted a bit using code found in same stack overflow thread
-    so that exceptions can be logged. Exception stack traces cannot be pickled
-    so they cannot be put into the queue. Therefore they are formatted first
-    and then put into the queue as a normal message.
-
-    Found `online <http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python>`_
-
-    """
-
-    def __init__(self, queue):
-        logging.Handler.__init__(self)
-        self.queue = queue
-
-    def emit(self, record):
-        if record.exc_info:
-            # can't pass exc_info across processes so just format now
-            record.exc_text = self.formatException(record.exc_info)
-            record.exc_info = None
-        self.queue.put(record)
-
-    def formatException(self, ei):
-        sio = io.StringIO()
-        traceback.print_exception(ei[0], ei[1], ei[2], None, sio)
-        s = sio.getvalue()
-        sio.close()
-        if s[-1] == "\n":
-            s = s[:-1]
-        return s
 
 
 class LogQueueReader(threading.Thread):
