@@ -8,7 +8,8 @@ online: https://emaworkbench.readthedocs.io/en/latest/
 [![Coverage Status](https://coveralls.io/repos/github/quaquel/EMAworkbench/badge.svg?branch=master)](https://coveralls.io/github/quaquel/EMAworkbench?branch=master)
 [![Code Health](https://landscape.io/github/quaquel/EMAworkbench/master/landscape.svg?style=flat)](https://landscape.io/github/quaquel/EMAworkbench/master)
 [![Documentation Status](https://readthedocs.org/projects/emaworkbench/badge/?version=latest)](http://emaworkbench.readthedocs.org/en/latest/?badge=master)
-
+[![PyPi](https://img.shields.io/pypi/v/ema_workbench.svg)]
+[![PyPi](https://img.shields.io/pypi/dm/ema_workbench.svg)]
 
 If you are interested in using the most recent version of the workbench  and
 would like to contribute to its further development, contact Jan Kwakkel at 
