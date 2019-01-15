@@ -1,6 +1,7 @@
 # Travis config for EMA workbench
 language: python
-sudo: false
+dist: xenial
+sudo: true
 
 python:
 - "3.6"
