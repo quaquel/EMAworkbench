@@ -162,18 +162,18 @@ class CartTestCase(unittest.TestCase):
         self.assertTrue(isinstance(alg.clf,
                                    cart.tree.DecisionTreeRegressor))
         
-    def test_show_tree(self):
-        results = utilities.load_flu_data()
-        
-        alg = cart.setup_cart(results, flu_classify,
-                              mass_min=0.05)
-        alg.build_tree()
-        
-        fig = alg.show_tree(mplfig=True)
-        bytestream = alg.show_tree(mplfig=False)
-        
-        self.assertTrue(isinstance(fig, mpl.figure.Figure))
-        self.assertTrue(isinstance(bytestream, bytes))
+#     def test_show_tree(self):
+#         results = utilities.load_flu_data()
+#         
+#         alg = cart.setup_cart(results, flu_classify,
+#                               mass_min=0.05)
+#         alg.build_tree()
+#         
+#         fig = alg.show_tree(mplfig=True)
+#         bytestream = alg.show_tree(mplfig=False)
+#         
+#         self.assertTrue(isinstance(fig, mpl.figure.Figure))
+#         self.assertTrue(isinstance(bytestream, bytes))
         
         
 if __name__ == '__main__':
