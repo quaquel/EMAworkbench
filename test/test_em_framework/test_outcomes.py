@@ -7,7 +7,7 @@ from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 
 import unittest
-import mock
+import unittest.mock as mock
 
 from ema_workbench.em_framework.outcomes import ScalarOutcome,\
     TimeSeriesOutcome

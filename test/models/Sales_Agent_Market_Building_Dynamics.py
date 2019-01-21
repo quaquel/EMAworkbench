@@ -251,8 +251,9 @@ def effort_remaining_after_servicing_existing_clients():
     How much effort remains after higher priority sales and maintenance 
         activities are complete?
     """
-    return np.maximum(sales_effort_available() -
-                      (effort_devoted_to_tier_1_clients() + effort_devoted_to_tier_2_clients()), 0)
+    return np.maximum(
+        sales_effort_available() -
+        (effort_devoted_to_tier_1_clients() + effort_devoted_to_tier_2_clients()), 0)
 
 
 @cache('run')

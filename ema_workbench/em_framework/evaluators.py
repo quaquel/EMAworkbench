@@ -268,8 +268,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
         self._pool = multiprocessing.Pool(self.n_processes, initializer,
                                           (self._msis, log_queue, loglevel,
                                            self.root_dir))
-
-        self._pool._taskqueue.maxsize = self._pool._processes * 5
+        self.n_processes = self._pool._processes
         _logger.info("pool started")
         return self
 
@@ -295,7 +294,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
 
     def evaluate_experiments(self, scenarios, policies, callback):
         ex_gen = experiment_generator(scenarios, self._msis, policies)
-        add_tasks(self._pool, ex_gen, callback)
+        add_tasks(self.n_processes, self._pool, ex_gen, callback)
 
 
 class IpyparallelEvaluator(BaseEvaluator):

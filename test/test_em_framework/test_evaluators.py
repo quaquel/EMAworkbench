@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
-import mock
+import unittest.mock as mock
 import unittest
 
 import ema_workbench

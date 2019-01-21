@@ -8,10 +8,8 @@ from __future__ import (unicode_literals, print_function, absolute_import,
 
 import unittest
 
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
+import unittest.mock as mock
+
 
 from ema_workbench.em_framework.model import Model
 from ema_workbench.em_framework.parameters import (RealParameter,
