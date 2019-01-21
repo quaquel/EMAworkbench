@@ -11,7 +11,7 @@ from ema_workbench.em_framework.samplers import LHSSampler
 from ema_workbench.em_framework.model import Model
 
 import unittest
-import mock
+import unittest.mock as mock
 
 from ema_workbench.em_framework.outcomes import create_outcomes
     

@@ -9,10 +9,8 @@ from __future__ import (unicode_literals, division, print_function,
 
 import logging
 
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
+import unittest.mock as mock
+
 
 import os
 import socket

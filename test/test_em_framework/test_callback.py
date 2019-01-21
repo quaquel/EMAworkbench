@@ -8,7 +8,6 @@ from __future__ import (absolute_import, print_function, division,
 import random
 import unittest
 
-import mock
 import numpy as np
 
 from ema_workbench.em_framework.callbacks import DefaultCallback

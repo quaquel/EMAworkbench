@@ -7,10 +7,8 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 from ema_workbench.em_framework.util import NamedObjectMap
 
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
+import unittest.mock as mock
+
 import unittest
 
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
