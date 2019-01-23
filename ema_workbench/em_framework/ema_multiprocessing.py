@@ -301,18 +301,19 @@ class ResultsReader(threading.Thread):
                 traceback.print_exc(file=sys.stderr)
 
 
-def add_tasks(pool, experiments, callback):
+def add_tasks(n_processes, pool, experiments, callback):
     '''add experiments to pool
 
     Parameters
     ----------
+    n_processes : int
     pool : Pool instance
     experiments : collection
     callback : callable
 
     '''
     
-    results_queue = queue.Queue()
+    results_queue = queue.Queue(maxsize=n_processes*5)
     
     feeder = ExperimentFeeder(pool, results_queue, experiments)
     reader = ResultsReader(results_queue, callback)
