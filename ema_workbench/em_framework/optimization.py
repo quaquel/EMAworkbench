@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
 import copy
+from enum import Enum
 import functools
 import math
 import os
@@ -13,16 +14,16 @@ import pandas as pd
 import random
 import warnings
 
+import numpy as np
+
 from .outcomes import AbstractOutcome
 
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
-from ..util import get_module_logger
-from ema_workbench.util.ema_exceptions import EMAError
-from ema_workbench.util.ema_logging import temporary_filter, INFO
-from ema_workbench.em_framework import callbacks, evaluators
+from ..util import get_module_logger, EMAError, temporary_filter, INFO
+from . import callbacks, evaluators
 
 try:
     from platypus import (
@@ -470,6 +471,8 @@ class AbstractConvergenceMetric(object):
     def __call__(self, optimizer):
         raise NotImplementedError
 
+    def reset(self):
+        self.results = []
 
 class EpsilonProgress(AbstractConvergenceMetric):
     '''epsilon progress convergence metric class'''
@@ -510,8 +513,9 @@ class HyperVolume(AbstractConvergenceMetric):
 
     @classmethod
     def from_outcomes(cls, outcomes):
-        ranges = [_.expected_range() for _ in outcomes]
-        return cls([_[0] for _ in ranges], [_[1] for _ in ranges])
+        ranges = [o.expected_range for o in outcomes if o.kind != o.INFO]
+        minimum, maximum = np.asarray(list(zip(*ranges)))
+        return cls(minimum, maximum)
 
 
 class ArchiveLogger(AbstractConvergenceMetric):
@@ -563,6 +567,16 @@ class OperatorProbabilities(AbstractConvergenceMetric):
             pass
 
 
+class ConvergenceMetrics(Enum):
+    HYPERVOLUME = HyperVolume
+    EPSPROGRESS = EpsilonProgress
+    LOGARCHIVE = ArchiveLogger
+
+    @classmethod
+    def has_value(cls, value):
+        return any(value == item.value for item in cls)
+
+
 class Convergence(object):
     '''helper class for tracking convergence of optimization'''
 
@@ -572,6 +586,7 @@ class Convergence(object):
         self.max_nfe = max_nfe
         self.generation = -1
         self.index = []
+        self.last_check = 0
 
         if metrics is None:
             metrics = []
@@ -579,19 +594,28 @@ class Convergence(object):
         self.metrics = metrics
 
         for metric in metrics:
-            assert metric.name in self.valid_metrics
+            assert ConvergenceMetrics.has_value(metric.__class__)
+            metric.reset()
 
-    def __call__(self, optimizer):
+    def __call__(self, optimizer, convergence_freq=1000, logging_freq=5):
         nfe = optimizer.algorithm.nfe
 
         self.generation += 1
-        self.index.append(nfe)
+        
+        if (nfe >= self.last_check + convergence_freq) or self.last_check==0:
+            self.index.append(nfe)
+            self.last_check = nfe 
+    
+            for metric in self.metrics:
+                metric(optimizer)
 
-        _logger.info(
-            "generation {}: {}/{} nfe".format(self.generation, nfe, self.max_nfe))
 
-        for metric in self.metrics:
-            metric(optimizer)
+        if self.generation % logging_freq == 0:
+            _logger.info(
+                "generation {}: {}/{} nfe".format(self.generation, nfe,
+                                                  self.max_nfe))
+
+
 
     def to_dataframe(self):
         progress = {metric.name: metric.results for metric in
@@ -600,11 +624,7 @@ class Convergence(object):
         progress = pd.DataFrame.from_dict(progress)
 
         if not progress.empty:
-            try:
-                progress['nfe'] = self.index
-            except ValueError as err:
-                progress['nfe'] = -1
-                warnings.warn(str(err))
+            progress['nfe'] = self.index
 
         return progress
 
@@ -851,7 +871,7 @@ class GenerationalBorg(EpsilonProgressContinuation):
                  generator=RandomGenerator(), selector=TournamentSelector(2),
                  variator=None, **kwargs):
 
-        L = len(problem.nvars)
+        L = problem.nvars
         p = 1 / L
 
         # Parameterization taken from
