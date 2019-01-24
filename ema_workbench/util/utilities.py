@@ -42,13 +42,14 @@ __all__ = ['load_results',
            ]
 _logger = get_module_logger(__name__)
 
+
 def load_results(file_name):
     '''
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
 
     Parameters
-    ----------    
+    ----------
     file_name : str
                 the path to the file
 
@@ -69,14 +70,14 @@ def load_results(file_name):
 
         # load experiment metadata
         metadata = z.extractfile('experiments metadata.csv').readlines()
- 
+
         for entry in metadata:
             entry = entry.decode('UTF-8')
             entry = entry.strip()
             entry = entry.split(",")
             name, dtype = [str(item) for item in entry]
-            if np.dtype(dtype)==object:
-                experiments[name] = experiments[name].astype('category') 
+            if np.dtype(dtype) == object:
+                experiments[name] = experiments[name].astype('category')
 
         # load outcome metadata
         metadata = z.extractfile('outcomes metadata.csv').readlines()
@@ -124,12 +125,12 @@ def load_results(file_name):
 def save_results(results, file_name):
     '''
     save the results to the specified tar.gz file. The results are
-    stored as csv files. There is an x.csv, and a csv for each 
+    stored as csv files. There is an x.csv, and a csv for each
     outcome. In addition, there is a metadata csv which contains
     the datatype information for each of the columns in the x array.
 
     Parameters
-    ----------    
+    ----------
     results : tuple
               the return of perform_experiments
     file_name : str
@@ -201,14 +202,14 @@ def experiments_to_scenarios(experiments, model=None):
     '''
 
     This function transform a structured experiments array into a list
-    of Scenarios. 
+    of Scenarios.
 
-    If model is provided, the uncertainties of the model are used. 
+    If model is provided, the uncertainties of the model are used.
     Otherwise, it is assumed that all non-default columns are
-    uncertainties. 
+    uncertainties.
 
     Parameters
-    ----------    
+    ----------
     experiments : numpy structured array
                   a structured array containing experiments
     model : ModelInstance, optional
@@ -219,7 +220,7 @@ def experiments_to_scenarios(experiments, model=None):
 
     '''
     # get the names of the uncertainties
-    if model == None:
+    if model is None:
         uncertainties = [entry[0] for entry in experiments.dtype.descr]
 
         # remove policy and model, leaving only the case related uncertainties
@@ -227,7 +228,7 @@ def experiments_to_scenarios(experiments, model=None):
             uncertainties.pop(uncertainties.index('policy'))
             uncertainties.pop(uncertainties.index('model'))
             uncertainties.pop(uncertainties.index('scenario_id'))
-        except:
+        except BaseException:
             pass
     else:
         uncertainties = [u.name for u in model.uncertainties]
@@ -256,20 +257,20 @@ def experiments_to_scenarios(experiments, model=None):
 
 def merge_results(results1, results2):
     '''
-    convenience function for merging the return from 
+    convenience function for merging the return from
     :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
 
     The function merges results2 with results1. For the experiments,
-    it generates an empty array equal to the size of the sum of the 
+    it generates an empty array equal to the size of the sum of the
     experiments. As dtype is uses the dtype from the experiments in results1.
     The function assumes that the ordering of dtypes and names is identical in
-    both results.  
+    both results.
 
-    A typical use case for this function is in combination with 
+    A typical use case for this function is in combination with
     :func:`~util.experiments_to_cases`. Using :func:`~util.experiments_to_cases`
     one extracts the cases from a first set of experiments. One then
     performs these cases on a different model or policy, and then one wants to
-    merge these new results with the old result for further analysis.  
+    merge these new results with the old result for further analysis.
 
     Parameters
     ----------
@@ -300,7 +301,7 @@ def merge_results(results1, results2):
     # merging results
     merged_res = {}
     for key in keys:
-        _logger.info("merge "+key)
+        _logger.info("merge " + key)
 
         value1 = res1.get(key)
         value2 = res2.get(key)
@@ -327,5 +328,5 @@ def get_ema_project_home_dir():
 
         home_dir = config.get('ema_project_home', 'home_dir')
         return home_dir
-    except:
+    except BaseException:
         return os.getcwd()

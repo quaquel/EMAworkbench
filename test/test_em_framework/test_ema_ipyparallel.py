@@ -9,10 +9,8 @@ from __future__ import (unicode_literals, division, print_function,
 
 import logging
 
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
+import unittest.mock as mock
+
 
 import os
 import socket
@@ -170,7 +168,7 @@ class TestEngineLoggerAdapter(unittest.TestCase):
     @mock.patch('ema_workbench.em_framework.ema_ipyparallel.EngingeLoggerAdapter')  
     @mock.patch('ema_workbench.em_framework.ema_ipyparallel.Application')
     def test_engine_logger(self, mocked_application, mocked_adapter):
-        logger = ema_logging.get_logger()
+        logger = ema_logging.get_rootlogger()
         mocked_logger = mock.Mock(spec=logger)
         mocked_logger.handlers = []
         mocked_logger.manager = mock.Mock(spec=logging.Manager)
@@ -238,7 +236,7 @@ class TestLogWatcher(unittest.TestCase):
       
     @classmethod
     def setUpClass(cls):
-        logger = ema_logging.get_logger()
+        logger = ema_logging.get_rootlogger()
         mocked_logger = mock.Mock(spec=logger)
         mocked_logger.handlers = []
         ema_logging._logger = mocked_logger

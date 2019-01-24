@@ -26,6 +26,7 @@ except ImportError:
 __all__ = ["SobolSampler", "MorrisSampler", "FASTSampler",
            'get_SALib_problem']
 
+
 def get_SALib_problem(uncertainties):
     '''returns a dict with a problem specificatin as required by SALib'''
 
@@ -46,14 +47,14 @@ class SALibSampler(object):
 
     def generate_samples(self, uncertainties, size):
         '''
-        The main method of :class: `~sampler.Sampler` and its 
-        children. This will call the sample method for each of the 
-        uncertainties and return the resulting designs. 
+        The main method of :class: `~sampler.Sampler` and its
+        children. This will call the sample method for each of the
+        uncertainties and return the resulting designs.
 
         Parameters
         ----------
         uncertainties : collection
-                        a collection of :class:`~uncertainties.ParameterUncertainty` 
+                        a collection of :class:`~uncertainties.ParameterUncertainty`
                         and :class:`~uncertainties.CategoricalUncertainty`
                         instances.
         size : int
@@ -69,7 +70,7 @@ class SALibSampler(object):
 
         problem = get_SALib_problem(uncertainties)
         samples = self.sample(problem, size)
-        
+
         temp = {}
         for i, unc in enumerate(uncertainties):
             sample = samples[:, i]
@@ -79,14 +80,14 @@ class SALibSampler(object):
 
         return temp
 
-    def generate_designs(self,  parameters, nr_samples):
+    def generate_designs(self, parameters, nr_samples):
         '''external interface to sampler. Returns the computational
-        experiments over the specified parameters, for the given number 
+        experiments over the specified parameters, for the given number
         of samples for each parameter.
 
         Parameters
         ----------
-        parameters : list 
+        parameters : list
                         a list of parameters for which to generate the
                         experimental designs
         nr_samples : int
@@ -147,7 +148,7 @@ class MorrisSampler(SALibSampler):
     optimal_trajectories : int, optional
         The number of optimal trajectories to sample (between 2 and N)
     local_optimization : bool, optional
-        Flag whether to use local optimization according to Ruano et al. (2012) 
+        Flag whether to use local optimization according to Ruano et al. (2012)
         Speeds up the process tremendously for bigger N and num_levels.
         Stating this variable to be true causes the function to ignore gurobi.
     '''
@@ -166,14 +167,14 @@ class MorrisSampler(SALibSampler):
 
 
 class FASTSampler(SALibSampler):
-    '''Sampler generating a Fourier Amplitude Sensitivity Test (FAST) using 
+    '''Sampler generating a Fourier Amplitude Sensitivity Test (FAST) using
     SALib
 
     Parameters
     ----------
     m : int (default: 4)
         The interference parameter, i.e., the number of harmonics to sum in the
-        Fourier series decomposition 
+        Fourier series decomposition
     '''
 
     def __init__(self, m=4):

@@ -13,8 +13,13 @@ from __future__ import (absolute_import, print_function, unicode_literals,
 
 import numpy as np
 
-from ema_workbench import (TimeSeriesOutcome, ScalarOutcome, ema_logging, Policy,
-                           MultiprocessingEvaluator, save_results)
+from ema_workbench import (
+    TimeSeriesOutcome,
+    ScalarOutcome,
+    ema_logging,
+    Policy,
+    MultiprocessingEvaluator,
+    save_results)
 from ema_workbench.em_framework.parameters import create_parameters
 from ema_workbench.connectors.vensim import VensimModel
 

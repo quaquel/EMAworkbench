@@ -1,9 +1,10 @@
 # Travis config for EMA workbench
 language: python
-sudo: false
+sudo: true
 
 python:
 - "3.6"
+- "3.7-dev"
 
 env:
 - DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn"

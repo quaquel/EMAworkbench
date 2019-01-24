@@ -6,7 +6,7 @@ Created on 21 jan. 2013
 from __future__ import (absolute_import, unicode_literals, division, 
                         print_function)
 
-import mock
+import unittest.mock as mock
 import unittest
 
 from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler, 

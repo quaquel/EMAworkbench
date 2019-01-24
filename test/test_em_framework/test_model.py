@@ -9,10 +9,8 @@ from __future__ import (print_function, absolute_import, unicode_literals,
 
 import unittest
 
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
+import unittest.mock as mock
+
 
 from ema_workbench.em_framework.model import Model, FileModel
 from ema_workbench.em_framework.parameters import (RealParameter, Policy, 

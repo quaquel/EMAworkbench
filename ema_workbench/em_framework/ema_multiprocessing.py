@@ -2,12 +2,8 @@
 support for using the multiprocessing library in combination with the workbench
 
 '''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
 from collections import defaultdict
 
-import io
 import logging
 import multiprocessing
 import os
@@ -31,6 +27,7 @@ from .model import AbstractModel
 __all__ = []
 
 _logger = get_module_logger(__name__)
+
 
 def initializer(*args):
     '''initializer for a worker process
@@ -100,12 +97,12 @@ def setup_logging(queue, log_level):
     '''
 
     # create a logger
-    logger = logging.getLogger(ema_logging.LOGGER_NAME+'.subprocess')
+    logger = logging.getLogger(ema_logging.LOGGER_NAME + '.subprocess')
     ema_logging._logger = logger
     logger.handlers = []
 
     # add the handler
-    handler = SubProcessLogHandler(queue)
+    handler = logging.handlers.QueueHandler(queue)
     handler.setFormatter(ema_logging.LOG_FORMAT)
     logger.addHandler(handler)
 
@@ -172,41 +169,6 @@ def worker(experiment):
     return experiment, experiment_runner.run_experiment(experiment)
 
 
-class SubProcessLogHandler(logging.Handler):
-    """handler used by subprocesses
-
-    It simply puts items on a Queue for the main process to log.
-
-    adapted a bit using code found in same stack overflow thread
-    so that exceptions can be logged. Exception stack traces cannot be pickled
-    so they cannot be put into the queue. Therefore they are formatted first
-    and then put into the queue as a normal message.
-
-    Found `online <http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python>`_
-
-    """
-
-    def __init__(self, queue):
-        logging.Handler.__init__(self)
-        self.queue = queue
-
-    def emit(self, record):
-        if record.exc_info:
-            # can't pass exc_info across processes so just format now
-            record.exc_text = self.formatException(record.exc_info)
-            record.exc_info = None
-        self.queue.put(record)
-
-    def formatException(self, ei):
-        sio = io.StringIO()
-        traceback.print_exception(ei[0], ei[1], ei[2], None, sio)
-        s = sio.getvalue()
-        sio.close()
-        if s[-1] == "\n":
-            s = s[:-1]
-        return s
-
-
 class LogQueueReader(threading.Thread):
     """
 
@@ -254,18 +216,18 @@ class LogQueueReader(threading.Thread):
                 break
             except TypeError:
                 break
-            except:
+            except BaseException:
                 traceback.print_exc(file=sys.stderr)
 
 
 class ExperimentFeeder(threading.Thread):
-    
+
     def __init__(self, pool, results_queue, experiments):
         threading.Thread.__init__(self, name="task feeder")
         self.pool = pool
         self.experiments = experiments
         self.results_queue = results_queue
-        
+
         self.daemon = True
 
     def run(self):
@@ -275,13 +237,13 @@ class ExperimentFeeder(threading.Thread):
 
 
 class ResultsReader(threading.Thread):
-    
+
     def __init__(self, queue, callback):
         threading.Thread.__init__(self, name="results reader")
         self.queue = queue
         self.callback = callback
         self.daemon = True
-    
+
     def run(self):
         while True:
             try:
@@ -290,7 +252,7 @@ class ResultsReader(threading.Thread):
                 if result is None:
                     _logger.debug("none received")
                     break
-                
+
                 self.callback(*result.get())
             except (KeyboardInterrupt, SystemExit):
                 raise
@@ -298,28 +260,30 @@ class ResultsReader(threading.Thread):
                 break
             except TypeError:
                 break
-            except:
+            except BaseException:
                 traceback.print_exc(file=sys.stderr)
 
 
-def add_tasks(pool, experiments, callback):
+def add_tasks(n_processes, pool, experiments, callback):
     '''add experiments to pool
 
     Parameters
     ----------
+    n_processes  : int
     pool : Pool instance
     experiments : collection
     callback : callable
 
     '''
-    
-    results_queue = queue.Queue()
-    
+    # by limiting task queue, we avoid putting all experiments on queue in 
+    # one go
+    results_queue = queue.Queue(maxsize=5*n_processes)
+
     feeder = ExperimentFeeder(pool, results_queue, experiments)
     reader = ResultsReader(results_queue, callback)
     feeder.start()
     reader.start()
-    
+
     feeder.join()
     results_queue.put(None)
     reader.join()

@@ -92,6 +92,49 @@ class PrimBoxTestCase(unittest.TestCase):
         box.update(new_box_lim, indices)
         
         box.inspect(1)
+        box.inspect()
+        box.inspect(style='graph')
+        
+        with self.assertRaises(ValueError):
+            box.inspect(style='some unknown style')
+    
+    def test_show_ppt(self):
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                          columns=['a', 'b', 'c'])
+        y = np.array([1,1,0])
+        
+        prim_obj = prim.Prim(x, y, threshold=0.8)
+        box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
+        
+        
+        cols = ['mean', 'mass', 'coverage', 'density', 'res_dim']
+        data = np.zeros((100, 5))
+        data[:, 0:4] = np.random.rand(100, 4)
+        data[:, 4] = np.random.randint(0, 5, size=(100, ))
+        box.peeling_trajectory = pd.DataFrame(data, columns=cols)
+        
+        box.show_ppt()
+        
+    def test_show_tradeoff(self):    
+        x = pd.DataFrame([(0,1,2),
+                          (2,5,6),
+                          (3,2,1)], 
+                          columns=['a', 'b', 'c'])
+        y = np.array([1,1,0])
+        
+        prim_obj = prim.Prim(x, y, threshold=0.8)
+        box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
+        
+        
+        cols = ['mean', 'mass', 'coverage', 'density', 'res_dim']
+        data = np.zeros((100, 5))
+        data[:, 0:4] = np.random.rand(100, 4)
+        data[:, 4] = np.random.randint(0, 5, size=(100, ))
+        box.peeling_trajectory = pd.DataFrame(data, columns=cols)
+        
+        box.show_tradeoff()    
     
     def test_update(self):
         x = pd.DataFrame([(0,1,2),

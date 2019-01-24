@@ -31,10 +31,10 @@ def pairs_lines(experiments, outcomes,
                 **kwargs):
     '''
 
-    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_ 
+    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     lines multiplot. It shows the behavior of two outcomes over time against
     each other. The origin is denoted with a circle and the end is denoted
-    with a '+'. 
+    with a '+'.
 
     Parameters
     ----------
@@ -43,24 +43,24 @@ def pairs_lines(experiments, outcomes,
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot.
     group_by : str, optional
-               name of the column in the cases array to group results by. 
-               Alternatively, `index` can be used to use indexing arrays as the 
+               name of the column in the cases array to group results by.
+               Alternatively, `index` can be used to use indexing arrays as the
                basis for grouping.
     grouping_specifiers : dict, optional
-                          dict of categories to be used as a basis for grouping 
-                          by. Grouping_specifiers is only meaningful if 
+                          dict of categories to be used as a basis for grouping
+                          by. Grouping_specifiers is only meaningful if
                           group_by is provided as well. In case of grouping by
-                          index, the grouping  specifiers should be in a 
-                          dictionary where the key denotes the name of the 
-                          group. 
+                          index, the grouping  specifiers should be in a
+                          dictionary where the key denotes the name of the
+                          group.
     ylabels : dict, optional
-              ylabels is a dictionary with the outcome names as keys, the 
-              specified values will be used as labels for the y axis. 
+              ylabels is a dictionary with the outcome names as keys, the
+              specified values will be used as labels for the y axis.
     legend : bool, optional
              if true, and group_by is given, show a legend.
     point_in_time : float, optional
-                    the point in time at which the scatter is to be made. If 
-                    None is provided (default), the end states are used. 
+                    the point in time at which the scatter is to be made. If
+                    None is provided (default), the end states are used.
                     point_in_time should be a valid value on time
 
     Returns
@@ -76,8 +76,13 @@ def pairs_lines(experiments, outcomes,
     # unravel return from run_experiments
     _logger.debug("making a pars lines plot")
 
-    prepared_data = prepare_pairs_data(experiments, outcomes, outcomes_to_show, group_by,
-                                       grouping_specifiers, None)
+    prepared_data = prepare_pairs_data(
+        experiments,
+        outcomes,
+        outcomes_to_show,
+        group_by,
+        grouping_specifiers,
+        None)
     outcomes, outcomes_to_show, grouping_labels = prepared_data
 
     grid = gridspec.GridSpec(len(outcomes_to_show), len(outcomes_to_show))
@@ -166,12 +171,12 @@ def pairs_density(experiments, outcomes,
                   filter_scalar=True):
     '''
 
-    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_ 
+    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     hexbin density multiplot. In case of time-series data, the end
     states are used.
 
-    hexbin makes hexagonal binning plot of x versus y, where x, y are 1-D 
-    sequences of the same length, N. If C is None (the default), this is a 
+    hexbin makes hexagonal binning plot of x versus y, where x, y are 1-D
+    sequences of the same length, N. If C is None (the default), this is a
     histogram of the number of occurences of the observations at (x[i],y[i]).
     For further detail see `matplotlib on hexbin <http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.hexbin>`_
 
@@ -182,32 +187,32 @@ def pairs_density(experiments, outcomes,
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot.
     group_by : str, optional
-               name of the column in the cases array to group results by. 
-               Alternatively, `index` can be used to use indexing arrays as the 
+               name of the column in the cases array to group results by.
+               Alternatively, `index` can be used to use indexing arrays as the
                basis for grouping.
     grouping_specifiers : dict, optional
-                          dict of categories to be used as a basis for grouping 
-                          by. Grouping_specifiers is only meaningful if 
+                          dict of categories to be used as a basis for grouping
+                          by. Grouping_specifiers is only meaningful if
                           group_by is provided as well. In case of grouping by
-                          index, the grouping  specifiers should be in a 
-                          dictionary where the key denotes the name of the 
-                          group. 
+                          index, the grouping  specifiers should be in a
+                          dictionary where the key denotes the name of the
+                          group.
     ylabels : dict, optional
-              ylabels is a dictionary with the outcome names as keys, the 
-              specified values will be used as labels for the y axis. 
+              ylabels is a dictionary with the outcome names as keys, the
+              specified values will be used as labels for the y axis.
     point_in_time : float, optional
-                    the point in time at which the scatter is to be made. If 
-                    None is provided (default), the end states are used. 
+                    the point in time at which the scatter is to be made. If
+                    None is provided (default), the end states are used.
                     point_in_time should be a valid value on time
     log: bool, optional
         indicating whether density should be log scaled. Defaults to True.
     gridsize : int, optional
                controls the gridsize for the hexagonal bining. (default = 50)
     cmap : str
-           color map that is to be used in generating the hexbin. For details 
+           color map that is to be used in generating the hexbin. For details
            on the available maps, see `pylab <http://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html#pylab-examples-show-colormaps>`_.
            (Defaults = coolwarm)
-    filter_scalar: bool, optional 
+    filter_scalar: bool, optional
                    remove the non-time-series outcomes. Defaults to True.
 
     Returns
@@ -221,9 +226,14 @@ def pairs_density(experiments, outcomes,
     '''
     _logger.debug("generating pairwise density plot")
 
-    prepared_data = prepare_pairs_data(experiments, outcomes, outcomes_to_show, group_by,
-                                       grouping_specifiers, point_in_time,
-                                       filter_scalar)
+    prepared_data = prepare_pairs_data(
+        experiments,
+        outcomes,
+        outcomes_to_show,
+        group_by,
+        grouping_specifiers,
+        point_in_time,
+        filter_scalar)
     outcomes, outcomes_to_show, grouping_specifiers = prepared_data
 
     if group_by:
@@ -319,8 +329,8 @@ def simple_pairs_density(outcomes,
     gridsize : int
     ylabels: dict
     extents : dict, optional
-             used to control scaling of plots across figures, If provided, it 
-             should be a dict with a tuple of outcomes as key and the extend to 
+             used to control scaling of plots across figures, If provided, it
+             should be a dict with a tuple of outcomes as key and the extend to
              be used as value.
     title : str, optional
 
@@ -382,7 +392,7 @@ def pairs_scatter(experiments, outcomes,
                   **kwargs):
     '''
 
-    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_ 
+    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     scatter multiplot. In case of time-series data, the end states are used.
 
     Parameters
@@ -392,26 +402,26 @@ def pairs_scatter(experiments, outcomes,
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot.
     group_by : str, optional
-               name of the column in the cases array to group results by. 
-               Alternatively, `index` can be used to use indexing arrays as the 
+               name of the column in the cases array to group results by.
+               Alternatively, `index` can be used to use indexing arrays as the
                basis for grouping.
     grouping_specifiers : dict, optional
-                          dict of categories to be used as a basis for grouping 
-                          by. Grouping_specifiers is only meaningful if 
+                          dict of categories to be used as a basis for grouping
+                          by. Grouping_specifiers is only meaningful if
                           group_by is provided as well. In case of grouping by
-                          index, the grouping  specifiers should be in a 
-                          dictionary where the key denotes the name of the 
-                          group. 
+                          index, the grouping  specifiers should be in a
+                          dictionary where the key denotes the name of the
+                          group.
     ylabels : dict, optional
-              ylabels is a dictionary with the outcome names as keys, the 
-              specified values will be used as labels for the y axis. 
+              ylabels is a dictionary with the outcome names as keys, the
+              specified values will be used as labels for the y axis.
     legend : bool, optional
              if true, and group_by is given, show a legend.
     point_in_time : float, optional
-                    the point in time at which the scatter is to be made. If 
-                    None is provided (default), the end states are used. 
+                    the point in time at which the scatter is to be made. If
+                    None is provided (default), the end states are used.
                     point_in_time should be a valid value on time
-    filter_scalar: bool, optional 
+    filter_scalar: bool, optional
                    remove the non-time-series outcomes. Defaults to True.
 
     Returns
@@ -422,16 +432,16 @@ def pairs_scatter(experiments, outcomes,
             key is tuple of names of outcomes, value is associated axes
             instance
 
-    .. note:: the current implementation is limited to seven different 
-              categories in case of column, categories, and/or 
+    .. note:: the current implementation is limited to seven different
+              categories in case of column, categories, and/or
               discretesize. This limit is due to the colors specified
-              in COLOR_LIST. 
+              in COLOR_LIST.
 
     '''
 
     _logger.debug("generating pairwise scatter plot")
 
-    prepared_data = prepare_pairs_data(experiments, outcomes, 
+    prepared_data = prepare_pairs_data(experiments, outcomes,
                                        outcomes_to_show, group_by,
                                        grouping_specifiers, point_in_time,
                                        filter_scalar)
@@ -498,7 +508,7 @@ def pairs_scatter(experiments, outcomes,
 def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
     '''
 
-    Helper function for setting the tick labels on the axes correctly on and 
+    Helper function for setting the tick labels on the axes correctly on and
     off
 
     Parameters
@@ -527,7 +537,7 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
                 transform=ax.transAxes)
 
     # are we at the end of the row?
-    if i != len(outcomes_to_show)-1:
+    if i != len(outcomes_to_show) - 1:
         # xaxis off
         ax.set_xticklabels([])
     else:
@@ -535,7 +545,7 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
             try:
                 ax.set_xlabel(ylabels.get(field2))
             except KeyError:
-                info("no label specified for "+field2)
+                info("no label specified for " + field2)
         else:
             ax.set_xlabel(field2)
 
@@ -548,6 +558,6 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
             try:
                 ax.set_ylabel(ylabels.get(field1))
             except KeyError:
-                info("no label specified for "+field1)
+                info("no label specified for " + field1)
         else:
             ax.set_ylabel(field1)

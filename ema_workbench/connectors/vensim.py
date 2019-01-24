@@ -1,10 +1,10 @@
 '''
 
-convenience functions and classes to be used in combination with Vensim. 
+convenience functions and classes to be used in combination with Vensim.
 
 Most importantly, it specifies a generic ModelStructureInterface class
-for controlling vensim models. In addition, this module contains frequently 
-used functions with error checking. For more fine grained control, the 
+for controlling vensim models. In addition, this module contains frequently
+used functions with error checking. For more fine grained control, the
 :mod:`vensimDLLwrapper` can also be used directly.
 
 '''
@@ -44,10 +44,11 @@ __all__ = ['be_quiet',
            'LookupUncertainty']
 _logger = get_module_logger(__name__)
 
+
 def be_quiet():
     '''
-    this allows you to turn off the work in progress dialog that Vensim 
-    displays during simulation and other activities, and also prevent the 
+    this allows you to turn off the work in progress dialog that Vensim
+    displays during simulation and other activities, and also prevent the
     appearance of yes or no dialogs.
 
     defaults to 2, suppressing all windows, for more fine grained control, use
@@ -58,7 +59,7 @@ def be_quiet():
 
 def load_model(file_name):
     '''
-    load the model 
+    load the model
 
     Parameters
     ----------
@@ -72,9 +73,9 @@ def load_model(file_name):
     .. note: only works for .vpm files
 
     '''
-    _logger.debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|"+file_name)
+    _logger.debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|" + file_name)
     try:
-        command("SPECIAL>LOADMODEL|"+str(file_name))
+        command("SPECIAL>LOADMODEL|" + str(file_name))
     except VensimWarning as w:
         _logger.warning(str(w))
         raise VensimError("vensim file not found")
@@ -94,9 +95,9 @@ def read_cin_file(file_name):
     VensimWarning if the cin file cannot be read.
 
     '''
-    _logger.debug("executing COMMAND: SIMULATE>READCIN|"+file_name)
+    _logger.debug("executing COMMAND: SIMULATE>READCIN|" + file_name)
     try:
-        command(r"SIMULATE>READCIN|"+str(file_name))
+        command(r"SIMULATE>READCIN|" + str(file_name))
     except VensimWarning as w:
         _logger.warning(str(w))
         raise w
@@ -107,7 +108,7 @@ def set_value(variable, value):
     set the value of a variable to value
 
     current implementation only works for lookups and normal values. In case
-    of a list, a lookup is assumed, else a normal value is assumed. 
+    of a list, a lookup is assumed, else a normal value is assumed.
     See the DSS reference supplement, p. 58 for details.
 
     Parameters
@@ -115,45 +116,48 @@ def set_value(variable, value):
     variable : str
                name of the variable to set.
     value : int, float, or list
-            the value for the variable. **note**: the value can be either a 
-            list, or an float/integer. If it is a list, it is assumed the 
+            the value for the variable. **note**: the value can be either a
+            list, or an float/integer. If it is a list, it is assumed the
             variable is a lookup.
     '''
     variable = str(variable)
 
     if isinstance(value, list):
         value = [str(entry) for entry in value]
-        command("SIMULATE>SETVAL|"+variable+"(" + str(value)[1:-1] + ")")
+        command("SIMULATE>SETVAL|" + variable + "(" + str(value)[1:-1] + ")")
     else:
         try:
-            command("SIMULATE>SETVAL|"+variable+"="+str(value))
+            command("SIMULATE>SETVAL|" + variable + "=" + str(value))
         except VensimWarning:
-            _logger.warning('variable: \'' + variable+'\' not found')
+            _logger.warning('variable: \'' + variable + '\' not found')
 
 
 def run_simulation(file_name):
-    ''' 
-    Convenient function to run a model and store the results of the run in 
-    the specified .vdf file. The specified output file will be overwritten 
+    '''
+    Convenient function to run a model and store the results of the run in
+    the specified .vdf file. The specified output file will be overwritten
     by default
 
     Parameters
     ----------
     file_name : str
-                the file name of the output file relative to the working 
+                the file name of the output file relative to the working
                 directory
 
     Raises
     ------
-    VensimError if running the model failed in some way. 
+    VensimError if running the model failed in some way.
 
     '''
 
     file_name = str(file_name)
 
     try:
-        _logger.debug(" executing COMMAND: SIMULATE>RUNNAME|"+file_name+"|O")
-        command("SIMULATE>RUNNAME|"+file_name+"|O")
+        _logger.debug(
+            " executing COMMAND: SIMULATE>RUNNAME|" +
+            file_name +
+            "|O")
+        command("SIMULATE>RUNNAME|" + file_name + "|O")
         _logger.debug("MENU>RUN|o")
         command("MENU>RUN|o")
     except VensimWarning as w:
@@ -162,8 +166,8 @@ def run_simulation(file_name):
 
 
 def get_data(filename, varname, step=1):
-    ''' 
-    Retrieves data from simulation runs or imported data sets. 
+    '''
+    Retrieves data from simulation runs or imported data sets.
 
     Parameters
     ----------
@@ -172,7 +176,7 @@ def get_data(filename, varname, step=1):
     varname : str
               the name of the variable to retrieve data on
     step : int (optional)
-           steps used in slicing. Defaults to 1, meaning the full recored time 
+           steps used in slicing. Defaults to 1, meaning the full recored time
            series is returned.
 
     Returns
@@ -199,8 +203,8 @@ def VensimModelStructureInterface(name, wd=None, model_file=None):
 
 class BaseVensimModel(FileModel):
     '''
-    This is a convenience extension of :class:`~model.ModelStructureInterface` 
-    that can be used as a base class for performing EMA on Vensim models. This 
+    This is a convenience extension of :class:`~model.ModelStructureInterface`
+    that can be used as a base class for performing EMA on Vensim models. This
     class will handle starting Vensim, loading a model, setting parameters
     on the model, running the model, and retrieving the results. To this end
     it implements:
@@ -213,11 +217,11 @@ class BaseVensimModel(FileModel):
     detail. That is, specify the uncertainties and the outcomes. For
     more elaborate cases, for example when using different policies, it might
     be necessary to overwrite or extent `model_init`, while for dealing with
-    lookups etc. it might be necessary to also extent `run_model`. The 
-    examples folder contains examples of each of these extensions. 
+    lookups etc. it might be necessary to also extent `run_model`. The
+    examples folder contains examples of each of these extensions.
 
-    .. note:: This class relies on the Vensim DLL, thus a complete installation 
-              of Vensim DSS is needed. 
+    .. note:: This class relies on the Vensim DLL, thus a complete installation
+              of Vensim DSS is needed.
 
     '''
 
@@ -234,15 +238,15 @@ class BaseVensimModel(FileModel):
         ----------
         name : str
                name of the modelInterface. The name should contain only
-               alpha-numerical characters.        
+               alpha-numerical characters.
         working_directory : str
-                            working_directory for the model. 
+                            working_directory for the model.
         model_file  : str
                      The path to the vensim model to be loaded.
 
         Raises
         ------
-        EMAError 
+        EMAError
             if name contains non alpha-numerical characters
         ValueError
             if model_file cannot be found or is not a vpm file
@@ -251,7 +255,7 @@ class BaseVensimModel(FileModel):
           should be specified in `model_init` and not
           in `src`. Otherwise, the code will not work when running
           it in parallel. The reason for this is that the working
-          directory is being updated by parallelEMA to the worker's 
+          directory is being updated by parallelEMA to the worker's
           separate working directory prior to calling `model_init`.
 
         """
@@ -277,8 +281,8 @@ class BaseVensimModel(FileModel):
         Init of the model, The provided implementation here assumes
         that `self.model_file`  is set correctly. In case of using different
         vensim models for different policies, it is recommended to extent
-        this method, extract the model file from the policy dict, set 
-        `self.model_file` to this file and then call this implementation 
+        this method, extract the model file from the policy dict, set
+        `self.model_file` to this file and then call this implementation
         through calling `super`.
 
         Parameters
@@ -304,19 +308,19 @@ class BaseVensimModel(FileModel):
             if savePer > 0:
                 timeStep = savePer
 
-            self.run_length = int((finalTime - initialTime)/timeStep + 1)
+            self.run_length = int((finalTime - initialTime) / timeStep + 1)
         except VensimWarning:
             raise EMAWarning(str(VensimWarning))
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
         """
-        Method for running an instantiated model structure. 
-        the provided implementation assumes that the keys in the 
-        case match the variable names in the Vensim model. 
+        Method for running an instantiated model structure.
+        the provided implementation assumes that the keys in the
+        case match the variable names in the Vensim model.
 
-        If lookups are to be set specify their transformation from 
-        uncertainties to lookup values in the extension of this method, 
+        If lookups are to be set specify their transformation from
+        uncertainties to lookup values in the extension of this method,
         then call this one using super with the updated case dict.
 
         if you want to use cin_files, set the cin_file, or cin_files in
@@ -328,7 +332,7 @@ class BaseVensimModel(FileModel):
 
         .. note:: setting parameters should always be done via run_model.
                   The model is reset to its initial values automatically after
-                  each run.  
+                  each run.
 
         """
         if self.cin_file:
@@ -392,7 +396,7 @@ class BaseVensimModel(FileModel):
 
     def reset_model(self):
         """
-        Method for reseting the model to its initial state before runModel 
+        Method for reseting the model to its initial state before runModel
         was called
         """
 
@@ -400,7 +404,7 @@ class BaseVensimModel(FileModel):
 
     def _delete_lookup_uncertainties(self):
         '''
-        deleting lookup uncertainties from the uncertainty list 
+        deleting lookup uncertainties from the uncertainty list
         '''
         self._lookup_uncertainties = self._lookup_uncertainties[:]
         self.uncertainties = [x for x in self.uncertainties if x not in
@@ -428,48 +432,48 @@ class LookupUncertainty(Parameter):
         Parameters
         ----------
         lookup_type : {'categories', 'hearne', 'approximation'}
-                      the method to be used for alternative generation. 
+                      the method to be used for alternative generation.
         values : collection
-                 the values for specifying the uncertainty from which to 
+                 the values for specifying the uncertainty from which to
                  sample.
-            If 'lookup_type' is "categories", a set of alternative lookup 
+            If 'lookup_type' is "categories", a set of alternative lookup
                 functions to  be entered as tuples of x,y points.
-                Example definition: 
-                LookupUncertainty([[(0.0, 0.05), (0.25, 0.15), (0.5, 0.4), 
-                                    (0.75, 1), (1, 1.25)], 
-                                  [(0.0, 0.1), (0.25, 0.25), (0.5, 0.75), 
+                Example definition:
+                LookupUncertainty([[(0.0, 0.05), (0.25, 0.15), (0.5, 0.4),
+                                    (0.75, 1), (1, 1.25)],
+                                  [(0.0, 0.1), (0.25, 0.25), (0.5, 0.75),
                                    (1, 1.25)],
-                                  [(0.0, 0.0), (0.1, 0.2), (0.3, 0.6), 
-                                   (0.6, 0.9), (1, 1.25)]], 
+                                  [(0.0, 0.0), (0.1, 0.2), (0.3, 0.6),
+                                   (0.6, 0.9), (1, 1.25)]],
                                    "TF3", 'categories', self )
-            if 'lookup_type' is "hearne1", a list of ranges for each parameter 
+            if 'lookup_type' is "hearne1", a list of ranges for each parameter
                 Single-extreme piecewise functions
                 m: maximum deviation from l of the distortion function
                 p: the point that this occurs
                 l: lower end point
                 u: upper end point
-            If 'lookup_type' is "hearne2", a list of ranges for each 
-                parameter. Double extreme piecewise linear functions with 
-                variable endpoints are used to distort the lookup functions. 
-                These functions are defined by 6 parameters, being m1, m2, p1, 
-                p2, l and u; and the uncertainty ranges for these 6 parameters 
-                should  be given as the values of this lookup uncertainty if 
-                Hearne's method is chosen. The meaning of these parameters is 
+            If 'lookup_type' is "hearne2", a list of ranges for each
+                parameter. Double extreme piecewise linear functions with
+                variable endpoints are used to distort the lookup functions.
+                These functions are defined by 6 parameters, being m1, m2, p1,
+                p2, l and u; and the uncertainty ranges for these 6 parameters
+                should  be given as the values of this lookup uncertainty if
+                Hearne's method is chosen. The meaning of these parameters is
                 simply:
-                m1: maximum deviation (peak if positive, bottom if negative) of 
+                m1: maximum deviation (peak if positive, bottom if negative) of
                  the distortion function from l in the first segment
                 p1: where this peak occurs in the x axis
-                m2: maximum deviation of the distortion function from l or u in 
+                m2: maximum deviation of the distortion function from l or u in
                     the second segment
                 p2: where the second peak/bottom occurs
                 l : lower end point, namely the y value for x_min
                 u : upper end point, namely the y value for x_max
                 Example definition:
-                LookupUncertainty([(-1, 2), (-1, 1), (0, 1), (0, 1), (0, 0.5), 
+                LookupUncertainty([(-1, 2), (-1, 1), (0, 1), (0, 1), (0, 0.5),
                                    (0.5, 1.5)], "TF2", 'hearne', self, 0, 2)
-             If 'lookup_type' is "approximation", an analytical function 
-                 approximation (a logistic function) will be used, instead of a 
-                 lookup. This function also has 6 parameters whose ranges should 
+             If 'lookup_type' is "approximation", an analytical function
+                 approximation (a logistic function) will be used, instead of a
+                 lookup. This function also has 6 parameters whose ranges should
                  be given:
                  A: the lower asymptote
                  K: the upper asymptote
@@ -479,13 +483,13 @@ class LookupUncertainty(Parameter):
         name : str
                name of the uncertainty
         msi : VensimModel instance
-              model structure interface, to be used for adding new 
+              model structure interface, to be used for adding new
               parameter uncertainties
         min : float
-              min value the lookup function can take, this argument is 
+              min value the lookup function can take, this argument is
               not needed in case of CAT
         max : float
-              max value the lookup function can take, this argument is 
+              max value the lookup function can take, this argument is
               not needed in case of CAT
 
         '''
@@ -500,31 +504,31 @@ class LookupUncertainty(Parameter):
                                     self.CAT: self._cat}
 
         if self.lookup_type == "categories":
-            msi.uncertainties.append(CategoricalParameter("c-"+self.name),
+            msi.uncertainties.append(CategoricalParameter("c-" + self.name),
                                      range(len(values)))
             msi._lookup_uncertainties.append(self)
         elif self.lookup_type == "hearne1":
-            msi.uncertainties.append(RealParameter("m-"+self.name,
+            msi.uncertainties.append(RealParameter("m-" + self.name,
                                                    *values[0]))
-            msi.uncertainties.append(RealParameter("p-"+self.name,
+            msi.uncertainties.append(RealParameter("p-" + self.name,
                                                    *values[1]))
-            msi.uncertainties.append(RealParameter("l-"+self.name,
+            msi.uncertainties.append(RealParameter("l-" + self.name,
                                                    *values[2]))
-            msi.uncertainties.append(RealParameter("u-"+self.name,
+            msi.uncertainties.append(RealParameter("u-" + self.name,
                                                    *values[3]))
             msi._lookup_uncertainties.append(self)
         elif self.lookup_type == "hearne2":
-            msi.uncertainties.append(RealParameter("m1-"+self.name),
+            msi.uncertainties.append(RealParameter("m1-" + self.name),
                                      *values[0])
-            msi.uncertainties.append(RealParameter("m2-"+self.name,
+            msi.uncertainties.append(RealParameter("m2-" + self.name,
                                                    *values[1]))
-            msi.uncertainties.append(RealParameter("p1-"+self.name,
+            msi.uncertainties.append(RealParameter("p1-" + self.name,
                                                    *values[2]))
-            msi.uncertainties.append(RealParameter("p2-"+self.name,
+            msi.uncertainties.append(RealParameter("p2-" + self.name,
                                                    *values[3]))
-            msi.uncertainties.append(RealParameter("l-"+self.name,
+            msi.uncertainties.append(RealParameter("l-" + self.name,
                                                    *values[4]))
-            msi.uncertainties.append(RealParameter("u-"+self.name,
+            msi.uncertainties.append(RealParameter("u-" + self.name,
                                                    values[5]))
             msi._lookup_uncertainties.append(self)
         elif self.lookup_type == "approximation":
@@ -594,7 +598,7 @@ class LookupUncertainty(Parameter):
         '''
         decimal.getcontext().prec = 3
         ex = math.exp(-B)
-        res = A+((K-A)/(1+Q*pow(ex, t)/pow(ex, M)))
+        res = A + ((K - A) / (1 + Q * pow(ex, t) / pow(ex, M)))
         return res
 
     def transform(self, case):
@@ -612,8 +616,8 @@ class LookupUncertainty(Parameter):
 
     def identity(self):
         '''
-        helper method that returns the elements that define an uncertainty. 
-        By default these are the name, the lower value of the range and the 
+        helper method that returns the elements that define an uncertainty.
+        By default these are the name, the lower value of the range and the
         upper value of the range.
 
         '''
@@ -622,81 +626,82 @@ class LookupUncertainty(Parameter):
         return (self.name, self.values[0], self.values[1])
 
     def _hearne1(self, case):
-        m = case['m-'+self.name]
-        p = case['p-'+self.name]
-        l = case['l-'+self.name]
-        u = case['u-'+self.name]
+        m = case['m-' + self.name]
+        p = case['p-' + self.name]
+        l = case['l-' + self.name]
+        u = case['u-' + self.name]
 
         for char in ['m-', 'p-', 'l-', 'u-']:
-            case.pop(char+self.name)
+            case.pop(char + self.name)
 
         df = []
         for i in self.x:
             if i < p:
-                df.append(l + ((m/(p-self.x_min))*i))
+                df.append(l + ((m / (p - self.x_min)) * i))
             else:
-                df.append(l + m - ((m+l-u)*(i-p)/(self.x_min-p)))
+                df.append(l + m - ((m + l - u) * (i - p) / (self.x_min - p)))
         new_lookup = []
         for i in range(len(self.x)):
-            new_lookup.append((self.x[i], max(min(df[i] *
-                                                  self.y[i], self.y_max), self.y_min)))
+            new_lookup.append(
+                (self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min)))
         return new_lookup
 
     def _hearne2(self, case):
-        m1 = case['m1-'+self.name]
-        m2 = case['m2-'+self.name]
-        p1 = case['p1-'+self.name]
-        p2 = case['p2-'+self.name]
-        l = case['l-'+self.name]
-        u = case['u-'+self.name]
+        m1 = case['m1-' + self.name]
+        m2 = case['m2-' + self.name]
+        p1 = case['p1-' + self.name]
+        p2 = case['p2-' + self.name]
+        l = case['l-' + self.name]
+        u = case['u-' + self.name]
 
         for char in ['m1-', 'm2-', 'p1-', 'p2-', 'l-', 'u-']:
-            case.pop(char+self.name)
+            case.pop(char + self.name)
 
         df = []  # distortion function
         for i in self.x:
             if i < p1:
-                df.append(l + ((m1/(p1-self.x_min))*i))
+                df.append(l + ((m1 / (p1 - self.x_min)) * i))
             else:
                 if i < p2:
-                    df.append(l + m1 - ((m1-m2+l-u)*(i-p1)/(p2-p1)))
+                    df.append(l + m1 - ((m1 - m2 + l - u) *
+                                        (i - p1) / (p2 - p1)))
                 else:
-                    df.append(u + m2 - (m2*(i-p2)/(self.x_max-p2)))
+                    df.append(u + m2 - (m2 * (i - p2) / (self.x_max - p2)))
         new_lookup = []
         for i in range(len(self.x)):
-            new_lookup.append((self.x[i], max(min(df[i]*self.y[i], self.y_max),
-                                              self.y_min)))
+            new_lookup.append(
+                (self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min)))
         return new_lookup
 
     def _approx(self, case):
-        A = case['A-'+self.name]
-        K = case['K-'+self.name]
-        B = case['B-'+self.name]
-        Q = case['Q-'+self.name]
-        M = case['M-'+self.name]
+        A = case['A-' + self.name]
+        K = case['K-' + self.name]
+        B = case['B-' + self.name]
+        Q = case['Q-' + self.name]
+        M = case['M-' + self.name]
 
         for char in ['A-', 'K-', 'B-', 'Q-', 'M-']:
-            case.pop(char+self.name)
+            case.pop(char + self.name)
 
         new_lookup = []
         if self.x_max > 10:
-            for i in range(int(self.x_min), int(self.x_max+1)):
+            for i in range(int(self.x_min), int(self.x_max + 1)):
                 new_lookup.append((i, max(min(
                     self._gen_log(i, A, K, B, Q, M),
                     self.y_max), self.y_min)))
         else:
-            for i in range(int(self.x_min*10),
-                           int(self.x_max*10+1),
+            for i in range(int(self.x_min * 10),
+                           int(self.x_max * 10 + 1),
                            max(int(self.x_max), 1)):
-                new_lookup.append((i/10,
-                                   max(min(self._gen_log(i/10,
+                new_lookup.append((i / 10,
+                                   max(min(self._gen_log(i / 10,
                                                          A, K, B, Q, M),
                                            self.y_max),
                                        self.y_min)))
         return new_lookup
 
     def _cat(self, case):
-        return self.values[case.pop('c-'+self.name)]
+        return self.values[case.pop('c-' + self.name)]
 
 
 class VensimModel(SingleReplication, BaseVensimModel):

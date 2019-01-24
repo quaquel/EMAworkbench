@@ -5,8 +5,8 @@ __all__ = ["ema_parallel", "parameters"
            "model", "outcomes", "samplers",
            "Model", 'FileModel', "ModelEnsemble",
            "ScalarOutcome", "TimeSeriesOutcome", "Constraint",
-           "RealParameter", "IntegerParameter", "CategoricalParameter", 
-           "BooleanParameter", "Scenario", "Policy", "Experiment", 
+           "RealParameter", "IntegerParameter", "CategoricalParameter",
+           "BooleanParameter", "Scenario", "Policy", "Experiment",
            "Constant", "create_parameters",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
            "get_SALib_problem", "FASTSampler",
@@ -19,10 +19,19 @@ from .outcomes import ScalarOutcome, TimeSeriesOutcome, Constraint
 from .model import Model, FileModel, ReplicatorModel
 
 
-from .parameters import (RealParameter, IntegerParameter, 
-                         CategoricalParameter, BooleanParameter,
-                         Scenario, Policy, Constant, Experiment, create_parameters,
-                         parameters_to_csv, Category, experiment_generator)
+from .parameters import (
+    RealParameter,
+    IntegerParameter,
+    CategoricalParameter,
+    BooleanParameter,
+    Scenario,
+    Policy,
+    Constant,
+    Experiment,
+    create_parameters,
+    parameters_to_csv,
+    Category,
+    experiment_generator)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
                        PartialFactorialSampler, sample_levers,
                        sample_uncertainties)

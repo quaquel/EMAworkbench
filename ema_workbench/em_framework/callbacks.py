@@ -38,6 +38,7 @@ __all__ = ['AbstractCallback',
            'FileBasedCallback']
 _logger = get_module_logger(__name__)
 
+
 class AbstractCallback(object):
     '''
     Abstract base class from which different call back classes can be derived.
@@ -64,20 +65,20 @@ class AbstractCallback(object):
     i : int
         a counter that keeps track of how many experiments have been
         saved
-    reporting_interval : int, 
+    reporting_interval : int,
                          the interval between progress logs
 
     '''
     __metaclass__ = abc.ABCMeta
 
     i = 0
-    
+
     def __init__(self, uncertainties, outcomes, levers,
                  nr_experiments, reporting_interval=None,
                  reporting_frequency=10):
         if reporting_interval is None:
-            reporting_interval = max(1,
-                        int(round(nr_experiments/reporting_frequency)))
+            reporting_interval = max(
+                1, int(round(nr_experiments / reporting_frequency)))
 
         self.reporting_interval = reporting_interval
 
@@ -98,19 +99,20 @@ class AbstractCallback(object):
 
         '''
         #
-        # TODO:: https://github.com/alexanderkuk/log-progress 
+        # TODO:: https://github.com/alexanderkuk/log-progress
         # can we detect whether we are running within Jupyter?
-        # yes: https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook 
+        # yes:
+        # https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
         self.i += 1
-        _logger.debug(str(self.i)+" cases completed")
+        _logger.debug(str(self.i) + " cases completed")
 
         if self.i % self.reporting_interval == 0:
-            _logger.info(str(self.i)+" cases completed")
+            _logger.info(str(self.i) + " cases completed")
 
     @abc.abstractmethod
     def get_results(self):
         """
-        method for retrieving the results. Called after all experiments 
+        method for retrieving the results. Called after all experiments
         have been completed. Any extension of AbstractCallback needs to
         implement this method.
         """
@@ -119,9 +121,9 @@ class AbstractCallback(object):
 class DefaultCallback(AbstractCallback):
     """
     default callback system
-    callback can be used in perform_experiments as a means for 
-    specifying the way in which the results should be handled. If no 
-    callback is specified, this default implementation is used. This 
+    callback can be used in perform_experiments as a means for
+    specifying the way in which the results should be handled. If no
+    callback is specified, this default implementation is used. This
     one can be overwritten or replaced with a callback of your own
     design. For example if you prefer to store the result in a database
     or write them to a text file
@@ -181,13 +183,13 @@ class DefaultCallback(AbstractCallback):
                 dataType = 'int'
             columns.append(name)
             dtypes.append(dataType)
-            
+
         for name in ['scenario', 'policy', 'model']:
             columns.append(name)
             dtypes.append('object')
-                
+
         df = pd.DataFrame(index=np.arange(nr_experiments))
-        
+
         for name, dtype in zip(columns, dtypes):
             df[name] = pd.Series(dtype=dtype)
         self.cases = df
@@ -201,13 +203,12 @@ class DefaultCallback(AbstractCallback):
         self.cases.at[index, 'scenario'] = scenario.name
         self.cases.at[index, 'policy'] = policy.name
         self.cases.at[index, 'model'] = experiment.model_name
-        
+
         for k, v in scenario.items():
             self.cases.at[index, k] = v
-            
+
         for k, v in policy.items():
             self.cases.at[index, k] = v
-        
 
     def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
@@ -257,64 +258,70 @@ class DefaultCallback(AbstractCallback):
 
     def get_results(self):
         return self.cases, self.results
-    
+
 
 class FileBasedCallback(AbstractCallback):
     '''
     Callback that stores data in csv files while running
-    
+
     Parameters
     ----------
     uncs : collection of Parameter instances
     levers : collection of Parameter instances
     outcomes : collection of Outcome instances
     nr_experiments : int
-    reporting_interval : int, optional 
+    reporting_interval : int, optional
     reporting_frequency : int, optional
-    
+
     the data is stored in ./temp, relative to the current
     working directory. If this directory already exists, it will be
     overwritten.
-    
+
     Warnings
     --------
     This class is still in beta. API is expected to change over the
     coming months.
-    
+
     '''
-    
-    def __init__(self, uncs, levers, outcomes, nr_experiments, 
-        reporting_interval=100, reporting_frequency=10):
-        super(FileBasedCallback, self).__init__(uncs, levers, outcomes,
-                nr_experiments, reporting_interval=reporting_interval,
-                reporting_frequency=reporting_frequency)
-        
+
+    def __init__(self, uncs, levers, outcomes, nr_experiments,
+                 reporting_interval=100, reporting_frequency=10):
+        super(
+            FileBasedCallback,
+            self).__init__(
+            uncs,
+            levers,
+            outcomes,
+            nr_experiments,
+            reporting_interval=reporting_interval,
+            reporting_frequency=reporting_frequency)
+
         self.i = 0
         self.nr_experiments = nr_experiments
         self.outcomes = [outcome.name for outcome in outcomes]
-        self.parameters = [parameter.name for parameter in uncs+levers]
- 
+        self.parameters = [parameter.name for parameter in uncs + levers]
+
         self.directory = os.path.abspath('./temp')
         if os.path.exists(self.directory):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
-        
+
         self.experiments_fh = open(os.path.join(self.directory,
                                                 'experiments.csv'), 'w')
-        
+
         header = self.parameters + ['scenario_id', 'policy', 'model']
         writer = csv.writer(self.experiments_fh)
         writer.writerow(header)
-        
+
         self.outcome_fhs = {}
         for outcome in self.outcomes:
-            self.outcome_fhs[outcome] = open(os.path.join(self.directory,
-                                                outcome+'.csv'), 'w')
+            self.outcome_fhs[outcome] = open(
+                os.path.join(self.directory, outcome + '.csv'), 'w')
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
         policy = experiment.policy
-        
+
         case = []
         for parameter in self.parameters:
             try:
@@ -333,16 +340,16 @@ class FileBasedCallback(AbstractCallback):
 
         writer = csv.writer(self.experiments_fh)
         writer.writerow(case)
-        
+
     def _store_outcomes(self, outcomes):
         for outcome in self.outcomes:
             data = outcomes[outcome]
-            
+
             try:
                 data = [str(entry) for entry in data]
             except TypeError:
                 data = [str(data)]
-            
+
             fh = self.outcome_fhs[outcome]
             writer = csv.writer(fh)
             writer.writerow(data)
@@ -366,13 +373,13 @@ class FileBasedCallback(AbstractCallback):
 
         # store outcomes
         self._store_outcomes(outcomes)
-    
+
     def get_results(self):
-        
+
         # TODO:: metadata
-        
+
         self.experiments_fh.close()
         for value in self.outcome_fhs.items():
             value.close
-        
+
         return self.directory

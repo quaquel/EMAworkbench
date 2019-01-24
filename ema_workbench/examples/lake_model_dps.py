@@ -1,27 +1,23 @@
 '''
-This example replicates Quinn, J.D., Reed, P.M., Keller, K. (2017) 
-Direct policy search for robust multi-objective management of deeply 
-uncertain socio-ecological tipping points. Environmental Modelling & 
+This example replicates Quinn, J.D., Reed, P.M., Keller, K. (2017)
+Direct policy search for robust multi-objective management of deeply
+uncertain socio-ecological tipping points. Environmental Modelling &
 Software 92, 125-141.
 
 It also show cases how the workbench can be used to apply the MORDM extension
-suggested by Watson, A.A., Kasprzyk, J.R. (2017) Incorporating deeply uncertain 
-factors into the many objective search process. Environmental Modelling & 
+suggested by Watson, A.A., Kasprzyk, J.R. (2017) Incorporating deeply uncertain
+factors into the many objective search process. Environmental Modelling &
 Software 89, 159-171.
 
 '''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
 import math
 import numpy as np
 
 from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
-                           ema_logging, MultiprocessingEvaluator, 
+                           ema_logging, MultiprocessingEvaluator,
                            CategoricalParameter, Scenario)
-from ema_workbench.em_framework.evaluators import SequentialEvaluator
 
 # Created on 1 Jun 2017
 #
@@ -52,7 +48,7 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
 
     '''
 
-    rule = w1*(abs(xt-c1)/r1)**3+(1-w1)*(abs(xt-c2)/r2)**3
+    rule = w1 * (abs(xt - c1) / r1)**3 + (1 - w1) * (abs(xt - c2) / r2)**3
     at1 = max(rule, 0.01)
     at = min(at1, 0.1)
 
@@ -73,8 +69,8 @@ def lake_problem(
     r1=0.5,
     r2=0.5,
         w1=0.5):
-    
-    Pcrit = brentq(lambda x: x**q/(1+x**q) - b*x, 0.01, 1.5)
+
+    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
 
     X = np.zeros((myears,))
     average_daily_P = np.zeros((myears,))
@@ -97,18 +93,18 @@ def lake_problem(
         for t in range(1, myears):
 
             # here we use the decision rule
-            decision = get_antropogenic_release(X[t-1], c1, c2, r1, r2, w1)
+            decision = get_antropogenic_release(X[t - 1], c1, c2, r1, r2, w1)
             decisions[t] = decision
 
-            X[t] = (1-b)*X[t-1] + X[t-1]**q/(1+X[t-1]**q) + decision +\
-                natural_inflows[t-1]
-            average_daily_P[t] += X[t]/nsamples
+            X[t] = (1 - b) * X[t - 1] + X[t - 1]**q / \
+                (1 + X[t - 1]**q) + decision + natural_inflows[t - 1]
+            average_daily_P[t] += X[t] / nsamples
 
-        reliability += np.sum(X < Pcrit)/(nsamples*myears)
-        inertia += np.sum(np.absolute(np.diff(decisions)
-                                      < 0.02)) / (nsamples*myears)
-        utility += np.sum(alpha*decisions*np.power(delta,
-                                                   np.arange(myears))) / nsamples
+        reliability += np.sum(X < Pcrit) / (nsamples * myears)
+        inertia += np.sum(np.absolute(np.diff(decisions) <
+                                      0.02)) / (nsamples * myears)
+        utility += np.sum(alpha * decisions * np.power(delta,
+                                                       np.arange(myears))) / nsamples
     max_P = np.max(average_daily_P)
 
     return max_P, utility, inertia, reliability
@@ -156,5 +152,5 @@ if __name__ == '__main__':
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         evaluator.optimize(searchover='levers', nfe=100000,
-                           epsilons=[0.1, ]*len(lake_model.outcomes),
+                           epsilons=[0.1, ] * len(lake_model.outcomes),
                            reference=reference)
