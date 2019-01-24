@@ -10,8 +10,8 @@ __all__ = ["ema_parallel", "parameters"
            "Constant", "create_parameters",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
            "get_SALib_problem", "FASTSampler",
-           "peform_experiments", 'optimize', "IpyparallelEvaluator",
-           "MultiprocessingEvaluator", "SequentialEvaluator"
+           "perform_experiments", 'optimize', "IpyparallelEvaluator",
+           "MultiprocessingEvaluator", "SequentialEvaluator", "DistributedEvaluator",
            'ReplicatorModel', "EpsilonProgress", "HyperVolume",
            "Convergence", "ArchiveLogger"]
 
@@ -41,7 +41,11 @@ from .evaluators import (perform_experiments, optimize,
                          MultiprocessingEvaluator, SequentialEvaluator)
 from .optimization import (Convergence, HyperVolume, EpsilonProgress,
                            ArchiveLogger)
-
+try:
+    from .ema_distributed import DistributedEvaluator
+except ImportError:
+    DistributedEvaluator = None
+    warnings.warn("dask.distributed not available", ImportWarning)
 
 try:
     from .evaluators import IpyparallelEvaluator
