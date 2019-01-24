@@ -8,6 +8,7 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
                            ScalarOutcome, TimeSeriesOutcome, Constant,
                            Scenario, Policy, MultiprocessingEvaluator,
                            IpyparallelEvaluator, SequentialEvaluator,
+                           DistributedEvaluator,
                            ReplicatorModel, Constraint)
 
 from . import util
