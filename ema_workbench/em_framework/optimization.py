@@ -5,6 +5,7 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
+import abc
 import copy
 from enum import Enum
 import functools
@@ -855,6 +856,18 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
         return results, convergence
 
 
+class BORGDefaultDescriptor(object):
+    # this treats defaults as class level attributes!
+    
+    def __init__(self, default_function):
+        self.default_function = default_function
+    
+    def __get__(self, instance, owner):
+        return self.default_function(instance.problem.nvars)
+
+    def __set_name__(self, owner, name):
+        self.name = name
+
 class GenerationalBorg(EpsilonProgressContinuation):
     '''A generational implementation of the BORG Framework
 
@@ -866,30 +879,65 @@ class GenerationalBorg(EpsilonProgressContinuation):
     Note:: limited to RealParameters only.
 
     '''
+    
+    sbx_prop = 1
+    sbx_dist = 15
+    
+    pcx_nparents = 3
+    pcx_noffspring = 2
+    pcx_eta = 0.1
+    pcx_zeta = 0.1
+    
+    de_rate = 0.6
+    de_stepsize = 0.6
+    
+    undx_nparents = 3
+    undx_noffspring = 2
+    undx_zeta = 0.5
+    undx_eta = BORGDefaultDescriptor(lambda x: 0.35 / math.sqrt(x))
+    
+    spx_nparents = BORGDefaultDescriptor(lambda x: x+1)
+    spx_noffspring = BORGDefaultDescriptor(lambda x: x+1)
+    spx_expansion = BORGDefaultDescriptor(lambda x: math.sqrt(x+2))
+    
+    pm_p = BORGDefaultDescriptor(lambda x: 1/x)
+    pm_dist = 20
+
+    um_p = BORGDefaultDescriptor(lambda x: x+1)
 
     def __init__(self, problem, epsilons, population_size=100,
                  generator=RandomGenerator(), selector=TournamentSelector(2),
                  variator=None, **kwargs):
-
-        L = problem.nvars
-        p = 1 / L
+        self.problem = problem
 
         # Parameterization taken from
         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
-        variators = [GAOperator(SBX(probability=1.0, distribution_index=15.0),
-                                PM(probability=p, distribution_index=20.0)),
-                     GAOperator(PCX(nparents=3, noffspring=2, eta=0.1, zeta=0.1),
-                                PM(probability=p, distribution_index=20.0)),
-                     GAOperator(DifferentialEvolution(crossover_rate=0.6,
-                                                      step_size=0.6),
-                                PM(probability=p, distribution_index=20.0)),
-                     GAOperator(UNDX(nparents=3, noffspring=2, zeta=0.5,
-                                     eta=0.35 / math.sqrt(L)),
-                                PM(probability=p, distribution_index=20.0)),
-                     GAOperator(SPX(nparents=L + 1, noffspring=L + 1,
-                                    expansion=math.sqrt(L + 2)),
-                                PM(probability=p, distribution_index=20.0)),
-                     UM(probability=1 / L)]
+        variators = [GAOperator(SBX(probability=self.sbx_prop, 
+                                    distribution_index=self.sbx_dist),
+                                PM(probability=self.pm_p, 
+                                   distribution_index=self.pm_dist)),
+                     GAOperator(PCX(nparents=self.pcx_nparents,
+                                    noffspring=self.pcx_noffspring,
+                                    eta=self.pcx_eta,
+                                    zeta=self.pcx_zeta),
+                                PM(probability=self.pm_p,
+                                   distribution_index=self.pm_dist)),
+                    GAOperator(DifferentialEvolution(crossover_rate=self.de_rate,
+                                                     step_size=self.de_stepsize),
+                               PM(probability=self.pm_p,
+                                  distribution_index=self.pm_dist)),
+                    GAOperator(UNDX(nparents=self.undx_nparents,
+                                    noffspring=self.undx_noffspring,
+                                    zeta=self.undx_zeta,
+                                    eta=self.undx_eta),
+                               PM(probability=self.pm_p,
+                                  distribution_index=self.pm_dist)),
+                    GAOperator(SPX(nparents=self.spx_nparents,
+                                   noffspring=self.spx_noffspring,
+                                   expansion=self.spx_expansion),
+                               PM(probability=self.pm_p,
+                                  distribution_index=self.pm_dist)),
+                     UM(probability=self.um_p)]
 
         variator = Multimethod(self, variators)
 
