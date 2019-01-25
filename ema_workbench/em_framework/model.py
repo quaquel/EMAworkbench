@@ -7,10 +7,8 @@ an instance of an extension of this abstract base class.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-import abc
 import operator
 import os
-import six
 import warnings
 
 try:
@@ -36,19 +34,7 @@ __all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator',
 _logger = get_module_logger(__name__)
 
 
-class ModelMeta(abc.ABCMeta):
-
-    def __new__(mcls, name, bases, namespace):  # @NoSelf
-
-        for key, value in namespace.items():
-            if isinstance(value, NamedObjectMapDescriptor):
-                value.name = key
-                value.internal_name = '_' + key
-
-        return abc.ABCMeta.__new__(mcls, name, bases, namespace)
-
-
-class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
+class AbstractModel(NamedObject):
     '''
     :class:`ModelStructureInterface` is one of the the two main
     classes used for performing EMA. This is an abstract base class
@@ -95,7 +81,6 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     levers = NamedObjectMapDescriptor(Parameter)
     outcomes = NamedObjectMapDescriptor(AbstractOutcome)
     constants = NamedObjectMapDescriptor(Constant)
-#     constraints = NamedObjectMapDescriptor(Constraint)
 
     def __init__(self, name):
         """interface to the model
