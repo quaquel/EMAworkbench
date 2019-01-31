@@ -227,7 +227,10 @@ def _in_box(x, boxlim):
     # TODO:: how to speed this up
     for column, values in x.select_dtypes(exclude=np.number).iteritems():
         entries = boxlim.loc[0, column]
-        not_present = set(values.cat.categories.values) - entries
+        if isinstance(values, pd.Series) and values.dtype == 'bool':
+            not_present = {False, True} - entries
+        else:
+            not_present = set(values.cat.categories.values) - entries
 
         if not_present:
             # what other options do we have here....
