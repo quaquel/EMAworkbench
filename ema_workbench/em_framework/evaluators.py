@@ -107,7 +107,7 @@ class BaseEvaluator(object):
         ''' finalize the evaluator'''
         raise NotImplementedError
 
-    def evaluate_experiments(self, scenarios, policies, callback):
+    def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
         '''used by ema_workbench'''
         raise NotImplementedError
 
@@ -154,7 +154,8 @@ class BaseEvaluator(object):
                             reporting_interval=None, reporting_frequency=10,
                             uncertainty_union=False, lever_union=False,
                             outcome_union=False, uncertainty_sampling=LHS,
-                            levers_sampling=LHS, callback=None):
+                            levers_sampling=LHS, callback=None,
+                            zipper=False):
         '''convenience method for performing experiments.
 
         is forwarded to :func:perform_experiments, with evaluator and
@@ -170,7 +171,8 @@ class BaseEvaluator(object):
                                    outcome_union=outcome_union,
                                    uncertainty_sampling=uncertainty_sampling,
                                    levers_sampling=levers_sampling,
-                                   callback=callback)
+                                   callback=callback,
+                                   zipper=zipper)
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
                  reference=None, constraints=None, **kwargs):
@@ -206,10 +208,10 @@ class SequentialEvaluator(BaseEvaluator):
     def finalize(self):
         pass
 
-    def evaluate_experiments(self, scenarios, policies, callback):
+    def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
         _logger.info("performing experiments sequentially")
 
-        ex_gen = experiment_generator(scenarios, self._msis, policies)
+        ex_gen = experiment_generator(scenarios, self._msis, policies, zipper)
 
         models = NamedObjectMap(AbstractModel)
         models.extend(self._msis)
@@ -292,8 +294,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
         if self.root_dir:
             shutil.rmtree(self.root_dir)
 
-    def evaluate_experiments(self, scenarios, policies, callback):
-        ex_gen = experiment_generator(scenarios, self._msis, policies)
+    def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
+        ex_gen = experiment_generator(scenarios, self._msis, policies, zipper)
         add_tasks(self.n_processes, self._pool, ex_gen, callback)
 
 
@@ -331,8 +333,8 @@ class IpyparallelEvaluator(BaseEvaluator):
         self.logwatcher.stop()
         cleanup(self.client)
 
-    def evaluate_experiments(self, scenarios, policies, callback):
-        ex_gen = experiment_generator(scenarios, self._msis, policies)
+    def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
+        ex_gen = experiment_generator(scenarios, self._msis, policies, zipper)
 
         lb_view = self.client.load_balanced_view()
         results = lb_view.map(_run_experiment,
@@ -347,7 +349,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         uncertainty_union=False, lever_union=False,
                         outcome_union=False, uncertainty_sampling=LHS,
                         levers_sampling=LHS, callback=None,
-                        return_callback=False):
+                        return_callback=False,
+                        zipper=False):
     '''sample uncertainties and levers, and perform the resulting experiments
     on each of the models
 
@@ -365,6 +368,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
     callback  : Callback instance, optional
     return_callback : boolean, optional
+    zipper : boolean, optional
 
     Returns
     -------
@@ -430,11 +434,19 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
     outcomes = determine_objects(models, 'outcomes', union=outcome_union)
 
-    nr_of_exp = n_models * n_scenarios * n_policies
-
-    _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
-                  '{} experiments').format(n_scenarios, n_policies,
-                                           n_models, nr_of_exp))
+    if zipper:
+        if n_scenarios != n_policies:
+            raise EMAError(f'zipper is True but '
+                           f'n_scenarios({n_scenarios}) != n_policies({n_policies}) ')
+        nr_of_exp = n_models * n_scenarios
+        _logger.info(('performing {} scenarios/policies * {} model(s) = '
+                      '{} experiments').format(n_scenarios,
+                                               n_models, nr_of_exp))
+    else:
+        nr_of_exp = n_models * n_scenarios * n_policies
+        _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
+                      '{} experiments').format(n_scenarios, n_policies,
+                                               n_models, nr_of_exp))
 
     if not callback:
         callback = DefaultCallback(
@@ -452,7 +464,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
-    evaluator.evaluate_experiments(scenarios, policies, callback)
+    evaluator.evaluate_experiments(scenarios, policies, callback, zipper=zipper)
 
     if callback.i != nr_of_exp:
         raise EMAError(('some fatal error has occurred while '

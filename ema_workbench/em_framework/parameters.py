@@ -476,7 +476,7 @@ class Experiment(NamedDict):
             name, **combine(scenario, policy, constants))
 
 
-def experiment_generator(scenarios, model_structures, policies):
+def experiment_generator(scenarios, model_structures, policies, zipper=False):
     '''
 
     generator function which yields experiments
@@ -486,6 +486,9 @@ def experiment_generator(scenarios, model_structures, policies):
     designs : iterable of dicts
     model_structures : list
     policies : list
+    zipper : bool
+        If True, experiments are generated for each pair of (scenario,policy)
+        instead of for each combination.
 
     Notes
     -----
@@ -495,7 +498,15 @@ def experiment_generator(scenarios, model_structures, policies):
     the running the first policy on the first model.
 
     '''
-    jobs = itertools.product(model_structures, policies, scenarios)
+    if zipper:
+        jobs = (
+            (i1, i2, i3)
+            for i1, (i2, i3) in itertools.product(
+                model_structures, zip(policies, scenarios)
+            )
+        )
+    else:
+        jobs = itertools.product(model_structures, policies, scenarios)
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job
