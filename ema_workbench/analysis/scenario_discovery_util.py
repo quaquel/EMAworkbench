@@ -739,7 +739,7 @@ class OutputFormatterMixin(object):
 
         raise NotImplementedError
 
-    def boxes_to_dataframe(self):
+    def boxes_to_dataframe(self, include_stats=False):
         '''convert boxes to pandas dataframe'''
 
         boxes = self.boxes
@@ -768,6 +768,12 @@ class OutputFormatterMixin(object):
                 values = box.loc[:, unc]
                 values = values.rename({0: 'min', 1: 'max'})
                 df_boxes.loc[unc][index[i]] = values
+
+        if include_stats:
+            df_stats = self.stats_to_dataframe()
+            df_stats.columns = pd.MultiIndex.from_product([['Box Statistics'], df_stats.columns, ])
+            return pd.concat([df_stats, df_boxes.stack().T], axis=1, sort=False)
+
         return df_boxes
 
     def stats_to_dataframe(self):
