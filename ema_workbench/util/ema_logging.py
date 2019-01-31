@@ -58,8 +58,8 @@ _module_loggers = {}
 _logger = get_module_logger(__name__)
 
 
-LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
-
+LOG_FORMAT = '[%(asctime)s %(processName)s/%(levelname)s] %(message)s'
+TIME_FORMAT = "%a %b %d %H:%M:%S"
 
 class TemporaryFilter(logging.Filter):
 
@@ -206,7 +206,7 @@ def log_to_stderr(level=None):
            (entry.formatter._fmt == LOG_FORMAT):
             return logger
 
-    formatter = logging.Formatter(LOG_FORMAT)
+    formatter = logging.Formatter(LOG_FORMAT, TIME_FORMAT)
     handler = logging.StreamHandler()
     handler.setLevel(level)
     handler.setFormatter(formatter)
