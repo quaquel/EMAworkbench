@@ -524,8 +524,13 @@ class HyperVolume(AbstractConvergenceMetric):
 
     @classmethod
     def from_outcomes(cls, outcomes):
-        ranges = [_.expected_range() for _ in outcomes]
-        return cls([_[0] for _ in ranges], [_[1] for _ in ranges])
+        try:
+            ranges = [_.expected_range() for _ in outcomes if _.kind!=0 ]
+        except:
+            ranges = [_.expected_range() for _ in outcomes]
+        lows = [_[0] for _ in ranges]
+        highs = [_[1] for _ in ranges]
+        return cls(lows, highs)
 
 
 class ArchiveLogger(AbstractConvergenceMetric):
