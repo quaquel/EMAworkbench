@@ -340,6 +340,8 @@ class PrimBox(object):
 
         box_zero = self.box_lims[0]
 
+        max_dims = max(len(i) for i in self.qp) + 1 # add 1 to include 0 dims as its own category
+
         for i, (entry, qp) in enumerate(zip(self.box_lims, self.qp)):
             qp = pd.DataFrame(qp, index=['qp_lower', 'qp_upper'])
             dims = qp.columns.tolist()
@@ -389,7 +391,7 @@ class PrimBox(object):
                 scale=alt.Scale(
                     range=sns.color_palette(
                         'YlGnBu',
-                        n_colors=8).as_hex())),
+                        n_colors=max(8, max_dims)).as_hex())),
             opacity=alt.condition(
                 point_selector,
                 alt.value(1),
