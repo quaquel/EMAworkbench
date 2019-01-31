@@ -766,6 +766,9 @@ class Prim(sdutil.OutputFormatterMixin):
                  peel_alpha=0.05, paste_alpha=0.05, mass_min=0.05,
                  threshold_type=ABOVE, mode=sdutil.BINARY,
                  update_function='default'):
+        x = x.reset_index(drop=True)
+        y = np.asarray(y).ravel()
+        assert y.size == len(x)
         assert mode in {sdutil.BINARY, sdutil.REGRESSION}
         assert self._assert_mode(y, mode, update_function)
 
