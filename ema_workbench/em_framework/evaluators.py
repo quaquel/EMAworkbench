@@ -14,6 +14,8 @@ import shutil
 import string
 import threading
 import warnings
+import operator
+import functools
 
 warnings.simplefilter("once", ImportWarning)
 
@@ -31,12 +33,14 @@ from .outcomes import ScalarOutcome, AbstractOutcome
 from .parameters import (experiment_generator, Scenario, Policy)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
                        PartialFactorialSampler, sample_levers,
-                       sample_uncertainties)
+                       sample_uncertainties, determine_parameters,
+                       DefaultDesigns)
 
 # TODO:: should become optional import
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
-from .util import NamedObjectMap, determine_objects
+from .util import NamedObjectMap, determine_objects, representation
 from ..util import EMAError, get_module_logger, ema_logging
+
 
 # Created on 5 Mar 2017
 #
@@ -196,6 +200,17 @@ class BaseEvaluator(object):
         '''
         return robust_optimize(self._msis, robustness_functions, scenarios,
                                self, algorithm=algorithm, nfe=nfe, **kwargs)
+
+    def robust_evaluate(self, robustness_functions, scenarios, policies,
+                        **kwargs):
+        '''convenience method for robust evaluation.
+
+        is forwarded to :func:robust_evaluate, with evaluator and models
+        arguments added in.
+
+        '''
+        return robust_evaluate(self._msis, robustness_functions, scenarios, policies,
+                               self, **kwargs)
 
 
 class SequentialEvaluator(BaseEvaluator):
@@ -559,7 +574,7 @@ def robust_optimize(model, robustness_functions, scenarios,
     '''
     for rf in robustness_functions:
         assert(isinstance(rf, ScalarOutcome))
-        assert(rf.kind != AbstractOutcome.INFO)
+        # assert(rf.kind != AbstractOutcome.INFO)
         assert(rf.function is not None)
 
     problem = to_robust_problem(model, scenarios, constraints=constraints,
@@ -569,5 +584,135 @@ def robust_optimize(model, robustness_functions, scenarios,
     if not evaluator:
         evaluator = SequentialEvaluator(model)
 
-    return _optimize(problem, evaluator, algorithm, convergence,
+    result = _optimize(problem, evaluator, algorithm, convergence,
                      int(nfe), **kwargs)
+
+    if isinstance(result, tuple) and len(result)==2:
+        result, result_convergence = result
+    else:
+        result_convergence = None
+
+
+    # Platypus does not process or save output measures that are just for info,
+    # so they must be re-created.
+    any_info_items = False
+    for rf in robustness_functions:
+        if rf.kind == ScalarOutcome.INFO:
+            any_info_items = True
+            break
+
+    if any_info_items:
+        result = robust_evaluate(model, robustness_functions, scenarios, policies=result,
+                        evaluator=evaluator, )
+
+    if result_convergence is None:
+        return result
+    else:
+        return result, result_convergence
+
+
+
+def designed_levers(models, df, union=True,
+                  name=representation):
+    '''generate policies by reading levers from a dataframe
+
+    Parameters
+    ----------
+    models : a collection of AbstractModel instances
+    df : pandas.DataFrame
+         Each row represents a policy in this design. Each lever
+         given in `models` should have a column in this dataframe.
+    union : bool, optional
+            in case of multiple models, sample over the union of
+            levers, or over the intersection of the levers
+    name : callable, optional
+           a callable to generate a name given the sampled values
+          for each lever
+
+    Returns
+    -------
+    generator yielding Policy instances
+
+    '''
+    levers = determine_parameters(models, 'levers', union=union)
+
+    parameters = sorted(levers, key=operator.attrgetter('name'))
+
+    designs = list(df[[p.name for p in parameters]].itertuples(index=False, name=None))
+
+    designs = DefaultDesigns(designs, parameters, len(df))
+    partial_policy = functools.partial(Policy, name=name)
+    designs.kind = partial_policy
+
+    return designs
+
+
+def robust_evaluate(model, robustness_functions, scenarios, policies,
+                    evaluator=None):
+    '''perform one-time evaluation of a model with robustness functions
+
+    Parameters
+    ----------
+    model : model instance
+    robustness_functions : collection of ScalarOutcomes
+    scenarios : int, or collection
+    policies : int, or collection
+    evaluator : Evaluator instance
+    constraints : list
+
+
+    '''
+    import pandas
+
+    for rf in robustness_functions:
+        assert(isinstance(rf, ScalarOutcome))
+        # assert(rf.kind != AbstractOutcome.INFO)
+        assert(rf.function is not None)
+
+
+    if isinstance(policies, pandas.DataFrame):
+        policies_df = policies
+        policies_it = designed_levers(model, policies)
+    else:
+        policies_it = policies
+        policies_df = pandas.DataFrame(policies)
+
+
+    # solve the optimization problem
+    if not evaluator:
+        evaluator = SequentialEvaluator(model)
+
+    from collections import OrderedDict
+    robust_outcomes = OrderedDict()
+
+    with evaluator as e:
+
+        for policy_id,policy in zip(policies_df.index, policies_it):
+
+            experiments, outcomes = e.perform_experiments(
+                scenarios=scenarios,
+                policies=[policy],
+                reporting_interval=len(policies_df)+1,
+            )
+
+            job_outcomes_dict = {}
+            job_outcomes = []
+            for rf in robustness_functions:
+                data = [outcomes[var_name] for var_name in
+                        rf.variable_name]
+                score = rf.function(*data)
+                job_outcomes_dict[rf.name] = score
+                job_outcomes.append(score)
+
+            robust_outcomes[policy_id] = job_outcomes
+
+    robust_outcomes = pandas.DataFrame.from_dict(
+        robust_outcomes,
+        orient='index',
+        columns=[rf.name for rf in robustness_functions],
+    )
+
+    policy_names = [i for i in policies_df.columns if i not in robust_outcomes.columns]
+
+    return pandas.concat([policies_df[policy_names], robust_outcomes], axis=1)
+
