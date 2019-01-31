@@ -692,7 +692,7 @@ def robust_evaluate(model, robustness_functions, scenarios, policies,
             experiments, outcomes = e.perform_experiments(
                 scenarios=scenarios,
                 policies=[policy],
-                reporting_interval=len(policies_df)+1,
+                reporting_interval=1e6,
             )
 
             job_outcomes_dict = {}
