@@ -35,6 +35,8 @@ class Constant(NamedObject):
 
     '''
 
+    dist = 'constant'
+
     def __init__(self, name, value):
         super(Constant, self).__init__(name)
         self.value = value
@@ -407,7 +409,7 @@ class Policy(NamedDict):
     # a unique experiment ID
     id_counter = Counter(1)
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name=Counter(), **kwargs):
         super(Policy, self).__init__(name, **kwargs)
         self.id = Policy.id_counter()
 
@@ -450,6 +452,8 @@ class Case(NamedObject):
         self.model_name = model_name
         self.scenario = scenario
 
+    def __repr__(self):
+        return f"Case(id={self.experiment_id}, {repr(self.policy)}, {repr(self.scenario)})"
 
 class Experiment(NamedDict):
     '''helper class that combines scenario, policy, any constants, and
