@@ -10,6 +10,9 @@ from ..util import ema_logging
 from .parameters import experiment_generator, Case
 from ..util.ema_exceptions import EMAError, CaseError
 
+from ema_workbench.util import get_module_logger
+_logger = get_module_logger(__name__)
+
 from dask.distributed import Client, as_completed, get_worker
 
 def store_model_on_worker(name, model):
@@ -72,7 +75,7 @@ def run_experiment_on_worker(experiment):
 	outcomes = model.outcomes_output
 	model.reset_model()
 
-	return experiment.experiment_id, outcomes
+	return experiment.experiment_id, outcomes.copy()
 
 def run_experiments_on_worker(experiments):
 	"""
@@ -150,10 +153,10 @@ class DistributedEvaluator(BaseEvaluator):
 		for msi in self._msis:
 			self.client.run(store_model_on_worker, msi.name, msi)
 
-	def evaluate_experiments(self, scenarios, policies, callback):
-		ema_logging.debug("evaluating experiments asynchronously")
+	def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
+		_logger.debug("evaluating experiments asynchronously")
 
-		ex_gen = experiment_generator(scenarios, self._msis, policies)
+		ex_gen = experiment_generator(scenarios, self._msis, policies, zipper)
 
 		cwd = os.getcwd()
 
@@ -171,14 +174,15 @@ class DistributedEvaluator(BaseEvaluator):
 			self.batch_size = math.ceil(n_experiments / n_workers / 10 )
 
 		# Experiments are sent to workers in batches, as the task-scheduler overhead is high for quick-running models.
-		outcomes = self.client.map(run_experiments_on_worker, grouper(experiments.values(), self.batch_size))
+		batches = grouper(experiments.values(), self.batch_size)
+		outcomes = self.client.map(run_experiments_on_worker, batches)
 
-		ema_logging.debug("receiving experiments asynchronously")
+		_logger.debug("receiving experiments asynchronously")
 
 		for future, result_batch in as_completed(outcomes, with_results=True):
 			for (experiment_id, outcome) in result_batch:
 				experiment = experiments[experiment_id]
-				ema_logging.debug(
+				_logger.debug(
 					log_message,
 					experiment.scenario.name,
 					experiment.policy.name,
@@ -188,4 +192,4 @@ class DistributedEvaluator(BaseEvaluator):
 
 		os.chdir(cwd)
 
-		ema_logging.debug("completed evaluate_experiments")
+		_logger.debug("completed evaluate_experiments")
