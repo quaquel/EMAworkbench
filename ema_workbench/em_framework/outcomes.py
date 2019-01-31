@@ -262,6 +262,16 @@ class Constraint(ScalarOutcome):
         assert value >= 0
         return value
 
+    @staticmethod
+    def must_be_less_than(value):
+        """Convenience method for upper-bound constraints"""
+        return lambda x:max(0, x-value)
+
+    @staticmethod
+    def must_be_greater_than(value):
+        """Convenience method for lower-bound constraints"""
+        return lambda x:max(0, value-x)
+
 
 def create_outcomes(outcomes, **kwargs):
     '''Helper function for creating multiple outcomes
