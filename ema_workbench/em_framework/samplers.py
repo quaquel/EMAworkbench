@@ -178,22 +178,17 @@ class LHSSampler(AbstractSampler):
 
         Parameters
         ----------
-        dist : random number generator from `scipy.stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
+        dist : random variable distribution from `scipy.stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
         parms : tuple
                 tuple of parameters as required for dist.
         siz : int
               number of samples
 
         '''
-        perc = np.arange(0, 1., 1. / siz)
+        perc = np.linspace(0, (siz-1)/siz, siz)
         np.random.shuffle(perc)
         smp = stats.uniform(perc, 1. / siz).rvs()
         v = dist(*parms).ppf(smp)
-
-        # corner case fix (try siz=49)
-        # is not a proper fix, it means that perc is wrong
-        # so your intervals are wrong
-        v = v[np.isnan(v) == False]
 
         return v
 
