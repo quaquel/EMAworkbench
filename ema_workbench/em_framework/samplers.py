@@ -504,6 +504,35 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
 
     return samples
 
+def sample_parameters(models, n_samples, union=True, sampler=LHSSampler()):
+    '''generate scenarios by sampling over the uncertainties
+
+    Parameters
+    ----------
+    models : a collection of AbstractModel instances
+    n_samples : int
+    union : bool, optional
+            in case of multiple models, sample over the union of
+            uncertainties, or over the intersection of the uncertainties
+    sampler : Sampler instance, optional
+
+    Returns
+    -------
+    generator
+        yielding Scenario instances
+    collection
+        the collection of parameters over which to sample
+    n_samples
+        the number of scenarios (!= n_samples in case off FF sampling)
+
+
+    '''
+    parms = determine_parameters(models, 'uncertainties', union=union) + determine_parameters(models, 'levers', union=union)
+    samples = sampler.generate_designs(parms, n_samples)
+    samples.kind = Scenario
+
+    return samples
+
 
 def from_experiments(models, experiments):
     '''generate scenarios from an existing experiments DataFrame
