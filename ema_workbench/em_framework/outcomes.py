@@ -226,12 +226,22 @@ class Constraint(ScalarOutcome):
     Parameters
     ----------
     name : str
-    variable_name : str or collection of str
+    parameter_names : str or collection of str, optional
+        The name of one or more named model parameters (i.e. uncertainties
+        or levers) which are used to calculate whether this constraint is
+        violated, and if so by how much.
+    outcome_names : str or collection of str, optional
+        The name of one or more named model outcomes which are used to
+        calculate whether this constraint is violated, and if so by how much.
     function : callable
-
-    The function should return the distance from the feasibility threshold,
-    given the model outputs with a variable name. The distance should be
-    0 if the constraint is met.
+        This function is called to evaluate the constraint. The arguments to
+        the function call will be the values of `parameter_names`, in the
+        order given, followed by the values of `outcome_names`, also in the
+        order given. All these values are passed to this function as positional
+        arguments, not keyword arguments.
+        The function should return the (positive) distance from the feasibility threshold,
+        given the model parameters and outcomes provided. The distance should be
+        0 if the constraint is met, or if the constraint is not binding.
 
     '''
 
