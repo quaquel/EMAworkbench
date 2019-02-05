@@ -25,6 +25,11 @@ from ..util.ema_logging import method_logger, get_module_logger
 _logger = get_module_logger(__name__)
 
 
+class NoDefaultSheetError(EMAError):
+    pass
+
+
+
 class BaseExcelModel(FileModel):
     '''
 
@@ -211,7 +216,7 @@ class BaseExcelModel(FileModel):
         if sheetname is None:
             _logger.warning("com error: no default sheet set")
             self.cleanup()
-            raise EMAError("com error: no default sheet set")
+            raise NoDefaultSheetError("com error: no default sheet set")
 
         if self.wb is None:
             raise EMAError("wb not open")
@@ -250,7 +255,10 @@ class BaseExcelModel(FileModel):
         else:
             this_sheet, this_range = self.default_sheet, name
 
-        sheet = self.get_sheet(this_sheet)
+        try:
+            sheet = self.get_sheet(this_sheet)
+        except NoDefaultSheetError:
+            raise EMAError(f"no default sheet while trying to read from '{name}'")
 
         try:
             value = sheet.Range(this_range).Value
@@ -279,13 +287,18 @@ class BaseExcelModel(FileModel):
         '''
 
         name = self.pointers.get(name, name)
+        if name is None:
+            return
 
         if "!" in name:
             this_sheet, this_range = name.split("!")
         else:
             this_sheet, this_range = self.default_sheet, name
 
-        sheet = self.get_sheet(this_sheet)
+        try:
+            sheet = self.get_sheet(this_sheet)
+        except NoDefaultSheetError:
+            raise EMAError(f"no default sheet while trying to write to '{name}'")
 
         try:
             sheet.Range(this_range).Value = value
