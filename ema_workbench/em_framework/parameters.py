@@ -179,7 +179,8 @@ class RealParameter(Parameter):
 
         valid_dist = {Parameter.UNIFORM, Parameter.TRIANGLE, Parameter.PERT}
 
-        dist = dist.lower()
+        if isinstance(dist, str):
+            dist = dist.lower()
         if dist not in valid_dist:
             raise ValueError(f"dist '{dist}' not in {valid_dist}")
 
@@ -265,7 +266,8 @@ class IntegerParameter(Parameter):
 
         valid_dist = {Parameter.INTEGER, Parameter.BERNOULLI}
 
-        dist = dist.lower()
+        if isinstance(dist, str):
+            dist = dist.lower()
         if dist not in valid_dist:
             raise ValueError(f"dist '{dist}' not in {valid_dist}")
 
