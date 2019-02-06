@@ -127,6 +127,7 @@ class AbstractSampler(object):
                      "triangle": stats.triang,
                      "triang": stats.triang,
                      "pert": _pert,
+                     "bernoulli": stats.bernoulli,
                      }
 
     def __init__(self):

@@ -84,6 +84,8 @@ class Parameter(Variable):
     __metaclass__ = abc.ABCMeta
 
     INTEGER = 'integer'
+    BERNOULLI = 'bernoulli'
+
     UNIFORM = 'uniform'
     TRIANGLE = 'triangle'
     PERT = 'pert'
@@ -261,14 +263,34 @@ class IntegerParameter(Parameter):
                 raise ValueError(('all entries in resolution should be '
                                   'integers'))
 
+        valid_dist = {Parameter.INTEGER, Parameter.BERNOULLI}
+
+        dist = dist.lower()
+        if dist not in valid_dist:
+            raise ValueError(f"dist '{dist}' not in {valid_dist}")
+
         self.dist = dist
-        self.dist_params = dist_params
+
+        if self.dist == Parameter.BERNOULLI:
+            assert lb_int == 0
+            assert up_int == 1
+
+        if isinstance(dist_params, numbers.Number):
+            self.dist_params = [dist_params]
+        elif isinstance(dist_params, Iterable):
+            self.dist_params = list(dist_params)
+        elif dist_params is None:
+            self.dist_params = []
+        else:
+            raise ValueError("cannot interpret dist_params")
 
     @property
     def params(self):
         # scipy.stats.randit uses closed upper bound, hence the +1
         if self.dist == Parameter.INTEGER:
             return (self.lower_bound, self.upper_bound + 1)
+        elif self.dist == Parameter.BERNOULLI:
+            return (self.dist_params[0] if len(self.dist_params)>0 else 0.5, )
         else:
             raise ValueError(f"unknown dist {self.dist}")
 
@@ -417,10 +439,11 @@ class BooleanParameter(IntegerParameter):
     '''
 
     def __init__(self, name, default=None, variable_name=None,
-                 pff=False):
+                 pff=False, dist=None, dist_params=None):
         super(BooleanParameter, self).__init__(
             name, 0, 1, resolution=None, default=default,
-            variable_name=variable_name, pff=pff)
+            variable_name=variable_name, pff=pff,
+            dist=dist, dist_params=dist_params)
 
         self.categories = [False, True]
         self.resolution = [0, 1]
