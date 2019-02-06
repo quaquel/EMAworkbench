@@ -583,7 +583,8 @@ class Convergence(object):
 
     valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
 
-    def __init__(self, metrics, max_nfe):
+    def __init__(self, metrics, max_nfe, convergence_freq=1000,
+                 logging_freq=5):
         self.max_nfe = max_nfe
         self.generation = -1
         self.index = []
@@ -593,17 +594,19 @@ class Convergence(object):
             metrics = []
 
         self.metrics = metrics
+        self.convergence_freq = convergence_freq
+        self.logging_freq = logging_freq
 
         for metric in metrics:
             assert ConvergenceMetrics.has_value(metric.__class__)
             metric.reset()
 
-    def __call__(self, optimizer, convergence_freq=1000, logging_freq=5):
+    def __call__(self, optimizer, ):
         nfe = optimizer.algorithm.nfe
 
         self.generation += 1
         
-        if (nfe >= self.last_check + convergence_freq) or self.last_check==0:
+        if (nfe >= self.last_check + self.convergence_freq) or self.last_check==0:
             self.index.append(nfe)
             self.last_check = nfe 
     
@@ -611,7 +614,7 @@ class Convergence(object):
                 metric(optimizer)
 
 
-        if self.generation % logging_freq == 0:
+        if self.generation % self.logging_freq == 0:
             _logger.info(
                 "generation {}: {}/{} nfe".format(self.generation, nfe,
                                                   self.max_nfe))
@@ -821,7 +824,7 @@ class CombinedMutator(CombinedVariator):
 
 
 def _optimize(problem, evaluator, algorithm, convergence, nfe,
-              **kwargs):
+              convergence_freq, logging_freq, **kwargs):
 
     klass = problem.types[0].__class__
 
@@ -835,7 +838,9 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
                           log_frequency=500, **kwargs)
     optimizer.mutator = mutator
 
-    convergence = Convergence(convergence, nfe)
+    convergence = Convergence(convergence, nfe,
+                              convergence_freq=convergence_freq,
+                              logging_freq=logging_freq)
     callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
 
@@ -868,6 +873,7 @@ class BORGDefaultDescriptor(object):
     def __set_name__(self, owner, name):
         self.name = name
 
+
 class GenerationalBorg(EpsilonProgressContinuation):
     '''A generational implementation of the BORG Framework
 
@@ -876,35 +882,37 @@ class GenerationalBorg(EpsilonProgressContinuation):
     algorithm, rather than the steady state implementation used by the BORG
     algorithm.
 
+    The parametrization of all operators is based on the default values as used
+    in Borg 1.9.
+
     Note:: limited to RealParameters only.
 
     '''
+    pm_p = BORGDefaultDescriptor(lambda x: 1/x)
+    pm_dist = 20
     
     sbx_prop = 1
     sbx_dist = 15
     
-    pcx_nparents = 3
+    de_rate = 0.1
+    de_stepsize = 0.5
+    
+    um_p = BORGDefaultDescriptor(lambda x: x+1)
+    
+    spx_nparents = 10
+    spx_noffspring = 2
+    spx_expansion = 0.3
+    
+    pcx_nparents = 10
     pcx_noffspring = 2
     pcx_eta = 0.1
     pcx_zeta = 0.1
     
-    de_rate = 0.6
-    de_stepsize = 0.6
-    
-    undx_nparents = 3
+    undx_nparents = 10
     undx_noffspring = 2
     undx_zeta = 0.5
-    undx_eta = BORGDefaultDescriptor(lambda x: 0.35 / math.sqrt(x))
+    undx_eta = 0.35
     
-    spx_nparents = BORGDefaultDescriptor(lambda x: x+1)
-    spx_noffspring = BORGDefaultDescriptor(lambda x: x+1)
-    spx_expansion = BORGDefaultDescriptor(lambda x: math.sqrt(x+2))
-    
-    pm_p = BORGDefaultDescriptor(lambda x: 1/x)
-    pm_dist = 20
-
-    um_p = BORGDefaultDescriptor(lambda x: x+1)
-
     def __init__(self, problem, epsilons, population_size=100,
                  generator=RandomGenerator(), selector=TournamentSelector(2),
                  variator=None, **kwargs):
