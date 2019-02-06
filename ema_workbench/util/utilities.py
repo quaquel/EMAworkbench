@@ -167,7 +167,7 @@ def save_results(results, file_name):
 
         # write experiment metadata
         metadatafile = WriterFile()
-        experiments.dtypes.to_csv(metadatafile)
+        experiments.dtypes.to_csv(metadatafile, header=False)
         add_file(z, metadatafile.getvalue(), 'experiments metadata.csv')
 
         # write outcome metadata
