@@ -45,5 +45,5 @@ print(prim_obj.stats_to_dataframe())
 print(prim_obj.boxes_to_dataframe())
 
 # visualize
-prim_obj.display_boxes()
+prim_obj.show_boxes()
 plt.show()
