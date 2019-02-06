@@ -85,6 +85,8 @@ class Parameter(Variable):
 
     INTEGER = 'integer'
     UNIFORM = 'uniform'
+    TRIANGLE = 'triangle'
+    PERT = 'pert'
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
@@ -136,6 +138,7 @@ class Parameter(Variable):
 
         return start
 
+from typing import Iterable
 
 class RealParameter(Parameter):
     ''' real valued model input parameter
@@ -159,7 +162,8 @@ class RealParameter(Parameter):
     '''
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None, pff=False):
+                 default=None, variable_name=None, pff=False,
+                 dist=Parameter.UNIFORM, dist_params=None):
         super(
             RealParameter,
             self).__init__(
@@ -171,11 +175,42 @@ class RealParameter(Parameter):
             variable_name=variable_name,
             pff=pff)
 
-        self.dist = Parameter.UNIFORM
+        valid_dist = {Parameter.UNIFORM, Parameter.TRIANGLE, Parameter.PERT}
+
+        dist = dist.lower()
+        if dist not in valid_dist:
+            raise ValueError(f"dist '{dist}' not in {valid_dist}")
+
+        self.dist = dist
+
+        if isinstance(dist_params, numbers.Number):
+            self.dist_params = [dist_params]
+        elif isinstance(dist_params, Iterable):
+            self.dist_params = list(dist_params)
+        elif dist_params is None:
+            self.dist_params = []
+        else:
+            raise ValueError("cannot interpret dist_params")
 
     @property
     def params(self):
-        return (self.lower_bound, self.upper_bound - self.lower_bound)
+        if self.dist == Parameter.UNIFORM:
+            return (self.lower_bound,
+                    self.upper_bound - self.lower_bound)
+
+        if self.dist == Parameter.TRIANGLE:
+            return (self.dist_params[0],
+                    self.lower_bound,
+                    self.upper_bound - self.lower_bound)
+
+        if self.dist == Parameter.PERT:
+            center = self.dist_params[0] if len(self.dist_params)>0 else 0.5
+            peak = self.upper_bound * center + self.lower_bound * (1-center)
+            return (self.lower_bound,
+                    peak,
+                    self.upper_bound,
+                    self.dist_params[1] if len(self.dist_params)>1 else 4.0)
+        raise ValueError(f"invalid dist {self.dist}")
 
 
 class IntegerParameter(Parameter):
@@ -202,7 +237,8 @@ class IntegerParameter(Parameter):
     '''
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None, pff=False):
+                 default=None, variable_name=None, pff=False,
+                 dist=Parameter.INTEGER, dist_params=None):
         super(
             IntegerParameter,
             self).__init__(
@@ -225,12 +261,16 @@ class IntegerParameter(Parameter):
                 raise ValueError(('all entries in resolution should be '
                                   'integers'))
 
-        self.dist = Parameter.INTEGER
+        self.dist = dist
+        self.dist_params = dist_params
 
     @property
     def params(self):
         # scipy.stats.randit uses closed upper bound, hence the +1
-        return (self.lower_bound, self.upper_bound + 1)
+        if self.dist == Parameter.INTEGER:
+            return (self.lower_bound, self.upper_bound + 1)
+        else:
+            raise ValueError(f"unknown dist {self.dist}")
 
 
 class CategoricalParameter(IntegerParameter):

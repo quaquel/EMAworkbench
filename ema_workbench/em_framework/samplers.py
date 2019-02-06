@@ -41,6 +41,71 @@ __all__ = ['AbstractSampler',
            'determine_parameters']
 
 
+
+
+def _pert(low, peak, high, gamma=4.0):
+    """
+    A PERT random variate
+
+    Parameters
+    ----------
+    low : scalar
+        Lower bound of the distribution support
+    peak : scalar
+        The location of the distribution's peak (low <= peak <= high)
+    high : scalar
+        Upper bound of the distribution support
+
+    Optional
+    --------
+    gamma : scalar
+        Controls the uncertainty of the distribution around the peak. Smaller
+        values make the distribution flatter and more uncertain around the
+        peak while larger values make it focused and less uncertain around
+        the peak. (Default: 4)
+    """
+    a, b, c = [float(x) for x in [low, peak, high]]
+    assert a <= b <= c, ('PERT "peak" must be greater than "low" and '
+                         'less than "high"')
+    assert gamma >= 0, 'PERT "g" must be non-negative'
+    mu = (a + gamma * b + c) / (gamma + 2)
+    if mu == b:
+        a1 = a2 = 3.0
+    else:
+        a1 = ((mu - a) * (2 * b - a - c)) / ((b - mu) * (c - a))
+        a2 = a1 * (c - mu) / (mu - a)
+
+    return _beta(a1, a2, a, c)
+
+
+def _beta(alpha, beta, low=0, high=1):
+    """
+    A Beta random variate
+
+    Parameters
+    ----------
+    alpha : scalar
+        The first shape parameter
+    beta : scalar
+        The second shape parameter
+
+    Optional
+    --------
+    low : scalar
+        Lower bound of the distribution support (default=0)
+    high : scalar
+        Upper bound of the distribution support (default=1)
+    """
+
+    assert alpha > 0 and beta > 0, (
+        'Beta "alpha" and "beta" parameters must be greater than zero')
+    assert low < high, 'Beta "low" must be less than "high"'
+
+    return stats.beta(alpha, beta, loc=low, scale=high - low)
+
+
+
+
 class AbstractSampler(object):
     '''
     Abstract base class from which different samplers can be derived.
@@ -57,7 +122,11 @@ class AbstractSampler(object):
     # distribution for sampling floats, and the `uniform discrete <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html#scipy.stats.randint>`_
     # distribution for sampling integers.
     distributions = {"uniform": stats.uniform,
-                     "integer": stats.randint
+                     "integer": stats.randint,
+                     "triangular": stats.triang,
+                     "triangle": stats.triang,
+                     "triang": stats.triang,
+                     "pert": _pert,
                      }
 
     def __init__(self):
