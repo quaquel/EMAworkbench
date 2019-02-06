@@ -64,9 +64,9 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
                list of outcome instances
     name : str
            alphanumerical name of model structure interface
-    output : dict
-             this should be a dict with the names of the outcomes as
-             key
+    outcomes_output : dict
+                      this should be a dict with the names of
+                      the outcomes as keys
 
     When extending this class :meth:`model_init` and
     :meth:`run_model` have to be implemented.
@@ -189,6 +189,10 @@ class AbstractModel(six.with_metaclass(ModelMeta, NamedObject)):
     @method_logger(__name__)
     def run_model(self, scenario, policy):
         """Method for running an instantiated model structure.
+
+        Note that this method does *not* return any outcomes.
+        Derived classes should write the resulting outcomes into
+        self.outcomes_output instead of returning them directly.
 
         Parameters
         ----------
