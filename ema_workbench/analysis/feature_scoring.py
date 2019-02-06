@@ -18,6 +18,7 @@ from sklearn.feature_selection.univariate_selection import (f_regression,
                                                             f_classif, chi2)
 
 from .scenario_discovery_util import CLASSIFICATION, REGRESSION
+from ..util import get_module_logger
 
 # Created on Jul 9, 2014
 #
@@ -31,11 +32,10 @@ __all__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2',
            'get_univariate_feature_scores', 'get_rf_feature_scores',
            'get_ex_feature_scores', 'get_feature_scores_all']
 
+_logger = get_module_logger(__name__)
+
 F_REGRESSION = f_regression
-
-
 F_CLASSIFICATION = f_classif
-
 CHI2 = chi2
 
 
@@ -63,7 +63,14 @@ def _prepare_experiments(experiments):
     x_nominal_columns = x_nominal.columns.values
 
     for column in x_nominal_columns:
-        x[column] = x[column].astype('category').cat.codes
+        if np.unique(x[column]).shape==(1,):
+            x = x.drop(column, axis=1)
+            _logger.info(("{} dropped from analysis "
+                          "because only a single category").format(column))
+        else:
+            x[column] = x[column].astype('category').cat.codes
+        
+    
 
     return x.values, x.columns.tolist()
 
