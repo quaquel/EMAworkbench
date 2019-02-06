@@ -110,16 +110,16 @@ class FeatureScoringTestCase(unittest.TestCase):
         # f classify
         scores = fs.get_univariate_feature_scores(x,y, 
                                                   score_func=F_CLASSIFICATION)
-        self.assertEqual(len(scores), len(x.columns))
+        self.assertEqual(len(scores), len(x.columns)-2)
 
         # chi2
         scores = fs.get_univariate_feature_scores(x,y, score_func=CHI2)
-        self.assertEqual(len(scores), len(x.columns))
+        self.assertEqual(len(scores), len(x.columns)-2)
         
         # f regression
         y= outcomes['deceased population region 1'][:,-1]
         scores = fs.get_univariate_feature_scores(x,y, score_func=F_REGRESSION)
-        self.assertEqual(len(scores), len(x.columns))
+        self.assertEqual(len(scores), len(x.columns)-2)
         
    
     def test_get_rf_feature_scores(self):
@@ -142,7 +142,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         scores, forest = fs.get_rf_feature_scores(x,y, mode=CLASSIFICATION,
                                                   random_state=10)
         
-        self.assertEqual(len(scores), len(x.columns))
+        self.assertEqual(len(scores), len(x.columns)-2)
         self.assertTrue(isinstance(forest, RandomForestClassifier))
         
         
@@ -153,7 +153,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         scores, forest = fs.get_rf_feature_scores(x,y, mode=REGRESSION, 
                                                   random_state=10)
         
-        self.assertEqual(len(scores), len(x.columns))
+        self.assertEqual(len(scores), len(x.columns)-2)
         self.assertTrue(isinstance(forest, RandomForestRegressor))
         
     def test_get_ex_feature_scores(self):
@@ -163,7 +163,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         scores, forest = fs.get_ex_feature_scores(x,y, mode=CLASSIFICATION,
                                                   random_state=10)
         
-        self.assertEqual(len(scores), len(x.columns))
+        self.assertEqual(len(scores), len(x.columns)-2)
         self.assertTrue(isinstance(forest, ExtraTreesClassifier))
         
         
@@ -174,7 +174,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         scores, forest = fs.get_ex_feature_scores(x,y, mode=REGRESSION, 
                                                   random_state=10)
         
-        self.assertEqual(len(scores), len(x.columns))
+        self.assertEqual(len(scores), len(x.columns)-2)
         self.assertTrue(isinstance(forest, ExtraTreesRegressor))
 
     def test_get_feature_scores_all(self):
@@ -185,7 +185,7 @@ class FeatureScoringTestCase(unittest.TestCase):
              'max. infected fraction':np.max(outcomes['infected fraction R1'], axis=1)}
         scores = fs.get_feature_scores_all(x,y)
         
-        self.assertEqual(len(scores), len(x.columns))
+        self.assertEqual(len(scores), len(x.columns)-2)
         self.assertTrue(scores.ndim==2)
 
 if __name__ == '__main__':
