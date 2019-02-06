@@ -109,7 +109,7 @@ class BaseExcelModel(FileModel):
         policy : dict
                  policy to be run.
         kwargs : dict
-                 keyword arguments to be used by model_intit. This
+                 keyword arguments to be used by model_init. This
                  gives users to the ability to pass any additional
                  arguments.
 
