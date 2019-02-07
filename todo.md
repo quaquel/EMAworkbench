@@ -1,4 +1,3 @@
-https://mattstauffer.com/blog/how-to-merge-only-specific-commits-from-a-pull-request/
 * add progress bar which is context aware (notebook, command line)
 * add altair based analysis to scenario discovery
 * add logistic regression scenario discovery approach
@@ -11,3 +10,5 @@ https://mattstauffer.com/blog/how-to-merge-only-specific-commits-from-a-pull-req
 * add feature scoring over time, and sobol over time
 * Sobol style confidence intervals around prim thresholds, is basically a small
   extension to the resampling statistic. 
+* parametrization of feature scoring according to Marc's paper.
+* add gini obj to PRIM --> adds classification as possible type of prim run

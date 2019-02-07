@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # from . import plotting_util
-from .plotting_util import (SCATTER, LINE, get_color,
+from .plotting_util import (LegendEnum, get_color,
                             prepare_pairs_data, make_legend)
 from ..util import get_module_logger
 
@@ -131,7 +131,7 @@ def pairs_lines(experiments, outcomes,
                     gs1.num2 == gs2.num2)):
                 break
 
-        make_legend(grouping_labels, ax, legend_type=LINE)
+        make_legend(grouping_labels, ax, legend_type=LegendEnum.LINE)
 
     return figure, axes_dict
 
@@ -500,7 +500,7 @@ def pairs_scatter(experiments, outcomes,
                     gs1.num2 == gs2.num2)):
                 break
 
-        make_legend(grouping_labels, ax, legend_type=SCATTER)
+        make_legend(grouping_labels, ax, legend_type=LegendEnum.SCATTER)
 
     return figure, axes_dict
 
@@ -545,7 +545,7 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
             try:
                 ax.set_xlabel(ylabels.get(field2))
             except KeyError:
-                info("no label specified for " + field2)
+                _logger.info("no label specified for " + field2)
         else:
             ax.set_xlabel(field2)
 
@@ -558,6 +558,6 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
             try:
                 ax.set_ylabel(ylabels.get(field1))
             except KeyError:
-                info("no label specified for " + field1)
+                _logger.info("no label specified for " + field1)
         else:
             ax.set_ylabel(field1)

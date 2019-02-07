@@ -16,7 +16,7 @@ from sklearn.ensemble.forest import RandomForestRegressor, ExtraTreesClassifier,
 
 from ema_workbench.analysis import feature_scoring as fs
 from ema_workbench.analysis.feature_scoring import F_CLASSIFICATION, CHI2, F_REGRESSION
-from ema_workbench.analysis.scenario_discovery_util import CLASSIFICATION, REGRESSION
+from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
 from ema_workbench.util import ema_logging
 from test import utilities
 
@@ -139,7 +139,8 @@ class FeatureScoringTestCase(unittest.TestCase):
         
         y = classify(outcomes)
                 
-        scores, forest = fs.get_rf_feature_scores(x,y, mode=CLASSIFICATION,
+        scores, forest = fs.get_rf_feature_scores(x,y,
+                                                  mode=RuleInductionType.CLASSIFICATION,
                                                   random_state=10)
         
         self.assertEqual(len(scores), len(x.columns)-2)
@@ -150,7 +151,8 @@ class FeatureScoringTestCase(unittest.TestCase):
                           mode='illegal argument')
         
         y = outcomes['deceased population region 1'][:,-1]
-        scores, forest = fs.get_rf_feature_scores(x,y, mode=REGRESSION, 
+        scores, forest = fs.get_rf_feature_scores(x,y,
+                                                  mode=RuleInductionType.REGRESSION, 
                                                   random_state=10)
         
         self.assertEqual(len(scores), len(x.columns)-2)
@@ -160,7 +162,8 @@ class FeatureScoringTestCase(unittest.TestCase):
         x, outcomes = utilities.load_flu_data()
         y = outcomes['deceased population region 1'][:, -1] > 1000000
                 
-        scores, forest = fs.get_ex_feature_scores(x,y, mode=CLASSIFICATION,
+        scores, forest = fs.get_ex_feature_scores(x,y,
+                                                  mode=RuleInductionType.CLASSIFICATION,
                                                   random_state=10)
         
         self.assertEqual(len(scores), len(x.columns)-2)
@@ -171,7 +174,8 @@ class FeatureScoringTestCase(unittest.TestCase):
                           mode='illegal argument')
         
         y = outcomes['deceased population region 1'][:,-1]
-        scores, forest = fs.get_ex_feature_scores(x,y, mode=REGRESSION, 
+        scores, forest = fs.get_ex_feature_scores(x,y,
+                                                  mode=RuleInductionType.REGRESSION, 
                                                   random_state=10)
         
         self.assertEqual(len(scores), len(x.columns)-2)

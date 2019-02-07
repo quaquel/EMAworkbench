@@ -843,7 +843,7 @@ class Prim(sdutil.OutputFormatterMixin):
                minimum mass of a box (default = 0.05).
     threshold_type : {ABOVE, BELOW}
                      whether to look above or below the threshold value
-    mode : {'binary', 'classification'}, optional
+    mode : {RuleInductionType.BINARY, RuleInductionType.REGRESSION}, optional
             indicated whether PRIM is used for regression, or for scenario
             classification in which case y should be a binary vector
     update_function = {'default', 'guivarch'}, optional
@@ -867,9 +867,10 @@ class Prim(sdutil.OutputFormatterMixin):
     def __init__(self, x, y, threshold,
                  obj_function=PRIMObjectiveFunctions.LENIENT1,
                  peel_alpha=0.05, paste_alpha=0.05, mass_min=0.05,
-                 threshold_type=ABOVE, mode=sdutil.BINARY,
+                 threshold_type=ABOVE, mode=sdutil.RuleInductionType.BINARY,
                  update_function='default'):
-        assert mode in {sdutil.BINARY, sdutil.REGRESSION}
+        assert mode in {sdutil.RuleInductionType.BINARY,
+                        sdutil.RuleInductionType.REGRESSION}
         assert self._assert_mode(y, mode, update_function)
 
         # preprocess x
@@ -1561,7 +1562,7 @@ class Prim(sdutil.OutputFormatterMixin):
             return -1
 
     def _assert_mode(self, y, mode, update_function):
-        if mode == sdutil.BINARY:
+        if mode == sdutil.RuleInductionType.BINARY:
             return set(np.unique(y)) == {0, 1}
         if update_function == 'guivarch':
             return False
