@@ -14,7 +14,7 @@ import matplotlib as mpl
 from ema_workbench.analysis import cart
 from test import utilities
 
-from ema_workbench.analysis.scenario_discovery_util import BINARY, REGRESSION, CLASSIFICATION
+from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
 
 
 def flu_classify(data):
@@ -50,7 +50,7 @@ class CartTestCase(unittest.TestCase):
         alg = cart.setup_cart(results, flu_classify,
                               mass_min=0.05)
         
-        self.assertTrue(alg.mode==BINARY)
+        self.assertTrue(alg.mode==RuleInductionType.BINARY)
 
         x, outcomes = results
         y = {k:v[:, -1] for k,v in outcomes.items()}
@@ -58,7 +58,7 @@ class CartTestCase(unittest.TestCase):
         alg = cart.setup_cart(temp_results,
                               'deceased population region 1',
                               mass_min=0.05)
-        self.assertTrue(alg.mode==REGRESSION)
+        self.assertTrue(alg.mode==RuleInductionType.REGRESSION)
 
         n_cols = 5
         unc = x.columns.values[0:n_cols]
@@ -66,7 +66,7 @@ class CartTestCase(unittest.TestCase):
                               flu_classify,
                               mass_min=0.05,
                               incl_unc=unc)
-        self.assertTrue(alg.mode==BINARY)
+        self.assertTrue(alg.mode==RuleInductionType.BINARY)
         self.assertTrue(alg.x.shape[1]==n_cols)
 
         with self.assertRaises(TypeError):
@@ -88,7 +88,7 @@ class CartTestCase(unittest.TestCase):
         np.random.seed(42)
         x = pd.DataFrame(np.random.rand(1000,2), columns=['a', 'b'])
         y = (x.a>0.5) & (x.b <0.5)
-        alg = cart.CART(x,y, mode=BINARY)
+        alg = cart.CART(x,y, mode=RuleInductionType.BINARY)
         alg.build_tree()
         
         boxes = alg.boxes
@@ -108,7 +108,7 @@ class CartTestCase(unittest.TestCase):
                             columns=['a', 'b', 'c'])
 
         y = np.array([0,1,1])
-        alg = cart.CART(x,y, mode=BINARY)
+        alg = cart.CART(x,y, mode=RuleInductionType.BINARY)
         alg._boxes = [box]
         alg.clf = "something"
         stats = alg.stats[0]
@@ -119,7 +119,7 @@ class CartTestCase(unittest.TestCase):
         self.assertEqual(stats['mass'], 2/3)
         
         y = np.array([0,1,2])
-        alg = cart.CART(x,y, mode=REGRESSION)
+        alg = cart.CART(x,y, mode=RuleInductionType.REGRESSION)
         alg._boxes = [box]
         alg.clf = "something"
         stats = alg.stats[0]
@@ -129,7 +129,7 @@ class CartTestCase(unittest.TestCase):
         self.assertEqual(stats['mass'], 2/3)
 
         y = np.array([0,1,2])
-        alg = cart.CART(x,y, mode=CLASSIFICATION)
+        alg = cart.CART(x,y, mode=RuleInductionType.CLASSIFICATION)
         alg._boxes = [box]
         alg.clf = "something"
         stats = alg.stats[0]

@@ -5,6 +5,7 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import abc
+import enum
 import itertools
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -21,15 +22,18 @@ from .plotting_util import COLOR_LIST, make_legend
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-REGRESSION = 'regression'
-'''constant indicating regression mode'''
+__all__ = ["RuleInductionType"]
 
-BINARY = 'binary'
-'''constant indicating binary classification mode. This is the most
-common used mode in scenario discovery'''
-
-CLASSIFICATION = 'classification'
-'''constant indicating classification mode'''
+class RuleInductionType(enum.Enum):
+    REGRESSION = 'regression'
+    '''constant indicating regression mode'''
+    
+    BINARY = 'binary'
+    '''constant indicating binary classification mode. This is the most
+    common used mode in scenario discovery'''
+    
+    CLASSIFICATION = 'classification'
+    '''constant indicating classification mode'''
 
 
 def _get_sorted_box_lims(boxes, box_init):
@@ -266,10 +270,10 @@ def _setup(results, classify, incl_unc=[]):
         x = x.drop(drop_names, axis=1)
     if isinstance(classify, str):
         y = outcomes[classify]
-        mode = REGRESSION
+        mode = RuleInductionType.REGRESSION
     elif callable(classify):
         y = classify(outcomes)
-        mode = BINARY
+        mode = RuleInductionType.BINARY
     else:
         raise TypeError("unknown type for classify")
 

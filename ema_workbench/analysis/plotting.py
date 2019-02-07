@@ -17,8 +17,7 @@ from matplotlib.patches import ConnectionPatch
 from .plotting_util import (prepare_data, simple_kde, group_density,
                             make_grid, make_legend, plot_envelope,
                             simple_density, do_titles, do_ylabels, TIME,
-                            ENV_LIN, ENVELOPE, LINES, PATCH, LINE,
-                            KDE, get_color)
+                            PlotType, get_color, Density, LegendEnum)
 from ..util import EMAError, get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -159,9 +158,9 @@ def envelopes(experiments,
                 break
         if fill:
             make_legend(grouping_labels, ax, alpha=0.3,
-                        legend_type=PATCH)
+                        legend_type=LegendEnum.PATCH)
         else:
-            make_legend(grouping_labels, ax, legend_type=LINE)
+            make_legend(grouping_labels, ax, legend_type=LegendEnum.LINE)
 
     return figure, axes_dict
 
@@ -661,12 +660,12 @@ def multiple_densities(experiments,
                        outcomes_to_show=[],
                        group_by=None,
                        grouping_specifiers=None,
-                       density=KDE,
+                       density=Density.KDE,
                        legend=True,
                        titles={},
                        ylabels={},
                        experiments_to_show=None,
-                       plot_type=ENVELOPE,
+                       plot_type=PlotType.ENVELOPE,
                        log=False,
                        **kwargs):
     ''' Make an envelope plot with multiple density plots over the run time
@@ -693,7 +692,8 @@ def multiple_densities(experiments,
                           index, the grouping specifiers should be in a
                           dictionary where the key denotes the name of the
                           group.
-    density : {KDE, HIST, VIOLIN, BOXPLOT}, optional
+    density : {Density.KDE, Density.HIST, Density.VIOLIN, Density.BOXPLOT},
+              optional
     legend : bool, optional
     titles : dict, optional
              a way for controlling whether each of the axes should have a
@@ -709,7 +709,7 @@ def multiple_densities(experiments,
     experiments_to_show : ndarray, optional
                           indices of experiments to show lines for,
                           defaults to None.
-    plot_type : {ENVELOPE, ENV_LIN, LINES}, optional
+    plot_type : {PlotType.ENVELOPE, PlotType.ENV_LIN, PlotType.LINES}, optional
     log : bool, optional
 
     Returns
@@ -817,11 +817,11 @@ def multiple_densities(experiments,
         for j, key in enumerate(grouping_labels):
             value = outcomes[key][outcome_to_show]
 
-            if plot_type == ENVELOPE:
+            if plot_type == PlotType.ENVELOPE:
                 plot_envelope(ax_env, j, time, value, **kwargs)
-            elif plot_type == LINES:
+            elif plot_type == PlotType.LINES:
                 ax_env.plot(time.T, value.T)
-            elif plot_type == ENV_LIN:
+            elif plot_type == PlotType.ENV_LIN:
                 plot_envelope(ax_env, j, time, value, **kwargs)
                 if experiments_to_show is not None:
                     ax_env.plot(time.T, value[experiments_to_show].T)
@@ -856,10 +856,10 @@ def multiple_densities(experiments,
             ax_env.add_artist(con)
 
         if legend and group_by:
-            lt = PATCH
+            lt = LegendEnum.PATCH
             alpha = 0.3
-            if plot_type == LINES:
-                lt = LINE
+            if plot_type == PlotType.LINES:
+                lt = LegendEnum.LINE
                 alpha = 1
             make_legend(grouping_labels, ax_env, legend_type=lt, alpha=alpha)
     return figures, axes_dicts
