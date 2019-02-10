@@ -9,8 +9,12 @@ from __future__ import (absolute_import, print_function, division,
 
 import os
 
-import win32com.client  # @UnresolvedImport
-from win32com.universal import com_error  # @UnresolvedImport
+try:
+    import win32com.client  # @UnresolvedImport
+    from win32com.universal import com_error  # @UnresolvedImport
+except ImportError:
+    win32com = None
+    com_error = RuntimeError
 
 from ..util import EMAError
 from ..em_framework.model import FileModel
@@ -119,6 +123,8 @@ class BaseExcelModel(FileModel):
         if not self.xl:
             try:
                 _logger.debug("trying to start Excel")
+                if win32com is None:
+                    raise ImportError('win32com')
                 self.xl = win32com.client.Dispatch("Excel.Application")
                 _logger.debug("Excel started")
             except com_error as e:
