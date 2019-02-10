@@ -606,7 +606,7 @@ class PrimBox(object):
         y = self.prim.y[self.yi_initial]
 
         if len(self._resampled) < iterations:
-            with temporary_filter(ema_logging.LOGGER_NAME, INFO, 'find_box'):
+            with temporary_filter(__name__, INFO, 'find_box'):
                 for j in range(len(self._resampled), iterations):
                     _logger.info('resample {}'.format(j))
                     index = np.random.choice(x.index, size=int(x.shape[0] * p),
@@ -1005,6 +1005,7 @@ class Prim(sdutil.OutputFormatterMixin):
                                  box.density,
                                  box.res_dim)
 
+        
         if (self.threshold_type == ABOVE) &\
            (box.mean >= self.threshold):
             _logger.info(message)
@@ -1297,7 +1298,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
                 if type(list(entries)[0]) not in (str, float,
                                                   int, bool):
-                    for element in x[u]:
+                    for element in x[:, j]:
                         if element != entry:
                             bools.append(True)
                         else:

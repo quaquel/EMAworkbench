@@ -9,7 +9,7 @@ from __future__ import (division, unicode_literals, print_function,
 from math import exp
 
 from ema_workbench.em_framework import (RealParameter, CategoricalParameter,
-                                        Outcome, perform_experiments)
+                                        TimeSeriesOutcome, perform_experiments)
 from ema_workbench.util import ema_logging
 from ema_workbench.connectors.vensim import VensimModel
 
@@ -71,13 +71,13 @@ if __name__ == "__main__":
     model = ScarcityModel("scarcity", wd=r'./models/scarcity',
                           model_file=r'\MetalsEMA.vpm')
 
-    model.outcomes = [Outcome('relative market price', time=True),
-                      Outcome('supply demand ratio', time=True),
-                      Outcome('real annual demand', time=True),
-                      Outcome('produced of intrinsically demanded', time=True),
-                      Outcome('supply', time=True),
-                      Outcome('Installed Recycling Capacity', time=True),
-                      Outcome('Installed Extraction Capacity', time=True)]
+    model.outcomes = [TimeSeriesOutcome('relative market price'),
+                      TimeSeriesOutcome('supply demand ratio'),
+                      TimeSeriesOutcome('real annual demand'),
+                      TimeSeriesOutcome('produced of intrinsically demanded'),
+                      TimeSeriesOutcome('supply'),
+                      TimeSeriesOutcome('Installed Recycling Capacity'),
+                      TimeSeriesOutcome('Installed Extraction Capacity')]
 
     model.uncertainties = [
         RealParameter("price elasticity of demand", 0, 0.5),

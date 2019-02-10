@@ -19,7 +19,7 @@ from ..util import get_module_logger
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['Outcome', 'ScalarOutcome', 'TimeSeriesOutcome']
+__all__ = ['Outcome', 'ScalarOutcome', 'ArrayOutcome', 'TimeSeriesOutcome']
 _logger = get_module_logger(__name__)
 
 
@@ -43,6 +43,7 @@ class AbstractOutcome(Variable):
     expected_range : 2 tuple, optional
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
+    shape : {tuple, None} optional
 
     Attributes
     ----------
@@ -57,7 +58,8 @@ class AbstractOutcome(Variable):
     INFO = 0
 
     def __init__(self, name, kind=INFO, variable_name=None,
-                 function=None, expected_range=None):
+                 function=None, expected_range=None, 
+                 shape=None):
         super(AbstractOutcome, self).__init__(name)
 
         if function is not None and not callable(function):
@@ -73,6 +75,7 @@ class AbstractOutcome(Variable):
         self.variable_name = variable_name
         self.function = function
         self._expected_range = expected_range
+        self.shape = shape
 
     def process(self, values):
         if self.function:
@@ -179,8 +182,49 @@ class ScalarOutcome(AbstractOutcome):
     
 
 
+class ArrayOutcome(AbstractOutcome):
+    '''Array Outcome class for n-dimensional collections
 
-class TimeSeriesOutcome(AbstractOutcome):
+    Parameters
+    ----------
+    name : str
+           Name of the outcome.
+    variable_name : str, optional
+                    if the name of the outcome in the underlying model
+                    is different from the name of the outcome, you can
+                    supply the variable name as an optional argument,
+                    if not provided, defaults to name
+    function : callable, optional
+               a callable to perform postprocessing on data retrieved
+               from model
+    expected_range : 2 tuple, optional
+                     expected min and max value for outcome,
+                     used by HyperVolume convergence metric
+    shape : {tuple, None}, optional
+
+    '''
+    def __init__(self, name, variable_name=None,
+                 function=None, expected_range=None,
+                 shape=None):
+        super(
+            ArrayOutcome,
+            self).__init__(
+            name,
+            kind=AbstractOutcome.INFO,
+            variable_name=variable_name,
+            function=function,
+            expected_range=expected_range,
+            shape=shape)
+
+    def process(self, values):
+        values = super(ArrayOutcome, self).process(values)
+        if not isinstance(values, collections.Iterable):
+            raise EMAError(
+                "outcome {} should be a collection".format(self.name))
+        return values    
+
+
+class TimeSeriesOutcome(ArrayOutcome):
     '''
     TimeSeries Outcome class
 
@@ -199,6 +243,7 @@ class TimeSeriesOutcome(AbstractOutcome):
     expected_range : 2 tuple, optional
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
+    shape : {tuple, None}, optional
 
     Attributes
     ----------
@@ -209,22 +254,16 @@ class TimeSeriesOutcome(AbstractOutcome):
     '''
 
     def __init__(self, name, variable_name=None,
-                 function=None, expected_range=None):
+                 function=None, expected_range=None,
+                 shape=None):
         super(
             TimeSeriesOutcome,
             self).__init__(
             name,
-            kind=AbstractOutcome.INFO,
             variable_name=variable_name,
             function=function,
-            expected_range=expected_range)
-
-    def process(self, values):
-        values = super(TimeSeriesOutcome, self).process(values)
-        if not isinstance(values, collections.Iterable):
-            raise EMAError(
-                "outcome {} should be a collection".format(self.name))
-        return values
+            expected_range=expected_range,
+            shape=shape)
 
 
 class Constraint(ScalarOutcome):

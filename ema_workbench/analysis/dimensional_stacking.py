@@ -353,10 +353,11 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
 
     '''
     scores = feature_scoring.get_ex_feature_scores(x, y)[0]
+    x = x[scores.index]
 
     n = nr_levels * 2
 
-    scores = scores[0].values.tolist()
+    scores = scores.index.tolist()
     rows = [entry for entry in scores[0:n:2]]
     columns = [entry for entry in scores[1:n:2]]
 

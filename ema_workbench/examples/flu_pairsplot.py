@@ -39,7 +39,7 @@ for key, value in outcomes.items():
         logical = value.T == np.max(value, axis=1)
         tr['time of max'] = time[logical.T]
 
-pairs_scatter((experiments, tr), filter_scalar=False)
-pairs_lines((experiments, outcomes))
-pairs_density((experiments, tr), filter_scalar=False)
+pairs_scatter(experiments, tr, filter_scalar=False)
+pairs_lines(experiments, outcomes)
+pairs_density(experiments, tr, filter_scalar=False)
 plt.show()

@@ -8,18 +8,10 @@ is the same as used in fluExample
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
-from __future__ import (absolute_import, print_function, unicode_literals,
-                        division)
-
 import numpy as np
 
-from ema_workbench import (
-    TimeSeriesOutcome,
-    ScalarOutcome,
-    ema_logging,
-    Policy,
-    MultiprocessingEvaluator,
-    save_results)
+from ema_workbench import (TimeSeriesOutcome, ScalarOutcome, ema_logging,
+                           Policy, MultiprocessingEvaluator, save_results)
 from ema_workbench.em_framework.parameters import create_parameters
 from ema_workbench.connectors.vensim import VensimModel
 

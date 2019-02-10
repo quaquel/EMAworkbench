@@ -10,8 +10,7 @@ import numpy as np
 
 from ema_workbench import ema_logging, load_results
 
-from ema_workbench.analysis.plotting import lines
-from ema_workbench.analysis.plotting_util import KDE
+from ema_workbench.analysis import lines, Density
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 
@@ -22,11 +21,11 @@ experiments, outcomes = load_results(file_name)
 # let's specify a few scenarios that we want to show for
 # each of the policies
 scenario_ids = np.arange(0, 1000, 100)
-experiments_to_show = experiments['scenario'].isin(scenario_ids)
+experiments_to_show = experiments['scenario_id'].isin(scenario_ids)
 
 # the plotting functions return the figure and a dict of axes
 fig, axes = lines(experiments, outcomes, group_by='policy',
-                  density=KDE, show_envelope=True,
+                  density=Density.KDE, show_envelope=True,
                   experiments_to_show=experiments_to_show)
 
 # we can access each of the axes and make changes

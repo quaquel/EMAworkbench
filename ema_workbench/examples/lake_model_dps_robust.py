@@ -9,9 +9,6 @@ Software 92, 125-141.
 
 
 '''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
 import math
 import numpy as np
 
