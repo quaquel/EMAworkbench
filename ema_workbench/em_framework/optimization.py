@@ -585,7 +585,7 @@ class OperatorProbabilities(AbstractConvergenceMetric):
 class Convergence(object):
     '''helper class for tracking convergence of optimization'''
 
-    valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
+    valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger", "archive_viewer"])
 
     def __init__(self, metrics, max_nfe):
         self.max_nfe = max_nfe
