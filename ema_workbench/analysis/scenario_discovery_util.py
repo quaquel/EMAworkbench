@@ -452,7 +452,7 @@ def plot_box(boxlim, qp_values, box_init, uncs,
              coverage, density,
              ticklabel_formatter="{} ({})",
              boxlim_formatter="{: .2g}",
-             table_formatter="{:.3g})"):
+             table_formatter="{:.3g}"):
     '''Helper function for parallel coordinate style visualization
     of a box
 
@@ -679,6 +679,15 @@ def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
 
 
 def plot_boxes(x, boxes, together):
+    '''Helper function for plotting multiple boxlims
+    
+    Parameters
+    ----------
+    x : pd.DataFrame
+    boxes : list of pd.DataFrame 
+    together : bool
+    
+    '''
 
     box_init = _make_box(x)
     box_lims, uncs = _get_sorted_box_lims(boxes, box_init)
@@ -688,7 +697,7 @@ def plot_boxes(x, boxes, together):
     # box_init, which is visualized by a grey area in this
     # plot.
     norm_box_lims = [_normalize(box_lim, box_init, uncs) for
-                     box_lim in box_lims[0:-1]]
+                     box_lim in boxes]
 
     if together:
         fig, ax = _setup_figure(uncs)

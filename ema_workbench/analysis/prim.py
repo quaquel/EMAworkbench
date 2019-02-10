@@ -999,6 +999,7 @@ class Prim(sdutil.OutputFormatterMixin):
                                  box.density,
                                  box.res_dim)
 
+        
         if (self.threshold_type == ABOVE) &\
            (box.mean >= self.threshold):
             _logger.info(message)
@@ -1291,7 +1292,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
                 if type(list(entries)[0]) not in (str, float,
                                                   int, bool):
-                    for element in x[u]:
+                    for element in x[:, j]:
                         if element != entry:
                             bools.append(True)
                         else:
