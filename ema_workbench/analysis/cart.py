@@ -61,10 +61,10 @@ def setup_cart(results, classify, incl_unc=None, mass_min=0.05):
 
     if isinstance(classify, six.string_types):
         y = outcomes[classify]
-        mode = sdutil.REGRESSION
+        mode = sdutil.RuleInductionType.REGRESSION
     elif callable(classify):
         y = classify(outcomes)
-        mode = sdutil.BINARY
+        mode = sdutil.RuleInductionType.BINARY
     else:
         raise TypeError("unknown type for classify")
 
@@ -112,7 +112,8 @@ class CART(sdutil.OutputFormatterMixin):
 
     sep = '!?!'
 
-    def __init__(self, x, y, mass_min=0.05, mode=sdutil.BINARY):
+    def __init__(self, x, y, mass_min=0.05,
+                 mode=sdutil.RuleInductionType.BINARY):
         ''' init
 
         '''
@@ -272,15 +273,15 @@ class CART(sdutil.OutputFormatterMixin):
 
         return boxstats
 
-    _boxstat_methods = {sdutil.BINARY: _binary_stats,
-                        sdutil.REGRESSION: _regression_stats,
-                        sdutil.CLASSIFICATION: _classification_stats}
+    _boxstat_methods = {sdutil.RuleInductionType.BINARY: _binary_stats,
+                        sdutil.RuleInductionType.REGRESSION: _regression_stats,
+                        sdutil.RuleInductionType.CLASSIFICATION: _classification_stats}
 
     def build_tree(self):
         '''train CART on the data'''
         min_samples = int(self.mass_min * self.x.shape[0])
 
-        if self.mode == sdutil.REGRESSION:
+        if self.mode == sdutil.RuleInductionType.REGRESSION:
             self.clf = tree.DecisionTreeRegressor(min_samples_leaf=min_samples)
         else:
             self.clf = tree.DecisionTreeClassifier(

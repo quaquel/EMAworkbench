@@ -5,7 +5,9 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
+import abc
 import copy
+from enum import Enum
 import functools
 import math
 import os
@@ -13,16 +15,16 @@ import pandas as pd
 import random
 import warnings
 
+import numpy as np
+
 from .outcomes import AbstractOutcome
 
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy)
 from .samplers import determine_parameters
 from .util import determine_objects
-from ..util import get_module_logger
-from ema_workbench.util.ema_exceptions import EMAError
-from ema_workbench.util.ema_logging import temporary_filter, INFO
-from ema_workbench.em_framework import callbacks, evaluators
+from ..util import get_module_logger, EMAError, temporary_filter, INFO
+from . import callbacks, evaluators
 
 try:
     from platypus import (
@@ -484,6 +486,8 @@ class AbstractConvergenceMetric(object):
     def __call__(self, optimizer):
         raise NotImplementedError
 
+    def reset(self):
+        self.results = []
 
 class EpsilonProgress(AbstractConvergenceMetric):
     '''epsilon progress convergence metric class'''
@@ -524,13 +528,9 @@ class HyperVolume(AbstractConvergenceMetric):
 
     @classmethod
     def from_outcomes(cls, outcomes):
-        try:
-            ranges = [_.expected_range() for _ in outcomes if _.kind!=0 ]
-        except:
-            ranges = [_.expected_range() for _ in outcomes]
-        lows = [_[0] for _ in ranges]
-        highs = [_[1] for _ in ranges]
-        return cls(lows, highs)
+        ranges = [o.expected_range for o in outcomes if o.kind != o.INFO]
+        minimum, maximum = np.asarray(list(zip(*ranges)))
+        return cls(minimum, maximum)
 
 
 class ArchiveLogger(AbstractConvergenceMetric):
@@ -582,35 +582,56 @@ class OperatorProbabilities(AbstractConvergenceMetric):
             pass
 
 
+class ConvergenceMetrics(Enum):
+    HYPERVOLUME = HyperVolume
+    EPSPROGRESS = EpsilonProgress
+    LOGARCHIVE = ArchiveLogger
+
+    @classmethod
+    def has_value(cls, value):
+        return any(value == item.value for item in cls)
+
+
 class Convergence(object):
     '''helper class for tracking convergence of optimization'''
 
-    valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger", "archive_viewer"])
-
-    def __init__(self, metrics, max_nfe):
+    def __init__(self, metrics, max_nfe, convergence_freq=1000,
+                 logging_freq=5):
         self.max_nfe = max_nfe
         self.generation = -1
         self.index = []
+        self.last_check = 0
 
         if metrics is None:
             metrics = []
 
         self.metrics = metrics
+        self.convergence_freq = convergence_freq
+        self.logging_freq = logging_freq
 
         for metric in metrics:
-            assert metric.name in self.valid_metrics
+            assert ConvergenceMetrics.has_value(metric.__class__)
+            metric.reset()
 
-    def __call__(self, optimizer):
+    def __call__(self, optimizer, ):
         nfe = optimizer.algorithm.nfe
 
         self.generation += 1
-        self.index.append(nfe)
+        
+        if (nfe >= self.last_check + self.convergence_freq) or self.last_check==0:
+            self.index.append(nfe)
+            self.last_check = nfe 
+    
+            for metric in self.metrics:
+                metric(optimizer)
 
-        _logger.info(
-            "generation {}: {}/{} nfe".format(self.generation, nfe, self.max_nfe))
 
-        for metric in self.metrics:
-            metric(optimizer)
+        if self.generation % self.logging_freq == 0:
+            _logger.info(
+                "generation {}: {}/{} nfe".format(self.generation, nfe,
+                                                  self.max_nfe))
+
+
 
     def to_dataframe(self):
         progress = {metric.name: metric.results for metric in
@@ -619,11 +640,7 @@ class Convergence(object):
         progress = pd.DataFrame.from_dict(progress)
 
         if not progress.empty:
-            try:
-                progress['nfe'] = self.index
-            except ValueError as err:
-                progress['nfe'] = -1
-                warnings.warn(str(err))
+            progress['nfe'] = self.index
 
         return progress
 
@@ -819,7 +836,7 @@ class CombinedMutator(CombinedVariator):
 
 
 def _optimize(problem, evaluator, algorithm, convergence, nfe,
-              **kwargs):
+              convergence_freq, logging_freq, **kwargs):
 
     klass = problem.types[0].__class__
 
@@ -833,7 +850,9 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
                           log_frequency=500, **kwargs)
     optimizer.mutator = mutator
 
-    convergence = Convergence(convergence, nfe)
+    convergence = Convergence(convergence, nfe,
+                              convergence_freq=convergence_freq,
+                              logging_freq=logging_freq)
     callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
 
@@ -854,6 +873,19 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
         return results, convergence
 
 
+class BORGDefaultDescriptor(object):
+    # this treats defaults as class level attributes!
+    
+    def __init__(self, default_function):
+        self.default_function = default_function
+    
+    def __get__(self, instance, owner):
+        return self.default_function(instance.problem.nvars)
+
+    def __set_name__(self, owner, name):
+        self.name = name
+
+
 class GenerationalBorg(EpsilonProgressContinuation):
     '''A generational implementation of the BORG Framework
 
@@ -862,33 +894,70 @@ class GenerationalBorg(EpsilonProgressContinuation):
     algorithm, rather than the steady state implementation used by the BORG
     algorithm.
 
+    The parametrization of all operators is based on the default values as used
+    in Borg 1.9.
+
     Note:: limited to RealParameters only.
 
     '''
-
+    pm_p = BORGDefaultDescriptor(lambda x: 1/x)
+    pm_dist = 20
+    
+    sbx_prop = 1
+    sbx_dist = 15
+    
+    de_rate = 0.1
+    de_stepsize = 0.5
+    
+    um_p = BORGDefaultDescriptor(lambda x: x+1)
+    
+    spx_nparents = 10
+    spx_noffspring = 2
+    spx_expansion = 0.3
+    
+    pcx_nparents = 10
+    pcx_noffspring = 2
+    pcx_eta = 0.1
+    pcx_zeta = 0.1
+    
+    undx_nparents = 10
+    undx_noffspring = 2
+    undx_zeta = 0.5
+    undx_eta = 0.35
+    
     def __init__(self, problem, epsilons, population_size=100,
                  generator=RandomGenerator(), selector=TournamentSelector(2),
                  variator=None, **kwargs):
-
-        L = len(problem.nvars)
-        p = 1 / L
+        self.problem = problem
 
         # Parameterization taken from
         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
-        variators = [GAOperator(SBX(probability=1.0, distribution_index=15.0),
-                                PM(probability=p, distribution_index=20.0)),
-                     GAOperator(PCX(nparents=3, noffspring=2, eta=0.1, zeta=0.1),
-                                PM(probability=p, distribution_index=20.0)),
-                     GAOperator(DifferentialEvolution(crossover_rate=0.6,
-                                                      step_size=0.6),
-                                PM(probability=p, distribution_index=20.0)),
-                     GAOperator(UNDX(nparents=3, noffspring=2, zeta=0.5,
-                                     eta=0.35 / math.sqrt(L)),
-                                PM(probability=p, distribution_index=20.0)),
-                     GAOperator(SPX(nparents=L + 1, noffspring=L + 1,
-                                    expansion=math.sqrt(L + 2)),
-                                PM(probability=p, distribution_index=20.0)),
-                     UM(probability=1 / L)]
+        variators = [GAOperator(SBX(probability=self.sbx_prop, 
+                                    distribution_index=self.sbx_dist),
+                                PM(probability=self.pm_p, 
+                                   distribution_index=self.pm_dist)),
+                     GAOperator(PCX(nparents=self.pcx_nparents,
+                                    noffspring=self.pcx_noffspring,
+                                    eta=self.pcx_eta,
+                                    zeta=self.pcx_zeta),
+                                PM(probability=self.pm_p,
+                                   distribution_index=self.pm_dist)),
+                    GAOperator(DifferentialEvolution(crossover_rate=self.de_rate,
+                                                     step_size=self.de_stepsize),
+                               PM(probability=self.pm_p,
+                                  distribution_index=self.pm_dist)),
+                    GAOperator(UNDX(nparents=self.undx_nparents,
+                                    noffspring=self.undx_noffspring,
+                                    zeta=self.undx_zeta,
+                                    eta=self.undx_eta),
+                               PM(probability=self.pm_p,
+                                  distribution_index=self.pm_dist)),
+                    GAOperator(SPX(nparents=self.spx_nparents,
+                                   noffspring=self.spx_noffspring,
+                                   expansion=self.spx_expansion),
+                               PM(probability=self.pm_p,
+                                  distribution_index=self.pm_dist)),
+                     UM(probability=self.um_p)]
 
         variator = Multimethod(self, variators)
 

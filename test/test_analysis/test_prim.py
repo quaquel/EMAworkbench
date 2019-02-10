@@ -12,6 +12,7 @@ import pandas as pd
 from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
 from test import utilities
+from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
 
 
 def flu_classify(data):
@@ -316,7 +317,8 @@ class PrimTestCase(unittest.TestCase):
                          columns=['a', 'b', 'c'])
         y = np.array([0,1,2])
         
-        prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
+        prim_obj = prim.Prim(x,y, threshold=0.5,
+                             mode=RuleInductionType.REGRESSION)
         box_init = prim_obj.box_init
         
         # some test on the box
@@ -341,7 +343,8 @@ class PrimTestCase(unittest.TestCase):
                           columns=['a', 'b', 'c'])
         y = np.arange(0, x.shape[0])
 
-        prim_obj = prim.Prim(x,y, threshold=0.5, mode='regression')
+        prim_obj = prim.Prim(x,y, threshold=0.5,
+                             mode=RuleInductionType.REGRESSION)
         box_init = prim_obj.box_init
          
         # some test on the box
@@ -359,7 +362,8 @@ class PrimTestCase(unittest.TestCase):
         y = outcomes['deceased population region 1']
         
         self.assertRaises(prim.PrimException, prim.Prim,
-                          x, y, threshold=0.8, mode='regression')
+                          x, y, threshold=0.8,
+                          mode=RuleInductionType.REGRESSION)
 
     def test_find_box(self):
         results = utilities.load_flu_data()

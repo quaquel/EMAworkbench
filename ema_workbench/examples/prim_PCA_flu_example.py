@@ -6,7 +6,6 @@ a PRIM analysis with PCA preprocessing
 The data was generated using a system dynamics models implemented in Vensim.
 See flu_example.py for the code.
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 '''
 import matplotlib.pyplot as plt
@@ -14,6 +13,8 @@ import matplotlib.pyplot as plt
 from ema_workbench import ema_logging, load_results
 import ema_workbench.analysis.prim as prim
 
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
