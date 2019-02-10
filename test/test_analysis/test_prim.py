@@ -6,6 +6,7 @@ Created on Mar 13, 2012
 from __future__ import (absolute_import, print_function, division)
 import unittest
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -13,6 +14,7 @@ from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
 from test import utilities
 from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
+from builtins import isinstance
 
 
 def flu_classify(data):
@@ -251,8 +253,7 @@ class PrimTestCase(unittest.TestCase):
                                    threshold=0.8)
         prim_obj.find_box()
         boxes = prim_obj.boxes
-        self.assertEqual(len(boxes), 1, 'box length not correct')        
-        
+        self.assertEqual(len(boxes), 1, 'box length not correct')  
 
     def test_prim_init_select(self):
         self.results = utilities.load_flu_data()
@@ -384,11 +385,69 @@ class PrimTestCase(unittest.TestCase):
                      box_2.yi.shape[0] +\
                      prim_obj.yi_remaining.shape[0]
         self.assertEqual(after_find, prim_obj.y.shape[0])
+        
+    def test_discrete_peel(self):
+        x = pd.DataFrame(np.random.randint(0, 10, size=(100,), dtype=np.int),
+                         columns=['a'])
+        y  = np.zeros(100,)
+        y[x.a > 5] = 1
+        
+        primalg = prim.Prim(x, y, threshold=0.8)
+        boxlims = primalg.box_init
+        box = prim.PrimBox(primalg, boxlims, primalg.yi)     
+        
+        peels = primalg._discrete_peel(box, 'a', 0, primalg.x_int)
+        
+        self.assertEqual(len(peels), 2)
+        for peel in peels:
+            self.assertEqual(len(peel), 2)
+            
+            indices, tempbox = peel
+            
+            self.assertTrue(isinstance(indices, np.ndarray))
+            self.assertTrue(isinstance(tempbox, pd.DataFrame))
+            
+        # have modified boxlims as starting point
+        primalg = prim.Prim(x, y, threshold=0.8)
+        boxlims = primalg.box_init
+        boxlims.a = [1,8]
+        box = prim.PrimBox(primalg, boxlims, primalg.yi)     
+        
+        peels = primalg._discrete_peel(box, 'a', 0, primalg.x_int)
+        
+        self.assertEqual(len(peels), 2)
+        for peel in peels:
+            self.assertEqual(len(peel), 2)
+            
+            indices, tempbox = peel
+            
+            self.assertTrue(isinstance(indices, np.ndarray))
+            self.assertTrue(isinstance(tempbox, pd.DataFrame))
+            
+        # have modified boxlims as starting point
+        x.a[x.a>5] = 5
+        primalg = prim.Prim(x, y, threshold=0.8)
+        boxlims = primalg.box_init
+        boxlims.a = [5,8]
+        box = prim.PrimBox(primalg, boxlims, primalg.yi)     
+        
+        peels = primalg._discrete_peel(box, 'a', 0, primalg.x_int)
+        self.assertEqual(len(peels), 2)
+
+        x.a[x.a<5] = 5
+        primalg = prim.Prim(x, y, threshold=0.8)
+        boxlims = primalg.box_init
+        boxlims.a = [5,8]
+        box = prim.PrimBox(primalg, boxlims, primalg.yi)     
+        
+        peels = primalg._discrete_peel(box, 'a', 0, primalg.x_int)
+        self.assertEqual(len(peels), 2)
+
                 
     def test_categorical_peel(self):
         x = pd.DataFrame(list(zip(np.random.rand(10,),
                                   ['a','b','a','b','a','a','b','a','b','a', ])),
-                         columns=['a', 'b'])
+                          columns=['a', 'b'])
         
         y = np.random.randint(0,2, (10,))
         y = y.astype(np.int)
@@ -400,6 +459,36 @@ class PrimTestCase(unittest.TestCase):
         box_lims = pd.DataFrame([(0, set(['a','b'])),
                                  (1, set(['a','b']))],
                                  columns=['a', 'b'] )
+        box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
+        
+        u = 'b'
+        x = x.select_dtypes(exclude=np.number).values
+        j = 0
+        peels = prim_obj._categorical_peel(box, u, j, x)
+        
+        self.assertEqual(len(peels), 2)
+        
+        for peel in peels:
+            pl  = peel[1][u]
+            self.assertEqual(len(pl[0]), 1)
+            self.assertEqual(len(pl[1]), 1)
+            
+            
+        a = ('a',)
+        b = ('b',)
+        x = pd.DataFrame(list(zip(np.random.rand(10,),
+                                  [a, b, a, b, a,
+                                   a, b, a, b, a])),
+                         columns=['a', 'b'])
+        
+        y = np.random.randint(0,2, (10,))
+        y = y.astype(np.int)
+        y = {'y':y}
+        results = x, y
+        classify = 'y'
+        
+        prim_obj  = prim.setup_prim(results, classify, threshold=0.8)
+        box_lims = prim_obj.box_init
         box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
         
         u = 'b'

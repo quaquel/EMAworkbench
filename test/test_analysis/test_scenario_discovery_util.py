@@ -6,6 +6,7 @@ Created on May 22, 2015
 from __future__ import (absolute_import, print_function, division)
 import unittest
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -160,7 +161,6 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
     def test_determine_nr_restricted_dims(self):
         x = np.random.rand(5, 2)
         x = pd.DataFrame(x, columns=['a', 'b'])
-
         
         # all dimensions the same
         box_init = sdutil._make_box(x)
@@ -212,15 +212,168 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         test = sdutil._compare(a,b)
         test = (test[0]==False) & (test[1]==True)
         self.assertTrue(test)
+        
+    def test_plot_box(self):
+        x = pd.DataFrame([[0.1, 0, 'a'],
+                          [0.2, 1, 'b'],
+                          [0.3, 2, 'a'],
+                          [0.4, 3, 'b'],
+                          [0.5, 4, 'a'],
+                          [0.6, 5, 'a'],
+                          [0.7, 6, 'b'],
+                          [0.8, 7, 'a'],
+                          [0.9, 8, 'b'],
+                          [1.0, 9, 'a']], 
+                          columns=['a', 'b', 'c'])
+        y = np.zeros((x.shape[0],), dtype=np.int)         
+        y[(x.a>0.5) & (x.c!='a')] = 1
+        
+        x['c'] = x['c'].astype('category')   
+        
+        box_init = sdutil._make_box(x)
+        boxlim = box_init.copy()
+        boxlim.a = [0.5, 1.0]
+        boxlim.c = [set('b',),]*2
+        restricted_dims = ['a', 'c']        
+        
+        qp_values = {'a': [0.05, 0.9], 
+                     'c': [0.05, -1]}
+        
+        sdutil.plot_box(boxlim, qp_values, box_init, restricted_dims, 1, 1) 
+        plt.draw()
+        plt.close('all')       
     
-    def test_boxes_to_dataframe(self):
-        pass
+    def test_plot_pairwise_scatter(self):
+        x = pd.DataFrame([[0.1, 0, 'a'],
+                          [0.2, 1, 'b'],
+                          [0.3, 2, 'a'],
+                          [0.4, 3, 'b'],
+                          [0.5, 4, 'a'],
+                          [0.6, 5, 'a'],
+                          [0.7, 6, 'b'],
+                          [0.8, 7, 'a'],
+                          [0.9, 8, 'b'],
+                          [1.0, 9, 'a']], 
+                          columns=['a', 'b', 'c'])
+        y = np.zeros((x.shape[0],), dtype=np.int)         
+        y[(x.a>0.5) & (x.c!='a')] = 1
+        
+        x['c'] = x['c'].astype('category')   
+        
+        box_init = sdutil._make_box(x)
+        boxlim = box_init.copy()
+        boxlim.a = [0.5, 1.0]
+        boxlim.c = [set('b',),]*2
+        restricted_dims = ['a', 'c']
     
-    def test_stats_to_dataframe(self):
-        pass
-    
-    def test_display_boxes(self):
-        pass
+        sdutil.plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims)
+        plt.draw()
+        plt.close('all')
+        
+    def test_plot_boxes(self):
+        x = pd.DataFrame([[0.1, 0, 'a'],
+                          [0.2, 1, 'b'],
+                          [0.3, 2, 'a'],
+                          [0.4, 3, 'b'],
+                          [0.5, 4, 'a'],
+                          [0.6, 5, 'a'],
+                          [0.7, 6, 'b'],
+                          [0.8, 7, 'a'],
+                          [0.9, 8, 'b'],
+                          [1.0, 9, 'a']], 
+                          columns=['a', 'b', 'c'])
+        y = np.zeros((x.shape[0],), dtype=np.int)       
+        logical = (x.a>0.5) & (x.c!='a')
+        y[logical] = 1
+
+        logical = (x.a<0.5) & (x.c!='b')
+        y[logical] = 1
+
+        x['c'] = x['c'].astype('category')   
+        
+        box_init = sdutil._make_box(x)
+        boxlim1 = box_init.copy()
+        boxlim1.a = [0.5, 1]
+        boxlim1.c = [set('b',),]*2
+        
+        boxlim2 = box_init.copy()
+        boxlim2.a = [0.1, 0.5]
+        boxlim2.c = [set('a',),]*2
+
+        sdutil.plot_boxes(x, [boxlim1, boxlim2], together=True)
+        sdutil.plot_boxes(x, [boxlim1, boxlim2], together=False)
+        plt.draw()
+        plt.close('all')
+
+    def test_OutputFormatterMixin(self):
+        x = pd.DataFrame([[0.1, 0, 'a'],
+                          [0.2, 1, 'b'],
+                          [0.3, 2, 'a'],
+                          [0.4, 3, 'b'],
+                          [0.5, 4, 'a'],
+                          [0.6, 5, 'a'],
+                          [0.7, 6, 'b'],
+                          [0.8, 7, 'a'],
+                          [0.9, 8, 'b'],
+                          [1.0, 9, 'a']], 
+                          columns=['a', 'b', 'c'])
+        y = np.zeros((x.shape[0],), dtype=np.int)       
+        logical = (x.a>0.5) & (x.c!='a')
+        y[logical] = 1
+
+        logical = (x.a<0.5) & (x.c!='b')
+        y[logical] = 1
+
+        x['c'] = x['c'].astype('category')   
+        
+        box_init = sdutil._make_box(x)
+        boxlim1 = box_init.copy()
+        boxlim1.a = [0.5, 1]
+        boxlim1.c = [set('b',),]*2
+        
+        boxlim2 = box_init.copy()
+        boxlim2.a = [0.1, 0.5]
+        boxlim2.c = [set('a',),]*2
+        
+        with self.assertRaises(AttributeError):
+            class WrongTestFormatter(sdutil.OutputFormatterMixin):
+                pass
+            formatter = WrongTestFormatter()
+            formatter.boxes = [boxlim1, boxlim2]
+            formatter.stats = [{'coverage':0.5, 'density':1},
+                               {'coverage':0.5, 'density':1}]        
+        
+        class TestFormatter(sdutil.OutputFormatterMixin):
+            boxes = []
+            stats = []
+        
+        formatter = TestFormatter()
+        formatter.boxes = [boxlim1, boxlim2]
+        formatter.stats = [{'coverage':0.5, 'density':1},
+                           {'coverage':0.5, 'density':1}]
+        formatter.x = x
+        
+        formatter.show_boxes()
+        plt.draw()
+        plt.close('all')
+        
+        boxes = formatter.boxes_to_dataframe()
+
+        expected_boxes = pd.DataFrame([[{'b'}, {'b'}, {'a'}, {'a'}],
+                                       [0.5, 1, 0.1, 0.5]], index=['c', 'a'],
+                    columns=pd.MultiIndex(levels=[['box 1', 'box 2'],
+                                                  ['max', 'min']],
+                                          codes=[[0, 0, 1, 1], [1, 0, 1, 0]]))
+        self.assertTrue(expected_boxes.equals(boxes))
+        
+        # check stats
+        stats = formatter.stats_to_dataframe()
+        expected_stats = pd.DataFrame([[0.5, 1], [0.5, 1]],
+                                      index=['box 1', 'box 2'],
+                                      columns=['coverage', 'density'])
+        
+        self.assertTrue(expected_stats.equals(stats))
+
     
 if __name__ == '__main__':
         unittest.main()
