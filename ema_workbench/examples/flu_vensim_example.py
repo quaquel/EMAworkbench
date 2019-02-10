@@ -8,9 +8,6 @@ is the same as used in fluExample
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
-from __future__ import (division, unicode_literals, print_function,
-                        absolute_import)
-
 import numpy as np
 
 from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,

@@ -17,8 +17,7 @@ from ema_workbench import TimeSeriesOutcome, perform_experiments, ema_logging
 
 from ema_workbench.connectors.vensim import (LookupUncertainty,
                                              VensimModel)
-from ema_workbench.analysis.plotting import lines
-from ema_workbench.analysis.plotting_util import BOXPLOT
+from ema_workbench.analysis import lines, Density
 
 
 class Burnout(VensimModel):
@@ -59,5 +58,5 @@ if __name__ == "__main__":
 
     # run policy with old cases
     results = perform_experiments(model, 100)
-    lines(results, 'Energy Level', density=BOXPLOT)
+    lines(results, 'Energy Level', density=Density.BOXPLOT)
     plt.show()

@@ -9,8 +9,7 @@ import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results
 
-from ema_workbench.analysis.plotting import envelopes
-from ema_workbench.analysis.plotting_util import KDE
+from ema_workbench.analysis import envelopes, Density
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 
@@ -19,7 +18,7 @@ experiments, outcomes = load_results(file_name)
 
 # the plotting functions return the figure and a dict of axes
 fig, axes = envelopes(experiments, outcomes, group_by='policy',
-                      density=KDE, fill=True)
+                      density=Density.KDE, fill=True)
 
 # we can access each of the axes and make changes
 for key, value in axes.items():

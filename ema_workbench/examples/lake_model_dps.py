@@ -23,8 +23,6 @@ from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = []
-
 
 def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
     '''

@@ -3,12 +3,10 @@ Created on May 26, 2015
 
 @author: jhkwakkel
 '''
-from __future__ import (print_function)
-
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.cart as cart
-from ema_workbench import ema_logging, load_results, save_results
+from ema_workbench import ema_logging, load_results
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
@@ -31,6 +29,6 @@ print(cart_alg.stats_to_dataframe())
 print(cart_alg.boxes_to_dataframe())
 
 # visualize
-cart_alg.display_boxes(together=False)
+cart_alg.show_boxes(together=False)
 cart_alg.show_tree()
 plt.show()
