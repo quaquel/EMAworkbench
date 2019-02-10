@@ -464,10 +464,10 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                       '{} experiments').format(n_scenarios,
                                                n_models, nr_of_exp))
     else:
-    nr_of_exp = n_models * n_scenarios * n_policies
-    _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
-                  '{} experiments').format(n_scenarios, n_policies,
-                                           n_models, nr_of_exp))
+        nr_of_exp = n_models * n_scenarios * n_policies
+        _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
+                      '{} experiments').format(n_scenarios, n_policies,
+                                               n_models, nr_of_exp))
 
     if not callback:
         callback = DefaultCallback(
