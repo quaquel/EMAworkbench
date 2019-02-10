@@ -111,7 +111,7 @@ class BaseEvaluator(object):
         ''' finalize the evaluator'''
         raise NotImplementedError
 
-    def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
+    def evaluate_experiments(self, scenarios, policies, callback, zip_over=None):
         '''used by ema_workbench'''
         raise NotImplementedError
 
@@ -159,7 +159,7 @@ class BaseEvaluator(object):
                             uncertainty_union=False, lever_union=False,
                             outcome_union=False, uncertainty_sampling=LHS,
                             levers_sampling=LHS, callback=None,
-                            zipper=False):
+                            zip_over=None):
         '''convenience method for performing experiments.
 
         is forwarded to :func:perform_experiments, with evaluator and
@@ -176,7 +176,7 @@ class BaseEvaluator(object):
                                    uncertainty_sampling=uncertainty_sampling,
                                    levers_sampling=levers_sampling,
                                    callback=callback,
-                                   zipper=zipper)
+                                   zip_over=zip_over)
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
                  reference=None, constraints=None, convergence_freq=1000,
@@ -229,10 +229,10 @@ class SequentialEvaluator(BaseEvaluator):
     def finalize(self):
         pass
 
-    def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
+    def evaluate_experiments(self, scenarios, policies, callback, zip_over=None):
         _logger.info("performing experiments sequentially")
 
-        ex_gen = experiment_generator(scenarios, self._msis, policies, zipper)
+        ex_gen = experiment_generator(scenarios, self._msis, policies, zip_over)
 
         models = NamedObjectMap(AbstractModel)
         models.extend(self._msis)
@@ -315,8 +315,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
         if self.root_dir:
             shutil.rmtree(self.root_dir)
 
-    def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
-        ex_gen = experiment_generator(scenarios, self._msis, policies, zipper)
+    def evaluate_experiments(self, scenarios, policies, callback, zip_over=None):
+        ex_gen = experiment_generator(scenarios, self._msis, policies, zip_over)
         add_tasks(self.n_processes, self._pool, ex_gen, callback)
 
 
@@ -354,8 +354,8 @@ class IpyparallelEvaluator(BaseEvaluator):
         self.logwatcher.stop()
         cleanup(self.client)
 
-    def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
-        ex_gen = experiment_generator(scenarios, self._msis, policies, zipper)
+    def evaluate_experiments(self, scenarios, policies, callback, zip_over=None):
+        ex_gen = experiment_generator(scenarios, self._msis, policies, zip_over)
 
         lb_view = self.client.load_balanced_view()
         results = lb_view.map(_run_experiment,
@@ -371,7 +371,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         outcome_union=False, uncertainty_sampling=LHS,
                         levers_sampling=LHS, callback=None,
                         return_callback=False,
-                        zipper=False):
+                        zip_over=None):
     '''sample uncertainties and levers, and perform the resulting experiments
     on each of the models
 
@@ -389,7 +389,13 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
     callback  : Callback instance, optional
     return_callback : boolean, optional
-    zipper : boolean, optional
+    zip_over : Collection[str], optional
+        A collection that contains exactly two or three members of the set
+        {'scenarios', 'policies', 'models'}.  If it is given, the length
+        of all relevant arguments that are indicated in this set must be the
+        same, and the experiment generator will create experiments based on
+        a `zip` through the values in these collections, instead of creating
+        experiments across all possible combinations of the values.
 
     Returns
     -------
@@ -455,14 +461,46 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
     outcomes = determine_objects(models, 'outcomes', union=outcome_union)
 
-    if zipper:
-        if n_scenarios != n_policies:
-            raise EMAError(f'zipper is True but '
-                           f'n_scenarios({n_scenarios}) != n_policies({n_policies}) ')
-        nr_of_exp = n_models * n_scenarios
-        _logger.info(('performing {} scenarios/policies * {} model(s) = '
-                      '{} experiments').format(n_scenarios,
-                                               n_models, nr_of_exp))
+    if zip_over:
+        zip_over = set(zip_over)
+        if zip_over == {'policies', 'scenarios'}:
+            if n_scenarios != n_policies:
+                raise EMAError(f'zip_over is policies+scenarios but '
+                               f'n_scenarios({n_scenarios}) != n_policies({n_policies}) ')
+            nr_of_exp = n_models * n_scenarios
+            _logger.info(('performing {} scenarios/policies * {} model(s) = '
+                          '{} experiments').format(n_scenarios,
+                                                   n_models, nr_of_exp))
+
+        elif zip_over == {'policies', 'models'}:
+            if n_models != n_policies:
+                raise EMAError(f'zip_over is policies+models but '
+                               f'n_models({n_models}) != n_policies({n_policies}) ')
+            nr_of_exp = n_models * n_scenarios
+            _logger.info(('performing {} scenarios * {} policies/models = '
+                          '{} experiments').format(n_scenarios,
+                                                   n_models, nr_of_exp))
+
+        elif zip_over == {'scenarios', 'models'}:
+            if n_models != n_scenarios:
+                raise EMAError(f'zip_over is scenarios+models but '
+                               f'n_models({n_models}) != n_scenarios({n_scenarios}) ')
+            nr_of_exp = n_models * n_policies
+            _logger.info(('performing {} policies * {} scenarios/models = '
+                          '{} experiments').format(n_policies,
+                                                   n_models, nr_of_exp))
+
+        elif zip_over == {'scenarios', 'models', 'policies'}:
+            if n_models != n_scenarios:
+                raise EMAError(f'zip_over is scenarios+policies+models but '
+                               f'n_models({n_models}) != n_scenarios({n_scenarios}) ')
+            if n_models != n_policies:
+                raise EMAError(f'zip_over is scenarios+policies+models but '
+                               f'n_models({n_models}) != n_policies({n_policies}) ')
+            nr_of_exp = n_models * n_policies * n_scenarios
+            _logger.info(('performing {} scenarios/policies/models = '
+                          '{} experiments').format(n_policies, nr_of_exp))
+
     else:
         nr_of_exp = n_models * n_scenarios * n_policies
         _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
@@ -485,7 +523,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
-    evaluator.evaluate_experiments(scenarios, policies, callback, zipper=zipper)
+    evaluator.evaluate_experiments(scenarios, policies, callback, zip_over=zip_over)
 
     if callback.i != nr_of_exp:
         raise EMAError(('some fatal error has occurred while '

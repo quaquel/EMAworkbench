@@ -153,10 +153,10 @@ class DistributedEvaluator(BaseEvaluator):
 		for msi in self._msis:
 			self.client.run(store_model_on_worker, msi.name, msi)
 
-	def evaluate_experiments(self, scenarios, policies, callback, zipper=False):
+	def evaluate_experiments(self, scenarios, policies, callback, zip_over=None):
 		_logger.debug("evaluating experiments asynchronously")
 
-		ex_gen = experiment_generator(scenarios, self._msis, policies, zipper)
+		ex_gen = experiment_generator(scenarios, self._msis, policies, zip_over)
 
 		cwd = os.getcwd()
 

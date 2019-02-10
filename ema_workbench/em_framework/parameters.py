@@ -545,7 +545,7 @@ class Experiment(NamedDict):
             name, **combine(scenario, policy, constants))
 
 
-def experiment_generator(scenarios, model_structures, policies, zipper=False):
+def experiment_generator(scenarios, model_structures, policies, zip_over=None):
     '''
 
     generator function which yields experiments
@@ -555,23 +555,66 @@ def experiment_generator(scenarios, model_structures, policies, zipper=False):
     designs : iterable of dicts
     model_structures : list
     policies : list
-    zipper : bool
-        If True, experiments are generated for each pair of (scenario,policy)
-        instead of for each combination.
+    zip_over : Collection[str], optional
+        A collection that contains exactly two or three members of the set
+        {'scenarios', 'policies', 'models'}.  If a set is given, the length
+        of all other arguments that are indicated in this set must be the
+        same, and the experiment generator will create experiments based on
+        a `zip` through the values in these collections, instead of creating
+        experiments across all possible combinations of the values.
 
     Notes
     -----
-    this generator is essentially three nested loops: for each model structure,
+    When called with zip_over as None, this generator is essentially
+    three nested loops: for each model structure,
     for each policy, for each scenario, return the experiment. This means
     that designs should not be a generator because this will be exhausted after
-    the running the first policy on the first model.
+    the running the first policy on the first model.  If zip_over contains
+    two items, then those two will be paired up, but there will still be
+    two nested loops.
 
     '''
-    if zipper:
+    if zip_over is None:
+        zip_over = set()
+    else:
+        zip_over = set(zip_over)
+
+    if not zip_over.issubset({'scenarios', 'policies', 'models'}):
+        raise ValueError("zip_over must be subset of {'scenarios', 'policies', 'models'} or None")
+    if len(zip_over) == 1:
+        raise ValueError("zip_over cannot be one item")
+
+    if zip_over == {'scenarios', 'policies', 'models'}:
+        assert len(model_structures) == len(policies)
+        assert len(model_structures) == len(scenarios)
         jobs = (
-            (i1, i2, i3)
-            for i1, (i2, i3) in itertools.product(
+            (m_, p_, s_)
+            for m_, p_, s_ in zip(
+                model_structures, policies, scenarios
+            )
+        )
+    elif zip_over == {'scenarios', 'policies'}:
+        assert len(scenarios) == len(policies)
+        jobs = (
+            (m_, p_, s_)
+            for m_, (p_, s_) in itertools.product(
                 model_structures, zip(policies, scenarios)
+            )
+        )
+    elif zip_over == {'scenarios', 'models'}:
+        assert len(model_structures) == len(scenarios)
+        jobs = (
+            (m_, p_, s_)
+            for p_, (m_, s_) in itertools.product(
+                policies, zip(model_structures, scenarios)
+            )
+        )
+    elif zip_over == {'policies', 'models'}:
+        assert len(model_structures) == len(policies)
+        jobs = (
+            (m_, p_, s_)
+            for s_, (m_, p_) in itertools.product(
+                scenarios, zip(model_structures, policies)
             )
         )
     else:
