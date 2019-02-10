@@ -595,8 +595,6 @@ class ConvergenceMetrics(Enum):
 class Convergence(object):
     '''helper class for tracking convergence of optimization'''
 
-    valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
-
     def __init__(self, metrics, max_nfe, convergence_freq=1000,
                  logging_freq=5):
         self.max_nfe = max_nfe
