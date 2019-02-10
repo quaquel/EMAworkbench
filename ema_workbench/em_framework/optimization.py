@@ -5,11 +5,8 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                         division)
 
-import abc
 import copy
-from enum import Enum
 import functools
-import math
 import os
 import pandas as pd
 import random
@@ -119,7 +116,6 @@ class Problem(PlatypusProblem):
 
         self.searchover = searchover
         self.parameters = parameters
-#         self.parameter_names = parameter_names
         self.outcome_names = outcome_names
         self.ema_constraints = constraints
         self.constraint_names = [c.name for c in constraints]
@@ -568,16 +564,6 @@ class OperatorProbabilities(AbstractConvergenceMetric):
             pass
 
 
-class ConvergenceMetrics(Enum):
-    HYPERVOLUME = HyperVolume
-    EPSPROGRESS = EpsilonProgress
-    LOGARCHIVE = ArchiveLogger
-
-    @classmethod
-    def has_value(cls, value):
-        return any(value == item.value for item in cls)
-
-
 class Convergence(object):
     '''helper class for tracking convergence of optimization'''
 
@@ -598,7 +584,7 @@ class Convergence(object):
         self.logging_freq = logging_freq
 
         for metric in metrics:
-            assert ConvergenceMetrics.has_value(metric.__class__)
+            assert isinstance(metric, AbstractConvergenceMetric)
             metric.reset()
 
     def __call__(self, optimizer, ):
