@@ -11,9 +11,6 @@ compare the results.
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import numpy as np
 from numpy import sin, min
 from scipy import exp
@@ -22,9 +19,8 @@ import matplotlib.pyplot as plt
 from ema_workbench import (Model, RealParameter, TimeSeriesOutcome,
                            perform_experiments, ema_logging)
 
-from ema_workbench.analysis.plotting import lines
-from ema_workbench.analysis.plotting_util import KDE
-from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
+from ema_workbench.analysis import lines, Density
+from ema_workbench import MultiprocessingEvaluator
 
 
 # ==============================================================================
@@ -349,14 +345,12 @@ if __name__ == '__main__':
 
     nr_experiments = 500
 
-    results = perform_experiments(model, 10)
-
-#     with MultiprocessingPoolEvaluator(model) as evaluator:
-#         results = perform_experiments(model, nr_experiments,
-#                                       evaluator=evaluator)
+    with MultiprocessingEvaluator(model) as evaluator:
+        results = perform_experiments(model, nr_experiments,
+                                      evaluator=evaluator)
 
     lines(results, outcomes_to_show="deceased_population_region_1",
-          show_envelope=True, density=KDE, titles=None,
+          show_envelope=True, density=Density.KDE, titles=None,
           experiments_to_show=np.arange(0, nr_experiments, 10)
           )
     plt.show()

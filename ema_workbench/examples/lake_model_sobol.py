@@ -5,9 +5,6 @@ The model itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 '''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
 import math
 
 import numpy as np
@@ -15,7 +12,6 @@ import pandas as pd
 from scipy.optimize import brentq
 
 from SALib.analyze import sobol
-
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            ema_logging, MultiprocessingEvaluator, Policy)

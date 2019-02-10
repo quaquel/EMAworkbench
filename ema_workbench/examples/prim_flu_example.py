@@ -11,7 +11,6 @@ See flu_example.py for the code.
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 '''
-from __future__ import (division, print_function)
 import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results

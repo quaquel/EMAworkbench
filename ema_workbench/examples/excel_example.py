@@ -10,9 +10,6 @@ This excel file implements a simple predator prey model.
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (division, print_function, absolute_import,
-                        unicode_literals)
-
 from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
                            perform_experiments)
 

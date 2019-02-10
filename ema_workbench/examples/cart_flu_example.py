@@ -3,8 +3,6 @@ Created on May 26, 2015
 
 @author: jhkwakkel
 '''
-from __future__ import (print_function)
-
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.cart as cart
@@ -48,6 +46,6 @@ print(cart_alg.stats_to_dataframe())
 print(cart_alg.boxes_to_dataframe())
 
 # visualize
-cart_alg.display_boxes(together=False)
+cart_alg.show_boxes(together=False)
 cart_alg.show_tree()
 plt.show()
