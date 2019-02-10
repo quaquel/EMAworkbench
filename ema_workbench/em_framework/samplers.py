@@ -42,7 +42,6 @@ __all__ = ['AbstractSampler',
 
 
 
-
 def _pert(low, peak, high, gamma=4.0):
     """
     A PERT random variate
@@ -76,6 +75,31 @@ def _pert(low, peak, high, gamma=4.0):
         a2 = a1 * (c - mu) / (mu - a)
 
     return _beta(a1, a2, a, c)
+
+
+def _pert2(peak, gamma, low, width):
+    """
+    A PERT random variate with more standardized parameter order,
+
+    This sets the parameters such that the last two are lower bound
+    and width, so that it can degenerate cleanly to a uniform.
+
+    Parameters
+    ----------
+    peak : scalar
+        The location of the distribution's peak (low <= peak <= high)
+    gamma : scalar
+        Controls the uncertainty of the distribution around the peak. Smaller
+        values make the distribution flatter and more uncertain around the
+        peak while larger values make it focused and less uncertain around
+        the peak.
+    low : scalar
+        Lower bound of the distribution support
+    width : scalar
+        Distance from lower bound to upper bound of the distribution support
+
+    """
+    return _pert(low, peak, low+width, gamma)
 
 
 def _beta(alpha, beta, low=0, high=1):
@@ -121,14 +145,26 @@ class AbstractSampler(object):
     # by default it knows the `uniform continuous <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html>`_
     # distribution for sampling floats, and the `uniform discrete <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html#scipy.stats.randint>`_
     # distribution for sampling integers.
-    distributions = {"uniform": stats.uniform,
-                     "integer": stats.randint,
-                     "triangular": stats.triang,
-                     "triangle": stats.triang,
-                     "triang": stats.triang,
-                     "pert": _pert,
-                     "bernoulli": stats.bernoulli,
-                     }
+    distributions = {
+        "uniform": stats.uniform,
+        "integer": stats.randint,
+        "triangular": stats.triang,
+        "triangle": stats.triang,
+        "triang": stats.triang,
+        "pert": _pert2,
+        "bernoulli": stats.bernoulli,
+    }
+
+    # which uniform-type distribution to degrade to for each original distribution
+    uniform_distributions = {
+        "uniform": stats.uniform,
+        "integer": stats.randint,
+        "triangular": stats.uniform,
+        "triangle": stats.uniform,
+        "triang": stats.uniform,
+        "pert": stats.uniform,
+        "bernoulli": stats.randint,
+    }
 
     def __init__(self):
         super(AbstractSampler, self).__init__()
@@ -241,6 +277,57 @@ class LHSSampler(AbstractSampler):
         '''
 
         return self._lhs(self.distributions[distribution], params, size)
+
+    def _lhs(self, dist, parms, siz):
+        '''
+        Latin Hypercube sampling of any distribution.
+
+        Parameters
+        ----------
+        dist : random variable distribution from `scipy.stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
+        parms : tuple
+                tuple of parameters as required for dist.
+        siz : int
+              number of samples
+
+        '''
+        perc = np.linspace(0, (siz-1)/siz, siz)
+        np.random.shuffle(perc)
+        smp = stats.uniform(perc, 1. / siz).rvs()
+        v = dist(*parms).ppf(smp)
+
+        return v
+
+
+class UniformLHSSampler(AbstractSampler):
+    """
+    generates a LHS for the parameters, ignoring defined distribution shapes
+    """
+
+    def __init__(self):
+        super(UniformLHSSampler, self).__init__()
+
+    def sample(self, distribution, params, size):
+        '''
+        generate a Latin Hypercube Sample.
+
+        Parameters
+        ----------
+        distribution : scipy distribution
+                       the distribution to sample from
+        params : tuple
+                 the parameters specifying the distribution
+        size : int
+               the number of samples to generate
+
+        Returns
+        -------
+        dict
+            with the paramertainty.name as key, and the sample as value
+
+        '''
+
+        return self._lhs(self.uniform_distributions[distribution], params[-2:], size)
 
     def _lhs(self, dist, parms, siz):
         '''
