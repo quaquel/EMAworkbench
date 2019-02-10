@@ -7,6 +7,7 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 import copy
+import enum
 
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec
@@ -21,6 +22,8 @@ from ..util import EMAError, get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+__all__ = ["Density", "COLOR_LIST", "LegendEnum", "PlotType"]
+
 _logger = get_module_logger(__name__)
 
 COLOR_LIST = sns.color_palette()
@@ -30,43 +33,47 @@ sns.set_palette(COLOR_LIST)
 TIME = "TIME"
 '''Default key for time'''
 
-ENVELOPE = 'envelope'
-'''constant for plotting envelopes'''
-
-LINES = 'lines'
-'''constant for plotting lines'''
-
-ENV_LIN = "env_lin"
-'''constant for plotting envelopes with lines'''
-
-KDE = 'kde'
-'''constant for plotting density as a kernel density estimate'''
-
-HIST = 'hist'
-'''constant for plotting density as a histogram'''
-
-BOXPLOT = 'boxplot'
-'''constant for plotting density as a boxplot'''
-
-VIOLIN = 'violin'
-'''constant for plotting density as a violin plot, which combines a
-Gaussian density estimate with a boxplot'''
-
-# used for legend
-LINE = 'line'
-PATCH = 'patch'
-SCATTER = 'scatter'
-
-# see http://matplotlib.sourceforge.net/users/customizing.html for details
-#mpl.rcParams['savefig.dpi'] = 600
-#mpl.rcParams['axes.formatter.limits'] = (-5, 5)
-#mpl.rcParams['font.family'] = 'serif'
-#mpl.rcParams['font.serif'] = 'Times New Roman'
-#mpl.rcParams['font.size'] = 12.0
-
 # ==============================================================================
 # actual plotting functions
 # ==============================================================================
+
+class Density(enum.Enum):
+    '''Enum for different types of density plots
+    '''
+    
+    KDE = 'kde'
+    '''constant for plotting density as a kernel density estimate'''
+    
+    HIST = 'hist'
+    '''constant for plotting density as a histogram'''
+    
+    BOXPLOT = 'boxplot'
+    '''constant for plotting density as a boxplot'''
+    
+    VIOLIN = 'violin'
+    '''constant for plotting density as a violin plot, which combines a
+    Gaussian density estimate with a boxplot'''
+
+
+class LegendEnum(enum.Enum):
+    '''Enum for different styles of legends
+    '''
+    
+    # used for legend
+    LINE = 'line'
+    PATCH = 'patch'
+    SCATTER = 'scatter'
+
+class PlotType(enum.Enum):
+    ENVELOPE = 'envelope'
+    '''constant for plotting envelopes'''
+    
+    LINES = 'lines'
+    '''constant for plotting lines'''
+    
+    ENV_LIN = "env_lin"
+    '''constant for plotting envelopes with lines'''
+
 
 
 def plot_envelope(ax, j, time, value, fill=False):
@@ -255,19 +262,19 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
 
     '''
 
-    if density == HIST:
+    if density == Density.HIST:
         values = [outcomes[key][outcome_to_plot][:, index] for key in
                   group_labels]
         plot_histogram(ax_d, values, log)
-    elif density == BOXPLOT:
+    elif density == Density.BOXPLOT:
         values = [outcomes[key][outcome_to_plot][:, index] for key in
                   group_labels]
         plot_boxplots(ax_d, values, log, group_labels)
-    elif density == VIOLIN:
+    elif density == Density.VIOLIN:
         values = [outcomes[key][outcome_to_plot][:, index] for key in
                   group_labels]
         plot_violinplot(ax_d, values, log, group_labels=group_labels)
-    elif density == KDE:
+    elif density == Density.KDE:
         values = [outcomes[key][outcome_to_plot][:, index] for key in
                   group_labels]
         plot_kde(ax_d, values, log)
@@ -290,13 +297,13 @@ def simple_density(density, value, ax_d, ax, log):
 
     '''
 
-    if density == KDE:
+    if density == Density.KDE:
         plot_kde(ax_d, [value[:, -1]], log)
-    elif density == HIST:
+    elif density == Density.HIST:
         plot_histogram(ax_d, value[:, -1], log)
-    elif density == BOXPLOT:
+    elif density == Density.BOXPLOT:
         plot_boxplots(ax_d, value[:, -1], log)
-    elif density == VIOLIN:
+    elif density == Density.VIOLIN:
         plot_violinplot(ax_d, [value[:, -1]], log)
     else:
         raise EMAError("unknown density plot type")
@@ -357,10 +364,7 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     return fig, axes_dict
 
 
-def make_legend(categories,
-                ax,
-                ncol=3,
-                legend_type=LINE,
+def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE,
                 alpha=1):
     '''
     Helper function responsible for making the legend
@@ -386,10 +390,10 @@ def make_legend(categories,
     for i, category in enumerate(categories):
         color = get_color(i)
 
-        if legend_type == LINE:
+        if legend_type == LegendEnum.LINE:
             artist = plt.Line2D([0, 1], [0, 1], color=color,
                                 alpha=alpha)  # TODO
-        elif legend_type == SCATTER:
+        elif legend_type == LegendEnum.SCATTER:
             #             marker_obj = mpl.markers.MarkerStyle('o')
             #             path = marker_obj.get_path().transformed(
             #                              marker_obj.get_transform())
@@ -404,7 +408,7 @@ def make_legend(categories,
             artist = mpl.lines.Line2D([0], [0], linestyle="none",
                                       c=color, marker='o')
 
-        elif legend_type == PATCH:
+        elif legend_type == LegendEnum.PATCH:
             artist = plt.Rectangle((0, 0), 1, 1, edgecolor=color,
                                    facecolor=color, alpha=alpha)
 

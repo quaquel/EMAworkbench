@@ -17,7 +17,8 @@ from sklearn.ensemble import (ExtraTreesClassifier, ExtraTreesRegressor,
 from sklearn.feature_selection.univariate_selection import (f_regression,
                                                             f_classif, chi2)
 
-from .scenario_discovery_util import CLASSIFICATION, REGRESSION
+from .scenario_discovery_util import RuleInductionType
+from ..util import get_module_logger
 
 # Created on Jul 9, 2014
 #
@@ -31,11 +32,10 @@ __all__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2',
            'get_univariate_feature_scores', 'get_rf_feature_scores',
            'get_ex_feature_scores', 'get_feature_scores_all']
 
+_logger = get_module_logger(__name__)
+
 F_REGRESSION = f_regression
-
-
 F_CLASSIFICATION = f_classif
-
 CHI2 = chi2
 
 
@@ -63,7 +63,14 @@ def _prepare_experiments(experiments):
     x_nominal_columns = x_nominal.columns.values
 
     for column in x_nominal_columns:
-        x[column] = x[column].astype('category').cat.codes
+        if np.unique(x[column]).shape==(1,):
+            x = x.drop(column, axis=1)
+            _logger.info(("{} dropped from analysis "
+                          "because only a single category").format(column))
+        else:
+            x[column] = x[column].astype('category').cat.codes
+        
+    
 
     return x.values, x.columns.tolist()
 
@@ -146,7 +153,8 @@ def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
     return pvalues
 
 
-def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
+def get_rf_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
+                          nr_trees=250,
                           max_features='auto', max_depth=None,
                           min_samples_split=2, min_samples_leaf=1,
                           bootstrap=True, oob_score=True, random_state=None):
@@ -157,7 +165,7 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     ----------
     x : structured array
     y : 1D nd.array
-    mode : {CLASSIFICATION, REGRESSION}
+    mode : {RuleInductionType.CLASSIFICATION, RuleInductionType.REGRESSION}
     nr_trees : int, optional
                nr. of trees in forest (default=250)
     max_features : int, optional
@@ -186,10 +194,10 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     '''
     x, uncs = _prepare_experiments(x)
 
-    if mode == CLASSIFICATION:
+    if mode == RuleInductionType.CLASSIFICATION:
         rfc = RandomForestClassifier
         criterion = 'gini'
-    elif mode == REGRESSION:
+    elif mode == RuleInductionType.REGRESSION:
         rfc = RandomForestRegressor
         criterion = 'mse'
     else:
@@ -217,8 +225,8 @@ def get_rf_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     return importances, forest
 
 
-def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
-                          max_features='auto', max_depth=None,
+def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
+                          nr_trees=250, max_features='auto', max_depth=None,
                           min_samples_split=2, min_samples_leaf=1,
                           min_weight_fraction_leaf=0, max_leaf_nodes=None,
                           bootstrap=True, oob_score=True, random_state=None):
@@ -229,7 +237,7 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     ----------
     x : structured array
     y : 1D nd.array
-    mode : {CLASSIFICATION, REGRESSION}
+    mode : {RuleInductionType.CLASSIFICATION, RuleInductionType.REGRESSION}
     nr_trees : int, optional
                nr. of trees in forest (default=250)
     max_features : int, float, string or None, optional
@@ -262,10 +270,10 @@ def get_ex_feature_scores(x, y, mode=CLASSIFICATION, nr_trees=250,
     '''
     x, uncs = _prepare_experiments(x)
 
-    if mode == CLASSIFICATION:
+    if mode == RuleInductionType.CLASSIFICATION:
         etc = ExtraTreesClassifier
         criterion = 'gini'
-    elif mode == REGRESSION:
+    elif mode == RuleInductionType.REGRESSION:
         etc = ExtraTreesRegressor
         criterion = 'mse'
     else:
@@ -300,7 +308,8 @@ algorithms = {'extra trees': get_ex_feature_scores,
               'univariate': get_univariate_feature_scores}
 
 
-def get_feature_scores_all(x, y, alg='extra trees', mode=REGRESSION,
+def get_feature_scores_all(x, y, alg='extra trees',
+                           mode=RuleInductionType.REGRESSION,
                            **kwargs):
     '''perform feature scoring for all outcomes using the specified feature
     scoring algorithm
@@ -311,7 +320,7 @@ def get_feature_scores_all(x, y, alg='extra trees', mode=REGRESSION,
     y : dict of 1d numpy arrays
         the outcomes, with a string as key, and a 1D array for each outcome
     alg : {'extra trees', 'random forest', 'univariate'}, optional
-    mode : {REGRESSION, CLASSIFICATION}, optional
+    mode : {RuleInductionType.REGRESSION, RuleInductionType.CLASSIFICATION}, optional
     kwargs : dict, optional
              any remaining keyword arguments will be passed to the specific
              feature scoring algorithm

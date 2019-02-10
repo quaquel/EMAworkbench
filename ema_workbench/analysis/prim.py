@@ -13,14 +13,15 @@ The implementation is designed for interactive use in combination with
 the jupyter notebook.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import copy
-import math
+import itertools
 import matplotlib as mpl
 from operator import itemgetter
 import warnings
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
 
 try:
     import altair as alt
@@ -29,15 +30,13 @@ except ImportError:
     warnings.warn(("altair based interactive "
                    "inspection not available"), ImportWarning)
 
-
-import numpy as np
-import pandas as pd
-import seaborn as sns
-
 from ..util import (EMAError, temporary_filter, INFO, get_module_logger,
                     ema_logging)
 from . import scenario_discovery_util as sdutil
-from .prim_pca import pca_preprocess  # @UnusedImport
+from .prim_util import (PrimException, CurEntry, PRIMObjectiveFunctions,
+                        NotSeen, is_pareto_efficient,
+                        get_quantile, rotate_subset, calculate_qp,
+                        determine_dimres, is_significant)
 
 # Created on 22 feb. 2013
 #
@@ -45,60 +44,220 @@ from .prim_pca import pca_preprocess  # @UnusedImport
 
 
 __all__ = ['ABOVE', 'BELOW', 'setup_prim', 'Prim', 'PrimBox',
-           'PrimException', 'MultiBoxesPrim', "pca_preprocess"]
+           "pca_preprocess", "run_constrained_prim", 'PRIMObjectiveFunctions']
 _logger = get_module_logger(__name__)
 
-LENIENT2 = 'lenient2'
-LENIENT1 = 'lenient1'
-ORIGINAL = 'original'
 
 ABOVE = 1
 BELOW = -1
 PRECISION = '.2f'
 
 
-def get_quantile(data, quantile):
-    '''
-    quantile calculation modeled on the implementation used in sdtoolkit
+def pca_preprocess(experiments, y, subsets=None, exclude=set()):
+    '''perform PCA to preprocess experiments before running PRIM
+
+    Pre-process the data by performing a pca based rotation on it.
+    This effectively turns the algorithm into PCA-PRIM as described
+    in `Dalal et al (2013) <http://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
 
     Parameters
     ----------
-    data : nd array like
-           dataset for which quantile is needed
-    quantile : float
-               the desired quantile
+    experiments : DataFrame
+    y : ndarray
+        one dimensional binary array
+    subsets : dict, optional
+              expects a dictionary with group name as key and a list of
+              uncertainty names as values. If this is used, a constrained
+              PCA-PRIM is executed
+    exclude : list of str, optional
+              the uncertainties that should be excluded from the rotation
+
+    Returns
+    -------
+    rotated_experiments
+        DataFrame
+    rotation_matrix
+        DataFrame
+    
+    Raises
+    ------
+    RuntimeError
+        if mode is not binary (i.e. y is not a binary classification).
+        if X contains non numeric columns
+
 
     '''
-    assert quantile > 0
-    assert quantile < 1
+    # experiments to rotate
+    x = experiments.drop(exclude, axis=1)
+    
+    #
+    if not x.select_dtypes(exclude=np.number).empty:
+        raise RuntimeError("X includes non numeric columns")
+    if not set(np.unique(y)) == {0, 1}:
+        raise RuntimeError('y should only contain 0s and 1s')
 
-    data = np.sort(data)
-
-    i = (len(data) - 1) * quantile
-    index_lower = int(math.floor(i))
-    index_higher = int(math.ceil(i))
-
-    value = 0
-
-    if quantile > 0.5:
-        # upper
-        while (data[index_lower] == data[index_higher]) & (index_lower > 0):
-            index_lower -= 1
-        value = (data[index_lower] + data[index_higher]) / 2
+    # if no subsets are provided all uncertainties with non dtype object
+    # are in the same subset, the name of this is r, for rotation
+    if not subsets:
+        subsets = {"r": x.columns.values.tolist()}
     else:
-        # lower
-        while (data[index_lower] == data[index_higher]) & \
-              (index_higher < len(data) - 1):
-            index_higher += 1
-        value = (data[index_lower] + data[index_higher]) / 2
+        # TODO:: should we check on double counting in subsets?
+        #        should we check all uncertainties are in x?
+        pass
+        
+    # prepare the dtypes for the new rotated experiments recarray
+    new_columns = []
+    new_dtypes = []
+    for key, value in subsets.items():
+        # the names of the rotated columns are based on the group name
+        # and an index
+        subset_cols = ["{}_{}".format(key, i) for i in range(len(value))]
+        new_columns.extend(subset_cols)
+        new_dtypes.extend((float,)*len(value))
 
-    return value
+    # make a new empty experiments dataframe
+    rotated_experiments = pd.DataFrame(index=experiments.index.values)
+
+    for name, dtype in zip(new_columns, new_dtypes):
+        rotated_experiments[name] = pd.Series(dtype=dtype)
+
+    # put the uncertainties with object dtypes already into the new
+    for entry in exclude:
+        rotated_experiments[name] = experiments[entry]
+
+    # iterate over the subsets, rotate them, and put them into the new
+    # experiments dataframe
+    rotation_matrix = np.zeros((x.shape[1], )*2)
+    column_names = []
+    row_names = []
+
+    j = 0
+    for key, value in subsets.items():
+        x_subset = x[value]
+        subset_rotmat, subset_experiments = rotate_subset(x_subset, y)
+        rotation_matrix[j:j + len(value), j:j + len(value)] = subset_rotmat
+        row_names.extend(value)
+        j += len(value)
+
+        for i in range(len(value)):
+            name = "%s_%s" % (key, i)
+            rotated_experiments[name] = subset_experiments[:, i]
+            [column_names.append(name)]
+
+    rotation_matrix = pd.DataFrame(rotation_matrix, index=row_names,
+                                   columns=column_names)
+
+    return rotated_experiments, rotation_matrix
 
 
+def run_constrained_prim(experiments, y, issignificant=True, 
+                         **kwargs):
+    ''' Run PRIM repeatedly while constraining the maximum number of dimensions
+    available in x
+    
+    Improved usage of PRIM as described in `Kwakkel (2019) <https://onlinelibrary.wiley.com/doi/full/10.1002/ffo2.8>`_.
+    
+    Parameters
+    ----------
+    x : numpy structured array
+    y : numpy array
+    issignificant : bool, optional
+                    if True, run prim only on subsets of dimensions
+                    that are significant for the initial PRIM on the 
+                    entire dataset.
+    **kwargs : any additional keyword arguments are passed on to PRIM
+    
+    
+    Returns
+    -------
+    PrimBox instance
+    
+    '''
+    frontier = []
+    merged_lims = []
+    merged_qp = []
+    
+    alg = Prim(experiments, y, threshold=0.1, **kwargs)
+    boxn = alg.find_box()
+    
+    dims = determine_dimres(boxn, issignificant=issignificant)
+    
+    # run prim for all possible combinations of dims
+    subsets = []
+    for n in range(1, len(dims)+1):
+        for subset in itertools.combinations(dims, n):
+            subsets.append(subset)
+    _logger.info("going to run PRIM {} times".format(len(subsets)))
+    
+    boxes = [boxn]
+    for subset in subsets:
+        with temporary_filter(__name__, INFO):
+            x = experiments.loc[:, subset].copy()
+            alg = Prim(x, y, threshold=0.1, **kwargs)
+            box = alg.find_box() 
+            boxes.append(box)
+        
+    box_init = boxn.prim.box_init
+    not_seen = NotSeen()
+    
+    for box in boxes:
+        peeling = box.peeling_trajectory
+        lims = box.box_lims
+
+        logical = np.ones(box.peeling_trajectory.shape[0], dtype=np.bool)
+
+        for i in range(box.peeling_trajectory.shape[0]):
+            lim = lims[i]
+            
+            boxlim = box_init.copy()
+            for column in lim:
+                boxlim[column] = lim[column]
+                
+            boolean = is_significant(box, i) & not_seen(boxlim)
+            
+            logical[i] = boolean
+            if boolean:
+                merged_lims.append(boxlim)
+                merged_qp.append(box.qp[i])
+        frontier.append(peeling[logical])
+
+    frontier = pd.concat(frontier)
+
+    # remove dominated boxes
+    peeling_trajectory = frontier.reset_index(drop=True)   
+    data = peeling_trajectory.iloc[:, [0, 1, -1]].copy().values
+    data[:,2] *= -1
+    logical = is_pareto_efficient(data)
+    
+    # resort to ensure sensible ordering
+    pt = peeling_trajectory[logical]
+    pt = pt.reset_index(drop=True)
+    pt = pt.sort_values(['res_dim', 'coverage'],
+                        ascending=[True, False])
+
+    box_lims = [lim for lim, entry in zip(merged_lims, logical) if entry]
+    qps = [qp for qp, entry in zip(merged_qp, logical) if entry]
+    sorted_lims = []
+    sorted_qps = []
+    for entry in pt.index:
+        sorted_lims.append(box_lims[int(entry)])
+        sorted_qps.append(qps[int(entry)])
+    
+    # ensuring index has normal order starting from 0
+    pt = pt.reset_index(drop=True)
+    pt.id = pt.index
+
+    # create PrimBox
+    box = PrimBox(boxn.prim, boxn.prim.box_init, boxn.prim.yi)
+    box.peeling_trajectory = pt
+    box.box_lims = sorted_lims
+    box.qp = sorted_qps
+    return box
 
 
 def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     """Helper function for setting up the prim algorithm
+    
     Parameters
     ----------
     results : tuple
@@ -115,9 +274,11 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
                list of uncertainties to include in prim analysis
     kwargs : dict
              valid keyword arguments for prim.Prim
+    
     Returns
     -------
     a Prim instance
+    
     Raises
     ------
     PrimException
@@ -131,54 +292,8 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
 
 
-def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
-    '''Helper function for calculating quasi p-values'''
-    if data.size == 0:
-        return [-1, -1]
-
-    u = data.name
-    dtype = data.dtype
-
-    unlimited = initial_boxlim[u]
-
-    if np.issubdtype(dtype, np.number):
-        qp_values = []
-        for direction, (limit, unlimit) in enumerate(zip(data,
-                                                         unlimited)):
-            if unlimit != limit:
-                temp_box = box_lim.copy()
-                temp_box.at[direction, u] = unlimit
-                qp = sdutil._calculate_quasip(x, y, temp_box,
-                                              Hbox, Tbox)
-            else:
-                qp = -1
-            qp_values.append(qp)
-    else:
-        temp_box = box_lim.copy()
-        temp_box.loc[:, u] = unlimited
-        qp = sdutil._calculate_quasip(x, y, temp_box,
-                                      Hbox, Tbox)
-        qp_values = [qp, -1]
-
-    return qp_values
-
-
-class CurEntry(object):
-    '''a descriptor for the current entry on the peeling and pasting
-    trajectory'''
-
-    def __init__(self, name):
-        self.name = name
-
-    def __get__(self, instance, _):
-        return instance.peeling_trajectory[self.name][instance._cur_box]
-
-    def __set__(self, instance, value):
-        raise PrimException("this property cannot be assigned to")
-
-
 class PrimBox(object):
-    '''A class that holds information over a specific box
+    '''A class that holds information for a specific box
 
     Attributes
     ----------
@@ -340,8 +455,6 @@ class PrimBox(object):
 
         box_zero = self.box_lims[0]
 
-        max_dims = max(len(i) for i in self.qp) + 1 # add 1 to include 0 dims as its own category
-
         for i, (entry, qp) in enumerate(zip(self.box_lims, self.qp)):
             qp = pd.DataFrame(qp, index=['qp_lower', 'qp_upper'])
             dims = qp.columns.tolist()
@@ -363,7 +476,7 @@ class PrimBox(object):
 
             # handle nominal
             for dim in nominal_res_dims:
-                #                 TODO:: qp values
+                #TODO:: qp values
                 items = df[nominal_res_dims].loc[0, :].values[0]
                 for j, item in enumerate(items):
                     entry = dict(name=dim, n_items=len(items) + 1,
@@ -391,7 +504,7 @@ class PrimBox(object):
                 scale=alt.Scale(
                     range=sns.color_palette(
                         'YlGnBu',
-                        n_colors=max(8, max_dims)).as_hex())),
+                        n_colors=8).as_hex())),
             opacity=alt.condition(
                 point_selector,
                 alt.value(1),
@@ -414,7 +527,8 @@ class PrimBox(object):
 
         base = alt.Chart(boxes).encode(
             x=alt.X('x_lower:Q', axis=alt.Axis(grid=False,
-                                               title='box limits', labels=False),
+                                               title='box limits',
+                                               labels=False),
                     scale=alt.Scale(domain=(0, 1), padding=0.1)),
             x2='x_upper:Q',
             y=alt.Y('name:N', scale=alt.Scale(padding=1.0))
@@ -470,7 +584,7 @@ class PrimBox(object):
 
         return chart & layered
 
-    def resample(self, i=None, iterations=10, p=1 / 2):
+    def resample(self, i=None, iterations=10, p=1/2):
         '''Calculate resample statistics for candidate box i
 
         Parameters
@@ -580,9 +694,7 @@ class PrimBox(object):
         self.update(new_box_lim, indices)
 
     def update(self, box_lims, indices):
-        '''
-
-        update the box to the provided box limits.
+        '''update the box to the provided box limits.
 
         Parameters
         ----------
@@ -704,16 +816,6 @@ class PrimBox(object):
         qp_values = qp_values.to_dict(orient='list')
         return qp_values
 
-#     def _format_stats(self, nr, stats):
-#         '''helper function for formating box stats'''
-#         row = self.stats_format.format(nr, **stats)
-#         return row
-
-
-class PrimException(Exception):
-    '''Base exception class for prim related exceptions'''
-    pass
-
 
 class Prim(sdutil.OutputFormatterMixin):
     '''Patient rule induction algorithm
@@ -741,7 +843,7 @@ class Prim(sdutil.OutputFormatterMixin):
                minimum mass of a box (default = 0.05).
     threshold_type : {ABOVE, BELOW}
                      whether to look above or below the threshold value
-    mode : {'binary', 'classification'}, optional
+    mode : {RuleInductionType.BINARY, RuleInductionType.REGRESSION}, optional
             indicated whether PRIM is used for regression, or for scenario
             classification in which case y should be a binary vector
     update_function = {'default', 'guivarch'}, optional
@@ -762,14 +864,17 @@ class Prim(sdutil.OutputFormatterMixin):
 
     message = "{0} points remaining, containing {1} cases of interest"
 
-    def __init__(self, x, y, threshold, obj_function=LENIENT1,
+    def __init__(self, x, y, threshold,
+                 obj_function=PRIMObjectiveFunctions.LENIENT1,
                  peel_alpha=0.05, paste_alpha=0.05, mass_min=0.05,
-                 threshold_type=ABOVE, mode=sdutil.BINARY,
+                 threshold_type=ABOVE, mode=sdutil.RuleInductionType.BINARY,
                  update_function='default'):
+
         x = x.reset_index(drop=True)
         y = np.asarray(y).ravel()
-        assert y.size == len(x)
-        assert mode in {sdutil.BINARY, sdutil.REGRESSION}
+
+        assert mode in {sdutil.RuleInductionType.BINARY,
+                        sdutil.RuleInductionType.REGRESSION}
         assert self._assert_mode(y, mode, update_function)
 
         # preprocess x
@@ -790,15 +895,22 @@ class Prim(sdutil.OutputFormatterMixin):
                                                  self.x_int_columns])
 
         x_nominal = x.select_dtypes(exclude=np.number)
+
+        # filter out dimensions with only single value
+        for column in x_nominal.columns.values:
+            if np.unique(x[column]).shape==(1,):
+                x = x.drop(column, axis=1)
+                _logger.info(("{} dropped from analysis "
+                            "because only a single category").format(column))
+        
+        x_nominal = x.select_dtypes(exclude=np.number)
         self.x_nominal = x_nominal.values
         self.x_nominal_columns = x_nominal.columns.values
-
-        # TODO::filter out dimensions with only single value
 
         self.n_cols = x.columns.shape[0]
 
         for column in self.x_nominal_columns:
-            x[column] = x[column].astype('category')
+            x[column] = x[column].astype('category')        
 
         self.x = x
         self.y = y
@@ -1454,7 +1566,7 @@ class Prim(sdutil.OutputFormatterMixin):
             return -1
 
     def _assert_mode(self, y, mode, update_function):
-        if mode == sdutil.BINARY:
+        if mode == sdutil.RuleInductionType.BINARY:
             return set(np.unique(y)) == {0, 1}
         if update_function == 'guivarch':
             return False
@@ -1481,9 +1593,10 @@ class Prim(sdutil.OutputFormatterMixin):
                'float': _real_paste}
 
     # dict with the various objective functions available
-    _obj_functions = {LENIENT2: _lenient2_obj_func,
-                      LENIENT1: _lenient1_obj_func,
-                      ORIGINAL: _original_obj_func}
+    # todo:: move functions themselves to ENUM?
+    _obj_functions = {PRIMObjectiveFunctions.LENIENT2: _lenient2_obj_func,
+                      PRIMObjectiveFunctions.LENIENT1: _lenient1_obj_func,
+                      PRIMObjectiveFunctions.ORIGINAL: _original_obj_func}
 
     _update_functions = {'default': _update_yi_remaining_default,
                          'guivarch': _update_yi_remaining_guivarch}

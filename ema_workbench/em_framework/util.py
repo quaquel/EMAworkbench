@@ -139,8 +139,6 @@ class NamedObjectMap(object):
 class NamedObjectMapDescriptor(object):
     def __init__(self, kind):
         self.kind = kind
-        self.name = None
-        self.internal_name = None
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -160,6 +158,10 @@ class NamedObjectMapDescriptor(object):
             setattr(instance, self.internal_name, map)
 
         map.extend(values)
+
+    def __set_name__(self, owner, name):
+        self.name = name
+        self.internal_name = '_' + name
 
 
 class NamedDict(UserDict, NamedObject):

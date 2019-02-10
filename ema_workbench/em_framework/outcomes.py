@@ -122,13 +122,6 @@ class AbstractOutcome(Variable):
 
         return rep
 
-    def expected_range(self):
-        if self._expected_range is None:
-            raise ValueError(
-                'no expected_range is set for {}'.format(
-                    self.variable_name))
-        return self._expected_range
-
 
 class ScalarOutcome(AbstractOutcome):
     '''
@@ -157,13 +150,25 @@ class ScalarOutcome(AbstractOutcome):
     kind : int
 
     '''
+    
+    @property
+    def expected_range(self):
+        if self._expected_range is None:
+            raise ValueError(
+                'no expected_range is set for {}'.format(
+                    self.variable_name))
+        return self._expected_range    
+
+    @expected_range.setter
+    def expected_range(self, expected_range):
+        self._expected_range = expected_range
 
     def __init__(self, name, kind=AbstractOutcome.INFO, variable_name=None,
                  function=None, expected_range=None):
         super(ScalarOutcome, self).__init__(name, kind,
                                             variable_name=variable_name,
-                                            function=function,
-                                            expected_range=expected_range)
+                                            function=function)
+        self.expected_range = expected_range
 
     def process(self, values):
         values = super(ScalarOutcome, self).process(values)
@@ -171,6 +176,8 @@ class ScalarOutcome(AbstractOutcome):
             raise EMAError(f"outcome {self.name} should be a scalar, "
                            f"but it is {type(values)}")
         return values
+    
+
 
 
 class TimeSeriesOutcome(AbstractOutcome):

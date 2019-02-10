@@ -179,7 +179,8 @@ class BaseEvaluator(object):
                                    zipper=zipper)
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
-                 reference=None, constraints=None, **kwargs):
+                 reference=None, constraints=None, convergence_freq=1000,
+                 logging_freq=5, **kwargs):
         '''convenience method for outcome optimization.
 
         is forwarded to :func:optimize, with evaluator and models
@@ -188,10 +189,13 @@ class BaseEvaluator(object):
         '''
         return optimize(self._msis, algorithm=algorithm, nfe=int(nfe),
                         searchover=searchover, evaluator=self,
-                        reference=reference, constraints=constraints, **kwargs)
+                        reference=reference, constraints=constraints, 
+                        convergence_freq=convergence_freq,
+                        logging_freq=logging_freq, **kwargs)
 
     def robust_optimize(self, robustness_functions, scenarios,
-                        algorithm=EpsNSGAII, nfe=10000, **kwargs):
+                        algorithm=EpsNSGAII, nfe=10000,convergence_freq=1000,
+                        logging_freq=5, **kwargs):
         '''convenience method for robust optimization.
 
         is forwarded to :func:robust_optimize, with evaluator and models
@@ -199,7 +203,9 @@ class BaseEvaluator(object):
 
         '''
         return robust_optimize(self._msis, robustness_functions, scenarios,
-                               self, algorithm=algorithm, nfe=nfe, **kwargs)
+                               self, algorithm=algorithm, nfe=nfe, 
+                               convergence_freq=convergence_freq,
+                               logging_freq=logging_freq,**kwargs)
 
     def robust_evaluate(self, robustness_functions, scenarios, policies,
                         **kwargs):
@@ -458,10 +464,10 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                       '{} experiments').format(n_scenarios,
                                                n_models, nr_of_exp))
     else:
-        nr_of_exp = n_models * n_scenarios * n_policies
-        _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
-                      '{} experiments').format(n_scenarios, n_policies,
-                                               n_models, nr_of_exp))
+    nr_of_exp = n_models * n_scenarios * n_policies
+    _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
+                  '{} experiments').format(n_scenarios, n_policies,
+                                           n_models, nr_of_exp))
 
     if not callback:
         callback = DefaultCallback(
@@ -498,7 +504,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
-             convergence=None, constraints=None, **kwargs):
+             convergence=None, constraints=None, 
+             convergence_freq=1000, logging_freq=5,
+             **kwargs):
     '''optimize the model
 
     Parameters
@@ -510,8 +518,12 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     kwargs : additional arguments to pass on to algorithm
     convergence : function or collection of functions, optional
     constraints : list, optional
+    convergence_freq :  int
+                        nfe between convergence check
+    logging_freq : int
+                   number of generations between logging of progress
     kwargs : any additional arguments will be passed on to algorithm
-
+    
     Returns
     -------
     pandas DataFrame
@@ -543,12 +555,13 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
         evaluator = SequentialEvaluator(models)
 
     return _optimize(problem, evaluator, algorithm, convergence, nfe,
-                     **kwargs)
+                     convergence_freq, logging_freq, **kwargs)
 
 
 def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
-                    convergence=None, constraints=None, **kwargs):
+                    convergence=None, constraints=None, 
+                    convergence_freq=1000, logging_freq=5, **kwargs):
     '''perform robust optimization
 
     Parameters
@@ -560,6 +573,10 @@ def robust_optimize(model, robustness_functions, scenarios,
     algorithm : platypus Algorithm instance
     nfe : int
     constraints : list
+    convergence_freq :  int
+                        nfe between convergence check
+    logging_freq : int
+                   number of generations between logging of progress
     kwargs : any additional arguments will be passed on to algorithm
 
     Raises
@@ -585,7 +602,7 @@ def robust_optimize(model, robustness_functions, scenarios,
         evaluator = SequentialEvaluator(model)
 
     result = _optimize(problem, evaluator, algorithm, convergence,
-                     int(nfe), **kwargs)
+                     int(nfe), convergence_freq, logging_freq, **kwargs)
 
     if isinstance(result, tuple) and len(result)==2:
         result, result_convergence = result

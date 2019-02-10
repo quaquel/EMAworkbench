@@ -4,9 +4,8 @@ Created on Feb 13, 2014
 This example demonstrates the use of PRIM. The dataset was generated
 using the world container model (Tavasszy et al 2011; http://dx.doi.org/10.1016/j.jtrangeo.2011.05.005)
 
-@author: jhkwakkel
+
 '''
-import numpy as np
 import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results
@@ -22,10 +21,8 @@ def classify(outcomes):
     outcome = outcomes[ooi]
     outcome = outcome / default_flow
 
-    classes = np.zeros(outcome.shape[0])
-    classes[outcome < 1] = 1
+    classes = outcome < 1
     return classes
-
 
 fn = r'./data/5000 runs WCM.tar.gz'
 results = load_results(fn)
@@ -46,7 +43,7 @@ box1.write_ppt_to_stdout()
 box1.select(44)
 
 # show the resulting box
-prim_obj.display_boxes()
+prim_obj.show_boxes()
 prim_obj.boxes_to_dataframe()
 
 plt.show()
