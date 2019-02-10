@@ -8,6 +8,7 @@ from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
 from operator import itemgetter
+import math
 
 import numpy as np
 import pandas as pd
@@ -149,6 +150,7 @@ def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
     pvalues.sort(key=itemgetter(1))
 
     pvalues = pd.DataFrame(pvalues)
+    pvalues = pvalues.set_index(0)
 
     return pvalues
 
@@ -221,13 +223,14 @@ def get_rf_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     importances.sort(key=itemgetter(1), reverse=True)
 
     importances = pd.DataFrame(importances)
+    importances = importances.set_index(0)
 
     return importances, forest
 
 
 def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
-                          nr_trees=250, max_features='auto', max_depth=None,
-                          min_samples_split=2, min_samples_leaf=1,
+                          nr_trees=100, max_features=None, max_depth=None,
+                          min_samples_split=2, min_samples_leaf=None,
                           min_weight_fraction_leaf=0, max_leaf_nodes=None,
                           bootstrap=True, oob_score=True, random_state=None):
     '''
@@ -241,12 +244,17 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     nr_trees : int, optional
                nr. of trees in forest (default=250)
     max_features : int, float, string or None, optional
+                   by default, it will use number of featers/3, following
+                   Jaxa-Rozen & Kwakkel (2018) doi: 10.1016/j.envsoft.2018.06.011
                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     max_depth : int, optional
                 see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     min_samples_split : int, optional
                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     min_samples_leaf : int, optional
+                       defaults to 1 for N=1000 or lower, from there on
+                       proportional to sqrt of N
+                       (see discussion in Jaxa-Rozen & Kwakkel (2018) doi: 10.1016/j.envsoft.2018.06.011) 
                        see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     min_weight_fraction_leaf : float, optional
                                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
@@ -269,6 +277,20 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
 
     '''
     x, uncs = _prepare_experiments(x)
+
+    # TODO
+    # max_features = number of variables/3
+    #
+    # min_samples_leaf 
+    # 1000 - >
+    # then proportional based on sqrt of N
+    # dus sqrt(N) / Sqrt(1000) met 1 als minimumd
+    if max_features is None:
+        max_features = int(round(x.shape[1]/3))
+    if min_samples_leaf is None:
+        min_samples_leaf = min(1, 
+                               int(round(math.sqrt(x.shape[0])/math.sqrt(1000))))
+    
 
     if mode == RuleInductionType.CLASSIFICATION:
         etc = ExtraTreesClassifier
@@ -299,6 +321,7 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     importances.sort(key=itemgetter(1), reverse=True)
 
     importances = pd.DataFrame(importances)
+    importances = importances.set_index(0)
 
     return importances, extra_trees
 
@@ -336,7 +359,6 @@ def get_feature_scores_all(x, y, alg='extra trees',
         fs, _ = algorithms[alg](x, value, mode=mode, **kwargs)
 
         fs = fs.rename(columns={1: key})
-        fs = fs.set_index(0)
 
         if complete is None:
             complete = fs.T
