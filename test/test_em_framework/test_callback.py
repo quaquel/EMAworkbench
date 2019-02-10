@@ -15,7 +15,8 @@ from ema_workbench.em_framework.parameters import (CategoricalParameter,
                                         RealParameter, IntegerParameter)
 from ema_workbench.em_framework.parameters import Policy, Scenario, Case
 from ema_workbench.util import EMAError
-from ema_workbench.em_framework.outcomes import TimeSeriesOutcome 
+from ema_workbench.em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
+                                                 TimeSeriesOutcome) 
 from ema_workbench.em_framework.util import NamedObject
 
 class TestDefaultCallback(unittest.TestCase):
@@ -23,7 +24,9 @@ class TestDefaultCallback(unittest.TestCase):
         # let's add some uncertainties to this
         uncs = [RealParameter("a", 0, 1),
                 RealParameter("b", 0, 1)]
-        outcomes = [TimeSeriesOutcome("test")]
+        outcomes = [ScalarOutcome("scalar"),
+                    ArrayOutcome("array", shape=(10,)),
+                    TimeSeriesOutcome("timeseries")]
         callback = DefaultCallback(uncs, [], outcomes,
                                    nr_experiments=100)
         
@@ -35,7 +38,13 @@ class TestDefaultCallback(unittest.TestCase):
         names = callback.cases.columns.values.tolist()
         names = set(names)
         self.assertEqual(names, {'a', 'b', 'policy', 'model', 'scenario'})
-        self.assertEqual(callback.results, {})
+        
+        self.assertNotIn('scalar', callback.results)
+        self.assertNotIn('timeseries', callback.results)
+        self.assertIn('array', callback.results)
+        
+        a = np.all(np.isnan(callback.results['array']))
+        self.assertTrue(a)
         
         # with levers
         levers = [RealParameter('c', 0, 10)]
@@ -50,7 +59,13 @@ class TestDefaultCallback(unittest.TestCase):
         names = callback.cases.columns.values.tolist()
         names = set(names)
         self.assertEqual(names, {'a', 'b', 'c','policy', 'model', 'scenario'})
-        self.assertEqual(callback.results, {})
+        
+        self.assertNotIn('scalar', callback.results)
+        self.assertNotIn('timeseries', callback.results)
+        self.assertIn('array', callback.results)
+        
+        a = np.all(np.isnan(callback.results['array']))
+        self.assertTrue(a)
 
     def test_store_results(self):
         nr_experiments = 3
