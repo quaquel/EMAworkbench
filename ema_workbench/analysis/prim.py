@@ -606,7 +606,7 @@ class PrimBox(object):
         y = self.prim.y[self.yi_initial]
 
         if len(self._resampled) < iterations:
-            with temporary_filter(ema_logging.LOGGER_NAME, INFO, 'find_box'):
+            with temporary_filter(__name__, INFO, 'find_box'):
                 for j in range(len(self._resampled), iterations):
                     _logger.info('resample {}'.format(j))
                     index = np.random.choice(x.index, size=int(x.shape[0] * p),
