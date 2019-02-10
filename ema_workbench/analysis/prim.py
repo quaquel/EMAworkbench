@@ -920,6 +920,8 @@ class Prim(sdutil.OutputFormatterMixin):
 
         if len(self.y.shape) > 1:
             raise PrimException("y is not a 1-d array")
+        if self.y.shape[0] != len(self.x):
+            raise PrimException("len(y) != len(x)")
 
         # store the remainder of the parameters
         self.paste_alpha = paste_alpha
