@@ -26,6 +26,7 @@ import pandas as pd
 from ..util import ema_exceptions, get_module_logger
 from .parameters import (CategoricalParameter, IntegerParameter,
                          BooleanParameter)
+from builtins import AttributeError
 
 #
 # Created on 22 Jan 2013
@@ -194,6 +195,14 @@ class DefaultCallback(AbstractCallback):
             df[name] = pd.Series(dtype=dtype)
         self.cases = df
         self.nr_experiments = nr_experiments
+        
+        for outcome in outcomes:
+            shape = outcome.shape
+            if shape is not None:
+                shape = (nr_experiments, ) + shape
+                data = np.empty(shape)
+                data[:] = np.nan
+                self.results[outcome.name] = data 
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
@@ -233,7 +242,7 @@ class DefaultCallback(AbstractCallback):
                     shape.insert(0, self.nr_experiments)
 
                     self.results[outcome] = np.empty(shape)
-                    self.results[outcome][:] = np.NAN
+                    self.results[outcome][:] = np.nan
                     self.results[outcome][case_id, ] = outcome_res
 
     def __call__(self, experiment, outcomes):
