@@ -756,7 +756,14 @@ class OutputFormatterMixin(object):
         raise NotImplementedError
 
     def boxes_to_dataframe(self, include_stats=False):
-        '''convert boxes to pandas dataframe'''
+        '''convert boxes to pandas dataframe
+
+        Parameters
+        ----------
+        include_stats : bool, default False
+            If True, the box statistics will also be retrieved and returned in
+            the same DataFrame as the boxes.
+        '''
 
         boxes = self.boxes
 
