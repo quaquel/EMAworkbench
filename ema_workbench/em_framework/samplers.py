@@ -128,7 +128,24 @@ def _beta(alpha, beta, low=0, high=1):
     return stats.beta(alpha, beta, loc=low, scale=high - low)
 
 
+def _bernoulli(rate, low=0, high=1):
+    """
+    A PERT random variate with more standardized parameter order,
 
+    This sets the parameters such that the last two are lower bound
+    and width, so that it can degenerate cleanly to a uniform.
+
+    Parameters
+    ----------
+    rate : scalar
+        The single parameter of the Bernoulli distribution.
+    low : scalar
+        Lower bound of the distribution support, assumed 0
+    width : scalar
+        Distance from lower bound to upper bound of the distribution support,
+        assumed 1
+    """
+    return stats.bernoulli(rate)
 
 class AbstractSampler(object):
     '''
@@ -152,7 +169,7 @@ class AbstractSampler(object):
         "triangle": stats.triang,
         "triang": stats.triang,
         "pert": _pert2,
-        "bernoulli": stats.bernoulli,
+        "bernoulli": _bernoulli,
     }
 
     # which uniform-type distribution to degrade to for each original distribution

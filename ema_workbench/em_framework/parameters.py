@@ -274,8 +274,8 @@ class IntegerParameter(Parameter):
         self.dist = dist if dist is not None else Parameter.INTEGER
 
         if self.dist == Parameter.BERNOULLI:
-            assert lb_int == 0
-            assert up_int == 1
+            assert lower_bound == 0
+            assert upper_bound == 1
 
         if isinstance(dist_params, numbers.Number):
             self.dist_params = [dist_params]
@@ -292,7 +292,7 @@ class IntegerParameter(Parameter):
         if self.dist == Parameter.INTEGER:
             return (self.lower_bound, self.upper_bound + 1)
         elif self.dist == Parameter.BERNOULLI:
-            return (self.dist_params[0] if len(self.dist_params)>0 else 0.5, )
+            return (self.dist_params[0] if len(self.dist_params)>0 else 0.5, self.lower_bound, self.upper_bound + 1)
         else:
             raise ValueError(f"unknown dist {self.dist}")
 

@@ -9,12 +9,13 @@ from __future__ import (absolute_import, unicode_literals, division,
 import unittest.mock as mock
 import unittest
 
-from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler, 
+from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler,
                                 FullFactorialSampler, PartialFactorialSampler,
-                                determine_parameters)
+                                determine_parameters, UniformLHSSampler)
 from ema_workbench.em_framework.parameters import (RealParameter, 
                                                       IntegerParameter, 
-                                                      CategoricalParameter)
+                                                      CategoricalParameter,
+                                                   BooleanParameter)
 from ema_workbench.em_framework.parameters import Scenario
 from ema_workbench.em_framework import Model
 
@@ -41,7 +42,83 @@ class SamplerTestCase(unittest.TestCase):
     def test_lhs_sampler(self):
         sampler = LHSSampler()
         self._test_generate_designs(sampler)
-     
+
+    def test_lhs_sampler_with_distribution(self):
+        sampler = LHSSampler()
+
+        uncertainties = [RealParameter("1", 0, 10),
+                         IntegerParameter("2", 0, 10),
+                         CategoricalParameter('3', ['a', 'b', 'c']),
+                         RealParameter("4", 0, 10, dist=RealParameter.TRIANGLE, dist_params=[0.95]),
+                         RealParameter("5", 0, 10, dist=RealParameter.PERT, dist_params=[0.05, 4.0]),
+                         BooleanParameter("6"),
+                         BooleanParameter("7", dist=BooleanParameter.BERNOULLI, dist_params=[0.1, ]),
+                         ]
+
+        designs = sampler.generate_designs(uncertainties, 100)
+        designs.kind = Scenario
+        msg = 'tested for {}'.format(type(sampler))
+
+        checksum4 = sum(d['4'] for d in designs)
+        checksum5 = sum(d['5'] for d in designs)
+        checksum6 = sum(d['6'] for d in designs)
+        checksum7 = sum(d['7'] for d in designs)
+        self.assertAlmostEqual(checksum4, 650, delta=5)
+        self.assertAlmostEqual(checksum5, 200, delta=5)
+        self.assertAlmostEqual(checksum6, 50, delta=5)
+        self.assertAlmostEqual(checksum7, 10, delta=5)
+
+        actual_nr_designs = 0
+        for design in designs:
+            actual_nr_designs += 1
+
+        self.assertIn('1', design, msg)
+        self.assertIn('2', design, msg)
+        self.assertIn('3', design, msg)
+        self.assertIn('4', design, msg)
+        self.assertIn('5', design, msg)
+        self.assertIn('6', design, msg)
+        self.assertIn('7', design, msg)
+        self.assertEqual(designs.n, actual_nr_designs, msg)
+
+    def test_ulhs_sampler(self):
+        sampler = UniformLHSSampler()
+
+        uncertainties = [RealParameter("1", 0, 10),
+                         IntegerParameter("2", 0, 10),
+                         CategoricalParameter('3', ['a', 'b', 'c']),
+                         RealParameter("4", 0, 10, dist=RealParameter.TRIANGLE, dist_params=[0.95]),
+                         RealParameter("5", 0, 10, dist=RealParameter.PERT, dist_params=[0.05, 4.0]),
+                         BooleanParameter("6"),
+                         BooleanParameter("7", dist=BooleanParameter.BERNOULLI, dist_params=[0.1, ]),
+                         ]
+
+        designs = sampler.generate_designs(uncertainties, 100)
+        designs.kind = Scenario
+        msg = 'tested for {}'.format(type(sampler))
+
+        checksum4 = sum(d['4'] for d in designs)
+        checksum5 = sum(d['5'] for d in designs)
+        checksum6 = sum(d['6'] for d in designs)
+        checksum7 = sum(d['7'] for d in designs)
+        self.assertAlmostEqual(checksum4, 500, delta=5)
+        self.assertAlmostEqual(checksum5, 500, delta=5)
+        self.assertAlmostEqual(checksum6, 50, delta=5)
+        self.assertAlmostEqual(checksum7, 50, delta=5)
+
+        actual_nr_designs = 0
+        for design in designs:
+            actual_nr_designs += 1
+
+        self.assertIn('1', design, msg)
+        self.assertIn('2', design, msg)
+        self.assertIn('3', design, msg)
+        self.assertIn('4', design, msg)
+        self.assertIn('5', design, msg)
+        self.assertIn('6', design, msg)
+        self.assertIn('7', design, msg)
+        self.assertEqual(designs.n, actual_nr_designs, msg)
+
     def test_mc_sampler(self):
         sampler = MonteCarloSampler()
         self._test_generate_designs(sampler)
