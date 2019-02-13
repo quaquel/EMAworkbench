@@ -1,6 +1,16 @@
 '''
-This module specifies a generic ModelStructureInterface for controlling
+This module specifies a generic Model class for controlling
 NetLogo models.
+
+ScalarOutcomes and ArrayOutcomes are assumed to be reporters on the 
+NetLogo model that return a scalar and list respectively. These will be 
+queried after having run the model for the specified ticks
+
+TimeSeries outcomes write data to a .txt file for each tick. This can be used
+in combination with an agent-set or reporter. However, it introduces
+substantial overhead. 
+
+
 '''
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
@@ -190,7 +200,6 @@ class BaseNetLogoModel(FileModel):
         c_start = "repeat {} [".format(self.run_length)
         c_close = "go ]"
         c_middle = " ".join(commands)
-#         c_end = " ".join(end_commands)
         command = " ".join((c_start, c_middle, c_close))
         _logger.debug(command)
         self.netlogo.command(command)
@@ -200,8 +209,6 @@ class BaseNetLogoModel(FileModel):
         self.netlogo.command(c_middle)
 
         # we also need to save the non time series outcomes
-#         self.netlogo.command(c_end)
-
         self.netlogo.command("file-close-all")
         
         results = self._handle_outcomes(fns)
@@ -255,19 +262,6 @@ class BaseNetLogoModel(FileModel):
                 result = [float(entry) for entry in result]
                 results[key] = np.asarray(result)
             os.remove(value)
-
-#         temp_output = {}
-#
-#         outputs = [entry for entry in self.outcomes]
-#         outputs +=  [entry for entry in self.constraints]
-#
-#         for outcome in outputs:
-#             varname = outcome.variable_name
-#             if len(varname)==1:
-#                 varname = varname[0]
-#                 temp_output[outcome.name] = results[varname]
-#             else:
-#                 temp_output[outcome.name] = [results[var] for var in varname]
         return results
 
 
