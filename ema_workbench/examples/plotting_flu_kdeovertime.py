@@ -6,7 +6,6 @@ Created on Jul 8, 2014
 import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results
-
 from ema_workbench.analysis.plotting import kde_over_time
 
 ema_logging.log_to_stderr(ema_logging.INFO)
