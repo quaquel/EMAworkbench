@@ -872,12 +872,12 @@ class Prim(sdutil.OutputFormatterMixin):
         assert mode in {sdutil.RuleInductionType.BINARY,
                         sdutil.RuleInductionType.REGRESSION}
         assert self._assert_mode(y, mode, update_function)
-
         # preprocess x
         try:
             x.drop(columns='scenario', inplace=True)
         except KeyError:
             pass
+        x = x.reset_index(drop=True)
 
         x_float = x.select_dtypes(np.float)
         self.x_float = x_float.values
@@ -916,6 +916,8 @@ class Prim(sdutil.OutputFormatterMixin):
 
         if len(self.y.shape) > 1:
             raise PrimException("y is not a 1-d array")
+        if self.y.shape[0] != len(self.x):
+            raise PrimException("len(y) != len(x)")
 
         # store the remainder of the parameters
         self.paste_alpha = paste_alpha
