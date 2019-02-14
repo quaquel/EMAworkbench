@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from ema_workbench import ema_logging, load_results
-from ema_workbench.analysis import get_ex_feature_scores, RuleInductionType
+from ema_workbench.analysis import (get_ex_feature_scores,
+                                    RuleInductionType)
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
@@ -31,8 +32,8 @@ for i in range(0, y.shape[1], 2):
     
     all_scores.append(scores)
 all_scores = pd.concat(all_scores, axis=1, sort=False)
-all_scores[all_scores<0.05] = 0 #cleans up results
-
+all_scores[all_scores<0.075] = 0 #cleans up results
+normalized = all_scores.divide(all_scores.sum(axis=1), axis=0)
 normalized = all_scores.divide(all_scores.sum(axis=1), axis=0)
 
 labels = normalized.index.values

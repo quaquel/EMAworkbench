@@ -9,10 +9,9 @@ is the same as used in fluExample
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 '''
 from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
-                           perform_experiments)
+                           perform_experiments, MultiprocessingEvaluator)
 
 from ema_workbench.connectors.vensim import VensimModel
-from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)

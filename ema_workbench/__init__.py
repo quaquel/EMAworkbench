@@ -1,7 +1,4 @@
-from __future__ import (absolute_import)
-from . import analysis
 from . import em_framework
-
 from .em_framework import (Model, RealParameter, CategoricalParameter,
                            BooleanParameter,
                            IntegerParameter, perform_experiments, optimize,
@@ -14,4 +11,7 @@ from . import util
 from .util import (save_results, load_results, ema_logging, EMAError,
                    experiments_to_scenarios)
 
-__version__ = '1.3'
+# from . import analysis
+
+
+__version__ = '2.0'

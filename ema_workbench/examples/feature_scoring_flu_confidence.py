@@ -9,7 +9,8 @@ import pandas as pd
 import seaborn as sns
 
 from ema_workbench import ema_logging, load_results
-from ema_workbench.analysis import get_ex_feature_scores, RuleInductionType
+from ema_workbench.analysis.feature_scoring import (get_ex_feature_scores,
+                                                    RuleInductionType)
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
