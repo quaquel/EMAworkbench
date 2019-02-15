@@ -157,7 +157,7 @@ class RealParameter(Parameter):
     '''
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None, pff=False):
+                 default=None, variable_name=None, pff=False, dist=None):
         super(
             RealParameter,
             self).__init__(
@@ -169,11 +169,36 @@ class RealParameter(Parameter):
             variable_name=variable_name,
             pff=pff)
 
-        self.dist = Parameter.UNIFORM
+        if dist is None:
+            from scipy.stats import uniform
+            dist = uniform(lower_bound, upper_bound-lower_bound)
+        self.rv_gen = dist
 
-    @property
-    def params(self):
-        return (self.lower_bound, self.upper_bound - self.lower_bound)
+
+    def __repr__(self, *args, **kwargs):
+        start = '{}(\'{}\', {}, {}'.format(self.__class__.__name__,
+                                           self.name,
+                                           self.lower_bound, self.upper_bound)
+
+        if self.resolution:
+            start += ', resolution={}'.format(self.resolution)
+        if self.default:
+            start += ', default={}'.format(self.default)
+        if self.variable_name != [self.name]:
+            start += ', variable_name={}'.format(self.variable_name)
+        if self.pff:
+            start += ', pff={}'.format(self.pff)
+        try:
+            dist_name = self.rv_gen.dist.name
+        except:
+            pass
+        else:
+            if dist_name != 'uniform':
+                start += ', dist={}'.format(dist_name)
+
+        start += ')'
+
+        return start
 
 
 class IntegerParameter(Parameter):
@@ -200,7 +225,7 @@ class IntegerParameter(Parameter):
     '''
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None, pff=False):
+                 default=None, variable_name=None, pff=False, dist=None):
         super(
             IntegerParameter,
             self).__init__(
@@ -223,12 +248,11 @@ class IntegerParameter(Parameter):
                 raise ValueError(('all entries in resolution should be '
                                   'integers'))
 
-        self.dist = Parameter.INTEGER
-
-    @property
-    def params(self):
-        # scipy.stats.randit uses closed upper bound, hence the +1
-        return (self.lower_bound, self.upper_bound + 1)
+        if dist is None:
+            from scipy.stats import randint
+            # scipy.stats.randit uses closed upper bound, hence the +1
+            dist = randint(lower_bound, upper_bound+1)
+        self.rv_gen = dist
 
 
 class CategoricalParameter(IntegerParameter):
@@ -254,7 +278,7 @@ class CategoricalParameter(IntegerParameter):
         self._categories.extend(values)
 
     def __init__(self, name, categories, default=None, variable_name=None,
-                 pff=False, multivalue=False):
+                 pff=False, multivalue=False, dist=None):
         lower_bound = 0
         upper_bound = len(categories) - 1
 
@@ -270,7 +294,8 @@ class CategoricalParameter(IntegerParameter):
             resolution=None,
             default=default,
             variable_name=variable_name,
-            pff=pff)
+            pff=pff,
+            dist=dist)
         cats = [create_category(cat) for cat in categories]
 
         self._categories = NamedObjectMap(Category)
@@ -375,10 +400,10 @@ class BooleanParameter(IntegerParameter):
     '''
 
     def __init__(self, name, default=None, variable_name=None,
-                 pff=False):
+                 pff=False, dist=None):
         super(BooleanParameter, self).__init__(
             name, 0, 1, resolution=None, default=default,
-            variable_name=variable_name, pff=pff)
+            variable_name=variable_name, pff=pff, dist=dist)
 
         self.categories = [False, True]
         self.resolution = [0, 1]

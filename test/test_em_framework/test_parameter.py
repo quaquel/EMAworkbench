@@ -104,8 +104,10 @@ class RealParameterTestCase(unittest.TestCase):
         upper_bound = 2.1
         par = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
         
-        self.assertEqual(par.params, (0, 2.1))
-    
+        # self.assertEqual(par.params, (0, 2.1))
+        self.assertEqual(par.rv_gen.ppf(0), 0)
+        self.assertEqual(par.rv_gen.ppf(1), 2.1)
+
     
 class IntegerParameterTestCase(unittest.TestCase):
     
@@ -158,8 +160,9 @@ class IntegerParameterTestCase(unittest.TestCase):
         par = parameters.IntegerParameter(name, lower_bound, upper_bound, 
                                           resolution)
         
-        self.assertEqual(par.params, (0, 3))
-    
+        self.assertEqual(int(par.rv_gen.ppf(5e-324)), 0) # ppf(0) is actually out of range
+        self.assertEqual(int(par.rv_gen.ppf(1)), 2)
+
     
 class CategoricalParameterTestCase(unittest.TestCase):
     def test_instantiation(self):
