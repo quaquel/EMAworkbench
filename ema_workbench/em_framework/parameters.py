@@ -174,6 +174,17 @@ class RealParameter(Parameter):
             dist = uniform(lower_bound, upper_bound-lower_bound)
         self.rv_gen = dist
 
+    def __eq__(self, other):
+        comparison = [all(hasattr(self, key) == hasattr(other, key) and
+                          getattr(self, key) == getattr(other, key) for key
+                          in self.__dict__.keys() if key != 'rv_gen')]
+        comparison.append(self.__class__ == other.__class__)
+        comparison.append(self.rv_gen.args == other.rv_gen.args)
+        comparison.append(self.rv_gen.kwds == other.rv_gen.kwds)
+        comparison.append(self.rv_gen.a == other.rv_gen.a)
+        comparison.append(self.rv_gen.b == other.rv_gen.b)
+        comparison.append(self.rv_gen.dist.name == other.rv_gen.dist.name)
+        return all(comparison)
 
     def __repr__(self, *args, **kwargs):
         start = '{}(\'{}\', {}, {}'.format(self.__class__.__name__,
@@ -253,6 +264,18 @@ class IntegerParameter(Parameter):
             # scipy.stats.randit uses closed upper bound, hence the +1
             dist = randint(lower_bound, upper_bound+1)
         self.rv_gen = dist
+
+    def __eq__(self, other):
+        comparison = [all(hasattr(self, key) == hasattr(other, key) and
+                          getattr(self, key) == getattr(other, key) for key
+                          in self.__dict__.keys() if key != 'rv_gen')]
+        comparison.append(self.__class__ == other.__class__)
+        comparison.append(self.rv_gen.args == other.rv_gen.args)
+        comparison.append(self.rv_gen.kwds == other.rv_gen.kwds)
+        comparison.append(self.rv_gen.a == other.rv_gen.a)
+        comparison.append(self.rv_gen.b == other.rv_gen.b)
+        comparison.append(self.rv_gen.dist.name == other.rv_gen.dist.name)
+        return all(comparison)
 
 
 class CategoricalParameter(IntegerParameter):
