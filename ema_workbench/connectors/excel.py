@@ -261,7 +261,7 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
-            raise EMAError(f"no default sheet while trying to read from '{name}'")
+            raise EMAError("no default sheet while trying to read from '{}'".format(name))
 
         try:
             value = sheet.Range(this_range).Value
@@ -301,7 +301,7 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
-            raise EMAError(f"no default sheet while trying to write to '{name}'")
+            raise EMAError("no default sheet while trying to write to '{}'".format(name))
 
         try:
             sheet.Range(this_range).Value = value
