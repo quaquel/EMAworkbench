@@ -5,7 +5,7 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
                            ScalarOutcome, TimeSeriesOutcome, Constant,
                            Scenario, Policy, MultiprocessingEvaluator,
                            IpyparallelEvaluator, SequentialEvaluator,
-                           ReplicatorModel, Constraint)
+                           ReplicatorModel, Constraint, ArrayOutcome)
 
 from . import util
 from .util import (save_results, load_results, ema_logging, EMAError,
