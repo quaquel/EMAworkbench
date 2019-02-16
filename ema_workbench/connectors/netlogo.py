@@ -71,7 +71,8 @@ class BaseNetLogoModel(FileModel):
     command_format = "set {0} {1}"
 
     def __init__(self, name, wd=None, model_file=None, netlogo_home=None,
-                 netlogo_version=None, jvm_home=None, gui=False):
+                 netlogo_version=None, jvm_home=None, gui=False, 
+                 jvmargs=[]):
         """
         init of class
 
@@ -90,6 +91,7 @@ class BaseNetLogoModel(FileModel):
                Java home directory for Jpype
         gui : bool, optional
                If true, displays the NetLogo GUI (not supported on Mac)
+        jvmargs : list, optional
 
         Raises
         ------
@@ -113,6 +115,7 @@ class BaseNetLogoModel(FileModel):
         self.jvm_home = jvm_home
         self.gui = gui
         self._ts_output_variables = None
+        self.jvmargs= jvmargs
 
     @method_logger(__name__)
     def model_init(self, policy):
@@ -133,7 +136,7 @@ class BaseNetLogoModel(FileModel):
                 netlogo_home=self.netlogo_home,
                 netlogo_version=self.netlogo_version,
                 jvm_home=self.jvm_home,
-                gui=self.gui)
+                gui=self.gui, jvmargs=self.jvmargs)
             _logger.debug("netlogo started")
         path = os.path.join(self.working_directory, self.model_file)
         self.netlogo.load_model(path)
