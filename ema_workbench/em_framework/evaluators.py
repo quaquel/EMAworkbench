@@ -19,8 +19,13 @@ warnings.simplefilter("once", ImportWarning)
 
 from .callbacks import DefaultCallback
 from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
-from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
+
+try:
+    from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
                               initialize_engines, cleanup, _run_experiment)
+except (ImportError, ModuleNotFoundError):
+    warnings.warn('ipyparallel not installed - IpyparalleEvaluator not available')
+    
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (evaluate_robust, evaluate, EpsNSGAII,
