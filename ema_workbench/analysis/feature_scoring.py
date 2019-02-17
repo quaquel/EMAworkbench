@@ -288,7 +288,7 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     if max_features is None:
         max_features = int(round(x.shape[1]/3))
     if min_samples_leaf is None:
-        min_samples_leaf = min(1, 
+        min_samples_leaf = max(1,
                                int(round(math.sqrt(x.shape[0])/math.sqrt(1000))))
     
 
