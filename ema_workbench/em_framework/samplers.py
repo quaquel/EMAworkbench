@@ -25,7 +25,8 @@ import scipy.stats as stats
 
 from . import util
 from .parameters import (IntegerParameter, Policy, Scenario,
-                         BooleanParameter, CategoricalParameter)
+                         BooleanParameter, CategoricalParameter,
+                         _get_bounds_from_dist)
 
 # Created on 16 aug. 2011
 #
@@ -159,13 +160,49 @@ class LHSSampler(AbstractSampler):
 
         '''
 
-        # return self._lhs(distribution, size)
-
         perc = np.linspace(0, (size - 1) / size, size)
         np.random.shuffle(perc)
         smp = stats.uniform(perc, 1. / size).rvs()
         v = distribution.ppf(smp)
 
+        return v
+
+class UniformLHSSampler(AbstractSampler):
+    """
+    Generates a LHS from a uniform distribution on each parameter
+    """
+
+    def __init__(self):
+        super(UniformLHSSampler, self).__init__()
+
+    def sample(self, distribution, size):
+        '''
+        Generate a Latin Hypercube Sample.
+
+        Instead of drawing from the given distribution for each parameter,
+        that distribution is used only to determine the upper and lower
+        bounds for each parameter.
+
+        Parameters
+        ----------
+        distribution : scipy distribution
+                       the distribution from which to
+                       extract upper and lower bounds
+        size : int
+               the number of samples to generate
+
+        Returns
+        -------
+        dict
+            with the paramertainty.name as key, and the sample as value
+
+        '''
+
+        perc = np.linspace(0, (size - 1) / size, size)
+        np.random.shuffle(perc)
+        smp = stats.uniform(perc, 1. / size).rvs()
+        lower_bound, upper_bound = _get_bounds_from_dist(distribution)
+        v = stats.uniform(lower_bound, upper_bound - lower_bound).ppf(smp)
         return v
 
 

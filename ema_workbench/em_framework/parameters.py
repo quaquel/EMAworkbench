@@ -8,6 +8,7 @@ import numbers
 import pandas
 import six
 import warnings
+from scipy import stats
 
 from .util import (NamedObject, Variable, NamedObjectMap, Counter,
                    NamedDict, combine)
@@ -85,7 +86,7 @@ class Parameter(Variable):
     UNIFORM = 'uniform'
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None, pff=False):
+                 default=None, variable_name=None, pff=False, dist=None):
         super(Parameter, self).__init__(name)
 
         if resolution is None:
@@ -105,12 +106,23 @@ class Parameter(Variable):
         self.default = default
         self.variable_name = variable_name
         self.pff = pff
+        self.rv_gen = dist
 
     def __eq__(self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
                           getattr(self, key) == getattr(other, key) for key
-                          in self.__dict__.keys())]
+                          in self.__dict__.keys() if key != 'rv_gen')]
         comparison.append(self.__class__ == other.__class__)
+        if self.rv_gen is None and other.rv_gen is not None:
+            return False
+        if self.rv_gen is not None and other.rv_gen is None:
+            return False
+        if self.rv_gen is not None and other.rv_gen is not None:
+            comparison.append(self.rv_gen.args == other.rv_gen.args)
+            comparison.append(self.rv_gen.kwds == other.rv_gen.kwds)
+            comparison.append(self.rv_gen.a == other.rv_gen.a)
+            comparison.append(self.rv_gen.b == other.rv_gen.b)
+            comparison.append(self.rv_gen.dist.name == other.rv_gen.dist.name)
         return all(comparison)
 
     def __str__(self):
@@ -135,6 +147,21 @@ class Parameter(Variable):
         return start
 
 
+def _get_bounds_from_dist(dist):
+    ppf_zero = 0
+    try:
+        if isinstance(dist.dist, stats.rv_discrete):
+            # ppf at actual zero for rv_discrete gives lower bound - 1
+            # due to a quirk in the scipy.stats implementation
+            # so we use the smallest positive float instead
+            ppf_zero = 5e-324
+    except AttributeError:
+        pass
+    lower_bound = dist.ppf(ppf_zero)
+    upper_bound = dist.ppf(1.0)
+    return lower_bound, upper_bound
+
+
 class RealParameter(Parameter):
     ''' real valued model input parameter
 
@@ -156,8 +183,18 @@ class RealParameter(Parameter):
 
     '''
 
-    def __init__(self, name, lower_bound, upper_bound, resolution=None,
+    def __init__(self, name, lower_bound=None, upper_bound=None, resolution=None,
                  default=None, variable_name=None, pff=False, dist=None):
+
+        if dist is None and (lower_bound is None or upper_bound is None):
+            raise ValueError("must give lower_bound and upper_bound, or dist")
+
+        if dist is None:
+            from scipy.stats import uniform
+            dist = uniform(lower_bound, upper_bound-lower_bound)
+        else:
+            lower_bound, upper_bound = _get_bounds_from_dist(dist)
+
         super(
             RealParameter,
             self).__init__(
@@ -167,12 +204,10 @@ class RealParameter(Parameter):
             resolution=resolution,
             default=default,
             variable_name=variable_name,
-            pff=pff)
+            pff=pff,
+            dist=dist
+        )
 
-        if dist is None:
-            from scipy.stats import uniform
-            dist = uniform(lower_bound, upper_bound-lower_bound)
-        self.rv_gen = dist
 
     def __eq__(self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
@@ -235,8 +270,18 @@ class IntegerParameter(Parameter):
 
     '''
 
-    def __init__(self, name, lower_bound, upper_bound, resolution=None,
+    def __init__(self, name, lower_bound=None, upper_bound=None, resolution=None,
                  default=None, variable_name=None, pff=False, dist=None):
+
+        if dist is None and (lower_bound is None or upper_bound is None):
+            raise ValueError("must give lower_bound and upper_bound, or dist")
+
+        if dist is None:
+            from scipy.stats import randint
+            dist = randint(lower_bound, upper_bound+1)
+        else:
+            lower_bound, upper_bound = _get_bounds_from_dist(dist)
+
         super(
             IntegerParameter,
             self).__init__(
@@ -246,7 +291,8 @@ class IntegerParameter(Parameter):
             resolution=resolution,
             default=default,
             variable_name=variable_name,
-            pff=pff)
+            pff=pff,
+            dist=dist)
 
         lb_int = isinstance(lower_bound, numbers.Integral)
         up_int = isinstance(upper_bound, numbers.Integral)
@@ -259,11 +305,6 @@ class IntegerParameter(Parameter):
                 raise ValueError(('all entries in resolution should be '
                                   'integers'))
 
-        if dist is None:
-            from scipy.stats import randint
-            # scipy.stats.randit uses closed upper bound, hence the +1
-            dist = randint(lower_bound, upper_bound+1)
-        self.rv_gen = dist
 
     def __eq__(self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
@@ -301,7 +342,7 @@ class CategoricalParameter(IntegerParameter):
         self._categories.extend(values)
 
     def __init__(self, name, categories, default=None, variable_name=None,
-                 pff=False, multivalue=False, dist=None):
+                 pff=False, multivalue=False):
         lower_bound = 0
         upper_bound = len(categories) - 1
 
@@ -318,7 +359,7 @@ class CategoricalParameter(IntegerParameter):
             default=default,
             variable_name=variable_name,
             pff=pff,
-            dist=dist)
+            dist=None)
         cats = [create_category(cat) for cat in categories]
 
         self._categories = NamedObjectMap(Category)
@@ -424,6 +465,11 @@ class BooleanParameter(IntegerParameter):
 
     def __init__(self, name, default=None, variable_name=None,
                  pff=False, dist=None):
+        lower_bound, upper_bound = _get_bounds_from_dist(dist)
+
+        if lower_bound != 0 or upper_bound != 1:
+            raise ValueError('a bool distribution must have unit range')
+
         super(BooleanParameter, self).__init__(
             name, 0, 1, resolution=None, default=default,
             variable_name=variable_name, pff=pff, dist=dist)
