@@ -202,7 +202,10 @@ class UniformLHSSampler(AbstractSampler):
         np.random.shuffle(perc)
         smp = stats.uniform(perc, 1. / size).rvs()
         lower_bound, upper_bound = _get_bounds_from_dist(distribution)
-        v = stats.uniform(lower_bound, upper_bound - lower_bound).ppf(smp)
+        if hasattr(distribution, 'dist') and isinstance(distribution.dist, stats.rv_discrete):
+            v = stats.randint(lower_bound, upper_bound +1).ppf(smp)
+        else:
+            v = stats.uniform(lower_bound, upper_bound - lower_bound).ppf(smp)
         return v
 
 

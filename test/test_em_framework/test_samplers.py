@@ -123,7 +123,7 @@ class SamplerTestCase(unittest.TestCase):
             self.assertIn('5', design, msg)
             self.assertIn('6', design, msg)
             self.assertIn('7', design, msg)
-            self.assertEqual(designs.n, actual_nr_designs, msg)
+        self.assertEqual(designs.n, actual_nr_designs, msg)
 
 
     def test_mc_sampler(self):

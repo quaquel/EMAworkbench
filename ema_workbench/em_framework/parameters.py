@@ -281,6 +281,12 @@ class IntegerParameter(Parameter):
             dist = randint(lower_bound, upper_bound+1)
         else:
             lower_bound, upper_bound = _get_bounds_from_dist(dist)
+            if lower_bound != int(lower_bound):
+                raise TypeError('lower bound is not an integer')
+            lower_bound = int(lower_bound)
+            if upper_bound != int(upper_bound):
+                raise TypeError('upper bound is not an integer')
+            upper_bound = int(upper_bound)
 
         super(
             IntegerParameter,
@@ -465,10 +471,10 @@ class BooleanParameter(IntegerParameter):
 
     def __init__(self, name, default=None, variable_name=None,
                  pff=False, dist=None):
-        lower_bound, upper_bound = _get_bounds_from_dist(dist)
-
-        if lower_bound != 0 or upper_bound != 1:
-            raise ValueError('a bool distribution must have unit range')
+        if dist is not None:
+            lower_bound, upper_bound = _get_bounds_from_dist(dist)
+            if lower_bound != 0 or upper_bound != 1:
+                raise ValueError('a bool distribution must have unit range')
 
         super(BooleanParameter, self).__init__(
             name, 0, 1, resolution=None, default=default,
