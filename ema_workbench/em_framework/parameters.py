@@ -92,6 +92,12 @@ class Parameter(Variable):
         if resolution is None:
             resolution = []
 
+        if lower_bound is None:
+            lower_bound = _get_lower_bound_from_dist(dist)
+
+        if upper_bound is None:
+            upper_bound = _get_upper_bound_from_dist(dist)
+
         for entry in resolution:
             if not ((entry >= lower_bound) and (entry <= upper_bound)):
                 raise ValueError(('resolution not consistent with lower and '
