@@ -100,13 +100,20 @@ class Parameter(Variable):
         if lower_bound >= upper_bound:
             raise ValueError('upper bound should be larger than lower bound')
 
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
         self.resolution = resolution
         self.default = default
         self.variable_name = variable_name
         self.pff = pff
         self.rv_gen = dist
+
+    @property
+    def lower_bound(self):
+        return _get_lower_bound_from_dist(self.rv_gen)
+
+    @property
+    def upper_bound(self):
+        return _get_upper_bound_from_dist(self.rv_gen)
+
 
     def __eq__(self, other):
         comparison = [all(hasattr(self, key) == hasattr(other, key) and
@@ -160,6 +167,23 @@ def _get_bounds_from_dist(dist):
     lower_bound = dist.ppf(ppf_zero)
     upper_bound = dist.ppf(1.0)
     return lower_bound, upper_bound
+
+def _get_lower_bound_from_dist(dist):
+    ppf_zero = 0
+    try:
+        if isinstance(dist.dist, stats.rv_discrete):
+            # ppf at actual zero for rv_discrete gives lower bound - 1
+            # due to a quirk in the scipy.stats implementation
+            # so we use the smallest positive float instead
+            ppf_zero = 5e-324
+    except AttributeError:
+        pass
+    lower_bound = dist.ppf(ppf_zero)
+    return lower_bound
+
+def _get_upper_bound_from_dist(dist):
+    upper_bound = dist.ppf(1.0)
+    return upper_bound
 
 
 class RealParameter(Parameter):
