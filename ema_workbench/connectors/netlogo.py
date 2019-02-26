@@ -159,6 +159,7 @@ class BaseNetLogoModel(FileModel):
 
 
         """
+        # TODO:: point for speedup. Send all set commands in 1 go
         for key, value in experiment.items():
             try:
                 self.netlogo.command(self.command_format.format(key, value))
