@@ -11,3 +11,4 @@
 * move load and save to outcomes as class methods? Makes it much more
   expandable. Basically, any outcome can than easily be defined by other users. 
   does require some kind of metadata in the outcomes dict
+* Replace Category system with Enum or NamedTuple
