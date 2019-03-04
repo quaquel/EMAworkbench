@@ -15,7 +15,7 @@ __all__ = ["ema_parallel", "parameters"
 
 from .outcomes import (ScalarOutcome, TimeSeriesOutcome, Constraint,
                        ArrayOutcome)
-from .model import Model, FileModel, ReplicatorModel
+from .model import Model, FileModel, ReplicatorModel, Replicator, SingleReplication
 
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy, Constant,
