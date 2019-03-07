@@ -5,8 +5,8 @@ has been initialized with which policy.
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
-import sys
-import traceback
+# import sys
+# import traceback
 
 from ..util import get_module_logger, EMAError, CaseError
 
@@ -97,10 +97,10 @@ class ExperimentRunner(object):
             except Exception:
                 raise e
 
-            exception = traceback.print_exc()
-            if exception:
-                sys.stderr.write(exception)
-                sys.stderr.write("\n")
+#             exception = traceback.print_exc()
+#             if exception:
+#                 sys.stderr.write(exception)
+#                 sys.stderr.write("\n")
 
             errortype = type(e).__name__
             raise EMAError(("exception in run_model"

@@ -43,5 +43,6 @@ if __name__ == '__main__':
     # perform experiments
     n = 10
 
-    with MultiprocessingEvaluator(model) as evaluator:
+    with MultiprocessingEvaluator(model, n_processes=2,
+                                  maxtasksperchild=4) as evaluator:
         results = evaluator.perform_experiments(n)

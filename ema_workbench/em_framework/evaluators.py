@@ -242,14 +242,17 @@ class MultiprocessingEvaluator(BaseEvaluator):
     ----------
     msis : collection of models
     n_processes : int (optional)
+    max_tasks : int (optional)
 
     '''
 
-    def __init__(self, msis, n_processes=None, **kwargs):
+    def __init__(self, msis, n_processes=None, maxtasksperchild=None, **kwargs):
         super(MultiprocessingEvaluator, self).__init__(msis, **kwargs)
+
 
         self._pool = None
         self.n_processes = n_processes
+        self.maxtasksperchild = maxtasksperchild
 
     def initialize(self):
         log_queue = multiprocessing.Queue()
@@ -278,7 +281,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
 
         self._pool = multiprocessing.Pool(self.n_processes, initializer,
                                           (self._msis, log_queue, loglevel,
-                                           self.root_dir))
+                                           self.root_dir), self.maxtasksperchild)
         self.n_processes = self._pool._processes
         _logger.info("pool started")
         return self
