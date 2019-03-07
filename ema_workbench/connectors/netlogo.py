@@ -251,7 +251,11 @@ class BaseNetLogoModel(FileModel):
         directories.
 
         '''
-        self.netlogo.kill_workspace()
+        try:
+            self.netlogo.kill_workspace()
+        except AttributeError:
+            pass
+        
         jpype.shutdownJVM()
 
     def _handle_outcomes(self, fns):
