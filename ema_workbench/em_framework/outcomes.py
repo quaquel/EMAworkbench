@@ -273,8 +273,10 @@ class Constraint(ScalarOutcome):
     Parameters
     ----------
     name : str
-    variable_name : str or collection of str
+    parameter_names : str or collection of str
+    outcome_names : str or collection of str
     function : callable
+
 
     The function should return the distance from the feasibility threshold,
     given the model outputs with a variable name. The distance should be

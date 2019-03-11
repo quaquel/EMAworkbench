@@ -12,3 +12,7 @@
   expandable. Basically, any outcome can than easily be defined by other users. 
   does require some kind of metadata in the outcomes dict
 * Replace Category system with Enum or NamedTuple
+* new save function using shutil.make_archive to avoid memory errors
+  so create physical directory, save everything to it, turn it into an archive
+  and turn it into a tarbal / zipfile (shutil will make selecting extension
+  easier.
