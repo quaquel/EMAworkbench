@@ -181,8 +181,7 @@ def save_results(results, file_name):
         for key, value in outcomes.items():
             fh = WriterFile()
 
-            nr_dim = len(value.shape)
-            if nr_dim == 3:
+            if value.ndim == 3:
                 for i in range(value.shape[2]):
                     data = value[:, :, i]
                     save_numpy_array(fh, data)
