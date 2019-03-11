@@ -50,6 +50,9 @@ class AbstractOutcome(Variable):
     ----------
     name : str
     kind : int
+    variable_name : str
+    function : callable
+    shape : tuple
 
     '''
     __metaclass__ = abc.ABCMeta
@@ -152,7 +155,11 @@ class ScalarOutcome(AbstractOutcome):
     ----------
     name : str
     kind : int
-
+    variable_name : str
+    function : callable
+    shape : tuple
+    expected_range : tuple
+    
     '''
     
     @property
@@ -201,6 +208,16 @@ class ArrayOutcome(AbstractOutcome):
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
     shape : {tuple, None}, optional
+    
+    Attributes
+    ----------
+    name : str
+    kind : int
+    variable_name : str
+    function : callable
+    shape : tuple
+    expected_range : tuple
+    
 
     '''
     def __init__(self, name, variable_name=None,
@@ -249,7 +266,10 @@ class TimeSeriesOutcome(ArrayOutcome):
     ----------
     name : str
     kind : int
+    variable_name : str
     function : callable
+    shape : tuple
+    expected_range : tuple
 
     '''
 
@@ -277,10 +297,18 @@ class Constraint(ScalarOutcome):
     outcome_names : str or collection of str
     function : callable
 
-
-    The function should return the distance from the feasibility threshold,
-    given the model outputs with a variable name. The distance should be
-    0 if the constraint is met.
+    Attributes
+    ----------
+    name : str
+    parameter_names : str, list of str
+                      name(s) of the uncertain parameter(s) and/or
+                      lever parameter(s) to which the constraint applies 
+    outcome_names : str, list of str
+                    name(s) of the outcome(s) to which the constraint applies
+    function : callable
+               The function should return the distance from the feasibility
+               threshold, given the model outputs with a variable name. The
+               distance should be 0 if the constraint is met.
 
     '''
 
