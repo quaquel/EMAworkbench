@@ -152,6 +152,23 @@ class Logit(object):
     res_dim = CurEntry('res_dim')
     models = []
 
+    
+    @property
+    def threshold(self):
+        return self._threshold
+
+    @threshold.setter
+    def threshold(self, value):
+        self._threshold = value
+        
+        for i, model in enumerate(self.models):
+            predicted = model.predict(self._normalized.loc[:,
+                                                           model.params.index])
+            
+            den, cov = calculate_covden_for_treshold(predicted, self.y, value)
+            self.peeling_trajectory.loc[i, 'coverage'] = cov
+            self.peeling_trajectory.loc[i, 'density'] = den
+        
 
     def __init__(self, x, y, threshold=0.95):
         self.x = x
@@ -315,7 +332,7 @@ class Logit(object):
       
 
     def plot_pairwise_scatter(self, i, threshold=0.95):
-        '''plot pairwise scatter plot of datapoints, with contours as
+        '''plot pairwise scatter plot of data points, with contours as
         background
         
         

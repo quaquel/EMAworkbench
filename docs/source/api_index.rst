@@ -38,15 +38,17 @@ Analysis
 
    ../../ema_documentation/analysis/prim.rst
    ../../ema_documentation/analysis/cart.rst
-   ../../ema_documentation/analysis/regional_sa.rst
-   ../../ema_documentation/analysis/scenario_discovery_util.rst
-   ../../ema_documentation/analysis/feature_scoring.rst
+   ../../ema_documentation/analysis/logistic_regression.rst
    ../../ema_documentation/analysis/dimensional_stacking.rst
+   ../../ema_documentation/analysis/regional_sa.rst
+   ../../ema_documentation/analysis/feature_scoring.rst
    ../../ema_documentation/analysis/plotting.rst
    ../../ema_documentation/analysis/pairs_plotting.rst   
+   ../../ema_documentation/analysis/parcoords.rst
    ../../ema_documentation/analysis/b_and_w_plotting.rst
    ../../ema_documentation/analysis/plotting_util.rst
-   ../../ema_documentation/analysis/parcoords.rst
+   ../../ema_documentation/analysis/scenario_discovery_util.rst
+   
    
 Util
 ^^^^
