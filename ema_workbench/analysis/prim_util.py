@@ -25,19 +25,6 @@ class PrimException(Exception):
     pass
 
 
-class CurEntry(object):
-    '''a descriptor for the current entry on the peeling and pasting
-    trajectory'''
-
-    def __init__(self, name):
-        self.name = name
-
-    def __get__(self, instance, _):
-        return instance.peeling_trajectory[self.name][instance._cur_box]
-
-    def __set__(self, instance, value):
-        raise PrimException("this property cannot be assigned to")
-    
 class PRIMObjectiveFunctions(Enum):
     LENIENT2 = 'lenient2'
     LENIENT1 = 'lenient1'
@@ -80,6 +67,20 @@ def get_quantile(data, quantile):
         value = (data[index_lower] + data[index_higher]) / 2
 
     return value
+
+
+class CurEntry(object):
+    '''a descriptor for the current entry on the peeling and pasting
+    trajectory'''
+
+    def __init__(self, name):
+        self.name = name
+
+    def __get__(self, instance, _):
+        return instance.peeling_trajectory[self.name][instance._cur_box]
+
+    def __set__(self, instance, value):
+        raise PrimException("this property cannot be assigned to")
 
 
 def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):

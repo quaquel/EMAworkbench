@@ -34,7 +34,7 @@ class RuleInductionType(enum.Enum):
     
     CLASSIFICATION = 'classification'
     '''constant indicating classification mode'''
-
+    
 
 def _get_sorted_box_lims(boxes, box_init):
     '''Sort the uncertainties for each box in boxes based on a
