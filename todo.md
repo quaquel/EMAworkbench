@@ -16,3 +16,5 @@
   so create physical directory, save everything to it, turn it into an archive
   and turn it into a tarbal / zipfile (shutil will make selecting extension
   easier.
+* update general overview in documentatin with full path for analysis and
+  connectors
