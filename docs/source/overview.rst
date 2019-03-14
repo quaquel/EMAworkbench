@@ -70,14 +70,14 @@ techniques for analyzing the results from the exploratory modeling. The
 analysis scripts are tailored for use in combination with the workbench, but 
 they can also be used on their own with data generated in some other manner.
 
-* Patient Rule Induction Method (:mod:`prim`) 
-* Classification Trees (:mod:`cart`)
-* Logistic Regression (:mod:`logistic_regression`)
-* Dimensional Stacking (:mod:`dimensional_stacking`)
-* Feature Scoring (:mod:`feature_scoring`)
-* Regional Sensitivity Analysis (:mod:`regional_sa`)
-* various plotting functions for time series data (:mod:`plotting`)
-* pair wise plots (:mod:`pairs_plotting`)
-* parallel coordinate plots (:mod:`parcoords`)
-* support for converting figures to black and white (:mod:`b_an_w_plotting`) 
+* Patient Rule Induction Method (:mod:`ema_workbench.analysis.prim`) 
+* Classification Trees (:mod:`ema_workbench.analysis.cart`)
+* Logistic Regression (:mod:`ema_workbench.analysis.logistic_regression`)
+* Dimensional Stacking (:mod:`ema_workbench.analysis.dimensional_stacking`)
+* Feature Scoring (:mod:`ema_workbench.analysis.feature_scoring`)
+* Regional Sensitivity Analysis (:mod:`ema_workbench.analysis.regional_sa`)
+* various plotting functions for time series data (:mod:`ema_workbench.analysis.plotting`)
+* pair wise plots (:mod:`ema_workbench.analysis.pairs_plotting`)
+* parallel coordinate plots (:mod:`ema_workbench.analysis.parcoords`)
+* support for converting figures to black and white (:mod:`ema_workbench.analysis.b_an_w_plotting`) 
 
