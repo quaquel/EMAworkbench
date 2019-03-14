@@ -11,3 +11,4 @@ from . import pairs_plotting
 from .feature_scoring import (get_ex_feature_scores, get_feature_scores_all,
                         get_rf_feature_scores, get_univariate_feature_scores)
 from .scenario_discovery_util import RuleInductionType
+from .logistic_regression import Logit
