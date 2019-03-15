@@ -96,7 +96,11 @@ def contours(ax, model, xlabel, ylabel, levels):
     shape = xflatten.shape[0], len(model.params.index)
     data = pd.DataFrame(np.ones(shape),
                         columns=model.params.index)
-    base_data = data.multiply(0.5)
+    cols = model.params.index.values.tolist()
+    cols.remove('Intercept')
+    
+    base_data = data.copy()
+    base_data.loc[:, cols] = data.loc[:, cols].multiply(0.5)
 
     X = base_data.copy()
     X[xlabel] = xflatten
@@ -117,7 +121,7 @@ def contours(ax, model, xlabel, ylabel, levels):
 
 
 class Logit(object):
-    '''Implements an interactive version of logistic regresion using
+    '''Implements an interactive version of logistic regression using
     BIC based forward selection
     
     
@@ -142,10 +146,8 @@ class Logit(object):
                list of models associated with each model on the peeling
                trajectory
     
-    
-    TODO:: peeling trajectory is a misnomer, requires fix to CurEntry
-    
     '''
+    #TODO:: peeling trajectory is a misnomer, requires fix to CurEntry
 
     coverage = CurEntry('coverage')
     density = CurEntry('density')
@@ -274,10 +276,9 @@ class Logit(object):
         -------
         a Figure instance
         
-
-        TODO:: might it be possible to flip the colorbar?
-
         '''
+        #TODO:: might it be possible to flip the colorbar?
+        
         fitted_model = self.models[i]
         x = self._normalized.loc[:, fitted_model.params.index.values]
         coverage, density, thresholds = calculate_covden(fitted_model, x,
