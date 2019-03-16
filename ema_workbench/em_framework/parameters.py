@@ -407,7 +407,10 @@ class Policy(NamedDict):
     # a unique experiment ID
     id_counter = Counter(1)
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name=Counter(), **kwargs):
+        
+        name = f"policy {name}"
+        
         super(Policy, self).__init__(name, **kwargs)
         self.id = Policy.id_counter()
 
