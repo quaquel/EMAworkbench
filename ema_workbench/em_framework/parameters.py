@@ -409,7 +409,10 @@ class Policy(NamedDict):
 
     def __init__(self, name=Counter(), **kwargs):
         
-        name = f"policy {name}"
+        # TODO: perhaps move this to seperate function that internally uses
+        # counter
+        if isinstance(name, int):
+            name = f"policy {name}"
         
         super(Policy, self).__init__(name, **kwargs)
         self.id = Policy.id_counter()
