@@ -19,3 +19,6 @@
 * update general overview in documentation with full path for analysis and
   connectors
 * if shape of outcomes and epsilons does not align, error should be raised.
+  alternatively, move epsilon into outcome, analogous to expected_range.
+  probably a better approach. Contains all relevant information within 
+  outcome class and avoids having to carefully maintain order. 
