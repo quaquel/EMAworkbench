@@ -672,21 +672,26 @@ class PrimBox(object):
         self.yi = self.prim.yi_remaining[indices]
         self._cur_box = i
 
-    def drop_restriction(self, uncertainty):
-        '''
-        drop the restriction on the specified dimension. That is,
-        replace the limits in the chosen box with a new box where for
-        the specified uncertainty the limits of the initial box are
-        being used. The resulting box is added to the peeling
-        trajectory.
+    def drop_restriction(self, i=-1, uncertainty=''):
+        '''Drop the restriction on the specified dimension for box i
 
         Parameters
         ----------
-        uncertainty : str
+        i : int, optional
+            defaults to the currently selected box, which
+            defaults to the latest box on the trajectory
+        uncertainty : str        
+
+
+        Replace the limits in box i with a new box where
+        for the specified uncertainty the limits of the initial box are 
+        being used. The resulting box is added to the peeling trajectory.
 
         '''
+        if i == -1:
+            i = self._cur_box
 
-        new_box_lim = copy.deepcopy(self.box_lim)
+        new_box_lim = copy.deepcopy(self.box_lims[i])
         new_box_lim.loc[:, uncertainty] = self.box_lims[0].loc[:, uncertainty]
         indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining, :],
                                  new_box_lim)
