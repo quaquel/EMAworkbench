@@ -16,5 +16,6 @@
   so create physical directory, save everything to it, turn it into an archive
   and turn it into a tarbal / zipfile (shutil will make selecting extension
   easier.
-* update general overview in documentatin with full path for analysis and
+* update general overview in documentation with full path for analysis and
   connectors
+* if shape of outcomes and epsilons does not align, error should be raised.
