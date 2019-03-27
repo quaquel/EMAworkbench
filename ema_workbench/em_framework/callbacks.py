@@ -232,7 +232,9 @@ class DefaultCallback(AbstractCallback):
                 try:
                     self.results[outcome][case_id, ] = outcome_res
                 except KeyError:
-                    shape = np.asarray(outcome_res).shape
+                    a = np.asarray(outcome_res)
+                    
+                    shape = a.shape
 
                     if len(shape) > 2:
                         message = self.shape_error_msg.format(len(shape))
@@ -241,7 +243,7 @@ class DefaultCallback(AbstractCallback):
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
 
-                    self.results[outcome] = np.empty(shape)
+                    self.results[outcome] = np.empty(shape, dtype=a.dtype)
                     self.results[outcome][:] = np.nan
                     self.results[outcome][case_id, ] = outcome_res
 
