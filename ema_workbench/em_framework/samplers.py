@@ -425,7 +425,7 @@ class PartialFactorialSampler(AbstractSampler):
         nr_designs = other_designs.n * ff_designs.n
 
         designs = PartialFactorialDesigns(ff_designs, other_designs,
-                                          parameters, nr_designs)
+                                          ff_params+other_params, nr_designs)
 
         return designs
 
@@ -585,7 +585,10 @@ class PartialFactorialDesigns(object):
         self.n = n
 
     def __iter__(self):
-        designs = itertools.product(self.ff_designs, self.other_designs)
+        if self.other_designs.designs:
+            designs = itertools.product(self.ff_designs, self.other_designs)
+        else:
+            designs = self.ff_designs
         return partial_designs_generator(designs)
 
 
@@ -606,7 +609,11 @@ def partial_designs_generator(designs):
     '''
 
     for design in designs:
-        ff_part, other_part = design
+        try:
+            ff_part, other_part = design
+        except ValueError:
+            ff_part = design
+            other_part = {}
 
         design = ff_part.copy()
         design.update(other_part)
