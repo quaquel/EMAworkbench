@@ -6,18 +6,7 @@ techniques including Full Factorial sampling, Latin Hypercube sampling, and
 Monte Carlo sampling.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-# try:
-#     from future_builtins import zip
-# except ImportError:
-#     try:
-#         from itertools import izip as zip  # < 2.5 or 3.x
-#     except ImportError:
-#         pass
-
 import abc
-import functools
 import itertools
 import numpy as np
 import operator
@@ -26,6 +15,7 @@ import scipy.stats as stats
 from . import util
 from .parameters import (IntegerParameter, Policy, Scenario,
                          BooleanParameter, CategoricalParameter)
+from ema_workbench.util.ema_exceptions import EMAError
 
 # Created on 16 aug. 2011
 #
@@ -386,6 +376,11 @@ class PartialFactorialSampler(AbstractSampler):
             else:
                 other_params.append(param)
 
+        if not ff_params:
+            raise EMAError("no parameters for full factorial sampling")
+        if not other_params:
+            raise EMAError("no parameters for normal sampling")
+
         return ff_params, other_params
 
     def generate_designs(self, parameters, nr_samples):
@@ -585,10 +580,7 @@ class PartialFactorialDesigns(object):
         self.n = n
 
     def __iter__(self):
-        if self.other_designs.designs:
-            designs = itertools.product(self.ff_designs, self.other_designs)
-        else:
-            designs = self.ff_designs
+        designs = itertools.product(self.ff_designs, self.other_designs)
         return partial_designs_generator(designs)
 
 
