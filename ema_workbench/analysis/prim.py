@@ -672,7 +672,7 @@ class PrimBox(object):
         self.yi = self.prim.yi_remaining[indices]
         self._cur_box = i
 
-    def drop_restriction(self, i=-1, uncertainty=''):
+    def drop_restriction(self, uncertainty='', i=-1):
         '''Drop the restriction on the specified dimension for box i
 
         Parameters
