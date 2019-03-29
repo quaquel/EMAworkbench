@@ -12,8 +12,6 @@ substantial overhead.
 
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
 from ema_workbench.em_framework.model import Replicator, SingleReplication
 from ema_workbench.util.ema_logging import get_module_logger
 from ema_workbench.em_framework.outcomes import TimeSeriesOutcome
