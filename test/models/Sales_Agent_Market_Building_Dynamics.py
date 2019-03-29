@@ -13,128 +13,69 @@ from pysd.py_backend import functions
 _subscript_dict = {}
 
 _namespace = {
-    'TIME':
-    'time',
-    'Time':
-    'time',
-    'Accumulating Income':
-    'accumulating_income',
-    'Accumulating Sales':
-    'accumulating_sales',
-    'Accumulating Tenure':
-    'accumulating_tenure',
-    'Total Cumulative Sales':
-    'total_cumulative_sales',
-    'Tenure':
-    'tenure',
-    'Total Cumulative Income':
-    'total_cumulative_income',
-    'Tier 2 Referrals':
-    'tier_2_referrals',
+    'TIME': 'time',
+    'Time': 'time',
+    'Accumulating Income': 'accumulating_income',
+    'Accumulating Sales': 'accumulating_sales',
+    'Accumulating Tenure': 'accumulating_tenure',
+    'Total Cumulative Sales': 'total_cumulative_sales',
+    'Tenure': 'tenure',
+    'Total Cumulative Income': 'total_cumulative_income',
+    'Tier 2 Referrals': 'tier_2_referrals',
     'Effort Remaining after Servicing Existing Clients':
     'effort_remaining_after_servicing_existing_clients',
-    'Down Referral Fraction':
-    'down_referral_fraction',
-    'Effort Devoted to Tier 2 Leads':
-    'effort_devoted_to_tier_2_leads',
-    'Tier 2 Lead Aquisition':
-    'tier_2_lead_aquisition',
-    'Tier 1 Referrals from Tier 2':
-    'tier_1_referrals_from_tier_2',
+    'Down Referral Fraction': 'down_referral_fraction',
+    'Effort Devoted to Tier 2 Leads': 'effort_devoted_to_tier_2_leads',
+    'Tier 2 Lead Aquisition': 'tier_2_lead_aquisition',
+    'Tier 1 Referrals from Tier 2': 'tier_1_referrals_from_tier_2',
     'Effort Remaining after Servicing Tier 2 Leads':
     'effort_remaining_after_servicing_tier_2_leads',
-    'Income':
-    'income',
-    'Qualification Rate':
-    'qualification_rate',
-    'Tier 1 Lead Aquisition':
-    'tier_1_lead_aquisition',
-    'Success Rate':
-    'success_rate',
-    'Tier 1 Sales':
-    'tier_1_sales',
-    'Tier 2 Sales':
-    'tier_2_sales',
-    'Still Employed':
-    'still_employed',
-    'Effort Devoted to Tier 1 Clients':
-    'effort_devoted_to_tier_1_clients',
-    'Tier 1 Income':
-    'tier_1_income',
-    'Effort Devoted to Tier 2 Clients':
-    'effort_devoted_to_tier_2_clients',
-    'Fraction of Effort for Sales':
-    'fraction_of_effort_for_sales',
-    'Expenses':
-    'expenses',
-    'Sales Effort Available':
-    'sales_effort_available',
-    'Initial Buffer':
-    'initial_buffer',
-    'Startup Subsidy Length':
-    'startup_subsidy_length',
-    'Total Effort Available':
-    'total_effort_available',
-    'Months of Buffer':
-    'months_of_buffer',
-    'Months of Expenses per Tier 1 Sale':
-    'months_of_expenses_per_tier_1_sale',
-    'Months of Expenses per Tier 2 Sale':
-    'months_of_expenses_per_tier_2_sale',
-    'Tier 2 Income':
-    'tier_2_income',
-    'Startup Subsidy':
-    'startup_subsidy',
-    'Time per Client Meeting':
-    'time_per_client_meeting',
-    'Client Lifetime':
-    'client_lifetime',
-    'Effort Devoted to Tier 1 Leads':
-    'effort_devoted_to_tier_1_leads',
-    'Frequency of Meetings':
-    'frequency_of_meetings',
-    'Lead Shelf Life':
-    'lead_shelf_life',
-    'Referrals from Tier 1 Clients':
-    'referrals_from_tier_1_clients',
-    'Referrals from Tier 2 Clients':
-    'referrals_from_tier_2_clients',
-    'Referrals per meeting':
-    'referrals_per_meeting',
-    'Tier 1 Client Turnover':
-    'tier_1_client_turnover',
-    'Up Referral Fraction':
-    'up_referral_fraction',
-    'Tier 1 Leads Going Stale':
-    'tier_1_leads_going_stale',
-    'Tier 1 Referrals':
-    'tier_1_referrals',
-    'Tier 2 Client Turnover':
-    'tier_2_client_turnover',
-    'Tier 2 Clients':
-    'tier_2_clients',
-    'Tier 2 Leads':
-    'tier_2_leads',
-    'Tier 2 Leads Going Stale':
-    'tier_2_leads_going_stale',
-    'Tier 2 Referrals from Tier 1':
-    'tier_2_referrals_from_tier_1',
-    'Effort Required to Make a Sale':
-    'effort_required_to_make_a_sale',
-    'Minimum Time to Make a Sale':
-    'minimum_time_to_make_a_sale',
-    'Tier 1 Leads':
-    'tier_1_leads',
-    'Tier 1 Clients':
-    'tier_1_clients',
-    'FINAL TIME':
-    'final_time',
-    'INITIAL TIME':
-    'initial_time',
-    'SAVEPER':
-    'saveper',
-    'TIME STEP':
-    'time_step'
+    'Income': 'income',
+    'Qualification Rate': 'qualification_rate',
+    'Tier 1 Lead Aquisition': 'tier_1_lead_aquisition',
+    'Success Rate': 'success_rate',
+    'Tier 1 Sales': 'tier_1_sales',
+    'Tier 2 Sales': 'tier_2_sales',
+    'Still Employed': 'still_employed',
+    'Effort Devoted to Tier 1 Clients': 'effort_devoted_to_tier_1_clients',
+    'Tier 1 Income': 'tier_1_income',
+    'Effort Devoted to Tier 2 Clients': 'effort_devoted_to_tier_2_clients',
+    'Fraction of Effort for Sales': 'fraction_of_effort_for_sales',
+    'Expenses': 'expenses',
+    'Sales Effort Available': 'sales_effort_available',
+    'Initial Buffer': 'initial_buffer',
+    'Startup Subsidy Length': 'startup_subsidy_length',
+    'Total Effort Available': 'total_effort_available',
+    'Months of Buffer': 'months_of_buffer',
+    'Months of Expenses per Tier 1 Sale': 'months_of_expenses_per_tier_1_sale',
+    'Months of Expenses per Tier 2 Sale': 'months_of_expenses_per_tier_2_sale',
+    'Tier 2 Income': 'tier_2_income',
+    'Startup Subsidy': 'startup_subsidy',
+    'Time per Client Meeting': 'time_per_client_meeting',
+    'Client Lifetime': 'client_lifetime',
+    'Effort Devoted to Tier 1 Leads': 'effort_devoted_to_tier_1_leads',
+    'Frequency of Meetings': 'frequency_of_meetings',
+    'Lead Shelf Life': 'lead_shelf_life',
+    'Referrals from Tier 1 Clients': 'referrals_from_tier_1_clients',
+    'Referrals from Tier 2 Clients': 'referrals_from_tier_2_clients',
+    'Referrals per meeting': 'referrals_per_meeting',
+    'Tier 1 Client Turnover': 'tier_1_client_turnover',
+    'Up Referral Fraction': 'up_referral_fraction',
+    'Tier 1 Leads Going Stale': 'tier_1_leads_going_stale',
+    'Tier 1 Referrals': 'tier_1_referrals',
+    'Tier 2 Client Turnover': 'tier_2_client_turnover',
+    'Tier 2 Clients': 'tier_2_clients',
+    'Tier 2 Leads': 'tier_2_leads',
+    'Tier 2 Leads Going Stale': 'tier_2_leads_going_stale',
+    'Tier 2 Referrals from Tier 1': 'tier_2_referrals_from_tier_1',
+    'Effort Required to Make a Sale': 'effort_required_to_make_a_sale',
+    'Minimum Time to Make a Sale': 'minimum_time_to_make_a_sale',
+    'Tier 1 Leads': 'tier_1_leads',
+    'Tier 1 Clients': 'tier_1_clients',
+    'FINAL TIME': 'final_time',
+    'INITIAL TIME': 'initial_time',
+    'SAVEPER': 'saveper',
+    'TIME STEP': 'time_step'
 }
 
 __pysd_version__ = "0.9.0"
@@ -1035,8 +976,8 @@ integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), l
 
 integ_months_of_buffer = functions.Integ(lambda: income() - expenses(), lambda: initial_buffer())
 
-integ_tier_2_clients = functions.Integ(lambda: tier_2_sales() - tier_2_client_turnover(),
-                                       lambda: 0)
+integ_tier_2_clients = functions.Integ(lambda: tier_2_sales() - tier_2_client_turnover(), lambda: 0
+                                       )
 
 integ_tier_2_leads = functions.Integ(
     lambda: tier_2_lead_aquisition() + tier_2_sales() - tier_2_leads_going_stale(), lambda: 0)
@@ -1044,5 +985,5 @@ integ_tier_2_leads = functions.Integ(
 integ_tier_1_leads = functions.Integ(
     lambda: tier_1_lead_aquisition() + tier_1_sales() - tier_1_leads_going_stale(), lambda: 100)
 
-integ_tier_1_clients = functions.Integ(lambda: tier_1_sales() - tier_1_client_turnover(),
-                                       lambda: 0)
+integ_tier_1_clients = functions.Integ(lambda: tier_1_sales() - tier_1_client_turnover(), lambda: 0
+                                       )
