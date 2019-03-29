@@ -3,10 +3,8 @@ Created on Mar 13, 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (absolute_import, print_function, division)
 import unittest
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -14,7 +12,7 @@ from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
 from test import utilities
 from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
-from builtins import isinstance
+
 
 
 def flu_classify(data):

@@ -691,7 +691,7 @@ class PrimBox(object):
         if i == -1:
             i = self._cur_box
 
-        new_box_lim = copy.deepcopy(self.box_lims[i])
+        new_box_lim = self.box_lims[i].copy()
         new_box_lim.loc[:, uncertainty] = self.box_lims[0].loc[:, uncertainty]
         indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining, :],
                                  new_box_lim)
