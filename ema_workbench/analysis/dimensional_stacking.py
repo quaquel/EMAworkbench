@@ -72,12 +72,11 @@ def discretize(data, nbins=3, with_labels=False):
                 [x for x in range(1, n + 1)])
 
         if with_labels:
-            labels = ['{}-{}'.format(column, i) for i in range(n)]
-            indices = pd.cut(column_data, n,
-                             labels=labels)
+            indices = pd.cut(column_data, n, precision=2,
+                             retbins=True)[0]
         else:
             indices = pd.cut(column_data, n, retbins=False,
-                             labels=False)
+                             labels=False, precision=2)
 
         discretized[column] = indices
 
@@ -119,13 +118,19 @@ def plot_line(ax, axis, i, lw, length):
         ax.plot([length, 1], [i, i], lw=lw, color='grey')
 
 
-def plot_category(ax, axis, i, label, pos):
+def plot_category(ax, axis, i, label, pos, level):
     '''helper function for plotting label'''
 
     if axis == 0:
-        ax.text(i, pos, label, ha='center', va='center')
+        rot = 'horizontal'
+        if (level > 0) & (len(str(label))>4):
+            rot = 'vertical'
+        ax.text(i, pos, label, ha='center', va='center', rotation=rot)
     else:
-        ax.text(pos, i, label, ha='center', va='center')
+        rot = 'horizontal'
+        if (level == 0) & (len(str(label))>4):
+            rot = 'vertical'
+        ax.text(pos, i, label, ha='center', va='center', rotation=rot)
 
 
 def plot_index(ax, ax_plot, axis, index, plot_labels=True,
@@ -219,7 +224,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
         for p in range(0, nr_levels):
             pos = 1 / (2 * nr_levels) + p / (nr_levels)
             plot_category(ax, axis, 0 + offsets[p] * len(index),
-                          last[p], pos)
+                          last[p], pos, p)
 
     for i, entry in enumerate(indices[1::]):
         i += 1
@@ -240,14 +245,8 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
             # add values
             for p in range(j, nr_levels):
                 pos = 1 / (2 * nr_levels) + p / (nr_levels)
-                plot_category(
-                    ax,
-                    axis,
-                    i +
-                    offsets[p] *
-                    len(index),
-                    entry[p],
-                    pos)
+                plot_category(ax, axis, i +offsets[p] * len(index),
+                    entry[p], pos, p)
         if axis:
             ax_plot.axhline(i, c="w", lw=lw)
         else:
