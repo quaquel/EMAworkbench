@@ -4,18 +4,11 @@ Any model that is to be controlled from the workbench is controlled via
 an instance of an extension of this abstract base class.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import operator
 import os
 import warnings
 
-try:
-    from collections import MutableMapping
-except ImportError:
-    from collections.abc import MutableMapping  # @UnusedImport
-
+from collections.abc import MutableMapping  # @UnusedImport
 from collections import defaultdict
 
 from .util import (NamedObject, combine, NamedObjectMapDescriptor)

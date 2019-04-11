@@ -12,9 +12,6 @@ The only method to implement is the __call__ magic method. To use logging of
 progress, always call super.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import abc
 import csv
 import os

@@ -2,12 +2,6 @@
 helper module for running experiments and keeping track of which model
 has been initialized with which policy.
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
-# import sys
-# import traceback
-
 from ..util import get_module_logger, EMAError, CaseError
 
 # Created on Aug 11, 2015

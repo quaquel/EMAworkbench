@@ -1,10 +1,6 @@
 '''utilities used throughout em_framework'''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
 import copy
 from collections import OrderedDict
-
 
 from collections import UserDict
 from collections.abc import MutableMapping  # @UnusedImport
