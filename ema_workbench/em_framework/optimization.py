@@ -388,7 +388,7 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
     if searchover == 'levers':
         column = 'policy'
     else:
-        column = 'scenario_id'
+        column = 'scenario'
 
     for entry, job in jobs_collection:
         logical = experiments[column] == entry.name
