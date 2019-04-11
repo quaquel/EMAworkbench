@@ -195,14 +195,14 @@ class DefaultCallback(AbstractCallback):
             df[name] = pd.Series(dtype=dtype)
         self.cases = df
         self.nr_experiments = nr_experiments
-        
+
         for outcome in outcomes:
             shape = outcome.shape
             if shape is not None:
                 shape = (nr_experiments, ) + shape
                 data = np.empty(shape)
                 data[:] = np.nan
-                self.results[outcome.name] = data 
+                self.results[outcome.name] = data
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
@@ -233,7 +233,7 @@ class DefaultCallback(AbstractCallback):
                     self.results[outcome][case_id, ] = outcome_res
                 except KeyError:
                     a = np.asarray(outcome_res)
-                    
+
                     shape = a.shape
 
                     if len(shape) > 2:

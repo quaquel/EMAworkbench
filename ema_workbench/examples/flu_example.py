@@ -185,9 +185,15 @@ def flu_model(
             susceptible_population_region_2 * interregional_contact_rate * infection_rate_region_2 * infected_fraction_region_1)
 
         infected_population_region_1_NEXT = infected_population_region_1 + \
-            (TIME_STEP * (infections_region_1 - flu_deaths_region_1 - recoveries_region_1))
+            (TIME_STEP *
+             (infections_region_1 -
+              flu_deaths_region_1 -
+              recoveries_region_1))
         infected_population_region_2_NEXT = infected_population_region_2 + \
-            (TIME_STEP * (infections_region_2 - flu_deaths_region_2 - recoveries_region_2))
+            (TIME_STEP *
+             (infections_region_2 -
+              flu_deaths_region_2 -
+              recoveries_region_2))
 
         if infected_population_region_1_NEXT < 0 or infected_population_region_2_NEXT < 0:
             pass

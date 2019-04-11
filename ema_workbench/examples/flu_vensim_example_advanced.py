@@ -40,7 +40,8 @@ if __name__ == '__main__':
                                     function=time_of_max)]
 
     # create uncertainties based on csv
-    model.uncertainties = create_parameters('./models/flu/flu_uncertainties.csv')
+    model.uncertainties = create_parameters(
+        './models/flu/flu_uncertainties.csv')
 
     # add policies
     policies = [Policy('no policy',

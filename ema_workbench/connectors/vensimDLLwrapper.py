@@ -528,6 +528,6 @@ def use_double_precision():
 
     global vensim
     try:
-        vensim = ctypes.windll.LoadLibrary('C:\Windows\SysWOW64\VdpDLL32.dll')
+        vensim = ctypes.windll.LoadLibrary(r'C:\Windows\SysWOW64\VdpDLL32.dll')
     except WindowsError:
         raise EMAError("double precision vensim dll not found")

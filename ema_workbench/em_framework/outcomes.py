@@ -62,7 +62,7 @@ class AbstractOutcome(Variable):
     INFO = 0
 
     def __init__(self, name, kind=INFO, variable_name=None,
-                 function=None, expected_range=None, 
+                 function=None, expected_range=None,
                  shape=None):
         super(AbstractOutcome, self).__init__(name)
 
@@ -159,16 +159,16 @@ class ScalarOutcome(AbstractOutcome):
     function : callable
     shape : tuple
     expected_range : tuple
-    
+
     '''
-    
+
     @property
     def expected_range(self):
         if self._expected_range is None:
             raise ValueError(
                 'no expected_range is set for {}'.format(
                     self.variable_name))
-        return self._expected_range    
+        return self._expected_range
 
     @expected_range.setter
     def expected_range(self, expected_range):
@@ -184,9 +184,9 @@ class ScalarOutcome(AbstractOutcome):
     def process(self, values):
         values = super(ScalarOutcome, self).process(values)
         if not isinstance(values, numbers.Number):
-            raise EMAError(f"outcome {self.name} should be a scalar, but is {type(values)}: {values}".format())
+            raise EMAError(
+                f"outcome {self.name} should be a scalar, but is {type(values)}: {values}".format())
         return values
-    
 
 
 class ArrayOutcome(AbstractOutcome):
@@ -208,7 +208,7 @@ class ArrayOutcome(AbstractOutcome):
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
     shape : {tuple, None}, optional
-    
+
     Attributes
     ----------
     name : str
@@ -217,9 +217,10 @@ class ArrayOutcome(AbstractOutcome):
     function : callable
     shape : tuple
     expected_range : tuple
-    
+
 
     '''
+
     def __init__(self, name, variable_name=None,
                  function=None, expected_range=None,
                  shape=None):
@@ -238,7 +239,7 @@ class ArrayOutcome(AbstractOutcome):
         if not isinstance(values, collections.Iterable):
             raise EMAError(
                 "outcome {} should be a collection".format(self.name))
-        return values    
+        return values
 
 
 class TimeSeriesOutcome(ArrayOutcome):
@@ -302,7 +303,7 @@ class Constraint(ScalarOutcome):
     name : str
     parameter_names : str, list of str
                       name(s) of the uncertain parameter(s) and/or
-                      lever parameter(s) to which the constraint applies 
+                      lever parameter(s) to which the constraint applies
     outcome_names : str, list of str
                     name(s) of the outcome(s) to which the constraint applies
     function : callable

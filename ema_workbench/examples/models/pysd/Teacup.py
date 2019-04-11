@@ -51,7 +51,7 @@ def heat_loss_to_room():
     Limits: (None, None)
     Type: component
 
-    This is the rate at which heat flows from the cup into the room. We can 
+    This is the rate at which heat flows from the cup into the room. We can
         ignore it at this point.
     """
     return (teacup_temperature() - room_temperature()) / characteristic_time()
@@ -62,7 +62,7 @@ def room_temperature():
     """
     Real Name: Room Temperature
     Original Eqn: 70
-    Units: 
+    Units:
     Limits: (None, None)
     Type: constant
 
@@ -141,4 +141,5 @@ def time_step():
     return 0.125
 
 
-integ_teacup_temperature = functions.Integ(lambda: -heat_loss_to_room(), lambda: 180)
+integ_teacup_temperature = functions.Integ(
+    lambda: -heat_loss_to_room(), lambda: 180)

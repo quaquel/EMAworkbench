@@ -18,10 +18,12 @@ import ema_workbench.analysis.prim as prim
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
+
 def classify(data):
     # get the output for deceased population
     ooi = data['deceased population region 1']
     return ooi[:, -1] > 1000000
+
 
 # load data
 fn = r'./data/1000 flu cases no policy.tar.gz'

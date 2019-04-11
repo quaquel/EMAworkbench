@@ -3,6 +3,7 @@ from contextlib import contextmanager
 
 warnings.simplefilter("once", ImportWarning)
 
+
 @contextmanager
 def catch_and_ignore_import_warning():
     with warnings.catch_warnings():

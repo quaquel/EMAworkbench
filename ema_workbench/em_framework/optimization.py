@@ -471,6 +471,7 @@ class AbstractConvergenceMetric(object):
     def reset(self):
         self.results = []
 
+
 class EpsilonProgress(AbstractConvergenceMetric):
     '''epsilon progress convergence metric class'''
 
@@ -591,21 +592,18 @@ class Convergence(object):
         nfe = optimizer.algorithm.nfe
 
         self.generation += 1
-        
-        if (nfe >= self.last_check + self.convergence_freq) or self.last_check==0:
+
+        if (nfe >= self.last_check + self.convergence_freq) or self.last_check == 0:
             self.index.append(nfe)
-            self.last_check = nfe 
-    
+            self.last_check = nfe
+
             for metric in self.metrics:
                 metric(optimizer)
-
 
         if self.generation % self.logging_freq == 0:
             _logger.info(
                 "generation {}: {}/{} nfe".format(self.generation, nfe,
                                                   self.max_nfe))
-
-
 
     def to_dataframe(self):
         progress = {metric.name: metric.results for metric in
@@ -849,10 +847,10 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
 
 class BORGDefaultDescriptor(object):
     # this treats defaults as class level attributes!
-    
+
     def __init__(self, default_function):
         self.default_function = default_function
-    
+
     def __get__(self, instance, owner):
         return self.default_function(instance.problem.nvars)
 
@@ -874,31 +872,31 @@ class GenerationalBorg(EpsilonProgressContinuation):
     Note:: limited to RealParameters only.
 
     '''
-    pm_p = BORGDefaultDescriptor(lambda x: 1/x)
+    pm_p = BORGDefaultDescriptor(lambda x: 1 / x)
     pm_dist = 20
-    
+
     sbx_prop = 1
     sbx_dist = 15
-    
+
     de_rate = 0.1
     de_stepsize = 0.5
-    
-    um_p = BORGDefaultDescriptor(lambda x: x+1)
-    
+
+    um_p = BORGDefaultDescriptor(lambda x: x + 1)
+
     spx_nparents = 10
     spx_noffspring = 2
     spx_expansion = 0.3
-    
+
     pcx_nparents = 10
     pcx_noffspring = 2
     pcx_eta = 0.1
     pcx_zeta = 0.1
-    
+
     undx_nparents = 10
     undx_noffspring = 2
     undx_zeta = 0.5
     undx_eta = 0.35
-    
+
     def __init__(self, problem, epsilons, population_size=100,
                  generator=RandomGenerator(), selector=TournamentSelector(2),
                  variator=None, **kwargs):
@@ -906,9 +904,9 @@ class GenerationalBorg(EpsilonProgressContinuation):
 
         # Parameterization taken from
         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
-        variators = [GAOperator(SBX(probability=self.sbx_prop, 
+        variators = [GAOperator(SBX(probability=self.sbx_prop,
                                     distribution_index=self.sbx_dist),
-                                PM(probability=self.pm_p, 
+                                PM(probability=self.pm_p,
                                    distribution_index=self.pm_dist)),
                      GAOperator(PCX(nparents=self.pcx_nparents,
                                     noffspring=self.pcx_noffspring,
@@ -916,21 +914,21 @@ class GenerationalBorg(EpsilonProgressContinuation):
                                     zeta=self.pcx_zeta),
                                 PM(probability=self.pm_p,
                                    distribution_index=self.pm_dist)),
-                    GAOperator(DifferentialEvolution(crossover_rate=self.de_rate,
-                                                     step_size=self.de_stepsize),
-                               PM(probability=self.pm_p,
-                                  distribution_index=self.pm_dist)),
-                    GAOperator(UNDX(nparents=self.undx_nparents,
-                                    noffspring=self.undx_noffspring,
-                                    zeta=self.undx_zeta,
-                                    eta=self.undx_eta),
-                               PM(probability=self.pm_p,
-                                  distribution_index=self.pm_dist)),
-                    GAOperator(SPX(nparents=self.spx_nparents,
-                                   noffspring=self.spx_noffspring,
-                                   expansion=self.spx_expansion),
-                               PM(probability=self.pm_p,
-                                  distribution_index=self.pm_dist)),
+                     GAOperator(DifferentialEvolution(crossover_rate=self.de_rate,
+                                                      step_size=self.de_stepsize),
+                                PM(probability=self.pm_p,
+                                   distribution_index=self.pm_dist)),
+                     GAOperator(UNDX(nparents=self.undx_nparents,
+                                     noffspring=self.undx_noffspring,
+                                     zeta=self.undx_zeta,
+                                     eta=self.undx_eta),
+                                PM(probability=self.pm_p,
+                                   distribution_index=self.pm_dist)),
+                     GAOperator(SPX(nparents=self.spx_nparents,
+                                    noffspring=self.spx_noffspring,
+                                    expansion=self.spx_expansion),
+                                PM(probability=self.pm_p,
+                                   distribution_index=self.pm_dist)),
                      UM(probability=self.um_p)]
 
         variator = Multimethod(self, variators)

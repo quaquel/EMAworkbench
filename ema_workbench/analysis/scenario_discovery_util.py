@@ -24,17 +24,18 @@ from .plotting_util import COLOR_LIST, make_legend
 
 __all__ = ["RuleInductionType"]
 
+
 class RuleInductionType(enum.Enum):
     REGRESSION = 'regression'
     '''constant indicating regression mode'''
-    
+
     BINARY = 'binary'
     '''constant indicating binary classification mode. This is the most
     common used mode in scenario discovery'''
-    
+
     CLASSIFICATION = 'classification'
     '''constant indicating classification mode'''
-    
+
 
 def _get_sorted_box_lims(boxes, box_init):
     '''Sort the uncertainties for each box in boxes based on a
@@ -196,7 +197,6 @@ def _compare(a, b):
             (a[name][0] == b[name][0]) &\
             (a[name][1] == b[name][1])
     return logical
-
 
 
 def _in_box(x, boxlim):
@@ -447,7 +447,6 @@ def _setup_figure(uncs):
     return fig, ax
 
 
-
 def plot_box(boxlim, qp_values, box_init, uncs,
              coverage, density,
              ticklabel_formatter="{} ({})",
@@ -680,13 +679,13 @@ def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
 
 def plot_boxes(x, boxes, together):
     '''Helper function for plotting multiple boxlims
-    
+
     Parameters
     ----------
     x : pd.DataFrame
-    boxes : list of pd.DataFrame 
+    boxes : list of pd.DataFrame
     together : bool
-    
+
     '''
 
     box_init = _make_box(x)
@@ -733,7 +732,6 @@ def plot_boxes(x, boxes, together):
 
             plt.tight_layout()
         return figs
-
 
 
 class OutputFormatterMixin(object):
@@ -801,4 +799,3 @@ class OutputFormatterMixin(object):
 
         '''
         plot_boxes(self.x, self.boxes, together=together)
-        

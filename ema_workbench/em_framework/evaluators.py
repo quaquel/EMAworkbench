@@ -1,3 +1,19 @@
+from ..util import EMAError, get_module_logger, ema_logging
+from .util import NamedObjectMap, determine_objects
+from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
+from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
+                       PartialFactorialSampler, sample_levers,
+                       sample_uncertainties)
+from .parameters import (experiment_generator, Scenario, Policy)
+from .outcomes import ScalarOutcome, AbstractOutcome
+from .optimization import (evaluate_robust, evaluate, EpsNSGAII,
+                           to_problem, to_robust_problem,
+                           process_levers, process_uncertainties,
+                           process_robust, _optimize)
+from .model import AbstractModel
+from .experiment_runner import ExperimentRunner
+from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
+from .callbacks import DefaultCallback
 '''
 collection of evaluators for performing experiments, optimization, and robust
 optimization
@@ -17,31 +33,16 @@ import warnings
 
 warnings.simplefilter("once", ImportWarning)
 
-from .callbacks import DefaultCallback
-from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
 
 try:
     from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
-                              initialize_engines, cleanup, _run_experiment)
+                                  initialize_engines, cleanup, _run_experiment)
 except (ImportError, ModuleNotFoundError):
-    warnings.warn('ipyparallel not installed - IpyparalleEvaluator not available')
-    
-from .experiment_runner import ExperimentRunner
-from .model import AbstractModel
-from .optimization import (evaluate_robust, evaluate, EpsNSGAII,
-                           to_problem, to_robust_problem,
-                           process_levers, process_uncertainties,
-                           process_robust, _optimize)
-from .outcomes import ScalarOutcome, AbstractOutcome
-from .parameters import (experiment_generator, Scenario, Policy)
-from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
-                       PartialFactorialSampler, sample_levers,
-                       sample_uncertainties)
+    warnings.warn(
+        'ipyparallel not installed - IpyparalleEvaluator not available')
+
 
 # TODO:: should become optional import
-from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
-from .util import NamedObjectMap, determine_objects
-from ..util import EMAError, get_module_logger, ema_logging
 
 # Created on 5 Mar 2017
 #
@@ -188,12 +189,12 @@ class BaseEvaluator(object):
         '''
         return optimize(self._msis, algorithm=algorithm, nfe=int(nfe),
                         searchover=searchover, evaluator=self,
-                        reference=reference, constraints=constraints, 
+                        reference=reference, constraints=constraints,
                         convergence_freq=convergence_freq,
                         logging_freq=logging_freq, **kwargs)
 
     def robust_optimize(self, robustness_functions, scenarios,
-                        algorithm=EpsNSGAII, nfe=10000,convergence_freq=1000,
+                        algorithm=EpsNSGAII, nfe=10000, convergence_freq=1000,
                         logging_freq=5, **kwargs):
         '''convenience method for robust optimization.
 
@@ -202,9 +203,9 @@ class BaseEvaluator(object):
 
         '''
         return robust_optimize(self._msis, robustness_functions, scenarios,
-                               self, algorithm=algorithm, nfe=nfe, 
+                               self, algorithm=algorithm, nfe=nfe,
                                convergence_freq=convergence_freq,
-                               logging_freq=logging_freq,**kwargs)
+                               logging_freq=logging_freq, **kwargs)
 
 
 class SequentialEvaluator(BaseEvaluator):
@@ -246,9 +247,9 @@ class MultiprocessingEvaluator(BaseEvaluator):
 
     '''
 
-    def __init__(self, msis, n_processes=None, maxtasksperchild=None, **kwargs):
+    def __init__(self, msis, n_processes=None,
+                 maxtasksperchild=None, **kwargs):
         super(MultiprocessingEvaluator, self).__init__(msis, **kwargs)
-
 
         self._pool = None
         self.n_processes = n_processes
@@ -485,7 +486,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
-             convergence=None, constraints=None, 
+             convergence=None, constraints=None,
              convergence_freq=1000, logging_freq=5,
              **kwargs):
     '''optimize the model
@@ -504,7 +505,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     logging_freq : int
                    number of generations between logging of progress
     kwargs : any additional arguments will be passed on to algorithm
-    
+
     Returns
     -------
     pandas DataFrame
@@ -541,7 +542,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
 
 def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
-                    convergence=None, constraints=None, 
+                    convergence=None, constraints=None,
                     convergence_freq=1000, logging_freq=5, **kwargs):
     '''perform robust optimization
 

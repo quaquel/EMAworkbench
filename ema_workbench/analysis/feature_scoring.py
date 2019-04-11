@@ -64,14 +64,12 @@ def _prepare_experiments(experiments):
     x_nominal_columns = x_nominal.columns.values
 
     for column in x_nominal_columns:
-        if np.unique(x[column]).shape==(1,):
+        if np.unique(x[column]).shape == (1,):
             x = x.drop(column, axis=1)
             _logger.info(("{} dropped from analysis "
                           "because only a single category").format(column))
         else:
             x[column] = x[column].astype('category').cat.codes
-        
-    
 
     return x.values, x.columns.tolist()
 
@@ -254,7 +252,7 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     min_samples_leaf : int, optional
                        defaults to 1 for N=1000 or lower, from there on
                        proportional to sqrt of N
-                       (see discussion in Jaxa-Rozen & Kwakkel (2018) doi: 10.1016/j.envsoft.2018.06.011) 
+                       (see discussion in Jaxa-Rozen & Kwakkel (2018) doi: 10.1016/j.envsoft.2018.06.011)
                        see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     min_weight_fraction_leaf : float, optional
                                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
@@ -281,16 +279,15 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     # TODO
     # max_features = number of variables/3
     #
-    # min_samples_leaf 
+    # min_samples_leaf
     # 1000 - >
     # then proportional based on sqrt of N
     # dus sqrt(N) / Sqrt(1000) met 1 als minimumd
     if max_features is None:
-        max_features = int(round(x.shape[1]/3))
+        max_features = int(round(x.shape[1] / 3))
     if min_samples_leaf is None:
         min_samples_leaf = max(1,
-                               int(round(math.sqrt(x.shape[0])/math.sqrt(1000))))
-    
+                               int(round(math.sqrt(x.shape[0]) / math.sqrt(1000))))
 
     if mode == RuleInductionType.CLASSIFICATION:
         etc = ExtraTreesClassifier

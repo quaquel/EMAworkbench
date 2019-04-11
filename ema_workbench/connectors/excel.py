@@ -33,7 +33,6 @@ class NoDefaultSheetError(EMAError):
     pass
 
 
-
 class BaseExcelModel(FileModel):
     '''
 
@@ -95,7 +94,6 @@ class BaseExcelModel(FileModel):
             pointers = {}
         self.pointers = pointers
 
-
     @property
     def workbook(self):
         return self.model_file
@@ -129,7 +127,7 @@ class BaseExcelModel(FileModel):
 
         # check for self.xl.Workbooks==0 allows us to see if wb was previously closed
         # and needs to be reopened.
-        if not self.wb or self.xl.Workbooks.Count==0:
+        if not self.wb or self.xl.Workbooks.Count == 0:
             _logger.debug("trying to open workbook")
             wb = os.path.join(self.working_directory, self.workbook)
             self.wb = self.xl.Workbooks.Open(wb)
@@ -163,7 +161,8 @@ class BaseExcelModel(FileModel):
         for key, value in experiment.items():
             self.set_wb_value(key, value)
 
-        # trigger a calulate event, in the case that the workbook's automatic recalculation was suspended.
+        # trigger a calulate event, in the case that the workbook's automatic
+        # recalculation was suspended.
         self.xl.Calculate()
 
         # get results
@@ -227,8 +226,12 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.wb.Sheets(sheetname)
         except Exception:
-            _logger.warning("com error: sheet '{}' not found".format(sheetname))
-            _logger.warning("known sheets: {}".format(", ".join(self.get_wb_sheetnames())))
+            _logger.warning(
+                "com error: sheet '{}' not found".format(sheetname))
+            _logger.warning(
+                "known sheets: {}".format(
+                    ", ".join(
+                        self.get_wb_sheetnames())))
             self.cleanup()
             raise
 
@@ -261,18 +264,19 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
-            raise EMAError("no default sheet while trying to read from '{}'".format(name))
+            raise EMAError(
+                "no default sheet while trying to read from '{}'".format(name))
 
         try:
             value = sheet.Range(this_range).Value
         except com_error:
             _logger.warning(
-                "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
+                "com error: no cell(s) named {} found on sheet {}".format(
+                    this_range, this_sheet),
             )
             value = None
 
         return value
-
 
     def set_wb_value(self, name, value):
         '''inject a value into a cell of the excel workbook
@@ -301,13 +305,15 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
-            raise EMAError("no default sheet while trying to write to '{}'".format(name))
+            raise EMAError(
+                "no default sheet while trying to write to '{}'".format(name))
 
         try:
             sheet.Range(this_range).Value = value
         except com_error:
             _logger.warning(
-                "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
+                "com error: no cell(s) named {} found on sheet {}".format(
+                    this_range, this_sheet),
             )
 
     def get_wb_sheetnames(self):
