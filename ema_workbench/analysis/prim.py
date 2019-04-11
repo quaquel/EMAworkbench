@@ -78,7 +78,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
         DataFrame
     rotation_matrix
         DataFrame
-    
+
     Raises
     ------
     RuntimeError
@@ -89,7 +89,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     '''
     # experiments to rotate
     x = experiments.drop(exclude, axis=1)
-    
+
     #
     if not x.select_dtypes(exclude=np.number).empty:
         raise RuntimeError("X includes non numeric columns")
@@ -104,7 +104,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
         # TODO:: should we check on double counting in subsets?
         #        should we check all uncertainties are in x?
         pass
-        
+
     # prepare the dtypes for the new rotated experiments recarray
     new_columns = []
     new_dtypes = []
@@ -113,7 +113,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
         # and an index
         subset_cols = ["{}_{}".format(key, i) for i in range(len(value))]
         new_columns.extend(subset_cols)
-        new_dtypes.extend((float,)*len(value))
+        new_dtypes.extend((float,) * len(value))
 
     # make a new empty experiments dataframe
     rotated_experiments = pd.DataFrame(index=experiments.index.values)
@@ -127,7 +127,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
 
     # iterate over the subsets, rotate them, and put them into the new
     # experiments dataframe
-    rotation_matrix = np.zeros((x.shape[1], )*2)
+    rotation_matrix = np.zeros((x.shape[1], ) * 2)
     column_names = []
     row_names = []
 
@@ -150,56 +150,56 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     return rotated_experiments, rotation_matrix
 
 
-def run_constrained_prim(experiments, y, issignificant=True, 
+def run_constrained_prim(experiments, y, issignificant=True,
                          **kwargs):
     ''' Run PRIM repeatedly while constraining the maximum number of dimensions
     available in x
-    
+
     Improved usage of PRIM as described in `Kwakkel (2019) <https://onlinelibrary.wiley.com/doi/full/10.1002/ffo2.8>`_.
-    
+
     Parameters
     ----------
     x : numpy structured array
     y : numpy array
     issignificant : bool, optional
                     if True, run prim only on subsets of dimensions
-                    that are significant for the initial PRIM on the 
+                    that are significant for the initial PRIM on the
                     entire dataset.
     **kwargs : any additional keyword arguments are passed on to PRIM
-    
-    
+
+
     Returns
     -------
     PrimBox instance
-    
+
     '''
     frontier = []
     merged_lims = []
     merged_qp = []
-    
+
     alg = Prim(experiments, y, threshold=0.1, **kwargs)
     boxn = alg.find_box()
-    
+
     dims = determine_dimres(boxn, issignificant=issignificant)
-    
+
     # run prim for all possible combinations of dims
     subsets = []
-    for n in range(1, len(dims)+1):
+    for n in range(1, len(dims) + 1):
         for subset in itertools.combinations(dims, n):
             subsets.append(subset)
     _logger.info("going to run PRIM {} times".format(len(subsets)))
-    
+
     boxes = [boxn]
     for subset in subsets:
         with temporary_filter(__name__, INFO):
             x = experiments.loc[:, subset].copy()
             alg = Prim(x, y, threshold=0.1, **kwargs)
-            box = alg.find_box() 
+            box = alg.find_box()
             boxes.append(box)
-        
+
     box_init = boxn.prim.box_init
     not_seen = NotSeen()
-    
+
     for box in boxes:
         peeling = box.peeling_trajectory
         lims = box.box_lims
@@ -208,13 +208,13 @@ def run_constrained_prim(experiments, y, issignificant=True,
 
         for i in range(box.peeling_trajectory.shape[0]):
             lim = lims[i]
-            
+
             boxlim = box_init.copy()
             for column in lim:
                 boxlim[column] = lim[column]
-                
+
             boolean = is_significant(box, i) & not_seen(boxlim)
-            
+
             logical[i] = boolean
             if boolean:
                 merged_lims.append(boxlim)
@@ -224,11 +224,11 @@ def run_constrained_prim(experiments, y, issignificant=True,
     frontier = pd.concat(frontier)
 
     # remove dominated boxes
-    peeling_trajectory = frontier.reset_index(drop=True)   
+    peeling_trajectory = frontier.reset_index(drop=True)
     data = peeling_trajectory.iloc[:, [0, 1, -1]].copy().values
-    data[:,2] *= -1
+    data[:, 2] *= -1
     logical = is_pareto_efficient(data)
-    
+
     # resort to ensure sensible ordering
     pt = peeling_trajectory[logical]
     pt = pt.reset_index(drop=True)
@@ -242,7 +242,7 @@ def run_constrained_prim(experiments, y, issignificant=True,
     for entry in pt.index:
         sorted_lims.append(box_lims[int(entry)])
         sorted_qps.append(qps[int(entry)])
-    
+
     # ensuring index has normal order starting from 0
     pt = pt.reset_index(drop=True)
     pt.id = pt.index
@@ -257,7 +257,7 @@ def run_constrained_prim(experiments, y, issignificant=True,
 
 def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     """Helper function for setting up the prim algorithm
-    
+
     Parameters
     ----------
     results : tuple
@@ -274,11 +274,11 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
                list of uncertainties to include in prim analysis
     kwargs : dict
              valid keyword arguments for prim.Prim
-    
+
     Returns
     -------
     a Prim instance
-    
+
     Raises
     ------
     PrimException
@@ -439,12 +439,12 @@ class PrimBox(object):
         graph form'''
 
         return sdutil.plot_box(self.box_lims[i], qp_values,
-                        self.prim.box_init, uncs,
-                        self.peeling_trajectory.at[i, 'coverage'],
-                        self.peeling_trajectory.at[i, "density"],
-                        ticklabel_formatter=ticklabel_formatter,
-                        boxlim_formatter=boxlim_formatter,
-                        table_formatter=table_formatter)
+                               self.prim.box_init, uncs,
+                               self.peeling_trajectory.at[i, 'coverage'],
+                               self.peeling_trajectory.at[i, "density"],
+                               ticklabel_formatter=ticklabel_formatter,
+                               boxlim_formatter=boxlim_formatter,
+                               table_formatter=table_formatter)
 
     def inspect_tradeoff(self):
         boxes = []
@@ -476,7 +476,7 @@ class PrimBox(object):
 
             # handle nominal
             for dim in nominal_res_dims:
-                #TODO:: qp values
+                # TODO:: qp values
                 items = df[nominal_res_dims].loc[0, :].values[0]
                 for j, item in enumerate(items):
                     entry = dict(name=dim, n_items=len(items) + 1,
@@ -584,7 +584,7 @@ class PrimBox(object):
 
         return chart & layered
 
-    def resample(self, i=None, iterations=10, p=1/2):
+    def resample(self, i=None, iterations=10, p=1 / 2):
         '''Calculate resample statistics for candidate box i
 
         Parameters
@@ -680,11 +680,11 @@ class PrimBox(object):
         i : int, optional
             defaults to the currently selected box, which
             defaults to the latest box on the trajectory
-        uncertainty : str        
+        uncertainty : str
 
 
         Replace the limits in box i with a new box where
-        for the specified uncertainty the limits of the initial box are 
+        for the specified uncertainty the limits of the initial box are
         being used. The resulting box is added to the peeling trajectory.
 
         '''
@@ -775,7 +775,7 @@ class PrimBox(object):
                                                    self.prim.box_init)
 
         return sdutil.plot_pair_wise_scatter(self.prim.x, self.prim.y,
-                                             self.box_lims[i], 
+                                             self.box_lims[i],
                                              self.prim.box_init,
                                              resdim)
 
@@ -899,11 +899,11 @@ class Prim(sdutil.OutputFormatterMixin):
 
         # filter out dimensions with only single value
         for column in x_nominal.columns.values:
-            if np.unique(x[column]).shape==(1,):
+            if np.unique(x[column]).shape == (1,):
                 x = x.drop(column, axis=1)
                 _logger.info(("{} dropped from analysis "
-                            "because only a single category").format(column))
-        
+                              "because only a single category").format(column))
+
         x_nominal = x.select_dtypes(exclude=np.number)
         self.x_nominal = x_nominal.values
         self.x_nominal_columns = x_nominal.columns.values
@@ -911,7 +911,7 @@ class Prim(sdutil.OutputFormatterMixin):
         self.n_cols = x.columns.shape[0]
 
         for column in self.x_nominal_columns:
-            x[column] = x[column].astype('category')        
+            x[column] = x[column].astype('category')
 
         self.x = x
         self.y = y
@@ -965,7 +965,6 @@ class Prim(sdutil.OutputFormatterMixin):
             stats.append({key: getattr(box, key) for key in items})
         return stats
 
-
     def find_box(self):
         '''Execute one iteration of the PRIM algorithm. That is, find one
         box, starting from the current state of Prim.'''
@@ -1006,7 +1005,6 @@ class Prim(sdutil.OutputFormatterMixin):
                                  box.density,
                                  box.res_dim)
 
-        
         if (self.threshold_type == ABOVE) &\
            (box.mean >= self.threshold):
             _logger.info(message)
@@ -1575,7 +1573,7 @@ class Prim(sdutil.OutputFormatterMixin):
         if update_function == 'guivarch':
             return False
         return True
-    
+
     def _assert_dtypes(self, keys, dtypes):
         '''
         helper fucntion that checks whether none of the provided keys

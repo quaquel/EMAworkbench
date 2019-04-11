@@ -123,12 +123,12 @@ def plot_category(ax, axis, i, label, pos, level):
 
     if axis == 0:
         rot = 'horizontal'
-        if (level > 0) & (len(str(label))>4):
+        if (level > 0) & (len(str(label)) > 4):
             rot = 'vertical'
         ax.text(i, pos, label, ha='center', va='center', rotation=rot)
     else:
         rot = 'horizontal'
-        if (level == 0) & (len(str(label))>4):
+        if (level == 0) & (len(str(label)) > 4):
             rot = 'vertical'
         ax.text(pos, i, label, ha='center', va='center', rotation=rot)
 
@@ -245,8 +245,8 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
             # add values
             for p in range(j, nr_levels):
                 pos = 1 / (2 * nr_levels) + p / (nr_levels)
-                plot_category(ax, axis, i +offsets[p] * len(index),
-                    entry[p], pos, p)
+                plot_category(ax, axis, i + offsets[p] * len(index),
+                              entry[p], pos, p)
         if axis:
             ax_plot.axhline(i, c="w", lw=lw)
         else:

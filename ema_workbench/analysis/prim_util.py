@@ -114,6 +114,7 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
 
     return qp_values
 
+
 def rotate_subset(experiments, y):
     '''
     rotate a subset
@@ -122,7 +123,7 @@ def rotate_subset(experiments, y):
     ----------
     experiments_subset : DataFrame
     y : ndarray
-    
+
     Returns
     -------
     rotation_matrix
@@ -150,12 +151,12 @@ def rotate_subset(experiments, y):
 def determine_rotation(experiments):
     '''
     Determine the rotation for the specified experiments
-    
-    
+
+
     Parameters
     ----------
     experiments : pd.DataFrame
-    
+
     Returns
     -------
     ndarray
@@ -182,9 +183,9 @@ def determine_dimres(box, issignificant=True,
                      significance_threshold=0.1):
     def is_significant(v):
         for entry in v:
-            if (entry>=0) & (entry<=significance_threshold):
+            if (entry >= 0) & (entry <= significance_threshold):
                 return True
-    
+
     all_dims = set()
     for qp in box.qp:
         if issignificant:
@@ -214,7 +215,7 @@ def box_to_tuple(box):
 class NotSeen(object):
     def __init__(self):
         self.seen = set()
-        
+
     def __call__(self, box):
         tupled = box_to_tuple(box)
         if tupled in self.seen:
@@ -226,22 +227,26 @@ class NotSeen(object):
 
 def is_significant(box, i, alpha=0.05):
     qp = box.qp[i]
-    return not any([value>alpha for values in qp.values() for value in values])
+    return not any([value > alpha for values in qp.values()
+                    for value in values])
 
 
 def is_pareto_efficient(data):
     fronts = calc_fronts(data)
-    return fronts==0
+    return fronts == 0
 
 
 def calc_fronts(M):
-    #     taken from https://stackoverflow.com/questions/41740596/pareto-frontier-indices-using-numpy
-    i_dominates_j = np.all(M[:,None] >= M, axis=-1) & np.any(M[:,None] > M, axis=-1)
+    # taken from
+    # https://stackoverflow.com/questions/41740596/pareto-frontier-indices-using-numpy
+    i_dominates_j = np.all(M[:, None] >= M, axis=-
+                           1) & np.any(M[:, None] > M, axis=-1)
     remaining = np.arange(len(M))
     fronts = np.empty(len(M), int)
     frontier_index = 0
     while remaining.size > 0:
-        dominated = np.any(i_dominates_j[remaining[:,None], remaining], axis=0)
+        dominated = np.any(
+            i_dominates_j[remaining[:, None], remaining], axis=0)
         fronts[remaining[~dominated]] = frontier_index
 
         remaining = remaining[dominated]

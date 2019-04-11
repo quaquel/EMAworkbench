@@ -275,9 +275,9 @@ def add_tasks(n_processes, pool, experiments, callback):
     callback : callable
 
     '''
-    # by limiting task queue, we avoid putting all experiments on queue in 
+    # by limiting task queue, we avoid putting all experiments on queue in
     # one go
-    results_queue = queue.Queue(maxsize=5*n_processes)
+    results_queue = queue.Queue(maxsize=5 * n_processes)
 
     feeder = ExperimentFeeder(pool, results_queue, experiments)
     reader = ResultsReader(results_queue, callback)

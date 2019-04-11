@@ -420,7 +420,7 @@ class PartialFactorialSampler(AbstractSampler):
         nr_designs = other_designs.n * ff_designs.n
 
         designs = PartialFactorialDesigns(ff_designs, other_designs,
-                                          ff_params+other_params, nr_designs)
+                                          ff_params + other_params, nr_designs)
 
         return designs
 
@@ -552,7 +552,7 @@ class DefaultDesigns(object):
         return design_generator(self.designs, self.parameters, self.kind)
 
     def __str__(self):
-        
+
         return ("ema_workbench.DefaultDesigns, "
                 "{} designs on {} parameters").format(self.n, len(self.params))
 

@@ -2,13 +2,13 @@
 This module specifies a generic Model class for controlling
 NetLogo models.
 
-ScalarOutcomes and ArrayOutcomes are assumed to be reporters on the 
-NetLogo model that return a scalar and list respectively. These will be 
+ScalarOutcomes and ArrayOutcomes are assumed to be reporters on the
+NetLogo model that return a scalar and list respectively. These will be
 queried after having run the model for the specified ticks
 
 TimeSeries outcomes write data to a .txt file for each tick. This can be used
 in combination with an agent-set or reporter. However, it introduces
-substantial overhead. 
+substantial overhead.
 
 
 '''
@@ -54,22 +54,22 @@ class BaseNetLogoModel(FileModel):
     name : str
 
     '''
-    
+
     @property
     def ts_output_variables(self):
         if self._ts_output_variables is None:
             timeseries = [o for o in self.outcomes if
                           isinstance(o, TimeSeriesOutcome)]
-            
+
             self._ts_output_variables = [var for o in timeseries for var in
                                          o.variable_name]
 
         return self._ts_output_variables
-    
+
     command_format = "set {0} {1}"
 
     def __init__(self, name, wd=None, model_file=None, netlogo_home=None,
-                 netlogo_version=None, jvm_home=None, gui=False, 
+                 netlogo_version=None, jvm_home=None, gui=False,
                  jvmargs=[]):
         """
         init of class
@@ -113,7 +113,7 @@ class BaseNetLogoModel(FileModel):
         self.jvm_home = jvm_home
         self.gui = gui
         self._ts_output_variables = None
-        self.jvmargs= jvmargs
+        self.jvmargs = jvmargs
 
     @method_logger(__name__)
     def model_init(self, policy):
@@ -212,11 +212,12 @@ class BaseNetLogoModel(FileModel):
 
         # we also need to save the non time series outcomes
         self.netlogo.command("file-close-all")
-        
+
         results = self._handle_outcomes(fns)
-        
+
         # handle non time series outcomes
-        non_ts_vars = set(self.output_variables) - set(self.ts_output_variables)
+        non_ts_vars = set(self.output_variables) - \
+            set(self.ts_output_variables)
         for variable in set(non_ts_vars):
             try:
                 data = self.netlogo.report(variable)
@@ -224,7 +225,7 @@ class BaseNetLogoModel(FileModel):
                 _logger.exception("{} not a reporter".format(variable))
             else:
                 results[variable] = data
-        
+
         return results
 
     def retrieve_output(self):
@@ -253,7 +254,7 @@ class BaseNetLogoModel(FileModel):
             self.netlogo.kill_workspace()
         except AttributeError:
             pass
-        
+
         jpype.shutdownJVM()
 
     def _handle_outcomes(self, fns):

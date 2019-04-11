@@ -37,19 +37,20 @@ TIME = "TIME"
 # actual plotting functions
 # ==============================================================================
 
+
 class Density(enum.Enum):
     '''Enum for different types of density plots
     '''
-    
+
     KDE = 'kde'
     '''constant for plotting density as a kernel density estimate'''
-    
+
     HIST = 'hist'
     '''constant for plotting density as a histogram'''
-    
+
     BOXPLOT = 'boxplot'
     '''constant for plotting density as a boxplot'''
-    
+
     VIOLIN = 'violin'
     '''constant for plotting density as a violin plot, which combines a
     Gaussian density estimate with a boxplot'''
@@ -58,22 +59,22 @@ class Density(enum.Enum):
 class LegendEnum(enum.Enum):
     '''Enum for different styles of legends
     '''
-    
+
     # used for legend
     LINE = 'line'
     PATCH = 'patch'
     SCATTER = 'scatter'
 
+
 class PlotType(enum.Enum):
     ENVELOPE = 'envelope'
     '''constant for plotting envelopes'''
-    
+
     LINES = 'lines'
     '''constant for plotting lines'''
-    
+
     ENV_LIN = "env_lin"
     '''constant for plotting envelopes with lines'''
-
 
 
 def plot_envelope(ax, j, time, value, fill=False):

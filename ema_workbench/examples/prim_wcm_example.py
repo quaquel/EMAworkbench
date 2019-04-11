@@ -26,6 +26,7 @@ def classify(outcomes):
     classes = outcome < 1
     return classes
 
+
 fn = r'./data/5000 runs WCM.tar.gz'
 results = load_results(fn)
 

@@ -18,7 +18,7 @@ experiments, outcomes = load_results('./data/1000 flu cases no policy.tar.gz')
 x = experiments.drop(['model', 'policy'], axis=1)
 y = outcomes['deceased population region 1'][:, -1] > 1000000
 
-logit = logistic_regression.Logit(x,y)
+logit = logistic_regression.Logit(x, y)
 logit.run()
 
 logit.show_tradeoff()
