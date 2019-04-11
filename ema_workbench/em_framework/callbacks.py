@@ -26,7 +26,7 @@ import pandas as pd
 from ..util import ema_exceptions, get_module_logger
 from .parameters import (CategoricalParameter, IntegerParameter,
                          BooleanParameter)
-from builtins import AttributeError
+
 
 #
 # Created on 22 Jan 2013
