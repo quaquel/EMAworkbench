@@ -3,9 +3,6 @@ This module provides functionality for combining the EMA workbench
 with IPython parallel.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import collections
 import logging
 import os

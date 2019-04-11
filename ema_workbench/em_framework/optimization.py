@@ -2,9 +2,6 @@
 
 
 '''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
 import copy
 import functools
 import os
@@ -15,7 +12,6 @@ import warnings
 import numpy as np
 
 from .outcomes import AbstractOutcome
-
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy)
 from .samplers import determine_parameters

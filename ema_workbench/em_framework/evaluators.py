@@ -1,3 +1,26 @@
+'''
+collection of evaluators for performing experiments, optimization, and robust
+optimization
+
+'''
+import multiprocessing
+import numbers
+import os
+import random
+import shutil
+import string
+import threading
+import warnings
+
+warnings.simplefilter("once", ImportWarning)
+
+try:
+    from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
+                                  initialize_engines, cleanup, _run_experiment)
+except (ImportError, ModuleNotFoundError):
+    warnings.warn(
+        'ipyparallel not installed - IpyparalleEvaluator not available')
+
 from ..util import EMAError, get_module_logger, ema_logging
 from .util import NamedObjectMap, determine_objects
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
@@ -14,33 +37,6 @@ from .model import AbstractModel
 from .experiment_runner import ExperimentRunner
 from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
 from .callbacks import DefaultCallback
-'''
-collection of evaluators for performing experiments, optimization, and robust
-optimization
-
-'''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
-
-import multiprocessing
-import numbers
-import os
-import random
-import shutil
-import string
-import threading
-import warnings
-
-warnings.simplefilter("once", ImportWarning)
-
-
-try:
-    from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
-                                  initialize_engines, cleanup, _run_experiment)
-except (ImportError, ModuleNotFoundError):
-    warnings.warn(
-        'ipyparallel not installed - IpyparalleEvaluator not available')
-
 
 # TODO:: should become optional import
 
