@@ -9,6 +9,7 @@ import warnings
 from .util import (NamedObject, Variable, NamedObjectMap, Counter,
                    NamedDict, combine)
 from ..util import get_module_logger
+from _pylief import NONE
 
 # Created on Jul 14, 2016
 #
@@ -50,7 +51,7 @@ class LowerBound(Bound):
     def get_bound(self, owner):
         ppf_zero = 0
         
-        if isinstance(owner.dist, sp.stats.rv_discrete):  # @UndefinedVariable
+        if isinstance(owner.dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
             # ppf at actual zero for rv_discrete gives lower bound - 1
             # due to a quirk in the scipy.stats implementation
             # so we use the smallest positive float instead
@@ -113,32 +114,28 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     lower_bound = LowerBound()
     upper_bound = UpperBound()
     default = None
-#     variable_name = []
-    resolution = None
+    
+    @property    
+    def resolution(self):
+        return self._resolution
+    
+    @resolution.setter
+    def resolution(self, value):
+        if value:
+            if (min(value) < self.lower_bound) or (max(value) > self.upper_bound):
+                raise ValueError('resolution not consistent with lower and '
+                                  'upper bound')
+        self._resolution = value
+
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
         super(Parameter, self).__init__(name)
-
-        if resolution is None:
-            resolution = []
-        
-        # TODO:: move to property?
-        for entry in resolution:
-            if not ((entry >= lower_bound) and (entry <= upper_bound)):
-                raise ValueError(('resolution not consistent with lower and '
-                                  'upper bound'))
-
-        if lower_bound >= upper_bound:
-            raise ValueError('upper bound should be larger than lower bound')
-
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
         self.resolution = resolution
         self.default = default
-        
-#         if not variable_name:
-#             self.variable_name = []
+        self.variable_name = variable_name
         self.pff = pff
         
     @classmethod
@@ -156,9 +153,12 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self = cls.__new__(cls)
         self.dist = dist
         self.name = name
+        self.resolution = None
+        self.variable_name = None
+        self.ppf = None
         
         for k, v in kwargs.items():
-            if k in {"default", "resolution", "variable_name"}:
+            if k in {"default", "resolution", "variable_name", "pff"}:
                 setattr(self, k, v)
             else:
                 raise ValueError(f"unknown property {k} for Parameter")
@@ -195,23 +195,23 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     def __str__(self):
         return self.name
 
-    def __repr__(self, *args, **kwargs):
-        start = '{}(\'{}\', {}, {}'.format(self.__class__.__name__,
-                                           self.name,
-                                           self.lower_bound, self.upper_bound)
-
-        if self.resolution:
-            start += ', resolution={}'.format(self.resolution)
-        if self.default:
-            start += ', default={}'.format(self.default)
-        if self.variable_name != [self.name]:
-            start += ', variable_name={}'.format(self.variable_name)
-        if self.pff:
-            start += ', pff={}'.format(self.pff)
-
-        start += ')'
-
-        return start
+#     def __repr__(self, *args, **kwargs):
+#         start = '{}(\'{}\', {}, {}'.format(self.__class__.__name__,
+#                                            self.name,
+#                                            self.lower_bound, self.upper_bound)
+# 
+#         if self.resolution:
+#             start += ', resolution={}'.format(self.resolution)
+#         if self.default:
+#             start += ', default={}'.format(self.default)
+#         if self.variable_name != [self.name]:
+#             start += ', variable_name={}'.format(self.variable_name)
+#         if self.pff:
+#             start += ', pff={}'.format(self.pff)
+# 
+#         start += ')'
+# 
+#         return start
 
 
 class RealParameter(Parameter):
@@ -252,9 +252,10 @@ class RealParameter(Parameter):
 
 
     @classmethod
-    def from_dist(cls, name, dist):
-        assert(isinstance(dist.dist, sp.stats.rv_continuous))  # @UndefinedVariable
-        return super(RealParameter, cls).from_dist(name, dist)
+    def from_dist(cls, name, dist, **kwargs):
+        if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
+            raise ValueError("dist should be instance of rv_continouos")
+        return super(RealParameter, cls).from_dist(name, dist, **kwargs)
 
 
 class IntegerParameter(Parameter):
@@ -282,16 +283,9 @@ class IntegerParameter(Parameter):
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
-        super(
-            IntegerParameter,
-            self).__init__(
-            name,
-            lower_bound,
-            upper_bound,
-            resolution=resolution,
-            default=default,
-            variable_name=variable_name,
-            pff=pff)
+        super(IntegerParameter,self).__init__(name, lower_bound, upper_bound,
+                                        resolution=resolution, default=default,
+                                        variable_name=variable_name, pff=pff)
 
         lb_int = isinstance(lower_bound, numbers.Integral)
         up_int = isinstance(upper_bound, numbers.Integral)
@@ -299,17 +293,13 @@ class IntegerParameter(Parameter):
         if not (lb_int or up_int):
             raise ValueError('lower bound and upper bound must be integers')
 
-        for entry in self.resolution:
-            if not isinstance(entry, numbers.Integral):
-                raise ValueError(('all entries in resolution should be '
-                                  'integers'))
-
         self.dist = sp.stats.randint(self.lower_bound, self.upper_bound + 1)  # @UndefinedVariable
 
     @classmethod
-    def from_dist(cls, name, dist):
-        assert(isinstance(dist.dist, sp.stats.rv_discrete))  # @UndefinedVariable
-        return super(RealParameter, cls).from_dist(name, dist)
+    def from_dist(cls, name, dist, **kwargs):
+        if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
+            raise ValueError("dist should be instance of rv_discrete")
+        return super(IntegerParameter, cls).from_dist(name, dist, **kwargs)
 
 
 class CategoricalParameter(IntegerParameter):

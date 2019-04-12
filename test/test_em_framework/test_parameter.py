@@ -5,15 +5,17 @@
 from __future__ import (unicode_literals, print_function, absolute_import,
                                         division)
 
-from ema_workbench.em_framework import parameters
-
-from ema_workbench.em_framework.samplers import LHSSampler
-from ema_workbench.em_framework.model import Model
 
 import unittest
 import unittest.mock as mock
+import scipy as sp
 
+from ema_workbench.em_framework import parameters
+from ema_workbench.em_framework.samplers import LHSSampler
+from ema_workbench.em_framework.model import Model
 from ema_workbench.em_framework.outcomes import create_outcomes
+
+
     
 class RealParameterTestCase(unittest.TestCase):
    
@@ -109,8 +111,19 @@ class RealParameterTestCase(unittest.TestCase):
         self.assertEqual(par.upper_bound, upper_bound)
         
     def test_from_dist(self):
-        pass
+        par = parameters.RealParameter.from_dist("test", sp.stats.uniform(0, 1), # @UndefinedVariable
+                                                 resolution=[0,1])  
         
+        self.assertEqual(par.name, "test")
+        self.assertEqual(par.dist.dist.name, "uniform")
+        self.assertEqual(par.lower_bound, 0)
+        self.assertEqual(par.upper_bound, 1)    
+        self.assertEqual(par.resolution, [0,1])        
+        
+        with self.assertRaises(ValueError):
+            parameters.RealParameter.from_dist("test", sp.stats.randint(0, 1))  # @UndefinedVariable
+            parameters.RealParameter.from_dist("test", sp.stats.uniform(0, 1), # @UndefinedVariable
+                                                 blaat=[0,1])
     
 class IntegerParameterTestCase(unittest.TestCase):
     
@@ -168,7 +181,26 @@ class IntegerParameterTestCase(unittest.TestCase):
         self.assertEqual(par.upper_bound, upper_bound)
         
     def test_from_dist(self):
-        pass
+        par = parameters.IntegerParameter.from_dist("test",
+                                                    sp.stats.randint(0, 10), # @UndefinedVariable
+                                                    resolution=[0,9])  
+        
+        self.assertEqual(par.name, "test")
+        self.assertEqual(par.dist.dist.name, "randint")
+        self.assertEqual(par.lower_bound, 0)
+        self.assertEqual(par.upper_bound, 9)    
+        self.assertEqual(par.resolution, [0,9])        
+        
+        with self.assertRaises(ValueError):
+            parameters.IntegerParameter.from_dist("test",
+                                                  sp.stats.uniform(0, 1))  # @UndefinedVariable
+            parameters.IntegerParameter.from_dist("test",
+                                                  sp.stats.randint(0, 1), # @UndefinedVariable
+                                                  blaat=[0,1])
+            parameters.IntegerParameter.from_dist("test",
+                                                  sp.stats.randint(0, 10), # @UndefinedVariable
+                                                  resolution=[0,9])  
+        
     
     
 class CategoricalParameterTestCase(unittest.TestCase):
