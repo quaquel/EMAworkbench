@@ -97,15 +97,20 @@ class RealParameterTestCase(unittest.TestCase):
         par2 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
         self.assertFalse(par1==par2)
     
-    def test_params(self):
+    def test_dist(self):
         name = 'test'
         resolution = [0, 1, 2]
         lower_bound = 0
         upper_bound = 2.1
         par = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
         
-        self.assertEqual(par.params, (0, 2.1))
-    
+        self.assertEqual(par.dist.dist.name, "uniform")
+        self.assertEqual(par.lower_bound, lower_bound)
+        self.assertEqual(par.upper_bound, upper_bound)
+        
+    def test_from_dist(self):
+        pass
+        
     
 class IntegerParameterTestCase(unittest.TestCase):
     
@@ -150,7 +155,7 @@ class IntegerParameterTestCase(unittest.TestCase):
             par = parameters.IntegerParameter(name, lower_bound, upper_bound, 
                                              [0, 1.5, 2])
     
-    def test_params(self):
+    def test_dist(self):
         name = 'test'
         resolution = [0, 1, 2]
         lower_bound = 0
@@ -158,7 +163,12 @@ class IntegerParameterTestCase(unittest.TestCase):
         par = parameters.IntegerParameter(name, lower_bound, upper_bound, 
                                           resolution)
         
-        self.assertEqual(par.params, (0, 3))
+        self.assertEqual(par.dist.dist.name, "randint")
+        self.assertEqual(par.lower_bound, lower_bound)
+        self.assertEqual(par.upper_bound, upper_bound)
+        
+    def test_from_dist(self):
+        pass
     
     
 class CategoricalParameterTestCase(unittest.TestCase):
@@ -171,18 +181,6 @@ class CategoricalParameterTestCase(unittest.TestCase):
         self.assertEqual(par.resolution, [0,1])
         self.assertEqual(par.lower_bound, 0)
         self.assertEqual(par.upper_bound, 1)
-    
-#     def test_comparison(self):
-#         name = 'test'
-#         values = ('a', 'b')
-#         par1 = parameters.CategoricalParameter(name, values)
-#         par2 = parameters.CategoricalParameter(name, values)
-#         
-#         self.assertEqual(par1, par2)
-# 
-#         name = 'what'
-#         par2 = parameters.CategoricalParameter(name, values)
-#         self.assertNotEqual(par1, par2)
     
     def test_index_for_cat(self):
         name = 'test'
@@ -206,6 +204,9 @@ class CategoricalParameterTestCase(unittest.TestCase):
         with self.assertRaises(KeyError):
             par1.cat_for_index(3)
 
+    def test_from_dist(self):
+        pass
+
 class CreateOutcomesTestCase(unittest.TestCase):
     def test_create_outcomes(self):
         outcome_list = [dict(type='scalar', name='a'), 
@@ -225,7 +226,7 @@ class CreateOutcomesTestCase(unittest.TestCase):
             outcomes = create_outcomes(outcome_list)
 
 class ParametersToCsvTestCase(unittest.TestCase):
-    @mock.patch('ema_workbench.em_framework.parameters.pandas')
+    @mock.patch('ema_workbench.em_framework.parameters.pd')
     def test_to_csv(self, mock_pandas):
         params = [parameters.RealParameter('a', 0.1, 1.5),
                   parameters.IntegerParameter('b', 0, 10),

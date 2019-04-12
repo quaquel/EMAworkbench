@@ -50,7 +50,7 @@ class TestPySDConnector(unittest.TestCase):
         model.outcomes = [TimeSeriesOutcome('Teacup Temperature')]
 
         with MultiprocessingEvaluator(model, 2) as evaluator:
-            perform_experiments(model, 5, evaluator=evaluator)
+            evaluator.perform_experiments(5)
   
     def test_multiple_models(self):
         """

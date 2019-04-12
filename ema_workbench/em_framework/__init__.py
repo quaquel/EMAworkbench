@@ -5,7 +5,7 @@ __all__ = ["ema_parallel", "parameters"
            "ScalarOutcome", "TimeSeriesOutcome", "Constraint",
            "RealParameter", "IntegerParameter", "CategoricalParameter",
            "BooleanParameter", "Scenario", "Policy", "Experiment",
-           "Constant", "create_parameters",
+           "Constant", "parameters_from_csv",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
            "get_SALib_problem", "FASTSampler",
            "peform_experiments", 'optimize', "IpyparallelEvaluator",
@@ -19,7 +19,7 @@ from .model import Model, FileModel, ReplicatorModel, Replicator, SingleReplicat
 
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy, Constant,
-                         Experiment, create_parameters, parameters_to_csv,
+                         Experiment, parameters_from_csv, parameters_to_csv,
                          Category, experiment_generator)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
                        PartialFactorialSampler, sample_levers,

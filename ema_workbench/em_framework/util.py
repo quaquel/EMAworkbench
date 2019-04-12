@@ -19,13 +19,13 @@ from ..util import EMAError
 __all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation']
 
 
-class NamedObject(object):
+class NamedObject:
 
     def __init__(self, name):
         self.name = name
 
 
-class Counter(object):
+class Counter:
     '''helper function for generating counter based names for NamedDicts'''
 
     def __init__(self, startfrom=0):
@@ -57,7 +57,7 @@ class Variable(NamedObject):
         self._variable_name = name
 
 
-class NamedObjectMap(object):
+class NamedObjectMap:
 
     def __init__(self, type):  # @ReservedAssignment
         super(NamedObjectMap, self).__init__()
@@ -132,7 +132,7 @@ class NamedObjectMap(object):
         return self._data.keys()
 
 
-class NamedObjectMapDescriptor(object):
+class NamedObjectMapDescriptor:
     def __init__(self, kind):
         self.kind = kind
 
