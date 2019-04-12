@@ -52,7 +52,7 @@ class Variable(NamedObject):
 
     @variable_name.setter
     def variable_name(self, name):
-        if isinstance(name, six.string_types):
+        if isinstance(name, str):
             name = [name]
         self._variable_name = name
 
