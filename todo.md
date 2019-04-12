@@ -22,3 +22,7 @@
   alternatively, move epsilon into outcome, analogous to expected_range.
   probably a better approach. Contains all relevant information within 
   outcome class and avoids having to carefully maintain order. 
+* If we add other distributions, can we create a hybrid sampler were we sample
+  the deeply uncertain factors first, and then evaluate each deeply uncertain
+  experiment for n experiments over the well characterized uncertainties?
+  
