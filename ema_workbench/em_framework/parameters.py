@@ -9,7 +9,6 @@ import warnings
 from .util import (NamedObject, Variable, NamedObjectMap, Counter,
                    NamedDict, combine)
 from ..util import get_module_logger
-from _pylief import NONE
 
 # Created on Jul 14, 2016
 #
