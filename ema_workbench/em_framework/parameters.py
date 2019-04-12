@@ -113,7 +113,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     lower_bound = LowerBound()
     upper_bound = UpperBound()
     default = None
-    variable_name = []
+#     variable_name = []
     resolution = None
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
@@ -137,8 +137,8 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.resolution = resolution
         self.default = default
         
-        if not variable_name:
-            self.variable_name = []
+#         if not variable_name:
+#             self.variable_name = []
         self.pff = pff
         
     @classmethod
