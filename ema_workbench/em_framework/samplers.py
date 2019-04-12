@@ -31,7 +31,7 @@ __all__ = ['AbstractSampler',
            'determine_parameters']
 
 
-class AbstractSampler(object):
+class AbstractSampler(object, metaclass=abc.ABCMeta):
     '''
     Abstract base class from which different samplers can be derived.
 
@@ -40,21 +40,13 @@ class AbstractSampler(object):
     other methods are used internally to generate the designs.
 
     '''
-    __metaaclass__ = abc.ABCMeta
 
-    # types of distributions known by the sampler.
-    # by default it knows the `uniform continuous <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html>`_
-    # distribution for sampling floats, and the `uniform discrete <http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html#scipy.stats.randint>`_
-    # distribution for sampling integers.
-    distributions = {"uniform": stats.uniform,
-                     "integer": stats.randint
-                     }
 
     def __init__(self):
         super(AbstractSampler, self).__init__()
 
-    @abc.abstractmethod
-    def sample(self, distribution, params, size):
+#     @abc.abstractmethod
+    def sample(self, distribution, size):
         '''
         method for sampling a number of samples from a particular distribution.
         The various samplers differ with respect to their implementation of
@@ -62,10 +54,7 @@ class AbstractSampler(object):
 
         Parameters
         ----------
-        distribution : {'uniform', 'integer'}
-                       the distribution to sample from
-        params : tuple
-                 the parameters specifying the distribution
+        distribution : scipy frozen distribution
         size : int
                the number of samples to generate
 
@@ -98,7 +87,7 @@ class AbstractSampler(object):
             dict with the paramertainty.name as key, and the sample as value
 
         '''
-        return {param.name: self.sample(param.dist, param.params, size) for
+        return {param.name: self.sample(param.dist, size) for
                 param in parameters}
 
     def generate_designs(self, parameters, nr_samples):
@@ -140,16 +129,13 @@ class LHSSampler(AbstractSampler):
     def __init__(self):
         super(LHSSampler, self).__init__()
 
-    def sample(self, distribution, params, size):
+    def sample(self, distribution, size):
         '''
         generate a Latin Hypercube Sample.
 
         Parameters
         ----------
-        distribution : scipy distribution
-                       the distribution to sample from
-        params : tuple
-                 the parameters specifying the distribution
+        distribution : scipy frozen distribution
         size : int
                the number of samples to generate
 
@@ -160,32 +146,19 @@ class LHSSampler(AbstractSampler):
 
         '''
 
-        return self._lhs(self.distributions[distribution], params, size)
-
-    def _lhs(self, dist, parms, siz):
-        '''
-        Latin Hypercube sampling of any distribution.
-
-        Parameters
-        ----------
-        dist : random number generator from `scipy.stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
-        parms : tuple
-                tuple of parameters as required for dist.
-        siz : int
-              number of samples
-
-        '''
-        perc = np.arange(0, 1., 1. / siz)
+        perc = np.arange(0, 1., 1. / size)
         np.random.shuffle(perc)
-        smp = stats.uniform(perc, 1. / siz).rvs()
-        v = dist(*parms).ppf(smp)
+        smp = stats.uniform(perc, 1. / size).rvs()
+        samples = distribution.ppf(smp)
 
+        # TODO::
         # corner case fix (try siz=49)
         # is not a proper fix, it means that perc is wrong
         # so your intervals are wrong
-        v = v[np.isnan(v) == False]
+        samples = samples[np.isnan(samples) == False]
 
-        return v
+        return samples
+
 
 
 class MonteCarloSampler(AbstractSampler):
@@ -197,16 +170,13 @@ class MonteCarloSampler(AbstractSampler):
     def __init__(self):
         super(MonteCarloSampler, self).__init__()
 
-    def sample(self, distribution, params, size):
+    def sample(self, distribution, size):
         '''
         generate a Monte Carlo Sample.
 
         Parameters
         ----------
-        distribution : scipy distribution
-                       the distribution to sample from
-        params : 2-tuple of floats
-                 the parameters specifying the distribution
+        distribution : scipy frozen distribution
         size : int
                the number of samples to generate
 
@@ -217,7 +187,7 @@ class MonteCarloSampler(AbstractSampler):
 
         '''
 
-        return self.distributions[distribution](*params).rvs(size)
+        return distribution.rvs(size)
 
 
 class FullFactorialSampler(AbstractSampler):
