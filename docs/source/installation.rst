@@ -18,15 +18,17 @@ dependencies will already be met.
 
 In addition to the libraries available in the default Anaconda distribution,
 there are various optional dependencies. From conda or conda forge
+
 * `seaborn <https://web.stanford.edu/~mwaskom/software/seaborn/>`_ for enhanced matplotlib figures,  
 * `pydot <https://pypi.python.org/pypi/pydot/>`_ and  Graphviz for some of the visualizations. 
 * `altair <https://altair-viz.github.io>`_ for interactive visualizations
 * `ipyparallel <http://ipyparallel.readthedocs.io/en/latest/>`_ for support of interactive multiprocessing within the jupyter notebook. 
-* `jpype-1` <https://jpype.readthedocs.io/en/latest/>`_ for controlling NetLogo
+* `jpype-1 <https://jpype.readthedocs.io/en/latest/>`_ for controlling NetLogo
 
 There are also som pip based dependencies. These are
-* `Salib <https://salib.readthedocs.io/en/latest/>`_, this is a necessary dependency for advanced senstivity analysis
-* `platypus-opt <https://github.com/Project-Platypus/Platypus>`_, this is an optional dependency for many-objective optimization functionality
+
+* `Salib <https://salib.readthedocs.io/en/latest/>`_ , this is a necessary dependency for advanced senstivity analysis
+* `platypus-opt <https://github.com/Project-Platypus/Platypus>`_ , this is an optional dependency for many-objective optimization functionality
 * `pynetlogo <https://pynetlogo.readthedocs.io>`_ optional for netlogo control
 * `pysd <https://pysd.readthedocs.io/en/master/>`_ optional for simple vensim models
 
