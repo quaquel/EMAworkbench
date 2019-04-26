@@ -103,8 +103,8 @@ Note that we are using a TimeSeriesOutcome, because vensim results are time
 series. We can now simply run this model by calling 
 :func:`perform_experiments`. ::
 
-with MultiprocessingEvaluator(model) as evaluator:
-    results = evaluator.perform_experiments(1000)
+	with MultiprocessingEvaluator(model) as evaluator:
+    	results = evaluator.perform_experiments(1000)
 
 We now use a evaluator, which ensures that the code is executed in parallel. 
 
@@ -245,66 +245,12 @@ Together, this results in the following code:
 .. literalinclude:: ../../ema_workbench/examples/flu_vensim_no_policy_example.py
    :linenos:
 
-We can now instantiate the model, instantiate an ensemble, and set the model on 
-the ensemble, as seen below. Just as with the simple Vensim model, we first 
-start the logging and direct it to the stream specified in `sys.stderr <http://docs.python.org/library/sys.html>`_.
-Which, if we are working with `Eclipse <http://www.eclipse.org/>`_ is the console. 
-Assuming we have imported :class:`~model_ensemblel.ModelEnsemble` and 
-:mod:`ema_logging`, we can do the following ::
-
-   EMALogging.log_to_stderr(level=EMALogging.INFO)
-   
-    model = VensimModel("fluCase", wd=r'./models/flu',
-                        model_file = r'/FLUvensimV1basecase.vpm')
-    model.outcomes = [TimeSeriesOutcome('deceased population region 1'),
-                      TimeSeriesOutcome('infected fraction R1')]
-    model.uncertainties = [
-    ParameterUncertainty((0, 0.5), 
-                         "additional seasonal immune population fraction R1"),
-    ParameterUncertainty((0, 0.5), 
-                         "additional seasonal immune population fraction R2"),
-    ParameterUncertainty((0.0001, 0.1), 
-                         "fatality ratio region 1"),
-    ParameterUncertainty((0.0001, 0.1), 
-                         "fatality rate region 2"),
-    ParameterUncertainty((0, 0.5), 
-                         "initial immune fraction of the population of region 1"),
-    ParameterUncertainty((0, 0.5), 
-                         "initial immune fraction of the population of region 2"),
-    ParameterUncertainty((0, 0.9), 
-                         "normal interregional contact rate"),
-    ParameterUncertainty((0, 0.5), 
-                         "permanent immune population fraction R1"),
-    ParameterUncertainty((0, 0.5), 
-                         "permanent immune population fraction R2"),
-    ParameterUncertainty((0.1, 0.75), 
-                         "recovery time region 1"),
-    ParameterUncertainty((0.1, 0.75), 
-                         "recovery time region 2"),
-    ParameterUncertainty((0.5,2), 
-                         "susceptible to immune population delay time region 1"),
-    ParameterUncertainty((0.5,2), 
-                         "susceptible to immune population delay time region 2"),
-    ParameterUncertainty((0.01, 5), 
-                         "root contact rate region 1"),
-    ParameterUncertainty((0.01, 5), 
-                         "root contact ratio region 2"),
-    ParameterUncertainty((0, 0.15), 
-                         "infection ratio region 1"),
-    ParameterUncertainty((0, 0.15), 
-                         "infection rate region 2"),
-    ParameterUncertainty((10, 100), 
-                         "normal contact rate region 1"),
-    ParameterUncertainty((10, 200), 
-                         "normal contact rate region 2")]
-
-    nr_experiments = 100
-    results = perform_experiments(model, nr_experiments)
-
-We now have generated a 1000 cases and can proceed to analyse the results using
-various analysis scripts. As a first step, one can look at the individual runs
-using a line plot using :func:`~graphs.lines`. See :mod:`plotting` for some
-more visualizations using results from performing EMA on :class:`FluModel`. ::
+We have now instantiated the model, specified the uncertain factors and outcomes
+and run the model. We now have generated a dataset of results and can proceed to
+analyse the results using various analysis scripts. As a first step, one can
+look at the individual runs using a line plot using :func:`~graphs.lines`. 
+See :mod:`plotting` for some more visualizations using results from performing
+EMA on :class:`FluModel`. ::
 
    import matplotlib.pyplot as plt 
    from ema_workbench.analysis.plotting import lines
