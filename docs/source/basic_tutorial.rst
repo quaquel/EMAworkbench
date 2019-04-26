@@ -103,8 +103,8 @@ Note that we are using a TimeSeriesOutcome, because vensim results are time
 series. We can now simply run this model by calling 
 :func:`perform_experiments`. ::
 
-with MultiprocessingEvaluator(model) as evaluator:
-    results = evaluator.perform_experiments(1000)
+	with MultiprocessingEvaluator(model) as evaluator:
+    	results = evaluator.perform_experiments(1000)
 
 We now use a evaluator, which ensures that the code is executed in parallel. 
 
