@@ -12,8 +12,7 @@ from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            ema_logging, MultiprocessingEvaluator)
-from ema_workbench.em_framework.evaluators import MC
-
+from ema_workbench.em_framework.evaluators import Samplers
 
 def lake_problem(
     b=0.42,          # decay rate for P in lake (0.42 = irreversible)
@@ -92,4 +91,4 @@ if __name__ == '__main__':
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies,
-                                            levers_sampling=MC)
+                                            levers_sampling=Samplers.MC)

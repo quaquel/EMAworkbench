@@ -3,6 +3,7 @@ collection of evaluators for performing experiments, optimization, and robust
 optimization
 
 '''
+import enum
 import multiprocessing
 import numbers
 import os
@@ -11,6 +12,7 @@ import shutil
 import string
 import threading
 import warnings
+from ema_workbench.em_framework.samplers import AbstractSampler
 
 warnings.simplefilter("once", ImportWarning)
 
@@ -25,8 +27,8 @@ from ..util import EMAError, get_module_logger, ema_logging
 from .util import NamedObjectMap, determine_objects
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
-                       PartialFactorialSampler, sample_levers,
-                       sample_uncertainties)
+                       PartialFactorialSampler, UniformLHSSampler, 
+                       sample_levers, sample_uncertainties)
 from .parameters import (experiment_generator, Scenario, Policy)
 from .outcomes import ScalarOutcome, AbstractOutcome
 from .optimization import (evaluate_robust, evaluate, EpsNSGAII,
@@ -38,34 +40,30 @@ from .experiment_runner import ExperimentRunner
 from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
 from .callbacks import DefaultCallback
 
-# TODO:: should become optional import
 
 # Created on 5 Mar 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-# TODO:: replace with enum
-LHS = 'lhs'
-MC = 'mc'
-FF = 'ff'
-PFF = 'pff'
-SOBOL = 'sobol'
-MORRIS = 'morris'
-FAST = 'fast'
-
-# TODO:: better name, samplers lower case conflicts with module name
-SAMPLERS = {LHS: LHSSampler,
-            MC: MonteCarloSampler,
-            FF: FullFactorialSampler,
-            PFF: PartialFactorialSampler,
-            SOBOL: SobolSampler,
-            MORRIS: MorrisSampler,
-            FAST: FASTSampler}
-
 __all__ = ['MultiprocessingEvaluator', 'IpyparallelEvaluator',
            'optimize', 'perform_experiments', 'SequentialEvaluator']
+
 _logger = get_module_logger(__name__)
 
+
+class Samplers(enum.Enum):
+    ## TODO:: have samplers register themselves on class instantiation
+    
+    MC = MonteCarloSampler()
+    LHS = LHSSampler()
+    UNIFORM_LHS = UniformLHSSampler()
+    FF = FullFactorialSampler()
+    PFF = PartialFactorialSampler()
+    SOBOL = SobolSampler()
+    FAST = FASTSampler()
+    MORRIS = MorrisSampler()
+    
+    
 
 class BaseEvaluator(object):
     '''evaluator for experiments using a multiprocessing pool
@@ -155,8 +153,9 @@ class BaseEvaluator(object):
     def perform_experiments(self, scenarios=0, policies=0,
                             reporting_interval=None, reporting_frequency=10,
                             uncertainty_union=False, lever_union=False,
-                            outcome_union=False, uncertainty_sampling=LHS,
-                            levers_sampling=LHS, callback=None):
+                            outcome_union=False,
+                            uncertainty_sampling=Samplers.LHS,
+                            levers_sampling=Samplers.LHS, callback=None):
         '''convenience method for performing experiments.
 
         is forwarded to :func:perform_experiments, with evaluator and
@@ -356,8 +355,9 @@ class IpyparallelEvaluator(BaseEvaluator):
 def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         reporting_interval=None, reporting_frequency=10,
                         uncertainty_union=False, lever_union=False,
-                        outcome_union=False, uncertainty_sampling=LHS,
-                        levers_sampling=LHS, callback=None,
+                        outcome_union=False,
+                        uncertainty_sampling=Samplers.LHS,
+                        levers_sampling=Samplers.LHS, callback=None,
                         return_callback=False):
     '''sample uncertainties and levers, and perform the resulting experiments
     on each of the models
@@ -373,16 +373,16 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     uncertainty_union : boolean, optional
     lever_union : boolean, optional
     uncertainty_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
-    lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
+    lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional TODO:: update doc
     callback  : Callback instance, optional
     return_callback : boolean, optional
 
     Returns
     -------
     tuple
-        the experiments as a numpy recarray, and a dict
-        with the name of an outcome as key, and the associated scores
-        as numpy array. Experiments and outcomes are alinged on index.
+        the experiments as a dataframe, and a dict
+        with the name of an outcome as key, and the associated values
+        as numpy array. Experiments and outcomes are aligned on index.
 
 
     '''
@@ -395,7 +395,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         uncertainties = []
         n_scenarios = 1
     elif(isinstance(scenarios, numbers.Integral)):
-        sampler = SAMPLERS[uncertainty_sampling]()
+        sampler = uncertainty_sampling
+        if not isinstance(sampler, AbstractSampler):
+            sampler = sampler.value
         scenarios = sample_uncertainties(models, scenarios, sampler=sampler,
                                          union=uncertainty_union)
         uncertainties = scenarios.parameters
@@ -419,8 +421,13 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         levers = []
         n_policies = 1
     elif(isinstance(policies, numbers.Integral)):
+        sampler = levers_sampling
+        
+        if not isinstance(sampler, AbstractSampler):
+            sampler = sampler.value
+        
         policies = sample_levers(models, policies, union=lever_union,
-                                 sampler=SAMPLERS[levers_sampling]())
+                                 sampler=sampler)
         levers = policies.parameters
         n_policies = policies.n
     else:

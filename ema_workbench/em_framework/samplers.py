@@ -26,6 +26,7 @@ __all__ = ['AbstractSampler',
            'MonteCarloSampler',
            'FullFactorialSampler',
            'PartialFactorialSampler',
+           'UniformLHSSampler',
            'sample_levers',
            'sample_uncertainties',
            'determine_parameters']
@@ -45,7 +46,6 @@ class AbstractSampler(object, metaclass=abc.ABCMeta):
     def __init__(self):
         super(AbstractSampler, self).__init__()
 
-#     @abc.abstractmethod
     def sample(self, distribution, size):
         '''
         method for sampling a number of samples from a particular distribution.
@@ -74,8 +74,9 @@ class AbstractSampler(object, metaclass=abc.ABCMeta):
         Parameters
         ----------
         parameters : collection
-                     a collection of :class:`~parameters.Parameterparamertainty`
-                     and :class:`~parameters.Categoricalparamertainty`
+                     a collection of :class:`~parameters.RealParameter`, 
+                     :class:`~parameters.IntegerParameter`,
+                     and :class:`~parameters.CategoricalParameter`
                      instances.
         size : int
                the number of samples to generate.
@@ -84,7 +85,7 @@ class AbstractSampler(object, metaclass=abc.ABCMeta):
         Returns
         -------
         dict
-            dict with the paramertainty.name as key, and the sample as value
+            dict with the parameter.name as key, and the sample as value
 
         '''
         return {param.name: self.sample(param.dist, size) for
@@ -159,6 +160,88 @@ class LHSSampler(AbstractSampler):
 
         return samples
 
+class UniformLHSSampler(LHSSampler):
+    
+    def generate_samples(self, parameters, size):
+        '''
+
+        Parameters
+        ----------
+        parameters : collection
+        size : int
+
+        Returns
+        -------
+        dict
+            dict with the paramertainty.name as key, and the sample as value
+
+        '''
+        
+        samples = {}
+        for param in parameters:
+            lower_bound = param.lower_bound
+            upper_bound = param.upper_bound
+            
+            if isinstance(param.dist, stats.rv_continuous):
+                dist = stats.uniform(lower_bound, upper_bound-lower_bound)
+            else:
+                dist = stats.randint(lower_bound, upper_bound+1)
+            samples[param.name] = self.sample(dist, size)
+        return samples
+
+
+class FactorialLHSSampler(LHSSampler):
+    '''generate LHS samples over the well characterized and the deeply
+    uncertain factors seperately, and than combine them in a full factorial
+    way
+    
+    Parameters
+    ----------
+    n_uniform : int
+                the number of samples for the deeply uncertain factor
+    n_informative : int 
+                    the number of samples for the well characterized uncertain
+                    factors
+    
+    TODO:: needs a better name
+    '''
+    
+    
+    def __init__(self, n_uniform, n_informative):
+        LHSSampler.__init__(self)
+    
+    def generate_designs(self, parameters, nr_samples):
+        '''
+
+        Parameters
+        ----------
+        parameters : list
+        nr_samples : int
+
+        Returns
+        -------
+        generator
+        int
+
+        '''
+        parameters = sorted(parameters, key=operator.attrgetter('name'))
+        
+        deeply_uncertain_parameters = []
+        well_characterized_parameters =[]
+        for parameter in parameters:
+            if isinstance(parameter.dist, (stats.randint, stats.uniform)):
+                deeply_uncertain_parameters.append(parameter)
+            else:
+                well_characterized_parameters.append(parameter)
+        
+        TODO
+        
+        
+        sampled_parameters = self.generate_samples(parameters, nr_samples)
+        designs = zip(*[sampled_parameters[u.name] for u in parameters])
+        designs = DefaultDesigns(designs, parameters, nr_samples)
+
+        return designs
 
 
 class MonteCarloSampler(AbstractSampler):
