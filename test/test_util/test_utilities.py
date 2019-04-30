@@ -67,18 +67,7 @@ class SaveResultsTestCase(unittest.TestCase):
         results = (experiments, {'a': outcome_a})
         save_results(results, fn)
         os.remove(fn)
-#         ema_logging.info('3d saved successfully')
-        
-#         nr_experiments = 500000
-#         nr_timesteps = 100
-#         experiments = np.recarray((nr_experiments,),
-#                                dtype=[('x', float), ('y', float)])
-#         outcome_a = np.zeros((nr_experiments,nr_timesteps))
-#         
-#         results = (experiments, {'a': outcome_a})
-#         save_results(results, fn)
-#         os.remove(fn)
-#         ema_logging.info('extremely long saved successfully')
+
     
 class LoadResultsTestCase(unittest.TestCase):
     def test_load_results(self):

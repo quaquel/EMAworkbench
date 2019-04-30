@@ -105,7 +105,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
         #        should we check all uncertainties are in x?
         pass
 
-    # prepare the dtypes for the new rotated experiments recarray
+    # prepare the dtypes for the new rotated experiments dataframe
     new_columns = []
     new_dtypes = []
     for key, value in subsets.items():

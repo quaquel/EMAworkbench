@@ -545,7 +545,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
 
     Parameters
     ----------
-    experiments : recarray
+    experiments : DataFrame
     outcomes : dict
     group_by : str
                The column in the experiments array to which the grouping
