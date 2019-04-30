@@ -287,7 +287,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
 
     Parameters
     ----------
-    x : recarray
+    x : DataFrame
     y : np.array
     box : DataFrame
     Hbox : int
