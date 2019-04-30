@@ -380,7 +380,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     Returns
     -------
     tuple
-        the experiments as a numpy recarray, and a dict
+        the experiments as a dataframe, and a dict
         with the name of an outcome as key, and the associated scores
         as numpy array. Experiments and outcomes are alinged on index.
 
