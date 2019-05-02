@@ -553,8 +553,12 @@ class Experiment(NamedDict):
         super(Experiment, self).__init__(
             name, **combine(scenario, policy, constants))
 
+def zip_cycle(*args):
+    maxlen = max(len(a) for a in args)
+    return itertools.islice(zip(*(itertools.cycle(a) for a in args)), maxlen)
 
-def experiment_generator(scenarios, model_structures, policies):
+
+def experiment_generator(scenarios, model_structures, policies, zip_over=None):
     '''
 
     generator function which yields experiments
@@ -564,16 +568,72 @@ def experiment_generator(scenarios, model_structures, policies):
     designs : iterable of dicts
     model_structures : list
     policies : list
+    zip_over : Collection[str], optional
+        A collection that contains exactly two or three members of the set
+        {'scenarios', 'policies', 'models'}.  If a set is given, the length
+        of all other arguments that are indicated in this set must be the
+        same, and the experiment generator will create experiments based on
+        a `zip` through the values in these collections, instead of creating
+        experiments across all possible combinations of the values.
 
     Notes
     -----
-    this generator is essentially three nested loops: for each model structure,
+    When called with zip_over as None, this generator is essentially
+    three nested loops: for each model structure,
     for each policy, for each scenario, return the experiment. This means
     that designs should not be a generator because this will be exhausted after
-    the running the first policy on the first model.
+    the running the first policy on the first model.  If zip_over contains
+    two items, then those two will be paired up, but there will still be
+    two nested loops.
+
+    When called with zip_over set as not None, if the length of the lists
+    identified in zip_over is unbalanced, the shorter list(s) will be
+    recycled in the same order after they have been exhausted until the
+    longest list is exhausted. If lists are randomly shuffled before being
+    passed to this generator, this is equivalent to sampling (without
+    replacement) from each space.
 
     '''
-    jobs = itertools.product(model_structures, policies, scenarios)
+    if zip_over is None:
+        zip_over = set()
+    else:
+        zip_over = set(zip_over)
+
+    if not zip_over.issubset({'scenarios', 'policies', 'models'}):
+        raise ValueError("zip_over must be subset of {'scenarios', 'policies', 'models'} or None")
+    if len(zip_over) == 1:
+        raise ValueError("zip_over cannot be one item")
+
+    if zip_over == {'scenarios', 'policies', 'models'}:
+        jobs = (
+            (m_, p_, s_)
+            for m_, p_, s_ in zip_cycle(
+                model_structures, policies, scenarios
+            )
+        )
+    elif zip_over == {'scenarios', 'policies'}:
+        jobs = (
+            (m_, p_, s_)
+            for m_, (p_, s_) in itertools.product(
+                model_structures, zip_cycle(policies, scenarios)
+            )
+        )
+    elif zip_over == {'scenarios', 'models'}:
+        jobs = (
+            (m_, p_, s_)
+            for p_, (m_, s_) in itertools.product(
+                policies, zip_cycle(model_structures, scenarios)
+            )
+        )
+    elif zip_over == {'policies', 'models'}:
+        jobs = (
+            (m_, p_, s_)
+            for s_, (m_, p_) in itertools.product(
+                scenarios, zip_cycle(model_structures, policies)
+            )
+        )
+    else:
+        jobs = itertools.product(model_structures, policies, scenarios)
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job
