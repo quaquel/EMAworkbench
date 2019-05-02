@@ -30,7 +30,9 @@ install:
 
 before_install:
 - "export DISPLAY=:99.0"
-- "sh -e /etc/init.d/xvfb start"
+
+services:
+  - xvfb
 
 script:
 - nosetests --exclude-dir=./test/test_connectors --with-coverage --verbose --cover-package=ema_workbench.em_framework --cover-package=ema_workbench.util --cover-package=ema_workbench.analysis
