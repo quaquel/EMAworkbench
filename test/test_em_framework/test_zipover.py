@@ -66,27 +66,30 @@ class ZipOverTestCase(unittest.TestCase):
 		n_scenarios = 10
 		n_policies = 4
 
+		# Normal processing, no zip_over
 		with SequentialEvaluator(lake_model) as evaluator:
 			results, outcomes = evaluator.perform_experiments(n_scenarios, n_policies)
-
 		assert len(results) == 40
 
+		# zip_over with equal lengths
+		n_scenarios, n_policies = 10, 10
 		with SequentialEvaluator(lake_model) as evaluator:
-			results, outcomes = evaluator.perform_experiments(10, 10,
+			results, outcomes = evaluator.perform_experiments(n_scenarios, n_policies,
 															  zip_over={'scenarios', 'policies'})
 		assert len(results) == 10
 
-		with self.assertRaises(EMAError):
-			# mismatch in number of scenarios and policies.
-			with SequentialEvaluator(lake_model) as evaluator:
-				results, outcomes = evaluator.perform_experiments(n_scenarios, n_policies,
-																  zip_over={'scenarios',
-																			'policies'})
+		# zip_over with unequal lengths
+		n_scenarios, n_policies = 13, 4
+		with SequentialEvaluator(lake_model) as evaluator:
+			results, outcomes = evaluator.perform_experiments(n_scenarios, n_policies,
+															  zip_over={'scenarios', 'policies'})
+		assert len(results) == 13
 
-		with self.assertRaises(EMAError):
-			# only one model, so zip_over fails
-			with SequentialEvaluator(lake_model) as evaluator:
-				results, outcomes = evaluator.perform_experiments(10, 10,
-																  zip_over={'scenarios',
-																			'policies',
-																			'models'})
+		# only one model, but not a problem to 'fake' zip over it too
+		n_scenarios, n_policies = 10, 10
+		with SequentialEvaluator(lake_model) as evaluator:
+			results, outcomes = evaluator.perform_experiments(n_scenarios, n_policies,
+															  zip_over={'scenarios',
+																		'policies',
+																		'models'})
+		assert len(results) == 10

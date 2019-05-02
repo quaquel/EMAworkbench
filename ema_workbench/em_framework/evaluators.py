@@ -174,7 +174,7 @@ class BaseEvaluator(object):
                                    uncertainty_sampling=uncertainty_sampling,
                                    levers_sampling=levers_sampling,
                                    callback=callback,
-                                   zip_over=None)
+                                   zip_over=zip_over)
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
                  reference=None, constraints=None, convergence_freq=1000,
