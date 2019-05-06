@@ -91,7 +91,8 @@ def _make_box(x):
     '''
 
     def limits(x):
-        if (x.dtype == int) or (x.dtype == float):
+        if (pd.api.types.is_integer_dtype(x.dtype)) or\
+           (pd.api.types.is_float_dtype(x.dtype)):  # @UndefinedVariable
             return pd.Series([x.min(), x.max()])
         else:
             return pd.Series([set(x), set(x)])
