@@ -39,6 +39,7 @@ box1 = prim_obj.find_box()
 # let's analyze the peeling trajectory
 box1.show_ppt()
 box1.show_tradeoff()
+box1.inspect_tradeoff()
 
 box1.write_ppt_to_stdout()
 

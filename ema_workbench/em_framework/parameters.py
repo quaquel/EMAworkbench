@@ -21,7 +21,10 @@ __all__ = [
     'BooleanParameter',
     'CategoricalParameter',
     'create_parameters',
-    'experiment_generator']
+    'experiment_generator',
+    'Policy',
+    'Scenario',
+    'Experiment']
 _logger = get_module_logger(__name__)
 
 
