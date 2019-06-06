@@ -61,22 +61,26 @@ def discretize(data, nbins=3, with_labels=False):
         column_data = data[column]
         n = nbins
 
-        if issubclass(entry.type, np.integer):
-            n_unique = column_data.unique().shape[0]
-            if n_unique <= n:
-                n = n_unique
-        elif entry.name == 'category':
+
+        if entry.name == 'category':
             n_unique = column_data.unique().shape[0]
             n = n_unique
             column_data = column_data.cat.rename_categories(
                 [x for x in range(1, n + 1)])
-
-        if with_labels:
-            indices = pd.cut(column_data, n, precision=2,
-                             retbins=True)[0]
+            indices = column_data
+            
         else:
-            indices = pd.cut(column_data, n, retbins=False,
-                             labels=False, precision=2)
+            if issubclass(entry.type, np.integer):
+                n_unique = column_data.unique().shape[0]
+                if n_unique <= n:
+                    n = n_unique
+
+            if with_labels:
+                indices = pd.cut(column_data, n, precision=2,
+                                 retbins=True)[0]
+            else:
+                indices = pd.cut(column_data, n, retbins=False,
+                                 labels=False, precision=2)
 
         discretized[column] = indices
 
@@ -295,7 +299,8 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
         # actual plotting
         plot_data = table.values
-        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, **kwargs)
+        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, 
+                    vmin=0, vmax=1, **kwargs)
 
         # set the tick labels
         ax_plot.set_xticks([])
@@ -314,6 +319,40 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
                    plot_labels=plot_labels, plot_cats=plot_cats)
 
     return fig
+
+
+def _prepare_experiments(experiments):
+    '''
+    transform the experiments structured array into a numpy array.
+
+    Parameters
+    ----------
+    experiments :DataFrame
+
+    Returns
+    -------
+    ndarray, list
+
+    '''
+    try:
+        experiments = experiments.drop('scenario', axis=1)
+    except KeyError:
+        pass
+
+    x = experiments.copy()
+
+    x_nominal = x.select_dtypes(exclude=np.number)
+    x_nominal_columns = x_nominal.columns.values
+
+    for column in x_nominal_columns:
+        if np.unique(x[column]).shape == (1,):
+            x = x.drop(column, axis=1)
+            _logger.info(("{} dropped from analysis "
+                          "because only a single category").format(column))
+        else:
+            x[column] = x[column].astype('category')
+
+    return x
 
 
 def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
@@ -351,6 +390,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     code in this function as a template.
 
     '''
+    x = _prepare_experiments(x)
     scores = feature_scoring.get_ex_feature_scores(x, y)[0]
     x = x[scores.index]
 
