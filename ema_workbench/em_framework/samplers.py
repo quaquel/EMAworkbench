@@ -634,7 +634,7 @@ def design_generator(designs, params, kind):
         design_dict = {}
         for param, value in zip(params, design):
             if isinstance(param, IntegerParameter):
-                value = int(value)
+                value = int(round(value))
             if isinstance(param, BooleanParameter):
                 value = bool(value)
             if isinstance(param, CategoricalParameter):
