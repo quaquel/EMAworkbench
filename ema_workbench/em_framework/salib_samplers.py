@@ -33,7 +33,7 @@ def get_SALib_problem(uncertainties):
     bounds = []
 
     for u in uncertainties:
-        bounds.append((u.lower_bound, u.upper_bound))
+        bounds.append(u.params)
 
     problem = {'num_vars': len(uncertainties),
                'names': [unc.name for unc in uncertainties],
