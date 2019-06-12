@@ -54,7 +54,7 @@ def _prepare_experiments(experiments):
 
     '''
     try:
-        experiments = experiments.drop('scenario')
+        experiments = experiments.drop('scenario', axis=1)
     except KeyError:
         pass
 

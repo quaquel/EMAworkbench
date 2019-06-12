@@ -450,6 +450,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
     nr_of_exp = n_models * n_scenarios * n_policies
 
+    # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
+    # it
     _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
                   '{} experiments').format(n_scenarios, n_policies,
                                            n_models, nr_of_exp))
