@@ -88,13 +88,19 @@ class SamplerTestCase(unittest.TestCase):
     
     def test_get_salib_problem(self):
         uncertainties = [RealParameter("a", 0, 10),
-                         RealParameter("b", 0, 5)]
+                         RealParameter("b", 0, 5),
+                         IntegerParameter("c", 0, 4)]
         
         problem = get_SALib_problem(uncertainties)
-        self.assertEqual(2, problem['num_vars'])
-        self.assertEqual(['a', 'b'], problem['names'])
+        self.assertEqual(len(uncertainties), problem['num_vars'])
+        self.assertEqual([u.name for u in uncertainties], problem['names'])
+        
+#         for i, (name, bounds) in enumerate(zip(problem['names'], problem['bounds'])):
+#             self.assertEqual()
+        
         self.assertEqual((0, 10), problem['bounds'][0])
         self.assertEqual((0, 5), problem['bounds'][1])
+        self.assertEqual((0, 4), problem['bounds'][2])
     
 
 if __name__ == '__main__':
