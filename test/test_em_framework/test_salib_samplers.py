@@ -100,7 +100,7 @@ class SamplerTestCase(unittest.TestCase):
         
         self.assertEqual((0, 10), problem['bounds'][0])
         self.assertEqual((0, 5), problem['bounds'][1])
-        self.assertEqual((0, 4), problem['bounds'][2])
+        self.assertEqual((0, 4+1), problem['bounds'][2]) # because flooring
     
 
 if __name__ == '__main__':
