@@ -26,6 +26,11 @@ try:
 except ImportError:
     warnings.warn("netlogo connector not available", ImportWarning)
 
+try:
+    from . import simio_connector
+except ImportError:
+    warnings.warn("simio connector not available", ImportWarning)
+
 with catch_and_ignore_import_warning():
     try:
         from . import pysd_connector
