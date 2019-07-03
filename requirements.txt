@@ -5,8 +5,8 @@ nbsphinx
 future
 futures
 numpy
-scipy
-pandas
+scipy==1.2.*
+pandas>=0.24.*
 ipython
 ipyparallel
 JPype1
