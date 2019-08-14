@@ -701,7 +701,7 @@ def prepare_pairs_data(experiments, outcomes,
     filter_scalar : bool, optional
 
     '''
-    if isinstance(outcomes_to_show, six.string_types):
+    if isinstance(outcomes_to_show, str):
         raise EMAError(
             "for pair wise plotting, more than one outcome needs to be provided")
 
@@ -754,7 +754,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
 
     # remove outcomes that are not to be shown
     if outcomes_to_show:
-        if isinstance(outcomes_to_show, six.string_types):
+        if isinstance(outcomes_to_show, str):
             outcomes_to_show = [outcomes_to_show]
 
         for entry in outcomes_to_show:
@@ -783,7 +783,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
                         column_to_group_by, grouping_specifiers)
             grouping_labels = grouping_specifiers = sorted(grouping_specifiers)
         else:
-            if isinstance(grouping_specifiers, six.string_types):
+            if isinstance(grouping_specifiers, str):
                 grouping_specifiers = [grouping_specifiers]
                 grouping_labels = grouping_specifiers
             elif isinstance(grouping_specifiers, dict):
