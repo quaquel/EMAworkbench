@@ -15,6 +15,7 @@ from ema_workbench.analysis.plotting_util import (make_continuous_grouping_speci
                                                   filter_scalar_outcomes, group_results,
                                                   Density, PlotType)
 from test import utilities
+from ema_workbench.util.ema_exceptions import EMAError
 
 
 # don't run these tests using nosetest
@@ -273,7 +274,12 @@ def test_envelopes():
     envelopes(experiments, outcomes, density=Density.BOXPLOT)
     envelopes(experiments, outcomes, density=Density.VIOLIN)
     envelopes(experiments, outcomes, density=Density.BOXENPLOT)
-    envelopes(experiments, outcomes, density='undefined')
+
+    try:
+        envelopes(experiments, outcomes, density='undefined')
+    except EMAError:
+        pass
+    
     set_fig_to_bw(envelopes(experiments, outcomes, density=Density.VIOLIN)[0])
 
     plt.draw()
