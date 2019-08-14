@@ -13,9 +13,10 @@ import matplotlib as mpl
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import scipy.stats.kde as kde
 import seaborn as sns
-import six
+
 from scipy.stats import gaussian_kde, scoreatpercentile
 
 from ..util import EMAError, get_module_logger
@@ -39,8 +40,7 @@ TIME = "TIME"
 
 
 class Density(enum.Enum):
-    '''Enum for different types of density plots
-    '''
+    '''Enum for different types of density plots'''
 
     KDE = 'kde'
     '''constant for plotting density as a kernel density estimate'''
@@ -55,6 +55,9 @@ class Density(enum.Enum):
     '''constant for plotting density as a violin plot, which combines a
     Gaussian density estimate with a boxplot'''
 
+
+    BOXENPLOT = 'boxenplot'
+    '''constant for plotting density as a boxenplot'''
 
 class LegendEnum(enum.Enum):
     '''Enum for different styles of legends
@@ -178,7 +181,7 @@ def plot_boxplots(ax, values, log, group_labels=None):
     Parameters
     ----------
     ax : axes instance
-    value : ndarray
+    values : ndarray
     log : bool
     group_labels : list of str, optional
 
@@ -193,14 +196,14 @@ def plot_boxplots(ax, values, log, group_labels=None):
         ax.set_xticklabels(group_labels, rotation='vertical')
 
 
-def plot_violinplot(ax, value, log, group_labels=None):
+def plot_violinplot(ax, values, log, group_labels=None):
     '''
     helper function for plotting violin plots on axes
 
     Parameters
     ----------
     ax : axes instance
-    value : ndarray
+    values : ndarray
     log : bool
     group_labels : list of str, optional
 
@@ -209,35 +212,69 @@ def plot_violinplot(ax, value, log, group_labels=None):
     if log:
         _logger.warning("log option ignored for violin plot")
 
-    pos = range(len(value))
-    dist = max(pos) - min(pos)
-    _ = min(0.15 * max(dist, 1.0), 0.5)
-    for data, p in zip(value, pos):
-        if len(data) > 0:
-            kde = gaussian_kde(data)  # calculates the kernel density
-            x = np.linspace(np.min(data), np.max(data),
-                            250.)  # support for violin
-            v = kde.evaluate(x)  # violin profile (density curve)
+    if not group_labels:
+        group_labels = ['']
+        
+    data = pd.DataFrame.from_records({k:v for k, v in zip(group_labels, values)})
+    data = pd.melt(data)
+        
+    sns.violinplot(x='variable', y='value', data=data, order=group_labels,
+                  ax=ax)
 
-            scl = 1 / (v.max() / 0.4)
-            v = v * scl  # scaling the violin to the available space
-            ax.fill_betweenx(
-                x, p - v, p + v, facecolor=get_color(p), alpha=0.6, lw=1.5)
+#     pos = range(len(value))
+#     dist = max(pos) - min(pos)
+#     _ = min(0.15 * max(dist, 1.0), 0.5)
+#     for data, p in zip(value, pos):
+#         if len(data) > 0:
+#             kde = gaussian_kde(data)  # calculates the kernel density
+#             x = np.linspace(np.min(data), np.max(data),
+#                             250.)  # support for violin
+#             v = kde.evaluate(x)  # violin profile (density curve)
+# 
+#             scl = 1 / (v.max() / 0.4)
+#             v = v * scl  # scaling the violin to the available space
+#             ax.fill_betweenx(
+#                 x, p - v, p + v, facecolor=get_color(p), alpha=0.6, lw=1.5)
+# 
+#             for percentile in [25, 75]:
+#                 quant = scoreatpercentile(data.ravel(), percentile)
+#                 q_x = kde.evaluate(quant) * scl
+#                 q_x = [p - q_x, p + q_x]
+#                 ax.plot(q_x, [quant, quant], linestyle=":", c='k')
+#             med = np.median(data)
+#             m_x = kde.evaluate(med) * scl
+#             m_x = [p - m_x, p + m_x]
+#             ax.plot(m_x, [med, med], linestyle="--", c='k', lw=1.5)
+# 
+#     if group_labels:
+#         labels = group_labels[:]
+#         labels.insert(0, '')
+#         ax.set_xticklabels(labels, rotation='vertical')
 
-            for percentile in [25, 75]:
-                quant = scoreatpercentile(data.ravel(), percentile)
-                q_x = kde.evaluate(quant) * scl
-                q_x = [p - q_x, p + q_x]
-                ax.plot(q_x, [quant, quant], linestyle=":", c='k')
-            med = np.median(data)
-            m_x = kde.evaluate(med) * scl
-            m_x = [p - m_x, p + m_x]
-            ax.plot(m_x, [med, med], linestyle="--", c='k', lw=1.5)
 
-    if group_labels:
-        labels = group_labels[:]
-        labels.insert(0, '')
-        ax.set_xticklabels(labels, rotation='vertical')
+def plot_boxenplot(ax, values, log, group_labels=None):
+    '''
+    helper function for plotting boxenplot plots on axes
+
+    Parameters
+    ----------
+    ax : axes instance
+    values : ndarray
+    log : bool
+    group_labels : list of str, optional
+
+    '''
+
+    if log:
+        _logger.warning("log option ignored for violin plot")
+    if not group_labels:
+        group_labels = ['']
+        
+    data = pd.DataFrame.from_records({k:v for k, v in zip(group_labels, values)})
+    data = pd.melt(data)
+        
+    sns.boxenplot(x='variable', y='value', data=data, order=group_labels,
+                  ax=ax)
 
 
 def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
@@ -262,26 +299,24 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
         if density is unkown
 
     '''
+    values = [outcomes[key][outcome_to_plot][:, index] for key in
+              group_labels]
 
     if density == Density.HIST:
-        values = [outcomes[key][outcome_to_plot][:, index] for key in
-                  group_labels]
         plot_histogram(ax_d, values, log)
     elif density == Density.BOXPLOT:
-        values = [outcomes[key][outcome_to_plot][:, index] for key in
-                  group_labels]
-        plot_boxplots(ax_d, values, log, group_labels)
+        plot_boxplots(ax_d, values, log, group_labels=group_labels)
     elif density == Density.VIOLIN:
-        values = [outcomes[key][outcome_to_plot][:, index] for key in
-                  group_labels]
         plot_violinplot(ax_d, values, log, group_labels=group_labels)
     elif density == Density.KDE:
-        values = [outcomes[key][outcome_to_plot][:, index] for key in
-                  group_labels]
         plot_kde(ax_d, values, log)
+    elif density == Density.BOXENPLOT:
+        plot_boxenplot(ax_d, values, log, group_labels=group_labels)
     else:
         raise EMAError("unknown density type: {}".format(density))
-
+    
+    ax_d.set_xlabel('')
+    ax_d.set_ylabel('')
 
 def simple_density(density, value, ax_d, ax, log):
     '''
@@ -306,6 +341,8 @@ def simple_density(density, value, ax_d, ax, log):
         plot_boxplots(ax_d, value[:, -1], log)
     elif density == Density.VIOLIN:
         plot_violinplot(ax_d, [value[:, -1]], log)
+    elif density == Density.BOXENPLOT:
+        plot_violinplot(ax_d, [value[:, -1]], log)    
     else:
         raise EMAError("unknown density plot type")
 
@@ -315,6 +352,8 @@ def simple_density(density, value, ax_d, ax, log):
     ax_d.set_ylim(bottom=ax.get_yaxis().get_view_interval()[0],
                   top=ax.get_yaxis().get_view_interval()[1])
 
+    ax_d.set_xlabel('')
+    ax_d.set_ylabel('')
 
 def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     '''
