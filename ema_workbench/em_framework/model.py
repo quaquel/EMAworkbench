@@ -255,6 +255,8 @@ class AbstractModel(NamedObject):
 
 
 class MyDict(dict):
+    # bit of a dirty hack to be able to assign attributes to a dict
+    # in a replication context
     pass
 
 
