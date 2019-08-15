@@ -345,12 +345,12 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
     for column in categorical_columns:
 
         # reorder categorical data so we
-        # can capture them in a single column
+        # can capture the categories that are part of the box within a 
+        # single rectangular patch
         categories_inbox = boxlim.at[0, column]
         categories_all = box_init.at[0, column]
         missing = categories_all - categories_inbox
         categories = list(categories_inbox) + list(missing)
-        print(column, categories)
         data[column] = data[column].cat.set_categories(categories)
 
         # keep the mapping for updating ticklabels
