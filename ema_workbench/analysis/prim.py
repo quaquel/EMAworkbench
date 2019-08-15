@@ -30,8 +30,7 @@ except ImportError:
     warnings.warn(("altair based interactive "
                    "inspection not available"), ImportWarning)
 
-from ..util import (EMAError, temporary_filter, INFO, get_module_logger,
-                    ema_logging)
+from ..util import (EMAError, temporary_filter, INFO, get_module_logger)
 from . import scenario_discovery_util as sdutil
 from .prim_util import (PrimException, CurEntry, PRIMObjectiveFunctions,
                         NotSeen, is_pareto_efficient,
@@ -766,7 +765,7 @@ class PrimBox(object):
         '''
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
 
-    def show_pairs_scatter(self, i=None):
+    def show_pairs_scatter(self, i=None, dims=None):
         ''' Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
         interest or not and the boxlims superimposed on top.
@@ -774,6 +773,8 @@ class PrimBox(object):
         Parameters
         ----------
         i : int, optional
+        dims : list of str, optional
+               dimensions to show, defaults to all restricted dimensions
 
         Returns
         -------
@@ -783,14 +784,15 @@ class PrimBox(object):
         if i is None:
             i = self._cur_box
 
-        resdim = sdutil._determine_restricted_dims(self.box_lims[i],
+        if dims is None:
+            dims = sdutil._determine_restricted_dims(self.box_lims[i],
                                                    self.prim.box_init)
 
         return sdutil.plot_pair_wise_scatter(self.prim.x.iloc[self.yi_initial,:],
                                              self.prim.y[self.yi_initial],
                                              self.box_lims[i],
                                              self.prim.box_init,
-                                             resdim)
+                                             dims)
 
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''
