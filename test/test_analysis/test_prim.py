@@ -27,20 +27,6 @@ def flu_classify(data):
     
     return classes
 
-def scarcity_classify(outcomes):
-    outcome = outcomes['relative market price']
-    change = np.abs(outcome[:, 1::]-outcome[:, 0:-1])
-    
-    neg_change = np.min(change, axis=1)
-    pos_change = np.max(change, axis=1)
-    
-    logical = (neg_change > -0.6) & (pos_change > 0.6)
-    
-    classes = np.zeros(outcome.shape[0])
-    classes[logical] = 1
-    
-    return classes
-
 
 class PrimBoxTestCase(unittest.TestCase):
     def test_init(self):
@@ -532,6 +518,13 @@ class PrimTestCase(unittest.TestCase):
             
             self.assertEqual(indices.shape[0], 10)
             self.assertEqual(box_lims[u][0], set(['a','b']))
+            
+    def test_constrained_prim(self):
+        experiments, outcomes = utilities.load_flu_data()
+        y = flu_classify(outcomes)
+        
+        box = prim.run_constrained_prim(experiments, y, issignificant=True)        
+        
 
 if __name__ == '__main__':
 #     ema_logging.log_to_stderr(ema_logging.INFO)    
