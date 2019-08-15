@@ -141,7 +141,7 @@ class ParallelAxes(object):
               rotation of axis labels
 
         '''
-        self.limits = limits
+        self.limits = limits.copy()
         self.recoding = {}
         self.flipped_axes = set()
         self.axis_labels = list(limits.columns.values)
@@ -153,13 +153,14 @@ class ParallelAxes(object):
                 cats = limits[column][0]
                 self.recoding[column] = CategoricalDtype(categories=cats,
                                                          ordered=False)
-                limits.ix[:, column] = [0, len(cats) - 1]
+                self.limits.loc[:, column] = [0, len(cats) - 1]
 
         self.normalizer = preprocessing.MinMaxScaler()
         self.normalizer.fit(self.limits)
 
         fig, axes, ticklabels = setup_parallel_plot(
-            self.axis_labels, limits.min(), limits.max(), fs=self.fontsize, rot=rot)
+            self.axis_labels, self.limits.min(), self.limits.max(),
+            fs=self.fontsize, rot=rot)
         self.fig = fig
         self.axes = axes
         self.ticklabels = ticklabels

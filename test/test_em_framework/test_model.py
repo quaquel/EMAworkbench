@@ -3,10 +3,6 @@ Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-
-from __future__ import (print_function, absolute_import, unicode_literals, 
-                        division)
-
 import unittest
 
 import unittest.mock as mock
