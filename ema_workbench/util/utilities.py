@@ -76,7 +76,15 @@ def load_results(file_name):
             entry = entry.strip()
             entry = entry.split(",")
             name, dtype = [str(item) for item in entry]
-            if np.dtype(dtype) == object:
+            
+            
+            
+            try:
+                dtype = np.dtype(dtype)
+            except TypeError:
+                dtype = pd.api.types.pandas_dtype(dtype)
+            
+            if pd.api.types.is_object_dtype(dtype):
                 experiments[name] = experiments[name].astype('category')
 
         # load outcome metadata
