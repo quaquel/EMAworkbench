@@ -46,7 +46,8 @@ from .callbacks import DefaultCallback
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['MultiprocessingEvaluator', 'IpyparallelEvaluator',
-           'optimize', 'perform_experiments', 'SequentialEvaluator']
+           'optimize', 'perform_experiments', 'SequentialEvaluator',
+           'Samplers']
 
 _logger = get_module_logger(__name__)
 
