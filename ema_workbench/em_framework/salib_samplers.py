@@ -33,7 +33,6 @@ def get_SALib_problem(uncertainties):
     bounds = []
 
     for u in uncertainties:
-        # TODO:: should be based on lower and upper limit
         lower = u.lower_bound
         upper = u.upper_bound
         if isinstance(u, IntegerParameter):

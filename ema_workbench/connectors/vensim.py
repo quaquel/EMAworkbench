@@ -271,8 +271,12 @@ class BaseVensimModel(FileModel):
         #: attribute that can be set when one wants to load a cin file
         self.cin_file = None
 
-        #: default name of the results file (default: 'Current.vdf')
-        self._resultfile = 'Current.vdf'
+        # default name of the results file (default: 'Current.vdfx'
+        # for 64 bit, and Current.vdf for 32 bit)
+        if vensimDLLwrapper.vensim_64 is not None:
+            self._resultfile = 'Current.vdfx'
+        else:
+            self._resultfile = 'Current.vdf'
 
         _logger.debug("vensim interface init completed")
 

@@ -12,11 +12,11 @@ Typically, the dll can be found in ../AppData/Local/Vensim/vendll32.dll
 
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import ctypes
+import struct
 import sys
+
+
 
 import numpy as np
 
@@ -62,19 +62,37 @@ except AttributeError:
 except WindowsError:
     vensim_double = None
 
-if vensim_single and vensim_double:
-    vensim = vensim_single
-    _logger.info(
-        "both single and double precision vensim available, using single")
-elif vensim_single:
-    vensim = vensim_single
-    _logger.info('using single precision vensim')
-elif vensim_double:
-    vensim = vensim_double
-    _logger.info('using single precision vensim')
+try:
+    vensim_64 = ctypes.windll.vendll64
+except AttributeError:
+    vensim_64 = None
+except WindowsError:
+    vensim_64 = None
+
+
+if struct.calcsize("P") * 8 == 64:
+    if vensim_64:
+        vensim = vensim_64
+        _logger.info('using 64 bit vensim')
+
+    else:
+        raise ImportError("vensim dll not found")
+    # 64 bit python
 else:
-    raise ImportError("vensim dll not found")
-del sys
+
+    
+    if vensim_single and vensim_double:
+        vensim = vensim_single
+        _logger.info(
+            "both single and double precision vensim available, using single")
+    elif vensim_single:
+        vensim = vensim_single
+        _logger.info('using single precision vensim')
+    elif vensim_double:
+        vensim = vensim_double
+        _logger.info('using single precision vensim')
+
+del sys, struct
 
 
 def be_quiet(quietflag):
