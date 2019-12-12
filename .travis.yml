@@ -9,6 +9,9 @@ python:
 env:
 - DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn"
 
+services:
+- xvfb
+
 install:
 - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
 - bash miniconda.sh -b -p $HOME/miniconda
@@ -30,7 +33,6 @@ install:
 
 before_install:
 - "export DISPLAY=:99.0"
-- "sh -e /etc/init.d/xvfb start"
 
 script:
 - nosetests --exclude-dir=./test/test_connectors --with-coverage --verbose --cover-package=ema_workbench.em_framework --cover-package=ema_workbench.util --cover-package=ema_workbench.analysis
