@@ -1,10 +1,7 @@
 * add progress bar which is context aware (notebook, command line)
-* add altair based analysis to scenario discovery
-* add logistic regression scenario discovery approach
 * review parallelization code, too much unnecessary copying seems
   to be going on at the moment
 * add documentation on how to develop connectors
-* add feature scoring over time, and sobol over time
 * Sobol style confidence intervals around prim thresholds, is basically a small
   extension to the resampling statistic. 
 * add gini obj to PRIM --> adds classification as possible type of prim run
@@ -25,4 +22,6 @@
 * If we add other distributions, can we create a hybrid sampler were we sample
   the deeply uncertain factors first, and then evaluate each deeply uncertain
   experiment for n experiments over the well characterized uncertainties?
-  
+* redo sampler api
+	* have a sampler_kwargs argument
+	* pff move to list for sampler
