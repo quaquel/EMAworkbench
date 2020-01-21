@@ -21,6 +21,7 @@ from sklearn.externals.six import StringIO
 
 from . import scenario_discovery_util as sdutil
 from ..util import get_module_logger
+from ema_workbench.util.ema_exceptions import EMAError
 
 # Created on May 22, 2015
 #
@@ -310,7 +311,17 @@ class CART(sdutil.OutputFormatterMixin):
         tree.export_graphviz(self.clf, out_file=dot_data,
                              feature_names=self.feature_names)
         dot_data = dot_data.getvalue()  # .encode('ascii') # @UndefinedVariable
-        graph = pydot.graph_from_dot_data(dot_data)
+        graphs = pydot.graph_from_dot_data(dot_data)
+        
+        # FIXME:: pydot now always returns a list, usted to be either a
+        # singleton or a list. This is a stopgap which might be sufficient
+        # but just in case, we raise an error if assumption of len==1 does
+        # not hold
+        if len(graphs)>1:
+            raise EMAError("trying to visualize more than one tree")
+        
+        graph = graphs[0]
+        
         if format == 'png':
             img = graph.create_png()
             if mplfig:
