@@ -3,9 +3,6 @@
 Plotting utility functions
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import copy
 import enum
 
@@ -15,9 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.stats.kde as kde
-import seaborn as sns
-
 from scipy.stats import gaussian_kde, scoreatpercentile
+
+import seaborn as sns
 
 from ..util import EMAError, get_module_logger
 

@@ -5,12 +5,9 @@ this module provides functions for generating some basic figures. The code can
 be used as is, or serve as an example for writing your own code.
 
 """
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import matplotlib.pyplot as plt
 import numpy as np
-import six
+
 from matplotlib.patches import ConnectionPatch
 
 # from . import plotting_util
@@ -735,7 +732,7 @@ def multiple_densities(experiments,
     if not outcomes_to_show:
         outcomes_to_show = [k for k, v in outcomes.items() if v.ndim == 2]
         outcomes_to_show.remove(TIME)
-    elif isinstance(outcomes_to_show, six.string_types):
+    elif isinstance(outcomes_to_show, str):
         outcomes_to_show = [outcomes_to_show]
 
     data = prepare_data(experiments, outcomes,
