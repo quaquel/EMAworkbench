@@ -3,11 +3,9 @@ A scenario discovery oriented implementation of CART. It essentially is
 a wrapper around scikit-learn's version of CART.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import io
 import math
+from io import StringIO
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -15,9 +13,7 @@ import matplotlib.image as mpimg
 import numpy as np
 import pandas as pd
 
-import six
 from sklearn import tree
-from sklearn.externals.six import StringIO
 
 from . import scenario_discovery_util as sdutil
 from ..util import get_module_logger
@@ -60,7 +56,7 @@ def setup_cart(results, classify, incl_unc=None, mass_min=0.05):
         drop_names = set(x.columns.values.tolist()) - set(incl_unc)
         x = x.drop(drop_names, axis=1)
 
-    if isinstance(classify, six.string_types):
+    if isinstance(classify, str):
         y = outcomes[classify]
         mode = sdutil.RuleInductionType.REGRESSION
     elif callable(classify):

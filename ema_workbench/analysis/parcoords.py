@@ -3,8 +3,6 @@ using matplotlib.
 
 
 '''
-from __future__ import (unicode_literals, print_function, absolute_import,
-                        division)
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd

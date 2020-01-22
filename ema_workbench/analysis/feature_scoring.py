@@ -4,19 +4,14 @@ Feature scoring functionality
 
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 from operator import itemgetter
 import math
 
 import numpy as np
 import pandas as pd
-import six
 from sklearn.ensemble import (ExtraTreesClassifier, ExtraTreesRegressor,
                               RandomForestClassifier, RandomForestRegressor)
-from sklearn.feature_selection.univariate_selection import (f_regression,
-                                                            f_classif, chi2)
+from sklearn.feature_selection import (f_regression, f_classif, chi2)
 
 from .scenario_discovery_util import RuleInductionType
 from ..util import get_module_logger
@@ -101,7 +96,7 @@ def _prepare_outcomes(outcomes, classify):
         if classify is a string which is not a key in the outcomes dict.
 
     '''
-    if isinstance(classify, six.string_types):
+    if isinstance(classify, str):
         try:
             y = outcomes[classify]
         except KeyError as e:
