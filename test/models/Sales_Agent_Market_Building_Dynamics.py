@@ -976,8 +976,8 @@ integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), l
 
 integ_months_of_buffer = functions.Integ(lambda: income() - expenses(), lambda: initial_buffer())
 
-integ_tier_2_clients = functions.Integ(lambda: tier_2_sales() - tier_2_client_turnover(), lambda: 0
-                                       )
+integ_tier_2_clients = functions.Integ(lambda: tier_2_sales() - tier_2_client_turnover(),
+                                       lambda: 0)
 
 integ_tier_2_leads = functions.Integ(
     lambda: tier_2_lead_aquisition() + tier_2_sales() - tier_2_leads_going_stale(), lambda: 0)
@@ -985,5 +985,5 @@ integ_tier_2_leads = functions.Integ(
 integ_tier_1_leads = functions.Integ(
     lambda: tier_1_lead_aquisition() + tier_1_sales() - tier_1_leads_going_stale(), lambda: 100)
 
-integ_tier_1_clients = functions.Integ(lambda: tier_1_sales() - tier_1_client_turnover(), lambda: 0
-                                       )
+integ_tier_1_clients = functions.Integ(lambda: tier_1_sales() - tier_1_client_turnover(),
+                                       lambda: 0)

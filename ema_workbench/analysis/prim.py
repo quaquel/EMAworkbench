@@ -30,8 +30,7 @@ except ImportError:
     warnings.warn(("altair based interactive "
                    "inspection not available"), ImportWarning)
 
-from ..util import (EMAError, temporary_filter, INFO, get_module_logger,
-                    ema_logging)
+from ..util import (EMAError, temporary_filter, INFO, get_module_logger)
 from . import scenario_discovery_util as sdutil
 from .prim_util import (PrimException, CurEntry, PRIMObjectiveFunctions,
                         NotSeen, is_pareto_efficient,

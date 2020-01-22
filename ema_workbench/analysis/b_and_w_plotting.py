@@ -5,12 +5,8 @@ to black and white. The provided functionality is largely determined by
 what is needed for the workbench.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import itertools
 import math
-import six
 
 import matplotlib as mpl
 import numpy as np
@@ -229,7 +225,7 @@ def _set_ax_pathcollection_to_bw(collection, ax, style, colormap):
 
     rgb_orig = collection._original_facecolor
 
-    if isinstance(rgb_orig, six.string_types):
+    if isinstance(rgb_orig, str):
         rgb_orig = [rgb_orig]
     rgb_orig = [color_converter.to_rgb(row) for row in rgb_orig]
 

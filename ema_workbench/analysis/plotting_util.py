@@ -3,9 +3,6 @@
 Plotting utility functions
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import copy
 import enum
 
@@ -15,7 +12,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats.kde as kde
 import seaborn as sns
-import six
 from scipy.stats import gaussian_kde, scoreatpercentile
 
 from ..util import EMAError, get_module_logger
@@ -216,7 +212,7 @@ def plot_violinplot(ax, value, log, group_labels=None):
         if len(data) > 0:
             kde = gaussian_kde(data)  # calculates the kernel density
             x = np.linspace(np.min(data), np.max(data),
-                            250.)  # support for violin
+                            250)  # support for violin
             v = kde.evaluate(x)  # violin profile (density curve)
 
             scl = 1 / (v.max() / 0.4)
@@ -662,7 +658,7 @@ def prepare_pairs_data(experiments, outcomes,
     filter_scalar : bool, optional
 
     '''
-    if isinstance(outcomes_to_show, six.string_types):
+    if isinstance(outcomes_to_show, str):
         raise EMAError(
             "for pair wise plotting, more than one outcome needs to be provided")
 
@@ -715,7 +711,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
 
     # remove outcomes that are not to be shown
     if outcomes_to_show:
-        if isinstance(outcomes_to_show, six.string_types):
+        if isinstance(outcomes_to_show, str):
             outcomes_to_show = [outcomes_to_show]
 
         for entry in outcomes_to_show:
@@ -744,7 +740,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
                         column_to_group_by, grouping_specifiers)
             grouping_labels = grouping_specifiers = sorted(grouping_specifiers)
         else:
-            if isinstance(grouping_specifiers, six.string_types):
+            if isinstance(grouping_specifiers, str):
                 grouping_specifiers = [grouping_specifiers]
                 grouping_labels = grouping_specifiers
             elif isinstance(grouping_specifiers, dict):
