@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble.forest import RandomForestRegressor, ExtraTreesClassifier,\
-    ExtraTreesRegressor
+from sklearn.ensemble import (RandomForestRegressor, ExtraTreesClassifier,
+                              ExtraTreesRegressor)
 
 from ema_workbench.analysis import feature_scoring as fs
 from ema_workbench.analysis.feature_scoring import F_CLASSIFICATION, CHI2, F_REGRESSION

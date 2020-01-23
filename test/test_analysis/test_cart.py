@@ -142,6 +142,30 @@ class CartTestCase(unittest.TestCase):
         self.assertEqual(stats, alg.stats[0])
 
 
+    def test_stats_to_dataframe(self):
+        x, outcomes = utilities.load_flu_data()
+
+        y = flu_classify(outcomes)
+        alg = cart.CART(x,y, mode=RuleInductionType.BINARY)
+        alg.build_tree()
+        stats = alg.stats_to_dataframe()
+        
+        
+        y = outcomes['deceased population region 1'][:, -1]
+        alg = cart.CART(x,y, mode=RuleInductionType.REGRESSION)
+        alg.build_tree()
+        stats = alg.stats_to_dataframe()
+        
+
+        y = np.random.randint(1, 5, y.shape[0])        
+        alg = cart.CART(x,y, mode=RuleInductionType.CLASSIFICATION)
+        alg.build_tree()
+        stats = alg.stats_to_dataframe()
+        print(stats)
+
+
+
+
     def test_build_tree(self):
         results = utilities.load_flu_data()
         
