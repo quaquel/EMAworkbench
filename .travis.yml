@@ -7,7 +7,7 @@ python:
 - "3.7-dev"
 
 env:
-- DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn"
+- DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn statsmodels"
 
 services:
 - xvfb
