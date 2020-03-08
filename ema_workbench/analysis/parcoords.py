@@ -19,7 +19,7 @@ __all__ = ['ParallelAxes',
            'get_limits']
 
 
-def setup_parallel_plot(labels, minima, maxima, fs=14, rot=90):
+def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
     '''helper function for setting up the parallel axes plot
 
     Parameters
@@ -27,12 +27,17 @@ def setup_parallel_plot(labels, minima, maxima, fs=14, rot=90):
     labels : list of str
     minima : ndarray
     maxima : ndarray
+    formattter : dict with precision format strings for labels, optional
+                 defaults to .2f
     fs : int, optional
                fontsize for defaults text items
     rot : float, optional
           rotation of axis labels
 
     '''
+    if formatter is None:
+        formatter = {}
+    
     sns.set_style('white')
     # labels is a list, minima and maxima pd series
     nr_columns = len(labels)
@@ -52,8 +57,17 @@ def setup_parallel_plot(labels, minima, maxima, fs=14, rot=90):
 
         # let's put our own tick labels
         ax.yaxis.set_ticks([])
-        max_label = "{:.2f}".format(maxima[label])
-        min_label = "{:.2f}".format(minima[label])
+        
+        # TODO::consider moving to f-strin
+        # so 
+        # label = f"{{maxima[label]}:{precision}}"
+        try:
+            precision = formatter[label]
+        except KeyError:
+            precision = ".2f"
+        
+        max_label = f"{maxima[label]:{precision}}"
+        min_label = f"{minima[label]:{precision}}"
         max_label = ax.text(i, 1.01, max_label, va="bottom",
                             ha="center", fontsize=fs)
         min_label = ax.text(i, -0.01, min_label, va="top",
@@ -119,6 +133,10 @@ class ParallelAxes(object):
              A DataFrame specifying the limits for each dimension in the
              data set. For categorical data, the first cell should contain all
              categories. See get_limits for more details.
+    formattter : dict , optional
+                 dict with precision format strings for minima and maxima, use
+                 column name as key. If column is not present, or no formatter
+                 dict is provided, precision formatting defaults to .2f
     fontsize : int, optional
                fontsize for defaults text items
     rot : float, optional
@@ -126,20 +144,24 @@ class ParallelAxes(object):
 
     '''
 
-    def __init__(self, limits, fontsize=14, rot=90):
+    def __init__(self, limits, formatter=None, fontsize=14, rot=90):
         '''
 
         Parameters
         ----------
         limits : DataFrame
                  categorical data, first cell should contain all categories
+        formatter : dict, optional
+                    specify precision formatters for minima and maxima,
+                    defaults to .2f
+                     
         fontsize : int, optional
                    fontsize for defaults text items
         rot : float, optional
               rotation of axis labels
 
         '''
-        self.limits = limits.copy()
+        self.limits = limits.copy() # copy to avoid side effects
         self.recoding = {}
         self.flipped_axes = set()
         self.axis_labels = list(limits.columns.values)
@@ -157,8 +179,9 @@ class ParallelAxes(object):
         self.normalizer.fit(self.limits)
 
         fig, axes, ticklabels = setup_parallel_plot(
-            self.axis_labels, self.limits.min(), self.limits.max(),
-            fs=self.fontsize, rot=rot)
+                        self.axis_labels, limits.min(), limits.max(),
+                        fs=self.fontsize, rot=rot, formatter=formatter)
+
         self.fig = fig
         self.axes = axes
         self.ticklabels = ticklabels
@@ -174,7 +197,7 @@ class ParallelAxes(object):
 
         Parameters
         ----------
-        data : DataFrame
+        data : DataFrame or Series
         color : valid mpl color, optional
         label : str, optional
 
@@ -185,9 +208,17 @@ class ParallelAxes(object):
         ParallelAxis.
 
         '''
+        data = data.copy() # copy to avoid side effects
+        
+        if isinstance(data, pd.Series):
+            data = data.to_frame().T
 
         if label:
             self.datalabels.append((label, color))
+            
+        # ensures any data to be plotted is in the same order
+        # as the limits
+        data = data[self.axis_labels]
 
         # recode the data
         recoded = data.copy()
