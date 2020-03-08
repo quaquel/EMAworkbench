@@ -25,7 +25,7 @@
 * redo sampler api
 	* have a sampler_kwargs argument
 	* pff move to list for sampler so you can specify which samplers you
-	  want tocombine
+	  want to combine
 	* add new kwarg to perform_experiments to control how policies and
 	  scenarios are combined. Options are {sample_jointly, factorial (Default),
 	  zipover}. Any others?
