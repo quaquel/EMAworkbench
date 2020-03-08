@@ -28,4 +28,10 @@
 	  want to combine
 	* add new kwarg to perform_experiments to control how policies and
 	  scenarios are combined. Options are {sample_jointly, factorial (Default),
-	  zipover}. Any others?
+	  zipover}. Any others? --> goes to evaluate_experiments --> goes
+	  to experiment_generator
+	  	so kwarg should be something with experiment
+	  	sample jointly is tricky, can we still maintain a separation
+	  	between scenarios and policies if we do this? If we do, you can sample
+	  	jointly, next create seperate policies and scenarios, and than use
+	  	zip_over to combine them in experiment_generator 

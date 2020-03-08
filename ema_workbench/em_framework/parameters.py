@@ -599,6 +599,10 @@ def experiment_generator(scenarios, model_structures, policies):
     the running the first policy on the first model.
 
     '''
+    
+    # zipover
+    
+    # full factorial
     jobs = itertools.product(model_structures, policies, scenarios)
 
     for i, job in enumerate(jobs):
