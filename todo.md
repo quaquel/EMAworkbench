@@ -35,3 +35,4 @@
 	  	between scenarios and policies if we do this? If we do, you can sample
 	  	jointly, next create seperate policies and scenarios, and than use
 	  	zip_over to combine them in experiment_generator 
+* handle ticklabelin for categorical data in parcoords

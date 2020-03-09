@@ -258,6 +258,8 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         y = np.zeros((x.shape[0],), dtype=np.int)         
         y[(x.a>0.5) & (x.c!='a')] = 1
         
+        x.loc[6, 'c'] = 'a'
+        
         x['c'] = x['c'].astype('category')   
         
         box_init = sdutil._make_box(x)

@@ -91,11 +91,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
         precision = ".2f"
     
     
-    try:
-        max_label = f"{maxima[label]:{precision}}"
-    except TypeError:
-        print("blaat")
-    
+    max_label = f"{maxima[label]:{precision}}"
     min_label = f"{minima[label]:{precision}}"
     max_label = ax.text(i + 1, 1.01, max_label, va="bottom",
                         ha="center", fontsize=fs)
@@ -190,7 +186,7 @@ class ParallelAxes(object):
         self.normalizer.fit(self.limits)
 
         fig, axes, ticklabels = setup_parallel_plot(
-                        self.axis_labels, limits.min(), limits.max(),
+                        self.axis_labels, self.limits.min(), self.limits.max(),
                         fs=self.fontsize, rot=rot, formatter=formatter)
 
         self.fig = fig

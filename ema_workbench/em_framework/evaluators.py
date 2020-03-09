@@ -305,8 +305,10 @@ class MultiprocessingEvaluator(BaseEvaluator):
         if self.root_dir:
             shutil.rmtree(self.root_dir)
 
-    def evaluate_experiments(self, scenarios, policies, callback):
-        ex_gen = experiment_generator(scenarios, self._msis, policies)
+    def evaluate_experiments(self, scenarios, policies, callback,
+                             combine='factorial'):
+        ex_gen = experiment_generator(scenarios, self._msis, policies,
+                                      combine=combine)
         add_tasks(self.n_processes, self._pool, ex_gen, callback)
 
 
@@ -344,8 +346,10 @@ class IpyparallelEvaluator(BaseEvaluator):
         self.logwatcher.stop()
         cleanup(self.client)
 
-    def evaluate_experiments(self, scenarios, policies, callback):
-        ex_gen = experiment_generator(scenarios, self._msis, policies)
+    def evaluate_experiments(self, scenarios, policies, callback,
+                             combine='factorial'):
+        ex_gen = experiment_generator(scenarios, self._msis, policies,
+                                      combine=combine)
 
         lb_view = self.client.load_balanced_view()
         results = lb_view.map(_run_experiment,
