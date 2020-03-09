@@ -90,7 +90,12 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
     except KeyError:
         precision = ".2f"
     
-    max_label = f"{maxima[label]:{precision}}"
+    
+    try:
+        max_label = f"{maxima[label]:{precision}}"
+    except TypeError:
+        print("blaat")
+    
     min_label = f"{minima[label]:{precision}}"
     max_label = ax.text(i + 1, 1.01, max_label, va="bottom",
                         ha="center", fontsize=fs)

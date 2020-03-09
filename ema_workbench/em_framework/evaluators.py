@@ -214,10 +214,12 @@ class SequentialEvaluator(BaseEvaluator):
     def finalize(self):
         pass
 
-    def evaluate_experiments(self, scenarios, policies, callback):
+    def evaluate_experiments(self, scenarios, policies, callback,
+                             combine='factorial'):
         _logger.info("performing experiments sequentially")
 
-        ex_gen = experiment_generator(scenarios, self._msis, policies)
+        ex_gen = experiment_generator(scenarios, self._msis, policies,
+                                      combine=combine)
 
         models = NamedObjectMap(AbstractModel)
         models.extend(self._msis)
@@ -359,7 +361,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         outcome_union=False,
                         uncertainty_sampling=Samplers.LHS,
                         levers_sampling=Samplers.LHS, callback=None,
-                        return_callback=False):
+                        return_callback=False, combine='factorial'):
     '''sample uncertainties and levers, and perform the resulting experiments
     on each of the models
 
@@ -377,6 +379,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional TODO:: update doc
     callback  : Callback instance, optional
     return_callback : boolean, optional
+    combine : {'factorial', 'zipover'}, optional
 
     Returns
     -------
@@ -387,6 +390,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
 
     '''
+    # TODO:: break up in to helper functions
+    # unreadable in this form
+    
     if not scenarios and not policies:
         raise EMAError(('no experiments possible since both '
                         'scenarios and policies are 0'))
@@ -417,6 +423,93 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                              scenarios[0]]
             n_scenarios = len(scenarios)
 
+#     if not policies:
+#         policies = [Policy("None", **{})]
+#         levers = []
+#         n_policies = 1
+#     elif(isinstance(policies, numbers.Integral)):
+#         sampler = levers_sampling
+#         
+#         if not isinstance(sampler, AbstractSampler):
+#             sampler = sampler.value
+#         
+#         policies = sample_levers(models, policies, union=lever_union,
+#                                  sampler=sampler)
+#         levers = policies.parameters
+#         n_policies = policies.n
+#     else:
+#         try:
+#             levers = policies.parameters
+#             n_policies = policies.n
+#         except AttributeError:
+#             levers = determine_objects(models, "levers", union=True)
+#             if isinstance(policies, Policy):
+#                 policies = [policies]
+# 
+#             levers = [l for l in levers if l.name in policies[0]]
+#             n_policies = len(policies)
+    
+    policies, levers, n_policies = setup_policies(policies, levers_sampling,
+                                                  lever_union, models)
+    
+    try:
+        n_models = len(models)
+    except TypeError:
+        n_models = 1
+
+    outcomes = determine_objects(models, 'outcomes', union=outcome_union)
+
+    nr_of_exp = n_models * n_scenarios * n_policies
+
+    # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
+    # it
+    _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
+                  '{} experiments').format(n_scenarios, n_policies,
+                                           n_models, nr_of_exp))
+
+
+    callback = setup_callback(callback, uncertainties, levers, outcomes,
+                          nr_of_exp, reporting_interval, reporting_frequency)
+
+    if not evaluator:
+        evaluator = SequentialEvaluator(models)
+
+    evaluator.evaluate_experiments(scenarios, policies, callback,
+                                   combine=combine)
+
+    if callback.i != nr_of_exp:
+        raise EMAError(('some fatal error has occurred while '
+                        'running the experiments, not all runs have '
+                        'completed. expected {}, got {}').format(nr_of_exp,
+                                                                 callback.i))
+
+    _logger.info("experiments finished")
+
+    if return_callback:
+        return callback
+
+    results = callback.get_results()
+    return results
+
+
+def setup_callback(callback, uncertainties, levers, outcomes, nr_of_exp,
+                   reporting_interval, reporting_frequency):
+    if not callback:
+        callback = DefaultCallback(
+            uncertainties,
+            levers,
+            outcomes,
+            nr_of_exp,
+            reporting_interval=reporting_interval,
+            reporting_frequency=reporting_frequency)
+    else:
+        callback = callback(uncertainties, levers, outcomes, nr_of_exp,
+                            reporting_interval=reporting_interval,
+                            reporting_frequency=reporting_frequency)
+    return callback
+
+
+def setup_policies(policies, levers_sampling, lever_union, models):
     if not policies:
         policies = [Policy("None", **{})]
         levers = []
@@ -442,53 +535,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
             levers = [l for l in levers if l.name in policies[0]]
             n_policies = len(policies)
-    try:
-        n_models = len(models)
-    except TypeError:
-        n_models = 1
-
-    outcomes = determine_objects(models, 'outcomes', union=outcome_union)
-
-    nr_of_exp = n_models * n_scenarios * n_policies
-
-    # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
-    # it
-    _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
-                  '{} experiments').format(n_scenarios, n_policies,
-                                           n_models, nr_of_exp))
-
-    if not callback:
-        callback = DefaultCallback(
-            uncertainties,
-            levers,
-            outcomes,
-            nr_of_exp,
-            reporting_interval=reporting_interval,
-            reporting_frequency=reporting_frequency)
-    else:
-        callback = callback(uncertainties, levers, outcomes, nr_of_exp,
-                            reporting_interval=reporting_interval,
-                            reporting_frequency=reporting_frequency)
-
-    if not evaluator:
-        evaluator = SequentialEvaluator(models)
-
-    evaluator.evaluate_experiments(scenarios, policies, callback)
-
-    if callback.i != nr_of_exp:
-        raise EMAError(('some fatal error has occurred while '
-                        'running the experiments, not all runs have '
-                        'completed. expected {}, got {}').format(nr_of_exp,
-                                                                 callback.i))
-
-    _logger.info("experiments finished")
-
-    if return_callback:
-        return callback
-
-    results = callback.get_results()
-    return results
-
+    return policies, levers, n_policies
+    
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,

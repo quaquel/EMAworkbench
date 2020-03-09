@@ -580,30 +580,51 @@ class Experiment(NamedDict):
             name, **combine(scenario, policy, constants))
 
 
-def experiment_generator(scenarios, model_structures, policies):
+def zip_cycle(*args):
+    # zipover
+    #     taken from jpn
+    #     getting the max might by tricky
+    #     policies and scenarios are generators themselves?
+    
+    maxlen = max(len(a) for a in args)
+    return itertools.islice(zip(*(itertools.cycle(a) for a in args)), maxlen)
+
+
+def experiment_generator(scenarios, model_structures, policies,
+                         combine='factorial'):
     '''
 
     generator function which yields experiments
 
     Parameters
     ----------
-    designs : iterable of dicts
+    scenarios : iterable of dicts
     model_structures : list
     policies : list
+    combine = {'factorial, zipover'}
+              controls how to combine scenarios, policies, and model_structures
+              into experiments. 
 
     Notes
     -----
-    this generator is essentially three nested loops: for each model structure,
-    for each policy, for each scenario, return the experiment. This means
-    that designs should not be a generator because this will be exhausted after
-    the running the first policy on the first model.
+    if combine is 'factorial' then this generator is essentially three nested 
+    loops: for each model structure, for each policy, for each scenario,
+    return the experiment. This means that designs should not be a generator
+    because this will be exhausted after the running the first policy on the
+    first model.
+    if combine is 'zipover' then this generator cycles over scenarios, policies
+    and model structures until the longest of the three collections is
+    exhausted.
 
     '''
     
-    # zipover
-    
-    # full factorial
-    jobs = itertools.product(model_structures, policies, scenarios)
+    if combine=='zipover':
+        jobs = zip_cycle(model_structures, policies, scenarios)
+    elif combine=='factorial':
+        # full factorial
+        jobs = itertools.product(model_structures, policies, scenarios)
+    else:
+        ValueError(f"{combine} is unknown value for combine")
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job

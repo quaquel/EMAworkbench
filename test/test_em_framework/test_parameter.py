@@ -14,6 +14,7 @@ from ema_workbench.em_framework import parameters
 from ema_workbench.em_framework.samplers import LHSSampler
 from ema_workbench.em_framework.model import Model
 from ema_workbench.em_framework.outcomes import create_outcomes
+from ema_workbench.em_framework.util import NamedObject
 
 
     
@@ -257,7 +258,7 @@ class CreateOutcomesTestCase(unittest.TestCase):
             outcome_list = [dict(kind='unknown', name='a')]
             outcomes = create_outcomes(outcome_list)
 
-class ParametersToCsvTestCase(unittest.TestCase):
+class ParametersTestCase(unittest.TestCase):
     @mock.patch('ema_workbench.em_framework.parameters.pd')
     def test_to_csv(self, mock_pandas):
         params = [parameters.RealParameter('a', 0.1, 1.5),
@@ -268,6 +269,25 @@ class ParametersToCsvTestCase(unittest.TestCase):
         
         # TODO:: add assertions
         mock_pandas.DataFrame.from_dict.assert_called()
+
+    def test_experiment_gemerator(self):
+        scenarios = [NamedObject("scen_1"), NamedObject("scen_2")]
+        model_structures = [NamedObject("model")]
+        policies = [NamedObject("1"), NamedObject("2"), NamedObject("3")]
+
+        
+        experiments = parameters.experiment_generator(scenarios,
+                              model_structures, policies, combine='factorial')
+        experiments = [e for e in experiments]
+        self.assertEqual(len(experiments), 6, ("wrong number of experiments "
+                                               "for factorial"))
+
+        
+        experiments = parameters.experiment_generator(scenarios,
+                                model_structures, policies, combine='zipover')
+        experiments = [e for e in experiments]
+        self.assertEqual(len(experiments), 3, ("wrong number of experiments "
+                                               "for zipover"))
 
 
 if __name__ == "__main__":
