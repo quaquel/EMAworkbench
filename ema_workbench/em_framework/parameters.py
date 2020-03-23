@@ -418,7 +418,7 @@ class CategoricalParameter(IntegerParameter):
     
     def from_dist(self, name, dist):
         # TODO:: how to handle this
-        # probebly need to pass categories as list and zip
+        # probably need to pass categories as list and zip
         # categories to integers implied by dist
         raise NotImplementedError(("custom distributions over categories "
                                    "not supported yet"))

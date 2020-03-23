@@ -192,7 +192,7 @@ class UniformLHSSampler(LHSSampler):
 
 class FactorialLHSSampler(LHSSampler):
     '''generate LHS samples over the well characterized and the deeply
-    uncertain factors seperately, and than combine them in a full factorial
+    uncertain factors separately, and than combine them in a full factorial
     way
     
     Parameters
@@ -234,7 +234,8 @@ class FactorialLHSSampler(LHSSampler):
             else:
                 well_characterized_parameters.append(parameter)
         
-        
+        raise NotImplementedError
+        # code below here makes no sense
         sampled_parameters = self.generate_samples(parameters, nr_samples)
         designs = zip(*[sampled_parameters[u.name] for u in parameters])
         designs = DefaultDesigns(designs, parameters, nr_samples)
@@ -549,6 +550,43 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
 
     return samples
 
+
+def sample_jointly(models, n_samples, uncertainty_union=True, lever_union=True, 
+                   sampler=LHSSampler()):
+    '''generate scenarios by sampling over the uncertainties
+
+    Parameters
+    ----------
+    models : a collection of AbstractModel instances
+    n_samples : int
+    uncertainty_union : bool, optional
+            in case of multiple models, sample over the union of
+            uncertainties, or over the intersection of the uncertainties
+    lever_union : bool, optional
+            in case of multiple models, sample over the union of
+            levers, or over the intersection of the levers
+    sampler : Sampler instance, optional
+
+    Returns
+    -------
+    generator
+        yielding Scenario instances
+    collection
+        the collection of parameters over which to sample
+    n_samples
+        the number of designs 
+
+
+    '''
+    uncertainties = determine_parameters(models, 'uncertainties',
+                                         union=uncertainty_union)
+    levers = determine_parameters(models, 'levers', union=lever_union)
+    parameters = uncertainties.copy() + levers.copy()
+    
+    samples = sampler.generate_designs(parameters, n_samples)
+    samples.kind = Scenario
+    
+    return samples
 
 def from_experiments(models, experiments):
     '''generate scenarios from an existing experiments DataFrame

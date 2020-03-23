@@ -12,7 +12,9 @@ from .parameters import IntegerParameter
 
 
 try:
-    from SALib.sample import saltelli, morris, fast_sampler
+    from SALib.sample import saltelli 
+    from SALib.sample import morris
+    from SALib.sample import fast_sampler
 except ImportError:
     warnings.warn("SALib samplers not available", ImportWarning)
     saltelli = morris = fast_sampler = None

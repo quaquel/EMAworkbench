@@ -11,7 +11,7 @@ import unittest
 
 from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler, 
                                 FullFactorialSampler, PartialFactorialSampler,
-                                determine_parameters)
+                                determine_parameters, sample_jointly)
 from ema_workbench.em_framework.parameters import (RealParameter, 
                                                       IntegerParameter, 
                                                       CategoricalParameter)
@@ -96,8 +96,19 @@ class SamplerTestCase(unittest.TestCase):
         parameters = determine_parameters(models, 'uncertainties', union=False)
         self.assertIn('b', parameters.keys())
         self.assertNotIn('c', parameters.keys())
-        self.assertNotIn('a', parameters.keys())    
-
+        self.assertNotIn('a', parameters.keys())  
+        
+    def test_sample_jointly(self):  
+        function = mock.Mock()
+        model = Model("A", function)
+        model.uncertainties = [RealParameter('a', 0, 1),
+                               RealParameter('c', 0, 1),]
+        model.levers = [RealParameter('b', 0, 1),
+                        RealParameter('d', 0, 1),]
+        
+        designs = sample_jointly(model, 10)
+        self.assertEqual(designs.n, 10)
+        
 
 if __name__ == "__main__":
     unittest.main()

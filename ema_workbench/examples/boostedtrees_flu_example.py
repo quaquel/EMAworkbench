@@ -16,6 +16,7 @@ from ema_workbench.analysis import feature_scoring
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 
+
 def plot_factormap(x1, x2, ax, bdt, nominal):
     '''helper function for plotting a 2d factor map'''
     x_min, x_max = x[:, x1].min(), x[:, x1].max()

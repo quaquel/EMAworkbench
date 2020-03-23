@@ -15,7 +15,7 @@ from SALib.analyze import sobol
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            ema_logging, MultiprocessingEvaluator, Policy)
-from ema_workbench.em_framework.evaluators import SOBOL
+from ema_workbench.em_framework.evaluators import Samplers
 from ema_workbench.em_framework import get_SALib_problem
 
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         results = evaluator.perform_experiments(n_scenarios, policy,
-                                                uncertainty_sampling=SOBOL)
+                                        uncertainty_sampling=Samplers.SOBOL)
 
     sobol_stats, s2, s2_conf = analyze(results, 'max_P')
     print(sobol_stats)

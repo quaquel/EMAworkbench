@@ -12,7 +12,7 @@ import shutil
 import string
 import threading
 import warnings
-from ema_workbench.em_framework.samplers import AbstractSampler
+from ema_workbench.em_framework.samplers import AbstractSampler, sample_jointly
 
 warnings.simplefilter("once", ImportWarning)
 
@@ -116,6 +116,7 @@ class BaseEvaluator(object):
         '''makes ema_workbench evaluators compatible with Platypus
         evaluators as used by platypus algorithms
         '''
+        
         self.callback()
 
         problem = jobs[0].solution.problem
@@ -156,7 +157,8 @@ class BaseEvaluator(object):
                             uncertainty_union=False, lever_union=False,
                             outcome_union=False,
                             uncertainty_sampling=Samplers.LHS,
-                            levers_sampling=Samplers.LHS, callback=None):
+                            levers_sampling=Samplers.LHS, callback=None,
+                            combine='factorial'):
         '''convenience method for performing experiments.
 
         is forwarded to :func:perform_experiments, with evaluator and
@@ -172,7 +174,7 @@ class BaseEvaluator(object):
                                    outcome_union=outcome_union,
                                    uncertainty_sampling=uncertainty_sampling,
                                    levers_sampling=levers_sampling,
-                                   callback=callback)
+                                   callback=callback, combine=combine)
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
                  reference=None, constraints=None, convergence_freq=1000,
@@ -383,7 +385,16 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional TODO:: update doc
     callback  : Callback instance, optional
     return_callback : boolean, optional
-    combine : {'factorial', 'zipover'}, optional
+    combine : {'factorial', 'zipover', 'sample_jointly'}, optional
+              how to combine uncertainties and levers?
+              In case of 'factorial', both are sampled separately using their
+              respective samplers. Next the resulting designs are combined in a
+              full factorial manner.
+              In case of 'zipover', both are sampled separately and 
+              then combined by cycling over the shortest of the the two sets
+              of designs until the longest set of designs is exhausted. 
+              In case of 'sample_jointly', uncertainties and levers are
+              combined and sampled using the specification for scenarios.
 
     Returns
     -------
@@ -401,76 +412,48 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         raise EMAError(('no experiments possible since both '
                         'scenarios and policies are 0'))
 
-    if not scenarios:
-        scenarios = [Scenario("None", **{})]
-        uncertainties = []
-        n_scenarios = 1
-    elif(isinstance(scenarios, numbers.Integral)):
+
+    if combine != 'sample_jointly':
+        scenarios, uncertainties, n_scenarios = setup_scenarios(scenarios,
+                                uncertainty_sampling, uncertainty_union, models)
+        policies, levers, n_policies = setup_policies(policies, levers_sampling,
+                                                      lever_union, models)
+    else:
+        policies = [Policy("None", **{})]
+        levers = []
+        n_policies = 1
+        
         sampler = uncertainty_sampling
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
-        scenarios = sample_uncertainties(models, scenarios, sampler=sampler,
-                                         union=uncertainty_union)
+        scenarios = sample_jointly(models, scenarios, uncertainty_union,
+                                   lever_union, sampler)
         uncertainties = scenarios.parameters
         n_scenarios = scenarios.n
-    else:
-        try:
-            uncertainties = scenarios.parameters
-            n_scenarios = scenarios.n
-        except AttributeError:
-            uncertainties = determine_objects(models, "uncertainties",
-                                              union=True)
-            if isinstance(scenarios, Scenario):
-                scenarios = [scenarios]
-
-            uncertainties = [u for u in uncertainties if u.name in
-                             scenarios[0]]
-            n_scenarios = len(scenarios)
-
-#     if not policies:
-#         policies = [Policy("None", **{})]
-#         levers = []
-#         n_policies = 1
-#     elif(isinstance(policies, numbers.Integral)):
-#         sampler = levers_sampling
-#         
-#         if not isinstance(sampler, AbstractSampler):
-#             sampler = sampler.value
-#         
-#         policies = sample_levers(models, policies, union=lever_union,
-#                                  sampler=sampler)
-#         levers = policies.parameters
-#         n_policies = policies.n
-#     else:
-#         try:
-#             levers = policies.parameters
-#             n_policies = policies.n
-#         except AttributeError:
-#             levers = determine_objects(models, "levers", union=True)
-#             if isinstance(policies, Policy):
-#                 policies = [policies]
-# 
-#             levers = [l for l in levers if l.name in policies[0]]
-#             n_policies = len(policies)
-    
-    policies, levers, n_policies = setup_policies(policies, levers_sampling,
-                                                  lever_union, models)
-    
+        combine = 'factorial'
+        
     try:
         n_models = len(models)
     except TypeError:
         n_models = 1
 
     outcomes = determine_objects(models, 'outcomes', union=outcome_union)
-
-    nr_of_exp = n_models * n_scenarios * n_policies
-
-    # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
-    # it
-    _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
-                  '{} experiments').format(n_scenarios, n_policies,
-                                           n_models, nr_of_exp))
-
+    
+    if combine == 'factorial':
+        nr_of_exp = n_models * n_scenarios * n_policies
+        
+        # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
+        # it
+        _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
+                      '{} experiments').format(n_scenarios, n_policies,
+                                               n_models, nr_of_exp))
+    else:
+        nr_of_exp = n_models * max(n_scenarios, n_policies)
+        # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
+        # it
+        _logger.info(('performing max({} scenarios, {} policies) * {} model(s) = '
+                      '{} experiments').format(n_scenarios, n_policies,
+                                               n_models, nr_of_exp))
 
     callback = setup_callback(callback, uncertainties, levers, outcomes,
                           nr_of_exp, reporting_interval, reporting_frequency)
@@ -541,6 +524,34 @@ def setup_policies(policies, levers_sampling, lever_union, models):
             n_policies = len(policies)
     return policies, levers, n_policies
     
+
+def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union, models):
+    if not scenarios:
+        scenarios = [Scenario("None", **{})]
+        uncertainties = []
+        n_scenarios = 1
+    elif(isinstance(scenarios, numbers.Integral)):
+        sampler = uncertainty_sampling
+        if not isinstance(sampler, AbstractSampler):
+            sampler = sampler.value
+        scenarios = sample_uncertainties(models, scenarios, sampler=sampler,
+                                         union=uncertainty_union)
+        uncertainties = scenarios.parameters
+        n_scenarios = scenarios.n
+    else:
+        try:
+            uncertainties = scenarios.parameters
+            n_scenarios = scenarios.n
+        except AttributeError:
+            uncertainties = determine_objects(models, "uncertainties",
+                                              union=True)
+            if isinstance(scenarios, Scenario):
+                scenarios = [scenarios]
+
+            uncertainties = [u for u in uncertainties if u.name in
+                             scenarios[0]]
+            n_scenarios = len(scenarios)
+    return scenarios, uncertainties, n_scenarios
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
