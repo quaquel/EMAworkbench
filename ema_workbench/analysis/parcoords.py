@@ -84,15 +84,15 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
     ax.xaxis.set_ticklabels(labels[i - 1:i + 1], fontsize=fs, rotation=rot)
 
     label = labels[-1]
-    
+
     try:
         precision = formatter[label]
     except KeyError:
         precision = ".2f"
     
-    
     max_label = f"{maxima[label]:{precision}}"
     min_label = f"{minima[label]:{precision}}"
+
     max_label = ax.text(i + 1, 1.01, max_label, va="bottom",
                         ha="center", fontsize=fs)
     min_label = ax.text(i + 1, -0.01, min_label, va="top",
