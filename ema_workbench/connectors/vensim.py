@@ -259,8 +259,15 @@ class BaseVensimModel(FileModel):
           separate working directory prior to calling `model_init`.
 
         """
-        if not model_file.endswith('.vpm'):
-            raise ValueError('model file should be a vpm file')
+        if vensimDLLwrapper.vensim_64 is not None:
+            if not model_file.endswith('.vpmx') and not model_file.endswith('.vpm') :
+                raise ValueError('model file should be a .vpm or .vpmx file')
+            self._resultfile = 'Current.vdfx'
+        else:
+            if not model_file.endswith('.vpm'):
+                raise ValueError('model file should be a vpm file')
+            self._resultfile = 'Current.vdf'
+
 
         super(BaseVensimModel, self).__init__(
             name, wd=wd, model_file=model_file)
@@ -273,10 +280,7 @@ class BaseVensimModel(FileModel):
 
         # default name of the results file (default: 'Current.vdfx'
         # for 64 bit, and Current.vdf for 32 bit)
-        if vensimDLLwrapper.vensim_64 is not None:
-            self._resultfile = 'Current.vdfx'
-        else:
-            self._resultfile = 'Current.vdf'
+
 
         _logger.debug("vensim interface init completed")
 
