@@ -41,7 +41,6 @@ The various connectors have their own specific requirements.
 * Excel also only works on Windows.
 * `jpype-1 <https://jpype.readthedocs.io/en/latest/>`_ and 
   `pynetlogo <https://pynetlogo.readthedocs.io>`_ for NetLogo
-* `pysd <https://pysd.readthedocs.io/en/master/>`_ optional for simple vensim
-   models
+* `pysd <https://pysd.readthedocs.io/en/master/>`_ optional for simple vensim models
 
    
