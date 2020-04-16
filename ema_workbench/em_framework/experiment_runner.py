@@ -74,12 +74,13 @@ class ExperimentRunner(object):
         model_name = experiment.model_name
         model = self.msis[model_name]
         policy = experiment.policy.copy()
+        scenario = experiment.scenario.copy()
         scenario_id = experiment.scenario.name
 
         _logger.debug(self.log_message.format(scenario_id=scenario_id,
                                               policy_name=policy_name,
                                               model_name=model_name))
-        scenario = experiment.scenario
+        
         try:
             model.run_model(scenario, policy)
         except CaseError as e:
