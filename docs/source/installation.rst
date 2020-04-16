@@ -17,12 +17,15 @@ dependencies will already be met.
 
 
 In addition to the libraries available in the default Anaconda distribution,
-there are various optional dependencies. From conda or conda forge
+there are various optional dependencies. Please follow the installation
+instructions for each of these libraries. 
+
+From conda or conda forge:
 
 * `altair <https://altair-viz.github.io>`_ for interactive visualizations
 * `ipyparallel <http://ipyparallel.readthedocs.io/en/latest/>`_ for support of interactive multiprocessing within the jupyter notebook. 
 
-There are also some pip based dependencies. These are
+There are also some pip based dependencies:
 
 * `SALib <https://salib.readthedocs.io/en/latest/>`_ , this is a necessary
   dependency for advanced senstivity analysis.
@@ -33,11 +36,11 @@ There are also some pip based dependencies. These are
 
 The various connectors have their own specific requirements. 
 
-* Vensim only works on Windows and requires 32 bit Python.
+* Vensim only works on Windows. If you have 64 bit vensim, you need 64 bit Python.
+  If you have 32 bit vensim, you will need 32 bit Python. 
 * Excel also only works on Windows.
 * `jpype-1 <https://jpype.readthedocs.io/en/latest/>`_ and 
   `pynetlogo <https://pynetlogo.readthedocs.io>`_ for NetLogo
-* `pysd <https://pysd.readthedocs.io/en/master/>`_ optional for simple vensim
-   models
+* `pysd <https://pysd.readthedocs.io/en/master/>`_ optional for simple vensim models
 
    
