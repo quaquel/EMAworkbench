@@ -26,4 +26,4 @@
   A further extension would be to have uncertainties composed of uncertainties
   and then the callable would take multiple arguments (this is sort of how
   lookup uncertainties work, but we might generalize this).
-
+* ensure inspect_tradeoff has 0-1 on both x and y axis
