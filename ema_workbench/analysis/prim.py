@@ -311,6 +311,7 @@ class PrimBox(object):
     box_lims : list
                list of box lims for each box in peeling trajectory
 
+
     by default, the currently selected box is the last box on the
     peeling trajectory, unless this is changed via
     :meth:`PrimBox.select`.
