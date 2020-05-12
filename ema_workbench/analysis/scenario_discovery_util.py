@@ -347,7 +347,7 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
         categories_all = box_init.at[0, column]
         missing = categories_all - categories_inbox
         categories = list(categories_inbox) + list(missing)
-        print(column, categories)
+#         print(column, categories)
         data[column] = data[column].cat.set_categories(categories)
 
         # keep the mapping for updating ticklabels
