@@ -31,7 +31,7 @@ simultaneously.
 * Uncertainties (:mod:`ema_workbench.em_framework.parameters`): various 
   types of parameter classes that can be used to specify the uncertainties
   and/or levers on the model
-* Outcomes (mod:``ema_workbench.em_framework.outcomes`): various types
+* Outcomes (:mod:`ema_workbench.em_framework.outcomes`): various types
   of outcome classes
 * Evaluators (:mod:`ema_workbench.em_framework.evaluators`): various evaluators
   for running experiments in sequence or in parallel.
