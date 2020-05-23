@@ -507,3 +507,120 @@ class Model(SingleReplication, BaseModel):
 
 class ReplicatorModel(Replicator, BaseModel):
     pass
+
+
+class SplitModel(AbstractModel):
+    ''' generic class for working with models split up in such
+    way that allows combining models together easily.
+
+    Parameters
+    ----------
+    name : str
+    update : callable
+               a function with each of the state as a
+               keyword argument, it returns an updated list of state and outcomes
+    setup : callable
+            A function which takes the uncertain parameters and returns the initial
+            state
+    report : callable
+             A function run over the final state to create the outcomes
+
+    iterations: int
+                The number of iterations to run the update method
+    variant_setup : callable
+            A function which takes the uncertain parameters and returns the initial
+            state
+    variant_report : callable
+             A function run over the final state to create the outcomes
+
+
+    Attributes
+    ----------
+    uncertainties : listlike
+                    list of parameter
+    levers : listlike
+             list of parameter instances
+    state: listlike
+            list of states to store
+    outcomes : listlike
+               list of outcome instances
+    name : str
+           alphanumerical name of model structure interface
+    output : dict
+             this should be a dict with the names of the outcomes as key
+    working_directory : str
+                        absolute path, all file operations in the model
+                        structure interface should be resolved from this
+                        directory.
+
+    '''
+
+
+    def __init__(self, name, update=None, setup=None, report=None, variant_setup=None, variant_report=None, num_variants=100, iterations=100):
+        super(SplitModel, self).__init__(name)
+
+        if not callable(update):
+            raise ValueError('update function should be callable')
+
+        if not callable(setup):
+            raise ValueError('setup function should be callable')
+
+        if not callable(report):
+            raise ValueError('report function should be callable')
+
+
+        self.update = update
+        self.setup = setup
+        self.report = report
+        self.variant_setup = variant_setup
+        self.variant_report = variant_report
+        self.num_variants = num_variants
+        self.iterations = iterations
+
+
+    @method_logger(__name__)
+    def run_experiment(self, experiment):
+        """ Method for running an instantiated model structure.
+
+        Parameters
+        ----------
+        experiment : dict like
+
+        """
+        report = None
+        state = self.setup(**experiment, num_variants=self.num_variants, iterations = self.iterations)
+        for variant in range(self.num_variants):
+            self.variant_setup(state)
+            for i in range(self.iterations):
+                self.update(state, iteration=i)
+            self.variant_report(state, report=report)
+        model_output = self.report(state)
+        # TODO: might it be possible to somehow abstract this
+        # perhaps expose a get_data on modelInterface?
+        # different connectors can than implement only this
+        # get method
+        results = {}
+        for i, variable in enumerate(self.output_variables):
+            try:
+                value = model_output[variable]
+            except KeyError:
+                _logger.warning(variable + ' not found in model output')
+                value = None
+            except TypeError:
+                value = model_output[i]
+            results[variable] = value
+        return results
+
+    def as_dict(self):
+        model_specs = super(BaseModel, self).as_dict()
+        model_specs['update'] = self.update
+        model_specs['setup'] = self.setup
+        model_specs['variant_setup'] = self.variant_setup
+        model_specs['variant_report'] = self.variant_report
+        model_specs['report'] = self.report
+        model_specs['iterations'] = self.iterations
+        return model_specs
+
+
+class Multimodel(AbstractModel):
+    pass

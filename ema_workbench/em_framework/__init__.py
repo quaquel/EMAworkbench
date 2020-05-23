@@ -11,11 +11,11 @@ __all__ = ["ema_parallel", "parameters"
            "peform_experiments", 'optimize', "IpyparallelEvaluator",
            "MultiprocessingEvaluator", "SequentialEvaluator"
            'ReplicatorModel', "EpsilonProgress", "HyperVolume",
-           "Convergence", "ArchiveLogger", "ArrayOutcome"]
+           "Convergence", "ArchiveLogger", "ArrayOutcome", "SplitModel"]
 
 from .outcomes import (ScalarOutcome, TimeSeriesOutcome, Constraint,
                        ArrayOutcome)
-from .model import Model, FileModel, ReplicatorModel, Replicator, SingleReplication
+from .model import Model, FileModel, ReplicatorModel, Replicator, SingleReplication, SplitModel
 
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy, Constant,
