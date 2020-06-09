@@ -730,10 +730,10 @@ def parameters_from_csv(uncertainties, **kwargs):
     if ('NAME' not in uncertainties) and ('name' not in uncertainties):
         raise IndexError('name column missing')
     elif ('NAME' in uncertainties.columns):
-        names = uncertainties.ix[:, 'NAME']
+        names = uncertainties['NAME']
         uncertainties.drop(['NAME'], axis=1, inplace=True)
     else:
-        names = uncertainties.ix[:, 'name']
+        names = uncertainties['name']
         uncertainties.drop(['name'], axis=1, inplace=True)
 
     # check if type column is there
@@ -741,10 +741,10 @@ def parameters_from_csv(uncertainties, **kwargs):
     if ('TYPE' not in uncertainties) and ('type' not in uncertainties):
         infer_type = True
     elif ('TYPE' in uncertainties):
-        types = uncertainties.ix[:, 'TYPE']
+        types = uncertainties['TYPE']
         uncertainties.drop(['TYPE'], axis=1, inplace=True)
     else:
-        types = uncertainties.ix[:, 'type']
+        types = uncertainties['type']
         uncertainties.drop(['type'], axis=1, inplace=True)
 
     uncs = []

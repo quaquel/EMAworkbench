@@ -24,7 +24,11 @@ y = np.max(outcomes['infected fraction R1'], axis=1)
 
 all_scores = []
 for i in range(100):
-    scores = get_ex_feature_scores(x, y,
+    indices = np.random.choice(np.arange(0, x.shape[0]), size=x.shape[0])
+    selected_x = x.iloc[indices, :]
+    selected_y = y[indices]
+    
+    scores = get_ex_feature_scores(selected_x, selected_y,
                                    mode=RuleInductionType.REGRESSION)[0]
     all_scores.append(scores)
 all_scores = pd.concat(all_scores, axis=1, sort=False)
