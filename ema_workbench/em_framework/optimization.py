@@ -416,7 +416,7 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
 
     for entry, job in jobs_collection:
         logical = experiments['policy'] == entry.name
-        job_outcomes = {key: value[logical] for key, value in outcomes.items()}
+#         job_outcomes = {key: value[logical] for key, value in outcomes.items()}
 
         job_outcomes_dict = {}
         job_outcomes = []
