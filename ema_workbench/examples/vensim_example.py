@@ -23,10 +23,12 @@ if __name__ == "__main__":
     # instantiate a model
     wd = r'./models/vensim example'
     vensimModel = VensimModel("simpleModel", wd=wd,
-                              model_file=r'\model.vpm')
+                              model_file=r'model.vpm') 
+                  # use 'model.vpmx' for 64bit version
+                  # can be created with Vensim
     vensimModel.uncertainties = [RealParameter("x11", 0, 2.5),
                                  RealParameter("x12", -2.5, 2.5)]
 
     vensimModel.outcomes = [TimeSeriesOutcome('a')]
 
-    results = perform_experiments(vensimModel, 1000, parallel=True)
+    results = perform_experiments(vensimModel, 1000)
