@@ -3,8 +3,8 @@ language: python
 sudo: true
 
 python:
-- "3.6"
-- "3.7-dev"
+- "3.7"
+- "3.8-dev"
 
 env:
 - DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn statsmodels"
