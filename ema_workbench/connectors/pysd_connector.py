@@ -78,7 +78,7 @@ class BasePysdModel(AbstractModel):
         """
         super(BasePysdModel, self).reset_model()
         if self.model is not None:
-            self.model.reset_state()
+            self.model.initialize()
 
 
 class PysdModel(SingleReplication, BasePysdModel):
