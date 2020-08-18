@@ -21,12 +21,12 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     # instantiate a model
-    wd = r'./models/vensim example'
+    wd = './models/vensim example'
     vensimModel = VensimModel("simpleModel", wd=wd,
-                              model_file=r'\model.vpm')
+                              model_file='model.vpm')
     vensimModel.uncertainties = [RealParameter("x11", 0, 2.5),
                                  RealParameter("x12", -2.5, 2.5)]
 
     vensimModel.outcomes = [TimeSeriesOutcome('a')]
 
-    results = perform_experiments(vensimModel, 1000, parallel=True)
+    results = perform_experiments(vensimModel, 1000)
