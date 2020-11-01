@@ -1,4 +1,5 @@
 * add progress bar which is context aware (notebook, command line)
+	* tqdm now seems to work in notebook / lab, see mesa
 * add altair based analysis to scenario discovery
 * review parallelization code, too much unnecessary copying seems
   to be going on at the moment
@@ -27,3 +28,6 @@
   and then the callable would take multiple arguments (this is sort of how
   lookup uncertainties work, but we might generalize this).
 * ensure inspect_tradeoff has 0-1 on both x and y axis
+* add a best practices item to website
+	* generate data using .py and analyse in notebooks
+	* how to organize your project
