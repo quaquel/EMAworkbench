@@ -1,4 +1,5 @@
 * add progress bar which is context aware (notebook, command line)
+	* tqdm now seems to work in notebook / lab, see mesa
 * add altair based analysis to scenario discovery
 * review parallelization code, too much unnecessary copying seems
   to be going on at the moment
@@ -25,3 +26,6 @@
   A further extension would be to have uncertainties composed of uncertainties
   and then the callable would take multiple arguments (this is sort of how
   lookup uncertainties work, but we might generalize this).
+* add a best practices item to website
+	* generate data using .py and analyse in notebooks
+	* how to organize your project
