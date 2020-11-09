@@ -239,6 +239,7 @@ class BaseNetLogoModel(FileModel):
         """
         return self.output
 
+    @method_logger(__name__)
     def cleanup(self):
         '''
         This model is called after finishing all the experiments, but
@@ -256,6 +257,8 @@ class BaseNetLogoModel(FileModel):
             pass
 
         jpype.shutdownJVM()
+#         self.netlogo = None
+
 
     def _handle_outcomes(self, fns):
         '''helper function for parsing outcomes'''

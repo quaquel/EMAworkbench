@@ -226,6 +226,7 @@ class SequentialEvaluator(BaseEvaluator):
         models = NamedObjectMap(AbstractModel)
         models.extend(self._msis)
 
+        # TODO:: replace with context manager
         cwd = os.getcwd()
         runner = ExperimentRunner(models)
 

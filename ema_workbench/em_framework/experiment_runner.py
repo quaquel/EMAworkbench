@@ -3,6 +3,7 @@ helper module for running experiments and keeping track of which model
 has been initialized with which policy.
 '''
 from ..util import get_module_logger, EMAError, CaseError
+from ema_workbench.util.ema_logging import method_logger
 
 # Created on Aug 11, 2015
 #
@@ -40,11 +41,13 @@ class ExperimentRunner(object):
         self.log_message = ('running scenario {scenario_id} for policy '
                             '{policy_name} on model {model_name}')
 
+    @method_logger(__name__)
     def cleanup(self):
         for msi in self.msis:
             msi.cleanup()
         self.msis = None
 
+    @method_logger(__name__)
     def run_experiment(self, experiment):
         '''The logic for running a single experiment. This code makes
         sure that model(s) are initialized correctly.
