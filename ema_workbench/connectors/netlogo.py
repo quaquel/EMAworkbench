@@ -256,7 +256,7 @@ class BaseNetLogoModel(FileModel):
         except AttributeError:
             pass
 
-        jpype.shutdownJVM()
+#         jpype.shutdownJVM()
 #         self.netlogo = None
 
 
