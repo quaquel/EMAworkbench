@@ -38,7 +38,8 @@ else:
 __all__ = ['load_results',
            'save_results',
            'experiments_to_scenarios',
-           'merge_results'
+           'merge_results',
+		   'average_replications'
            ]
 _logger = get_module_logger(__name__)
 
@@ -329,3 +330,45 @@ def get_ema_project_home_dir():
         return home_dir
     except BaseException:
         return os.getcwd()
+
+def average_replications(data):
+    '''
+    Convenience function for averaging over (taking the mean of) the
+    replications of a stochastic model's outcomes.
+
+    The function reduces the dimensionality of the outcomes from
+    (experiments * replications * outcome_shape) to
+    (experiments * outcome_shape), where outcome_shape is 0-d for scalars,
+    1-d for time series, and 2-d for arrays.
+
+    The function can take either the outcomes (dictionary: keys are outcomes
+    of interest, values are arrays of data) or the results (tuple: experiments
+    as DataFrame, outcomes as dictionary) of a set of simulation experiments.
+    The returned object will be identical to the passed object apart from the
+    replications being averaged over.
+
+    Parameters
+    ----------
+    data (dict or tuple) : outcomes or results of a set of experiments
+
+    Returns
+    -------
+    dict or tuple  :  passed object with averaged replications
+    '''
+
+    if isinstance(data, dict):
+        #replications are the second dimension of the outcome arrays
+        outcomes_avg = {key:np.mean(data[key],axis=1) for key in data.keys()}
+        return outcomes_avg
+
+    elif (isinstance(data, tuple) and
+            isinstance(data[0], pd.DataFrame) and
+            isinstance(data[1], dict)):
+        experiments, outcomes = data #split results
+        outcomes_avg = {key:np.mean(outcomes[key],axis=1) for key in outcomes.keys()}
+        results_avg = (experiments.copy(deep=True), outcomes_avg)
+        return results_avg
+
+    else:
+        raise EMAError(
+            f"data should be a dict or tuple, but is a {type(data)}".format())
