@@ -331,12 +331,13 @@ def get_ema_project_home_dir():
     except BaseException:
         return os.getcwd()
 
-def average_replications(data):
+def process_replications(data, aggregation_func = np.mean):
     '''
-    Convenience function for averaging over (taking the mean of) the
-    replications of a stochastic model's outcomes.
+    Convenience function for processing the replications of a stochastic
+    model's outcomes.
 
-    The function reduces the dimensionality of the outcomes from
+    The default behavior is to take the mean of the replications. This reduces
+    the dimensionality of the outcomes from
     (experiments * replications * outcome_shape) to
     (experiments * outcome_shape), where outcome_shape is 0-d for scalars,
     1-d for time series, and 2-d for arrays.
@@ -344,30 +345,29 @@ def average_replications(data):
     The function can take either the outcomes (dictionary: keys are outcomes
     of interest, values are arrays of data) or the results (tuple: experiments
     as DataFrame, outcomes as dictionary) of a set of simulation experiments.
-    The returned object will be identical to the passed object apart from the
-    replications being averaged over.
 
     Parameters
     ----------
     data (dict or tuple) : outcomes or results of a set of experiments
+    aggregation_func (function) : Process to be applied, defaults to np.mean.
 
     Returns
     -------
-    dict or tuple  :  passed object with averaged replications
+    dict or tuple  :  passed object with processed replications
     '''
 
     if isinstance(data, dict):
         #replications are the second dimension of the outcome arrays
-        outcomes_avg = {key:np.mean(data[key],axis=1) for key in data.keys()}
-        return outcomes_avg
+        outcomes_processed = {key:aggregation_func(data[key],axis=1) for key in data.keys()}
+        return outcomes_processed
 
     elif (isinstance(data, tuple) and
             isinstance(data[0], pd.DataFrame) and
             isinstance(data[1], dict)):
         experiments, outcomes = data #split results
-        outcomes_avg = {key:np.mean(outcomes[key],axis=1) for key in outcomes.keys()}
-        results_avg = (experiments.copy(deep=True), outcomes_avg)
-        return results_avg
+        outcomes_processed = {key:aggregation_func(outcomes[key],axis=1) for key in outcomes.keys()}
+        results_processed = (experiments.copy(deep=True), outcomes_avg)
+        return results_processed
 
     else:
         raise EMAError(
