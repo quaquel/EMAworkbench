@@ -22,5 +22,6 @@ box1.show_tradeoff()
 print(box1.resample(21))
 box1.inspect(21)
 box1.inspect(21, style='graph')
+box1.show_pairs_scatter(21)
 
 plt.show()

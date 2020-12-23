@@ -314,7 +314,8 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     return qp
 
 
-def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
+def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims,
+                           cdf=False):
     ''' helper function for pair wise scatter plotting
 
     Parameters
@@ -328,6 +329,9 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
     box_init : DataFrame
     restricted_dims : collection of strings
                       list of uncertainties that define the boxlims
+    cdf : bool, optional
+          plot diagonal as pdf or cdf, defaults to kde approx. of pdf
+          
 
     '''
 
@@ -358,8 +362,15 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
         # replace column with codes
         data[column] = data[column].cat.codes
 
-    data['y'] = y  # for testing
-    grid = sns.pairplot(data=data, hue='y', vars=x.columns.values)
+    data['y'] = y 
+    
+    # ensures cases of interest are plotted on top
+    data.sort_values('y', inplace=True) 
+    
+    grid = sns.pairplot(data=data, hue='y', vars=x.columns.values,
+                        diag_kind='kde', diag_kws={'cumulative':cdf,
+                                                   'common_norm':False,
+                                                   'fill':False})
 
     cats = set(categorical_columns)
     for row, ylabel in zip(grid.axes, grid.y_vars):

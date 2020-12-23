@@ -483,9 +483,9 @@ class PrimBox(object):
                 # TODO:: qp values
                 items = df[dim].values[0]
                 for j, item in enumerate(items):
-#                     we need to have tick labeling to be dynamic?
-#                     adding it to the dict wont work, creates horrible figure
-#                     unless we can force a selection?
+                    # we need to have tick labeling to be dynamic?
+                    # adding it to the dict wont work, creates horrible figure
+                    # unless we can force a selection?
                     name = f"{dim}, {qp.loc[qp.index[0], dim]: .2g}"
                     entry = dict(name=name, n_items=len(items) + 1,
                                  item=item, id=int(i),
@@ -503,10 +503,9 @@ class PrimBox(object):
         peeling = self.peeling_trajectory.copy()
         peeling['id'] = peeling.index
 
-        chart = alt.Chart(peeling).mark_circle(
-            size=75).encode(
-            x='coverage:Q',
-            y='density:Q',
+        chart = alt.Chart(peeling).mark_circle(size=75).encode(
+            x=alt.X('coverage:Q',scale=alt.Scale(domain=(0, 1.1))),
+            y=alt.Y('density:Q',scale=alt.Scale(domain=(0, 1.1))),
             color=alt.Color(
                 'res_dim:O',
                 scale=alt.Scale(
@@ -516,22 +515,14 @@ class PrimBox(object):
             opacity=alt.condition(
                 point_selector,
                 alt.value(1),
-                alt.value(0.4))).properties(
-            selection=point_selector).properties(
-            width=width,
-            height=height)
-
-        # conda update -c conda-forge altair to 2.1
-        # move this to encoding tooltip=[<list of items>]
-        chart.encoding.tooltip = [
-            {"type": "ordinal",
-             "field": "id"},
-            {"type": "quantitative",
-             "field": "coverage", "format": ".2"},
-            {"type": "quantitative",
-             "field": "density", "format": ".2"},
-            {"type": "ordinal", "field": "res_dim", }
-        ]
+                alt.value(0.4)),
+            tooltip=[alt.Tooltip('id:Q'),
+                     alt.Tooltip('coverage:Q', format=".2"),
+                     alt.Tooltip('density:Q', format=".2"),
+                     alt.Tooltip('res_dim:O')]
+        ).properties(selection=point_selector).properties(
+                width=width,
+                height=height)
 
         base = alt.Chart(boxes).encode(
             x=alt.X('x_lower:Q', axis=alt.Axis(grid=False,
@@ -766,7 +757,7 @@ class PrimBox(object):
         '''
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
 
-    def show_pairs_scatter(self, i=None, dims=None):
+    def show_pairs_scatter(self, i=None, dims=None, cdf=False):
         ''' Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
         interest or not and the boxlims superimposed on top.
@@ -776,6 +767,8 @@ class PrimBox(object):
         i : int, optional
         dims : list of str, optional
                dimensions to show, defaults to all restricted dimensions
+        cdf : bool, optional
+              plot diag as cdf or pdf
 
         Returns
         -------
@@ -788,12 +781,16 @@ class PrimBox(object):
         if dims is None:
             dims = sdutil._determine_restricted_dims(self.box_lims[i],
                                                    self.prim.box_init)
+            
+#         x = 
+#         y = self.prim.y[self.yi_initial]
+#         order = np.argsort(y)
 
         return sdutil.plot_pair_wise_scatter(self.prim.x.iloc[self.yi_initial,:],
                                              self.prim.y[self.yi_initial],
                                              self.box_lims[i],
                                              self.prim.box_init,
-                                             dims)
+                                             dims, cdf=cdf)
 
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''
