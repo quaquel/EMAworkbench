@@ -38,7 +38,8 @@ else:
 __all__ = ['load_results',
            'save_results',
            'experiments_to_scenarios',
-           'merge_results'
+           'merge_results',
+		   'average_replications'
            ]
 _logger = get_module_logger(__name__)
 
@@ -337,3 +338,45 @@ def get_ema_project_home_dir():
         return home_dir
     except BaseException:
         return os.getcwd()
+
+def process_replications(data, aggregation_func = np.mean):
+    '''
+    Convenience function for processing the replications of a stochastic
+    model's outcomes.
+
+    The default behavior is to take the mean of the replications. This reduces
+    the dimensionality of the outcomes from
+    (experiments * replications * outcome_shape) to
+    (experiments * outcome_shape), where outcome_shape is 0-d for scalars,
+    1-d for time series, and 2-d for arrays.
+
+    The function can take either the outcomes (dictionary: keys are outcomes
+    of interest, values are arrays of data) or the results (tuple: experiments
+    as DataFrame, outcomes as dictionary) of a set of simulation experiments.
+
+    Parameters
+    ----------
+    data (dict or tuple) : outcomes or results of a set of experiments
+    aggregation_func (function) : Process to be applied, defaults to np.mean.
+
+    Returns
+    -------
+    dict or tuple  :  passed object with processed replications
+    '''
+
+    if isinstance(data, dict):
+        #replications are the second dimension of the outcome arrays
+        outcomes_processed = {key:aggregation_func(data[key],axis=1) for key in data.keys()}
+        return outcomes_processed
+
+    elif (isinstance(data, tuple) and
+            isinstance(data[0], pd.DataFrame) and
+            isinstance(data[1], dict)):
+        experiments, outcomes = data #split results
+        outcomes_processed = {key:aggregation_func(outcomes[key],axis=1) for key in outcomes.keys()}
+        results_processed = (experiments.copy(deep=True), outcomes_avg)
+        return results_processed
+
+    else:
+        raise EMAError(
+            f"data should be a dict or tuple, but is a {type(data)}".format())

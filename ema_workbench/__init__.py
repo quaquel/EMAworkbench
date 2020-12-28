@@ -10,7 +10,7 @@ from .em_framework import (Model, RealParameter, CategoricalParameter,
 
 from . import util
 from .util import (save_results, load_results, ema_logging, EMAError,
-                   experiments_to_scenarios)
+                   experiments_to_scenarios, average_replications)
 
 # from . import analysis
 
