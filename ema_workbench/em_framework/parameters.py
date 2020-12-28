@@ -279,9 +279,9 @@ class IntegerParameter(Parameter):
         if lower bound is larger than upper bound
     ValueError
         if entries in resolution are outside range of lower_bound and
-        upper_bound, or not an numbers.Integral instance
+        upper_bound, or not an integer instance
     ValueError
-        if lower_bound or upper_bound is not an numbers.Integral instance
+        if lower_bound or upper_bound is not an integer instance
 
     '''
 
@@ -291,13 +291,24 @@ class IntegerParameter(Parameter):
                                         resolution=resolution, default=default,
                                         variable_name=variable_name, pff=pff)
 
-        lb_int = isinstance(lower_bound, numbers.Integral)
-        up_int = isinstance(upper_bound, numbers.Integral)
+        lb_int = float(lower_bound).is_integer()
+        up_int = float(upper_bound).is_integer()
 
-        if not (lb_int or up_int):
+        if not (lb_int and up_int):
             raise ValueError('lower bound and upper bound must be integers')
+            
+        self.lower_bound = int(lower_bound)
+        self.upper_bound = int(upper_bound)
 
         self.dist = sp.stats.randint(self.lower_bound, self.upper_bound + 1)  # @UndefinedVariable
+
+        for idx, entry in enumerate(self.resolution):
+            if not float(entry).is_integer():
+                raise ValueError(('all entries in resolution should be '
+                                  'integers'))
+            else:
+                self.resolution[idx] = int(entry)
+
 
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
