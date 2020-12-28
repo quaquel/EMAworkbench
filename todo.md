@@ -42,6 +42,8 @@
   and turn it into a tarbal / zipfile (shutil will make selecting extension
   easier.
 * have time index on TimeSeriesOutcome
+	--> so TimeSeriesOutcome should be a DataFrame
+	--> why not have a generic DataFr
 * have arbitrary shaped ND arrays for array outcome --> affects save
 * we want to keep interacting with results as a dict indexed by a string
 	but we might do this by implementing a small dict extension class

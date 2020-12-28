@@ -3,33 +3,20 @@
 This module provides various convenience functions and classes.
 
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
-
-# import cPickle
+import configparser
 from io import BytesIO, StringIO
+import json
 import os
-import sys
 import tarfile
 
 import numpy as np
-
 import pandas as pd
 from pandas.io.parsers import read_csv
 
 from . import EMAError, get_module_logger
-import ema_workbench
 
-PY3 = sys.version_info[0] == 3
-if PY3:
-    WriterFile = StringIO
-else:
-    WriterFile = BytesIO
+
 
 # Created on 13 jan. 2011
 #
@@ -37,14 +24,31 @@ else:
 
 __all__ = ['load_results',
            'save_results',
-           'experiments_to_scenarios',
            'merge_results',
-		   'average_replications'
+		   'process_replications'
            ]
 _logger = get_module_logger(__name__)
 
 
 def load_results(file_name):
+    '''
+    load the specified bz2 file. the file is assumed to be saves
+    using save_results.
+
+    Parameters
+    ----------
+    file_name : str
+                the path to the file
+
+    Raises
+    ------
+    IOError if file not found
+
+    '''
+
+
+
+def load_results_old(file_name):
     '''
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
@@ -133,11 +137,12 @@ def load_results(file_name):
 
 def save_results(results, file_name):
     '''
-    save the results to the specified tar.gz file. The results are
-    stored as csv files. There is an x.csv, and a csv for each
-    outcome. In addition, there is a metadata csv which contains
-    the datatype information for each of the columns in the x array.
-
+    save the results to the specified tar.gz file. 
+    
+    The way in which results are stored depends. Experiments are saved
+    as csv. Outcomes depend on the outcome type. Scalar, and <3D arrays are
+    saved as csv files. Higher dimensional arrays are stored as .npy files.
+    
     Parameters
     ----------
     results : tuple
@@ -150,9 +155,12 @@ def save_results(results, file_name):
     IOError if file not found
 
     '''
+    VERSION = 0.1
     file_name = os.path.abspath(file_name)
 
-    def add_file(tararchive, string_to_add, filename):
+    def add_file(tararchive, stream, filename):
+        string_to_add = stream.getvalue()
+        
         tarinfo = tarfile.TarInfo(filename)
         tarinfo.size = len(string_to_add)
 
@@ -160,107 +168,34 @@ def save_results(results, file_name):
 
         z.addfile(tarinfo, fh)
 
-    def save_numpy_array(fh, data):
-        data = pd.DataFrame(data)
-        data.to_csv(fh, header=False, index=False, encoding='UTF-8')
-
     experiments, outcomes = results
     with tarfile.open(file_name, 'w:gz') as z:
-        # write the x to the zipfile
-        experiments_file = WriterFile()
-
-        experiments.to_csv(experiments_file, header=True,
+        # store experiments
+        stream = StringIO()
+        experiments.to_csv(stream, header=True,
                            encoding='UTF-8', index=False)
+        add_file(z, stream, 'experiments.csv')
 
-        add_file(z, experiments_file.getvalue(), 'experiments.csv')
-
-        # write experiment metadata
-        metadatafile = WriterFile()
-        experiments.dtypes.to_csv(metadatafile, header=False)
-        add_file(z, metadatafile.getvalue(), 'experiments metadata.csv')
-
-        # write outcome metadata
-        outcome_names = outcomes.keys()
-        outcome_meta = ["{},{}".format(outcome, outcomes[outcome].shape)
-                        for outcome in outcome_names]
-        outcome_meta = "\n".join(outcome_meta)
-        add_file(z, outcome_meta, "outcomes metadata.csv")
-
-        # outcomes
+        # store outcomes
+        outcomes_metadata = []
         for key, value in outcomes.items():
-            fh = WriterFile()
+            stream, filename = key.to_disk(value)
+            add_file(z, stream, filename)
+            outcomes_metadata.append((key.__class__.__name__, key.name,
+                                      filename))
 
-            if value.ndim == 3:
-                for i in range(value.shape[2]):
-                    data = value[:, :, i]
-                    save_numpy_array(fh, data)
-                    fh = fh.getvalue()
-                    fn = '{}_{}.csv'.format(key, i)
-                    add_file(z, fh, fn)
-                    fh = WriterFile()
-            else:
-                save_numpy_array(fh, value)
-                fh = fh.getvalue()
-                add_file(z, fh, '{}.csv'.format(key))
+        # store metadata
+        metadata = {'version': VERSION,
+                    'outcomes': outcomes_metadata,
+                    'experiments': {k:v.name for k, v in
+                                    experiments.dtypes.to_dict().items()}}
 
-    _logger.info("results saved successfully to {}".format(file_name))
+        stream = StringIO()
+        json.dump(metadata, stream)
+        add_file(z, stream, "metadata.json")
 
+    _logger.info(f"results saved successfully to {file_name}")
 
-def experiments_to_scenarios(experiments, model=None):
-    '''
-
-    This function transform a structured experiments array into a list
-    of Scenarios.
-
-    If model is provided, the uncertainties of the model are used.
-    Otherwise, it is assumed that all non-default columns are
-    uncertainties.
-
-    Parameters
-    ----------
-    experiments : numpy structured array
-                  a structured array containing experiments
-    model : ModelInstance, optional
-
-    Returns
-    -------
-    a list of Scenarios
-
-    '''
-    # get the names of the uncertainties
-    if model is None:
-        uncertainties = [entry[0] for entry in experiments.dtype.descr]
-
-        # remove policy and model, leaving only the case related uncertainties
-        try:
-            uncertainties.pop(uncertainties.index('policy'))
-            uncertainties.pop(uncertainties.index('model'))
-            uncertainties.pop(uncertainties.index('scenario_id'))
-        except BaseException:
-            pass
-    else:
-        uncertainties = [u.name for u in model.uncertainties]
-
-    # make list of of tuples of tuples
-    cases = []
-    cache = set()
-    for i in range(experiments.shape[0]):
-        case = {}
-        case_tuple = []
-        for uncertainty in uncertainties:
-            entry = experiments[uncertainty][i]
-            case[uncertainty] = entry
-            case_tuple.append(entry)
-
-        case_tuple = tuple(case_tuple)
-        if case_tuple not in cache:
-            cases.append(case)
-            cache.add((case_tuple))
-
-    scenarios = [ema_workbench.em_framework.parameters.Scenario(
-        **entry) for entry in cases]
-
-    return scenarios
 
 
 def merge_results(results1, results2):

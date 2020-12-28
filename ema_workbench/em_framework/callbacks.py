@@ -23,6 +23,7 @@ import pandas as pd
 from ..util import ema_exceptions, get_module_logger
 from .parameters import (CategoricalParameter, IntegerParameter,
                          BooleanParameter)
+from .outcomes import OutcomesDict
 
 
 #
@@ -159,9 +160,9 @@ class DefaultCallback(AbstractCallback):
                                               reporting_frequency)
         self.i = 0
         self.cases = None
-        self.results = {}
+        self.results = OutcomesDict()
 
-        self.outcomes = [outcome.name for outcome in outcomes]
+        self.outcomes = outcomes
 
         # determine data types of parameters
         columns = []
@@ -221,9 +222,9 @@ class DefaultCallback(AbstractCallback):
             _logger.debug("storing {}".format(outcome))
 
             try:
-                outcome_res = outcomes[outcome]
+                outcome_res = outcomes[outcome.name]
             except KeyError:
-                message = "%s not specified as outcome in msi" % outcome
+                message = f"{outcome.name} not specified as outcome in msi" 
                 _logger.debug(message)
             else:
                 try:

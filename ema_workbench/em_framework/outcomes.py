@@ -4,14 +4,17 @@ Module for outcome classes
 '''
 import abc
 import collections
+from io import StringIO
 import numbers
 import six
 
-import pandas
+import pandas as pd
+import numpy as np
 
 from .util import Variable
 from ema_workbench.util.ema_exceptions import EMAError
 from ..util import get_module_logger
+from abc import abstractmethod
 
 # Created on 24 mei 2011
 #
@@ -74,7 +77,12 @@ class AbstractOutcome(Variable):
         if expected_range is not None and len(expected_range) != 2:
             raise ValueError('expected_range must be a min-max tuple')
         self.kind = kind
-        self.variable_name = variable_name
+        
+        if variable_name is not None:
+            self.variable_name = tuple(variable_name)
+        else:
+            self.variable_name = variable_name
+        
         self.function = function
         self._expected_range = expected_range
         self.shape = shape
@@ -126,6 +134,43 @@ class AbstractOutcome(Variable):
         rep += ')'
 
         return rep
+    
+    
+    def __hash__(self):
+        items = [self.name, self._variable_name,
+                 self._expected_range, self.shape]
+        items = tuple([entry for entry in items if entry is not None])
+        
+        return hash(items)
+    
+    @classmethod
+    @abstractmethod
+    def to_disk(cls, values):
+        '''helper function for writing outcome to disk
+        
+        Parameters
+        ----------
+        values : obj
+            data to store
+        
+        Returns
+        -------
+        StringIO
+        filename
+        
+        
+        '''
+        pass
+    
+    @classmethod
+    @abstractmethod
+    def from_disk(cls, ):
+        '''
+        helper function for loading data
+        
+        '''
+        
+        pass
 
 
 class ScalarOutcome(AbstractOutcome):
@@ -143,7 +188,7 @@ class ScalarOutcome(AbstractOutcome):
                     supply the variable name as an optional argument,
                     if not provided, defaults to name
     function : callable, optional
-               a callable to perform postprocessing on data retrieved
+               a callable to perform post processing on data retrieved
                from model
     expected_range : 2 tuple, optional
                      expected min and max value for outcome,
@@ -186,6 +231,30 @@ class ScalarOutcome(AbstractOutcome):
                 f"outcome {self.name} should be a scalar, but is {type(values)}: {values}".format())
         return values
 
+    def to_disk(self, values):
+        '''helper function for writing outcome to disk
+        
+        
+        Parameters
+        ----------
+        values : 1D array
+            
+        
+        Returns
+        -------
+        StringIO
+        filename
+        
+        
+        '''
+        fh = StringIO()
+        data = pd.DataFrame(values)
+        data.to_csv(fh, header=False, index=False, encoding='UTF-8')        
+        return fh, f"{self.name}.csv"
+    
+    @classmethod
+    def from_disk(cls, ):
+        pass
 
 class ArrayOutcome(AbstractOutcome):
     '''Array Outcome class for n-dimensional collections
@@ -226,7 +295,6 @@ class ArrayOutcome(AbstractOutcome):
             ArrayOutcome,
             self).__init__(
             name,
-            kind=AbstractOutcome.INFO,
             variable_name=variable_name,
             function=function,
             expected_range=expected_range,
@@ -238,6 +306,36 @@ class ArrayOutcome(AbstractOutcome):
             raise EMAError(
                 "outcome {} should be a collection".format(self.name))
         return values
+
+    def to_disk(self, values):
+        '''helper function for writing outcome to disk
+        
+        Parameters
+        ----------
+        values : ND array
+        
+        
+        Returns
+        -------
+        StringIO 
+        filename
+        
+        
+        '''
+        fh = StringIO()
+        
+        if values.ndim < 3:
+            data = pd.DataFrame(values)
+            data.to_csv(fh, header=False, index=False, encoding='UTF-8')
+            filename = f'{self.name}.csv'
+        else:
+            np.save(fh, values)
+            filename = f'{self.name}.npy'
+            
+        return fh, filename
+            
+        
+        
 
 
 class TimeSeriesOutcome(ArrayOutcome):
@@ -283,6 +381,76 @@ class TimeSeriesOutcome(ArrayOutcome):
             function=function,
             expected_range=expected_range,
             shape=shape)
+
+
+    def to_disk(self, values):
+        '''helper function for writing outcome to disk
+        
+        Parameters
+        ----------
+        values : DataFrame
+        
+        
+        Returns
+        -------
+        StringIO 
+        filename
+        
+        '''
+        fh = StringIO()
+        values.to_csv(fh, header=False, index=False, encoding='UTF-8')        
+        return fh, f"{self.name}.csv"
+
+
+
+class OutcomesDict(collections.abc.MutableMapping):
+    
+    def __init__(self):
+        self.outcomes = {}
+        self.outcomes_mapping = {}
+    
+    
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            key = self.outcomes_mapping[key]
+        
+        return self.outcomes[key]
+            
+    def __setitem__(self, key, value):
+        if isinstance(key, str):
+            try:
+                key = self.outcomes_mapping[key]
+            except KeyError:
+                raise KeyError((f'{key} should be an instance of '
+                                'AbstractOutcome not a string'))
+        else:
+            self.outcomes_mapping[key.name] = key
+            
+        self.outcomes[key] = value
+            
+    def __delitem__(self, key):
+        if isinstance(key, str):
+            name = key
+            key = self.outcomes_mapping[name]
+        else:
+            name =  key.name
+            
+        del self.outcomes[key]
+        del self.outcomes_mapping[name]
+        
+    def __iter__(self):
+        return iter(self.outcomes)
+        
+    def __len__(self):
+        return len(self.outcomes)
+    
+    def items_by_name(self):
+        '''like .items() but now with only outcome names'''
+        
+        return iter({k.name:v for k,v in self.outcomes})
+        
+    def __str__(self):
+        return str({k:v for k,v in self.outcomes.items()})
 
 
 class Constraint(ScalarOutcome):
@@ -354,9 +522,9 @@ def create_outcomes(outcomes, **kwargs):
     '''
 
     if isinstance(outcomes, six.string_types):
-        outcomes = pandas.read_csv(outcomes, **kwargs)
-    elif not isinstance(outcomes, pandas.DataFrame):
-        outcomes = pandas.DataFrame.from_dict(outcomes)
+        outcomes = pd.read_csv(outcomes, **kwargs)
+    elif not isinstance(outcomes, pd.DataFrame):
+        outcomes = pd.DataFrame.from_dict(outcomes)
 
     for entry in ['name', 'type']:
         if entry not in outcomes.columns:

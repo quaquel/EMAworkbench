@@ -302,12 +302,16 @@ class IntegerParameter(Parameter):
 
         self.dist = sp.stats.randint(self.lower_bound, self.upper_bound + 1)  # @UndefinedVariable
 
-        for idx, entry in enumerate(self.resolution):
-            if not float(entry).is_integer():
-                raise ValueError(('all entries in resolution should be '
-                                  'integers'))
-            else:
-                self.resolution[idx] = int(entry)
+        try:
+            for idx, entry in enumerate(self.resolution):
+                if not float(entry).is_integer():
+                    raise ValueError(('all entries in resolution should be '
+                                      'integers'))
+                else:
+                    self.resolution[idx] = int(entry)
+        except TypeError:
+            # if self.resolution is None
+            pass
 
 
     @classmethod
