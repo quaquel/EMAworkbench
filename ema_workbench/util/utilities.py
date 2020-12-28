@@ -339,6 +339,7 @@ def get_ema_project_home_dir():
     except BaseException:
         return os.getcwd()
 
+
 def process_replications(data, aggregation_func = np.mean):
     '''
     Convenience function for processing the replications of a stochastic
@@ -356,25 +357,30 @@ def process_replications(data, aggregation_func = np.mean):
 
     Parameters
     ----------
-    data (dict or tuple) : outcomes or results of a set of experiments
-    aggregation_func (function) : Process to be applied, defaults to np.mean.
+    data : dict, tuple
+        outcomes or results of a set of experiments
+    aggregation_func : callabale, optional
+        aggregation function to be applied, defaults to np.mean.
 
     Returns
     -------
-    dict or tuple  :  passed object with processed replications
+    dict, tuple 
+    
+    
     '''
 
     if isinstance(data, dict):
         #replications are the second dimension of the outcome arrays
-        outcomes_processed = {key:aggregation_func(data[key],axis=1) for key in data.keys()}
+        outcomes_processed = {key:aggregation_func(data[key],axis=1) for key
+                              in data.keys()}
         return outcomes_processed
-
     elif (isinstance(data, tuple) and
             isinstance(data[0], pd.DataFrame) and
             isinstance(data[1], dict)):
         experiments, outcomes = data #split results
-        outcomes_processed = {key:aggregation_func(outcomes[key],axis=1) for key in outcomes.keys()}
-        results_processed = (experiments.copy(deep=True), outcomes_avg)
+        outcomes_processed = {key:aggregation_func(outcomes[key], axis=1) for
+                              key in outcomes.keys()}
+        results_processed = (experiments.copy(deep=True), outcomes_processed)
         return results_processed
 
     else:
