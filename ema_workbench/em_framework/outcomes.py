@@ -4,9 +4,9 @@ Module for outcome classes
 '''
 import abc
 import collections
-from io import StringIO
+from io import BytesIO
 import numbers
-import six
+import warnings
 
 import pandas as pd
 import numpy as np
@@ -14,7 +14,7 @@ import numpy as np
 from .util import Variable
 from ema_workbench.util.ema_exceptions import EMAError
 from ..util import get_module_logger
-from abc import abstractmethod
+
 
 # Created on 24 mei 2011
 #
@@ -70,8 +70,8 @@ class AbstractOutcome(Variable):
         if function is not None and not callable(function):
             raise ValueError('function must be a callable')
         if variable_name:
-            if (not isinstance(variable_name, six.string_types)) and (
-                    not all(isinstance(elem, six.string_types) for elem in variable_name)):
+            if (not isinstance(variable_name, str)) and (
+                    not all(isinstance(elem, str) for elem in variable_name)):
                 raise ValueError(
                     'variable name must be a string or list of strings')
         if expected_range is not None and len(expected_range) != 2:
@@ -143,9 +143,8 @@ class AbstractOutcome(Variable):
         
         return hash(items)
     
-    @classmethod
-    @abstractmethod
-    def to_disk(cls, values):
+    @abc.abstractmethod
+    def to_disk(self, values):
         '''helper function for writing outcome to disk
         
         Parameters
@@ -155,7 +154,7 @@ class AbstractOutcome(Variable):
         
         Returns
         -------
-        StringIO
+        BytesIO
         filename
         
         
@@ -163,7 +162,7 @@ class AbstractOutcome(Variable):
         pass
     
     @classmethod
-    @abstractmethod
+    @abc.abstractmethod
     def from_disk(cls, ):
         '''
         helper function for loading data
@@ -172,6 +171,11 @@ class AbstractOutcome(Variable):
         
         pass
 
+    @classmethod
+    def get_subclasses(cls):
+        for subclass in cls.__subclasses__():
+            yield from subclass.get_subclasses()
+            yield subclass
 
 class ScalarOutcome(AbstractOutcome):
     '''
@@ -242,19 +246,25 @@ class ScalarOutcome(AbstractOutcome):
         
         Returns
         -------
-        StringIO
+        BytesIO
         filename
         
         
         '''
-        fh = StringIO()
+        fh = BytesIO()
         data = pd.DataFrame(values)
-        data.to_csv(fh, header=False, index=False, encoding='UTF-8')        
+        fh.write(data.to_csv(header=False, index=False,
+                             encoding='UTF-8').encode())
         return fh, f"{self.name}.csv"
     
     @classmethod
-    def from_disk(cls, ):
-        pass
+    def from_disk(cls, filename, archive):
+        f = archive.extractfile(filename)
+        values =  pd.read_csv(f, index_col=False, header=None).values
+        values = np.reshape(values, (values.shape[0],))
+        
+        return values
+        
 
 class ArrayOutcome(AbstractOutcome):
     '''Array Outcome class for n-dimensional collections
@@ -317,25 +327,39 @@ class ArrayOutcome(AbstractOutcome):
         
         Returns
         -------
-        StringIO 
+        BytesIO 
         filename
         
         
         '''
-        fh = StringIO()
+        
         
         if values.ndim < 3:
+            fh = BytesIO()
             data = pd.DataFrame(values)
-            data.to_csv(fh, header=False, index=False, encoding='UTF-8')
+            fh.write(data.to_csv(header=False, index=False,
+                                 encoding='UTF-8').encode())
             filename = f'{self.name}.csv'
         else:
+            fh = BytesIO()
             np.save(fh, values)
             filename = f'{self.name}.npy'
             
         return fh, filename
             
+    @classmethod
+    def from_disk(cls, filename, archive):
+        f = archive.extractfile(filename)
         
-        
+        if filename.endswith('csv'):        
+            return pd.read_csv(f, index_col=False, header=None).values
+        elif filename.endswith('npy'):
+            array_file = BytesIO()
+            array_file.write(f.read())
+            array_file.seek(0)
+            return np.load(array_file)
+        else:
+            raise EMAError("unknown file extension")
 
 
 class TimeSeriesOutcome(ArrayOutcome):
@@ -397,11 +421,18 @@ class TimeSeriesOutcome(ArrayOutcome):
         filename
         
         '''
-        fh = StringIO()
-        values.to_csv(fh, header=False, index=False, encoding='UTF-8')        
+        warnings.warn("still to be tested!!")
+        fh = BytesIO()
+        data = pd.DataFrame(values)
+        fh.write(data.to_csv(header=True, index=False,
+                             encoding='UTF-8').encode())
+        filename = f'{self.name}.csv'
         return fh, f"{self.name}.csv"
 
-
+    @classmethod
+    def from_disk(cls, filename, archive):
+        f = archive.extractfile(filename)
+        raise NotImplementedError()
 
 class OutcomesDict(collections.abc.MutableMapping):
     
@@ -484,12 +515,12 @@ class Constraint(ScalarOutcome):
         assert callable(function)
         if not parameter_names:
             parameter_names = []
-        elif isinstance(parameter_names, six.string_types):
+        elif isinstance(parameter_names, str):
             parameter_names = [parameter_names]
 
         if not outcome_names:
             outcome_names = []
-        elif isinstance(outcome_names, six.string_types):
+        elif isinstance(outcome_names, str):
             outcome_names = [outcome_names]
 
         variable_names = parameter_names + outcome_names
@@ -521,7 +552,7 @@ def create_outcomes(outcomes, **kwargs):
 
     '''
 
-    if isinstance(outcomes, six.string_types):
+    if isinstance(outcomes, str):
         outcomes = pd.read_csv(outcomes, **kwargs)
     elif not isinstance(outcomes, pd.DataFrame):
         outcomes = pd.DataFrame.from_dict(outcomes)

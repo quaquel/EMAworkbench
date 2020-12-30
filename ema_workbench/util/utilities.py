@@ -9,12 +9,13 @@ from io import BytesIO, StringIO
 import json
 import os
 import tarfile
+import warnings
 
 import numpy as np
 import pandas as pd
-from pandas.io.parsers import read_csv
 
 from . import EMAError, get_module_logger
+
 
 
 
@@ -45,45 +46,26 @@ def load_results(file_name):
     IOError if file not found
 
     '''
-
-
-
-def load_results_old(file_name):
-    '''
-    load the specified bz2 file. the file is assumed to be saves
-    using save_results.
-
-    Parameters
-    ----------
-    file_name : str
-                the path to the file
-
-    Raises
-    ------
-    IOError if file not found
-
-    '''
+    from ..em_framework.outcomes import AbstractOutcome, OutcomesDict
+    
     file_name = os.path.abspath(file_name)
-    outcomes = {}
-    with tarfile.open(file_name, 'r:gz', encoding="UTF8") as z:
-        # load x
-        experiments = z.extractfile('experiments.csv')
-        if not (hasattr(experiments, 'read')):
-            raise EMAError(repr(experiments))
-
-        experiments = pd.read_csv(experiments)
-
-        # load experiment metadata
-        metadata = z.extractfile('experiments metadata.csv').readlines()
-
-        for entry in metadata:
-            entry = entry.decode('UTF-8')
-            entry = entry.strip()
-            entry = entry.split(",")
-            name, dtype = [str(item) for item in entry]
+    
+    with tarfile.open(file_name, 'r:gz', encoding="UTF8") as archive:
+        try:
+            f = archive.extractfile('metadata.json')
+        except KeyError:
+            # old style data file
+            results = load_results_old(archive)
+            _logger.info((f"results loaded successfully from {file_name}"))
+            return  results
             
+        metadata = json.loads(f.read().decode()) 
+        
+        # load experiments
+        f = archive.extractfile('experiments.csv')
+        experiments = pd.read_csv(f)   
             
-            
+        for name, dtype in metadata['experiments'].items():
             try:
                 dtype = np.dtype(dtype)
             except TypeError:
@@ -91,48 +73,113 @@ def load_results_old(file_name):
             
             if pd.api.types.is_object_dtype(dtype):
                 experiments[name] = experiments[name].astype('category')
-
-        # load outcome metadata
-        metadata = z.extractfile('outcomes metadata.csv').readlines()
-        metadata = [entry.decode('UTF-8') for entry in metadata]
-        metadata = [entry.strip() for entry in metadata]
-        metadata = [tuple(entry.split(",")) for entry in metadata]
-        metadata = {entry[0]: entry[1:] for entry in metadata}
-
+        
         # load outcomes
-        for outcome, shape in metadata.items():
-            shape = list(shape)
-            shape[0] = shape[0][1:]
-            shape[-1] = shape[-1][0:-1]
-
-            temp_shape = []
-            for entry in shape:
-                if entry:
-                    try:
-                        temp_shape.append(int(entry))
-                    except ValueError:
-                        temp_shape.append(int(entry[0:-1]))
-            shape = tuple(temp_shape)
-
-            if len(shape) > 2:
-                nr_files = shape[-1]
-
-                data = np.empty(shape)
-                for i in range(nr_files):
-                    values = z.extractfile("{}_{}.csv".format(outcome, i))
-                    values = read_csv(values, index_col=False,
-                                      header=None).values
-                    data[:, :, i] = values
-
-            else:
-                data = z.extractfile("{}.csv".format(outcome))
-                data = read_csv(data, index_col=False, header=None).values
-                data = np.reshape(data, shape)
-
-            outcomes[outcome] = data
-
-    _logger.info("results loaded succesfully from {}".format(file_name))
+        outcomes = OutcomesDict()
+        known_outcome_classes = {entry.__name__:entry for entry in\
+                                 AbstractOutcome.get_subclasses() }
+        for (outcome_type, name, filename) in metadata['outcomes']:
+            outcome = known_outcome_classes[outcome_type](name)
+           
+            values = outcome.from_disk(filename, archive)
+            outcomes[outcome] = values
+ 
+    _logger.info("results loaded successfully from {}".format(file_name))
     return experiments, outcomes
+
+def load_results_old(archive):
+    '''
+    load the specified bz2 file. the file is assumed to be saves
+    using save_results.
+
+    Parameters
+    ----------
+    file_name : TarFile
+
+    Raises
+    ------
+    IOError if file not found
+
+    '''
+    from ..em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
+                                         OutcomesDict)
+    
+    outcomes = {}
+
+    # load x
+    experiments = archive.extractfile('experiments.csv')
+    if not (hasattr(experiments, 'read')):
+        raise EMAError(repr(experiments))
+
+    experiments = pd.read_csv(experiments)
+
+    # load experiment metadata
+    metadata = archive.extractfile('experiments metadata.csv').readlines()
+
+    for entry in metadata:
+        entry = entry.decode('UTF-8')
+        entry = entry.strip()
+        entry = entry.split(",")
+        name, dtype = [str(item) for item in entry]
+        
+        try:
+            dtype = np.dtype(dtype)
+        except TypeError:
+            dtype = pd.api.types.pandas_dtype(dtype)
+        
+        if pd.api.types.is_object_dtype(dtype):
+            experiments[name] = experiments[name].astype('category')
+
+    # load outcome metadata
+    metadata = archive.extractfile('outcomes metadata.csv').readlines()
+    metadata = [entry.decode('UTF-8') for entry in metadata]
+    metadata = [entry.strip() for entry in metadata]
+    metadata = [tuple(entry.split(",")) for entry in metadata]
+    metadata = {entry[0]: entry[1:] for entry in metadata}
+
+    # load outcomes
+    for outcome, shape in metadata.items():
+        shape = list(shape)
+        shape[0] = shape[0][1:]
+        shape[-1] = shape[-1][0:-1]
+
+        temp_shape = []
+        for entry in shape:
+            if entry:
+                try:
+                    temp_shape.append(int(entry))
+                except ValueError:
+                    temp_shape.append(int(entry[0:-1]))
+        shape = tuple(temp_shape)
+
+        if len(shape) > 2:
+            nr_files = shape[-1]
+
+            data = np.empty(shape)
+            for i in range(nr_files):
+                values = archive.extractfile("{}_{}.csv".format(outcome, i))
+                values = pd.read_csv(values, index_col=False,
+                                  header=None).values
+                data[:, :, i] = values
+
+        else:
+            data = archive.extractfile("{}.csv".format(outcome))
+            data = pd.read_csv(data, index_col=False, header=None).values
+            data = np.reshape(data, shape)
+
+        outcomes[outcome] = data
+
+    # reformat outcomes from generic dict to new style OutcomesDict
+    outcomes_new = OutcomesDict()
+    for k,v in outcomes.items():
+        if v.ndim == 1:
+            outcome =  ScalarOutcome(k)
+        else: 
+            outcome = ArrayOutcome(k)
+        
+        outcomes_new[outcome] = v
+
+    return experiments, outcomes_new
 
 
 def save_results(results, file_name):
@@ -159,21 +206,17 @@ def save_results(results, file_name):
     file_name = os.path.abspath(file_name)
 
     def add_file(tararchive, stream, filename):
-        string_to_add = stream.getvalue()
-        
+        stream.seek(0)
         tarinfo = tarfile.TarInfo(filename)
-        tarinfo.size = len(string_to_add)
-
-        fh = BytesIO(string_to_add.encode('UTF-8'))
-
-        z.addfile(tarinfo, fh)
+        tarinfo.size = len(stream.getbuffer())
+        tararchive.addfile(tarinfo, stream)
 
     experiments, outcomes = results
     with tarfile.open(file_name, 'w:gz') as z:
         # store experiments
-        stream = StringIO()
-        experiments.to_csv(stream, header=True,
-                           encoding='UTF-8', index=False)
+        stream = BytesIO()
+        stream.write(experiments.to_csv(header=True, encoding='UTF-8',
+                                        index=False).encode())
         add_file(z, stream, 'experiments.csv')
 
         # store outcomes
@@ -190,8 +233,8 @@ def save_results(results, file_name):
                     'experiments': {k:v.name for k, v in
                                     experiments.dtypes.to_dict().items()}}
 
-        stream = StringIO()
-        json.dump(metadata, stream)
+        stream = BytesIO()
+        stream.write(json.dumps(metadata).encode())
         add_file(z, stream, "metadata.json")
 
     _logger.info(f"results saved successfully to {file_name}")
@@ -244,7 +287,7 @@ def merge_results(results1, results2):
     # merging results
     merged_res = {}
     for key in keys:
-        _logger.info("merge " + key)
+        _logger.info(f"merge {key.name}")
 
         value1 = res1.get(key)
         value2 = res2.get(key)

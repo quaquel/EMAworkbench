@@ -12,6 +12,9 @@ import pandas as pd
 
 from ema_workbench.util.utilities import (save_results, load_results,
                               merge_results, get_ema_project_home_dir)
+from ema_workbench.em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
+                                                 TimeSeriesOutcome, OutcomesDict)
+
 
 
 def setUpModule():
@@ -25,24 +28,23 @@ def tearDownModule():
 
 class SaveResultsTestCase(unittest.TestCase):
     def test_save_results(self):
-        # test for 1d
-        # test for 2d
-        # test for 3d
-        # test for very large
+        fn = u'../data/test.tar.gz'
+
         
+        # test for 1d
         nr_experiments = 10000
         experiments = pd.DataFrame(index=np.arange(nr_experiments),
                                    columns={'x':np.float, 
                                             'y': np.float})
         outcome_a = np.random.rand(nr_experiments,1)
         
-        results = (experiments, {'a': outcome_a})
+        outcomes = OutcomesDict()
+        outcomes[ScalarOutcome('a')] = outcome_a
+        results = (experiments, outcomes)
     
-        fn = u'../data/test.tar.gz'
-        
+        # test for 2d
         save_results(results, fn)
         os.remove(fn)
-#         ema_logging.info('1d saved successfully')
         
         nr_experiments = 10000
         nr_timesteps = 100
@@ -51,11 +53,15 @@ class SaveResultsTestCase(unittest.TestCase):
                                             'y': np.float})
         outcome_a = np.zeros((nr_experiments,nr_timesteps))
         
-        results = (experiments, {'a': outcome_a})
+        outcomes = OutcomesDict()
+        outcomes[ArrayOutcome('a')] = outcome_a
+        results = (experiments, outcomes)
+
         save_results(results, fn)
         os.remove(fn)
-#         ema_logging.info('2d saved successfully')
-     
+
+        # test for 3d
+        # test for very large       
         nr_experiments = 10000
         nr_timesteps = 100
         nr_replications = 10
@@ -63,8 +69,11 @@ class SaveResultsTestCase(unittest.TestCase):
                                    columns={'x':np.float, 
                                             'y': np.float})
         outcome_a = np.zeros((nr_experiments,nr_timesteps,nr_replications))
-         
-        results = (experiments, {'a': outcome_a})
+
+        outcomes = OutcomesDict()
+        outcomes[ArrayOutcome('a')] = outcome_a
+        results = (experiments, outcomes)
+
         save_results(results, fn)
         os.remove(fn)
 
@@ -72,11 +81,12 @@ class SaveResultsTestCase(unittest.TestCase):
 class LoadResultsTestCase(unittest.TestCase):
     def test_load_results(self):
         # test for 1d
-        # test for 2d
+        
         # test for 3d
     
         nr_experiments = 10000
         
+        # test for 2d
         experiments = pd.DataFrame(index=np.arange(nr_experiments),
                                    columns={'x':np.float, 
                                             'y': np.float})
@@ -85,8 +95,11 @@ class LoadResultsTestCase(unittest.TestCase):
         experiments['y'] = np.random.rand(nr_experiments)
         
         outcome_a = np.zeros((nr_experiments,1))
-        results = (experiments, {'a': outcome_a})
-        
+
+        outcomes = OutcomesDict()
+        outcomes[ArrayOutcome('a')] = outcome_a
+        results = (experiments, outcomes)
+
         save_results(results, '../data/test.tar.gz')
         loaded_experiments, outcomes  = load_results('../data/test.tar.gz')
         
@@ -95,8 +108,8 @@ class LoadResultsTestCase(unittest.TestCase):
         self.assertTrue(np.all(np.allclose(experiments['y'],loaded_experiments['y'])))        
         
         os.remove('../data/test.tar.gz')
-        
-        
+                
+        # test 3d
         nr_experiments = 1000
         nr_timesteps = 100
         nr_replications = 10
@@ -107,8 +120,11 @@ class LoadResultsTestCase(unittest.TestCase):
         experiments['y'] = np.random.rand(nr_experiments)
         
         outcome_a = np.zeros((nr_experiments,nr_timesteps,nr_replications))
-         
-        results = (experiments, {'a': outcome_a})
+
+        outcomes = OutcomesDict()
+        outcomes[ArrayOutcome('a')] = outcome_a
+        results = (experiments, outcomes)
+
         save_results(results, '../data/test.tar.gz')
         loaded_experiments, outcomes = load_results('../data/test.tar.gz')
         
