@@ -200,7 +200,7 @@ class DefaultCallback(AbstractCallback):
                 shape = (nr_experiments, ) + shape
                 data = np.empty(shape)
                 data[:] = np.nan
-                self.results[outcome.name] = data
+                self.results[outcome] = data
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
@@ -219,7 +219,7 @@ class DefaultCallback(AbstractCallback):
 
     def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
-            _logger.debug("storing {}".format(outcome))
+            _logger.debug(f"storing {outcome.name}")
 
             try:
                 outcome_res = outcomes[outcome.name]

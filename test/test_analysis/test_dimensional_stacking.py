@@ -3,9 +3,6 @@ Created on Nov 30, 2015
 
 @author: jhkwakkel
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

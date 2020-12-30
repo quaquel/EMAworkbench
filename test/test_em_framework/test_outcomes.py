@@ -30,7 +30,7 @@ class TestScalarOutcome(unittest.TestCase):
         outcome = self.outcome_class(name, variable_name=var_name)
         
         self.assertEqual(outcome.name, name)
-        self.assertEqual(outcome.variable_name, [var_name])
+        self.assertEqual(outcome.variable_name, (var_name,))
         self.assertIsNone(outcome.function)
 
         name = 'test'
@@ -40,7 +40,7 @@ class TestScalarOutcome(unittest.TestCase):
                                 function=function)
         
         self.assertEqual(outcome.name, name)
-        self.assertEqual(outcome.variable_name, [var_name])
+        self.assertEqual(outcome.variable_name, (var_name,))
         self.assertIsNotNone(outcome.function)
         
         with self.assertRaises(ValueError):

@@ -33,7 +33,7 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertEqual(callback.i, 0)
         self.assertEqual(callback.nr_experiments, 100)
         self.assertEqual(callback.cases.shape[0], 100)
-        self.assertEqual(callback.outcomes, [o.name for o in outcomes])
+#         self.assertEqual(callback.outcomes, outcomes)
         
         names = callback.cases.columns.values.tolist()
         names = set(names)
@@ -54,7 +54,7 @@ class TestDefaultCallback(unittest.TestCase):
         self.assertEqual(callback.i, 0)
         self.assertEqual(callback.nr_experiments, 100)
         self.assertEqual(callback.cases.shape[0], 100)
-        self.assertEqual(callback.outcomes, [o.name for o in outcomes])
+#         self.assertEqual(callback.outcomes, [o.name for o in outcomes])
         
         names = callback.cases.columns.values.tolist()
         names = set(names)
@@ -85,8 +85,8 @@ class TestDefaultCallback(unittest.TestCase):
          
         _, out = callback.get_results()
         
-        self.assertIn(outcomes[0].name, out.keys())
-        self.assertEqual(out[outcomes[0].name].shape, (3,))
+        self.assertIn(outcomes[0], set([entry for entry in out.keys()]))
+        self.assertEqual(out[outcomes[0]].shape, (3,))
      
         # case 2 time series shape = (1, nr_time_steps)
         callback = DefaultCallback(uncs, [], outcomes, 

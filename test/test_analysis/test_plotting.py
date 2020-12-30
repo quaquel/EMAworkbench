@@ -3,9 +3,6 @@ Created on 22 jul. 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -484,9 +481,9 @@ def test_multiple_densities():
 
 
 if __name__ == '__main__':
-#     test_lines()
+    test_lines()
 #     test_envelopes()
-    test_kde_over_time()
+#     test_kde_over_time()
 #     test_multiple_densities()
   
 #     test_filter_scalar_outcomes()

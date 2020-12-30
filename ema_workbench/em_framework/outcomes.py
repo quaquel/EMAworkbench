@@ -78,7 +78,10 @@ class AbstractOutcome(Variable):
             raise ValueError('expected_range must be a min-max tuple')
         self.kind = kind
         
-        if variable_name is not None:
+        if variable_name:
+            if isinstance(variable_name, str):
+                variable_name = [variable_name,]
+            
             self.variable_name = tuple(variable_name)
         else:
             self.variable_name = variable_name
@@ -439,7 +442,6 @@ class OutcomesDict(collections.abc.MutableMapping):
     def __init__(self):
         self.outcomes = {}
         self.outcomes_mapping = {}
-    
     
     def __getitem__(self, key):
         if isinstance(key, str):

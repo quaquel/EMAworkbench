@@ -3,7 +3,6 @@ Created on May 22, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (absolute_import, print_function, division)
 import unittest
 
 import matplotlib.pyplot as plt

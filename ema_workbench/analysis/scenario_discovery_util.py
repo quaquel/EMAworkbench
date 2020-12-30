@@ -789,7 +789,7 @@ class OutputFormatterMixin(object):
             for unc in uncs:
                 values = box.loc[:, unc]
                 values = values.rename({0: 'min', 1: 'max'})
-                df_boxes.loc[unc][index[i]] = values
+                df_boxes.loc[unc][index[i]] = values.values
         return df_boxes
 
     def stats_to_dataframe(self):

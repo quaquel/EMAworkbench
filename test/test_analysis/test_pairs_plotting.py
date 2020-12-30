@@ -3,9 +3,6 @@ Created on Mar 13, 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import matplotlib.pyplot as plt
 
 from ema_workbench.analysis.pairs_plotting import (pairs_density, pairs_lines,
