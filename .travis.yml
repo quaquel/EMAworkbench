@@ -3,8 +3,7 @@ language: python
 sudo: true
 
 python:
-- "3.7"
-- "3.8-dev"
+- "3.8"
 
 env:
 - DEPS="numpy matplotlib pandas jupyter ipyparallel nose scikit-learn mock seaborn statsmodels"
@@ -37,8 +36,6 @@ before_install:
 script:
 - nosetests --exclude-dir=./test/test_connectors --with-coverage --verbose --cover-package=ema_workbench.em_framework --cover-package=ema_workbench.util --cover-package=ema_workbench.analysis
 
-
-# coverage needs to be added
 after_success:
 - coveralls
 

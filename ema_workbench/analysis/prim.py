@@ -158,7 +158,7 @@ def run_constrained_prim(experiments, y, issignificant=True,
 
     Parameters
     ----------
-    x : numpy structured array
+    x : DataFrame
     y : numpy array
     issignificant : bool, optional
                     if True, run prim only on subsets of dimensions

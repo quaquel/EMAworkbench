@@ -126,7 +126,7 @@ class CART(sdutil.OutputFormatterMixin):
         self.mass_min = mass_min
         self.mode = mode
 
-        # we need to transform the structured array to a ndarray
+        # we need to transform the DataFramne into a ndarray
         # we use dummy variables for each category in case of categorical
         # variables. Integers are treated as floats
         dummies = pd.get_dummies(self.x, prefix_sep=self.sep)

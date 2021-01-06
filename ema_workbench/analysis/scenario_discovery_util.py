@@ -41,8 +41,8 @@ def _get_sorted_box_lims(boxes, box_init):
 
     Parameters
     ----------
-    boxes : list of numpy structured arrays
-    box_init : numpy structured array
+    boxes : list of DataFrames
+    box_init : DataFrmae
 
     Returns
     -------
@@ -110,8 +110,7 @@ def _normalize(box_lim, box_init, uncertainties):
     box_lim : DataFrame
     box_init :  DataFrame
     uncertainties : list of strings
-                    valid names of columns that exist in both structured
-                    arrays.
+                    valid names of columns that exist in both DataFrames
 
     Returns
     -------
@@ -170,9 +169,9 @@ def _determine_nr_restricted_dims(box_lims, box_init):
 
     Parameters
     ----------
-    box_lims : structured numpy array
+    box_lims : DataFrame
                a specific box limit
-    box_init : structured numpy array
+    box_init : DataFrame
                the initial box containing all data points
 
 

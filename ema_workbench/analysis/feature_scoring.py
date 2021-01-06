@@ -37,7 +37,7 @@ CHI2 = chi2
 
 def _prepare_experiments(experiments):
     '''
-    transform the experiments structured array into a numpy array.
+    transform the experiments data frame into a numpy array.
 
     Parameters
     ----------
@@ -120,7 +120,7 @@ def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
 
     Parameters
     ----------
-    x : structured array
+    x : DataFrame
     y : 1D nd.array
     score_func : {F_CLASSIFICATION, F_REGRESSION, CHI2}
                 the score function to use, one of f_regression (regression), or
@@ -158,7 +158,7 @@ def get_rf_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
 
     Parameters
     ----------
-    x : structured array
+    x : DataFram,e
     y : 1D nd.array
     mode : {RuleInductionType.CLASSIFICATION, RuleInductionType.REGRESSION}
     nr_trees : int, optional
@@ -231,7 +231,7 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
 
     Parameters
     ----------
-    x : structured array
+    x : DataFrame
     y : 1D nd.array
     mode : {RuleInductionType.CLASSIFICATION, RuleInductionType.REGRESSION}
     nr_trees : int, optional
@@ -331,7 +331,7 @@ def get_feature_scores_all(x, y, alg='extra trees',
 
     Parameters
     ----------
-    x : numpy structured array
+    x : DataFrame
     y : dict of 1d numpy arrays
         the outcomes, with a string as key, and a 1D array for each outcome
     alg : {'extra trees', 'random forest', 'univariate'}, optional

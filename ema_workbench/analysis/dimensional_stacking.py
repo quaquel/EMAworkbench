@@ -320,7 +320,7 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
 def _prepare_experiments(experiments):
     '''
-    transform the experiments structured array into a numpy array.
+    transform the experiments data frame into a numpy array.
 
     Parameters
     ----------
