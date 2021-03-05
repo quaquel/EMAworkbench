@@ -197,7 +197,7 @@ class CART(sdutil.OutputFormatterMixin):
                         unc, cat = unc.split(self.sep)
                         cats = box.loc[0, unc]
                         # TODO:: cat is a str needs casting?
-                        # what abouta lookup table mapping
+                        # what about a lookup table mapping
                         # each str cat to the associate actual cat
                         # object
                         # can be created when making the dummy variables
@@ -315,7 +315,7 @@ class CART(sdutil.OutputFormatterMixin):
         dot_data = dot_data.getvalue()  # .encode('ascii') # @UndefinedVariable
         graphs = pydot.graph_from_dot_data(dot_data)
         
-        # FIXME:: pydot now always returns a list, usted to be either a
+        # FIXME:: pydot now always returns a list, used to be either a
         # singleton or a list. This is a stopgap which might be sufficient
         # but just in case, we raise an error if assumption of len==1 does
         # not hold
