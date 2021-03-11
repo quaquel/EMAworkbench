@@ -765,15 +765,17 @@ class PrimBox(object):
 
         '''
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
-
-    def show_pairs_scatter(self, i=None):
-        ''' Make a pair wise scatter plot of all the restricted
+    
+    def show_pair_plot(self, i=None, kind='scatter'):
+        ''' Make a pair wise scatter or contour plot of all the restricted
         dimensions with color denoting whether a given point is of
         interest or not and the boxlims superimposed on top.
 
         Parameters
         ----------
         i : int, optional
+        kind: str, optional
+            'scatter' (default) or 'kde' (contour)
 
         Returns
         -------
@@ -786,11 +788,18 @@ class PrimBox(object):
         resdim = sdutil._determine_restricted_dims(self.box_lims[i],
                                                    self.prim.box_init)
 
-        return sdutil.plot_pair_wise_scatter(self.prim.x.iloc[self.yi_initial,:],
+        return sdutil.plot_pair_wise(self.prim.x.iloc[self.yi_initial,:],
                                              self.prim.y[self.yi_initial],
                                              self.box_lims[i],
                                              self.prim.box_init,
-                                             resdim)
+                                             resdim,
+                                             kind)
+
+    def show_pairs_scatter(self, i=None):
+        '''
+        Calls `show_pair_plot()`. Included for backwards compatibility.
+        '''
+        return show_pair_plot(self, i)
 
     def write_ppt_to_stdout(self):
         '''write the peeling and pasting trajectory to stdout'''
