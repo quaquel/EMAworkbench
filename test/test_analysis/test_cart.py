@@ -9,9 +9,11 @@ import numpy as np
 import pandas as pd
 
 from ema_workbench.analysis import cart
+from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
+from ema_workbench.em_framework.outcomes import OutcomesDict
+
 from test import utilities
 
-from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
 
 
 def flu_classify(data):
@@ -50,7 +52,11 @@ class CartTestCase(unittest.TestCase):
         self.assertTrue(alg.mode==RuleInductionType.BINARY)
 
         x, outcomes = results
-        y = {k:v[:, -1] for k,v in outcomes.items()}
+        y = OutcomesDict()
+        
+        for k,v in outcomes.items():
+            y[k] = v[:, -1] 
+            
         temp_results = (x,y)
         alg = cart.setup_cart(temp_results,
                               'deceased population region 1',
@@ -174,7 +180,11 @@ class CartTestCase(unittest.TestCase):
                                    cart.tree.DecisionTreeClassifier))
 
         x, outcomes = results
-        y = {k:v[:, -1] for k,v in outcomes.items()}
+        y = OutcomesDict()
+        
+        for k, v in outcomes.items():
+            y[k] = v
+        
         temp_results = (x,y)
         alg = cart.setup_cart(temp_results,
                               'deceased population region 1',

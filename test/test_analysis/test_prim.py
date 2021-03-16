@@ -12,6 +12,7 @@ from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
 from test import utilities
 from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
+from ema_workbench.em_framework.outcomes import ScalarOutcome
 
 
 
@@ -196,7 +197,7 @@ class PrimTestCase(unittest.TestCase):
         
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or higher than the threshold
-        outcomes['death toll'] = outcomes['deceased population region 1'][:, -1]
+        outcomes[ScalarOutcome('death toll')] = outcomes['deceased population region 1'][:, -1]
         results = experiments, outcomes
         threshold = 10000
         prim_obj = prim.setup_prim(results, classify='death toll', 
@@ -249,7 +250,7 @@ class PrimTestCase(unittest.TestCase):
         
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or higher than the threshold
-        outcomes['death toll'] = outcomes['deceased population region 1'][:, -1]
+        outcomes[ScalarOutcome('death toll')] = outcomes['deceased population region 1'][:, -1]
         results = experiments, outcomes
         threshold = 10000
         prim_obj = prim.setup_prim(results, classify='death toll', 

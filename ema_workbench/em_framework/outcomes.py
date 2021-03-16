@@ -441,8 +441,8 @@ class OutcomesDict(collections.abc.MutableMapping):
     
     def __init__(self):
         self.outcomes = {}
-        self.outcomes_mapping = {}
-    
+        self.outcomes_mapping = {}       
+        
     def __getitem__(self, key):
         if isinstance(key, str):
             key = self.outcomes_mapping[key]

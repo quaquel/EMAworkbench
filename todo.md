@@ -32,6 +32,9 @@
   extension to the resampling statistic. 
 * add gini obj to PRIM --> adds classification as possible type of prim run
 
+# Sampling
+have a sampler kwargs argument so you select a sampler using the enum
+and have a dict with any additional kwargs
 
 # save and load
 * move load and save to outcomes as class methods? Makes it much more
