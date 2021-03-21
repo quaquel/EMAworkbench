@@ -3,8 +3,6 @@ Created on Mar 22, 2014
 
 @author: jhkwakkel
 '''
-from __future__ import (absolute_import, print_function, division)
-
 import os
 
 from ema_workbench.util import load_results

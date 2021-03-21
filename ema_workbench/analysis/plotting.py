@@ -49,7 +49,7 @@ def envelopes(experiments,
     Parameters
     ----------
     experiments : DataFrame
-    outcomes : dict
+    outcomes : OutcomesDict
     outcomes_to_show, str, list of str, optional
     group_by : str, optional
                name of the column in the experimentsto group results by.
@@ -110,11 +110,11 @@ def envelopes(experiments,
 
     '''
     _logger.debug("generating envelopes")
-    prepared_data = prepare_data(experiments, outcomes,
+    prepared_data = prepare_data(experiments, None, outcomes,
                                  outcomes_to_show, group_by,
                                  grouping_specifiers,
                                  filter_scalar=True)
-    outcomes, outcomes_to_show, time, grouping_labels = prepared_data
+    experiments, outcomes, outcomes_to_show, time, grouping_labels = prepared_data
 
     figure, grid = make_grid(outcomes_to_show, density)
 
@@ -169,7 +169,7 @@ def group_by_envelopes(outcomes, outcome_to_plot, time, density, ax,
 
     Parameters
     ----------
-    outcomes : dict
+    outcomes : OutcomesDict
                a dictionary containing the various outcomes to plot
     outcome_to_plot : str
                       the specific outcome to plot
@@ -219,7 +219,7 @@ def single_envelope(outcomes,
 
     Parameters
     ----------
-    outcomes : dict
+    outcomes : OutcomesDict
                a dictonary containing the various outcomes to plot
     outcome_to_plot : str
                       the specific outcome to plot
@@ -264,7 +264,7 @@ def lines(experiments,
     Parameters
     ----------
     experiments : DataFrame
-    outcomes : dict
+    outcomes : OutcomesDict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot. If empty,
                        all outcomes are plotted. **Note**:  just names.
@@ -334,13 +334,9 @@ def lines(experiments,
             ylabels=ylabels,
             log=log)
 
-    if experiments_to_show is not None:
-        experiments = experiments.loc[experiments_to_show, :]
-        outcomes = {k: v[experiments_to_show] for k, v in outcomes.items()}
-
-    data = prepare_data(experiments, outcomes, outcomes_to_show,
+    data = prepare_data(experiments, experiments_to_show, outcomes, outcomes_to_show,
                         group_by, grouping_specifiers)
-    outcomes, outcomes_to_show, time, grouping_labels = data
+    experiments, outcomes, outcomes_to_show, time, grouping_labels = data
 
     figure, grid = make_grid(outcomes_to_show, density)
     axes_dict = {}
@@ -402,7 +398,7 @@ def plot_lines_with_envelopes(experiments,
     Parameters
     ----------
     experiments : DataFrame
-    outcomes : dict
+    outcomes : OutcomesDict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot. If empty,
                        all outcomes are plotted. **Note**:  just names.
@@ -443,18 +439,12 @@ def plot_lines_with_envelopes(experiments,
         dict with outcome as key, and axes as value. Density axes' are
         indexed by the outcome followed by _density
     '''
-    full_outcomes = prepare_data(experiments, outcomes,
+    full_outcomes = prepare_data(experiments, None, outcomes,
                                  outcomes_to_show, group_by,
-                                 grouping_specifiers)[0]
-
-    experiments = experiments.loc[experiments_to_show, :]
-    temp = {}
-    for key, value in outcomes.items():
-        temp[key] = value[experiments_to_show]
-
-    data = prepare_data(experiments, temp, outcomes_to_show,
+                                 grouping_specifiers)[1]
+    data = prepare_data(experiments, experiments_to_show, outcomes, outcomes_to_show,
                         group_by, grouping_specifiers)
-    outcomes, outcomes_to_show, time, grouping_labels = data
+    experiments, outcomes, outcomes_to_show, time, grouping_labels = data
 
     figure, grid = make_grid(outcomes_to_show, density)
     axes_dict = {}
@@ -562,7 +552,7 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
 
     Parameters
     ----------
-    outcomes : dict
+    outcomes : OutcomesDict
     outcomes_to_plot : str
     time : str
     density : {None, HIST, KDE, VIOLIN, BOXPLOT}
@@ -579,7 +569,7 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
 
 def kde_over_time(experiments,
                   outcomes,
-                  outcomes_to_show=[],
+                  outcomes_to_show=None,
                   group_by=None,
                   grouping_specifiers=None,
                   colormap='viridis',
@@ -591,7 +581,7 @@ def kde_over_time(experiments,
     Parameters
     ----------
     experiments : DataFrame
-    outcomes : dict
+    outcomes : OutcomesDict
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot. If
                        empty, all outcomes are plotted.
@@ -625,14 +615,14 @@ def kde_over_time(experiments,
     minima = {}
     maxima = {}
     for key, value in outcomes.items():
-        minima[key] = np.min(value)
-        maxima[key] = np.max(value)
+        minima[key.name] = np.min(value)
+        maxima[key.name] = np.max(value)
 
-    prepared_data = prepare_data(experiments, outcomes,
+    prepared_data = prepare_data(experiments, None, outcomes,
                                  outcomes_to_show, group_by,
                                  grouping_specifiers,
                                  filter_scalar=True)
-    outcomes, outcomes_to_show, time, grouping_specifiers = prepared_data
+    experiments, outcomes, outcomes_to_show, time, grouping_specifiers = prepared_data
     del time
 
     if group_by:
@@ -653,8 +643,8 @@ def kde_over_time(experiments,
 
 def multiple_densities(experiments,
                        outcomes,
-                       points_in_time=[],
-                       outcomes_to_show=[],
+                       points_in_time=None,
+                       outcomes_to_show=None,
                        group_by=None,
                        grouping_specifiers=None,
                        density=Density.KDE,
@@ -670,10 +660,10 @@ def multiple_densities(experiments,
     Parameters
     ----------
     experiments : DataFrame
-    outcomes : dict
+    outcomes : OutcomesDict
     points_in_time : list
                      a list of points in time for which you want to see the
-                     density. At the moment  up to 6 points in time are
+                     density. At the moment up to 6 points in time are
                      supported
     outcomes_to_show : list of str, optional
                        list of outcome of interest you want to plot. If empty,
@@ -730,15 +720,15 @@ def multiple_densities(experiments,
 
     '''
     if not outcomes_to_show:
-        outcomes_to_show = [k for k, v in outcomes.items() if v.ndim == 2]
+        outcomes_to_show = [k.name for k, v in outcomes.items() if v.ndim == 2]
         outcomes_to_show.remove(TIME)
     elif isinstance(outcomes_to_show, str):
         outcomes_to_show = [outcomes_to_show]
 
-    data = prepare_data(experiments, outcomes,
+    data = prepare_data(experiments, None, outcomes,
                         outcomes_to_show, group_by,
                         grouping_specifiers)
-    outcomes, _, time, grouping_labels = data
+    _, outcomes, _, time, grouping_labels = data
 
     axes_dicts = {}
     figures = []

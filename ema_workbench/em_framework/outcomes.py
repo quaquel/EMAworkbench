@@ -485,6 +485,20 @@ class OutcomesDict(collections.abc.MutableMapping):
     def __str__(self):
         return str({k:v for k,v in self.outcomes.items()})
 
+    def get_outcome_for_name(self, name):
+        '''Return Outcome instance associated with name
+
+        Parameters
+        ----------
+        name : str
+
+        Returns
+        -------
+        AbstractOutcome instance
+
+        '''
+        return self.outcomes_mapping[name]
+
 
 class Constraint(ScalarOutcome):
     '''Constraints class that can be used when defining constrained

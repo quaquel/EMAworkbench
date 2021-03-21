@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.stats.kde as kde
-from scipy.stats import gaussian_kde, scoreatpercentile
 
 import seaborn as sns
 
 from ..util import EMAError, get_module_logger
+from ..em_framework.outcomes import AbstractOutcome, OutcomesDict, ScalarOutcome
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
@@ -216,7 +216,7 @@ def plot_violinplot(ax, values, log, group_labels=None):
     data = pd.melt(data)
         
     sns.violinplot(x='variable', y='value', data=data, order=group_labels,
-                  ax=ax)
+                   ax=ax)
 
 #     pos = range(len(value))
 #     dist = max(pos) - min(pos)
@@ -529,7 +529,7 @@ def filter_scalar_outcomes(outcomes):
 
 
     '''
-    temp = {}
+    temp = OutcomesDict()
     for key, value in outcomes.items():
         if value.ndim < 2:
             _logger.info(("{} not shown because it is "
@@ -636,7 +636,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
             # the grouping is an integer or categorical uncertainty
             logical = column_to_group_by == specifier
 
-        group_outcomes = {}
+        group_outcomes = OutcomesDict()
         for key, value in outcomes.items():
             value = value[logical]
             group_outcomes[key] = value
@@ -647,7 +647,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
 
 def make_continuous_grouping_specifiers(array, nr_of_groups=5):
     '''
-    Helper function for discretesizing a continuous array. By default, the
+    Helper function for discretizing a continuous array. By default, the
     array is split into 5 equally wide intervals.
 
     Parameters
@@ -728,14 +728,15 @@ def prepare_pairs_data(experiments, outcomes,
     return outcomes, outcomes_to_show, grouping_labels
 
 
-def prepare_data(experiments, outcomes, outcomes_to_show=None,
-                 group_by=None, grouping_specifiers=None,
+def prepare_data(experiments, experiments_to_show, outcomes,
+                 outcomes_to_show=None, group_by=None, grouping_specifiers=None,
                  filter_scalar=True):
     '''Helper function for preparing datasets prior to plotting
 
     Parameters
     ----------
     experiments : DataFrame
+    experiments_to_show : ndarray
     outcomes : dict
     outcomes_to_show : list of str, optional
     group_by : str, optional
@@ -744,24 +745,36 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
 
     '''
     experiments = experiments.copy()
-    outcomes = copy.copy(outcomes)
+    outcomes = copy.deepcopy(outcomes)
+
+    if experiments_to_show is not None:
+        experiments = experiments.loc[experiments_to_show, :]
+
+        for k, v in outcomes.items():
+            outcomes[k] = v[experiments_to_show]
 
     time, outcomes = determine_time_dimension(outcomes)
-    temp_outcomes = {}
 
     # remove outcomes that are not to be shown
     if outcomes_to_show:
+        temp_outcomes = OutcomesDict()
         if isinstance(outcomes_to_show, str):
-            outcomes_to_show = [outcomes_to_show]
+            outcomes_to_show = [outcomes.get_outcome_for_name(outcomes_to_show)]
+        elif isinstance(outcomes_to_show, AbstractOutcome):
+            outcomes_to_show [outcomes_to_show]
 
         for entry in outcomes_to_show:
+            if isinstance(entry, str):
+                entry = outcomes.get_outcome_for_name(entry)
+
             temp_outcomes[entry] = outcomes[entry]
+        outcomes = temp_outcomes
 
     # filter the outcomes to exclude scalar values
     if filter_scalar:
         outcomes = filter_scalar_outcomes(outcomes)
     if not outcomes_to_show:
-        outcomes_to_show = outcomes.keys()
+        outcomes_to_show = [o.name for o in outcomes.keys()]
 
     # group the data if desired
     if group_by:
@@ -800,7 +813,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
     else:
         grouping_labels = []
 
-    return outcomes, outcomes_to_show, time, grouping_labels
+    return experiments, outcomes, outcomes_to_show, time, grouping_labels
 
 
 def do_titles(ax, titles, outcome):
