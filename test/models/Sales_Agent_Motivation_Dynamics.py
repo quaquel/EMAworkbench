@@ -1,6 +1,6 @@
 """
 Python model "Sales_Agent_Motivation_Dynamics.py"
-Translated using PySD version 0.9.0
+Translated using PySD version 0.10.0
 """
 from __future__ import division
 import numpy as np
@@ -44,19 +44,30 @@ _namespace = {
     'TIME STEP': 'time_step'
 }
 
-__pysd_version__ = "0.9.0"
+__pysd_version__ = "0.10.0"
+
+__data = {'scope': None, 'time': lambda: 0}
+
+
+def _init_outer_references(data):
+    for key in data:
+        __data[key] = data[key]
+
+
+def time():
+    return __data['time']()
 
 
 @cache('step')
 def still_employed():
     """
-    Real Name: Still Employed
-    Original Eqn: IF THEN ELSE(Motivation>Motivation Threshold, 1 , 0 )
-    Units: Dmnl
+    Real Name: b'Still Employed'
+    Original Eqn: b'IF THEN ELSE(Motivation>Motivation Threshold, 1 , 0 )'
+    Units: b'Dmnl'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
     return functions.if_then_else(motivation() > motivation_threshold(), 1, 0)
 
@@ -64,13 +75,13 @@ def still_employed():
 @cache('run')
 def motivation_threshold():
     """
-    Real Name: Motivation Threshold
-    Original Eqn: 0.1
-    Units: 
+    Real Name: b'Motivation Threshold'
+    Original Eqn: b'0.1'
+    Units: b''
     Limits: (None, None)
     Type: constant
 
-
+    b''
     """
     return 0.1
 
@@ -78,13 +89,13 @@ def motivation_threshold():
 @cache('step')
 def accumulating_income():
     """
-    Real Name: Accumulating Income
-    Original Eqn: Income
-    Units: Month/Month
+    Real Name: b'Accumulating Income'
+    Original Eqn: b'Income'
+    Units: b'Month/Month'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
     return income()
 
@@ -92,13 +103,13 @@ def accumulating_income():
 @cache('step')
 def accumulating_sales():
     """
-    Real Name: Accumulating Sales
-    Original Eqn: Sales
-    Units: Persons/Month
+    Real Name: b'Accumulating Sales'
+    Original Eqn: b'Sales'
+    Units: b'Persons/Month'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
     return sales()
 
@@ -106,13 +117,13 @@ def accumulating_sales():
 @cache('step')
 def accumulating_tenure():
     """
-    Real Name: Accumulating Tenure
-    Original Eqn: Still Employed
-    Units: Months/Month
+    Real Name: b'Accumulating Tenure'
+    Original Eqn: b'Still Employed'
+    Units: b'Months/Month'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
     return still_employed()
 
@@ -120,55 +131,55 @@ def accumulating_tenure():
 @cache('step')
 def total_cumulative_income():
     """
-    Real Name: Total Cumulative Income
-    Original Eqn: INTEG ( Accumulating Income, 0)
-    Units: Month
+    Real Name: b'Total Cumulative Income'
+    Original Eqn: b'INTEG ( Accumulating Income, 0)'
+    Units: b'Month'
     Limits: (None, None)
     Type: component
 
-    Express income in units of 'months of expenses'
+    b"Express income in units of 'months of expenses'"
     """
-    return integ_total_cumulative_income()
+    return _integ_total_cumulative_income()
 
 
 @cache('step')
 def total_cumulative_sales():
     """
-    Real Name: Total Cumulative Sales
-    Original Eqn: INTEG ( Accumulating Sales, 0)
-    Units: Persons
+    Real Name: b'Total Cumulative Sales'
+    Original Eqn: b'INTEG ( Accumulating Sales, 0)'
+    Units: b'Persons'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
-    return integ_total_cumulative_sales()
+    return _integ_total_cumulative_sales()
 
 
 @cache('step')
 def tenure():
     """
-    Real Name: Tenure
-    Original Eqn: INTEG ( Accumulating Tenure, 0)
-    Units: Month
+    Real Name: b'Tenure'
+    Original Eqn: b'INTEG ( Accumulating Tenure, 0)'
+    Units: b'Month'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
-    return integ_tenure()
+    return _integ_tenure()
 
 
 @cache('run')
 def fraction_of_effort_for_sales():
     """
-    Real Name: Fraction of Effort for Sales
-    Original Eqn: 0.25
-    Units: Dmnl
+    Real Name: b'Fraction of Effort for Sales'
+    Original Eqn: b'0.25'
+    Units: b'Dmnl'
     Limits: (None, None)
     Type: constant
 
-
+    b''
     """
     return 0.25
 
@@ -176,13 +187,13 @@ def fraction_of_effort_for_sales():
 @cache('run')
 def total_effort_available():
     """
-    Real Name: Total Effort Available
-    Original Eqn: 200
-    Units: Hours/Month
+    Real Name: b'Total Effort Available'
+    Original Eqn: b'200'
+    Units: b'Hours/Month'
     Limits: (None, None)
     Type: constant
 
-
+    b''
     """
     return 200
 
@@ -190,13 +201,13 @@ def total_effort_available():
 @cache('step')
 def sales_effort_available():
     """
-    Real Name: Sales Effort Available
-    Original Eqn: IF THEN ELSE(Still Employed > 0, Total Effort Available * Fraction of Effort for Sales\ , 0 )
-    Units: Hours/Month
+    Real Name: b'Sales Effort Available'
+    Original Eqn: b'IF THEN ELSE(Still Employed > 0, Total Effort Available * Fraction of Effort for Sales\\\\ , 0 )'
+    Units: b'Hours/Month'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
     return functions.if_then_else(still_employed() > 0,
                                   total_effort_available() * fraction_of_effort_for_sales(), 0)
@@ -205,13 +216,13 @@ def sales_effort_available():
 @cache('step')
 def effort():
     """
-    Real Name: Effort
-    Original Eqn: Sales Effort Available * Impact of Motivation on Effort(Motivation)
-    Units: Hours/Month
+    Real Name: b'Effort'
+    Original Eqn: b'Sales Effort Available * Impact of Motivation on Effort(Motivation)'
+    Units: b'Hours/Month'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
     return sales_effort_available() * impact_of_motivation_on_effort(motivation())
 
@@ -219,26 +230,26 @@ def effort():
 @cache('run')
 def effort_required_to_make_a_sale():
     """
-    Real Name: Effort Required to Make a Sale
-    Original Eqn: 4
-    Units: Hours/Person
+    Real Name: b'Effort Required to Make a Sale'
+    Original Eqn: b'4'
+    Units: b'Hours/Person'
     Limits: (None, None)
     Type: constant
 
-
+    b''
     """
     return 4
 
 
 def impact_of_motivation_on_effort(x):
     """
-    Real Name: Impact of Motivation on Effort
-    Original Eqn: ( [(0,0)-(10,1)],(0,0),(0.285132,0.0616114),(0.448065,0.232228),(0.570265,0.492891),(0.733198\ ,0.772512),(0.95723,0.862559),(1.4664,0.914692),(3.19756,0.952607),(4.03259,0.957346\ ))
-    Units: Dmnl
+    Real Name: b'Impact of Motivation on Effort'
+    Original Eqn: b'( [(0,0)-(10,1)],(0,0),(0.285132,0.0616114),(0.448065,0.232228),(0.570265,0.492891),(0.733198\\\\ ,0.772512),(0.95723,0.862559),(1.4664,0.914692),(3.19756,0.952607),(4.03259,0.957346\\\\ ))'
+    Units: b'Dmnl'
     Limits: (None, None)
     Type: lookup
 
-
+    b''
     """
     return functions.lookup(
         x, [0, 0.285132, 0.448065, 0.570265, 0.733198, 0.95723, 1.4664, 3.19756, 4.03259],
@@ -248,13 +259,13 @@ def impact_of_motivation_on_effort(x):
 @cache('step')
 def income():
     """
-    Real Name: Income
-    Original Eqn: Months of Expenses per Sale * Sales + IF THEN ELSE(Time < Startup Subsidy Length, Startup Subsidy\ , 0 )
-    Units: Dmnl
+    Real Name: b'Income'
+    Original Eqn: b'Months of Expenses per Sale * Sales + IF THEN ELSE(Time < Startup Subsidy Length, Startup Subsidy\\\\ , 0 )'
+    Units: b'Dmnl'
     Limits: (None, None)
     Type: component
 
-    Technically in units of months of expenses earned per month
+    b'Technically in units of months of expenses earned per month'
     """
     return months_of_expenses_per_sale() * sales() + functions.if_then_else(
         time() < startup_subsidy_length(), startup_subsidy(), 0)
@@ -263,13 +274,13 @@ def income():
 @cache('run')
 def months_of_expenses_per_sale():
     """
-    Real Name: Months of Expenses per Sale
-    Original Eqn: 12/50
-    Units: Month/Person
+    Real Name: b'Months of Expenses per Sale'
+    Original Eqn: b'12/50'
+    Units: b'Month/Person'
     Limits: (None, None)
     Type: constant
 
-
+    b''
     """
     return 12 / 50
 
@@ -277,27 +288,27 @@ def months_of_expenses_per_sale():
 @cache('step')
 def motivation():
     """
-    Real Name: Motivation
-    Original Eqn: INTEG ( Motivation Adjustment, 1)
-    Units: Dmnl
+    Real Name: b'Motivation'
+    Original Eqn: b'INTEG ( Motivation Adjustment, 1)'
+    Units: b'Dmnl'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
-    return integ_motivation()
+    return _integ_motivation()
 
 
 @cache('step')
 def motivation_adjustment():
     """
-    Real Name: Motivation Adjustment
-    Original Eqn: (Income - Motivation) / Motivation Adjustment Time
-    Units: 1/Month
+    Real Name: b'Motivation Adjustment'
+    Original Eqn: b'(Income - Motivation) / Motivation Adjustment Time'
+    Units: b'1/Month'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
     return (income() - motivation()) / motivation_adjustment_time()
 
@@ -305,13 +316,13 @@ def motivation_adjustment():
 @cache('run')
 def motivation_adjustment_time():
     """
-    Real Name: Motivation Adjustment Time
-    Original Eqn: 3
-    Units: Month
+    Real Name: b'Motivation Adjustment Time'
+    Original Eqn: b'3'
+    Units: b'Month'
     Limits: (None, None)
     Type: constant
 
-
+    b''
     """
     return 3
 
@@ -319,13 +330,13 @@ def motivation_adjustment_time():
 @cache('step')
 def sales():
     """
-    Real Name: Sales
-    Original Eqn: Effort / Effort Required to Make a Sale * Success Rate
-    Units: Persons/Month
+    Real Name: b'Sales'
+    Original Eqn: b'Effort / Effort Required to Make a Sale * Success Rate'
+    Units: b'Persons/Month'
     Limits: (None, None)
     Type: component
 
-
+    b''
     """
     return effort() / effort_required_to_make_a_sale() * success_rate()
 
@@ -333,13 +344,13 @@ def sales():
 @cache('run')
 def startup_subsidy():
     """
-    Real Name: Startup Subsidy
-    Original Eqn: 0.5
-    Units: Dmnl
+    Real Name: b'Startup Subsidy'
+    Original Eqn: b'0.5'
+    Units: b'Dmnl'
     Limits: (None, None)
     Type: constant
 
-    Months of expenses per month
+    b'Months of expenses per month'
     """
     return 0.5
 
@@ -347,13 +358,13 @@ def startup_subsidy():
 @cache('run')
 def startup_subsidy_length():
     """
-    Real Name: Startup Subsidy Length
-    Original Eqn: 6
-    Units: Month
+    Real Name: b'Startup Subsidy Length'
+    Original Eqn: b'6'
+    Units: b'Month'
     Limits: (None, None)
     Type: constant
 
-
+    b''
     """
     return 6
 
@@ -361,13 +372,13 @@ def startup_subsidy_length():
 @cache('run')
 def success_rate():
     """
-    Real Name: Success Rate
-    Original Eqn: 0.2
-    Units: Dmnl
+    Real Name: b'Success Rate'
+    Original Eqn: b'0.2'
+    Units: b'Dmnl'
     Limits: (None, None)
     Type: constant
 
-
+    b''
     """
     return 0.2
 
@@ -375,13 +386,13 @@ def success_rate():
 @cache('run')
 def final_time():
     """
-    Real Name: FINAL TIME
-    Original Eqn: 200
-    Units: Month
+    Real Name: b'FINAL TIME'
+    Original Eqn: b'200'
+    Units: b'Month'
     Limits: (None, None)
     Type: constant
 
-    The final time for the simulation.
+    b'The final time for the simulation.'
     """
     return 200
 
@@ -389,13 +400,13 @@ def final_time():
 @cache('run')
 def initial_time():
     """
-    Real Name: INITIAL TIME
-    Original Eqn: 0
-    Units: Month
+    Real Name: b'INITIAL TIME'
+    Original Eqn: b'0'
+    Units: b'Month'
     Limits: (None, None)
     Type: constant
 
-    The initial time for the simulation.
+    b'The initial time for the simulation.'
     """
     return 0
 
@@ -403,13 +414,13 @@ def initial_time():
 @cache('step')
 def saveper():
     """
-    Real Name: SAVEPER
-    Original Eqn: TIME STEP
-    Units: Month
+    Real Name: b'SAVEPER'
+    Original Eqn: b'TIME STEP'
+    Units: b'Month'
     Limits: (0.0, None)
     Type: component
 
-    The frequency with which output is stored.
+    b'The frequency with which output is stored.'
     """
     return time_step()
 
@@ -417,21 +428,21 @@ def saveper():
 @cache('run')
 def time_step():
     """
-    Real Name: TIME STEP
-    Original Eqn: 0.0625
-    Units: Month
+    Real Name: b'TIME STEP'
+    Original Eqn: b'0.0625'
+    Units: b'Month'
     Limits: (0.0, None)
     Type: constant
 
-    The time step for the simulation.
+    b'The time step for the simulation.'
     """
     return 0.0625
 
 
-integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), lambda: 0)
+_integ_total_cumulative_income = functions.Integ(lambda: accumulating_income(), lambda: 0)
 
-integ_total_cumulative_sales = functions.Integ(lambda: accumulating_sales(), lambda: 0)
+_integ_total_cumulative_sales = functions.Integ(lambda: accumulating_sales(), lambda: 0)
 
-integ_tenure = functions.Integ(lambda: accumulating_tenure(), lambda: 0)
+_integ_tenure = functions.Integ(lambda: accumulating_tenure(), lambda: 0)
 
-integ_motivation = functions.Integ(lambda: motivation_adjustment(), lambda: 1)
+_integ_motivation = functions.Integ(lambda: motivation_adjustment(), lambda: 1)

@@ -38,6 +38,11 @@ local.properties
 ############
 .idea/*
 
+# virtualenv
+.venv
+venv/
+ENV/
+
 
 #################
 ## Visual Studio

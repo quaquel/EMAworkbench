@@ -76,7 +76,7 @@ def _prepare_outcomes(outcomes, classify):
 
     Parameters
     ----------
-    outcomes : dict
+    outcomes : OutcomeDict
                the outcomes dict
     classify : callable or str
                a classify function or variable analogous to PRIM

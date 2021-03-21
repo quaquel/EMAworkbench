@@ -16,6 +16,9 @@ from ema_workbench.analysis import feature_scoring as fs
 from ema_workbench.analysis.feature_scoring import F_CLASSIFICATION, CHI2, F_REGRESSION
 from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
 from ema_workbench.util import ema_logging
+
+from ema_workbench import ScalarOutcome
+
 from test import utilities
 
 class FeatureScoringTestCase(unittest.TestCase):
@@ -57,35 +60,35 @@ class FeatureScoringTestCase(unittest.TestCase):
 
 
     def test_prepare_outcomes(self):
-        results = utilities.load_flu_data()
+        experiments, outcomes = utilities.load_flu_data()
         
         # string type correct
-        ooi = 'nr deaths'
-        results[1][ooi] = results[1]['deceased population region 1'][:,-1]
-        y, categorical = fs._prepare_outcomes(results[1], ooi)
+        ooi = ScalarOutcome('nr deaths')
+        outcomes[ooi] = outcomes['deceased population region 1'][:, -1]
+        y, categorical = fs._prepare_outcomes(outcomes, ooi.name)
         
         self.assertFalse(categorical)
         self.assertTrue(len(y.shape)==1)
         
         # string type not correct --> KeyError
         with self.assertRaises(KeyError):
-            fs._prepare_outcomes(results[1], "non existing key")
+            fs._prepare_outcomes(outcomes, "non existing key")
         
         # classify function correct
         def classify(data):
             result = data['deceased population region 1']
-            classes =  np.zeros(result.shape[0])
+            classes = np.zeros(result.shape[0])
             classes[result[:, -1] > 1000000] = 1
             return classes
         
-        y, categorical = fs._prepare_outcomes(results[1], classify)
+        y, categorical = fs._prepare_outcomes(outcomes, classify)
         
         self.assertTrue(categorical)
         self.assertTrue(len(y.shape)==1)
         
         # neither string nor classify function --> TypeError
         with self.assertRaises(TypeError):
-            fs._prepare_outcomes(results[1], 1)
+            fs._prepare_outcomes(outcomes, 1)
    
    
     def test_get_univariate_feature_scores(self):
