@@ -823,6 +823,8 @@ def multiple_densities(experiments,
         for ax, time_value in zip(kde_axes, points_in_time):
             index = np.where(time == time_value)[0][0]
 
+            # TODO grouping labels, boxplots, and sharex
+            # create a problem
             group_density(ax, density, outcomes, outcome_to_show,
                           grouping_labels, index=index, log=log)
 

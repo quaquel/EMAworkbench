@@ -33,13 +33,15 @@
 * add gini obj to PRIM --> adds classification as possible type of prim run
 
 # Sampling
-have a sampler kwargs argument so you select a sampler using the enum
-and have a dict with any additional kwargs
+* have a sampler kwargs argument, so you select a sampler using the enum
+  and have a dict with any additional kwargs
+* what about compound samplers which allows you to chain / group samplers
+  what will be tricky is how to link different parameters to different
+  samplers, and also how samples for each sampler have to be combined
+  (do you do this in full factorial or in some other manner?)
+
 
 # save and load
-* move load and save to outcomes as class methods? Makes it much more
-  expandable. Basically, any outcome can than easily be defined by other users. 
-  does require some kind of metadata in the outcomes dict
 * new save function using shutil.make_archive to avoid memory errors
   so create physical directory, save everything to it, turn it into an archive
   and turn it into a tarbal / zipfile (shutil will make selecting extension
@@ -47,12 +49,3 @@ and have a dict with any additional kwargs
 * have time index on TimeSeriesOutcome
 	--> so TimeSeriesOutcome should be a DataFrame
 	--> why not have a generic DataFr
-* have arbitrary shaped ND arrays for array outcome --> affects save
-* we want to keep interacting with results as a dict indexed by a string
-	but we might do this by implementing a small dict extension class
-	for results which have the outcome objects as well so we can
-	access the save function for each outcome class
-	in load we might first recreate this results object and than use the
-	appropriate load function
-* have a version number in the metadata to indicate how stuff is being saved
-	version number should be for save format only

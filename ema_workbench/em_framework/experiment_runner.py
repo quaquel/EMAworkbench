@@ -54,7 +54,7 @@ class ExperimentRunner(object):
 
         Parameters
         ----------
-        experiment : dict
+        experiment : Case instance
 
         Returns
         -------

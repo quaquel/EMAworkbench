@@ -454,15 +454,15 @@ class TestPlotting(unittest.TestCase):
         multiple_densities(experiments, outcomes,
                       outcomes_to_show=ooi,
                       group_by="policy",
-                      points_in_time = [2010,2020, 2040, 2060, 2080, 2100],
+                      points_in_time=[2010, 2020, 2040, 2060, 2080, 2100],
                       plot_type=PlotType.ENV_LIN,
                       density=Density.KDE,
-                      experiments_to_show=[1,2,10],
+                      experiments_to_show=[1, 2, 10],
                       log=True)
         multiple_densities(experiments, outcomes,
                       outcomes_to_show=ooi,
                       group_by="policy",
-                      points_in_time = [2010,2020, 2040, 2060, 2080, 2100],
+                      points_in_time=[2010, 2020, 2040, 2060, 2080, 2100],
                       plot_type=PlotType.ENV_LIN,
                       density=Density.HIST,
                       experiments_to_show=[1,2,10],
@@ -470,18 +470,18 @@ class TestPlotting(unittest.TestCase):
         multiple_densities(experiments, outcomes,
                       outcomes_to_show=ooi,
                       group_by="policy",
-                      points_in_time = [2010,2020, 2040, 2060, 2080, 2100],
+                      points_in_time=[2010, 2020, 2040, 2060, 2080, 2100],
                       plot_type=PlotType.ENV_LIN,
                       density=Density.BOXPLOT,
-                      experiments_to_show=[1,2,10],
+                      experiments_to_show=[1, 2, 10],
                       log=True)
         multiple_densities(experiments, outcomes,
                       outcomes_to_show=ooi,
                       group_by="policy",
-                      points_in_time = [2010,2020, 2040, 2060, 2080, 2100],
+                      points_in_time=[2010, 2020, 2040, 2060, 2080, 2100],
                       plot_type=PlotType.ENV_LIN,
                       density=Density.VIOLIN,
-                      experiments_to_show=[1,2,10],
+                      experiments_to_show=[1, 2, 10],
                       log=True)
 
         plt.draw()
@@ -493,10 +493,10 @@ if __name__ == '__main__':
     # suite.addTest(TestPlotting("test_make_continuous_grouping_specifiers"))
     # suite.addTest(TestPlotting("test_filter_scalar_outcomes"))
     # suite.addTest(TestPlotting("test_group_results"))
-    # suite.addTest(TestPlotting("test_lines"))
+    suite.addTest(TestPlotting("test_lines"))
     # suite.addTest(TestPlotting("test_envelopes"))
     # suite.addTest(TestPlotting("test_kde_over_time"))
-    suite.addTest(TestPlotting("test_multiple_densities"))
+    # suite.addTest(TestPlotting("test_multiple_densities"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 

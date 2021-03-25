@@ -1,8 +1,8 @@
-'''
+"""
 collection of evaluators for performing experiments, optimization, and robust
 optimization
 
-'''
+"""
 import enum
 import multiprocessing
 import numbers
@@ -27,7 +27,7 @@ from ..util import EMAError, get_module_logger, ema_logging
 from .util import NamedObjectMap, determine_objects
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
-                       PartialFactorialSampler, UniformLHSSampler, 
+                       PartialFactorialSampler, UniformLHSSampler,
                        sample_levers, sample_uncertainties)
 from .parameters import (experiment_generator, Scenario, Policy)
 from .outcomes import ScalarOutcome, AbstractOutcome
@@ -39,7 +39,6 @@ from .model import AbstractModel
 from .experiment_runner import ExperimentRunner
 from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
 from .callbacks import DefaultCallback
-
 
 # Created on 5 Mar 2017
 #
@@ -53,8 +52,11 @@ _logger = get_module_logger(__name__)
 
 
 class Samplers(enum.Enum):
+    """
+    Enum for different kinds of samplers
+    """
     ## TODO:: have samplers register themselves on class instantiation
-    
+
     MC = MonteCarloSampler()
     LHS = LHSSampler()
     UNIFORM_LHS = UniformLHSSampler()
@@ -63,11 +65,10 @@ class Samplers(enum.Enum):
     SOBOL = SobolSampler()
     FAST = FASTSampler()
     MORRIS = MorrisSampler()
-    
-    
+
 
 class BaseEvaluator(object):
-    '''evaluator for experiments using a multiprocessing pool
+    """evaluator for experiments using a multiprocessing pool
 
     Parameters
     ----------
@@ -79,7 +80,7 @@ class BaseEvaluator(object):
     ------
     ValueError
 
-    '''
+    """
     reporting_frequency = 3
 
     def __init__(self, msis):
@@ -101,22 +102,21 @@ class BaseEvaluator(object):
             return False
 
     def initialize(self):
-        '''initialize the evaluator'''
+        """initialize the evaluator"""
         raise NotImplementedError
 
     def finalize(self):
-        ''' finalize the evaluator'''
+        """ finalize the evaluator"""
         raise NotImplementedError
 
     def evaluate_experiments(self, scenarios, policies, callback):
-        '''used by ema_workbench'''
+        """used by ema_workbench"""
         raise NotImplementedError
 
     def evaluate_all(self, jobs, **kwargs):
-        '''makes ema_workbench evaluators compatible with Platypus
+        """makes ema_workbench evaluators compatible with Platypus
         evaluators as used by platypus algorithms
-        '''
-        
+        """
         self.callback()
 
         problem = jobs[0].solution.problem
@@ -159,12 +159,12 @@ class BaseEvaluator(object):
                             uncertainty_sampling=Samplers.LHS,
                             levers_sampling=Samplers.LHS, callback=None,
                             combine='factorial'):
-        '''convenience method for performing experiments.
+        """convenience method for performing experiments.
 
         is forwarded to :func:perform_experiments, with evaluator and
         models arguments added in.
 
-        '''
+        """
         return perform_experiments(self._msis, scenarios=scenarios,
                                    policies=policies, evaluator=self,
                                    reporting_interval=reporting_interval,
@@ -179,12 +179,12 @@ class BaseEvaluator(object):
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
                  reference=None, constraints=None, convergence_freq=1000,
                  logging_freq=5, **kwargs):
-        '''convenience method for outcome optimization.
+        """convenience method for outcome optimization.
 
         is forwarded to :func:optimize, with evaluator and models
         arguments added in.
 
-        '''
+        """
         return optimize(self._msis, algorithm=algorithm, nfe=int(nfe),
                         searchover=searchover, evaluator=self,
                         reference=reference, constraints=constraints,
@@ -194,12 +194,12 @@ class BaseEvaluator(object):
     def robust_optimize(self, robustness_functions, scenarios,
                         algorithm=EpsNSGAII, nfe=10000, convergence_freq=1000,
                         logging_freq=5, **kwargs):
-        '''convenience method for robust optimization.
+        """convenience method for robust optimization.
 
         is forwarded to :func:robust_optimize, with evaluator and models
         arguments added in.
 
-        '''
+        """
         return robust_optimize(self._msis, robustness_functions, scenarios,
                                self, algorithm=algorithm, nfe=nfe,
                                convergence_freq=convergence_freq,
@@ -238,7 +238,7 @@ class SequentialEvaluator(BaseEvaluator):
 
 
 class MultiprocessingEvaluator(BaseEvaluator):
-    '''evaluator for experiments using a multiprocessing pool
+    """evaluator for experiments using a multiprocessing pool
 
     Parameters
     ----------
@@ -246,7 +246,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
     n_processes : int (optional)
     max_tasks : int (optional)
 
-    '''
+    """
 
     def __init__(self, msis, n_processes=None,
                  maxtasksperchild=None, **kwargs):
@@ -316,7 +316,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
 
 
 class IpyparallelEvaluator(BaseEvaluator):
-    '''evaluator for using an ipypparallel pool'''
+    """evaluator for using an ipypparallel pool"""
 
     def __init__(self, msis, client, **kwargs):
         super(IpyparallelEvaluator, self).__init__(msis, **kwargs)
@@ -369,7 +369,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         uncertainty_sampling=Samplers.LHS,
                         levers_sampling=Samplers.LHS, callback=None,
                         return_callback=False, combine='factorial'):
-    '''sample uncertainties and levers, and perform the resulting experiments
+    """sample uncertainties and levers, and perform the resulting experiments
     on each of the models
 
     Parameters
@@ -391,9 +391,9 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
               In case of 'factorial', both are sampled separately using their
               respective samplers. Next the resulting designs are combined in a
               full factorial manner.
-              In case of 'zipover', both are sampled separately and 
+              In case of 'zipover', both are sampled separately and
               then combined by cycling over the shortest of the the two sets
-              of designs until the longest set of designs is exhausted. 
+              of designs until the longest set of designs is exhausted.
               In case of 'sample_jointly', uncertainties and levers are
               combined and sampled using the specification for scenarios.
 
@@ -405,25 +405,24 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         as numpy array. Experiments and outcomes are aligned on index.
 
 
-    '''
+    """
     # TODO:: break up in to helper functions
     # unreadable in this form
-    
+
     if not scenarios and not policies:
         raise EMAError(('no experiments possible since both '
                         'scenarios and policies are 0'))
 
-
     if combine != 'sample_jointly':
         scenarios, uncertainties, n_scenarios = setup_scenarios(scenarios,
-                                uncertainty_sampling, uncertainty_union, models)
+                                                                uncertainty_sampling, uncertainty_union, models)
         policies, levers, n_policies = setup_policies(policies, levers_sampling,
                                                       lever_union, models)
     else:
         policies = [Policy("None", **{})]
         levers = []
         n_policies = 1
-        
+
         sampler = uncertainty_sampling
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
@@ -432,17 +431,17 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         uncertainties = scenarios.parameters
         n_scenarios = scenarios.n
         combine = 'factorial'
-        
+
     try:
         n_models = len(models)
     except TypeError:
         n_models = 1
 
     outcomes = determine_objects(models, 'outcomes', union=outcome_union)
-    
+
     if combine == 'factorial':
         nr_of_exp = n_models * n_scenarios * n_policies
-        
+
         # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
         # it
         _logger.info(('performing {} scenarios * {} policies * {} model(s) = '
@@ -457,7 +456,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                                                n_models, nr_of_exp))
 
     callback = setup_callback(callback, uncertainties, levers, outcomes,
-                          nr_of_exp, reporting_interval, reporting_frequency)
+                              nr_of_exp, reporting_interval, reporting_frequency)
 
     if not evaluator:
         evaluator = SequentialEvaluator(models)
@@ -502,12 +501,12 @@ def setup_policies(policies, levers_sampling, lever_union, models):
         policies = [Policy("None", **{})]
         levers = []
         n_policies = 1
-    elif(isinstance(policies, numbers.Integral)):
+    elif (isinstance(policies, numbers.Integral)):
         sampler = levers_sampling
-        
+
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
-        
+
         policies = sample_levers(models, policies, union=lever_union,
                                  sampler=sampler)
         levers = policies.parameters
@@ -524,14 +523,14 @@ def setup_policies(policies, levers_sampling, lever_union, models):
             levers = [l for l in levers if l.name in policies[0]]
             n_policies = len(policies)
     return policies, levers, n_policies
-    
+
 
 def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union, models):
     if not scenarios:
         scenarios = [Scenario("None", **{})]
         uncertainties = []
         n_scenarios = 1
-    elif(isinstance(scenarios, numbers.Integral)):
+    elif isinstance(scenarios, numbers.Integral):
         sampler = uncertainty_sampling
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
@@ -553,6 +552,7 @@ def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union, models):
                              scenarios[0]]
             n_scenarios = len(scenarios)
     return scenarios, uncertainties, n_scenarios
+
 
 def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              searchover='levers', evaluator=None, reference=None,
@@ -642,9 +642,9 @@ def robust_optimize(model, robustness_functions, scenarios,
 
     '''
     for rf in robustness_functions:
-        assert(isinstance(rf, ScalarOutcome))
-        assert(rf.kind != AbstractOutcome.INFO)
-        assert(rf.function is not None)
+        assert (isinstance(rf, ScalarOutcome))
+        assert (rf.kind != AbstractOutcome.INFO)
+        assert (rf.function is not None)
 
     problem = to_robust_problem(model, scenarios, constraints=constraints,
                                 robustness_functions=robustness_functions)
