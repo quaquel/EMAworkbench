@@ -319,7 +319,7 @@ def simple_density(density, value, ax_d, ax, log):
     elif density == Density.VIOLIN:
         plot_violinplot(ax_d, [value[:, -1]], log)
     elif density == Density.BOXENPLOT:
-        plot_violinplot(ax_d, [value[:, -1]], log)    
+        plot_boxenplot(ax_d, [value[:, -1]], log)
     else:
         raise EMAError("unknown density plot type")
 
