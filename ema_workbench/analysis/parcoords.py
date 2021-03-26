@@ -1,8 +1,7 @@
-'''This module offers a general purpose parallel coordinate plotting Class
+"""This module offers a general purpose parallel coordinate plotting Class
 using matplotlib.
 
-
-'''
+"""
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
@@ -20,7 +19,7 @@ __all__ = ['ParallelAxes',
 
 
 def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
-    '''helper function for setting up the parallel axes plot
+    """helper function for setting up the parallel axes plot
 
     Parameters
     ----------
@@ -34,7 +33,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
     rot : float, optional
           rotation of axis labels
 
-    '''
+    """
     if formatter is None:
         formatter = {}
     
@@ -110,7 +109,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
 
 
 def get_limits(data):
-    '''helper function to get limits of a FataFrame that can serve as input
+    """helper function to get limits of a FataFrame that can serve as input
     to ParallelAxis
 
     Parameters
@@ -121,7 +120,7 @@ def get_limits(data):
     -------
     DataFrame
 
-    '''
+    """
     def limits(x):
         if x.dtype == 'object':
             return pd.Series([set(x), set(x)])
@@ -132,7 +131,7 @@ def get_limits(data):
 
 
 class ParallelAxes(object):
-    '''Base class for creating a parallel axis plot.
+    """Base class for creating a parallel axis plot.
 
     Parameters
     ----------
@@ -149,10 +148,10 @@ class ParallelAxes(object):
     rot : float, optional
           rotation of axis labels
 
-    '''
+    """
 
     def __init__(self, limits, formatter=None, fontsize=14, rot=90):
-        '''
+        """
 
         Parameters
         ----------
@@ -161,13 +160,13 @@ class ParallelAxes(object):
         formatter : dict, optional
                     specify precision formatters for minima and maxima,
                     defaults to .2f
-                     
+
         fontsize : int, optional
                    fontsize for defaults text items
         rot : float, optional
               rotation of axis labels
 
-        '''
+        """
         self.limits = limits.copy() # copy to avoid side effects
         self.recoding = {}
         self.flipped_axes = set()
@@ -200,7 +199,7 @@ class ParallelAxes(object):
         plt.subplots_adjust(wspace=0)
 
     def plot(self, data, color=None, label=None, **kwargs):
-        '''plot data on parallel axes
+        """plot data on parallel axes
 
         Parameters
         ----------
@@ -214,7 +213,7 @@ class ParallelAxes(object):
         Data is normalized using the limits specified when initializing
         ParallelAxis.
 
-        '''
+        """
         data = data.copy() # copy to avoid side effects
         
         if isinstance(data, pd.Series):
@@ -240,7 +239,7 @@ class ParallelAxes(object):
         self._plot(normalized_data, color=color, **kwargs)
 
     def legend(self):
-        '''add a legend to the figure'''
+        """add a legend to the figure"""
 
         artists = []
         labels = []
@@ -263,13 +262,13 @@ class ParallelAxes(object):
         plt.subplots_adjust(wspace=0)
 
     def _plot(self, data, **kwargs):
-        '''Plot the data onto the paralel axis
+        """Plot the data onto the paralel axis
 
         Parameters
         ----------
         data : DataFrame
 
-        '''
+        """
 
         j = -1
         for ax, label_i, label_j in zip(self.axes, self.axis_labels[:-1],
@@ -284,13 +283,13 @@ class ParallelAxes(object):
                 self._update_plot_data(ax, 1, lines=lines)
 
     def invert_axis(self, axis):
-        '''flip direction for specified axis
+        """flip direction for specified axis
 
         Parameters
         ----------
         axis : str or list of str
 
-        '''
+        """
         if isinstance(axis, str):
             axis = [axis]
         for entry in axis:
@@ -304,12 +303,12 @@ class ParallelAxes(object):
                 self.flipped_axes.remove(entry)
 
     def _invert_axis(self, axis):
-        '''
+        """
 
         Parameters
         ----------
 
-        '''
+        """
 
         ids = self._get_axes_ids(axis)
 
@@ -329,13 +328,13 @@ class ParallelAxes(object):
         self._update_ticklabels(axis)
 
     def _update_plot_data(self, ax, index, lines=None):
-        '''
+        """
 
         Parameters
         ----------
         index : {0, 1}
 
-        '''
+        """
         if lines is None:
             lines = ax.get_lines()
 
@@ -345,13 +344,13 @@ class ParallelAxes(object):
             line.set_ydata(ydata)
 
     def _update_ticklabels(self, axis):
-        '''
+        """
 
         Parameters
         ----------
         axis : str
 
-        '''
+        """
 
         for label in self.ticklabels[axis]:
             x, y = label.get_position()
@@ -382,13 +381,13 @@ class ParallelAxes(object):
 #             ax.set_yticklabels(tick_labels)
 
     def _get_axes_ids(self, column):
-        '''
+        """
 
         Parameters
         ----------
         column : str
 
-        '''
+        """
         index = self.limits.columns.get_loc(column)
         if index == 0 or index >= (len(self.axes)):
             index = min(index, (len(self.axes) - 1))

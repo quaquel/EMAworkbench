@@ -1,4 +1,4 @@
-'''
+"""
 This module specifies a generic Model class for controlling
 NetLogo models.
 
@@ -10,8 +10,7 @@ TimeSeries outcomes write data to a .txt file for each tick. This can be used
 in combination with an agent-set or reporter. However, it introduces
 substantial overhead.
 
-
-'''
+"""
 from ema_workbench.em_framework.model import Replicator, SingleReplication
 from ema_workbench.util.ema_logging import get_module_logger
 from ema_workbench.em_framework.outcomes import TimeSeriesOutcome
@@ -39,7 +38,7 @@ _logger = get_module_logger(__name__)
 
 
 class BaseNetLogoModel(FileModel):
-    '''Base class for interfacing with netlogo models. This class
+    """Base class for interfacing with netlogo models. This class
     extends :class:`em_framework.ModelStructureInterface`.
 
     Attributes
@@ -53,7 +52,7 @@ class BaseNetLogoModel(FileModel):
     working_directory : str
     name : str
 
-    '''
+    """
 
     @property
     def ts_output_variables(self):
@@ -117,7 +116,7 @@ class BaseNetLogoModel(FileModel):
 
     @method_logger(__name__)
     def model_init(self, policy):
-        '''
+        """
         Method called to initialize the model.
 
         Parameters
@@ -126,7 +125,7 @@ class BaseNetLogoModel(FileModel):
                  policy to be run.
 
 
-        '''
+        """
         super(BaseNetLogoModel, self).model_init(policy)
         if not hasattr(self, 'netlogo'):
             _logger.debug("trying to start NetLogo")
@@ -241,7 +240,7 @@ class BaseNetLogoModel(FileModel):
 
     @method_logger(__name__)
     def cleanup(self):
-        '''
+        """
         This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
         doing any cleanup, such as closing applications.
@@ -250,7 +249,7 @@ class BaseNetLogoModel(FileModel):
         the cleanup of the pool, just prior to removing the temporary
         directories.
 
-        '''
+        """
         try:
             self.netlogo.kill_workspace()
         except AttributeError:
@@ -261,7 +260,7 @@ class BaseNetLogoModel(FileModel):
 
 
     def _handle_outcomes(self, fns):
-        '''helper function for parsing outcomes'''
+        """helper function for parsing outcomes"""
 
         results = {}
         for key, value in fns.items():

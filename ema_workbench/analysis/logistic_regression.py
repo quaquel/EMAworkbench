@@ -1,6 +1,5 @@
-'''
+"""
 This module implements logistic regression for scenario discovery.
-
 
 The module draws its inspiration from Quinn et al (2018) 10.1029/2018WR022743
 and Lamontagne et al (2019). The implementation here generalizes their work
@@ -8,8 +7,7 @@ and embeds it in a more typical scenario discovery workflow with a posteriori
 selection of the appropriate number of dimensions to include. It is modeled
 as much as possible on the api used for PRIM and CART.
 
-
-'''
+"""
 import sys
 
 import matplotlib as mpl
@@ -34,7 +32,7 @@ _logger = get_module_logger(__name__)
 
 
 def calculate_covden(fitted_model, x, y, step=0.1):
-    '''Helper function for calculating coverage and density across a
+    """Helper function for calculating coverage and density across a
     number of levels
 
     Parameters
@@ -44,7 +42,7 @@ def calculate_covden(fitted_model, x, y, step=0.1):
     y : numpy Array
     step : float, optional
 
-    '''
+    """
 
     predicted = fitted_model.predict(x.loc[:, fitted_model.params.index])
     coverage = []
@@ -60,9 +58,7 @@ def calculate_covden(fitted_model, x, y, step=0.1):
 
 
 def calculate_covden_for_treshold(predicted, y, threshold):
-    '''Helper function for calculating coverage and density
-
-    '''
+    """Helper function for calculating coverage and density"""
 
     tp = np.sum(((predicted > threshold) == True) & (y == True))
     fp = np.sum(((predicted > threshold) == True) & (y == False))
@@ -75,7 +71,7 @@ def calculate_covden_for_treshold(predicted, y, threshold):
 
 
 def contours(ax, model, xlabel, ylabel, levels):
-    '''helper function for plotting contours
+    """helper function for plotting contours
 
     Parameters
     ----------
@@ -84,7 +80,7 @@ def contours(ax, model, xlabel, ylabel, levels):
     ylabel : str
     levels : list of floats in interval [0, 1]
 
-    '''
+    """
 
     Xgrid, Ygrid = np.meshgrid(np.arange(-0.1, 1.1, 0.01),
                                np.arange(-0.1, 1.1, 0.01))
@@ -120,7 +116,7 @@ def contours(ax, model, xlabel, ylabel, levels):
 
 
 class Logit(object):
-    '''Implements an interactive version of logistic regression using
+    """Implements an interactive version of logistic regression using
     BIC based forward selection
 
 
@@ -145,13 +141,14 @@ class Logit(object):
                list of models associated with each model on the peeling
                trajectory
 
-    '''
+    """
     # TODO:: peeling trajectory is a misnomer, requires fix to CurEntry
 
     coverage = CurEntry('coverage')
     density = CurEntry('density')
     res_dim = CurEntry('res_dim')
-    models = []
+
+    sep = '!?!'
 
     @property
     def threshold(self):
@@ -170,23 +167,45 @@ class Logit(object):
             self.peeling_trajectory.loc[i, 'density'] = den
 
     def __init__(self, x, y, threshold=0.95):
+        try:
+            # x = x.drop(["scenario"], axis=1)
+            columns_to_drop = ['scenario']
+            for entry in ['model', 'policy']:
+                if x[entry].unique().shape[0]==1:
+                    columns_to_drop.append(entry)
+            x = x.drop(columns_to_drop, axis=1)
+        except KeyError:
+            pass
+
         self.x = x
         self.y = y
+        self.models = []
         self.threshold = threshold
 
-        normalized = (x - x.min()) / (x.max() - x.min())
+        # prepare data
+        dummies = pd.get_dummies(x, prefix_sep=self.sep)
+
+        self.dummiesmap = {}
+        for column, values in self.x.select_dtypes(exclude=np.number).iteritems():
+            mapping = {str(entry): entry for entry in values.unique()}
+            self.dummiesmap[column] = mapping
+
+        self.feature_names = dummies.columns.values.tolist()
+
+        normalized = (dummies - dummies.min()) / (dummies.max() - dummies.min())
         normalized['Intercept'] = np.ones(np.shape(x)[0])
         self._normalized = normalized
-        colums = ['coverage', 'density', 'res_dim', 'id']
-        self.peeling_trajectory = pd.DataFrame(columns=colums)
+
+        columns = ['coverage', 'density', 'res_dim', 'id']
+        self.peeling_trajectory = pd.DataFrame(columns=columns)
 
     def run(self):
-        '''run logistic regression using forward selection using a Bayesian
+        """run logistic regression using forward selection using a Bayesian
         Information Criterion for selecting whether and if so which dimension
         to add
 
-        '''
-        remaining = set(self.x.columns)
+        """
+        remaining = set(self._normalized.columns)
 
         selected = []
         current_score, best_new_score = sys.float_info.max, sys.float_info.max
@@ -195,8 +214,12 @@ class Logit(object):
             for candidate in remaining:
                 data = self._normalized.loc[:,
                                             selected + [candidate, 'Intercept']]
-                model = sm.Logit(self.y, data)
-                model = model.fit()
+                model = sm.Logit(self.y, data.astype(float))
+
+                try:
+                    model = model.fit()
+                except np.linalg.LinAlgError:
+                    continue
 
                 score = model._results.bic
 
@@ -210,11 +233,10 @@ class Logit(object):
                 selected.append(best_candidate)
 
                 self.update(model, selected)
-
                 current_score = best_new_score
 
     def update(self, model, selected):
-        '''helper function for adding a model to the colection of models and
+        """helper function for adding a model to the collection of models and
         update the associated attributes
 
         Parameters
@@ -222,7 +244,7 @@ class Logit(object):
         model : statsmodel fitted logit model
         selected : list of str
 
-        '''
+        """
 
         predicted = model.predict(self._normalized.loc[:,
                                                        selected + ['Intercept']])
@@ -241,7 +263,7 @@ class Logit(object):
             new_row, ignore_index=True, sort=True)
 
     def show_tradeoff(self, cmap=mpl.cm.viridis):  # @UndefinedVariable
-        '''Visualize the trade off between coverage and density. Color
+        """Visualize the trade off between coverage and density. Color
         is used to denote the number of restricted dimensions.
 
         Parameters
@@ -252,12 +274,12 @@ class Logit(object):
         -------
         a Figure instance
 
-        '''
+        """
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
 
     # @UndefinedVariable
     def show_threshold_tradeoff(self, i, cmap=mpl.cm.viridis_r, step=0.1):
-        '''Visualize the trade off between coverage and density for a given
+        """Visualize the trade off between coverage and density for a given
         model i across the range of threshold values
 
         Parameters
@@ -270,7 +292,7 @@ class Logit(object):
         -------
         a Figure instance
 
-        '''
+        """
         # TODO:: might it be possible to flip the colorbar?
 
         fitted_model = self.models[i]
@@ -302,7 +324,7 @@ class Logit(object):
         return fig
 
     def inspect(self, i, step=0.1):
-        '''Inspect one of the models by showing the threshold tradeoff
+        """Inspect one of the models by showing the threshold tradeoff
         and summary2
 
         Parameters
@@ -310,7 +332,7 @@ class Logit(object):
         i : int
         step : float between [0, 1]
 
-        '''
+        """
 
         model = self.models[i]
         x = self._normalized.loc[:, model.params.index.values]
@@ -325,7 +347,7 @@ class Logit(object):
         print(model.summary2())
 
     def plot_pairwise_scatter(self, i, threshold=0.95):
-        '''plot pairwise scatter plot of data points, with contours as
+        """plot pairwise scatter plot of data points, with contours as
         background
 
 
@@ -347,7 +369,7 @@ class Logit(object):
         probability, again setting all non shown dimensions to a default value
         in the middle of their range.
 
-        '''
+        """
         model = self.models[i]
 
         columns = model.params.index.values.tolist()

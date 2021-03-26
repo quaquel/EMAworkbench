@@ -1,7 +1,7 @@
-'''connector for Simio, dependent on python for .net (pythonnet)
+"""connector for Simio, dependent on python for .net (pythonnet)
 
 
-'''
+"""
 import os
 import sys
 
@@ -153,7 +153,7 @@ class SimioModel(FileModel, SingleReplication):
       
     @method_logger(__name__)  
     def scenario_ended(self, sender, scenario_ended_event):
-        '''scenario ended event handler'''
+        """scenario ended event handler"""
         
 #         ema_logging.debug('scenario ended called!')
     
@@ -192,7 +192,7 @@ class SimioModel(FileModel, SingleReplication):
      
     @method_logger(__name__)   
     def run_completed(self, sender, run_completed_event):
-        '''run completed event handler'''
+        """run completed event handler"""
         
         _logger.debug('run completed')
         
@@ -205,16 +205,16 @@ class SimioModel(FileModel, SingleReplication):
 
 
 def get_responses(model):
-    '''Helper function for getting responses 
-    
+    """Helper function for getting responses
+
     this function gathers all responses defined on all experiments available
     on the model.
-    
+
     Parameters
     ----------
     model : SimioAPI.IModel instance
-    
-    '''
+
+    """
     
     response_map = {}
     

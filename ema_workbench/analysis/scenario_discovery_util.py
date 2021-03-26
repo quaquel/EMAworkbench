@@ -1,6 +1,6 @@
-'''
+"""
 Scenario discovery utilities used by both :mod:`cart` and :mod:`prim`
-'''
+"""
 import abc
 import enum
 import itertools
@@ -35,7 +35,7 @@ class RuleInductionType(enum.Enum):
 
 
 def _get_sorted_box_lims(boxes, box_init):
-    '''Sort the uncertainties for each box in boxes based on a
+    """Sort the uncertainties for each box in boxes based on a
     normalization given box_init. Unrestricted dimensions are dropped.
     The sorting is based on the normalization of the first box in boxes.
 
@@ -49,7 +49,7 @@ def _get_sorted_box_lims(boxes, box_init):
     tuple
         with the sorted boxes, and the list of restricted uncertainties
 
-    '''
+    """
 
     # determine the uncertainties that are being restricted
     # in one or more boxes
@@ -73,7 +73,7 @@ def _get_sorted_box_lims(boxes, box_init):
 
 
 def _make_box(x):
-    '''
+    """
     Make a box that encompasses all the data
 
     Parameters
@@ -85,7 +85,7 @@ def _make_box(x):
     DataFrame
 
 
-    '''
+    """
 
     # x.select_dtypes(np.number)
 
@@ -99,7 +99,7 @@ def _make_box(x):
 
 
 def _normalize(box_lim, box_init, uncertainties):
-    '''Normalize the given box lim to the unit interval derived
+    """Normalize the given box lim to the unit interval derived
     from box init for the specified uncertainties.
 
     Categorical uncertainties are normalized based on fractionated. So
@@ -119,7 +119,7 @@ def _normalize(box_lim, box_init, uncertainties):
         normalized box limits.
 
 
-    '''
+    """
 
     # normalize the range for the first box
     norm_box_lim = np.zeros((len(uncertainties), box_lim.shape[0]))
@@ -141,7 +141,7 @@ def _normalize(box_lim, box_init, uncertainties):
 
 
 def _determine_restricted_dims(box_limits, box_init):
-    '''returns a list of dimensions that is restricted
+    """returns a list of dimensions that is restricted
 
     Parameters
     ----------
@@ -152,7 +152,7 @@ def _determine_restricted_dims(box_limits, box_init):
     -------
     list of str
 
-    '''
+    """
     cols = box_init.columns.values
     restricted_dims = cols[np.all(
         box_init.values == box_limits.values, axis=0) == False]
@@ -162,7 +162,7 @@ def _determine_restricted_dims(box_limits, box_init):
 
 
 def _determine_nr_restricted_dims(box_lims, box_init):
-    '''
+    """
 
     determine the number of restriced dimensions of a box given
     compared to the inital box that contains all the data
@@ -179,14 +179,14 @@ def _determine_nr_restricted_dims(box_lims, box_init):
     -------
     int
 
-    '''
+    """
 
     return _determine_restricted_dims(box_lims, box_init).shape[0]
 
 
 def _compare(a, b):
-    '''compare two boxes, for each dimension return True if the
-    same and false otherwise'''
+    """compare two boxes, for each dimension return True if the
+    same and false otherwise"""
     dtypesDesc = a.dtype.descr
     logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
     for i, entry in enumerate(dtypesDesc):
@@ -198,7 +198,7 @@ def _compare(a, b):
 
 
 def _in_box(x, boxlim):
-    '''
+    """
 
     returns the a boolean index indicated which data points are inside
     and which are outside of the given box_lims
@@ -218,7 +218,7 @@ def _in_box(x, boxlim):
     Attribute error if not numbered columns are not pandas
     category dtype
 
-    '''
+    """
 
     x_numbered = x.select_dtypes(np.number)
     boxlim_numbered = boxlim.select_dtypes(np.number)
@@ -281,7 +281,7 @@ def _setup(results, classify, incl_unc=[]):
 
 
 def _calculate_quasip(x, y, box, Hbox, Tbox):
-    '''
+    """
 
     Parameters
     ----------
@@ -291,7 +291,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     Hbox : int
     Tbox : int
 
-    '''
+    """
     logical = _in_box(x, box)
     yi = y[logical]
 
@@ -315,7 +315,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
 
 def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims,
                            cdf=False):
-    ''' helper function for pair wise scatter plotting
+    """ helper function for pair wise scatter plotting
 
     Parameters
     ----------
@@ -330,9 +330,9 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims,
                       list of uncertainties that define the boxlims
     cdf : bool, optional
           plot diagonal as pdf or cdf, defaults to kde approx. of pdf
-          
 
-    '''
+
+    """
 
     x = x[restricted_dims]
     data = x.copy()
@@ -433,12 +433,12 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims,
 
 
 def _setup_figure(uncs):
-    '''
+    """
 
     helper function for creating the basic layout for the figures that
     show the box lims.
 
-    '''
+    """
     nr_unc = len(uncs)
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -462,7 +462,7 @@ def plot_box(boxlim, qp_values, box_init, uncs,
              ticklabel_formatter="{} ({})",
              boxlim_formatter="{: .2g}",
              table_formatter="{:.3g}"):
-    '''Helper function for parallel coordinate style visualization
+    """Helper function for parallel coordinate style visualization
     of a box
 
     Parameters
@@ -482,7 +482,7 @@ def plot_box(boxlim, qp_values, box_init, uncs,
     a Figure instance
 
 
-    '''
+    """
     norm_box_lim = _normalize(boxlim, box_init, uncs)
 
     fig, ax = _setup_figure(uncs)
@@ -580,7 +580,7 @@ def plot_box(boxlim, qp_values, box_init, uncs,
 
 
 def plot_ppt(peeling_trajectory):
-    '''show the peeling and pasting trajectory in a figure'''
+    """show the peeling and pasting trajectory in a figure"""
 
     ax = host_subplot(111)
     ax.set_xlabel("peeling and pasting trajectory")
@@ -605,7 +605,7 @@ def plot_ppt(peeling_trajectory):
 
 
 def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis):  # @UndefinedVariable
-    '''Visualize the trade off between coverage and density. Color
+    """Visualize the trade off between coverage and density. Color
     is used to denote the number of restricted dimensions.
 
     Parameters
@@ -616,7 +616,7 @@ def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis):  # @UndefinedVariabl
     -------
     a Figure instance
 
-    '''
+    """
 
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
@@ -649,7 +649,7 @@ def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis):  # @UndefinedVariabl
 
 def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
              color=sns.color_palette()[0]):
-    '''
+    """
 
     Parameters:
     ----------
@@ -664,7 +664,7 @@ def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
     ax : axes instance
          the ax on which to plot
 
-    '''
+    """
 
     dtype = box_init[u].dtype
 
@@ -688,7 +688,7 @@ def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
 
 
 def plot_boxes(x, boxes, together):
-    '''Helper function for plotting multiple boxlims
+    """Helper function for plotting multiple boxlims
 
     Parameters
     ----------
@@ -696,7 +696,7 @@ def plot_boxes(x, boxes, together):
     boxes : list of pd.DataFrame
     together : bool
 
-    '''
+    """
 
     box_init = _make_box(x)
     box_lims, uncs = _get_sorted_box_lims(boxes, box_init)
@@ -749,19 +749,19 @@ class OutputFormatterMixin(object):
 
     @abc.abstractproperty
     def boxes(self):
-        '''Property for getting a list of box limits'''
+        """Property for getting a list of box limits"""
 
         raise NotImplementedError
 
     @abc.abstractproperty
     def stats(self):
-        '''property for getting a list of dicts containing the statistics
-        for each box'''
+        """property for getting a list of dicts containing the statistics
+        for each box"""
 
         raise NotImplementedError
 
     def boxes_to_dataframe(self):
-        '''convert boxes to pandas dataframe'''
+        """convert boxes to pandas dataframe"""
 
         boxes = self.boxes
 
@@ -792,7 +792,7 @@ class OutputFormatterMixin(object):
         return df_boxes
 
     def stats_to_dataframe(self):
-        '''convert stats to pandas dataframe'''
+        """convert stats to pandas dataframe"""
 
         stats = self.stats
 
@@ -801,11 +801,11 @@ class OutputFormatterMixin(object):
         return pd.DataFrame(stats, index=index)
 
     def show_boxes(self, together=False):
-        '''display boxes
+        """display boxes
 
         Parameters
         ----------
         together : bool, otional
 
-        '''
+        """
         plot_boxes(self.x, self.boxes, together=together)

@@ -1,6 +1,6 @@
-'''Collection of utility functions used by PRIM module
+"""Collection of utility functions used by PRIM module
 
-'''
+"""
 
 from enum import Enum
 import math
@@ -21,7 +21,7 @@ _logger = get_module_logger(__name__)
 
 
 class PrimException(Exception):
-    '''Base exception class for prim related exceptions'''
+    """Base exception class for prim related exceptions"""
     pass
 
 
@@ -32,7 +32,7 @@ class PRIMObjectiveFunctions(Enum):
 
 
 def get_quantile(data, quantile):
-    '''
+    """
     quantile calculation modeled on the implementation used in sdtoolkit
 
     Parameters
@@ -42,7 +42,7 @@ def get_quantile(data, quantile):
     quantile : float
                the desired quantile
 
-    '''
+    """
     assert quantile > 0
     assert quantile < 1
 
@@ -70,8 +70,8 @@ def get_quantile(data, quantile):
 
 
 class CurEntry(object):
-    '''a descriptor for the current entry on the peeling and pasting
-    trajectory'''
+    """a descriptor for the current entry on the peeling and pasting
+    trajectory"""
 
     def __init__(self, name):
         self.name = name
@@ -84,7 +84,7 @@ class CurEntry(object):
 
 
 def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
-    '''Helper function for calculating quasi p-values'''
+    """Helper function for calculating quasi p-values"""
     if data.size == 0:
         return [-1, -1]
 
@@ -116,7 +116,7 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
 
 
 def rotate_subset(experiments, y):
-    '''
+    """
     rotate a subset
 
     Parameters
@@ -131,7 +131,7 @@ def rotate_subset(experiments, y):
     rotated_experiments
         DataFrame
 
-    '''
+    """
     mean = np.mean(experiments, axis=0)
     std = np.std(experiments, axis=0)
     std[std == 0] = 1  # in order to avoid a devision by zero
@@ -149,7 +149,7 @@ def rotate_subset(experiments, y):
 
 
 def determine_rotation(experiments):
-    '''
+    """
     Determine the rotation for the specified experiments
 
 
@@ -161,7 +161,7 @@ def determine_rotation(experiments):
     -------
     ndarray
 
-    '''
+    """
     covariance = np.cov(experiments.T)
 
     eigen_vals, eigen_vectors = np.linalg.eig(covariance)

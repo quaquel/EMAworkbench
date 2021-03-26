@@ -1,8 +1,8 @@
-'''
+"""
 A scenario discovery oriented implementation of CART. It essentially is
 a wrapper around scikit-learn's version of CART.
 
-'''
+"""
 import io
 import math
 from io import StringIO
@@ -70,7 +70,7 @@ def setup_cart(results, classify, incl_unc=None, mass_min=0.05):
 
 
 class CART(sdutil.OutputFormatterMixin):
-    '''CART algorithm
+    """CART algorithm
 
     can be used in a manner similar to PRIM. It provides access
     to the underlying tree, but it can also show the boxes described by the
@@ -106,15 +106,13 @@ class CART(sdutil.OutputFormatterMixin):
     --------
     :mod:`prim`
 
-    '''
+    """
 
     sep = '!?!'
 
     def __init__(self, x, y, mass_min=0.05,
                  mode=sdutil.RuleInductionType.BINARY):
-        ''' init
-
-        '''
+        """ init"""
 
         try:
             x = x.drop(["scenario"], axis=1)
@@ -126,7 +124,7 @@ class CART(sdutil.OutputFormatterMixin):
         self.mass_min = mass_min
         self.mode = mode
 
-        # we need to transform the DataFramne into a ndarray
+        # we need to transform the DataFrame into a ndarray
         # we use dummy variables for each category in case of categorical
         # variables. Integers are treated as floats
         dummies = pd.get_dummies(self.x, prefix_sep=self.sep)
@@ -281,7 +279,7 @@ class CART(sdutil.OutputFormatterMixin):
                         sdutil.RuleInductionType.CLASSIFICATION: _classification_stats}
 
     def build_tree(self):
-        '''train CART on the data'''
+        """train CART on the data"""
         min_samples = int(self.mass_min * self.x.shape[0])
 
         if self.mode == sdutil.RuleInductionType.REGRESSION:
@@ -292,7 +290,7 @@ class CART(sdutil.OutputFormatterMixin):
         self.clf.fit(self._x, self.y)
 
     def show_tree(self, mplfig=True, format='png'):
-        '''return a png of the tree
+        """return a png of the tree
 
         Parameters
         ----------
@@ -302,7 +300,7 @@ class CART(sdutil.OutputFormatterMixin):
         format : {'png', 'svg'}, default 'png'
                  Gives a format of the output.
 
-        '''
+        """
         assert self.clf
         try:
             import pydotplus as pydot

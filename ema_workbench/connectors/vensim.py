@@ -1,4 +1,4 @@
-'''
+"""
 
 convenience functions and classes to be used in combination with Vensim.
 
@@ -7,7 +7,7 @@ for controlling vensim models. In addition, this module contains frequently
 used functions with error checking. For more fine grained control, the
 :mod:`vensimDLLwrapper` can also be used directly.
 
-'''
+"""
 from __future__ import (absolute_import, print_function, division,
                         unicode_literals)
 
@@ -46,19 +46,19 @@ _logger = get_module_logger(__name__)
 
 
 def be_quiet():
-    '''
+    """
     this allows you to turn off the work in progress dialog that Vensim
     displays during simulation and other activities, and also prevent the
     appearance of yes or no dialogs.
 
     defaults to 2, suppressing all windows, for more fine grained control, use
     :mod:`vensimDLLwrapper` directly .
-    '''
+    """
     vensimDLLwrapper.be_quiet(2)
 
 
 def load_model(file_name):
-    '''
+    """
     load the model
 
     Parameters
@@ -72,7 +72,7 @@ def load_model(file_name):
 
     .. note: only works for .vpm files
 
-    '''
+    """
     _logger.debug("executing COMMAND: SIMULATE>SPECIAL>LOADMODEL|" + file_name)
     try:
         command("SPECIAL>LOADMODEL|" + str(file_name))
@@ -82,7 +82,7 @@ def load_model(file_name):
 
 
 def read_cin_file(file_name):
-    '''
+    """
     read a .cin file
 
     Parameters
@@ -94,7 +94,7 @@ def read_cin_file(file_name):
     ------
     VensimWarning if the cin file cannot be read.
 
-    '''
+    """
     _logger.debug("executing COMMAND: SIMULATE>READCIN|" + file_name)
     try:
         command(r"SIMULATE>READCIN|" + str(file_name))
@@ -104,7 +104,7 @@ def read_cin_file(file_name):
 
 
 def set_value(variable, value):
-    '''
+    """
     set the value of a variable to value
 
     current implementation only works for lookups and normal values. In case
@@ -119,7 +119,7 @@ def set_value(variable, value):
             the value for the variable. **note**: the value can be either a
             list, or an float/integer. If it is a list, it is assumed the
             variable is a lookup.
-    '''
+    """
     variable = str(variable)
 
     if isinstance(value, list):
@@ -133,7 +133,7 @@ def set_value(variable, value):
 
 
 def run_simulation(file_name):
-    '''
+    """
     Convenient function to run a model and store the results of the run in
     the specified .vdf file. The specified output file will be overwritten
     by default
@@ -148,7 +148,7 @@ def run_simulation(file_name):
     ------
     VensimError if running the model failed in some way.
 
-    '''
+    """
 
     file_name = str(file_name)
 
@@ -166,7 +166,7 @@ def run_simulation(file_name):
 
 
 def get_data(filename, varname, step=1):
-    '''
+    """
     Retrieves data from simulation runs or imported data sets.
 
     Parameters
@@ -183,7 +183,7 @@ def get_data(filename, varname, step=1):
     -------
     numpy array with the values for varname over the simulation
 
-    '''
+    """
 
     vval = []
     try:
@@ -202,7 +202,7 @@ def VensimModelStructureInterface(name, wd=None, model_file=None):
 
 
 class BaseVensimModel(FileModel):
-    '''
+    """
     This is a convenience extension of :class:`~model.ModelStructureInterface`
     that can be used as a base class for performing EMA on Vensim models. This
     class will handle starting Vensim, loading a model, setting parameters
@@ -223,7 +223,7 @@ class BaseVensimModel(FileModel):
     .. note:: This class relies on the Vensim DLL, thus a complete installation
               of Vensim DSS is needed.
 
-    '''
+    """
 
     @property
     def result_file(self):
@@ -411,9 +411,9 @@ class BaseVensimModel(FileModel):
         super(BaseVensimModel, self).reset_model()
 
     def _delete_lookup_uncertainties(self):
-        '''
+        """
         deleting lookup uncertainties from the uncertainty list
-        '''
+        """
         self._lookup_uncertainties = self._lookup_uncertainties[:]
         self.uncertainties = [x for x in self.uncertainties if x not in
                               self._lookup_uncertainties]
@@ -435,7 +435,7 @@ class LookupUncertainty(Parameter):
     y = []
 
     def __init__(self, lookup_type, values, name, msi, ymin=None, ymax=None):
-        '''
+        """
 
         Parameters
         ----------
@@ -500,7 +500,7 @@ class LookupUncertainty(Parameter):
               max value the lookup function can take, this argument is
               not needed in case of CAT
 
-        '''
+        """
         super(LookupUncertainty, self).__init__(values, name)
         self.lookup_type = lookup_type
         self.y_min = ymin
@@ -548,7 +548,7 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message)
 
     def _get_initial_lookup(self, name):
-        '''
+        """
         Helper function to retrieve the lookup function as defined in the
         vensim model. This lookup is transformed using a distortion function.
 
@@ -557,7 +557,7 @@ class LookupUncertainty(Parameter):
         name : str
                name of variable in vensim model that contains the lookup
 
-        '''
+        """
 
         a = vensimDLLwrapper.get_varattrib(name, 3)[0]
         elements = a.split('],', 1)
@@ -590,7 +590,7 @@ class LookupUncertainty(Parameter):
         return (x, y)
 
     def _gen_log(self, t, A, K, B, Q, M):
-        '''
+        """
 
         helper function implements a logistic function
 
@@ -603,7 +603,7 @@ class LookupUncertainty(Parameter):
         Q : float
         M : float
 
-        '''
+        """
         decimal.getcontext().prec = 3
         ex = math.exp(-B)
         res = A + ((K - A) / (1 + Q * pow(ex, t) / pow(ex, M)))
@@ -623,12 +623,12 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message)
 
     def identity(self):
-        '''
+        """
         helper method that returns the elements that define an uncertainty.
         By default these are the name, the lower value of the range and the
         upper value of the range.
 
-        '''
+        """
         # TODO this identity function is tricky. Identity is dependent on
         # the exact transform lookup_type
         return (self.name, self.values[0], self.values[1])
