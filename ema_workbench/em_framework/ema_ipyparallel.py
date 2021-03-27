@@ -47,7 +47,7 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
     """
 
     def __init__(self, logger, topic):
-        super().__init__(logger)
+        super().__init__(logger, None)
         self.topic = topic
 
     def process(self, msg, kwargs):
