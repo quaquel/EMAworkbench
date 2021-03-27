@@ -1,9 +1,9 @@
-'''
+"""
 This module specifies the abstract base class for interfacing with models.
 Any model that is to be controlled from the workbench is controlled via
 an instance of an extension of this abstract base class.
 
-'''
+"""
 import operator
 import os
 import warnings
@@ -28,7 +28,7 @@ _logger = get_module_logger(__name__)
 
 
 class AbstractModel(NamedObject):
-    '''
+    """
     :class:`ModelStructureInterface` is one of the the two main
     classes used for performing EMA. This is an abstract base class
     and cannot be used directly.
@@ -50,7 +50,7 @@ class AbstractModel(NamedObject):
     When extending this class :meth:`model_init` and
     :meth:`run_model` have to be implemented.
 
-    '''
+    """
 
     @property
     def outcomes_output(self):
@@ -101,7 +101,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def model_init(self, policy):
-        '''Method called to initialize the model.
+        """Method called to initialize the model.
 
         Parameters
         ----------
@@ -114,7 +114,7 @@ class AbstractModel(NamedObject):
         This method should always be implemented. Although in
         simple cases, a simple pass can suffice.
 
-        '''
+        """
         self.policy = policy
 
         remove = []
@@ -182,13 +182,13 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def initialized(self, policy):
-        '''check if model has been initialized
+        """check if model has been initialized
 
         Parameters
         ----------
         policy : a Policy instance
 
-        '''
+        """
 
         try:
             return self.policy.name == policy.name
@@ -217,7 +217,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def cleanup(self):
-        '''
+        """
         This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
         doing any cleanup, such as closing applications.
@@ -226,11 +226,11 @@ class AbstractModel(NamedObject):
         the cleanup of the pool, just prior to removing the temporary
         directories.
 
-        '''
+        """
         pass
 
     def as_dict(self):
-        '''returns a dict representation of the model'''
+        """returns a dict representation of the model"""
 
         def join_attr(field):
             joined = ', '.join([repr(entry) for entry in sorted(
@@ -344,7 +344,7 @@ class SingleReplication(AbstractModel):
 
 
 class BaseModel(AbstractModel):
-    ''' generic class for working with models implemented as a Python
+    """ generic class for working with models implemented as a Python
     callable
 
     Parameters
@@ -371,7 +371,7 @@ class BaseModel(AbstractModel):
                         structure interface should be resolved from this
                         directory.
 
-    '''
+    """
 
     def __init__(self, name, function=None):
         super(BaseModel, self).__init__(name)
@@ -415,7 +415,7 @@ class BaseModel(AbstractModel):
 
 
 class WorkingDirectoryModel(AbstractModel):
-    '''Base class for a model that needs its dedicated working directory'''
+    """Base class for a model that needs its dedicated working directory"""
 
     @property
     def working_directory(self):

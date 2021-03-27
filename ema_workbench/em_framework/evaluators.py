@@ -13,16 +13,6 @@ import string
 import threading
 import warnings
 from ema_workbench.em_framework.samplers import AbstractSampler, sample_jointly
-
-warnings.simplefilter("once", ImportWarning)
-
-try:
-    from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
-                                  initialize_engines, cleanup, _run_experiment)
-except (ImportError, ModuleNotFoundError):
-    warnings.warn(
-        'ipyparallel not installed - IpyparalleEvaluator not available')
-
 from ..util import EMAError, get_module_logger, ema_logging
 from .util import NamedObjectMap, determine_objects
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
@@ -39,6 +29,15 @@ from .model import AbstractModel
 from .experiment_runner import ExperimentRunner
 from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
 from .callbacks import DefaultCallback
+
+warnings.simplefilter("once", ImportWarning)
+
+try:
+    from .ema_ipyparallel import (start_logwatcher, set_engine_logger,
+                                  initialize_engines, cleanup, _run_experiment)
+except (ImportError, ModuleNotFoundError):
+    warnings.warn(
+        'ipyparallel not installed - IpyparalleEvaluator not available')
 
 # Created on 5 Mar 2017
 #
@@ -634,7 +633,7 @@ def robust_optimize(model, robustness_functions, scenarios,
     Raises
     ------
     AssertionError if robustness_function is not a ScalarOutcome,
-    if robustness_funcion.kind is INFO, or
+    if robustness_function.kind is INFO, or
     if robustness_function.function is None
 
     robustness functions are scalar outcomes, kind should be MINIMIZE or

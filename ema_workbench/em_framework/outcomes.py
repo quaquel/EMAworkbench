@@ -19,8 +19,8 @@ from ..util import get_module_logger
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['Outcome', 'ScalarOutcome', 'ArrayOutcome', 'TimeSeriesOutcome',
-           'Constraint']
+__all__ = ['ScalarOutcome', 'ArrayOutcome', 'TimeSeriesOutcome',
+           'Constraint', 'OutcomesDict']
 _logger = get_module_logger(__name__)
 
 

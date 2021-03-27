@@ -1,7 +1,7 @@
-'''
+"""
 Samplers for working with SALib
 
-'''
+"""
 import operator
 import warnings
 
@@ -28,7 +28,7 @@ __all__ = ["SobolSampler", "MorrisSampler", "FASTSampler",
 
 
 def get_SALib_problem(uncertainties):
-    '''returns a dict with a problem specificatin as required by SALib'''
+    """returns a dict with a problem specificatin as required by SALib"""
 
     _warning = False
     uncertainties = sorted(uncertainties, key=operator.attrgetter('name'))
@@ -51,7 +51,7 @@ def get_SALib_problem(uncertainties):
 class SALibSampler(object):
 
     def generate_samples(self, uncertainties, size):
-        '''
+        """
         The main method of :class: `~sampler.Sampler` and its
         children. This will call the sample method for each of the
         uncertainties and return the resulting designs.
@@ -71,7 +71,7 @@ class SALibSampler(object):
         dict
             dict with the uncertainty.name as key, and the sample as value
 
-        '''
+        """
 
         problem = get_SALib_problem(uncertainties)
         samples = self.sample(problem, size)
@@ -86,7 +86,7 @@ class SALibSampler(object):
         return temp
 
     def generate_designs(self, parameters, nr_samples):
-        '''external interface to sampler. Returns the computational
+        """external interface to sampler. Returns the computational
         experiments over the specified parameters, for the given number
         of samples for each parameter.
 
@@ -107,7 +107,7 @@ class SALibSampler(object):
         int
             the number of experimental designs
 
-        '''
+        """
         parameters = sorted(parameters, key=operator.attrgetter('name'))
         sampled_parameters = self.generate_samples(parameters, nr_samples)
 
@@ -121,14 +121,14 @@ class SALibSampler(object):
 
 
 class SobolSampler(SALibSampler):
-    '''Sampler generating a Sobol design using SALib
+    """Sampler generating a Sobol design using SALib
 
     Parameters
     ----------
     second_order : bool, optional
                    indicates whether second order effects should be included
 
-    '''
+    """
 
     def __init__(self, second_order=True):
         self.second_order = second_order
@@ -142,7 +142,7 @@ class SobolSampler(SALibSampler):
 
 
 class MorrisSampler(SALibSampler):
-    '''Sampler generating a morris design using SALib
+    """Sampler generating a morris design using SALib
 
     Parameters
     ----------
@@ -156,7 +156,7 @@ class MorrisSampler(SALibSampler):
         Flag whether to use local optimization according to Ruano et al. (2012)
         Speeds up the process tremendously for bigger N and num_levels.
         Stating this variable to be true causes the function to ignore gurobi.
-    '''
+    """
 
     def __init__(self, num_levels=4, optimal_trajectories=None,
                  local_optimization=True):
@@ -172,7 +172,7 @@ class MorrisSampler(SALibSampler):
 
 
 class FASTSampler(SALibSampler):
-    '''Sampler generating a Fourier Amplitude Sensitivity Test (FAST) using
+    """Sampler generating a Fourier Amplitude Sensitivity Test (FAST) using
     SALib
 
     Parameters
@@ -180,7 +180,7 @@ class FASTSampler(SALibSampler):
     m : int (default: 4)
         The interference parameter, i.e., the number of harmonics to sum in the
         Fourier series decomposition
-    '''
+    """
 
     def __init__(self, m=4):
         super(FASTSampler, self).__init__()

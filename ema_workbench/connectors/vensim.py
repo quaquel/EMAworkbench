@@ -8,9 +8,6 @@ used functions with error checking. For more fine grained control, the
 :mod:`vensimDLLwrapper` can also be used directly.
 
 """
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
 import decimal
 import math
 import numpy as np

@@ -7,8 +7,6 @@ comes with NetLogo. If you are using NetLogo 5, replace the model file
 with the one that comes with NetLogo.
 
 '''
-from __future__ import unicode_literals, absolute_import
-
 from ema_workbench.connectors.netlogo import NetLogoModel
 
 from ema_workbench import (RealParameter, ema_logging,

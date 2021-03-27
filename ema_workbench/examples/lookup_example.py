@@ -8,9 +8,6 @@ use in conjuction with vensim models. This example is largely based on
 @author: sibeleker
 @author: jhkwakkel
 '''
-from __future__ import (division, unicode_literals, print_function,
-                        absolute_import)
-
 import matplotlib.pyplot as plt
 
 from ema_workbench import TimeSeriesOutcome, perform_experiments, ema_logging
