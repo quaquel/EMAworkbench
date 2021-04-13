@@ -432,16 +432,24 @@ class TimeSeriesOutcome(ArrayOutcome):
 
 
 class OutcomesDict(collections.abc.MutableMapping):
+    """Dict like storage for outcomes
+
+    Attributes
+    ----------
+    _data : dict
+    outcomes_mapping : dict
+
+    """
 
     def __init__(self):
-        self.outcomes = {}
+        self._data = {}
         self.outcomes_mapping = {}
 
     def __getitem__(self, key):
         if isinstance(key, str):
             key = self.outcomes_mapping[key]
 
-        return self.outcomes[key]
+        return self._data[key]
 
     def __setitem__(self, key, value):
         if isinstance(key, str):
@@ -453,7 +461,7 @@ class OutcomesDict(collections.abc.MutableMapping):
         else:
             self.outcomes_mapping[key.name] = key
 
-        self.outcomes[key] = value
+        self._data[key] = value
 
     def __delitem__(self, key):
         if isinstance(key, str):
@@ -462,11 +470,11 @@ class OutcomesDict(collections.abc.MutableMapping):
         else:
             name = key.name
 
-        del self.outcomes[key]
+        del self._data[key]
         del self.outcomes_mapping[name]
 
     def __iter__(self):
-        return iter(self.outcomes)
+        return iter(self._data)
 
     def __len__(self):
         return len(self.outcomes)
@@ -474,10 +482,10 @@ class OutcomesDict(collections.abc.MutableMapping):
     def items_by_name(self):
         """like .items() but now with only outcome names"""
 
-        return iter({k.name: v for k, v in self.outcomes})
+        return {k.name: v for k, v in self._data.items()}.items()
 
     def __str__(self):
-        return str({k: v for k, v in self.outcomes.items()})
+        return str({k: v for k, v in self._data.items()})
 
     def get_outcome_for_name(self, name):
         """Return Outcome instance associated with name
@@ -492,6 +500,12 @@ class OutcomesDict(collections.abc.MutableMapping):
 
         """
         return self.outcomes_mapping[name]
+
+    def as_dict(self):
+        """return dict with outcome.name as key and results as value
+
+        """
+        return {k.name: v for k, v in self._data.items()}
 
 
 class Constraint(ScalarOutcome):
