@@ -563,6 +563,7 @@ class OperatorProbabilities(AbstractConvergenceMetric):
 
 class Convergence(object):
     """helper class for tracking convergence of optimization"""
+    # TODO:: tdqdm progress bar, update takes n parameter, so nfe can be used to track progress
 
     valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
 

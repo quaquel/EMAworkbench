@@ -16,6 +16,7 @@ import abc
 import csv
 import os
 import shutil
+import tqdm
 
 import numpy as np
 import pandas as pd
@@ -81,6 +82,9 @@ class AbstractCallback(object):
 
         self.reporting_interval = reporting_interval
 
+        self.pbar = tqdm.tqdm(total=nr_experiments)
+
+
     @abc.abstractmethod
     def __call__(self, experiment, outcomes):
         """
@@ -104,9 +108,13 @@ class AbstractCallback(object):
         # https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
         self.i += 1
         _logger.debug(str(self.i) + " cases completed")
+        #
+        # if self.i % self.reporting_interval == 0:
+        #     _logger.info(str(self.i) + " cases completed")
+        self.pbar.update()
 
-        if self.i % self.reporting_interval == 0:
-            _logger.info(str(self.i) + " cases completed")
+        if self.i == self.pbar.total:
+            self.pbar.__exit__(None, None, None)
 
     @abc.abstractmethod
     def get_results(self):
