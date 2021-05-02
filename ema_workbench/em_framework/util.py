@@ -1,12 +1,10 @@
 """utilities used throughout em_framework"""
 import copy
-from collections import OrderedDict
-
-from collections import UserDict
-
+from collections import OrderedDict, UserDict
 import itertools
+import tqdm
 
-from ..util import EMAError
+from ..util import EMAError, get_module_logger
 
 # from .parameters import Parameter
 
@@ -14,7 +12,7 @@ from ..util import EMAError
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation']
+__all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation', 'ProgressTrackingMixIn']
 
 
 class NamedObject:
@@ -238,3 +236,67 @@ def determine_objects(models, attribute, union=True):
         for key in params_to_remove:
             del named_objects[key]
     return named_objects
+
+
+class ProgressTrackingMixIn:
+    """Mixin for monitoring progress
+
+    Parameters
+    ----------
+    N : int
+        total number of experiments
+    reporting_interval : int
+                         nfe between logging progress
+    logger : logger instance
+    log_progress : bool, optional
+    log_func : callable, optional
+               function called with self as only argument, should invoke
+               self._logger with custom log message
+
+    Attributes
+    ----------
+    i : int
+    reporting_interval : int
+    log_progress : bool
+    log_func : callable
+    pbar : {None, tqdm.tqdm instance}
+           if log_progress is true, None, if false tqdm.tqdm instance
+
+
+    """
+
+    def __init__(self, N, reporting_interval, logger, log_progress=False,
+                 log_func=lambda self: self._logger.info(f'{self.i} '
+                                                    'experiments completed')):
+
+
+        # TODO:: how to enable variable log messages which might include
+        # different attributes?
+
+        self.i = 0
+        self.reporting_interval = reporting_interval
+        self._logger = logger
+        self.log_progress = log_progress
+        self.log_func = log_func
+
+        if not log_progress:
+            self.pbar = tqdm.tqdm(total=N)
+
+    def __call__(self, n):
+        self.i += n
+        self._logger.debug(f'{self.i} experiments performed')
+
+        if not self.log_progress:
+            self.pbar.update(n=n)
+
+            if self.i == self.pbar.total:
+                self.close()
+        else:
+            if self.i % self.reporting_interval == 0:
+                self.log_func(self)
+
+    def close(self):
+        try:
+            self.pbar.__exit__(None, None, None)
+        except AttributeError:
+            pass

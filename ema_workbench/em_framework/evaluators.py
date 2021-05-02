@@ -140,7 +140,8 @@ class BaseEvaluator(object):
             reporting_frequency=self.reporting_frequency,
             scenarios=scenarios,
             policies=policies,
-            return_callback=True)
+            return_callback=True,
+            log_progress=True)
 
         experiments, outcomes = callback.get_results()
 
@@ -367,7 +368,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         outcome_union=False,
                         uncertainty_sampling=Samplers.LHS,
                         levers_sampling=Samplers.LHS, callback=None,
-                        return_callback=False, combine='factorial'):
+                        return_callback=False, combine='factorial',
+                        log_progress=False):
     """sample uncertainties and levers, and perform the resulting experiments
     on each of the models
 
@@ -385,6 +387,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional TODO:: update doc
     callback  : Callback instance, optional
     return_callback : boolean, optional
+    log_progress : bool, optional
     combine : {'factorial', 'zipover', 'sample_jointly'}, optional
               how to combine uncertainties and levers?
               In case of 'factorial', both are sampled separately using their
@@ -455,7 +458,8 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                                                n_models, nr_of_exp))
 
     callback = setup_callback(callback, uncertainties, levers, outcomes,
-                              nr_of_exp, reporting_interval, reporting_frequency)
+                              nr_of_exp, reporting_interval, reporting_frequency,
+                              log_progress)
 
     if not evaluator:
         evaluator = SequentialEvaluator(models)
@@ -479,7 +483,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
 
 
 def setup_callback(callback, uncertainties, levers, outcomes, nr_of_exp,
-                   reporting_interval, reporting_frequency):
+                   reporting_interval, reporting_frequency, log_progress):
     if not callback:
         callback = DefaultCallback(
             uncertainties,
@@ -487,11 +491,13 @@ def setup_callback(callback, uncertainties, levers, outcomes, nr_of_exp,
             outcomes,
             nr_of_exp,
             reporting_interval=reporting_interval,
-            reporting_frequency=reporting_frequency)
+            reporting_frequency=reporting_frequency,
+            log_progress=log_progress)
     else:
         callback = callback(uncertainties, levers, outcomes, nr_of_exp,
                             reporting_interval=reporting_interval,
-                            reporting_frequency=reporting_frequency)
+                            reporting_frequency=reporting_frequency,
+                            log_progress=log_progress)
     return callback
 
 
@@ -558,7 +564,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              convergence=None, constraints=None,
              convergence_freq=1000, logging_freq=5,
              **kwargs):
-    '''optimize the model
+    """optimize the model
 
     Parameters
     ----------
@@ -584,7 +590,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     EMAError if searchover is not one of 'uncertainties' or 'levers'
     NotImplementedError if len(models) > 1
 
-    '''
+    """
     if searchover not in ('levers', 'uncertainties'):
         raise EMAError(("searchover should be one of 'levers' or"
                         "'uncertainties' not {}".format(searchover)))

@@ -16,11 +16,11 @@ import abc
 import csv
 import os
 import shutil
-import tqdm
 
 import numpy as np
 import pandas as pd
 
+from .util import ProgressTrackingMixIn
 from ..util import ema_exceptions, get_module_logger
 from .parameters import (CategoricalParameter, IntegerParameter,
                          BooleanParameter)
@@ -39,7 +39,7 @@ __all__ = ['AbstractCallback',
 _logger = get_module_logger(__name__)
 
 
-class AbstractCallback(object):
+class AbstractCallback(ProgressTrackingMixIn):
     """
     Abstract base class from which different call back classes can be derived.
     Callback is responsible for storing the results of the runs.
@@ -71,50 +71,36 @@ class AbstractCallback(object):
     """
     __metaclass__ = abc.ABCMeta
 
-    i = 0
-
     def __init__(self, uncertainties, outcomes, levers,
                  nr_experiments, reporting_interval=None,
-                 reporting_frequency=10):
+                 reporting_frequency=10, log_progress=False):
+        super(AbstractCallback, self).__init__(nr_experiments,
+                                               reporting_frequency,
+                                               _logger, log_progress)
+        
         if reporting_interval is None:
             reporting_interval = max(
                 1, int(round(nr_experiments / reporting_frequency)))
 
         self.reporting_interval = reporting_interval
 
-        self.pbar = tqdm.tqdm(total=nr_experiments)
-
-
     @abc.abstractmethod
     def __call__(self, experiment, outcomes):
         """
-        Method responsible for storing results. The implementation in this
-        class only keeps track of how many runs have been completed and
-        logging this. Any extension of AbstractCallback needs to implement
-        this method. If one want to use the logging provided here, call it via
-        super.
+        Method responsible for storing results.
+
+        The implementation in this class only keeps track of how many runs have been completed and
+        logging this. Any extension of AbstractCallback needs to implement this method. If one want
+        to use the logging provided here, call it via super.
 
         Parameters
         ----------
         experiment: Experiment instance
         outcomes: dict
-                the outcomes dict
+                  the outcomes dict
 
         """
-        #
-        # TODO:: https://github.com/alexanderkuk/log-progress
-        # can we detect whether we are running within Jupyter?
-        # yes:
-        # https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
-        self.i += 1
-        _logger.debug(str(self.i) + " cases completed")
-        #
-        # if self.i % self.reporting_interval == 0:
-        #     _logger.info(str(self.i) + " cases completed")
-        self.pbar.update()
-
-        if self.i == self.pbar.total:
-            self.pbar.__exit__(None, None, None)
+        super(AbstractCallback, self).__call__(1)
 
     @abc.abstractmethod
     def get_results(self):
@@ -135,16 +121,13 @@ class DefaultCallback(AbstractCallback):
     design. For example if you prefer to store the result in a database
     or write them to a text file
     """
-    i = 0
-    cases = None
-    results = {}
-
     shape_error_msg = "can only save up to 2d arrays, this array is {}d"
     constraint_error_msg = ('can only save 1d arrays for constraint, '
                             'this array is {}d')
 
     def __init__(self, uncs, levers, outcomes, nr_experiments,
-                 reporting_interval=100, reporting_frequency=10):
+                 reporting_interval=100, reporting_frequency=10,
+                 log_progress=False):
         """
 
         Parameters
@@ -160,16 +143,19 @@ class DefaultCallback(AbstractCallback):
                              the interval between progress logs
         reporting_frequency: int, optional
                              the total number of progress logs
+        log_progress : bool, optional
+                       if true, progress is logged, if false, use
+                       tqdm progress bar.
 
         """
         super(DefaultCallback, self).__init__(uncs, levers, outcomes,
                                               nr_experiments,
                                               reporting_interval,
-                                              reporting_frequency)
+                                              reporting_frequency,
+                                              log_progress)
         self.i = 0
         self.cases = None
         self.results = OutcomesDict()
-
         self.outcomes = outcomes
 
         # determine data types of parameters
@@ -180,16 +166,16 @@ class DefaultCallback(AbstractCallback):
         for parameter in uncs + levers:
             name = parameter.name
             self.parameters.append(name)
-            dataType = 'float'
+            dtype = 'float'
 
             if isinstance(parameter, CategoricalParameter):
-                dataType = 'object'
+                dtype = 'object'
             elif isinstance(parameter, BooleanParameter):
-                dataType = 'bool'
+                dtype = 'bool'
             elif isinstance(parameter, IntegerParameter):
-                dataType = 'int'
+                dtype = 'int'
             columns.append(name)
-            dtypes.append(dataType)
+            dtypes.append(dtype)
 
         for name in ['scenario', 'policy', 'model']:
             columns.append(name)
@@ -232,15 +218,16 @@ class DefaultCallback(AbstractCallback):
             try:
                 outcome_res = outcomes[outcome.name]
             except KeyError:
-                message = f"{outcome.name} not specified as outcome in msi" 
+                message = f"{outcome.name} not specified as outcome in " \
+                          f"model(s)"
                 _logger.debug(message)
             else:
                 try:
                     self.results[outcome][case_id, ] = outcome_res
                 except KeyError:
-                    a = np.asarray(outcome_res)
+                    data = np.asarray(outcome_res)
 
-                    shape = a.shape
+                    shape = data.shape
 
                     if len(shape) > 2:
                         message = self.shape_error_msg.format(len(shape))
@@ -249,7 +236,7 @@ class DefaultCallback(AbstractCallback):
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
 
-                    self.results[outcome] = np.empty(shape, dtype=a.dtype)
+                    self.results[outcome] = np.empty(shape, dtype=data.dtype)
                     self.results[outcome][:] = np.nan
                     self.results[outcome][case_id, ] = outcome_res
 
@@ -397,6 +384,6 @@ class FileBasedCallback(AbstractCallback):
 
         self.experiments_fh.close()
         for value in self.outcome_fhs.items():
-            value.close
+            value.close()
 
         return self.directory

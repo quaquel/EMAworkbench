@@ -89,7 +89,7 @@ def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
     all modules have their own unique logger
     (e.g. ema_workbench.analysis.prim)
 
-    TODO:: probably all three should beoptionally be a list so you
+    TODO:: probably all three should be optionally a list so you
     might filter multiple log message from different functions
 
 

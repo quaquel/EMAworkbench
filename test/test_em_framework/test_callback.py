@@ -80,7 +80,7 @@ class TestDefaultCallback(unittest.TestCase):
         # case 1 scalar shape = (1)
         callback = DefaultCallback(uncs, [], outcomes, 
                                    nr_experiments=nr_experiments)
-        model_outcomes = {outcomes[0].name: 1}
+        model_outcomes = {outcomes[0].name: 1.0}
         callback(experiment, model_outcomes)
          
         _, out = callback.get_results()
@@ -143,7 +143,7 @@ class TestDefaultCallback(unittest.TestCase):
         callback = DefaultCallback(uncs, [], outcomes,
                                    nr_experiments=nr_experiments,
                                    reporting_interval=1)
-        model_outcomes = {outcomes[0].name: 1}
+        model_outcomes = {outcomes[0].name: 1.0}
         callback(experiment, model_outcomes)
          
         experiments, _ = callback.get_results()
@@ -176,7 +176,7 @@ class TestDefaultCallback(unittest.TestCase):
         callback = DefaultCallback(uncs, levers,outcomes, 
                                    nr_experiments=nr_experiments,
                                    reporting_interval=1)
-        model_outcomes = {outcomes[0].name: 1}
+        model_outcomes = {outcomes[0].name: 1.0}
         callback(experiment, model_outcomes)
          
         experiments, _ = callback.get_results()

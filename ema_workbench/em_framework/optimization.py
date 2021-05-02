@@ -5,17 +5,18 @@
 import copy
 import functools
 import os
-import pandas as pd
 import random
+import tqdm
 import warnings
 
 import numpy as np
+import pandas as pd
 
 from .outcomes import AbstractOutcome
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy)
 from .samplers import determine_parameters
-from .util import determine_objects
+from .util import determine_objects, ProgressTrackingMixIn
 from ..util import get_module_logger, EMAError, temporary_filter, INFO
 from . import callbacks, evaluators
 
@@ -47,19 +48,23 @@ try:
 except ImportError:
     warnings.warn("platypus based optimization not available", ImportWarning)
 
+
     class PlatypusProblem(object):
         constraints = []
 
         def __init__(self, *args, **kwargs):
             pass
 
+
     class Variator(object):
         def __init__(self, *args, **kwargs):
             pass
 
+
     class RandomGenerator(object):
         def __call__(self, *args, **kwargs):
             pass
+
 
     class TournamentSelector(object):
         def __init__(self, *args, **kwargs):
@@ -68,8 +73,10 @@ except ImportError:
         def __call__(self, *args, **kwargs):
             pass
 
+
     class EpsilonProgressContinuation(object):
         pass
+
 
     EpsNSGAII = None
     platypus = None
@@ -100,7 +107,7 @@ class Problem(PlatypusProblem):
 
         super(Problem, self).__init__(len(parameters), len(outcome_names),
                                       nconstrs=len(constraints))
-#         assert len(parameters) == len(parameter_names)
+        #         assert len(parameters) == len(parameter_names)
         assert searchover in ('levers', 'uncertainties', 'robust')
 
         if searchover == 'levers':
@@ -416,7 +423,7 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
 
     for entry, job in jobs_collection:
         logical = experiments['policy'] == entry.name
-#         job_outcomes = {key: value[logical] for key, value in outcomes.items()}
+        #         job_outcomes = {key: value[logical] for key, value in outcomes.items()}
 
         job_outcomes_dict = {}
         job_outcomes = []
@@ -561,14 +568,19 @@ class OperatorProbabilities(AbstractConvergenceMetric):
             pass
 
 
-class Convergence(object):
+class Convergence(ProgressTrackingMixIn):
     """helper class for tracking convergence of optimization"""
     # TODO:: tdqdm progress bar, update takes n parameter, so nfe can be used to track progress
 
     valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
 
     def __init__(self, metrics, max_nfe, convergence_freq=1000,
-                 logging_freq=5):
+                 logging_freq=5, log_progress=False):
+        super(Convergence, self).__init__(max_nfe, logging_freq, _logger,
+                                          log_progress=log_progress,
+                                          log_func=lambda self: f'generation'
+                                                                f' {self.generation}, {self.i}/{self.max_nfe}')
+
         self.max_nfe = max_nfe
         self.generation = -1
         self.index = []
@@ -587,20 +599,17 @@ class Convergence(object):
 
     def __call__(self, optimizer, ):
         nfe = optimizer.algorithm.nfe
+        super(Convergence, self).__call__(nfe-self.i)
 
         self.generation += 1
 
-        if (nfe >= self.last_check + self.convergence_freq) or self.last_check == 0:
+        if (nfe >= self.last_check + self.convergence_freq) or \
+                self.last_check == 0:
             self.index.append(nfe)
             self.last_check = nfe
 
             for metric in self.metrics:
                 metric(optimizer)
-
-        if self.generation % self.logging_freq == 0:
-            _logger.info(
-                "generation {}: {}/{} nfe".format(self.generation, nfe,
-                                                  self.max_nfe))
 
     def to_dataframe(self):
         progress = {metric.name: metric.results for metric in
@@ -666,7 +675,8 @@ class CombinedVariator(Variator):
 
         return child1, child2
 
-    def crossover_integer(self, child1, child2, i, type):  # @ReservedAssignment
+    def crossover_integer(self, child1, child2, i,
+                          type):  # @ReservedAssignment
         # HUX()
         for j in range(type.nbits):
             if child1.variables[i][j] != child2.variables[i][j]:
@@ -675,7 +685,8 @@ class CombinedVariator(Variator):
                     child2.variables[i][j] = not child2.variables[i][j]
         return child1, child2
 
-    def crossover_categorical(self, child1, child2, i, type):  # @ReservedAssignment
+    def crossover_categorical(self, child1, child2, i,
+                              type):  # @ReservedAssignment
         # SSX()
         # can probably be implemented in a simple manner, since size
         # of subset is fixed to 1
@@ -685,15 +696,16 @@ class CombinedVariator(Variator):
 
         for j in range(type.size):
             if (child2.variables[i][j] not in s1) and \
-               (child1.variables[i][j] not in s2) and \
-               (random.random() < 0.5):
+                    (child1.variables[i][j] not in s2) and \
+                    (random.random() < 0.5):
                 temp = child1.variables[i][j]
                 child1.variables[i][j] = child2.variables[i][j]
                 child2.variables[i][j] = temp
 
         return child1, child2
 
-    def mutate_real(self, child, i, type, distribution_index=20):  # @ReservedAssignment
+    def mutate_real(self, child, i, type,
+                    distribution_index=20):  # @ReservedAssignment
         # PM
         x = child.variables[i]
         lower = type.min_value
@@ -719,7 +731,8 @@ class CombinedVariator(Variator):
         child.variables[i] = x
         return child
 
-    def mutate_integer(self, child, i, type, probability=1):  # @ReservedAssignment
+    def mutate_integer(self, child, i, type,
+                       probability=1):  # @ReservedAssignment
         # bitflip
         for j in range(type.nbits):
             if random.random() <= probability:
@@ -806,7 +819,6 @@ class CombinedMutator(CombinedVariator):
 
 def _optimize(problem, evaluator, algorithm, convergence, nfe,
               convergence_freq, logging_freq, **kwargs):
-
     klass = problem.types[0].__class__
 
     if all([isinstance(t, klass) for t in problem.types]):
@@ -828,6 +840,8 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
     with temporary_filter(name=[callbacks.__name__,
                                 evaluators.__name__], level=INFO):
         optimizer.run(nfe)
+
+    convergence.pbar.__exit__(None, None, None)
 
     results = to_dataframe(optimizer, problem.parameter_names,
                            problem.outcome_names)
@@ -911,10 +925,11 @@ class GenerationalBorg(EpsilonProgressContinuation):
                                     zeta=self.pcx_zeta),
                                 PM(probability=self.pm_p,
                                    distribution_index=self.pm_dist)),
-                     GAOperator(DifferentialEvolution(crossover_rate=self.de_rate,
-                                                      step_size=self.de_stepsize),
-                                PM(probability=self.pm_p,
-                                   distribution_index=self.pm_dist)),
+                     GAOperator(
+                         DifferentialEvolution(crossover_rate=self.de_rate,
+                                               step_size=self.de_stepsize),
+                         PM(probability=self.pm_p,
+                            distribution_index=self.pm_dist)),
                      GAOperator(UNDX(nparents=self.undx_nparents,
                                      noffspring=self.undx_noffspring,
                                      zeta=self.undx_zeta,
