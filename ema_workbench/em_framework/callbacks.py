@@ -39,7 +39,7 @@ __all__ = ['AbstractCallback',
 _logger = get_module_logger(__name__)
 
 
-class AbstractCallback(ProgressTrackingMixIn):
+class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
     """
     Abstract base class from which different call back classes can be derived.
     Callback is responsible for storing the results of the runs.
@@ -69,7 +69,6 @@ class AbstractCallback(ProgressTrackingMixIn):
                          the interval between progress logs
 
     """
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, uncertainties, outcomes, levers,
                  nr_experiments, reporting_interval=None,

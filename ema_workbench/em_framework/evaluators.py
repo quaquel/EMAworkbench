@@ -285,7 +285,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
                                           (self._msis, log_queue, loglevel,
                                            self.root_dir), self.maxtasksperchild)
         self.n_processes = self._pool._processes
-        _logger.info("pool started")
+        _logger.info(f"pool started with {self.n_processes} workers")
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -367,7 +367,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         uncertainty_union=False, lever_union=False,
                         outcome_union=False,
                         uncertainty_sampling=Samplers.LHS,
-                        levers_sampling=Samplers.LHS, callback=None,
+                        lever_sampling=Samplers.LHS, callback=None,
                         return_callback=False, combine='factorial',
                         log_progress=False):
     """sample uncertainties and levers, and perform the resulting experiments
@@ -379,10 +379,11 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     scenarios : int or collection of Scenario instances, optional
     policies :  int or collection of Policy instances, optional
     evaluator : Evaluator instance, optional
-    reporting interval : int, optional
+    reporting_interval : int, optional
     reporting_frequency: int, optional
     uncertainty_union : boolean, optional
     lever_union : boolean, optional
+    outcome_union : boolean, optional
     uncertainty_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
     lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional TODO:: update doc
     callback  : Callback instance, optional
@@ -418,7 +419,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     if combine != 'sample_jointly':
         scenarios, uncertainties, n_scenarios = setup_scenarios(scenarios,
                                                                 uncertainty_sampling, uncertainty_union, models)
-        policies, levers, n_policies = setup_policies(policies, levers_sampling,
+        policies, levers, n_policies = setup_policies(policies, lever_sampling,
                                                       lever_union, models)
     else:
         policies = [Policy("None", **{})]
@@ -473,7 +474,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         'completed. expected {}, got {}').format(nr_of_exp,
                                                                  callback.i))
 
-    _logger.info("experiments finished")
+    _logger.info('experiments finished')
 
     if return_callback:
         return callback
@@ -572,7 +573,11 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     algorithm : a valid Platypus optimization algorithm
     nfe : int
     searchover : {'uncertainties', 'levers'}
-    kwargs : additional arguments to pass on to algorithm
+    evaluator : evaluator instance
+    reference : Policy or Scenario instance, optional
+                overwrite the default scenario in case of searching over
+                levers, or default policy in case of searching over
+                uncertainties
     convergence : function or collection of functions, optional
     constraints : list, optional
     convergence_freq :  int
@@ -619,7 +624,7 @@ def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
                     convergence=None, constraints=None,
                     convergence_freq=1000, logging_freq=5, **kwargs):
-    '''perform robust optimization
+    """perform robust optimization
 
     Parameters
     ----------
@@ -629,6 +634,8 @@ def robust_optimize(model, robustness_functions, scenarios,
     evaluator : Evaluator instance
     algorithm : platypus Algorithm instance
     nfe : int
+    convergence : list
+                  list of convergence metrics
     constraints : list
     convergence_freq :  int
                         nfe between convergence check
@@ -645,7 +652,7 @@ def robust_optimize(model, robustness_functions, scenarios,
     robustness functions are scalar outcomes, kind should be MINIMIZE or
     MAXIMIZE, function is the robustness function you want to use.
 
-    '''
+    """
     for rf in robustness_functions:
         assert (isinstance(rf, ScalarOutcome))
         assert (rf.kind != AbstractOutcome.INFO)

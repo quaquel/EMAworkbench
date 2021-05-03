@@ -1,13 +1,10 @@
 # Experiments
-* add progress bar which is context aware (notebook, command line)
-	* tqdm now seems to work in notebook / lab, see mesa
 * display experiment stats at the end of perform_experiments using ema_logging
 	(could combine with tqdm?)
 * review parallelization code, too much unnecessary copying seems
   to be going on at the moment
 * Replace Category system with Enum or NamedTuple
-* if shape of outcomes and epsilons does not align, error should be raised.
-  alternatively, move epsilon into outcome, analogous to expected_range.
+* move epsilon into outcome, analogous to expected_range.
   probably a better approach. Contains all relevant information within
   outcome class and avoids having to carefully maintain order.
 * handle ticklabeling for categorical data in parcoords
@@ -24,7 +21,12 @@
 	exporting of parameters to such files:
 		uncertainties = parameters_from_json(filename)
 		parameters_to_json(uncertainties, filename)
-
+* still in doubt about OutcomesDict approach
+    * option 1: keep it
+    * option 2: register outcome instances
+                drawback: new outcomes in post processing not intuitive
+    * option 3: implement persistence based on dtypes in outcomes dict
+                drawback: extendability
 
 # Documentation
 * add documentation on how to develop connectors

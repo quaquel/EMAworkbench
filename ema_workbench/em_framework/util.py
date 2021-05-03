@@ -41,9 +41,9 @@ class Variable(NamedObject):
 
     @property
     def variable_name(self):
-        if self._variable_name is not None:
+        try:
             return self._variable_name
-        else:
+        except AttributeError:
             return [self.name]
 
     @variable_name.setter
@@ -173,7 +173,6 @@ def combine(*args):
     Parameters
     ----------
     args : two or more dicts that need to be combined
-
 
     Returns
     -------

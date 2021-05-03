@@ -1,4 +1,4 @@
-'''parameters and collections of parameters'''
+"""parameters and collections of parameters"""
 import abc
 import itertools
 import numbers
@@ -18,14 +18,9 @@ __all__ = [
     'Constant', 'RealParameter', 'IntegerParameter', 'CategoricalParameter',
     'BooleanParameter',
     'Policy', 'Scenario',
-    'parameters_from_csv', 'parameters_to_csv', 'experiment_generator'
-    'create_parameters',
-    'experiment_generator',
-    'Policy',
-    'Scenario',
+    'parameters_from_csv', 'parameters_to_csv', 'experiment_generator',
     'Experiment']
 _logger = get_module_logger(__name__)
-
 
 
 class Bound(metaclass=abc.ABCMeta):
@@ -33,7 +28,7 @@ class Bound(metaclass=abc.ABCMeta):
         try:
             bound = instance.__dict__[self.internal_name]
         except KeyError:
-            bound =  self.get_bound(instance)
+            bound = self.get_bound(instance)
             self.__set__(instance, bound)
         return bound
 
@@ -54,23 +49,24 @@ class UpperBound(Bound):
 class LowerBound(Bound):
     def get_bound(self, owner):
         ppf_zero = 0
-        
-        if isinstance(owner.dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
+
+        if isinstance(owner.dist.dist,
+                      sp.stats.rv_discrete):  # @UndefinedVariable
             # ppf at actual zero for rv_discrete gives lower bound - 1
             # due to a quirk in the scipy.stats implementation
             # so we use the smallest positive float instead
             ppf_zero = 5e-324
-    
+
         bound = owner.dist.ppf(ppf_zero)
         return bound
 
 
 class Constant(NamedObject):
-    '''Constant class,
+    """Constant class,
 
     can be used for any parameter that has to be set to a fixed value
 
-    '''
+    """
 
     def __init__(self, name, value):
         super(Constant, self).__init__(name)
@@ -94,7 +90,7 @@ def create_category(cat):
 
 
 class Parameter(Variable, metaclass=abc.ABCMeta):
-    ''' Base class for any model input parameter
+    """ Base class for any model input parameter
 
     Parameters
     ----------
@@ -114,23 +110,23 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         if entries in resolution are outside range of lower_bound and
         upper_bound
 
-    '''
+    """
     lower_bound = LowerBound()
     upper_bound = UpperBound()
     default = None
-    
-    @property    
+
+    @property
     def resolution(self):
         return self._resolution
-    
+
     @resolution.setter
     def resolution(self, value):
         if value:
-            if (min(value) < self.lower_bound) or (max(value) > self.upper_bound):
+            if (min(value) < self.lower_bound) or (
+                    max(value) > self.upper_bound):
                 raise ValueError('resolution not consistent with lower and '
-                                  'upper bound')
+                                 'upper bound')
         self._resolution = value
-
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
@@ -141,39 +137,39 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.default = default
         self.variable_name = variable_name
         self.pff = pff
-        
+
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
-        '''alternative constructor for creating a parameter from a frozen
+        """alternative constructor for creating a parameter from a frozen
         scipy.stats distribution directly
-        
+
         Parameters
         ----------
         dist : scipy stats frozen dist
         **kwargs : valid keyword arguments for Parameter instance
-        
-        '''
-        assert(isinstance(dist, sp.stats._distn_infrastructure.rv_frozen))  # @UndefinedVariable
+
+        """
+        assert (isinstance(dist,
+                           sp.stats._distn_infrastructure.rv_frozen))  # @UndefinedVariable
         self = cls.__new__(cls)
         self.dist = dist
         self.name = name
         self.resolution = None
         self.variable_name = None
         self.ppf = None
-        
+
         for k, v in kwargs.items():
             if k in {"default", "resolution", "variable_name", "pff"}:
                 setattr(self, k, v)
             else:
                 raise ValueError(f"unknown property {k} for Parameter")
-        
-        return self
 
+        return self
 
     def __eq__(self, other):
         if not isinstance(self, other.__class__):
             return False
-        
+
         self_keys = set(self.__dict__.keys())
         other_keys = set(other.__dict__.keys())
         if self_keys - other_keys:
@@ -191,35 +187,16 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
                         return False
                     if self_dist.args != other_dist.args:
                         return False
-                    
+
             else:
                 return True
-
 
     def __str__(self):
         return self.name
 
-#     def __repr__(self, *args, **kwargs):
-#         start = '{}(\'{}\', {}, {}'.format(self.__class__.__name__,
-#                                            self.name,
-#                                            self.lower_bound, self.upper_bound)
-# 
-#         if self.resolution:
-#             start += ', resolution={}'.format(self.resolution)
-#         if self.default:
-#             start += ', default={}'.format(self.default)
-#         if self.variable_name != [self.name]:
-#             start += ', variable_name={}'.format(self.variable_name)
-#         if self.pff:
-#             start += ', pff={}'.format(self.pff)
-# 
-#         start += ')'
-# 
-#         return start
-
 
 class RealParameter(Parameter):
-    ''' real valued model input parameter
+    """ real valued model input parameter
 
     Parameters
     ----------
@@ -237,7 +214,7 @@ class RealParameter(Parameter):
         if entries in resolution are outside range of lower_bound and
         upper_bound
 
-    '''
+    """
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
@@ -252,18 +229,19 @@ class RealParameter(Parameter):
             variable_name=variable_name,
             pff=pff)
 
-        self.dist = sp.stats.uniform(lower_bound, upper_bound-lower_bound)  # @UndefinedVariable
-
+        self.dist = sp.stats.uniform(lower_bound,
+                                     upper_bound - lower_bound)  # @UndefinedVariable
 
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
-        if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
+        if not isinstance(dist.dist,
+                          sp.stats.rv_continuous):  # @UndefinedVariable
             raise ValueError("dist should be instance of rv_continouos")
         return super(RealParameter, cls).from_dist(name, dist, **kwargs)
 
 
 class IntegerParameter(Parameter):
-    ''' integer valued model input parameter
+    """ integer valued model input parameter
 
     Parameters
     ----------
@@ -283,24 +261,27 @@ class IntegerParameter(Parameter):
     ValueError
         if lower_bound or upper_bound is not an integer instance
 
-    '''
+    """
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
-        super(IntegerParameter,self).__init__(name, lower_bound, upper_bound,
-                                        resolution=resolution, default=default,
-                                        variable_name=variable_name, pff=pff)
+        super(IntegerParameter, self).__init__(name, lower_bound, upper_bound,
+                                               resolution=resolution,
+                                               default=default,
+                                               variable_name=variable_name,
+                                               pff=pff)
 
         lb_int = float(lower_bound).is_integer()
         up_int = float(upper_bound).is_integer()
 
         if not (lb_int and up_int):
             raise ValueError('lower bound and upper bound must be integers')
-            
+
         self.lower_bound = int(lower_bound)
         self.upper_bound = int(upper_bound)
 
-        self.dist = sp.stats.randint(self.lower_bound, self.upper_bound + 1)  # @UndefinedVariable
+        self.dist = sp.stats.randint(self.lower_bound,
+                                     self.upper_bound + 1)  # @UndefinedVariable
 
         try:
             for idx, entry in enumerate(self.resolution):
@@ -313,16 +294,16 @@ class IntegerParameter(Parameter):
             # if self.resolution is None
             pass
 
-
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
-        if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
+        if not isinstance(dist.dist,
+                          sp.stats.rv_discrete):  # @UndefinedVariable
             raise ValueError("dist should be instance of rv_discrete")
         return super(IntegerParameter, cls).from_dist(name, dist, **kwargs)
 
 
 class CategoricalParameter(IntegerParameter):
-    ''' categorical model input parameter
+    """ categorical model input parameter
 
     Parameters
     ----------
@@ -332,8 +313,10 @@ class CategoricalParameter(IntegerParameter):
     multivalue : boolean
                  if categories have a set of values, for each variable_name
                  a different one.
+    # TODO: should multivalue not be a seperate class?
+    # TODO: multivalue as label is also horrible
 
-    '''
+    """
 
     @property
     def categories(self):
@@ -370,7 +353,7 @@ class CategoricalParameter(IntegerParameter):
         self.multivalue = multivalue
 
     def index_for_cat(self, category):
-        '''return index of category
+        """return index of category
 
         Parameters
         ----------
@@ -381,14 +364,14 @@ class CategoricalParameter(IntegerParameter):
         int
 
 
-        '''
+        """
         for i, cat in enumerate(self.categories):
             if cat.name == category:
                 return i
         raise ValueError("category not found")
 
     def cat_for_index(self, index):
-        '''return category given index
+        """return category given index
 
         Parameters
         ----------
@@ -398,26 +381,26 @@ class CategoricalParameter(IntegerParameter):
         -------
         object
 
-        '''
+        """
 
         return self.categories[index]
 
-    def invert(self, name):
-        ''' invert a category to an integer
-
-        Parameters
-        ----------
-        name : obj
-               category
-
-        Raises
-        ------
-        ValueError
-            if category is not found
-
-        '''
-        warnings.warn('deprecated, use index_for_cat instead')
-        return self.index_for_cat(name)
+    # def invert(self, name):
+    #     """ invert a category to an integer
+    #
+    #     Parameters
+    #     ----------
+    #     name : obj
+    #            category
+    #
+    #     Raises
+    #     ------
+    #     ValueError
+    #         if category is not found
+    #
+    #     """
+    #     warnings.warn('deprecated, use index_for_cat instead')
+    #     return self.index_for_cat(name)
 
     def __repr__(self, *args, **kwargs):
         template1 = 'CategoricalParameter(\'{}\', {}, default={})'
@@ -430,18 +413,17 @@ class CategoricalParameter(IntegerParameter):
             representation = template2.format(self.name, self.resolution)
 
         return representation
-    
+
     def from_dist(self, name, dist):
         # TODO:: how to handle this
         # probably need to pass categories as list and zip
         # categories to integers implied by dist
         raise NotImplementedError(("custom distributions over categories "
                                    "not supported yet"))
-        
 
 
 class BooleanParameter(CategoricalParameter):
-    ''' boolean model input parameter
+    """ boolean model input parameter
 
     A BooleanParameter is similar to a CategoricalParameter, except
     the category values can only be True or False.
@@ -451,7 +433,7 @@ class BooleanParameter(CategoricalParameter):
     name : str
     variable_name : str, or list of str
 
-    '''
+    """
 
     def __init__(self, name, default=None, variable_name=None,
                  pff=False):
@@ -459,46 +441,18 @@ class BooleanParameter(CategoricalParameter):
             name, categories=[True, False], default=default,
             variable_name=variable_name, pff=pff)
 
-#     def __repr__(self, *args, **kwargs):
-#         template1 = 'BooleanParameter(\'{}\', default={})'
-#         template2 = 'BooleanParameter(\'{}\', )'
-# 
-#         if self.default:
-#             representation = template1.format(self.name,
-#                                               self.default)
-#         else:
-#             representation = template2.format(self.name, )
-# 
-#         return representation
-# class BinaryParameter(CategoricalParameter):
-#     ''' a categorical model input parameter that is only True or False
-# 
-#     Parameters
-#     ----------
-#     name : str
-#     '''
-# 
-#     def __init__(self, name, default=None, ):
-#         super(
-#             BinaryParameter,
-#             self).__init__(
-#             name,
-#             categories=[
-#                 False,
-#                 True],
-#             default=default)
 
 class Policy(NamedDict):
-    '''Helper class representing a policy
-    
+    """Helper class representing a policy
+
     Attributes
     ----------
     name : str, int, or float
     id : int
-    
+
     all keyword arguments are wrapped into a dict.
-    
-    '''
+
+    """
     # TODO:: separate id and name
     # if name is not provided fall back on id
     # id will always be a number and can be generated by
@@ -510,8 +464,7 @@ class Policy(NamedDict):
     id_counter = Counter(1)
 
     def __init__(self, name=Counter(), **kwargs):
-
-        # TODO: perhaps move this to seperate function that internally uses
+        # TODO: perhaps move this to separate function that internally uses
         # counter
         if isinstance(name, int):
             name = f"policy {name}"
@@ -520,8 +473,8 @@ class Policy(NamedDict):
         self.id = Policy.id_counter()
 
     def to_list(self, parameters):
-        '''get list like representation of policy where the
-        parameters are in the order of levers'''
+        """get list like representation of policy where the
+        parameters are in the order of levers"""
 
         return [self[param.name] for param in parameters]
 
@@ -530,17 +483,17 @@ class Policy(NamedDict):
 
 
 class Scenario(NamedDict):
-    '''Helper class representing a scenario
-    
+    """Helper class representing a scenario
+
     Attributes
     ----------
     name : str, int, or float
     id : int
-    
+
     all keyword arguments are wrapped into a dict.
-    
-    '''
-    
+
+    """
+
     # we need to start from 1 so scenario id is known
     id_counter = Counter(1)
 
@@ -553,14 +506,14 @@ class Scenario(NamedDict):
 
 
 class Case(NamedObject):
-    '''A convenience object that contains a specification
+    """A convenience object that contains a specification
     of the model, policy, and scenario to run
 
-    '''
+    """
 
-#     TODO:: we need a better name for this. probably this should be
-#     named Experiment, while Experiment should be
-#     ExperimentReplication
+    #     TODO:: we need a better name for this. probably this should be
+    #     named Experiment, while Experiment should be
+    #     ExperimentReplication
 
     def __init__(self, name, model_name, policy, scenario, experiment_id):
         super(Case, self).__init__(name)
@@ -571,10 +524,10 @@ class Case(NamedObject):
 
 
 class Experiment(NamedDict):
-    '''helper class that combines scenario, policy, any constants, and
+    """helper class that combines scenario, policy, any constants, and
     replication information (seed etc) into a single dictionary.
 
-    '''
+    """
 
     def __init__(self, scenario, policy, constants, replication=None):
         scenario_id = scenario.id
@@ -600,14 +553,14 @@ def zip_cycle(*args):
     #     taken from jpn
     #     getting the max might by tricky
     #     policies and scenarios are generators themselves?
-    
+
     maxlen = max(len(a) for a in args)
     return itertools.islice(zip(*(itertools.cycle(a) for a in args)), maxlen)
 
 
 def experiment_generator(scenarios, model_structures, policies,
                          combine='factorial'):
-    '''
+    """
 
     generator function which yields experiments
 
@@ -618,11 +571,11 @@ def experiment_generator(scenarios, model_structures, policies,
     policies : list
     combine = {'factorial, zipover'}
               controls how to combine scenarios, policies, and model_structures
-              into experiments. 
+              into experiments.
 
     Notes
     -----
-    if combine is 'factorial' then this generator is essentially three nested 
+    if combine is 'factorial' then this generator is essentially three nested
     loops: for each model structure, for each policy, for each scenario,
     return the experiment. This means that designs should not be a generator
     because this will be exhausted after the running the first policy on the
@@ -631,11 +584,11 @@ def experiment_generator(scenarios, model_structures, policies,
     and model structures until the longest of the three collections is
     exhausted.
 
-    '''
-    
-    if combine=='zipover':
+    """
+
+    if combine == 'zipover':
         jobs = zip_cycle(model_structures, policies, scenarios)
-    elif combine=='factorial':
+    elif combine == 'factorial':
         # full factorial
         jobs = itertools.product(model_structures, policies, scenarios)
     else:
@@ -649,7 +602,7 @@ def experiment_generator(scenarios, model_structures, policies,
 
 
 def parameters_to_csv(parameters, file_name):
-    '''Helper function for writing a collection of parameters to a csv file
+    """Helper function for writing a collection of parameters to a csv file
 
     Parameters
     ----------
@@ -659,10 +612,10 @@ def parameters_to_csv(parameters, file_name):
 
     The function iterates over the collection and turns these into a data
     frame prior to storing them. The resulting csv can be loaded using the
-    create_parameters function. Note that currently we don't store resolution
+    parameters_from_csv function. Note that currently we don't store resolution
     and default attributes.
 
-    '''
+    """
 
     params = {}
 
@@ -691,7 +644,7 @@ def parameters_to_csv(parameters, file_name):
 
 
 def parameters_from_csv(uncertainties, **kwargs):
-    '''Helper function for creating many Parameters based on a DataFrame
+    """Helper function for creating many Parameters based on a DataFrame
     or csv file
 
     Parameters
@@ -726,7 +679,7 @@ def parameters_from_csv(uncertainties, **kwargs):
      IntegerParameter('an_int', 1, 9, resolution=[], default=None),
      CategoricalParameter('a_categorical', ['a', 'b', 'c'], default=None)]
 
-    '''
+    """
 
     if isinstance(uncertainties, str):
         uncertainties = pd.read_csv(uncertainties, **kwargs)
@@ -776,7 +729,7 @@ def parameters_from_csv(uncertainties, **kwargs):
 
                 if isinstance(
                         l, numbers.Integral) and isinstance(
-                        u, numbers.Integral):
+                    u, numbers.Integral):
                     type = 'int'  # @ReservedAssignment
                 else:
                     type = 'real'  # @ReservedAssignment

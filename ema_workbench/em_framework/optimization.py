@@ -570,7 +570,6 @@ class OperatorProbabilities(AbstractConvergenceMetric):
 
 class Convergence(ProgressTrackingMixIn):
     """helper class for tracking convergence of optimization"""
-    # TODO:: tdqdm progress bar, update takes n parameter, so nfe can be used to track progress
 
     valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
 
@@ -820,6 +819,15 @@ class CombinedMutator(CombinedVariator):
 def _optimize(problem, evaluator, algorithm, convergence, nfe,
               convergence_freq, logging_freq, **kwargs):
     klass = problem.types[0].__class__
+
+    try:
+        eps_values = kwargs['epsilon']
+    except KeyError:
+        pass
+    else:
+        if len(eps_values) != len(problem.outcome_names):
+            raise EMAError("number of epsilon values does not match number "
+                           "of outcomes")
 
     if all([isinstance(t, klass) for t in problem.types]):
         variator = None

@@ -323,7 +323,6 @@ class ArrayOutcome(AbstractOutcome):
         ----------
         values : ND array
 
-
         Returns
         -------
         BytesIO
