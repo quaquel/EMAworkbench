@@ -35,11 +35,11 @@ class AbstractModel(NamedObject):
 
     Attributes
     ----------
-    uncertainties : listlike
-                    list of parameter
-    levers : listlike
+    uncertainties : list
+                    list of parameter instances
+    levers : list
              list of parameter instances
-    outcomes : listlike
+    outcomes : list
                list of outcome instances
     name : str
            alphanumerical name of model structure interface
@@ -98,6 +98,7 @@ class AbstractModel(NamedObject):
         self._output_variables = None
         self._outcomes_output = {}
         self._constraints_output = {}
+        self.policy = None
 
     @method_logger(__name__)
     def model_init(self, policy):

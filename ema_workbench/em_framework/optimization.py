@@ -423,7 +423,6 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
 
     for entry, job in jobs_collection:
         logical = experiments['policy'] == entry.name
-        #         job_outcomes = {key: value[logical] for key, value in outcomes.items()}
 
         job_outcomes_dict = {}
         job_outcomes = []
@@ -637,11 +636,11 @@ class CombinedVariator(Variator):
 
         # crossover
         # we will evolve the individual
-        for i, type in enumerate(problem.types):  # @ReservedAssignment
+        for i, kind in enumerate(problem.types):  # @ReservedAssignment
             if random.random() <= self.crossover_prob:
-                klass = type.__class__
+                klass = kind.__class__
                 child1, child2 = self._crossover[klass](
-                    self, child1, child2, i, type)
+                    self, child1, child2, i, kind)
                 child1.evaluated = False
                 child2.evaluated = False
 
@@ -654,10 +653,10 @@ class CombinedVariator(Variator):
     def mutate(self, child):
         problem = child.problem
 
-        for i, type in enumerate(problem.types):  # @ReservedAssignment
+        for i, kind in enumerate(problem.types):  # @ReservedAssignment
             if random.random() <= self.mutation_prob:
-                klass = type.__class__
-                child = self._mutate[klass](self, child, i, type)
+                klass = kind.__class__
+                child = self._mutate[klass](self, child, i, kind)
                 child.evaluated = False
 
     def crossover_real(self, child1, child2, i, type):  # @ReservedAssignment

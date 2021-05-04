@@ -10,6 +10,7 @@ pysd
 pyscaffold==2.5.7
 pyzmq
 pandas>=0.24.*
+salib
 scikit-learn
 scipy==1.2.*
 sphinx>=1.4

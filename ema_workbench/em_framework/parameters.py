@@ -19,7 +19,7 @@ __all__ = [
     'BooleanParameter',
     'Policy', 'Scenario',
     'parameters_from_csv', 'parameters_to_csv', 'experiment_generator',
-    'Experiment']
+    'Experiment', 'Parameter']
 _logger = get_module_logger(__name__)
 
 

@@ -28,7 +28,7 @@ __all__ = ["SobolSampler", "MorrisSampler", "FASTSampler",
 
 
 def get_SALib_problem(uncertainties):
-    """returns a dict with a problem specificatin as required by SALib"""
+    """returns a dict with a problem specification as required by SALib"""
 
     _warning = False
     uncertainties = sorted(uncertainties, key=operator.attrgetter('name'))
@@ -38,7 +38,7 @@ def get_SALib_problem(uncertainties):
         lower = u.lower_bound
         upper = u.upper_bound
         if isinstance(u, IntegerParameter):
-            upper += 1 # to deal with floorin in generate_samples
+            upper += 1  # to deal with floorin in generate_samples
         
         bounds.append((lower, upper))
 
@@ -59,9 +59,7 @@ class SALibSampler(object):
         Parameters
         ----------
         uncertainties : collection
-                        a collection of :class:`~uncertainties.ParameterUncertainty`
-                        and :class:`~uncertainties.CategoricalUncertainty`
-                        instances.
+                        a collection of Parameter instances
         size : int
                the number of samples to generate.
 

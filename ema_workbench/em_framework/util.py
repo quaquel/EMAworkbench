@@ -12,7 +12,8 @@ from ..util import EMAError, get_module_logger
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation', 'ProgressTrackingMixIn']
+__all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation',
+           'ProgressTrackingMixIn', 'combine', 'NamedObjectMapDescriptor']
 
 
 class NamedObject:
@@ -41,10 +42,10 @@ class Variable(NamedObject):
 
     @property
     def variable_name(self):
-        try:
-            return self._variable_name
-        except AttributeError:
+        if self._variable_name is None:
             return [self.name]
+        else:
+            return self._variable_name
 
     @variable_name.setter
     def variable_name(self, name):
@@ -55,19 +56,19 @@ class Variable(NamedObject):
 
 class NamedObjectMap:
 
-    def __init__(self, type):  # @ReservedAssignment
+    def __init__(self, kind):  # @ReservedAssignment
         super(NamedObjectMap, self).__init__()
-        self.type = type
+        self.kind = kind
         self._data = OrderedDict()
 
-        if not issubclass(type, NamedObject):
+        if not issubclass(kind, NamedObject):
             raise TypeError("type must be a NamedObject")
 
     def clear(self):
         self._data = OrderedDict()
 
     def copy(self):
-        copy = NamedObjectMap(self.type)
+        copy = NamedObjectMap(self.kind)
         copy._data = self._data.copy()
 
         return copy
@@ -85,8 +86,8 @@ class NamedObjectMap:
             return self._data[key]
 
     def __setitem__(self, key, value):
-        if not isinstance(value, self.type):
-            raise TypeError("can only add " + self.type.__name__ + " objects")
+        if not isinstance(value, self.kind):
+            raise TypeError("can only add " + self.kind.__name__ + " objects")
 
         if isinstance(key, int):
             self._data = OrderedDict([(value.name, value) if i == key else (
@@ -94,7 +95,7 @@ class NamedObjectMap:
         else:
             if value.name != key:
                 raise ValueError(
-                    "key does not match name of " + self.type.__name__)
+                    "key does not match name of " + self.kind.__name__)
 
             self._data[key] = value
 
@@ -138,18 +139,18 @@ class NamedObjectMapDescriptor:
         try:
             return getattr(instance, self.internal_name)
         except AttributeError:
-            map = NamedObjectMap(self.kind)  # @ReservedAssignment
-            setattr(instance, self.internal_name, map)
-            return map
+            mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
+            setattr(instance, self.internal_name, mapping)
+            return mapping
 
     def __set__(self, instance, values):
         try:
-            map = getattr(instance, self.internal_name)  # @ReservedAssignment
+            mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
-            map = NamedObjectMap(self.kind)  # @ReservedAssignment
-            setattr(instance, self.internal_name, map)
+            mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
+            setattr(instance, self.internal_name, mapping)
 
-        map.extend(values)
+        mapping.extend(values)
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -266,9 +267,7 @@ class ProgressTrackingMixIn:
 
     def __init__(self, N, reporting_interval, logger, log_progress=False,
                  log_func=lambda self: self._logger.info(f'{self.i} '
-                                                    'experiments completed')):
-
-
+                                                         'experiments completed')):
         # TODO:: how to enable variable log messages which might include
         # different attributes?
 

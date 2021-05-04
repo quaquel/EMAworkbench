@@ -29,7 +29,8 @@ __all__ = ['AbstractSampler',
            'UniformLHSSampler',
            'sample_levers',
            'sample_uncertainties',
-           'determine_parameters']
+           'determine_parameters',
+           'DefaultDesigns']
 
 
 class AbstractSampler(object, metaclass=abc.ABCMeta):
@@ -41,7 +42,6 @@ class AbstractSampler(object, metaclass=abc.ABCMeta):
     other methods are used internally to generate the designs.
 
     """
-
 
     def __init__(self):
         super(AbstractSampler, self).__init__()
@@ -160,6 +160,7 @@ class LHSSampler(AbstractSampler):
 
         return samples
 
+
 class UniformLHSSampler(LHSSampler):
     
     def generate_samples(self, parameters, size):
@@ -205,8 +206,7 @@ class FactorialLHSSampler(LHSSampler):
 
     TODO:: needs a better name
     """
-    
-    
+
     def __init__(self, n_uniform, n_informative):
         LHSSampler.__init__(self)
     
@@ -227,7 +227,7 @@ class FactorialLHSSampler(LHSSampler):
         parameters = sorted(parameters, key=operator.attrgetter('name'))
         
         deeply_uncertain_parameters = []
-        well_characterized_parameters =[]
+        well_characterized_parameters = []
         for parameter in parameters:
             if isinstance(parameter.dist, (stats.randint, stats.uniform)):
                 deeply_uncertain_parameters.append(parameter)
@@ -487,7 +487,6 @@ def determine_parameters(models, attribute, union=True):
     union : bool, optional
             in case of multiple models, sample over the union of
             levers, or over the intersection of the levers
-    sampler : Sampler instance, optional
 
     Returns
     -------
@@ -584,6 +583,7 @@ def sample_jointly(models, n_samples, uncertainty_union=True, lever_union=True,
     
     return samples
 
+
 def from_experiments(models, experiments):
     """generate scenarios from an existing experiments DataFrame
 
@@ -632,7 +632,7 @@ class DefaultDesigns(object):
 
     @abc.abstractmethod
     def __iter__(self):
-        '''should return iterator'''
+        """should return iterator"""
 
         return design_generator(self.designs, self.parameters, self.kind)
 

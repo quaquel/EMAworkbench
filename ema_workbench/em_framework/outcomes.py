@@ -20,7 +20,7 @@ from ..util import get_module_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['ScalarOutcome', 'ArrayOutcome', 'TimeSeriesOutcome',
-           'Constraint', 'OutcomesDict']
+           'Constraint', 'OutcomesDict', 'AbstractOutcome']
 _logger = get_module_logger(__name__)
 
 
