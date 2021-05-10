@@ -12,7 +12,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from .outcomes import AbstractOutcome
+from .outcomes import AbstractOutcome, OutcomesDict
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy)
 from .samplers import determine_parameters
@@ -395,16 +395,16 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
 
     for entry, job in jobs_collection:
         logical = experiments[column] == entry.name
-        job_outcomes = {key: outcomes[key][logical][0]
-                        for key in outcome_names}
+
+        job_outputs = OutcomesDict()
+        for k, v in outcomes.items():
+            job_outputs[k] = v[logical][0]
 
         # TODO:: only retain uncertainties
         job_experiment = experiments[logical]
-
-        data = {k: v[logical][0] for k, v in outcomes.items()}
-        job_constraints = _evaluate_constraints(job_experiment, data,
+        job_constraints = _evaluate_constraints(job_experiment, job_outputs,
                                                 constraints)
-        job_outcomes = [outcomes[key][logical][0] for key in outcome_names]
+        job_outcomes = [job_outputs[key] for key in outcome_names]
 
         if job_constraints:
             job.solution.problem.function = lambda _: (job_outcomes,
@@ -424,13 +424,13 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
     for entry, job in jobs_collection:
         logical = experiments['policy'] == entry.name
 
-        job_outcomes_dict = {}
+        job_outcomes_dict = OutcomesDict()
         job_outcomes = []
         for rf in robustness_functions:
             data = [outcomes[var_name][logical] for var_name in
                     rf.variable_name]
             score = rf.function(*data)
-            job_outcomes_dict[rf.name] = score
+            job_outcomes_dict[rf] = score
             job_outcomes.append(score)
 
         # TODO:: only retain levers
@@ -848,6 +848,7 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
                                 evaluators.__name__], level=INFO):
         optimizer.run(nfe)
 
+    convergence(optimizer)
     convergence.pbar.__exit__(None, None, None)
 
     results = to_dataframe(optimizer, problem.parameter_names,

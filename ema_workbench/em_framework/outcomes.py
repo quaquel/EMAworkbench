@@ -193,7 +193,7 @@ class ScalarOutcome(AbstractOutcome):
     function : callable, optional
                a callable to perform post processing on data retrieved
                from model
-    expected_range : 2 tuple, optional
+    expected_range : collection, optional
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
 

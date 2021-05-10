@@ -1,4 +1,4 @@
-'''
+"""
 This example replicates Quinn, J.D., Reed, P.M., Keller, K. (2017)
 Direct policy search for robust multi-objective management of deeply
 uncertain socio-ecological tipping points. Environmental Modelling &
@@ -9,7 +9,7 @@ suggested by Watson, A.A., Kasprzyk, J.R. (2017) Incorporating deeply uncertain
 factors into the many objective search process. Environmental Modelling &
 Software 89, 159-171.
 
-'''
+"""
 import math
 import numpy as np
 
@@ -25,7 +25,7 @@ from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
 
 
 def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
-    '''
+    """
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
 
     note:: w2 = 1 - w1
 
-    '''
+    """
 
     rule = w1 * (abs(xt - c1) / r1)**3 + (1 - w1) * (abs(xt - c2) / r2)**3
     at1 = max(rule, 0.01)
@@ -130,13 +130,13 @@ if __name__ == '__main__':
                          ]
     # specify outcomes
     lake_model.outcomes = [ScalarOutcome('max_P',
-                                         kind=ScalarOutcome.MINIMIZE),  # @UndefinedVariable
+                                         kind=ScalarOutcome.MINIMIZE),
                            ScalarOutcome('utility',
-                                         kind=ScalarOutcome.MAXIMIZE),  # @UndefinedVariable
+                                         kind=ScalarOutcome.MAXIMIZE),
                            ScalarOutcome('inertia',
-                                         kind=ScalarOutcome.MAXIMIZE),  # @UndefinedVariable
+                                         kind=ScalarOutcome.MAXIMIZE),
                            ScalarOutcome('reliability',
-                                         kind=ScalarOutcome.MAXIMIZE)]  # @UndefinedVariable
+                                         kind=ScalarOutcome.MAXIMIZE)]
 
     # override some of the defaults of the model
     lake_model.constants = [Constant('alpha', 0.41),

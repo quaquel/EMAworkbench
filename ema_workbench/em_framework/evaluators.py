@@ -89,6 +89,7 @@ class BaseEvaluator(object):
             msis = [msis]
 
         self._msis = msis
+        self.callback = None
 
     def __enter__(self):
         self.initialize()
@@ -157,7 +158,7 @@ class BaseEvaluator(object):
                             uncertainty_union=False, lever_union=False,
                             outcome_union=False,
                             uncertainty_sampling=Samplers.LHS,
-                            levers_sampling=Samplers.LHS, callback=None,
+                            lever_sampling=Samplers.LHS, callback=None,
                             combine='factorial'):
         """convenience method for performing experiments.
 
@@ -173,7 +174,7 @@ class BaseEvaluator(object):
                                    lever_union=lever_union,
                                    outcome_union=outcome_union,
                                    uncertainty_sampling=uncertainty_sampling,
-                                   levers_sampling=levers_sampling,
+                                   lever_sampling=lever_sampling,
                                    callback=callback, combine=combine)
 
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
