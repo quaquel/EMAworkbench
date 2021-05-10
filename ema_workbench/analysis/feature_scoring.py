@@ -232,7 +232,7 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     nr_trees : int, optional
                nr. of trees in forest (default=250)
     max_features : int, float, string or None, optional
-                   by default, it will use number of featers/3, following
+                   by default, it will use number of features/3, following
                    Jaxa-Rozen & Kwakkel (2018) doi: 10.1016/j.envsoft.2018.06.011
                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     max_depth : int, optional
