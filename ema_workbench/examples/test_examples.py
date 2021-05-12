@@ -1,9 +1,8 @@
-
-import sys
-import os
 import glob
-from contextlib import contextmanager
+import os
+import sys
 import traceback
+from contextlib import contextmanager
 
 set_backend = "import matplotlib\nmatplotlib.use('Agg')\n"
 
@@ -24,7 +23,6 @@ def redirected_output(new_stdout=None, new_stderr=None):
 
 
 def run_exectests(test_dir, log_path='exectests.log'):
-
     test_files = glob.glob(os.path.join(test_dir, '*.py'))
     test_files = sorted([ex for ex in test_files if ex[0] is not '_'])
     passed = []

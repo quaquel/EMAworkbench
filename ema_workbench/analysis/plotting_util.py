@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.stats.kde as kde
-
 import seaborn as sns
 
+from ..em_framework.outcomes import AbstractOutcome, OutcomesDict, \
+    ScalarOutcome
 from ..util import EMAError, get_module_logger
-from ..em_framework.outcomes import AbstractOutcome, OutcomesDict, ScalarOutcome
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
@@ -30,6 +30,7 @@ sns.set_palette(COLOR_LIST)
 
 TIME = "TIME"
 '''Default key for time'''
+
 
 # ==============================================================================
 # actual plotting functions
@@ -52,9 +53,9 @@ class Density(enum.Enum):
     '''constant for plotting density as a violin plot, which combines a
     Gaussian density estimate with a boxplot'''
 
-
     BOXENPLOT = 'boxenplot'
     '''constant for plotting density as a boxenplot'''
+
 
 class LegendEnum(enum.Enum):
     """Enum for different styles of legends
@@ -166,7 +167,7 @@ def plot_kde(ax, values, log):
         else:
             ax.set_xticks([int(0),
                            ax.get_xaxis().
-                           get_view_interval()[1]])
+                          get_view_interval()[1]])
             labels = ["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
             ax.set_xticklabels(labels)
 
@@ -197,11 +198,13 @@ def plot_boxplots(ax, values, log, group_labels=None):
     if not group_labels:
         group_labels = ['']
 
-    data = pd.DataFrame.from_records({k: v for k, v in zip(group_labels, values)})
+    data = pd.DataFrame.from_records(
+        {k: v for k, v in zip(group_labels, values)})
     data = pd.melt(data)
 
     sns.boxplot(x='variable', y='value', data=data, order=group_labels,
-                  ax=ax)
+                ax=ax)
+
 
 def plot_violinplot(ax, values, log, group_labels=None):
     """
@@ -221,10 +224,11 @@ def plot_violinplot(ax, values, log, group_labels=None):
 
     if not group_labels:
         group_labels = ['']
-        
-    data = pd.DataFrame.from_records({k:v for k, v in zip(group_labels, values)})
+
+    data = pd.DataFrame.from_records(
+        {k: v for k, v in zip(group_labels, values)})
     data = pd.melt(data)
-        
+
     sns.violinplot(x='variable', y='value', data=data, order=group_labels,
                    ax=ax)
 
@@ -246,10 +250,11 @@ def plot_boxenplot(ax, values, log, group_labels=None):
         _logger.warning("log option ignored for violin plot")
     if not group_labels:
         group_labels = ['']
-        
-    data = pd.DataFrame.from_records({k:v for k, v in zip(group_labels, values)})
+
+    data = pd.DataFrame.from_records(
+        {k: v for k, v in zip(group_labels, values)})
     data = pd.melt(data)
-        
+
     sns.boxenplot(x='variable', y='value', data=data, order=group_labels,
                   ax=ax)
 
@@ -291,9 +296,10 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
         plot_boxenplot(ax_d, values, log, group_labels=group_labels)
     else:
         raise EMAError("unknown density type: {}".format(density))
-    
+
     ax_d.set_xlabel('')
     ax_d.set_ylabel('')
+
 
 def simple_density(density, value, ax_d, ax, log):
     """
@@ -331,6 +337,7 @@ def simple_density(density, value, ax_d, ax, log):
 
     ax_d.set_xlabel('')
     ax_d.set_ylabel('')
+
 
 def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     """
@@ -480,12 +487,12 @@ def determine_kde(data,
     try:
         kde_x = kde.gaussian_kde(data)
         kde_x = kde_x.evaluate(kde_y)
-#         grid = GridSearchCV(KernelDensity(kernel='gaussian'),
-#                             {'bandwidth': np.linspace(ymin, ymax, 20)},
-#                             cv=20)
-#         grid.fit(data[:, np.newaxis])
-#         best_kde = grid.best_estimator_
-#         kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
+    #         grid = GridSearchCV(KernelDensity(kernel='gaussian'),
+    #                             {'bandwidth': np.linspace(ymin, ymax, 20)},
+    #                             cv=20)
+    #         grid.fit(data[:, np.newaxis])
+    #         best_kde = grid.best_estimator_
+    #         kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
     except Exception as e:
         _logger.warning(e)
         kde_x = np.zeros(kde_y.shape)
@@ -600,15 +607,15 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
             lower_limit, upper_limit = specifier
 
             # check whether it is the last grouping specifier
-            if grouping_specifiers.index(specifier) ==\
+            if grouping_specifiers.index(specifier) == \
                     len(grouping_specifiers) - 1:
                 # last case
 
-                logical = (column_to_group_by >= lower_limit) &\
-                    (column_to_group_by <= upper_limit)
+                logical = (column_to_group_by >= lower_limit) & \
+                          (column_to_group_by <= upper_limit)
             else:
-                logical = (column_to_group_by >= lower_limit) &\
-                    (column_to_group_by < upper_limit)
+                logical = (column_to_group_by >= lower_limit) & \
+                          (column_to_group_by < upper_limit)
         elif group_by == 'index':
             # the grouping is based on indices
             logical = specifier
@@ -683,7 +690,8 @@ def prepare_pairs_data(experiments, outcomes,
             "for pair wise plotting, more than one outcome needs to be provided")
 
     experiments, outcomes, outcomes_to_show, time, grouping_labels = prepare_data(
-        experiments, None, outcomes, outcomes_to_show, group_by, grouping_specifiers, filter_scalar)
+        experiments, None, outcomes, outcomes_to_show, group_by,
+        grouping_specifiers, filter_scalar)
 
     def filter_outcomes(outcomes, point_in_time):
         new_outcomes = OutcomesDict()
@@ -709,7 +717,8 @@ def prepare_pairs_data(experiments, outcomes,
 
 
 def prepare_data(experiments, experiments_to_show, outcomes,
-                 outcomes_to_show=None, group_by=None, grouping_specifiers=None,
+                 outcomes_to_show=None, group_by=None,
+                 grouping_specifiers=None,
                  filter_scalar=True):
     """Helper function for preparing datasets prior to plotting
 
@@ -739,9 +748,10 @@ def prepare_data(experiments, experiments_to_show, outcomes,
     if outcomes_to_show:
         temp_outcomes = OutcomesDict()
         if isinstance(outcomes_to_show, str):
-            outcomes_to_show = [outcomes.get_outcome_for_name(outcomes_to_show)]
+            outcomes_to_show = [
+                outcomes.get_outcome_for_name(outcomes_to_show)]
         elif isinstance(outcomes_to_show, AbstractOutcome):
-            outcomes_to_show [outcomes_to_show]
+            outcomes_to_show[outcomes_to_show]
 
         for entry in outcomes_to_show:
             if isinstance(entry, str):
@@ -765,7 +775,7 @@ def prepare_data(experiments, experiments_to_show, outcomes,
                                 "trying to group on index"))
             else:
                 column_to_group_by = experiments[group_by]
-                if (column_to_group_by.dtype == np.object) or\
+                if (column_to_group_by.dtype == np.object) or \
                         (column_to_group_by.dtype == 'category'):
                     grouping_specifiers = set(column_to_group_by)
                 else:

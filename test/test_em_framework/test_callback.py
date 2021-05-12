@@ -1,10 +1,8 @@
-'''
+"""
 Created on 22 Jan 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-'''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
+"""
 import random
 import unittest
 
@@ -13,7 +11,7 @@ import numpy as np
 from ema_workbench.em_framework.callbacks import DefaultCallback
 from ema_workbench.em_framework.parameters import (CategoricalParameter,
                                         RealParameter, IntegerParameter)
-from ema_workbench.em_framework.parameters import Policy, Scenario, Case
+from ema_workbench.em_framework.cases import Policy, Scenario, Experiment
 from ema_workbench.util import EMAError
 from ema_workbench.em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
                                                  TimeSeriesOutcome) 
@@ -74,7 +72,7 @@ class TestDefaultCallback(unittest.TestCase):
         outcomes = [TimeSeriesOutcome("test")]
         model = NamedObject('test')
 
-        experiment = Case(0, model, Policy('policy'), 
+        experiment = Experiment(0, model, Policy('policy'),
                                 Scenario(a=1, b=0), 0)
      
         # case 1 scalar shape = (1)
@@ -138,7 +136,7 @@ class TestDefaultCallback(unittest.TestCase):
         model = NamedObject('test')
         policy  = Policy('policy')
         scenario = Scenario(**case)
-        experiment = Case(0, model.name, policy, scenario, 0)
+        experiment = Experiment(0, model.name, policy, scenario, 0)
      
         callback = DefaultCallback(uncs, [], outcomes,
                                    nr_experiments=nr_experiments,
@@ -171,7 +169,7 @@ class TestDefaultCallback(unittest.TestCase):
         model = NamedObject('test')
         policy  = Policy('policy', c=1, d=1)
         scenario = Scenario(**case)
-        experiment = Case(0, model.name, policy, scenario, 0)
+        experiment = Experiment(0, model.name, policy, scenario, 0)
      
         callback = DefaultCallback(uncs, levers,outcomes, 
                                    nr_experiments=nr_experiments,

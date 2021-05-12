@@ -1,16 +1,14 @@
-'''
+"""
 Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-'''
-from __future__ import (division, print_function, absolute_import,
-                        unicode_literals)
-
+"""
 import unittest
 import unittest.mock as mock
 
-from ema_workbench.em_framework.outcomes import ScalarOutcome,\
-    TimeSeriesOutcome
+from ema_workbench.em_framework.outcomes import (ScalarOutcome,
+                                                 create_outcomes,
+                                                 TimeSeriesOutcome, )
 
 class TestScalarOutcome(unittest.TestCase):
     outcome_class = ScalarOutcome
@@ -159,6 +157,26 @@ class TestTimeSeriesOutcome(TestScalarOutcome):
                                         variable_name=variable_name)
                 
                 outcome.process([1])
+
+
+class CreateOutcomesTestCase(unittest.TestCase):
+    def test_create_outcomes(self):
+        outcome_list = [dict(type='scalar', name='a'),
+                        dict(type='timeseries', name='b')]
+
+        outcomes = create_outcomes(outcome_list)
+
+        for x, y in zip(outcome_list, outcomes):
+            self.assertEqual(x['name'], y.name)
+
+        with self.assertRaises(ValueError):
+            outcome_list = [dict(type='unknown', name='a')]
+            outcomes = create_outcomes(outcome_list)
+
+        with self.assertRaises(ValueError):
+            outcome_list = [dict(kind='unknown', name='a')]
+            outcomes = create_outcomes(outcome_list)
+
 
 if __name__ == "__main__":
     unittest.main()

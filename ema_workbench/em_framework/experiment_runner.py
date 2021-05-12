@@ -2,8 +2,8 @@
 helper module for running experiments and keeping track of which model
 has been initialized with which policy.
 """
-from ..util import get_module_logger, EMAError, CaseError
 from ema_workbench.util.ema_logging import method_logger
+from ..util import get_module_logger, EMAError, CaseError
 
 # Created on Aug 11, 2015
 #
@@ -83,7 +83,7 @@ class ExperimentRunner(object):
         _logger.debug(self.log_message.format(scenario_id=scenario_id,
                                               policy_name=policy_name,
                                               model_name=model_name))
-        
+
         try:
             model.run_model(scenario, policy)
         except CaseError as e:
@@ -95,10 +95,10 @@ class ExperimentRunner(object):
             except Exception:
                 raise e
 
-#             exception = traceback.print_exc()
-#             if exception:
-#                 sys.stderr.write(exception)
-#                 sys.stderr.write("\n")
+            #             exception = traceback.print_exc()
+            #             if exception:
+            #                 sys.stderr.write(exception)
+            #                 sys.stderr.write("\n")
 
             errortype = type(e).__name__
             raise EMAError(("exception in run_model"

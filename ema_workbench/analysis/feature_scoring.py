@@ -1,6 +1,6 @@
 """Feature scoring functionality"""
-from operator import itemgetter
 import math
+from operator import itemgetter
 
 import numpy as np
 import pandas as pd
@@ -277,7 +277,8 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
         max_features = int(round(x.shape[1] / 3))
     if min_samples_leaf is None:
         min_samples_leaf = max(1,
-                               int(round(math.sqrt(x.shape[0]) / math.sqrt(1000))))
+                               int(round(
+                                   math.sqrt(x.shape[0]) / math.sqrt(1000))))
 
     if mode == RuleInductionType.CLASSIFICATION:
         etc = ExtraTreesClassifier

@@ -13,8 +13,8 @@ See flu_example.py for the code.
 '''
 import matplotlib.pyplot as plt
 
-from ema_workbench import ema_logging, load_results
 import ema_workbench.analysis.prim as prim
+from ema_workbench import ema_logging, load_results
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 

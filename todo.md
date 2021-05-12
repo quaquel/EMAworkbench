@@ -27,7 +27,8 @@
                 drawback: new outcomes in post processing not intuitive
     * option 3: implement persistence based on dtypes in outcomes dict
                 drawback: extendability
-* error if working directory of model is same as directory of .py file      
+* error if working directory of model is same as directory of .py file
+* centralized seed control
 
 # Documentation
 * add documentation on how to develop connectors

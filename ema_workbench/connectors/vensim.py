@@ -10,22 +10,20 @@ used functions with error checking. For more fine grained control, the
 """
 import decimal
 import math
-import numpy as np
 import os
 import warnings
 
+import numpy as np
+
 from . import vensimDLLwrapper
 from .vensimDLLwrapper import (command, get_val, VensimError, VensimWarning)
-
 from ..em_framework import TimeSeriesOutcome, FileModel
+from ..em_framework.model import SingleReplication
 from ..em_framework.parameters import (Parameter, RealParameter,
                                        CategoricalParameter)
 from ..em_framework.util import NamedObjectMap
-from ..em_framework.model import SingleReplication
-
 from ..util import CaseError, EMAError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
-
 
 # Created on 25 mei 2011
 #
@@ -257,14 +255,14 @@ class BaseVensimModel(FileModel):
 
         """
         if vensimDLLwrapper.vensim_64 is not None:
-            if not model_file.endswith('.vpmx') and not model_file.endswith('.vpm') :
+            if not model_file.endswith('.vpmx') and not model_file.endswith(
+                    '.vpm'):
                 raise ValueError('model file should be a .vpm or .vpmx file')
             self._resultfile = 'Current.vdfx'
         else:
             if not model_file.endswith('.vpm'):
                 raise ValueError('model file should be a vpm file')
             self._resultfile = 'Current.vdf'
-
 
         super(BaseVensimModel, self).__init__(
             name, wd=wd, model_file=model_file)
@@ -277,7 +275,6 @@ class BaseVensimModel(FileModel):
 
         # default name of the results file (default: 'Current.vdfx'
         # for 64 bit, and Current.vdf for 32 bit)
-
 
         _logger.debug("vensim interface init completed")
 
@@ -648,7 +645,8 @@ class LookupUncertainty(Parameter):
         new_lookup = []
         for i in range(len(self.x)):
             new_lookup.append(
-                (self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min)))
+                (self.x[i],
+                 max(min(df[i] * self.y[i], self.y_max), self.y_min)))
         return new_lookup
 
     def _hearne2(self, case):
@@ -675,7 +673,8 @@ class LookupUncertainty(Parameter):
         new_lookup = []
         for i in range(len(self.x)):
             new_lookup.append(
-                (self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min)))
+                (self.x[i],
+                 max(min(df[i] * self.y[i], self.y_max), self.y_min)))
         return new_lookup
 
     def _approx(self, case):

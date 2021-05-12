@@ -7,12 +7,11 @@ import warnings
 
 import numpy as np
 
-from .samplers import DefaultDesigns
 from .parameters import IntegerParameter
-
+from .samplers import DefaultDesigns
 
 try:
-    from SALib.sample import saltelli 
+    from SALib.sample import saltelli
     from SALib.sample import morris
     from SALib.sample import fast_sampler
 except ImportError:
@@ -39,7 +38,7 @@ def get_SALib_problem(uncertainties):
         upper = u.upper_bound
         if isinstance(u, IntegerParameter):
             upper += 1  # to deal with floorin in generate_samples
-        
+
         bounds.append((lower, upper))
 
     problem = {'num_vars': len(uncertainties),

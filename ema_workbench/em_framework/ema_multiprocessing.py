@@ -2,23 +2,21 @@
 support for using the multiprocessing library in combination with the workbench
 
 """
-from collections import defaultdict
-
 import logging
 import multiprocessing
 import os
+import queue
+import shutil
 import sys
 import threading
 import time
-import shutil
 import traceback
-import queue
+from collections import defaultdict
 
-from ..util import get_module_logger, ema_logging
 from .experiment_runner import ExperimentRunner
-from .util import NamedObjectMap
 from .model import AbstractModel
-
+from .util import NamedObjectMap
+from ..util import get_module_logger, ema_logging
 
 # Created on 22 Feb 2017
 #
@@ -64,7 +62,7 @@ def initializer(*args):
     # remove the root temp
     if tmpdir:
         multiprocessing.util.Finalize(None, finalizer,
-                                      args=(os.path.abspath(tmpdir), ),
+                                      args=(os.path.abspath(tmpdir),),
                                       exitpriority=10)
 
 

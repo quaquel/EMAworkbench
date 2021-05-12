@@ -5,19 +5,15 @@ This module provides various convenience functions and classes.
 '''
 
 import configparser
-from io import BytesIO, StringIO
 import json
 import os
 import tarfile
-import warnings
+from io import BytesIO
 
 import numpy as np
 import pandas as pd
 
 from . import EMAError, get_module_logger
-
-
-
 
 # Created on 13 jan. 2011
 #
@@ -26,7 +22,7 @@ from . import EMAError, get_module_logger
 __all__ = ['load_results',
            'save_results',
            'merge_results',
-		   'process_replications'
+           'process_replications'
            ]
 _logger = get_module_logger(__name__)
 
@@ -47,9 +43,9 @@ def load_results(file_name):
 
     '''
     from ..em_framework.outcomes import AbstractOutcome, OutcomesDict
-    
+
     file_name = os.path.abspath(file_name)
-    
+
     with tarfile.open(file_name, 'r:gz', encoding="UTF8") as archive:
         try:
             f = archive.extractfile('metadata.json')
@@ -57,35 +53,36 @@ def load_results(file_name):
             # old style data file
             results = load_results_old(archive)
             _logger.info((f"results loaded successfully from {file_name}"))
-            return  results
-            
-        metadata = json.loads(f.read().decode()) 
-        
+            return results
+
+        metadata = json.loads(f.read().decode())
+
         # load experiments
         f = archive.extractfile('experiments.csv')
-        experiments = pd.read_csv(f)   
-            
+        experiments = pd.read_csv(f)
+
         for name, dtype in metadata['experiments'].items():
             try:
                 dtype = np.dtype(dtype)
             except TypeError:
                 dtype = pd.api.types.pandas_dtype(dtype)
-            
+
             if pd.api.types.is_object_dtype(dtype):
                 experiments[name] = experiments[name].astype('category')
-        
+
         # load outcomes
         outcomes = OutcomesDict()
-        known_outcome_classes = {entry.__name__:entry for entry in\
-                                 AbstractOutcome.get_subclasses() }
+        known_outcome_classes = {entry.__name__: entry for entry in \
+                                 AbstractOutcome.get_subclasses()}
         for (outcome_type, name, filename) in metadata['outcomes']:
             outcome = known_outcome_classes[outcome_type](name)
-           
+
             values = outcome.from_disk(filename, archive)
             outcomes[outcome] = values
- 
+
     _logger.info("results loaded successfully from {}".format(file_name))
     return experiments, outcomes
+
 
 def load_results_old(archive):
     '''
@@ -103,7 +100,7 @@ def load_results_old(archive):
     '''
     from ..em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
                                          OutcomesDict)
-    
+
     outcomes = {}
 
     # load x
@@ -121,12 +118,12 @@ def load_results_old(archive):
         entry = entry.strip()
         entry = entry.split(",")
         name, dtype = [str(item) for item in entry]
-        
+
         try:
             dtype = np.dtype(dtype)
         except TypeError:
             dtype = pd.api.types.pandas_dtype(dtype)
-        
+
         if pd.api.types.is_object_dtype(dtype):
             experiments[name] = experiments[name].astype('category')
 
@@ -159,7 +156,7 @@ def load_results_old(archive):
             for i in range(nr_files):
                 values = archive.extractfile("{}_{}.csv".format(outcome, i))
                 values = pd.read_csv(values, index_col=False,
-                                  header=None).values
+                                     header=None).values
                 data[:, :, i] = values
 
         else:
@@ -171,12 +168,12 @@ def load_results_old(archive):
 
     # reformat outcomes from generic dict to new style OutcomesDict
     outcomes_new = OutcomesDict()
-    for k,v in outcomes.items():
+    for k, v in outcomes.items():
         if v.ndim == 1:
-            outcome =  ScalarOutcome(k)
-        else: 
+            outcome = ScalarOutcome(k)
+        else:
             outcome = ArrayOutcome(k)
-        
+
         outcomes_new[outcome] = v
 
     return experiments, outcomes_new
@@ -230,7 +227,7 @@ def save_results(results, file_name):
         # store metadata
         metadata = {'version': VERSION,
                     'outcomes': outcomes_metadata,
-                    'experiments': {k:v.name for k, v in
+                    'experiments': {k: v.name for k, v in
                                     experiments.dtypes.to_dict().items()}}
 
         stream = BytesIO()
@@ -238,7 +235,6 @@ def save_results(results, file_name):
         add_file(z, stream, "metadata.json")
 
     _logger.info(f"results saved successfully to {file_name}")
-
 
 
 def merge_results(results1, results2):
@@ -318,7 +314,7 @@ def get_ema_project_home_dir():
         return os.getcwd()
 
 
-def process_replications(data, aggregation_func = np.mean):
+def process_replications(data, aggregation_func=np.mean):
     '''
     Convenience function for processing the replications of a stochastic
     model's outcomes.
@@ -348,15 +344,15 @@ def process_replications(data, aggregation_func = np.mean):
     '''
 
     if isinstance(data, dict):
-        #replications are the second dimension of the outcome arrays
-        outcomes_processed = {key:aggregation_func(data[key],axis=1) for key
+        # replications are the second dimension of the outcome arrays
+        outcomes_processed = {key: aggregation_func(data[key], axis=1) for key
                               in data.keys()}
         return outcomes_processed
     elif (isinstance(data, tuple) and
-            isinstance(data[0], pd.DataFrame) and
-            isinstance(data[1], dict)):
-        experiments, outcomes = data #split results
-        outcomes_processed = {key:aggregation_func(outcomes[key], axis=1) for
+          isinstance(data[0], pd.DataFrame) and
+          isinstance(data[1], dict)):
+        experiments, outcomes = data  # split results
+        outcomes_processed = {key: aggregation_func(outcomes[key], axis=1) for
                               key in outcomes.keys()}
         results_processed = (experiments.copy(deep=True), outcomes_processed)
         return results_processed

@@ -6,12 +6,12 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 import math
-import scipy
+
 import numpy as np
 from scipy.optimize import brentq
 
-from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
-                           ema_logging, MultiprocessingEvaluator, Constraint)
+from ema_workbench import (Model, RealParameter, ScalarOutcome, ema_logging,
+                           MultiprocessingEvaluator, Constraint)
 from ema_workbench.em_framework.optimization import (HyperVolume,
                                                      EpsilonProgress)
 

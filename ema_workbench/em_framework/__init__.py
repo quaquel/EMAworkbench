@@ -1,30 +1,33 @@
 import warnings
 
 __all__ = ["ema_parallel", "parameters"
-           "model", "outcomes", "samplers",
+                           "model", "outcomes", "samplers",
            "Model", 'FileModel', "ModelEnsemble",
            "ScalarOutcome", "TimeSeriesOutcome", "Constraint",
            "RealParameter", "IntegerParameter", "CategoricalParameter",
-           "BooleanParameter", "Scenario", "Policy", "Experiment",
+           "BooleanParameter", "Scenario", "Policy", "ExperimentReplication",
            "Constant", "parameters_from_csv",
            "parameters_to_csv", "Category", "SobolSampler", "MorrisSampler",
            "get_SALib_problem", "FASTSampler",
            "peform_experiments", 'optimize', "IpyparallelEvaluator",
            "MultiprocessingEvaluator", "SequentialEvaluator"
-           'ReplicatorModel', "EpsilonProgress", "HyperVolume",
+                                       'ReplicatorModel', "EpsilonProgress",
+           "HyperVolume",
            "Convergence", "ArchiveLogger", "ArrayOutcome", "Samplers"]
 
 from .outcomes import (ScalarOutcome, TimeSeriesOutcome, Constraint,
                        ArrayOutcome)
-from .model import Model, FileModel, ReplicatorModel, Replicator, SingleReplication
+from .model import Model, FileModel, ReplicatorModel, Replicator, \
+    SingleReplication
 
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
-                         BooleanParameter, Scenario, Policy, Constant,
-                         Experiment, parameters_from_csv, parameters_to_csv,
-                         Category, experiment_generator)
+                         BooleanParameter, Constant, parameters_from_csv,
+                         parameters_to_csv, Category)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
-                       PartialFactorialSampler, sample_levers,
-                       sample_uncertainties)
+                       sample_levers, sample_uncertainties)
+from .cases import (Scenario, Policy, Case, ExperimentReplication,
+                    experiment_generator)
+
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler,
                              get_SALib_problem)
 from .evaluators import (perform_experiments, optimize,
@@ -32,7 +35,6 @@ from .evaluators import (perform_experiments, optimize,
                          Samplers)
 from .optimization import (Convergence, HyperVolume, EpsilonProgress,
                            ArchiveLogger)
-
 
 try:
     from .evaluators import IpyparallelEvaluator

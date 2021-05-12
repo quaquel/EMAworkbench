@@ -14,17 +14,17 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 import seaborn as sns
+import statsmodels.api as sm
 
-from ..util import get_module_logger
 from . import scenario_discovery_util as sdutil
 from .prim_util import CurEntry
-
+from ..util import get_module_logger
 
 __all__ = ['Logit']
 
 _logger = get_module_logger(__name__)
+
 
 # Created on 14 Mar 2019
 #
@@ -160,7 +160,7 @@ class Logit(object):
 
         for i, model in enumerate(self.models):
             predicted = model.predict(self._normalized.loc[:,
-                                                           model.params.index])
+                                      model.params.index])
 
             den, cov = calculate_covden_for_treshold(predicted, self.y, value)
             self.peeling_trajectory.loc[i, 'coverage'] = cov
@@ -171,7 +171,7 @@ class Logit(object):
             # x = x.drop(["scenario"], axis=1)
             columns_to_drop = ['scenario']
             for entry in ['model', 'policy']:
-                if x[entry].unique().shape[0]==1:
+                if x[entry].unique().shape[0] == 1:
                     columns_to_drop.append(entry)
             x = x.drop(columns_to_drop, axis=1)
         except KeyError:
@@ -186,13 +186,15 @@ class Logit(object):
         dummies = pd.get_dummies(x, prefix_sep=self.sep)
 
         self.dummiesmap = {}
-        for column, values in self.x.select_dtypes(exclude=np.number).iteritems():
+        for column, values in self.x.select_dtypes(
+                exclude=np.number).iteritems():
             mapping = {str(entry): entry for entry in values.unique()}
             self.dummiesmap[column] = mapping
 
         self.feature_names = dummies.columns.values.tolist()
 
-        normalized = (dummies - dummies.min()) / (dummies.max() - dummies.min())
+        normalized = (dummies - dummies.min()) / (
+                    dummies.max() - dummies.min())
         normalized['Intercept'] = np.ones(np.shape(x)[0])
         self._normalized = normalized
 
@@ -213,7 +215,7 @@ class Logit(object):
             scores_with_candidates = []
             for candidate in remaining:
                 data = self._normalized.loc[:,
-                                            selected + [candidate, 'Intercept']]
+                       selected + [candidate, 'Intercept']]
                 model = sm.Logit(self.y, data.astype(float))
 
                 try:
@@ -247,7 +249,7 @@ class Logit(object):
         """
 
         predicted = model.predict(self._normalized.loc[:,
-                                                       selected + ['Intercept']])
+                                  selected + ['Intercept']])
         den, cov = calculate_covden_for_treshold(predicted, self.y,
                                                  self.threshold)
 

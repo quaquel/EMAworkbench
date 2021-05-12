@@ -20,12 +20,11 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from .util import ProgressTrackingMixIn
-from ..util import ema_exceptions, get_module_logger
+from .outcomes import OutcomesDict
 from .parameters import (CategoricalParameter, IntegerParameter,
                          BooleanParameter)
-from .outcomes import OutcomesDict
-
+from .util import ProgressTrackingMixIn
+from ..util import ema_exceptions, get_module_logger
 
 #
 # Created on 22 Jan 2013
@@ -76,7 +75,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         super(AbstractCallback, self).__init__(nr_experiments,
                                                reporting_frequency,
                                                _logger, log_progress)
-        
+
         if reporting_interval is None:
             reporting_interval = max(
                 1, int(round(nr_experiments / reporting_frequency)))
@@ -190,7 +189,7 @@ class DefaultCallback(AbstractCallback):
         for outcome in outcomes:
             shape = outcome.shape
             if shape is not None:
-                shape = (nr_experiments, ) + shape
+                shape = (nr_experiments,) + shape
                 data = np.empty(shape)
                 data[:] = np.nan
                 self.results[outcome] = data
@@ -222,7 +221,7 @@ class DefaultCallback(AbstractCallback):
                 _logger.debug(message)
             else:
                 try:
-                    self.results[outcome][case_id, ] = outcome_res
+                    self.results[outcome][case_id,] = outcome_res
                 except KeyError:
                     data = np.asarray(outcome_res)
 
@@ -237,7 +236,7 @@ class DefaultCallback(AbstractCallback):
 
                     self.results[outcome] = np.empty(shape, dtype=data.dtype)
                     self.results[outcome][:] = np.nan
-                    self.results[outcome][case_id, ] = outcome_res
+                    self.results[outcome][case_id,] = outcome_res
 
     def __call__(self, experiment, outcomes):
         """

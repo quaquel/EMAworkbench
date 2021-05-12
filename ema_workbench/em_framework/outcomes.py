@@ -4,15 +4,15 @@ Module for outcome classes
 """
 import abc
 import collections
-from io import BytesIO
 import numbers
 import warnings
+from io import BytesIO
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from .util import Variable
 from ema_workbench.util.ema_exceptions import EMAError
+from .util import Variable
 from ..util import get_module_logger
 
 # Created on 24 mei 2011

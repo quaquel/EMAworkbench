@@ -1,11 +1,8 @@
-'''
+"""
 Created on Aug 11, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-'''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-from ema_workbench.em_framework.util import NamedObjectMap
+"""
 
 import unittest.mock as mock
 
@@ -13,9 +10,11 @@ import unittest
 
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
 from ema_workbench.em_framework.model import Model, AbstractModel
+from ema_workbench.em_framework.util import NamedObjectMap
+from ema_workbench.em_framework.parameters import RealParameter
+from ema_workbench.em_framework.cases import Scenario, Policy, Experiment
 from ema_workbench.util import EMAError, CaseError
-from ema_workbench.em_framework.parameters import (Policy, Case, Scenario,
-                                                   RealParameter)
+
 
 class ExperimentRunnerTestCase(unittest.TestCase):
     
@@ -40,8 +39,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
 
         runner = ExperimentRunner(msis)
         
-        experiment = Case('test', mockMSI.name, Policy('none'),
-                          Scenario(a=1, b=2), 0)
+        experiment = Experiment('test', mockMSI.name, Policy('none'),
+                                Scenario(a=1, b=2), 0)
         
         runner.run_experiment(experiment)
         
@@ -61,8 +60,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
 
         runner = ExperimentRunner(msis)
 
-        experiment = Case('test',mockMSI.name,Policy('none'),
-                          Scenario(a=1, b=2),0)
+        experiment = Experiment('test', mockMSI.name, Policy('none'),
+                                Scenario(a=1, b=2), 0)
 
         with self.assertRaises(EMAError):
             runner.run_experiment(experiment)
@@ -75,8 +74,8 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         msis['test'] = mockMSI
         runner = ExperimentRunner(msis)
 
-        experiment = Case('test',mockMSI.name,Policy('none'),
-                          Scenario(a=1, b=2),0)
+        experiment = Experiment('test', mockMSI.name, Policy('none'),
+                                Scenario(a=1, b=2), 0)
         runner.run_experiment(experiment)
         
 if __name__ == "__main__":

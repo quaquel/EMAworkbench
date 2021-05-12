@@ -6,9 +6,8 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
 import seaborn as sns
-from sklearn import preprocessing
-
 from pandas.api.types import CategoricalDtype
+from sklearn import preprocessing
 
 # Created on 11 Sep 2017
 #
@@ -36,7 +35,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
     """
     if formatter is None:
         formatter = {}
-    
+
     sns.set_style('white')
     # labels is a list, minima and maxima pd series
     nr_columns = len(labels)
@@ -56,7 +55,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
 
         # let's put our own tick labels
         ax.yaxis.set_ticks([])
-        
+
         # TODO::consider moving to f-strin
         # so 
         # label = f"{{maxima[label]}:{precision}}"
@@ -64,7 +63,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
             precision = formatter[label]
         except KeyError:
             precision = ".2f"
-        
+
         max_label = f"{maxima[label]:{precision}}"
         min_label = f"{minima[label]:{precision}}"
         max_label = ax.text(i, 1.01, max_label, va="bottom",
@@ -88,7 +87,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
         precision = formatter[label]
     except KeyError:
         precision = ".2f"
-    
+
     max_label = f"{maxima[label]:{precision}}"
     min_label = f"{minima[label]:{precision}}"
 
@@ -121,6 +120,7 @@ def get_limits(data):
     DataFrame
 
     """
+
     def limits(x):
         if x.dtype == 'object':
             return pd.Series([set(x), set(x)])
@@ -167,7 +167,7 @@ class ParallelAxes(object):
               rotation of axis labels
 
         """
-        self.limits = limits.copy() # copy to avoid side effects
+        self.limits = limits.copy()  # copy to avoid side effects
         self.recoding = {}
         self.flipped_axes = set()
         self.axis_labels = list(limits.columns.values)
@@ -185,8 +185,8 @@ class ParallelAxes(object):
         self.normalizer.fit(self.limits)
 
         fig, axes, ticklabels = setup_parallel_plot(
-                        self.axis_labels, self.limits.min(), self.limits.max(),
-                        fs=self.fontsize, rot=rot, formatter=formatter)
+            self.axis_labels, self.limits.min(), self.limits.max(),
+            fs=self.fontsize, rot=rot, formatter=formatter)
 
         self.fig = fig
         self.axes = axes
@@ -214,14 +214,14 @@ class ParallelAxes(object):
         ParallelAxis.
 
         """
-        data = data.copy() # copy to avoid side effects
-        
+        data = data.copy()  # copy to avoid side effects
+
         if isinstance(data, pd.Series):
             data = data.to_frame().T
 
         if label:
             self.datalabels.append((label, color))
-            
+
         # ensures any data to be plotted is in the same order
         # as the limits
         data = data[self.axis_labels]
@@ -362,23 +362,23 @@ class ParallelAxes(object):
                 label.set_va('top')
             label.set_position((x, y))
 
-# TODO:: more fine-grained control for intermediate ticklabels
-#        probably enable this by default for categorical axes
-#        while having it disabled for continuous variables
-# from http://benalexkeen.com/parallel-coordinates-in-matplotlib/
-#         # Set the tick positions and labels on y axis for each plot
-#         # Tick positions based on normalised data
-#         # Tick labels are based on original data
-#         def set_ticks_for_axis(dim, ax, ticks):
-#             min_val, max_val, val_range = min_max_range[cols[dim]] # the limits
-#             step = val_range / float(ticks-1)
-#             tick_labels = [round(min_val + step * i, 2) for i in range(ticks)]
-#             norm_min = df[cols[dim]].min()
-#             norm_range = np.ptp(df[cols[dim]])
-#             norm_step = norm_range / float(ticks-1)
-#             ticks = [round(norm_min + norm_step * i, 2) for i in range(ticks)]
-#             ax.yaxis.set_ticks(ticks)
-#             ax.set_yticklabels(tick_labels)
+    # TODO:: more fine-grained control for intermediate ticklabels
+    #        probably enable this by default for categorical axes
+    #        while having it disabled for continuous variables
+    # from http://benalexkeen.com/parallel-coordinates-in-matplotlib/
+    #         # Set the tick positions and labels on y axis for each plot
+    #         # Tick positions based on normalised data
+    #         # Tick labels are based on original data
+    #         def set_ticks_for_axis(dim, ax, ticks):
+    #             min_val, max_val, val_range = min_max_range[cols[dim]] # the limits
+    #             step = val_range / float(ticks-1)
+    #             tick_labels = [round(min_val + step * i, 2) for i in range(ticks)]
+    #             norm_min = df[cols[dim]].min()
+    #             norm_range = np.ptp(df[cols[dim]])
+    #             norm_step = norm_range / float(ticks-1)
+    #             ticks = [round(norm_min + norm_step * i, 2) for i in range(ticks)]
+    #             ax.yaxis.set_ticks(ticks)
+    #             ax.set_yticklabels(tick_labels)
 
     def _get_axes_ids(self, column):
         """

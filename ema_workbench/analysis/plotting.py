@@ -6,7 +6,6 @@ be used as is, or serve as an example for writing your own code.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-
 from matplotlib.patches import ConnectionPatch
 
 # from . import plotting_util
@@ -333,7 +332,8 @@ def lines(experiments,
             ylabels=ylabels,
             log=log)
 
-    data = prepare_data(experiments, experiments_to_show, outcomes, outcomes_to_show,
+    data = prepare_data(experiments, experiments_to_show, outcomes,
+                        outcomes_to_show,
                         group_by, grouping_specifiers)
     experiments, outcomes, outcomes_to_show, time, grouping_labels = data
 
@@ -441,7 +441,8 @@ def plot_lines_with_envelopes(experiments,
     full_outcomes = prepare_data(experiments, None, outcomes,
                                  outcomes_to_show, group_by,
                                  grouping_specifiers)[1]
-    data = prepare_data(experiments, experiments_to_show, outcomes, outcomes_to_show,
+    data = prepare_data(experiments, experiments_to_show, outcomes,
+                        outcomes_to_show,
                         group_by, grouping_specifiers)
     experiments, outcomes, outcomes_to_show, time, grouping_labels = data
 

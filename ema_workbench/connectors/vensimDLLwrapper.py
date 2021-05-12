@@ -16,8 +16,6 @@ import ctypes
 import struct
 import sys
 
-
-
 import numpy as np
 
 from ..util import EMAError, EMAWarning, get_module_logger
@@ -69,7 +67,6 @@ except AttributeError:
 except WindowsError:
     vensim_64 = None
 
-
 if struct.calcsize("P") * 8 == 64:
     if vensim_64:
         vensim = vensim_64
@@ -80,7 +77,6 @@ if struct.calcsize("P") * 8 == 64:
     # 64 bit python
 else:
 
-    
     if vensim_single and vensim_double:
         vensim = vensim_single
         _logger.info(

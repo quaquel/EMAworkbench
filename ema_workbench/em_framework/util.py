@@ -1,10 +1,11 @@
 """utilities used throughout em_framework"""
 import copy
-from collections import OrderedDict, UserDict
 import itertools
+from collections import OrderedDict, UserDict
+
 import tqdm
 
-from ..util import EMAError, get_module_logger
+from ..util import EMAError
 
 # from .parameters import Parameter
 
@@ -145,7 +146,8 @@ class NamedObjectMapDescriptor:
 
     def __set__(self, instance, values):
         try:
-            mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
+            mapping = getattr(instance,
+                              self.internal_name)  # @ReservedAssignment
         except AttributeError:
             mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
             setattr(instance, self.internal_name, mapping)

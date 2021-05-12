@@ -9,31 +9,30 @@ import math
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import brentq
-
 from SALib.analyze import sobol
+from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
                            ema_logging, MultiprocessingEvaluator, Policy)
-from ema_workbench.em_framework.evaluators import Samplers
 from ema_workbench.em_framework import get_SALib_problem
+from ema_workbench.em_framework.evaluators import Samplers
 
 
 def lake_problem(
-    b=0.42,          # decay rate for P in lake (0.42 = irreversible)
-    q=2.0,           # recycling exponent
-    mean=0.02,       # mean of natural inflows
-    stdev=0.001,     # future utility discount rate
-    delta=0.98,      # standard deviation of natural inflows
-    alpha=0.4,       # utility from pollution
-    nsamples=100,    # Monte Carlo sampling of natural inflows
+        b=0.42,  # decay rate for P in lake (0.42 = irreversible)
+        q=2.0,  # recycling exponent
+        mean=0.02,  # mean of natural inflows
+        stdev=0.001,  # future utility discount rate
+        delta=0.98,  # standard deviation of natural inflows
+        alpha=0.4,  # utility from pollution
+        nsamples=100,  # Monte Carlo sampling of natural inflows
         **kwargs):
     try:
         decisions = [kwargs[str(i)] for i in range(100)]
     except KeyError:
         decisions = [0, ] * 100
 
-    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
+    Pcrit = brentq(lambda x: x ** q / (1 + x ** q) - b * x, 0.01, 1.5)
     nvars = len(decisions)
     X = np.zeros((nvars,))
     average_daily_P = np.zeros((nvars,))
@@ -44,13 +43,13 @@ def lake_problem(
         X[0] = 0.0
 
         natural_inflows = np.random.lognormal(
-            math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
-            math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
+            math.log(mean ** 2 / math.sqrt(stdev ** 2 + mean ** 2)),
+            math.sqrt(math.log(1.0 + stdev ** 2 / mean ** 2)),
             size=nvars)
 
         for t in range(1, nvars):
-            X[t] = (1 - b) * X[t - 1] + X[t - 1]**q / (1 + X[t - 1]**q) + \
-                decisions[t - 1] + natural_inflows[t - 1]
+            X[t] = (1 - b) * X[t - 1] + X[t - 1] ** q / (1 + X[t - 1] ** q) + \
+                   decisions[t - 1] + natural_inflows[t - 1]
             average_daily_P[t] += X[t] / float(nsamples)
 
         reliability += np.sum(X < Pcrit) / float(nsamples * nvars)
@@ -103,7 +102,7 @@ if __name__ == '__main__':
                          range(lake_model.time_horizon)]
 
     # specify outcomes
-    lake_model.outcomes = [ScalarOutcome('max_P',),
+    lake_model.outcomes = [ScalarOutcome('max_P', ),
                            ScalarOutcome('utility'),
                            ScalarOutcome('inertia'),
                            ScalarOutcome('reliability')]
@@ -119,7 +118,7 @@ if __name__ == '__main__':
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         results = evaluator.perform_experiments(n_scenarios, policy,
-                                        uncertainty_sampling=Samplers.SOBOL)
+                                                uncertainty_sampling=Samplers.SOBOL)
 
     sobol_stats, s2, s2_conf = analyze(results, 'max_P')
     print(sobol_stats)

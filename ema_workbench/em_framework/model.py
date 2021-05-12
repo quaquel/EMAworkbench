@@ -7,15 +7,14 @@ an instance of an extension of this abstract base class.
 import operator
 import os
 import warnings
-
-from collections.abc import MutableMapping  # @UnusedImport
 from collections import defaultdict
 
-from .util import (NamedObject, combine, NamedObjectMapDescriptor)
-from .parameters import Parameter, Constant, CategoricalParameter, Experiment
+from .cases import ExperimentReplication
 from .outcomes import AbstractOutcome
-from ..util import EMAError, get_module_logger
-from ..util.ema_logging import method_logger
+from .parameters import Parameter, Constant, CategoricalParameter
+from .util import (NamedObject, combine, NamedObjectMapDescriptor)
+from ..util import EMAError
+from ..util.ema_logging import method_logger, get_module_logger
 
 # Created on 23 dec. 2010
 #
@@ -237,6 +236,7 @@ class AbstractModel(NamedObject):
             joined = ', '.join([repr(entry) for entry in sorted(
                 field, key=operator.attrgetter('name'))])
             return '[{}]'.format(joined)
+
         model_spec = {}
 
         klass = self.__class__.__name__
@@ -305,7 +305,8 @@ class Replicator(AbstractModel):
         for i, rep in enumerate(self.replications):
             _logger.debug("replication {}".format(i))
             rep.id = i
-            experiment = Experiment(scenario, self.policy, constants, rep)
+            experiment = ExperimentReplication(scenario, self.policy,
+                                               constants, rep)
             output = self.run_experiment(experiment)
             for key, value in output.items():
                 outputs[key].append(value)
@@ -336,7 +337,7 @@ class SingleReplication(AbstractModel):
 
         constants = {c.name: c.value for c in self.constants}
 
-        experiment = Experiment(scenario, self.policy, constants)
+        experiment = ExperimentReplication(scenario, self.policy, constants)
 
         outputs = self.run_experiment(experiment)
 

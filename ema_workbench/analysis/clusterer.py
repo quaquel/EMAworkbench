@@ -4,13 +4,13 @@ complex invariant distance
 
 """
 import itertools
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy as sp
 import sklearn.cluster as cluster
 
 from ..util import get_module_logger
-
 
 #
 # Created on  11 Apr 2019
@@ -48,7 +48,7 @@ def calculate_cid(data, condensed_form=False):
 
 
     """
-    ce = np.sqrt(np.sum(np.diff(data, axis=1)**2, axis=1))
+    ce = np.sqrt(np.sum(np.diff(data, axis=1) ** 2, axis=1))
 
     indices = np.arange(0, data.shape[0])
     cid = np.zeros((data.shape[0], data.shape[0]))

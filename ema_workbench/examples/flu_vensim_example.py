@@ -12,8 +12,8 @@ import numpy as np
 
 from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
                            ScalarOutcome, perform_experiments)
-from ema_workbench.em_framework.parameters import Policy
 from ema_workbench.connectors.vensim import VensimModel
+from ema_workbench.em_framework.parameters import Policy
 
 if __name__ == '__main__':
     ema_logging.log_to_stderr(ema_logging.INFO)

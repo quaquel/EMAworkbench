@@ -3,8 +3,8 @@ Created on 12 Nov 2018
 
 @author: jhkwakkel
 '''
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from ema_workbench.analysis import prim
 from ema_workbench.util import ema_logging

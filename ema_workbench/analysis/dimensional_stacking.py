@@ -57,14 +57,13 @@ def discretize(data, nbins=3, with_labels=False):
         column_data = data[column]
         n = nbins
 
-
         if entry.name == 'category':
             n_unique = column_data.unique().shape[0]
             n = n_unique
             column_data = column_data.cat.rename_categories(
                 [x for x in range(1, n + 1)])
             indices = column_data
-            
+
         else:
             if issubclass(entry.type, np.integer):
                 n_unique = column_data.unique().shape[0]
@@ -278,7 +277,6 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
     """
 
     with sns.axes_style('white'):
-
         fig = plt.figure(figsize=figsize)
 
         width_ratios = dim_ratios(figsize=figsize, axis=1)
@@ -295,7 +293,7 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
         # actual plotting
         plot_data = table.values
-        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, 
+        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap,
                     vmin=0, vmax=1, **kwargs)
 
         # set the tick labels

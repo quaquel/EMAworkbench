@@ -6,15 +6,14 @@ Created on 8 mrt. 2011
 '''
 from math import exp
 
+from ema_workbench.connectors.vensim import VensimModel
 from ema_workbench.em_framework import (RealParameter, CategoricalParameter,
                                         TimeSeriesOutcome, perform_experiments)
 from ema_workbench.util import ema_logging
-from ema_workbench.connectors.vensim import VensimModel
 
 
 class ScarcityModel(VensimModel):
     def returnsToScale(self, x, speed, scale):
-
         return (x * 1000, scale * 1 / (1 + exp(-1 * speed * (x - 50))))
 
     def approxLearning(self, x, speed, scale, start):

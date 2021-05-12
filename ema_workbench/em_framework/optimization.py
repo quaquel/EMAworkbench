@@ -6,19 +6,19 @@ import copy
 import functools
 import os
 import random
-import tqdm
 import warnings
 
 import numpy as np
 import pandas as pd
 
+from . import callbacks, evaluators
+from .cases import Scenario, Policy
 from .outcomes import AbstractOutcome, OutcomesDict
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
-                         BooleanParameter, Scenario, Policy)
+                         BooleanParameter)
 from .samplers import determine_parameters
 from .util import determine_objects, ProgressTrackingMixIn
 from ..util import get_module_logger, EMAError, temporary_filter, INFO
-from . import callbacks, evaluators
 
 try:
     from platypus import (
@@ -597,7 +597,7 @@ class Convergence(ProgressTrackingMixIn):
 
     def __call__(self, optimizer, ):
         nfe = optimizer.algorithm.nfe
-        super(Convergence, self).__call__(nfe-self.i)
+        super(Convergence, self).__call__(nfe - self.i)
 
         self.generation += 1
 

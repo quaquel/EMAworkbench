@@ -11,14 +11,12 @@ import socket
 import threading
 
 import zmq
-from zmq.eventloop import ioloop, zmqstream
-
-from traitlets.config import Application
-from traitlets.config.configurable import LoggingConfigurable
-from traitlets import Unicode, Instance, List
-
 from ipyparallel.engine.log import EnginePUBHandler
 from jupyter_client.localinterfaces import localhost
+from traitlets import Unicode, Instance, List
+from traitlets.config import Application
+from traitlets.config.configurable import LoggingConfigurable
+from zmq.eventloop import ioloop, zmqstream
 
 from . import experiment_runner
 from .ema_multiprocessing import setup_working_directories

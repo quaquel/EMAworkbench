@@ -16,7 +16,6 @@ from matplotlib.colors import ColorConverter
 from ema_workbench.util import get_module_logger
 from ..util import EMAError
 
-
 # Created on 18 sep. 2012
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -24,16 +23,17 @@ from ..util import EMAError
 __all__ = ['set_fig_to_bw']
 _logger = get_module_logger(__name__)
 
-bw_mapping = [{'marker': None, 'dash': (None, None), 'fill': '0.1', 'hatch': '/'},
-              {'marker': None, 'dash': [5, 5], 'fill':'0.25', 'hatch':'\\'},
-              {'marker': None, 'dash': [5, 3, 1, 3],
-                  'fill':'0.4', 'hatch':'|'},
-              {'marker': None, 'dash': [1, 3], 'fill':'0.55', 'hatch':'-'},
-              {'marker': None, 'dash': [5, 2, 5, 2,
-                                        5, 10], 'fill':'0.7', 'hatch':'o'},
-              {'marker': None, 'dash': [5, 3, 1, 2,
-                                        1, 10], 'fill':'0.85', 'hatch':'O'},
-              {'marker': 'o', 'dash': (None, None), 'fill': '0.1', 'hatch': '.'}]
+bw_mapping = [
+    {'marker': None, 'dash': (None, None), 'fill': '0.1', 'hatch': '/'},
+    {'marker': None, 'dash': [5, 5], 'fill': '0.25', 'hatch': '\\'},
+    {'marker': None, 'dash': [5, 3, 1, 3],
+     'fill': '0.4', 'hatch': '|'},
+    {'marker': None, 'dash': [1, 3], 'fill': '0.55', 'hatch': '-'},
+    {'marker': None, 'dash': [5, 2, 5, 2,
+                              5, 10], 'fill': '0.7', 'hatch': 'o'},
+    {'marker': None, 'dash': [5, 3, 1, 2,
+                              1, 10], 'fill': '0.85', 'hatch': 'O'},
+    {'marker': 'o', 'dash': (None, None), 'fill': '0.1', 'hatch': '.'}]
 
 MARKERSIZE = 3
 HATCHING = 'hatching'
@@ -237,7 +237,8 @@ def _set_ax_pathcollection_to_bw(collection, ax, style, colormap):
     collection.update({'edgecolors': new_color})
 
 
-_collection_converter = {PathCollection.__name__: _set_ax_pathcollection_to_bw,  # @UndefinedVariable
+_collection_converter = {PathCollection.__name__: _set_ax_pathcollection_to_bw,
+                         # @UndefinedVariable
                          PolyCollection.__name__: _set_ax_polycollection_to_bw}  # @UndefinedVariable
 
 

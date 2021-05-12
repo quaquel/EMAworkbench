@@ -11,10 +11,11 @@ in combination with an agent-set or reporter. However, it introduces
 substantial overhead.
 
 """
-from ema_workbench.em_framework.model import Replicator, SingleReplication
-from ema_workbench.util.ema_logging import get_module_logger
-from ema_workbench.em_framework.outcomes import TimeSeriesOutcome
 from pyNetLogo.core import NetLogoException
+
+from ema_workbench.em_framework.model import Replicator, SingleReplication
+from ema_workbench.em_framework.outcomes import TimeSeriesOutcome
+from ema_workbench.util.ema_logging import get_module_logger
 
 try:
     import jpype
@@ -216,7 +217,7 @@ class BaseNetLogoModel(FileModel):
 
         # handle non time series outcomes
         non_ts_vars = set(self.output_variables) - \
-            set(self.ts_output_variables)
+                      set(self.ts_output_variables)
         for variable in set(non_ts_vars):
             try:
                 data = self.netlogo.report(variable)
@@ -255,9 +256,8 @@ class BaseNetLogoModel(FileModel):
         except AttributeError:
             pass
 
-#         jpype.shutdownJVM()
-#         self.netlogo = None
-
+    #         jpype.shutdownJVM()
+    #         self.netlogo = None
 
     def _handle_outcomes(self, fns):
         """helper function for parsing outcomes"""

@@ -3,11 +3,10 @@ Created on 20 sep. 2011
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 '''
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 from ema_workbench import load_results, ema_logging
-
 from ema_workbench.analysis.pairs_plotting import (pairs_lines, pairs_scatter,
                                                    pairs_density)
 

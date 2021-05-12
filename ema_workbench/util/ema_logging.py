@@ -6,11 +6,10 @@ Python <https://docs.python.org/library/logging.html>`_.
 This logging system will also work in case of multiprocessing.
 
 """
-from functools import wraps
 import inspect
-from contextlib import contextmanager
-
 import logging
+from contextlib import contextmanager
+from functools import wraps
 from logging import DEBUG, INFO
 
 # Created on 23 dec. 2010
@@ -54,7 +53,6 @@ def get_module_logger(name):
 _rootlogger = None
 _module_loggers = {}
 _logger = get_module_logger(__name__)
-
 
 LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
 
@@ -158,7 +156,9 @@ def method_logger(name):
                 'completed calling {} on {}'.format(
                     func.__name__, classname))
             return res
+
         return wrapper
+
     return real_decorator
 
 
@@ -200,8 +200,8 @@ def log_to_stderr(level=None):
 
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
-        if (isinstance(entry, logging.StreamHandler)) and\
-           (entry.formatter._fmt == LOG_FORMAT):
+        if (isinstance(entry, logging.StreamHandler)) and \
+                (entry.formatter._fmt == LOG_FORMAT):
             return logger
 
     formatter = logging.Formatter(LOG_FORMAT)

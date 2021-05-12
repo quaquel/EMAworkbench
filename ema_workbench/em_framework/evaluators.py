@@ -12,23 +12,23 @@ import shutil
 import string
 import threading
 import warnings
-from ema_workbench.em_framework.samplers import AbstractSampler, sample_jointly
-from ..util import EMAError, get_module_logger, ema_logging
-from .util import NamedObjectMap, determine_objects
-from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
-from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
-                       PartialFactorialSampler, UniformLHSSampler,
-                       sample_levers, sample_uncertainties)
-from .parameters import (experiment_generator, Scenario, Policy)
-from .outcomes import ScalarOutcome, AbstractOutcome
+
+from ema_workbench.em_framework.samplers import AbstractSampler
+from .callbacks import DefaultCallback
+from .cases import (experiment_generator, Scenario, Policy)
+from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
+from .experiment_runner import ExperimentRunner
+from .model import AbstractModel
 from .optimization import (evaluate_robust, evaluate, EpsNSGAII,
                            to_problem, to_robust_problem,
                            process_levers, process_uncertainties,
                            process_robust, _optimize)
-from .model import AbstractModel
-from .experiment_runner import ExperimentRunner
-from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
-from .callbacks import DefaultCallback
+from .outcomes import ScalarOutcome, AbstractOutcome
+from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler)
+from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
+                       UniformLHSSampler, sample_levers, sample_uncertainties)
+from .util import NamedObjectMap, determine_objects
+from ..util import EMAError, get_module_logger, ema_logging
 
 warnings.simplefilter("once", ImportWarning)
 
@@ -55,12 +55,12 @@ class Samplers(enum.Enum):
     Enum for different kinds of samplers
     """
     ## TODO:: have samplers register themselves on class instantiation
+    ## TODO:: should not be defined here
 
     MC = MonteCarloSampler()
     LHS = LHSSampler()
     UNIFORM_LHS = UniformLHSSampler()
     FF = FullFactorialSampler()
-    PFF = PartialFactorialSampler()
     SOBOL = SobolSampler()
     FAST = FASTSampler()
     MORRIS = MorrisSampler()
@@ -284,7 +284,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
 
         self._pool = multiprocessing.Pool(self.n_processes, initializer,
                                           (self._msis, log_queue, loglevel,
-                                           self.root_dir), self.maxtasksperchild)
+                                           self.root_dir),
+                                          self.maxtasksperchild)
         self.n_processes = self._pool._processes
         _logger.info(f"pool started with {self.n_processes} workers")
         return self
@@ -390,7 +391,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
     callback  : Callback instance, optional
     return_callback : boolean, optional
     log_progress : bool, optional
-    combine : {'factorial', 'zipover', 'sample_jointly'}, optional
+    combine : {'factorial', 'zipover'}, optional
               how to combine uncertainties and levers?
               In case of 'factorial', both are sampled separately using their
               respective samplers. Next the resulting designs are combined in a
@@ -398,8 +399,6 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
               In case of 'zipover', both are sampled separately and
               then combined by cycling over the shortest of the the two sets
               of designs until the longest set of designs is exhausted.
-              In case of 'sample_jointly', uncertainties and levers are
-              combined and sampled using the specification for scenarios.
 
     Returns
     -------
@@ -417,24 +416,12 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         raise EMAError(('no experiments possible since both '
                         'scenarios and policies are 0'))
 
-    if combine != 'sample_jointly':
-        scenarios, uncertainties, n_scenarios = setup_scenarios(scenarios,
-                                                                uncertainty_sampling, uncertainty_union, models)
-        policies, levers, n_policies = setup_policies(policies, lever_sampling,
-                                                      lever_union, models)
-    else:
-        policies = [Policy("None", **{})]
-        levers = []
-        n_policies = 1
-
-        sampler = uncertainty_sampling
-        if not isinstance(sampler, AbstractSampler):
-            sampler = sampler.value
-        scenarios = sample_jointly(models, scenarios, uncertainty_union,
-                                   lever_union, sampler)
-        uncertainties = scenarios.parameters
-        n_scenarios = scenarios.n
-        combine = 'factorial'
+    scenarios, uncertainties, n_scenarios = setup_scenarios(scenarios,
+                                                            uncertainty_sampling,
+                                                            uncertainty_union,
+                                                            models)
+    policies, levers, n_policies = setup_policies(policies, lever_sampling,
+                                                  lever_union, models)
 
     try:
         n_models = len(models)
@@ -455,12 +442,14 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         nr_of_exp = n_models * max(n_scenarios, n_policies)
         # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
         # it
-        _logger.info(('performing max({} scenarios, {} policies) * {} model(s) = '
-                      '{} experiments').format(n_scenarios, n_policies,
-                                               n_models, nr_of_exp))
+        _logger.info(
+            ('performing max({} scenarios, {} policies) * {} model(s) = '
+             '{} experiments').format(n_scenarios, n_policies,
+                                      n_models, nr_of_exp))
 
     callback = setup_callback(callback, uncertainties, levers, outcomes,
-                              nr_of_exp, reporting_interval, reporting_frequency,
+                              nr_of_exp, reporting_interval,
+                              reporting_frequency,
                               log_progress)
 
     if not evaluator:
@@ -532,7 +521,8 @@ def setup_policies(policies, levers_sampling, lever_union, models):
     return policies, levers, n_policies
 
 
-def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union, models):
+def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union,
+                    models):
     if not scenarios:
         scenarios = [Scenario("None", **{})]
         uncertainties = []

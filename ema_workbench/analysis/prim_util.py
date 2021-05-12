@@ -2,15 +2,13 @@
 
 """
 
-from enum import Enum
 import math
+from enum import Enum
 
 import numpy as np
 
 from . import scenario_discovery_util as sdutil
-
 from ..util.ema_logging import (get_module_logger)
-
 
 _logger = get_module_logger(__name__)
 
@@ -62,7 +60,7 @@ def get_quantile(data, quantile):
     else:
         # lower
         while (data[index_lower] == data[index_higher]) & \
-              (index_higher < len(data) - 1):
+                (index_higher < len(data) - 1):
             index_higher += 1
         value = (data[index_lower] + data[index_higher]) / 2
 
@@ -174,7 +172,7 @@ def determine_rotation(experiments):
     # make the eigen vectors unit length
     for i in range(eigen_vectors.shape[1]):
         eigen_vectors[:, i] / \
-            np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(eigen_vals[i])
+        np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(eigen_vals[i])
 
     return eigen_vectors
 
@@ -240,7 +238,7 @@ def calc_fronts(M):
     # taken from
     # https://stackoverflow.com/questions/41740596/pareto-frontier-indices-using-numpy
     i_dominates_j = np.all(M[:, None] >= M, axis=-
-                           1) & np.any(M[:, None] > M, axis=-1)
+    1) & np.any(M[:, None] > M, axis=-1)
     remaining = np.arange(len(M))
     fronts = np.empty(len(M), int)
     frontier_index = 0

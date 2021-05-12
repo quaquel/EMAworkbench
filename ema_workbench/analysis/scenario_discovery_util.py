@@ -4,14 +4,15 @@ Scenario discovery utilities used by both :mod:`cart` and :mod:`prim`
 import abc
 import enum
 import itertools
+
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImports
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy as sp
 import seaborn as sns
+from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImports
 
 from .plotting_util import COLOR_LIST, make_legend
 
@@ -156,8 +157,8 @@ def _determine_restricted_dims(box_limits, box_init):
     cols = box_init.columns.values
     restricted_dims = cols[np.all(
         box_init.values == box_limits.values, axis=0) == False]
-#     restricted_dims = [column for column in box_init.columns if not
-#            np.all(box_init[column].values == box_limits[column].values)]
+    #     restricted_dims = [column for column in box_init.columns if not
+    #            np.all(box_init[column].values == box_limits[column].values)]
     return restricted_dims
 
 
@@ -188,12 +189,12 @@ def _compare(a, b):
     """compare two boxes, for each dimension return True if the
     same and false otherwise"""
     dtypesDesc = a.dtype.descr
-    logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
+    logical = np.ones((len(dtypesDesc, )), dtype=np.bool)
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
-        logical[i] = logical[i] &\
-            (a[name][0] == b[name][0]) &\
-            (a[name][1] == b[name][1])
+        logical[i] = logical[i] & \
+                     (a[name][0] == b[name][0]) & \
+                     (a[name][1] == b[name][1])
     return logical
 
 
@@ -222,8 +223,8 @@ def _in_box(x, boxlim):
 
     x_numbered = x.select_dtypes(np.number)
     boxlim_numbered = boxlim.select_dtypes(np.number)
-    logical = (boxlim_numbered.loc[0, :].values <= x_numbered.values) &\
-        (x_numbered.values <= boxlim_numbered.loc[1, :].values)
+    logical = (boxlim_numbered.loc[0, :].values <= x_numbered.values) & \
+              (x_numbered.values <= boxlim_numbered.loc[1, :].values)
     logical = logical.all(axis=1)
 
     # TODO:: how to speed this up
@@ -308,7 +309,8 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     Tbox = int(Tbox)
 
     # force one sided
-    qp = sp.stats.binom_test(Hbox, Tbox, p, alternative='greater')  # @UndefinedVariable
+    qp = sp.stats.binom_test(Hbox, Tbox, p,
+                             alternative='greater')  # @UndefinedVariable
 
     return qp
 
@@ -343,7 +345,6 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims,
     categorical_columns = data.select_dtypes('category').columns.values
     categorical_mappings = {}
     for column in categorical_columns:
-
         # reorder categorical data so we
         # can capture the categories that are part of the box within a 
         # single rectangular patch
@@ -361,15 +362,15 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims,
         # replace column with codes
         data[column] = data[column].cat.codes
 
-    data['y'] = y 
-    
+    data['y'] = y
+
     # ensures cases of interest are plotted on top
-    data.sort_values('y', inplace=True) 
-    
+    data.sort_values('y', inplace=True)
+
     grid = sns.pairplot(data=data, hue='y', vars=x.columns.values,
-                        diag_kind='kde', diag_kws={'cumulative':cdf,
-                                                   'common_norm':False,
-                                                   'fill':False})
+                        diag_kind='kde', diag_kws={'cumulative': cdf,
+                                                   'common_norm': False,
+                                                   'fill': False})
 
     cats = set(categorical_columns)
     for row, ylabel in zip(grid.axes, grid.y_vars):
@@ -573,7 +574,7 @@ def plot_box(boxlim, qp_values, box_init, uncs,
              rowLabels=['coverage', 'density'],
              colLabels=None,
              loc='right',
-             bbox=[1.2, 0.9, 0.1, 0.1],)
+             bbox=[1.2, 0.9, 0.1, 0.1], )
     plt.subplots_adjust(left=0.1, right=0.75)
 
     return fig
@@ -604,7 +605,8 @@ def plot_ppt(peeling_trajectory):
     return fig
 
 
-def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis):  # @UndefinedVariable
+def plot_tradeoff(peeling_trajectory,
+                  cmap=mpl.cm.viridis):  # @UndefinedVariable
     """Visualize the trade off between coverage and density. Color
     is used to denote the number of restricted dimensions.
 
