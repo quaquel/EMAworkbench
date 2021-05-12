@@ -241,8 +241,10 @@ def pairs_density(experiments, outcomes,
         figures = []
         for key, value in outcomes.items():
             figure, axes_dict = simple_pairs_density(value, outcomes_to_show,
-                                                     log, colormap, gridsize, ylabels,
-                                                     extents=extents, title=key)
+                                                     log, colormap, gridsize,
+                                                     ylabels,
+                                                     extents=extents,
+                                                     title=key)
             axes_dicts[key] = axes_dict
             figures.append(figure)
 
@@ -365,7 +367,7 @@ def simple_pairs_density(outcomes,
         if extents:
             extent = extents[(field2, field1)]
 
-        #text and labels
+        # text and labels
         if i == j:
             # only plot the name in the middle
             pass
@@ -525,7 +527,7 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
 
     """
 
-    #text and labels
+    # text and labels
     if i == j:
         # only plot the name in the middle
         if ylabels:

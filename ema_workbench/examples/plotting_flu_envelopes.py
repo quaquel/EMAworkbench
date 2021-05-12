@@ -1,5 +1,3 @@
-
-
 '''
 Created on Jul 8, 2014
 

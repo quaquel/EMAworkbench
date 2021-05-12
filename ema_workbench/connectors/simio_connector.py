@@ -22,8 +22,9 @@ from ema_workbench.util.ema_logging import get_module_logger, method_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 _logger = get_module_logger(__name__)
 
+
 class SimioModel(FileModel, SingleReplication):
-    
+
     @method_logger(__name__)
     def __init__(self, name, wd=None, model_file=None, main_model=None):
         """interface to the model
@@ -46,40 +47,42 @@ class SimioModel(FileModel, SingleReplication):
         ValueError
             if model_file cannot be found
 
-        """    
+        """
         super(SimioModel, self).__init__(name, wd=wd, model_file=model_file)
         assert main_model != None
         self.main_model_name = main_model
         self.output = {}
-    
+
     @method_logger(__name__)
     def model_init(self, policy):
         super(SimioModel, self).model_init(policy)
         _logger.debug('initializing model')
-        
+
         # get project
         path_to_file = os.path.join(self.working_directory, self.model_file)
-        self.project = SimioAPI.ISimioProject(SimioAPI.SimioProjectFactory.LoadProject(path_to_file))
+        self.project = SimioAPI.ISimioProject(
+            SimioAPI.SimioProjectFactory.LoadProject(path_to_file))
         self.policy = policy
-        
+
         # get model
         models = SimioAPI.IModels(self.project.get_Models())
         model = models.get_Item(self.main_model_name)
-        
+
         if not model:
             raise EMAError((f'''main model with name {self.main_model_name} '
                             'not found'''))
-               
+
         self.model = SimioAPI.IModel(model)
-        
+
         # set up new EMA specific experiment on model
         _logger.debug('setting up EMA experiment')
-        self.experiment = SimioAPI.IExperiment(model.Experiments.Create('ema experiment'))
+        self.experiment = SimioAPI.IExperiment(
+            model.Experiments.Create('ema experiment'))
         SimioAPI.IExperimentResponses(self.experiment.Responses).Clear()
-        
+
         # use all available responses as template for experiment responses
         responses = get_responses(model)
-        
+
         for outcome in self.outcomes:
             for name in outcome.variable_name:
                 name = outcome.name
@@ -87,31 +90,32 @@ class SimioModel(FileModel, SingleReplication):
                     value = responses[name]
                 except KeyError:
                     raise EMAError(f'response with name \'{name}\' not found')
-                
-                response = SimioAPI.IExperimentResponse(self.experiment.Responses.Create(name))
+
+                response = SimioAPI.IExperimentResponse(
+                    self.experiment.Responses.Create(name))
                 response.set_Expression(value.Expression)
                 response.set_Objective(value.Objective)
-        
+
         # remove any scenarios on experiment
         self.scenarios = SimioAPI.IScenarios(self.experiment.Scenarios)
         self.scenarios.Clear()
-        
+
         # make control map
         controls = SimioAPI.IExperimentControls(self.experiment.get_Controls())
         self.control_map = {}
-        
+
         for i in range(controls.Count):
             control = controls.get_Item(i)
-            
-            self.control_map[control.Name] = control      
-            
-        _logger.debug('model initialized successfully') 
-     
+
+            self.control_map[control.Name] = control
+
+        _logger.debug('model initialized successfully')
+
     @method_logger(__name__)
     def run_experiment(self, experiment):
         self.case = experiment
         _logger.debug('Setup SIMIO scenario')
-        
+
         scenario = self.scenarios.Create()
         _logger.debug(f'nr. of scenarios is {self.scenarios.Count}')
 
@@ -123,17 +127,17 @@ class SimioModel(FileModel, SingleReplication):
                                   'control in simio model'''))
             else:
                 ret = scenario.SetControlValue(control, str(value))
-                
+
                 if ret:
                     _logger.debug(f'{key} set successfully')
                 else:
                     raise CaseError(f'failed to set {key}')
-            
+
         _logger.debug('SIMIO scenario setup completed')
-            
-        self.experiment.ScenarioEnded += self.scenario_ended   
-        self.experiment.RunCompleted += self.run_completed  
-        
+
+        self.experiment.ScenarioEnded += self.scenario_ended
+        self.experiment.RunCompleted += self.run_completed
+
         _logger.debug('preparing to run model')
         self.experiment.Run()
         _logger.debug('run completed')
@@ -147,55 +151,55 @@ class SimioModel(FileModel, SingleReplication):
 
         """
         super(SimioModel, self).reset_model()
-        
+
         self.scenarios.Clear()
         self.output = {}
-      
-    @method_logger(__name__)  
+
+    @method_logger(__name__)
     def scenario_ended(self, sender, scenario_ended_event):
         """scenario ended event handler"""
-        
-#         ema_logging.debug('scenario ended called!')
-    
+
+        #         ema_logging.debug('scenario ended called!')
+
         # This event handler will be called when all replications for a
         # given scenario have completed.  At this point the statistics
         # produced by this scenario should be available.
         experiment = SimioAPI.IExperiment(sender)
         scenario = SimioAPI.IScenario(scenario_ended_event.Scenario)
-        
+
         _logger.debug((f'''scenario {scenario.Name} for experiment '
                        '{experiment.Name} completed'''))
         responses = experiment.Scenarios.get_Responses()
-        
+
         # http://stackoverflow.com/questions/16484167/python-net-framework-reference-argument-double
-        
+
         for response in responses:
             _logger.debug(f'{response}')
             response_value = 0.0
             try:
-                success, response_value = scenario.GetResponseValue(response, 
-                                                                response_value)
+                success, response_value = scenario.GetResponseValue(response,
+                                                                    response_value)
             except TypeError:
                 _logger.warning((f'''type error when trying to get a '
                                  'response for {response.Name}'''))
                 raise
-            
+
             if success:
                 self.output[response.Name] = response_value
             else:
                 # no valid response value
                 error = CaseError(f'no valid response for {response.Name}',
-                                  self.case) 
+                                  self.case)
                 _logger.exception(str(error))
-                
-                raise 
-     
-    @method_logger(__name__)   
+
+                raise
+
+    @method_logger(__name__)
     def run_completed(self, sender, run_completed_event):
         """run completed event handler"""
-        
+
         _logger.debug('run completed')
-        
+
         # This event handler is the last one to be called during the run.
         # When running async, this is the correct place to shut things down.
         experiment = SimioAPI.IExperiment(sender)
@@ -215,19 +219,16 @@ def get_responses(model):
     model : SimioAPI.IModel instance
 
     """
-    
+
     response_map = {}
-    
+
     experiments = SimioAPI.IExperiments(model.Experiments)
     for i in range(experiments.Count):
         experiment = SimioAPI.IExperiment(experiments.get_Item(i))
         responses = SimioAPI.IExperimentResponses(experiment.Responses)
         for j in range(responses.Count):
             response = SimioAPI.IExperimentResponse(responses.get_Item(j))
-            
+
             response_map[response.Name] = response
-    
+
     return response_map
-    
-  
-    

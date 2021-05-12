@@ -16,13 +16,13 @@ from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
 from ema_workbench.connectors.excel import ExcelModel
 from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
-
 if __name__ == "__main__":
     ema_logging.log_to_stderr(level=ema_logging.INFO)
 
     model = ExcelModel("predatorPrey", wd="./models/excelModel",
                        model_file='excel example.xlsx')
-    model.uncertainties = [RealParameter("K2", 0.01, 0.2),  # we can refer to a cell in the normal way
+    model.uncertainties = [RealParameter("K2", 0.01, 0.2),
+                           # we can refer to a cell in the normal way
                            # we can also use named cells
                            RealParameter("KKK", 450, 550),
                            RealParameter("rP", 0.05, 0.15),
@@ -31,7 +31,8 @@ if __name__ == "__main__":
                            RealParameter("kk", 0.1, 0.3)]
 
     # specification of the outcomes
-    model.outcomes = [TimeSeriesOutcome("B4:B1076"),  # we can refer to a range in the normal way
+    model.outcomes = [TimeSeriesOutcome("B4:B1076"),
+                      # we can refer to a range in the normal way
                       TimeSeriesOutcome("P_t")]  # we can also use named range
 
     # name of the sheet
