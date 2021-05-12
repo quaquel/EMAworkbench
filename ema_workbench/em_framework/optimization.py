@@ -849,7 +849,7 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
         optimizer.run(nfe)
 
     convergence(optimizer)
-    convergence.pbar.__exit__(None, None, None)
+    # convergence.pbar.__exit__(None, None, None)
 
     results = to_dataframe(optimizer, problem.parameter_names,
                            problem.outcome_names)
