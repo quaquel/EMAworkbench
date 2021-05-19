@@ -24,9 +24,40 @@ _logger = get_module_logger(__name__)
 
 
 class SimioModel(FileModel, SingleReplication):
+    """Connector for Simio models
+
+     Parameters
+    ----------
+    name : str
+           name of the modelInterface. The name should contain only
+           alpha-numerical characters.
+    working_directory : str
+                        working_directory for the model.
+    model_file  : str
+                 the name of the model file
+    main_model : str
+    n_replications : int, optional
+
+    Attributes
+    ----------
+    name : str
+    working_directory : str
+    model_file : str
+    main_model_name : str
+    output : dict
+    n_replications : int
+
+    Notes
+    -----
+    responses are stored for each replication. It is up to the user
+    to specify on the Python side what descriptive statistics need to be saved
+    given the numpy array with replication specific responses
+
+    """
 
     @method_logger(__name__)
-    def __init__(self, name, wd=None, model_file=None, main_model=None):
+    def __init__(self, name, wd=None, model_file=None, main_model=None,
+                 n_replications=10):
         """interface to the model
 
         Parameters
@@ -39,6 +70,7 @@ class SimioModel(FileModel, SingleReplication):
         model_file  : str
                      the name of the model file
         main_model : str
+        n_replications : int, optional
 
         Raises
         ------
@@ -52,6 +84,7 @@ class SimioModel(FileModel, SingleReplication):
         assert main_model != None
         self.main_model_name = main_model
         self.output = {}
+        self.n_replications = n_replications
 
     @method_logger(__name__)
     def model_init(self, policy):
@@ -117,6 +150,7 @@ class SimioModel(FileModel, SingleReplication):
         _logger.debug('Setup SIMIO scenario')
 
         scenario = self.scenarios.Create()
+        scenario.ReplicationsRequired = self.num_replications
         _logger.debug(f'nr. of scenarios is {self.scenarios.Count}')
 
         for key, value in experiment.items():
@@ -173,26 +207,33 @@ class SimioModel(FileModel, SingleReplication):
 
         # http://stackoverflow.com/questions/16484167/python-net-framework-reference-argument-double
 
+        results = scenario_ended_event.get_Results()
+        data = []
+        for result in results:
+            data.append(SimioAPI.IScenarioResult(result))
+        results = data
+
         for response in responses:
             _logger.debug(f'{response}')
             response_value = 0.0
-            try:
-                success, response_value = scenario.GetResponseValue(response,
-                                                                    response_value)
-            except TypeError:
-                _logger.warning((f'''type error when trying to get a '
-                                 'response for {response.Name}'''))
-                raise
 
-            if success:
-                self.output[response.Name] = response_value
-            else:
-                # no valid response value
-                error = CaseError(f'no valid response for {response.Name}',
-                                  self.case)
-                _logger.exception(str(error))
+            replication_scores = []
+            for replication in range(1, self.num_replications+1):
+                try:
+                    success, value = scenario.GetResponseValueForReplication(response,replication, response_value)
+                except TypeError:
+                    _logger.warning((f'''type error when trying to get a '
+                                             'response for {response.Name}'''))
+                    raise
 
-                raise
+                if success:
+                    replication_scores.append(value)
+                else:
+                    error = CaseError("error in simio replication")
+                    _logger.exception(str(error))
+                    raise error
+
+            self.output[response.Name] = np.asarray(replication_scores)
 
     @method_logger(__name__)
     def run_completed(self, sender, run_completed_event):
