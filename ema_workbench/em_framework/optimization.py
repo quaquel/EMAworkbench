@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from . import callbacks, evaluators
-from .cases import Scenario, Policy
+from .points import Scenario, Policy
 from .outcomes import AbstractOutcome, OutcomesDict
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          BooleanParameter)

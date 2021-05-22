@@ -10,7 +10,7 @@ from ema_workbench.em_framework.samplers import (LHSSampler, MonteCarloSampler,
                                 FullFactorialSampler, determine_parameters)
 from ema_workbench.em_framework.parameters import (RealParameter,
                                        IntegerParameter, CategoricalParameter)
-from ema_workbench.em_framework.cases import Scenario
+from ema_workbench.em_framework.points import Scenario
 from ema_workbench.em_framework import Model
 
 

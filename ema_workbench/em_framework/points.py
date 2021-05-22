@@ -1,36 +1,36 @@
-"""
-
-
+"""classes for representing points in parameter space, as well as associated
+hellper functions
 
 """
 
 from collections import ChainMap
+import itertools
 
 from ema_workbench.em_framework.util import NamedDict, Counter, NamedObject
 from ema_workbench.em_framework.util import combine
 from ema_workbench.util import get_module_logger
 
-__all__ = ['Case', 'Policy', 'Scenario', 'Experiment', 'ExperimentReplication',
+__all__ = ['Point', 'Policy', 'Scenario', 'Experiment', 'ExperimentReplication',
            'sample_cases', 'factorial_cases', 'combine_cases',
            'experiment_generator']
 _logger = get_module_logger(__name__)
 
 
-class Case(NamedDict):
+class Point(NamedDict):
     id_counter = Counter(1)
     name_counter = Counter(0)
 
     def __init__(self, name=None, unique_id=None, **kwargs):
         if name is None:
-            name = Case.name_counter()
+            name = Point.name_counter()
         if unique_id is None:
-            unique_id = Case.id_counter()
+            unique_id = Point.id_counter()
 
-        super(Case, self).__init__(name, **kwargs)
+        super(Point, self).__init__(name, **kwargs)
         self.unique_id = unique_id
 
 
-class Policy(Case):
+class Policy(Point):
     """Helper class representing a policy
 
     Attributes
@@ -56,7 +56,7 @@ class Policy(Case):
         return "Policy({})".format(super(Policy, self).__repr__())
 
 
-class Scenario(Case):
+class Scenario(Point):
     """Helper class representing a scenario
 
     Attributes
@@ -128,27 +128,28 @@ class ExperimentReplication(NamedDict):
             name, **combine(scenario, policy, constants))
 
 
-# def zip_cycle(*args):
-#     # zipover
-#     #     taken from jpn
-#     #     getting the max might by tricky
-#     #     policies and scenarios are generators themselves?
-#
-#     maxlen = max(len(a) for a in args)
-#     return itertools.islice(zip(*(itertools.cycle(a) for a in args)), maxlen)
+def zip_cycle(*args):
+    # zipover
+    #     taken from jpn
+    #     getting the max might by tricky
+    #     policies and scenarios are generators themselves?
+    # TODO to be replaced with sample based combining
+
+    max_len = max(len(a) for a in args)
+    return itertools.islice(zip(*(itertools.cycle(a) for a in args)), max_len)
 
 
-def combine_cases_sampling(*cases):
+def combine_cases_sampling(*point_collection):
     """Combine collections of cases by iterating over the longest collection
     while sampling with replacement from the others
     
     Parameters
     ----------
-    cases : collection of collection of Case instances
+    point_collection : collection of collection of Point instances
 
     Yields
     -------
-    Case
+    Point
 
     """
 
@@ -156,31 +157,32 @@ def combine_cases_sampling(*cases):
     def exhaust_cases(cases):
         return [case for case in cases]
 
-    cases = [exhaust_cases(case) for case in cases]
-    longest_cases = max(cases, key=len)
-    other_cases = [case for case in cases if case is not longest_cases]
+    point_collection = [exhaust_cases(case) for case in point_collection]
+    longest_cases = max(point_collection, key=len)
+    other_cases = [case for case in point_collection if case is not longest_cases]
 
     for case in longest_cases:
         other = (random.choice(entry) for entry in other_cases)
 
-        yield Case(**ChainMap(case, *other))
+        yield Point(**ChainMap(case, *other))
 
 
-def combine_cases_factorial(*cases):
+def combine_cases_factorial(*point_collections):
     """ Combine collections of cases in a full factorial manner
 
     Parameters
     ----------
-    cases
+    point_collections : collection of collections of Point instances
 
-    Returns
+    Yields
     -------
+    Point
 
     """
-    combined_cases = itertools.product(*cases)
+    combined_cases = itertools.product(*point_collections)
 
     for entry in combined_cases:
-        yield Case(**ChainMap(*entry))
+        yield Point(**ChainMap(*entry))
 
 
 # def combine_cases(method, *cases):
@@ -235,13 +237,18 @@ def experiment_generator(scenarios, model_structures, policies,
     exhausted.
 
     """
+
+    # TODO combine_ functions can be made more generic
+    # basically combine any collection
+    # wrap around to yield specifc type of class (e.g. point
+
     if combine == 'sample':
         jobs = zip_cycle(model_structures, policies, scenarios)
     elif combine == 'factorial':
         # full factorial
         jobs = itertools.product(model_structures, policies, scenarios)
     else:
-        ValueError(f"{combine} is unknown value for combine")
+        raise ValueError(f"{combine} is unknown value for combine")
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job

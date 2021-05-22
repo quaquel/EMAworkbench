@@ -9,7 +9,7 @@ import os
 import warnings
 from collections import defaultdict
 
-from .cases import ExperimentReplication
+from .points import ExperimentReplication
 from .outcomes import AbstractOutcome
 from .parameters import Parameter, Constant, CategoricalParameter
 from .util import (NamedObject, combine, NamedObjectMapDescriptor)

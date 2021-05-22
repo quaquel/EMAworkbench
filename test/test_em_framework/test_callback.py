@@ -11,7 +11,7 @@ import numpy as np
 from ema_workbench.em_framework.callbacks import DefaultCallback
 from ema_workbench.em_framework.parameters import (CategoricalParameter,
                                         RealParameter, IntegerParameter)
-from ema_workbench.em_framework.cases import Policy, Scenario, Experiment
+from ema_workbench.em_framework.points import Policy, Scenario, Experiment
 from ema_workbench.util import EMAError
 from ema_workbench.em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
                                                  TimeSeriesOutcome) 

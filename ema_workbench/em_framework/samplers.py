@@ -14,7 +14,7 @@ import numpy as np
 import scipy.stats as stats
 
 from ema_workbench.em_framework import util
-from ema_workbench.em_framework.cases import Policy, Scenario, Case
+from ema_workbench.em_framework.points import Policy, Scenario, Point
 from ema_workbench.em_framework.parameters import (IntegerParameter,
                                                    BooleanParameter,
                                                    CategoricalParameter)
@@ -499,7 +499,7 @@ def determine_parameters(models, attribute, union=True):
 
 
 def sample_parameters(parameters, n_samples, sampler=LHSSampler(),
-                      kind=Case):
+                      kind=Point):
     """generate cases by sampling over the parameters
 
     Parameters
@@ -507,7 +507,8 @@ def sample_parameters(parameters, n_samples, sampler=LHSSampler(),
     parameters : collection of AbstractParameter instances
     n_samples : int
     sampler : Sampler instance, optional
-    kind : {Case, Scenario, Policy} instance
+    kind : {Case, Scenario, Policy}, optional
+            the class into which the samples are collected
 
     Returns
     -------

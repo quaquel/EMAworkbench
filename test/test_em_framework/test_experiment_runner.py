@@ -12,7 +12,7 @@ from ema_workbench.em_framework.experiment_runner import ExperimentRunner
 from ema_workbench.em_framework.model import Model, AbstractModel
 from ema_workbench.em_framework.util import NamedObjectMap
 from ema_workbench.em_framework.parameters import RealParameter
-from ema_workbench.em_framework.cases import Scenario, Policy, Experiment
+from ema_workbench.em_framework.points import Scenario, Policy, Experiment
 from ema_workbench.util import EMAError, CaseError
 
 

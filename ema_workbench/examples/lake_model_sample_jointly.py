@@ -1,10 +1,10 @@
-'''
-An example of the lake problem using the ema workbench.
+"""
+An example of the lake problem using the ema workbench. This example
+illustrated how you can control more finely how samples are being generated.
+In this particular case, we want to apply Sobol analysis over both the
+uncertainties and levers at the same time.
 
-The model itself is adapted from the Rhodium example by Dave Hadka,
-see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
-
-'''
+"""
 import math
 
 import numpy as np
@@ -13,13 +13,14 @@ from SALib.analyze import sobol
 from scipy.optimize import brentq
 
 from ema_workbench import (Model, RealParameter, ScalarOutcome, Constant,
-                           ema_logging, MultiprocessingEvaluator)
-from ema_workbench.em_framework import get_SALib_problem
-from ema_workbench.em_framework.evaluators import Samplers
+                           ema_logging, MultiprocessingEvaluator, Scenario)
+from ema_workbench.em_framework import get_SALib_problem, sample_parameters
+from ema_workbench.em_framework import SobolSampler
+# from ema_workbench.em_framework.evaluators import Samplers
 
 
 def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
-    '''
+    """
 
     Parameters
     ----------
@@ -38,7 +39,7 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
 
     note:: w2 = 1 - w1
 
-    '''
+    """
 
     rule = w1 * (abs(xt - c1) / r1) ** 3 + (1 - w1) * (abs(xt - c2) / r2) ** 3
     at1 = max(rule, 0.01)
@@ -102,9 +103,9 @@ def lake_problem(
 
 
 def analyze(results, ooi):
-    '''analyze results using SALib sobol, returns a dataframe
+    """analyze results using SALib sobol, returns a dataframe
 
-    '''
+    """
 
     _, outcomes = results
 
@@ -162,12 +163,14 @@ if __name__ == '__main__':
                             Constant('nsamples', 100),
                             Constant('myears', 100)]
 
+    # combine parameters and uncertainties prior to sampling
     n_scenarios = 1000
+    parameters = lake_model.uncertainties + lake_model.levers
+    scenarios = sample_parameters(parameters, n_scenarios, SobolSampler(),
+                                  Scenario)
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        results = evaluator.perform_experiments(n_scenarios,
-                                                combine='sample_jointly',
-                                                uncertainty_sampling=Samplers.SOBOL)
+        results = evaluator.perform_experiments(scenarios)
 
     sobol_stats, s2, s2_conf = analyze(results, 'max_P')
     print(sobol_stats)

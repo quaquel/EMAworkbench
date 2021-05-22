@@ -1,4 +1,4 @@
-"""parameters and collections of parameters"""
+"""parameters and related helper classes and functions"""
 import abc
 import numbers
 

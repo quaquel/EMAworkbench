@@ -13,7 +13,7 @@ import numpy as np
 from ema_workbench import (TimeSeriesOutcome, ScalarOutcome, ema_logging,
                            Policy, MultiprocessingEvaluator, save_results)
 from ema_workbench.connectors.vensim import VensimModel
-from ema_workbench.em_framework.parameters import create_parameters
+from ema_workbench.em_framework.parameters import parameters_from_csv
 
 
 def time_of_max(infected_fraction, time):
@@ -40,7 +40,7 @@ if __name__ == '__main__':
                                     function=time_of_max)]
 
     # create uncertainties based on csv
-    model.uncertainties = create_parameters(
+    model.uncertainties = parameters_from_csv(
         './models/flu/flu_uncertainties.csv')
 
     # add policies

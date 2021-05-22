@@ -24,9 +24,9 @@ from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                          BooleanParameter, Constant, parameters_from_csv,
                          parameters_to_csv, Category)
 from .samplers import (MonteCarloSampler, FullFactorialSampler, LHSSampler,
-                       sample_levers, sample_uncertainties)
-from .cases import (Scenario, Policy, Case, ExperimentReplication,
-                    experiment_generator)
+                       sample_levers, sample_uncertainties, sample_parameters)
+from .points import (Scenario, Policy, Point, ExperimentReplication,
+                     experiment_generator)
 
 from .salib_samplers import (SobolSampler, MorrisSampler, FASTSampler,
                              get_SALib_problem)

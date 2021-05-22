@@ -15,7 +15,7 @@ import warnings
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 from .callbacks import DefaultCallback
-from .cases import (experiment_generator, Scenario, Policy)
+from .points import (experiment_generator, Scenario, Policy)
 from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel

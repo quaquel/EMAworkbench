@@ -119,8 +119,9 @@ class NamedObjectMap:
             raise TypeError("can only add " + str(type) + " objects")
 
     def __add__(self, value):
-        self.extend(value)
-        return self
+        data = self.copy()
+        data.extend(value)
+        return data
 
     def __iadd__(self, value):
         self.extend(value)
