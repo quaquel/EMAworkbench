@@ -1,8 +1,8 @@
-'''
+"""
 
 Plotting utility functions
 
-'''
+"""
 import copy
 import enum
 
@@ -13,7 +13,6 @@ import numpy as np
 import pandas as pd
 import scipy.stats.kde as kde
 import seaborn as sns
-from scipy.stats import gaussian_kde, scoreatpercentile
 
 from ..util import EMAError, get_module_logger
 
@@ -30,14 +29,15 @@ sns.set_palette(COLOR_LIST)
 TIME = "TIME"
 '''Default key for time'''
 
+
 # ==============================================================================
 # actual plotting functions
 # ==============================================================================
 
 
 class Density(enum.Enum):
-    '''Enum for different types of density plots
-    '''
+    """Enum for different types of density plots
+    """
 
     KDE = 'kde'
     '''constant for plotting density as a kernel density estimate'''
@@ -54,8 +54,8 @@ class Density(enum.Enum):
 
 
 class LegendEnum(enum.Enum):
-    '''Enum for different styles of legends
-    '''
+    """Enum for different styles of legends
+    """
 
     # used for legend
     LINE = 'line'
@@ -75,7 +75,7 @@ class PlotType(enum.Enum):
 
 
 def plot_envelope(ax, j, time, value, fill=False):
-    '''
+    """
 
     Helper function, responsible for plotting an envelope.
 
@@ -88,7 +88,7 @@ def plot_envelope(ax, j, time, value, fill=False):
     fill : bool
 
 
-    '''
+    """
 
     # plot minima and maxima
     minimum = np.min(value, axis=0)
@@ -111,7 +111,7 @@ def plot_envelope(ax, j, time, value, fill=False):
 
 
 def plot_histogram(ax, values, log):
-    '''
+    """
 
     Helper function, responsible for plotting a histogram
 
@@ -122,7 +122,7 @@ def plot_histogram(ax, values, log):
     log : bool
 
 
-    '''
+    """
     if isinstance(values, list):
         color = [get_color(i) for i in range(len(values))]
     else:
@@ -140,7 +140,7 @@ def plot_histogram(ax, values, log):
 
 
 def plot_kde(ax, values, log):
-    '''
+    """
 
     Helper function, responsible for plotting a KDE.
 
@@ -151,7 +151,7 @@ def plot_kde(ax, values, log):
     log : bool
 
 
-    '''
+    """
 
     for j, value in enumerate(values):
         color = get_color(j)
@@ -163,13 +163,13 @@ def plot_kde(ax, values, log):
         else:
             ax.set_xticks([int(0),
                            ax.get_xaxis().
-                           get_view_interval()[1]])
+                          get_view_interval()[1]])
             labels = ["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
             ax.set_xticklabels(labels)
 
 
 def plot_boxplots(ax, values, log, group_labels=None):
-    '''
+    """
     helper function for plotting a boxplot
 
     Parameters
@@ -180,14 +180,15 @@ def plot_boxplots(ax, values, log, group_labels=None):
     group_labels : list of str, optional
 
 
-    '''
+    """
     if log:
         _logger.warning("log option ignored for boxplot plot")
 
     if not group_labels:
         group_labels = ['']
 
-    data = pd.DataFrame.from_records({k: v for k, v in zip(group_labels, values)})
+    data = pd.DataFrame.from_records(
+        {k: v for k, v in zip(group_labels, values)})
     data = pd.melt(data)
 
     sns.boxplot(x='variable', y='value', data=data, order=group_labels,
@@ -201,7 +202,7 @@ def plot_boxplots(ax, values, log, group_labels=None):
 
 
 def plot_violinplot(ax, value, log, group_labels=None):
-    '''
+    """
     helper function for plotting violin plots on axes
 
     Parameters
@@ -211,14 +212,15 @@ def plot_violinplot(ax, value, log, group_labels=None):
     log : bool
     group_labels : list of str, optional
 
-    '''
+    """
     if log:
         _logger.warning("log option ignored for violin plot")
 
     if not group_labels:
         group_labels = ['']
 
-    data = pd.DataFrame.from_records({k: v for k, v in zip(group_labels, value)})
+    data = pd.DataFrame.from_records(
+        {k: v for k, v in zip(group_labels, value)})
     data = pd.melt(data)
 
     sns.violinplot(x='variable', y='value', data=data, order=group_labels,
@@ -259,7 +261,7 @@ def plot_violinplot(ax, value, log, group_labels=None):
 
 def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
                   log=False, index=-1):
-    '''
+    """
     helper function for plotting densities in case of grouped data
 
 
@@ -278,7 +280,7 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
     EMAError
         if density is unkown
 
-    '''
+    """
     values = [outcomes[key][outcome_to_plot][:, index] for key in
               group_labels]
 
@@ -295,7 +297,7 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels,
 
 
 def simple_density(density, value, ax_d, ax, log):
-    '''
+    """
 
     Helper function, responsible for producing a density plot
 
@@ -307,7 +309,7 @@ def simple_density(density, value, ax_d, ax, log):
     ax : axes instance
     log : bool
 
-    '''
+    """
 
     if density == Density.KDE:
         plot_kde(ax_d, [value[:, -1]], log)
@@ -328,7 +330,7 @@ def simple_density(density, value, ax_d, ax, log):
 
 
 def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
-    '''
+    """
 
     Helper function for generating a density heatmap over time
 
@@ -341,7 +343,7 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     minima : dict
     maxima : dict
 
-    '''
+    """
     size_kde = 100
     fig, axes = plt.subplots(len(outcomes_to_show), squeeze=False)
     axes = axes[:, 0]
@@ -378,7 +380,7 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
 
 def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE,
                 alpha=1):
-    '''
+    """
     Helper function responsible for making the legend
 
     Parameters
@@ -395,7 +397,7 @@ def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE,
     alpha : float
             the alpha of the artists
 
-    '''
+    """
 
     some_identifiers = []
     labels = []
@@ -442,7 +444,7 @@ def determine_kde(data,
                   size_kde=1000,
                   ymin=None,
                   ymax=None):
-    '''
+    """
 
     Helper function responsible for performing a KDE
 
@@ -464,7 +466,7 @@ def determine_kde(data,
              plots for end states.
 
 
-    '''
+    """
     if not ymin:
         ymin = np.min(data)
     if not ymax:
@@ -475,12 +477,12 @@ def determine_kde(data,
     try:
         kde_x = kde.gaussian_kde(data)
         kde_x = kde_x.evaluate(kde_y)
-#         grid = GridSearchCV(KernelDensity(kernel='gaussian'),
-#                             {'bandwidth': np.linspace(ymin, ymax, 20)},
-#                             cv=20)
-#         grid.fit(data[:, np.newaxis])
-#         best_kde = grid.best_estimator_
-#         kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
+    #         grid = GridSearchCV(KernelDensity(kernel='gaussian'),
+    #                             {'bandwidth': np.linspace(ymin, ymax, 20)},
+    #                             cv=20)
+    #         grid.fit(data[:, np.newaxis])
+    #         best_kde = grid.best_estimator_
+    #         kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
     except Exception as e:
         _logger.warning(e)
         kde_x = np.zeros(kde_y.shape)
@@ -489,7 +491,7 @@ def determine_kde(data,
 
 
 def filter_scalar_outcomes(outcomes):
-    '''
+    """
     Helper function that removes non time series outcomes from all the
     outcomes.
 
@@ -503,7 +505,7 @@ def filter_scalar_outcomes(outcomes):
         the filtered outcomes
 
 
-    '''
+    """
     temp = {}
     for key, value in outcomes.items():
         if value.ndim < 2:
@@ -515,7 +517,7 @@ def filter_scalar_outcomes(outcomes):
 
 
 def determine_time_dimension(outcomes):
-    '''
+    """
     helper function for determining or creating time dimension
 
 
@@ -528,7 +530,7 @@ def determine_time_dimension(outcomes):
     ndarray
 
 
-    '''
+    """
 
     time = None
     try:
@@ -549,7 +551,7 @@ def determine_time_dimension(outcomes):
 
 def group_results(experiments, outcomes, group_by, grouping_specifiers,
                   grouping_labels):
-    '''
+    """
     Helper function that takes the experiments and results and returns a list
     based on groupings. Each element in the dictionary contains the experiments
     and results for a particular group, the key is the grouping specifier.
@@ -584,7 +586,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
              intervals, where the upper limit of each interval is open, except
              for the last interval which is closed.
 
-    '''
+    """
     groups = {}
     if group_by != 'index':
         column_to_group_by = experiments.loc[:, group_by]
@@ -595,15 +597,15 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
             lower_limit, upper_limit = specifier
 
             # check whether it is the last grouping specifier
-            if grouping_specifiers.index(specifier) ==\
+            if grouping_specifiers.index(specifier) == \
                     len(grouping_specifiers) - 1:
                 # last case
 
-                logical = (column_to_group_by >= lower_limit) &\
-                    (column_to_group_by <= upper_limit)
+                logical = (column_to_group_by >= lower_limit) & \
+                          (column_to_group_by <= upper_limit)
             else:
-                logical = (column_to_group_by >= lower_limit) &\
-                    (column_to_group_by < upper_limit)
+                logical = (column_to_group_by >= lower_limit) & \
+                          (column_to_group_by < upper_limit)
         elif group_by == 'index':
             # the grouping is based on indices
             logical = specifier
@@ -621,7 +623,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
 
 
 def make_continuous_grouping_specifiers(array, nr_of_groups=5):
-    '''
+    """
     Helper function for discretesizing a continuous array. By default, the
     array is split into 5 equally wide intervals.
 
@@ -643,7 +645,7 @@ def make_continuous_grouping_specifiers(array, nr_of_groups=5):
               and the start point of the range of the continuous array are
               included.
 
-    '''
+    """
 
     minimum = np.min(array)
     maximum = np.max(array)
@@ -661,7 +663,7 @@ def prepare_pairs_data(experiments, outcomes,
                        grouping_specifiers=None,
                        point_in_time=-1,
                        filter_scalar=True):
-    '''
+    """
 
     Parameters
     ----------
@@ -672,13 +674,14 @@ def prepare_pairs_data(experiments, outcomes,
     point_in_time : int, optional
     filter_scalar : bool, optional
 
-    '''
+    """
     if isinstance(outcomes_to_show, str):
         raise EMAError(
             "for pair wise plotting, more than one outcome needs to be provided")
 
     outcomes, outcomes_to_show, time, grouping_labels = prepare_data(
-        experiments, outcomes, outcomes_to_show, group_by, grouping_specifiers, filter_scalar)
+        experiments, outcomes, outcomes_to_show, group_by, grouping_specifiers,
+        filter_scalar)
 
     def filter_outcomes(outcomes, point_in_time):
         new_outcomes = {}
@@ -706,7 +709,7 @@ def prepare_pairs_data(experiments, outcomes,
 def prepare_data(experiments, outcomes, outcomes_to_show=None,
                  group_by=None, grouping_specifiers=None,
                  filter_scalar=True):
-    '''Helper function for preparing datasets prior to plotting
+    """Helper function for preparing datasets prior to plotting
 
     Parameters
     ----------
@@ -717,7 +720,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
     grouping_specifiers : iterable, optional
     filter_scalar : bool, optional
 
-    '''
+    """
     experiments = experiments.copy()
     outcomes = copy.copy(outcomes)
 
@@ -747,7 +750,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
                                 "trying to group on index"))
             else:
                 column_to_group_by = experiments[group_by]
-                if (column_to_group_by.dtype == np.object) or\
+                if (column_to_group_by.dtype == np.object) or \
                         (column_to_group_by.dtype == 'category'):
                     grouping_specifiers = set(column_to_group_by)
                 else:
@@ -779,7 +782,7 @@ def prepare_data(experiments, outcomes, outcomes_to_show=None,
 
 
 def do_titles(ax, titles, outcome):
-    '''
+    """
     Helper function for setting the title on an ax
 
     Parameters
@@ -790,7 +793,7 @@ def do_titles(ax, titles, outcome):
     outcome : str
               the outcome plotted in the ax.
 
-    '''
+    """
 
     if isinstance(titles, dict):
         if not titles:
@@ -806,7 +809,7 @@ def do_titles(ax, titles, outcome):
 
 
 def do_ylabels(ax, ylabels, outcome):
-    '''
+    """
     Helper function for setting the y labels on an ax
 
     Parameters
@@ -817,7 +820,7 @@ def do_ylabels(ax, ylabels, outcome):
     outcome : str
               the outcome plotted in the ax.
 
-    '''
+    """
 
     if isinstance(ylabels, dict):
         if not ylabels:
@@ -833,7 +836,7 @@ def do_ylabels(ax, ylabels, outcome):
 
 
 def make_grid(outcomes_to_show, density=False):
-    '''
+    """
     Helper function for making the grid that specifies the size and location
     of the various axes.
 
@@ -843,7 +846,7 @@ def make_grid(outcomes_to_show, density=False):
                        the list of outcomes to show
     density: boolean : bool, optional
 
-    '''
+    """
 
     # make the plotting grid
     if density:
@@ -859,8 +862,8 @@ def make_grid(outcomes_to_show, density=False):
 
 
 def get_color(index):
-    '''helper function for cycling over color list if the number of items
+    """helper function for cycling over color list if the number of items
     is higher than the legnth of the color list
-    '''
+    """
     corrected_index = index % len(COLOR_LIST)
     return COLOR_LIST[corrected_index]

@@ -1,7 +1,7 @@
-'''
+"""
 helper module for running experiments and keeping track of which model
 has been initialized with which policy.
-'''
+"""
 from ..util import get_module_logger, EMAError, CaseError
 
 # Created on Aug 11, 2015
@@ -13,7 +13,7 @@ _logger = get_module_logger(__name__)
 
 
 class ExperimentRunner(object):
-    '''Helper class for running the experiments
+    """Helper class for running the experiments
 
     This class contains the logic for initializing models properly,
     running the experiment, getting the results, and cleaning up afterwards.
@@ -33,7 +33,7 @@ class ExperimentRunner(object):
     model_kwargs : dict
                    keyword arguments for model_init
 
-    '''
+    """
 
     def __init__(self, msis):
         self.msis = msis
@@ -46,7 +46,7 @@ class ExperimentRunner(object):
         self.msis = None
 
     def run_experiment(self, experiment):
-        '''The logic for running a single experiment. This code makes
+        """The logic for running a single experiment. This code makes
         sure that model(s) are initialized correctly.
 
         Parameters
@@ -69,7 +69,7 @@ class ExperimentRunner(object):
             Catch all for all other exceptions being raised by the model.
             These are reraised.
 
-        '''
+        """
         policy_name = experiment.policy.name
         model_name = experiment.model_name
         model = self.msis[model_name]
@@ -80,7 +80,7 @@ class ExperimentRunner(object):
         _logger.debug(self.log_message.format(scenario_id=scenario_id,
                                               policy_name=policy_name,
                                               model_name=model_name))
-        
+
         try:
             model.run_model(scenario, policy)
         except CaseError as e:
@@ -92,10 +92,10 @@ class ExperimentRunner(object):
             except Exception:
                 raise e
 
-#             exception = traceback.print_exc()
-#             if exception:
-#                 sys.stderr.write(exception)
-#                 sys.stderr.write("\n")
+            #             exception = traceback.print_exc()
+            #             if exception:
+            #                 sys.stderr.write(exception)
+            #                 sys.stderr.write("\n")
 
             errortype = type(e).__name__
             raise EMAError(("exception in run_model"

@@ -1,4 +1,4 @@
-'''
+"""
 This module provides functionality for doing dimensional stacking of
 uncertain factors in order to reveal patterns in the values for a single
 outcome of interests. It is inspired by the work reported `here <https://www.onepetro.org/conference-paper/SPE-174774-MS>`_
@@ -11,7 +11,7 @@ with any other feature scoring or factor prioritization technique instead, or
 by simply selecting uncertain factors in some other manner.
 
 
-'''
+"""
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,7 +30,7 @@ _logger = get_module_logger(__name__)
 
 
 def discretize(data, nbins=3, with_labels=False):
-    ''' Discretize the data, using the number of bins specified.
+    """ Discretize the data, using the number of bins specified.
 
     Parameters
     ----------
@@ -50,7 +50,7 @@ def discretize(data, nbins=3, with_labels=False):
            discretized.
 
 
-    '''
+    """
     discretized = data.copy()
 
     for i, entry in enumerate(data.dtypes):
@@ -58,14 +58,13 @@ def discretize(data, nbins=3, with_labels=False):
         column_data = data[column]
         n = nbins
 
-
         if entry.name == 'category':
             n_unique = column_data.unique().shape[0]
             n = n_unique
             column_data = column_data.cat.rename_categories(
                 [x for x in range(1, n + 1)])
             indices = column_data
-            
+
         else:
             if issubclass(entry.type, np.integer):
                 n_unique = column_data.unique().shape[0]
@@ -110,8 +109,8 @@ def dim_ratios(axis, figsize):
 
 
 def plot_line(ax, axis, i, lw, length):
-    '''Helper function for plotting lines separating bins in the hierarchical
-    index'''
+    """Helper function for plotting lines separating bins in the hierarchical
+    index"""
 
     if axis == 0:
         ax.plot([i, i], [length, 1], lw=lw, color='grey')
@@ -120,7 +119,7 @@ def plot_line(ax, axis, i, lw, length):
 
 
 def plot_category(ax, axis, i, label, pos, level):
-    '''helper function for plotting label'''
+    """helper function for plotting label"""
 
     if axis == 0:
         rot = 'horizontal'
@@ -136,7 +135,7 @@ def plot_category(ax, axis, i, label, pos, level):
 
 def plot_index(ax, ax_plot, axis, index, plot_labels=True,
                plot_cats=True):
-    '''helper function for visualizing the hierarchical index
+    """helper function for visualizing the hierarchical index
 
     Parameters
     ----------
@@ -152,7 +151,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
     plot_cats : bool, options
                 if true, plot category names for uncertain factors
 
-    '''
+    """
 
     for entry in ['bottom', 'top', 'right', 'left']:
         ax.spines['bottom'].set_color('grey')
@@ -256,7 +255,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
 
 def plot_pivot_table(table, plot_labels=True, plot_cats=True,
                      figsize=(10, 10), cmap='viridis', **kwargs):
-    ''' visualize a pivot table using colors
+    """ visualize a pivot table using colors
 
     Parameters
     ----------
@@ -276,10 +275,9 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
     -------
     Figure
 
-    '''
+    """
 
     with sns.axes_style('white'):
-
         fig = plt.figure(figsize=figsize)
 
         width_ratios = dim_ratios(figsize=figsize, axis=1)
@@ -296,7 +294,7 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
         # actual plotting
         plot_data = table.values
-        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, 
+        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap,
                     vmin=0, vmax=1, **kwargs)
 
         # set the tick labels
@@ -319,7 +317,7 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
 
 def _prepare_experiments(experiments):
-    '''
+    """
     transform the experiments structured array into a numpy array.
 
     Parameters
@@ -330,7 +328,7 @@ def _prepare_experiments(experiments):
     -------
     ndarray, list
 
-    '''
+    """
     try:
         experiments = experiments.drop('scenario', axis=1)
     except KeyError:
@@ -354,7 +352,7 @@ def _prepare_experiments(experiments):
 
 def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
                       nbins=3, bin_labels=False):
-    ''' convenience function for easily creating a pivot plot
+    """ convenience function for easily creating a pivot plot
 
     Parameters
     ----------
@@ -386,7 +384,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     convenience  function. For more control over the process, use the
     code in this function as a template.
 
-    '''
+    """
     x = _prepare_experiments(x)
     scores = feature_scoring.get_ex_feature_scores(x, y)[0]
     x = x[scores.index]

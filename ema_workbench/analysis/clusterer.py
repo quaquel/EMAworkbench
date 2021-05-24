@@ -1,16 +1,16 @@
-'''
+"""
 This module provides time series clustering functionality using
 complex invariant distance
 
-'''
+"""
 import itertools
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy as sp
 import sklearn.cluster as cluster
 
 from ..util import get_module_logger
-
 
 #
 # Created on  11 Apr 2019
@@ -31,7 +31,7 @@ def CID(xi, xj, ce_i, ce_j):
 
 
 def calculate_cid(data, condensed_form=False):
-    '''calculate the complex invariant distance between all rows
+    """calculate the complex invariant distance between all rows
 
 
     Parameters
@@ -47,8 +47,8 @@ def calculate_cid(data, condensed_form=False):
 
 
 
-    '''
-    ce = np.sqrt(np.sum(np.diff(data, axis=1)**2, axis=1))
+    """
+    ce = np.sqrt(np.sum(np.diff(data, axis=1) ** 2, axis=1))
 
     indices = np.arange(0, data.shape[0])
     cid = np.zeros((data.shape[0], data.shape[0]))
@@ -70,8 +70,8 @@ def calculate_cid(data, condensed_form=False):
 
 
 def plot_dendrogram(distances):
-    '''plot dendrogram for distances
-    '''
+    """plot dendrogram for distances
+    """
 
     if distances.ndim == 2:
         distances = sp.spatial.distance.squareform(distances)
@@ -86,7 +86,7 @@ def plot_dendrogram(distances):
 
 
 def apply_agglomerative_clustering(distances, n_clusters, linkage='average'):
-    '''apply agglomerative clustering to the distances
+    """apply agglomerative clustering to the distances
 
     Parameters
     ----------
@@ -98,7 +98,7 @@ def apply_agglomerative_clustering(distances, n_clusters, linkage='average'):
     -------
     1D ndarray with cluster assignment
 
-    '''
+    """
 
     c = cluster.AgglomerativeClustering(n_clusters=n_clusters,
                                         affinity='precomputed',

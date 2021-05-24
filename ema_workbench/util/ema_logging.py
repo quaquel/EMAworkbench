@@ -1,19 +1,15 @@
-'''
+"""
 
 This module contains code for logging EMA processes. It is modeled on the
 default `logging approach that comes with Python <http://docs.python.org/library/logging.html>`_.
 This logging system will also work in case of multiprocessing using
 :mod:`ema_parallel`.
 
-'''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
-from functools import wraps
+"""
 import inspect
-from contextlib import contextmanager
-
 import logging
+from contextlib import contextmanager
+from functools import wraps
 from logging import DEBUG, INFO
 
 # Created on 23 dec. 2010
@@ -57,7 +53,6 @@ _rootlogger = None
 _module_loggers = {}
 _logger = get_module_logger(__name__)
 
-
 LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
 
 
@@ -78,7 +73,7 @@ class TemporaryFilter(logging.Filter):
 
 @contextmanager
 def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
-    ''' temporary filter log message
+    """ temporary filter log message
 
     Params
     ------
@@ -96,7 +91,7 @@ def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
     might filter multiple log message from different functions
 
 
-    '''
+    """
     if isinstance(name, str):
         names = [name]
     else:
@@ -160,19 +155,21 @@ def method_logger(name):
                 'completed calling {} on {}'.format(
                     func.__name__, classname))
             return res
+
         return wrapper
+
     return real_decorator
 
 
 def get_rootlogger():
-    '''
+    """
     Returns root logger used by the EMA workbench
 
     Returns
     -------
     the logger of the EMA workbench
 
-    '''
+    """
     global _rootlogger
 
     if not _rootlogger:
@@ -185,7 +182,7 @@ def get_rootlogger():
 
 
 def log_to_stderr(level=None):
-    '''
+    """
     Turn on logging and add a handler which prints to stderr
 
     Parameters
@@ -193,7 +190,7 @@ def log_to_stderr(level=None):
     level : int
             minimum level of the messages that will be logged
 
-    '''
+    """
 
     if not level:
         level = DEFAULT_LEVEL
@@ -202,8 +199,8 @@ def log_to_stderr(level=None):
 
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
-        if (isinstance(entry, logging.StreamHandler)) and\
-           (entry.formatter._fmt == LOG_FORMAT):
+        if (isinstance(entry, logging.StreamHandler)) and \
+                (entry.formatter._fmt == LOG_FORMAT):
             return logger
 
     formatter = logging.Formatter(LOG_FORMAT)

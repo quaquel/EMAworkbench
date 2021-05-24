@@ -1,4 +1,4 @@
-'''
+"""
 
 This module provides an abstract base class for a callback and a default
 implementation.
@@ -11,7 +11,7 @@ that stores the data in e.g. a NoSQL file.
 The only method to implement is the __call__ magic method. To use logging of
 progress, always call super.
 
-'''
+"""
 import abc
 import csv
 import os
@@ -20,10 +20,9 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from ..util import ema_exceptions, get_module_logger
 from .parameters import (CategoricalParameter, IntegerParameter,
                          BooleanParameter)
-
+from ..util import ema_exceptions, get_module_logger
 
 #
 # Created on 22 Jan 2013
@@ -38,7 +37,7 @@ _logger = get_module_logger(__name__)
 
 
 class AbstractCallback(object):
-    '''
+    """
     Abstract base class from which different call back classes can be derived.
     Callback is responsible for storing the results of the runs.
 
@@ -66,7 +65,7 @@ class AbstractCallback(object):
     reporting_interval : int,
                          the interval between progress logs
 
-    '''
+    """
     __metaclass__ = abc.ABCMeta
 
     i = 0
@@ -82,7 +81,7 @@ class AbstractCallback(object):
 
     @abc.abstractmethod
     def __call__(self, experiment, outcomes):
-        '''
+        """
         Method responsible for storing results. The implementation in this
         class only keeps track of how many runs have been completed and
         logging this. Any extension of AbstractCallback needs to implement
@@ -95,7 +94,7 @@ class AbstractCallback(object):
         outcomes: dict
                 the outcomes dict
 
-        '''
+        """
         #
         # TODO:: https://github.com/alexanderkuk/log-progress
         # can we detect whether we are running within Jupyter?
@@ -136,7 +135,7 @@ class DefaultCallback(AbstractCallback):
 
     def __init__(self, uncs, levers, outcomes, nr_experiments,
                  reporting_interval=100, reporting_frequency=10):
-        '''
+        """
 
         Parameters
         ----------
@@ -152,7 +151,7 @@ class DefaultCallback(AbstractCallback):
         reporting_frequency: int, optional
                              the total number of progress logs
 
-        '''
+        """
         super(DefaultCallback, self).__init__(uncs, levers, outcomes,
                                               nr_experiments,
                                               reporting_interval,
@@ -196,7 +195,7 @@ class DefaultCallback(AbstractCallback):
         for outcome in outcomes:
             shape = outcome.shape
             if shape is not None:
-                shape = (nr_experiments, ) + shape
+                shape = (nr_experiments,) + shape
                 data = np.empty(shape)
                 data[:] = np.nan
                 self.results[outcome.name] = data
@@ -227,9 +226,9 @@ class DefaultCallback(AbstractCallback):
                 _logger.debug(message)
             else:
                 try:
-                    self.results[outcome][case_id, ] = outcome_res
+                    self.results[outcome][case_id,] = outcome_res
                 except KeyError:
-                    a = np.asarray(outcome_res)
+                    a = np.asarray(outcome_res, dtype=float)
 
                     shape = a.shape
 
@@ -242,10 +241,10 @@ class DefaultCallback(AbstractCallback):
 
                     self.results[outcome] = np.empty(shape, dtype=a.dtype)
                     self.results[outcome][:] = np.nan
-                    self.results[outcome][case_id, ] = outcome_res
+                    self.results[outcome][case_id,] = outcome_res
 
     def __call__(self, experiment, outcomes):
-        '''
+        """
         Method responsible for storing results. This method calls
         :meth:`super` first, thus utilizing the logging provided there.
 
@@ -255,7 +254,7 @@ class DefaultCallback(AbstractCallback):
         outcomes: dict
                 the outcomes dict
 
-        '''
+        """
         super(DefaultCallback, self).__call__(experiment, outcomes)
 
         # store the case
@@ -269,7 +268,7 @@ class DefaultCallback(AbstractCallback):
 
 
 class FileBasedCallback(AbstractCallback):
-    '''
+    """
     Callback that stores data in csv files while running
 
     Parameters
@@ -290,7 +289,7 @@ class FileBasedCallback(AbstractCallback):
     This class is still in beta. API is expected to change over the
     coming months.
 
-    '''
+    """
 
     def __init__(self, uncs, levers, outcomes, nr_experiments,
                  reporting_interval=100, reporting_frequency=10):
@@ -363,7 +362,7 @@ class FileBasedCallback(AbstractCallback):
             writer.writerow(data)
 
     def __call__(self, experiment, outcomes):
-        '''
+        """
         Method responsible for storing results. This method calls
         :meth:`super` first, thus utilizing the logging provided there.
 
@@ -373,7 +372,7 @@ class FileBasedCallback(AbstractCallback):
         outcomes: dict
                 the outcomes dict
 
-        '''
+        """
         super(FileBasedCallback, self).__call__(experiment, outcomes)
 
         # store the case

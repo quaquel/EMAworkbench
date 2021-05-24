@@ -19,7 +19,6 @@ x, outcomes = load_results(fn)
 x = x.drop(['model', 'policy'], axis=1)
 y = outcomes['deceased population region 1']
 
-
 #
 # 'infected fraction R1'
 

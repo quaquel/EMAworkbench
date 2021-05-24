@@ -1,4 +1,4 @@
-'''
+"""
 
 Module offers support for performing basic regional sensitivity analysis. The
 module can be used to perform regional sensitivity analysis on all
@@ -6,7 +6,7 @@ uncertainties specified in the experiment array, as well as the ability to
 zoom in on any given uncertainty in more detail.
 
 
-'''
+"""
 import math
 import operator
 
@@ -24,14 +24,14 @@ cp = sns.color_palette()
 
 
 def build_legend(x, y):
-    '''helper function for building a legend
+    """helper function for building a legend
 
     Parameters
     ----------
     x : ndarray
     y : ndarray
 
-    '''
+    """
     proxies = []
     labels = []
     for i in range(np.max(y) + 1):
@@ -45,7 +45,7 @@ def build_legend(x, y):
 
 def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
                       ccdf):
-    '''plot a discrete cdf on ax for data,
+    """plot a discrete cdf on ax for data,
     grouping data by logical index.
 
     Parameters
@@ -57,7 +57,7 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
     xticklabels_on : bool
     ccdf : bool
 
-    '''
+    """
     cats = sorted(set(x))
     n_cat = len(cats)
     for i in range(np.max(y) + 1):
@@ -127,7 +127,7 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
 
 def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
                         ccdf):
-    '''plot a continuous cdf on ax for data,grouping data by the groups
+    """plot a continuous cdf on ax for data,grouping data by the groups
     specified in y.
 
     Parameters
@@ -139,7 +139,7 @@ def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
     xticklabels_on : bool
     ccdf : bool
 
-    '''
+    """
 
     for i in range(np.max(y) + 1):
         data_i = x[y == i]
@@ -171,7 +171,7 @@ def plot_continuous_cdf(ax, unc, x, y, xticklabels_on,
 def plot_individual_cdf(ax, unc, x, y, discrete=False,
                         legend=False, xticklabels_on=False,
                         yticklabels_on=False, ccdf=False):
-    '''plot cdf for x conditional on y
+    """plot cdf for x conditional on y
 
     Parameters
     ----------
@@ -190,7 +190,7 @@ def plot_individual_cdf(ax, unc, x, y, discrete=False,
     ccdf : bool, optional
            if true, plot a complementary cdf instead of a normal cdf.
 
-    '''
+    """
 
     if discrete:
         plot_discrete_cdf(ax, unc, x, y, xticklabels_on,
@@ -219,7 +219,7 @@ def plot_individual_cdf(ax, unc, x, y, discrete=False,
 
 
 def plot_cdfs(x, y, ccdf=False):
-    '''plot cumulative density functions for each column in x, based on
+    """plot cumulative density functions for each column in x, based on
     the  classification specified in y.
 
     Parameters
@@ -236,7 +236,7 @@ def plot_cdfs(x, y, ccdf=False):
     -------
     a matplotlib Figure instance
 
-    '''
+    """
     x = x.copy()
 
     try:

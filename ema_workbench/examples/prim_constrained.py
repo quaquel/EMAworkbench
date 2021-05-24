@@ -5,8 +5,8 @@ for more details see Kwakkel (2019) A generalized many‐objective optimization
 approach for scenario discovery, doi: https://doi.org/10.1002/ffo2.8
 
 '''
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from ema_workbench.analysis import prim
 from ema_workbench.util import ema_logging

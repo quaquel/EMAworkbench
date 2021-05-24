@@ -3,7 +3,6 @@
 
 '''
 
-
 # Created on Jul 23, 2016
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>

@@ -1,16 +1,16 @@
-'''
+"""
 Module for outcome classes
 
-'''
+"""
 import abc
 import collections
 import numbers
-import six
 
 import pandas
+import six
 
-from .util import Variable
 from ema_workbench.util.ema_exceptions import EMAError
+from .util import Variable
 from ..util import get_module_logger
 
 # Created on 24 mei 2011
@@ -23,7 +23,7 @@ _logger = get_module_logger(__name__)
 
 
 class AbstractOutcome(Variable):
-    '''
+    """
     Base Outcome class
 
     Parameters
@@ -52,7 +52,7 @@ class AbstractOutcome(Variable):
     function : callable
     shape : tuple
 
-    '''
+    """
     __metaclass__ = abc.ABCMeta
 
     MINIMIZE = -1
@@ -68,7 +68,8 @@ class AbstractOutcome(Variable):
             raise ValueError('function must be a callable')
         if variable_name:
             if (not isinstance(variable_name, six.string_types)) and (
-                    not all(isinstance(elem, six.string_types) for elem in variable_name)):
+                    not all(isinstance(elem, six.string_types) for elem in
+                            variable_name)):
                 raise ValueError(
                     'variable name must be a string or list of strings')
         if expected_range is not None and len(expected_range) != 2:
@@ -129,7 +130,7 @@ class AbstractOutcome(Variable):
 
 
 class ScalarOutcome(AbstractOutcome):
-    '''
+    """
     Scalar Outcome class
 
     Parameters
@@ -158,7 +159,7 @@ class ScalarOutcome(AbstractOutcome):
     shape : tuple
     expected_range : tuple
 
-    '''
+    """
 
     @property
     def expected_range(self):
@@ -188,7 +189,7 @@ class ScalarOutcome(AbstractOutcome):
 
 
 class ArrayOutcome(AbstractOutcome):
-    '''Array Outcome class for n-dimensional collections
+    """Array Outcome class for n-dimensional collections
 
     Parameters
     ----------
@@ -217,7 +218,7 @@ class ArrayOutcome(AbstractOutcome):
     expected_range : tuple
 
 
-    '''
+    """
 
     def __init__(self, name, variable_name=None,
                  function=None, expected_range=None,
@@ -241,7 +242,7 @@ class ArrayOutcome(AbstractOutcome):
 
 
 class TimeSeriesOutcome(ArrayOutcome):
-    '''
+    """
     TimeSeries Outcome class
 
     Parameters
@@ -270,7 +271,7 @@ class TimeSeriesOutcome(ArrayOutcome):
     shape : tuple
     expected_range : tuple
 
-    '''
+    """
 
     def __init__(self, name, variable_name=None,
                  function=None, expected_range=None,
@@ -286,7 +287,7 @@ class TimeSeriesOutcome(ArrayOutcome):
 
 
 class Constraint(ScalarOutcome):
-    '''Constraints class that can be used when defining constrained
+    """Constraints class that can be used when defining constrained
     optimization problems.
 
     Parameters
@@ -309,7 +310,7 @@ class Constraint(ScalarOutcome):
                threshold, given the model outputs with a variable name. The
                distance should be 0 if the constraint is met.
 
-    '''
+    """
 
     def __init__(self, name, parameter_names=None, outcome_names=None,
                  function=None):
@@ -340,7 +341,7 @@ class Constraint(ScalarOutcome):
 
 
 def create_outcomes(outcomes, **kwargs):
-    '''Helper function for creating multiple outcomes
+    """Helper function for creating multiple outcomes
 
     Parameters
     ----------
@@ -351,7 +352,7 @@ def create_outcomes(outcomes, **kwargs):
     -------
     list
 
-    '''
+    """
 
     if isinstance(outcomes, six.string_types):
         outcomes = pandas.read_csv(outcomes, **kwargs)

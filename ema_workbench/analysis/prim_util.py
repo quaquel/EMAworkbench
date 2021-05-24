@@ -1,16 +1,14 @@
-'''Collection of utility functions used by PRIM module
+"""Collection of utility functions used by PRIM module
 
-'''
+"""
 
-from enum import Enum
 import math
+from enum import Enum
 
 import numpy as np
 
 from . import scenario_discovery_util as sdutil
-
 from ..util.ema_logging import (get_module_logger)
-
 
 _logger = get_module_logger(__name__)
 
@@ -21,7 +19,7 @@ _logger = get_module_logger(__name__)
 
 
 class PrimException(Exception):
-    '''Base exception class for prim related exceptions'''
+    """Base exception class for prim related exceptions"""
     pass
 
 
@@ -32,7 +30,7 @@ class PRIMObjectiveFunctions(Enum):
 
 
 def get_quantile(data, quantile):
-    '''
+    """
     quantile calculation modeled on the implementation used in sdtoolkit
 
     Parameters
@@ -42,7 +40,7 @@ def get_quantile(data, quantile):
     quantile : float
                the desired quantile
 
-    '''
+    """
     assert quantile > 0
     assert quantile < 1
 
@@ -62,7 +60,7 @@ def get_quantile(data, quantile):
     else:
         # lower
         while (data[index_lower] == data[index_higher]) & \
-              (index_higher < len(data) - 1):
+                (index_higher < len(data) - 1):
             index_higher += 1
         value = (data[index_lower] + data[index_higher]) / 2
 
@@ -70,8 +68,8 @@ def get_quantile(data, quantile):
 
 
 class CurEntry(object):
-    '''a descriptor for the current entry on the peeling and pasting
-    trajectory'''
+    """a descriptor for the current entry on the peeling and pasting
+    trajectory"""
 
     def __init__(self, name):
         self.name = name
@@ -84,7 +82,7 @@ class CurEntry(object):
 
 
 def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
-    '''Helper function for calculating quasi p-values'''
+    """Helper function for calculating quasi p-values"""
     if data.size == 0:
         return [-1, -1]
 
@@ -116,7 +114,7 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
 
 
 def rotate_subset(experiments, y):
-    '''
+    """
     rotate a subset
 
     Parameters
@@ -131,7 +129,7 @@ def rotate_subset(experiments, y):
     rotated_experiments
         DataFrame
 
-    '''
+    """
     mean = np.mean(experiments, axis=0)
     std = np.std(experiments, axis=0)
     std[std == 0] = 1  # in order to avoid a devision by zero
@@ -149,7 +147,7 @@ def rotate_subset(experiments, y):
 
 
 def determine_rotation(experiments):
-    '''
+    """
     Determine the rotation for the specified experiments
 
 
@@ -161,7 +159,7 @@ def determine_rotation(experiments):
     -------
     ndarray
 
-    '''
+    """
     covariance = np.cov(experiments.T)
 
     eigen_vals, eigen_vectors = np.linalg.eig(covariance)
@@ -174,7 +172,7 @@ def determine_rotation(experiments):
     # make the eigen vectors unit length
     for i in range(eigen_vectors.shape[1]):
         eigen_vectors[:, i] / \
-            np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(eigen_vals[i])
+        np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(eigen_vals[i])
 
     return eigen_vectors
 
@@ -240,7 +238,7 @@ def calc_fronts(M):
     # taken from
     # https://stackoverflow.com/questions/41740596/pareto-frontier-indices-using-numpy
     i_dominates_j = np.all(M[:, None] >= M, axis=-
-                           1) & np.any(M[:, None] > M, axis=-1)
+    1) & np.any(M[:, None] > M, axis=-1)
     remaining = np.arange(len(M))
     fronts = np.empty(len(M), int)
     frontier_index = 0

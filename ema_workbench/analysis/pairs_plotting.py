@@ -1,8 +1,8 @@
-'''
+"""
 
 This module provides R style pairs plotting functionality.
 
-'''
+"""
 import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
@@ -26,7 +26,7 @@ def pairs_lines(experiments, outcomes,
                 ylabels={},
                 legend=True,
                 **kwargs):
-    '''
+    """
 
     Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     lines multiplot. It shows the behavior of two outcomes over time against
@@ -68,7 +68,7 @@ def pairs_lines(experiments, outcomes,
         key is tuple of names of outcomes, value is associated axes
         instance
 
-    '''
+    """
 
     # unravel return from run_experiments
     _logger.debug("making a pars lines plot")
@@ -134,7 +134,7 @@ def pairs_lines(experiments, outcomes,
 
 
 def simple_pairs_lines(ax, y_data, x_data, color):
-    '''
+    """
 
     Helper function for generating a simple pairs lines plot
 
@@ -145,7 +145,7 @@ def simple_pairs_lines(ax, y_data, x_data, color):
     data2 : ndarray
     color : str
 
-    '''
+    """
 
     ax.plot(x_data.T, y_data.T, c=color)
     ax.scatter(x_data[:, 0], y_data[:, 0],
@@ -166,7 +166,7 @@ def pairs_density(experiments, outcomes,
                   gridsize=50,
                   colormap='coolwarm',
                   filter_scalar=True):
-    '''
+    """
 
     Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     hexbin density multiplot. In case of time-series data, the end
@@ -220,7 +220,7 @@ def pairs_density(experiments, outcomes,
         key is tuple of names of outcomes, value is associated axes
         instance
 
-    '''
+    """
     _logger.debug("generating pairwise density plot")
 
     prepared_data = prepare_pairs_data(
@@ -241,8 +241,10 @@ def pairs_density(experiments, outcomes,
         figures = []
         for key, value in outcomes.items():
             figure, axes_dict = simple_pairs_density(value, outcomes_to_show,
-                                                     log, colormap, gridsize, ylabels,
-                                                     extents=extents, title=key)
+                                                     log, colormap, gridsize,
+                                                     ylabels,
+                                                     extents=extents,
+                                                     title=key)
             axes_dicts[key] = axes_dict
             figures.append(figure)
 
@@ -265,7 +267,7 @@ def pairs_density(experiments, outcomes,
 
 
 def determine_extents(outcomes, outcomes_to_show):
-    '''
+    """
     Helper function used by pairs_density to make sure that multiple groups
     share the same axes extent.
 
@@ -279,7 +281,7 @@ def determine_extents(outcomes, outcomes_to_show):
     dict
         tuple of str as key, and 4-tuple with extent
 
-    '''
+    """
 
     limits = {}
     for pol_out in outcomes.values():
@@ -313,7 +315,7 @@ def simple_pairs_density(outcomes,
                          ylabels,
                          extents=None,
                          title=None):
-    '''
+    """
 
     Helper function for generating a simple pairs density plot
 
@@ -332,7 +334,7 @@ def simple_pairs_density(outcomes,
     title : str, optional
 
 
-    '''
+    """
 
     grid = gridspec.GridSpec(len(outcomes_to_show), len(outcomes_to_show))
     grid.update(wspace=0.1,
@@ -362,7 +364,7 @@ def simple_pairs_density(outcomes,
         if extents:
             extent = extents[(field2, field1)]
 
-        #text and labels
+        # text and labels
         if i == j:
             # only plot the name in the middle
             ax.hexbin(x_data, y_data, bins=bins, gridsize=gridsize,
@@ -387,7 +389,7 @@ def pairs_scatter(experiments, outcomes,
                   point_in_time=-1,
                   filter_scalar=False,
                   **kwargs):
-    '''
+    """
 
     Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     scatter multiplot. In case of time-series data, the end states are used.
@@ -434,7 +436,7 @@ def pairs_scatter(experiments, outcomes,
               discretesize. This limit is due to the colors specified
               in COLOR_LIST.
 
-    '''
+    """
 
     _logger.debug("generating pairwise scatter plot")
 
@@ -503,7 +505,7 @@ def pairs_scatter(experiments, outcomes,
 
 
 def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
-    '''
+    """
 
     Helper function for setting the tick labels on the axes correctly on and
     off
@@ -519,9 +521,9 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
     outcomes_to_show : str
 
 
-    '''
+    """
 
-    #text and labels
+    # text and labels
     if i == j:
         # only plot the name in the middle
         if ylabels:

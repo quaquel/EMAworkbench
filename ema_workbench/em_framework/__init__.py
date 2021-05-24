@@ -1,6 +1,7 @@
 import warnings
+
 __all__ = ["ema_parallel", "parameters"
-           "model", "outcomes", "samplers",
+                           "model", "outcomes", "samplers",
            "Model", 'FileModel', "ModelEnsemble",
            "ScalarOutcome", "TimeSeriesOutcome", "Constraint",
            "RealParameter", "IntegerParameter", "CategoricalParameter",
@@ -10,12 +11,14 @@ __all__ = ["ema_parallel", "parameters"
            "get_SALib_problem", "FASTSampler",
            "peform_experiments", 'optimize', "IpyparallelEvaluator",
            "MultiprocessingEvaluator", "SequentialEvaluator"
-           'ReplicatorModel', "EpsilonProgress", "HyperVolume",
+                                       'ReplicatorModel', "EpsilonProgress",
+           "HyperVolume",
            "Convergence", "ArchiveLogger", "ArrayOutcome"]
 
 from .outcomes import (ScalarOutcome, TimeSeriesOutcome, Constraint,
                        ArrayOutcome)
-from .model import Model, FileModel, ReplicatorModel, Replicator, SingleReplication
+from .model import Model, FileModel, ReplicatorModel, Replicator, \
+    SingleReplication
 
 from .parameters import (RealParameter, IntegerParameter, CategoricalParameter,
                          BooleanParameter, Scenario, Policy, Constant,
@@ -30,7 +33,6 @@ from .evaluators import (perform_experiments, optimize,
                          MultiprocessingEvaluator, SequentialEvaluator)
 from .optimization import (Convergence, HyperVolume, EpsilonProgress,
                            ArchiveLogger)
-
 
 try:
     from .evaluators import IpyparallelEvaluator

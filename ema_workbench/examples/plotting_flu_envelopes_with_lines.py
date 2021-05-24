@@ -1,5 +1,3 @@
-
-
 '''
 Created on Jul 8, 2014
 
@@ -15,7 +13,6 @@ ema_logging.log_to_stderr(ema_logging.INFO)
 
 file_name = r'./data/1000 flu cases with policies.tar.gz'
 experiments, outcomes = load_results(file_name)
-
 
 # let's specify a few scenarios that we want to show for
 # each of the policies

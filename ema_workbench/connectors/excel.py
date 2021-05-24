@@ -1,12 +1,9 @@
-'''
+"""
 
 This module provides a base class that can be used to perform EMA on
 Excel models. It relies on `win32com <http://python.net/crew/mhammond/win32/Downloads.html>`_
 
-'''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
+"""
 import os
 
 try:
@@ -34,7 +31,7 @@ class NoDefaultSheetError(EMAError):
 
 
 class BaseExcelModel(FileModel):
-    '''
+    """
 
     Base class for connecting the EMA workbench to models in Excel. To
     automate this connection as much as possible. This implementation relies
@@ -69,7 +66,7 @@ class BaseExcelModel(FileModel):
                'sheetName!A1' or 'sheetName!NamedCell' notation (the sheet name
                is optional if the cell or range exists in the default sheet).
 
-    '''
+    """
     com_warning_msg = "com error: no cell(s) named %s found"
 
     def __init__(self, name, wd=None, model_file=None, default_sheet=None,
@@ -100,7 +97,7 @@ class BaseExcelModel(FileModel):
 
     @method_logger(__name__)
     def model_init(self, policy):
-        '''
+        """
         Method called to initialize the model.
 
         Parameters
@@ -112,7 +109,7 @@ class BaseExcelModel(FileModel):
                  gives users to the ability to pass any additional
                  arguments.
 
-        '''
+        """
         super(BaseExcelModel, self).model_init(policy)
 
         if not self.xl:
@@ -181,8 +178,8 @@ class BaseExcelModel(FileModel):
 
     @method_logger(__name__)
     def cleanup(self):
-        ''' cleaning up prior to finishing performing experiments. This will
-        close the workbook and close Excel'''
+        """ cleaning up prior to finishing performing experiments. This will
+        close the workbook and close Excel"""
 
         # TODO:: if we know the pid for the associated excel process
         # we might forcefully close that process, helps in case of errors
@@ -191,26 +188,26 @@ class BaseExcelModel(FileModel):
             try:
                 self.wb.Close(False)
             except com_error as err:
-                _logger.warning("com error on wb.Close: {}".format(err),)
+                _logger.warning("com error on wb.Close: {}".format(err), )
             del self.wb
         if self.xl:
             try:
                 self.xl.DisplayAlerts = False
                 self.xl.Quit()
             except com_error as err:
-                _logger.warning("com error on xl.Quit: {}".format(err),)
+                _logger.warning("com error on xl.Quit: {}".format(err), )
             del self.xl
 
         self.xl = None
         self.wb = None
 
     def get_sheet(self, sheetname=None):
-        '''get a named worksheet, or the default worksheet if set
+        """get a named worksheet, or the default worksheet if set
 
         Parameters
         ----------
         sheetname : str, optional
-        '''
+        """
 
         if sheetname is None:
             sheetname = self.default_sheet
@@ -238,7 +235,7 @@ class BaseExcelModel(FileModel):
         return sheet
 
     def get_wb_value(self, name):
-        '''extract a value from a cell of the excel workbook
+        """extract a value from a cell of the excel workbook
 
         Parameters
         ----------
@@ -252,7 +249,7 @@ class BaseExcelModel(FileModel):
         Returns
         -------
         Number or str
-        '''
+        """
 
         name = self.pointers.get(name, name)
 
@@ -279,7 +276,7 @@ class BaseExcelModel(FileModel):
         return value
 
     def set_wb_value(self, name, value):
-        '''inject a value into a cell of the excel workbook
+        """inject a value into a cell of the excel workbook
 
         Parameters
         ----------
@@ -291,7 +288,7 @@ class BaseExcelModel(FileModel):
             is set, an exception will be raised.
         value : Number or str
             The value that will be injected.
-        '''
+        """
 
         name = self.pointers.get(name, name)
         if name is None:
@@ -317,7 +314,7 @@ class BaseExcelModel(FileModel):
             )
 
     def get_wb_sheetnames(self):
-        '''get the names of all the workbook's worksheets'''
+        """get the names of all the workbook's worksheets"""
         if self.wb:
             try:
                 return [sh.Name for sh in self.wb.Sheets]

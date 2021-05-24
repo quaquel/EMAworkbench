@@ -8,12 +8,8 @@ example
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 '''
-from __future__ import (division, unicode_literals, absolute_import,
-                        print_function)
-
 from ema_workbench import (TimeSeriesOutcome, perform_experiments,
                            RealParameter, ema_logging)
-
 from ema_workbench.connectors.vensim import VensimModel
 
 if __name__ == "__main__":

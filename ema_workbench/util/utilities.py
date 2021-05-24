@@ -1,11 +1,8 @@
-'''
+"""
 
 This module provides various convenience functions and classes.
 
-'''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
-
+"""
 try:
     import configparser
 except ImportError:
@@ -44,7 +41,7 @@ _logger = get_module_logger(__name__)
 
 
 def load_results(file_name):
-    '''
+    """
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
 
@@ -57,7 +54,7 @@ def load_results(file_name):
     ------
     IOError if file not found
 
-    '''
+    """
     file_name = os.path.abspath(file_name)
     outcomes = {}
     with tarfile.open(file_name, 'r:gz', encoding="UTF8") as z:
@@ -123,7 +120,7 @@ def load_results(file_name):
 
 
 def save_results(results, file_name):
-    '''
+    """
     save the results to the specified tar.gz file. The results are
     stored as csv files. There is an x.csv, and a csv for each
     outcome. In addition, there is a metadata csv which contains
@@ -140,7 +137,7 @@ def save_results(results, file_name):
     ------
     IOError if file not found
 
-    '''
+    """
     file_name = os.path.abspath(file_name)
 
     def add_file(tararchive, string_to_add, filename):
@@ -198,7 +195,7 @@ def save_results(results, file_name):
 
 
 def experiments_to_scenarios(experiments, model=None):
-    '''
+    """
 
     This function transform a structured experiments array into a list
     of Scenarios.
@@ -217,7 +214,7 @@ def experiments_to_scenarios(experiments, model=None):
     -------
     a list of Scenarios
 
-    '''
+    """
     # get the names of the uncertainties
     if model is None:
         uncertainties = [entry[0] for entry in experiments.dtype.descr]
@@ -255,7 +252,7 @@ def experiments_to_scenarios(experiments, model=None):
 
 
 def merge_results(results1, results2):
-    '''
+    """
     convenience function for merging the return from
     :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
 
@@ -283,7 +280,7 @@ def merge_results(results1, results2):
     the merged results
 
 
-    '''
+    """
 
     # start of merging
     exp1, res1 = results1

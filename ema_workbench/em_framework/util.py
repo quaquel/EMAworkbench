@@ -1,11 +1,9 @@
-'''utilities used throughout em_framework'''
+"""utilities used throughout em_framework"""
 import copy
-from collections import OrderedDict
-
-from collections import UserDict
-from collections.abc import MutableMapping  # @UnusedImport
-
 import itertools
+from collections import OrderedDict
+from collections import UserDict
+
 import six
 
 from ..util import EMAError
@@ -26,7 +24,7 @@ class NamedObject(object):
 
 
 class Counter(object):
-    '''helper function for generating counter based names for NamedDicts'''
+    """helper function for generating counter based names for NamedDicts"""
 
     def __init__(self, startfrom=0):
         self._counter = itertools.count(startfrom)
@@ -36,12 +34,12 @@ class Counter(object):
 
 
 def representation(named_dict):
-    '''helper function for generating repr based names for NamedDicts'''
+    """helper function for generating repr based names for NamedDicts"""
     return repr(named_dict)
 
 
 class Variable(NamedObject):
-    '''Root class for input parameters and outcomes '''
+    """Root class for input parameters and outcomes """
 
     @property
     def variable_name(self):
@@ -172,7 +170,7 @@ class NamedDict(UserDict, NamedObject):
 
 
 def combine(*args):
-    '''combine scenario and policy into a single experiment dict
+    """combine scenario and policy into a single experiment dict
 
     Parameters
     ----------
@@ -187,7 +185,7 @@ def combine(*args):
     ------
     EMAError
         if a keyword argument exists in more than one dict
-    '''
+    """
     experiment = copy.deepcopy(args[0])
     for entry in args[1::]:
         overlap = set(experiment.keys()).intersection(set(entry.keys()))
@@ -201,7 +199,7 @@ def combine(*args):
 
 
 def determine_objects(models, attribute, union=True):
-    '''determine the parameters over which to sample
+    """determine the parameters over which to sample
 
     Parameters
     ----------
@@ -216,7 +214,7 @@ def determine_objects(models, attribute, union=True):
     -------
     collection of Parameter instances
 
-    '''
+    """
     try:
         models = iter(models)
     except TypeError:

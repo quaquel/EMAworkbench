@@ -1,10 +1,11 @@
-'''parameters and collections of parameters'''
+"""parameters and collections of parameters"""
 import abc
 import itertools
 import numbers
+import warnings
+
 import pandas
 import six
-import warnings
 
 from .util import (NamedObject, Variable, NamedObjectMap, Counter,
                    NamedDict, combine)
@@ -29,11 +30,11 @@ _logger = get_module_logger(__name__)
 
 
 class Constant(NamedObject):
-    '''Constant class,
+    """Constant class,
 
     can be used for any parameter that has to be set to a fixed value
 
-    '''
+    """
 
     def __init__(self, name, value):
         super(Constant, self).__init__(name)
@@ -57,7 +58,7 @@ def create_category(cat):
 
 
 class Parameter(Variable):
-    ''' Base class for any model input parameter
+    """ Base class for any model input parameter
 
     Parameters
     ----------
@@ -77,7 +78,7 @@ class Parameter(Variable):
         if entries in resolution are outside range of lower_bound and
         upper_bound
 
-    '''
+    """
 
     __metaclass__ = abc.ABCMeta
 
@@ -136,7 +137,7 @@ class Parameter(Variable):
 
 
 class RealParameter(Parameter):
-    ''' real valued model input parameter
+    """ real valued model input parameter
 
     Parameters
     ----------
@@ -154,7 +155,7 @@ class RealParameter(Parameter):
         if entries in resolution are outside range of lower_bound and
         upper_bound
 
-    '''
+    """
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
@@ -177,7 +178,7 @@ class RealParameter(Parameter):
 
 
 class IntegerParameter(Parameter):
-    ''' integer valued model input parameter
+    """ integer valued model input parameter
 
     Parameters
     ----------
@@ -197,7 +198,7 @@ class IntegerParameter(Parameter):
     ValueError
         if lower_bound or upper_bound is not an numbers.Integral instance
 
-    '''
+    """
 
     def __init__(self, name, lower_bound, upper_bound, resolution=None,
                  default=None, variable_name=None, pff=False):
@@ -232,7 +233,7 @@ class IntegerParameter(Parameter):
 
 
 class CategoricalParameter(IntegerParameter):
-    ''' categorical model input parameter
+    """ categorical model input parameter
 
     Parameters
     ----------
@@ -243,7 +244,7 @@ class CategoricalParameter(IntegerParameter):
                  if categories have a set of values, for each variable_name
                  a different one.
 
-    '''
+    """
 
     @property
     def categories(self):
@@ -280,7 +281,7 @@ class CategoricalParameter(IntegerParameter):
         self.multivalue = multivalue
 
     def index_for_cat(self, category):
-        '''return index of category
+        """return index of category
 
         Parameters
         ----------
@@ -291,14 +292,14 @@ class CategoricalParameter(IntegerParameter):
         int
 
 
-        '''
+        """
         for i, cat in enumerate(self.categories):
             if cat.name == category:
                 return i
         raise ValueError("category not found")
 
     def cat_for_index(self, index):
-        '''return category given index
+        """return category given index
 
         Parameters
         ----------
@@ -308,12 +309,12 @@ class CategoricalParameter(IntegerParameter):
         -------
         object
 
-        '''
+        """
 
         return self.categories[index]
 
     def invert(self, name):
-        ''' invert a category to an integer
+        """ invert a category to an integer
 
         Parameters
         ----------
@@ -325,7 +326,7 @@ class CategoricalParameter(IntegerParameter):
         ValueError
             if category is not found
 
-        '''
+        """
         warnings.warn('deprecated, use index_for_cat instead')
         return self.index_for_cat(name)
 
@@ -343,12 +344,12 @@ class CategoricalParameter(IntegerParameter):
 
 
 class BinaryParameter(CategoricalParameter):
-    ''' a categorical model input parameter that is only True or False
+    """ a categorical model input parameter that is only True or False
 
     Parameters
     ----------
     name : str
-    '''
+    """
 
     def __init__(self, name, default=None, ):
         super(
@@ -362,7 +363,7 @@ class BinaryParameter(CategoricalParameter):
 
 
 class BooleanParameter(IntegerParameter):
-    ''' boolean model input parameter
+    """ boolean model input parameter
 
     A BooleanParameter is similar to a CategoricalParameter, except
     the category values can only be True or False.
@@ -372,7 +373,7 @@ class BooleanParameter(IntegerParameter):
     name : str
     variable_name : str, or list of str
 
-    '''
+    """
 
     def __init__(self, name, default=None, variable_name=None,
                  pff=False):
@@ -397,16 +398,16 @@ class BooleanParameter(IntegerParameter):
 
 
 class Policy(NamedDict):
-    '''Helper class representing a policy
-    
+    """Helper class representing a policy
+
     Attributes
     ----------
     name : str, int, or float
     id : int
-    
+
     all keyword arguments are wrapped into a dict.
-    
-    '''
+
+    """
     # TODO:: separate id and name
     # if name is not provided fall back on id
     # id will always be a number and can be generated by
@@ -418,7 +419,6 @@ class Policy(NamedDict):
     id_counter = Counter(1)
 
     def __init__(self, name=Counter(), **kwargs):
-
         # TODO: perhaps move this to seperate function that internally uses
         # counter
         if isinstance(name, int):
@@ -428,8 +428,8 @@ class Policy(NamedDict):
         self.id = Policy.id_counter()
 
     def to_list(self, parameters):
-        '''get list like representation of policy where the
-        parameters are in the order of levers'''
+        """get list like representation of policy where the
+        parameters are in the order of levers"""
 
         return [self[param.name] for param in parameters]
 
@@ -438,17 +438,17 @@ class Policy(NamedDict):
 
 
 class Scenario(NamedDict):
-    '''Helper class representing a scenario
-    
+    """Helper class representing a scenario
+
     Attributes
     ----------
     name : str, int, or float
     id : int
-    
+
     all keyword arguments are wrapped into a dict.
-    
-    '''
-    
+
+    """
+
     # we need to start from 1 so scenario id is known
     id_counter = Counter(1)
 
@@ -461,14 +461,14 @@ class Scenario(NamedDict):
 
 
 class Case(NamedObject):
-    '''A convenience object that contains a specification
+    """A convenience object that contains a specification
     of the model, policy, and scenario to run
 
     TODO:: we need a better name for this. probably this should be
     named Experiment, while Experiment should be
     ExperimentReplication
 
-    '''
+    """
 
     def __init__(self, name, model_name, policy, scenario, experiment_id):
         super(Case, self).__init__(name)
@@ -479,10 +479,10 @@ class Case(NamedObject):
 
 
 class Experiment(NamedDict):
-    '''helper class that combines scenario, policy, any constants, and
+    """helper class that combines scenario, policy, any constants, and
     replication information (seed etc) into a single dictionary.
 
-    '''
+    """
 
     def __init__(self, scenario, policy, constants, replication=None):
         scenario_id = scenario.id
@@ -504,7 +504,7 @@ class Experiment(NamedDict):
 
 
 def experiment_generator(scenarios, model_structures, policies):
-    '''
+    """
 
     generator function which yields experiments
 
@@ -521,7 +521,7 @@ def experiment_generator(scenarios, model_structures, policies):
     that designs should not be a generator because this will be exhausted after
     the running the first policy on the first model.
 
-    '''
+    """
     jobs = itertools.product(model_structures, policies, scenarios)
 
     for i, job in enumerate(jobs):
@@ -532,7 +532,7 @@ def experiment_generator(scenarios, model_structures, policies):
 
 
 def parameters_to_csv(parameters, file_name):
-    '''Helper function for writing a collection of parameters to a csv file
+    """Helper function for writing a collection of parameters to a csv file
 
     Parameters
     ----------
@@ -545,7 +545,7 @@ def parameters_to_csv(parameters, file_name):
     create_parameters function. Note that currently we don't store resolution
     and default attributes.
 
-    '''
+    """
 
     params = {}
 
@@ -574,7 +574,7 @@ def parameters_to_csv(parameters, file_name):
 
 
 def create_parameters(uncertainties, **kwargs):
-    '''Helper function for creating many Parameters based on a DataFrame
+    """Helper function for creating many Parameters based on a DataFrame
     or csv file
 
     Parameters
@@ -609,7 +609,7 @@ def create_parameters(uncertainties, **kwargs):
      IntegerParameter('an_int', 1, 9, resolution=[], default=None),
      CategoricalParameter('a_categorical', ['a', 'b', 'c'], default=None)]
 
-    '''
+    """
 
     if isinstance(uncertainties, six.string_types):
         uncertainties = pandas.read_csv(uncertainties, **kwargs)
@@ -659,7 +659,7 @@ def create_parameters(uncertainties, **kwargs):
 
                 if isinstance(
                         l, numbers.Integral) and isinstance(
-                        u, numbers.Integral):
+                    u, numbers.Integral):
                     type = 'int'  # @ReservedAssignment
                 else:
                     type = 'real'  # @ReservedAssignment

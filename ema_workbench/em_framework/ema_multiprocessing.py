@@ -1,24 +1,22 @@
-'''
+"""
 support for using the multiprocessing library in combination with the workbench
 
-'''
-from collections import defaultdict
-
+"""
 import logging
 import multiprocessing
 import os
+import queue
+import shutil
 import sys
 import threading
 import time
-import shutil
 import traceback
-import queue
+from collections import defaultdict
 
-from ..util import get_module_logger, ema_logging
 from .experiment_runner import ExperimentRunner
-from .util import NamedObjectMap
 from .model import AbstractModel
-
+from .util import NamedObjectMap
+from ..util import get_module_logger, ema_logging
 
 # Created on 22 Feb 2017
 #
@@ -30,7 +28,7 @@ _logger = get_module_logger(__name__)
 
 
 def initializer(*args):
-    '''initializer for a worker process
+    """initializer for a worker process
 
     Parameters
     ----------
@@ -41,7 +39,7 @@ def initializer(*args):
     * initializing the experiment runner
     * setting up the working directory
     * setting up the logging
-    '''
+    """
     global experiment_runner, current_process
 
     current_process = multiprocessing.current_process()
@@ -64,12 +62,12 @@ def initializer(*args):
     # remove the root temp
     if tmpdir:
         multiprocessing.util.Finalize(None, finalizer,
-                                      args=(os.path.abspath(tmpdir), ),
+                                      args=(os.path.abspath(tmpdir),),
                                       exitpriority=10)
 
 
 def finalizer(tmpdir):
-    '''cleanup'''
+    """cleanup"""
     global experiment_runner
     _logger.info("finalizing")
 
@@ -86,7 +84,7 @@ def finalizer(tmpdir):
 
 
 def setup_logging(queue, log_level):
-    '''helper function for enabling logging from the workers to the main
+    """helper function for enabling logging from the workers to the main
     process
 
     Parameters
@@ -94,7 +92,7 @@ def setup_logging(queue, log_level):
     queue : multiprocessing.Queue instance
     log_level : int
 
-    '''
+    """
 
     # create a logger
     logger = logging.getLogger(ema_logging.LOGGER_NAME + '.subprocess')
@@ -111,7 +109,7 @@ def setup_logging(queue, log_level):
 
 
 def setup_working_directories(models, root_dir):
-    '''copies the working directory of each model to a process specific
+    """copies the working directory of each model to a process specific
     temporary directory and update the working directory of the model
 
     Parameters
@@ -119,7 +117,7 @@ def setup_working_directories(models, root_dir):
     models : list
     root_dir : str
 
-    '''
+    """
 
     # group models by working directory to avoid copying the same directory
     # multiple times
@@ -158,13 +156,13 @@ def setup_working_directories(models, root_dir):
 
 
 def worker(experiment):
-    '''the worker function for executing an individual experiment
+    """the worker function for executing an individual experiment
 
     Parameters
     ----------
     experiment : dict
 
-    '''
+    """
     global experiment_runner
     return experiment, experiment_runner.run_experiment(experiment)
 
@@ -265,7 +263,7 @@ class ResultsReader(threading.Thread):
 
 
 def add_tasks(n_processes, pool, experiments, callback):
-    '''add experiments to pool
+    """add experiments to pool
 
     Parameters
     ----------
@@ -274,7 +272,7 @@ def add_tasks(n_processes, pool, experiments, callback):
     experiments : collection
     callback : callable
 
-    '''
+    """
     # by limiting task queue, we avoid putting all experiments on queue in
     # one go
     results_queue = queue.Queue(maxsize=5 * n_processes)

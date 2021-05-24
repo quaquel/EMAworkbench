@@ -1,8 +1,8 @@
-'''
+"""
 This module provides functionality for combining the EMA workbench
 with IPython parallel.
 
-'''
+"""
 import collections
 import logging
 import os
@@ -11,14 +11,12 @@ import socket
 import threading
 
 import zmq
-from zmq.eventloop import ioloop, zmqstream
-
-from traitlets.config import Application
-from traitlets.config.configurable import LoggingConfigurable
-from traitlets import Unicode, Instance, List
-
 from ipyparallel.engine.log import EnginePUBHandler
 from jupyter_client.localinterfaces import localhost
+from traitlets import Unicode, Instance, List
+from traitlets.config import Application
+from traitlets.config.configurable import LoggingConfigurable
+from zmq.eventloop import ioloop, zmqstream
 
 from . import experiment_runner
 from .ema_multiprocessing import setup_working_directories
@@ -37,14 +35,14 @@ _logger = get_module_logger(__name__)
 
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
-    '''LoggerAdapter that inserts EMA as a topic into log messages
+    """LoggerAdapter that inserts EMA as a topic into log messages
 
     Parameters
     ----------
     logger : logger instance
     topic : str
 
-    '''
+    """
 
     def __init__(self, logger, topic):
         self.logger = logger
@@ -56,7 +54,7 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
 
 
 def start_logwatcher():
-    '''convenience function for starting the LogWatcher
+    """convenience function for starting the LogWatcher
 
     Returns
     -------
@@ -67,7 +65,7 @@ def start_logwatcher():
 
     .. note : there can only be one log watcher on a given url.
 
-    '''
+    """
 
     logwatcher = LogWatcher()
 
@@ -88,9 +86,9 @@ def start_logwatcher():
 
 
 def set_engine_logger():
-    '''Updates EMA logging on the engines with an EngineLoggerAdapter
+    """Updates EMA logging on the engines with an EngineLoggerAdapter
     This adapter injects EMA as a topic into all messages
-    '''
+    """
 
     logger = Application.instance().log
     logger.setLevel(ema_logging.DEBUG)
@@ -106,7 +104,7 @@ def set_engine_logger():
 
 
 def get_engines_by_host(client):
-    ''' returns the engine ids by host
+    """ returns the engine ids by host
 
     Parameters
     ----------
@@ -118,7 +116,7 @@ def get_engines_by_host(client):
         a dict with hostnames as keys, and a list
         of engine ids
 
-    '''
+    """
 
     results = {i: client[i].apply_sync(socket.gethostname) for i in client.ids}
 
@@ -129,7 +127,7 @@ def get_engines_by_host(client):
 
 
 def update_cwd_on_all_engines(client):
-    ''' updates the current working directory on the engines to point to the
+    """ updates the current working directory on the engines to point to the
     same working directory as this notebook
 
     currently only works if engines are on same machine.
@@ -138,7 +136,7 @@ def update_cwd_on_all_engines(client):
     ----------
     client : IPython.parallel.Client instance
 
-    '''
+    """
 
     engines_by_host = get_engines_by_host(client)
 
@@ -251,7 +249,7 @@ class LogWatcher(LoggingConfigurable):
 
 
 class Engine(object):
-    '''class for setting up ema specific stuff on each engine
+    """class for setting up ema specific stuff on each engine
     also functions as a convenient namespace for workbench
     relevant variables
 
@@ -261,7 +259,7 @@ class Engine(object):
     msis : list
     cwd : str
 
-    '''
+    """
 
     def __init__(self, engine_id, msis, cwd):
         _logger.debug("starting engine {}".format(engine_id))
@@ -278,13 +276,13 @@ class Engine(object):
         self.tmpdir = setup_working_directories(msis, os.getcwd())
 
     def cleanup_working_directory(self):
-        '''remove the root working directory of the engine'''
+        """remove the root working directory of the engine"""
         if self.tmpdir:
             shutil.rmtree(self.tmpdir)
 
     def run_experiment(self, experiment):
-        '''run the experiment, the actual running is delegated
-        to an ExperimentRunner instance'''
+        """run the experiment, the actual running is delegated
+        to an ExperimentRunner instance"""
 
         try:
             return self.runner.run_experiment(experiment)
@@ -295,7 +293,7 @@ class Engine(object):
 
 
 def initialize_engines(client, msis, cwd):
-    '''initialize engine instances on all engines
+    """initialize engine instances on all engines
 
     Parameters
     ----------
@@ -304,13 +302,13 @@ def initialize_engines(client, msis, cwd):
            dict of model structure interfaces with their names as keys
     cwd : str
 
-    '''
+    """
     for i in client.ids:
         client[i].apply_sync(_initialize_engine, i, msis, cwd)
 
 
 def cleanup(client):
-    '''cleanup directory tree structure on all engines '''
+    """cleanup directory tree structure on all engines """
     client[:].apply_sync(_cleanup)
 
 
@@ -318,19 +316,19 @@ def cleanup(client):
 # these functions are wrappers around the relevant Engine methods
 # the engine instance is part of the namespace of the module.
 def _run_experiment(experiment):
-    '''wrapper function for engine.run_experiment'''
+    """wrapper function for engine.run_experiment"""
 
     return experiment, engine.run_experiment(experiment)
 
 
 def _initialize_engine(engine_id, msis, cwd):
-    '''wrapper function for initializing an engine'''
+    """wrapper function for initializing an engine"""
     global engine
     engine = Engine(engine_id, msis, cwd)
 
 
 def _cleanup():
-    '''wrapper function for engine.cleanup_working_directory'''
+    """wrapper function for engine.cleanup_working_directory"""
     global engine
     engine.cleanup_working_directory()
     del engine

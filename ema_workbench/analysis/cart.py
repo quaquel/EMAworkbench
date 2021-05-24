@@ -1,24 +1,21 @@
-'''
+"""
 A scenario discovery oriented implementation of CART. It essentially is
 a wrapper around scikit-learn's version of CART.
 
-'''
+"""
 import io
 import math
 from io import StringIO
 
-import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
 from sklearn import tree
 
+from ema_workbench.util.ema_exceptions import EMAError
 from . import scenario_discovery_util as sdutil
 from ..util import get_module_logger
-from ema_workbench.util.ema_exceptions import EMAError
-from pygments.unistring import cats
 
 # Created on May 22, 2015
 #
@@ -70,7 +67,7 @@ def setup_cart(results, classify, incl_unc=None, mass_min=0.05):
 
 
 class CART(sdutil.OutputFormatterMixin):
-    '''CART algorithm
+    """CART algorithm
 
     can be used in a manner similar to PRIM. It provides access
     to the underlying tree, but it can also show the boxes described by the
@@ -106,15 +103,15 @@ class CART(sdutil.OutputFormatterMixin):
     --------
     :mod:`prim`
 
-    '''
+    """
 
     sep = '!?!'
 
     def __init__(self, x, y, mass_min=0.05,
                  mode=sdutil.RuleInductionType.BINARY):
-        ''' init
+        """ init
 
-        '''
+        """
 
         try:
             x = x.drop(["scenario"], axis=1)
@@ -130,10 +127,10 @@ class CART(sdutil.OutputFormatterMixin):
         # we use dummy variables for each category in case of categorical
         # variables. Integers are treated as floats
         dummies = pd.get_dummies(self.x, prefix_sep=self.sep)
-        
+
         self.dummiesmap = {}
         for column, values in x.select_dtypes(exclude=np.number).iteritems():
-            mapping = {str(entry):entry for entry in values.unique()}
+            mapping = {str(entry): entry for entry in values.unique()}
             self.dummiesmap[column] = mapping
 
         self.feature_names = dummies.columns.values.tolist()
@@ -189,11 +186,11 @@ class CART(sdutil.OutputFormatterMixin):
                 direction = node[1]
                 value = node[2]
                 unc = node[3]
-                
+
                 if direction == 'l':
                     if unc in box_init.columns:
                         box.loc[1, unc] = value
-                    else :
+                    else:
                         unc, cat = unc.split(self.sep)
                         cats = box.loc[0, unc]
                         # TODO:: cat is a str needs casting?
@@ -201,7 +198,7 @@ class CART(sdutil.OutputFormatterMixin):
                         # each str cat to the associate actual cat
                         # object
                         # can be created when making the dummy variables
-                        
+
                         cats.discard(self.dummiesmap[unc][cat])
                         box.loc[:, unc] = [set(cats), set(cats)]
                 else:
@@ -209,7 +206,6 @@ class CART(sdutil.OutputFormatterMixin):
                         if box[unc].dtype == np.int32:
                             value = math.ceil(value)
                         box.loc[0, unc] = value
-
 
             boxes.append(box)
         self._boxes = boxes
@@ -265,7 +261,7 @@ class CART(sdutil.OutputFormatterMixin):
 
         total_gini = 0
         for count in counts:
-            total_gini += (count / y_in_box.shape[0])**2
+            total_gini += (count / y_in_box.shape[0]) ** 2
         gini = 1 - total_gini
 
         boxstats = {'gini': gini,
@@ -281,7 +277,7 @@ class CART(sdutil.OutputFormatterMixin):
                         sdutil.RuleInductionType.CLASSIFICATION: _classification_stats}
 
     def build_tree(self):
-        '''train CART on the data'''
+        """train CART on the data"""
         min_samples = int(self.mass_min * self.x.shape[0])
 
         if self.mode == sdutil.RuleInductionType.REGRESSION:
@@ -292,7 +288,7 @@ class CART(sdutil.OutputFormatterMixin):
         self.clf.fit(self._x, self.y)
 
     def show_tree(self, mplfig=True, format='png'):
-        '''return a png of the tree
+        """return a png of the tree
 
         Parameters
         ----------
@@ -302,7 +298,7 @@ class CART(sdutil.OutputFormatterMixin):
         format : {'png', 'svg'}, default 'png'
                  Gives a format of the output.
 
-        '''
+        """
         assert self.clf
         try:
             import pydotplus as pydot
@@ -314,16 +310,16 @@ class CART(sdutil.OutputFormatterMixin):
                              feature_names=self.feature_names)
         dot_data = dot_data.getvalue()  # .encode('ascii') # @UndefinedVariable
         graphs = pydot.graph_from_dot_data(dot_data)
-        
+
         # FIXME:: pydot now always returns a list, usted to be either a
         # singleton or a list. This is a stopgap which might be sufficient
         # but just in case, we raise an error if assumption of len==1 does
         # not hold
-        if len(graphs)>1:
+        if len(graphs) > 1:
             raise EMAError("trying to visualize more than one tree")
-        
+
         graph = graphs[0]
-        
+
         if format == 'png':
             img = graph.create_png()
             if mplfig:
@@ -337,7 +333,6 @@ class CART(sdutil.OutputFormatterMixin):
             raise TypeError('''format must be in {'png', 'svg'}''')
 
         return img
-
 
 # if __name__ == '__main__':
 #     from test import test_utilities

@@ -1,11 +1,11 @@
-'''
+"""
 
 Feature scoring functionality
 
 
-'''
-from operator import itemgetter
+"""
 import math
+from operator import itemgetter
 
 import numpy as np
 import pandas as pd
@@ -36,7 +36,7 @@ CHI2 = chi2
 
 
 def _prepare_experiments(experiments):
-    '''
+    """
     transform the experiments structured array into a numpy array.
 
     Parameters
@@ -47,7 +47,7 @@ def _prepare_experiments(experiments):
     -------
     ndarray, list
 
-    '''
+    """
     try:
         experiments = experiments.drop('scenario', axis=1)
     except KeyError:
@@ -70,7 +70,7 @@ def _prepare_experiments(experiments):
 
 
 def _prepare_outcomes(outcomes, classify):
-    '''
+    """
     transform the outcomes dict into a vector with either the class allocation
     or the value.
 
@@ -95,7 +95,7 @@ def _prepare_outcomes(outcomes, classify):
     KeyError
         if classify is a string which is not a key in the outcomes dict.
 
-    '''
+    """
     if isinstance(classify, str):
         try:
             y = outcomes[classify]
@@ -112,7 +112,7 @@ def _prepare_outcomes(outcomes, classify):
 
 
 def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
-    '''
+    """
 
     calculate feature scores using univariate statistical tests. In case of
     categorical data, chi square or the Anova F value is used. In case of
@@ -132,7 +132,7 @@ def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
         scores (i.e. p values in this case).
 
 
-    '''
+    """
     x, uncs = _prepare_experiments(x)
 
     pvalues = score_func(x, y)[1]
@@ -153,7 +153,7 @@ def get_rf_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
                           max_features='auto', max_depth=None,
                           min_samples_split=2, min_samples_leaf=1,
                           bootstrap=True, oob_score=True, random_state=None):
-    '''
+    """
     Get feature scores using a random forest
 
     Parameters
@@ -186,7 +186,7 @@ def get_rf_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     object
         either RandomForestClassifier or RandomForestRegressor
 
-    '''
+    """
     x, uncs = _prepare_experiments(x)
 
     if mode == RuleInductionType.CLASSIFICATION:
@@ -226,7 +226,7 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
                           min_samples_split=2, min_samples_leaf=None,
                           min_weight_fraction_leaf=0, max_leaf_nodes=None,
                           bootstrap=True, oob_score=True, random_state=None):
-    '''
+    """
     Get feature scores using extra trees
 
     Parameters
@@ -268,7 +268,7 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     object
         either ExtraTreesClassifier or ExtraTreesRegressor
 
-    '''
+    """
     x, uncs = _prepare_experiments(x)
 
     # TODO
@@ -282,7 +282,8 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
         max_features = int(round(x.shape[1] / 3))
     if min_samples_leaf is None:
         min_samples_leaf = max(1,
-                               int(round(math.sqrt(x.shape[0]) / math.sqrt(1000))))
+                               int(round(
+                                   math.sqrt(x.shape[0]) / math.sqrt(1000))))
 
     if mode == RuleInductionType.CLASSIFICATION:
         etc = ExtraTreesClassifier
@@ -326,7 +327,7 @@ algorithms = {'extra trees': get_ex_feature_scores,
 def get_feature_scores_all(x, y, alg='extra trees',
                            mode=RuleInductionType.REGRESSION,
                            **kwargs):
-    '''perform feature scoring for all outcomes using the specified feature
+    """perform feature scoring for all outcomes using the specified feature
     scoring algorithm
 
     Parameters
@@ -345,7 +346,7 @@ def get_feature_scores_all(x, y, alg='extra trees',
     DataFrame instance
 
 
-    '''
+    """
     complete = None
     for key, value in y.items():
         fs, _ = algorithms[alg](x, value, mode=mode, **kwargs)

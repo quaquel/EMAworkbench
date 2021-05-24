@@ -12,8 +12,8 @@ import numpy as np
 
 from ema_workbench import (TimeSeriesOutcome, ScalarOutcome, ema_logging,
                            Policy, MultiprocessingEvaluator, save_results)
-from ema_workbench.em_framework.parameters import create_parameters
 from ema_workbench.connectors.vensim import VensimModel
+from ema_workbench.em_framework.parameters import create_parameters
 
 
 def time_of_max(infected_fraction, time):

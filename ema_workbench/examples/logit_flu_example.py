@@ -4,9 +4,8 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
-from ema_workbench import load_results
 import ema_workbench.analysis.logistic_regression as logistic_regression
+from ema_workbench import load_results
 
 # Created on 14 Mar 2019
 #

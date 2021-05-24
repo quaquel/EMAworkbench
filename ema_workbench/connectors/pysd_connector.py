@@ -1,15 +1,13 @@
-'''
+"""
 pysd connector
-'''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
+"""
 import os
 
 import pysd
 
-from ..em_framework.model import AbstractModel
-from ema_workbench.util.ema_logging import method_logger
 from ema_workbench.em_framework.model import SingleReplication
+from ema_workbench.util.ema_logging import method_logger
+from ..em_framework.model import AbstractModel
 
 __all__ = ['PysdModel']
 

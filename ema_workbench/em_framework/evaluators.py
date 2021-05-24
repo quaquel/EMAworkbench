@@ -1,8 +1,8 @@
-'''
+"""
 collection of evaluators for performing experiments, optimization, and robust
 optimization
 
-'''
+"""
 import multiprocessing
 import numbers
 import os
@@ -68,7 +68,7 @@ _logger = get_module_logger(__name__)
 
 
 class BaseEvaluator(object):
-    '''evaluator for experiments using a multiprocessing pool
+    """evaluator for experiments using a multiprocessing pool
 
     Parameters
     ----------
@@ -80,7 +80,7 @@ class BaseEvaluator(object):
     ------
     ValueError
 
-    '''
+    """
     reporting_frequency = 3
 
     def __init__(self, msis):
@@ -102,21 +102,21 @@ class BaseEvaluator(object):
             return False
 
     def initialize(self):
-        '''initialize the evaluator'''
+        """initialize the evaluator"""
         raise NotImplementedError
 
     def finalize(self):
-        ''' finalize the evaluator'''
+        """ finalize the evaluator"""
         raise NotImplementedError
 
     def evaluate_experiments(self, scenarios, policies, callback):
-        '''used by ema_workbench'''
+        """used by ema_workbench"""
         raise NotImplementedError
 
     def evaluate_all(self, jobs, **kwargs):
-        '''makes ema_workbench evaluators compatible with Platypus
+        """makes ema_workbench evaluators compatible with Platypus
         evaluators as used by platypus algorithms
-        '''
+        """
         self.callback()
 
         problem = jobs[0].solution.problem
@@ -157,12 +157,12 @@ class BaseEvaluator(object):
                             uncertainty_union=False, lever_union=False,
                             outcome_union=False, uncertainty_sampling=LHS,
                             levers_sampling=LHS, callback=None):
-        '''convenience method for performing experiments.
+        """convenience method for performing experiments.
 
         is forwarded to :func:perform_experiments, with evaluator and
         models arguments added in.
 
-        '''
+        """
         return perform_experiments(self._msis, scenarios=scenarios,
                                    policies=policies, evaluator=self,
                                    reporting_interval=reporting_interval,
@@ -177,12 +177,12 @@ class BaseEvaluator(object):
     def optimize(self, algorithm=EpsNSGAII, nfe=10000, searchover='levers',
                  reference=None, constraints=None, convergence_freq=1000,
                  logging_freq=5, **kwargs):
-        '''convenience method for outcome optimization.
+        """convenience method for outcome optimization.
 
         is forwarded to :func:optimize, with evaluator and models
         arguments added in.
 
-        '''
+        """
         return optimize(self._msis, algorithm=algorithm, nfe=int(nfe),
                         searchover=searchover, evaluator=self,
                         reference=reference, constraints=constraints,
@@ -192,12 +192,12 @@ class BaseEvaluator(object):
     def robust_optimize(self, robustness_functions, scenarios,
                         algorithm=EpsNSGAII, nfe=10000, convergence_freq=1000,
                         logging_freq=5, **kwargs):
-        '''convenience method for robust optimization.
+        """convenience method for robust optimization.
 
         is forwarded to :func:robust_optimize, with evaluator and models
         arguments added in.
 
-        '''
+        """
         return robust_optimize(self._msis, robustness_functions, scenarios,
                                self, algorithm=algorithm, nfe=nfe,
                                convergence_freq=convergence_freq,
@@ -233,7 +233,7 @@ class SequentialEvaluator(BaseEvaluator):
 
 
 class MultiprocessingEvaluator(BaseEvaluator):
-    '''evaluator for experiments using a multiprocessing pool
+    """evaluator for experiments using a multiprocessing pool
 
     Parameters
     ----------
@@ -241,7 +241,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
     n_processes : int (optional)
     max_tasks : int (optional)
 
-    '''
+    """
 
     def __init__(self, msis, n_processes=None,
                  maxtasksperchild=None, **kwargs):
@@ -278,7 +278,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
 
         self._pool = multiprocessing.Pool(self.n_processes, initializer,
                                           (self._msis, log_queue, loglevel,
-                                           self.root_dir), self.maxtasksperchild)
+                                           self.root_dir),
+                                          self.maxtasksperchild)
         self.n_processes = self._pool._processes
         _logger.info("pool started")
         return self
@@ -309,7 +310,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
 
 
 class IpyparallelEvaluator(BaseEvaluator):
-    '''evaluator for using an ipypparallel pool'''
+    """evaluator for using an ipypparallel pool"""
 
     def __init__(self, msis, client, **kwargs):
         super(IpyparallelEvaluator, self).__init__(msis, **kwargs)
@@ -359,7 +360,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
                         outcome_union=False, uncertainty_sampling=LHS,
                         levers_sampling=LHS, callback=None,
                         return_callback=False):
-    '''sample uncertainties and levers, and perform the resulting experiments
+    """sample uncertainties and levers, and perform the resulting experiments
     on each of the models
 
     Parameters
@@ -385,7 +386,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         as numpy array. Experiments and outcomes are alinged on index.
 
 
-    '''
+    """
     if not scenarios and not policies:
         raise EMAError(('no experiments possible since both '
                         'scenarios and policies are 0'))
@@ -394,7 +395,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         scenarios = [Scenario("None", **{})]
         uncertainties = []
         n_scenarios = 1
-    elif(isinstance(scenarios, numbers.Integral)):
+    elif (isinstance(scenarios, numbers.Integral)):
         sampler = SAMPLERS[uncertainty_sampling]()
         scenarios = sample_uncertainties(models, scenarios, sampler=sampler,
                                          union=uncertainty_union)
@@ -418,7 +419,7 @@ def perform_experiments(models, scenarios=0, policies=0, evaluator=None,
         policies = [Policy("None", **{})]
         levers = []
         n_policies = 1
-    elif(isinstance(policies, numbers.Integral)):
+    elif (isinstance(policies, numbers.Integral)):
         policies = sample_levers(models, policies, union=lever_union,
                                  sampler=SAMPLERS[levers_sampling]())
         levers = policies.parameters
@@ -487,7 +488,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
              convergence=None, constraints=None,
              convergence_freq=1000, logging_freq=5,
              **kwargs):
-    '''optimize the model
+    """optimize the model
 
     Parameters
     ----------
@@ -513,7 +514,7 @@ def optimize(models, algorithm=EpsNSGAII, nfe=10000,
     EMAError if searchover is not one of 'uncertainties' or 'levers'
     NotImplementedError if len(models) > 1
 
-    '''
+    """
     if searchover not in ('levers', 'uncertainties'):
         raise EMAError(("searchover should be one of 'levers' or"
                         "'uncertainties' not {}".format(searchover)))
@@ -542,7 +543,7 @@ def robust_optimize(model, robustness_functions, scenarios,
                     evaluator=None, algorithm=EpsNSGAII, nfe=10000,
                     convergence=None, constraints=None,
                     convergence_freq=1000, logging_freq=5, **kwargs):
-    '''perform robust optimization
+    """perform robust optimization
 
     Parameters
     ----------
@@ -568,11 +569,11 @@ def robust_optimize(model, robustness_functions, scenarios,
     robustness functions are scalar outcomes, kind should be MINIMIZE or
     MAXIMIZE, function is the robustness function you want to use.
 
-    '''
+    """
     for rf in robustness_functions:
-        assert(isinstance(rf, ScalarOutcome))
-        assert(rf.kind != AbstractOutcome.INFO)
-        assert(rf.function is not None)
+        assert (isinstance(rf, ScalarOutcome))
+        assert (rf.kind != AbstractOutcome.INFO)
+        assert (rf.function is not None)
 
     problem = to_robust_problem(model, scenarios, constraints=constraints,
                                 robustness_functions=robustness_functions)

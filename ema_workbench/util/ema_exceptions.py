@@ -1,10 +1,8 @@
-'''
+"""
 
 Exceptions and warning used internally by the EMA workbench. In line with
 advice given in `PEP 8 <http://www.python.org/dev/peps/pep-0008/>`_.
-'''
-from __future__ import (absolute_import, print_function, division,
-                        unicode_literals)
+"""
 
 # Created on 31 mei 2011
 #
@@ -17,9 +15,9 @@ __all__ = ['EMAError',
 
 
 class EMAError(BaseException):
-    '''
+    """
     Base EMA error
-    '''
+    """
 
     def __init__(self, *args):
         self.args = args
@@ -35,19 +33,19 @@ class EMAError(BaseException):
 
 
 class EMAWarning(EMAError):
-    '''
+    """
     base EMA warning class
-    '''
+    """
     pass
 
 
 class CaseError(EMAError):
-    '''
+    """
     error to be used when a particular run creates an error. The character of
     the error can be specified as the message, and the actual case that
     gave rise to the error.
 
-    '''
+    """
 
     def __init__(self, message, case, policy=None):
         self.message = message
@@ -77,7 +75,7 @@ class CaseError(EMAError):
 
 
 class EMAParallelError(EMAError):
-    '''
+    """
     parallel EMA error
-    '''
+    """
     pass
