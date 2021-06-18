@@ -1,4 +1,4 @@
-'''
+"""
 
 This example is a proof of principle for how NetLogo models can be
 controlled using pyNetLogo and the ema_workbench. Note that this
@@ -6,8 +6,10 @@ example uses the NetLogo 6 version of the predator prey model that
 comes with NetLogo. If you are using NetLogo 5, replace the model file
 with the one that comes with NetLogo.
 
-'''
-from ema_workbench import (RealParameter, ema_logging,
+"""
+import numpy as np
+
+from ema_workbench import (RealParameter, ema_logging, ScalarOutcome,
                            TimeSeriesOutcome, MultiprocessingEvaluator)
 from ema_workbench.connectors.netlogo import NetLogoModel
 
@@ -33,7 +35,8 @@ if __name__ == '__main__':
                            RealParameter("wolf-reproduce", 5, 10),
                            ]
 
-    model.outcomes = [TimeSeriesOutcome('sheep'),
+    model.outcomes = [ScalarOutcome('sheep', variable_name='count sheep',
+                                    function=np.mean),
                       TimeSeriesOutcome('wolves'),
                       TimeSeriesOutcome('grass')]
 
@@ -43,3 +46,5 @@ if __name__ == '__main__':
     with MultiprocessingEvaluator(model, n_processes=2,
                                   maxtasksperchild=4) as evaluator:
         results = evaluator.perform_experiments(n)
+
+    print()
