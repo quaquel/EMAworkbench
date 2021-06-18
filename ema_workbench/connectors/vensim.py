@@ -21,7 +21,6 @@ from ..em_framework import TimeSeriesOutcome, FileModel
 from ..em_framework.model import SingleReplication
 from ..em_framework.parameters import (Parameter, RealParameter,
                                        CategoricalParameter)
-from ..em_framework.util import NamedObjectMap
 from ..util import CaseError, EMAError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
 
@@ -710,3 +709,81 @@ class LookupUncertainty(Parameter):
 
 class VensimModel(SingleReplication, BaseVensimModel):
     pass
+
+def create_model_for_debugging(path_to_existing_model, path_to_new_model,
+                               error):
+    """Helper function for creating a vensim mdl file parameterized according
+    to the experiment which created the error
+
+    To be able to debug the Vensim model, a few steps are needed:
+
+    1.  The case that gave a bug, needs to be saved in a text  file. The entire
+        case description should be on a single line.
+    2.  Reform and clean your model ( In the Vensim menu: Model, Reform and
+        Clean). Choose
+
+         * Equation Order: Alphabetical by group (not really necessary)
+         * Equation Format: Terse
+
+    3.  Save your model as text (File, Save as..., Save as Type: Text Format
+        Models
+    4.  Run this script
+    5.  If the print in the end is not set([]), but set([array]), the array
+        gives the values that where not found and changed
+    5.  Run your new model (for example 'new text.mdl')
+    6.  Vensim tells you about your critical mistake
+
+
+    Parameters
+    ----------
+
+    path_to_existing_model : str
+                             path to the original mdl file
+    path_to_new_model : str
+                        path for the new mdl file
+    error : str
+            the case error, only containing the parameterization
+
+    """
+
+    # we assume the case specification was copied from the logger
+    experiment = error.split(',')
+    variables = {}
+
+    # -1 because policy entry needs to be removed
+    for entry in experiment[0:-1]:
+        variable, value = entry.split(':')
+
+        # Delete the spaces and other rubish on the sides of the variable name
+        variable = variable.strip()
+        variable = variable.lstrip("'")
+        variable = variable.rstrip("'")
+        value = value.strip()
+
+        # vensim model is in bytes, so we go from unicode to bytes
+        variables[variable.encode('utf8')] = value.encode('utf8')
+
+    # This generates a new (text-formatted) model
+    with open(path_to_new_model, 'wb') as new_model:
+        skip_next_line = False
+
+        for line in open(path_to_existing_model, 'rb'):
+            if skip_next_line:
+                skip_next_line = False
+                line = b'\n'
+            elif line.find(b"=") != -1:
+                variable = line.split(b"=")[0]
+                variable = variable.strip()
+
+                try:
+                    value = variables.pop(variable)
+                except KeyError:
+                    pass
+                else:
+                    line = variable + b" = " + value
+                    skip_next_line = True
+
+            new_model.write(line)
+
+    _logger.info("parameters not set:")
+    _logger.info(set(variables.keys()))
