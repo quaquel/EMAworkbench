@@ -3,6 +3,7 @@ support for using the multiprocessing library in combination with the workbench
 
 """
 import logging
+from logging.handlers import QueueHandler
 import multiprocessing
 import os
 import queue
@@ -100,7 +101,7 @@ def setup_logging(queue, log_level):
     logger.handlers = []
 
     # add the handler
-    handler = logging.handlers.QueueHandler(queue)
+    handler = QueueHandler(queue)
     handler.setFormatter(ema_logging.LOG_FORMAT)
     logger.addHandler(handler)
 

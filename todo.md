@@ -1,5 +1,5 @@
 * add progress bar which is context aware (notebook, command line)
-	* tqdm now seems to work in notebook / lab, see mesa
+    * tqdm now seems to work in notebook / lab, see mesa
 * add altair based analysis to scenario discovery
 * review parallelization code, too much unnecessary copying seems
   to be going on at the moment
@@ -27,5 +27,7 @@
   and then the callable would take multiple arguments (this is sort of how
   lookup uncertainties work, but we might generalize this).
 * add a best practices item to website
-	* generate data using .py and analyse in notebooks
-	* how to organize your project
+    * generate data using .py and analyse in notebooks
+    * how to organize your project
+* pydotplus versus pydot. Pydot is again actively being maintained while 
+  pydotplus is not.

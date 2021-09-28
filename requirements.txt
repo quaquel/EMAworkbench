@@ -2,8 +2,6 @@ pyscaffold==2.5.7
 sphinx>=1.4
 ipykernel
 nbsphinx
-future
-futures
 numpy
 scipy==1.2.*
 pandas>=0.24.*
