@@ -194,10 +194,10 @@ def save_results(results, file_name):
     _logger.info("results saved successfully to {}".format(file_name))
 
 
-def experiments_to_scenarios(experiments, model=None):
+def experiments_to_scenarios(experiments: pd.DataFrame, model=None):
     """
 
-    This function transform a structured experiments array into a list
+    This function transform an experiments dataframe into a list
     of Scenarios.
 
     If model is provided, the uncertainties of the model are used.
@@ -206,8 +206,8 @@ def experiments_to_scenarios(experiments, model=None):
 
     Parameters
     ----------
-    experiments : numpy structured array
-                  a structured array containing experiments
+    experiments : Pandas Dataframe
+                  a DataFrame containing experiments
     model : ModelInstance, optional
 
     Returns
@@ -217,7 +217,7 @@ def experiments_to_scenarios(experiments, model=None):
     """
     # get the names of the uncertainties
     if model is None:
-        uncertainties = [entry[0] for entry in experiments.dtype.descr]
+        uncertainties = [column for column in experiments.columns]
 
         # remove policy and model, leaving only the case related uncertainties
         try:
