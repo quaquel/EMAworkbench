@@ -427,7 +427,16 @@ class TimeSeriesOutcome(ArrayOutcome):
     @classmethod
     def from_disk(cls, filename, archive):
         f = archive.extractfile(filename)
-        raise NotImplementedError()
+
+        if filename.endswith('csv'):
+            return pd.read_csv(f, index_col=False, header=0).values
+        elif filename.endswith('npy'):
+            array_file = BytesIO()
+            array_file.write(f.read())
+            array_file.seek(0)
+            return np.load(array_file)
+        else:
+            raise EMAError("unknown file extension")
 
 
 class OutcomesDict(collections.abc.MutableMapping):

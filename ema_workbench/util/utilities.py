@@ -1,8 +1,8 @@
-'''
+"""
 
 This module provides various convenience functions and classes.
 
-'''
+"""
 
 import configparser
 import json
@@ -28,7 +28,7 @@ _logger = get_module_logger(__name__)
 
 
 def load_results(file_name):
-    '''
+    """
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
 
@@ -41,7 +41,7 @@ def load_results(file_name):
     ------
     IOError if file not found
 
-    '''
+    """
     from ..em_framework.outcomes import AbstractOutcome, OutcomesDict
 
     file_name = os.path.abspath(file_name)
@@ -85,7 +85,7 @@ def load_results(file_name):
 
 
 def load_results_old(archive):
-    '''
+    """
     load the specified bz2 file. the file is assumed to be saves
     using save_results.
 
@@ -97,7 +97,7 @@ def load_results_old(archive):
     ------
     IOError if file not found
 
-    '''
+    """
     from ..em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
                                          OutcomesDict)
 
@@ -180,13 +180,13 @@ def load_results_old(archive):
 
 
 def save_results(results, file_name):
-    '''
-    save the results to the specified tar.gz file. 
-    
+    """
+    save the results to the specified tar.gz file.
+
     The way in which results are stored depends. Experiments are saved
     as csv. Outcomes depend on the outcome type. Scalar, and <3D arrays are
     saved as csv files. Higher dimensional arrays are stored as .npy files.
-    
+
     Parameters
     ----------
     results : tuple
@@ -198,7 +198,7 @@ def save_results(results, file_name):
     ------
     IOError if file not found
 
-    '''
+    """
     VERSION = 0.1
     file_name = os.path.abspath(file_name)
 
@@ -238,7 +238,7 @@ def save_results(results, file_name):
 
 
 def merge_results(results1, results2):
-    '''
+    """
     convenience function for merging the return from
     :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
 
@@ -266,7 +266,7 @@ def merge_results(results1, results2):
     the merged results
 
 
-    '''
+    """
 
     # start of merging
     exp1, res1 = results1
@@ -315,7 +315,7 @@ def get_ema_project_home_dir():
 
 
 def process_replications(data, aggregation_func=np.mean):
-    '''
+    """
     Convenience function for processing the replications of a stochastic
     model's outcomes.
 
@@ -338,10 +338,10 @@ def process_replications(data, aggregation_func=np.mean):
 
     Returns
     -------
-    dict, tuple 
-    
-    
-    '''
+    dict, tuple
+
+
+    """
 
     if isinstance(data, dict):
         # replications are the second dimension of the outcome arrays

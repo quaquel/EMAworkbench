@@ -61,7 +61,10 @@
   and turn it into a tarbal / zipfile (shutil will make selecting extension
   easier.
 * have time index on TimeSeriesOutcome
-	--> so TimeSeriesOutcome should be a DataFrame
-	--> why not have a generic DataFr
+    --> so TimeSeriesOutcome should be a DataFrame
+    --> why not have a generic DataFr
 * Add a standardized file naming scheme for saving data. Set as fallback in
- 	save_results if no file_name is specified.
+     save_results if no file_name is specified.
+* store the uncertainty specification also in the json metadata
+  * so we need the class, dist, scale and loc?
+  * also add a way of getting the results metadata seperately

@@ -12,6 +12,7 @@ import threading
 import time
 import traceback
 from collections import defaultdict
+from logging import handlers
 
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
@@ -100,7 +101,7 @@ def setup_logging(queue, log_level):
     logger.handlers = []
 
     # add the handler
-    handler = logging.handlers.QueueHandler(queue)
+    handler = handlers.QueueHandler(queue)
     handler.setFormatter(ema_logging.LOG_FORMAT)
     logger.addHandler(handler)
 

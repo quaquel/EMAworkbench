@@ -21,6 +21,7 @@ from ..em_framework import TimeSeriesOutcome, FileModel
 from ..em_framework.model import SingleReplication
 from ..em_framework.parameters import (Parameter, RealParameter,
                                        CategoricalParameter)
+from ..em_framework.util import NamedObjectMap
 from ..util import CaseError, EMAError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
 
