@@ -179,10 +179,13 @@ class DefaultCallback(AbstractCallback):
             columns.append(name)
             dtypes.append('object')
 
-        df = pd.DataFrame(index=np.arange(nr_experiments))
 
-        for name, dtype in zip(columns, dtypes):
-            df[name] = pd.Series(dtype=dtype)
+        #FIXME:: issue with fragmented data frame warning
+        index = np.arange(nr_experiments)
+        column_list = [pd.Series(dtype=dtype, index=index) for name, dtype in
+                       zip(columns, dtypes)]
+        df = pd.concat(column_list, axis=1).copy()
+
         self.cases = df
         self.nr_experiments = nr_experiments
 

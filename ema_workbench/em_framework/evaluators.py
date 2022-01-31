@@ -109,7 +109,8 @@ class BaseEvaluator(object):
         """ finalize the evaluator"""
         raise NotImplementedError
 
-    def evaluate_experiments(self, scenarios, policies, callback):
+    def evaluate_experiments(self, scenarios, policies, callback,
+                             combine='factorial'):
         """used by ema_workbench"""
         raise NotImplementedError
 

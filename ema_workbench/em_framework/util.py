@@ -14,7 +14,8 @@ from ..util import EMAError
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation',
-           'ProgressTrackingMixIn', 'combine', 'NamedObjectMapDescriptor']
+           'ProgressTrackingMixIn', 'combine', 'NamedObjectMapDescriptor',
+           'NamedObjectMap']
 
 
 class NamedObject:

@@ -220,7 +220,10 @@ class SimioModel(FileModel, SingleReplication):
             replication_scores = []
             for replication in range(1, self.num_replications+1):
                 try:
-                    success, value = scenario.GetResponseValueForReplication(response,replication, response_value)
+                    success, value = \
+                        scenario.GetResponseValueForReplication(response,
+                                                                replication,
+                                                                response_value)
                 except TypeError:
                     _logger.warning((f'''type error when trying to get a '
                                              'response for {response.Name}'''))

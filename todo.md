@@ -53,6 +53,8 @@
   what will be tricky is how to link different parameters to different
   samplers, and also how samples for each sampler have to be combined
   (do you do this in full factorial or in some other manner?)
+* check out https://scipy.github.io/devdocs/tutorial/stats.
+  html#quasi-monte-carlo to see if we can use this for sampling
 
 
 # Saving and Loading
