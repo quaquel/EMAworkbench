@@ -4,6 +4,7 @@
 """
 import os
 import sys
+import numpy as np
 
 import clr  # @UnresolvedImport
 
@@ -85,6 +86,8 @@ class SimioModel(FileModel, SingleReplication):
         self.main_model_name = main_model
         self.output = {}
         self.n_replications = n_replications
+        self.scenarios = None
+        self.control_map = None
 
     @method_logger(__name__)
     def model_init(self, policy):
@@ -150,7 +153,7 @@ class SimioModel(FileModel, SingleReplication):
         _logger.debug('Setup SIMIO scenario')
 
         scenario = self.scenarios.Create()
-        scenario.ReplicationsRequired = self.num_replications
+        scenario.ReplicationsRequired = self.n_replications
         _logger.debug(f'nr. of scenarios is {self.scenarios.Count}')
 
         for key, value in experiment.items():
@@ -218,7 +221,7 @@ class SimioModel(FileModel, SingleReplication):
             response_value = 0.0
 
             replication_scores = []
-            for replication in range(1, self.num_replications+1):
+            for replication in range(1, self.n_replications+1):
                 try:
                     success, value = \
                         scenario.GetResponseValueForReplication(response,
