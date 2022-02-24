@@ -42,7 +42,7 @@ class SimioModel(FileModel, SingleReplication):
     Attributes
     ----------
     name : str
-    working_directory : str
+    wd : str
     model_file : str
     main_model_name : str
     output : dict
@@ -66,8 +66,8 @@ class SimioModel(FileModel, SingleReplication):
         name : str
                name of the modelInterface. The name should contain only
                alpha-numerical characters.
-        working_directory : str
-                            working_directory for the model.
+        wd : str
+             working_directory for the model.
         model_file  : str
                      the name of the model file
         main_model : str
@@ -88,6 +88,10 @@ class SimioModel(FileModel, SingleReplication):
         self.n_replications = n_replications
         self.scenarios = None
         self.control_map = None
+        self.experiment = None
+        self.project = None
+        self.model = None
+        self.case = None
 
     @method_logger(__name__)
     def model_init(self, policy):
@@ -168,7 +172,7 @@ class SimioModel(FileModel, SingleReplication):
                 if ret:
                     _logger.debug(f'{key} set successfully')
                 else:
-                    raise CaseError(f'failed to set {key}')
+                    raise CaseError(f'failed to set {key}', self.case)
 
         _logger.debug('SIMIO scenario setup completed')
 
@@ -183,7 +187,7 @@ class SimioModel(FileModel, SingleReplication):
     @method_logger(__name__)
     def reset_model(self):
         """
-        Method for reseting the model to its initial state. The default
+        Method for resetting the model to its initial state. The default
         implementation only sets the outputs to an empty dict. 
 
         """
@@ -210,11 +214,11 @@ class SimioModel(FileModel, SingleReplication):
 
         # http://stackoverflow.com/questions/16484167/python-net-framework-reference-argument-double
 
-        results = scenario_ended_event.get_Results()
-        data = []
-        for result in results:
-            data.append(SimioAPI.IScenarioResult(result))
-        results = data
+        # results = scenario_ended_event.get_Results()
+        # data = []
+        # for result in results:
+        #     data.append(SimioAPI.IScenarioResult(result))
+        # results = data
 
         for response in responses:
             _logger.debug(f'{response}')
@@ -235,7 +239,7 @@ class SimioModel(FileModel, SingleReplication):
                 if success:
                     replication_scores.append(value)
                 else:
-                    error = CaseError("error in simio replication")
+                    error = CaseError("error in simio replication", self.case)
                     _logger.exception(str(error))
                     raise error
 
