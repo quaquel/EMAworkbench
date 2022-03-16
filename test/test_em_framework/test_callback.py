@@ -83,8 +83,8 @@ class TestDefaultCallback(unittest.TestCase):
          
         _, out = callback.get_results()
         
-        self.assertIn(outcomes[0], set([entry for entry in out.keys()]))
-        self.assertEqual(out[outcomes[0]].shape, (3,))
+        self.assertIn(outcomes[0].name, set([entry for entry in out.keys()]))
+        self.assertEqual(out[outcomes[0].name].shape, (3,))
      
         # case 2 time series shape = (1, nr_time_steps)
         callback = DefaultCallback(uncs, [], outcomes, 

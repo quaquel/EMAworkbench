@@ -14,8 +14,7 @@ import pandas as pd
 import scipy.stats.kde as kde
 import seaborn as sns
 
-from ..em_framework.outcomes import AbstractOutcome, OutcomesDict, \
-    ScalarOutcome
+from ..em_framework.outcomes import AbstractOutcome, ScalarOutcome
 from ..util import EMAError, get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -516,7 +515,7 @@ def filter_scalar_outcomes(outcomes):
 
 
     """
-    temp = OutcomesDict()
+    temp = {}
     for key, value in outcomes.items():
         if value.ndim < 2:
             _logger.info(("{} not shown because it is "
@@ -623,7 +622,7 @@ def group_results(experiments, outcomes, group_by, grouping_specifiers,
             # the grouping is an integer or categorical uncertainty
             logical = column_to_group_by == specifier
 
-        group_outcomes = OutcomesDict()
+        group_outcomes = {}
         for key, value in outcomes.items():
             value = value[logical]
             group_outcomes[key] = value
@@ -694,10 +693,10 @@ def prepare_pairs_data(experiments, outcomes,
         grouping_specifiers, filter_scalar)
 
     def filter_outcomes(outcomes, point_in_time):
-        new_outcomes = OutcomesDict()
+        new_outcomes = {}
         for key, value in outcomes.items():
             if len(value.shape) == 2:
-                new_outcomes[ScalarOutcome(key.name)] = value[:, point_in_time]
+                new_outcomes[key] = value[:, point_in_time]
             else:
                 new_outcomes[key] = value
         return new_outcomes
@@ -746,17 +745,11 @@ def prepare_data(experiments, experiments_to_show, outcomes,
 
     # remove outcomes that are not to be shown
     if outcomes_to_show:
-        temp_outcomes = OutcomesDict()
+        temp_outcomes = {}
         if isinstance(outcomes_to_show, str):
-            outcomes_to_show = [
-                outcomes.get_outcome_for_name(outcomes_to_show)]
-        elif isinstance(outcomes_to_show, AbstractOutcome):
-            outcomes_to_show[outcomes_to_show]
+            outcomes_to_show = [outcomes_to_show]
 
         for entry in outcomes_to_show:
-            if isinstance(entry, str):
-                entry = outcomes.get_outcome_for_name(entry)
-
             temp_outcomes[entry] = outcomes[entry]
         outcomes = temp_outcomes
 
@@ -764,7 +757,7 @@ def prepare_data(experiments, experiments_to_show, outcomes,
     if filter_scalar:
         outcomes = filter_scalar_outcomes(outcomes)
     if not outcomes_to_show:
-        outcomes_to_show = [o.name for o in outcomes.keys()]
+        outcomes_to_show = [o for o in outcomes.keys()]
 
     # group the data if desired
     if group_by:
@@ -775,7 +768,7 @@ def prepare_data(experiments, experiments_to_show, outcomes,
                                 "trying to group on index"))
             else:
                 column_to_group_by = experiments[group_by]
-                if (column_to_group_by.dtype == np.object) or \
+                if (column_to_group_by.dtype == object) or \
                         (column_to_group_by.dtype == 'category'):
                     grouping_specifiers = set(column_to_group_by)
                 else:

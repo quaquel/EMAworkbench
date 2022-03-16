@@ -615,8 +615,8 @@ def kde_over_time(experiments,
     minima = {}
     maxima = {}
     for key, value in outcomes.items():
-        minima[key.name] = np.min(value)
-        maxima[key.name] = np.max(value)
+        minima[key] = np.min(value)
+        maxima[key] = np.max(value)
 
     prepared_data = prepare_data(experiments, None, outcomes,
                                  outcomes_to_show, group_by,
@@ -720,7 +720,7 @@ def multiple_densities(experiments,
 
     '''
     if not outcomes_to_show:
-        outcomes_to_show = [k.name for k, v in outcomes.items() if v.ndim == 2]
+        outcomes_to_show = [k for k, v in outcomes.items() if v.ndim == 2]
         outcomes_to_show.remove(TIME)
     elif isinstance(outcomes_to_show, str):
         outcomes_to_show = [outcomes_to_show]

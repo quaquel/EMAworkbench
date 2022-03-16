@@ -13,7 +13,7 @@ import pandas as pd
 
 from . import callbacks, evaluators
 from .points import Scenario, Policy
-from .outcomes import AbstractOutcome, OutcomesDict
+from .outcomes import AbstractOutcome
 from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
                          BooleanParameter)
 from .samplers import determine_parameters
@@ -45,6 +45,8 @@ try:
     from platypus import Problem as PlatypusProblem
 
     import platypus
+
+
 except ImportError:
     warnings.warn("platypus based optimization not available", ImportWarning)
 
@@ -396,7 +398,7 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
     for entry, job in jobs_collection:
         logical = experiments[column] == entry.name
 
-        job_outputs = OutcomesDict()
+        job_outputs = {}
         for k, v in outcomes.items():
             job_outputs[k] = v[logical][0]
 
@@ -424,13 +426,13 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
     for entry, job in jobs_collection:
         logical = experiments['policy'] == entry.name
 
-        job_outcomes_dict = OutcomesDict()
+        job_outcomes_dict = {}
         job_outcomes = []
         for rf in robustness_functions:
             data = [outcomes[var_name][logical] for var_name in
                     rf.variable_name]
             score = rf.function(*data)
-            job_outcomes_dict[rf] = score
+            job_outcomes_dict[rf.name] = score
             job_outcomes.append(score)
 
         # TODO:: only retain levers

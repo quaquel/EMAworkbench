@@ -8,22 +8,23 @@ import unittest.mock as mock
 
 from ema_workbench.em_framework.outcomes import (ScalarOutcome,
                                                  create_outcomes,
-                                                 TimeSeriesOutcome, )
+                                                 TimeSeriesOutcome, register)
 
 class TestScalarOutcome(unittest.TestCase):
     outcome_class = ScalarOutcome
     outcome_klass = "ScalarOutcome"
     
     def test_outcome(self):
-        name = 'test'
+        register.outcomes = {}
+        name = 'a'
         outcome = self.outcome_class(name)
         
         self.assertEqual(outcome.name, name)
         self.assertEqual(outcome.variable_name, [name])
         self.assertIsNone(outcome.function)
-        self.assertEqual(repr(outcome), self.outcome_klass+'(\'test\')')
+        self.assertEqual(repr(outcome), self.outcome_klass+'(\'a\')')
 
-        name = 'test'
+        name = 'b'
         var_name = 'something else'
         outcome = self.outcome_class(name, variable_name=var_name)
         
@@ -31,7 +32,7 @@ class TestScalarOutcome(unittest.TestCase):
         self.assertEqual(outcome.variable_name, (var_name,))
         self.assertIsNone(outcome.function)
 
-        name = 'test'
+        name = 'c'
         var_name = 'something else'
         function = mock.Mock()
         outcome = self.outcome_class(name, variable_name=var_name, 
@@ -42,25 +43,25 @@ class TestScalarOutcome(unittest.TestCase):
         self.assertIsNotNone(outcome.function)
         
         with self.assertRaises(ValueError):
-            name = 'test'
+            name = 'd'
             var_name = 'something else'
             function = 'not a function'
             outcome = self.outcome_class(name, variable_name=var_name, 
                                     function=function)
         
         with self.assertRaises(ValueError):
-            name = 'test'
+            name = 'e'
             var_name = 1
             outcome = self.outcome_class(name, variable_name=var_name, 
                                     function=function)
         
         with self.assertRaises(ValueError):
-            name = 'test'
+            name = 'f'
             var_name = ['a variable', 1]
             outcome = self.outcome_class(name, variable_name=var_name, 
                                     function=function)
         
-        name = 'test'
+        name = 'g'
         var_name = 'something else'
         function = lambda x: x
         outcome1 = self.outcome_class(name, variable_name=var_name, 
@@ -73,13 +74,14 @@ class TestScalarOutcome(unittest.TestCase):
 
 
     def test_process(self):
-        name = 'test'
+        register.outcomes = {}
+        name = 'q'
         outcome = self.outcome_class(name)
         
         outputs = [1]
         self.assertEqual(outcome.process(outputs), outputs[0])
 
-        name = 'test'
+        name = 'r'
         function = mock.Mock()
         function.return_value = 2
         outcome = self.outcome_class(name, function=function)
@@ -89,7 +91,7 @@ class TestScalarOutcome(unittest.TestCase):
         function.assert_called_once()
 
 
-        name = 'test'
+        name = 's'
         function = mock.Mock()
         function.return_value = 2
         variable_name = ['a', 'b']
@@ -103,7 +105,7 @@ class TestScalarOutcome(unittest.TestCase):
         function.assert_called_with(1, 2)
 
         with self.assertRaises(ValueError):
-            name = 'test'
+            name = 't'
             function = mock.Mock()
             function.return_value = 2
             variable_name = ['a', 'b']
@@ -118,49 +120,51 @@ class TestTimeSeriesOutcome(TestScalarOutcome):
     outcome_klass = "TimeSeriesOutcome"
 
     def test_process(self):
-            name = 'test'
-            outcome = self.outcome_class(name)
-            
-            outputs = [[1]]
-            self.assertEqual(outcome.process(outputs), outputs[0])
-    
-            name = 'test'
-            function = mock.Mock()
-            function.return_value = [2]
-            outcome = self.outcome_class(name, function=function)
-            
-            outputs = [1]
-            self.assertEqual(outcome.process(outputs), [2])
-            function.assert_called_once()
-    
-    
-            name = 'test'
+        register.outcomes = {}
+        name = 'a'
+        outcome = self.outcome_class(name)
+
+        outputs = [[1]]
+        self.assertEqual(outcome.process(outputs), outputs[0])
+
+        name = 'b'
+        function = mock.Mock()
+        function.return_value = [2]
+        outcome = self.outcome_class(name, function=function)
+
+        outputs = [1]
+        self.assertEqual(outcome.process(outputs), [2])
+        function.assert_called_once()
+
+
+        name = 'c'
+        function = mock.Mock()
+        function.return_value = [2]
+        variable_name = ['a', 'b']
+
+        outcome = self.outcome_class(name, function=function,
+                                variable_name=variable_name)
+
+        outputs = [1, 2]
+        self.assertEqual(outcome.process(outputs), [2])
+        function.assert_called_once()
+        function.assert_called_with(1, 2)
+
+        with self.assertRaises(ValueError):
+            name = 'd'
             function = mock.Mock()
             function.return_value = [2]
             variable_name = ['a', 'b']
-            
-            outcome = self.outcome_class(name, function=function, 
+
+            outcome = self.outcome_class(name, function=function,
                                     variable_name=variable_name)
-            
-            outputs = [1, 2]
-            self.assertEqual(outcome.process(outputs), [2])
-            function.assert_called_once()
-            function.assert_called_with(1, 2)
-    
-            with self.assertRaises(ValueError):
-                name = 'test'
-                function = mock.Mock()
-                function.return_value = [2]
-                variable_name = ['a', 'b']
-                
-                outcome = self.outcome_class(name, function=function, 
-                                        variable_name=variable_name)
-                
-                outcome.process([1])
+
+            outcome.process([1])
 
 
 class CreateOutcomesTestCase(unittest.TestCase):
     def test_create_outcomes(self):
+        register.outcomes = {}
         outcome_list = [dict(type='scalar', name='a'),
                         dict(type='timeseries', name='b')]
 

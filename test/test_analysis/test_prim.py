@@ -17,13 +17,13 @@ from ema_workbench.em_framework.outcomes import ScalarOutcome
 
 
 def flu_classify(data):
-    #get the output for deceased population
+    # get the output for deceased population
     result = data['deceased population region 1']
     
-    #make an empty array of length equal to number of cases 
-    classes =  np.zeros(result.shape[0])
+    # make an empty array of length equal to number of cases
+    classes = np.zeros(result.shape[0])
     
-    #if deceased population is higher then 1.000.000 people, classify as 1 
+    # if deceased population is higher then 1.000.000 people, classify as 1
     classes[result[:, -1] > 1000000] = 1
     
     return classes
@@ -31,9 +31,9 @@ def flu_classify(data):
 
 class PrimBoxTestCase(unittest.TestCase):
     def test_init(self):
-        x = pd.DataFrame([(0,1,2),
-                          (2,5,6),
-                          (3,2,1)], 
+        x = pd.DataFrame([(0, 1, 2),
+                          (2, 5, 6),
+                          (3, 2, 1)],
                           columns=['a', 'b', 'c'])
         y = {'y':np.array([0,1,2])}
         results = (x,y)
@@ -44,9 +44,9 @@ class PrimBoxTestCase(unittest.TestCase):
         self.assertEqual(box.peeling_trajectory.shape, (1,6))
     
     def test_select(self):
-        x = pd.DataFrame([(0,1,2),
-                          (2,5,6),
-                          (3,2,1)], 
+        x = pd.DataFrame([(0, 1, 2),
+                          (2, 5, 6),
+                          (3, 2, 1)],
                           columns=['a', 'b', 'c'])
         y = {'y':np.array([1,1,0])}
         results = (x,y)
@@ -54,29 +54,29 @@ class PrimBoxTestCase(unittest.TestCase):
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        new_box_lim = pd.DataFrame([(0,1,1),
-                                    (2,5,6)], 
+        new_box_lim = pd.DataFrame([(0, 1, 1),
+                                    (2, 5, 6)],
                                     columns=['a', 'b', 'c'])
-        indices = np.array([0,1], dtype=np.int)
+        indices = np.array([0,1], dtype=int)
         box.update(new_box_lim, indices)
         
         box.select(0)
         self.assertTrue(np.all(box.yi==prim_obj.yi))
     
     def test_inspect(self):
-        x = pd.DataFrame([(0,1,2),
-                          (2,5,6),
-                          (3,2,1)], 
+        x = pd.DataFrame([(0, 1, 2),
+                          (2, 5, 6),
+                          (3, 2, 1)],
                           columns=['a', 'b', 'c'])
         y = np.array([1,1,0])
         
         prim_obj = prim.Prim(x, y, threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        new_box_lim = pd.DataFrame([(0,1,1),
-                                    (2,5,6)], 
+        new_box_lim = pd.DataFrame([(0, 1, 1),
+                                    (2, 5, 6)],
                                     columns=['a', 'b', 'c'])
-        indices = np.array([0,1], dtype=np.int)
+        indices = np.array([0, 1], dtype=int)
         box.update(new_box_lim, indices)
         
         box.inspect(1)
@@ -125,20 +125,20 @@ class PrimBoxTestCase(unittest.TestCase):
         box.show_tradeoff()    
     
     def test_update(self):
-        x = pd.DataFrame([(0,1,2),
-                          (2,5,6),
-                          (3,2,1)], 
+        x = pd.DataFrame([(0, 1, 2),
+                          (2, 5, 6),
+                          (3, 2, 1)],
                           columns=['a', 'b', 'c'])
-        y = {'y':np.array([1,1,0])}
-        results = (x,y)
+        y = {'y':np.array([1, 1, 0])}
+        results = (x, y)
         
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        new_box_lim = pd.DataFrame([(0,1,1),
-                                    (2,5,6)], 
+        new_box_lim = pd.DataFrame([(0, 1, 1),
+                                    (2, 5, 6)],
                                     columns=['a', 'b', 'c'])
-        indices = np.array([0,1], dtype=np.int)
+        indices = np.array([0, 1], dtype=int)
         box.update(new_box_lim, indices)
         
         self.assertEqual(box.peeling_trajectory['mean'][1], 1)
@@ -148,9 +148,9 @@ class PrimBoxTestCase(unittest.TestCase):
         self.assertEqual(box.peeling_trajectory['mass'][1], 2/3)
     
     def test_drop_restriction(self):
-        x = pd.DataFrame([(0,1,2),
-                          (2,5,6),
-                          (3,2,1)], 
+        x = pd.DataFrame([(0, 1, 2),
+                          (2, 5, 6),
+                          (3, 2, 1)],
                           columns=['a', 'b', 'c'])
         y = {'y':np.array([1,1,0])}
         results = (x,y)
@@ -158,16 +158,16 @@ class PrimBoxTestCase(unittest.TestCase):
         prim_obj = prim.setup_prim(results, 'y', threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        new_box_lim = pd.DataFrame([(0,1,1),
-                                    (2,2,6)], 
+        new_box_lim = pd.DataFrame([(0, 1, 1),
+                                    (2, 2, 6)],
                                     columns=['a', 'b', 'c'])
-        indices = np.array([0,1], dtype=np.int)
+        indices = np.array([0,1], dtype=int)
         box.update(new_box_lim, indices)
         
         box.drop_restriction('b')
         
-        correct_box_lims = pd.DataFrame([(0,1,1),
-                                         (2,5,6)], 
+        correct_box_lims = pd.DataFrame([(0, 1, 1),
+                                         (2, 5, 6)],
                                          columns=['a', 'b', 'c'])        
         box_lims = box.box_lims[-1]
         names = box_lims.columns
@@ -197,7 +197,7 @@ class PrimTestCase(unittest.TestCase):
         
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or higher than the threshold
-        outcomes[ScalarOutcome('death toll')] = outcomes['deceased population region 1'][:, -1]
+        outcomes['death toll'] = outcomes['deceased population region 1'][:, -1]
         results = experiments, outcomes
         threshold = 10000
         prim_obj = prim.setup_prim(results, classify='death toll', 
@@ -250,7 +250,7 @@ class PrimTestCase(unittest.TestCase):
         
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or higher than the threshold
-        outcomes[ScalarOutcome('death toll')] = outcomes['deceased population region 1'][:, -1]
+        outcomes['death toll'] = outcomes['deceased population region 1'][:, -1]
         results = experiments, outcomes
         threshold = 10000
         prim_obj = prim.setup_prim(results, classify='death toll', 
@@ -372,7 +372,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertEqual(after_find, prim_obj.y.shape[0])
         
     def test_discrete_peel(self):
-        x = pd.DataFrame(np.random.randint(0, 10, size=(100,), dtype=np.int),
+        x = pd.DataFrame(np.random.randint(0, 10, size=(100,), dtype=int),
                          columns=['a'])
         y  = np.zeros(100,)
         y[x.a > 5] = 1
@@ -435,7 +435,7 @@ class PrimTestCase(unittest.TestCase):
                           columns=['a', 'b'])
         
         y = np.random.randint(0,2, (10,))
-        y = y.astype(np.int)
+        y = y.astype(int)
         y = {'y':y}
         results = x, y
         classify = 'y'
@@ -467,7 +467,7 @@ class PrimTestCase(unittest.TestCase):
                          columns=['a', 'b'])
         
         y = np.random.randint(0,2, (10,))
-        y = y.astype(np.int)
+        y = y.astype(int)
         y = {'y':y}
         results = x, y
         classify = 'y'
@@ -496,7 +496,7 @@ class PrimTestCase(unittest.TestCase):
         x['b'] = x['b'].astype('category')
         
         y = np.random.randint(0,2, (10,))
-        y = y.astype(np.int)
+        y = y.astype(int)
         y = {'y':y}
         results = x,y
         classify = 'y'

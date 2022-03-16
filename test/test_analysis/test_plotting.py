@@ -1,8 +1,8 @@
-'''
+"""
 Created on 22 jul. 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-'''
+"""
 import unittest
 
 import matplotlib.pyplot as plt
@@ -15,7 +15,7 @@ from ema_workbench.analysis.plotting_util import (make_continuous_grouping_speci
                                                   Density, PlotType)
 from test import utilities
 from ema_workbench.util.ema_exceptions import EMAError
-from ema_workbench.em_framework.outcomes import OutcomesDict, ScalarOutcome, ArrayOutcome
+# from ema_workbench.em_framework.outcomes import ScalarOutcome, ArrayOutcome
 
 
 # don't run these tests using nosetest
@@ -26,7 +26,8 @@ class TestPlotting(unittest.TestCase):
     def test_make_continuous_grouping_specifiers(self):
         n_groups = 10
         array = np.linspace(0, 100, 50)
-        categories = make_continuous_grouping_specifiers(array, nr_of_groups=n_groups)
+        categories = make_continuous_grouping_specifiers(array,
+                                                         nr_of_groups=n_groups)
 
         limits = np.linspace(0, 100, n_groups+1)
 
@@ -35,14 +36,14 @@ class TestPlotting(unittest.TestCase):
             self.assertEqual(entry, a)
 
     def test_filter_scalar_outcomes(self):
-        outcomes = OutcomesDict()
+        outcomes = {}
         for entry in ['a', 'b', 'c']:
-            outcomes[ArrayOutcome(entry)] = np.random.rand(10, 100)
+            outcomes[entry] = np.random.rand(10, 100)
         for entry in ['d','e','f']:
-            outcomes[ScalarOutcome(entry)] = np.random.rand(10)
+            outcomes[entry] = np.random.rand(10)
         outcomes = filter_scalar_outcomes(outcomes)
 
-        for entry in ['a','b','c']:
+        for entry in ['a', 'b', 'c']:
             self.assertIn(entry, outcomes.keys())
 
     def test_group_results(self):
@@ -51,8 +52,8 @@ class TestPlotting(unittest.TestCase):
 
         # test indices
         groups = {'set1':np.arange(0,11),
-                               'set2':np.arange(11,25),
-                               'set3':np.arange(25,experiments.shape[0])}
+                  'set2':np.arange(11,25),
+                  'set3':np.arange(25,experiments.shape[0])}
         groups = group_results(experiments, outcomes,
                                group_by='index',
                                grouping_specifiers=groups.values(),

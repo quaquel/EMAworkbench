@@ -20,8 +20,47 @@ from ..util import get_module_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ['ScalarOutcome', 'ArrayOutcome', 'TimeSeriesOutcome',
-           'Constraint', 'OutcomesDict', 'AbstractOutcome']
+           'Constraint', 'AbstractOutcome', 'register']
 _logger = get_module_logger(__name__)
+
+
+class Register:
+    """helper class for storing outcomes to disk
+
+    this class stores outcomes by name, and is used to save_results
+    to look up how to save each outcome.
+
+    Raises
+    ------
+    ValueError if a given outcome name already exists but with a different
+    outcome class.
+
+    """
+
+    def __init__(self):
+        self.outcomes = {}
+
+    def __call__(self, outcome):
+        if outcome.name not in self.outcomes:
+            self.outcomes[outcome.name] = outcome.__class__
+        elif not isinstance(outcome, self.outcomes[outcome.name]):
+            raise ValueError(("outcome with this name but of different class "
+                              "already exists"))
+        else:
+            pass  # multiple instances of the same class and name is fine
+
+    def serialize(self, name, values):
+        # goes wrong if you do any postprocessing add it to the dict
+        # but do not instantiate an appropriate outcome class....
+        stream, extension = self.outcomes[name].to_disk(values)
+
+        return stream, f"{name}.{extension}"
+
+    def deserialize(self, name, filename, archive):
+        return self.outcomes[name].from_disk(filename, archive)
+
+
+register = Register()
 
 
 class AbstractOutcome(Variable):
@@ -75,6 +114,9 @@ class AbstractOutcome(Variable):
                     'variable name must be a string or list of strings')
         if expected_range is not None and len(expected_range) != 2:
             raise ValueError('expected_range must be a min-max tuple')
+
+        register(self)
+
         self.kind = kind
 
         if variable_name:
@@ -144,8 +186,9 @@ class AbstractOutcome(Variable):
 
         return hash(items)
 
+    @classmethod
     @abc.abstractmethod
-    def to_disk(self, values):
+    def to_disk(cls, values):
         """helper function for writing outcome to disk
 
         Parameters
@@ -234,7 +277,8 @@ class ScalarOutcome(AbstractOutcome):
                 f"outcome {self.name} should be a scalar, but is {type(values)}: {values}")
         return values
 
-    def to_disk(self, values):
+    @classmethod
+    def to_disk(cls, values):
         """helper function for writing outcome to disk
 
 
@@ -254,7 +298,7 @@ class ScalarOutcome(AbstractOutcome):
         data = pd.DataFrame(values)
         fh.write(data.to_csv(header=False, index=False,
                              encoding='UTF-8').encode())
-        return fh, f"{self.name}.csv"
+        return fh, 'cls'
 
     @classmethod
     def from_disk(cls, filename, archive):
@@ -316,7 +360,8 @@ class ArrayOutcome(AbstractOutcome):
                 "outcome {} should be a collection".format(self.name))
         return values
 
-    def to_disk(self, values):
+    @classmethod
+    def to_disk(cls, values):
         """helper function for writing outcome to disk
 
         Parameters
@@ -335,13 +380,13 @@ class ArrayOutcome(AbstractOutcome):
             data = pd.DataFrame(values)
             fh.write(data.to_csv(header=False, index=False,
                                  encoding='UTF-8').encode())
-            filename = f'{self.name}.csv'
+            extension = 'csv'
         else:
             fh = BytesIO()
             np.save(fh, values)
-            filename = f'{self.name}.npy'
+            extension = 'npy'
 
-        return fh, filename
+        return fh, extension
 
     @classmethod
     def from_disk(cls, filename, archive):
@@ -402,7 +447,8 @@ class TimeSeriesOutcome(ArrayOutcome):
             expected_range=expected_range,
             shape=shape)
 
-    def to_disk(self, values):
+    @classmethod
+    def to_disk(cls, values):
         """helper function for writing outcome to disk
 
         Parameters
@@ -421,8 +467,7 @@ class TimeSeriesOutcome(ArrayOutcome):
         data = pd.DataFrame(values)
         fh.write(data.to_csv(header=True, index=False,
                              encoding='UTF-8').encode())
-        filename = f'{self.name}.csv'
-        return fh, f"{self.name}.csv"
+        return fh, 'csv'
 
     @classmethod
     def from_disk(cls, filename, archive):
@@ -439,81 +484,81 @@ class TimeSeriesOutcome(ArrayOutcome):
             raise EMAError("unknown file extension")
 
 
-class OutcomesDict(collections.abc.MutableMapping):
-    """Dict like storage for outcomes
-
-    Attributes
-    ----------
-    _data : dict
-    outcomes_mapping : dict
-
-    """
-
-    def __init__(self):
-        self._data = {}
-        self.outcomes_mapping = {}
-
-    def __getitem__(self, key):
-        if isinstance(key, str):
-            key = self.outcomes_mapping[key]
-
-        return self._data[key]
-
-    def __setitem__(self, key, value):
-        if isinstance(key, str):
-            try:
-                key = self.outcomes_mapping[key]
-            except KeyError:
-                raise KeyError((f'{key} should be an instance of '
-                                'AbstractOutcome not a string'))
-        else:
-            self.outcomes_mapping[key.name] = key
-
-        self._data[key] = value
-
-    def __delitem__(self, key):
-        if isinstance(key, str):
-            name = key
-            key = self.outcomes_mapping[name]
-        else:
-            name = key.name
-
-        del self._data[key]
-        del self.outcomes_mapping[name]
-
-    def __iter__(self):
-        return iter(self._data)
-
-    def __len__(self):
-        return len(self.outcomes)
-
-    def items_by_name(self):
-        """like .items() but now with only outcome names"""
-
-        return {k.name: v for k, v in self._data.items()}.items()
-
-    def __str__(self):
-        return str({k: v for k, v in self._data.items()})
-
-    def get_outcome_for_name(self, name):
-        """Return Outcome instance associated with name
-
-        Parameters
-        ----------
-        name : str
-
-        Returns
-        -------
-        AbstractOutcome instance
-
-        """
-        return self.outcomes_mapping[name]
-
-    def as_dict(self):
-        """return dict with outcome.name as key and results as value
-
-        """
-        return {k.name: v for k, v in self._data.items()}
+# class OutcomesDict(collections.abc.MutableMapping):
+#     """Dict like storage for outcomes
+#
+#     Attributes
+#     ----------
+#     _data : dict
+#     outcomes_mapping : dict
+#
+#     """
+#
+#     def __init__(self):
+#         self._data = {}
+#         self.outcomes_mapping = {}
+#
+#     def __getitem__(self, key):
+#         if isinstance(key, str):
+#             key = self.outcomes_mapping[key]
+#
+#         return self._data[key]
+#
+#     def __setitem__(self, key, value):
+#         if isinstance(key, str):
+#             try:
+#                 key = self.outcomes_mapping[key]
+#             except KeyError:
+#                 raise KeyError((f'{key} should be an instance of '
+#                                 'AbstractOutcome not a string'))
+#         else:
+#             self.outcomes_mapping[key.name] = key
+#
+#         self._data[key] = value
+#
+#     def __delitem__(self, key):
+#         if isinstance(key, str):
+#             name = key
+#             key = self.outcomes_mapping[name]
+#         else:
+#             name = key.name
+#
+#         del self._data[key]
+#         del self.outcomes_mapping[name]
+#
+#     def __iter__(self):
+#         return iter(self._data)
+#
+#     def __len__(self):
+#         return len(self.outcomes)
+#
+#     def items_by_name(self):
+#         """like .items() but now with only outcome names"""
+#
+#         return {k.name: v for k, v in self._data.items()}.items()
+#
+#     def __str__(self):
+#         return str({k: v for k, v in self._data.items()})
+#
+#     def get_outcome_for_name(self, name):
+#         """Return Outcome instance associated with name
+#
+#         Parameters
+#         ----------
+#         name : str
+#
+#         Returns
+#         -------
+#         AbstractOutcome instance
+#
+#         """
+#         return self.outcomes_mapping[name]
+#
+#     def as_dict(self):
+#         """return dict with outcome.name as key and results as value
+#
+#         """
+#         return {k.name: v for k, v in self._data.items()}
 
 
 class Constraint(ScalarOutcome):

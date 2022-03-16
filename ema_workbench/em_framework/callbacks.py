@@ -20,7 +20,6 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from .outcomes import OutcomesDict
 from .parameters import (CategoricalParameter, IntegerParameter,
                          BooleanParameter)
 from .util import ProgressTrackingMixIn
@@ -153,7 +152,7 @@ class DefaultCallback(AbstractCallback):
                                               log_progress)
         self.i = 0
         self.cases = None
-        self.results = OutcomesDict()
+        self.results = {}
         self.outcomes = outcomes
 
         # determine data types of parameters
@@ -182,9 +181,10 @@ class DefaultCallback(AbstractCallback):
 
         #FIXME:: issue with fragmented data frame warning
         index = np.arange(nr_experiments)
-        column_list = [pd.Series(dtype=dtype, index=index) for name, dtype in
-                       zip(columns, dtypes)]
-        df = pd.concat(column_list, axis=1).copy()
+        column_dict = {name:pd.Series(dtype=dtype, index=index) for name,
+                                                                  dtype in
+                       zip(columns, dtypes)}
+        df = pd.concat(column_dict, axis=1).copy()
 
         self.cases = df
         self.nr_experiments = nr_experiments
@@ -195,7 +195,7 @@ class DefaultCallback(AbstractCallback):
                 shape = (nr_experiments,) + shape
                 data = np.empty(shape)
                 data[:] = np.nan
-                self.results[outcome] = data
+                self.results[outcome.name] = data
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
@@ -214,12 +214,13 @@ class DefaultCallback(AbstractCallback):
 
     def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
-            _logger.debug(f"storing {outcome.name}")
+            outcome = outcome.name
+            _logger.debug(f"storing {outcome}")
 
             try:
-                outcome_res = outcomes[outcome.name]
+                outcome_res = outcomes[outcome]
             except KeyError:
-                message = f"{outcome.name} not specified as outcome in " \
+                message = f"{outcome} not specified as outcome in " \
                           f"model(s)"
                 _logger.debug(message)
             else:

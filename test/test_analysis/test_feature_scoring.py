@@ -54,7 +54,7 @@ class FeatureScoringTestCase(unittest.TestCase):
                             [0.8, 7, 0],
                             [0.9, 8, 1],
                             [1.0, 9, 0]
-                            ], dtype=np.float)
+                            ], dtype=float)
 
         self.assertTrue(np.all(x==correct))
 
@@ -63,9 +63,9 @@ class FeatureScoringTestCase(unittest.TestCase):
         experiments, outcomes = utilities.load_flu_data()
         
         # string type correct
-        ooi = ScalarOutcome('nr deaths')
+        ooi = 'nr deaths'
         outcomes[ooi] = outcomes['deceased population region 1'][:, -1]
-        y, categorical = fs._prepare_outcomes(outcomes, ooi.name)
+        y, categorical = fs._prepare_outcomes(outcomes, ooi)
         
         self.assertFalse(categorical)
         self.assertTrue(len(y.shape)==1)

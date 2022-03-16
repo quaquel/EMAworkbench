@@ -202,7 +202,7 @@ def run_constrained_prim(experiments, y, issignificant=True,
         peeling = box.peeling_trajectory
         lims = box.box_lims
 
-        logical = np.ones(box.peeling_trajectory.shape[0], dtype=np.bool)
+        logical = np.ones(box.peeling_trajectory.shape[0], dtype=bool)
 
         for i in range(box.peeling_trajectory.shape[0]):
             lim = lims[i]
@@ -897,11 +897,11 @@ class Prim(sdutil.OutputFormatterMixin):
             pass
         x = x.reset_index(drop=True)
 
-        x_float = x.select_dtypes([np.float, np.float32, np.float64, float])
+        x_float = x.select_dtypes([np.float32, np.float64, float])
         self.x_float = x_float.values
         self.x_float_colums = x_float.columns.values
 
-        x_int = x.select_dtypes([np.int, np.int32, np.int64, int])
+        x_int = x.select_dtypes([np.int32, np.int64, int])
         self.x_int = x_int.values
         self.x_int_columns = x_int.columns.values
 
@@ -1079,7 +1079,7 @@ class Prim(sdutil.OutputFormatterMixin):
         """
 
         # set the indices
-        logical = np.ones(self.yi.shape[0], dtype=np.bool)
+        logical = np.ones(self.yi.shape[0], dtype=bool)
         for box in self._boxes:
             logical[box.yi] = False
         self.yi_remaining = self.yi[logical]

@@ -10,23 +10,23 @@ import pandas as pd
 
 from ema_workbench.analysis import cart
 from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
-from ema_workbench.em_framework.outcomes import OutcomesDict
 
 from test import utilities
 
 
 
 def flu_classify(data):
-    #get the output for deceased population
+    # get the output for deceased population
     result = data['deceased population region 1']
     
-    #make an empty array of length equal to number of cases 
-    classes =  np.zeros(result.shape[0])
+    # make an empty array of length equal to number of cases
+    classes = np.zeros(result.shape[0])
     
-    #if deceased population is higher then 1.000.000 people, classify as 1 
+    # if deceased population is higher then 1.000.000 people, classify as 1
     classes[result[:, -1] > 1000000] = 1
     
     return classes
+
 
 def scarcity_classify(outcomes):
     outcome = outcomes['relative market price']
@@ -42,6 +42,7 @@ def scarcity_classify(outcomes):
     
     return classes
 
+
 class CartTestCase(unittest.TestCase):
     def test_setup_cart(self):
         results = utilities.load_flu_data()
@@ -52,16 +53,16 @@ class CartTestCase(unittest.TestCase):
         self.assertTrue(alg.mode==RuleInductionType.BINARY)
 
         x, outcomes = results
-        y = OutcomesDict()
+        y = {}
         
-        for k,v in outcomes.items():
+        for k, v in outcomes.items():
             y[k] = v[:, -1] 
             
-        temp_results = (x,y)
+        temp_results = (x, y)
         alg = cart.setup_cart(temp_results,
                               'deceased population region 1',
                               mass_min=0.05)
-        self.assertTrue(alg.mode==RuleInductionType.REGRESSION)
+        self.assertTrue(alg.mode == RuleInductionType.REGRESSION)
 
         n_cols = 5
         unc = x.columns.values[0:n_cols]
@@ -69,8 +70,8 @@ class CartTestCase(unittest.TestCase):
                               flu_classify,
                               mass_min=0.05,
                               incl_unc=unc)
-        self.assertTrue(alg.mode==RuleInductionType.BINARY)
-        self.assertTrue(alg.x.shape[1]==n_cols)
+        self.assertTrue(alg.mode == RuleInductionType.BINARY)
+        self.assertTrue(alg.x.shape[1] == n_cols)
 
         with self.assertRaises(TypeError):
             alg = cart.setup_cart(results, 10,
@@ -85,8 +86,7 @@ class CartTestCase(unittest.TestCase):
         # --> classification vs. regresion
         
         # callable
-        
-        
+
     def test_boxes(self):
         np.random.seed(42)
         x = pd.DataFrame(np.random.rand(1000,2), columns=['a', 'b'])
@@ -180,12 +180,12 @@ class CartTestCase(unittest.TestCase):
                                    cart.tree.DecisionTreeClassifier))
 
         x, outcomes = results
-        y = OutcomesDict()
+        y = {}
         
         for k, v in outcomes.items():
             y[k] = v
         
-        temp_results = (x,y)
+        temp_results = (x, y)
         alg = cart.setup_cart(temp_results,
                               'deceased population region 1',
                               mass_min=0.05)

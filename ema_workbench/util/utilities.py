@@ -15,6 +15,7 @@ import pandas as pd
 
 from . import EMAError, get_module_logger
 
+
 # Created on 13 jan. 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -42,7 +43,7 @@ def load_results(file_name):
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import AbstractOutcome, OutcomesDict
+    from ..em_framework.outcomes import AbstractOutcome, register
 
     file_name = os.path.abspath(file_name)
 
@@ -71,14 +72,14 @@ def load_results(file_name):
                 experiments[name] = experiments[name].astype('category')
 
         # load outcomes
-        outcomes = OutcomesDict()
+        outcomes = {}
         known_outcome_classes = {entry.__name__: entry for entry in \
                                  AbstractOutcome.get_subclasses()}
         for (outcome_type, name, filename) in metadata['outcomes']:
             outcome = known_outcome_classes[outcome_type](name)
 
-            values = outcome.from_disk(filename, archive)
-            outcomes[outcome] = values
+            values = register.deserialize(name, filename, archive)
+            outcomes[name] = values
 
     _logger.info("results loaded successfully from {}".format(file_name))
     return experiments, outcomes
@@ -98,8 +99,7 @@ def load_results_old(archive):
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
-                                         OutcomesDict)
+    from ..em_framework.outcomes import ScalarOutcome, ArrayOutcome, register
 
     outcomes = {}
 
@@ -167,14 +167,14 @@ def load_results_old(archive):
         outcomes[outcome] = data
 
     # reformat outcomes from generic dict to new style OutcomesDict
-    outcomes_new = OutcomesDict()
+    outcomes_new = {}
     for k, v in outcomes.items():
         if v.ndim == 1:
             outcome = ScalarOutcome(k)
         else:
             outcome = ArrayOutcome(k)
 
-        outcomes_new[outcome] = v
+        outcomes_new[outcome.name] = v
 
     return experiments, outcomes_new
 
@@ -199,6 +199,7 @@ def save_results(results, file_name):
     IOError if file not found
 
     """
+    from ..em_framework.outcomes import register
     VERSION = 0.1
     file_name = os.path.abspath(file_name)
 
@@ -219,9 +220,10 @@ def save_results(results, file_name):
         # store outcomes
         outcomes_metadata = []
         for key, value in outcomes.items():
-            stream, filename = key.to_disk(value)
+            klass = register.outcomes[key]
+            stream, filename = register.serialize(key, value)
             add_file(z, stream, filename)
-            outcomes_metadata.append((key.__class__.__name__, key.name,
+            outcomes_metadata.append((klass.__name__, key,
                                       filename))
 
         # store metadata
@@ -283,7 +285,7 @@ def merge_results(results1, results2):
     # merging results
     merged_res = {}
     for key in keys:
-        _logger.info(f"merge {key.name}")
+        _logger.info(f"merge {key}")
 
         value1 = res1.get(key)
         value2 = res2.get(key)

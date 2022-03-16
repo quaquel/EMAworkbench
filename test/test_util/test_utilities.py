@@ -13,7 +13,10 @@ import pandas as pd
 from ema_workbench.util.utilities import (save_results, load_results,
                               merge_results, get_ema_project_home_dir)
 from ema_workbench.em_framework.outcomes import (ScalarOutcome, ArrayOutcome,
-                                                 TimeSeriesOutcome, OutcomesDict)
+                                                 TimeSeriesOutcome, register)
+
+
+
 
 
 
@@ -21,6 +24,7 @@ def setUpModule():
     global cwd 
     cwd = os.getcwd()
     dir_of_module = os.path.dirname(os.path.abspath(__file__))
+    register.outcomes = {}  # reset internal dict
     os.chdir(dir_of_module)
 
 def tearDownModule():
@@ -28,18 +32,17 @@ def tearDownModule():
 
 class SaveResultsTestCase(unittest.TestCase):
     def test_save_results(self):
-        fn = u'../data/test.tar.gz'
+        fn = '../data/test.tar.gz'
 
-        
         # test for 1d
         nr_experiments = 10000
         experiments = pd.DataFrame(index=np.arange(nr_experiments),
-                                   columns={'x':np.float, 
-                                            'y': np.float})
-        outcome_a = np.random.rand(nr_experiments,1)
-        
-        outcomes = OutcomesDict()
-        outcomes[ScalarOutcome('a')] = outcome_a
+                                   columns={'x': float,
+                                            'y': float})
+        outcome_q = np.random.rand(nr_experiments, 1)
+
+        outcomes = {}
+        outcomes[ScalarOutcome('q').name] = outcome_q
         results = (experiments, outcomes)
     
         # test for 2d
@@ -49,12 +52,12 @@ class SaveResultsTestCase(unittest.TestCase):
         nr_experiments = 10000
         nr_timesteps = 100
         experiments = pd.DataFrame(index=np.arange(nr_experiments),
-                                   columns={'x':np.float, 
-                                            'y': np.float})
-        outcome_a = np.zeros((nr_experiments,nr_timesteps))
+                                   columns={'x': float,
+                                            'y': float})
+        outcome_r = np.zeros((nr_experiments,nr_timesteps))
         
-        outcomes = OutcomesDict()
-        outcomes[ArrayOutcome('a')] = outcome_a
+        outcomes = {}
+        outcomes[ArrayOutcome('r').name] = outcome_r
         results = (experiments, outcomes)
 
         save_results(results, fn)
@@ -66,12 +69,12 @@ class SaveResultsTestCase(unittest.TestCase):
         nr_timesteps = 100
         nr_replications = 10
         experiments = pd.DataFrame(index=np.arange(nr_experiments),
-                                   columns={'x':np.float, 
-                                            'y': np.float})
-        outcome_a = np.zeros((nr_experiments,nr_timesteps,nr_replications))
+                                   columns={'x': float,
+                                            'y': float})
+        outcome_s = np.zeros((nr_experiments, nr_timesteps, nr_replications))
 
-        outcomes = OutcomesDict()
-        outcomes[ArrayOutcome('a')] = outcome_a
+        outcomes = {}
+        outcomes[ArrayOutcome('s').name] = outcome_s
         results = (experiments, outcomes)
 
         save_results(results, fn)
@@ -88,20 +91,20 @@ class LoadResultsTestCase(unittest.TestCase):
         
         # test for 2d
         experiments = pd.DataFrame(index=np.arange(nr_experiments),
-                                   columns={'x':np.float, 
-                                            'y': np.float})
+                                   columns={'x': float,
+                                            'y': float})
             
         experiments['x'] = np.random.rand(nr_experiments)
         experiments['y'] = np.random.rand(nr_experiments)
         
-        outcome_a = np.zeros((nr_experiments,1))
+        outcome_a = np.zeros((nr_experiments, 1))
 
-        outcomes = OutcomesDict()
-        outcomes[ArrayOutcome('a')] = outcome_a
+        outcomes = {}
+        outcomes[ArrayOutcome('a').name] = outcome_a
         results = (experiments, outcomes)
 
         save_results(results, '../data/test.tar.gz')
-        loaded_experiments, outcomes  = load_results('../data/test.tar.gz')
+        loaded_experiments, outcomes = load_results('../data/test.tar.gz')
         
         self.assertTrue(np.all(np.allclose(outcomes['a'],outcome_a)))
         self.assertTrue(np.all(np.allclose(experiments['x'],loaded_experiments['x'])))
@@ -114,15 +117,15 @@ class LoadResultsTestCase(unittest.TestCase):
         nr_timesteps = 100
         nr_replications = 10
         experiments = pd.DataFrame(index=np.arange(nr_experiments),
-                                   columns={'x':np.float, 
-                                            'y': np.float})
+                                   columns={'x': float,
+                                            'y': float})
         experiments['x'] = np.random.rand(nr_experiments)
         experiments['y'] = np.random.rand(nr_experiments)
         
-        outcome_a = np.zeros((nr_experiments,nr_timesteps,nr_replications))
+        outcome_b = np.zeros((nr_experiments,nr_timesteps,nr_replications))
 
-        outcomes = OutcomesDict()
-        outcomes[ArrayOutcome('a')] = outcome_a
+        outcomes = {}
+        outcomes[ArrayOutcome('b').name] = outcome_b
         results = (experiments, outcomes)
 
         save_results(results, '../data/test.tar.gz')
@@ -130,7 +133,7 @@ class LoadResultsTestCase(unittest.TestCase):
         
         os.remove('../data/test.tar.gz')
         
-        self.assertTrue(np.all(np.allclose(outcomes['a'],outcome_a)))
+        self.assertTrue(np.all(np.allclose(outcomes['b'],outcome_b)))
         self.assertTrue(np.all(np.allclose(experiments['x'],loaded_experiments['x'])))
         self.assertTrue(np.all(np.allclose(experiments['y'],loaded_experiments['y'])))        
         
