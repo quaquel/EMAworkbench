@@ -41,7 +41,7 @@ templates_path = ['ytemplates']
 # The suffix of source filenames.
 source_suffix = '.rst'
 
-pngmath_latex_preamble = '\usepackage{cases}\n'
+pngmath_latex_preamble = '\\usepackage{cases}\n'
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
