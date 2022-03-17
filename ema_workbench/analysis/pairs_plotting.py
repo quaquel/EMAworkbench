@@ -152,8 +152,7 @@ def simple_pairs_lines(ax, y_data, x_data, color):
                edgecolor=color, facecolor=color,
                marker='o')
     ax.scatter(x_data[:, -1], y_data[:, -1],
-               edgecolor=color, facecolor=color,
-               marker='+')
+               facecolor=color, marker='+')
 
 
 def pairs_density(experiments, outcomes,
@@ -256,11 +255,13 @@ def pairs_density(experiments, outcomes,
                 continue
 
             vmax = -1
+            vmin = 10000
             for entry in axes_dicts.values():
                 vmax = max(entry[combi].collections[0].norm.vmax, vmax)
+                vmin = min(entry[combi].collections[0].norm.vmin, vmin)
             for entry in axes_dicts.values():
                 ax = entry[combi]
-                ax.collections[0].set_clim(vmin=0, vmax=vmax)
+                ax.collections[0].set_clim(vmin=vmin, vmax=vmax)
             del vmax
 
         return figures, axes_dicts
