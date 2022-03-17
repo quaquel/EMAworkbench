@@ -86,7 +86,7 @@ else:
         _logger.info('using single precision vensim')
     elif vensim_double:
         vensim = vensim_double
-        _logger.info('using single precision vensim')
+        _logger.info('using double precision vensim')
 
 del sys, struct
 

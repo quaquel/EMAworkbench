@@ -1,10 +1,10 @@
-'''
+"""
 
 This module offers basic functionality for converting a matplotlib figure
 to black and white. The provided functionality is largely determined by
 what is needed for the workbench.
 
-'''
+"""
 import itertools
 import math
 

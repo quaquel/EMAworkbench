@@ -36,7 +36,7 @@ def envelopes(experiments,
               titles={},
               ylabels={},
               log=False):
-    ''' Make envelop plots.
+    """ Make envelop plots.
 
     An envelope shows over time the minimum and maximum  value for a set
     of runs over time. It is thus to be used in case of time series
@@ -106,7 +106,7 @@ def envelopes(experiments,
     will only show results for the two specified policies, ignoring any results
     associated with \'no policy\'.
 
-    '''
+    """
     _logger.debug("generating envelopes")
     prepared_data = prepare_data(experiments, None, outcomes,
                                  outcomes_to_show, group_by,
@@ -162,7 +162,7 @@ def envelopes(experiments,
 
 def group_by_envelopes(outcomes, outcome_to_plot, time, density, ax,
                        ax_d, fill, group_labels, log):
-    ''' Helper function responsible for generating an envelope plot
+    """ Helper function responsible for generating an envelope plot
     based on a grouping.
 
     Parameters
@@ -183,7 +183,7 @@ def group_by_envelopes(outcomes, outcome_to_plot, time, density, ax,
                       order in which groups should be plotted
     log : bool
 
-    '''
+    """
 
     for j, key in enumerate(group_labels):
         value = outcomes[key]
@@ -211,7 +211,7 @@ def single_envelope(outcomes,
                     ax_d,
                     fill,
                     log):
-    '''
+    """
 
     Helper function for generating a single envelope plot.
 
@@ -233,7 +233,7 @@ def single_envelope(outcomes,
                       order in which groups should be plotted
     log : bool
 
-    '''
+    """
     value = outcomes[outcome_to_plot]
 
     plot_envelope(ax, 0, time, value, fill)
@@ -253,7 +253,7 @@ def lines(experiments,
           experiments_to_show=None,
           show_envelope=False,
           log=False):
-    '''This function takes the results from :meth:`perform_experiments` and
+    """This function takes the results from :meth:`perform_experiments` and
     visualizes these as line plots. It is thus to be used in case of time
     series data. The function will try to find a result labeled "TIME". If this
     is present, these values will be used on the X-axis. In case of Vensim
@@ -312,7 +312,7 @@ def lines(experiments,
     of group_by, categories, and/or discretesize. This limit is due to the colors
     specified in COLOR_LIST.
 
-    '''
+    """
 
     _logger.debug("generating line graph")
 
@@ -389,7 +389,7 @@ def plot_lines_with_envelopes(experiments,
                               ylabels={},
                               experiments_to_show=None,
                               log=False):
-    '''
+    """
 
     Helper function for generating a plot which contains both an envelope and
     lines.
@@ -437,7 +437,7 @@ def plot_lines_with_envelopes(experiments,
     dict
         dict with outcome as key, and axes as value. Density axes' are
         indexed by the outcome followed by _density
-    '''
+    """
     full_outcomes = prepare_data(experiments, None, outcomes,
                                  outcomes_to_show, group_by,
                                  grouping_specifiers)[1]
@@ -510,7 +510,7 @@ def plot_lines_with_envelopes(experiments,
 
 def group_by_lines(outcomes, outcome_to_plot, time, density,
                    ax, ax_d, group_by_labels, log):
-    '''
+    """
 
     Helper function responsible for generating a grouped lines plot.
 
@@ -526,7 +526,7 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
     group_by_labels : list of str
     log : bool
 
-    '''
+    """
 
     for j, key in enumerate(group_by_labels):
         value = outcomes[key]
@@ -546,7 +546,7 @@ def group_by_lines(outcomes, outcome_to_plot, time, density,
 
 def simple_lines(outcomes, outcome_to_plot, time, density,
                  ax, ax_d, log):
-    '''
+    """
 
     Helper function responsible for generating a simple lines plot.
 
@@ -560,7 +560,7 @@ def simple_lines(outcomes, outcome_to_plot, time, density,
     ax_d : Axes instance
     log : bool
 
-    '''
+    """
     value = outcomes[outcome_to_plot]
     ax.plot(time.T, value.T)
     if density:
@@ -574,7 +574,7 @@ def kde_over_time(experiments,
                   grouping_specifiers=None,
                   colormap='viridis',
                   log=True):
-    '''
+    """
 
     Plot a KDE over time. The KDE is is visualized through a heatmap
 
@@ -609,7 +609,7 @@ def kde_over_time(experiments,
         dict with outcome as key, and axes as value. Density axes' are
         indexed by the outcome followed by _density
 
-    '''
+    """
 
     # determine the minima and maxima over all runs
     minima = {}
@@ -655,7 +655,7 @@ def multiple_densities(experiments,
                        plot_type=PlotType.ENVELOPE,
                        log=False,
                        **kwargs):
-    ''' Make an envelope plot with multiple density plots over the run time
+    """ Make an envelope plot with multiple density plots over the run time
 
     Parameters
     ----------
@@ -718,7 +718,7 @@ def multiple_densities(experiments,
     used for the density plots. This appears to be an issue in matplotlib
     itself.
 
-    '''
+    """
     if not outcomes_to_show:
         outcomes_to_show = [k for k, v in outcomes.items() if v.ndim == 2]
         outcomes_to_show.remove(TIME)
