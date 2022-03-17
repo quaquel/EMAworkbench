@@ -1,7 +1,6 @@
 ipykernel
 ipython
 ipyparallel
-JPype1
 jupyter
 matplotlib
 nbsphinx
@@ -12,8 +11,10 @@ pyzmq
 pandas>=0.24.*
 salib
 scikit-learn
-scipy==1.2.*
-sphinx>=1.4
+scipy
+sphinx
 seaborn
 statsmodels
 tqdm
+coverage
+coveralls
