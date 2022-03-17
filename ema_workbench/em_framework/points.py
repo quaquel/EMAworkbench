@@ -5,13 +5,14 @@ hellper functions
 
 from collections import ChainMap
 import itertools
+import random
 
 from ema_workbench.em_framework.util import NamedDict, Counter, NamedObject
 from ema_workbench.em_framework.util import combine
 from ema_workbench.util import get_module_logger
 
-__all__ = ['Point', 'Policy', 'Scenario', 'Experiment', 'ExperimentReplication',
-           'sample_cases', 'factorial_cases', 'combine_cases',
+__all__ = ['Point', 'Policy', 'Experiment', 'ExperimentReplication',
+           'combine_cases_sampling', 'combine_cases_factorial',
            'experiment_generator']
 _logger = get_module_logger(__name__)
 
