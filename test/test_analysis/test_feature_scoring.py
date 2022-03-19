@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jul 9, 2014
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-'''
+"""
 import unittest
 
 import numpy as np
@@ -21,17 +21,18 @@ from ema_workbench import ScalarOutcome
 
 from test import utilities
 
+
 class FeatureScoringTestCase(unittest.TestCase):
     def test_prepare_experiments(self):
-        x = pd.DataFrame([(0,1,2,1),
-                          (2,5,6,1),
-                          (3,2,1,1)], 
+        x = pd.DataFrame([(0, 1, 2, 1),
+                          (2, 5, 6, 1),
+                          (3, 2, 1, 1)],
                      columns=['a', 'b', 'c', 'd'])
         x, _ = fs._prepare_experiments(x)
         
-        correct = np.array([[0,1,2,1],
-                            [2,5,6,1],
-                            [3,2,1,1]], dtype=np.float)
+        correct = np.array([[0, 1, 2, 1],
+                            [2, 5, 6, 1],
+                            [3, 2, 1, 1]], dtype=np.float)
         
         self.assertTrue(np.all(x==correct))
         
@@ -39,7 +40,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         
         x = pd.DataFrame({'a':[0.1, 0.2, 0.3, 0.4, 0.5,
                                0.6, 0.7, 0.8, 0.9, 1.0],
-                          'b':[0,1,2,3,4,5,6,7,8,9],
+                          'b':[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                           'c':['a','b','a','b','a','a',
                                'b','a','b','a', ]})
         x, _ = fs._prepare_experiments(x)
@@ -121,26 +122,26 @@ class FeatureScoringTestCase(unittest.TestCase):
         y= outcomes['deceased population region 1'][:,-1]
         scores = fs.get_univariate_feature_scores(x,y, score_func=F_REGRESSION)
         self.assertEqual(len(scores), len(x.columns)-3)
-        
-   
+
     def test_get_rf_feature_scores(self):
         x, outcomes = utilities.load_flu_data()
                 
         def classify(data):
-            #get the output for deceased population
+            # get the output for deceased population
             result = data['deceased population region 1']
             
-            #make an empty array of length equal to number of cases 
+            # make an empty array of length equal to number of cases
             classes =  np.zeros(result.shape[0])
             
-            #if deceased population is higher then 1.000.000 people, classify as 1 
+            # if deceased population is higher then 1.000.000 people,
+            # classify as 1
             classes[result[:, -1] > 1000000] = 1
             
             return classes
         
         y = classify(outcomes)
                 
-        scores, forest = fs.get_rf_feature_scores(x,y,
+        scores, forest = fs.get_rf_feature_scores(x, y,
                                                   mode=RuleInductionType.CLASSIFICATION,
                                                   random_state=10)
         

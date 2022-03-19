@@ -729,8 +729,12 @@ class PrimBox(object):
                 'mass': y.shape[0] / self.prim.n,
                 'id': i}
         new_row = pd.DataFrame([data])
-        self.peeling_trajectory = self.peeling_trajectory.append(
-            new_row, ignore_index=True, sort=True)
+        # self.peeling_trajectory = self.peeling_trajectory.append(
+        #     new_row, ignore_index=True, sort=True)
+
+        self.peeling_trajectory = pd.concat([self.peeling_trajectory,
+                                             new_row], ignore_index=True,
+                                            sort=True)
 
         # boxlims
         qp = self._calculate_quasi_p(i, restricted_dims)
