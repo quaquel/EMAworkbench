@@ -2,7 +2,7 @@
 This is a stable version of the EMA workbench currently under 
 development at Delft University of Technology.
 
-[![Build Status](https://github.com/quaquel/EMAworkbench/actions/workflows/Build%20and%20Test/badge.svg?branch=2.1-inprogress)](https://github.com/quaquel/EMAworkbench/actions)
+[![Build Status](https://github.com/quaquel/EMAworkbench/actions/workflows/ci.yml/badge.svg?branch=2.1-inprogress)](https://github.com/quaquel/EMAworkbench/actions)
 [![Coverage Status](https://coveralls.io/repos/github/quaquel/EMAworkbench/badge.svg?branch=2.1-inprogress)](https://coveralls.io/github/quaquel/EMAworkbench?branch=2.1-inprogress)
 [![Documentation Status](https://readthedocs.org/projects/emaworkbench/badge/?version=latest)](http://emaworkbench.readthedocs.org/en/latest/?badge=master)
 [![PyPi](https://img.shields.io/pypi/v/ema_workbench.svg)](https://pypi.python.org/pypi/ema_workbench)
