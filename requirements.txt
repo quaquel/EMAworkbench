@@ -16,5 +16,3 @@ sphinx
 seaborn
 statsmodels
 tqdm
-coverage
-coveralls
