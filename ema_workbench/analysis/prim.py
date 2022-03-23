@@ -738,7 +738,7 @@ class PrimBox(object):
                 'mass': y.shape[0] / self.prim.n,
                 'id': i}
         new_row = pd.DataFrame([data])
-        self.peeling_trajectory = self.peeling_trajectory.append(
+        self.peeling_trajectory = self.peeling_trajectory.concat(
             new_row, ignore_index=True, sort=True)
 
         # boxlims
