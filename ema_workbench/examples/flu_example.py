@@ -1,4 +1,4 @@
-'''
+"""
 Created on 20 dec. 2010
 
 This file illustrated the use of the workbench for a model
@@ -10,7 +10,7 @@ compare the results.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
-'''
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import sin, min

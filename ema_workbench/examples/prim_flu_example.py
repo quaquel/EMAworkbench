@@ -1,4 +1,4 @@
-'''
+"""
 
 This file illustrated the use of the workbench for doing
 a PRIM analysis.
@@ -10,7 +10,7 @@ See flu_example.py for the code.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
-'''
+"""
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.prim as prim

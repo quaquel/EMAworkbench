@@ -489,6 +489,17 @@ class FileModel(WorkingDirectoryModel):
             if name contains non alpha-numerical characters
         ValueError
             if model_file cannot be found
+            if the current working directory is the same as the working
+            directory of the model
+
+
+        The parallelization code offered by the workbench implicitly assumes
+        that the current working directory (i.e., os.getwcd()) is different
+        from the directory in which the model resides.
+
+        It is best practice to place the model files in a subdirectory of
+        the folder within which the file resides used for performing
+        experiments
 
         """
         super(FileModel, self).__init__(name, wd=wd)
@@ -496,6 +507,10 @@ class FileModel(WorkingDirectoryModel):
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
             raise ValueError('cannot find model file')
+
+        if os.getcwd() == self.working_directory:
+            raise ValueError(("the working directory of the model cannot be "
+                              "the same as the current working directory"))
 
         self.model_file = model_file
 

@@ -1,4 +1,4 @@
-'''
+"""
 Created on Feb 13, 2014
 
 This example demonstrates the use of PRIM. The dataset was generated
@@ -7,7 +7,7 @@ using the world container model
 (Tavasszy et al 2011; http://dx.doi.org/10.1016/j.jtrangeo.2011.05.005)
 
 
-'''
+"""
 import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results

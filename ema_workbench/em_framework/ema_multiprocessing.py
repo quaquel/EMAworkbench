@@ -23,7 +23,7 @@ from ..util import get_module_logger, ema_logging
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = []
+__all__ = ['setup_working_directories']
 
 _logger = get_module_logger(__name__)
 

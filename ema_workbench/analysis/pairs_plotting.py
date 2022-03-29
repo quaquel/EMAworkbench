@@ -71,7 +71,7 @@ def pairs_lines(experiments, outcomes,
     """
 
     # unravel return from run_experiments
-    _logger.debug("making a pars lines plot")
+    _logger.debug("making a pairwise line plot")
 
     prepared_data = prepare_pairs_data(
         experiments,

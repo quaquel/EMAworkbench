@@ -1,4 +1,4 @@
-'''
+"""
 
 This file illustrated the use of the workbench for doing
 a PRIM analysis with PCA preprocessing
@@ -7,7 +7,7 @@ The data was generated using a system dynamics models implemented in Vensim.
 See flu_example.py for the code.
 
 
-'''
+"""
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.prim as prim

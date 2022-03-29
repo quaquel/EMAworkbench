@@ -1,4 +1,4 @@
-'''
+"""
 Created on 27 Jul. 2011
 
 This file illustrated the use the EMA classes for a model in Excel.
@@ -9,7 +9,7 @@ It used the excel file provided by
 This excel file implements a simple predator prey model.
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-'''
+"""
 from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
                            perform_experiments)
 

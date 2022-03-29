@@ -197,11 +197,14 @@ def plot_boxplots(ax, values, log, group_labels=None):
     if not group_labels:
         group_labels = ['']
 
-    data = pd.DataFrame.from_records(
-        {k: v for k, v in zip(group_labels, values)})
-    data = pd.melt(data)
+    dfs = []
+    for k, v in zip(group_labels, values):
+        v = pd.DataFrame(v)
+        v['id_var'] = k
+        dfs.append(v)
+    data = pd.concat(dfs)
 
-    sns.boxplot(x='variable', y='value', data=data, order=group_labels,
+    sns.boxplot(x='id_var', y=0, data=data, order=group_labels,
                 ax=ax)
 
 

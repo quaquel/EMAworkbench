@@ -298,10 +298,7 @@ class CART(sdutil.OutputFormatterMixin):
 
         """
         assert self.clf
-        try:
-            import pydotplus as pydot
-        except ImportError:
-            import pydot  # dirty hack for read the docs
+        import pydot  # dirty hack for read the docs
 
         dot_data = StringIO()
         tree.export_graphviz(self.clf, out_file=dot_data,

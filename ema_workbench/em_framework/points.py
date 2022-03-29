@@ -13,7 +13,7 @@ from ema_workbench.util import get_module_logger
 
 __all__ = ['Point', 'Policy', 'Experiment', 'ExperimentReplication',
            'combine_cases_sampling', 'combine_cases_factorial',
-           'experiment_generator']
+           'experiment_generator', 'Scenario']
 _logger = get_module_logger(__name__)
 
 

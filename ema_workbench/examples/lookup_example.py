@@ -1,4 +1,4 @@
-'''
+"""
 Created on Oct 1, 2012
 
 This is a simple example of the lookup uncertainty provided for
@@ -7,7 +7,7 @@ use in conjuction with vensim models. This example is largely based on
 
 @author: sibeleker
 @author: jhkwakkel
-'''
+"""
 import matplotlib.pyplot as plt
 
 from ema_workbench import TimeSeriesOutcome, perform_experiments, ema_logging

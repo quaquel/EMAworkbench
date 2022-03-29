@@ -1,9 +1,9 @@
-'''
+"""
 Created on 8 mrt. 2011
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
-'''
+"""
 from math import exp
 
 from ema_workbench.connectors.vensim import VensimModel

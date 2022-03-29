@@ -1,4 +1,4 @@
-'''
+"""
 This example takes the direct policy search formulation of the lake problem as
 found in Quinn et al (2017), but embeds in in a robust optimization.
 
@@ -8,7 +8,7 @@ uncertain socio-ecological tipping points. Environmental Modelling &
 Software 92, 125-141.
 
 
-'''
+"""
 import math
 
 import numpy as np

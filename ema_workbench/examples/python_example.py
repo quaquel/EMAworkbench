@@ -1,11 +1,11 @@
-'''
+"""
 Created on 20 dec. 2010
 
 This file illustrated the use the EMA classes for a contrived example
 It's main purpose has been to test the parallel processing functionality
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-'''
+"""
 from ema_workbench import (Model, RealParameter, ScalarOutcome, ema_logging,
                            perform_experiments)
 

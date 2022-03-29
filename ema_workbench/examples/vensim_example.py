@@ -1,4 +1,4 @@
-'''
+"""
 Created on 3 Jan. 2011
 
 This file illustrated the use the EMA classes for a contrived vensim
@@ -7,7 +7,7 @@ example
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat (at) tudelft (dot) nl>
-'''
+"""
 from ema_workbench import (TimeSeriesOutcome, perform_experiments,
                            RealParameter, ema_logging)
 

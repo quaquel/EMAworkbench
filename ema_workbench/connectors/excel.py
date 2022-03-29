@@ -159,7 +159,7 @@ class BaseExcelModel(FileModel):
         for key, value in experiment.items():
             self.set_wb_value(key, value)
 
-        # trigger a calulate event, in the case that the workbook's automatic
+        # trigger a calculate event, in the case that the workbook's automatic
         # recalculation was suspended.
         self.xl.Calculate()
 

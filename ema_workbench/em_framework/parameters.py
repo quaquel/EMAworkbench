@@ -14,7 +14,7 @@ from ..util import get_module_logger
 
 __all__ = [
     'Constant', 'RealParameter', 'IntegerParameter', 'CategoricalParameter',
-    'BooleanParameter',
+    'BooleanParameter', 'Category',
     'parameters_from_csv', 'parameters_to_csv', 'Parameter']
 _logger = get_module_logger(__name__)
 

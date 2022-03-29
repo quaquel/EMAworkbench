@@ -86,8 +86,9 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         """
         Method responsible for storing results.
 
-        The implementation in this class only keeps track of how many runs have been completed and
-        logging this. Any extension of AbstractCallback needs to implement this method. If one want
+        The implementation in this class only keeps track of how many runs
+        have been completed and logging this. Any extension of
+        AbstractCallback needs to implement this method. If one want
         to use the logging provided here, call it via super.
 
         Parameters
@@ -178,12 +179,10 @@ class DefaultCallback(AbstractCallback):
             columns.append(name)
             dtypes.append('object')
 
-
-        #FIXME:: issue with fragmented data frame warning
+        # FIXME:: issue with fragmented data frame warning
         index = np.arange(nr_experiments)
-        column_dict = {name:pd.Series(dtype=dtype, index=index) for name,
-                                                                  dtype in
-                       zip(columns, dtypes)}
+        column_dict = {name: pd.Series(dtype=dtype, index=index) for name,
+                       dtype in zip(columns, dtypes)}
         df = pd.concat(column_dict, axis=1).copy()
 
         self.cases = df
@@ -225,7 +224,7 @@ class DefaultCallback(AbstractCallback):
                 _logger.debug(message)
             else:
                 try:
-                    self.results[outcome][case_id,] = outcome_res
+                    self.results[outcome][case_id, ] = outcome_res
                 except KeyError:
                     data = np.asarray(outcome_res)
 
@@ -240,7 +239,7 @@ class DefaultCallback(AbstractCallback):
 
                     self.results[outcome] = np.empty(shape, dtype=data.dtype)
                     self.results[outcome][:] = np.nan
-                    self.results[outcome][case_id,] = outcome_res
+                    self.results[outcome][case_id, ] = outcome_res
 
     def __call__(self, experiment, outcomes):
         """

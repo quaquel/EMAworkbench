@@ -1,6 +1,6 @@
-'''
+"""
 
-'''
+"""
 
 # Created on 12 Mar 2020
 #
@@ -94,8 +94,8 @@ def eijgenraam_model(X1, X2, X3, X4, X5, X6,
                      delta=0.04, eta=data[ring]["eta"], gamma=0.035, rho=0.015,
                      zeta=data[ring]["zeta"], c=data[ring]["c"],
                      b=data[ring]["b"], lam=data[ring]["lam"]):
-    ''' Python implementation of the Eijgenraam model
-    
+    """ Python implementation of the Eijgenraam model
+
     Params
     ------
     Xs : list
@@ -110,12 +110,13 @@ def eijgenraam_model(X1, X2, X3, X4, X5, X6,
          constant from Table 1
     alpha : <>, optional
             constant from Table 1
-    delta : float, optional 
+    delta : float, optional
             discount rate, mentioned in Section 2.2
     eta : <>, optional
           constant from Table 1
     gamma : float, optional
-            paper says this is taken from government report, but no indication of actual value
+            paper says this is taken from government report, but no indication
+            of actual value
     rho : float, optional
           risk-free rate, mentioned in Section 2.2
     zeta : <>, optional
@@ -127,7 +128,7 @@ def eijgenraam_model(X1, X2, X3, X4, X5, X6,
     lam : <>, optional
          constant from Table 1
 
-    '''
+    """
     Ts = [T1, T2, T3, T4, T5, T6]
     Xs = [X1, X2, X3, X4, X5, X6]
 

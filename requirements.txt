@@ -15,4 +15,5 @@ scipy
 sphinx
 seaborn
 statsmodels
+traitlets
 tqdm

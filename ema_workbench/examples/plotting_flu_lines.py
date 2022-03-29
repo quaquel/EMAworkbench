@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jul 8, 2014
 
 @author: jhkwakkel@tudelft.net
-'''
+"""
 import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results

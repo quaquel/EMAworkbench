@@ -1,4 +1,4 @@
-'''
+"""
 Created on 20 May, 2011
 
 This module shows how you can use vensim models directly
@@ -7,7 +7,7 @@ is the same as used in fluExample
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
-'''
+"""
 from ema_workbench import (RealParameter, TimeSeriesOutcome, ema_logging,
                            perform_experiments, MultiprocessingEvaluator)
 
