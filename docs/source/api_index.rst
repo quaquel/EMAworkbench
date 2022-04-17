@@ -16,6 +16,7 @@ Exploratory modeling framework
    ../../ema_documentation/em_framework/salib_samplers.rst
    ../../ema_documentation/em_framework/experiment_runner.rst
    ../../ema_documentation/em_framework/callbacks.rst
+   ../../ema_documentation/em_framework/points.rst
    ../../ema_documentation/em_framework/ema_multiprocessing.rst
    ../../ema_documentation/em_framework/ema_ipyparallel.rst
    ../../ema_documentation/em_framework/util.rst
@@ -29,6 +30,7 @@ Connectors
    ../../ema_documentation/connectors/vensimDLLwrapper.rst
    ../../ema_documentation/connectors/pysd_connector.rst
    ../../ema_documentation/connectors/netlogo.rst
+   ../../ema_documentation/connectors/simio.rst
    ../../ema_documentation/connectors/excel.rst
 
 Analysis
@@ -38,6 +40,7 @@ Analysis
 
    ../../ema_documentation/analysis/prim.rst
    ../../ema_documentation/analysis/cart.rst
+   ../../ema_documentation/analysis/clusterer.rst
    ../../ema_documentation/analysis/logistic_regression.rst
    ../../ema_documentation/analysis/dimensional_stacking.rst
    ../../ema_documentation/analysis/regional_sa.rst
