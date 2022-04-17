@@ -24,7 +24,9 @@ from ..util.ema_logging import method_logger, get_module_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
+__all__ = ['ExcelModel']
 _logger = get_module_logger(__name__)
+
 
 
 class NoDefaultSheetError(EMAError):

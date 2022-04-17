@@ -21,6 +21,7 @@ from ema_workbench.util.ema_logging import get_module_logger, method_logger
 # Created on 27 June 2019
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+__all__ = ['SimioModel']
 _logger = get_module_logger(__name__)
 
 

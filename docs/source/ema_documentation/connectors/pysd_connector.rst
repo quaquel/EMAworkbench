@@ -3,4 +3,4 @@
 *********************
 
 .. automodule:: ema_workbench.connectors.pysd_connector
-:members:
+    :members:
