@@ -282,7 +282,7 @@ class ProgressTrackingMixIn:
         self.log_func = log_func
 
         if not log_progress:
-            self.pbar = tqdm.tqdm(total=N)
+            self.pbar = tqdm.tqdm(total=N, ncols=79)
 
     def __call__(self, n):
         self.i += n
@@ -291,7 +291,7 @@ class ProgressTrackingMixIn:
         if not self.log_progress:
             self.pbar.update(n=n)
 
-            if self.i == self.pbar.total:
+            if self.i >= self.pbar.total:
                 self.close()
         else:
             if self.i % self.reporting_interval == 0:

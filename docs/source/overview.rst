@@ -57,6 +57,8 @@ to their own model.
   (e.g. setting parameters, simulation setup, run, get output, etc.) a 
   simulation model that is built in NetLogo software, and conducting an EMA 
   study based on this model.
+* Simio connector (:mod:`simio`): THis eneables controlling models built in
+  Simio
 
 
 .. _analysis:

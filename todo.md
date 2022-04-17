@@ -29,6 +29,8 @@
                 drawback: extendability
 * error if working directory of model is same as directory of .py file
 * centralized seed control
+    mimic ideas found in mesa? what matters is only the numpy/scipy seeds
+    since those are used in the workbench for sampling
 
 # Documentation
 * add documentation on how to develop connectors
