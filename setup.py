@@ -3,7 +3,7 @@ import os
 import re
 
 from setuptools import setup
-
+import setuptools
 
 def read(path, encoding='utf-8'):
     path = os.path.join(os.path.dirname(__file__), path)
@@ -61,8 +61,8 @@ EXAMPLE_DATA = example_data_files + example_model_files
 
 PACKAGES = packages
 
-print(here)
-print(PACKAGES)
+print(setuptools.__version__)
+print(EXAMPLE_DATA)
 
 setup(
     name='ema_workbench',
