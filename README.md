@@ -30,5 +30,7 @@ Releases are published automatically when a tag is pushed to GitHub.
    git tag -a $RELEASE -m "Version $RELEASE"
 
    # Push
-   git push upstream --tags
+   git push upstream --tags # for a fork
+   
+   # use git push origin --tags if on origin
 ```
