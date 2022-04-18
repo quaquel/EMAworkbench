@@ -20,11 +20,7 @@ from . import EMAError, get_module_logger
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['load_results',
-           'save_results',
-           'merge_results',
-           'process_replications'
-           ]
+__all__ = ["load_results", "save_results", "merge_results", "process_replications"]
 _logger = get_module_logger(__name__)
 
 
@@ -47,9 +43,9 @@ def load_results(file_name):
 
     file_name = os.path.abspath(file_name)
 
-    with tarfile.open(file_name, 'r:gz', encoding="UTF8") as archive:
+    with tarfile.open(file_name, "r:gz", encoding="UTF8") as archive:
         try:
-            f = archive.extractfile('metadata.json')
+            f = archive.extractfile("metadata.json")
         except KeyError:
             # old style data file
             results = load_results_old(archive)
@@ -59,23 +55,24 @@ def load_results(file_name):
         metadata = json.loads(f.read().decode())
 
         # load experiments
-        f = archive.extractfile('experiments.csv')
+        f = archive.extractfile("experiments.csv")
         experiments = pd.read_csv(f)
 
-        for name, dtype in metadata['experiments'].items():
+        for name, dtype in metadata["experiments"].items():
             try:
                 dtype = np.dtype(dtype)
             except TypeError:
                 dtype = pd.api.types.pandas_dtype(dtype)
 
             if pd.api.types.is_object_dtype(dtype):
-                experiments[name] = experiments[name].astype('category')
+                experiments[name] = experiments[name].astype("category")
 
         # load outcomes
         outcomes = {}
-        known_outcome_classes = {entry.__name__: entry for entry in \
-                                 AbstractOutcome.get_subclasses()}
-        for (outcome_type, name, filename) in metadata['outcomes']:
+        known_outcome_classes = {
+            entry.__name__: entry for entry in AbstractOutcome.get_subclasses()
+        }
+        for (outcome_type, name, filename) in metadata["outcomes"]:
             outcome = known_outcome_classes[outcome_type](name)
 
             values = register.deserialize(name, filename, archive)
@@ -104,17 +101,17 @@ def load_results_old(archive):
     outcomes = {}
 
     # load x
-    experiments = archive.extractfile('experiments.csv')
-    if not (hasattr(experiments, 'read')):
+    experiments = archive.extractfile("experiments.csv")
+    if not (hasattr(experiments, "read")):
         raise EMAError(repr(experiments))
 
     experiments = pd.read_csv(experiments)
 
     # load experiment metadata
-    metadata = archive.extractfile('experiments metadata.csv').readlines()
+    metadata = archive.extractfile("experiments metadata.csv").readlines()
 
     for entry in metadata:
-        entry = entry.decode('UTF-8')
+        entry = entry.decode("UTF-8")
         entry = entry.strip()
         entry = entry.split(",")
         name, dtype = [str(item) for item in entry]
@@ -125,11 +122,11 @@ def load_results_old(archive):
             dtype = pd.api.types.pandas_dtype(dtype)
 
         if pd.api.types.is_object_dtype(dtype):
-            experiments[name] = experiments[name].astype('category')
+            experiments[name] = experiments[name].astype("category")
 
     # load outcome metadata
-    metadata = archive.extractfile('outcomes metadata.csv').readlines()
-    metadata = [entry.decode('UTF-8') for entry in metadata]
+    metadata = archive.extractfile("outcomes metadata.csv").readlines()
+    metadata = [entry.decode("UTF-8") for entry in metadata]
     metadata = [entry.strip() for entry in metadata]
     metadata = [tuple(entry.split(",")) for entry in metadata]
     metadata = {entry[0]: entry[1:] for entry in metadata}
@@ -155,8 +152,7 @@ def load_results_old(archive):
             data = np.empty(shape)
             for i in range(nr_files):
                 values = archive.extractfile("{}_{}.csv".format(outcome, i))
-                values = pd.read_csv(values, index_col=False,
-                                     header=None).values
+                values = pd.read_csv(values, index_col=False, header=None).values
                 data[:, :, i] = values
 
         else:
@@ -200,6 +196,7 @@ def save_results(results, file_name):
 
     """
     from ..em_framework.outcomes import register
+
     VERSION = 0.1
     file_name = os.path.abspath(file_name)
 
@@ -210,12 +207,13 @@ def save_results(results, file_name):
         tararchive.addfile(tarinfo, stream)
 
     experiments, outcomes = results
-    with tarfile.open(file_name, 'w:gz') as z:
+    with tarfile.open(file_name, "w:gz") as z:
         # store experiments
         stream = BytesIO()
-        stream.write(experiments.to_csv(header=True, encoding='UTF-8',
-                                        index=False).encode())
-        add_file(z, stream, 'experiments.csv')
+        stream.write(
+            experiments.to_csv(header=True, encoding="UTF-8", index=False).encode()
+        )
+        add_file(z, stream, "experiments.csv")
 
         # store outcomes
         outcomes_metadata = []
@@ -223,14 +221,14 @@ def save_results(results, file_name):
             klass = register.outcomes[key]
             stream, filename = register.serialize(key, value)
             add_file(z, stream, filename)
-            outcomes_metadata.append((klass.__name__, key,
-                                      filename))
+            outcomes_metadata.append((klass.__name__, key, filename))
 
         # store metadata
-        metadata = {'version': VERSION,
-                    'outcomes': outcomes_metadata,
-                    'experiments': {k: v.name for k, v in
-                                    experiments.dtypes.to_dict().items()}}
+        metadata = {
+            "version": VERSION,
+            "outcomes": outcomes_metadata,
+            "experiments": {k: v.name for k, v in experiments.dtypes.to_dict().items()},
+        }
 
         stream = BytesIO()
         stream.write(json.dumps(metadata).encode())
@@ -306,11 +304,11 @@ def get_ema_project_home_dir():
         parsed = config.read(fn)
 
         if parsed:
-            _logger.info('config loaded from {}'.format(parsed[0]))
+            _logger.info("config loaded from {}".format(parsed[0]))
         else:
-            _logger.info('no config file found')
+            _logger.info("no config file found")
 
-        home_dir = config.get('ema_project_home', 'home_dir')
+        home_dir = config.get("ema_project_home", "home_dir")
         return home_dir
     except BaseException:
         return os.getcwd()
@@ -347,18 +345,23 @@ def process_replications(data, aggregation_func=np.mean):
 
     if isinstance(data, dict):
         # replications are the second dimension of the outcome arrays
-        outcomes_processed = {key: aggregation_func(data[key], axis=1) for key
-                              in data.keys()}
+        outcomes_processed = {
+            key: aggregation_func(data[key], axis=1) for key in data.keys()
+        }
         return outcomes_processed
-    elif (isinstance(data, tuple) and
-          isinstance(data[0], pd.DataFrame) and
-          isinstance(data[1], dict)):
+    elif (
+        isinstance(data, tuple)
+        and isinstance(data[0], pd.DataFrame)
+        and isinstance(data[1], dict)
+    ):
         experiments, outcomes = data  # split results
-        outcomes_processed = {key: aggregation_func(outcomes[key], axis=1) for
-                              key in outcomes.keys()}
+        outcomes_processed = {
+            key: aggregation_func(outcomes[key], axis=1) for key in outcomes.keys()
+        }
         results_processed = (experiments.copy(deep=True), outcomes_processed)
         return results_processed
 
     else:
         raise EMAError(
-            f"data should be a dict or tuple, but is a {type(data)}".format())
+            f"data should be a dict or tuple, but is a {type(data)}".format()
+        )

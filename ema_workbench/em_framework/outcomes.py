@@ -19,8 +19,14 @@ from ..util import get_module_logger
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['ScalarOutcome', 'ArrayOutcome', 'TimeSeriesOutcome',
-           'Constraint', 'AbstractOutcome', 'register']
+__all__ = [
+    "ScalarOutcome",
+    "ArrayOutcome",
+    "TimeSeriesOutcome",
+    "Constraint",
+    "AbstractOutcome",
+    "register",
+]
 _logger = get_module_logger(__name__)
 
 
@@ -44,8 +50,9 @@ class Register:
         if outcome.name not in self.outcomes:
             self.outcomes[outcome.name] = outcome.__class__
         elif not isinstance(outcome, self.outcomes[outcome.name]):
-            raise ValueError(("outcome with this name but of different class "
-                              "already exists"))
+            raise ValueError(
+                ("outcome with this name but of different class " "already exists")
+            )
         else:
             pass  # multiple instances of the same class and name is fine
 
@@ -66,8 +73,9 @@ class Register:
         try:
             stream, extension = self.outcomes[name].to_disk(values)
         except KeyError:
-            _logger.warning(("outcome not defined, falling back on "
-                             "ArrayOutcome.to_disk"))
+            _logger.warning(
+                ("outcome not defined, falling back on " "ArrayOutcome.to_disk")
+            )
             stream, extension = ArrayOutcome.to_disk(values)
 
         return stream, f"{name}.{extension}"
@@ -110,26 +118,33 @@ class AbstractOutcome(Variable):
     shape : tuple
 
     """
+
     __metaclass__ = abc.ABCMeta
 
     MINIMIZE = -1
     MAXIMIZE = 1
     INFO = 0
 
-    def __init__(self, name, kind=INFO, variable_name=None,
-                 function=None, expected_range=None,
-                 shape=None):
+    def __init__(
+        self,
+        name,
+        kind=INFO,
+        variable_name=None,
+        function=None,
+        expected_range=None,
+        shape=None,
+    ):
         super(AbstractOutcome, self).__init__(name)
 
         if function is not None and not callable(function):
-            raise ValueError('function must be a callable')
+            raise ValueError("function must be a callable")
         if variable_name:
             if (not isinstance(variable_name, str)) and (
-                    not all(isinstance(elem, str) for elem in variable_name)):
-                raise ValueError(
-                    'variable name must be a string or list of strings')
+                not all(isinstance(elem, str) for elem in variable_name)
+            ):
+                raise ValueError("variable name must be a string or list of strings")
         if expected_range is not None and len(expected_range) != 2:
-            raise ValueError('expected_range must be a min-max tuple')
+            raise ValueError("expected_range must be a min-max tuple")
 
         register(self)
 
@@ -137,7 +152,9 @@ class AbstractOutcome(Variable):
 
         if variable_name:
             if isinstance(variable_name, str):
-                variable_name = [variable_name, ]
+                variable_name = [
+                    variable_name,
+                ]
 
             self.variable_name = tuple(variable_name)
         else:
@@ -161,43 +178,48 @@ class AbstractOutcome(Variable):
                 return self.function(values)
             elif n_variables != n_values:
                 raise ValueError(
-                    ('number of variables is {}, '
-                     'number of outputs is {}').format(
-                        n_variables, n_values))
+                    ("number of variables is {}, " "number of outputs is {}").format(
+                        n_variables, n_values
+                    )
+                )
             else:
                 return self.function(*values)
         else:
             if len(values) > 1:
-                raise EMAError(('more than one value returned without '
-                                'processing function'))
+                raise EMAError(
+                    ("more than one value returned without " "processing function")
+                )
 
             return values[0]
 
     def __eq__(self, other):
-        comparison = [all(hasattr(self, key) == hasattr(other, key) and
-                          getattr(self, key) == getattr(other, key) for key
-                          in self.__dict__.keys()),
-                      self.__class__ == other.__class__]
+        comparison = [
+            all(
+                hasattr(self, key) == hasattr(other, key)
+                and getattr(self, key) == getattr(other, key)
+                for key in self.__dict__.keys()
+            ),
+            self.__class__ == other.__class__,
+        ]
         return all(comparison)
 
     def __repr__(self, *args, **kwargs):
         klass = self.__class__.__name__
         name = self.name
 
-        rep = '{}(\'{}\''.format(klass, name)
+        rep = "{}('{}'".format(klass, name)
 
         if self.variable_name != [self.name]:
-            rep += ', variable_name={}'.format(self.variable_name)
+            rep += ", variable_name={}".format(self.variable_name)
         if self.function:
-            rep += ', function={}'.format(self.function)
+            rep += ", function={}".format(self.function)
 
-        rep += ')'
+        rep += ")"
 
         return rep
 
     def __hash__(self):
-        items = [self.name, self._variable_name,
-                 self._expected_range, self.shape]
+        items = [self.name, self._variable_name, self._expected_range, self.shape]
         items = tuple([entry for entry in items if entry is not None])
 
         return hash(items)
@@ -278,27 +300,36 @@ class ScalarOutcome(AbstractOutcome):
     def expected_range(self):
         if self._expected_range is None:
             raise ValueError(
-                'no expected_range is set for {}'.format(
-                    self.variable_name))
+                "no expected_range is set for {}".format(self.variable_name)
+            )
         return self._expected_range
 
     @expected_range.setter
     def expected_range(self, expected_range):
         self._expected_range = expected_range
 
-    def __init__(self, name, kind=AbstractOutcome.INFO, variable_name=None,
-                 function=None, expected_range=None):
-        super(ScalarOutcome, self).__init__(name, kind,
-                                            variable_name=variable_name,
-                                            function=function)
+    def __init__(
+        self,
+        name,
+        kind=AbstractOutcome.INFO,
+        variable_name=None,
+        function=None,
+        expected_range=None,
+    ):
+        super(ScalarOutcome, self).__init__(
+            name, kind, variable_name=variable_name, function=function
+        )
         self.expected_range = expected_range
 
     def process(self, values):
         values = super(ScalarOutcome, self).process(values)
         if not isinstance(values, numbers.Number):
             raise EMAError(
-                (f"outcome {self.name} should be a scalar, but is"
-                 f" {type(values)}: {values}"))
+                (
+                    f"outcome {self.name} should be a scalar, but is"
+                    f" {type(values)}: {values}"
+                )
+            )
         return values
 
     @classmethod
@@ -320,9 +351,8 @@ class ScalarOutcome(AbstractOutcome):
         """
         fh = BytesIO()
         data = pd.DataFrame(values)
-        fh.write(data.to_csv(header=False, index=False,
-                             encoding='UTF-8').encode())
-        return fh, 'cls'
+        fh.write(data.to_csv(header=False, index=False, encoding="UTF-8").encode())
+        return fh, "cls"
 
     @classmethod
     def from_disk(cls, filename, archive):
@@ -365,23 +395,21 @@ class ArrayOutcome(AbstractOutcome):
 
     """
 
-    def __init__(self, name, variable_name=None,
-                 function=None, expected_range=None,
-                 shape=None):
-        super(
-            ArrayOutcome,
-            self).__init__(
+    def __init__(
+        self, name, variable_name=None, function=None, expected_range=None, shape=None
+    ):
+        super(ArrayOutcome, self).__init__(
             name,
             variable_name=variable_name,
             function=function,
             expected_range=expected_range,
-            shape=shape)
+            shape=shape,
+        )
 
     def process(self, values):
         values = super(ArrayOutcome, self).process(values)
         if not isinstance(values, collections.abc.Iterable):
-            raise EMAError(
-                "outcome {} should be a collection".format(self.name))
+            raise EMAError("outcome {} should be a collection".format(self.name))
         return values
 
     @classmethod
@@ -402,13 +430,12 @@ class ArrayOutcome(AbstractOutcome):
         if values.ndim < 3:
             fh = BytesIO()
             data = pd.DataFrame(values)
-            fh.write(data.to_csv(header=False, index=False,
-                                 encoding='UTF-8').encode())
-            extension = 'csv'
+            fh.write(data.to_csv(header=False, index=False, encoding="UTF-8").encode())
+            extension = "csv"
         else:
             fh = BytesIO()
             np.save(fh, values)
-            extension = 'npy'
+            extension = "npy"
 
         return fh, extension
 
@@ -416,9 +443,9 @@ class ArrayOutcome(AbstractOutcome):
     def from_disk(cls, filename, archive):
         f = archive.extractfile(filename)
 
-        if filename.endswith('csv'):
+        if filename.endswith("csv"):
             return pd.read_csv(f, index_col=False, header=None).values
-        elif filename.endswith('npy'):
+        elif filename.endswith("npy"):
             array_file = BytesIO()
             array_file.write(f.read())
             array_file.seek(0)
@@ -459,17 +486,16 @@ class TimeSeriesOutcome(ArrayOutcome):
 
     """
 
-    def __init__(self, name, variable_name=None,
-                 function=None, expected_range=None,
-                 shape=None):
-        super(
-            TimeSeriesOutcome,
-            self).__init__(
+    def __init__(
+        self, name, variable_name=None, function=None, expected_range=None, shape=None
+    ):
+        super(TimeSeriesOutcome, self).__init__(
             name,
             variable_name=variable_name,
             function=function,
             expected_range=expected_range,
-            shape=shape)
+            shape=shape,
+        )
 
     @classmethod
     def to_disk(cls, values):
@@ -489,15 +515,14 @@ class TimeSeriesOutcome(ArrayOutcome):
         warnings.warn("still to be tested!!")
         fh = BytesIO()
         data = pd.DataFrame(values)
-        fh.write(data.to_csv(header=True, index=False,
-                             encoding='UTF-8').encode())
-        return fh, 'csv'
+        fh.write(data.to_csv(header=True, index=False, encoding="UTF-8").encode())
+        return fh, "csv"
 
     @classmethod
     def from_disk(cls, filename, archive):
         f = archive.extractfile(filename)
 
-        if filename.endswith('csv'):
+        if filename.endswith("csv"):
             return pd.read_csv(f, index_col=False, header=0).values
         else:
             raise EMAError("unknown file extension")
@@ -529,8 +554,7 @@ class Constraint(ScalarOutcome):
 
     """
 
-    def __init__(self, name, parameter_names=None, outcome_names=None,
-                 function=None):
+    def __init__(self, name, parameter_names=None, outcome_names=None, function=None):
         assert callable(function)
         if not parameter_names:
             parameter_names = []
@@ -544,9 +568,12 @@ class Constraint(ScalarOutcome):
 
         variable_names = parameter_names + outcome_names
 
-        super(Constraint, self).__init__(name, kind=AbstractOutcome.INFO,
-                                         variable_name=variable_names,
-                                         function=function)
+        super(Constraint, self).__init__(
+            name,
+            kind=AbstractOutcome.INFO,
+            variable_name=variable_names,
+            function=function,
+        )
 
         self.parameter_names = parameter_names
         self.outcome_names = outcome_names
@@ -576,20 +603,20 @@ def create_outcomes(outcomes, **kwargs):
     elif not isinstance(outcomes, pd.DataFrame):
         outcomes = pd.DataFrame.from_dict(outcomes)
 
-    for entry in ['name', 'type']:
+    for entry in ["name", "type"]:
         if entry not in outcomes.columns:
-            raise ValueError('no {} column in dataframe'.format(entry))
+            raise ValueError("no {} column in dataframe".format(entry))
 
     temp_outcomes = []
     for _, row in outcomes.iterrows():
-        name = row['name']
-        kind = row['type']
+        name = row["name"]
+        kind = row["type"]
 
-        if kind == 'scalar':
+        if kind == "scalar":
             outcome = ScalarOutcome(name)
-        elif kind == 'timeseries':
+        elif kind == "timeseries":
             outcome = TimeSeriesOutcome(name)
         else:
-            raise ValueError('unknown type for ' + name)
+            raise ValueError("unknown type for " + name)
         temp_outcomes.append(outcome)
     return temp_outcomes

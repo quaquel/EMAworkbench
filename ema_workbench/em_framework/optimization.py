@@ -14,8 +14,12 @@ import pandas as pd
 from . import callbacks, evaluators
 from .points import Scenario, Policy
 from .outcomes import AbstractOutcome
-from .parameters import (IntegerParameter, RealParameter, CategoricalParameter,
-                         BooleanParameter)
+from .parameters import (
+    IntegerParameter,
+    RealParameter,
+    CategoricalParameter,
+    BooleanParameter,
+)
 from .samplers import determine_parameters
 from .util import determine_objects, ProgressTrackingMixIn
 from ..util import get_module_logger, EMAError, temporary_filter, INFO
@@ -41,7 +45,8 @@ try:
         DifferentialEvolution,
         UNDX,
         SPX,
-        UM)  # @UnresolvedImport
+        UM,
+    )  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
 
     import platypus
@@ -50,23 +55,19 @@ try:
 except ImportError:
     warnings.warn("platypus based optimization not available", ImportWarning)
 
-
     class PlatypusProblem(object):
         constraints = []
 
         def __init__(self, *args, **kwargs):
             pass
 
-
     class Variator(object):
         def __init__(self, *args, **kwargs):
             pass
 
-
     class RandomGenerator(object):
         def __call__(self, *args, **kwargs):
             pass
-
 
     class TournamentSelector(object):
         def __init__(self, *args, **kwargs):
@@ -75,10 +76,8 @@ except ImportError:
         def __call__(self, *args, **kwargs):
             pass
 
-
     class EpsilonProgressContinuation(object):
         pass
-
 
     EpsNSGAII = None
     platypus = None
@@ -88,8 +87,14 @@ except ImportError:
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["Problem", "RobustProblem", "EpsilonProgress", "HyperVolume",
-           "Convergence", "ArchiveLogger"]
+__all__ = [
+    "Problem",
+    "RobustProblem",
+    "EpsilonProgress",
+    "HyperVolume",
+    "Convergence",
+    "ArchiveLogger",
+]
 _logger = get_module_logger(__name__)
 
 
@@ -102,19 +107,21 @@ class Problem(PlatypusProblem):
     def parameter_names(self):
         return [e.name for e in self.parameters]
 
-    def __init__(self, searchover, parameters,
-                 outcome_names, constraints, reference=None):
+    def __init__(
+        self, searchover, parameters, outcome_names, constraints, reference=None
+    ):
         if constraints is None:
             constraints = []
 
-        super(Problem, self).__init__(len(parameters), len(outcome_names),
-                                      nconstrs=len(constraints))
+        super(Problem, self).__init__(
+            len(parameters), len(outcome_names), nconstrs=len(constraints)
+        )
         #         assert len(parameters) == len(parameter_names)
-        assert searchover in ('levers', 'uncertainties', 'robust')
+        assert searchover in ("levers", "uncertainties", "robust")
 
-        if searchover == 'levers':
+        if searchover == "levers":
             assert not reference or isinstance(reference, Scenario)
-        elif searchover == 'uncertainties':
+        elif searchover == "uncertainties":
             assert not reference or isinstance(reference, Policy)
         else:
             assert not reference
@@ -131,11 +138,12 @@ class RobustProblem(Problem):
     """small extension to Problem object for robust optimization, adds the
     scenarios and the robustness functions"""
 
-    def __init__(self, parameters, outcome_names, scenarios,
-                 robustness_functions, constraints):
-        super(RobustProblem, self).__init__('robust', parameters,
-                                            outcome_names,
-                                            constraints)
+    def __init__(
+        self, parameters, outcome_names, scenarios, robustness_functions, constraints
+    ):
+        super(RobustProblem, self).__init__(
+            "robust", parameters, outcome_names, constraints
+        )
         assert len(robustness_functions) == len(outcome_names)
         self.scenarios = scenarios
         self.robustness_functions = robustness_functions
@@ -163,17 +171,18 @@ def to_problem(model, searchover, reference=None, constraints=None):
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, searchover, union=True)
 
-    outcomes = determine_objects(model, 'outcomes')
-    outcomes = [outcome for outcome in outcomes if
-                outcome.kind != AbstractOutcome.INFO]
+    outcomes = determine_objects(model, "outcomes")
+    outcomes = [outcome for outcome in outcomes if outcome.kind != AbstractOutcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
-        raise EMAError(("no outcomes specified to optimize over, "
-                        "all outcomes are of kind=INFO"))
+        raise EMAError(
+            ("no outcomes specified to optimize over, " "all outcomes are of kind=INFO")
+        )
 
-    problem = Problem(searchover, decision_variables,
-                      outcome_names, constraints, reference=reference)
+    problem = Problem(
+        searchover, decision_variables, outcome_names, constraints, reference=reference
+    )
     problem.types = to_platypus_types(decision_variables)
     problem.directions = [outcome.kind for outcome in outcomes]
     problem.constraints[:] = "==0"
@@ -181,11 +190,7 @@ def to_problem(model, searchover, reference=None, constraints=None):
     return problem
 
 
-def to_robust_problem(
-        model,
-        scenarios,
-        robustness_functions,
-        constraints=None):
+def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     """helper function to create RobustProblem object
 
     Parameters
@@ -203,19 +208,20 @@ def to_robust_problem(
     """
 
     # extract the levers and the outcomes
-    decision_variables = determine_parameters(model, 'levers', union=True)
+    decision_variables = determine_parameters(model, "levers", union=True)
 
     outcomes = robustness_functions
-    outcomes = [outcome for outcome in outcomes if
-                outcome.kind != AbstractOutcome.INFO]
+    outcomes = [outcome for outcome in outcomes if outcome.kind != AbstractOutcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
-        raise EMAError(("no outcomes specified to optimize over, "
-                        "all outcomes are of kind=INFO"))
+        raise EMAError(
+            ("no outcomes specified to optimize over, " "all outcomes are of kind=INFO")
+        )
 
-    problem = RobustProblem(decision_variables, outcome_names,
-                            scenarios, robustness_functions, constraints)
+    problem = RobustProblem(
+        decision_variables, outcome_names, scenarios, robustness_functions, constraints
+    )
 
     problem.types = to_platypus_types(decision_variables)
     problem.directions = [outcome.kind for outcome in outcomes]
@@ -228,11 +234,12 @@ def to_platypus_types(decision_variables):
     """helper function for mapping from workbench parameter types to
     platypus parameter types"""
     # TODO:: should categorical not be platypus.Subset, with size == 1?
-    _type_mapping = {RealParameter: platypus.Real,
-                     IntegerParameter: platypus.Integer,
-                     CategoricalParameter: platypus.Subset,
-                     BooleanParameter: platypus.Subset,
-                     }
+    _type_mapping = {
+        RealParameter: platypus.Real,
+        IntegerParameter: platypus.Integer,
+        CategoricalParameter: platypus.Subset,
+        BooleanParameter: platypus.Subset,
+    }
 
     types = []
     for dv in decision_variables:
@@ -264,8 +271,9 @@ def to_dataframe(optimizer, dvnames, outcome_names):
 
     solutions = []
     for solution in platypus.unique(platypus.nondominated(optimizer.result)):
-        vars = transform_variables(solution.problem,  # @ReservedAssignment
-                                   solution.variables)
+        vars = transform_variables(
+            solution.problem, solution.variables  # @ReservedAssignment
+        )
 
         decision_vars = dict(zip(dvnames, vars))
         decision_out = dict(zip(outcome_names, solution.objectives))
@@ -336,8 +344,7 @@ def _process(jobs, problem):
 
     processed_jobs = []
     for job in jobs:
-        variables = transform_variables(problem,
-                                        job.solution.variables)
+        variables = transform_variables(problem, job.solution.variables)
         processed_job = {}
         for param, var in zip(problem.parameters, variables):
             try:
@@ -390,10 +397,10 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
     outcome_names = problem.outcome_names
     constraints = problem.ema_constraints
 
-    if searchover == 'levers':
-        column = 'policy'
+    if searchover == "levers":
+        column = "policy"
     else:
-        column = 'scenario'
+        column = "scenario"
 
     for entry, job in jobs_collection:
         logical = experiments[column] == entry.name
@@ -404,13 +411,13 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
 
         # TODO:: only retain uncertainties
         job_experiment = experiments[logical]
-        job_constraints = _evaluate_constraints(job_experiment, job_outputs,
-                                                constraints)
+        job_constraints = _evaluate_constraints(
+            job_experiment, job_outputs, constraints
+        )
         job_outcomes = [job_outputs[key] for key in outcome_names]
 
         if job_constraints:
-            job.solution.problem.function = lambda _: (job_outcomes,
-                                                       job_constraints)
+            job.solution.problem.function = lambda _: (job_outcomes, job_constraints)
         else:
             job.solution.problem.function = lambda _: job_outcomes
         job.solution.evaluate()
@@ -424,26 +431,24 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
     constraints = problem.ema_constraints
 
     for entry, job in jobs_collection:
-        logical = experiments['policy'] == entry.name
+        logical = experiments["policy"] == entry.name
 
         job_outcomes_dict = {}
         job_outcomes = []
         for rf in robustness_functions:
-            data = [outcomes[var_name][logical] for var_name in
-                    rf.variable_name]
+            data = [outcomes[var_name][logical] for var_name in rf.variable_name]
             score = rf.function(*data)
             job_outcomes_dict[rf.name] = score
             job_outcomes.append(score)
 
         # TODO:: only retain levers
         job_experiment = experiments[logical].iloc[0]
-        job_constraints = _evaluate_constraints(job_experiment,
-                                                job_outcomes_dict,
-                                                constraints)
+        job_constraints = _evaluate_constraints(
+            job_experiment, job_outcomes_dict, constraints
+        )
 
         if job_constraints:
-            job.solution.problem.function = lambda _: (job_outcomes,
-                                                       job_constraints)
+            job.solution.problem.function = lambda _: (job_outcomes, job_constraints)
         else:
             job.solution.problem.function = lambda _: job_outcomes
 
@@ -510,8 +515,9 @@ class HyperVolume(AbstractConvergenceMetric):
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
     def __call__(self, optimizer):
-        self.results.append(self.hypervolume_func.calculate(
-            optimizer.algorithm.archive))
+        self.results.append(
+            self.hypervolume_func.calculate(optimizer.algorithm.archive)
+        )
 
     @classmethod
     def from_outcomes(cls, outcomes):
@@ -535,9 +541,10 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
     """
 
-    def __init__(self, directory, decision_varnames,
-                 outcome_varnames, base_filename='archive'):
-        super(ArchiveLogger, self).__init__('archive_logger')
+    def __init__(
+        self, directory, decision_varnames, outcome_varnames, base_filename="archive"
+    ):
+        super(ArchiveLogger, self).__init__("archive_logger")
         self.directory = os.path.abspath(directory)
         self.base = base_filename
         self.decision_varnames = decision_varnames
@@ -547,16 +554,13 @@ class ArchiveLogger(AbstractConvergenceMetric):
     def __call__(self, optimizer):
         self.index += 1
 
-        fn = os.path.join(
-            self.directory, '{}_{}.csv'.format(self.base, self.index))
+        fn = os.path.join(self.directory, "{}_{}.csv".format(self.base, self.index))
 
-        archive = to_dataframe(optimizer, self.decision_varnames,
-                               self.outcome_varnames)
+        archive = to_dataframe(optimizer, self.decision_varnames, self.outcome_varnames)
         archive.to_csv(fn)
 
 
 class OperatorProbabilities(AbstractConvergenceMetric):
-
     def __init__(self, name, index):
         super(OperatorProbabilities, self).__init__(name)
         self.index = index
@@ -574,12 +578,22 @@ class Convergence(ProgressTrackingMixIn):
 
     valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
 
-    def __init__(self, metrics, max_nfe, convergence_freq=1000,
-                 logging_freq=5, log_progress=False):
-        super(Convergence, self).__init__(max_nfe, logging_freq, _logger,
-                                          log_progress=log_progress,
-                                          log_func=lambda self: f'generation'
-                                                                f' {self.generation}, {self.i}/{self.max_nfe}')
+    def __init__(
+        self,
+        metrics,
+        max_nfe,
+        convergence_freq=1000,
+        logging_freq=5,
+        log_progress=False,
+    ):
+        super(Convergence, self).__init__(
+            max_nfe,
+            logging_freq,
+            _logger,
+            log_progress=log_progress,
+            log_func=lambda self: f"generation"
+            f" {self.generation}, {self.i}/{self.max_nfe}",
+        )
 
         self.max_nfe = max_nfe
         self.generation = -1
@@ -597,14 +611,15 @@ class Convergence(ProgressTrackingMixIn):
             assert isinstance(metric, AbstractConvergenceMetric)
             metric.reset()
 
-    def __call__(self, optimizer, ):
+    def __call__(
+        self, optimizer,
+    ):
         nfe = optimizer.algorithm.nfe
         super(Convergence, self).__call__(nfe - self.i)
 
         self.generation += 1
 
-        if (nfe >= self.last_check + self.convergence_freq) or \
-                self.last_check == 0:
+        if (nfe >= self.last_check + self.convergence_freq) or self.last_check == 0:
             self.index.append(nfe)
             self.last_check = nfe
 
@@ -612,19 +627,19 @@ class Convergence(ProgressTrackingMixIn):
                 metric(optimizer)
 
     def to_dataframe(self):
-        progress = {metric.name: metric.results for metric in
-                    self.metrics if metric.results}
+        progress = {
+            metric.name: metric.results for metric in self.metrics if metric.results
+        }
 
         progress = pd.DataFrame.from_dict(progress)
 
         if not progress.empty:
-            progress['nfe'] = self.index
+            progress["nfe"] = self.index
 
         return progress
 
 
 class CombinedVariator(Variator):
-
     def __init__(self, crossover_prob=0.5, mutation_prob=1):
         super(CombinedVariator, self).__init__(2)
         self.SBX = platypus.SBX()
@@ -641,8 +656,7 @@ class CombinedVariator(Variator):
         for i, kind in enumerate(problem.types):  # @ReservedAssignment
             if random.random() <= self.crossover_prob:
                 klass = kind.__class__
-                child1, child2 = self._crossover[klass](
-                    self, child1, child2, i, kind)
+                child1, child2 = self._crossover[klass](self, child1, child2, i, kind)
                 child1.evaluated = False
                 child2.evaluated = False
 
@@ -675,8 +689,7 @@ class CombinedVariator(Variator):
 
         return child1, child2
 
-    def crossover_integer(self, child1, child2, i,
-                          type):  # @ReservedAssignment
+    def crossover_integer(self, child1, child2, i, type):  # @ReservedAssignment
         # HUX()
         for j in range(type.nbits):
             if child1.variables[i][j] != child2.variables[i][j]:
@@ -685,8 +698,7 @@ class CombinedVariator(Variator):
                     child2.variables[i][j] = not child2.variables[i][j]
         return child1, child2
 
-    def crossover_categorical(self, child1, child2, i,
-                              type):  # @ReservedAssignment
+    def crossover_categorical(self, child1, child2, i, type):  # @ReservedAssignment
         # SSX()
         # can probably be implemented in a simple manner, since size
         # of subset is fixed to 1
@@ -695,17 +707,18 @@ class CombinedVariator(Variator):
         s2 = set(child2.variables[i])
 
         for j in range(type.size):
-            if (child2.variables[i][j] not in s1) and \
-                    (child1.variables[i][j] not in s2) and \
-                    (random.random() < 0.5):
+            if (
+                (child2.variables[i][j] not in s1)
+                and (child1.variables[i][j] not in s2)
+                and (random.random() < 0.5)
+            ):
                 temp = child1.variables[i][j]
                 child1.variables[i][j] = child2.variables[i][j]
                 child2.variables[i][j] = temp
 
         return child1, child2
 
-    def mutate_real(self, child, i, type,
-                    distribution_index=20):  # @ReservedAssignment
+    def mutate_real(self, child, i, type, distribution_index=20):  # @ReservedAssignment
         # PM
         x = child.variables[i]
         lower = type.min_value
@@ -716,13 +729,13 @@ class CombinedVariator(Variator):
 
         if u < 0.5:
             bl = (x - lower) / dx
-            b = 2.0 * u + (1.0 - 2.0 * u) * \
-                pow(1.0 - bl, distribution_index + 1.0)
+            b = 2.0 * u + (1.0 - 2.0 * u) * pow(1.0 - bl, distribution_index + 1.0)
             delta = pow(b, 1.0 / (distribution_index + 1.0)) - 1.0
         else:
             bu = (upper - x) / dx
-            b = 2.0 * (1.0 - u) + 2.0 * (u - 0.5) * \
-                pow(1.0 - bu, distribution_index + 1.0)
+            b = 2.0 * (1.0 - u) + 2.0 * (u - 0.5) * pow(
+                1.0 - bu, distribution_index + 1.0
+            )
             delta = 1.0 - pow(b, 1.0 / (distribution_index + 1.0))
 
         x = x + delta * dx
@@ -731,8 +744,7 @@ class CombinedVariator(Variator):
         child.variables[i] = x
         return child
 
-    def mutate_integer(self, child, i, type,
-                       probability=1):  # @ReservedAssignment
+    def mutate_integer(self, child, i, type, probability=1):  # @ReservedAssignment
         # bitflip
         for j in range(type.nbits):
             if random.random() <= probability:
@@ -759,13 +771,13 @@ class CombinedVariator(Variator):
 
         return child
 
-    _crossover = {Real: crossover_real,
-                  Integer: crossover_integer,
-                  Subset: crossover_categorical}
+    _crossover = {
+        Real: crossover_real,
+        Integer: crossover_integer,
+        Subset: crossover_categorical,
+    }
 
-    _mutate = {Real: mutate_real,
-               Integer: mutate_integer,
-               Subset: mutate_categorical}
+    _mutate = {Real: mutate_real, Integer: mutate_integer, Subset: mutate_categorical}
 
 
 class CombinedMutator(CombinedVariator):
@@ -804,31 +816,37 @@ class CombinedMutator(CombinedVariator):
         return child
 
     def mutate_integer(self, child, i, type):  # @ReservedAssignment
-        child.variables[i] = type.encode(random.randint(type.min_value,
-                                                        type.max_value))
+        child.variables[i] = type.encode(random.randint(type.min_value, type.max_value))
         return child
 
     def mutate_real(self, child, i, type):  # @ReservedAssignment
         child.variables[i] = random.uniform(type.min_value, type.max_value)
         return child
 
-    _mutate = {Real: mutate_real,
-               Integer: mutate_integer,
-               Subset: mutate_categorical}
+    _mutate = {Real: mutate_real, Integer: mutate_integer, Subset: mutate_categorical}
 
 
-def _optimize(problem, evaluator, algorithm, convergence, nfe,
-              convergence_freq, logging_freq, **kwargs):
+def _optimize(
+    problem,
+    evaluator,
+    algorithm,
+    convergence,
+    nfe,
+    convergence_freq,
+    logging_freq,
+    **kwargs,
+):
     klass = problem.types[0].__class__
 
     try:
-        eps_values = kwargs['epsilon']
+        eps_values = kwargs["epsilon"]
     except KeyError:
         pass
     else:
         if len(eps_values) != len(problem.outcome_names):
-            raise EMAError("number of epsilon values does not match number "
-                           "of outcomes")
+            raise EMAError(
+                "number of epsilon values does not match number " "of outcomes"
+            )
 
     if all([isinstance(t, klass) for t in problem.types]):
         variator = None
@@ -836,26 +854,25 @@ def _optimize(problem, evaluator, algorithm, convergence, nfe,
         variator = CombinedVariator()
     mutator = CombinedMutator()
 
-    optimizer = algorithm(problem, evaluator=evaluator, variator=variator,
-                          log_frequency=500, **kwargs)
+    optimizer = algorithm(
+        problem, evaluator=evaluator, variator=variator, log_frequency=500, **kwargs
+    )
     optimizer.mutator = mutator
 
-    convergence = Convergence(convergence, nfe,
-                              convergence_freq=convergence_freq,
-                              logging_freq=logging_freq)
+    convergence = Convergence(
+        convergence, nfe, convergence_freq=convergence_freq, logging_freq=logging_freq
+    )
     callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
 
-    with temporary_filter(name=[callbacks.__name__,
-                                evaluators.__name__], level=INFO):
+    with temporary_filter(name=[callbacks.__name__, evaluators.__name__], level=INFO):
         optimizer.run(nfe)
 
     convergence(optimizer)
 
     # convergence.pbar.__exit__(None, None, None)
 
-    results = to_dataframe(optimizer, problem.parameter_names,
-                           problem.outcome_names)
+    results = to_dataframe(optimizer, problem.parameter_names, problem.outcome_names)
     convergence = convergence.to_dataframe()
 
     message = "optimization completed, found {} solutions"
@@ -894,6 +911,7 @@ class GenerationalBorg(EpsilonProgressContinuation):
     Note:: limited to RealParameters only.
 
     """
+
     pm_p = BORGDefaultDescriptor(lambda x: 1 / x)
     pm_dist = 20
 
@@ -919,48 +937,70 @@ class GenerationalBorg(EpsilonProgressContinuation):
     undx_zeta = 0.5
     undx_eta = 0.35
 
-    def __init__(self, problem, epsilons, population_size=100,
-                 generator=RandomGenerator(), selector=TournamentSelector(2),
-                 variator=None, **kwargs):
+    def __init__(
+        self,
+        problem,
+        epsilons,
+        population_size=100,
+        generator=RandomGenerator(),
+        selector=TournamentSelector(2),
+        variator=None,
+        **kwargs,
+    ):
         self.problem = problem
 
         # Parameterization taken from
         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
-        variators = [GAOperator(SBX(probability=self.sbx_prop,
-                                    distribution_index=self.sbx_dist),
-                                PM(probability=self.pm_p,
-                                   distribution_index=self.pm_dist)),
-                     GAOperator(PCX(nparents=self.pcx_nparents,
-                                    noffspring=self.pcx_noffspring,
-                                    eta=self.pcx_eta,
-                                    zeta=self.pcx_zeta),
-                                PM(probability=self.pm_p,
-                                   distribution_index=self.pm_dist)),
-                     GAOperator(
-                         DifferentialEvolution(crossover_rate=self.de_rate,
-                                               step_size=self.de_stepsize),
-                         PM(probability=self.pm_p,
-                            distribution_index=self.pm_dist)),
-                     GAOperator(UNDX(nparents=self.undx_nparents,
-                                     noffspring=self.undx_noffspring,
-                                     zeta=self.undx_zeta,
-                                     eta=self.undx_eta),
-                                PM(probability=self.pm_p,
-                                   distribution_index=self.pm_dist)),
-                     GAOperator(SPX(nparents=self.spx_nparents,
-                                    noffspring=self.spx_noffspring,
-                                    expansion=self.spx_expansion),
-                                PM(probability=self.pm_p,
-                                   distribution_index=self.pm_dist)),
-                     UM(probability=self.um_p)]
+        variators = [
+            GAOperator(
+                SBX(probability=self.sbx_prop, distribution_index=self.sbx_dist),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            GAOperator(
+                PCX(
+                    nparents=self.pcx_nparents,
+                    noffspring=self.pcx_noffspring,
+                    eta=self.pcx_eta,
+                    zeta=self.pcx_zeta,
+                ),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            GAOperator(
+                DifferentialEvolution(
+                    crossover_rate=self.de_rate, step_size=self.de_stepsize
+                ),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            GAOperator(
+                UNDX(
+                    nparents=self.undx_nparents,
+                    noffspring=self.undx_noffspring,
+                    zeta=self.undx_zeta,
+                    eta=self.undx_eta,
+                ),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            GAOperator(
+                SPX(
+                    nparents=self.spx_nparents,
+                    noffspring=self.spx_noffspring,
+                    expansion=self.spx_expansion,
+                ),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            UM(probability=self.um_p),
+        ]
 
         variator = Multimethod(self, variators)
 
         super(GenerationalBorg, self).__init__(
-            NSGAII(problem,
-                   population_size,
-                   generator,
-                   selector,
-                   variator,
-                   EpsilonBoxArchive(epsilons),
-                   **kwargs))
+            NSGAII(
+                problem,
+                population_size,
+                generator,
+                selector,
+                variator,
+                EpsilonBoxArchive(epsilons),
+                **kwargs,
+            )
+        )

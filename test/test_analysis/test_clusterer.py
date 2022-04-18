@@ -5,15 +5,15 @@ import unittest
 from ema_workbench.analysis import clusterer
 from test import utilities
 
-class ClusterTestCase(unittest.TestCase):
 
+class ClusterTestCase(unittest.TestCase):
     def test_cluster(self):
         n = 10
         experiments, outcomes = utilities.load_flu_data()
-        data = outcomes['infected fraction R1'][0:n, :]
+        data = outcomes["infected fraction R1"][0:n, :]
 
         distances = clusterer.calculate_cid(data)
-        self.assertEqual(distances.shape, (n,n))
+        self.assertEqual(distances.shape, (n, n))
         clusterer.plot_dendrogram(distances)
         plt.draw()
 
@@ -25,9 +25,8 @@ class ClusterTestCase(unittest.TestCase):
         clusterer.plot_dendrogram(distances)
         plt.draw()
 
-        plt.close('all')
+        plt.close("all")
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

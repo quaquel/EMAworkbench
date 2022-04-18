@@ -7,7 +7,7 @@ warnings.simplefilter("once", ImportWarning)
 @contextmanager
 def catch_and_ignore_import_warning():
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore', category=ImportWarning)
+        warnings.simplefilter("ignore", category=ImportWarning)
         yield
 
 

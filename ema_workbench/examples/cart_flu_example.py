@@ -13,7 +13,7 @@ ema_logging.log_to_stderr(level=ema_logging.INFO)
 
 def classify(data):
     # get the output for deceased population
-    result = data['deceased population region 1']
+    result = data["deceased population region 1"]
 
     # if deceased population is higher then 1.000.000 people,
     # classify as 1
@@ -23,12 +23,12 @@ def classify(data):
 
 
 # load data
-fn = './data/1000 flu cases with policies.tar.gz'
+fn = "./data/1000 flu cases with policies.tar.gz"
 results = load_results(fn)
 experiments, outcomes = results
 
 # extract results for 1 policy
-logical = experiments['policy'] == 'no policy'
+logical = experiments["policy"] == "no policy"
 new_experiments = experiments[logical]
 new_outcomes = {}
 for key, value in outcomes.items():

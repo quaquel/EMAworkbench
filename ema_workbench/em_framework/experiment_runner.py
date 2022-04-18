@@ -38,8 +38,10 @@ class ExperimentRunner(object):
 
     def __init__(self, msis):
         self.msis = msis
-        self.log_message = ('running scenario {scenario_id} for policy '
-                            '{policy_name} on model {model_name}')
+        self.log_message = (
+            "running scenario {scenario_id} for policy "
+            "{policy_name} on model {model_name}"
+        )
 
     @method_logger(__name__)
     def cleanup(self):
@@ -80,9 +82,11 @@ class ExperimentRunner(object):
         scenario = experiment.scenario.copy()
         scenario_id = experiment.scenario.name
 
-        _logger.debug(self.log_message.format(scenario_id=scenario_id,
-                                              policy_name=policy_name,
-                                              model_name=model_name))
+        _logger.debug(
+            self.log_message.format(
+                scenario_id=scenario_id, policy_name=policy_name, model_name=model_name
+            )
+        )
 
         try:
             model.run_model(scenario, policy)
@@ -101,8 +105,12 @@ class ExperimentRunner(object):
             #                 sys.stderr.write("\n")
 
             errortype = type(e).__name__
-            raise EMAError(("exception in run_model"
-                            "\nCaused by: {}: {}".format(errortype, str(e))))
+            raise EMAError(
+                (
+                    "exception in run_model"
+                    "\nCaused by: {}: {}".format(errortype, str(e))
+                )
+            )
 
         outcomes = model.outcomes_output
         model.reset_model()

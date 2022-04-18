@@ -24,9 +24,8 @@ from ..util.ema_logging import method_logger, get_module_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
-__all__ = ['ExcelModel']
+__all__ = ["ExcelModel"]
 _logger = get_module_logger(__name__)
-
 
 
 class NoDefaultSheetError(EMAError):
@@ -70,12 +69,13 @@ class BaseExcelModel(FileModel):
                is optional if the cell or range exists in the default sheet).
 
     """
+
     com_warning_msg = "com error: no cell(s) named %s found"
 
-    def __init__(self, name, wd=None, model_file=None, default_sheet=None,
-                 pointers=None):
-        super(BaseExcelModel, self).__init__(name, wd=wd,
-                                             model_file=model_file)
+    def __init__(
+        self, name, wd=None, model_file=None, default_sheet=None, pointers=None
+    ):
+        super(BaseExcelModel, self).__init__(name, wd=wd, model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
         self.xl = None
@@ -119,7 +119,7 @@ class BaseExcelModel(FileModel):
             try:
                 _logger.debug("trying to start Excel")
                 if win32com is None:
-                    raise ImportError('win32com')
+                    raise ImportError("win32com")
                 self.xl = win32com.client.Dispatch("Excel.Application")
                 _logger.debug("Excel started")
             except com_error as e:
@@ -191,14 +191,14 @@ class BaseExcelModel(FileModel):
             try:
                 self.wb.Close(False)
             except com_error as err:
-                _logger.warning("com error on wb.Close: {}".format(err), )
+                _logger.warning("com error on wb.Close: {}".format(err),)
             del self.wb
         if self.xl:
             try:
                 self.xl.DisplayAlerts = False
                 self.xl.Quit()
             except com_error as err:
-                _logger.warning("com error on xl.Quit: {}".format(err), )
+                _logger.warning("com error on xl.Quit: {}".format(err),)
             del self.xl
 
         self.xl = None
@@ -226,12 +226,10 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.wb.Sheets(sheetname)
         except Exception:
+            _logger.warning("com error: sheet '{}' not found".format(sheetname))
             _logger.warning(
-                "com error: sheet '{}' not found".format(sheetname))
-            _logger.warning(
-                "known sheets: {}".format(
-                    ", ".join(
-                        self.get_wb_sheetnames())))
+                "known sheets: {}".format(", ".join(self.get_wb_sheetnames()))
+            )
             self.cleanup()
             raise
 
@@ -265,14 +263,16 @@ class BaseExcelModel(FileModel):
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
             raise EMAError(
-                "no default sheet while trying to read from '{}'".format(name))
+                "no default sheet while trying to read from '{}'".format(name)
+            )
 
         try:
             value = sheet.Range(this_range).Value
         except com_error:
             _logger.warning(
                 "com error: no cell(s) named {} found on sheet {}".format(
-                    this_range, this_sheet),
+                    this_range, this_sheet
+                ),
             )
             value = None
 
@@ -306,14 +306,16 @@ class BaseExcelModel(FileModel):
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
             raise EMAError(
-                "no default sheet while trying to write to '{}'".format(name))
+                "no default sheet while trying to write to '{}'".format(name)
+            )
 
         try:
             sheet.Range(this_range).Value = value
         except com_error:
             _logger.warning(
                 "com error: no cell(s) named {} found on sheet {}".format(
-                    this_range, this_sheet),
+                    this_range, this_sheet
+                ),
             )
 
     def get_wb_sheetnames(self):
@@ -322,9 +324,9 @@ class BaseExcelModel(FileModel):
             try:
                 return [sh.Name for sh in self.wb.Sheets]
             except com_error as err:
-                return ['com_error: {}'.format(err)]
+                return ["com_error: {}".format(err)]
         else:
-            return ['error: wb not available']
+            return ["error: wb not available"]
 
 
 class ExcelModel(SingleReplication, BaseExcelModel):

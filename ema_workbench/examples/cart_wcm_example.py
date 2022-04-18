@@ -13,11 +13,11 @@ ema_logging.log_to_stderr(level=ema_logging.INFO)
 default_flow = 2.178849944502783e7
 
 # load data
-fn = './data/5000 runs WCM.tar.gz'
+fn = "./data/5000 runs WCM.tar.gz"
 results = load_results(fn)
 x, outcomes = results
 
-ooi = 'throughput Rotterdam'
+ooi = "throughput Rotterdam"
 outcome = outcomes[ooi] / default_flow
 y = outcome < 1
 

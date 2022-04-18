@@ -13,13 +13,19 @@ from ..util import EMAError
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation',
-           'ProgressTrackingMixIn', 'combine', 'NamedObjectMapDescriptor',
-           'NamedObjectMap']
+__all__ = [
+    "NamedObject",
+    "NamedDict",
+    "Counter",
+    "representation",
+    "ProgressTrackingMixIn",
+    "combine",
+    "NamedObjectMapDescriptor",
+    "NamedObjectMap",
+]
 
 
 class NamedObject:
-
     def __init__(self, name):
         self.name = name
 
@@ -57,7 +63,6 @@ class Variable(NamedObject):
 
 
 class NamedObjectMap:
-
     def __init__(self, kind):  # @ReservedAssignment
         super(NamedObjectMap, self).__init__()
         self.kind = kind
@@ -92,12 +97,15 @@ class NamedObjectMap:
             raise TypeError("can only add " + self.kind.__name__ + " objects")
 
         if isinstance(key, int):
-            self._data = OrderedDict([(value.name, value) if i == key else (
-                k, v) for i, (k, v) in enumerate(self._data.items())])
+            self._data = OrderedDict(
+                [
+                    (value.name, value) if i == key else (k, v)
+                    for i, (k, v) in enumerate(self._data.items())
+                ]
+            )
         else:
             if value.name != key:
-                raise ValueError(
-                    "key does not match name of " + self.kind.__name__)
+                raise ValueError("key does not match name of " + self.kind.__name__)
 
             self._data[key] = value
 
@@ -148,8 +156,7 @@ class NamedObjectMapDescriptor:
 
     def __set__(self, instance, values):
         try:
-            mapping = getattr(instance,
-                              self.internal_name)  # @ReservedAssignment
+            mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
             mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
             setattr(instance, self.internal_name, mapping)
@@ -158,11 +165,10 @@ class NamedObjectMapDescriptor:
 
     def __set_name__(self, owner, name):
         self.name = name
-        self.internal_name = '_' + name
+        self.internal_name = "_" + name
 
 
 class NamedDict(UserDict, NamedObject):
-
     def __init__(self, name=representation, **kwargs):
         super(NamedDict, self).__init__(**kwargs)
         if name is None:
@@ -193,8 +199,10 @@ def combine(*args):
         overlap = set(experiment.keys()).intersection(set(entry.keys()))
         if overlap:
             raise EMAError(
-                'parameters exist in {} and {}, overlap is {}'.format(
-                    experiment, entry, overlap))
+                "parameters exist in {} and {}, overlap is {}".format(
+                    experiment, entry, overlap
+                )
+            )
         experiment.update(entry)
 
     return experiment
@@ -269,9 +277,14 @@ class ProgressTrackingMixIn:
 
     """
 
-    def __init__(self, N, reporting_interval, logger, log_progress=False,
-                 log_func=lambda self: self._logger.info(f'{self.i} '
-                                                         'experiments completed')):
+    def __init__(
+        self,
+        N,
+        reporting_interval,
+        logger,
+        log_progress=False,
+        log_func=lambda self: self._logger.info(f"{self.i} " "experiments completed"),
+    ):
         # TODO:: how to enable variable log messages which might include
         # different attributes?
 
@@ -286,7 +299,7 @@ class ProgressTrackingMixIn:
 
     def __call__(self, n):
         self.i += n
-        self._logger.debug(f'{self.i} experiments performed')
+        self._logger.debug(f"{self.i} experiments performed")
 
         if not self.log_progress:
             self.pbar.update(n=n)

@@ -20,8 +20,7 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from .parameters import (CategoricalParameter, IntegerParameter,
-                         BooleanParameter)
+from .parameters import CategoricalParameter, IntegerParameter, BooleanParameter
 from .util import ProgressTrackingMixIn
 from ..util import ema_exceptions, get_module_logger
 
@@ -31,9 +30,7 @@ from ..util import ema_exceptions, get_module_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 #
 
-__all__ = ['AbstractCallback',
-           'DefaultCallback',
-           'FileBasedCallback']
+__all__ = ["AbstractCallback", "DefaultCallback", "FileBasedCallback"]
 _logger = get_module_logger(__name__)
 
 
@@ -68,16 +65,24 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
 
     """
 
-    def __init__(self, uncertainties, outcomes, levers,
-                 nr_experiments, reporting_interval=None,
-                 reporting_frequency=10, log_progress=False):
-        super(AbstractCallback, self).__init__(nr_experiments,
-                                               reporting_frequency,
-                                               _logger, log_progress)
+    def __init__(
+        self,
+        uncertainties,
+        outcomes,
+        levers,
+        nr_experiments,
+        reporting_interval=None,
+        reporting_frequency=10,
+        log_progress=False,
+    ):
+        super(AbstractCallback, self).__init__(
+            nr_experiments, reporting_frequency, _logger, log_progress
+        )
 
         if reporting_interval is None:
             reporting_interval = max(
-                1, int(round(nr_experiments / reporting_frequency)))
+                1, int(round(nr_experiments / reporting_frequency))
+            )
 
         self.reporting_interval = reporting_interval
 
@@ -119,13 +124,22 @@ class DefaultCallback(AbstractCallback):
     design. For example if you prefer to store the result in a database
     or write them to a text file
     """
-    shape_error_msg = "can only save up to 2d arrays, this array is {}d"
-    constraint_error_msg = ('can only save 1d arrays for constraint, '
-                            'this array is {}d')
 
-    def __init__(self, uncs, levers, outcomes, nr_experiments,
-                 reporting_interval=100, reporting_frequency=10,
-                 log_progress=False):
+    shape_error_msg = "can only save up to 2d arrays, this array is {}d"
+    constraint_error_msg = (
+        "can only save 1d arrays for constraint, " "this array is {}d"
+    )
+
+    def __init__(
+        self,
+        uncs,
+        levers,
+        outcomes,
+        nr_experiments,
+        reporting_interval=100,
+        reporting_frequency=10,
+        log_progress=False,
+    ):
         """
 
         Parameters
@@ -146,11 +160,15 @@ class DefaultCallback(AbstractCallback):
                        tqdm progress bar.
 
         """
-        super(DefaultCallback, self).__init__(uncs, levers, outcomes,
-                                              nr_experiments,
-                                              reporting_interval,
-                                              reporting_frequency,
-                                              log_progress)
+        super(DefaultCallback, self).__init__(
+            uncs,
+            levers,
+            outcomes,
+            nr_experiments,
+            reporting_interval,
+            reporting_frequency,
+            log_progress,
+        )
         self.i = 0
         self.cases = None
         self.results = {}
@@ -164,25 +182,27 @@ class DefaultCallback(AbstractCallback):
         for parameter in uncs + levers:
             name = parameter.name
             self.parameters.append(name)
-            dtype = 'float'
+            dtype = "float"
 
             if isinstance(parameter, CategoricalParameter):
-                dtype = 'object'
+                dtype = "object"
             elif isinstance(parameter, BooleanParameter):
-                dtype = 'bool'
+                dtype = "bool"
             elif isinstance(parameter, IntegerParameter):
-                dtype = 'int'
+                dtype = "int"
             columns.append(name)
             dtypes.append(dtype)
 
-        for name in ['scenario', 'policy', 'model']:
+        for name in ["scenario", "policy", "model"]:
             columns.append(name)
-            dtypes.append('object')
+            dtypes.append("object")
 
         # FIXME:: issue with fragmented data frame warning
         index = np.arange(nr_experiments)
-        column_dict = {name: pd.Series(dtype=dtype, index=index) for name,
-                       dtype in zip(columns, dtypes)}
+        column_dict = {
+            name: pd.Series(dtype=dtype, index=index)
+            for name, dtype in zip(columns, dtypes)
+        }
         df = pd.concat(column_dict, axis=1).copy()
 
         self.cases = df
@@ -201,9 +221,9 @@ class DefaultCallback(AbstractCallback):
         policy = experiment.policy
         index = experiment.experiment_id
 
-        self.cases.at[index, 'scenario'] = scenario.name
-        self.cases.at[index, 'policy'] = policy.name
-        self.cases.at[index, 'model'] = experiment.model_name
+        self.cases.at[index, "scenario"] = scenario.name
+        self.cases.at[index, "policy"] = policy.name
+        self.cases.at[index, "model"] = experiment.model_name
 
         for k, v in scenario.items():
             self.cases.at[index, k] = v
@@ -219,12 +239,11 @@ class DefaultCallback(AbstractCallback):
             try:
                 outcome_res = outcomes[outcome]
             except KeyError:
-                message = f"{outcome} not specified as outcome in " \
-                          f"model(s)"
+                message = f"{outcome} not specified as outcome in " f"model(s)"
                 _logger.debug(message)
             else:
                 try:
-                    self.results[outcome][case_id, ] = outcome_res
+                    self.results[outcome][case_id,] = outcome_res
                 except KeyError:
                     data = np.asarray(outcome_res)
 
@@ -239,7 +258,7 @@ class DefaultCallback(AbstractCallback):
 
                     self.results[outcome] = np.empty(shape, dtype=data.dtype)
                     self.results[outcome][:] = np.nan
-                    self.results[outcome][case_id, ] = outcome_res
+                    self.results[outcome][case_id,] = outcome_res
 
     def __call__(self, experiment, outcomes):
         """
@@ -289,39 +308,45 @@ class FileBasedCallback(AbstractCallback):
 
     """
 
-    def __init__(self, uncs, levers, outcomes, nr_experiments,
-                 reporting_interval=100, reporting_frequency=10):
-        super(
-            FileBasedCallback,
-            self).__init__(
+    def __init__(
+        self,
+        uncs,
+        levers,
+        outcomes,
+        nr_experiments,
+        reporting_interval=100,
+        reporting_frequency=10,
+    ):
+        super(FileBasedCallback, self).__init__(
             uncs,
             levers,
             outcomes,
             nr_experiments,
             reporting_interval=reporting_interval,
-            reporting_frequency=reporting_frequency)
+            reporting_frequency=reporting_frequency,
+        )
 
         self.i = 0
         self.nr_experiments = nr_experiments
         self.outcomes = [outcome.name for outcome in outcomes]
         self.parameters = [parameter.name for parameter in uncs + levers]
 
-        self.directory = os.path.abspath('./temp')
+        self.directory = os.path.abspath("./temp")
         if os.path.exists(self.directory):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
 
-        self.experiments_fh = open(os.path.join(self.directory,
-                                                'experiments.csv'), 'w')
+        self.experiments_fh = open(os.path.join(self.directory, "experiments.csv"), "w")
 
-        header = self.parameters + ['scenario_id', 'policy', 'model']
+        header = self.parameters + ["scenario_id", "policy", "model"]
         writer = csv.writer(self.experiments_fh)
         writer.writerow(header)
 
         self.outcome_fhs = {}
         for outcome in self.outcomes:
             self.outcome_fhs[outcome] = open(
-                os.path.join(self.directory, outcome + '.csv'), 'w')
+                os.path.join(self.directory, outcome + ".csv"), "w"
+            )
 
     def _store_case(self, experiment):
         scenario = experiment.scenario

@@ -22,8 +22,7 @@ from ..util import get_module_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
-__all__ = ['setup_cart',
-           'CART']
+__all__ = ["setup_cart", "CART"]
 _logger = get_module_logger(__name__)
 
 
@@ -105,10 +104,9 @@ class CART(sdutil.OutputFormatterMixin):
 
     """
 
-    sep = '!?!'
+    sep = "!?!"
 
-    def __init__(self, x, y, mass_min=0.05,
-                 mode=sdutil.RuleInductionType.BINARY):
+    def __init__(self, x, y, mass_min=0.05, mode=sdutil.RuleInductionType.BINARY):
         """ init"""
 
         try:
@@ -161,13 +159,12 @@ class CART(sdutil.OutputFormatterMixin):
 
             if child in left:
                 parent = np.where(left == child)[0].item()
-                split = 'l'
+                split = "l"
             else:
                 parent = np.where(right == child)[0].item()
-                split = 'r'
+                split = "r"
 
-            lineage.append((parent, split, threshold[parent],
-                            features[parent]))
+            lineage.append((parent, split, threshold[parent], features[parent]))
 
             if parent == 0:
                 lineage.reverse()
@@ -185,7 +182,7 @@ class CART(sdutil.OutputFormatterMixin):
                 value = node[2]
                 unc = node[3]
 
-                if direction == 'l':
+                if direction == "l":
                     if unc in box_init.columns:
                         box.loc[1, unc] = value
                     else:
@@ -230,11 +227,12 @@ class CART(sdutil.OutputFormatterMixin):
         y_in_box = self.y[indices]
         box_coi = np.sum(y_in_box)
 
-        boxstats = {'coverage': box_coi / np.sum(self.y),
-                    'density': box_coi / y_in_box.shape[0],
-                    'res dim': sdutil._determine_nr_restricted_dims(box,
-                                                                    box_init),
-                    'mass': y_in_box.shape[0] / self.y.shape[0]}
+        boxstats = {
+            "coverage": box_coi / np.sum(self.y),
+            "density": box_coi / y_in_box.shape[0],
+            "res dim": sdutil._determine_nr_restricted_dims(box, box_init),
+            "mass": y_in_box.shape[0] / self.y.shape[0],
+        }
         return boxstats
 
     def _regression_stats(self, box, box_init):
@@ -242,10 +240,11 @@ class CART(sdutil.OutputFormatterMixin):
 
         y_in_box = self.y[indices]
 
-        boxstats = {'mean': np.mean(y_in_box),
-                    'mass': y_in_box.shape[0] / self.y.shape[0],
-                    'res dim': sdutil._determine_nr_restricted_dims(box,
-                                                                    box_init)}
+        boxstats = {
+            "mean": np.mean(y_in_box),
+            "mass": y_in_box.shape[0] / self.y.shape[0],
+            "res dim": sdutil._determine_nr_restricted_dims(box, box_init),
+        }
         return boxstats
 
     def _classification_stats(self, box, box_init):
@@ -262,17 +261,20 @@ class CART(sdutil.OutputFormatterMixin):
             total_gini += (count / y_in_box.shape[0]) ** 2
         gini = 1 - total_gini
 
-        boxstats = {'gini': gini,
-                    'mass': y_in_box.shape[0] / self.y.shape[0],
-                    'box_composition': counts,
-                    'res dim': sdutil._determine_nr_restricted_dims(box,
-                                                                    box_init)}
+        boxstats = {
+            "gini": gini,
+            "mass": y_in_box.shape[0] / self.y.shape[0],
+            "box_composition": counts,
+            "res dim": sdutil._determine_nr_restricted_dims(box, box_init),
+        }
 
         return boxstats
 
-    _boxstat_methods = {sdutil.RuleInductionType.BINARY: _binary_stats,
-                        sdutil.RuleInductionType.REGRESSION: _regression_stats,
-                        sdutil.RuleInductionType.CLASSIFICATION: _classification_stats}
+    _boxstat_methods = {
+        sdutil.RuleInductionType.BINARY: _binary_stats,
+        sdutil.RuleInductionType.REGRESSION: _regression_stats,
+        sdutil.RuleInductionType.CLASSIFICATION: _classification_stats,
+    }
 
     def build_tree(self):
         """train CART on the data"""
@@ -281,11 +283,10 @@ class CART(sdutil.OutputFormatterMixin):
         if self.mode == sdutil.RuleInductionType.REGRESSION:
             self.clf = tree.DecisionTreeRegressor(min_samples_leaf=min_samples)
         else:
-            self.clf = tree.DecisionTreeClassifier(
-                min_samples_leaf=min_samples)
+            self.clf = tree.DecisionTreeClassifier(min_samples_leaf=min_samples)
         self.clf.fit(self._x, self.y)
 
-    def show_tree(self, mplfig=True, format='png'):
+    def show_tree(self, mplfig=True, format="png"):
         """return a png of the tree
 
         Parameters
@@ -301,8 +302,9 @@ class CART(sdutil.OutputFormatterMixin):
         import pydot  # dirty hack for read the docs
 
         dot_data = StringIO()
-        tree.export_graphviz(self.clf, out_file=dot_data,
-                             feature_names=self.feature_names)
+        tree.export_graphviz(
+            self.clf, out_file=dot_data, feature_names=self.feature_names
+        )
         dot_data = dot_data.getvalue()  # .encode('ascii') # @UndefinedVariable
         graphs = pydot.graph_from_dot_data(dot_data)
 
@@ -315,19 +317,20 @@ class CART(sdutil.OutputFormatterMixin):
 
         graph = graphs[0]
 
-        if format == 'png':
+        if format == "png":
             img = graph.create_png()
             if mplfig:
                 fig, ax = plt.subplots()
                 ax.imshow(mpimg.imread(io.BytesIO(img)))
-                ax.axis('off')
+                ax.axis("off")
                 return fig
-        elif format == 'svg':
+        elif format == "svg":
             img = graph.create_svg()
         else:
-            raise TypeError('''format must be in {'png', 'svg'}''')
+            raise TypeError("""format must be in {'png', 'svg'}""")
 
         return img
+
 
 # if __name__ == '__main__':
 #     from test import test_utilities

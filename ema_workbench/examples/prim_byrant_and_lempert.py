@@ -11,7 +11,7 @@ from ema_workbench.util import ema_logging
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 
-data = pd.read_csv('./data/bryant et al 2010 data.csv', index_col=False)
+data = pd.read_csv("./data/bryant et al 2010 data.csv", index_col=False)
 x = data.iloc[:, 2:11]
 y = data.iloc[:, 15].values
 
@@ -21,7 +21,7 @@ box1 = prim_alg.find_box()
 box1.show_tradeoff()
 print(box1.resample(21))
 box1.inspect(21)
-box1.inspect(21, style='graph')
+box1.inspect(21, style="graph")
 box1.show_pairs_scatter(21)
 
 plt.show()

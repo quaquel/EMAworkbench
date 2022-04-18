@@ -34,7 +34,7 @@ from ..util.ema_logging import method_logger
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['NetLogoModel']
+__all__ = ["NetLogoModel"]
 _logger = get_module_logger(__name__)
 
 
@@ -58,19 +58,27 @@ class BaseNetLogoModel(FileModel):
     @property
     def ts_output_variables(self):
         if self._ts_output_variables is None:
-            timeseries = [o for o in self.outcomes if
-                          isinstance(o, TimeSeriesOutcome)]
+            timeseries = [o for o in self.outcomes if isinstance(o, TimeSeriesOutcome)]
 
-            self._ts_output_variables = [var for o in timeseries for var in
-                                         o.variable_name]
+            self._ts_output_variables = [
+                var for o in timeseries for var in o.variable_name
+            ]
 
         return self._ts_output_variables
 
     command_format = "set {0} {1}"
 
-    def __init__(self, name, wd=None, model_file=None, netlogo_home=None,
-                 netlogo_version=None, jvm_home=None, gui=False,
-                 jvmargs=[]):
+    def __init__(
+        self,
+        name,
+        wd=None,
+        model_file=None,
+        netlogo_home=None,
+        netlogo_version=None,
+        jvm_home=None,
+        gui=False,
+        jvmargs=[],
+    ):
         """
         init of class
 
@@ -104,8 +112,7 @@ class BaseNetLogoModel(FileModel):
         separate working directory prior to calling `model_init`.
 
         """
-        super(BaseNetLogoModel, self).__init__(name, wd=wd,
-                                               model_file=model_file)
+        super(BaseNetLogoModel, self).__init__(name, wd=wd, model_file=model_file)
 
         self.run_length = None
         self.netlogo_home = netlogo_home
@@ -128,13 +135,15 @@ class BaseNetLogoModel(FileModel):
 
         """
         super(BaseNetLogoModel, self).model_init(policy)
-        if not hasattr(self, 'netlogo'):
+        if not hasattr(self, "netlogo"):
             _logger.debug("trying to start NetLogo")
             self.netlogo = pyNetLogo.NetLogoLink(
                 netlogo_home=self.netlogo_home,
                 netlogo_version=self.netlogo_version,
                 jvm_home=self.jvm_home,
-                gui=self.gui, jvmargs=self.jvmargs)
+                gui=self.gui,
+                jvmargs=self.jvmargs,
+            )
             _logger.debug("netlogo started")
         path = os.path.join(self.working_directory, self.model_file)
         self.netlogo.load_model(path)
@@ -162,9 +171,7 @@ class BaseNetLogoModel(FileModel):
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:
-                _logger.warning(
-                    'variable {} throws exception: {}'.format(
-                        key, str(e)))
+                _logger.warning("variable {} throws exception: {}".format(key, str(e)))
 
         _logger.debug("model parameters set successfully")
 
@@ -178,25 +185,21 @@ class BaseNetLogoModel(FileModel):
         commands = []
         fns = {}
         for variable in self.ts_output_variables:
-            fn = r'{0}{3}{1}{2}'.format(self.working_directory,
-                                        variable,
-                                        ".txt",
-                                        os.sep)
+            fn = r"{0}{3}{1}{2}".format(
+                self.working_directory, variable, ".txt", os.sep
+            )
             fns[variable] = fn
             fn = '"{}"'.format(fn)
-            fn = fn.replace(os.sep, '/')
+            fn = fn.replace(os.sep, "/")
 
-            if self.netlogo.report('is-agentset? {}'.format(variable)):
+            if self.netlogo.report("is-agentset? {}".format(variable)):
                 # if name is name of an agentset, we
                 # assume that we should count the total number of agents
-                nc = r'file-open {0} file-write count {1}'.format(fn,
-                                                                  variable,
-                                                                  )
+                nc = r"file-open {0} file-write count {1}".format(fn, variable,)
             else:
                 # it is not an agentset, so assume that it is
                 # a reporter / global variable
-                nc = r'file-open {0} file-write {1}'.format(fn,
-                                                            variable)
+                nc = r"file-open {0} file-write {1}".format(fn, variable)
             commands.append(nc)
 
         c_start = "repeat {} [".format(self.run_length)
@@ -216,8 +219,7 @@ class BaseNetLogoModel(FileModel):
         results = self._handle_outcomes(fns)
 
         # handle non time series outcomes
-        non_ts_vars = set(self.output_variables) - \
-                      set(self.ts_output_variables)
+        non_ts_vars = set(self.output_variables) - set(self.ts_output_variables)
         for variable in set(non_ts_vars):
             try:
                 data = self.netlogo.report(variable)

@@ -12,7 +12,7 @@ from collections import defaultdict
 from .points import ExperimentReplication
 from .outcomes import AbstractOutcome
 from .parameters import Parameter, Constant, CategoricalParameter
-from .util import (NamedObject, combine, NamedObjectMapDescriptor)
+from .util import NamedObject, combine, NamedObjectMapDescriptor
 from ..util import EMAError
 from ..util.ema_logging import method_logger, get_module_logger
 
@@ -21,8 +21,14 @@ from ..util.ema_logging import method_logger, get_module_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 #
 
-__all__ = ['AbstractModel', 'Model', 'FileModel', 'Replicator',
-           'SingleReplication', 'ReplicatorModel']
+__all__ = [
+    "AbstractModel",
+    "Model",
+    "FileModel",
+    "Replicator",
+    "SingleReplication",
+    "ReplicatorModel",
+]
 _logger = get_module_logger(__name__)
 
 
@@ -64,8 +70,9 @@ class AbstractModel(NamedObject):
     @property
     def output_variables(self):
         if self._output_variables is None:
-            self._output_variables = [var for o in self.outcomes for var in
-                                      o.variable_name]
+            self._output_variables = [
+                var for o in self.outcomes for var in o.variable_name
+            ]
 
         return self._output_variables
 
@@ -91,8 +98,9 @@ class AbstractModel(NamedObject):
         super(AbstractModel, self).__init__(name)
 
         if not self.name.isalnum():
-            raise EMAError(("name of model should only contain "
-                            "alpha numerical characters"))
+            raise EMAError(
+                ("name of model should only contain " "alpha numerical characters")
+            )
 
         self._output_variables = None
         self._outcomes_output = {}
@@ -144,7 +152,7 @@ class AbstractModel(NamedObject):
                 if par.default is not None:
                     value = par.default
                 else:
-                    _logger.debug('{} not found'.format(par.name))
+                    _logger.debug("{} not found".format(par.name))
                     continue
 
             multivalue = False
@@ -203,7 +211,7 @@ class AbstractModel(NamedObject):
         -------
         dict with the results of a model run.
         """
-        warnings.warn('deprecated, use model.output instead')
+        warnings.warn("deprecated, use model.output instead")
         return self.output
 
     @method_logger(__name__)
@@ -233,24 +241,28 @@ class AbstractModel(NamedObject):
         """returns a dict representation of the model"""
 
         def join_attr(field):
-            joined = ', '.join([repr(entry) for entry in sorted(
-                field, key=operator.attrgetter('name'))])
-            return '[{}]'.format(joined)
+            joined = ", ".join(
+                [
+                    repr(entry)
+                    for entry in sorted(field, key=operator.attrgetter("name"))
+                ]
+            )
+            return "[{}]".format(joined)
 
         model_spec = {}
 
         klass = self.__class__.__name__
         name = self.name
 
-        uncs = ''
+        uncs = ""
         for uncertainty in self.uncertainties:
-            uncs += '\n' + repr(uncertainty)
+            uncs += "\n" + repr(uncertainty)
 
-        model_spec['class'] = klass
-        model_spec['name'] = name
-        model_spec['uncertainties'] = join_attr(self.uncertainties)
-        model_spec['outcomes'] = join_attr(self.outcomes)
-        model_spec['constants'] = join_attr(self.constants)
+        model_spec["class"] = klass
+        model_spec["name"] = name
+        model_spec["uncertainties"] = join_attr(self.uncertainties)
+        model_spec["outcomes"] = join_attr(self.outcomes)
+        model_spec["constants"] = join_attr(self.constants)
 
         return model_spec
 
@@ -262,7 +274,6 @@ class MyDict(dict):
 
 
 class Replicator(AbstractModel):
-
     @property
     def replications(self):
         return self._replications
@@ -283,8 +294,8 @@ class Replicator(AbstractModel):
             self.nreplications = len(replications)
         else:
             raise TypeError(
-                "replications should be int or list not {}".format(
-                    type(replications)))
+                "replications should be int or list not {}".format(type(replications))
+            )
 
     @method_logger(__name__)
     def run_model(self, scenario, policy):
@@ -305,8 +316,7 @@ class Replicator(AbstractModel):
         for i, rep in enumerate(self.replications):
             _logger.debug("replication {}".format(i))
             rep.id = i
-            experiment = ExperimentReplication(scenario, self.policy,
-                                               constants, rep)
+            experiment = ExperimentReplication(scenario, self.policy, constants, rep)
             output = self.run_experiment(experiment)
             for key, value in output.items():
                 outputs[key].append(value)
@@ -316,12 +326,10 @@ class Replicator(AbstractModel):
         # perhaps set constraints with the outcomes instead
         # this avoids double processing, it also means that
         # each constraint needs to apply to an actual outcome
-        self.constraints_output = (partial_experiment,
-                                   self.outcomes_output)
+        self.constraints_output = (partial_experiment, self.outcomes_output)
 
 
 class SingleReplication(AbstractModel):
-
     @method_logger(__name__)
     def run_model(self, scenario, policy):
         """
@@ -379,7 +387,7 @@ class BaseModel(AbstractModel):
         super(BaseModel, self).__init__(name)
 
         if not callable(function):
-            raise ValueError('function should be callable')
+            raise ValueError("function should be callable")
 
         self.function = function
 
@@ -403,7 +411,7 @@ class BaseModel(AbstractModel):
             try:
                 value = model_output[variable]
             except KeyError:
-                _logger.warning(variable + ' not found in model output')
+                _logger.warning(variable + " not found in model output")
                 value = None
             except TypeError:
                 value = model_output[i]
@@ -412,7 +420,7 @@ class BaseModel(AbstractModel):
 
     def as_dict(self):
         model_specs = super(BaseModel, self).as_dict()
-        model_specs['function'] = self.function
+        model_specs["function"] = self.function
         return model_specs
 
 
@@ -426,7 +434,7 @@ class WorkingDirectoryModel(AbstractModel):
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
-        _logger.debug('setting working directory to ' + wd)
+        _logger.debug("setting working directory to " + wd)
         self._working_directory = wd
 
     def __init__(self, name, wd=None):
@@ -449,17 +457,15 @@ class WorkingDirectoryModel(AbstractModel):
         self.working_directory = wd
 
         if not os.path.exists(self.working_directory):
-            raise ValueError("{} does not exist".format(
-                self.working_directory))
+            raise ValueError("{} does not exist".format(self.working_directory))
 
     def as_dict(self):
         model_specs = super(WorkingDirectoryModel, self).as_dict()
-        model_specs['working_directory'] = self.working_directory
+        model_specs["working_directory"] = self.working_directory
         return model_specs
 
 
 class FileModel(WorkingDirectoryModel):
-
     @property
     def working_directory(self):
         return self._working_directory
@@ -467,7 +473,7 @@ class FileModel(WorkingDirectoryModel):
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
-        _logger.debug('setting working directory to ' + wd)
+        _logger.debug("setting working directory to " + wd)
         self._working_directory = wd
 
     def __init__(self, name, wd=None, model_file=None):
@@ -506,17 +512,21 @@ class FileModel(WorkingDirectoryModel):
 
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
-            raise ValueError('cannot find model file')
+            raise ValueError("cannot find model file")
 
         if os.getcwd() == self.working_directory:
-            raise ValueError(("the working directory of the model cannot be "
-                              "the same as the current working directory"))
+            raise ValueError(
+                (
+                    "the working directory of the model cannot be "
+                    "the same as the current working directory"
+                )
+            )
 
         self.model_file = model_file
 
     def as_dict(self):
         model_specs = super(FileModel, self).as_dict()
-        model_specs['model_file'] = self.model_file
+        model_specs["model_file"] = self.model_file
         return model_specs
 
 

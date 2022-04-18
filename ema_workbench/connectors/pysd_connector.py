@@ -9,7 +9,7 @@ from ema_workbench.em_framework.model import SingleReplication
 from ema_workbench.util.ema_logging import method_logger
 from ..em_framework.model import AbstractModel
 
-__all__ = ['PysdModel']
+__all__ = ["PysdModel"]
 
 
 class BasePysdModel(AbstractModel):
@@ -35,20 +35,20 @@ class BasePysdModel(AbstractModel):
 
     @mdl_file.setter
     def mdl_file(self, mdl_file):
-        if not mdl_file.endswith('.mdl'):
-            raise ValueError('model file needs to be a vensim .mdl file')
+        if not mdl_file.endswith(".mdl"):
+            raise ValueError("model file needs to be a vensim .mdl file")
         if not os.path.isfile(mdl_file):
-            raise ValueError('mdl_file not found')
+            raise ValueError("mdl_file not found")
 
         # Todo: replace when pysd adds an attribute for the .py filename
-        self.py_model_name = mdl_file.replace('.mdl', '.py')
+        self.py_model_name = mdl_file.replace(".mdl", ".py")
         self._mdl_file = mdl_file
 
     def __init__(self, name=None, mdl_file=None):
         self.mdl_file = mdl_file
         if name is None:
             name = pysd.utils.make_python_identifier(mdl_file)[0]
-            name = name.replace('_', '')
+            name = name.replace("_", "")
         super(BasePysdModel, self).__init__(name)
 
     @method_logger(__name__)
@@ -61,8 +61,7 @@ class BasePysdModel(AbstractModel):
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        res = self.model.run(params=experiment,
-                             return_columns=self.output_variables)
+        res = self.model.run(params=experiment, return_columns=self.output_variables)
 
         # EMA wants output formatted properly
         output = {col: series.values for col, series in res.iteritems()}

@@ -16,15 +16,17 @@ from logging import DEBUG, INFO
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['get_rootlogger',
-           'get_module_logger',
-           'log_to_stderr',
-           'temporary_filter',
-           'DEBUG',
-           'INFO',
-           'DEFAULT_LEVEL',
-           'LOGGER_NAME',
-           'method_logger']
+__all__ = [
+    "get_rootlogger",
+    "get_module_logger",
+    "log_to_stderr",
+    "temporary_filter",
+    "DEBUG",
+    "INFO",
+    "DEFAULT_LEVEL",
+    "LOGGER_NAME",
+    "method_logger",
+]
 LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
 INFO = INFO
@@ -54,11 +56,10 @@ _rootlogger = None
 _module_loggers = {}
 _logger = get_module_logger(__name__)
 
-LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
+LOG_FORMAT = "[%(processName)s/%(levelname)s] %(message)s"
 
 
 class TemporaryFilter(logging.Filter):
-
     def __init__(self, *args, level=0, funcname=None, **kwargs):
         super(TemporaryFilter, self).__init__(*args, **kwargs)
         self.level = level
@@ -111,17 +112,16 @@ def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
 
     # make a list equal lengths?
     if len(names) < max_length:
-        names = [name, ] * max_length
+        names = [name,] * max_length
     if len(levels) < max_length:
-        levels = [level, ] * max_length
+        levels = [level,] * max_length
     if len(functnames) < max_length:
-        functnames = [functname, ] * max_length
+        functnames = [functname,] * max_length
 
     filters = {}
     for name, level, functname in zip(names, levels, functnames):
         logger = get_module_logger(name)
-        filter = TemporaryFilter(level=level,
-                                 funcname=functname)  # @ReservedAssignment
+        filter = TemporaryFilter(level=level, funcname=functname)  # @ReservedAssignment
 
         if logger == _logger:
             # root logger, add filter to handler rather than logger
@@ -148,11 +148,9 @@ def method_logger(name):
         def wrapper(*args, **kwargs):
             # hack, because log is applied to methods, we can get
             # object instance as first arguments in args
-            logger.debug('calling {} on {}'.format(func.__name__, classname))
+            logger.debug("calling {} on {}".format(func.__name__, classname))
             res = func(*args, **kwargs)
-            logger.debug(
-                'completed calling {} on {}'.format(
-                    func.__name__, classname))
+            logger.debug("completed calling {} on {}".format(func.__name__, classname))
             return res
 
         return wrapper
@@ -198,8 +196,9 @@ def log_to_stderr(level=None):
 
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
-        if (isinstance(entry, logging.StreamHandler)) and \
-                (entry.formatter._fmt == LOG_FORMAT):
+        if (isinstance(entry, logging.StreamHandler)) and (
+            entry.formatter._fmt == LOG_FORMAT
+        ):
             return logger
 
     formatter = logging.Formatter(LOG_FORMAT)

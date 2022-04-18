@@ -9,9 +9,9 @@ import numpy as np
 import clr  # @UnresolvedImport
 
 # TODO:: do some auto discovery here analogue to netlogo?
-sys.path.append('C:/Program Files (x86)/Simio')
-clr.AddReference('SimioDLL')
-clr.AddReference('SimioAPI')
+sys.path.append("C:/Program Files (x86)/Simio")
+clr.AddReference("SimioDLL")
+clr.AddReference("SimioAPI")
 import SimioAPI  # @UnresolvedImport
 
 from ema_workbench.em_framework import FileModel, SingleReplication
@@ -21,7 +21,7 @@ from ema_workbench.util.ema_logging import get_module_logger, method_logger
 # Created on 27 June 2019
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-__all__ = ['SimioModel']
+__all__ = ["SimioModel"]
 _logger = get_module_logger(__name__)
 
 
@@ -58,8 +58,9 @@ class SimioModel(FileModel, SingleReplication):
     """
 
     @method_logger(__name__)
-    def __init__(self, name, wd=None, model_file=None, main_model=None,
-                 n_replications=10):
+    def __init__(
+        self, name, wd=None, model_file=None, main_model=None, n_replications=10
+    ):
         """interface to the model
 
         Parameters
@@ -97,12 +98,13 @@ class SimioModel(FileModel, SingleReplication):
     @method_logger(__name__)
     def model_init(self, policy):
         super(SimioModel, self).model_init(policy)
-        _logger.debug('initializing model')
+        _logger.debug("initializing model")
 
         # get project
         path_to_file = os.path.join(self.working_directory, self.model_file)
         self.project = SimioAPI.ISimioProject(
-            SimioAPI.SimioProjectFactory.LoadProject(path_to_file))
+            SimioAPI.SimioProjectFactory.LoadProject(path_to_file)
+        )
         self.policy = policy
 
         # get model
@@ -110,15 +112,20 @@ class SimioModel(FileModel, SingleReplication):
         model = models.get_Item(self.main_model_name)
 
         if not model:
-            raise EMAError((f'''main model with name {self.main_model_name} '
-                            'not found'''))
+            raise EMAError(
+                (
+                    f"""main model with name {self.main_model_name} '
+                            'not found"""
+                )
+            )
 
         self.model = SimioAPI.IModel(model)
 
         # set up new EMA specific experiment on model
-        _logger.debug('setting up EMA experiment')
+        _logger.debug("setting up EMA experiment")
         self.experiment = SimioAPI.IExperiment(
-            model.Experiments.Create('ema experiment'))
+            model.Experiments.Create("ema experiment")
+        )
         SimioAPI.IExperimentResponses(self.experiment.Responses).Clear()
 
         # use all available responses as template for experiment responses
@@ -130,10 +137,11 @@ class SimioModel(FileModel, SingleReplication):
                 try:
                     value = responses[name]
                 except KeyError:
-                    raise EMAError(f'response with name \'{name}\' not found')
+                    raise EMAError(f"response with name '{name}' not found")
 
                 response = SimioAPI.IExperimentResponse(
-                    self.experiment.Responses.Create(name))
+                    self.experiment.Responses.Create(name)
+                )
                 response.set_Expression(value.Expression)
                 response.set_Objective(value.Objective)
 
@@ -150,39 +158,43 @@ class SimioModel(FileModel, SingleReplication):
 
             self.control_map[control.Name] = control
 
-        _logger.debug('model initialized successfully')
+        _logger.debug("model initialized successfully")
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
         self.case = experiment
-        _logger.debug('Setup SIMIO scenario')
+        _logger.debug("Setup SIMIO scenario")
 
         scenario = self.scenarios.Create()
         scenario.ReplicationsRequired = self.n_replications
-        _logger.debug(f'nr. of scenarios is {self.scenarios.Count}')
+        _logger.debug(f"nr. of scenarios is {self.scenarios.Count}")
 
         for key, value in experiment.items():
             try:
                 control = self.control_map[key]
             except KeyError:
-                raise EMAError(('''uncertainty not specified as '
-                                  'control in simio model'''))
+                raise EMAError(
+                    (
+                        """uncertainty not specified as '
+                                  'control in simio model"""
+                    )
+                )
             else:
                 ret = scenario.SetControlValue(control, str(value))
 
                 if ret:
-                    _logger.debug(f'{key} set successfully')
+                    _logger.debug(f"{key} set successfully")
                 else:
-                    raise CaseError(f'failed to set {key}', self.case)
+                    raise CaseError(f"failed to set {key}", self.case)
 
-        _logger.debug('SIMIO scenario setup completed')
+        _logger.debug("SIMIO scenario setup completed")
 
         self.experiment.ScenarioEnded += self.scenario_ended
         self.experiment.RunCompleted += self.run_completed
 
-        _logger.debug('preparing to run model')
+        _logger.debug("preparing to run model")
         self.experiment.Run()
-        _logger.debug('run completed')
+        _logger.debug("run completed")
         return self.output
 
     @method_logger(__name__)
@@ -209,8 +221,12 @@ class SimioModel(FileModel, SingleReplication):
         experiment = SimioAPI.IExperiment(sender)
         scenario = SimioAPI.IScenario(scenario_ended_event.Scenario)
 
-        _logger.debug((f'''scenario {scenario.Name} for experiment '
-                       '{experiment.Name} completed'''))
+        _logger.debug(
+            (
+                f"""scenario {scenario.Name} for experiment '
+                       '{experiment.Name} completed"""
+            )
+        )
         responses = experiment.Scenarios.get_Responses()
 
         # http://stackoverflow.com/questions/16484167/python-net-framework-reference-argument-double
@@ -222,19 +238,22 @@ class SimioModel(FileModel, SingleReplication):
         # results = data
 
         for response in responses:
-            _logger.debug(f'{response}')
+            _logger.debug(f"{response}")
             response_value = 0.0
 
             replication_scores = []
-            for replication in range(1, self.n_replications+1):
+            for replication in range(1, self.n_replications + 1):
                 try:
-                    success, value = \
-                        scenario.GetResponseValueForReplication(response,
-                                                                replication,
-                                                                response_value)
+                    success, value = scenario.GetResponseValueForReplication(
+                        response, replication, response_value
+                    )
                 except TypeError:
-                    _logger.warning((f'''type error when trying to get a '
-                                             'response for {response.Name}'''))
+                    _logger.warning(
+                        (
+                            f"""type error when trying to get a '
+                                             'response for {response.Name}"""
+                        )
+                    )
                     raise
 
                 if success:
@@ -250,7 +269,7 @@ class SimioModel(FileModel, SingleReplication):
     def run_completed(self, sender, run_completed_event):
         """run completed event handler"""
 
-        _logger.debug('run completed')
+        _logger.debug("run completed")
 
         # This event handler is the last one to be called during the run.
         # When running async, this is the correct place to shut things down.

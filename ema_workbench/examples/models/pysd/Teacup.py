@@ -10,22 +10,22 @@ from pysd.py_backend.functions import cache
 _subscript_dict = {}
 
 _namespace = {
-    'TIME': 'time',
-    'Time': 'time',
-    'Characteristic Time': 'characteristic_time',
-    'Heat Loss to Room': 'heat_loss_to_room',
-    'Room Temperature': 'room_temperature',
-    'Teacup Temperature': 'teacup_temperature',
-    'FINAL TIME': 'final_time',
-    'INITIAL TIME': 'initial_time',
-    'SAVEPER': 'saveper',
-    'TIME STEP': 'time_step'
+    "TIME": "time",
+    "Time": "time",
+    "Characteristic Time": "characteristic_time",
+    "Heat Loss to Room": "heat_loss_to_room",
+    "Room Temperature": "room_temperature",
+    "Teacup Temperature": "teacup_temperature",
+    "FINAL TIME": "final_time",
+    "INITIAL TIME": "initial_time",
+    "SAVEPER": "saveper",
+    "TIME STEP": "time_step",
 }
 
 __pysd_version__ = "0.9.0"
 
 
-@cache('run')
+@cache("run")
 def characteristic_time():
     """
     Real Name: Characteristic Time
@@ -39,7 +39,7 @@ def characteristic_time():
     return 10
 
 
-@cache('step')
+@cache("step")
 def heat_loss_to_room():
     """
     Real Name: Heat Loss to Room
@@ -54,7 +54,7 @@ def heat_loss_to_room():
     return (teacup_temperature() - room_temperature()) / characteristic_time()
 
 
-@cache('run')
+@cache("run")
 def room_temperature():
     """
     Real Name: Room Temperature
@@ -68,7 +68,7 @@ def room_temperature():
     return 70
 
 
-@cache('step')
+@cache("step")
 def teacup_temperature():
     """
     Real Name: Teacup Temperature
@@ -82,7 +82,7 @@ def teacup_temperature():
     return integ_teacup_temperature()
 
 
-@cache('run')
+@cache("run")
 def final_time():
     """
     Real Name: FINAL TIME
@@ -96,7 +96,7 @@ def final_time():
     return 30
 
 
-@cache('run')
+@cache("run")
 def initial_time():
     """
     Real Name: INITIAL TIME
@@ -110,7 +110,7 @@ def initial_time():
     return 0
 
 
-@cache('step')
+@cache("step")
 def saveper():
     """
     Real Name: SAVEPER
@@ -124,7 +124,7 @@ def saveper():
     return time_step()
 
 
-@cache('run')
+@cache("run")
 def time_step():
     """
     Real Name: TIME STEP
@@ -138,5 +138,4 @@ def time_step():
     return 0.125
 
 
-integ_teacup_temperature = functions.Integ(
-    lambda: -heat_loss_to_room(), lambda: 180)
+integ_teacup_temperature = functions.Integ(lambda: -heat_loss_to_room(), lambda: 180)

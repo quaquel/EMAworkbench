@@ -21,7 +21,7 @@ from . import scenario_discovery_util as sdutil
 from .prim_util import CurEntry
 from ..util import get_module_logger
 
-__all__ = ['Logit']
+__all__ = ["Logit"]
 
 _logger = get_module_logger(__name__)
 
@@ -49,8 +49,7 @@ def calculate_covden(fitted_model, x, y, step=0.1):
     density = []
     thresholds = np.arange(0, 1 + step, step)
     for threshold in thresholds:
-        precision, recall = calculate_covden_for_treshold(predicted, y,
-                                                          threshold)
+        precision, recall = calculate_covden_for_treshold(predicted, y, threshold)
 
         density.append(precision)
         coverage.append(recall)
@@ -82,17 +81,15 @@ def contours(ax, model, xlabel, ylabel, levels):
 
     """
 
-    Xgrid, Ygrid = np.meshgrid(np.arange(-0.1, 1.1, 0.01),
-                               np.arange(-0.1, 1.1, 0.01))
+    Xgrid, Ygrid = np.meshgrid(np.arange(-0.1, 1.1, 0.01), np.arange(-0.1, 1.1, 0.01))
 
     xflatten = Xgrid.flatten()
     yflatten = Ygrid.flatten()
 
     shape = xflatten.shape[0], len(model.params.index)
-    data = pd.DataFrame(np.ones(shape),
-                        columns=model.params.index)
+    data = pd.DataFrame(np.ones(shape), columns=model.params.index)
     cols = model.params.index.values.tolist()
-    cols.remove('Intercept')
+    cols.remove("Intercept")
 
     base_data = data.copy()
     base_data.loc[:, cols] = data.loc[:, cols].multiply(0.5)
@@ -109,10 +106,10 @@ def contours(ax, model, xlabel, ylabel, levels):
     # rgb = [255*entry for entry in sns.color_palette()[1]]
     # hsl = 28, 100, 52.7
 
-    cmap = sns.diverging_palette(244, 28, s=99.9, l=52.7, n=len(levels) - 1,
-                                 as_cmap=True)
-    ax.contourf(Xgrid, Ygrid, Zgrid, levels,
-                cmap=cmap, zorder=0)
+    cmap = sns.diverging_palette(
+        244, 28, s=99.9, l=52.7, n=len(levels) - 1, as_cmap=True
+    )
+    ax.contourf(Xgrid, Ygrid, Zgrid, levels, cmap=cmap, zorder=0)
 
 
 class Logit(object):
@@ -142,13 +139,14 @@ class Logit(object):
                trajectory
 
     """
+
     # TODO:: peeling trajectory is a misnomer, requires fix to CurEntry
 
-    coverage = CurEntry('coverage')
-    density = CurEntry('density')
-    res_dim = CurEntry('res_dim')
+    coverage = CurEntry("coverage")
+    density = CurEntry("density")
+    res_dim = CurEntry("res_dim")
 
-    sep = '!?!'
+    sep = "!?!"
 
     @property
     def threshold(self):
@@ -159,18 +157,17 @@ class Logit(object):
         self._threshold = value
 
         for i, model in enumerate(self.models):
-            predicted = model.predict(self._normalized.loc[:,
-                                      model.params.index])
+            predicted = model.predict(self._normalized.loc[:, model.params.index])
 
             den, cov = calculate_covden_for_treshold(predicted, self.y, value)
-            self.peeling_trajectory.loc[i, 'coverage'] = cov
-            self.peeling_trajectory.loc[i, 'density'] = den
+            self.peeling_trajectory.loc[i, "coverage"] = cov
+            self.peeling_trajectory.loc[i, "density"] = den
 
     def __init__(self, x, y, threshold=0.95):
         try:
             # x = x.drop(["scenario"], axis=1)
-            columns_to_drop = ['scenario']
-            for entry in ['model', 'policy']:
+            columns_to_drop = ["scenario"]
+            for entry in ["model", "policy"]:
                 if x[entry].unique().shape[0] == 1:
                     columns_to_drop.append(entry)
             x = x.drop(columns_to_drop, axis=1)
@@ -186,19 +183,17 @@ class Logit(object):
         dummies = pd.get_dummies(x, prefix_sep=self.sep)
 
         self.dummiesmap = {}
-        for column, values in self.x.select_dtypes(
-                exclude=np.number).iteritems():
+        for column, values in self.x.select_dtypes(exclude=np.number).iteritems():
             mapping = {str(entry): entry for entry in values.unique()}
             self.dummiesmap[column] = mapping
 
         self.feature_names = dummies.columns.values.tolist()
 
-        normalized = (dummies - dummies.min()) / (
-                    dummies.max() - dummies.min())
-        normalized['Intercept'] = np.ones(np.shape(x)[0])
+        normalized = (dummies - dummies.min()) / (dummies.max() - dummies.min())
+        normalized["Intercept"] = np.ones(np.shape(x)[0])
         self._normalized = normalized
 
-        columns = ['coverage', 'density', 'res_dim', 'id']
+        columns = ["coverage", "density", "res_dim", "id"]
         self.peeling_trajectory = pd.DataFrame(columns=columns)
 
     def run(self):
@@ -214,8 +209,7 @@ class Logit(object):
         while remaining and current_score == best_new_score:
             scores_with_candidates = []
             for candidate in remaining:
-                data = self._normalized.loc[:,
-                       selected + [candidate, 'Intercept']]
+                data = self._normalized.loc[:, selected + [candidate, "Intercept"]]
                 model = sm.Logit(self.y, data.astype(float))
 
                 try:
@@ -248,21 +242,17 @@ class Logit(object):
 
         """
 
-        predicted = model.predict(self._normalized.loc[:,
-                                  selected + ['Intercept']])
-        den, cov = calculate_covden_for_treshold(predicted, self.y,
-                                                 self.threshold)
+        predicted = model.predict(self._normalized.loc[:, selected + ["Intercept"]])
+        den, cov = calculate_covden_for_treshold(predicted, self.y, self.threshold)
 
         self.models.append(model)
         i = self.peeling_trajectory.shape[0]
 
-        data = {'coverage': cov,
-                'density': den,
-                'res_dim': len(selected),
-                'id': i}
+        data = {"coverage": cov, "density": den, "res_dim": len(selected), "id": i}
         new_row = pd.DataFrame([data])
         self.peeling_trajectory = self.peeling_trajectory.append(
-            new_row, ignore_index=True, sort=True)
+            new_row, ignore_index=True, sort=True
+        )
 
     def show_tradeoff(self, cmap=mpl.cm.viridis):  # @UndefinedVariable
         """Visualize the trade off between coverage and density. Color
@@ -299,28 +289,24 @@ class Logit(object):
 
         fitted_model = self.models[i]
         x = self._normalized.loc[:, fitted_model.params.index.values]
-        coverage, density, thresholds = calculate_covden(fitted_model, x,
-                                                         self.y, step=step)
+        coverage, density, thresholds = calculate_covden(
+            fitted_model, x, self.y, step=step
+        )
 
         fig = plt.figure()
-        ax = fig.add_subplot(111, aspect='equal')
+        ax = fig.add_subplot(111, aspect="equal")
 
         ncolors = cmap.N
         norm = mpl.colors.BoundaryNorm(thresholds, ncolors)
 
-        p = ax.scatter(coverage,
-                       density,
-                       c=thresholds,
-                       norm=norm,
-                       cmap=cmap)
-        ax.set_ylabel('density')
-        ax.set_xlabel('coverage')
+        p = ax.scatter(coverage, density, c=thresholds, norm=norm, cmap=cmap)
+        ax.set_ylabel("density")
+        ax.set_xlabel("coverage")
         ax.set_ylim(bottom=0, top=1.2)
         ax.set_xlim(left=0, right=1.2)
 
         ticklocs = thresholds
-        cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs,
-                          drawedges=True)
+        cb = fig.colorbar(p, spacing="uniform", ticks=ticklocs, drawedges=True)
         cb.set_label("thresholds")
 
         return fig
@@ -338,11 +324,10 @@ class Logit(object):
 
         model = self.models[i]
         x = self._normalized.loc[:, model.params.index.values]
-        coverage, density, thresholds = calculate_covden(model, x,
-                                                         self.y, step=step)
-        data = pd.DataFrame({'coverage': coverage,
-                             'density': density,
-                             'thresholds': thresholds})
+        coverage, density, thresholds = calculate_covden(model, x, self.y, step=step)
+        data = pd.DataFrame(
+            {"coverage": coverage, "density": density, "thresholds": thresholds}
+        )
         print(data)
         print()
 
@@ -375,7 +360,7 @@ class Logit(object):
         model = self.models[i]
 
         columns = model.params.index.values.tolist()
-        columns.remove('Intercept')
+        columns.remove("Intercept")
         x = self._normalized[columns]
         data = x.copy()
 
@@ -383,8 +368,8 @@ class Logit(object):
         # diag to CDF, gives you effectively the
         # regional sensitivity analysis results
 
-        data['y'] = self.y  # for testing
-        grid = sns.PairGrid(data=data, hue='y', vars=columns)
+        data["y"] = self.y  # for testing
+        grid = sns.PairGrid(data=data, hue="y", vars=columns)
         grid.map_lower(plt.scatter, s=5)
         grid.map_diag(sns.kdeplot, shade=True)
         grid.add_legend()

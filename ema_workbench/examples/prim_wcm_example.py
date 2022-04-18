@@ -19,7 +19,7 @@ default_flow = 2.178849944502783e7
 
 
 def classify(outcomes):
-    ooi = 'throughput Rotterdam'
+    ooi = "throughput Rotterdam"
     outcome = outcomes[ooi]
     outcome = outcome / default_flow
 
@@ -27,7 +27,7 @@ def classify(outcomes):
     return classes
 
 
-fn = r'./data/5000 runs WCM.tar.gz'
+fn = r"./data/5000 runs WCM.tar.gz"
 results = load_results(fn)
 
 prim_obj = prim.setup_prim(results, classify, mass_min=0.05, threshold=0.75)

@@ -15,24 +15,28 @@ import scipy.stats as stats
 
 from ema_workbench.em_framework import util
 from ema_workbench.em_framework.points import Policy, Scenario, Point
-from ema_workbench.em_framework.parameters import (IntegerParameter,
-                                                   BooleanParameter,
-                                                   CategoricalParameter)
+from ema_workbench.em_framework.parameters import (
+    IntegerParameter,
+    BooleanParameter,
+    CategoricalParameter,
+)
 
 # Created on 16 aug. 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['AbstractSampler',
-           'LHSSampler',
-           'MonteCarloSampler',
-           'FullFactorialSampler',
-           'UniformLHSSampler',
-           'sample_parameters',
-           'sample_levers',
-           'sample_uncertainties',
-           'determine_parameters',
-           'DefaultDesigns']
+__all__ = [
+    "AbstractSampler",
+    "LHSSampler",
+    "MonteCarloSampler",
+    "FullFactorialSampler",
+    "UniformLHSSampler",
+    "sample_parameters",
+    "sample_levers",
+    "sample_uncertainties",
+    "determine_parameters",
+    "DefaultDesigns",
+]
 
 
 class AbstractSampler(object, metaclass=abc.ABCMeta):
@@ -90,8 +94,7 @@ class AbstractSampler(object, metaclass=abc.ABCMeta):
             dict with the parameter.name as key, and the sample as value
 
         """
-        return {param.name: self.sample(param.dist, size) for
-                param in parameters}
+        return {param.name: self.sample(param.dist, size) for param in parameters}
 
     def generate_designs(self, parameters, nr_samples):
         """external interface for Sampler. Returns the computational experiments
@@ -116,7 +119,7 @@ class AbstractSampler(object, metaclass=abc.ABCMeta):
             the number of experimental designs
 
         """
-        parameters = sorted(parameters, key=operator.attrgetter('name'))
+        parameters = sorted(parameters, key=operator.attrgetter("name"))
         sampled_parameters = self.generate_samples(parameters, nr_samples)
         designs = zip(*[sampled_parameters[u.name] for u in parameters])
         designs = DefaultDesigns(designs, parameters, nr_samples)
@@ -149,9 +152,9 @@ class LHSSampler(AbstractSampler):
 
         """
 
-        perc = np.arange(0, 1., 1. / size)
+        perc = np.arange(0, 1.0, 1.0 / size)
         np.random.shuffle(perc)
-        smp = stats.uniform(perc, 1. / size).rvs()
+        smp = stats.uniform(perc, 1.0 / size).rvs()
         samples = distribution.ppf(smp)
 
         # TODO::
@@ -164,7 +167,6 @@ class LHSSampler(AbstractSampler):
 
 
 class UniformLHSSampler(LHSSampler):
-
     def generate_samples(self, parameters, size):
         """
 
@@ -310,9 +312,7 @@ class FullFactorialSampler(AbstractSampler):
         for param in parameters:
             cats = param.resolution
             if not cats:
-                cats = np.linspace(param.lower_bound,
-                                   param.upper_bound,
-                                   size)
+                cats = np.linspace(param.lower_bound, param.upper_bound, size)
                 if isinstance(param, IntegerParameter):
                     cats = np.round(cats, 0)
                     cats = set(cats)
@@ -347,11 +347,10 @@ class FullFactorialSampler(AbstractSampler):
             the number of experimental designs
 
         """
-        parameters = sorted(parameters, key=operator.attrgetter('name'))
+        parameters = sorted(parameters, key=operator.attrgetter("name"))
 
         samples = self.generate_samples(parameters, nr_samples)
-        zipped_samples = itertools.product(
-            *[samples[u.name] for u in parameters])
+        zipped_samples = itertools.product(*[samples[u.name] for u in parameters])
 
         n_designs = self.determine_nr_of_designs(samples)
         designs = DefaultDesigns(zipped_samples, parameters, n_designs)
@@ -498,8 +497,7 @@ def determine_parameters(models, attribute, union=True):
     return util.determine_objects(models, attribute, union=union)
 
 
-def sample_parameters(parameters, n_samples, sampler=LHSSampler(),
-                      kind=Point):
+def sample_parameters(parameters, n_samples, sampler=LHSSampler(), kind=Point):
     """generate cases by sampling over the parameters
 
     Parameters
@@ -539,7 +537,7 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     generator yielding Policy instances
 
     """
-    levers = determine_parameters(models, 'levers', union=union)
+    levers = determine_parameters(models, "levers", union=union)
     return sample_parameters(levers, n_samples, sampler, Policy)
 
 
@@ -560,7 +558,7 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
     generator yielding Scenario instances
 
     """
-    uncertainties = determine_parameters(models, 'uncertainties', union=union)
+    uncertainties = determine_parameters(models, "uncertainties", union=union)
     return sample_parameters(uncertainties, n_samples, sampler, Policy)
 
 
@@ -614,23 +612,21 @@ def from_experiments(models, experiments):
         yielding Scenario instances
 
     """
-    policy_names = np.unique(experiments['policy'])
-    model_names = np.unique(experiments['model'])
+    policy_names = np.unique(experiments["policy"])
+    model_names = np.unique(experiments["model"])
 
     # we sample ff over models and policies so we need to ensure
     # we only get the experiments for a single model policy combination
-    logical = (experiments['model'] == model_names[0]) & \
-              (experiments['policy'] == policy_names[0])
+    logical = (experiments["model"] == model_names[0]) & (
+        experiments["policy"] == policy_names[0]
+    )
 
     experiments = experiments[logical]
 
-    uncertainties = util.determine_objects(models, 'uncertainties',
-                                           union=True)
-    samples = {unc.name: experiments[:, unc.name] for unc in
-               uncertainties}
+    uncertainties = util.determine_objects(models, "uncertainties", union=True)
+    samples = {unc.name: experiments[:, unc.name] for unc in uncertainties}
 
-    scenarios = DefaultDesigns(samples, uncertainties,
-                               experiments.shape[0])
+    scenarios = DefaultDesigns(samples, uncertainties, experiments.shape[0])
     scenarios.kind = Scenario
 
     return scenarios
@@ -653,8 +649,9 @@ class DefaultDesigns(object):
         return design_generator(self.designs, self.parameters, self.kind)
 
     def __str__(self):
-        return ("ema_workbench.DefaultDesigns, "
-                "{} designs on {} parameters").format(self.n, len(self.params))
+        return ("ema_workbench.DefaultDesigns, " "{} designs on {} parameters").format(
+            self.n, len(self.params)
+        )
 
 
 # class PartialFactorialDesigns(object):

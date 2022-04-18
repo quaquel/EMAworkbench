@@ -11,9 +11,16 @@ from ema_workbench.em_framework.util import NamedDict, Counter, NamedObject
 from ema_workbench.em_framework.util import combine
 from ema_workbench.util import get_module_logger
 
-__all__ = ['Point', 'Policy', 'Experiment', 'ExperimentReplication',
-           'combine_cases_sampling', 'combine_cases_factorial',
-           'experiment_generator', 'Scenario']
+__all__ = [
+    "Point",
+    "Policy",
+    "Experiment",
+    "ExperimentReplication",
+    "combine_cases_sampling",
+    "combine_cases_factorial",
+    "experiment_generator",
+    "Scenario",
+]
 _logger = get_module_logger(__name__)
 
 
@@ -42,6 +49,7 @@ class Policy(Point):
     all keyword arguments are wrapped into a dict.
 
     """
+
     id_counter = Counter(1)
 
     def __init__(self, name=None, **kwargs):
@@ -123,10 +131,11 @@ class ExperimentReplication(NamedDict):
         # this is a unique identifier for an experiment
         # we might also create a better looking name
         self.id = scenario_id * policy_id * replication_id
-        name = '{}_{}_{}'.format(scenario.name, policy.name, replication_id)
+        name = "{}_{}_{}".format(scenario.name, policy.name, replication_id)
 
         super(ExperimentReplication, self).__init__(
-            name, **combine(scenario, policy, constants))
+            name, **combine(scenario, policy, constants)
+        )
 
 
 def zip_cycle(*args):
@@ -211,8 +220,7 @@ def combine_cases_factorial(*point_collections):
 #     return combined_cases
 
 
-def experiment_generator(scenarios, model_structures, policies,
-                         combine='factorial'):
+def experiment_generator(scenarios, model_structures, policies, combine="factorial"):
     """
 
     generator function which yields experiments
@@ -243,9 +251,9 @@ def experiment_generator(scenarios, model_structures, policies,
     # basically combine any collection
     # wrap around to yield specifc type of class (e.g. point
 
-    if combine == 'sample':
+    if combine == "sample":
         jobs = zip_cycle(model_structures, policies, scenarios)
-    elif combine == 'factorial':
+    elif combine == "factorial":
         # full factorial
         jobs = itertools.product(model_structures, policies, scenarios)
     else:
@@ -253,6 +261,6 @@ def experiment_generator(scenarios, model_structures, policies,
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job
-        name = '{} {} {}'.format(msi.name, policy.name, i)
+        name = "{} {} {}".format(msi.name, policy.name, i)
         experiment = Experiment(name, msi.name, policy, scenario, i)
         yield experiment
