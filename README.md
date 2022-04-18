@@ -14,3 +14,21 @@ Delft University of Technology.
 
 The workbench is available from pip. Version 1.x is compatible with both
 python 2 and 3, while the 2.x branch requires python 3.8 or newer.
+
+
+# Releasing
+
+Releases are published automatically when a tag is pushed to GitHub.
+
+```bash
+
+   # Set next version number
+   export RELEASE=x.x.x
+
+   # Create tags
+   git commit --allow-empty -m "Release $RELEASE"
+   git tag -a $RELEASE -m "Version $RELEASE"
+
+   # Push
+   git push upstream --tags
+```
