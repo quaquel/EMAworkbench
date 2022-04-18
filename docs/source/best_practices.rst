@@ -1,10 +1,6 @@
-
-
-#####################################
-
+*************************************
 Separate experimentation and analysis
-
-#####################################
+*************************************
 
 It is strongly recommended to cleanly separate the various steps in your
 exploratory modeling pipeline. So, separately execute your experiments or
@@ -14,12 +10,9 @@ Moreover, since parallel execution can be troublesome within the Jupyter Lab
 either from the command line or through an IDE using a normal python file.
 Jupyter Lab is then used to analyze the results.
 
-
-########################
-
+************************
 Keeping things organized
-
-########################
+************************
 
 A frequently recurring cause of problems when using the workbench stems from
 not properly organizing your files. In particular when using multiprocessing
@@ -28,7 +21,7 @@ with multiprocessing is that it copies the entire working directory of the
 model to a temporary folder for each subprocess. This temporary folder is
 located in the same folder as the python or notebook file from which you are
 running. If the working directory of your model is the same as the directory
-in which the run file resized, you can easily fill up your harddisk in
+in which the run file resized, you can easily fill up your hard disk in
 minutes. To avoid these kinds of problems, I suggest to use a directory
 structure as outlined below.
 
@@ -37,9 +30,9 @@ structure as outlined below.
 |    |      ├── a_model.nlogo
 |    |      └── some_input.csv
 |    ├─ results
-|    |      └── 1000_experiments.targ.gz
+|    |      └── 1000_experiments.tar.gz
 |    ├─ figures
-|    |      └── pairwise_scaatter.png
+|    |      └── pairwise_scatter.png
 |    ├─experiments.py
 |    ├─optimization.py
 |    ├─analysis.ipynb
