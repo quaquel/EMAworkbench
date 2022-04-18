@@ -61,6 +61,7 @@ EXAMPLE_DATA = example_data_files + example_model_files
 
 PACKAGES = packages
 
+print(here)
 print(PACKAGES)
 
 setup(
