@@ -262,7 +262,7 @@ def pairs_density(experiments, outcomes,
             for entry in axes_dicts.values():
                 ax = entry[combi]
                 ax.collections[0].set_clim(vmin=vmin, vmax=vmax)
-            del vmax
+            del vmin, vmax
 
         return figures, axes_dicts
     else:
