@@ -13,4 +13,4 @@ from .util import (save_results, load_results, ema_logging, EMAError,
 
 # from . import analysis
 
-__version__ = '2.1'
+__version__ = '2.1.1'

@@ -13,8 +13,6 @@
   A further extension would be to have uncertainties composed of uncertainties
   and then the callable would take multiple arguments (this is sort of how
   lookup uncertainties work, but we might generalize this).
-* add some casting utilities to change outcomes from dict to dataframe and
-	vice versa
 * add split_results as reverse operation to merge_results. could re-use some
 	code from group_results in plotting_util.
 * add importing of input parameters from external Py and JSON files, and
