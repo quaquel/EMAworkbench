@@ -1,6 +1,11 @@
-*************************************
+**************
+Best practices
+**************
+
+
+=====================================
 Separate experimentation and analysis
-*************************************
+=====================================
 
 It is strongly recommended to cleanly separate the various steps in your
 exploratory modeling pipeline. So, separately execute your experiments or
@@ -10,9 +15,9 @@ Moreover, since parallel execution can be troublesome within the Jupyter Lab
 either from the command line or through an IDE using a normal python file.
 Jupyter Lab is then used to analyze the results.
 
-************************
+========================
 Keeping things organized
-************************
+========================
 
 A frequently recurring cause of problems when using the workbench stems from
 not properly organizing your files. In particular when using multiprocessing
@@ -27,12 +32,13 @@ structure as outlined below.
 
 |    project
 |    ├─ model_files
-|    |      ├── a_model.nlogo
-|    |      └── some_input.csv
+|          ├── a_model.nlogo
+|          └── some_input.csv
 |    ├─ results
-|    |      └── 1000_experiments.tar.gz
+|          ├── 100k_nfe_seed1.csv
+|          └── 1000_experiments.tar.gz
 |    ├─ figures
-|    |      └── pairwise_scatter.png
+|          └── pairwise_scatter.png
 |    ├─experiments.py
 |    ├─optimization.py
 |    ├─analysis.ipynb

@@ -13,7 +13,7 @@
 EMA Workbench documentation
 ***************************
 
-.. htmlonly::
+.. only:: html
 
     :Release: |version|
     :Date: |today|
