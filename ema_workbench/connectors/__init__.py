@@ -7,7 +7,7 @@ warnings.simplefilter("once", ImportWarning)
 @contextmanager
 def catch_and_ignore_import_warning():
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore', category=ImportWarning)
+        warnings.simplefilter("ignore", category=ImportWarning)
         yield
 
 
@@ -25,6 +25,11 @@ try:
     from . import netlogo
 except ImportError:
     warnings.warn("netlogo connector not available", ImportWarning)
+
+try:
+    from . import simio_connector
+except ImportError:
+    warnings.warn("simio connector not available", ImportWarning)
 
 with catch_and_ignore_import_warning():
     try:

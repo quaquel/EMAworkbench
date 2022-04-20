@@ -3,40 +3,24 @@
 This module provides various convenience functions and classes.
 
 """
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
 
-# import cPickle
-from io import BytesIO, StringIO
+import configparser
+import json
 import os
-import sys
 import tarfile
+from io import BytesIO
 
 import numpy as np
-
 import pandas as pd
-from pandas.io.parsers import read_csv
 
 from . import EMAError, get_module_logger
-import ema_workbench
 
-PY3 = sys.version_info[0] == 3
-if PY3:
-    WriterFile = StringIO
-else:
-    WriterFile = BytesIO
 
 # Created on 13 jan. 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['load_results',
-           'save_results',
-           'experiments_to_scenarios',
-           'merge_results'
-           ]
+__all__ = ["load_results", "save_results", "merge_results", "process_replications"]
 _logger = get_module_logger(__name__)
 
 
@@ -55,76 +39,149 @@ def load_results(file_name):
     IOError if file not found
 
     """
+    from ..em_framework.outcomes import AbstractOutcome, register
+
     file_name = os.path.abspath(file_name)
-    outcomes = {}
-    with tarfile.open(file_name, 'r:gz', encoding="UTF8") as z:
-        # load x
-        experiments = z.extractfile('experiments.csv')
-        if not (hasattr(experiments, 'read')):
-            raise EMAError(repr(experiments))
 
-        experiments = pd.read_csv(experiments)
+    with tarfile.open(file_name, "r:gz", encoding="UTF8") as archive:
+        try:
+            f = archive.extractfile("metadata.json")
+        except KeyError:
+            # old style data file
+            results = load_results_old(archive)
+            _logger.info((f"results loaded successfully from {file_name}"))
+            return results
 
-        # load experiment metadata
-        metadata = z.extractfile('experiments metadata.csv').readlines()
+        metadata = json.loads(f.read().decode())
 
-        for entry in metadata:
-            entry = entry.decode('UTF-8')
-            entry = entry.strip()
-            entry = entry.split(",")
-            name, dtype = [str(item) for item in entry]
-            if np.dtype(dtype) == object:
-                experiments[name] = experiments[name].astype('category')
+        # load experiments
+        f = archive.extractfile("experiments.csv")
+        experiments = pd.read_csv(f)
 
-        # load outcome metadata
-        metadata = z.extractfile('outcomes metadata.csv').readlines()
-        metadata = [entry.decode('UTF-8') for entry in metadata]
-        metadata = [entry.strip() for entry in metadata]
-        metadata = [tuple(entry.split(",")) for entry in metadata]
-        metadata = {entry[0]: entry[1:] for entry in metadata}
+        for name, dtype in metadata["experiments"].items():
+            try:
+                dtype = np.dtype(dtype)
+            except TypeError:
+                dtype = pd.api.types.pandas_dtype(dtype)
+
+            if pd.api.types.is_object_dtype(dtype):
+                experiments[name] = experiments[name].astype("category")
 
         # load outcomes
-        for outcome, shape in metadata.items():
-            shape = list(shape)
-            shape[0] = shape[0][1:]
-            shape[-1] = shape[-1][0:-1]
+        outcomes = {}
+        known_outcome_classes = {
+            entry.__name__: entry for entry in AbstractOutcome.get_subclasses()
+        }
+        for (outcome_type, name, filename) in metadata["outcomes"]:
+            outcome = known_outcome_classes[outcome_type](name)
 
-            temp_shape = []
-            for entry in shape:
-                if entry:
-                    try:
-                        temp_shape.append(int(entry))
-                    except ValueError:
-                        temp_shape.append(int(entry[0:-1]))
-            shape = tuple(temp_shape)
+            values = register.deserialize(name, filename, archive)
+            outcomes[name] = values
 
-            if len(shape) > 2:
-                nr_files = shape[-1]
-
-                data = np.empty(shape)
-                for i in range(nr_files):
-                    values = z.extractfile("{}_{}.csv".format(outcome, i))
-                    values = read_csv(values, index_col=False,
-                                      header=None).values
-                    data[:, :, i] = values
-
-            else:
-                data = z.extractfile("{}.csv".format(outcome))
-                data = read_csv(data, index_col=False, header=None).values
-                data = np.reshape(data, shape)
-
-            outcomes[outcome] = data
-
-    _logger.info("results loaded succesfully from {}".format(file_name))
+    _logger.info("results loaded successfully from {}".format(file_name))
     return experiments, outcomes
+
+
+def load_results_old(archive):
+    """
+    load the specified bz2 file. the file is assumed to be saves
+    using save_results.
+
+    Parameters
+    ----------
+    file_name : TarFile
+
+    Raises
+    ------
+    IOError if file not found
+
+    """
+    from ..em_framework.outcomes import ScalarOutcome, ArrayOutcome, register
+
+    outcomes = {}
+
+    # load x
+    experiments = archive.extractfile("experiments.csv")
+    if not (hasattr(experiments, "read")):
+        raise EMAError(repr(experiments))
+
+    experiments = pd.read_csv(experiments)
+
+    # load experiment metadata
+    metadata = archive.extractfile("experiments metadata.csv").readlines()
+
+    for entry in metadata:
+        entry = entry.decode("UTF-8")
+        entry = entry.strip()
+        entry = entry.split(",")
+        name, dtype = [str(item) for item in entry]
+
+        try:
+            dtype = np.dtype(dtype)
+        except TypeError:
+            dtype = pd.api.types.pandas_dtype(dtype)
+
+        if pd.api.types.is_object_dtype(dtype):
+            experiments[name] = experiments[name].astype("category")
+
+    # load outcome metadata
+    metadata = archive.extractfile("outcomes metadata.csv").readlines()
+    metadata = [entry.decode("UTF-8") for entry in metadata]
+    metadata = [entry.strip() for entry in metadata]
+    metadata = [tuple(entry.split(",")) for entry in metadata]
+    metadata = {entry[0]: entry[1:] for entry in metadata}
+
+    # load outcomes
+    for outcome, shape in metadata.items():
+        shape = list(shape)
+        shape[0] = shape[0][1:]
+        shape[-1] = shape[-1][0:-1]
+
+        temp_shape = []
+        for entry in shape:
+            if entry:
+                try:
+                    temp_shape.append(int(entry))
+                except ValueError:
+                    temp_shape.append(int(entry[0:-1]))
+        shape = tuple(temp_shape)
+
+        if len(shape) > 2:
+            nr_files = shape[-1]
+
+            data = np.empty(shape)
+            for i in range(nr_files):
+                values = archive.extractfile("{}_{}.csv".format(outcome, i))
+                values = pd.read_csv(values, index_col=False, header=None).values
+                data[:, :, i] = values
+
+        else:
+            data = archive.extractfile("{}.csv".format(outcome))
+            data = pd.read_csv(data, index_col=False, header=None).values
+            data = np.reshape(data, shape)
+
+        outcomes[outcome] = data
+
+    # reformat outcomes from generic dict to new style OutcomesDict
+    outcomes_new = {}
+    for k, v in outcomes.items():
+        if v.ndim == 1:
+            outcome = ScalarOutcome(k)
+        else:
+            outcome = ArrayOutcome(k)
+
+        outcomes_new[outcome.name] = v
+
+    return experiments, outcomes_new
 
 
 def save_results(results, file_name):
     """
-    save the results to the specified tar.gz file. The results are
-    stored as csv files. There is an x.csv, and a csv for each
-    outcome. In addition, there is a metadata csv which contains
-    the datatype information for each of the columns in the x array.
+    save the results to the specified tar.gz file.
+
+    The way in which results are stored depends. Experiments are saved
+    as csv. Outcomes depend on the outcome type. Scalar, and <3D arrays are
+    saved as csv files. Higher dimensional arrays are stored as .npy files.
 
     Parameters
     ----------
@@ -138,117 +195,46 @@ def save_results(results, file_name):
     IOError if file not found
 
     """
+    from ..em_framework.outcomes import register
+
+    VERSION = 0.1
     file_name = os.path.abspath(file_name)
 
-    def add_file(tararchive, string_to_add, filename):
+    def add_file(tararchive, stream, filename):
+        stream.seek(0)
         tarinfo = tarfile.TarInfo(filename)
-        tarinfo.size = len(string_to_add)
-
-        fh = BytesIO(string_to_add.encode('UTF-8'))
-
-        z.addfile(tarinfo, fh)
-
-    def save_numpy_array(fh, data):
-        data = pd.DataFrame(data)
-        data.to_csv(fh, header=False, index=False, encoding='UTF-8')
+        tarinfo.size = len(stream.getbuffer())
+        tararchive.addfile(tarinfo, stream)
 
     experiments, outcomes = results
-    with tarfile.open(file_name, 'w:gz') as z:
-        # write the x to the zipfile
-        experiments_file = WriterFile()
+    with tarfile.open(file_name, "w:gz") as z:
+        # store experiments
+        stream = BytesIO()
+        stream.write(
+            experiments.to_csv(header=True, encoding="UTF-8", index=False).encode()
+        )
+        add_file(z, stream, "experiments.csv")
 
-        experiments.to_csv(experiments_file, header=True,
-                           encoding='UTF-8', index=False)
-
-        add_file(z, experiments_file.getvalue(), 'experiments.csv')
-
-        # write experiment metadata
-        metadatafile = WriterFile()
-        experiments.dtypes.to_csv(metadatafile, header=False)
-        add_file(z, metadatafile.getvalue(), 'experiments metadata.csv')
-
-        # write outcome metadata
-        outcome_names = outcomes.keys()
-        outcome_meta = ["{},{}".format(outcome, outcomes[outcome].shape)
-                        for outcome in outcome_names]
-        outcome_meta = "\n".join(outcome_meta)
-        add_file(z, outcome_meta, "outcomes metadata.csv")
-
-        # outcomes
+        # store outcomes
+        outcomes_metadata = []
         for key, value in outcomes.items():
-            fh = WriterFile()
+            klass = register.outcomes[key]
+            stream, filename = register.serialize(key, value)
+            add_file(z, stream, filename)
+            outcomes_metadata.append((klass.__name__, key, filename))
 
-            if value.ndim == 3:
-                for i in range(value.shape[2]):
-                    data = value[:, :, i]
-                    save_numpy_array(fh, data)
-                    fh = fh.getvalue()
-                    fn = '{}_{}.csv'.format(key, i)
-                    add_file(z, fh, fn)
-                    fh = WriterFile()
-            else:
-                save_numpy_array(fh, value)
-                fh = fh.getvalue()
-                add_file(z, fh, '{}.csv'.format(key))
+        # store metadata
+        metadata = {
+            "version": VERSION,
+            "outcomes": outcomes_metadata,
+            "experiments": {k: v.name for k, v in experiments.dtypes.to_dict().items()},
+        }
 
-    _logger.info("results saved successfully to {}".format(file_name))
+        stream = BytesIO()
+        stream.write(json.dumps(metadata).encode())
+        add_file(z, stream, "metadata.json")
 
-
-def experiments_to_scenarios(experiments: pd.DataFrame, model=None):
-    """
-
-    This function transform an experiments dataframe into a list
-    of Scenarios.
-
-    If model is provided, the uncertainties of the model are used.
-    Otherwise, it is assumed that all non-default columns are
-    uncertainties.
-
-    Parameters
-    ----------
-    experiments : Pandas Dataframe
-                  a DataFrame containing experiments
-    model : ModelInstance, optional
-
-    Returns
-    -------
-    a list of Scenarios
-
-    """
-    # get the names of the uncertainties
-    if model is None:
-        uncertainties = [column for column in experiments.columns]
-
-        # remove policy and model, leaving only the case related uncertainties
-        try:
-            uncertainties.pop(uncertainties.index('policy'))
-            uncertainties.pop(uncertainties.index('model'))
-            uncertainties.pop(uncertainties.index('scenario_id'))
-        except BaseException:
-            pass
-    else:
-        uncertainties = [u.name for u in model.uncertainties]
-
-    # make list of of tuples of tuples
-    cases = []
-    cache = set()
-    for i in range(experiments.shape[0]):
-        case = {}
-        case_tuple = []
-        for uncertainty in uncertainties:
-            entry = experiments[uncertainty][i]
-            case[uncertainty] = entry
-            case_tuple.append(entry)
-
-        case_tuple = tuple(case_tuple)
-        if case_tuple not in cache:
-            cases.append(case)
-            cache.add((case_tuple))
-
-    scenarios = [ema_workbench.em_framework.parameters.Scenario(
-        **entry) for entry in cases]
-
-    return scenarios
+    _logger.info(f"results saved successfully to {file_name}")
 
 
 def merge_results(results1, results2):
@@ -297,7 +283,7 @@ def merge_results(results1, results2):
     # merging results
     merged_res = {}
     for key in keys:
-        _logger.info("merge " + key)
+        _logger.info(f"merge {key}")
 
         value1 = res1.get(key)
         value2 = res2.get(key)
@@ -318,11 +304,64 @@ def get_ema_project_home_dir():
         parsed = config.read(fn)
 
         if parsed:
-            _logger.info('config loaded from {}'.format(parsed[0]))
+            _logger.info("config loaded from {}".format(parsed[0]))
         else:
-            _logger.info('no config file found')
+            _logger.info("no config file found")
 
-        home_dir = config.get('ema_project_home', 'home_dir')
+        home_dir = config.get("ema_project_home", "home_dir")
         return home_dir
     except BaseException:
         return os.getcwd()
+
+
+def process_replications(data, aggregation_func=np.mean):
+    """
+    Convenience function for processing the replications of a stochastic
+    model's outcomes.
+
+    The default behavior is to take the mean of the replications. This reduces
+    the dimensionality of the outcomes from
+    (experiments * replications * outcome_shape) to
+    (experiments * outcome_shape), where outcome_shape is 0-d for scalars,
+    1-d for time series, and 2-d for arrays.
+
+    The function can take either the outcomes (dictionary: keys are outcomes
+    of interest, values are arrays of data) or the results (tuple: experiments
+    as DataFrame, outcomes as dictionary) of a set of simulation experiments.
+
+    Parameters
+    ----------
+    data : dict, tuple
+        outcomes or results of a set of experiments
+    aggregation_func : callabale, optional
+        aggregation function to be applied, defaults to np.mean.
+
+    Returns
+    -------
+    dict, tuple
+
+
+    """
+
+    if isinstance(data, dict):
+        # replications are the second dimension of the outcome arrays
+        outcomes_processed = {
+            key: aggregation_func(data[key], axis=1) for key in data.keys()
+        }
+        return outcomes_processed
+    elif (
+        isinstance(data, tuple)
+        and isinstance(data[0], pd.DataFrame)
+        and isinstance(data[1], dict)
+    ):
+        experiments, outcomes = data  # split results
+        outcomes_processed = {
+            key: aggregation_func(outcomes[key], axis=1) for key in outcomes.keys()
+        }
+        results_processed = (experiments.copy(deep=True), outcomes_processed)
+        return results_processed
+
+    else:
+        raise EMAError(
+            f"data should be a dict or tuple, but is a {type(data)}".format()
+        )

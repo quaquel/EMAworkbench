@@ -41,7 +41,6 @@ if "%1" == "clean" (
 )
 
 if "%1" == "html" (
-	python make_gallery.py
 	%SPHINXBUILD% -b html %ALLSPHINXOPTS% %BUILDDIR%/html
 	if errorlevel 1 exit /b 1
 	echo.

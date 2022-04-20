@@ -38,6 +38,11 @@ local.properties
 ############
 .idea/*
 
+# virtualenv
+.venv
+venv/
+ENV/
+
 
 #################
 ## Visual Studio
@@ -163,6 +168,7 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+/htmlcov
 
 #Translations
 *.mo

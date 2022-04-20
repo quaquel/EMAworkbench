@@ -5,9 +5,12 @@
 from . import pairs_plotting
 from .b_and_w_plotting import set_fig_to_bw
 from .cart import setup_cart, CART
-from .feature_scoring import (get_ex_feature_scores, get_feature_scores_all,
-                              get_rf_feature_scores,
-                              get_univariate_feature_scores)
+from .feature_scoring import (
+    get_ex_feature_scores,
+    get_feature_scores_all,
+    get_rf_feature_scores,
+    get_univariate_feature_scores,
+)
 from .logistic_regression import Logit
 from .plotting import lines, envelopes, kde_over_time, multiple_densities
 from .plotting_util import Density, PlotType

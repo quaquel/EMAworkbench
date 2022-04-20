@@ -10,7 +10,6 @@ instead. It is also possible to use the code provided here in combination
 with any other feature scoring or factor prioritization technique instead, or
 by simply selecting uncertain factors in some other manner.
 
-
 """
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -25,7 +24,7 @@ from ..util import get_module_logger
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['create_pivot_plot']
+__all__ = ["create_pivot_plot"]
 _logger = get_module_logger(__name__)
 
 
@@ -58,11 +57,12 @@ def discretize(data, nbins=3, with_labels=False):
         column_data = data[column]
         n = nbins
 
-        if entry.name == 'category':
+        if entry.name == "category":
             n_unique = column_data.unique().shape[0]
             n = n_unique
             column_data = column_data.cat.rename_categories(
-                [x for x in range(1, n + 1)])
+                [x for x in range(1, n + 1)]
+            )
             indices = column_data
 
         else:
@@ -72,11 +72,11 @@ def discretize(data, nbins=3, with_labels=False):
                     n = n_unique
 
             if with_labels:
-                indices = pd.cut(column_data, n, precision=2,
-                                 retbins=True)[0]
+                indices = pd.cut(column_data, n, precision=2, retbins=True)[0]
             else:
-                indices = pd.cut(column_data, n, retbins=False,
-                                 labels=False, precision=2)
+                indices = pd.cut(
+                    column_data, n, retbins=False, labels=False, precision=2
+                )
 
         discretized[column] = indices
 
@@ -92,18 +92,18 @@ def dim_ratios(axis, figsize):
     # Get resizing proportion of this figure for the dendrogram and
     # colorbar, so only the heatmap gets bigger but the dendrogram stays
     # the same size.
-    dendrogram = min(2. / figdim, .2)
+    dendrogram = min(2.0 / figdim, 0.2)
 
     # add the colorbar
-    colorbar_width = .8 * dendrogram
-    colorbar_height = .2 * dendrogram
+    colorbar_width = 0.8 * dendrogram
+    colorbar_height = 0.2 * dendrogram
     if axis == 0:
         ratios = [colorbar_width, colorbar_height]
     else:
         ratios = [colorbar_height, colorbar_width]
 
     # Add the ratio for the heatmap itself
-    ratios += [.8]
+    ratios += [0.8]
 
     return ratios
 
@@ -113,28 +113,27 @@ def plot_line(ax, axis, i, lw, length):
     index"""
 
     if axis == 0:
-        ax.plot([i, i], [length, 1], lw=lw, color='grey')
+        ax.plot([i, i], [length, 1], lw=lw, color="grey")
     else:
-        ax.plot([length, 1], [i, i], lw=lw, color='grey')
+        ax.plot([length, 1], [i, i], lw=lw, color="grey")
 
 
 def plot_category(ax, axis, i, label, pos, level):
     """helper function for plotting label"""
 
     if axis == 0:
-        rot = 'horizontal'
+        rot = "horizontal"
         if (level > 0) & (len(str(label)) > 4):
-            rot = 'vertical'
-        ax.text(i, pos, label, ha='center', va='center', rotation=rot)
+            rot = "vertical"
+        ax.text(i, pos, label, ha="center", va="center", rotation=rot)
     else:
-        rot = 'horizontal'
+        rot = "horizontal"
         if (level == 0) & (len(str(label)) > 4):
-            rot = 'vertical'
-        ax.text(pos, i, label, ha='center', va='center', rotation=rot)
+            rot = "vertical"
+        ax.text(pos, i, label, ha="center", va="center", rotation=rot)
 
 
-def plot_index(ax, ax_plot, axis, index, plot_labels=True,
-               plot_cats=True):
+def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
     """helper function for visualizing the hierarchical index
 
     Parameters
@@ -153,15 +152,15 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
 
     """
 
-    for entry in ['bottom', 'top', 'right', 'left']:
-        ax.spines['bottom'].set_color('grey')
+    for entry in ["bottom", "top", "right", "left"]:
+        ax.spines["bottom"].set_color("grey")
 
     if axis == 0:
         names = index.names
-        ax.spines['top'].set_color('white')
-        ax.spines['top'].set_linewidth(1.0)
-        ax.spines['bottom'].set_color('white')
-        ax.spines['bottom'].set_linewidth(1.0)
+        ax.spines["top"].set_color("white")
+        ax.spines["top"].set_linewidth(1.0)
+        ax.spines["bottom"].set_color("white")
+        ax.spines["bottom"].set_linewidth(1.0)
 
         ax.invert_yaxis()
         ax.yaxis.tick_right()
@@ -169,7 +168,8 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
 
         if plot_labels:
             tick_locs = np.linspace(
-                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names))
+                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names)
+            )
             ax.set_yticks(tick_locs)
             ax.set_yticklabels(names)
         else:
@@ -179,16 +179,17 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
         names = index.names
         ax.set_yticks([])
 
-        ax.spines['left'].set_color('white')
-        ax.spines['left'].set_linewidth(1.0)
-        ax.spines['right'].set_color('white')
-        ax.spines['right'].set_linewidth(1.0)
+        ax.spines["left"].set_color("white")
+        ax.spines["left"].set_linewidth(1.0)
+        ax.spines["right"].set_color("white")
+        ax.spines["right"].set_linewidth(1.0)
 
         if plot_labels:
             tick_locs = np.linspace(
-                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names))
+                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names)
+            )
             ax.set_xticks(tick_locs)
-            ax.set_xticklabels(names, rotation='vertical')
+            ax.set_xticklabels(names, rotation="vertical")
         else:
             ax.set_xticks([])
 
@@ -223,8 +224,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
     if plot_cats:
         for p in range(0, nr_levels):
             pos = 1 / (2 * nr_levels) + p / (nr_levels)
-            plot_category(ax, axis, 0 + offsets[p] * len(index),
-                          last[p], pos, p)
+            plot_category(ax, axis, 0 + offsets[p] * len(index), last[p], pos, p)
 
     for i, entry in enumerate(indices[1::]):
         i += 1
@@ -245,16 +245,16 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
             # add values
             for p in range(j, nr_levels):
                 pos = 1 / (2 * nr_levels) + p / (nr_levels)
-                plot_category(ax, axis, i + offsets[p] * len(index),
-                              entry[p], pos, p)
+                plot_category(ax, axis, i + offsets[p] * len(index), entry[p], pos, p)
         if axis:
             ax_plot.axhline(i, c="w", lw=lw)
         else:
             ax_plot.axvline(i, c="w", lw=lw)
 
 
-def plot_pivot_table(table, plot_labels=True, plot_cats=True,
-                     figsize=(10, 10), cmap='viridis', **kwargs):
+def plot_pivot_table(
+    table, plot_labels=True, plot_cats=True, figsize=(10, 10), cmap="viridis", **kwargs
+):
     """ visualize a pivot table using colors
 
     Parameters
@@ -277,15 +277,20 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
     """
 
-    with sns.axes_style('white'):
+    with sns.axes_style("white"):
         fig = plt.figure(figsize=figsize)
 
         width_ratios = dim_ratios(figsize=figsize, axis=1)
         height_ratios = dim_ratios(figsize=figsize, axis=0)
 
-        gs = mpl.gridspec.GridSpec(3, 3, wspace=0.01, hspace=0.01,
-                                   width_ratios=width_ratios,
-                                   height_ratios=height_ratios)
+        gs = mpl.gridspec.GridSpec(
+            3,
+            3,
+            wspace=0.01,
+            hspace=0.01,
+            width_ratios=width_ratios,
+            height_ratios=height_ratios,
+        )
 
         ax_plot = fig.add_subplot(gs[2, 2])
         ax_rows = fig.add_subplot(gs[2, 0:2], facecolor="white")
@@ -294,8 +299,9 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
         # actual plotting
         plot_data = table.values
-        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap,
-                    vmin=0, vmax=1, **kwargs)
+        sns.heatmap(
+            plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, vmin=0, vmax=1, **kwargs
+        )
 
         # set the tick labels
         ax_plot.set_xticks([])
@@ -304,21 +310,33 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
         # plot row labeling
         ax_rows.set_ylim(ax_plot.get_ylim())
         ax_rows.set_xlim(0, 1)
-        plot_index(ax_rows, ax_plot, axis=1, index=table.index,
-                   plot_labels=plot_labels, plot_cats=plot_cats)
+        plot_index(
+            ax_rows,
+            ax_plot,
+            axis=1,
+            index=table.index,
+            plot_labels=plot_labels,
+            plot_cats=plot_cats,
+        )
 
         # plot column labeling
         ax_cols.set_xlim(ax_plot.get_xlim())
         ax_cols.set_ylim(0, 1)
-        plot_index(ax_cols, ax_plot, axis=0, index=table.columns,
-                   plot_labels=plot_labels, plot_cats=plot_cats)
+        plot_index(
+            ax_cols,
+            ax_plot,
+            axis=0,
+            index=table.columns,
+            plot_labels=plot_labels,
+            plot_cats=plot_cats,
+        )
 
     return fig
 
 
 def _prepare_experiments(experiments):
     """
-    transform the experiments structured array into a numpy array.
+    transform the experiments data frame into a numpy array.
 
     Parameters
     ----------
@@ -330,7 +348,7 @@ def _prepare_experiments(experiments):
 
     """
     try:
-        experiments = experiments.drop('scenario', axis=1)
+        experiments = experiments.drop("scenario", axis=1)
     except KeyError:
         pass
 
@@ -342,16 +360,20 @@ def _prepare_experiments(experiments):
     for column in x_nominal_columns:
         if np.unique(x[column]).shape == (1,):
             x = x.drop(column, axis=1)
-            _logger.info(("{} dropped from analysis "
-                          "because only a single category").format(column))
+            _logger.info(
+                ("{} dropped from analysis " "because only a single category").format(
+                    column
+                )
+            )
         else:
-            x[column] = x[column].astype('category')
+            x[column] = x[column].astype("category")
 
     return x
 
 
-def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
-                      nbins=3, bin_labels=False):
+def create_pivot_plot(
+    x, y, nr_levels=3, labels=True, categories=True, nbins=3, bin_labels=False
+):
     """ convenience function for easily creating a pivot plot
 
     Parameters
@@ -395,17 +417,16 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True,
     rows = [entry for entry in scores[0:n:2]]
     columns = [entry for entry in scores[1:n:2]]
 
-    discretized_x = discretize(x, nbins=nbins,
-                               with_labels=bin_labels)
+    discretized_x = discretize(x, nbins=nbins, with_labels=bin_labels)
 
-    ooi_label = 'y'
+    ooi_label = "y"
     ooi = pd.DataFrame(y[:, np.newaxis], columns=[ooi_label])
 
     x_y_concat = pd.concat([discretized_x, ooi], axis=1)
-    pvt = pd.pivot_table(x_y_concat, values=ooi_label, index=rows,
-                         columns=columns, dropna=False)
+    pvt = pd.pivot_table(
+        x_y_concat, values=ooi_label, index=rows, columns=columns, dropna=False
+    )
 
-    fig = plot_pivot_table(pvt, plot_labels=labels,
-                           plot_cats=categories)
+    fig = plot_pivot_table(pvt, plot_labels=labels, plot_cats=categories)
 
     return fig

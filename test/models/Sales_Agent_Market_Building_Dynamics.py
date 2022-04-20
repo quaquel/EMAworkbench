@@ -5,7 +5,7 @@ Translated using PySD version 1.3.0
 from os import path
 import numpy as np
 
-from pysd.py_backend.functions import if_then_else, Integ
+from pysd.py_backend.functions import Integ, if_then_else
 from pysd import cache
 
 _subscript_dict = {}

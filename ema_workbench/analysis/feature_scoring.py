@@ -1,17 +1,16 @@
-"""
-
-Feature scoring functionality
-
-
-"""
+"""Feature scoring functionality"""
 import math
 from operator import itemgetter
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import (ExtraTreesClassifier, ExtraTreesRegressor,
-                              RandomForestClassifier, RandomForestRegressor)
-from sklearn.feature_selection import (f_regression, f_classif, chi2)
+from sklearn.ensemble import (
+    ExtraTreesClassifier,
+    ExtraTreesRegressor,
+    RandomForestClassifier,
+    RandomForestRegressor,
+)
+from sklearn.feature_selection import f_regression, f_classif, chi2
 
 from .scenario_discovery_util import RuleInductionType
 from ..util import get_module_logger
@@ -24,9 +23,15 @@ from ..util import get_module_logger
 # http://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_recovery.html#example-linear-model-plot-sparse-recovery-py
 
 
-__all__ = ['F_REGRESSION', 'F_CLASSIFICATION', 'CHI2',
-           'get_univariate_feature_scores', 'get_rf_feature_scores',
-           'get_ex_feature_scores', 'get_feature_scores_all']
+__all__ = [
+    "F_REGRESSION",
+    "F_CLASSIFICATION",
+    "CHI2",
+    "get_univariate_feature_scores",
+    "get_rf_feature_scores",
+    "get_ex_feature_scores",
+    "get_feature_scores_all",
+]
 
 _logger = get_module_logger(__name__)
 
@@ -37,7 +42,7 @@ CHI2 = chi2
 
 def _prepare_experiments(experiments):
     """
-    transform the experiments structured array into a numpy array.
+    transform the experiments data frame into a numpy array.
 
     Parameters
     ----------
@@ -49,7 +54,7 @@ def _prepare_experiments(experiments):
 
     """
     try:
-        experiments = experiments.drop('scenario', axis=1)
+        experiments = experiments.drop("scenario", axis=1)
     except KeyError:
         pass
 
@@ -61,10 +66,13 @@ def _prepare_experiments(experiments):
     for column in x_nominal_columns:
         if np.unique(x[column]).shape == (1,):
             x = x.drop(column, axis=1)
-            _logger.info(("{} dropped from analysis "
-                          "because only a single category").format(column))
+            _logger.info(
+                ("{} dropped from analysis " "because only a single category").format(
+                    column
+                )
+            )
         else:
-            x[column] = x[column].astype('category').cat.codes
+            x[column] = x[column].astype("category").cat.codes
 
     return x.values, x.columns.tolist()
 
@@ -76,7 +84,7 @@ def _prepare_outcomes(outcomes, classify):
 
     Parameters
     ----------
-    outcomes : dict
+    outcomes : OutcomeDict
                the outcomes dict
     classify : callable or str
                a classify function or variable analogous to PRIM
@@ -120,7 +128,7 @@ def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
 
     Parameters
     ----------
-    x : structured array
+    x : DataFrame
     y : 1D nd.array
     score_func : {F_CLASSIFICATION, F_REGRESSION, CHI2}
                 the score function to use, one of f_regression (regression), or
@@ -148,17 +156,25 @@ def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
     return pvalues
 
 
-def get_rf_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
-                          nr_trees=250,
-                          max_features='auto', max_depth=None,
-                          min_samples_split=2, min_samples_leaf=1,
-                          bootstrap=True, oob_score=True, random_state=None):
+def get_rf_feature_scores(
+    x,
+    y,
+    mode=RuleInductionType.CLASSIFICATION,
+    nr_trees=250,
+    max_features="auto",
+    max_depth=None,
+    min_samples_split=2,
+    min_samples_leaf=1,
+    bootstrap=True,
+    oob_score=True,
+    random_state=None,
+):
     """
     Get feature scores using a random forest
 
     Parameters
     ----------
-    x : structured array
+    x : DataFram,e
     y : 1D nd.array
     mode : {RuleInductionType.CLASSIFICATION, RuleInductionType.REGRESSION}
     nr_trees : int, optional
@@ -191,22 +207,24 @@ def get_rf_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
 
     if mode == RuleInductionType.CLASSIFICATION:
         rfc = RandomForestClassifier
-        criterion = 'gini'
+        criterion = "gini"
     elif mode == RuleInductionType.REGRESSION:
         rfc = RandomForestRegressor
-        criterion = 'mse'
+        criterion = "mse"
     else:
-        raise ValueError('{} not valid for mode'.format(mode))
+        raise ValueError("{} not valid for mode".format(mode))
 
-    forest = rfc(n_estimators=nr_trees,
-                 criterion=criterion,
-                 max_features=max_features,
-                 max_depth=max_depth,
-                 min_samples_split=min_samples_split,
-                 min_samples_leaf=min_samples_leaf,
-                 bootstrap=bootstrap,
-                 oob_score=oob_score,
-                 random_state=random_state)
+    forest = rfc(
+        n_estimators=nr_trees,
+        criterion=criterion,
+        max_features=max_features,
+        max_depth=max_depth,
+        min_samples_split=min_samples_split,
+        min_samples_leaf=min_samples_leaf,
+        bootstrap=bootstrap,
+        oob_score=oob_score,
+        random_state=random_state,
+    )
     forest.fit(x, y)
 
     importances = forest.feature_importances_
@@ -221,23 +239,33 @@ def get_rf_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     return importances, forest
 
 
-def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
-                          nr_trees=100, max_features=None, max_depth=None,
-                          min_samples_split=2, min_samples_leaf=None,
-                          min_weight_fraction_leaf=0, max_leaf_nodes=None,
-                          bootstrap=True, oob_score=True, random_state=None):
+def get_ex_feature_scores(
+    x,
+    y,
+    mode=RuleInductionType.CLASSIFICATION,
+    nr_trees=100,
+    max_features=None,
+    max_depth=None,
+    min_samples_split=2,
+    min_samples_leaf=None,
+    min_weight_fraction_leaf=0,
+    max_leaf_nodes=None,
+    bootstrap=True,
+    oob_score=True,
+    random_state=None,
+):
     """
     Get feature scores using extra trees
 
     Parameters
     ----------
-    x : structured array
+    x : DataFrame
     y : 1D nd.array
     mode : {RuleInductionType.CLASSIFICATION, RuleInductionType.REGRESSION}
     nr_trees : int, optional
                nr. of trees in forest (default=250)
     max_features : int, float, string or None, optional
-                   by default, it will use number of featers/3, following
+                   by default, it will use number of features/3, following
                    Jaxa-Rozen & Kwakkel (2018) doi: 10.1016/j.envsoft.2018.06.011
                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     max_depth : int, optional
@@ -281,30 +309,30 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     if max_features is None:
         max_features = int(round(x.shape[1] / 3))
     if min_samples_leaf is None:
-        min_samples_leaf = max(1,
-                               int(round(
-                                   math.sqrt(x.shape[0]) / math.sqrt(1000))))
+        min_samples_leaf = max(1, int(round(math.sqrt(x.shape[0]) / math.sqrt(1000))))
 
     if mode == RuleInductionType.CLASSIFICATION:
         etc = ExtraTreesClassifier
-        criterion = 'gini'
+        criterion = "gini"
     elif mode == RuleInductionType.REGRESSION:
         etc = ExtraTreesRegressor
-        criterion = 'mse'
+        criterion = "mse"
     else:
-        raise ValueError('{} not valid for mode'.format(mode))
+        raise ValueError("{} not valid for mode".format(mode))
 
-    extra_trees = etc(n_estimators=nr_trees,
-                      criterion=criterion,
-                      max_features=max_features,
-                      max_depth=max_depth,
-                      min_samples_split=min_samples_split,
-                      min_samples_leaf=min_samples_leaf,
-                      min_weight_fraction_leaf=min_weight_fraction_leaf,
-                      max_leaf_nodes=max_leaf_nodes,
-                      bootstrap=bootstrap,
-                      oob_score=oob_score,
-                      random_state=random_state)
+    extra_trees = etc(
+        n_estimators=nr_trees,
+        criterion=criterion,
+        max_features=max_features,
+        max_depth=max_depth,
+        min_samples_split=min_samples_split,
+        min_samples_leaf=min_samples_leaf,
+        min_weight_fraction_leaf=min_weight_fraction_leaf,
+        max_leaf_nodes=max_leaf_nodes,
+        bootstrap=bootstrap,
+        oob_score=oob_score,
+        random_state=random_state,
+    )
     extra_trees.fit(x, y)
 
     importances = extra_trees.feature_importances_
@@ -319,20 +347,22 @@ def get_ex_feature_scores(x, y, mode=RuleInductionType.CLASSIFICATION,
     return importances, extra_trees
 
 
-algorithms = {'extra trees': get_ex_feature_scores,
-              'random forest': get_rf_feature_scores,
-              'univariate': get_univariate_feature_scores}
+algorithms = {
+    "extra trees": get_ex_feature_scores,
+    "random forest": get_rf_feature_scores,
+    "univariate": get_univariate_feature_scores,
+}
 
 
-def get_feature_scores_all(x, y, alg='extra trees',
-                           mode=RuleInductionType.REGRESSION,
-                           **kwargs):
+def get_feature_scores_all(
+    x, y, alg="extra trees", mode=RuleInductionType.REGRESSION, **kwargs
+):
     """perform feature scoring for all outcomes using the specified feature
     scoring algorithm
 
     Parameters
     ----------
-    x : numpy structured array
+    x : DataFrame
     y : dict of 1d numpy arrays
         the outcomes, with a string as key, and a 1D array for each outcome
     alg : {'extra trees', 'random forest', 'univariate'}, optional

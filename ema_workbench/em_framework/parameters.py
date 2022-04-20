@@ -1,14 +1,11 @@
-"""parameters and collections of parameters"""
+"""parameters and related helper classes and functions"""
 import abc
-import itertools
 import numbers
-import warnings
 
-import pandas
-import six
+import pandas as pd
+import scipy as sp
 
-from .util import (NamedObject, Variable, NamedObjectMap, Counter,
-                   NamedDict, combine)
+from .util import NamedObject, Variable, NamedObjectMap
 from ..util import get_module_logger
 
 # Created on Jul 14, 2016
@@ -16,17 +13,54 @@ from ..util import get_module_logger
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    'Parameter',
-    'RealParameter',
-    'IntegerParameter',
-    'BooleanParameter',
-    'CategoricalParameter',
-    'create_parameters',
-    'experiment_generator',
-    'Policy',
-    'Scenario',
-    'Experiment']
+    "Constant",
+    "RealParameter",
+    "IntegerParameter",
+    "CategoricalParameter",
+    "BooleanParameter",
+    "Category",
+    "parameters_from_csv",
+    "parameters_to_csv",
+    "Parameter",
+]
 _logger = get_module_logger(__name__)
+
+
+class Bound(metaclass=abc.ABCMeta):
+    def __get__(self, instance, cls):
+        try:
+            bound = instance.__dict__[self.internal_name]
+        except KeyError:
+            bound = self.get_bound(instance)
+            self.__set__(instance, bound)
+        return bound
+
+    def __set__(self, instance, value):
+        instance.__dict__[self.internal_name] = value
+
+    def __set_name__(self, cls, name):
+        self.name = name
+        self.internal_name = "_" + name
+
+
+class UpperBound(Bound):
+    def get_bound(self, instance):
+        bound = instance.dist.ppf(1.0)
+        return bound
+
+
+class LowerBound(Bound):
+    def get_bound(self, owner):
+        ppf_zero = 0
+
+        if isinstance(owner.dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
+            # ppf at actual zero for rv_discrete gives lower bound - 1
+            # due to a quirk in the scipy.stats implementation
+            # so we use the smallest positive float instead
+            ppf_zero = 5e-324
+
+        bound = owner.dist.ppf(ppf_zero)
+        return bound
 
 
 class Constant(NamedObject):
@@ -41,8 +75,7 @@ class Constant(NamedObject):
         self.value = value
 
     def __repr__(self, *args, **kwargs):
-        return '{}(\'{}\', {})'.format(self.__class__.__name__,
-                                       self.name, self.value)
+        return "{}('{}', {})".format(self.__class__.__name__, self.name, self.value)
 
 
 class Category(Constant):
@@ -57,7 +90,7 @@ def create_category(cat):
         return Category(str(cat), cat)
 
 
-class Parameter(Variable):
+class Parameter(Variable, metaclass=abc.ABCMeta):
     """ Base class for any model input parameter
 
     Parameters
@@ -80,26 +113,34 @@ class Parameter(Variable):
 
     """
 
-    __metaclass__ = abc.ABCMeta
+    lower_bound = LowerBound()
+    upper_bound = UpperBound()
+    default = None
 
-    INTEGER = 'integer'
-    UNIFORM = 'uniform'
+    @property
+    def resolution(self):
+        return self._resolution
 
-    def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None, pff=False):
+    @resolution.setter
+    def resolution(self, value):
+        if value:
+            if (min(value) < self.lower_bound) or (max(value) > self.upper_bound):
+                raise ValueError(
+                    "resolution not consistent with lower and " "upper bound"
+                )
+        self._resolution = value
+
+    def __init__(
+        self,
+        name,
+        lower_bound,
+        upper_bound,
+        resolution=None,
+        default=None,
+        variable_name=None,
+        pff=False,
+    ):
         super(Parameter, self).__init__(name)
-
-        if resolution is None:
-            resolution = []
-
-        for entry in resolution:
-            if not ((entry >= lower_bound) and (entry <= upper_bound)):
-                raise ValueError(('resolution not consistent with lower and '
-                                  'upper bound'))
-
-        if lower_bound >= upper_bound:
-            raise ValueError('upper bound should be larger than lower bound')
-
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
         self.resolution = resolution
@@ -107,33 +148,62 @@ class Parameter(Variable):
         self.variable_name = variable_name
         self.pff = pff
 
+    @classmethod
+    def from_dist(cls, name, dist, **kwargs):
+        """alternative constructor for creating a parameter from a frozen
+        scipy.stats distribution directly
+
+        Parameters
+        ----------
+        dist : scipy stats frozen dist
+        **kwargs : valid keyword arguments for Parameter instance
+
+        """
+        assert isinstance(
+            dist, sp.stats._distn_infrastructure.rv_frozen
+        )  # @UndefinedVariable
+        self = cls.__new__(cls)
+        self.dist = dist
+        self.name = name
+        self.resolution = None
+        self.variable_name = None
+        self.ppf = None
+
+        for k, v in kwargs.items():
+            if k in {"default", "resolution", "variable_name", "pff"}:
+                setattr(self, k, v)
+            else:
+                raise ValueError(f"unknown property {k} for Parameter")
+
+        return self
+
     def __eq__(self, other):
-        comparison = [all(hasattr(self, key) == hasattr(other, key) and
-                          getattr(self, key) == getattr(other, key) for key
-                          in self.__dict__.keys())]
-        comparison.append(self.__class__ == other.__class__)
-        return all(comparison)
+        if not isinstance(self, other.__class__):
+            return False
+
+        self_keys = set(self.__dict__.keys())
+        other_keys = set(other.__dict__.keys())
+        if self_keys - other_keys:
+            return False
+        else:
+            for key in self_keys:
+                if key != "dist":
+                    if getattr(self, key) != getattr(other, key):
+                        return False
+                else:
+                    # name, parameters
+                    self_dist = getattr(self, key)
+                    other_dist = getattr(other, key)
+                    if self_dist.dist.name != other_dist.dist.name:
+                        return False
+                    if self_dist.args != other_dist.args:
+                        return False
+
+            else:
+                return True
 
     def __str__(self):
         return self.name
-
-    def __repr__(self, *args, **kwargs):
-        start = '{}(\'{}\', {}, {}'.format(self.__class__.__name__,
-                                           self.name,
-                                           self.lower_bound, self.upper_bound)
-
-        if self.resolution:
-            start += ', resolution={}'.format(self.resolution)
-        if self.default:
-            start += ', default={}'.format(self.default)
-        if self.variable_name != [self.name]:
-            start += ', variable_name={}'.format(self.variable_name)
-        if self.pff:
-            start += ', pff={}'.format(self.pff)
-
-        start += ')'
-
-        return start
 
 
 class RealParameter(Parameter):
@@ -157,24 +227,35 @@ class RealParameter(Parameter):
 
     """
 
-    def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None, pff=False):
-        super(
-            RealParameter,
-            self).__init__(
+    def __init__(
+        self,
+        name,
+        lower_bound,
+        upper_bound,
+        resolution=None,
+        default=None,
+        variable_name=None,
+        pff=False,
+    ):
+        super(RealParameter, self).__init__(
             name,
             lower_bound,
             upper_bound,
             resolution=resolution,
             default=default,
             variable_name=variable_name,
-            pff=pff)
+            pff=pff,
+        )
 
-        self.dist = Parameter.UNIFORM
+        self.dist = sp.stats.uniform(
+            lower_bound, upper_bound - lower_bound
+        )  # @UndefinedVariable
 
-    @property
-    def params(self):
-        return (self.lower_bound, self.upper_bound - self.lower_bound)
+    @classmethod
+    def from_dist(cls, name, dist, **kwargs):
+        if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
+            raise ValueError("dist should be instance of rv_continouos")
+        return super(RealParameter, cls).from_dist(name, dist, **kwargs)
 
 
 class IntegerParameter(Parameter):
@@ -194,42 +275,62 @@ class IntegerParameter(Parameter):
         if lower bound is larger than upper bound
     ValueError
         if entries in resolution are outside range of lower_bound and
-        upper_bound, or not an numbers.Integral instance
+        upper_bound, or not an integer instance
     ValueError
-        if lower_bound or upper_bound is not an numbers.Integral instance
+        if lower_bound or upper_bound is not an integer instance
 
     """
 
-    def __init__(self, name, lower_bound, upper_bound, resolution=None,
-                 default=None, variable_name=None, pff=False):
-        super(
-            IntegerParameter,
-            self).__init__(
+    def __init__(
+        self,
+        name,
+        lower_bound,
+        upper_bound,
+        resolution=None,
+        default=None,
+        variable_name=None,
+        pff=False,
+    ):
+        super(IntegerParameter, self).__init__(
             name,
             lower_bound,
             upper_bound,
             resolution=resolution,
             default=default,
             variable_name=variable_name,
-            pff=pff)
+            pff=pff,
+        )
 
-        lb_int = isinstance(lower_bound, numbers.Integral)
-        up_int = isinstance(upper_bound, numbers.Integral)
+        lb_int = float(lower_bound).is_integer()
+        up_int = float(upper_bound).is_integer()
 
-        if not (lb_int or up_int):
-            raise ValueError('lower bound and upper bound must be integers')
+        if not (lb_int and up_int):
+            raise ValueError("lower bound and upper bound must be integers")
 
-        for entry in self.resolution:
-            if not isinstance(entry, numbers.Integral):
-                raise ValueError(('all entries in resolution should be '
-                                  'integers'))
+        self.lower_bound = int(lower_bound)
+        self.upper_bound = int(upper_bound)
 
-        self.dist = Parameter.INTEGER
+        self.dist = sp.stats.randint(
+            self.lower_bound, self.upper_bound + 1
+        )  # @UndefinedVariable
 
-    @property
-    def params(self):
-        # scipy.stats.randit uses closed upper bound, hence the +1
-        return (self.lower_bound, self.upper_bound + 1)
+        try:
+            for idx, entry in enumerate(self.resolution):
+                if not float(entry).is_integer():
+                    raise ValueError(
+                        ("all entries in resolution should be " "integers")
+                    )
+                else:
+                    self.resolution[idx] = int(entry)
+        except TypeError:
+            # if self.resolution is None
+            pass
+
+    @classmethod
+    def from_dist(cls, name, dist, **kwargs):
+        if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
+            raise ValueError("dist should be instance of rv_discrete")
+        return super(IntegerParameter, cls).from_dist(name, dist, **kwargs)
 
 
 class CategoricalParameter(IntegerParameter):
@@ -243,6 +344,8 @@ class CategoricalParameter(IntegerParameter):
     multivalue : boolean
                  if categories have a set of values, for each variable_name
                  a different one.
+    # TODO: should multivalue not be a seperate class?
+    # TODO: multivalue as label is also horrible
 
     """
 
@@ -254,24 +357,30 @@ class CategoricalParameter(IntegerParameter):
     def categories(self, values):
         self._categories.extend(values)
 
-    def __init__(self, name, categories, default=None, variable_name=None,
-                 pff=False, multivalue=False):
+    def __init__(
+        self,
+        name,
+        categories,
+        default=None,
+        variable_name=None,
+        pff=False,
+        multivalue=False,
+    ):
         lower_bound = 0
         upper_bound = len(categories) - 1
 
         if upper_bound == 0:
-            raise ValueError('there should be more than 1 category')
+            raise ValueError("there should be more than 1 category")
 
-        super(
-            CategoricalParameter,
-            self).__init__(
+        super(CategoricalParameter, self).__init__(
             name,
             lower_bound,
             upper_bound,
             resolution=None,
             default=default,
             variable_name=variable_name,
-            pff=pff)
+            pff=pff,
+        )
         cats = [create_category(cat) for cat in categories]
 
         self._categories = NamedObjectMap(Category)
@@ -313,56 +422,27 @@ class CategoricalParameter(IntegerParameter):
 
         return self.categories[index]
 
-    def invert(self, name):
-        """ invert a category to an integer
-
-        Parameters
-        ----------
-        name : obj
-               category
-
-        Raises
-        ------
-        ValueError
-            if category is not found
-
-        """
-        warnings.warn('deprecated, use index_for_cat instead')
-        return self.index_for_cat(name)
-
     def __repr__(self, *args, **kwargs):
-        template1 = 'CategoricalParameter(\'{}\', {}, default={})'
-        template2 = 'CategoricalParameter(\'{}\', {})'
+        template1 = "CategoricalParameter('{}', {}, default={})"
+        template2 = "CategoricalParameter('{}', {})"
 
         if self.default:
-            representation = template1.format(self.name, self.resolution,
-                                              self.default)
+            representation = template1.format(self.name, self.resolution, self.default)
         else:
             representation = template2.format(self.name, self.resolution)
 
         return representation
 
-
-class BinaryParameter(CategoricalParameter):
-    """ a categorical model input parameter that is only True or False
-
-    Parameters
-    ----------
-    name : str
-    """
-
-    def __init__(self, name, default=None, ):
-        super(
-            BinaryParameter,
-            self).__init__(
-            name,
-            categories=[
-                False,
-                True],
-            default=default)
+    def from_dist(self, name, dist):
+        # TODO:: how to handle this
+        # probably need to pass categories as list and zip
+        # categories to integers implied by dist
+        raise NotImplementedError(
+            ("custom distributions over categories " "not supported yet")
+        )
 
 
-class BooleanParameter(IntegerParameter):
+class BooleanParameter(CategoricalParameter):
     """ boolean model input parameter
 
     A BooleanParameter is similar to a CategoricalParameter, except
@@ -375,160 +455,14 @@ class BooleanParameter(IntegerParameter):
 
     """
 
-    def __init__(self, name, default=None, variable_name=None,
-                 pff=False):
+    def __init__(self, name, default=None, variable_name=None, pff=False):
         super(BooleanParameter, self).__init__(
-            name, 0, 1, resolution=None, default=default,
-            variable_name=variable_name, pff=pff)
-
-        self.categories = [False, True]
-        self.resolution = [0, 1]
-
-    def __repr__(self, *args, **kwargs):
-        template1 = 'BooleanParameter(\'{}\', default={})'
-        template2 = 'BooleanParameter(\'{}\', )'
-
-        if self.default:
-            representation = template1.format(self.name,
-                                              self.default)
-        else:
-            representation = template2.format(self.name, )
-
-        return representation
-
-
-class Policy(NamedDict):
-    """Helper class representing a policy
-
-    Attributes
-    ----------
-    name : str, int, or float
-    id : int
-
-    all keyword arguments are wrapped into a dict.
-
-    """
-    # TODO:: separate id and name
-    # if name is not provided fall back on id
-    # id will always be a number and can be generated by
-    # a counter
-    # the new experiment class can than take the names from
-    # policy and scenario to create a unique name while also
-    # multiplying the ID's (assuming we count from 1 onward) to get
-    # a unique experiment ID
-    id_counter = Counter(1)
-
-    def __init__(self, name=Counter(), **kwargs):
-        # TODO: perhaps move this to seperate function that internally uses
-        # counter
-        if isinstance(name, int):
-            name = f"policy {name}"
-
-        super(Policy, self).__init__(name, **kwargs)
-        self.id = Policy.id_counter()
-
-    def to_list(self, parameters):
-        """get list like representation of policy where the
-        parameters are in the order of levers"""
-
-        return [self[param.name] for param in parameters]
-
-    def __repr__(self):
-        return "Policy({})".format(super(Policy, self).__repr__())
-
-
-class Scenario(NamedDict):
-    """Helper class representing a scenario
-
-    Attributes
-    ----------
-    name : str, int, or float
-    id : int
-
-    all keyword arguments are wrapped into a dict.
-
-    """
-
-    # we need to start from 1 so scenario id is known
-    id_counter = Counter(1)
-
-    def __init__(self, name=Counter(), **kwargs):
-        super(Scenario, self).__init__(name, **kwargs)
-        self.id = Scenario.id_counter()
-
-    def __repr__(self):
-        return "Scenario({})".format(super(Scenario, self).__repr__())
-
-
-class Case(NamedObject):
-    """A convenience object that contains a specification
-    of the model, policy, and scenario to run
-
-    TODO:: we need a better name for this. probably this should be
-    named Experiment, while Experiment should be
-    ExperimentReplication
-
-    """
-
-    def __init__(self, name, model_name, policy, scenario, experiment_id):
-        super(Case, self).__init__(name)
-        self.experiment_id = experiment_id
-        self.policy = policy
-        self.model_name = model_name
-        self.scenario = scenario
-
-
-class Experiment(NamedDict):
-    """helper class that combines scenario, policy, any constants, and
-    replication information (seed etc) into a single dictionary.
-
-    """
-
-    def __init__(self, scenario, policy, constants, replication=None):
-        scenario_id = scenario.id
-        policy_id = policy.id
-
-        if replication is None:
-            replication_id = 1
-        else:
-            replication_id = replication.id
-            constants = combine(constants, replication)
-
-        # this is a unique identifier for an experiment
-        # we might also create a better looking name
-        self.id = scenario_id * policy_id * replication_id
-        name = '{}_{}_{}'.format(scenario.name, policy.name, replication_id)
-
-        super(Experiment, self).__init__(
-            name, **combine(scenario, policy, constants))
-
-
-def experiment_generator(scenarios, model_structures, policies):
-    """
-
-    generator function which yields experiments
-
-    Parameters
-    ----------
-    designs : iterable of dicts
-    model_structures : list
-    policies : list
-
-    Notes
-    -----
-    this generator is essentially three nested loops: for each model structure,
-    for each policy, for each scenario, return the experiment. This means
-    that designs should not be a generator because this will be exhausted after
-    the running the first policy on the first model.
-
-    """
-    jobs = itertools.product(model_structures, policies, scenarios)
-
-    for i, job in enumerate(jobs):
-        msi, policy, scenario = job
-        name = '{} {} {}'.format(msi.name, policy.name, i)
-        case = Case(name, msi.name, policy, scenario, i)
-        yield case
+            name,
+            categories=[True, False],
+            default=default,
+            variable_name=variable_name,
+            pff=pff,
+        )
 
 
 def parameters_to_csv(parameters, file_name):
@@ -542,7 +476,7 @@ def parameters_to_csv(parameters, file_name):
 
     The function iterates over the collection and turns these into a data
     frame prior to storing them. The resulting csv can be loaded using the
-    create_parameters function. Note that currently we don't store resolution
+    parameters_from_csv function. Note that currently we don't store resolution
     and default attributes.
 
     """
@@ -557,23 +491,23 @@ def parameters_to_csv(parameters, file_name):
             values = param.lower_bound, param.upper_bound
 
         dict_repr = {j: value for j, value in enumerate(values)}
-        dict_repr['name'] = param.name
+        dict_repr["name"] = param.name
 
         params[i] = dict_repr
 
-    params = pandas.DataFrame.from_dict(params, orient='index')
+    params = pd.DataFrame.from_dict(params, orient="index")
 
     # for readability it is nice if name is the first column, so let's
     # ensure this
     cols = params.columns.tolist()
-    cols.insert(0, cols.pop(cols.index('name')))
+    cols.insert(0, cols.pop(cols.index("name")))
     params = params.reindex(columns=cols)
 
     # we can now safely write the dataframe to a csv
-    pandas.DataFrame.to_csv(params, file_name, index=False)
+    pd.DataFrame.to_csv(params, file_name, index=False)
 
 
-def create_parameters(uncertainties, **kwargs):
+def parameters_from_csv(uncertainties, **kwargs):
     """Helper function for creating many Parameters based on a DataFrame
     or csv file
 
@@ -611,39 +545,40 @@ def create_parameters(uncertainties, **kwargs):
 
     """
 
-    if isinstance(uncertainties, six.string_types):
-        uncertainties = pandas.read_csv(uncertainties, **kwargs)
-    elif not isinstance(uncertainties, pandas.DataFrame):
-        uncertainties = pandas.DataFrame.from_dict(uncertainties)
+    if isinstance(uncertainties, str):
+        uncertainties = pd.read_csv(uncertainties, **kwargs)
+    elif not isinstance(uncertainties, pd.DataFrame):
+        uncertainties = pd.DataFrame.from_dict(uncertainties)
     else:
         uncertainties = uncertainties.copy()
 
-    parameter_map = {'int': IntegerParameter,
-                     'real': RealParameter,
-                     'cat': CategoricalParameter,
-                     'bool': BooleanParameter,
-                     }
+    parameter_map = {
+        "int": IntegerParameter,
+        "real": RealParameter,
+        "cat": CategoricalParameter,
+        "bool": BooleanParameter,
+    }
 
     # check if names column is there
-    if ('NAME' not in uncertainties) and ('name' not in uncertainties):
-        raise IndexError('name column missing')
-    elif ('NAME' in uncertainties.columns):
-        names = uncertainties['NAME']
-        uncertainties.drop(['NAME'], axis=1, inplace=True)
+    if ("NAME" not in uncertainties) and ("name" not in uncertainties):
+        raise IndexError("name column missing")
+    elif "NAME" in uncertainties.columns:
+        names = uncertainties["NAME"]
+        uncertainties.drop(["NAME"], axis=1, inplace=True)
     else:
-        names = uncertainties['name']
-        uncertainties.drop(['name'], axis=1, inplace=True)
+        names = uncertainties["name"]
+        uncertainties.drop(["name"], axis=1, inplace=True)
 
     # check if type column is there
     infer_type = False
-    if ('TYPE' not in uncertainties) and ('type' not in uncertainties):
+    if ("TYPE" not in uncertainties) and ("type" not in uncertainties):
         infer_type = True
-    elif ('TYPE' in uncertainties):
-        types = uncertainties['TYPE']
-        uncertainties.drop(['TYPE'], axis=1, inplace=True)
+    elif "TYPE" in uncertainties:
+        types = uncertainties["TYPE"]
+        uncertainties.drop(["TYPE"], axis=1, inplace=True)
     else:
-        types = uncertainties['type']
-        uncertainties.drop(['type'], axis=1, inplace=True)
+        types = uncertainties["type"]
+        uncertainties.drop(["type"], axis=1, inplace=True)
 
     uncs = []
     for i, row in uncertainties.iterrows():
@@ -653,26 +588,26 @@ def create_parameters(uncertainties, **kwargs):
 
         if infer_type:
             if len(values) != 2:
-                type = 'cat'  # @ReservedAssignment
+                type = "cat"  # @ReservedAssignment
             else:
                 l, u = values
 
-                if isinstance(
-                        l, numbers.Integral) and isinstance(
-                    u, numbers.Integral):
-                    type = 'int'  # @ReservedAssignment
+                if isinstance(l, numbers.Integral) and isinstance(u, numbers.Integral):
+                    type = "int"  # @ReservedAssignment
                 else:
-                    type = 'real'  # @ReservedAssignment
+                    type = "real"  # @ReservedAssignment
 
         else:
             type = types[i]  # @ReservedAssignment
 
-            if (type != 'cat') and (len(values) != 2):
+            if (type != "cat") and (len(values) != 2):
                 raise ValueError(
-                    'too many values specified for {}, is {}, should be 2'.format(
-                        name, values.shape[0]))
+                    "too many values specified for {}, is {}, should be 2".format(
+                        name, values.shape[0]
+                    )
+                )
 
-        if type == 'cat':
+        if type == "cat":
             uncs.append(parameter_map[type](name, values))
         else:
             uncs.append(parameter_map[type](name, *values))

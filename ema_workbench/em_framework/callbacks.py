@@ -20,8 +20,8 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from .parameters import (CategoricalParameter, IntegerParameter,
-                         BooleanParameter)
+from .parameters import CategoricalParameter, IntegerParameter, BooleanParameter
+from .util import ProgressTrackingMixIn
 from ..util import ema_exceptions, get_module_logger
 
 #
@@ -30,13 +30,11 @@ from ..util import ema_exceptions, get_module_logger
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 #
 
-__all__ = ['AbstractCallback',
-           'DefaultCallback',
-           'FileBasedCallback']
+__all__ = ["AbstractCallback", "DefaultCallback", "FileBasedCallback"]
 _logger = get_module_logger(__name__)
 
 
-class AbstractCallback(object):
+class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
     """
     Abstract base class from which different call back classes can be derived.
     Callback is responsible for storing the results of the runs.
@@ -66,45 +64,46 @@ class AbstractCallback(object):
                          the interval between progress logs
 
     """
-    __metaclass__ = abc.ABCMeta
 
-    i = 0
+    def __init__(
+        self,
+        uncertainties,
+        outcomes,
+        levers,
+        nr_experiments,
+        reporting_interval=None,
+        reporting_frequency=10,
+        log_progress=False,
+    ):
+        super(AbstractCallback, self).__init__(
+            nr_experiments, reporting_frequency, _logger, log_progress
+        )
 
-    def __init__(self, uncertainties, outcomes, levers,
-                 nr_experiments, reporting_interval=None,
-                 reporting_frequency=10):
         if reporting_interval is None:
             reporting_interval = max(
-                1, int(round(nr_experiments / reporting_frequency)))
+                1, int(round(nr_experiments / reporting_frequency))
+            )
 
         self.reporting_interval = reporting_interval
 
     @abc.abstractmethod
     def __call__(self, experiment, outcomes):
         """
-        Method responsible for storing results. The implementation in this
-        class only keeps track of how many runs have been completed and
-        logging this. Any extension of AbstractCallback needs to implement
-        this method. If one want to use the logging provided here, call it via
-        super.
+        Method responsible for storing results.
+
+        The implementation in this class only keeps track of how many runs
+        have been completed and logging this. Any extension of
+        AbstractCallback needs to implement this method. If one want
+        to use the logging provided here, call it via super.
 
         Parameters
         ----------
         experiment: Experiment instance
         outcomes: dict
-                the outcomes dict
+                  the outcomes dict
 
         """
-        #
-        # TODO:: https://github.com/alexanderkuk/log-progress
-        # can we detect whether we are running within Jupyter?
-        # yes:
-        # https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
-        self.i += 1
-        _logger.debug(str(self.i) + " cases completed")
-
-        if self.i % self.reporting_interval == 0:
-            _logger.info(str(self.i) + " cases completed")
+        super(AbstractCallback, self).__call__(1)
 
     @abc.abstractmethod
     def get_results(self):
@@ -125,16 +124,22 @@ class DefaultCallback(AbstractCallback):
     design. For example if you prefer to store the result in a database
     or write them to a text file
     """
-    i = 0
-    cases = None
-    results = {}
 
     shape_error_msg = "can only save up to 2d arrays, this array is {}d"
-    constraint_error_msg = ('can only save 1d arrays for constraint, '
-                            'this array is {}d')
+    constraint_error_msg = (
+        "can only save 1d arrays for constraint, " "this array is {}d"
+    )
 
-    def __init__(self, uncs, levers, outcomes, nr_experiments,
-                 reporting_interval=100, reporting_frequency=10):
+    def __init__(
+        self,
+        uncs,
+        levers,
+        outcomes,
+        nr_experiments,
+        reporting_interval=100,
+        reporting_frequency=10,
+        log_progress=False,
+    ):
         """
 
         Parameters
@@ -150,17 +155,24 @@ class DefaultCallback(AbstractCallback):
                              the interval between progress logs
         reporting_frequency: int, optional
                              the total number of progress logs
+        log_progress : bool, optional
+                       if true, progress is logged, if false, use
+                       tqdm progress bar.
 
         """
-        super(DefaultCallback, self).__init__(uncs, levers, outcomes,
-                                              nr_experiments,
-                                              reporting_interval,
-                                              reporting_frequency)
+        super(DefaultCallback, self).__init__(
+            uncs,
+            levers,
+            outcomes,
+            nr_experiments,
+            reporting_interval,
+            reporting_frequency,
+            log_progress,
+        )
         self.i = 0
         self.cases = None
         self.results = {}
-
-        self.outcomes = [outcome.name for outcome in outcomes]
+        self.outcomes = outcomes
 
         # determine data types of parameters
         columns = []
@@ -170,25 +182,29 @@ class DefaultCallback(AbstractCallback):
         for parameter in uncs + levers:
             name = parameter.name
             self.parameters.append(name)
-            dataType = 'float'
+            dtype = "float"
 
             if isinstance(parameter, CategoricalParameter):
-                dataType = 'object'
+                dtype = "object"
             elif isinstance(parameter, BooleanParameter):
-                dataType = 'bool'
+                dtype = "bool"
             elif isinstance(parameter, IntegerParameter):
-                dataType = 'int'
+                dtype = "int"
             columns.append(name)
-            dtypes.append(dataType)
+            dtypes.append(dtype)
 
-        for name in ['scenario', 'policy', 'model']:
+        for name in ["scenario", "policy", "model"]:
             columns.append(name)
-            dtypes.append('object')
+            dtypes.append("object")
 
-        df = pd.DataFrame(index=np.arange(nr_experiments))
+        # FIXME:: issue with fragmented data frame warning
+        index = np.arange(nr_experiments)
+        column_dict = {
+            name: pd.Series(dtype=dtype, index=index)
+            for name, dtype in zip(columns, dtypes)
+        }
+        df = pd.concat(column_dict, axis=1).copy()
 
-        for name, dtype in zip(columns, dtypes):
-            df[name] = pd.Series(dtype=dtype)
         self.cases = df
         self.nr_experiments = nr_experiments
 
@@ -205,9 +221,9 @@ class DefaultCallback(AbstractCallback):
         policy = experiment.policy
         index = experiment.experiment_id
 
-        self.cases.at[index, 'scenario'] = scenario.name
-        self.cases.at[index, 'policy'] = policy.name
-        self.cases.at[index, 'model'] = experiment.model_name
+        self.cases.at[index, "scenario"] = scenario.name
+        self.cases.at[index, "policy"] = policy.name
+        self.cases.at[index, "model"] = experiment.model_name
 
         for k, v in scenario.items():
             self.cases.at[index, k] = v
@@ -217,20 +233,21 @@ class DefaultCallback(AbstractCallback):
 
     def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
-            _logger.debug("storing {}".format(outcome))
+            outcome = outcome.name
+            _logger.debug(f"storing {outcome}")
 
             try:
                 outcome_res = outcomes[outcome]
             except KeyError:
-                message = "%s not specified as outcome in msi" % outcome
+                message = f"{outcome} not specified as outcome in " f"model(s)"
                 _logger.debug(message)
             else:
                 try:
                     self.results[outcome][case_id,] = outcome_res
                 except KeyError:
-                    a = np.asarray(outcome_res, dtype=float)
+                    data = np.asarray(outcome_res)
 
-                    shape = a.shape
+                    shape = data.shape
 
                     if len(shape) > 2:
                         message = self.shape_error_msg.format(len(shape))
@@ -239,7 +256,7 @@ class DefaultCallback(AbstractCallback):
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
 
-                    self.results[outcome] = np.empty(shape, dtype=a.dtype)
+                    self.results[outcome] = np.empty(shape, dtype=data.dtype)
                     self.results[outcome][:] = np.nan
                     self.results[outcome][case_id,] = outcome_res
 
@@ -291,39 +308,45 @@ class FileBasedCallback(AbstractCallback):
 
     """
 
-    def __init__(self, uncs, levers, outcomes, nr_experiments,
-                 reporting_interval=100, reporting_frequency=10):
-        super(
-            FileBasedCallback,
-            self).__init__(
+    def __init__(
+        self,
+        uncs,
+        levers,
+        outcomes,
+        nr_experiments,
+        reporting_interval=100,
+        reporting_frequency=10,
+    ):
+        super(FileBasedCallback, self).__init__(
             uncs,
             levers,
             outcomes,
             nr_experiments,
             reporting_interval=reporting_interval,
-            reporting_frequency=reporting_frequency)
+            reporting_frequency=reporting_frequency,
+        )
 
         self.i = 0
         self.nr_experiments = nr_experiments
         self.outcomes = [outcome.name for outcome in outcomes]
         self.parameters = [parameter.name for parameter in uncs + levers]
 
-        self.directory = os.path.abspath('./temp')
+        self.directory = os.path.abspath("./temp")
         if os.path.exists(self.directory):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
 
-        self.experiments_fh = open(os.path.join(self.directory,
-                                                'experiments.csv'), 'w')
+        self.experiments_fh = open(os.path.join(self.directory, "experiments.csv"), "w")
 
-        header = self.parameters + ['scenario_id', 'policy', 'model']
+        header = self.parameters + ["scenario_id", "policy", "model"]
         writer = csv.writer(self.experiments_fh)
         writer.writerow(header)
 
         self.outcome_fhs = {}
         for outcome in self.outcomes:
             self.outcome_fhs[outcome] = open(
-                os.path.join(self.directory, outcome + '.csv'), 'w')
+                os.path.join(self.directory, outcome + ".csv"), "w"
+            )
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
@@ -387,6 +410,6 @@ class FileBasedCallback(AbstractCallback):
 
         self.experiments_fh.close()
         for value in self.outcome_fhs.items():
-            value.close
+            value.close()
 
         return self.directory

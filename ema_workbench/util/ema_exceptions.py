@@ -8,10 +8,7 @@ advice given in `PEP 8 <http://www.python.org/dev/peps/pep-0008/>`_.
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['EMAError',
-           'EMAWarning',
-           'CaseError',
-           'EMAParallelError']
+__all__ = ["EMAError", "EMAWarning", "CaseError", "EMAParallelError"]
 
 
 class EMAError(BaseException):
@@ -36,6 +33,7 @@ class EMAWarning(EMAError):
     """
     base EMA warning class
     """
+
     pass
 
 
@@ -54,7 +52,7 @@ class CaseError(EMAError):
         try:
             self.policy = policy.name
         except AttributeError:
-            self.policy = 'None'
+            self.policy = "None"
 
     def __str__(self):
         keys = sorted(self.case.keys())
@@ -65,10 +63,10 @@ class CaseError(EMAError):
             c += key
             c += ":"
             c += str(value)
-            c += ', '
-        c += 'policy:' + self.policy
+            c += ", "
+        c += "policy:" + self.policy
 
-        return self.message + ' case: {' + c + "}"
+        return self.message + " case: {" + c + "}"
 
     def __repr__(self):
         return "%s case: %s " % (self.message, repr(self.case))
@@ -78,4 +76,5 @@ class EMAParallelError(EMAError):
     """
     parallel EMA error
     """
+
     pass

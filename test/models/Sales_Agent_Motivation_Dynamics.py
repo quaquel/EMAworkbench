@@ -4,7 +4,7 @@ Translated using PySD version 1.3.0
 """
 from os import path
 
-from pysd.py_backend.functions import if_then_else, Integ, lookup
+from pysd.py_backend.functions import lookup, Integ, if_then_else
 from pysd import cache
 
 _subscript_dict = {}

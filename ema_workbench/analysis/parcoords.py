@@ -1,7 +1,6 @@
 """This module offers a general purpose parallel coordinate plotting Class
 using matplotlib.
 
-
 """
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -14,8 +13,7 @@ from sklearn import preprocessing
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['ParallelAxes',
-           'get_limits']
+__all__ = ["ParallelAxes", "get_limits"]
 
 
 def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
@@ -37,7 +35,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
     if formatter is None:
         formatter = {}
 
-    sns.set_style('white')
+    sns.set_style("white")
     # labels is a list, minima and maxima pd series
     nr_columns = len(labels)
     fig = plt.figure()
@@ -58,7 +56,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
         ax.yaxis.set_ticks([])
 
         # TODO::consider moving to f-strin
-        # so 
+        # so
         # label = f"{{maxima[label]}:{precision}}"
         try:
             precision = formatter[label]
@@ -67,20 +65,18 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
 
         max_label = f"{maxima[label]:{precision}}"
         min_label = f"{minima[label]:{precision}}"
-        max_label = ax.text(i, 1.01, max_label, va="bottom",
-                            ha="center", fontsize=fs)
-        min_label = ax.text(i, -0.01, min_label, va="top",
-                            ha="center", fontsize=fs)
+        max_label = ax.text(i, 1.01, max_label, va="bottom", ha="center", fontsize=fs)
+        min_label = ax.text(i, -0.01, min_label, va="top", ha="center", fontsize=fs)
         tick_labels[label] = (min_label, max_label)
 
-        ax.spines['left'].set_bounds(0, 1)
-        ax.spines['right'].set_bounds(0, 1)
-        ax.spines['top'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
+        ax.spines["left"].set_bounds(0, 1)
+        ax.spines["right"].set_bounds(0, 1)
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
 
     # for the last axis, we need 2 ticks (also for the right hand side
     ax.xaxis.set_major_locator(ticker.FixedLocator([i, i + 1]))
-    ax.xaxis.set_ticklabels(labels[i - 1:i + 1], fontsize=fs, rotation=rot)
+    ax.xaxis.set_ticklabels(labels[i - 1 : i + 1], fontsize=fs, rotation=rot)
 
     label = labels[-1]
 
@@ -92,10 +88,8 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
     max_label = f"{maxima[label]:{precision}}"
     min_label = f"{minima[label]:{precision}}"
 
-    max_label = ax.text(i + 1, 1.01, max_label, va="bottom",
-                        ha="center", fontsize=fs)
-    min_label = ax.text(i + 1, -0.01, min_label, va="top",
-                        ha="center", fontsize=fs)
+    max_label = ax.text(i + 1, 1.01, max_label, va="bottom", ha="center", fontsize=fs)
+    min_label = ax.text(i + 1, -0.01, min_label, va="top", ha="center", fontsize=fs)
     tick_labels[label] = (min_label, max_label)
 
     # add the tick labels to the rightmost spine
@@ -123,7 +117,7 @@ def get_limits(data):
     """
 
     def limits(x):
-        if x.dtype == 'object':
+        if x.dtype == "object":
             return pd.Series([set(x), set(x)])
         else:
             return pd.Series([x.min(), x.max()])
@@ -176,18 +170,23 @@ class ParallelAxes(object):
 
         # recode data
         for column, dtype in limits.dtypes.iteritems():
-            if dtype == 'object':
+            if dtype == "object":
                 cats = limits[column][0]
-                self.recoding[column] = CategoricalDtype(categories=cats,
-                                                         ordered=False)
-                limits.ix[:, column] = [0, len(cats) - 1]
+                self.recoding[column] = CategoricalDtype(categories=cats, ordered=False)
+                self.limits.loc[:, column] = [0, len(cats) - 1]
 
         self.normalizer = preprocessing.MinMaxScaler()
         self.normalizer.fit(self.limits)
 
         fig, axes, ticklabels = setup_parallel_plot(
-            self.axis_labels, limits.min(), limits.max(),
-            fs=self.fontsize, rot=rot, formatter=formatter)
+            self.axis_labels,
+            self.limits.min(),
+            self.limits.max(),
+            fs=self.fontsize,
+            rot=rot,
+            formatter=formatter,
+        )
+
         self.fig = fig
         self.axes = axes
         self.ticklabels = ticklabels
@@ -232,8 +231,9 @@ class ParallelAxes(object):
             recoded[key] = data[key].astype(value).cat.codes
 
         # normalize the data
-        normalized_data = pd.DataFrame(self.normalizer.transform(recoded),
-                                       columns=recoded.columns)
+        normalized_data = pd.DataFrame(
+            self.normalizer.transform(recoded), columns=recoded.columns
+        )
 
         # plot the data
         self._plot(normalized_data, color=color, **kwargs)
@@ -255,9 +255,8 @@ class ParallelAxes(object):
             fontsize=self.fontsize,
             loc=2,
             borderaxespad=0.1,
-            bbox_to_anchor=(
-                1.025,
-                0.925))
+            bbox_to_anchor=(1.025, 0.925),
+        )
         plt.tight_layout(h_pad=0, w_pad=0)
         plt.subplots_adjust(wspace=0)
 
@@ -271,8 +270,9 @@ class ParallelAxes(object):
         """
 
         j = -1
-        for ax, label_i, label_j in zip(self.axes, self.axis_labels[:-1],
-                                        self.axis_labels[1::]):
+        for ax, label_i, label_j in zip(
+            self.axes, self.axis_labels[:-1], self.axis_labels[1::]
+        ):
             plotdata = data.loc[:, [label_i, label_j]]
             j += 1
             lines = ax.plot([j + 1, j + 2], plotdata.values.T, **kwargs)
@@ -356,10 +356,10 @@ class ParallelAxes(object):
             x, y = label.get_position()
             if y == -0.01:
                 y = 1.01
-                label.set_va('bottom')
+                label.set_va("bottom")
             else:
                 y = -0.01
-                label.set_va('top')
+                label.set_va("top")
             label.set_position((x, y))
 
     # TODO:: more fine-grained control for intermediate ticklabels

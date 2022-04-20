@@ -9,23 +9,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # from . import plotting_util
-from .plotting_util import (LegendEnum, get_color,
-                            prepare_pairs_data, make_legend)
+from .plotting_util import LegendEnum, get_color, prepare_pairs_data, make_legend
 from ..util import get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['pairs_scatter', 'pairs_lines', 'pairs_density']
+__all__ = ["pairs_scatter", "pairs_lines", "pairs_density"]
 _logger = get_module_logger(__name__)
 
 
-def pairs_lines(experiments, outcomes,
-                outcomes_to_show=[],
-                group_by=None,
-                grouping_specifiers=None,
-                ylabels={},
-                legend=True,
-                **kwargs):
+def pairs_lines(
+    experiments,
+    outcomes,
+    outcomes_to_show=[],
+    group_by=None,
+    grouping_specifiers=None,
+    ylabels={},
+    legend=True,
+    **kwargs
+):
     """
 
     Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
@@ -71,27 +73,23 @@ def pairs_lines(experiments, outcomes,
     """
 
     # unravel return from run_experiments
-    _logger.debug("making a pars lines plot")
+    _logger.debug("making a pairwise line plot")
 
     prepared_data = prepare_pairs_data(
-        experiments,
-        outcomes,
-        outcomes_to_show,
-        group_by,
-        grouping_specifiers,
-        None)
-    outcomes, outcomes_to_show, grouping_labels = prepared_data
+        experiments, outcomes, outcomes_to_show, group_by, grouping_specifiers, None
+    )
+    experiments, outcomes, outcomes_to_show, grouping_labels = prepared_data
 
     grid = gridspec.GridSpec(len(outcomes_to_show), len(outcomes_to_show))
-    grid.update(wspace=0.1,
-                hspace=0.1)
+    grid.update(wspace=0.1, hspace=0.1)
 
     # the plotting
     figure = plt.figure()
     axes_dict = {}
 
-    combis = [(field1, field2) for field1 in outcomes_to_show
-              for field2 in outcomes_to_show]
+    combis = [
+        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
+    ]
 
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -106,26 +104,29 @@ def pairs_lines(experiments, outcomes,
                 data2 = outcomes[entry][field2]
                 color = get_color(x)
                 if i == j:
-                    color = 'white'
+                    color = "white"
                 simple_pairs_lines(ax, data1, data2, color)
         else:
             data1 = outcomes[field1]
             data2 = outcomes[field2]
-            color = 'b'
+            color = "b"
             if i == j:
-                color = 'white'
+                color = "white"
             simple_pairs_lines(ax, data1, data2, color)
-        do_text_ticks_labels(ax, i, j, field1, field2, ylabels,
-                             outcomes_to_show)
+        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show)
 
     if group_by and legend:
         gs1 = grid[0, 0]
 
         for ax in figure.axes:
             gs2 = ax._subplotspec
-            if all((gs1._gridspec == gs2._gridspec,
+            if all(
+                (
+                    gs1._gridspec == gs2._gridspec,
                     gs1.num1 == gs2.num1,
-                    gs1.num2 == gs2.num2)):
+                    gs1.num2 == gs2.num2,
+                )
+            ):
                 break
 
         make_legend(grouping_labels, ax, legend_type=LegendEnum.LINE)
@@ -148,24 +149,23 @@ def simple_pairs_lines(ax, y_data, x_data, color):
     """
 
     ax.plot(x_data.T, y_data.T, c=color)
-    ax.scatter(x_data[:, 0], y_data[:, 0],
-               edgecolor=color, facecolor=color,
-               marker='o')
-    ax.scatter(x_data[:, -1], y_data[:, -1],
-               edgecolor=color, facecolor=color,
-               marker='+')
+    ax.scatter(x_data[:, 0], y_data[:, 0], edgecolor=color, facecolor=color, marker="o")
+    ax.scatter(x_data[:, -1], y_data[:, -1], facecolor=color, marker="+")
 
 
-def pairs_density(experiments, outcomes,
-                  outcomes_to_show=[],
-                  group_by=None,
-                  grouping_specifiers=None,
-                  ylabels={},
-                  point_in_time=-1,
-                  log=True,
-                  gridsize=50,
-                  colormap='coolwarm',
-                  filter_scalar=True):
+def pairs_density(
+    experiments,
+    outcomes,
+    outcomes_to_show=[],
+    group_by=None,
+    grouping_specifiers=None,
+    ylabels={},
+    point_in_time=-1,
+    log=True,
+    gridsize=50,
+    colormap="coolwarm",
+    filter_scalar=True,
+):
     """
 
     Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
@@ -230,8 +230,9 @@ def pairs_density(experiments, outcomes,
         group_by,
         grouping_specifiers,
         point_in_time,
-        filter_scalar)
-    outcomes, outcomes_to_show, grouping_specifiers = prepared_data
+        filter_scalar,
+    )
+    experiments, outcomes, outcomes_to_show, grouping_specifiers = prepared_data
 
     if group_by:
         # figure out the extents for each combination
@@ -240,32 +241,44 @@ def pairs_density(experiments, outcomes,
         axes_dicts = {}
         figures = []
         for key, value in outcomes.items():
-            figure, axes_dict = simple_pairs_density(value, outcomes_to_show,
-                                                     log, colormap, gridsize,
-                                                     ylabels,
-                                                     extents=extents,
-                                                     title=key)
+            figure, axes_dict = simple_pairs_density(
+                value,
+                outcomes_to_show,
+                log,
+                colormap,
+                gridsize,
+                ylabels,
+                extents=extents,
+                title=key,
+            )
             axes_dicts[key] = axes_dict
             figures.append(figure)
 
         # harmonize the color scaling across figures
-        combis = [(field1, field2) for field1 in outcomes_to_show
-                  for field2 in outcomes_to_show]
+        combis = [
+            (field1, field2)
+            for field1 in outcomes_to_show
+            for field2 in outcomes_to_show
+        ]
         for combi in combis:
+            if combi[0] == combi[1]:
+                continue
+
             vmax = -1
-            vmin = 1000
+            vmin = 10000
             for entry in axes_dicts.values():
                 vmax = max(entry[combi].collections[0].norm.vmax, vmax)
-                vmin = min(entry[combi].collections[0].norm.vmin, vmax)
+                vmin = min(entry[combi].collections[0].norm.vmin, vmin)
             for entry in axes_dicts.values():
                 ax = entry[combi]
                 ax.collections[0].set_clim(vmin=vmin, vmax=vmax)
-            del vmax
+            del vmin, vmax
 
         return figures, axes_dicts
     else:
-        return simple_pairs_density(outcomes, outcomes_to_show, log, colormap,
-                                    gridsize, ylabels)
+        return simple_pairs_density(
+            outcomes, outcomes_to_show, log, colormap, gridsize, ylabels
+        )
 
 
 def determine_extents(outcomes, outcomes_to_show):
@@ -293,30 +306,31 @@ def determine_extents(outcomes, outcomes_to_show):
             maximum = np.amax(out)
             try:
                 cur = limits[entry]
-                new = (min(cur[0], minimum),
-                       max(cur[1], maximum))
+                new = (min(cur[0], minimum), max(cur[1], maximum))
                 limits[entry] = new
             except KeyError:
                 limits[entry] = (minimum, maximum)
     extents = {}
-    combis = [(field1, field2) for field1 in outcomes_to_show
-              for field2 in outcomes_to_show]
+    combis = [
+        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
+    ]
     for field1, field2 in combis:
         limits_1 = limits[field1]
         limits_2 = limits[field2]
-        extents[(field1, field2)] = (limits_1[0], limits_1[1],
-                                     limits_2[0], limits_2[1])
+        extents[(field1, field2)] = (limits_1[0], limits_1[1], limits_2[0], limits_2[1])
     return extents
 
 
-def simple_pairs_density(outcomes,
-                         outcomes_to_show,
-                         log,
-                         colormap,
-                         gridsize,
-                         ylabels,
-                         extents=None,
-                         title=None):
+def simple_pairs_density(
+    outcomes,
+    outcomes_to_show,
+    log,
+    colormap,
+    gridsize,
+    ylabels,
+    extents=None,
+    title=None,
+):
     """
 
     Helper function for generating a simple pairs density plot
@@ -339,14 +353,14 @@ def simple_pairs_density(outcomes,
     """
 
     grid = gridspec.GridSpec(len(outcomes_to_show), len(outcomes_to_show))
-    grid.update(wspace=0.1,
-                hspace=0.1)
+    grid.update(wspace=0.1, hspace=0.1)
 
     # the plotting
     figure = plt.figure()
 
-    combis = [(field1, field2) for field1 in outcomes_to_show
-              for field2 in outcomes_to_show]
+    combis = [
+        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
+    ]
     axes_dict = {}
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -360,7 +374,7 @@ def simple_pairs_density(outcomes,
 
         bins = None
         if log:
-            bins = 'log'
+            bins = "log"
 
         extent = None
         if extents:
@@ -369,28 +383,39 @@ def simple_pairs_density(outcomes,
         # text and labels
         if i == j:
             # only plot the name in the middle
-            ax.hexbin(x_data, y_data, bins=bins, gridsize=gridsize,
-                      cmap=cm.__dict__[colormap], alpha=0, edgecolor='white',
-                      linewidths=1, extent=extent)
+            pass
+            # ax.hexbin(x_data, y_data, bins=bins, gridsize=gridsize,
+            #           cmap=cm.__dict__[colormap], alpha=0, edgecolor='white',
+            #           linewidths=1, extent=extent)
         else:
-            ax.hexbin(x_data, y_data, bins=bins, gridsize=gridsize,
-                      cmap=cm.__dict__[colormap], edgecolor='black',
-                      linewidths=1, extent=extent, mincnt=1)
-        do_text_ticks_labels(ax, i, j, field1, field2, ylabels,
-                             outcomes_to_show)
+            ax.hexbin(
+                x_data,
+                y_data,
+                bins=bins,
+                gridsize=gridsize,
+                cmap=cm.__dict__[colormap],
+                edgecolor="black",
+                linewidths=1,
+                extent=extent,
+                mincnt=1,
+            )
+        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show)
 
     return figure, axes_dict
 
 
-def pairs_scatter(experiments, outcomes,
-                  outcomes_to_show=[],
-                  group_by=None,
-                  grouping_specifiers=None,
-                  ylabels={},
-                  legend=True,
-                  point_in_time=-1,
-                  filter_scalar=False,
-                  **kwargs):
+def pairs_scatter(
+    experiments,
+    outcomes,
+    outcomes_to_show=[],
+    group_by=None,
+    grouping_specifiers=None,
+    ylabels={},
+    legend=True,
+    point_in_time=-1,
+    filter_scalar=False,
+    **kwargs
+):
     """
 
     Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
@@ -442,22 +467,27 @@ def pairs_scatter(experiments, outcomes,
 
     _logger.debug("generating pairwise scatter plot")
 
-    prepared_data = prepare_pairs_data(experiments, outcomes,
-                                       outcomes_to_show, group_by,
-                                       grouping_specifiers, point_in_time,
-                                       filter_scalar)
-    outcomes, outcomes_to_show, grouping_labels = prepared_data
+    prepared_data = prepare_pairs_data(
+        experiments,
+        outcomes,
+        outcomes_to_show,
+        group_by,
+        grouping_specifiers,
+        point_in_time,
+        filter_scalar,
+    )
+    experiments, outcomes, outcomes_to_show, grouping_labels = prepared_data
 
     grid = gridspec.GridSpec(len(outcomes_to_show), len(outcomes_to_show))
-    grid.update(wspace=0.1,
-                hspace=0.1)
+    grid.update(wspace=0.1, hspace=0.1)
 
     # the plotting
     figure = plt.figure()
     axes_dict = {}
 
-    combis = [(field1, field2) for field1 in outcomes_to_show
-              for field2 in outcomes_to_show]
+    combis = [
+        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
+    ]
 
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -471,34 +501,35 @@ def pairs_scatter(experiments, outcomes,
                 x_data = outcomes[group][field2]
 
                 facecolor = get_color(x)
-                edgecolor = 'k'
+                edgecolor = "k"
                 if i == j:
-                    facecolor = 'white'
-                    edgecolor = 'white'
-                ax.scatter(x_data, y_data,
-                           facecolor=facecolor, edgecolor=edgecolor)
+                    facecolor = "white"
+                    edgecolor = "white"
+                ax.scatter(x_data, y_data, facecolor=facecolor, edgecolor=edgecolor)
         else:
             y_data = outcomes[field1]
             x_data = outcomes[field2]
 
             facecolor = get_color(0)
-            edgecolor = 'k'
+            edgecolor = "k"
             if i == j:
-                facecolor = 'white'
-                edgecolor = 'white'
-            ax.scatter(x_data, y_data,
-                       facecolor=facecolor, edgecolor=edgecolor)
-        do_text_ticks_labels(ax, i, j, field1, field2, ylabels,
-                             outcomes_to_show)
+                facecolor = "white"
+                edgecolor = "white"
+            ax.scatter(x_data, y_data, facecolor=facecolor, edgecolor=edgecolor)
+        do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show)
 
     if group_by and legend:
         gs1 = grid[0, 0]
 
         for ax in figure.axes:
             gs2 = ax._subplotspec
-            if all((gs1._gridspec == gs2._gridspec,
+            if all(
+                (
+                    gs1._gridspec == gs2._gridspec,
                     gs1.num1 == gs2.num1,
-                    gs1.num2 == gs2.num2)):
+                    gs1.num2 == gs2.num2,
+                )
+            ):
                 break
 
         make_legend(grouping_labels, ax, legend_type=LegendEnum.SCATTER)
@@ -532,10 +563,14 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
             text = ylabels[field1]
         else:
             text = field1
-        ax.text(0.5, 0.5, text,
-                horizontalalignment='center',
-                verticalalignment='center',
-                transform=ax.transAxes)
+        ax.text(
+            0.5,
+            0.5,
+            text,
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
 
     # are we at the end of the row?
     if i != len(outcomes_to_show) - 1:

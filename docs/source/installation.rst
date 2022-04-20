@@ -42,5 +42,6 @@ The various connectors have their own specific requirements.
 * `jpype-1 <https://jpype.readthedocs.io/en/latest/>`_ and 
   `pynetlogo <https://pynetlogo.readthedocs.io>`_ for NetLogo
 * `pysd <https://pysd.readthedocs.io/en/master/>`_ optional for simple vensim models
+* `pythonnet <https://pypi.org/project/pythonnet/>`_ for Simio
 
    

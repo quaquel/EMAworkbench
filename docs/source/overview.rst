@@ -47,16 +47,19 @@ environments. For each of these, a standard ModelStructureInterface class is
 provided that users can use as a starting point for specifying the interface
 to their own model. 
 
-* Vensim connector (:mod:`vensim`): This enables controlling (e.g. setting 
-  parameters, simulation setup, run, get output, etc.) a simulation model that 
-  is built in Vensim software, and conducting an EMA study based on this model.
-* Pysd connector (:mod:`pysd_connector`)
-* Excel connector (:mod:`excel`): This enables controlling models build in 
-  Excel.
-* NetLogo connector (:mod:`netlogo`): This enables controlling
-  (e.g. setting parameters, simulation setup, run, get output, etc.) a 
-  simulation model that is built in NetLogo software, and conducting an EMA 
-  study based on this model.
+* Vensim connector (:mod:`ema_workbench.connectors.vensim`): This enables
+  controlling (e.g. setting parameters, simulation setup, run, get output, etc
+  .) a simulation model that is built in Vensim software, and conducting an
+  EMA study based on this model.
+* Excel connector (:mod:`ema_workbench.connectors.excel`): This enables
+  controlling models build in Excel.
+* NetLogo connector (:mod:`ema_workbench.connectors.netlogo`): This enables
+  controlling (e.g. setting parameters, simulation setup, run, get output, etc
+  .) a simulation model that is built in NetLogo software, and conducting an
+  EMA study based on this model.
+* Simio connector (:mod:`ema_workbench.connectors.simio_connector`): This
+  enables controlling models built in Simio
+* Pysd connector (:mod:`ema_workbench.connectors.pysd_connector`)
 
 
 .. _analysis:

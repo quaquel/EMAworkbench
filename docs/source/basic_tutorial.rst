@@ -94,17 +94,17 @@ file and the name of the model. ::
 Next, we can specify the uncertainties and the outcomes. ::
 
     model.uncertainties = [RealParameter("x11", 0, 2.5),
-                                 RealParameter("x12", -2.5, 2.5)]
+                           RealParameter("x12", -2.5, 2.5)]
 
     
     model.outcomes = [TimeSeriesOutcome('a')]
     
 Note that we are using a TimeSeriesOutcome, because vensim results are time 
-series. We can now simply run this model by calling 
+series. We can now simply run this model by calling
 :func:`perform_experiments`. ::
 
 	with MultiprocessingEvaluator(model) as evaluator:
-    	results = evaluator.perform_experiments(1000)
+        results = evaluator.perform_experiments(1000)
 
 We now use a evaluator, which ensures that the code is executed in parallel. 
 

@@ -3,7 +3,6 @@ support for using the multiprocessing library in combination with the workbench
 
 """
 import logging
-from logging.handlers import QueueHandler
 import multiprocessing
 import os
 import queue
@@ -13,6 +12,7 @@ import threading
 import time
 import traceback
 from collections import defaultdict
+from logging import handlers
 
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
@@ -23,7 +23,7 @@ from ..util import get_module_logger, ema_logging
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = []
+__all__ = ["setup_working_directories"]
 
 _logger = get_module_logger(__name__)
 
@@ -62,9 +62,9 @@ def initializer(*args):
     # register a cleanup finalizer function
     # remove the root temp
     if tmpdir:
-        multiprocessing.util.Finalize(None, finalizer,
-                                      args=(os.path.abspath(tmpdir),),
-                                      exitpriority=10)
+        multiprocessing.util.Finalize(
+            None, finalizer, args=(os.path.abspath(tmpdir),), exitpriority=10
+        )
 
 
 def finalizer(tmpdir):
@@ -96,12 +96,12 @@ def setup_logging(queue, log_level):
     """
 
     # create a logger
-    logger = logging.getLogger(ema_logging.LOGGER_NAME + '.subprocess')
+    logger = logging.getLogger(ema_logging.LOGGER_NAME + ".subprocess")
     ema_logging._logger = logger
     logger.handlers = []
 
     # add the handler
-    handler = QueueHandler(queue)
+    handler = handlers.QueueHandler(queue)
     handler.setFormatter(ema_logging.LOG_FORMAT)
     logger.addHandler(handler)
 
@@ -220,7 +220,6 @@ class LogQueueReader(threading.Thread):
 
 
 class ExperimentFeeder(threading.Thread):
-
     def __init__(self, pool, results_queue, experiments):
         threading.Thread.__init__(self, name="task feeder")
         self.pool = pool
@@ -236,7 +235,6 @@ class ExperimentFeeder(threading.Thread):
 
 
 class ResultsReader(threading.Thread):
-
     def __init__(self, queue, callback):
         threading.Thread.__init__(self, name="results reader")
         self.queue = queue

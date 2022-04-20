@@ -45,11 +45,11 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
     """
 
     def __init__(self, logger, topic):
-        self.logger = logger
+        super().__init__(logger, None)
         self.topic = topic
 
     def process(self, msg, kwargs):
-        msg = '{topic}::{msg}'.format(topic=self.topic, msg=msg)
+        msg = "{topic}::{msg}".format(topic=self.topic, msg=msg)
         return msg, kwargs
 
 
@@ -74,7 +74,7 @@ def start_logwatcher():
         try:
             logwatcher.loop.start()
         except (zmq.error.ZMQError, IOError, OSError):
-            _logger.warning('shutting down log watcher')
+            _logger.warning("shutting down log watcher")
         except RuntimeError:
             pass
 
@@ -100,7 +100,7 @@ def set_engine_logger():
     adapter = EngingeLoggerAdapter(logger, SUBTOPIC)
     ema_logging._logger = adapter
 
-    _logger.debug('updated logger')
+    _logger.debug("updated logger")
 
 
 def get_engines_by_host(client):
@@ -150,7 +150,7 @@ def update_cwd_on_all_engines(client):
             for engine in value:
                 client[engine].apply(os.chdir, cwd)
         else:
-            raise NotImplementedError('not yet supported')
+            raise NotImplementedError("not yet supported")
 
 
 class LogWatcher(LoggingConfigurable):
@@ -161,19 +161,21 @@ class LogWatcher(LoggingConfigurable):
     """
 
     # configurables
-    topics = List([''],
-                  help=('The ZMQ topics to subscribe to. Default is to'
-                        'subscribe to all messages')).tag(config=True)
-    url = Unicode(
-        help="ZMQ url on which to listen for log messages").tag(config=True)
+    topics = List(
+        [""],
+        help=(
+            "The ZMQ topics to subscribe to. Default is to" "subscribe to all messages"
+        ),
+    ).tag(config=True)
+    url = Unicode(help="ZMQ url on which to listen for log messages").tag(config=True)
 
     # internals
-    stream = Instance('zmq.eventloop.zmqstream.ZMQStream', allow_none=True)
+    stream = Instance("zmq.eventloop.zmqstream.ZMQStream", allow_none=True)
     context = Instance(zmq.Context)
-    loop = Instance('tornado.ioloop.IOLoop')  # @UndefinedVariable
+    loop = Instance("tornado.ioloop.IOLoop")  # @UndefinedVariable
 
     def _url_default(self):
-        return 'tcp://%s:20202' % localhost()
+        return "tcp://%s:20202" % localhost()
 
     def _context_default(self):
         return zmq.Context.instance()
@@ -187,22 +189,22 @@ class LogWatcher(LoggingConfigurable):
         self.s.bind(self.url)
         self.stream = zmqstream.ZMQStream(self.s, self.loop)
         self.subscribe()
-        self.observe(self.subscribe, 'topics')
+        self.observe(self.subscribe, "topics")
 
     def start(self):
         self.stream.on_recv(self.log_message)
 
     def stop(self):
-        self.stream.setsockopt(zmq.UNSUBSCRIBE, b'')  # @UndefinedVariable
+        self.stream.setsockopt(zmq.UNSUBSCRIBE, b"")  # @UndefinedVariable
         self.stream.stop_on_recv()
         self.s.close()
 
     def subscribe(self):
         """Update our SUB socket's subscriptions."""
-        self.stream.setsockopt(zmq.UNSUBSCRIBE, b'')  # @UndefinedVariable
-        if '' in self.topics:
+        self.stream.setsockopt(zmq.UNSUBSCRIBE, b"")  # @UndefinedVariable
+        if "" in self.topics:
             self.log.debug("Subscribing to: everything")
-            self.stream.setsockopt(zmq.SUBSCRIBE, b'')  # @UndefinedVariable
+            self.stream.setsockopt(zmq.SUBSCRIBE, b"")  # @UndefinedVariable
         else:
             for topic in self.topics:
                 self.log.debug("Subscribing to: %r" % (topic))
@@ -211,7 +213,7 @@ class LogWatcher(LoggingConfigurable):
 
     def _extract_level(self, topic_str):
         """Turn 'engine.0.INFO.extra' into (logging.INFO, 'engine.0.extra')"""
-        topics = topic_str.split('.')
+        topics = topic_str.split(".")
         for idx, t in enumerate(topics):
             level = getattr(logging, t, None)
             if level is not None:
@@ -222,13 +224,13 @@ class LogWatcher(LoggingConfigurable):
         else:
             topics.pop(idx)
 
-        return level, '.'.join(topics)
+        return level, ".".join(topics)
 
     def log_message(self, raw):
         """receive and parse a message, then log it."""
         raw = [r.decode("utf-8") for r in raw]
 
-        if len(raw) != 2 or '.' not in raw[0]:
+        if len(raw) != 2 or "." not in raw[0]:
             logging.getLogger().error("Invalid log message: %s" % raw)
             return
         else:
@@ -239,10 +241,10 @@ class LogWatcher(LoggingConfigurable):
             # assumes subtopic only contains a single dot
             # main topic is now the substring with the origin of the message
             # so e.g. engine.1
-            main_topic, subtopic = topic.rsplit('.', 1)
+            main_topic, subtopic = topic.rsplit(".", 1)
             log = logging.getLogger(subtopic)
 
-            if msg[-1] == '\n':
+            if msg[-1] == "\n":
                 msg = msg[:-1]
 
             log.log(level, "[%s] %s" % (main_topic, msg))

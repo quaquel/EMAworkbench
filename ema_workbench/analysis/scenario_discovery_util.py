@@ -24,15 +24,15 @@ __all__ = ["RuleInductionType"]
 
 
 class RuleInductionType(enum.Enum):
-    REGRESSION = 'regression'
-    '''constant indicating regression mode'''
+    REGRESSION = "regression"
+    """constant indicating regression mode"""
 
-    BINARY = 'binary'
-    '''constant indicating binary classification mode. This is the most
-    common used mode in scenario discovery'''
+    BINARY = "binary"
+    """constant indicating binary classification mode. This is the most
+    common used mode in scenario discovery"""
 
-    CLASSIFICATION = 'classification'
-    '''constant indicating classification mode'''
+    CLASSIFICATION = "classification"
+    """constant indicating classification mode"""
 
 
 def _get_sorted_box_lims(boxes, box_init):
@@ -42,8 +42,8 @@ def _get_sorted_box_lims(boxes, box_init):
 
     Parameters
     ----------
-    boxes : list of numpy structured arrays
-    box_init : numpy structured array
+    boxes : list of DataFrames
+    box_init : DataFrmae
 
     Returns
     -------
@@ -91,7 +91,7 @@ def _make_box(x):
     # x.select_dtypes(np.number)
 
     def limits(x):
-        if (pd.api.types.is_numeric_dtype(x.dtype)):  # @UndefinedVariable
+        if pd.api.types.is_numeric_dtype(x.dtype):  # @UndefinedVariable
             return pd.Series([x.min(), x.max()])
         else:
             return pd.Series([set(x), set(x)])
@@ -111,8 +111,7 @@ def _normalize(box_lim, box_init, uncertainties):
     box_lim : DataFrame
     box_init :  DataFrame
     uncertainties : list of strings
-                    valid names of columns that exist in both structured
-                    arrays.
+                    valid names of columns that exist in both DataFrames
 
     Returns
     -------
@@ -133,7 +132,7 @@ def _normalize(box_lim, box_init, uncertainties):
             nl = 0
         else:
             lower, upper = box_lim.loc[:, u]
-            dif = (box_init.loc[1, u] - box_init.loc[0, u])
+            dif = box_init.loc[1, u] - box_init.loc[0, u]
             a = 1 / dif
             b = -1 * box_init.loc[0, u] / dif
             nl = a * lower + b
@@ -156,8 +155,9 @@ def _determine_restricted_dims(box_limits, box_init):
 
     """
     cols = box_init.columns.values
-    restricted_dims = cols[np.all(
-        box_init.values == box_limits.values, axis=0) == False]
+    restricted_dims = cols[
+        np.all(box_init.values == box_limits.values, axis=0) == False
+    ]
     #     restricted_dims = [column for column in box_init.columns if not
     #            np.all(box_init[column].values == box_limits[column].values)]
     return restricted_dims
@@ -171,9 +171,9 @@ def _determine_nr_restricted_dims(box_lims, box_init):
 
     Parameters
     ----------
-    box_lims : structured numpy array
+    box_lims : DataFrame
                a specific box limit
-    box_init : structured numpy array
+    box_init : DataFrame
                the initial box containing all data points
 
 
@@ -190,12 +190,12 @@ def _compare(a, b):
     """compare two boxes, for each dimension return True if the
     same and false otherwise"""
     dtypesDesc = a.dtype.descr
-    logical = np.ones((len(dtypesDesc, )), dtype=np.bool)
+    logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
-        logical[i] = logical[i] & \
-                     (a[name][0] == b[name][0]) & \
-                     (a[name][1] == b[name][1])
+        logical[i] = (
+            logical[i] & (a[name][0] == b[name][0]) & (a[name][1] == b[name][1])
+        )
     return logical
 
 
@@ -224,8 +224,9 @@ def _in_box(x, boxlim):
 
     x_numbered = x.select_dtypes(np.number)
     boxlim_numbered = boxlim.select_dtypes(np.number)
-    logical = (boxlim_numbered.loc[0, :].values <= x_numbered.values) & \
-              (x_numbered.values <= boxlim_numbered.loc[1, :].values)
+    logical = (boxlim_numbered.loc[0, :].values <= x_numbered.values) & (
+        x_numbered.values <= boxlim_numbered.loc[1, :].values
+    )
     logical = logical.all(axis=1)
 
     # TODO:: how to speed this up
@@ -310,13 +311,12 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     Tbox = int(Tbox)
 
     # force one sided
-    qp = sp.stats.binom_test(Hbox, Tbox, p,
-                             alternative='greater')  # @UndefinedVariable
+    qp = sp.stats.binom_test(Hbox, Tbox, p, alternative="greater")  # @UndefinedVariable
 
     return qp
 
 
-def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
+def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):
     """ helper function for pair wise scatter plotting
 
     Parameters
@@ -330,6 +330,9 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
     box_init : DataFrame
     restricted_dims : collection of strings
                       list of uncertainties that define the boxlims
+    cdf : bool, optional
+          plot diagonal as pdf or cdf, defaults to kde approx. of pdf
+
 
     """
 
@@ -339,27 +342,37 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
     # TODO:: have option to change
     # diag to CDF, gives you effectively the
     # regional sensitivity analysis results
-    categorical_columns = data.select_dtypes('category').columns.values
+    categorical_columns = data.select_dtypes("category").columns.values
     categorical_mappings = {}
     for column in categorical_columns:
         # reorder categorical data so we
-        # can capture them in a single column
+        # can capture the categories that are part of the box within a
+        # single rectangular patch
         categories_inbox = boxlim.at[0, column]
         categories_all = box_init.at[0, column]
         missing = categories_all - categories_inbox
         categories = list(categories_inbox) + list(missing)
-        #         print(column, categories)
+
         data[column] = data[column].cat.set_categories(categories)
 
         # keep the mapping for updating ticklabels
-        categorical_mappings[column] = dict(
-            enumerate(data[column].cat.categories))
+        categorical_mappings[column] = dict(enumerate(data[column].cat.categories))
 
         # replace column with codes
         data[column] = data[column].cat.codes
 
-    data['y'] = y  # for testing
-    grid = sns.pairplot(data=data, hue='y', vars=x.columns.values)
+    data["y"] = y
+
+    # ensures cases of interest are plotted on top
+    data.sort_values("y", inplace=True)
+
+    grid = sns.pairplot(
+        data=data,
+        hue="y",
+        vars=x.columns.values,
+        diag_kind="kde",
+        diag_kws={"cumulative": cdf, "common_norm": False, "fill": False},
+    )
 
     cats = set(categorical_columns)
     for row, ylabel in zip(grid.axes, grid.y_vars):
@@ -386,8 +399,9 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
                 width = xlim[1] - xlim[0]
 
             xy = x, y
-            box = patches.Rectangle(xy, width, height, edgecolor='red',
-                                    facecolor='none', lw=3)
+            box = patches.Rectangle(
+                xy, width, height, edgecolor="red", facecolor="none", lw=3
+            )
             ax.add_patch(box)
 
     # do the yticklabeling for categorical rows
@@ -400,7 +414,7 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
                 try:
                     label = categorical_mappings[ylabel][value]
                 except KeyError:
-                    label = ''
+                    label = ""
                 labels.append(label)
             ax.set_yticklabels(labels)
 
@@ -415,7 +429,7 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims):
                 try:
                     label = categorical_mappings[xlabel][i]
                 except KeyError:
-                    label = ''
+                    label = ""
                 labels.append(label)
             ax.set_xticks(locs)
             ax.set_xticklabels(labels, rotation=90)
@@ -434,10 +448,9 @@ def _setup_figure(uncs):
     ax = fig.add_subplot(111)
 
     # create the shaded grey background
-    rect = mpl.patches.Rectangle((0, -0.5), 1, nr_unc + 1.5,
-                                 alpha=0.25,
-                                 facecolor="#C0C0C0",
-                                 edgecolor="#C0C0C0")
+    rect = mpl.patches.Rectangle(
+        (0, -0.5), 1, nr_unc + 1.5, alpha=0.25, facecolor="#C0C0C0", edgecolor="#C0C0C0"
+    )
     ax.add_patch(rect)
     ax.set_xlim(left=-0.2, right=1.2)
     ax.set_ylim(top=-0.5, bottom=nr_unc - 0.5)
@@ -447,11 +460,17 @@ def _setup_figure(uncs):
     return fig, ax
 
 
-def plot_box(boxlim, qp_values, box_init, uncs,
-             coverage, density,
-             ticklabel_formatter="{} ({})",
-             boxlim_formatter="{: .2g}",
-             table_formatter="{:.3g}"):
+def plot_box(
+    boxlim,
+    qp_values,
+    box_init,
+    uncs,
+    coverage,
+    density,
+    ticklabel_formatter="{} ({})",
+    boxlim_formatter="{: .2g}",
+    table_formatter="{:.3g}",
+):
     """Helper function for parallel coordinate style visualization
     of a box
 
@@ -481,58 +500,92 @@ def plot_box(boxlim, qp_values, box_init, uncs,
         # at the top of the figure
         xj = len(uncs) - j - 1
 
-        plot_unc(box_init, xj, j, 0, norm_box_lim,
-                 boxlim, u, ax)
+        plot_unc(box_init, xj, j, 0, norm_box_lim, boxlim, u, ax)
 
         # new part
         dtype = box_init[u].dtype
 
-        props = {'facecolor': 'white',
-                 'edgecolor': 'white',
-                 'alpha': 0.25}
+        props = {"facecolor": "white", "edgecolor": "white", "alpha": 0.25}
         y = xj
 
         if dtype == object:
             elements = sorted(list(box_init[u][0]))
-            max_value = (len(elements) - 1)
+            max_value = len(elements) - 1
             values = boxlim.loc[0, u]
-            x = [elements.index(entry) for entry in
-                 values]
+            x = [elements.index(entry) for entry in values]
             x = [entry / max_value for entry in x]
 
             for xi, label in zip(x, values):
-                ax.text(xi, y - 0.2, label, ha='center', va='center',
-                        bbox=props, color='blue', fontweight='normal')
+                ax.text(
+                    xi,
+                    y - 0.2,
+                    label,
+                    ha="center",
+                    va="center",
+                    bbox=props,
+                    color="blue",
+                    fontweight="normal",
+                )
 
         else:
-            props = {'facecolor': 'white',
-                     'edgecolor': 'white',
-                     'alpha': 0.25}
+            props = {"facecolor": "white", "edgecolor": "white", "alpha": 0.25}
 
             # plot limit text labels
             x = norm_box_lim[j, 0]
 
             if not np.allclose(x, 0):
                 label = boxlim_formatter.format(boxlim.loc[0, u])
-                ax.text(x, y - 0.2, label, ha='center', va='center',
-                        bbox=props, color='blue', fontweight='normal')
+                ax.text(
+                    x,
+                    y - 0.2,
+                    label,
+                    ha="center",
+                    va="center",
+                    bbox=props,
+                    color="blue",
+                    fontweight="normal",
+                )
 
             x = norm_box_lim[j][1]
             if not np.allclose(x, 1):
                 label = boxlim_formatter.format(boxlim.loc[1, u])
-                ax.text(x, y - 0.2, label, ha='center', va='center',
-                        bbox=props, color='blue', fontweight='normal')
+                ax.text(
+                    x,
+                    y - 0.2,
+                    label,
+                    ha="center",
+                    va="center",
+                    bbox=props,
+                    color="blue",
+                    fontweight="normal",
+                )
 
             # plot uncertainty space text labels
             x = 0
             label = boxlim_formatter.format(box_init.loc[0, u])
-            ax.text(x - 0.01, y, label, ha='right', va='center',
-                    bbox=props, color='black', fontweight='normal')
+            ax.text(
+                x - 0.01,
+                y,
+                label,
+                ha="right",
+                va="center",
+                bbox=props,
+                color="black",
+                fontweight="normal",
+            )
 
             x = 1
             label = boxlim_formatter.format(box_init.loc[1, u])
-            ax.text(x + 0.01, y, label, ha='left', va='center',
-                    bbox=props, color='black', fontweight='normal')
+            ax.text(
+                x + 0.01,
+                y,
+                label,
+                ha="left",
+                va="center",
+                bbox=props,
+                color="black",
+                fontweight="normal",
+            )
 
         # set y labels
         qp_formatted = {}
@@ -540,13 +593,12 @@ def plot_box(boxlim, qp_values, box_init, uncs,
             values = [vi for vi in values if vi != -1]
 
             if len(values) == 1:
-                value = '{:.2g}'.format(values[0])
+                value = "{:.2g}".format(values[0])
             else:
-                value = '{:.2g}, {:.2g}'.format(*values)
+                value = "{:.2g}, {:.2g}".format(*values)
             qp_formatted[key] = value
 
-        labels = [ticklabel_formatter.format(u, qp_formatted[u]) for u in
-                  uncs]
+        labels = [ticklabel_formatter.format(u, qp_formatted[u]) for u in uncs]
 
         labels = labels[::-1]
         ax.set_yticklabels(labels)
@@ -558,12 +610,14 @@ def plot_box(boxlim, qp_values, box_init, uncs,
     density = table_formatter.format(density)
 
     # add table to the left
-    ax.table(cellText=[[coverage], [density]],
-             colWidths=[0.1] * 2,
-             rowLabels=['coverage', 'density'],
-             colLabels=None,
-             loc='right',
-             bbox=[1.2, 0.9, 0.1, 0.1], )
+    ax.table(
+        cellText=[[coverage], [density]],
+        colWidths=[0.1] * 2,
+        rowLabels=["coverage", "density"],
+        colLabels=None,
+        loc="right",
+        bbox=[1.2, 0.9, 0.1, 0.1],
+    )
     plt.subplots_adjust(left=0.1, right=0.75)
 
     return fig
@@ -578,24 +632,23 @@ def plot_ppt(peeling_trajectory):
     par = ax.twinx()
     par.set_ylabel("nr. restricted dimensions")
 
-    ax.plot(peeling_trajectory['mean'], label="mean")
-    ax.plot(peeling_trajectory['mass'], label="mass")
-    ax.plot(peeling_trajectory['coverage'], label="coverage")
-    ax.plot(peeling_trajectory['density'], label="density")
-    par.plot(peeling_trajectory['res_dim'], label="restricted dims")
-    ax.grid(True, which='both')
+    ax.plot(peeling_trajectory["mean"], label="mean")
+    ax.plot(peeling_trajectory["mass"], label="mass")
+    ax.plot(peeling_trajectory["coverage"], label="coverage")
+    ax.plot(peeling_trajectory["density"], label="density")
+    par.plot(peeling_trajectory["res_dim"], label="restricted dims")
+    ax.grid(True, which="both")
     ax.set_ylim(bottom=0, top=1)
 
     fig = plt.gcf()
 
-    make_legend(['mean', 'mass', 'coverage', 'density',
-                 'restricted_dim'],
-                ax, ncol=5, alpha=1)
+    make_legend(
+        ["mean", "mass", "coverage", "density", "restricted_dim"], ax, ncol=5, alpha=1
+    )
     return fig
 
 
-def plot_tradeoff(peeling_trajectory,
-                  cmap=mpl.cm.viridis):  # @UndefinedVariable
+def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis):  # @UndefinedVariable
     """Visualize the trade off between coverage and density. Color
     is used to denote the number of restricted dimensions.
 
@@ -610,36 +663,34 @@ def plot_tradeoff(peeling_trajectory,
     """
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, aspect='equal')
+    ax = fig.add_subplot(111, aspect="equal")
 
-    boundaries = np.arange(-0.5,
-                           max(peeling_trajectory['res_dim']) + 1.5,
-                           step=1)
+    boundaries = np.arange(-0.5, max(peeling_trajectory["res_dim"]) + 1.5, step=1)
     ncolors = cmap.N
     norm = mpl.colors.BoundaryNorm(boundaries, ncolors)
 
-    p = ax.scatter(peeling_trajectory['coverage'],
-                   peeling_trajectory['density'],
-                   c=peeling_trajectory['res_dim'],
-                   norm=norm,
-                   cmap=cmap)
-    ax.set_ylabel('density')
-    ax.set_xlabel('coverage')
+    p = ax.scatter(
+        peeling_trajectory["coverage"],
+        peeling_trajectory["density"],
+        c=peeling_trajectory["res_dim"],
+        norm=norm,
+        cmap=cmap,
+    )
+    ax.set_ylabel("density")
+    ax.set_xlabel("coverage")
     ax.set_ylim(bottom=0, top=1.2)
     ax.set_xlim(left=0, right=1.2)
 
-    ticklocs = np.arange(0,
-                         max(peeling_trajectory['res_dim']) + 1,
-                         step=1)
-    cb = fig.colorbar(p, spacing='uniform', ticks=ticklocs,
-                      drawedges=True)
+    ticklocs = np.arange(0, max(peeling_trajectory["res_dim"]) + 1, step=1)
+    cb = fig.colorbar(p, spacing="uniform", ticks=ticklocs, drawedges=True)
     cb.set_label("nr. of restricted dimensions")
 
     return fig
 
 
-def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
-             color=sns.color_palette()[0]):
+def plot_unc(
+    box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=sns.color_palette()[0]
+):
     """
 
     Parameters:
@@ -663,19 +714,16 @@ def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax,
 
     if dtype == object:
         elements = sorted(list(box_init[u][0]))
-        max_value = (len(elements) - 1)
+        max_value = len(elements) - 1
         box_lim = box_lim[u][0]
-        x = [elements.index(entry) for entry in
-             box_lim]
+        x = [elements.index(entry) for entry in box_lim]
         x = [entry / max_value for entry in x]
         y = [y] * len(x)
 
-        ax.scatter(x, y, edgecolor=color,
-                   facecolor=color)
+        ax.scatter(x, y, edgecolor=color, facecolor=color)
 
     else:
-        ax.plot(norm_box_lim[i], (y, y),
-                c=color)
+        ax.plot(norm_box_lim[i], (y, y), c=color)
 
 
 def plot_boxes(x, boxes, together):
@@ -696,8 +744,7 @@ def plot_boxes(x, boxes, together):
     # we don't need to show the last box, for this is the
     # box_init, which is visualized by a grey area in this
     # plot.
-    norm_box_lims = [_normalize(box_lim, box_init, uncs) for
-                     box_lim in boxes]
+    norm_box_lims = [_normalize(box_lim, box_init, uncs) for box_lim in boxes]
 
     if together:
         fig, ax = _setup_figure(uncs)
@@ -711,8 +758,7 @@ def plot_boxes(x, boxes, together):
 
             for j, norm_box_lim in enumerate(norm_box_lims):
                 color = next(colors)
-                plot_unc(box_init, xi, i, j, norm_box_lim,
-                         box_lims[j], u, ax, color)
+                plot_unc(box_init, xi, i, j, norm_box_lim, box_lims[j], u, ax, color)
 
         plt.tight_layout()
         return fig
@@ -722,14 +768,13 @@ def plot_boxes(x, boxes, together):
 
         for j, norm_box_lim in enumerate(norm_box_lims):
             fig, ax = _setup_figure(uncs)
-            ax.set_title('box {}'.format(j))
+            ax.set_title("box {}".format(j))
             color = next(colors)
 
             figs.append(fig)
             for i, u in enumerate(uncs):
                 xi = len(uncs) - i - 1
-                plot_unc(box_init, xi, i, 0, norm_box_lim,
-                         box_lims[j], u, ax, color)
+                plot_unc(box_init, xi, i, 0, norm_box_lim, box_lims[j], u, ax, color)
 
             plt.tight_layout()
         return figs
@@ -767,18 +812,19 @@ class OutputFormatterMixin(object):
                 dtype = object
                 break
 
-        columns = pd.MultiIndex.from_product([index,
-                                              ['min', 'max', ]])
-        df_boxes = pd.DataFrame(np.zeros((len(uncs), nr_boxes * 2)),
-                                index=uncs,
-                                dtype=dtype,
-                                columns=columns)
+        columns = pd.MultiIndex.from_product([index, ["min", "max",]])
+        df_boxes = pd.DataFrame(
+            np.zeros((len(uncs), nr_boxes * 2)),
+            index=uncs,
+            dtype=dtype,
+            columns=columns,
+        )
 
         # TODO should be possible to make more efficient
         for i, box in enumerate(box_lims):
             for unc in uncs:
                 values = box.loc[:, unc]
-                values = values.rename({0: 'min', 1: 'max'})
+                values = values.rename({0: "min", 1: "max"})
                 df_boxes.loc[unc][index[i]] = values.values
         return df_boxes
 
@@ -787,7 +833,7 @@ class OutputFormatterMixin(object):
 
         stats = self.stats
 
-        index = pd.Index(['box {}'.format(i + 1) for i in range(len(stats))])
+        index = pd.Index(["box {}".format(i + 1) for i in range(len(stats))])
 
         return pd.DataFrame(stats, index=index)
 

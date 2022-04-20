@@ -1,9 +1,9 @@
 """
 
 This module contains code for logging EMA processes. It is modeled on the
-default `logging approach that comes with Python <http://docs.python.org/library/logging.html>`_.
-This logging system will also work in case of multiprocessing using
-:mod:`ema_parallel`.
+default `logging approach that comes with
+Python <https://docs.python.org/library/logging.html>`_.
+This logging system will also work in case of multiprocessing.
 
 """
 import inspect
@@ -16,14 +16,17 @@ from logging import DEBUG, INFO
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['get_rootlogger',
-           'get_module_logger',
-           'log_to_stderr',
-           'temporary_filter',
-           'DEBUG',
-           'INFO',
-           'DEFAULT_LEVEL',
-           'LOGGER_NAME']
+__all__ = [
+    "get_rootlogger",
+    "get_module_logger",
+    "log_to_stderr",
+    "temporary_filter",
+    "DEBUG",
+    "INFO",
+    "DEFAULT_LEVEL",
+    "LOGGER_NAME",
+    "method_logger",
+]
 LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
 INFO = INFO
@@ -53,11 +56,10 @@ _rootlogger = None
 _module_loggers = {}
 _logger = get_module_logger(__name__)
 
-LOG_FORMAT = '[%(processName)s/%(levelname)s] %(message)s'
+LOG_FORMAT = "[%(processName)s/%(levelname)s] %(message)s"
 
 
 class TemporaryFilter(logging.Filter):
-
     def __init__(self, *args, level=0, funcname=None, **kwargs):
         super(TemporaryFilter, self).__init__(*args, **kwargs)
         self.level = level
@@ -87,11 +89,9 @@ def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
     all modules have their own unique logger
     (e.g. ema_workbench.analysis.prim)
 
-    TODO:: probably all three should beoptionally be a list so you
-    might filter multiple log message from different functions
-
-
     """
+    # TODO:: probably all three should be optionally a list so you
+    # might filter multiple log message from different functions
     if isinstance(name, str):
         names = [name]
     else:
@@ -112,17 +112,16 @@ def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
 
     # make a list equal lengths?
     if len(names) < max_length:
-        names = [name, ] * max_length
+        names = [name,] * max_length
     if len(levels) < max_length:
-        levels = [level, ] * max_length
+        levels = [level,] * max_length
     if len(functnames) < max_length:
-        functnames = [functname, ] * max_length
+        functnames = [functname,] * max_length
 
     filters = {}
     for name, level, functname in zip(names, levels, functnames):
         logger = get_module_logger(name)
-        filter = TemporaryFilter(level=level,
-                                 funcname=functname)  # @ReservedAssignment
+        filter = TemporaryFilter(level=level, funcname=functname)  # @ReservedAssignment
 
         if logger == _logger:
             # root logger, add filter to handler rather than logger
@@ -149,11 +148,9 @@ def method_logger(name):
         def wrapper(*args, **kwargs):
             # hack, because log is applied to methods, we can get
             # object instance as first arguments in args
-            logger.debug('calling {} on {}'.format(func.__name__, classname))
+            logger.debug("calling {} on {}".format(func.__name__, classname))
             res = func(*args, **kwargs)
-            logger.debug(
-                'completed calling {} on {}'.format(
-                    func.__name__, classname))
+            logger.debug("completed calling {} on {}".format(func.__name__, classname))
             return res
 
         return wrapper
@@ -199,8 +196,9 @@ def log_to_stderr(level=None):
 
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
-        if (isinstance(entry, logging.StreamHandler)) and \
-                (entry.formatter._fmt == LOG_FORMAT):
+        if (isinstance(entry, logging.StreamHandler)) and (
+            entry.formatter._fmt == LOG_FORMAT
+        ):
             return logger
 
     formatter = logging.Formatter(LOG_FORMAT)
@@ -211,46 +209,3 @@ def log_to_stderr(level=None):
     logger.propagate = False
 
     return logger
-
-# class TlsSMTPHandler(SMTPHandler):
-#     '''
-#     class for using gmail as a server for sending e-mails contain
-#     logging messages
-#     '''
-#
-#     def emit(self, record):
-#         '''
-#         Emit a record.
-#
-#         Format the record and send it to the specified addressees.
-#         code found `online <http://mynthon.net/howto/-/python/python%20-%20logging.SMTPHandler-how-to-use-gmail-smtp-server.txt>`_
-#
-#         '''
-#         try:
-#             import smtplib
-#             import string # for tls add this line
-#             try:
-#                 from email.utils import formatdate
-#             except ImportError:
-#                 formatdate = self.date_time
-#             port = self.mailport
-#             if not port:
-#                 port = smtplib.SMTP_PORT
-#             smtp = smtplib.SMTP(self.mailhost, port)
-#             msg = self.format(record)
-#             msg = "From: %s\r\nTo: %s\r\nSubject: %s\r\nDate: %s\r\n\r\n%s" % (
-#                             self.fromaddr,
-#                             string.join(self.toaddrs, ","),
-#                             self.getSubject(record),
-#                             formatdate(), msg)
-#             if self.username:
-#                 smtp.ehlo() # for tls add this line
-#                 smtp.starttls() # for tls add this line
-#                 smtp.ehlo() # for tls add this line
-#                 smtp.login(self.username, self.password)
-#             smtp.sendmail(self.fromaddr, self.toaddrs, msg)
-#             smtp.quit()
-#         except (KeyboardInterrupt, SystemExit):
-#             raise
-#         except:
-#             self.handleError(record)

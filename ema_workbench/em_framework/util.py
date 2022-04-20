@@ -1,10 +1,9 @@
 """utilities used throughout em_framework"""
 import copy
 import itertools
-from collections import OrderedDict
-from collections import UserDict
+from collections import OrderedDict, UserDict
 
-import six
+import tqdm
 
 from ..util import EMAError
 
@@ -14,23 +13,31 @@ from ..util import EMAError
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ['NamedObject', 'NamedDict', 'Counter', 'representation']
+__all__ = [
+    "NamedObject",
+    "NamedDict",
+    "Counter",
+    "representation",
+    "ProgressTrackingMixIn",
+    "combine",
+    "NamedObjectMapDescriptor",
+    "NamedObjectMap",
+]
 
 
-class NamedObject(object):
-
+class NamedObject:
     def __init__(self, name):
         self.name = name
 
 
-class Counter(object):
+class Counter:
     """helper function for generating counter based names for NamedDicts"""
 
     def __init__(self, startfrom=0):
         self._counter = itertools.count(startfrom)
 
     def __call__(self, *args):
-        return six.next(self._counter)
+        return next(self._counter)
 
 
 def representation(named_dict):
@@ -43,33 +50,32 @@ class Variable(NamedObject):
 
     @property
     def variable_name(self):
-        if self._variable_name is not None:
-            return self._variable_name
-        else:
+        if self._variable_name is None:
             return [self.name]
+        else:
+            return self._variable_name
 
     @variable_name.setter
     def variable_name(self, name):
-        if isinstance(name, six.string_types):
+        if isinstance(name, str):
             name = [name]
         self._variable_name = name
 
 
-class NamedObjectMap(object):
-
-    def __init__(self, type):  # @ReservedAssignment
+class NamedObjectMap:
+    def __init__(self, kind):  # @ReservedAssignment
         super(NamedObjectMap, self).__init__()
-        self.type = type
+        self.kind = kind
         self._data = OrderedDict()
 
-        if not issubclass(type, NamedObject):
+        if not issubclass(kind, NamedObject):
             raise TypeError("type must be a NamedObject")
 
     def clear(self):
         self._data = OrderedDict()
 
     def copy(self):
-        copy = NamedObjectMap(self.type)
+        copy = NamedObjectMap(self.kind)
         copy._data = self._data.copy()
 
         return copy
@@ -78,8 +84,8 @@ class NamedObjectMap(object):
         return len(self._data)
 
     def __getitem__(self, key):
-        if isinstance(key, six.integer_types):
-            for i, (_, v) in enumerate(six.iteritems(self._data)):
+        if isinstance(key, int):
+            for i, (_, v) in enumerate(self._data.items()):
                 if i == key:
                     return v
             raise KeyError(key)
@@ -87,16 +93,19 @@ class NamedObjectMap(object):
             return self._data[key]
 
     def __setitem__(self, key, value):
-        if not isinstance(value, self.type):
-            raise TypeError("can only add " + self.type.__name__ + " objects")
+        if not isinstance(value, self.kind):
+            raise TypeError("can only add " + self.kind.__name__ + " objects")
 
-        if isinstance(key, six.integer_types):
-            self._data = OrderedDict([(value.name, value) if i == key else (
-                k, v) for i, (k, v) in enumerate(six.iteritems(self._data))])
+        if isinstance(key, int):
+            self._data = OrderedDict(
+                [
+                    (value.name, value) if i == key else (k, v)
+                    for i, (k, v) in enumerate(self._data.items())
+                ]
+            )
         else:
             if value.name != key:
-                raise ValueError(
-                    "key does not match name of " + self.type.__name__)
+                raise ValueError("key does not match name of " + self.kind.__name__)
 
             self._data[key] = value
 
@@ -119,8 +128,9 @@ class NamedObjectMap(object):
             raise TypeError("can only add " + str(type) + " objects")
 
     def __add__(self, value):
-        self.extend(value)
-        return self
+        data = self.copy()
+        data.extend(value)
+        return data
 
     def __iadd__(self, value):
         self.extend(value)
@@ -130,7 +140,7 @@ class NamedObjectMap(object):
         return self._data.keys()
 
 
-class NamedObjectMapDescriptor(object):
+class NamedObjectMapDescriptor:
     def __init__(self, kind):
         self.kind = kind
 
@@ -140,26 +150,25 @@ class NamedObjectMapDescriptor(object):
         try:
             return getattr(instance, self.internal_name)
         except AttributeError:
-            map = NamedObjectMap(self.kind)  # @ReservedAssignment
-            setattr(instance, self.internal_name, map)
-            return map
+            mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
+            setattr(instance, self.internal_name, mapping)
+            return mapping
 
     def __set__(self, instance, values):
         try:
-            map = getattr(instance, self.internal_name)  # @ReservedAssignment
+            mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
-            map = NamedObjectMap(self.kind)  # @ReservedAssignment
-            setattr(instance, self.internal_name, map)
+            mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
+            setattr(instance, self.internal_name, mapping)
 
-        map.extend(values)
+        mapping.extend(values)
 
     def __set_name__(self, owner, name):
         self.name = name
-        self.internal_name = '_' + name
+        self.internal_name = "_" + name
 
 
 class NamedDict(UserDict, NamedObject):
-
     def __init__(self, name=representation, **kwargs):
         super(NamedDict, self).__init__(**kwargs)
         if name is None:
@@ -176,7 +185,6 @@ def combine(*args):
     ----------
     args : two or more dicts that need to be combined
 
-
     Returns
     -------
     a single unified dict containing the entries from all dicts
@@ -191,8 +199,10 @@ def combine(*args):
         overlap = set(experiment.keys()).intersection(set(entry.keys()))
         if overlap:
             raise EMAError(
-                'parameters exist in {} and {}, overlap is {}'.format(
-                    experiment, entry, overlap))
+                "parameters exist in {} and {}, overlap is {}".format(
+                    experiment, entry, overlap
+                )
+            )
         experiment.update(entry)
 
     return experiment
@@ -208,7 +218,6 @@ def determine_objects(models, attribute, union=True):
     union : bool, optional
             in case of multiple models, sample over the union of
             levers, or over the intersection of the levers
-    sampler : Sampler instance, optional
 
     Returns
     -------
@@ -239,3 +248,70 @@ def determine_objects(models, attribute, union=True):
         for key in params_to_remove:
             del named_objects[key]
     return named_objects
+
+
+class ProgressTrackingMixIn:
+    """Mixin for monitoring progress
+
+    Parameters
+    ----------
+    N : int
+        total number of experiments
+    reporting_interval : int
+                         nfe between logging progress
+    logger : logger instance
+    log_progress : bool, optional
+    log_func : callable, optional
+               function called with self as only argument, should invoke
+               self._logger with custom log message
+
+    Attributes
+    ----------
+    i : int
+    reporting_interval : int
+    log_progress : bool
+    log_func : callable
+    pbar : {None, tqdm.tqdm instance}
+           if log_progress is true, None, if false tqdm.tqdm instance
+
+
+    """
+
+    def __init__(
+        self,
+        N,
+        reporting_interval,
+        logger,
+        log_progress=False,
+        log_func=lambda self: self._logger.info(f"{self.i} " "experiments completed"),
+    ):
+        # TODO:: how to enable variable log messages which might include
+        # different attributes?
+
+        self.i = 0
+        self.reporting_interval = reporting_interval
+        self._logger = logger
+        self.log_progress = log_progress
+        self.log_func = log_func
+
+        if not log_progress:
+            self.pbar = tqdm.tqdm(total=N, ncols=79)
+
+    def __call__(self, n):
+        self.i += n
+        self._logger.debug(f"{self.i} experiments performed")
+
+        if not self.log_progress:
+            self.pbar.update(n=n)
+
+            if self.i >= self.pbar.total:
+                self.close()
+        else:
+            if self.i % self.reporting_interval == 0:
+                self.log_func(self)
+
+    def close(self):
+        try:
+            self.pbar.__exit__(None, None, None)
+        except AttributeError:
+            pass

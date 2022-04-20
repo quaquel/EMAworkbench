@@ -13,7 +13,7 @@
 EMA Workbench documentation
 ***************************
 
-.. htmlonly::
+.. only:: html
 
     :Release: |version|
     :Date: |today|
@@ -54,6 +54,7 @@ the details of the API.
    ./indepth_tutorial/open-exploration.ipynb
    ./indepth_tutorial/directed-search.ipynb
    ./basic_tutorial.rst
+   ./best_practices.rst
    ./vensim-tips-and-tricks.rst
    ./api_index.rst
    ./ema_documentation/glossary.rst
