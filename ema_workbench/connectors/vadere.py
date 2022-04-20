@@ -85,7 +85,7 @@ class BaseVadereModel(FileModel):
         Parameters
         ----------
         wd   : str
-                working directory for the model. Note that a Vadere modelel currently needs an absolute path to work correctly.
+                working directory for the model.
         name : str
                 name of the modelInterface. The name should contain only
                 alpha-numerical characters.
@@ -176,7 +176,7 @@ class BaseVadereModel(FileModel):
             'OFF',
             'scenario-run',
             '-o',
-            os.path.join(self.working_directory, 'temp'),
+            os.path.abspath(os.path.join(self.working_directory, 'temp')),
             '-f',
             os.path.join(self.working_directory, 'EMA.scenario'),
         ]
