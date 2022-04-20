@@ -13,7 +13,7 @@ from ..util import EMAError
 
 __all__ = [
     'change_vadere_scenario',
-    'update_vadere_scenario'
+    'update_vadere_scenario',
     'VadereModel',
     'SingleReplicationVadereModel'
 ]
