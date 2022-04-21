@@ -36,7 +36,7 @@ def build_legend(x, y):
     for i in range(np.max(y) + 1):
         proxy = plt.Line2D([0, 1], [0, 1], color=cp[i + 1])
         proxies.append(proxy)
-        labels.append("{} (N={})".format(i, x[y == i].shape[0]))
+        labels.append(f"{i} (N={x[y == i].shape[0]})")
     proxies.append(plt.Line2D([0, 1], [0, 1], lw=1, color="darkgrey"))
     labels.append("unconditioned")
     return proxies, labels
@@ -169,7 +169,7 @@ def plot_continuous_cdf(ax, unc, x, y, xticklabels_on, ccdf):
         yvals = np.arange(len(sorted_data)) / float(len(sorted_data))
         if ccdf:
             yvals = 1 - yvals
-        ax.plot(sorted_data, yvals, color=cp[i + 1], label="{}".format(i))
+        ax.plot(sorted_data, yvals, color=cp[i + 1], label=f"{i}")
 
     x0 = x.min()
     x1 = x.max()
@@ -185,7 +185,7 @@ def plot_continuous_cdf(ax, unc, x, y, xticklabels_on, ccdf):
     xticklocs = np.linspace(x0, x1, 4)
     ax.set_xticks(xticklocs)
     if xticklabels_on:
-        ax.set_xticklabels(["{:.2g}".format(entry) for entry in xticklocs])
+        ax.set_xticklabels([f"{entry:.2g}" for entry in xticklocs])
     else:
         ax.set_xticklabels([])
 

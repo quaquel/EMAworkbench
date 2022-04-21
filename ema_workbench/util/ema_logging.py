@@ -37,7 +37,7 @@ def create_module_logger(name=None):
         frm = inspect.stack()[1]
         mod = inspect.getmodule(frm[0])
         name = mod.__name__
-    logger = logging.getLogger("{}.{}".format(LOGGER_NAME, name))
+    logger = logging.getLogger(f"{LOGGER_NAME}.{name}")
 
     _module_loggers[name] = logger
     return logger
@@ -154,9 +154,9 @@ def method_logger(name):
         def wrapper(*args, **kwargs):
             # hack, because log is applied to methods, we can get
             # object instance as first arguments in args
-            logger.debug("calling {} on {}".format(func.__name__, classname))
+            logger.debug(f"calling {func.__name__} on {classname}")
             res = func(*args, **kwargs)
-            logger.debug("completed calling {} on {}".format(func.__name__, classname))
+            logger.debug(f"completed calling {func.__name__} on {classname}")
             return res
 
         return wrapper

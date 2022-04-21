@@ -49,7 +49,7 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
         self.topic = topic
 
     def process(self, msg, kwargs):
-        msg = "{topic}::{msg}".format(topic=self.topic, msg=msg)
+        msg = f"{self.topic}::{msg}"
         return msg, kwargs
 
 
@@ -175,7 +175,7 @@ class LogWatcher(LoggingConfigurable):
     loop = Instance("tornado.ioloop.IOLoop")  # @UndefinedVariable
 
     def _url_default(self):
-        return "tcp://%s:20202" % localhost()
+        return f"tcp://{localhost()}:20202"
 
     def _context_default(self):
         return zmq.Context.instance()
@@ -207,7 +207,7 @@ class LogWatcher(LoggingConfigurable):
             self.stream.setsockopt(zmq.SUBSCRIBE, b"")  # @UndefinedVariable
         else:
             for topic in self.topics:
-                self.log.debug("Subscribing to: %r" % (topic))
+                self.log.debug(f"Subscribing to: {topic!r}")
                 # @UndefinedVariable
                 self.stream.setsockopt(zmq.SUBSCRIBE, topic)
 
@@ -231,7 +231,7 @@ class LogWatcher(LoggingConfigurable):
         raw = [r.decode("utf-8") for r in raw]
 
         if len(raw) != 2 or "." not in raw[0]:
-            logging.getLogger().error("Invalid log message: %s" % raw)
+            logging.getLogger().error(f"Invalid log message: {raw}")
             return
         else:
             topic, msg = raw
@@ -247,7 +247,7 @@ class LogWatcher(LoggingConfigurable):
             if msg[-1] == "\n":
                 msg = msg[:-1]
 
-            log.log(level, "[%s] %s" % (main_topic, msg))
+            log.log(level, f"[{main_topic}] {msg}")
 
 
 class Engine(object):
@@ -264,11 +264,11 @@ class Engine(object):
     """
 
     def __init__(self, engine_id, msis, cwd):
-        _logger.debug("starting engine {}".format(engine_id))
+        _logger.debug(f"starting engine {engine_id}")
         self.engine_id = engine_id
         self.msis = msis
 
-        _logger.debug("setting root working directory to {}".format(cwd))
+        _logger.debug(f"setting root working directory to {cwd}")
         os.chdir(cwd)
 
         models = NamedObjectMap(AbstractModel)

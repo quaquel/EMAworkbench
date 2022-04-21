@@ -126,7 +126,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     for key, value in subsets.items():
         # the names of the rotated columns are based on the group name
         # and an index
-        subset_cols = ["{}_{}".format(key, i) for i in range(len(value))]
+        subset_cols = [f"{key}_{i}" for i in range(len(value))]
         new_columns.extend(subset_cols)
         new_dtypes.extend((float,) * len(value))
 
@@ -155,7 +155,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
         j += len(value)
 
         for i in range(len(value)):
-            name = "%s_%s" % (key, i)
+            name = f"{key}_{i}"
             rotated_experiments[name] = subset_experiments[:, i]
             [column_names.append(name)]
 
@@ -202,7 +202,7 @@ def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
     for n in range(1, len(dims) + 1):
         for subset in itertools.combinations(dims, n):
             subsets.append(subset)
-    _logger.info("going to run PRIM {} times".format(len(subsets)))
+    _logger.info(f"going to run PRIM {len(subsets)} times")
 
     boxes = [boxn]
     for subset in subsets:
@@ -440,7 +440,7 @@ class PrimBox(object):
 
         # make the box definition
         columns = pd.MultiIndex.from_product(
-            [["box {}".format(i)], ["min", "max", "qp values"]]
+            [[f"box {i}"], ["min", "max", "qp values"]]
         )
         box_lim = pd.DataFrame(np.zeros((len(uncs), 3)), index=uncs, columns=columns)
 
@@ -667,7 +667,7 @@ class PrimBox(object):
         if len(self._resampled) < iterations:
             with temporary_filter(__name__, INFO, "find_box"):
                 for j in range(len(self._resampled), iterations):
-                    _logger.info("resample {}".format(j))
+                    _logger.info(f"resample {j}")
                     index = np.random.choice(
                         x.index, size=int(x.shape[0] * p), replace=False
                     )
@@ -1686,7 +1686,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
         for key in keys:
             if dtypes[key][0] == np.dtype(object):
-                raise EMAError("%s has dtype object and can thus not be rotated" % key)
+                raise EMAError(f"{key} has dtype object and can thus not be rotated")
         return True
 
     _peels = {"object": _categorical_peel, "int": _discrete_peel, "float": _real_peel}

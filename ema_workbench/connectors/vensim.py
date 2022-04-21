@@ -376,7 +376,7 @@ class BaseVensimModel(FileModel):
         error = False
         result_filename = os.path.join(self.working_directory, self.result_file)
         for variable in self.output_variables:
-            _logger.debug("getting data for %s" % variable)
+            _logger.debug(f"getting data for {variable}")
 
             res = get_data(result_filename, variable)
             result, er = check_data(np.asarray(res))
@@ -526,7 +526,7 @@ class LookupUncertainty(Parameter):
             msi._lookup_uncertainties.append(self)
         elif self.lookup_type == "approximation":
             for i, entry in enumerate("A,K,B,Q,M"):
-                name = "{}-{}".format(entry, self.name)
+                name = f"{entry}-{self.name}"
                 msi.uncertainties.append(RealParameter(name, *values[i]))
             msi._lookup_uncertainties.append(self)
         else:

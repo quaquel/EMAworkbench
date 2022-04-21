@@ -554,7 +554,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
     def __call__(self, optimizer):
         self.index += 1
 
-        fn = os.path.join(self.directory, "{}_{}.csv".format(self.base, self.index))
+        fn = os.path.join(self.directory, f"{self.base}_{self.index}.csv")
 
         archive = to_dataframe(optimizer, self.decision_varnames, self.outcome_varnames)
         archive.to_csv(fn)

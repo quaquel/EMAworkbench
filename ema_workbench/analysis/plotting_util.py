@@ -167,7 +167,7 @@ def plot_kde(ax, values, log):
             ax.set_xscale("log")
         else:
             ax.set_xticks([int(0), ax.get_xaxis().get_view_interval()[1]])
-            labels = ["{0:.2g}".format(0), "{0:.2g}".format(ax.get_xlim()[1])]
+            labels = [f"{0:.2g}", f"{ax.get_xlim()[1]:.2g}"]
             ax.set_xticklabels(labels)
 
 
@@ -292,7 +292,7 @@ def group_density(
     elif density == Density.BOXENPLOT:
         plot_boxenplot(ax_d, values, log, group_labels=group_labels)
     else:
-        raise EMAError("unknown density type: {}".format(density))
+        raise EMAError(f"unknown density type: {density}")
 
     ax_d.set_xlabel("")
     ax_d.set_ylabel("")
@@ -847,7 +847,7 @@ def do_titles(ax, titles, outcome):
                 ax.set_title(titles[outcome])
             except KeyError:
                 _logger.warning(
-                    "key error in do_titles, no title provided for `%s`" % (outcome)
+                    f"key error in do_titles, no title provided for `{outcome}`"
                 )
                 ax.set_title(outcome)
 
@@ -874,7 +874,7 @@ def do_ylabels(ax, ylabels, outcome):
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
                 _logger.warning(
-                    "key error in do_ylabels, no ylabel provided for `%s`" % (outcome)
+                    f"key error in do_ylabels, no ylabel provided for `{outcome}`"
                 )
                 ax.set_ylabel(outcome)
 

@@ -199,9 +199,7 @@ def combine(*args):
         overlap = set(experiment.keys()).intersection(set(entry.keys()))
         if overlap:
             raise EMAError(
-                "parameters exist in {} and {}, overlap is {}".format(
-                    experiment, entry, overlap
-                )
+                f"parameters exist in {experiment} and {entry}, overlap is {overlap}"
             )
         experiment.update(entry)
 

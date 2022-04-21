@@ -89,7 +89,7 @@ def set_ax_lines_bw(ax, colormap, line_style="continuous"):
         try:
             mapping = colormap[orig_color]
         except BaseException:
-            _logger.warning("no mapping specified for color: {}".format(orig_color))
+            _logger.warning(f"no mapping specified for color: {orig_color}")
         else:
             if line_style == "continuous":
                 line.set_color("black")
@@ -148,7 +148,7 @@ def set_ax_collections_to_bw(ax, style, colormap):
         try:
             converter_func = _collection_converter[collection_type]
         except KeyError:
-            raise EMAError("converter for {} not implemented".format(collection_type))
+            raise EMAError(f"converter for {collection_type} not implemented")
         else:
             converter_func(collection, ax, style, colormap)
 
@@ -175,7 +175,7 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
             try:
                 mapping = colormap[orig_color]
             except BaseException:
-                _logger.warning("no mapping specified for color: {}".format(orig_color))
+                _logger.warning(f"no mapping specified for color: {orig_color}")
             else:
                 new_color = color_converter.to_rgba(mapping["fill"])
                 new_color = np.asarray([new_color])
@@ -187,7 +187,7 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
         try:
             mapping = colormap[orig_color]
         except BaseException:
-            _logger.warning("no mapping specified for color: {}".format(orig_color))
+            _logger.warning(f"no mapping specified for color: {orig_color}")
         else:
             collection.update({"facecolors": "none"})
             collection.update({"edgecolors": "white"})

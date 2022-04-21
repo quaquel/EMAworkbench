@@ -207,12 +207,12 @@ class AbstractOutcome(Variable):
         klass = self.__class__.__name__
         name = self.name
 
-        rep = "{}('{}'".format(klass, name)
+        rep = f"{klass}('{name}'"
 
         if self.variable_name != [self.name]:
-            rep += ", variable_name={}".format(self.variable_name)
+            rep += f", variable_name={self.variable_name}"
         if self.function:
-            rep += ", function={}".format(self.function)
+            rep += f", function={self.function}"
 
         rep += ")"
 
@@ -300,7 +300,7 @@ class ScalarOutcome(AbstractOutcome):
     def expected_range(self):
         if self._expected_range is None:
             raise ValueError(
-                "no expected_range is set for {}".format(self.variable_name)
+                f"no expected_range is set for {self.variable_name}"
             )
         return self._expected_range
 
@@ -409,7 +409,7 @@ class ArrayOutcome(AbstractOutcome):
     def process(self, values):
         values = super(ArrayOutcome, self).process(values)
         if not isinstance(values, collections.abc.Iterable):
-            raise EMAError("outcome {} should be a collection".format(self.name))
+            raise EMAError(f"outcome {self.name} should be a collection")
         return values
 
     @classmethod
@@ -605,7 +605,7 @@ def create_outcomes(outcomes, **kwargs):
 
     for entry in ["name", "type"]:
         if entry not in outcomes.columns:
-            raise ValueError("no {} column in dataframe".format(entry))
+            raise ValueError(f"no {entry} column in dataframe")
 
     temp_outcomes = []
     for _, row in outcomes.iterrows():

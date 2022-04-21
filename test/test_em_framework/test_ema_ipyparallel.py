@@ -59,7 +59,7 @@ class TestProcessLauncher(LocalProcessLauncher):
             self.notify_start(self.process.pid)
             self.poll = self.process.poll
         else:
-            s = "The process was already started and has state: %r" % self.state
+            s = f"The process was already started and has state: {self.state!r}"
             raise ProcessStateError(s)
 
 
@@ -79,7 +79,7 @@ def add_engines(n=1, profile="iptest", total=False):
     for i in range(n):
         ep = TestProcessLauncher()
         ep.cmd_and_args = ipengine_cmd_argv + [
-            "--profile=%s" % profile,
+            f"--profile={profile}",
             "--InteractiveShell.colors=nocolor",
         ]
         ep.start()
@@ -111,7 +111,7 @@ def setUpModule():
     tic = time.time()
     while not os.path.exists(engine_json) or not os.path.exists(client_json):
         if cp.poll() is not None:
-            raise RuntimeError("The test controller exited with status %s" % cp.poll())
+            raise RuntimeError(f"The test controller exited with status {cp.poll()}")
         elif time.time() - tic > 15:
             raise RuntimeError("Timeout waiting for the test controller to start.")
         time.sleep(0.1)
@@ -164,7 +164,7 @@ class TestEngineLoggerAdapter(unittest.TestCase):
             input_kwargs = {}
             msg, kwargs = adapter.process(input_msg, input_kwargs)
 
-            self.assertEqual("{}::{}".format(ema.SUBTOPIC, input_msg), msg)
+            self.assertEqual(f"{ema.SUBTOPIC}::{input_msg}", msg)
             self.assertEqual(input_kwargs, kwargs)
 
     @mock.patch("ema_workbench.em_framework.ema_ipyparallel.EngingeLoggerAdapter")
@@ -245,7 +245,7 @@ class TestLogWatcher(unittest.TestCase):
         ema_logging._logger = mocked_logger
 
         cls.client = ipyparallel.Client(profile="default")
-        cls.url = "tcp://{}:20202".format(localhost())
+        cls.url = f"tcp://{localhost()}:20202"
         #         cls.watcher, cls.thread = ema.start_logwatcher()
         cls.watcher = LogWatcher()
 
@@ -264,18 +264,18 @@ class TestLogWatcher(unittest.TestCase):
     def test_extract_level(self):
         level = "INFO"
         topic = ema.SUBTOPIC
-        topic_str = "engine.1.{}.{}".format(level, topic)
+        topic_str = f"engine.1.{level}.{topic}"
         extracted_level, extracted_topics = self.watcher._extract_level(topic_str)
 
         self.assertEqual(ema_logging.INFO, extracted_level)
-        self.assertEqual("engine.1.{}".format(topic), extracted_topics)
+        self.assertEqual(f"engine.1.{topic}", extracted_topics)
 
         topic = ema.SUBTOPIC
-        topic_str = "engine.1.{}".format(topic)
+        topic_str = f"engine.1.{topic}"
         extracted_level, extracted_topics = self.watcher._extract_level(topic_str)
 
         self.assertEqual(ema_logging.INFO, extracted_level)
-        self.assertEqual("engine.1.{}".format(topic), extracted_topics)
+        self.assertEqual(f"engine.1.{topic}", extracted_topics)
 
     def test_log_message(self):
         # no subscription on level
@@ -303,7 +303,7 @@ class TestLogWatcher(unittest.TestCase):
             raw = [b"engine.1.DEBUG", b"test", b"more"]
             self.watcher.log_message(raw)
             raw = [r.decode("utf-8") for r in raw]
-            mocked_logger.error.assert_called_once_with("Invalid log message: %s" % raw)
+            mocked_logger.error.assert_called_once_with(f"Invalid log message: {raw}")
 
         with mock.patch("logging.getLogger") as mocked:
             mocked_logger = mock.Mock(spec=logging.Logger)
@@ -311,7 +311,7 @@ class TestLogWatcher(unittest.TestCase):
             raw = [b"engine1DEBUG", b"test"]
             self.watcher.log_message(raw)
             raw = [r.decode("utf-8") for r in raw]
-            mocked_logger.error.assert_called_once_with("Invalid log message: %s" % raw)
+            mocked_logger.error.assert_called_once_with(f"Invalid log message: {raw}")
 
 
 class TestEngine(unittest.TestCase):

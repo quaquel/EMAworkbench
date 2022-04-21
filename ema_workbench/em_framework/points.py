@@ -62,7 +62,7 @@ class Policy(Point):
     #     return [self[param.name] for param in parameters]
 
     def __repr__(self):
-        return "Policy({})".format(super(Policy, self).__repr__())
+        return f"Policy({super(Policy, self).__repr__()})"
 
 
 class Scenario(Point):
@@ -84,7 +84,7 @@ class Scenario(Point):
         super(Scenario, self).__init__(name, Scenario.id_counter(), **kwargs)
 
     def __repr__(self):
-        return "Scenario({})".format(super(Scenario, self).__repr__())
+        return f"Scenario({super(Scenario, self).__repr__()})"
 
 
 class Experiment(NamedObject):
@@ -131,7 +131,7 @@ class ExperimentReplication(NamedDict):
         # this is a unique identifier for an experiment
         # we might also create a better looking name
         self.id = scenario_id * policy_id * replication_id
-        name = "{}_{}_{}".format(scenario.name, policy.name, replication_id)
+        name = f"{scenario.name}_{policy.name}_{replication_id}"
 
         super(ExperimentReplication, self).__init__(
             name, **combine(scenario, policy, constants)
@@ -261,6 +261,6 @@ def experiment_generator(scenarios, model_structures, policies, combine="factori
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job
-        name = "{} {} {}".format(msi.name, policy.name, i)
+        name = f"{msi.name} {policy.name} {i}"
         experiment = Experiment(name, msi.name, policy, scenario, i)
         yield experiment

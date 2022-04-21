@@ -75,7 +75,7 @@ class Constant(NamedObject):
         self.value = value
 
     def __repr__(self, *args, **kwargs):
-        return "{}('{}', {})".format(self.__class__.__name__, self.name, self.value)
+        return f"{self.__class__.__name__}('{self.name}', {self.value})"
 
 
 class Category(Constant):

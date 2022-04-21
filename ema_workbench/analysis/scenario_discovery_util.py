@@ -600,7 +600,7 @@ def plot_box(
             values = [vi for vi in values if vi != -1]
 
             if len(values) == 1:
-                value = "{:.2g}".format(values[0])
+                value = f"{values[0]:.2g}"
             else:
                 value = "{:.2g}, {:.2g}".format(*values)
             qp_formatted[key] = value
@@ -775,7 +775,7 @@ def plot_boxes(x, boxes, together):
 
         for j, norm_box_lim in enumerate(norm_box_lims):
             fig, ax = _setup_figure(uncs)
-            ax.set_title("box {}".format(j))
+            ax.set_title(f"box {j}")
             color = next(colors)
 
             figs.append(fig)
@@ -813,7 +813,7 @@ class OutputFormatterMixin(object):
         box_lims, uncs = _get_sorted_box_lims(boxes, _make_box(self.x))
         nr_boxes = len(boxes)
         dtype = float
-        index = ["box {}".format(i + 1) for i in range(nr_boxes)]
+        index = [f"box {i + 1}" for i in range(nr_boxes)]
         for value in box_lims[0].dtypes:
             if value == object:
                 dtype = object
@@ -848,7 +848,7 @@ class OutputFormatterMixin(object):
 
         stats = self.stats
 
-        index = pd.Index(["box {}".format(i + 1) for i in range(len(stats))])
+        index = pd.Index([f"box {i + 1}" for i in range(len(stats))])
 
         return pd.DataFrame(stats, index=index)
 

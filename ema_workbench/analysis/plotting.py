@@ -221,7 +221,7 @@ def group_by_envelopes(
         try:
             plot_envelope(ax, j, time, value, fill)
         except ValueError:
-            _logger.exception("value error when plotting for %s" % (key))
+            _logger.exception(f"value error when plotting for {key}")
             raise
 
     if density:
@@ -848,7 +848,7 @@ def multiple_densities(
 
         axes_dict["main plot"] = ax_env
         for n, entry in enumerate(kde_axes):
-            axes_dict["density_%s" % n] = entry
+            axes_dict[f"density_{n}"] = entry
 
             # turn of ticks for all but the first density
             if n > 0:

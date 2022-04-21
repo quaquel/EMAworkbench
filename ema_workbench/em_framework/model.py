@@ -152,7 +152,7 @@ class AbstractModel(NamedObject):
                 if par.default is not None:
                     value = par.default
                 else:
-                    _logger.debug("{} not found".format(par.name))
+                    _logger.debug(f"{par.name} not found")
                     continue
 
             multivalue = False
@@ -247,7 +247,7 @@ class AbstractModel(NamedObject):
                     for entry in sorted(field, key=operator.attrgetter("name"))
                 ]
             )
-            return "[{}]".format(joined)
+            return f"[{joined}]"
 
         model_spec = {}
 
@@ -294,7 +294,7 @@ class Replicator(AbstractModel):
             self.nreplications = len(replications)
         else:
             raise TypeError(
-                "replications should be int or list not {}".format(type(replications))
+                f"replications should be int or list not {type(replications)}"
             )
 
     @method_logger(__name__)
@@ -314,7 +314,7 @@ class Replicator(AbstractModel):
         partial_experiment = combine(scenario, self.policy, constants)
 
         for i, rep in enumerate(self.replications):
-            _logger.debug("replication {}".format(i))
+            _logger.debug(f"replication {i}")
             rep.id = i
             experiment = ExperimentReplication(scenario, self.policy, constants, rep)
             output = self.run_experiment(experiment)
@@ -457,7 +457,7 @@ class WorkingDirectoryModel(AbstractModel):
         self.working_directory = wd
 
         if not os.path.exists(self.working_directory):
-            raise ValueError("{} does not exist".format(self.working_directory))
+            raise ValueError(f"{self.working_directory} does not exist")
 
     def as_dict(self):
         model_specs = super(WorkingDirectoryModel, self).as_dict()

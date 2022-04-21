@@ -30,7 +30,7 @@ def run_exectests(test_dir, log_path="exectests.log"):
     with open(log_path, "w") as f:
         with redirected_output(new_stdout=f, new_stderr=f):
             for fname in test_files:
-                print(">> Executing '%s'" % fname)
+                print(f">> Executing '{fname}'")
                 try:
                     code = compile(set_backend + open(fname, "r").read(), fname, "exec")
                     exec(code, {"__name__": "__main__"}, {})
@@ -40,10 +40,10 @@ def run_exectests(test_dir, log_path="exectests.log"):
                     failed.append(fname)
                     pass
 
-    print(">> Passed %i/%i tests: " % (len(passed), len(test_files)))
+    print(f">> Passed {len(passed)}/{len(test_files)} tests: ")
     print("Passed: " + ", ".join(passed))
     print("Failed: " + ", ".join(failed))
-    print("See %s for details" % log_path)
+    print(f"See {log_path} for details")
 
     return passed, failed
 

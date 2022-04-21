@@ -192,7 +192,7 @@ class BaseExcelModel(FileModel):
                 self.wb.Close(False)
             except com_error as err:
                 _logger.warning(
-                    "com error on wb.Close: {}".format(err),
+                    f"com error on wb.Close: {err}",
                 )
             del self.wb
         if self.xl:
@@ -201,7 +201,7 @@ class BaseExcelModel(FileModel):
                 self.xl.Quit()
             except com_error as err:
                 _logger.warning(
-                    "com error on xl.Quit: {}".format(err),
+                    f"com error on xl.Quit: {err}",
                 )
             del self.xl
 
@@ -230,9 +230,9 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.wb.Sheets(sheetname)
         except Exception:
-            _logger.warning("com error: sheet '{}' not found".format(sheetname))
+            _logger.warning(f"com error: sheet '{sheetname}' not found")
             _logger.warning(
-                "known sheets: {}".format(", ".join(self.get_wb_sheetnames()))
+                f"known sheets: {', '.join(self.get_wb_sheetnames())}"
             )
             self.cleanup()
             raise
@@ -267,7 +267,7 @@ class BaseExcelModel(FileModel):
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
             raise EMAError(
-                "no default sheet while trying to read from '{}'".format(name)
+                f"no default sheet while trying to read from '{name}'"
             )
 
         try:
@@ -310,7 +310,7 @@ class BaseExcelModel(FileModel):
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
             raise EMAError(
-                "no default sheet while trying to write to '{}'".format(name)
+                f"no default sheet while trying to write to '{name}'"
             )
 
         try:
@@ -328,7 +328,7 @@ class BaseExcelModel(FileModel):
             try:
                 return [sh.Name for sh in self.wb.Sheets]
             except com_error as err:
-                return ["com_error: {}".format(err)]
+                return [f"com_error: {err}"]
         else:
             return ["error: wb not available"]
 

@@ -78,7 +78,7 @@ def load_results(file_name):
             values = register.deserialize(name, filename, archive)
             outcomes[name] = values
 
-    _logger.info("results loaded successfully from {}".format(file_name))
+    _logger.info(f"results loaded successfully from {file_name}")
     return experiments, outcomes
 
 
@@ -151,12 +151,12 @@ def load_results_old(archive):
 
             data = np.empty(shape)
             for i in range(nr_files):
-                values = archive.extractfile("{}_{}.csv".format(outcome, i))
+                values = archive.extractfile(f"{outcome}_{i}.csv")
                 values = pd.read_csv(values, index_col=False, header=None).values
                 data[:, :, i] = values
 
         else:
-            data = archive.extractfile("{}.csv".format(outcome))
+            data = archive.extractfile(f"{outcome}.csv")
             data = pd.read_csv(data, index_col=False, header=None).values
             data = np.reshape(data, shape)
 
@@ -278,7 +278,7 @@ def merge_results(results1, results2):
 
     # only merge the results that are in both
     keys = set(res1.keys()).intersection(set(res2.keys()))
-    _logger.info("intersection of keys: %s" % keys)
+    _logger.info(f"intersection of keys: {keys}")
 
     # merging results
     merged_res = {}
@@ -304,7 +304,7 @@ def get_ema_project_home_dir():
         parsed = config.read(fn)
 
         if parsed:
-            _logger.info("config loaded from {}".format(parsed[0]))
+            _logger.info(f"config loaded from {parsed[0]}")
         else:
             _logger.info("no config file found")
 
