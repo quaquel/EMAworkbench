@@ -23,7 +23,7 @@ jobs:
 
       - name: Build distributions
         shell: bash -l {0}
-        run: python setup.py sdist bdist_wheel
+        run: python -m build
 
       - name: Upload package as artifact to GitHub
         uses: actions/upload-artifact@v3
