@@ -75,7 +75,7 @@ class BaseExcelModel(FileModel):
     def __init__(
         self, name, wd=None, model_file=None, default_sheet=None, pointers=None
     ):
-        super(BaseExcelModel, self).__init__(name, wd=wd, model_file=model_file)
+        super().__init__(name, wd=wd, model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
         self.xl = None
@@ -113,7 +113,7 @@ class BaseExcelModel(FileModel):
                  arguments.
 
         """
-        super(BaseExcelModel, self).model_init(policy)
+        super().model_init(policy)
 
         if not self.xl:
             try:
@@ -231,9 +231,7 @@ class BaseExcelModel(FileModel):
             sheet = self.wb.Sheets(sheetname)
         except Exception:
             _logger.warning(f"com error: sheet '{sheetname}' not found")
-            _logger.warning(
-                f"known sheets: {', '.join(self.get_wb_sheetnames())}"
-            )
+            _logger.warning(f"known sheets: {', '.join(self.get_wb_sheetnames())}")
             self.cleanup()
             raise
 
@@ -266,9 +264,7 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
-            raise EMAError(
-                f"no default sheet while trying to read from '{name}'"
-            )
+            raise EMAError(f"no default sheet while trying to read from '{name}'")
 
         try:
             value = sheet.Range(this_range).Value
@@ -309,9 +305,7 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError:
-            raise EMAError(
-                f"no default sheet while trying to write to '{name}'"
-            )
+            raise EMAError(f"no default sheet while trying to write to '{name}'")
 
         try:
             sheet.Range(this_range).Value = value

@@ -112,7 +112,7 @@ class BaseNetLogoModel(FileModel):
         separate working directory prior to calling `model_init`.
 
         """
-        super(BaseNetLogoModel, self).__init__(name, wd=wd, model_file=model_file)
+        super().__init__(name, wd=wd, model_file=model_file)
 
         self.run_length = None
         self.netlogo_home = netlogo_home
@@ -134,7 +134,7 @@ class BaseNetLogoModel(FileModel):
 
 
         """
-        super(BaseNetLogoModel, self).model_init(policy)
+        super().model_init(policy)
         if not hasattr(self, "netlogo"):
             _logger.debug("trying to start NetLogo")
             self.netlogo = pyNetLogo.NetLogoLink(
@@ -195,14 +195,14 @@ class BaseNetLogoModel(FileModel):
             if self.netlogo.report(f"is-agentset? {variable}"):
                 # if name is name of an agentset, we
                 # assume that we should count the total number of agents
-                nc = r"file-open {0} file-write count {1}".format(
+                nc = r"file-open {} file-write count {}".format(
                     fn,
                     variable,
                 )
             else:
                 # it is not an agentset, so assume that it is
                 # a reporter / global variable
-                nc = r"file-open {0} file-write {1}".format(fn, variable)
+                nc = rf"file-open {fn} file-write {variable}"
             commands.append(nc)
 
         c_start = f"repeat {self.run_length} ["

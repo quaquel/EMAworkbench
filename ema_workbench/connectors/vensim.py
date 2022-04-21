@@ -154,7 +154,7 @@ def run_simulation(file_name):
         _logger.debug("MENU>RUN|o")
         command("MENU>RUN|o")
     except VensimWarning as w:
-        _logger.warning((str(w)))
+        _logger.warning(str(w))
         raise VensimError(str(w))
 
 
@@ -189,7 +189,7 @@ def get_data(filename, varname, step=1):
 
 def VensimModelStructureInterface(name, wd=None, model_file=None):
     warnings.warn(
-        ("VensimModelStructureInterface is deprecated use " "VensimModel instead")
+        "VensimModelStructureInterface is deprecated use " "VensimModel instead"
     )
 
     return VensimModel(name, wd=wd, model_file=model_file)
@@ -262,7 +262,7 @@ class BaseVensimModel(FileModel):
                 raise ValueError("model file should be a vpm file")
             self._resultfile = "Current.vdf"
 
-        super(BaseVensimModel, self).__init__(name, wd=wd, model_file=model_file)
+        super().__init__(name, wd=wd, model_file=model_file)
         self.outcomes.extend(TimeSeriesOutcome("TIME", variable_name="Time"))
 
         self._lookup_uncertainties = NamedObjectMap(Parameter)
@@ -289,7 +289,7 @@ class BaseVensimModel(FileModel):
         policy : dict
                  policy to be run.
         """
-        super(BaseVensimModel, self).model_init(policy)
+        super().model_init(policy)
 
         fn = os.path.join(self.working_directory, self.model_file)
         load_model(fn)  # load the model
@@ -365,7 +365,7 @@ class BaseVensimModel(FileModel):
         def check_data(result):
             error = False
             if result.shape[0] != self.run_length:
-                data = np.empty((self.run_length))
+                data = np.empty(self.run_length)
                 data[:] = np.NAN
                 data[0 : result.shape[0]] = result
                 result = data
@@ -391,7 +391,7 @@ class BaseVensimModel(FileModel):
         return results
 
     def cleanup(self):
-        super(BaseVensimModel, self).cleanup()
+        super().cleanup()
 
     def reset_model(self):
         """
@@ -399,7 +399,7 @@ class BaseVensimModel(FileModel):
         was called
         """
 
-        super(BaseVensimModel, self).reset_model()
+        super().reset_model()
 
     def _delete_lookup_uncertainties(self):
         """
@@ -493,7 +493,7 @@ class LookupUncertainty(Parameter):
               not needed in case of CAT
 
         """
-        super(LookupUncertainty, self).__init__(values, name)
+        super().__init__(values, name)
         self.lookup_type = lookup_type
         self.y_min = ymin
         self.y_max = ymax

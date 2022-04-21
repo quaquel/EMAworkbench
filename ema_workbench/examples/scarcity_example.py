@@ -62,7 +62,7 @@ class ScarcityModel(VensimModel):
         ]
         kwargs["approximated learning effect lookup"] = lookup
 
-        super(ScarcityModel, self).run_model(kwargs, policy)
+        super().run_model(kwargs, policy)
 
 
 if __name__ == "__main__":

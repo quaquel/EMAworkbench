@@ -49,7 +49,7 @@ class BasePysdModel(AbstractModel):
         if name is None:
             name = pysd.utils.make_python_identifier(mdl_file)[0]
             name = name.replace("_", "")
-        super(BasePysdModel, self).__init__(name)
+        super().__init__(name)
 
     @method_logger(__name__)
     def model_init(self, policy, **kwargs):
@@ -73,7 +73,7 @@ class BasePysdModel(AbstractModel):
         implementation only sets the outputs to an empty dict.
 
         """
-        super(BasePysdModel, self).reset_model()
+        super().reset_model()
         if self.model is not None:
             self.model.initialize()
 

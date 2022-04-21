@@ -24,7 +24,7 @@ def redirected_output(new_stdout=None, new_stderr=None):
 
 def run_exectests(test_dir, log_path="exectests.log"):
     test_files = glob.glob(os.path.join(test_dir, "*.py"))
-    test_files = sorted([ex for ex in test_files if ex[0] != "_"])
+    test_files = sorted(ex for ex in test_files if ex[0] != "_")
     passed = []
     failed = []
     with open(log_path, "w") as f:
@@ -32,7 +32,7 @@ def run_exectests(test_dir, log_path="exectests.log"):
             for fname in test_files:
                 print(f">> Executing '{fname}'")
                 try:
-                    code = compile(set_backend + open(fname, "r").read(), fname, "exec")
+                    code = compile(set_backend + open(fname).read(), fname, "exec")
                     exec(code, {"__name__": "__main__"}, {})
                     passed.append(fname)
                 except BaseException:

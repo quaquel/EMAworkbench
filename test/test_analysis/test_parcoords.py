@@ -14,7 +14,7 @@ from ema_workbench.analysis.parcoords import ParallelAxes, get_limits
 class TestParcoords(unittest.TestCase):
     def test_parallelaxis(self):
         x = pd.DataFrame(
-            [[0.1, 0, set(("a", "b"))], [1.0, 9, set(("a", "b"))]],
+            [[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]],
             columns=["a", "b", "c"],
         )
 
@@ -24,7 +24,7 @@ class TestParcoords(unittest.TestCase):
 
     def test_invert_axis(self):
         x = pd.DataFrame(
-            [[0.1, 0, set(("a", "b"))], [1.0, 9, set(("a", "b"))]],
+            [[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]],
             columns=["a", "b", "c"],
         )
 
@@ -133,8 +133,8 @@ class TestParcoords(unittest.TestCase):
         self.assertEqual(limits["a"][1], 1.0)
         self.assertEqual(limits["b"][0], 0)
         self.assertEqual(limits["b"][1], 9)
-        self.assertEqual(limits["c"][0], set(("a", "b")))
-        self.assertEqual(limits["c"][1], set(("a", "b")))
+        self.assertEqual(limits["c"][0], {"a", "b"})
+        self.assertEqual(limits["c"][1], {"a", "b"})
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""
+r"""
 
 this is a first draft for wrapping the vensim dll in a pythonic way
 
@@ -51,21 +51,21 @@ try:
     vensim_single = ctypes.windll.vendll32
 except AttributeError:
     vensim_single = None
-except WindowsError:
+except OSError:
     vensim_single = None
 
 try:
-    vensim_double = ctypes.windll.LoadLibrary("C:\Windows\SysWOW64\VdpDLL32.dll")
+    vensim_double = ctypes.windll.LoadLibrary(r"C:\Windows\SysWOW64\VdpDLL32.dll")
 except AttributeError:
     vensim_double = None
-except WindowsError:
+except OSError:
     vensim_double = None
 
 try:
     vensim_64 = ctypes.windll.vendll64
 except AttributeError:
     vensim_64 = None
-except WindowsError:
+except OSError:
     vensim_64 = None
 
 if struct.calcsize("P") * 8 == 64:
@@ -343,7 +343,7 @@ def get_varattrib(varname, attribute):
 
 
 def get_varnames(filter="*", vartype=0):  # @ReservedAssignment
-    """
+    r"""
     This function returns variable names in the model a filter can be specified
     in the same way as Vensim variable Selection filter  (use * for all),
     vartype is an integer that specifies the types of variables you want to
@@ -527,5 +527,5 @@ def use_double_precision():
     global vensim
     try:
         vensim = ctypes.windll.LoadLibrary(r"C:\Windows\SysWOW64\VdpDLL32.dll")
-    except WindowsError:
+    except OSError:
         raise EMAError("double precision vensim dll not found")

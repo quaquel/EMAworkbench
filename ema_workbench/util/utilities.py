@@ -49,7 +49,7 @@ def load_results(file_name):
         except KeyError:
             # old style data file
             results = load_results_old(archive)
-            _logger.info((f"results loaded successfully from {file_name}"))
+            _logger.info(f"results loaded successfully from {file_name}")
             return results
 
         metadata = json.loads(f.read().decode())
@@ -114,7 +114,7 @@ def load_results_old(archive):
         entry = entry.decode("UTF-8")
         entry = entry.strip()
         entry = entry.split(",")
-        name, dtype = [str(item) for item in entry]
+        name, dtype = (str(item) for item in entry)
 
         try:
             dtype = np.dtype(dtype)

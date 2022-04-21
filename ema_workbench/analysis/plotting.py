@@ -707,7 +707,7 @@ def multiple_densities(
     experiments_to_show=None,
     plot_type=PlotType.ENVELOPE,
     log=False,
-    **kwargs
+    **kwargs,
 ):
     """Make an envelope plot with multiple density plots over the run time
 

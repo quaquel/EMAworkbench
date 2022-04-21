@@ -25,7 +25,7 @@ class Burnout(VensimModel):
     ]
 
     def __init__(self, working_directory, name):
-        super(Burnout, self).__init__(working_directory, name)
+        super().__init__(working_directory, name)
 
         self.uncertainties = [
             LookupUncertainty(

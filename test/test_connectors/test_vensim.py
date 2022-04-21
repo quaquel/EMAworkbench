@@ -3,7 +3,6 @@ Created on Jul 17, 2014
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
-from __future__ import absolute_import, print_function, division, unicode_literals
 import os
 import unittest
 
@@ -48,7 +47,7 @@ class LookupTestModel(VensimModel):
     def __init__(self, working_directory, name):
 
         self.model_file = r"\lookup_model.vpm"
-        super(LookupTestModel, self).__init__(working_directory, name)
+        super().__init__(working_directory, name)
 
         # vensim.load_model(self.modelFile)
         self.outcomes = [TimeSeriesOutcome("flow1")]

@@ -2,7 +2,6 @@
 
 
 """
-from __future__ import unicode_literals, print_function, absolute_import, division
 
 
 import unittest
@@ -31,7 +30,7 @@ from ema_workbench.em_framework.optimization import (
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
-class MockProblem(object):
+class MockProblem:
     def __init__(self, ndv, nobjs, nconstr=0):
         pass
 
@@ -111,9 +110,9 @@ class TestOptimization(unittest.TestCase):
         self.assertListEqual(list(df.columns.values), ["a", "b", "x", "y"])
 
         for i, entry in enumerate(data):
-            self.assertListEqual(list((df.loc[i, dvnames].values)), entry.variables)
+            self.assertListEqual(list(df.loc[i, dvnames].values), entry.variables)
             self.assertListEqual(
-                list((df.loc[i, outcome_names].values)), entry.objectives
+                list(df.loc[i, outcome_names].values), entry.objectives
             )
 
     @mock.patch("ema_workbench.em_framework.optimization.platypus")

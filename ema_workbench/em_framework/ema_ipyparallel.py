@@ -73,7 +73,7 @@ def start_logwatcher():
         logwatcher.start()
         try:
             logwatcher.loop.start()
-        except (zmq.error.ZMQError, IOError, OSError):
+        except (zmq.error.ZMQError, OSError):
             _logger.warning("shutting down log watcher")
         except RuntimeError:
             pass
@@ -184,7 +184,7 @@ class LogWatcher(LoggingConfigurable):
         return ioloop.IOLoop.instance()
 
     def __init__(self, **kwargs):
-        super(LogWatcher, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.s = self.context.socket(zmq.SUB)  # @UndefinedVariable
         self.s.bind(self.url)
         self.stream = zmqstream.ZMQStream(self.s, self.loop)
@@ -250,7 +250,7 @@ class LogWatcher(LoggingConfigurable):
             log.log(level, f"[{main_topic}] {msg}")
 
 
-class Engine(object):
+class Engine:
     """class for setting up ema specific stuff on each engine
     also functions as a convenient namespace for workbench
     relevant variables

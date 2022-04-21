@@ -61,7 +61,7 @@ LOG_FORMAT = "[%(processName)s/%(levelname)s] %(message)s"
 
 class TemporaryFilter(logging.Filter):
     def __init__(self, *args, level=0, funcname=None, **kwargs):
-        super(TemporaryFilter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.level = level
         self.funcname = funcname
 

@@ -95,11 +95,11 @@ class AbstractModel(NamedObject):
         EMAError if name contains non alpha-numerical characters
 
         """
-        super(AbstractModel, self).__init__(name)
+        super().__init__(name)
 
         if not self.name.isalnum():
             raise EMAError(
-                ("name of model should only contain " "alpha numerical characters")
+                "name of model should only contain " "alpha numerical characters"
             )
 
         self._output_variables = None
@@ -307,7 +307,7 @@ class Replicator(AbstractModel):
         policy : Policy instance
 
         """
-        super(Replicator, self).run_model(scenario, policy)
+        super().run_model(scenario, policy)
 
         constants = {c.name: c.value for c in self.constants}
         outputs = defaultdict(list)
@@ -341,7 +341,7 @@ class SingleReplication(AbstractModel):
         policy : Policy instance
 
         """
-        super(SingleReplication, self).run_model(scenario, policy)
+        super().run_model(scenario, policy)
 
         constants = {c.name: c.value for c in self.constants}
 
@@ -384,7 +384,7 @@ class BaseModel(AbstractModel):
     """
 
     def __init__(self, name, function=None):
-        super(BaseModel, self).__init__(name)
+        super().__init__(name)
 
         if not callable(function):
             raise ValueError("function should be callable")
@@ -419,7 +419,7 @@ class BaseModel(AbstractModel):
         return results
 
     def as_dict(self):
-        model_specs = super(BaseModel, self).as_dict()
+        model_specs = super().as_dict()
         model_specs["function"] = self.function
         return model_specs
 
@@ -453,14 +453,14 @@ class WorkingDirectoryModel(AbstractModel):
         ValueError
             if working_directory does not exist
         """
-        super(WorkingDirectoryModel, self).__init__(name)
+        super().__init__(name)
         self.working_directory = wd
 
         if not os.path.exists(self.working_directory):
             raise ValueError(f"{self.working_directory} does not exist")
 
     def as_dict(self):
-        model_specs = super(WorkingDirectoryModel, self).as_dict()
+        model_specs = super().as_dict()
         model_specs["working_directory"] = self.working_directory
         return model_specs
 
@@ -508,7 +508,7 @@ class FileModel(WorkingDirectoryModel):
         experiments
 
         """
-        super(FileModel, self).__init__(name, wd=wd)
+        super().__init__(name, wd=wd)
 
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
@@ -516,16 +516,14 @@ class FileModel(WorkingDirectoryModel):
 
         if os.getcwd() == self.working_directory:
             raise ValueError(
-                (
-                    "the working directory of the model cannot be "
-                    "the same as the current working directory"
-                )
+                "the working directory of the model cannot be "
+                "the same as the current working directory"
             )
 
         self.model_file = model_file
 
     def as_dict(self):
-        model_specs = super(FileModel, self).as_dict()
+        model_specs = super().as_dict()
         model_specs["model_file"] = self.model_file
         return model_specs
 

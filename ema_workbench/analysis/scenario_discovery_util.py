@@ -787,7 +787,7 @@ def plot_boxes(x, boxes, together):
         return figs
 
 
-class OutputFormatterMixin(object):
+class OutputFormatterMixin:
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractproperty

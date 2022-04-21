@@ -306,7 +306,7 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
 
 
-class PrimBox(object):
+class PrimBox:
     """A class that holds information for a specific box
 
     Attributes
@@ -723,11 +723,9 @@ class PrimBox(object):
         """
         if self._frozen:
             raise PrimException(
-                (
-                    "box has been frozen because PRIM "
-                    "has found at least one more recent "
-                    "box"
-                )
+                "box has been frozen because PRIM "
+                "has found at least one more recent "
+                "box"
             )
 
         res_dim = sdutil._determine_restricted_dims(

@@ -34,7 +34,7 @@ class Point(NamedDict):
         if unique_id is None:
             unique_id = Point.id_counter()
 
-        super(Point, self).__init__(name, **kwargs)
+        super().__init__(name, **kwargs)
         self.unique_id = unique_id
 
 
@@ -53,7 +53,7 @@ class Policy(Point):
     id_counter = Counter(1)
 
     def __init__(self, name=None, **kwargs):
-        super(Policy, self).__init__(name, Policy.id_counter(), **kwargs)
+        super().__init__(name, Policy.id_counter(), **kwargs)
 
     # def to_list(self, parameters):
     #     """get list like representation of policy where the
@@ -81,7 +81,7 @@ class Scenario(Point):
     id_counter = Counter(1)
 
     def __init__(self, name=None, **kwargs):
-        super(Scenario, self).__init__(name, Scenario.id_counter(), **kwargs)
+        super().__init__(name, Scenario.id_counter(), **kwargs)
 
     def __repr__(self):
         return f"Scenario({super(Scenario, self).__repr__()})"
@@ -102,7 +102,7 @@ class Experiment(NamedObject):
     """
 
     def __init__(self, name, model_name, policy, scenario, experiment_id):
-        super(Experiment, self).__init__(name)
+        super().__init__(name)
         self.experiment_id = experiment_id
         self.policy = policy
         self.model_name = model_name
@@ -133,9 +133,7 @@ class ExperimentReplication(NamedDict):
         self.id = scenario_id * policy_id * replication_id
         name = f"{scenario.name}_{policy.name}_{replication_id}"
 
-        super(ExperimentReplication, self).__init__(
-            name, **combine(scenario, policy, constants)
-        )
+        super().__init__(name, **combine(scenario, policy, constants))
 
 
 def zip_cycle(*args):

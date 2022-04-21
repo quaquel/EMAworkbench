@@ -783,10 +783,7 @@ def prepare_data(
             # no grouping specifier, so infer from the data
             if group_by == "index":
                 raise EMAError(
-                    (
-                        "no grouping specifiers provided while "
-                        "trying to group on index"
-                    )
+                    "no grouping specifiers provided while " "trying to group on index"
                 )
             else:
                 column_to_group_by = experiments[group_by]

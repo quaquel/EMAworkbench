@@ -64,7 +64,7 @@ class Variable(NamedObject):
 
 class NamedObjectMap:
     def __init__(self, kind):  # @ReservedAssignment
-        super(NamedObjectMap, self).__init__()
+        super().__init__()
         self.kind = kind
         self._data = OrderedDict()
 
@@ -170,7 +170,7 @@ class NamedObjectMapDescriptor:
 
 class NamedDict(UserDict, NamedObject):
     def __init__(self, name=representation, **kwargs):
-        super(NamedDict, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if name is None:
             raise ValueError()
         elif callable(name):
