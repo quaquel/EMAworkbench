@@ -112,7 +112,8 @@ class BaseNetLogoModel(FileModel):
         separate working directory prior to calling `model_init`.
 
         """
-        super(BaseNetLogoModel, self).__init__(name, wd=wd, model_file=model_file)
+        super(BaseNetLogoModel, self).__init__(name, wd=wd,
+                                               model_file=model_file)
 
         self.run_length = None
         self.netlogo_home = netlogo_home
