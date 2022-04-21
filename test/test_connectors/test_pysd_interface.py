@@ -40,7 +40,7 @@ class TestPySDConnector(unittest.TestCase):
         Test running an experiment in parallel
         Returns
         -------
-    
+
         """
         directory = os.path.dirname(__file__)
 
@@ -60,7 +60,7 @@ class TestPySDConnector(unittest.TestCase):
         Test running an experiment in parallel
         Returns
         -------
-   
+
         """
         directory = os.path.dirname(__file__)
 
@@ -80,7 +80,7 @@ class TestPySDConnector(unittest.TestCase):
         Test running running with two different pysd models
         Returns
         -------
-   
+
         """
 
         directory = os.path.dirname(__file__)

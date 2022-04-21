@@ -65,7 +65,7 @@ class TestProcessLauncher(LocalProcessLauncher):
 
 def add_engines(n=1, profile="iptest", total=False):
     """add a number of engines to a given profile.
-    
+
     If total is True, then already running engines are counted, and only
     the additional engines necessary (if any) are started.
     """

@@ -32,27 +32,32 @@ class TestParcoords(unittest.TestCase):
 
         axes.invert_axis("a")
         self.assertEqual(
-            axes.flipped_axes, {"a"},
+            axes.flipped_axes,
+            {"a"},
         )
 
         axes.invert_axis("a")
         self.assertEqual(
-            axes.flipped_axes, set(),
+            axes.flipped_axes,
+            set(),
         )
 
         axes.invert_axis("c")
         self.assertEqual(
-            axes.flipped_axes, {"c"},
+            axes.flipped_axes,
+            {"c"},
         )
 
         axes.invert_axis("c")
         self.assertEqual(
-            axes.flipped_axes, set(),
+            axes.flipped_axes,
+            set(),
         )
 
         axes.invert_axis(["a", "b"])
         self.assertEqual(
-            axes.flipped_axes, {"a", "b"},
+            axes.flipped_axes,
+            {"a", "b"},
         )
 
     def test_plot(self):
