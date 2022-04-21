@@ -75,7 +75,7 @@ class TemporaryFilter(logging.Filter):
 
 @contextmanager
 def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
-    """ temporary filter log message
+    """temporary filter log message
 
     Params
     ------
@@ -112,11 +112,17 @@ def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
 
     # make a list equal lengths?
     if len(names) < max_length:
-        names = [name,] * max_length
+        names = [
+            name,
+        ] * max_length
     if len(levels) < max_length:
-        levels = [level,] * max_length
+        levels = [
+            level,
+        ] * max_length
     if len(functnames) < max_length:
-        functnames = [functname,] * max_length
+        functnames = [
+            functname,
+        ] * max_length
 
     filters = {}
     for name, level, functname in zip(names, levels, functnames):

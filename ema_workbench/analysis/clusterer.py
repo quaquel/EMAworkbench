@@ -68,8 +68,7 @@ def calculate_cid(data, condensed_form=False):
 
 
 def plot_dendrogram(distances):
-    """plot dendrogram for distances
-    """
+    """plot dendrogram for distances"""
 
     if distances.ndim == 2:
         distances = sp.spatial.distance.squareform(distances)

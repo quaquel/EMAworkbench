@@ -104,7 +104,7 @@ def set_engine_logger():
 
 
 def get_engines_by_host(client):
-    """ returns the engine ids by host
+    """returns the engine ids by host
 
     Parameters
     ----------
@@ -127,7 +127,7 @@ def get_engines_by_host(client):
 
 
 def update_cwd_on_all_engines(client):
-    """ updates the current working directory on the engines to point to the
+    """updates the current working directory on the engines to point to the
     same working directory as this notebook
 
     currently only works if engines are on same machine.
@@ -310,7 +310,7 @@ def initialize_engines(client, msis, cwd):
 
 
 def cleanup(client):
-    """cleanup directory tree structure on all engines """
+    """cleanup directory tree structure on all engines"""
     client[:].apply_sync(_cleanup)
 
 

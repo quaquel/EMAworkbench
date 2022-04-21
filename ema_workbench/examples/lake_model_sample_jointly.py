@@ -71,7 +71,7 @@ def lake_problem(
     r2=0.5,
     w1=0.5,
 ):
-    Pcrit = brentq(lambda x: x ** q / (1 + x ** q) - b * x, 0.01, 1.5)
+    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
 
     X = np.zeros((myears,))
     average_daily_P = np.zeros((myears,))
@@ -83,12 +83,14 @@ def lake_problem(
         X[0] = 0.0
         decision = 0.1
 
-        decisions = np.zeros(myears,)
+        decisions = np.zeros(
+            myears,
+        )
         decisions[0] = decision
 
         natural_inflows = np.random.lognormal(
-            math.log(mean ** 2 / math.sqrt(stdev ** 2 + mean ** 2)),
-            math.sqrt(math.log(1.0 + stdev ** 2 / mean ** 2)),
+            math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
+            math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
             size=myears,
         )
 
@@ -116,9 +118,7 @@ def lake_problem(
 
 
 def analyze(results, ooi):
-    """analyze results using SALib sobol, returns a dataframe
-
-    """
+    """analyze results using SALib sobol, returns a dataframe"""
 
     _, outcomes = results
 
