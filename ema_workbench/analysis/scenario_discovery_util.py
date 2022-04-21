@@ -190,7 +190,14 @@ def _compare(a, b):
     """compare two boxes, for each dimension return True if the
     same and false otherwise"""
     dtypesDesc = a.dtype.descr
-    logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
+    logical = np.ones(
+        (
+            len(
+                dtypesDesc,
+            )
+        ),
+        dtype=np.bool,
+    )
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
         logical[i] = (
@@ -317,7 +324,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
 
 
 def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):
-    """ helper function for pair wise scatter plotting
+    """helper function for pair wise scatter plotting
 
     Parameters
     ----------
@@ -812,7 +819,15 @@ class OutputFormatterMixin(object):
                 dtype = object
                 break
 
-        columns = pd.MultiIndex.from_product([index, ["min", "max",]])
+        columns = pd.MultiIndex.from_product(
+            [
+                index,
+                [
+                    "min",
+                    "max",
+                ],
+            ]
+        )
         df_boxes = pd.DataFrame(
             np.zeros((len(uncs), nr_boxes * 2)),
             index=uncs,

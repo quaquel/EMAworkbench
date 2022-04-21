@@ -152,7 +152,7 @@ def zip_cycle(*args):
 def combine_cases_sampling(*point_collection):
     """Combine collections of cases by iterating over the longest collection
     while sampling with replacement from the others
-    
+
     Parameters
     ----------
     point_collection : collection of collection of Point instances
@@ -178,7 +178,7 @@ def combine_cases_sampling(*point_collection):
 
 
 def combine_cases_factorial(*point_collections):
-    """ Combine collections of cases in a full factorial manner
+    """Combine collections of cases in a full factorial manner
 
     Parameters
     ----------

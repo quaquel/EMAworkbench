@@ -47,7 +47,7 @@ def envelopes(
     ylabels={},
     log=False,
 ):
-    """ Make envelop plots.
+    """Make envelop plots.
 
     An envelope shows over time the minimum and maximum  value for a set
     of runs over time. It is thus to be used in case of time series
@@ -192,7 +192,7 @@ def envelopes(
 def group_by_envelopes(
     outcomes, outcome_to_plot, time, density, ax, ax_d, fill, group_labels, log
 ):
-    """ Helper function responsible for generating an envelope plot
+    """Helper function responsible for generating an envelope plot
     based on a grouping.
 
     Parameters
@@ -709,7 +709,7 @@ def multiple_densities(
     log=False,
     **kwargs
 ):
-    """ Make an envelope plot with multiple density plots over the run time
+    """Make an envelope plot with multiple density plots over the run time
 
     Parameters
     ----------

@@ -130,7 +130,7 @@ class BaseEvaluator(object):
         raise NotImplementedError
 
     def finalize(self):
-        """ finalize the evaluator"""
+        """finalize the evaluator"""
         raise NotImplementedError
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):

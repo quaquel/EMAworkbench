@@ -57,8 +57,7 @@ class Density(enum.Enum):
 
 
 class LegendEnum(enum.Enum):
-    """Enum for different styles of legends
-    """
+    """Enum for different styles of legends"""
 
     # used for legend
     LINE = "line"
@@ -103,7 +102,11 @@ def plot_envelope(ax, j, time, value, fill=False):
         #        ax.plot(time, minimum, color=color, alpha=0.3)
         #        ax.plot(time, maximum, color=color, alpha=0.3)
         ax.fill_between(
-            time, minimum, maximum, facecolor=color, alpha=0.3,
+            time,
+            minimum,
+            maximum,
+            facecolor=color,
+            alpha=0.3,
         )
     else:
         ax.plot(time, minimum, c=color)

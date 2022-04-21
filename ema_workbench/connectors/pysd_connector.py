@@ -13,7 +13,7 @@ __all__ = ["PysdModel"]
 
 
 class BasePysdModel(AbstractModel):
-    """ Pysd model wrapper
+    """Pysd model wrapper
 
     Parameters
     ----------

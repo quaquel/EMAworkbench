@@ -201,7 +201,7 @@ class SimioModel(FileModel, SingleReplication):
     def reset_model(self):
         """
         Method for resetting the model to its initial state. The default
-        implementation only sets the outputs to an empty dict. 
+        implementation only sets the outputs to an empty dict.
 
         """
         super(SimioModel, self).reset_model()

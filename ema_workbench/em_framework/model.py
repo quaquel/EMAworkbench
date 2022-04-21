@@ -216,7 +216,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def reset_model(self):
-        """ Method for reseting the model to its initial state. The default
+        """Method for reseting the model to its initial state. The default
         implementation only sets the outputs to an empty dict.
 
         """
@@ -299,7 +299,7 @@ class Replicator(AbstractModel):
 
     @method_logger(__name__)
     def run_model(self, scenario, policy):
-        """ Method for running an instantiated model structure.
+        """Method for running an instantiated model structure.
 
         Parameters
         ----------
@@ -354,7 +354,7 @@ class SingleReplication(AbstractModel):
 
 
 class BaseModel(AbstractModel):
-    """ generic class for working with models implemented as a Python
+    """generic class for working with models implemented as a Python
     callable
 
     Parameters
@@ -393,7 +393,7 @@ class BaseModel(AbstractModel):
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """ Method for running an instantiated model structure.
+        """Method for running an instantiated model structure.
 
         Parameters
         ----------

@@ -103,8 +103,8 @@ def flu_model(
     susceptible_to_immune_population_flow_region_2 = 0.0
     ######
 
-    initial_value_population_region_1 = 6.0 * 10 ** 8
-    initial_value_population_region_2 = 3.0 * 10 ** 9
+    initial_value_population_region_1 = 6.0 * 10**8
+    initial_value_population_region_2 = 3.0 * 10**9
 
     initial_value_infected_population_region_1 = 10.0
     initial_value_infected_population_region_2 = 10.0

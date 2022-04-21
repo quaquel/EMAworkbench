@@ -159,7 +159,7 @@ def eijgenraam_model(
     b=data[ring]["b"],
     lam=data[ring]["lam"],
 ):
-    """ Python implementation of the Eijgenraam model
+    """Python implementation of the Eijgenraam model
 
     Params
     ------

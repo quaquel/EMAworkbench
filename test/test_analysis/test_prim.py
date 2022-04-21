@@ -352,7 +352,9 @@ class PrimTestCase(unittest.TestCase):
         x = pd.DataFrame(
             np.random.randint(0, 10, size=(100,), dtype=int), columns=["a"]
         )
-        y = np.zeros(100,)
+        y = np.zeros(
+            100,
+        )
         y[x.a > 5] = 1
 
         primalg = prim.Prim(x, y, threshold=0.8)
@@ -410,8 +412,21 @@ class PrimTestCase(unittest.TestCase):
         x = pd.DataFrame(
             list(
                 zip(
-                    np.random.rand(10,),
-                    ["a", "b", "a", "b", "a", "a", "b", "a", "b", "a",],
+                    np.random.rand(
+                        10,
+                    ),
+                    [
+                        "a",
+                        "b",
+                        "a",
+                        "b",
+                        "a",
+                        "a",
+                        "b",
+                        "a",
+                        "b",
+                        "a",
+                    ],
                 )
             ),
             columns=["a", "b"],
@@ -444,7 +459,14 @@ class PrimTestCase(unittest.TestCase):
         a = ("a",)
         b = ("b",)
         x = pd.DataFrame(
-            list(zip(np.random.rand(10,), [a, b, a, b, a, a, b, a, b, a])),
+            list(
+                zip(
+                    np.random.rand(
+                        10,
+                    ),
+                    [a, b, a, b, a, a, b, a, b, a],
+                )
+            ),
             columns=["a", "b"],
         )
 
@@ -471,7 +493,9 @@ class PrimTestCase(unittest.TestCase):
             self.assertEqual(len(pl[1]), 1)
 
     def test_categorical_paste(self):
-        a = np.random.rand(10,)
+        a = np.random.rand(
+            10,
+        )
         b = [
             "a",
             "b",
@@ -494,7 +518,27 @@ class PrimTestCase(unittest.TestCase):
         classify = "y"
 
         prim_obj = prim.setup_prim(results, classify, threshold=0.8)
-        box_lims = pd.DataFrame([(0, set(["a",])), (1, set(["a",]))], columns=x.columns)
+        box_lims = pd.DataFrame(
+            [
+                (
+                    0,
+                    set(
+                        [
+                            "a",
+                        ]
+                    ),
+                ),
+                (
+                    1,
+                    set(
+                        [
+                            "a",
+                        ]
+                    ),
+                ),
+            ],
+            columns=x.columns,
+        )
 
         yi = np.where(x.loc[:, "b"] == "a")
 

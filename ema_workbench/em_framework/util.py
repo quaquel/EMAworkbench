@@ -46,7 +46,7 @@ def representation(named_dict):
 
 
 class Variable(NamedObject):
-    """Root class for input parameters and outcomes """
+    """Root class for input parameters and outcomes"""
 
     @property
     def variable_name(self):

@@ -107,7 +107,7 @@ class CART(sdutil.OutputFormatterMixin):
     sep = "!?!"
 
     def __init__(self, x, y, mass_min=0.05, mode=sdutil.RuleInductionType.BINARY):
-        """ init"""
+        """init"""
 
         try:
             x = x.drop(["scenario"], axis=1)

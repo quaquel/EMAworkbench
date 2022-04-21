@@ -167,7 +167,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
 
 
 def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
-    """ Run PRIM repeatedly while constraining the maximum number of dimensions
+    """Run PRIM repeatedly while constraining the maximum number of dimensions
     available in x
 
     Improved usage of PRIM as described in `Kwakkel (2019) <https://onlinelibrary.wiley.com/doi/full/10.1002/ffo2.8>`_.
@@ -577,7 +577,9 @@ class PrimBox(object):
                 x_upper="(datum.x2-datum.minimum)/(datum.maximum-datum.minimum)",
             )
             .transform_filter(point_selector)
-            .properties(width=width,)
+            .properties(
+                width=width,
+            )
         )
 
         lines = base.mark_rule()
@@ -607,7 +609,14 @@ class PrimBox(object):
         )
 
         data = pd.DataFrame([dict(start=0, end=1)])
-        rect = alt.Chart(data).mark_rect(opacity=0.05).encode(x="start:Q", x2="end:Q",)
+        rect = (
+            alt.Chart(data)
+            .mark_rect(opacity=0.05)
+            .encode(
+                x="start:Q",
+                x2="end:Q",
+            )
+        )
 
         # TODO:: for qp can we do something with the y encoding here and
         # connecting this to a selection?
@@ -616,9 +625,14 @@ class PrimBox(object):
         nominal = (
             alt.Chart(nominal_vars)
             .mark_point()
-            .encode(x="x:Q", y="name:N",)
+            .encode(
+                x="x:Q",
+                y="name:N",
+            )
             .transform_filter(point_selector)
-            .properties(width=width,)
+            .properties(
+                width=width,
+            )
         )
 
         texts3 = nominal.mark_text(baseline="top", dy=5, align="center").encode(
@@ -817,7 +831,7 @@ class PrimBox(object):
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
 
     def show_pairs_scatter(self, i=None, dims=None, cdf=False):
-        """ Make a pair wise scatter plot of all the restricted
+        """Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
         interest or not and the boxlims superimposed on top.
 
@@ -1399,7 +1413,7 @@ class Prim(sdutil.OutputFormatterMixin):
             return []
 
     def _paste(self, box):
-        """ Executes the pasting phase of the PRIM. Delegates pasting
+        """Executes the pasting phase of the PRIM. Delegates pasting
         to data type specific helper methods."""
 
         mass_old = box.yi.shape[0] / self.n
@@ -1462,7 +1476,7 @@ class Prim(sdutil.OutputFormatterMixin):
             return box
 
     def _real_paste(self, box, u, x, resdim):
-        """ returns two candidate new boxes, pasted along upper and
+        """returns two candidate new boxes, pasted along upper and
         lower dimension
 
         Parameters
@@ -1649,7 +1663,7 @@ class Prim(sdutil.OutputFormatterMixin):
         return obj
 
     def _original_obj_func(self, y_old, y_new):
-        """ The original objective function: the mean of the data
+        """The original objective function: the mean of the data
         inside the box"""
 
         if y_new.shape[0] > 0:

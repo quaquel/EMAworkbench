@@ -112,8 +112,7 @@ class BaseNetLogoModel(FileModel):
         separate working directory prior to calling `model_init`.
 
         """
-        super(BaseNetLogoModel, self).__init__(name, wd=wd,
-                                               model_file=model_file)
+        super(BaseNetLogoModel, self).__init__(name, wd=wd, model_file=model_file)
 
         self.run_length = None
         self.netlogo_home = netlogo_home
@@ -196,7 +195,10 @@ class BaseNetLogoModel(FileModel):
             if self.netlogo.report("is-agentset? {}".format(variable)):
                 # if name is name of an agentset, we
                 # assume that we should count the total number of agents
-                nc = r"file-open {0} file-write count {1}".format(fn, variable,)
+                nc = r"file-open {0} file-write count {1}".format(
+                    fn,
+                    variable,
+                )
             else:
                 # it is not an agentset, so assume that it is
                 # a reporter / global variable

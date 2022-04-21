@@ -91,7 +91,7 @@ def create_category(cat):
 
 
 class Parameter(Variable, metaclass=abc.ABCMeta):
-    """ Base class for any model input parameter
+    """Base class for any model input parameter
 
     Parameters
     ----------
@@ -207,7 +207,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
 
 class RealParameter(Parameter):
-    """ real valued model input parameter
+    """real valued model input parameter
 
     Parameters
     ----------
@@ -259,7 +259,7 @@ class RealParameter(Parameter):
 
 
 class IntegerParameter(Parameter):
-    """ integer valued model input parameter
+    """integer valued model input parameter
 
     Parameters
     ----------
@@ -334,7 +334,7 @@ class IntegerParameter(Parameter):
 
 
 class CategoricalParameter(IntegerParameter):
-    """ categorical model input parameter
+    """categorical model input parameter
 
     Parameters
     ----------
@@ -443,7 +443,7 @@ class CategoricalParameter(IntegerParameter):
 
 
 class BooleanParameter(CategoricalParameter):
-    """ boolean model input parameter
+    """boolean model input parameter
 
     A BooleanParameter is similar to a CategoricalParameter, except
     the category values can only be True or False.

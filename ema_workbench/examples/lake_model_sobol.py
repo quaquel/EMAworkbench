@@ -38,9 +38,11 @@ def lake_problem(
     try:
         decisions = [kwargs[str(i)] for i in range(100)]
     except KeyError:
-        decisions = [0,] * 100
+        decisions = [
+            0,
+        ] * 100
 
-    Pcrit = brentq(lambda x: x ** q / (1 + x ** q) - b * x, 0.01, 1.5)
+    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
     nvars = len(decisions)
     X = np.zeros((nvars,))
     average_daily_P = np.zeros((nvars,))
@@ -51,8 +53,8 @@ def lake_problem(
         X[0] = 0.0
 
         natural_inflows = np.random.lognormal(
-            math.log(mean ** 2 / math.sqrt(stdev ** 2 + mean ** 2)),
-            math.sqrt(math.log(1.0 + stdev ** 2 / mean ** 2)),
+            math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
+            math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
             size=nvars,
         )
 
@@ -75,9 +77,7 @@ def lake_problem(
 
 
 def analyze(results, ooi):
-    """analyze results using SALib sobol, returns a dataframe
-
-    """
+    """analyze results using SALib sobol, returns a dataframe"""
 
     _, outcomes = results
 
@@ -122,7 +122,9 @@ if __name__ == "__main__":
 
     # specify outcomes
     lake_model.outcomes = [
-        ScalarOutcome("max_P",),
+        ScalarOutcome(
+            "max_P",
+        ),
         ScalarOutcome("utility"),
         ScalarOutcome("inertia"),
         ScalarOutcome("reliability"),

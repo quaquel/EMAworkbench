@@ -29,7 +29,7 @@ _logger = get_module_logger(__name__)
 
 
 def discretize(data, nbins=3, with_labels=False):
-    """ Discretize the data, using the number of bins specified.
+    """Discretize the data, using the number of bins specified.
 
     Parameters
     ----------
@@ -255,7 +255,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
 def plot_pivot_table(
     table, plot_labels=True, plot_cats=True, figsize=(10, 10), cmap="viridis", **kwargs
 ):
-    """ visualize a pivot table using colors
+    """visualize a pivot table using colors
 
     Parameters
     ----------
@@ -374,7 +374,7 @@ def _prepare_experiments(experiments):
 def create_pivot_plot(
     x, y, nr_levels=3, labels=True, categories=True, nbins=3, bin_labels=False
 ):
-    """ convenience function for easily creating a pivot plot
+    """convenience function for easily creating a pivot plot
 
     Parameters
     ----------
