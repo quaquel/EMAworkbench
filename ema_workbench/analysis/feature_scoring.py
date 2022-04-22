@@ -212,7 +212,7 @@ def get_rf_feature_scores(
         rfc = RandomForestRegressor
         criterion = "mse"
     else:
-        raise ValueError("{} not valid for mode".format(mode))
+        raise ValueError(f"{mode} not valid for mode")
 
     forest = rfc(
         n_estimators=nr_trees,
@@ -318,7 +318,7 @@ def get_ex_feature_scores(
         etc = ExtraTreesRegressor
         criterion = "mse"
     else:
-        raise ValueError("{} not valid for mode".format(mode))
+        raise ValueError(f"{mode} not valid for mode")
 
     extra_trees = etc(
         n_estimators=nr_trees,

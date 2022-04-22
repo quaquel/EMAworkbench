@@ -2,7 +2,6 @@
 
 
 """
-from __future__ import unicode_literals, print_function, absolute_import, division
 
 import unittest
 
@@ -46,7 +45,7 @@ class TestNamedDict(unittest.TestCase):
 
         # test in
         for entry in kwargs.keys():
-            self.assertIn(entry, nd, "{} not in NamedDict".format(entry))
+            self.assertIn(entry, nd, f"{entry} not in NamedDict")
 
         # test addition
         nd["c"] = 3

@@ -134,11 +134,11 @@ def setup_working_directories(models, root_dir):
     # if the dict is not empty
     if wd_by_model:
         # make a directory with the process id as identifier
-        tmpdir_name = "tmp{}".format(os.getpid())
+        tmpdir_name = f"tmp{os.getpid()}"
         tmpdir = os.path.join(root_dir, tmpdir_name)
         os.mkdir(tmpdir)
 
-        _logger.debug("setting up working directory: {}".format(tmpdir))
+        _logger.debug(f"setting up working directory: {tmpdir}")
 
         for key, value in wd_by_model.items():
             # we need a sub directory in the process working directory

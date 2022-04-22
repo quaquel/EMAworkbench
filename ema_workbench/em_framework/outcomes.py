@@ -51,7 +51,7 @@ class Register:
             self.outcomes[outcome.name] = outcome.__class__
         elif not isinstance(outcome, self.outcomes[outcome.name]):
             raise ValueError(
-                ("outcome with this name but of different class " "already exists")
+                "outcome with this name but of different class " "already exists"
             )
         else:
             pass  # multiple instances of the same class and name is fine
@@ -74,7 +74,7 @@ class Register:
             stream, extension = self.outcomes[name].to_disk(values)
         except KeyError:
             _logger.warning(
-                ("outcome not defined, falling back on " "ArrayOutcome.to_disk")
+                "outcome not defined, falling back on " "ArrayOutcome.to_disk"
             )
             stream, extension = ArrayOutcome.to_disk(values)
 
@@ -134,7 +134,7 @@ class AbstractOutcome(Variable):
         expected_range=None,
         shape=None,
     ):
-        super(AbstractOutcome, self).__init__(name)
+        super().__init__(name)
 
         if function is not None and not callable(function):
             raise ValueError("function must be a callable")
@@ -187,7 +187,7 @@ class AbstractOutcome(Variable):
         else:
             if len(values) > 1:
                 raise EMAError(
-                    ("more than one value returned without " "processing function")
+                    "more than one value returned without " "processing function"
                 )
 
             return values[0]
@@ -207,12 +207,12 @@ class AbstractOutcome(Variable):
         klass = self.__class__.__name__
         name = self.name
 
-        rep = "{}('{}'".format(klass, name)
+        rep = f"{klass}('{name}'"
 
         if self.variable_name != [self.name]:
-            rep += ", variable_name={}".format(self.variable_name)
+            rep += f", variable_name={self.variable_name}"
         if self.function:
-            rep += ", function={}".format(self.function)
+            rep += f", function={self.function}"
 
         rep += ")"
 
@@ -220,7 +220,7 @@ class AbstractOutcome(Variable):
 
     def __hash__(self):
         items = [self.name, self._variable_name, self._expected_range, self.shape]
-        items = tuple([entry for entry in items if entry is not None])
+        items = tuple(entry for entry in items if entry is not None)
 
         return hash(items)
 
@@ -299,9 +299,7 @@ class ScalarOutcome(AbstractOutcome):
     @property
     def expected_range(self):
         if self._expected_range is None:
-            raise ValueError(
-                "no expected_range is set for {}".format(self.variable_name)
-            )
+            raise ValueError(f"no expected_range is set for {self.variable_name}")
         return self._expected_range
 
     @expected_range.setter
@@ -316,19 +314,15 @@ class ScalarOutcome(AbstractOutcome):
         function=None,
         expected_range=None,
     ):
-        super(ScalarOutcome, self).__init__(
-            name, kind, variable_name=variable_name, function=function
-        )
+        super().__init__(name, kind, variable_name=variable_name, function=function)
         self.expected_range = expected_range
 
     def process(self, values):
-        values = super(ScalarOutcome, self).process(values)
+        values = super().process(values)
         if not isinstance(values, numbers.Number):
             raise EMAError(
-                (
-                    f"outcome {self.name} should be a scalar, but is"
-                    f" {type(values)}: {values}"
-                )
+                f"outcome {self.name} should be a scalar, but is"
+                f" {type(values)}: {values}"
             )
         return values
 
@@ -398,7 +392,7 @@ class ArrayOutcome(AbstractOutcome):
     def __init__(
         self, name, variable_name=None, function=None, expected_range=None, shape=None
     ):
-        super(ArrayOutcome, self).__init__(
+        super().__init__(
             name,
             variable_name=variable_name,
             function=function,
@@ -407,9 +401,9 @@ class ArrayOutcome(AbstractOutcome):
         )
 
     def process(self, values):
-        values = super(ArrayOutcome, self).process(values)
+        values = super().process(values)
         if not isinstance(values, collections.abc.Iterable):
-            raise EMAError("outcome {} should be a collection".format(self.name))
+            raise EMAError(f"outcome {self.name} should be a collection")
         return values
 
     @classmethod
@@ -489,7 +483,7 @@ class TimeSeriesOutcome(ArrayOutcome):
     def __init__(
         self, name, variable_name=None, function=None, expected_range=None, shape=None
     ):
-        super(TimeSeriesOutcome, self).__init__(
+        super().__init__(
             name,
             variable_name=variable_name,
             function=function,
@@ -568,7 +562,7 @@ class Constraint(ScalarOutcome):
 
         variable_names = parameter_names + outcome_names
 
-        super(Constraint, self).__init__(
+        super().__init__(
             name,
             kind=AbstractOutcome.INFO,
             variable_name=variable_names,
@@ -579,7 +573,7 @@ class Constraint(ScalarOutcome):
         self.outcome_names = outcome_names
 
     def process(self, values):
-        value = super(Constraint, self).process(values)
+        value = super().process(values)
         assert value >= 0
         return value
 
@@ -605,7 +599,7 @@ def create_outcomes(outcomes, **kwargs):
 
     for entry in ["name", "type"]:
         if entry not in outcomes.columns:
-            raise ValueError("no {} column in dataframe".format(entry))
+            raise ValueError(f"no {entry} column in dataframe")
 
     temp_outcomes = []
     for _, row in outcomes.iterrows():

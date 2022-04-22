@@ -70,7 +70,7 @@ def establish_version():
     version_info = ema_workbench.__version__
     version_match = re.search(r"^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)", version_info)
 
-    return tuple((group for group in version_match.groups()))
+    return tuple(group for group in version_match.groups())
 
 
 version_info = establish_version()

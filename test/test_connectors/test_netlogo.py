@@ -3,7 +3,6 @@ Created on 18 mrt. 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
-from __future__ import absolute_import, print_function, division, unicode_literals
 import os
 import unittest
 from ema_workbench.connectors.netlogo import NetLogoModel

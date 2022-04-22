@@ -55,28 +55,28 @@ try:
 except ImportError:
     warnings.warn("platypus based optimization not available", ImportWarning)
 
-    class PlatypusProblem(object):
+    class PlatypusProblem:
         constraints = []
 
         def __init__(self, *args, **kwargs):
             pass
 
-    class Variator(object):
+    class Variator:
         def __init__(self, *args, **kwargs):
             pass
 
-    class RandomGenerator(object):
+    class RandomGenerator:
         def __call__(self, *args, **kwargs):
             pass
 
-    class TournamentSelector(object):
+    class TournamentSelector:
         def __init__(self, *args, **kwargs):
             pass
 
         def __call__(self, *args, **kwargs):
             pass
 
-    class EpsilonProgressContinuation(object):
+    class EpsilonProgressContinuation:
         pass
 
     EpsNSGAII = None
@@ -113,9 +113,7 @@ class Problem(PlatypusProblem):
         if constraints is None:
             constraints = []
 
-        super(Problem, self).__init__(
-            len(parameters), len(outcome_names), nconstrs=len(constraints)
-        )
+        super().__init__(len(parameters), len(outcome_names), nconstrs=len(constraints))
         #         assert len(parameters) == len(parameter_names)
         assert searchover in ("levers", "uncertainties", "robust")
 
@@ -141,9 +139,7 @@ class RobustProblem(Problem):
     def __init__(
         self, parameters, outcome_names, scenarios, robustness_functions, constraints
     ):
-        super(RobustProblem, self).__init__(
-            "robust", parameters, outcome_names, constraints
-        )
+        super().__init__("robust", parameters, outcome_names, constraints)
         assert len(robustness_functions) == len(outcome_names)
         self.scenarios = scenarios
         self.robustness_functions = robustness_functions
@@ -177,7 +173,7 @@ def to_problem(model, searchover, reference=None, constraints=None):
 
     if not outcomes:
         raise EMAError(
-            ("no outcomes specified to optimize over, " "all outcomes are of kind=INFO")
+            "no outcomes specified to optimize over, " "all outcomes are of kind=INFO"
         )
 
     problem = Problem(
@@ -216,7 +212,7 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
 
     if not outcomes:
         raise EMAError(
-            ("no outcomes specified to optimize over, " "all outcomes are of kind=INFO")
+            "no outcomes specified to optimize over, " "all outcomes are of kind=INFO"
         )
 
     problem = RobustProblem(
@@ -466,11 +462,11 @@ def _evaluate_constraints(job_experiment, job_outcomes, constraints):
     return job_constraints
 
 
-class AbstractConvergenceMetric(object):
+class AbstractConvergenceMetric:
     """base convergence metric class"""
 
     def __init__(self, name):
-        super(AbstractConvergenceMetric, self).__init__()
+        super().__init__()
         self.name = name
         self.results = []
 
@@ -485,7 +481,7 @@ class EpsilonProgress(AbstractConvergenceMetric):
     """epsilon progress convergence metric class"""
 
     def __init__(self):
-        super(EpsilonProgress, self).__init__("epsilon_progress")
+        super().__init__("epsilon_progress")
 
     def __call__(self, optimizer):
         self.results.append(optimizer.algorithm.archive.improvements)
@@ -511,7 +507,7 @@ class HyperVolume(AbstractConvergenceMetric):
     """
 
     def __init__(self, minimum, maximum):
-        super(HyperVolume, self).__init__("hypervolume")
+        super().__init__("hypervolume")
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
     def __call__(self, optimizer):
@@ -544,7 +540,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
     def __init__(
         self, directory, decision_varnames, outcome_varnames, base_filename="archive"
     ):
-        super(ArchiveLogger, self).__init__("archive_logger")
+        super().__init__("archive_logger")
         self.directory = os.path.abspath(directory)
         self.base = base_filename
         self.decision_varnames = decision_varnames
@@ -554,7 +550,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
     def __call__(self, optimizer):
         self.index += 1
 
-        fn = os.path.join(self.directory, "{}_{}.csv".format(self.base, self.index))
+        fn = os.path.join(self.directory, f"{self.base}_{self.index}.csv")
 
         archive = to_dataframe(optimizer, self.decision_varnames, self.outcome_varnames)
         archive.to_csv(fn)
@@ -562,7 +558,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
 class OperatorProbabilities(AbstractConvergenceMetric):
     def __init__(self, name, index):
-        super(OperatorProbabilities, self).__init__(name)
+        super().__init__(name)
         self.index = index
 
     def __call__(self, optimizer):
@@ -576,7 +572,7 @@ class OperatorProbabilities(AbstractConvergenceMetric):
 class Convergence(ProgressTrackingMixIn):
     """helper class for tracking convergence of optimization"""
 
-    valid_metrics = set(["hypervolume", "epsilon_progress", "archive_logger"])
+    valid_metrics = {"hypervolume", "epsilon_progress", "archive_logger"}
 
     def __init__(
         self,
@@ -586,7 +582,7 @@ class Convergence(ProgressTrackingMixIn):
         logging_freq=5,
         log_progress=False,
     ):
-        super(Convergence, self).__init__(
+        super().__init__(
             max_nfe,
             logging_freq,
             _logger,
@@ -616,7 +612,7 @@ class Convergence(ProgressTrackingMixIn):
         optimizer,
     ):
         nfe = optimizer.algorithm.nfe
-        super(Convergence, self).__call__(nfe - self.i)
+        super().__call__(nfe - self.i)
 
         self.generation += 1
 
@@ -642,7 +638,7 @@ class Convergence(ProgressTrackingMixIn):
 
 class CombinedVariator(Variator):
     def __init__(self, crossover_prob=0.5, mutation_prob=1):
-        super(CombinedVariator, self).__init__(2)
+        super().__init__(2)
         self.SBX = platypus.SBX()
         self.crossover_prob = crossover_prob
         self.mutation_prob = mutation_prob
@@ -885,7 +881,7 @@ def _optimize(
         return results, convergence
 
 
-class BORGDefaultDescriptor(object):
+class BORGDefaultDescriptor:
     # this treats defaults as class level attributes!
 
     def __init__(self, default_function):
@@ -994,7 +990,7 @@ class GenerationalBorg(EpsilonProgressContinuation):
 
         variator = Multimethod(self, variators)
 
-        super(GenerationalBorg, self).__init__(
+        super().__init__(
             NSGAII(
                 problem,
                 population_size,

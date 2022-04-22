@@ -89,7 +89,7 @@ class Samplers(enum.Enum):
     MORRIS = MorrisSampler()
 
 
-class BaseEvaluator(object):
+class BaseEvaluator:
     """evaluator for experiments using a multiprocessing pool
 
     Parameters
@@ -107,7 +107,7 @@ class BaseEvaluator(object):
     reporting_frequency = 3
 
     def __init__(self, msis):
-        super(BaseEvaluator, self).__init__()
+        super().__init__()
 
         if isinstance(msis, AbstractModel):
             msis = [msis]
@@ -275,7 +275,7 @@ class BaseEvaluator(object):
 
 class SequentialEvaluator(BaseEvaluator):
     def __init__(self, models, **kwargs):
-        super(SequentialEvaluator, self).__init__(models, **kwargs)
+        super().__init__(models, **kwargs)
 
     def initialize(self):
         pass
@@ -314,7 +314,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
     """
 
     def __init__(self, msis, n_processes=None, maxtasksperchild=None, **kwargs):
-        super(MultiprocessingEvaluator, self).__init__(msis, **kwargs)
+        super().__init__(msis, **kwargs)
 
         self._pool = None
         self.n_processes = n_processes
@@ -365,7 +365,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
             self._pool.terminate()
             return False
 
-        super(MultiprocessingEvaluator, self).__exit__(exc_type, exc_value, traceback)
+        super().__exit__(exc_type, exc_value, traceback)
 
     def finalize(self):
         # Stop accepting new jobs and wait for pending jobs to finish.
@@ -384,7 +384,7 @@ class IpyparallelEvaluator(BaseEvaluator):
     """evaluator for using an ipypparallel pool"""
 
     def __init__(self, msis, client, **kwargs):
-        super(IpyparallelEvaluator, self).__init__(msis, **kwargs)
+        super().__init__(msis, **kwargs)
         self.client = client
 
     def initialize(self):
@@ -483,7 +483,7 @@ def perform_experiments(
 
     if not scenarios and not policies:
         raise EMAError(
-            ("no experiments possible since both " "scenarios and policies are 0")
+            "no experiments possible since both " "scenarios and policies are 0"
         )
 
     scenarios, uncertainties, n_scenarios = setup_scenarios(
@@ -691,10 +691,8 @@ def optimize(
     """
     if searchover not in ("levers", "uncertainties"):
         raise EMAError(
-            (
-                "searchover should be one of 'levers' or"
-                "'uncertainties' not {}".format(searchover)
-            )
+            "searchover should be one of 'levers' or"
+            "'uncertainties' not {}".format(searchover)
         )
 
     try:
@@ -702,7 +700,7 @@ def optimize(
             models = models[0]
         else:
             raise NotImplementedError(
-                ("optimization over multiple" "models yet supported")
+                "optimization over multiple" "models yet supported"
             )
     except TypeError:
         pass

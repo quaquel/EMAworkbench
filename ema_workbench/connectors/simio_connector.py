@@ -83,7 +83,7 @@ class SimioModel(FileModel, SingleReplication):
             if model_file cannot be found
 
         """
-        super(SimioModel, self).__init__(name, wd=wd, model_file=model_file)
+        super().__init__(name, wd=wd, model_file=model_file)
         assert main_model != None
         self.main_model_name = main_model
         self.output = {}
@@ -97,7 +97,7 @@ class SimioModel(FileModel, SingleReplication):
 
     @method_logger(__name__)
     def model_init(self, policy):
-        super(SimioModel, self).model_init(policy)
+        super().model_init(policy)
         _logger.debug("initializing model")
 
         # get project
@@ -113,10 +113,8 @@ class SimioModel(FileModel, SingleReplication):
 
         if not model:
             raise EMAError(
-                (
-                    f"""main model with name {self.main_model_name} '
+                f"""main model with name {self.main_model_name} '
                             'not found"""
-                )
             )
 
         self.model = SimioAPI.IModel(model)
@@ -174,10 +172,8 @@ class SimioModel(FileModel, SingleReplication):
                 control = self.control_map[key]
             except KeyError:
                 raise EMAError(
-                    (
-                        """uncertainty not specified as '
+                    """uncertainty not specified as '
                                   'control in simio model"""
-                    )
                 )
             else:
                 ret = scenario.SetControlValue(control, str(value))
@@ -204,7 +200,7 @@ class SimioModel(FileModel, SingleReplication):
         implementation only sets the outputs to an empty dict.
 
         """
-        super(SimioModel, self).reset_model()
+        super().reset_model()
 
         self.scenarios.Clear()
         self.output = {}
@@ -222,10 +218,8 @@ class SimioModel(FileModel, SingleReplication):
         scenario = SimioAPI.IScenario(scenario_ended_event.Scenario)
 
         _logger.debug(
-            (
-                f"""scenario {scenario.Name} for experiment '
+            f"""scenario {scenario.Name} for experiment '
                        '{experiment.Name} completed"""
-            )
         )
         responses = experiment.Scenarios.get_Responses()
 
@@ -249,10 +243,8 @@ class SimioModel(FileModel, SingleReplication):
                     )
                 except TypeError:
                     _logger.warning(
-                        (
-                            f"""type error when trying to get a '
+                        f"""type error when trying to get a '
                                              'response for {response.Name}"""
-                        )
                     )
                     raise
 
