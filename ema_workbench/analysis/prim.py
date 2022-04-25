@@ -577,9 +577,7 @@ class PrimBox:
                 x_upper="(datum.x2-datum.minimum)/(datum.maximum-datum.minimum)",
             )
             .transform_filter(point_selector)
-            .properties(
-                width=width,
-            )
+            .properties(width=width,)
         )
 
         lines = base.mark_rule()
@@ -609,14 +607,7 @@ class PrimBox:
         )
 
         data = pd.DataFrame([dict(start=0, end=1)])
-        rect = (
-            alt.Chart(data)
-            .mark_rect(opacity=0.05)
-            .encode(
-                x="start:Q",
-                x2="end:Q",
-            )
-        )
+        rect = alt.Chart(data).mark_rect(opacity=0.05).encode(x="start:Q", x2="end:Q",)
 
         # TODO:: for qp can we do something with the y encoding here and
         # connecting this to a selection?
@@ -625,14 +616,9 @@ class PrimBox:
         nominal = (
             alt.Chart(nominal_vars)
             .mark_point()
-            .encode(
-                x="x:Q",
-                y="name:N",
-            )
+            .encode(x="x:Q", y="name:N",)
             .transform_filter(point_selector)
-            .properties(
-                width=width,
-            )
+            .properties(width=width,)
         )
 
         texts3 = nominal.mark_text(baseline="top", dy=5, align="center").encode(
