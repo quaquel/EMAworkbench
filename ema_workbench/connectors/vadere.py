@@ -65,8 +65,7 @@ def update_vadere_scenario(model_file, experiment, output_file):
 
 
 class BaseVadereModel(FileModel):
-    """Base class for interfacing with Vadere models. This class
-    extends :class:`em_framework.ModelStructureInterface`.
+    """Base class for interfacing with Vadere models.
 
     Attributes
     ----------
