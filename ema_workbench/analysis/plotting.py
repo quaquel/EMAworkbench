@@ -47,7 +47,7 @@ def envelopes(
     ylabels={},
     log=False,
 ):
-    """ Make envelop plots.
+    """Make envelop plots.
 
     An envelope shows over time the minimum and maximum  value for a set
     of runs over time. It is thus to be used in case of time series
@@ -192,7 +192,7 @@ def envelopes(
 def group_by_envelopes(
     outcomes, outcome_to_plot, time, density, ax, ax_d, fill, group_labels, log
 ):
-    """ Helper function responsible for generating an envelope plot
+    """Helper function responsible for generating an envelope plot
     based on a grouping.
 
     Parameters
@@ -221,7 +221,7 @@ def group_by_envelopes(
         try:
             plot_envelope(ax, j, time, value, fill)
         except ValueError:
-            _logger.exception("value error when plotting for %s" % (key))
+            _logger.exception(f"value error when plotting for {key}")
             raise
 
     if density:
@@ -707,9 +707,9 @@ def multiple_densities(
     experiments_to_show=None,
     plot_type=PlotType.ENVELOPE,
     log=False,
-    **kwargs
+    **kwargs,
 ):
-    """ Make an envelope plot with multiple density plots over the run time
+    """Make an envelope plot with multiple density plots over the run time
 
     Parameters
     ----------
@@ -848,7 +848,7 @@ def multiple_densities(
 
         axes_dict["main plot"] = ax_env
         for n, entry in enumerate(kde_axes):
-            axes_dict["density_%s" % n] = entry
+            axes_dict[f"density_{n}"] = entry
 
             # turn of ticks for all but the first density
             if n > 0:

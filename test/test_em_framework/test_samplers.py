@@ -31,7 +31,7 @@ class SamplerTestCase(unittest.TestCase):
     def _test_generate_designs(self, sampler):
         designs = sampler.generate_designs(self.uncertainties, 10)
         designs.kind = Scenario
-        msg = "tested for {}".format(type(sampler))
+        msg = f"tested for {type(sampler)}"
 
         actual_nr_designs = 0
         for design in designs:

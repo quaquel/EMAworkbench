@@ -312,8 +312,8 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box_init["a"][1] == 1.0)
         self.assertTrue(box_init["b"][0] == 0)
         self.assertTrue(box_init["b"][1] == 9)
-        self.assertTrue(box_init["c"][0] == set(["a", "b"]))
-        self.assertTrue(box_init["c"][1] == set(["a", "b"]))
+        self.assertTrue(box_init["c"][0] == {"a", "b"})
+        self.assertTrue(box_init["c"][1] == {"a", "b"})
 
     def test_prim_exceptions(self):
         results = utilities.load_flu_data()
@@ -424,9 +424,7 @@ class PrimTestCase(unittest.TestCase):
         classify = "y"
 
         prim_obj = prim.setup_prim(results, classify, threshold=0.8)
-        box_lims = pd.DataFrame(
-            [(0, set(["a", "b"])), (1, set(["a", "b"]))], columns=["a", "b"]
-        )
+        box_lims = pd.DataFrame([(0, {"a", "b"}), (1, {"a", "b"})], columns=["a", "b"])
         box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
 
         u = "b"
@@ -444,7 +442,7 @@ class PrimTestCase(unittest.TestCase):
         a = ("a",)
         b = ("b",)
         x = pd.DataFrame(
-            list(zip(np.random.rand(10,), [a, b, a, b, a, a, b, a, b, a])),
+            list(zip(np.random.rand(10,), [a, b, a, b, a, a, b, a, b, a],)),
             columns=["a", "b"],
         )
 
@@ -494,7 +492,7 @@ class PrimTestCase(unittest.TestCase):
         classify = "y"
 
         prim_obj = prim.setup_prim(results, classify, threshold=0.8)
-        box_lims = pd.DataFrame([(0, set(["a",])), (1, set(["a",]))], columns=x.columns)
+        box_lims = pd.DataFrame([(0, {"a",},), (1, {"a",},),], columns=x.columns,)
 
         yi = np.where(x.loc[:, "b"] == "a")
 
@@ -509,7 +507,7 @@ class PrimTestCase(unittest.TestCase):
             indices, box_lims = paste
 
             self.assertEqual(indices.shape[0], 10)
-            self.assertEqual(box_lims[u][0], set(["a", "b"]))
+            self.assertEqual(box_lims[u][0], {"a", "b"})
 
     def test_constrained_prim(self):
         experiments, outcomes = utilities.load_flu_data()

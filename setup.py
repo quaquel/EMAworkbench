@@ -3,12 +3,11 @@ import os
 import re
 
 from setuptools import setup
-import setuptools
 
 
 def read(path, encoding="utf-8"):
     path = os.path.join(os.path.dirname(__file__), path)
-    with io.open(path, encoding=encoding) as fp:
+    with open(path, encoding=encoding) as fp:
         return fp.read()
 
 
@@ -55,14 +54,10 @@ for d, _, _ in os.walk(pkg_root):
         packages.append(d[len(here) + 1 :].replace(os.path.sep, "."))
 
 VERSION = version("ema_workbench/__init__.py")
-LONG_DESCRIPTION = """Project Documentation: 
-https://emaworkbench.readthedocs.io/"""
+LONG_DESCRIPTION = "Project Documentation: https://emaworkbench.readthedocs.io/"
 EXAMPLE_DATA = example_data_files + example_model_files
-
 PACKAGES = packages
 
-print(setuptools.__version__)
-print(EXAMPLE_DATA)
 
 setup(
     name="ema_workbench",
@@ -76,4 +71,10 @@ setup(
     url="https://github.com/quaquel/EMAworkbench",
     license="BSD 3-Clause",
     platforms="Linux, Mac OS X, Windows",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires=">=3.8",
 )

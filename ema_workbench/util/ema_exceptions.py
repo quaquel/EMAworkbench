@@ -26,7 +26,7 @@ class EMAError(BaseException):
             return str(self.args)
 
     def __repr__(self):
-        return "%s(*%s)" % (self.__class__.__name__, repr(self.args))
+        return f"{self.__class__.__name__}(*{repr(self.args)})"
 
 
 class EMAWarning(EMAError):
@@ -69,7 +69,7 @@ class CaseError(EMAError):
         return self.message + " case: {" + c + "}"
 
     def __repr__(self):
-        return "%s case: %s " % (self.message, repr(self.case))
+        return f"{self.message} case: {repr(self.case)} "
 
 
 class EMAParallelError(EMAError):

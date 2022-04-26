@@ -3,7 +3,6 @@ Created on Jul 17, 2014
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
-from __future__ import absolute_import, print_function, division, unicode_literals
 import os
 import unittest
 
@@ -30,7 +29,7 @@ class VensimExampleModel(VensimModel):
     """
     example of the most simple case of doing EMA on
     a Vensim model.
-    
+
     """
 
     # note that this reference to the model should be relative
@@ -48,7 +47,7 @@ class LookupTestModel(VensimModel):
     def __init__(self, working_directory, name):
 
         self.model_file = r"\lookup_model.vpm"
-        super(LookupTestModel, self).__init__(working_directory, name)
+        super().__init__(working_directory, name)
 
         # vensim.load_model(self.modelFile)
         self.outcomes = [TimeSeriesOutcome("flow1")]
@@ -139,11 +138,11 @@ class VensimMSITest(unittest.TestCase):
 class LookupUncertaintyTest(unittest.TestCase):
     def test_added_uncertainties(self):
         """
-        the lookup uncertainty replaces itself with a set of other 
+        the lookup uncertainty replaces itself with a set of other
         uncertainties. Here we test whether this works correctly for
         each of the options provided by the lookup uncertainty
-        
-        
+
+
         """
         if os.name != "nt":
             return
@@ -208,8 +207,8 @@ class LookupUncertaintyTest(unittest.TestCase):
         uncertainty replaces itself with a bunch of other uncertainties, check
         whether we can successfully run a set of experiments and get results
         back. We assert that the uncertainties are correctly replaced by
-        analyzing the experiments array. 
-        
+        analyzing the experiments array.
+
         """
         if os.name != "nt":
             return

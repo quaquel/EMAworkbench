@@ -48,7 +48,7 @@ def get_SALib_problem(uncertainties):
     return problem
 
 
-class SALibSampler(object):
+class SALibSampler:
     def generate_samples(self, uncertainties, size):
         """
         The main method of :class: `~sampler.Sampler` and its
@@ -131,7 +131,7 @@ class SobolSampler(SALibSampler):
         self.second_order = second_order
         self._warning = False
 
-        super(SobolSampler, self).__init__()
+        super().__init__()
 
     def sample(self, problem, size):
         return saltelli.sample(problem, size, calc_second_order=self.second_order)
@@ -157,7 +157,7 @@ class MorrisSampler(SALibSampler):
     def __init__(
         self, num_levels=4, optimal_trajectories=None, local_optimization=True
     ):
-        super(MorrisSampler, self).__init__()
+        super().__init__()
         self.num_levels = num_levels
         self.optimal_trajectories = optimal_trajectories
         self.local_optimization = local_optimization
@@ -184,7 +184,7 @@ class FASTSampler(SALibSampler):
     """
 
     def __init__(self, m=4):
-        super(FASTSampler, self).__init__()
+        super().__init__()
         self.m = m
 
     def sample(self, problem, size):

@@ -49,7 +49,7 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
         self.topic = topic
 
     def process(self, msg, kwargs):
-        msg = "{topic}::{msg}".format(topic=self.topic, msg=msg)
+        msg = f"{self.topic}::{msg}"
         return msg, kwargs
 
 
@@ -73,7 +73,7 @@ def start_logwatcher():
         logwatcher.start()
         try:
             logwatcher.loop.start()
-        except (zmq.error.ZMQError, IOError, OSError):
+        except (zmq.error.ZMQError, OSError):
             _logger.warning("shutting down log watcher")
         except RuntimeError:
             pass
@@ -104,7 +104,7 @@ def set_engine_logger():
 
 
 def get_engines_by_host(client):
-    """ returns the engine ids by host
+    """returns the engine ids by host
 
     Parameters
     ----------
@@ -127,7 +127,7 @@ def get_engines_by_host(client):
 
 
 def update_cwd_on_all_engines(client):
-    """ updates the current working directory on the engines to point to the
+    """updates the current working directory on the engines to point to the
     same working directory as this notebook
 
     currently only works if engines are on same machine.
@@ -175,7 +175,7 @@ class LogWatcher(LoggingConfigurable):
     loop = Instance("tornado.ioloop.IOLoop")  # @UndefinedVariable
 
     def _url_default(self):
-        return "tcp://%s:20202" % localhost()
+        return f"tcp://{localhost()}:20202"
 
     def _context_default(self):
         return zmq.Context.instance()
@@ -184,7 +184,7 @@ class LogWatcher(LoggingConfigurable):
         return ioloop.IOLoop.instance()
 
     def __init__(self, **kwargs):
-        super(LogWatcher, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.s = self.context.socket(zmq.SUB)  # @UndefinedVariable
         self.s.bind(self.url)
         self.stream = zmqstream.ZMQStream(self.s, self.loop)
@@ -207,7 +207,7 @@ class LogWatcher(LoggingConfigurable):
             self.stream.setsockopt(zmq.SUBSCRIBE, b"")  # @UndefinedVariable
         else:
             for topic in self.topics:
-                self.log.debug("Subscribing to: %r" % (topic))
+                self.log.debug(f"Subscribing to: {topic!r}")
                 # @UndefinedVariable
                 self.stream.setsockopt(zmq.SUBSCRIBE, topic)
 
@@ -231,7 +231,7 @@ class LogWatcher(LoggingConfigurable):
         raw = [r.decode("utf-8") for r in raw]
 
         if len(raw) != 2 or "." not in raw[0]:
-            logging.getLogger().error("Invalid log message: %s" % raw)
+            logging.getLogger().error(f"Invalid log message: {raw}")
             return
         else:
             topic, msg = raw
@@ -247,10 +247,10 @@ class LogWatcher(LoggingConfigurable):
             if msg[-1] == "\n":
                 msg = msg[:-1]
 
-            log.log(level, "[%s] %s" % (main_topic, msg))
+            log.log(level, f"[{main_topic}] {msg}")
 
 
-class Engine(object):
+class Engine:
     """class for setting up ema specific stuff on each engine
     also functions as a convenient namespace for workbench
     relevant variables
@@ -264,11 +264,11 @@ class Engine(object):
     """
 
     def __init__(self, engine_id, msis, cwd):
-        _logger.debug("starting engine {}".format(engine_id))
+        _logger.debug(f"starting engine {engine_id}")
         self.engine_id = engine_id
         self.msis = msis
 
-        _logger.debug("setting root working directory to {}".format(cwd))
+        _logger.debug(f"setting root working directory to {cwd}")
         os.chdir(cwd)
 
         models = NamedObjectMap(AbstractModel)
@@ -310,7 +310,7 @@ def initialize_engines(client, msis, cwd):
 
 
 def cleanup(client):
-    """cleanup directory tree structure on all engines """
+    """cleanup directory tree structure on all engines"""
     client[:].apply_sync(_cleanup)
 
 

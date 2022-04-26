@@ -24,15 +24,15 @@ def redirected_output(new_stdout=None, new_stderr=None):
 
 def run_exectests(test_dir, log_path="exectests.log"):
     test_files = glob.glob(os.path.join(test_dir, "*.py"))
-    test_files = sorted([ex for ex in test_files if ex[0] != "_"])
+    test_files = sorted(ex for ex in test_files if ex[0] != "_")
     passed = []
     failed = []
     with open(log_path, "w") as f:
         with redirected_output(new_stdout=f, new_stderr=f):
             for fname in test_files:
-                print(">> Executing '%s'" % fname)
+                print(f">> Executing '{fname}'")
                 try:
-                    code = compile(set_backend + open(fname, "r").read(), fname, "exec")
+                    code = compile(set_backend + open(fname).read(), fname, "exec")
                     exec(code, {"__name__": "__main__"}, {})
                     passed.append(fname)
                 except BaseException:
@@ -40,10 +40,10 @@ def run_exectests(test_dir, log_path="exectests.log"):
                     failed.append(fname)
                     pass
 
-    print(">> Passed %i/%i tests: " % (len(passed), len(test_files)))
+    print(f">> Passed {len(passed)}/{len(test_files)} tests: ")
     print("Passed: " + ", ".join(passed))
     print("Failed: " + ", ".join(failed))
-    print("See %s for details" % log_path)
+    print(f"See {log_path} for details")
 
     return passed, failed
 

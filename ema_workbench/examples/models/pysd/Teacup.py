@@ -2,7 +2,6 @@
 Python model "Teacup.py"
 Translated using PySD version 0.9.0
 """
-from __future__ import division
 
 from pysd.py_backend import functions
 from pysd.py_backend.functions import cache

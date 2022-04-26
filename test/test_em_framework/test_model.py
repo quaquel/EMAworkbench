@@ -21,7 +21,7 @@ from ema_workbench.em_framework.outcomes import ScalarOutcome, ArrayOutcome
 
 class FileModelTest(FileModel):
     def run_model(self, scenario, policy):
-        super(FileModelTest, self).run_model(scenario, policy)
+        super().run_model(scenario, policy)
 
 
 class TestFileModel(unittest.TestCase):

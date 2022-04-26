@@ -36,7 +36,7 @@ class ScarcityModel(VensimModel):
         return (x + 2000, scale * 1 / (1 + exp(-1 * speed * x)) + start)
 
     def run_model(self, scenario, policy):
-        """Method for running an instantiated model structure """
+        """Method for running an instantiated model structure"""
         kwargs = scenario
         loc = kwargs.pop("lookup shortage loc")
         speed = kwargs.pop("lookup shortage speed")
@@ -62,7 +62,7 @@ class ScarcityModel(VensimModel):
         ]
         kwargs["approximated learning effect lookup"] = lookup
 
-        super(ScarcityModel, self).run_model(kwargs, policy)
+        super().run_model(kwargs, policy)
 
 
 if __name__ == "__main__":

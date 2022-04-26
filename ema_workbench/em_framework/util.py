@@ -46,7 +46,7 @@ def representation(named_dict):
 
 
 class Variable(NamedObject):
-    """Root class for input parameters and outcomes """
+    """Root class for input parameters and outcomes"""
 
     @property
     def variable_name(self):
@@ -64,7 +64,7 @@ class Variable(NamedObject):
 
 class NamedObjectMap:
     def __init__(self, kind):  # @ReservedAssignment
-        super(NamedObjectMap, self).__init__()
+        super().__init__()
         self.kind = kind
         self._data = OrderedDict()
 
@@ -170,7 +170,7 @@ class NamedObjectMapDescriptor:
 
 class NamedDict(UserDict, NamedObject):
     def __init__(self, name=representation, **kwargs):
-        super(NamedDict, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if name is None:
             raise ValueError()
         elif callable(name):
@@ -199,9 +199,7 @@ def combine(*args):
         overlap = set(experiment.keys()).intersection(set(entry.keys()))
         if overlap:
             raise EMAError(
-                "parameters exist in {} and {}, overlap is {}".format(
-                    experiment, entry, overlap
-                )
+                f"parameters exist in {experiment} and {entry}, overlap is {overlap}"
             )
         experiment.update(entry)
 

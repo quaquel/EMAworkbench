@@ -71,8 +71,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             columns=["a", "b", "c"],
         )
         boxlim = pd.DataFrame(
-            [(1.2, 0, set(["a", "b"])), (8.0, 7, set(["a", "b"]))],
-            columns=["a", "b", "c"],
+            [(1.2, 0, {"a", "b"}), (8.0, 7, {"a", "b"})], columns=["a", "b", "c"],
         )
         x["c"] = x["c"].astype("category")
 
@@ -82,10 +81,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         self.assertTrue(np.all(correct_result == result))
 
         boxlim = pd.DataFrame(
-            [
-                (0.1, 0, set(["a", "b", "c", "d", "e"])),
-                (9.1, 9, set(["a", "b", "c", "d", "e"])),
-            ],
+            [(0.1, 0, {"a", "b", "c", "d", "e"}), (9.1, 9, {"a", "b", "c", "d", "e"}),],
             columns=["a", "b", "c"],
         )
         correct_result = x.loc[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], :]

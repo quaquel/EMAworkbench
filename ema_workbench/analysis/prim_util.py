@@ -69,7 +69,7 @@ def get_quantile(data, quantile):
     return value
 
 
-class CurEntry(object):
+class CurEntry:
     """a descriptor for the current entry on the peeling and pasting
     trajectory"""
 
@@ -209,7 +209,7 @@ def box_to_tuple(box):
     return tupled_box
 
 
-class NotSeen(object):
+class NotSeen:
     def __init__(self):
         self.seen = set()
 

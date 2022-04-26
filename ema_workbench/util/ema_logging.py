@@ -37,7 +37,7 @@ def create_module_logger(name=None):
         frm = inspect.stack()[1]
         mod = inspect.getmodule(frm[0])
         name = mod.__name__
-    logger = logging.getLogger("{}.{}".format(LOGGER_NAME, name))
+    logger = logging.getLogger(f"{LOGGER_NAME}.{name}")
 
     _module_loggers[name] = logger
     return logger
@@ -61,7 +61,7 @@ LOG_FORMAT = "[%(processName)s/%(levelname)s] %(message)s"
 
 class TemporaryFilter(logging.Filter):
     def __init__(self, *args, level=0, funcname=None, **kwargs):
-        super(TemporaryFilter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.level = level
         self.funcname = funcname
 
@@ -75,7 +75,7 @@ class TemporaryFilter(logging.Filter):
 
 @contextmanager
 def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
-    """ temporary filter log message
+    """temporary filter log message
 
     Params
     ------
@@ -148,9 +148,9 @@ def method_logger(name):
         def wrapper(*args, **kwargs):
             # hack, because log is applied to methods, we can get
             # object instance as first arguments in args
-            logger.debug("calling {} on {}".format(func.__name__, classname))
+            logger.debug(f"calling {func.__name__} on {classname}")
             res = func(*args, **kwargs)
-            logger.debug("completed calling {} on {}".format(func.__name__, classname))
+            logger.debug(f"completed calling {func.__name__} on {classname}")
             return res
 
         return wrapper

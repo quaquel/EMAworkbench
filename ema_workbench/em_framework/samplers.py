@@ -39,7 +39,7 @@ __all__ = [
 ]
 
 
-class AbstractSampler(object, metaclass=abc.ABCMeta):
+class AbstractSampler(metaclass=abc.ABCMeta):
     """
     Abstract base class from which different samplers can be derived.
 
@@ -50,7 +50,7 @@ class AbstractSampler(object, metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        super(AbstractSampler, self).__init__()
+        super().__init__()
 
     def sample(self, distribution, size):
         """
@@ -133,7 +133,7 @@ class LHSSampler(AbstractSampler):
     """
 
     def __init__(self):
-        super(LHSSampler, self).__init__()
+        super().__init__()
 
     def sample(self, distribution, size):
         """
@@ -254,7 +254,7 @@ class MonteCarloSampler(AbstractSampler):
     """
 
     def __init__(self):
-        super(MonteCarloSampler, self).__init__()
+        super().__init__()
 
     def sample(self, distribution, size):
         """
@@ -287,7 +287,7 @@ class FullFactorialSampler(AbstractSampler):
     """
 
     def __init__(self):
-        super(FullFactorialSampler, self).__init__()
+        super().__init__()
 
     def generate_samples(self, parameters, size):
         """
@@ -632,7 +632,7 @@ def from_experiments(models, experiments):
     return scenarios
 
 
-class DefaultDesigns(object):
+class DefaultDesigns:
     """iterable for the experimental designs"""
 
     def __init__(self, designs, parameters, n):

@@ -116,9 +116,7 @@ def lake_problem(
 
 
 def analyze(results, ooi):
-    """analyze results using SALib sobol, returns a dataframe
-
-    """
+    """analyze results using SALib sobol, returns a dataframe"""
 
     _, outcomes = results
 

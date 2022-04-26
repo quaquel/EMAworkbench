@@ -53,9 +53,9 @@ def lake_model(
     w1=0.5,
     seed=None,
 ):
-    """runs the lake model for nsamples stochastic realisation using 
+    """runs the lake model for nsamples stochastic realisation using
     specified random seed.
-        
+
     Parameters
     ----------
     b : float
@@ -79,11 +79,11 @@ def lake_model(
     w1 : float
     seed : int, optional
            seed for the random number generator
-    
+
     Returns
     -------
     tuple
-    
+
     """
     np.random.seed(seed)
     Pcrit = brentq(lambda x: x ** q / (1 + x ** q) - b * x, 0.01, 1.5)

@@ -125,7 +125,7 @@ def get_limits(data):
     return data.apply(limits)
 
 
-class ParallelAxes(object):
+class ParallelAxes:
     """Base class for creating a parallel axis plot.
 
     Parameters

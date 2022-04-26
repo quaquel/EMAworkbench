@@ -112,7 +112,7 @@ def contours(ax, model, xlabel, ylabel, levels):
     ax.contourf(Xgrid, Ygrid, Zgrid, levels, cmap=cmap, zorder=0)
 
 
-class Logit(object):
+class Logit:
     """Implements an interactive version of logistic regression using
     BIC based forward selection
 

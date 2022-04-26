@@ -34,7 +34,7 @@ class Point(NamedDict):
         if unique_id is None:
             unique_id = Point.id_counter()
 
-        super(Point, self).__init__(name, **kwargs)
+        super().__init__(name, **kwargs)
         self.unique_id = unique_id
 
 
@@ -53,7 +53,7 @@ class Policy(Point):
     id_counter = Counter(1)
 
     def __init__(self, name=None, **kwargs):
-        super(Policy, self).__init__(name, Policy.id_counter(), **kwargs)
+        super().__init__(name, Policy.id_counter(), **kwargs)
 
     # def to_list(self, parameters):
     #     """get list like representation of policy where the
@@ -62,7 +62,7 @@ class Policy(Point):
     #     return [self[param.name] for param in parameters]
 
     def __repr__(self):
-        return "Policy({})".format(super(Policy, self).__repr__())
+        return f"Policy({super(Policy, self).__repr__()})"
 
 
 class Scenario(Point):
@@ -81,10 +81,10 @@ class Scenario(Point):
     id_counter = Counter(1)
 
     def __init__(self, name=None, **kwargs):
-        super(Scenario, self).__init__(name, Scenario.id_counter(), **kwargs)
+        super().__init__(name, Scenario.id_counter(), **kwargs)
 
     def __repr__(self):
-        return "Scenario({})".format(super(Scenario, self).__repr__())
+        return f"Scenario({super(Scenario, self).__repr__()})"
 
 
 class Experiment(NamedObject):
@@ -102,7 +102,7 @@ class Experiment(NamedObject):
     """
 
     def __init__(self, name, model_name, policy, scenario, experiment_id):
-        super(Experiment, self).__init__(name)
+        super().__init__(name)
         self.experiment_id = experiment_id
         self.policy = policy
         self.model_name = model_name
@@ -131,11 +131,9 @@ class ExperimentReplication(NamedDict):
         # this is a unique identifier for an experiment
         # we might also create a better looking name
         self.id = scenario_id * policy_id * replication_id
-        name = "{}_{}_{}".format(scenario.name, policy.name, replication_id)
+        name = f"{scenario.name}_{policy.name}_{replication_id}"
 
-        super(ExperimentReplication, self).__init__(
-            name, **combine(scenario, policy, constants)
-        )
+        super().__init__(name, **combine(scenario, policy, constants))
 
 
 def zip_cycle(*args):
@@ -152,7 +150,7 @@ def zip_cycle(*args):
 def combine_cases_sampling(*point_collection):
     """Combine collections of cases by iterating over the longest collection
     while sampling with replacement from the others
-    
+
     Parameters
     ----------
     point_collection : collection of collection of Point instances
@@ -178,7 +176,7 @@ def combine_cases_sampling(*point_collection):
 
 
 def combine_cases_factorial(*point_collections):
-    """ Combine collections of cases in a full factorial manner
+    """Combine collections of cases in a full factorial manner
 
     Parameters
     ----------
@@ -261,6 +259,6 @@ def experiment_generator(scenarios, model_structures, policies, combine="factori
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job
-        name = "{} {} {}".format(msi.name, policy.name, i)
+        name = f"{msi.name} {policy.name} {i}"
         experiment = Experiment(name, msi.name, policy, scenario, i)
         yield experiment

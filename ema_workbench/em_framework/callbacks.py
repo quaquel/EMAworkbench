@@ -75,9 +75,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         reporting_frequency=10,
         log_progress=False,
     ):
-        super(AbstractCallback, self).__init__(
-            nr_experiments, reporting_frequency, _logger, log_progress
-        )
+        super().__init__(nr_experiments, reporting_frequency, _logger, log_progress)
 
         if reporting_interval is None:
             reporting_interval = max(
@@ -103,7 +101,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
                   the outcomes dict
 
         """
-        super(AbstractCallback, self).__call__(1)
+        super().__call__(1)
 
     @abc.abstractmethod
     def get_results(self):
@@ -160,7 +158,7 @@ class DefaultCallback(AbstractCallback):
                        tqdm progress bar.
 
         """
-        super(DefaultCallback, self).__init__(
+        super().__init__(
             uncs,
             levers,
             outcomes,
@@ -272,7 +270,7 @@ class DefaultCallback(AbstractCallback):
                 the outcomes dict
 
         """
-        super(DefaultCallback, self).__call__(experiment, outcomes)
+        super().__call__(experiment, outcomes)
 
         # store the case
         self._store_case(experiment)
@@ -317,7 +315,7 @@ class FileBasedCallback(AbstractCallback):
         reporting_interval=100,
         reporting_frequency=10,
     ):
-        super(FileBasedCallback, self).__init__(
+        super().__init__(
             uncs,
             levers,
             outcomes,
@@ -396,7 +394,7 @@ class FileBasedCallback(AbstractCallback):
                 the outcomes dict
 
         """
-        super(FileBasedCallback, self).__call__(experiment, outcomes)
+        super().__call__(experiment, outcomes)
 
         # store the case
         self._store_case(experiment)

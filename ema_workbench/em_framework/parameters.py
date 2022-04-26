@@ -71,16 +71,16 @@ class Constant(NamedObject):
     """
 
     def __init__(self, name, value):
-        super(Constant, self).__init__(name)
+        super().__init__(name)
         self.value = value
 
     def __repr__(self, *args, **kwargs):
-        return "{}('{}', {})".format(self.__class__.__name__, self.name, self.value)
+        return f"{self.__class__.__name__}('{self.name}', {self.value})"
 
 
 class Category(Constant):
     def __init__(self, name, value):
-        super(Category, self).__init__(name, value)
+        super().__init__(name, value)
 
 
 def create_category(cat):
@@ -91,7 +91,7 @@ def create_category(cat):
 
 
 class Parameter(Variable, metaclass=abc.ABCMeta):
-    """ Base class for any model input parameter
+    """Base class for any model input parameter
 
     Parameters
     ----------
@@ -140,7 +140,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         variable_name=None,
         pff=False,
     ):
-        super(Parameter, self).__init__(name)
+        super().__init__(name)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
         self.resolution = resolution
@@ -207,7 +207,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
 
 class RealParameter(Parameter):
-    """ real valued model input parameter
+    """real valued model input parameter
 
     Parameters
     ----------
@@ -237,7 +237,7 @@ class RealParameter(Parameter):
         variable_name=None,
         pff=False,
     ):
-        super(RealParameter, self).__init__(
+        super().__init__(
             name,
             lower_bound,
             upper_bound,
@@ -255,11 +255,11 @@ class RealParameter(Parameter):
     def from_dist(cls, name, dist, **kwargs):
         if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
             raise ValueError("dist should be instance of rv_continouos")
-        return super(RealParameter, cls).from_dist(name, dist, **kwargs)
+        return super().from_dist(name, dist, **kwargs)
 
 
 class IntegerParameter(Parameter):
-    """ integer valued model input parameter
+    """integer valued model input parameter
 
     Parameters
     ----------
@@ -291,7 +291,7 @@ class IntegerParameter(Parameter):
         variable_name=None,
         pff=False,
     ):
-        super(IntegerParameter, self).__init__(
+        super().__init__(
             name,
             lower_bound,
             upper_bound,
@@ -317,9 +317,7 @@ class IntegerParameter(Parameter):
         try:
             for idx, entry in enumerate(self.resolution):
                 if not float(entry).is_integer():
-                    raise ValueError(
-                        ("all entries in resolution should be " "integers")
-                    )
+                    raise ValueError("all entries in resolution should be " "integers")
                 else:
                     self.resolution[idx] = int(entry)
         except TypeError:
@@ -330,11 +328,11 @@ class IntegerParameter(Parameter):
     def from_dist(cls, name, dist, **kwargs):
         if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
             raise ValueError("dist should be instance of rv_discrete")
-        return super(IntegerParameter, cls).from_dist(name, dist, **kwargs)
+        return super().from_dist(name, dist, **kwargs)
 
 
 class CategoricalParameter(IntegerParameter):
-    """ categorical model input parameter
+    """categorical model input parameter
 
     Parameters
     ----------
@@ -372,7 +370,7 @@ class CategoricalParameter(IntegerParameter):
         if upper_bound == 0:
             raise ValueError("there should be more than 1 category")
 
-        super(CategoricalParameter, self).__init__(
+        super().__init__(
             name,
             lower_bound,
             upper_bound,
@@ -438,12 +436,12 @@ class CategoricalParameter(IntegerParameter):
         # probably need to pass categories as list and zip
         # categories to integers implied by dist
         raise NotImplementedError(
-            ("custom distributions over categories " "not supported yet")
+            "custom distributions over categories " "not supported yet"
         )
 
 
 class BooleanParameter(CategoricalParameter):
-    """ boolean model input parameter
+    """boolean model input parameter
 
     A BooleanParameter is similar to a CategoricalParameter, except
     the category values can only be True or False.
@@ -456,7 +454,7 @@ class BooleanParameter(CategoricalParameter):
     """
 
     def __init__(self, name, default=None, variable_name=None, pff=False):
-        super(BooleanParameter, self).__init__(
+        super().__init__(
             name,
             categories=[True, False],
             default=default,

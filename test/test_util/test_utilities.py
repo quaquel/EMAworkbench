@@ -3,7 +3,6 @@ Created on 22 nov. 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
-from __future__ import absolute_import, print_function, division
 import os
 import unittest
 

@@ -126,7 +126,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     for key, value in subsets.items():
         # the names of the rotated columns are based on the group name
         # and an index
-        subset_cols = ["{}_{}".format(key, i) for i in range(len(value))]
+        subset_cols = [f"{key}_{i}" for i in range(len(value))]
         new_columns.extend(subset_cols)
         new_dtypes.extend((float,) * len(value))
 
@@ -155,7 +155,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
         j += len(value)
 
         for i in range(len(value)):
-            name = "%s_%s" % (key, i)
+            name = f"{key}_{i}"
             rotated_experiments[name] = subset_experiments[:, i]
             [column_names.append(name)]
 
@@ -167,7 +167,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
 
 
 def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
-    """ Run PRIM repeatedly while constraining the maximum number of dimensions
+    """Run PRIM repeatedly while constraining the maximum number of dimensions
     available in x
 
     Improved usage of PRIM as described in `Kwakkel (2019) <https://onlinelibrary.wiley.com/doi/full/10.1002/ffo2.8>`_.
@@ -202,7 +202,7 @@ def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
     for n in range(1, len(dims) + 1):
         for subset in itertools.combinations(dims, n):
             subsets.append(subset)
-    _logger.info("going to run PRIM {} times".format(len(subsets)))
+    _logger.info(f"going to run PRIM {len(subsets)} times")
 
     boxes = [boxn]
     for subset in subsets:
@@ -306,7 +306,7 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
 
 
-class PrimBox(object):
+class PrimBox:
     """A class that holds information for a specific box
 
     Attributes
@@ -440,7 +440,7 @@ class PrimBox(object):
 
         # make the box definition
         columns = pd.MultiIndex.from_product(
-            [["box {}".format(i)], ["min", "max", "qp values"]]
+            [[f"box {i}"], ["min", "max", "qp values"]]
         )
         box_lim = pd.DataFrame(np.zeros((len(uncs), 3)), index=uncs, columns=columns)
 
@@ -653,7 +653,7 @@ class PrimBox(object):
         if len(self._resampled) < iterations:
             with temporary_filter(__name__, INFO, "find_box"):
                 for j in range(len(self._resampled), iterations):
-                    _logger.info("resample {}".format(j))
+                    _logger.info(f"resample {j}")
                     index = np.random.choice(
                         x.index, size=int(x.shape[0] * p), replace=False
                     )
@@ -709,11 +709,9 @@ class PrimBox(object):
         """
         if self._frozen:
             raise PrimException(
-                (
-                    "box has been frozen because PRIM "
-                    "has found at least one more recent "
-                    "box"
-                )
+                "box has been frozen because PRIM "
+                "has found at least one more recent "
+                "box"
             )
 
         res_dim = sdutil._determine_restricted_dims(
@@ -817,7 +815,7 @@ class PrimBox(object):
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
 
     def show_pairs_scatter(self, i=None, dims=None, cdf=False):
-        """ Make a pair wise scatter plot of all the restricted
+        """Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
         interest or not and the boxlims superimposed on top.
 
@@ -1399,7 +1397,7 @@ class Prim(sdutil.OutputFormatterMixin):
             return []
 
     def _paste(self, box):
-        """ Executes the pasting phase of the PRIM. Delegates pasting
+        """Executes the pasting phase of the PRIM. Delegates pasting
         to data type specific helper methods."""
 
         mass_old = box.yi.shape[0] / self.n
@@ -1462,7 +1460,7 @@ class Prim(sdutil.OutputFormatterMixin):
             return box
 
     def _real_paste(self, box, u, x, resdim):
-        """ returns two candidate new boxes, pasted along upper and
+        """returns two candidate new boxes, pasted along upper and
         lower dimension
 
         Parameters
@@ -1649,7 +1647,7 @@ class Prim(sdutil.OutputFormatterMixin):
         return obj
 
     def _original_obj_func(self, y_old, y_new):
-        """ The original objective function: the mean of the data
+        """The original objective function: the mean of the data
         inside the box"""
 
         if y_new.shape[0] > 0:
@@ -1672,7 +1670,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
         for key in keys:
             if dtypes[key][0] == np.dtype(object):
-                raise EMAError("%s has dtype object and can thus not be rotated" % key)
+                raise EMAError(f"{key} has dtype object and can thus not be rotated")
         return True
 
     _peels = {"object": _categorical_peel, "int": _discrete_peel, "float": _real_peel}

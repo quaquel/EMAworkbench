@@ -190,7 +190,7 @@ def _compare(a, b):
     """compare two boxes, for each dimension return True if the
     same and false otherwise"""
     dtypesDesc = a.dtype.descr
-    logical = np.ones((len(dtypesDesc,)), dtype=np.bool)
+    logical = np.ones((len(dtypesDesc,)), dtype=np.bool,)
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
         logical[i] = (
@@ -317,7 +317,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
 
 
 def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):
-    """ helper function for pair wise scatter plotting
+    """helper function for pair wise scatter plotting
 
     Parameters
     ----------
@@ -593,7 +593,7 @@ def plot_box(
             values = [vi for vi in values if vi != -1]
 
             if len(values) == 1:
-                value = "{:.2g}".format(values[0])
+                value = f"{values[0]:.2g}"
             else:
                 value = "{:.2g}, {:.2g}".format(*values)
             qp_formatted[key] = value
@@ -768,7 +768,7 @@ def plot_boxes(x, boxes, together):
 
         for j, norm_box_lim in enumerate(norm_box_lims):
             fig, ax = _setup_figure(uncs)
-            ax.set_title("box {}".format(j))
+            ax.set_title(f"box {j}")
             color = next(colors)
 
             figs.append(fig)
@@ -780,7 +780,7 @@ def plot_boxes(x, boxes, together):
         return figs
 
 
-class OutputFormatterMixin(object):
+class OutputFormatterMixin:
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractproperty
@@ -806,13 +806,13 @@ class OutputFormatterMixin(object):
         box_lims, uncs = _get_sorted_box_lims(boxes, _make_box(self.x))
         nr_boxes = len(boxes)
         dtype = float
-        index = ["box {}".format(i + 1) for i in range(nr_boxes)]
+        index = [f"box {i + 1}" for i in range(nr_boxes)]
         for value in box_lims[0].dtypes:
             if value == object:
                 dtype = object
                 break
 
-        columns = pd.MultiIndex.from_product([index, ["min", "max",]])
+        columns = pd.MultiIndex.from_product([index, ["min", "max",],])
         df_boxes = pd.DataFrame(
             np.zeros((len(uncs), nr_boxes * 2)),
             index=uncs,
@@ -833,7 +833,7 @@ class OutputFormatterMixin(object):
 
         stats = self.stats
 
-        index = pd.Index(["box {}".format(i + 1) for i in range(len(stats))])
+        index = pd.Index([f"box {i + 1}" for i in range(len(stats))])
 
         return pd.DataFrame(stats, index=index)
 
