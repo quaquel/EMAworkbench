@@ -12,10 +12,10 @@ from ..util.ema_logging import method_logger
 from ..util import EMAError
 
 __all__ = [
-    'change_vadere_scenario',
-    'update_vadere_scenario',
-    'VadereModel',
-    'SingleReplicationVadereModel'
+    "change_vadere_scenario",
+    "update_vadere_scenario",
+    "VadereModel",
+    "SingleReplicationVadereModel",
 ]
 
 
@@ -54,13 +54,13 @@ def update_vadere_scenario(model_file, experiment, output_file):
                 desired path to save the modified vadere .scenario file
 
     """
-    with open(model_file, 'r') as file:
+    with open(model_file, "r") as file:
         v_model = json.load(file)
 
     for key, value in experiment.items():
         change_vadere_scenario(v_model, key, value)
 
-    with open(output_file, 'w') as file:
+    with open(output_file, "w") as file:
         json.dump(v_model, file)
 
 
@@ -110,8 +110,7 @@ class BaseVadereModel(FileModel):
         separate working directory prior to calling `model_init`.
 
         """
-        super(BaseVadereModel, self).__init__(name, wd=wd,
-                                              model_file=model_file)
+        super(BaseVadereModel, self).__init__(name, wd=wd, model_file=model_file)
 
         self.vadere_jar = vadere_jar
         self.processor_files = processor_files
@@ -147,53 +146,43 @@ class BaseVadereModel(FileModel):
         # change the .vadere scenario model file depending on the passed
         # experiment, and save to new "EMA.scenario" file
         update_vadere_scenario(
-            os.path.join(
-                self.working_directory,
-                self.model_file),
+            os.path.join(self.working_directory, self.model_file),
             experiment,
-            os.path.join(
-                self.working_directory,
-                'EMA.scenario')
+            os.path.join(self.working_directory, "EMA.scenario"),
         )
 
         # make the temp dir for output, if one already exists (due to interrupted runs)
         # remove and create a new, empty, one
         try:
-            shutil.rmtree(os.path.join(self.working_directory, 'temp'))
+            shutil.rmtree(os.path.join(self.working_directory, "temp"))
         except OSError:
             pass
         try:
-            os.mkdir(os.path.join(self.working_directory, 'temp'))
+            os.mkdir(os.path.join(self.working_directory, "temp"))
         except OSError:
             pass
 
         # set up the run command for Vadere
         self.vadere = [
-            'java',
-            '-jar',
+            "java",
+            "-jar",
             os.path.join(self.working_directory, self.vadere_jar),
-            '--loglevel',
-            'OFF',
-            'scenario-run',
-            '-o',
-            os.path.abspath(os.path.join(self.working_directory, 'temp')),
-            '-f',
-            os.path.join(self.working_directory, 'EMA.scenario'),
+            "--loglevel",
+            "OFF",
+            "scenario-run",
+            "-o",
+            os.path.abspath(os.path.join(self.working_directory, "temp")),
+            "-f",
+            os.path.join(self.working_directory, "EMA.scenario"),
         ]
 
         # run the experiment
-        process = run(
-            self.vadere,
-            stdin=PIPE,
-            stdout=PIPE,
-            stderr=PIPE
-        )
+        process = run(self.vadere, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
         # results are stored inside a temp dir
         # get path to nested result dir
-        output_dir = ''
-        for root, dirs, files in os.walk(
-                os.path.join(self.working_directory, 'temp')):
+        output_dir = ""
+        for root, dirs, files in os.walk(os.path.join(self.working_directory, "temp")):
             # should only be one subdir
             # if for any reason multiple subdirs exist, only one will be
             # selected
@@ -201,18 +190,21 @@ class BaseVadereModel(FileModel):
                 output_dir = os.path.join(root, subdir)
         if not output_dir:
             raise EMAError(
-                'Vadere model run resulted in no output files. Please check model. \n Vadere run error error: {}'.format(
-                    process.stderr))
+                "Vadere model run resulted in no output files. Please check model. \n Vadere run error error: {}".format(
+                    process.stderr
+                )
+            )
         # load results
         # .csv is assumed to be timeseries, .txt scaler
         # other file types are ignored
         timeseries_res = {}
         scalar_res = []
         for file in self.processor_files:
-            if file.endswith('.csv'):
+            if file.endswith(".csv"):
                 timeseries_res[file] = pd.read_csv(
-                    os.path.join(output_dir, file), sep=' ')
-            if file.endswith('.txt'):
+                    os.path.join(output_dir, file), sep=" "
+                )
+            if file.endswith(".txt"):
                 scalar_res.append(os.path.join(output_dir, file))
 
         # format data to EMA structure
@@ -221,23 +213,23 @@ class BaseVadereModel(FileModel):
         if timeseries_res:
             if len(timeseries_res) > 1:
                 timeseries_total = pd.concat(
-                    [timeseries_res[outcome] for outcome in timeseries_res])
+                    [timeseries_res[outcome] for outcome in timeseries_res]
+                )
             else:
                 timeseries_total = timeseries_res[next(iter(timeseries_res))]
             # format according to EMA preference
-            res = {col: series.values for col,
-                   series in timeseries_total.iteritems()}
+            res = {col: series.values for col, series in timeseries_total.iteritems()}
 
         # handle scalar
         if scalar_res:
             for file in scalar_res:
-                s = pd.read_csv(file, sep=' ')
+                s = pd.read_csv(file, sep=" ")
                 for column, data in s.iteritems():
                     res[column] = data.item()
 
         # remove temporal experiment output
         try:
-            shutil.rmtree(os.path.join(self.working_directory, 'temp'))
+            shutil.rmtree(os.path.join(self.working_directory, "temp"))
         except OSError:
             pass
         return res
