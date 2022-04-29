@@ -1,6 +1,8 @@
 import warnings
 from contextlib import contextmanager
 
+from ema_workbench import EMAError
+
 warnings.simplefilter("once", ImportWarning)
 
 
@@ -30,6 +32,9 @@ try:
     from . import simio_connector
 except ImportError:
     warnings.warn("simio connector not available", ImportWarning)
+except EMAError:
+    warnings.warn("simio not found, connector not available", ImportWarning)
+
 
 with catch_and_ignore_import_warning():
     try:
