@@ -14,7 +14,7 @@ from ema_workbench.util.ema_logging import get_module_logger, method_logger
 
 # TODO:: do some auto discovery here analogue to netlogo?
 simio_path = "C:/Program Files (x86)/Simio"
-if os.path.exists(path):
+if os.path.exists(simio_path):
     sys.path.append(simio_path)
 else:
     raise EMAError("Simio not found")
