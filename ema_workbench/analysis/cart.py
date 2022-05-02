@@ -287,7 +287,9 @@ class CART(sdutil.OutputFormatterMixin):
         self.clf.fit(self._x, self.y)
 
     def show_tree(self, mplfig=True, format="png"):
-        """return a png of the tree
+        """return a png (defaults) or svg of the tree
+        
+        On Windows, graphviz needs to be installed with conda.
 
         Parameters
         ----------
