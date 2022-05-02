@@ -1,3 +1,11 @@
+# Priority list for 2.2
+* composable sampling
+* seed control 
+* boosted trees scenario discovery (see water programming blog)
+* timeseries outcomes via pandas dataframe
+
+
+
 # Experiments
 * display experiment stats at the end of perform_experiments using ema_logging
 	(could combine with tqdm?)
@@ -29,6 +37,7 @@
 * centralized seed control
     mimic ideas found in mesa? what matters is only the numpy/scipy seeds
     since those are used in the workbench for sampling
+* When to reset the counters for scenario_id and policy_id?  
 
 # Documentation
 * add documentation on how to develop connectors
