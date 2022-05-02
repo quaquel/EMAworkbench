@@ -222,7 +222,7 @@ def plot_violinplot(ax, values, log, group_labels=None):
     if not group_labels:
         group_labels = [""]
 
-    data = pd.DataFrame.from_records({k: v for k, v in zip(group_labels, values)})
+    data = pd.DataFrame.from_records(dict(zip(group_labels, values)))
     data = pd.melt(data)
 
     sns.violinplot(x="variable", y="value", data=data, order=group_labels, ax=ax)
@@ -246,7 +246,7 @@ def plot_boxenplot(ax, values, log, group_labels=None):
     if not group_labels:
         group_labels = [""]
 
-    data = pd.DataFrame.from_records({k: v for k, v in zip(group_labels, values)})
+    data = pd.DataFrame.from_records(dict(zip(group_labels, values)))
     data = pd.melt(data)
 
     sns.boxenplot(x="variable", y="value", data=data, order=group_labels, ax=ax)
@@ -771,7 +771,7 @@ def prepare_data(
     if filter_scalar:
         outcomes = filter_scalar_outcomes(outcomes)
     if not outcomes_to_show:
-        outcomes_to_show = [o for o in outcomes.keys()]
+        outcomes_to_show = list(outcomes.keys())
 
     # group the data if desired
     if group_by:

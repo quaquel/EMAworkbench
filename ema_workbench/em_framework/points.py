@@ -163,7 +163,7 @@ def combine_cases_sampling(*point_collection):
 
     # figure out the longest
     def exhaust_cases(cases):
-        return [case for case in cases]
+        return list(cases)
 
     point_collection = [exhaust_cases(case) for case in point_collection]
     longest_cases = max(point_collection, key=len)

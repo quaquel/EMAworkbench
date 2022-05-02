@@ -112,7 +112,7 @@ raw_data = {
     52: (49.2200, 1.6075, 0.0047, 0.036173, 0.304, 0.001716, 4025.6, 0.00171, 1 / 1250),
     53: (69.4565, 1.1625, 0.0028, 0.031651, 0.336, 0.002700, 9819.5, 0.00171, 1 / 1250),
 }
-data = {i: {k: v for k, v in zip(params, raw_data[i])} for i in raw_data.keys()}
+data = {i: dict(zip(params, raw_data[i])) for i in raw_data.keys()}
 
 # Set the ring we are analyzing
 ring = 15

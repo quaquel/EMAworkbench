@@ -87,7 +87,7 @@ def add_engines(n=1, profile="iptest", total=False):
         eps.append(ep)
     tic = time.time()
     while len(rc) < base + n:
-        if any([ep.poll() is not None for ep in eps]):
+        if any(ep.poll() is not None for ep in eps):
             raise RuntimeError("A test engine failed to start.")
         elif time.time() - tic > 15:
             raise RuntimeError("Timeout waiting for engines to connect.")
