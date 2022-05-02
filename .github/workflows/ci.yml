@@ -42,7 +42,7 @@ jobs:
       run:
         nosetests --exclude-dir=./test/test_connectors --with-coverage --verbose --cover-package=ema_workbench.em_framework --cover-package=ema_workbench.util --cover-package=ema_workbench.analysis
     - name: Coveralls
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
       env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: coveralls --service=github
