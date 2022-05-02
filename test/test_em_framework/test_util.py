@@ -44,7 +44,7 @@ class TestNamedDict(unittest.TestCase):
         self.assertEqual(2, len(nd), "length not correct")
 
         # test in
-        for entry in kwargs.keys():
+        for entry in kwargs:
             self.assertIn(entry, nd, f"{entry} not in NamedDict")
 
         # test addition
