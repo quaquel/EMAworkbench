@@ -79,8 +79,7 @@ class Constant(NamedObject):
 
 
 class Category(Constant):
-    def __init__(self, name, value):
-        super().__init__(name, value)
+    pass
 
 
 def create_category(cat):
