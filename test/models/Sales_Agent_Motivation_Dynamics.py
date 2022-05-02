@@ -297,7 +297,7 @@ def income():
     Technically in units of months of expenses earned per month
     """
     return months_of_expenses_per_sale() * sales() + if_then_else(
-        time() < startup_subsidy_length(), lambda: startup_subsidy(), lambda: 0
+        time() < startup_subsidy_length(), startup_subsidy, lambda: 0
     )
 
 
@@ -481,13 +481,13 @@ def time_step():
     return 0.0625
 
 
-_integ_total_cumulative_income = Integ(lambda: accumulating_income(), lambda: 0)
+_integ_total_cumulative_income = Integ(accumulating_income, lambda: 0)
 
 
-_integ_total_cumulative_sales = Integ(lambda: accumulating_sales(), lambda: 0)
+_integ_total_cumulative_sales = Integ(accumulating_sales, lambda: 0)
 
 
-_integ_tenure = Integ(lambda: accumulating_tenure(), lambda: 0)
+_integ_tenure = Integ(accumulating_tenure, lambda: 0)
 
 
-_integ_motivation = Integ(lambda: motivation_adjustment(), lambda: 1)
+_integ_motivation = Integ(motivation_adjustment, lambda: 1)

@@ -319,7 +319,7 @@ def income():
         tier_1_income()
         + tier_2_income()
         + if_then_else(
-            time() < startup_subsidy_length(), lambda: startup_subsidy(), lambda: 0
+            time() < startup_subsidy_length(), startup_subsidy, lambda: 0
         )
     )
 
@@ -1051,16 +1051,16 @@ def time_step():
     return 0.0625
 
 
-_integ_total_cumulative_sales = Integ(lambda: accumulating_sales(), lambda: 0)
+_integ_total_cumulative_sales = Integ(accumulating_sales, lambda: 0)
 
 
-_integ_tenure = Integ(lambda: accumulating_tenure(), lambda: 0)
+_integ_tenure = Integ(accumulating_tenure, lambda: 0)
 
 
-_integ_total_cumulative_income = Integ(lambda: accumulating_income(), lambda: 0)
+_integ_total_cumulative_income = Integ(accumulating_income, lambda: 0)
 
 
-_integ_months_of_buffer = Integ(lambda: income() - expenses(), lambda: initial_buffer())
+_integ_months_of_buffer = Integ(lambda: income() - expenses(), initial_buffer)
 
 
 _integ_tier_2_clients = Integ(
