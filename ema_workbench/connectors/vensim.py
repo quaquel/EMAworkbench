@@ -541,7 +541,7 @@ class LookupUncertainty(Parameter):
         list2 = []
         number = []
         for c in b:
-            if (c != "(") and (c != ")"):
+            if c not in ("(", ")"):
                 list1.append(c)
 
         list1.append(",")

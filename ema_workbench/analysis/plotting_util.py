@@ -783,9 +783,7 @@ def prepare_data(
                 )
             else:
                 column_to_group_by = experiments[group_by]
-                if (column_to_group_by.dtype == object) or (
-                    column_to_group_by.dtype == "category"
-                ):
+                if column_to_group_by.dtype in (object, "category"):
                     grouping_specifiers = set(column_to_group_by)
                 else:
                     grouping_specifiers = make_continuous_grouping_specifiers(
