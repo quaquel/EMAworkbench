@@ -352,7 +352,7 @@ class PrimTestCase(unittest.TestCase):
         x = pd.DataFrame(
             np.random.randint(0, 10, size=(100,), dtype=int), columns=["a"]
         )
-        y = np.zeros(100,)
+        y = np.zeros(100)
         y[x.a > 5] = 1
 
         primalg = prim.Prim(x, y, threshold=0.8)
@@ -442,8 +442,8 @@ class PrimTestCase(unittest.TestCase):
         a = ("a",)
         b = ("b",)
         x = pd.DataFrame(
-            list(zip(np.random.rand(10,), [a, b, a, b, a, a, b, a, b, a],)),
-            columns=["a", "b"],
+            list(zip(np.random.rand(10,), [a, b, a, b, a, a, b, a, b, a])),
+            columns=["a", "b"]
         )
 
         y = np.random.randint(0, 2, (10,))

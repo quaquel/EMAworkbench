@@ -1,5 +1,5 @@
-"""connector for Simio, dependent on python for .net (pythonnet)
-
+"""connector for Simio, dependent on python for .net (pythonnet). The
+connector assumes Simio is installed in C:/Program Files (x86)/Simio
 
 """
 import os
@@ -8,15 +8,20 @@ import numpy as np
 
 import clr  # @UnresolvedImport
 
-# TODO:: do some auto discovery here analogue to netlogo?
-sys.path.append("C:/Program Files (x86)/Simio")
-clr.AddReference("SimioDLL")
-clr.AddReference("SimioAPI")
-import SimioAPI  # @UnresolvedImport
-
 from ema_workbench.em_framework import FileModel, SingleReplication
 from ema_workbench.util import CaseError, EMAError
 from ema_workbench.util.ema_logging import get_module_logger, method_logger
+
+# TODO:: do some auto discovery here analogue to netlogo?
+simio_path = "C:/Program Files (x86)/Simio"
+if os.path.exists(simio_path):
+    sys.path.append(simio_path)
+else:
+    raise EMAError("Simio not found")
+
+clr.AddReference("SimioDLL")
+clr.AddReference("SimioAPI")
+import SimioAPI  # @UnresolvedImport
 
 # Created on 27 June 2019
 #
