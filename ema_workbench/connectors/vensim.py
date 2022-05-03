@@ -390,17 +390,6 @@ class BaseVensimModel(FileModel):
 
         return results
 
-    def cleanup(self):
-        super().cleanup()
-
-    def reset_model(self):
-        """
-        Method for reseting the model to its initial state before runModel
-        was called
-        """
-
-        super().reset_model()
-
     def _delete_lookup_uncertainties(self):
         """
         deleting lookup uncertainties from the uncertainty list
@@ -552,7 +541,7 @@ class LookupUncertainty(Parameter):
         list2 = []
         number = []
         for c in b:
-            if (c != "(") and (c != ")"):
+            if c not in ("(", ")"):
                 list1.append(c)
 
         list1.append(",")

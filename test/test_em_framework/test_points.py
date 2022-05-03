@@ -13,7 +13,7 @@ class TestCases(unittest.TestCase):
         experiments = points.experiment_generator(
             scenarios, model_structures, policies, combine="factorial"
         )
-        experiments = [e for e in experiments]
+        experiments = list(experiments)
         self.assertEqual(
             len(experiments), 6, ("wrong number of experiments " "for factorial")
         )
@@ -21,7 +21,7 @@ class TestCases(unittest.TestCase):
         experiments = points.experiment_generator(
             scenarios, model_structures, policies, combine="sample"
         )
-        experiments = [e for e in experiments]
+        experiments = list(experiments)
         self.assertEqual(
             len(experiments), 3, ("wrong number of experiments " "for zipover")
         )
@@ -30,7 +30,7 @@ class TestCases(unittest.TestCase):
             experiments = points.experiment_generator(
                 scenarios, model_structures, policies, combine="adf"
             )
-            _ = [e for e in experiments]
+            _ = list(experiments)
 
     # def test_experiment_generator(self):
     #     sampler = LHSSampler()

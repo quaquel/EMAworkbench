@@ -49,9 +49,6 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 
     """
 
-    def __init__(self):
-        super().__init__()
-
     def sample(self, distribution, size):
         """
         method for sampling a number of samples from a particular distribution.
@@ -131,9 +128,6 @@ class LHSSampler(AbstractSampler):
     """
     generates a Latin Hypercube sample for each of the parameters
     """
-
-    def __init__(self):
-        super().__init__()
 
     def sample(self, distribution, size):
         """
@@ -253,9 +247,6 @@ class MonteCarloSampler(AbstractSampler):
 
     """
 
-    def __init__(self):
-        super().__init__()
-
     def sample(self, distribution, size):
         """
         generate a Monte Carlo Sample.
@@ -285,9 +276,6 @@ class FullFactorialSampler(AbstractSampler):
     for samples will be ignored and each category will be used instead.
 
     """
-
-    def __init__(self):
-        super().__init__()
 
     def generate_samples(self, parameters, size):
         """

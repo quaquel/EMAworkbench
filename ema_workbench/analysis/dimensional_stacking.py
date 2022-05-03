@@ -61,7 +61,7 @@ def discretize(data, nbins=3, with_labels=False):
             n_unique = column_data.unique().shape[0]
             n = n_unique
             column_data = column_data.cat.rename_categories(
-                [x for x in range(1, n + 1)]
+                list(range(1, n + 1))
             )
             indices = column_data
 
@@ -414,8 +414,8 @@ def create_pivot_plot(
     n = nr_levels * 2
 
     scores = scores.index.tolist()
-    rows = [entry for entry in scores[0:n:2]]
-    columns = [entry for entry in scores[1:n:2]]
+    rows = list(scores[0:n:2])
+    columns = list(scores[1:n:2])
 
     discretized_x = discretize(x, nbins=nbins, with_labels=bin_labels)
 
