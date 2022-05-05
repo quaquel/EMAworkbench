@@ -68,7 +68,7 @@ def _get_sorted_box_lims(boxes, box_init):
     # sort the uncertainties based on the normalized size of the
     # restricted dimensions
     uncs = uncs[np.argsort(box_size)]
-    box_lims = [box for box in boxes]
+    box_lims = list(boxes)
 
     return box_lims, uncs.tolist()
 
@@ -454,7 +454,7 @@ def _setup_figure(uncs):
     ax.add_patch(rect)
     ax.set_xlim(left=-0.2, right=1.2)
     ax.set_ylim(top=-0.5, bottom=nr_unc - 0.5)
-    ax.yaxis.set_ticks([y for y in range(nr_unc)])
+    ax.yaxis.set_ticks(list(range(nr_unc)))
     ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
     ax.set_yticklabels(uncs[::-1])
     return fig, ax

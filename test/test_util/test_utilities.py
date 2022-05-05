@@ -46,8 +46,7 @@ class SaveResultsTestCase(unittest.TestCase):
         )
         outcome_q = np.random.rand(nr_experiments, 1)
 
-        outcomes = {}
-        outcomes[ScalarOutcome("q").name] = outcome_q
+        outcomes = {ScalarOutcome("q").name: outcome_q}
         results = (experiments, outcomes)
 
         # test for 2d
@@ -61,8 +60,7 @@ class SaveResultsTestCase(unittest.TestCase):
         )
         outcome_r = np.zeros((nr_experiments, nr_timesteps))
 
-        outcomes = {}
-        outcomes[ArrayOutcome("r").name] = outcome_r
+        outcomes = {ArrayOutcome("r").name: outcome_r}
         results = (experiments, outcomes)
 
         save_results(results, fn)
@@ -78,8 +76,7 @@ class SaveResultsTestCase(unittest.TestCase):
         )
         outcome_s = np.zeros((nr_experiments, nr_timesteps, nr_replications))
 
-        outcomes = {}
-        outcomes[ArrayOutcome("s").name] = outcome_s
+        outcomes = {ArrayOutcome("s").name: outcome_s}
         results = (experiments, outcomes)
 
         save_results(results, fn)
@@ -104,8 +101,7 @@ class LoadResultsTestCase(unittest.TestCase):
 
         outcome_a = np.zeros((nr_experiments, 1))
 
-        outcomes = {}
-        outcomes[ArrayOutcome("a").name] = outcome_a
+        outcomes = {ArrayOutcome("a").name: outcome_a}
         results = (experiments, outcomes)
 
         save_results(results, "../data/test.tar.gz")
@@ -129,8 +125,7 @@ class LoadResultsTestCase(unittest.TestCase):
 
         outcome_b = np.zeros((nr_experiments, nr_timesteps, nr_replications))
 
-        outcomes = {}
-        outcomes[ArrayOutcome("b").name] = outcome_b
+        outcomes = {ArrayOutcome("b").name: outcome_b}
         results = (experiments, outcomes)
 
         save_results(results, "../data/test.tar.gz")

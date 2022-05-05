@@ -224,7 +224,7 @@ class NotSeen:
 
 def is_significant(box, i, alpha=0.05):
     qp = box.qp[i]
-    return not any([value > alpha for values in qp.values() for value in values])
+    return not any(value > alpha for values in qp.values() for value in values)
 
 
 def is_pareto_efficient(data):

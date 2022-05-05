@@ -844,7 +844,7 @@ def _optimize(
                 "number of epsilon values does not match number " "of outcomes"
             )
 
-    if all([isinstance(t, klass) for t in problem.types]):
+    if all(isinstance(t, klass) for t in problem.types):
         variator = None
     else:
         variator = CombinedVariator()

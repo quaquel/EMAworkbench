@@ -79,8 +79,7 @@ class Constant(NamedObject):
 
 
 class Category(Constant):
-    def __init__(self, name, value):
-        super().__init__(name, value)
+    pass
 
 
 def create_category(cat):
@@ -384,7 +383,7 @@ class CategoricalParameter(IntegerParameter):
         self._categories = NamedObjectMap(Category)
 
         self.categories = cats
-        self.resolution = [i for i in range(len(self.categories))]
+        self.resolution = list(range(len(self.categories)))
         self.multivalue = multivalue
 
     def index_for_cat(self, category):
@@ -488,7 +487,7 @@ def parameters_to_csv(parameters, file_name):
         else:
             values = param.lower_bound, param.upper_bound
 
-        dict_repr = {j: value for j, value in enumerate(values)}
+        dict_repr = dict(enumerate(values))
         dict_repr["name"] = param.name
 
         params[i] = dict_repr

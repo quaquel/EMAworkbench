@@ -197,7 +197,7 @@ class AbstractOutcome(Variable):
             all(
                 hasattr(self, key) == hasattr(other, key)
                 and getattr(self, key) == getattr(other, key)
-                for key in self.__dict__.keys()
+                for key in self.__dict__
             ),
             self.__class__ == other.__class__,
         ]

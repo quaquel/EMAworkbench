@@ -274,8 +274,6 @@ class BaseEvaluator:
 
 
 class SequentialEvaluator(BaseEvaluator):
-    def __init__(self, models, **kwargs):
-        super().__init__(models, **kwargs)
 
     def initialize(self):
         pass
