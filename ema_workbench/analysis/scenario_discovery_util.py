@@ -648,13 +648,14 @@ def plot_ppt(peeling_trajectory):
     return fig
 
 
-def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis):  # @UndefinedVariable
+def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
     """Visualize the trade off between coverage and density. Color
     is used to denote the number of restricted dimensions.
 
     Parameters
     ----------
     cmap : valid matplotlib colormap
+    annotated : bool, optional. Shows point labels if True.
 
     Returns
     -------
@@ -680,6 +681,10 @@ def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis):  # @UndefinedVariabl
     ax.set_xlabel("coverage")
     ax.set_ylim(bottom=0, top=1.2)
     ax.set_xlim(left=0, right=1.2)
+
+    if annotated:
+        for idx, row in peeling_trajectory.iterrows():
+            ax.annotate(row['id'], (row['coverage'], row['density']))
 
     ticklocs = np.arange(0, max(peeling_trajectory["res_dim"]) + 1, step=1)
     cb = fig.colorbar(p, spacing="uniform", ticks=ticklocs, drawedges=True)
