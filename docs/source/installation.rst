@@ -8,6 +8,14 @@ The 2.x version of the workbench requires Python 3.8 or higher.
 A stable version of the workbench can be installed via pip. ::
 
 	pip install ema_workbench
+	
+The latest commit on the master branch can be installed with::
+
+	pip install -e git+https://github.com/projectmesa/EMAworkbench#egg=ema-workbench
+
+Or any other (development) branch on this repo or your own fork::
+
+	pip install -e git+https://github.com/YOUR_FORK/EMAworkbench@YOUR_BRANCH#egg=ema-workbench
 
 The code is also available from `github <https://github.com/quaquel/EMAworkbench>`_.
 The code comes with a `requirements.txt <https://github.com/quaquel/EMAworkbench/blob/master/requirements.txt>`_ file that indicates the key
