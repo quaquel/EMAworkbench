@@ -361,7 +361,7 @@ class PrimBox:
                    "mean": pd.Series(dtype=float),
                    "res_dim": pd.Series(dtype=int),
                    "mass": pd.Series(dtype=float),
-                   "id": pd.Series(dtype=float)}
+                   "id": pd.Series(dtype=int)}
 
         self.peeling_trajectory = pd.DataFrame(columns)
 
