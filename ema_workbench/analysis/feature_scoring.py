@@ -210,7 +210,7 @@ def get_rf_feature_scores(
         criterion = "gini"
     elif mode == RuleInductionType.REGRESSION:
         rfc = RandomForestRegressor
-        criterion = "mse"
+        criterion = "squared_error"
     else:
         raise ValueError(f"{mode} not valid for mode")
 
@@ -316,7 +316,7 @@ def get_ex_feature_scores(
         criterion = "gini"
     elif mode == RuleInductionType.REGRESSION:
         etc = ExtraTreesRegressor
-        criterion = "mse"
+        criterion = "squared_error"
     else:
         raise ValueError(f"{mode} not valid for mode")
 
