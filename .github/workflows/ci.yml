@@ -30,7 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install flake8 nose nose-exclude coverage coveralls
+        pip install flake8 pytest pytest-cov coverage coveralls
         pip install -r requirements.txt
     - name: Lint with flake8
       run: |
@@ -38,9 +38,9 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with nose
+    - name: Test with Pytest
       run:
-        nosetests --exclude-dir=./test/test_connectors --with-coverage --verbose --cover-package=ema_workbench.em_framework --cover-package=ema_workbench.util --cover-package=ema_workbench.analysis
+        pytest --ignore=./test/test_connectors -v --cov=ema_workbench/em_framework --cov=ema_workbench/util --cov=ema_workbench/analysis
     - name: Coveralls
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
       env:
