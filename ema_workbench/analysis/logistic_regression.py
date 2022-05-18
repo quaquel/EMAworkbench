@@ -250,9 +250,11 @@ class Logit:
 
         data = {"coverage": cov, "density": den, "res_dim": len(selected), "id": i}
         new_row = pd.DataFrame([data])
-        self.peeling_trajectory = self.peeling_trajectory.append(
-            new_row, ignore_index=True, sort=True
+
+        self.peeling_trajectory = pd.concat(
+            [self.peeling_trajectory, new_row], ignore_index=True, sort=True
         )
+
 
     def show_tradeoff(self, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
         """Visualize the trade off between coverage and density. Color
