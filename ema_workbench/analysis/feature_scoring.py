@@ -377,15 +377,16 @@ def get_feature_scores_all(
 
 
     """
-    complete = None
+    complete = []
     for key, value in y.items():
         fs, _ = algorithms[alg](x, value, mode=mode, **kwargs)
 
         fs = fs.rename(columns={1: key})
+        complete.append(fs)
+        # if complete is None:
+        #     complete = fs.T
+        # else:
+        #     complete = complete.append(fs.T, sort=True)
+    complete = pd.concat(complete, sort=True, axis=1)
 
-        if complete is None:
-            complete = fs.T
-        else:
-            complete = complete.append(fs.T, sort=True)
-
-    return complete.T
+    return complete
