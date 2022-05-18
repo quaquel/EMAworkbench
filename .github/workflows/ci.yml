@@ -12,13 +12,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.9"]
+        python-version: ["3.10"]
         include:
           - os: ubuntu-latest
+            python-version: "3.9"
+          - os: ubuntu-latest
             python-version: "3.8"
-          # Python 3.10 run is disabled, because nose doesn't support Python 3.10
-          #- os: ubuntu-latest
-          #  python-version: "3.10"
 
     steps:
     - uses: actions/checkout@v3
@@ -42,7 +41,7 @@ jobs:
       run:
         pytest --ignore=./test/test_connectors -v --cov=ema_workbench/em_framework --cov=ema_workbench/util --cov=ema_workbench/analysis
     - name: Coveralls
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
       env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: coveralls --service=github
