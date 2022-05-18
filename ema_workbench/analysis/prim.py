@@ -805,20 +805,21 @@ class PrimBox:
         """show the peeling and pasting trajectory in a figure"""
         return sdutil.plot_ppt(self.peeling_trajectory)
 
-    def show_tradeoff(self, cmap=mpl.cm.viridis):  # @UndefinedVariable
+    def show_tradeoff(self, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
         """Visualize the trade off between coverage and density. Color
         is used to denote the number of restricted dimensions.
 
         Parameters
         ----------
         cmap : valid matplotlib colormap
+        annotated : bool, optional. Shows point labels if True.
 
         Returns
         -------
         a Figure instance
 
         """
-        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
+        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
     def show_pairs_scatter(self, i=None, dims=None, cdf=False):
         """Make a pair wise scatter plot of all the restricted
