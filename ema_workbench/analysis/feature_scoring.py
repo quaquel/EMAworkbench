@@ -161,7 +161,7 @@ def get_rf_feature_scores(
     y,
     mode=RuleInductionType.CLASSIFICATION,
     nr_trees=250,
-    max_features="auto",
+    max_features="sqrt",
     max_depth=None,
     min_samples_split=2,
     min_samples_leaf=1,
