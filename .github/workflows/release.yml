@@ -26,6 +26,7 @@ jobs:
         run: python -m build
 
       - name: Upload package as artifact to GitHub
+        if: github.repository == 'quaquel/EMAworkbench'
         uses: actions/upload-artifact@v3
         with:
           name: package
