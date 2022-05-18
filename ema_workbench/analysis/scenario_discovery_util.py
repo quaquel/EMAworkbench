@@ -190,7 +190,7 @@ def _compare(a, b):
     """compare two boxes, for each dimension return True if the
     same and false otherwise"""
     dtypesDesc = a.dtype.descr
-    logical = np.ones((len(dtypesDesc,)), dtype=np.bool,)
+    logical = np.ones((len(dtypesDesc,)), dtype=bool,)
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
         logical[i] = (
