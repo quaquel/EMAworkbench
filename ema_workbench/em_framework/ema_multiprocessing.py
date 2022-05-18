@@ -176,7 +176,7 @@ class LogQueueReader(threading.Thread):
     This thread reads the records written by subprocesses and writes them to
     the handlers defined in the main process's handlers.
 
-    found `online <http://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python>`_
+    found `online <https://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python>`_
 
     TODO:: should be generalized with logwatcher used with ipyparallel
 

@@ -30,7 +30,7 @@ def pairs_lines(
 ):
     """
 
-    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
+    Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     lines multiplot. It shows the behavior of two outcomes over time against
     each other. The origin is denoted with a circle and the end is denoted
     with a '+'.
@@ -168,14 +168,14 @@ def pairs_density(
 ):
     """
 
-    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
+    Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     hexbin density multiplot. In case of time-series data, the end
     states are used.
 
     hexbin makes hexagonal binning plot of x versus y, where x, y are 1-D
     sequences of the same length, N. If C is None (the default), this is a
     histogram of the number of occurences of the observations at (x[i],y[i]).
-    For further detail see `matplotlib on hexbin <http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.hexbin>`_
+    For further detail see `matplotlib on hexbin <https://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.hexbin>`_
 
     Parameters
     ----------
@@ -207,7 +207,7 @@ def pairs_density(
                controls the gridsize for the hexagonal bining. (default = 50)
     cmap : str
            color map that is to be used in generating the hexbin. For details
-           on the available maps, see `pylab <http://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html#pylab-examples-show-colormaps>`_.
+           on the available maps, see `pylab <https://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html#pylab-examples-show-colormaps>`_.
            (Defaults = coolwarm)
     filter_scalar: bool, optional
                    remove the non-time-series outcomes. Defaults to True.
@@ -418,7 +418,7 @@ def pairs_scatter(
 ):
     """
 
-    Generate a `R style pairs <http://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
+    Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     scatter multiplot. In case of time-series data, the end states are used.
 
     Parameters
