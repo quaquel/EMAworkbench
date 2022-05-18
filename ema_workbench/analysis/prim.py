@@ -73,7 +73,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
 
     Pre-process the data by performing a pca based rotation on it.
     This effectively turns the algorithm into PCA-PRIM as described
-    in `Dalal et al (2013) <http://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
+    in `Dalal et al (2013) <https://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
 
     Parameters
     ----------

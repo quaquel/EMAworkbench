@@ -2,7 +2,7 @@
 Created on 20 dec. 2010
 
 This file illustrated the use of the workbench for a model
-specified in Python itself. The example is based on `Pruyt & Hamarat <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
+specified in Python itself. The example is based on `Pruyt & Hamarat <https://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
 For comparison, run both this model and the flu_vensim_no_policy_example.py and
 compare the results.
 

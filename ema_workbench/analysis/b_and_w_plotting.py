@@ -70,7 +70,7 @@ def set_ax_lines_bw(ax, colormap, line_style="continuous"):
     suitable for black and white viewing.
 
     Derived from and expanded for use in the EMA workbench from:
-    http://stackoverflow.com/questions/7358118/matplotlib-black-white-colormap-with-dashes-dots-etc
+    https://stackoverflow.com/questions/7358118/matplotlib-black-white-colormap-with-dashes-dots-etc
 
     Parameters
     ----------
@@ -320,7 +320,7 @@ def set_fig_to_bw(fig, style=HATCHING, line_style="continuous"):
 
 
     derived from and expanded for my use from:
-    http://stackoverflow.com/questions/7358118/matplotlib-black-white-colormap-with-dashes-dots-etc
+    https://stackoverflow.com/questions/7358118/matplotlib-black-white-colormap-with-dashes-dots-etc
 
     Parameters
     ----------
