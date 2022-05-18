@@ -66,7 +66,7 @@ def discretize(data, nbins=3, with_labels=False):
             indices = column_data
 
         else:
-            if issubclass(entry.type, np.integer):
+            if issubclass(entry.type, int):
                 n_unique = column_data.unique().shape[0]
                 if n_unique <= n:
                     n = n_unique

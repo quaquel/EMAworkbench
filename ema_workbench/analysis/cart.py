@@ -198,7 +198,7 @@ class CART(sdutil.OutputFormatterMixin):
                         box.loc[:, unc] = [set(cats), set(cats)]
                 else:
                     if unc in box_init.columns:
-                        if box[unc].dtype == np.int32:
+                        if box[unc].dtype == int:
                             value = math.ceil(value)
                         box.loc[0, unc] = value
 

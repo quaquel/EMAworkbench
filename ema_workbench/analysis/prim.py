@@ -978,11 +978,11 @@ class Prim(sdutil.OutputFormatterMixin):
             pass
         x = x.reset_index(drop=True)
 
-        x_float = x.select_dtypes([np.float32, np.float64, float])
+        x_float = x.select_dtypes([float, np.float64])
         self.x_float = x_float.values
         self.x_float_colums = x_float.columns.values
 
-        x_int = x.select_dtypes([np.int32, np.int64, int])
+        x_int = x.select_dtypes([int, np.int64])
         self.x_int = x_int.values
         self.x_int_columns = x_int.columns.values
 
@@ -1519,8 +1519,8 @@ class Prim(sdutil.OutputFormatterMixin):
                 assert paste_value >= box.box_lims[-1].loc[i, u]
 
             dtype = box_paste[u].dtype
-            if dtype == np.int32:
-                paste_value = np.int(paste_value)
+            if dtype == int:
+                paste_value = int(paste_value)
 
             box_paste.loc[i, u] = paste_value
             logical = sdutil._in_box(x[resdim], box_paste[resdim])
