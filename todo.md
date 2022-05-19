@@ -5,6 +5,7 @@
 * timeseries outcomes via pandas dataframe
 * remove threshold kwarg from prim
 * add OrdinalParameter class
+* properly use ABC instead of raising NotImplementedError 
 
 
 
