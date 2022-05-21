@@ -3,6 +3,9 @@
 * seed control 
 * boosted trees scenario discovery (see water programming blog)
 * timeseries outcomes via pandas dataframe
+* remove threshold kwarg from prim
+* add OrdinalParameter class
+* properly use ABC instead of raising NotImplementedError 
 
 
 

@@ -161,7 +161,7 @@ def get_rf_feature_scores(
     y,
     mode=RuleInductionType.CLASSIFICATION,
     nr_trees=250,
-    max_features="auto",
+    max_features="sqrt",
     max_depth=None,
     min_samples_split=2,
     min_samples_leaf=1,
@@ -180,19 +180,19 @@ def get_rf_feature_scores(
     nr_trees : int, optional
                nr. of trees in forest (default=250)
     max_features : int, optional
-                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+                   see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     max_depth : int, optional
-                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+                see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     min_samples : int, optional
-                  see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+                  see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     min_samples_leaf : int, optional
-                       see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+                       see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     bootstrap : bool, optional
-                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+                see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     oob_score : bool, optional
-                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+                see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     random_state : int, optional
-                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+                   see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
 
     Returns
     -------
@@ -210,7 +210,7 @@ def get_rf_feature_scores(
         criterion = "gini"
     elif mode == RuleInductionType.REGRESSION:
         rfc = RandomForestRegressor
-        criterion = "mse"
+        criterion = "squared_error"
     else:
         raise ValueError(f"{mode} not valid for mode")
 
@@ -267,26 +267,26 @@ def get_ex_feature_scores(
     max_features : int, float, string or None, optional
                    by default, it will use number of features/3, following
                    Jaxa-Rozen & Kwakkel (2018) doi: 10.1016/j.envsoft.2018.06.011
-                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                   see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     max_depth : int, optional
-                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     min_samples_split : int, optional
-                  see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                  see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     min_samples_leaf : int, optional
                        defaults to 1 for N=1000 or lower, from there on
                        proportional to sqrt of N
                        (see discussion in Jaxa-Rozen & Kwakkel (2018) doi: 10.1016/j.envsoft.2018.06.011)
-                       see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                       see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     min_weight_fraction_leaf : float, optional
-                               see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                               see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     max_leaf_nodes: int or None, optional
-                    see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                    see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     bootstrap : bool, optional
-                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     oob_score : bool, optional
-                see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
     random_state : int, optional
-                   see http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+                   see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
 
     Returns
     -------
@@ -316,7 +316,7 @@ def get_ex_feature_scores(
         criterion = "gini"
     elif mode == RuleInductionType.REGRESSION:
         etc = ExtraTreesRegressor
-        criterion = "mse"
+        criterion = "squared_error"
     else:
         raise ValueError(f"{mode} not valid for mode")
 
@@ -377,15 +377,16 @@ def get_feature_scores_all(
 
 
     """
-    complete = None
+    complete = []
     for key, value in y.items():
         fs, _ = algorithms[alg](x, value, mode=mode, **kwargs)
 
         fs = fs.rename(columns={1: key})
+        complete.append(fs)
+        # if complete is None:
+        #     complete = fs.T
+        # else:
+        #     complete = complete.append(fs.T, sort=True)
+    complete = pd.concat(complete, sort=True, axis=1)
 
-        if complete is None:
-            complete = fs.T
-        else:
-            complete = complete.append(fs.T, sort=True)
-
-    return complete.T
+    return complete

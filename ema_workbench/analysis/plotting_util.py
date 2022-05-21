@@ -11,7 +11,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.stats.kde as kde
+import scipy.stats as stats
 import seaborn as sns
 
 from ..em_framework.outcomes import AbstractOutcome, ScalarOutcome
@@ -481,7 +481,7 @@ def determine_kde(data, size_kde=1000, ymin=None, ymax=None):
     kde_y = np.linspace(ymin, ymax, size_kde)
 
     try:
-        kde_x = kde.gaussian_kde(data)
+        kde_x = stats.gaussian_kde(data)
         kde_x = kde_x.evaluate(kde_y)
     #         grid = GridSearchCV(KernelDensity(kernel='gaussian'),
     #                             {'bandwidth': np.linspace(ymin, ymax, 20)},

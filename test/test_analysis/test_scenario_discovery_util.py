@@ -29,7 +29,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             [(0,), (1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,)], columns=["a"]
         )
         boxlim = pd.DataFrame([(1,), (8,)], columns=["a"])
-        correct_result = np.array([[1, 2, 3, 4, 5, 6, 7, 8]], dtype=np.int).T
+        correct_result = np.array([[1, 2, 3, 4, 5, 6, 7, 8]], dtype=int).T
         logical = sdutil._in_box(x, boxlim)
         result = x.loc[logical]
         self.assertTrue(np.all(correct_result == result.values))
@@ -50,7 +50,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             columns=["a", "b"],
         )
         boxlim = pd.DataFrame([(1, 0), (8, 7)], columns=["a", "b"])
-        correct_result = np.array([[1, 2, 3, 4, 5, 6, 7]], dtype=np.int).T
+        correct_result = np.array([[1, 2, 3, 4, 5, 6, 7]], dtype=int).T
         logical = sdutil._in_box(x, boxlim)
         result = x.loc[logical]
         self.assertTrue(np.all(correct_result == result))
@@ -155,20 +155,20 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
 
     def test_compare(self):
         # all dimensions the same
-        a = np.array([(0, 1), (0, 1)], dtype=[("a", np.float), ("b", np.float)])
-        b = np.array([(0, 1), (0, 1)], dtype=[("a", np.float), ("b", np.float)])
+        a = np.array([(0, 1), (0, 1)], dtype=[("a", float), ("b", float)])
+        b = np.array([(0, 1), (0, 1)], dtype=[("a", float), ("b", float)])
 
         self.assertTrue(np.all(sdutil._compare(a, b)))
 
         # all dimensions different
-        a = np.array([(0, 1), (0, 1)], dtype=[("a", np.float), ("b", np.float)])
-        b = np.array([(1, 1), (0, 0)], dtype=[("a", np.float), ("b", np.float)])
+        a = np.array([(0, 1), (0, 1)], dtype=[("a", float), ("b", float)])
+        b = np.array([(1, 1), (0, 0)], dtype=[("a", float), ("b", float)])
         test = sdutil._compare(a, b) == False
         self.assertTrue(np.all(test))
 
         # dimensions 1 different and dimension 2 the same
-        a = np.array([(0, 1), (0, 1)], dtype=[("a", np.float), ("b", np.float)])
-        b = np.array([(1, 1), (0, 1)], dtype=[("a", np.float), ("b", np.float)])
+        a = np.array([(0, 1), (0, 1)], dtype=[("a", float), ("b", float)])
+        b = np.array([(1, 1), (0, 1)], dtype=[("a", float), ("b", float)])
         test = sdutil._compare(a, b)
         test = (test[0] == False) & (test[1] == True)
         self.assertTrue(test)
@@ -189,7 +189,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             ],
             columns=["a", "b", "c"],
         )
-        y = np.zeros((x.shape[0],), dtype=np.int)
+        y = np.zeros((x.shape[0],), dtype=int)
         y[(x.a > 0.5) & (x.c != "a")] = 1
 
         x["c"] = x["c"].astype("category")
@@ -222,7 +222,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             ],
             columns=["a", "b", "c"],
         )
-        y = np.zeros((x.shape[0],), dtype=np.int)
+        y = np.zeros((x.shape[0],), dtype=int)
         y[(x.a > 0.5) & (x.c != "a")] = 1
 
         x.loc[6, "c"] = "a"
@@ -255,7 +255,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             ],
             columns=["a", "b", "c"],
         )
-        y = np.zeros((x.shape[0],), dtype=np.int)
+        y = np.zeros((x.shape[0],), dtype=int)
         logical = (x.a > 0.5) & (x.c != "a")
         y[logical] = 1
 
@@ -294,7 +294,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             ],
             columns=["a", "b", "c"],
         )
-        y = np.zeros((x.shape[0],), dtype=np.int)
+        y = np.zeros((x.shape[0],), dtype=int)
         logical = (x.a > 0.5) & (x.c != "a")
         y[logical] = 1
 

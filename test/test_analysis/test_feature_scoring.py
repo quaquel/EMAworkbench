@@ -32,7 +32,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         )
         x, _ = fs._prepare_experiments(x)
 
-        correct = np.array([[0, 1, 2, 1], [2, 5, 6, 1], [3, 2, 1, 1]], dtype=np.float)
+        correct = np.array([[0, 1, 2, 1], [2, 5, 6, 1], [3, 2, 1, 1]], dtype=float)
 
         self.assertTrue(np.all(x == correct))
 

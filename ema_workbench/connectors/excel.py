@@ -1,7 +1,7 @@
 """
 
 This module provides a base class that can be used to perform EMA on
-Excel models. It relies on `win32com <http://python.net/crew/mhammond/win32/Downloads.html>`_
+Excel models. It relies on `win32com <https://python.net/crew/mhammond/win32/Downloads.html>`_
 
 """
 
@@ -38,7 +38,7 @@ class BaseExcelModel(FileModel):
     Base class for connecting the EMA workbench to models in Excel. To
     automate this connection as much as possible. This implementation relies
     on naming cells in Excel. These names can then be used here as names
-    for the uncertainties and the outcomes. See e.g. `this site <http://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
+    for the uncertainties and the outcomes. See e.g. `this site <https://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
     for details on naming cells and sets of cells.
 
     The provided implementation here does work with :mod:`parallel_ema`.
@@ -139,7 +139,7 @@ class BaseExcelModel(FileModel):
         """
         Method for running an instantiated model structures. This
         implementation assumes that the names of the uncertainties correspond
-        to the name of the cells in Excel. See e.g. `this site <http://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
+        to the name of the cells in Excel. See e.g. `this site <https://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
         for details or use Google and search on 'named range'. One of the
         requirements on the names is that they cannot contains spaces.
 

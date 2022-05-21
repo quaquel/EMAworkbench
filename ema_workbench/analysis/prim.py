@@ -73,7 +73,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
 
     Pre-process the data by performing a pca based rotation on it.
     This effectively turns the algorithm into PCA-PRIM as described
-    in `Dalal et al (2013) <http://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
+    in `Dalal et al (2013) <https://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
 
     Parameters
     ----------
@@ -361,7 +361,7 @@ class PrimBox:
                    "mean": pd.Series(dtype=float),
                    "res_dim": pd.Series(dtype=int),
                    "mass": pd.Series(dtype=float),
-                   "id": pd.Series(dtype=float)}
+                   "id": pd.Series(dtype=int)}
 
         self.peeling_trajectory = pd.DataFrame(columns)
 
@@ -805,20 +805,21 @@ class PrimBox:
         """show the peeling and pasting trajectory in a figure"""
         return sdutil.plot_ppt(self.peeling_trajectory)
 
-    def show_tradeoff(self, cmap=mpl.cm.viridis):  # @UndefinedVariable
+    def show_tradeoff(self, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
         """Visualize the trade off between coverage and density. Color
         is used to denote the number of restricted dimensions.
 
         Parameters
         ----------
         cmap : valid matplotlib colormap
+        annotated : bool, optional. Shows point labels if True.
 
         Returns
         -------
         a Figure instance
 
         """
-        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap)
+        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
     def show_pairs_scatter(self, i=None, dims=None, cdf=False):
         """Make a pair wise scatter plot of all the restricted
@@ -977,7 +978,7 @@ class Prim(sdutil.OutputFormatterMixin):
             pass
         x = x.reset_index(drop=True)
 
-        x_float = x.select_dtypes([np.float32, np.float64, float])
+        x_float = x.select_dtypes([np.float64, float])
         self.x_float = x_float.values
         self.x_float_colums = x_float.columns.values
 

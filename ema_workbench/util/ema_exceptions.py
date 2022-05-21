@@ -1,7 +1,7 @@
 """
 
 Exceptions and warning used internally by the EMA workbench. In line with
-advice given in `PEP 8 <http://www.python.org/dev/peps/pep-0008/>`_.
+advice given in `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_.
 """
 
 # Created on 31 mei 2011
