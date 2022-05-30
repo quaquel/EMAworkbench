@@ -25,13 +25,8 @@ from .util import determine_objects, ProgressTrackingMixIn
 from ..util import get_module_logger, EMAError, temporary_filter, INFO
 
 try:
-    from platypus import (
+    from platypus.algorithms import (
         EpsNSGAII,
-        Hypervolume,
-        Variator,
-        Real,
-        Integer,
-        Subset,
         EpsilonProgressContinuation,
         RandomGenerator,
         TournamentSelector,
@@ -46,8 +41,12 @@ try:
         UNDX,
         SPX,
         UM,
-    )  # @UnresolvedImport
-    from platypus import Problem as PlatypusProblem
+    )
+
+    from platypus.core import Problem as PlatypusProblem
+    from platypus.indicators import Hypervolume
+    from platypus.types import Real, Integer, Subset
+    from platypus.core import Variator
 
     import platypus
 
@@ -231,10 +230,10 @@ def to_platypus_types(decision_variables):
     platypus parameter types"""
     # TODO:: should categorical not be platypus.Subset, with size == 1?
     _type_mapping = {
-        RealParameter: platypus.Real,
-        IntegerParameter: platypus.Integer,
-        CategoricalParameter: platypus.Subset,
-        BooleanParameter: platypus.Subset,
+        RealParameter: platypus.types.Real,
+        IntegerParameter: platypus.types.Integer,
+        CategoricalParameter: platypus.types.Subset,
+        BooleanParameter: platypus.types.Subset,
     }
 
     types = []
@@ -266,7 +265,7 @@ def to_dataframe(optimizer, dvnames, outcome_names):
     """
 
     solutions = []
-    for solution in platypus.unique(platypus.nondominated(optimizer.result)):
+    for solution in platypus.core.unique(platypus.core.nondominated(optimizer.result)):
         vars = transform_variables(
             solution.problem, solution.variables  # @ReservedAssignment
         )
@@ -638,7 +637,7 @@ class Convergence(ProgressTrackingMixIn):
 class CombinedVariator(Variator):
     def __init__(self, crossover_prob=0.5, mutation_prob=1):
         super().__init__(2)
-        self.SBX = platypus.SBX()
+        self.SBX = SBX()
         self.crossover_prob = crossover_prob
         self.mutation_prob = mutation_prob
 
