@@ -111,6 +111,11 @@ class BaseEvaluator:
 
         if isinstance(msis, AbstractModel):
             msis = [msis]
+        else:
+            for entry in msis:
+                if not isinstance(entry, AbstractModel):
+                    raise TypeError((f"{entry} should be an AbstractModel "
+                                     f"instance but is a {entry.__class__} instance"))
 
         self._msis = msis
         self.callback = None
@@ -274,7 +279,6 @@ class BaseEvaluator:
 
 
 class SequentialEvaluator(BaseEvaluator):
-
     def initialize(self):
         pass
 
