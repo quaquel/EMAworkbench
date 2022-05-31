@@ -99,7 +99,7 @@ class TestOptimization(unittest.TestCase):
 
         data = [result1, result2]
 
-        mocked_platypus.core.unique.return_value = data
+        mocked_platypus.unique.return_value = data
         optimizer = mock.Mock()
         optimizer.results = data
 
@@ -124,9 +124,9 @@ class TestOptimization(unittest.TestCase):
         ]
 
         types = to_platypus_types(dv)
-        self.assertTrue(str(types[0]).find("platypus.types.Real") != -1)
-        self.assertTrue(str(types[1]).find("platypus.types.Integer") != -1)
-        self.assertTrue(str(types[2]).find("platypus.types.Subset") != -1)
+        self.assertTrue(str(types[0]).find("platypus.Real") != -1)
+        self.assertTrue(str(types[1]).find("platypus.Integer") != -1)
+        self.assertTrue(str(types[2]).find("platypus.Subset") != -1)
 
     @mock.patch("ema_workbench.em_framework.optimization.platypus")
     def test_to_problem(self, mocked_platypus):
