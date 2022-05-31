@@ -20,4 +20,3 @@ seaborn
 statsmodels
 traitlets
 tqdm
-platypus-opt
