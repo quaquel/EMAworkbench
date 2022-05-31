@@ -46,18 +46,31 @@ take a look at the high level overview, the tutorial, or dive straight into
 the details of the API. 
 
 .. toctree::
-   :maxdepth: 2
-   
-   ./overview.rst
-   ./installation.rst
+   :maxdepth: 1
+   :caption: Getting Started
+
+   ./overview
+   ./installation
+   ./changelog
+
+.. toctree::
+   :maxdepth: 1
+   :caption: User Guide
+
+   ./basic_tutorial.rst
    ./indepth_tutorial/general-introduction.ipynb
    ./indepth_tutorial/open-exploration.ipynb
    ./indepth_tutorial/directed-search.ipynb
-   ./basic_tutorial.rst
    ./best_practices.rst
    ./vensim-tips-and-tricks.rst
-   ./api_index.rst
    ./ema_documentation/glossary.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Developer Guide
+
+   ./api_index.rst
+
 
 
 Indices and tables
@@ -67,4 +80,3 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 * :ref:`glossary`
-

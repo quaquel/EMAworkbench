@@ -6,7 +6,7 @@
 * remove threshold kwarg from prim
 * add OrdinalParameter class
 * properly use ABC instead of raising NotImplementedError 
-
+* enhancement issues on GitHub
 
 
 # Experiments
