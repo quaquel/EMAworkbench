@@ -311,6 +311,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
     ----------
     msis : collection of models
     n_processes : int (optional)
+                  A negative number can be inputted to use the number of logical cores minus the negative cores.
+                  For example, on a 12 thread processor, -2 results in using 10 threads.
     max_tasks : int (optional)
 
     """
@@ -347,6 +349,10 @@ class MultiprocessingEvaluator(BaseEvaluator):
             random_part = "".join(random_part)
             self.root_dir = os.path.abspath("tmp" + random_part)
             os.makedirs(self.root_dir)
+        
+        # Calcuate n_processes if negative value is inputted
+        if self.n_processes < 0:
+            self.n_processes = max(multiprocessing.cpu_count() + self.n_processes, 1)
 
         self._pool = multiprocessing.Pool(
             self.n_processes,
