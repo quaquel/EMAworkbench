@@ -409,7 +409,7 @@ class PrimBox:
 
         Parameters
         ----------
-        i : int, optional
+        i : int or list of ints, optional
             the index of the box, defaults to currently selected box
         style : {'table', 'graph'}
                 the style of the visualization
@@ -419,7 +419,30 @@ class PrimBox:
 
         """
         if i is None:
-            i = self._cur_box
+            i = [self._cur_box]
+        elif isinstance(i, int):
+            i = [i]
+
+        if not all(isinstance(x, int) for x in i):
+            raise TypeError('i must be an integer or list of integers')
+
+        for entry in i:
+            self._inspect(entry, style=style, **kwargs)
+
+
+    def _inspect(self,  i=None, style="table", **kwargs):
+        """Helper method for inspecting one or more boxes on the
+        peeling trajectory
+
+        Parameters
+        ----------
+        i, int
+        style, {'table', 'graph'}
+
+        additional kwargs are passed to the helper function that
+        generates the table or graph
+
+        """
 
         stats = self.peeling_trajectory.iloc[i].to_dict()
         stats["restricted_dim"] = stats["res_dim"]
@@ -438,7 +461,7 @@ class PrimBox:
             raise ValueError("style must be one of graph or table")
 
     def _inspect_table(self, i, uncs, qp_values):
-        """Helper function for visualizing box statistics in
+        """Helper method for visualizing box statistics in
         table form"""
         # make the descriptive statistics for the box
         print(self.peeling_trajectory.iloc[i])
@@ -466,7 +489,7 @@ class PrimBox:
         boxlim_formatter="{: .2g}",
         table_formatter="{:.3g}",
     ):
-        """Helper function for visualizing box statistics in
+        """Helper method for visualizing box statistics in
         graph form"""
 
         return sdutil.plot_box(

@@ -4,6 +4,7 @@ Created on Mar 13, 2012
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 import unittest
+import pytest
 
 import numpy as np
 import pandas as pd
@@ -69,8 +70,12 @@ class PrimBoxTestCase(unittest.TestCase):
         box.inspect()
         box.inspect(style="graph")
 
-        with self.assertRaises(ValueError):
+        box.inspect([0, 1])
+
+        with pytest.raises(ValueError):
             box.inspect(style="some unknown style")
+        with pytest.raises(TypeError):
+            box.inspect([0, 'a'])
 
     def test_show_ppt(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
