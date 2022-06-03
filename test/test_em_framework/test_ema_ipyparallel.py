@@ -42,7 +42,7 @@ blackhole = os.open(os.devnull, os.O_WRONLY)
 warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*/IPython/.*")
 
 # Launcher class
-class TestProcessLauncher(LocalProcessLauncher):
+class MockProcessLauncher(LocalProcessLauncher):
     """subclass LocalProcessLauncher, to prevent extra sockets and threads being created on Windows"""
 
     def start(self):
@@ -77,7 +77,7 @@ def add_engines(n=1, profile="iptest", total=False):
 
     eps = []
     for i in range(n):
-        ep = TestProcessLauncher()
+        ep = MockProcessLauncher()
         ep.cmd_and_args = ipengine_cmd_argv + [
             f"--profile={profile}",
             "--InteractiveShell.colors=nocolor",
@@ -104,7 +104,7 @@ def setUpModule():
         if os.path.exists(json):
             os.remove(json)
 
-    cp = TestProcessLauncher()
+    cp = MockProcessLauncher()
     cp.cmd_and_args = ipcontroller_cmd_argv + ["--profile=default", "--log-level=20"]
     cp.start()
     launchers.append(cp)
