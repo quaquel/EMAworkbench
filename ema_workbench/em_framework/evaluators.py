@@ -351,7 +351,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
             os.makedirs(self.root_dir)
         
         # Calcuate n_processes if negative value is inputted
-        if self.n_processes < 0:
+        if self.n_processes is not None and self.n_processes < 0:
             self.n_processes = max(multiprocessing.cpu_count() + self.n_processes, 1)
 
         self._pool = multiprocessing.Pool(
