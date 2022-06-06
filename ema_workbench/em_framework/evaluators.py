@@ -6,10 +6,10 @@ optimization
 import enum
 import multiprocessing
 import numbers
-import os
 import random
 import shutil
 import string
+import sys
 import threading
 import warnings
 
@@ -315,12 +315,32 @@ class MultiprocessingEvaluator(BaseEvaluator):
                   For example, on a 12 thread processor, -2 results in using 10 threads.
     max_tasks : int (optional)
 
+
+    note that the maximum number of available processes is either multiprocessing.cpu_count()
+    and in case of windows, this never can be higher then 61
+
     """
 
     def __init__(self, msis, n_processes=None, maxtasksperchild=None, **kwargs):
         super().__init__(msis, **kwargs)
 
         self._pool = None
+
+        # Calculate n_processes if negative value is inputted
+        if isinstance(n_processes, int):
+            max_processes = multiprocessing.cpu_count()
+
+            if sys.platform == 'win32':
+                # on windows the max number of processes is currently
+                # still limited to 61
+                max_processes = min(max_processes, 61)
+            if n_processes > 0:
+                if max_processes > n_processes:
+                    warnings.warn(f"the number of processes cannot be more then {max_processes}")
+                self.n_processes = min(n_processes, max_processes)
+            else:
+                self.n_processes = max(max_processes + self.n_processes, 1)
+
         self.n_processes = n_processes
         self.maxtasksperchild = maxtasksperchild
 
@@ -350,10 +370,6 @@ class MultiprocessingEvaluator(BaseEvaluator):
             self.root_dir = os.path.abspath("tmp" + random_part)
             os.makedirs(self.root_dir)
         
-        # Calcuate n_processes if negative value is inputted
-        if self.n_processes is not None and self.n_processes < 0:
-            self.n_processes = max(multiprocessing.cpu_count() + self.n_processes, 1)
-
         self._pool = multiprocessing.Pool(
             self.n_processes,
             initializer,
