@@ -6,6 +6,7 @@ optimization
 import enum
 import multiprocessing
 import numbers
+import os
 import random
 import shutil
 import string
