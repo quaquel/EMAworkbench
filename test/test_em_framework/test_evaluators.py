@@ -48,6 +48,7 @@ class TestEvaluators(unittest.TestCase):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"
         mocked_generator.return_value = [1]
+        mocked_multiprocessing.cpu_count.return_value = 4
 
         with evaluators.MultiprocessingEvaluator(model, 2) as evaluator:
             evaluator.evaluate_experiments(10, 10, mocked_callback)
