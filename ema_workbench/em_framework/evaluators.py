@@ -331,13 +331,13 @@ class MultiprocessingEvaluator(BaseEvaluator):
         self._pool = None
 
         # Calculate n_processes if negative value is inputted
-        if isinstance(n_processes, int):
-            max_processes = multiprocessing.cpu_count()
+        max_processes = multiprocessing.cpu_count()
+        if sys.platform == "win32":
+            # on windows the max number of processes is currently
+            # still limited to 61
+            max_processes = min(max_processes, 61)
 
-            if sys.platform == "win32":
-                # on windows the max number of processes is currently
-                # still limited to 61
-                max_processes = min(max_processes, 61)
+        if isinstance(n_processes, int):
             if n_processes > 0:
                 if max_processes > n_processes:
                     warnings.warn(
@@ -346,8 +346,11 @@ class MultiprocessingEvaluator(BaseEvaluator):
                 self.n_processes = min(n_processes, max_processes)
             else:
                 self.n_processes = max(max_processes + self.n_processes, 1)
+        elif n_processes is None:
+            self.n_processes = max_processes
+        else:
+            raise ValueError("max_processes must be an integer or None")
 
-        self.n_processes = n_processes
         self.maxtasksperchild = maxtasksperchild
 
     def initialize(self):
