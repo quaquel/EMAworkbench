@@ -356,12 +356,14 @@ class PrimBox:
         self.prim = prim
 
         # peeling and pasting trajectory
-        columns = {"coverage": pd.Series(dtype=float),
-                   "density": pd.Series(dtype=float),
-                   "mean": pd.Series(dtype=float),
-                   "res_dim": pd.Series(dtype=int),
-                   "mass": pd.Series(dtype=float),
-                   "id": pd.Series(dtype=int)}
+        columns = {
+            "coverage": pd.Series(dtype=float),
+            "density": pd.Series(dtype=float),
+            "mean": pd.Series(dtype=float),
+            "res_dim": pd.Series(dtype=int),
+            "mass": pd.Series(dtype=float),
+            "id": pd.Series(dtype=int),
+        }
 
         self.peeling_trajectory = pd.DataFrame(columns)
 
@@ -426,11 +428,11 @@ class PrimBox:
             i = [i]
 
         if not all(isinstance(x, int) for x in i):
-            raise TypeError('i must be an integer or list of integers')
+            raise TypeError("i must be an integer or list of integers")
 
         return [self._inspect(entry, style=style, **kwargs) for entry in i]
 
-    def _inspect(self,  i=None, style="table", **kwargs):
+    def _inspect(self, i=None, style="table", **kwargs):
         """Helper method for inspecting one or more boxes on the
         peeling trajectory
 
@@ -457,7 +459,7 @@ class PrimBox:
             return self._inspect_table(i, uncs, qp_values)
         elif style == "graph":
             return self._inspect_graph(i, uncs, qp_values, **kwargs)
-        elif style == 'data':
+        elif style == "data":
             return self._inspect_data(i, uncs, qp_values)
         else:
             raise ValueError("style must be one of graph, table or data")
@@ -470,7 +472,7 @@ class PrimBox:
 
         """
         # make the descriptive statistics for the box
-        stats = (self.peeling_trajectory.iloc[i])
+        stats = self.peeling_trajectory.iloc[i]
 
         # make the box definition
         columns = pd.MultiIndex.from_product(
@@ -858,7 +860,9 @@ class PrimBox:
         a Figure instance
 
         """
-        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
+        return sdutil.plot_tradeoff(
+            self.peeling_trajectory, cmap=cmap, annotated=annotated
+        )
 
     def show_pairs_scatter(self, i=None, dims=None, cdf=False):
         """Make a pair wise scatter plot of all the restricted

@@ -75,7 +75,7 @@ class PrimBoxTestCase(unittest.TestCase):
         with pytest.raises(ValueError):
             box.inspect(style="some unknown style")
         with pytest.raises(TypeError):
-            box.inspect([0, 'a'])
+            box.inspect([0, "a"])
 
     def test_show_ppt(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
@@ -448,7 +448,7 @@ class PrimTestCase(unittest.TestCase):
         b = ("b",)
         x = pd.DataFrame(
             list(zip(np.random.rand(10,), [a, b, a, b, a, a, b, a, b, a])),
-            columns=["a", "b"]
+            columns=["a", "b"],
         )
 
         y = np.random.randint(0, 2, (10,))

@@ -114,8 +114,12 @@ class BaseEvaluator:
         else:
             for entry in msis:
                 if not isinstance(entry, AbstractModel):
-                    raise TypeError((f"{entry} should be an AbstractModel "
-                                     f"instance but is a {entry.__class__} instance"))
+                    raise TypeError(
+                        (
+                            f"{entry} should be an AbstractModel "
+                            f"instance but is a {entry.__class__} instance"
+                        )
+                    )
 
         self._msis = msis
         self.callback = None
@@ -330,13 +334,15 @@ class MultiprocessingEvaluator(BaseEvaluator):
         if isinstance(n_processes, int):
             max_processes = multiprocessing.cpu_count()
 
-            if sys.platform == 'win32':
+            if sys.platform == "win32":
                 # on windows the max number of processes is currently
                 # still limited to 61
                 max_processes = min(max_processes, 61)
             if n_processes > 0:
                 if max_processes > n_processes:
-                    warnings.warn(f"the number of processes cannot be more then {max_processes}")
+                    warnings.warn(
+                        f"the number of processes cannot be more then {max_processes}"
+                    )
                 self.n_processes = min(n_processes, max_processes)
             else:
                 self.n_processes = max(max_processes + self.n_processes, 1)
@@ -369,7 +375,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
             random_part = "".join(random_part)
             self.root_dir = os.path.abspath("tmp" + random_part)
             os.makedirs(self.root_dir)
-        
+
         self._pool = multiprocessing.Pool(
             self.n_processes,
             initializer,

@@ -210,7 +210,9 @@ class DefaultCallback(AbstractCallback):
             shape = outcome.shape
             if shape is not None:
                 shape = (nr_experiments,) + shape
-                self.results[outcome.name] = self._setup_outcomes_array(shape, dtype=float)
+                self.results[outcome.name] = self._setup_outcomes_array(
+                    shape, dtype=float
+                )
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
@@ -252,7 +254,9 @@ class DefaultCallback(AbstractCallback):
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
 
-                    self.results[outcome] = self._setup_outcomes_array(shape, data.dtype)
+                    self.results[outcome] = self._setup_outcomes_array(
+                        shape, data.dtype
+                    )
                     self.results[outcome][case_id,] = outcome_res
 
     def __call__(self, experiment, outcomes):
@@ -282,7 +286,6 @@ class DefaultCallback(AbstractCallback):
         array = np.empty(shape, dtype=dtype)
         array[:] = np.nan
         return array
-
 
 
 class FileBasedCallback(AbstractCallback):

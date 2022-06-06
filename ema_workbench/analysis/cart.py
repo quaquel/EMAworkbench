@@ -224,7 +224,6 @@ class CART(sdutil.OutputFormatterMixin):
 
         """
 
-
         if self._stats:
             return self._stats
 

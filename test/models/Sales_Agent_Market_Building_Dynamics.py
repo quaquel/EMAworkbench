@@ -318,9 +318,7 @@ def income():
     return (
         tier_1_income()
         + tier_2_income()
-        + if_then_else(
-            time() < startup_subsidy_length(), startup_subsidy, lambda: 0
-        )
+        + if_then_else(time() < startup_subsidy_length(), startup_subsidy, lambda: 0)
     )
 
 

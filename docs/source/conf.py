@@ -42,7 +42,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
     "nbsphinx",
-    'myst_parser'
+    "myst_parser",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -251,6 +251,7 @@ latex_documents = [
 man_pages = [
     ("index", "emaworkbench", "EMA workbench Documentation", ["J.H. Kwakkel"], 1)
 ]
+
 
 def setup(app):
     # copy changelog into source folder for documentation
