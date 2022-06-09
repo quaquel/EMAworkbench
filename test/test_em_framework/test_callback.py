@@ -5,6 +5,7 @@ Created on 22 Jan 2013
 """
 import random
 import unittest
+import pytest
 
 import numpy as np
 
@@ -24,6 +25,7 @@ from ema_workbench.em_framework.outcomes import (
 from ema_workbench.em_framework.util import NamedObject
 
 
+
 class TestDefaultCallback(unittest.TestCase):
     def test_init(self):
         # let's add some uncertainties to this
@@ -35,42 +37,42 @@ class TestDefaultCallback(unittest.TestCase):
         ]
         callback = DefaultCallback(uncs, [], outcomes, nr_experiments=100)
 
-        self.assertEqual(callback.i, 0)
-        self.assertEqual(callback.nr_experiments, 100)
-        self.assertEqual(callback.cases.shape[0], 100)
+        assert callback.i == 0
+        assert callback.nr_experiments == 100
+        assert callback.cases.shape[0] == 100
         #         self.assertEqual(callback.outcomes, outcomes)
 
         names = callback.cases.columns.values.tolist()
         names = set(names)
-        self.assertEqual(names, {"a", "b", "policy", "model", "scenario"})
+        assert names == {"a", "b", "policy", "model", "scenario"}
 
-        self.assertNotIn("scalar", callback.results)
-        self.assertNotIn("timeseries", callback.results)
-        self.assertIn("array", callback.results)
+        assert "scalar" not in callback.results
+        assert "timeseries" not in callback.results
+        assert "array" in callback.results
 
         a = np.all(np.isnan(callback.results["array"]))
-        self.assertTrue(a)
+        assert a
 
         # with levers
         levers = [RealParameter("c", 0, 10)]
 
         callback = DefaultCallback(uncs, levers, outcomes, nr_experiments=100)
 
-        self.assertEqual(callback.i, 0)
-        self.assertEqual(callback.nr_experiments, 100)
-        self.assertEqual(callback.cases.shape[0], 100)
+        assert callback.i == 0
+        assert callback.nr_experiments == 100
+        assert callback.cases.shape[0] == 100
         #         self.assertEqual(callback.outcomes, [o.name for o in outcomes])
 
         names = callback.cases.columns.values.tolist()
         names = set(names)
-        self.assertEqual(names, {"a", "b", "c", "policy", "model", "scenario"})
+        assert names == {"a", "b", "c", "policy", "model", "scenario"}
 
-        self.assertNotIn("scalar", callback.results)
-        self.assertNotIn("timeseries", callback.results)
-        self.assertIn("array", callback.results)
+        assert "scalar" not in callback.results
+        assert "timeseries" not in callback.results
+        assert "array" in callback.results
 
         a = np.all(np.isnan(callback.results["array"]))
-        self.assertTrue(a)
+        assert a
 
     def test_store_results(self):
         nr_experiments = 3
@@ -87,8 +89,8 @@ class TestDefaultCallback(unittest.TestCase):
 
         _, out = callback.get_results()
 
-        self.assertIn(outcomes[0].name, set(out.keys()))
-        self.assertEqual(out[outcomes[0].name].shape, (3,))
+        assert outcomes[0].name in set(out.keys())
+        assert out[outcomes[0].name].shape == (3,)
 
         # case 2 time series shape = (1, nr_time_steps)
         callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
@@ -96,8 +98,8 @@ class TestDefaultCallback(unittest.TestCase):
         callback(experiment, model_outcomes)
 
         _, out = callback.get_results()
-        self.assertIn(outcomes[0].name, out.keys())
-        self.assertEqual(out[outcomes[0].name].shape, (3, 10))
+        assert outcomes[0].name in out.keys()
+        assert out[outcomes[0].name].shape == (3, 10)
 
         # case 3 maps etc. shape = (x,y)
         callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
@@ -105,13 +107,14 @@ class TestDefaultCallback(unittest.TestCase):
         callback(experiment, model_outcomes)
 
         _, out = callback.get_results()
-        self.assertIn(outcomes[0].name, out.keys())
-        self.assertEqual(out[outcomes[0].name].shape, (3, 2, 2))
+        assert outcomes[0].name in out.keys()
+        assert out[outcomes[0].name].shape == (3, 2, 2)
 
         # case 4 assert raises EMAError
         callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
         model_outcomes = {outcomes[0].name: np.random.rand(2, 2, 2)}
-        self.assertRaises(EMAError, callback, experiment, model_outcomes)
+        with pytest.raises(EMAError):
+            callback(experiment, model_outcomes)
 
     #         # KeyError
     #         with mock.patch('ema_workbench.util.ema_logging.debug') as mocked_logging:
@@ -158,7 +161,7 @@ class TestDefaultCallback(unittest.TestCase):
             entry_a = experiments[name][0]
             entry_b = design[name]
 
-            self.assertEqual(entry_a, entry_b, "failed for " + name)
+            assert entry_a == entry_b, "failed for " + name
 
         # with levers
         nr_experiments = 3
@@ -188,7 +191,7 @@ class TestDefaultCallback(unittest.TestCase):
 
         names = experiments.columns.values.tolist()
         for name in names:
-            self.assertEqual(experiments[name][0], design[name])
+            assert experiments[name][0] == design[name]
 
 
 if __name__ == "__main__":
