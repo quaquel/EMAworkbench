@@ -13,7 +13,7 @@ pyzmq
 pandas>=0.24.*
 platypus-opt
 salib
-scikit-learn
+scikit-learn>=1.0.0
 scipy
 sphinx
 seaborn
