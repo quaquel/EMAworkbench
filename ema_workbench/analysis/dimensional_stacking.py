@@ -60,9 +60,7 @@ def discretize(data, nbins=3, with_labels=False):
         if entry.name == "category":
             n_unique = column_data.unique().shape[0]
             n = n_unique
-            column_data = column_data.cat.rename_categories(
-                list(range(1, n + 1))
-            )
+            column_data = column_data.cat.rename_categories(list(range(1, n + 1)))
             indices = column_data
 
         else:

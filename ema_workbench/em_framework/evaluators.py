@@ -10,6 +10,7 @@ import os
 import random
 import shutil
 import string
+import sys
 import threading
 import warnings
 
@@ -111,6 +112,15 @@ class BaseEvaluator:
 
         if isinstance(msis, AbstractModel):
             msis = [msis]
+        else:
+            for entry in msis:
+                if not isinstance(entry, AbstractModel):
+                    raise TypeError(
+                        (
+                            f"{entry} should be an AbstractModel "
+                            f"instance but is a {entry.__class__} instance"
+                        )
+                    )
 
         self._msis = msis
         self.callback = None
@@ -274,7 +284,6 @@ class BaseEvaluator:
 
 
 class SequentialEvaluator(BaseEvaluator):
-
     def initialize(self):
         pass
 
@@ -307,7 +316,13 @@ class MultiprocessingEvaluator(BaseEvaluator):
     ----------
     msis : collection of models
     n_processes : int (optional)
+                  A negative number can be inputted to use the number of logical cores minus the negative cores.
+                  For example, on a 12 thread processor, -2 results in using 10 threads.
     max_tasks : int (optional)
+
+
+    note that the maximum number of available processes is either multiprocessing.cpu_count()
+    and in case of windows, this never can be higher then 61
 
     """
 
@@ -315,7 +330,28 @@ class MultiprocessingEvaluator(BaseEvaluator):
         super().__init__(msis, **kwargs)
 
         self._pool = None
-        self.n_processes = n_processes
+
+        # Calculate n_processes if negative value is inputted
+        max_processes = multiprocessing.cpu_count()
+        if sys.platform == "win32":
+            # on windows the max number of processes is currently
+            # still limited to 61
+            max_processes = min(max_processes, 61)
+
+        if isinstance(n_processes, int):
+            if n_processes > 0:
+                if max_processes > n_processes:
+                    warnings.warn(
+                        f"the number of processes cannot be more then {max_processes}"
+                    )
+                self.n_processes = min(n_processes, max_processes)
+            else:
+                self.n_processes = max(max_processes + self.n_processes, 1)
+        elif n_processes is None:
+            self.n_processes = max_processes
+        else:
+            raise ValueError("max_processes must be an integer or None")
+
         self.maxtasksperchild = maxtasksperchild
 
     def initialize(self):

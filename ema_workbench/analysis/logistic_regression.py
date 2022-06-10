@@ -255,7 +255,6 @@ class Logit:
             [self.peeling_trajectory, new_row], ignore_index=True, sort=True
         )
 
-
     def show_tradeoff(self, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
         """Visualize the trade off between coverage and density. Color
         is used to denote the number of restricted dimensions.
@@ -270,7 +269,9 @@ class Logit:
         a Figure instance
 
         """
-        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
+        return sdutil.plot_tradeoff(
+            self.peeling_trajectory, cmap=cmap, annotated=annotated
+        )
 
     # @UndefinedVariable
     def show_threshold_tradeoff(self, i, cmap=mpl.cm.viridis_r, step=0.1):

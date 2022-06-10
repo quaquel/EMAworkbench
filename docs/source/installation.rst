@@ -31,8 +31,8 @@ instructions for each of these libraries.
 From conda or `conda-forge <https://conda-forge.org/docs/user/introduction.html>`_:
 
 * `altair <https://altair-viz.github.io>`_ for interactive visualizations
-* `ipyparallel <http://ipyparallel.readthedocs.io/en/latest/>`_ for support of interactive multiprocessing within the jupyter notebook.
-::
+* `ipyparallel <https://ipyparallel.readthedocs.io>`_ for support of interactive multiprocessing within
+   the jupyter notebook. ::
 
 	conda install altair ipyparallel
 
@@ -43,8 +43,7 @@ There are also some pip based dependencies:
 * `platypus-opt <https://github.com/Project-Platypus/Platypus>`_ , this is an
   optional dependency for many-objective optimization functionality.
 * `pydot <https://pypi.python.org/pypi/pydot/>`_ and  Graphviz for some of the
-  visualizations.
-::
+  visualizations. ::
 
 	pip install SALib platypus-opt pydot
 

@@ -77,4 +77,8 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.8",
+    project_urls={
+        'Documentation': 'https://emaworkbench.readthedocs.io/',
+        'Tracker': 'https://github.com/quaquel/EMAworkbench/issues',
+    },
 )

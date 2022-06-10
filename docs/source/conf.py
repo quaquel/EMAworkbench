@@ -15,7 +15,11 @@ serve to show the default.
 
 import sys
 import os
+import os.path as osp
 import re
+import shutil
+
+HERE = osp.abspath(osp.dirname(__file__))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -38,13 +42,16 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
     "nbsphinx",
+    "myst_parser",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["ytemplates"]
 
-# The suffix of source filenames.
-source_suffix = ".rst"
+# The file extensions of source files.
+# Sphinx considers the files with this suffix as sources.
+# The value can be a dictionary mapping file extensions to file types.
+source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 
 pngmath_latex_preamble = "\\usepackage{cases}\n"
 
@@ -244,3 +251,9 @@ latex_documents = [
 man_pages = [
     ("index", "emaworkbench", "EMA workbench Documentation", ["J.H. Kwakkel"], 1)
 ]
+
+
+def setup(app):
+    # copy changelog into source folder for documentation
+    dest = osp.join(HERE, "changelog.md")
+    shutil.copy(osp.join(HERE, "..", "..", "CHANGELOG.md"), dest)

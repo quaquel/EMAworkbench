@@ -356,12 +356,14 @@ class PrimBox:
         self.prim = prim
 
         # peeling and pasting trajectory
-        columns = {"coverage": pd.Series(dtype=float),
-                   "density": pd.Series(dtype=float),
-                   "mean": pd.Series(dtype=float),
-                   "res_dim": pd.Series(dtype=int),
-                   "mass": pd.Series(dtype=float),
-                   "id": pd.Series(dtype=int)}
+        columns = {
+            "coverage": pd.Series(dtype=float),
+            "density": pd.Series(dtype=float),
+            "mean": pd.Series(dtype=float),
+            "res_dim": pd.Series(dtype=int),
+            "mass": pd.Series(dtype=float),
+            "id": pd.Series(dtype=int),
+        }
 
         self.peeling_trajectory = pd.DataFrame(columns)
 
@@ -409,17 +411,40 @@ class PrimBox:
 
         Parameters
         ----------
-        i : int, optional
+        i : int or list of ints, optional
             the index of the box, defaults to currently selected box
-        style : {'table', 'graph'}
-                the style of the visualization
+        style : {'table', 'graph', 'data'}
+                the style of the visualization. 'table' prints the stats and
+                boxlim. 'graph' creates a figure. 'data' returns a list of
+                tuples, where each tuple contains the stats and the box_lims.
 
         additional kwargs are passed to the helper function that
         generates the table or graph
 
         """
         if i is None:
-            i = self._cur_box
+            i = [self._cur_box]
+        elif isinstance(i, int):
+            i = [i]
+
+        if not all(isinstance(x, int) for x in i):
+            raise TypeError("i must be an integer or list of integers")
+
+        return [self._inspect(entry, style=style, **kwargs) for entry in i]
+
+    def _inspect(self, i=None, style="table", **kwargs):
+        """Helper method for inspecting one or more boxes on the
+        peeling trajectory
+
+        Parameters
+        ----------
+        i, int
+        style, {'table', 'graph', 'data'}
+
+        additional kwargs are passed to the helper function that
+        generates the table or graph
+
+        """
 
         stats = self.peeling_trajectory.iloc[i].to_dict()
         stats["restricted_dim"] = stats["res_dim"]
@@ -431,29 +456,45 @@ class PrimBox:
         uncs = [uncs[0] for uncs in uncs]
 
         if style == "table":
-            return self._inspect_table(i, uncs, qp_values, **kwargs)
+            return self._inspect_table(i, uncs, qp_values)
         elif style == "graph":
             return self._inspect_graph(i, uncs, qp_values, **kwargs)
+        elif style == "data":
+            return self._inspect_data(i, uncs, qp_values)
         else:
-            raise ValueError("style must be one of graph or table")
+            raise ValueError("style must be one of graph, table or data")
 
-    def _inspect_table(self, i, uncs, qp_values):
-        """Helper function for visualizing box statistics in
-        table form"""
+    def _inspect_data(self, i, uncs, qp_values):
+        """Helper method for inspecting boxes,
+
+        this one returns a tuple with a series with overall statistics, and a
+        DataFrame containing the boxlims and qp values
+
+        """
         # make the descriptive statistics for the box
-        print(self.peeling_trajectory.iloc[i])
-        print()
+        stats = self.peeling_trajectory.iloc[i]
 
         # make the box definition
         columns = pd.MultiIndex.from_product(
-            [[f"box {i}"], ["min", "max", "qp values"]]
+            [[f"box {i}"], ["min", "max", "qp value", "qp value"]]
         )
-        box_lim = pd.DataFrame(np.zeros((len(uncs), 3)), index=uncs, columns=columns)
+        box_lim = pd.DataFrame(np.zeros((len(uncs), 4)), index=uncs, columns=columns)
 
         for unc in uncs:
             values = self.box_lims[i][unc]
-            box_lim.loc[unc] = [values[0], values[1], str(qp_values[unc])]
+            box_lim.loc[unc] = values.values.tolist() + qp_values[unc]
+            box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.NaN)
 
+        return stats, box_lim
+
+    def _inspect_table(self, i, uncs, qp_values):
+        """Helper method for visualizing box statistics in
+        table form"""
+        # make the descriptive statistics for the box
+        stats, box_lim = self._inspect_data(i, uncs, qp_values)
+
+        print(stats)
+        print()
         print(box_lim)
         print()
 
@@ -466,7 +507,7 @@ class PrimBox:
         boxlim_formatter="{: .2g}",
         table_formatter="{:.3g}",
     ):
-        """Helper function for visualizing box statistics in
+        """Helper method for visualizing box statistics in
         graph form"""
 
         return sdutil.plot_box(
@@ -819,7 +860,9 @@ class PrimBox:
         a Figure instance
 
         """
-        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
+        return sdutil.plot_tradeoff(
+            self.peeling_trajectory, cmap=cmap, annotated=annotated
+        )
 
     def show_pairs_scatter(self, i=None, dims=None, cdf=False):
         """Make a pair wise scatter plot of all the restricted
@@ -902,6 +945,11 @@ class PrimBox:
             result_type="expand",
             args=[x, y, Hbox, Tbox, box_lim, self.box_lims[0]],
         )
+
+        # TODO:: this has knock on consequences
+        # TODO:: elsewhere in the code (e.g. all box visualizations
+        # TODO:: as well as in CART etc.)
+        # qp_values = qp_values.replace(-1, np.NaN)
         qp_values = qp_values.to_dict(orient="list")
         return qp_values
 

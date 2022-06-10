@@ -136,6 +136,14 @@ class CART(sdutil.OutputFormatterMixin):
 
     @property
     def boxes(self):
+        """
+
+        Returns
+        -------
+        list with boxlims for each terminal leaf
+
+        """
+
         if self._boxes:
             return self._boxes
 
@@ -208,6 +216,14 @@ class CART(sdutil.OutputFormatterMixin):
 
     @property
     def stats(self):
+        """
+
+        Returns
+        -------
+        list with scenario discovery statistics for each terminal leaf
+
+        """
+
         if self._stats:
             return self._stats
 
@@ -332,49 +348,3 @@ class CART(sdutil.OutputFormatterMixin):
             raise TypeError("""format must be in {'png', 'svg'}""")
 
         return img
-
-
-# if __name__ == '__main__':
-#     from test import test_utilities
-#     import matplotlib.pyplot as plt
-#
-#     ema_logging.log_to_stderr(ema_logging.INFO)
-#
-#     def scarcity_classify(outcomes):
-#         outcome = outcomes['relative market price']
-#         change = np.abs(outcome[:, 1::]-outcome[:, 0:-1])
-#
-#         neg_change = np.min(change, axis=1)
-#         pos_change = np.max(change, axis=1)
-#
-#         logical = (neg_change > -0.6) & (pos_change > 0.6)
-#
-#         classes = np.zeros(outcome.shape[0])
-#         classes[logical] = 1
-#
-#         return classes
-#
-#     results = test_utilities.load_scarcity_data()
-#
-#     cart = setup_cart(results, scarcity_classify)
-#     cart.build_tree()
-#
-#     print(cart.boxes_to_dataframe())
-#     print(cart.stats_to_dataframe())
-#     cart.display_boxes(together=True)
-#
-#     img = cart.show_tree()
-#
-#     import matplotlib.pyplot as plt
-#     import matplotlib.image as mpimg
-#
-#     # treat the dot output string as an image file
-#     sio = StringIO()
-#     sio.write(img)
-#     sio.seek(0)
-#     img = mpimg.imread(sio)
-#
-#     # plot the image
-#     imgplot = plt.imshow(img, aspect='equal')
-#
-#     plt.show()
