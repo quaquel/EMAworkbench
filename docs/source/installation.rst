@@ -11,11 +11,11 @@ A stable version of the workbench can be installed via pip. ::
 	
 The latest commit on the master branch can be installed with::
 
-	pip install -e git+https://github.com/projectmesa/EMAworkbench#egg=ema-workbench
+	pip install -e git+https://github.com/quaquel/EMAworkbench #egg=ema-workbench
 
 Or any other (development) branch on this repo or your own fork::
 
-	pip install -e git+https://github.com/YOUR_FORK/EMAworkbench@YOUR_BRANCH#egg=ema-workbench
+	pip install -e git+https://github.com/YOUR_FORK/EMAworkbench@YOUR_BRANCH #egg=ema-workbench
 
 The code is also available from `github <https://github.com/quaquel/EMAworkbench>`_.
 The code comes with a `requirements.txt <https://github.com/quaquel/EMAworkbench/blob/master/requirements.txt>`_ file that indicates the key
@@ -31,8 +31,7 @@ instructions for each of these libraries.
 From conda or `conda-forge <https://conda-forge.org/docs/user/introduction.html>`_:
 
 * `altair <https://altair-viz.github.io>`_ for interactive visualizations
-* `ipyparallel <https://ipyparallel.readthedocs.io>`_ for support of interactive multiprocessing within
-   the jupyter notebook. ::
+* `ipyparallel <https://ipyparallel.readthedocs.io>`_ for support of interactive multiprocessing within the jupyter notebook. ::
 
 	conda install altair ipyparallel
 
