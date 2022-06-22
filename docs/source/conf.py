@@ -130,7 +130,9 @@ pygments_style = "sphinx"
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = dict(
-    github_url='https://github.com/quaquel/EMAworkbench',
+    github_user='quaquel',
+    github_repo='EMAworkbench',
+    github_version='/tree/master/docs/',
     # On master branch and new branch still in
     # pre-release status: true; else: false.
     in_progress='true',
