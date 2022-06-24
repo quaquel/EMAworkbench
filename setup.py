@@ -81,4 +81,15 @@ setup(
         'Documentation': 'https://emaworkbench.readthedocs.io/',
         'Tracker': 'https://github.com/quaquel/EMAworkbench/issues',
     },
+    install_requires=["numpy", "pandas", "scikit-learn", "salib", "platypus-opt", "matplotlib", "statsmodels"
+                      "tqdm"]
+    extras_require={
+        "jupyter": ["jupyter", "ipython", "ipykernel"],
+        "dev": [],
+        "docs": ["sphinx", "nbsphinx", "myst", "pyscaffold"],
+        "graph": ["altair"],
+        "connectors": ["pysd"]
+        "parallel": ["ipyparallel", "traitlets"],
+        # "all": [], TODO: Create a super set that installs all above
+    }
 )
