@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Fixed
+* bug fix in evaluators.py in case the list of jobs from platypus_opt is empty [[0b797ee]](https://github.com/quaquel/EMAworkbench/commit/0b797eec51ea3559cd619ec518b6c85c514dd859)
 
 ### Security
 
