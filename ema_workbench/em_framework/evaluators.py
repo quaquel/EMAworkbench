@@ -153,7 +153,12 @@ class BaseEvaluator:
         """
         self.callback()
 
-        problem = jobs[0].solution.problem
+        try:
+            problem = jobs[0].solution.problem
+        except IndexError:
+            # no jobs to evaluate
+            return jobs
+
         searchover = problem.searchover
 
         if searchover == "levers":
