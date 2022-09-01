@@ -3,22 +3,22 @@ changelog:
     labels:
       - ignore-for-release
   categories:
-    - title: Breaking changes ⚠️
+    - title: ⚠️ Breaking changes
       labels:
         - breaking
-    - title: New features added 🎉
+    - title: 🎉 New features added
       labels:
         - feature
-    - title: Enhancements made 🛠
+    - title: 🛠 Enhancements made
       labels:
         - enhancement
-    - title: Bugs fixed 🐛
+    - title: 🐛 Bugs fixed
       labels:
         - bug
-    - title: Documentation improvements 📜
+    - title: 📜 Documentation improvements
       labels:
         - docs
-    - title: Maintenance 🔧
+    - title: 🔧 Maintenance 
       labels:
         - ci
         - testing
