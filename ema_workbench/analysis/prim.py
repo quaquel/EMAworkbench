@@ -1045,9 +1045,7 @@ class Prim(sdutil.OutputFormatterMixin):
             if np.unique(x[column]).shape == (1,):
                 x = x.drop(column, axis=1)
                 _logger.info(
-                    (
-                        f"{column} dropped from analysis " "because only a single category"
-                    )
+                    f"{column} dropped from analysis " "because only a single category"
                 )
 
         x_nominal = x.select_dtypes(exclude=np.number)
@@ -1162,10 +1160,7 @@ class Prim(sdutil.OutputFormatterMixin):
         else:
             # make a dump box
             _logger.info(
-                (
-                    "box does not meet threshold criteria, "
-                    f"value is {box.mean}, returning dump box"
-                )
+                f"box does not meet threshold criteria, value is {box.mean}, returning dump box"
             )
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self._boxes.append(box)
