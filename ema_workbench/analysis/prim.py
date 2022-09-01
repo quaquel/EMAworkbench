@@ -1046,8 +1046,8 @@ class Prim(sdutil.OutputFormatterMixin):
                 x = x.drop(column, axis=1)
                 _logger.info(
                     (
-                        "{} dropped from analysis " "because only a single category"
-                    ).format(column)
+                        f"{column} dropped from analysis " "because only a single category"
+                    )
                 )
 
         x_nominal = x.select_dtypes(exclude=np.number)
@@ -1164,8 +1164,8 @@ class Prim(sdutil.OutputFormatterMixin):
             _logger.info(
                 (
                     "box does not meet threshold criteria, "
-                    "value is {}, returning dump box"
-                ).format(box.mean)
+                    f"value is {box.mean}, returning dump box"
+                )
             )
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self._boxes.append(box)
@@ -1475,7 +1475,7 @@ class Prim(sdutil.OutputFormatterMixin):
             for i, u in enumerate(columns):
                 if u not in res_dim:
                     continue
-                _logger.debug("pasting " + u)
+                _logger.debug(f"pasting {u}")
                 pastes = self._pastes[dtype](self, box, u, x, restricted_dims)
                 [possible_pastes.append(entry) for entry in pastes]
             if not possible_pastes:
