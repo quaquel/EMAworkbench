@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=63.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ema_workbench"
+authors = [
+  { name="Jan Kwakkel", email="j.h.kwakkel@tudelft.nl" },
+]
+description = "Exploratory modelling in Python"
+readme = "README.md"
+license = { file="LICENSE.md" }
+requires-python = ">=3.8"
+classifiers=[
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version"] # Version is read from ema_workbench/__init__.py
+
+[project.optional-dependencies]
+
+
+[project.urls]
+"Homepage" = "https://github.com/quaquel/EMAworkbench"
+"Documentation" = "https://emaworkbench.readthedocs.io/"
+"Bug Tracker" = 'https://github.com/quaquel/EMAworkbench/issues"
