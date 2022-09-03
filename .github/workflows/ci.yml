@@ -33,6 +33,7 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install .[dev]
+        pip install jupyter_client ipyparallel
         pip install pytest-cov coverage coveralls
     - name: Test with Pytest
       run:
