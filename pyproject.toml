@@ -16,8 +16,6 @@ classifiers=[
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
 ]
-dynamic = ["version"] # Version is read from ema_workbench/__init__.py
-
 dependencies = [
     "numpy",
     "pandas",
@@ -26,9 +24,13 @@ dependencies = [
     "platypus-opt",
     "matplotlib",
     "statsmodels",
-    "seaborn"
+    "seaborn",
     "tqdm",
 ]
+dynamic = ["version"] # Version is read from ema_workbench/__init__.py
+
+[tool.setuptools.dynamic]
+version = {attr = "ema_workbench.__version__"}
 
 [project.optional-dependencies]
 jupyter = ["jupyter", "ipython", "ipykernel"]
