@@ -18,8 +18,24 @@ classifiers=[
 ]
 dynamic = ["version"] # Version is read from ema_workbench/__init__.py
 
-[project.optional-dependencies]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "salib",
+    "platypus-opt",
+    "matplotlib",
+    "statsmodels",
+]
 
+[project.optional-dependencies]
+jupyter = ["jupyter", "ipython", "ipykernel"]
+dev = ["pytest"]
+docs = ["sphinx", "nbsphinx", "myst", "pyscaffold"]
+graph = ["altair", "pydot", "graphviz"]
+connectors = ["pysd", "jpype-1", "pynetlogo", "pythonnet"]
+parallel = ["ipyparallel", "traitlets"]
+# all = [], TODO: Create a super set that installs all above
 
 [project.urls]
 "Homepage" = "https://github.com/quaquel/EMAworkbench"
