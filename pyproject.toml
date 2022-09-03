@@ -26,6 +26,8 @@ dependencies = [
     "platypus-opt",
     "matplotlib",
     "statsmodels",
+    "seaborn"
+    "tqdm",
 ]
 
 [project.optional-dependencies]
