@@ -24,4 +24,4 @@ dynamic = ["version"] # Version is read from ema_workbench/__init__.py
 [project.urls]
 "Homepage" = "https://github.com/quaquel/EMAworkbench"
 "Documentation" = "https://emaworkbench.readthedocs.io/"
-"Bug Tracker" = 'https://github.com/quaquel/EMAworkbench/issues"
+"Bug Tracker" = "https://github.com/quaquel/EMAworkbench/issues"
