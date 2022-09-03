@@ -33,8 +33,8 @@ dynamic = ["version"] # Version is read from ema_workbench/__init__.py
 version = {attr = "ema_workbench.__version__"}
 
 [tool.setuptools.package-data]
-"ema_workbench.examples.data"
-"ema_workbench.examples.models"
+"ema_workbench.examples.data" = ["*"]
+"ema_workbench.examples.models" = ["*"]
 
 [project.optional-dependencies]
 jupyter = ["jupyter", "ipython", "ipykernel"]
