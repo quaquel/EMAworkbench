@@ -39,6 +39,7 @@ __all__ = [
     "ArchiveLogger",
     "ArrayOutcome",
     "Samplers",
+    "OutputSpaceExploration"
 ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Constraint, ArrayOutcome
@@ -73,6 +74,7 @@ from .evaluators import (
     Samplers,
 )
 from .optimization import Convergence, HyperVolume, EpsilonProgress, ArchiveLogger
+from .output_space_exploration import OutputSpaceExploration
 
 try:
     from .evaluators import IpyparallelEvaluator
