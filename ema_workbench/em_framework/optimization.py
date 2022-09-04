@@ -266,7 +266,9 @@ def to_dataframe(optimizer, dvnames, outcome_names):
     """
 
     solutions = []
-    for solution in platypus.unique(platypus.nondominated(optimizer.result)):
+    # for solution in platypus.unique(platypus.nondominated(optimizer.result)):
+    for solution in platypus.unique(optimizer.result):
+
         vars = transform_variables(
             solution.problem, solution.variables  # @ReservedAssignment
         )
