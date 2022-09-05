@@ -2,17 +2,12 @@ import functools
 import math
 
 
-from ema_workbench.em_framework.optimization import BORGDefaultDescriptor
-
 from platypus import (
     TournamentSelector,
     Archive,
     RandomGenerator,
     Dominance,
     AbstractGeneticAlgorithm,
-    GAOperator,
-    DifferentialEvolution,
-    PM,
     default_variator,
     AdaptiveTimeContinuation,
 )
@@ -126,12 +121,7 @@ class HitBox(Archive):
 
 
 class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
-
-    de_rate = 0.1
-    de_stepsize = 0.5
-
-    pm_p = BORGDefaultDescriptor(lambda x: 1 / x)
-    pm_dist = 20
+    # TODO expand code to deal with real, integer and categorical parameters
 
     def __init__(
         self,
@@ -139,6 +129,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         grid_spec=None,
         population_size=100,
         generator=RandomGenerator(),
+        variator=None,
         **kwargs
     ):
         super().__init__(problem, population_size, generator=generator, **kwargs)
@@ -146,15 +137,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         self.selector = TournamentSelector(2, dominance=Novelty(self))
         self.algorithm = self  # hack for convergence
 
-        # what crossover and mutation to use?
-        # wrap them in a GAOperator
-        # self.variator = GAOperator(
-        #     DifferentialEvolution(
-        #         crossover_rate=self.de_rate, step_size=self.de_stepsize
-        #     ),
-        #     PM(probability=self.pm_p, distribution_index=self.pm_dist),
-        # )
-        self.variator = None
+        self.variator = variator
         self.population = None
 
         self.comparator = Novelty(self)
@@ -272,6 +255,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
         grid_spec=None,
         population_size=100,
         generator=RandomGenerator(),
+        variator=None,
         **kwargs
     ):
         super().__init__(
@@ -280,6 +264,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
                 grid_spec=grid_spec,
                 population_size=population_size,
                 generator=generator,
+                variator=variator,
                 **kwargs
             )
         )
