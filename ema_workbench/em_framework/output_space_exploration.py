@@ -1,6 +1,7 @@
 import functools
 import math
 
+from .optimization import BORGDefaultDescriptor
 
 from platypus import (
     TournamentSelector,
@@ -10,6 +11,7 @@ from platypus import (
     AbstractGeneticAlgorithm,
     default_variator,
     AdaptiveTimeContinuation,
+    GAOperator, SBX, PM, DifferentialEvolution, SPX, UM, PCX, UNDX, Multimethod
 )
 
 
@@ -258,6 +260,108 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
         variator=None,
         **kwargs
     ):
+        super().__init__(
+            OutputSpaceExplorationAlgorithm(
+                problem,
+                grid_spec=grid_spec,
+                population_size=population_size,
+                generator=generator,
+                variator=variator,
+                **kwargs
+            )
+        )
+
+
+class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
+    """A combination of autoadaptive operator selection with OutputSpaceExploration
+
+    The parametrization of all operators is based on the default values as used
+    in Borg 1.9.
+
+    Note:: limited to RealParameters only.
+
+    """
+
+    pm_p = BORGDefaultDescriptor(lambda x: 1 / x)
+    pm_dist = 20
+
+    sbx_prop = 1
+    sbx_dist = 15
+
+    de_rate = 0.1
+    de_stepsize = 0.5
+
+    um_p = BORGDefaultDescriptor(lambda x: x + 1)
+
+    spx_nparents = 10
+    spx_noffspring = 2
+    spx_expansion = 0.3
+
+    pcx_nparents = 10
+    pcx_noffspring = 2
+    pcx_eta = 0.1
+    pcx_zeta = 0.1
+
+    undx_nparents = 10
+    undx_noffspring = 2
+    undx_zeta = 0.5
+    undx_eta = 0.35
+
+    def __init__(
+        self,
+        problem,
+        grid_spec=None,
+        population_size=100,
+        generator=RandomGenerator(),
+        variator=None,
+        **kwargs,
+    ):
+        self.problem = problem
+
+        # Parameterization taken from
+        # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
+        variators = [
+            GAOperator(
+                SBX(probability=self.sbx_prop, distribution_index=self.sbx_dist),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            GAOperator(
+                PCX(
+                    nparents=self.pcx_nparents,
+                    noffspring=self.pcx_noffspring,
+                    eta=self.pcx_eta,
+                    zeta=self.pcx_zeta,
+                ),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            GAOperator(
+                DifferentialEvolution(
+                    crossover_rate=self.de_rate, step_size=self.de_stepsize
+                ),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            GAOperator(
+                UNDX(
+                    nparents=self.undx_nparents,
+                    noffspring=self.undx_noffspring,
+                    zeta=self.undx_zeta,
+                    eta=self.undx_eta,
+                ),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            GAOperator(
+                SPX(
+                    nparents=self.spx_nparents,
+                    noffspring=self.spx_noffspring,
+                    expansion=self.spx_expansion,
+                ),
+                PM(probability=self.pm_p, distribution_index=self.pm_dist),
+            ),
+            UM(probability=self.um_p),
+        ]
+
+        variator = Multimethod(self, variators)
+
         super().__init__(
             OutputSpaceExplorationAlgorithm(
                 problem,
