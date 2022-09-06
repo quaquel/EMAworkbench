@@ -20,7 +20,7 @@ from ema_workbench import (
     Policy
 )
 
-from ema_workbench.em_framework.output_space_exploration import OutputSpaceExploration
+from ema_workbench.em_framework.outputspace_exploration import OutputSpaceExploration
 
 def lake_problem(
     b=0.42,  # decay rate for P in lake (0.42 = irreversible)
