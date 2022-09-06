@@ -1,3 +1,11 @@
+""" provides a genetic algorithm based on novelty search for output space exploration.
+The algorithm can be used in combination with the optimization functionality of the workbench.
+Just pass an OutputSpaceExploration instance as algorithm to optimize.
+
+
+
+"""
+
 import functools
 import math
 
@@ -15,11 +23,12 @@ from platypus import (
 )
 
 
-__all__ = ["OutputSpaceExploration"]
+__all__ = ["OutputSpaceExploration",
+           "AutoAdaptiveOutputSpaceExploration"]
 
 
 class Novelty(Dominance):
-    """Comapres to solutions based on their novelty
+    """Compares to solutions based on their novelty
 
     Parameters
     ----------
@@ -123,8 +132,6 @@ class HitBox(Archive):
 
 
 class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
-    # TODO expand code to deal with real, integer and categorical parameters
-
     def __init__(
         self,
         problem,
@@ -273,7 +280,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
 
 
 class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
-    """A combination of autoadaptive operator selection with OutputSpaceExploration
+    """A combination of autoadaptive operator selection with OutputSpaceExploration.
 
     The parametrization of all operators is based on the default values as used
     in Borg 1.9.
