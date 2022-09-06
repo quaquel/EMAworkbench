@@ -74,7 +74,7 @@ from .evaluators import (
     Samplers,
 )
 from .optimization import Convergence, HyperVolume, EpsilonProgress, ArchiveLogger
-from .output_space_exploration import OutputSpaceExploration
+from .outputspace_exploration import OutputSpaceExploration
 
 try:
     from .evaluators import IpyparallelEvaluator
