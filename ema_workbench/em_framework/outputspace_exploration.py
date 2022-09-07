@@ -1,4 +1,13 @@
-""" provides a genetic algorithm based on novelty search for output space exploration.
+""" Provides a genetic algorithm based on novelty search for output space exploration.
+
+The algorithm is inspired by `Chérel et al (2015) <https://doi.org/10.1371/journal.pone.0138212>`_. In short,
+from Chérel et al, we have taken the idea of the HitBox. Basically, this is an epsilon archive were one
+keeps track of how many solutions have fallen into each grid cell. Next, tournament selection based on novelty is
+used as the selective pressure. Novelty is defined as 1/nr. of solutions in same grid cell. This is then
+combined with auto-adaptive population sizing as used in e-NSGAII. This replaces the use of adaptive Cauchy mutation
+as used by Chérel et al. There is also an more sophisticated algorithm that adds auto-adaptive operator selection as
+used in BORG.
+
 The algorithm can be used in combination with the optimization functionality of the workbench.
 Just pass an OutputSpaceExploration instance as algorithm to optimize.
 
