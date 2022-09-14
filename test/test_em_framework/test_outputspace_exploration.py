@@ -1,6 +1,7 @@
 from ema_workbench.em_framework import outputspace_exploration
+from ema_workbench.em_framework.optimization import to_problem
+from ema_workbench.em_framework import Model, RealParameter, ScalarOutcome
 
-import pytest
 
 
 def test_novelty(mocker):
@@ -19,7 +20,6 @@ def test_novelty(mocker):
 
 
 def test_hitbox(mocker):
-
     grid_spec = [(0, 1, 0.1),
                  (0, 1, 0.1)]
 
@@ -46,9 +46,8 @@ def test_hitbox(mocker):
     assert hitbox.improvements == 1
     assert hitbox.archive[key] is solution
     assert hitbox.centroids[key] == [0.05, 0.05]
-    assert hitbox.overall_novelty == 1.5\
-
-
+    assert hitbox.overall_novelty == 1.5 \
+ \
     # test first farther away and then more central
     hitbox = outputspace_exploration.HitBox(grid_spec)
 
@@ -75,12 +74,44 @@ def test_hitbox(mocker):
     assert hitbox.overall_novelty == 1.5
 
     # test get_novelty_score
-    assert hitbox.get_novelty_score(solution2) == 1/2
+    assert hitbox.get_novelty_score(solution2) == 1 / 2
     assert hitbox.get_novelty_score(solution2) == hitbox.get_novelty_score(solution)
 
 
-def test_algorithm():
-    pass
+def test_algorithm(mocker):
+    function = mocker.Mock()
+    model = Model("A", function)
+    model.uncertainties = [
+        RealParameter("a", 0, 1),
+        RealParameter("b", 0, 1),
+        RealParameter("c", 0, 1),
+    ]
+    model.outcomes = [ScalarOutcome('x', kind=ScalarOutcome.MAXIMIZE),
+                      ScalarOutcome('y', kind=ScalarOutcome.MAXIMIZE)]
+
+    def evaluate_all(jobs):
+        [job.run() for job in jobs]
+        return jobs
+
+    def some_callable(vars):
+        return min(vars), max(vars)
+
+    problem = to_problem(model, searchover='uncertainties')
+    problem.function = some_callable
+    grid_spec = [(0, 1, 0.1),
+                 (0, 1, 0.1)]
+    evaluator = mocker.Mock()
+    evaluator.evaluate_all.side_effect = evaluate_all
+    population_size = 100
+
+    algorithm = outputspace_exploration.OutputSpaceExplorationAlgorithm(problem, grid_spec=grid_spec,
+                                                                        evaluator=evaluator,
+                                                                        population_size=population_size)
+    algorithm.step()
+    algorithm.step()
+
+    assert algorithm.nfe <= 2 * population_size
+    assert len(algorithm.population) == population_size
 
 
 def test_adaptive_algorithm():

@@ -265,6 +265,12 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
     To deal with a stalled search, adaptive time continuation, identical to
     e-NSGAII is used.
 
+    Notes
+    -----
+    Output space exploration relies on the optimization functionality of the
+    workbench. Therefore, outcomes of kind INFO are ignored. For output
+    space exploration the direction (i.e. minimize or maximize) does not matter.
+
     """
 
     def __init__(
