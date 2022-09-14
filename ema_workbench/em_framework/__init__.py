@@ -39,7 +39,7 @@ __all__ = [
     "ArchiveLogger",
     "ArrayOutcome",
     "Samplers",
-    "OutputSpaceExploration"
+    "OutputSpaceExploration",
 ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Constraint, ArrayOutcome

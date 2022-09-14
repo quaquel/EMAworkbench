@@ -28,12 +28,19 @@ from platypus import (
     AbstractGeneticAlgorithm,
     default_variator,
     AdaptiveTimeContinuation,
-    GAOperator, SBX, PM, DifferentialEvolution, SPX, UM, PCX, UNDX, Multimethod
+    GAOperator,
+    SBX,
+    PM,
+    DifferentialEvolution,
+    SPX,
+    UM,
+    PCX,
+    UNDX,
+    Multimethod,
 )
 
 
-__all__ = ["OutputSpaceExploration",
-           "AutoAdaptiveOutputSpaceExploration"]
+__all__ = ["OutputSpaceExploration", "AutoAdaptiveOutputSpaceExploration"]
 
 
 class Novelty(Dominance):
@@ -148,7 +155,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         population_size=100,
         generator=RandomGenerator(),
         variator=None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(problem, population_size, generator=generator, **kwargs)
         self.archive = HitBox(grid_spec)
@@ -166,10 +173,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         else:
             self.iterate()
 
-        if self.archive is not None:
-            self.result = self.archive
-        else:
-            self.result = self.population
+        self.result = self.archive
 
     def initialize(self):
         super().initialize()
@@ -280,7 +284,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
         population_size=100,
         generator=RandomGenerator(),
         variator=None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             OutputSpaceExplorationAlgorithm(
@@ -289,7 +293,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
                 population_size=population_size,
                 generator=generator,
                 variator=variator,
-                **kwargs
+                **kwargs,
             )
         )
 
@@ -391,6 +395,6 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
                 population_size=population_size,
                 generator=generator,
                 variator=variator,
-                **kwargs
+                **kwargs,
             )
         )
