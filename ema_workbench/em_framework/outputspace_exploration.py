@@ -191,8 +191,8 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
 
         # do we want to compare, or just keep the new population
         # novelty changes.
-        offspring.extend(self.population)
         self.archive.extend(offspring)
+        offspring.extend(self.population)
         offspring = sorted(offspring, key=functools.cmp_to_key(self.comparator))
         self.population = offspring[: self.population_size]
 
