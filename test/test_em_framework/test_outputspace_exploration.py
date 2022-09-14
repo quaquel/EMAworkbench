@@ -78,7 +78,7 @@ def test_hitbox(mocker):
     assert hitbox.get_novelty_score(solution2) == hitbox.get_novelty_score(solution)
 
 
-def test_algorithm(mocker):
+def test_core_algorithm(mocker):
     function = mocker.Mock()
     model = Model("A", function)
     model.uncertainties = [
@@ -104,6 +104,8 @@ def test_algorithm(mocker):
     evaluator.evaluate_all.side_effect = evaluate_all
     population_size = 100
 
+    # test only does minimum checking if code runs
+    # but we are not testing inner workings of platypus
     algorithm = outputspace_exploration.OutputSpaceExplorationAlgorithm(problem, grid_spec=grid_spec,
                                                                         evaluator=evaluator,
                                                                         population_size=population_size)
@@ -114,5 +116,22 @@ def test_algorithm(mocker):
     assert len(algorithm.population) == population_size
 
 
-def test_adaptive_algorithm():
-    pass
+def test_user_facing_algorithms(mocker):
+    function = mocker.Mock()
+    model = Model("A", function)
+    model.uncertainties = [
+        RealParameter("a", 0, 1),
+        RealParameter("b", 0, 1),
+        RealParameter("c", 0, 1),
+    ]
+    model.outcomes = [ScalarOutcome('x', kind=ScalarOutcome.MAXIMIZE),
+                      ScalarOutcome('y', kind=ScalarOutcome.MAXIMIZE)]
+
+    problem = to_problem(model, searchover='uncertainties')
+    grid_spec = [(0, 1, 0.1),
+                 (0, 1, 0.1)]
+
+
+    outputspace_exploration.OutputSpaceExploration(problem, grid_spec=grid_spec)
+
+    outputspace_exploration.AutoAdaptiveOutputSpaceExploration(problem, grid_spec=grid_spec)
