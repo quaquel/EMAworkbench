@@ -20,6 +20,7 @@ from .em_framework import (
     Constraint,
     ArrayOutcome,
     Samplers,
+    OutputSpaceExploration,
 )
 from .util import (
     save_results,
@@ -31,4 +32,4 @@ from .util import (
 
 # from . import analysis
 
-__version__ = "2.1.3"
+__version__ = "2.3.0-dev"
