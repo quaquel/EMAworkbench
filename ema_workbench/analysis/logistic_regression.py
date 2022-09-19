@@ -375,7 +375,7 @@ class Logit:
         data["y"] = self.y  # for testing
         grid = sns.PairGrid(data=data, hue="y", vars=columns)
         grid.map_lower(plt.scatter, s=5)
-        grid.map_diag(sns.kdeplot, shade=True)
+        grid.map_diag(sns.kdeplot, fill=True)
         grid.add_legend()
 
         contour_levels = np.arange(0, 1.05, 0.05)
