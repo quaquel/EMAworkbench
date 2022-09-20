@@ -1,7 +1,9 @@
 name: Build distribution
 on:
   push:
+    paths-ignore: ['docs/**', '**.rst', '**.md']
   pull_request:
+    paths-ignore: ['docs/**', '**.rst', '**.md']
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 1'
