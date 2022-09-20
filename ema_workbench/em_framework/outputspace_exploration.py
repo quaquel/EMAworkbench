@@ -1,7 +1,7 @@
 """ Provides a genetic algorithm based on novelty search for output space exploration.
 
 The algorithm is inspired by `Chérel et al (2015) <https://doi.org/10.1371/journal.pone.0138212>`_. In short,
-from Chérel et al, we have taken the idea of the HitBox. Basically, this is an epsilon archive were one
+from Chérel et al, we have taken the idea of the HitBox. Basically, this is an epsilon archive where one
 keeps track of how many solutions have fallen into each grid cell. Next, tournament selection based on novelty is
 used as the selective pressure. Novelty is defined as 1/nr. of solutions in same grid cell. This is then
 combined with auto-adaptive population sizing as used in e-NSGAII. This replaces the use of adaptive Cauchy mutation
@@ -248,10 +248,11 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
 
     Parameters
     ----------
-    problem
-    grid_spec
-    population_size
-    nfe
+    problem : a platypus Problem instance
+    grid_spec : list of tuples
+                with min, max, and epsilon for
+                each outcome of interest
+    population_size : int, optional
 
 
     The algorithm defines novelty using an epsilon-like grid in the output space.
@@ -261,7 +262,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
     mutation.
 
     The epsilon like grid structure for tracking novelty is implemented
-    using an archive, the Hit Box. per epsilon grid cell, a single solution closes
+    using an archive, the Hit Box. Per epsilon grid cell, a single solution closes
     to the centre of the cell is maintained. This makes the algorithm
     behave virtually identical to e-NSGAII. The archive is returned as results
     and epsilon progress is defined.
@@ -304,7 +305,10 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
     The parametrization of all operators is based on the default values as used
     in Borg 1.9.
 
-    Note:: limited to RealParameters only.
+
+    Notes
+    -----
+    Limited to RealParameters only.
 
     """
 
