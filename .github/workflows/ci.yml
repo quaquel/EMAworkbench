@@ -29,12 +29,10 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'pip'
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install pytest pytest-cov coverage coveralls pytest-mock
-        pip install -r requirements.txt
+        pip install .[dev,cov]
     - name: Test with Pytest
       run:
         pytest --ignore=./test/test_connectors -v --cov=ema_workbench/em_framework --cov=ema_workbench/util --cov=ema_workbench/analysis

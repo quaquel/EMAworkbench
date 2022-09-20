@@ -23,7 +23,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install --upgrade build wheel setuptools
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Build distributions
         shell: bash -l {0}
