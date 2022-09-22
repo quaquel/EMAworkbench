@@ -2,13 +2,65 @@
 Installing the workbench
 ************************
 
-
 The 2.x version of the workbench requires Python 3.8 or higher.
+
+Regular installations
+#####################
 
 A stable version of the workbench can be installed via pip. ::
 
 	pip install ema_workbench
-	
+
+This installs the EMAworkbench together with all the bare necessities to run Python models.
+
+If you want to upgrade the workbench from a previous version, add ``-U`` (or ``--upgrade``) to the pip command. ::
+
+	pip install -U ema_workbench
+
+We have a few more install options available, which install optional dependencies not always necessary but either nice to have or for specific functions. These can be installed with so called "extras" using pip.
+
+Therefore we recommended installing with::
+
+	pip install -U ema_workbench[recommended]
+
+Which currently includes everything needed to use the workbench in Jupyter notebooks, with interactive graphs and to successfully complete the tests with pytest.
+
+However, the EMAworkbench can connect to many other simulation software, such as Netlogo, Simio, Vensim (pysd) and Vadere. For these there are also extras available::
+
+	pip install -U ema_workbench[netlogo,simio,pysd]
+
+Note that the Netlogo and Simio extras need Windows as OS.
+
+These extras can be combined. If you're going to work with Netlogo for example, you can do::
+
+	pip install -U ema_workbench[recommended,netlogo]
+
+You can use ``all`` to install all dependencies, except the connectors. Prepare for a large install. ::
+
+	pip install -U ema_workbench[all]
+
+These are all the extras that are available:
+
+- ``jupyter`` installs ``["jupyter", "jupyter_client", "ipython", "ipykernel"]``
+- ``dev`` installs ``["pytest", "jupyter_client", "ipyparallel"]``
+- ``cov`` installs ``["pytest-cov", "coverage", "coveralls"]``
+- ``docs`` installs ``["sphinx", "nbsphinx", "myst", "pyscaffold"]``
+- ``graph`` installs ``["altair", "pydot", "graphviz"]``
+- ``parallel`` installs ``["ipyparallel", "traitlets"]``
+
+- ``netlogo`` installs ``["jpype-1", "pynetlogo"]``
+- ``pysd`` installs ``["pysd"]``
+- ``simio`` installs ``["pythonnet"]``
+
+Then ``recommended`` is currently equivalent to ``jupyter,dev,graph`` and ``all`` installs everything, except the connectors. These are defined in the ``pyproject.toml`` file.
+
+Developer installations
+#######################
+
+As a developer you will want an edible install, in which you can modify the installation itself. This can be done by adding ``-e`` (for edible) to the pip command. ::
+
+	pip install -e ema_workbench
+
 The latest commit on the master branch can be installed with::
 
 	pip install -e git+https://github.com/quaquel/EMAworkbench #egg=ema-workbench
@@ -18,45 +70,12 @@ Or any other (development) branch on this repo or your own fork::
 	pip install -e git+https://github.com/YOUR_FORK/EMAworkbench@YOUR_BRANCH #egg=ema-workbench
 
 The code is also available from `github <https://github.com/quaquel/EMAworkbench>`_.
-The code comes with a `requirements.txt <https://github.com/quaquel/EMAworkbench/blob/master/requirements.txt>`_ file that indicates the key
-dependencies. Basically, if you have a standard scientific computing
-distribution for Python such as the Anaconda distribution, most of the
-dependencies will already be met.
 
+Limitations
+###########
 
-In addition to the libraries available in the default Anaconda distribution,
-there are various optional dependencies. Please follow the installation
-instructions for each of these libraries.
+Some connectors have specific limitations, listed below.
 
-From conda or `conda-forge <https://conda-forge.org/docs/user/introduction.html>`_:
-
-* `altair <https://altair-viz.github.io>`_ for interactive visualizations
-* `ipyparallel <https://ipyparallel.readthedocs.io>`_ for support of interactive multiprocessing within the jupyter notebook. ::
-
-	conda install altair ipyparallel
-
-There are also some pip based dependencies:
-
-* `SALib <https://salib.readthedocs.io/en/latest/>`_ , this is a necessary
-  dependency for advanced senstivity analysis.
-* `platypus-opt <https://github.com/Project-Platypus/Platypus>`_ , this is an
-  optional dependency for many-objective optimization functionality.
-* `pydot <https://pypi.python.org/pypi/pydot/>`_ and  Graphviz for some of the
-  visualizations. ::
-
-	pip install SALib platypus-opt pydot
-
-The various connectors have their own specific requirements.
-
-* Vensim only works on Windows. If you have 64 bit vensim, you need 64 bit Python.
-  If you have 32 bit vensim, you will need 32 bit Python.
+* Vensim only works on Windows. If you have 64-bit Vensim, you need 64-bit Python.
+  If you have 32-bit Vensim, you will need 32-bit Python.
 * Excel also only works on Windows.
-* `jpype-1 <https://jpype.readthedocs.io/en/latest/>`_ and
-  `pynetlogo <https://pynetlogo.readthedocs.io>`_ for NetLogo
-* `pysd <https://pysd.readthedocs.io/en/master/>`_ optional for simple vensim models
-* `pythonnet <https://pypi.org/project/pythonnet/>`_ for Simio
-
-::
-
-	conda install jpype1
-	pip install pynetlogo pysd pythonnet

@@ -25,7 +25,6 @@ from ema_workbench.em_framework.outcomes import (
 from ema_workbench.em_framework.util import NamedObject
 
 
-
 class TestDefaultCallback(unittest.TestCase):
     def test_init(self):
         # let's add some uncertainties to this

@@ -266,7 +266,9 @@ def to_dataframe(optimizer, dvnames, outcome_names):
     """
 
     solutions = []
-    for solution in platypus.unique(platypus.nondominated(optimizer.result)):
+    # for solution in platypus.unique(platypus.nondominated(optimizer.result)):
+    for solution in platypus.unique(optimizer.result):
+
         vars = transform_variables(
             solution.problem, solution.variables  # @ReservedAssignment
         )
@@ -829,6 +831,7 @@ def _optimize(
     nfe,
     convergence_freq,
     logging_freq,
+    variator=None,
     **kwargs,
 ):
     klass = problem.types[0].__class__
@@ -843,10 +846,11 @@ def _optimize(
                 "number of epsilon values does not match number " "of outcomes"
             )
 
-    if all(isinstance(t, klass) for t in problem.types):
-        variator = None
-    else:
-        variator = CombinedVariator()
+    if variator is None:
+        if all(isinstance(t, klass) for t in problem.types):
+            variator = None
+        else:
+            variator = CombinedVariator()
     # mutator = CombinedMutator()
 
     optimizer = algorithm(

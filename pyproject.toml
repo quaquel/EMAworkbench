@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=63.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ema_workbench"
+authors = [
+  { name="Jan Kwakkel", email="j.h.kwakkel@tudelft.nl" },
+]
+description = "Exploratory modelling in Python"
+readme = "README.md"
+license = { file="LICENSE.md" }
+requires-python = ">=3.8"
+classifiers=[
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "salib",
+    "platypus-opt",
+    "matplotlib",
+    "statsmodels",
+    "seaborn",
+    "tqdm",
+]
+dynamic = ["version"] # Version is read from ema_workbench/__init__.py
+
+[tool.setuptools.dynamic]
+version = {attr = "ema_workbench.__version__"}
+
+[tool.setuptools.package-data]
+"ema_workbench.examples.data" = ["**"]
+"ema_workbench.examples.models" = ["**"]
+
+[project.optional-dependencies]
+recommended = ["ema_workbench[jupyter,dev,graph]"]
+all = ["ema_workbench[jupyter,dev,cov,docs,graph,parallel]"]
+
+jupyter = ["jupyter", "jupyter_client", "ipython", "ipykernel"]
+dev = ["pytest", "pytest-mock", "jupyter_client", "ipyparallel"]
+cov = ["pytest-cov", "coverage", "coveralls"]
+docs = ["sphinx", "nbsphinx", "myst", "pyscaffold", "myst-parser"]
+graph = ["altair", "pydot", "graphviz"]
+parallel = ["ipyparallel", "traitlets"]
+
+netlogo = ["jpype-1", "pynetlogo"]  # Needs Windows as OS
+pysd = ["pysd"]
+simio = ["pythonnet"]  # Needs Windows as OS
+
+[project.urls]
+"Homepage" = "https://github.com/quaquel/EMAworkbench"
+"Documentation" = "https://emaworkbench.readthedocs.io/"
+"Bug Tracker" = "https://github.com/quaquel/EMAworkbench/issues"

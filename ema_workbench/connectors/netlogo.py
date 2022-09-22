@@ -14,7 +14,7 @@ substantial overhead.
 from pyNetLogo.core import NetLogoException
 
 from ema_workbench.em_framework.model import Replicator, SingleReplication
-from ema_workbench.em_framework.outcomes import TimeSeriesOutcome
+from ema_workbench.em_framework.outcomes import ArrayOutcome
 from ema_workbench.util.ema_logging import get_module_logger
 
 try:
@@ -58,7 +58,7 @@ class BaseNetLogoModel(FileModel):
     @property
     def ts_output_variables(self):
         if self._ts_output_variables is None:
-            timeseries = [o for o in self.outcomes if isinstance(o, TimeSeriesOutcome)]
+            timeseries = [o for o in self.outcomes if isinstance(o, ArrayOutcome)]
 
             self._ts_output_variables = [
                 var for o in timeseries for var in o.variable_name

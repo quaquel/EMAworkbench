@@ -17,10 +17,11 @@ from ema_workbench import (
     Constant,
     ema_logging,
     MultiprocessingEvaluator,
-    Policy
+    Policy,
 )
 
-from ema_workbench.em_framework.output_space_exploration import OutputSpaceExploration
+from ema_workbench.em_framework.outputspace_exploration import OutputSpaceExploration
+
 
 def lake_problem(
     b=0.42,  # decay rate for P in lake (0.42 = irreversible)
@@ -93,9 +94,7 @@ if __name__ == "__main__":
     ]
 
     # specify outcomes
-    # TODO kind argument can be ignored when doing
-    # output space exploration
-
+    # note that outcomes of kind INFO will be ignored
     lake_model.outcomes = [
         ScalarOutcome("max_P", kind=ScalarOutcome.MAXIMIZE),
         ScalarOutcome("utility", kind=ScalarOutcome.MAXIMIZE),
@@ -108,14 +107,13 @@ if __name__ == "__main__":
 
     # generate some random policies by sampling over levers
     n_scenarios = 1000
-    reference = Policy('nopolicy', **{l.name:0.02 for l in lake_model.levers})
+    reference = Policy("nopolicy", **{l.name: 0.02 for l in lake_model.levers})
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        res = evaluator.optimize(algorithm=OutputSpaceExploration,
-                                 grid_spec=[(0, 12, 0.5),
-                                            (0, 1, 0.1),
-                                            (0, 1, 0.1),
-                                            (0, 1, 0.1)],
-                                 nfe=1000,
-                                 searchover='uncertainties',
-                                 reference=reference)
+        res = evaluator.optimize(
+            algorithm=OutputSpaceExploration,
+            grid_spec=[(0, 12, 0.5), (0, 1, 0.05), (0, 1, 0.1), (0, 1, 0.1)],
+            nfe=1000,
+            searchover="uncertainties",
+            reference=reference,
+        )
