@@ -19,6 +19,7 @@ import functools
 import math
 
 from .optimization import BORGDefaultDescriptor
+from ..util.ema_exceptions import EMAError
 
 from platypus import (
     TournamentSelector,
@@ -157,6 +158,10 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         variator=None,
         **kwargs,
     ):
+        if problem.nobjs != len(grid_spec):
+            raise EMAError(
+                "the number of items in grid_spec does not match the number of objectives"
+            )
         super().__init__(problem, population_size, generator=generator, **kwargs)
         self.archive = HitBox(grid_spec)
         self.selector = TournamentSelector(2, dominance=Novelty(self))
