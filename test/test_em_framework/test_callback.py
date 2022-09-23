@@ -10,7 +10,7 @@ import numpy as np
 import numpy.ma as ma
 
 import ema_workbench.em_framework.callbacks as callbacks
-from ema_workbench.em_framework.callbacks import DefaultCallback
+from ema_workbench.em_framework.callbacks import DefaultCallback, FileBasedCallback
 from ema_workbench.em_framework.parameters import (
     CategoricalParameter,
     RealParameter,
@@ -19,20 +19,13 @@ from ema_workbench.em_framework.parameters import (
 )
 from ema_workbench.em_framework.points import Policy, Scenario, Experiment
 from ema_workbench.util import EMAError
-from ema_workbench.em_framework.outcomes import ScalarOutcome, ArrayOutcome, TimeSeriesOutcome
+from ema_workbench.em_framework.outcomes import (
+    ScalarOutcome,
+    ArrayOutcome,
+    TimeSeriesOutcome,
+)
 from ema_workbench.em_framework.util import NamedObject
 
-
-class TestDefaultCallback(unittest.TestCase):
-    def test_init(self):
-        # let's add some uncertainties to this
-        uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-        outcomes = [
-            ScalarOutcome("scalar"),
-            ArrayOutcome("array", shape=(10,)),
-            TimeSeriesOutcome("timeseries"),
-        ]
-        callback = DefaultCallback(uncs, [], outcomes, nr_experiments=100)
 
 def test_store_results(mocker):
     nr_experiments = 3
@@ -240,3 +233,39 @@ def test_get_results(mocker):
     callback.get_results()
     assert mock.call_count == 0
 
+
+def test_filebasedcallback(mocker):
+    # only most basic assertions are checked
+
+    mock_os = mocker.patch("ema_workbench.em_framework.callbacks.os")
+    mock_shutil = mocker.patch("ema_workbench.em_framework.callbacks.shutil")
+    mock_open = mocker.patch("builtins.open")
+
+    nr_experiments = 3
+    uncs = [
+        RealParameter("a", 0, 1),
+        RealParameter("c", 0, 1),
+    ]
+    levers = [
+        RealParameter("b", 0, 1),
+    ]
+
+    outcomes = [ScalarOutcome("other"), TimeSeriesOutcome("time")]
+
+    model = NamedObject("test")
+    scenario = Scenario(**{"a": random.random()})
+    policy = Policy(name="policy", **{"b": random.random()})
+    experiment = Experiment(0, model.name, policy, scenario, 0)
+
+    callback = FileBasedCallback(
+        uncs, levers, outcomes, nr_experiments=nr_experiments, reporting_interval=1
+    )
+
+    # we should have opened 3 files: experiments and 2 outcome files
+    assert mock_open.call_count == 3
+    assert "other" in callback.outcome_fhs.keys()
+    assert "time" in callback.outcome_fhs.keys()
+
+    callback(experiment, {"other": 1, "time": [1, 2, 3, 4]})
+
+    callback.get_results()
