@@ -286,9 +286,7 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [
-        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
-    ]
+    lake_model.levers = [RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)]
 
     # specify outcomes
     # specify outcomes
@@ -296,9 +294,7 @@ if __name__ == "__main__":
         ScalarOutcome("max_P", kind=ScalarOutcome.MINIMIZE, expected_range=(0, 5)),
         ScalarOutcome("utility", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 2)),
         ScalarOutcome("inertia", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)),
-        ScalarOutcome(
-            "reliability", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)
-        ),
+        ScalarOutcome("reliability", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)),
     ]
 
     convergence_metrics = [
@@ -307,9 +303,7 @@ if __name__ == "__main__":
     ]
 
     constraints = [
-        Constraint(
-            "max pollution", outcome_names="max_P", function=lambda x: max(0, x - 5)
-        )
+        Constraint("max pollution", outcome_names="max_P", function=lambda x: max(0, x - 5))
     ]
 
     with MultiprocessingEvaluator(lake_model) as evaluator:

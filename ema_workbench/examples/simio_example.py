@@ -24,9 +24,7 @@ if __name__ == "__main__":
 
     model.uncertainties = [
         CategoricalParameter("DemandDistributionParameter", (20, 30, 40, 50, 60)),
-        CategoricalParameter(
-            "DemandInterarrivalTime", (0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2)
-        ),
+        CategoricalParameter("DemandInterarrivalTime", (0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2)),
     ]
 
     model.levers = [

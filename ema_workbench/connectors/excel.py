@@ -72,9 +72,7 @@ class BaseExcelModel(FileModel):
 
     com_warning_msg = "com error: no cell(s) named %s found"
 
-    def __init__(
-        self, name, wd=None, model_file=None, default_sheet=None, pointers=None
-    ):
+    def __init__(self, name, wd=None, model_file=None, default_sheet=None, pointers=None):
         super().__init__(name, wd=wd, model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
@@ -266,9 +264,7 @@ class BaseExcelModel(FileModel):
             value = sheet.Range(this_range).Value
         except com_error:
             _logger.warning(
-                "com error: no cell(s) named {} found on sheet {}".format(
-                    this_range, this_sheet
-                ),
+                "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
             )
             value = None
 
@@ -307,9 +303,7 @@ class BaseExcelModel(FileModel):
             sheet.Range(this_range).Value = value
         except com_error:
             _logger.warning(
-                "com error: no cell(s) named {} found on sheet {}".format(
-                    this_range, this_sheet
-                ),
+                "com error: no cell(s) named {} found on sheet {}".format(this_range, this_sheet),
             )
 
     def get_wb_sheetnames(self):

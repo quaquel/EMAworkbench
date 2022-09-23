@@ -70,9 +70,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             ],
             columns=["a", "b", "c"],
         )
-        boxlim = pd.DataFrame(
-            [(1.2, 0, {"a", "b"}), (8.0, 7, {"a", "b"})], columns=["a", "b", "c"]
-        )
+        boxlim = pd.DataFrame([(1.2, 0, {"a", "b"}), (8.0, 7, {"a", "b"})], columns=["a", "b", "c"])
         x["c"] = x["c"].astype("category")
 
         correct_result = x.loc[[2, 3], :]
@@ -115,12 +113,8 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
 
         for i, lims in enumerate([(0, 2 / 3), (0, 1), (0, 0.2)]):
             lower, upper = lims
-            self.assertAlmostEqual(
-                normalized[i, 0], lower, msg="lower unequal for " + uncs[i]
-            )
-            self.assertAlmostEqual(
-                normalized[i, 1], upper, msg="upper unequal for " + uncs[i]
-            )
+            self.assertAlmostEqual(normalized[i, 0], lower, msg="lower unequal for " + uncs[i])
+            self.assertAlmostEqual(normalized[i, 1], upper, msg="upper unequal for " + uncs[i])
 
     def test_determine_restricted_dims(self):
         x = np.random.rand(5, 2)

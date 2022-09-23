@@ -29,9 +29,7 @@ for i in range(100):
     selected_x = x.iloc[indices, :]
     selected_y = y[indices]
 
-    scores = get_ex_feature_scores(
-        selected_x, selected_y, mode=RuleInductionType.REGRESSION
-    )[0]
+    scores = get_ex_feature_scores(selected_x, selected_y, mode=RuleInductionType.REGRESSION)[0]
     all_scores.append(scores)
 all_scores = pd.concat(all_scores, axis=1, sort=False)
 

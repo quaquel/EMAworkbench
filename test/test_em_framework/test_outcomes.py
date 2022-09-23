@@ -49,23 +49,17 @@ class TestScalarOutcome(unittest.TestCase):
             name = "d"
             var_name = "something else"
             function = "not a function"
-            outcome = self.outcome_class(
-                name, variable_name=var_name, function=function
-            )
+            outcome = self.outcome_class(name, variable_name=var_name, function=function)
 
         with self.assertRaises(ValueError):
             name = "e"
             var_name = 1
-            outcome = self.outcome_class(
-                name, variable_name=var_name, function=function
-            )
+            outcome = self.outcome_class(name, variable_name=var_name, function=function)
 
         with self.assertRaises(ValueError):
             name = "f"
             var_name = ["a variable", 1]
-            outcome = self.outcome_class(
-                name, variable_name=var_name, function=function
-            )
+            outcome = self.outcome_class(name, variable_name=var_name, function=function)
 
         name = "g"
         var_name = "something else"
@@ -98,9 +92,7 @@ class TestScalarOutcome(unittest.TestCase):
         function.return_value = 2
         variable_name = ["a", "b"]
 
-        outcome = self.outcome_class(
-            name, function=function, variable_name=variable_name
-        )
+        outcome = self.outcome_class(name, function=function, variable_name=variable_name)
 
         outputs = [1, 2]
         self.assertEqual(outcome.process(outputs), 2)
@@ -113,9 +105,7 @@ class TestScalarOutcome(unittest.TestCase):
             function.return_value = 2
             variable_name = ["a", "b"]
 
-            outcome = self.outcome_class(
-                name, function=function, variable_name=variable_name
-            )
+            outcome = self.outcome_class(name, function=function, variable_name=variable_name)
 
             outcome.process([1])
 
@@ -146,9 +136,7 @@ class TestTimeSeriesOutcome(TestScalarOutcome):
         function.return_value = [2]
         variable_name = ["a", "b"]
 
-        outcome = self.outcome_class(
-            name, function=function, variable_name=variable_name
-        )
+        outcome = self.outcome_class(name, function=function, variable_name=variable_name)
 
         outputs = [1, 2]
         self.assertEqual(outcome.process(outputs), [2])
@@ -161,9 +149,7 @@ class TestTimeSeriesOutcome(TestScalarOutcome):
             function.return_value = [2]
             variable_name = ["a", "b"]
 
-            outcome = self.outcome_class(
-                name, function=function, variable_name=variable_name
-            )
+            outcome = self.outcome_class(name, function=function, variable_name=variable_name)
 
             outcome.process([1])
 

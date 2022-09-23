@@ -72,9 +72,7 @@ def discretize(data, nbins=3, with_labels=False):
             if with_labels:
                 indices = pd.cut(column_data, n, precision=2, retbins=True)[0]
             else:
-                indices = pd.cut(
-                    column_data, n, retbins=False, labels=False, precision=2
-                )
+                indices = pd.cut(column_data, n, retbins=False, labels=False, precision=2)
 
         discretized[column] = indices
 
@@ -165,9 +163,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         ax.set_xticks([])
 
         if plot_labels:
-            tick_locs = np.linspace(
-                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names)
-            )
+            tick_locs = np.linspace(1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names))
             ax.set_yticks(tick_locs)
             ax.set_yticklabels(names)
         else:
@@ -183,9 +179,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         ax.spines["right"].set_linewidth(1.0)
 
         if plot_labels:
-            tick_locs = np.linspace(
-                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names)
-            )
+            tick_locs = np.linspace(1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names))
             ax.set_xticks(tick_locs)
             ax.set_xticklabels(names, rotation="vertical")
         else:
@@ -297,9 +291,7 @@ def plot_pivot_table(
 
         # actual plotting
         plot_data = table.values
-        sns.heatmap(
-            plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, vmin=0, vmax=1, **kwargs
-        )
+        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, vmin=0, vmax=1, **kwargs)
 
         # set the tick labels
         ax_plot.set_xticks([])
@@ -359,9 +351,7 @@ def _prepare_experiments(experiments):
         if np.unique(x[column]).shape == (1,):
             x = x.drop(column, axis=1)
             _logger.info(
-                ("{} dropped from analysis " "because only a single category").format(
-                    column
-                )
+                ("{} dropped from analysis " "because only a single category").format(column)
             )
         else:
             x[column] = x[column].astype("category")
@@ -369,9 +359,7 @@ def _prepare_experiments(experiments):
     return x
 
 
-def create_pivot_plot(
-    x, y, nr_levels=3, labels=True, categories=True, nbins=3, bin_labels=False
-):
+def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True, nbins=3, bin_labels=False):
     """convenience function for easily creating a pivot plot
 
     Parameters
@@ -421,9 +409,7 @@ def create_pivot_plot(
     ooi = pd.DataFrame(y[:, np.newaxis], columns=[ooi_label])
 
     x_y_concat = pd.concat([discretized_x, ooi], axis=1)
-    pvt = pd.pivot_table(
-        x_y_concat, values=ooi_label, index=rows, columns=columns, dropna=False
-    )
+    pvt = pd.pivot_table(x_y_concat, values=ooi_label, index=rows, columns=columns, dropna=False)
 
     fig = plot_pivot_table(pvt, plot_labels=labels, plot_cats=categories)
 

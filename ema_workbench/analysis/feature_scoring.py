@@ -67,9 +67,7 @@ def _prepare_experiments(experiments):
         if np.unique(x[column]).shape == (1,):
             x = x.drop(column, axis=1)
             _logger.info(
-                ("{} dropped from analysis " "because only a single category").format(
-                    column
-                )
+                ("{} dropped from analysis " "because only a single category").format(column)
             )
         else:
             x[column] = x[column].astype("category").cat.codes
@@ -354,9 +352,7 @@ algorithms = {
 }
 
 
-def get_feature_scores_all(
-    x, y, alg="extra trees", mode=RuleInductionType.REGRESSION, **kwargs
-):
+def get_feature_scores_all(x, y, alg="extra trees", mode=RuleInductionType.REGRESSION, **kwargs):
     """perform feature scoring for all outcomes using the specified feature
     scoring algorithm
 

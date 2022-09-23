@@ -246,9 +246,7 @@ def effort_devoted_to_tier_2_leads():
     """
     return np.minimum(
         effort_remaining_after_servicing_existing_clients(),
-        effort_required_to_make_a_sale()
-        * tier_2_leads()
-        / minimum_time_to_make_a_sale(),
+        effort_required_to_make_a_sale() * tier_2_leads() / minimum_time_to_make_a_sale(),
     )
 
 
@@ -297,8 +295,7 @@ def effort_remaining_after_servicing_tier_2_leads():
         activities are complete?
     """
     return np.maximum(
-        effort_remaining_after_servicing_existing_clients()
-        - effort_devoted_to_tier_2_leads(),
+        effort_remaining_after_servicing_existing_clients() - effort_devoted_to_tier_2_leads(),
         0,
     )
 
@@ -1061,9 +1058,7 @@ _integ_total_cumulative_income = Integ(accumulating_income, lambda: 0)
 _integ_months_of_buffer = Integ(lambda: income() - expenses(), initial_buffer)
 
 
-_integ_tier_2_clients = Integ(
-    lambda: tier_2_sales() - tier_2_client_turnover(), lambda: 0
-)
+_integ_tier_2_clients = Integ(lambda: tier_2_sales() - tier_2_client_turnover(), lambda: 0)
 
 
 _integ_tier_2_leads = Integ(
@@ -1078,6 +1073,4 @@ _integ_tier_1_leads = Integ(
 )
 
 
-_integ_tier_1_clients = Integ(
-    lambda: tier_1_sales() - tier_1_client_turnover(), lambda: 0
-)
+_integ_tier_1_clients = Integ(lambda: tier_1_sales() - tier_1_client_turnover(), lambda: 0)

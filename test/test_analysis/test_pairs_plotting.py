@@ -30,9 +30,7 @@ def test_pairs_density():
     pairs_density(experiments, outcomes, colormap="binary")
     plt.draw()
 
-    pairs_density(
-        experiments, outcomes, group_by="policy", grouping_specifiers=["no policy"]
-    )
+    pairs_density(experiments, outcomes, group_by="policy", grouping_specifiers=["no policy"])
     plt.draw()
     plt.close("all")
 

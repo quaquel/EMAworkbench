@@ -89,9 +89,7 @@ class TestPlotting(unittest.TestCase):
 
         # test integer type
         array = experiments["seed PR T1"]
-        grouping_specifiers = make_continuous_grouping_specifiers(
-            array, nr_of_groups=10
-        )
+        grouping_specifiers = make_continuous_grouping_specifiers(array, nr_of_groups=10)
         groups = group_results(
             experiments,
             outcomes,
@@ -271,9 +269,7 @@ class TestPlotting(unittest.TestCase):
         set_fig_to_bw(lines(experiments, new_outcomes, density=Density.VIOLIN)[0])
 
         # grouping and density
-        set_fig_to_bw(
-            lines(experiments, new_outcomes, group_by="policy", density=Density.KDE)[0]
-        )
+        set_fig_to_bw(lines(experiments, new_outcomes, group_by="policy", density=Density.KDE)[0])
 
         # grouping, density as histograms
         # grouping and density
@@ -375,18 +371,10 @@ class TestPlotting(unittest.TestCase):
         plt.draw()
         plt.close("all")
 
-        envelopes(
-            experiments, outcomes, group_by="policy", density=Density.VIOLIN, log=True
-        )
-        envelopes(
-            experiments, outcomes, group_by="policy", density=Density.BOXPLOT, log=True
-        )
-        envelopes(
-            experiments, outcomes, group_by="policy", density=Density.KDE, log=True
-        )
-        envelopes(
-            experiments, outcomes, group_by="policy", density=Density.HIST, log=True
-        )
+        envelopes(experiments, outcomes, group_by="policy", density=Density.VIOLIN, log=True)
+        envelopes(experiments, outcomes, group_by="policy", density=Density.BOXPLOT, log=True)
+        envelopes(experiments, outcomes, group_by="policy", density=Density.KDE, log=True)
+        envelopes(experiments, outcomes, group_by="policy", density=Density.HIST, log=True)
         envelopes(
             experiments,
             outcomes,
@@ -402,18 +390,12 @@ class TestPlotting(unittest.TestCase):
         envelopes(experiments, outcomes, group_by="policy", density=Density.HIST)
         envelopes(experiments, outcomes, group_by="policy", density=Density.HIST)
 
-        set_fig_to_bw(
-            envelopes(experiments, outcomes, group_by="policy", density=Density.KDE)[0]
-        )
+        set_fig_to_bw(envelopes(experiments, outcomes, group_by="policy", density=Density.KDE)[0])
 
         # grouping and density
-        envelopes(
-            experiments, outcomes, group_by="policy", density=Density.KDE, fill=True
-        )
+        envelopes(experiments, outcomes, group_by="policy", density=Density.KDE, fill=True)
         set_fig_to_bw(
-            envelopes(
-                experiments, outcomes, group_by="policy", density=Density.KDE, fill=True
-            )[0]
+            envelopes(experiments, outcomes, group_by="policy", density=Density.KDE, fill=True)[0]
         )
 
         plt.draw()
@@ -437,9 +419,7 @@ class TestPlotting(unittest.TestCase):
         experiments, outcomes = utilities.load_eng_trans_data()
         ooi = "total fraction new technologies"
 
-        multiple_densities(
-            experiments, outcomes, group_by="policy", points_in_time=[2010]
-        )
+        multiple_densities(experiments, outcomes, group_by="policy", points_in_time=[2010])
         multiple_densities(
             experiments,
             outcomes,

@@ -216,9 +216,7 @@ def eijgenraam_model(
     investment = 0
 
     for i in range(len(Xs)):
-        step_cost = exponential_investment_cost(
-            Xs[i], 0 if i == 0 else sum(Xs[:i]), c, b, lam
-        )
+        step_cost = exponential_investment_cost(Xs[i], 0 if i == 0 else sum(Xs[:i]), c, b, lam)
         step_discount = math.exp(-delta * Ts[i])
         investment += step_cost * step_discount
 
@@ -238,13 +236,7 @@ def eijgenraam_model(
     losses = losses * S0 / (beta - delta)
 
     # salvage term
-    losses += (
-        S0
-        * math.exp(beta * T)
-        * math.exp(-theta * sum(Xs))
-        * math.exp(-delta * T)
-        / delta
-    )
+    losses += S0 * math.exp(beta * T) * math.exp(-theta * sum(Xs)) * math.exp(-delta * T) / delta
 
     def find_height(t):
         if t < Ts[0]:
@@ -255,12 +247,9 @@ def eijgenraam_model(
             return sum(Xs[: bisect.bisect_right(Ts, t)])
 
     failure_probability = [
-        P0 * np.exp(alpha * eta * t) * np.exp(-alpha * find_height(t))
-        for t in range(T + 1)
+        P0 * np.exp(alpha * eta * t) * np.exp(-alpha * find_height(t)) for t in range(T + 1)
     ]
-    total_failure = 1 - functools.reduce(
-        operator.mul, [1 - p for p in failure_probability], 1
-    )
+    total_failure = 1 - functools.reduce(operator.mul, [1 - p for p in failure_probability], 1)
     mean_failure = sum(failure_probability) / (T + 1)
     max_failure = max(failure_probability)
 

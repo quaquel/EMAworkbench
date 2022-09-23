@@ -194,9 +194,7 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
             collection.update({"alpha": 1})
 
             for path in collection.get_paths():
-                p1 = mpl.patches.PathPatch(
-                    path, fc="none", hatch=colormap[orig_color]["hatch"]
-                )
+                p1 = mpl.patches.PathPatch(path, fc="none", hatch=colormap[orig_color]["hatch"])
                 ax.add_patch(p1)
                 p1.set_zorder(collection.get_zorder() - 0.1)
 
@@ -335,9 +333,7 @@ def set_fig_to_bw(fig, style=HATCHING, line_style="continuous"):
 
     if len(all_colors) > len(bw_mapping):
         mapping_cycle = itertools.cycle(bw_mapping)
-        _logger.warning(
-            "more colors used than provided in B&W mapping, cycling over mapping"
-        )
+        _logger.warning("more colors used than provided in B&W mapping, cycling over mapping")
     else:
         mapping_cycle = bw_mapping
     colormap = dict(zip(all_colors, mapping_cycle))

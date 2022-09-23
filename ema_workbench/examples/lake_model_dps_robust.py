@@ -111,9 +111,7 @@ def lake_problem(
 
         reliability += np.sum(X < Pcrit) / (nsamples * myears)
         inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples * myears)
-        utility += (
-            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
-        )
+        utility += np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
     max_P = np.max(average_daily_P)
 
     return max_P, utility, inertia, reliability

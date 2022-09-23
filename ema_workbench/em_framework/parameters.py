@@ -124,9 +124,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     def resolution(self, value):
         if value:
             if (min(value) < self.lower_bound) or (max(value) > self.upper_bound):
-                raise ValueError(
-                    "resolution not consistent with lower and " "upper bound"
-                )
+                raise ValueError("resolution not consistent with lower and " "upper bound")
         self._resolution = value
 
     def __init__(
@@ -158,9 +156,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         **kwargs : valid keyword arguments for Parameter instance
 
         """
-        assert isinstance(
-            dist, sp.stats._distn_infrastructure.rv_frozen
-        )  # @UndefinedVariable
+        assert isinstance(dist, sp.stats._distn_infrastructure.rv_frozen)  # @UndefinedVariable
         self = cls.__new__(cls)
         self.dist = dist
         self.name = name
@@ -246,9 +242,7 @@ class RealParameter(Parameter):
             pff=pff,
         )
 
-        self.dist = sp.stats.uniform(
-            lower_bound, upper_bound - lower_bound
-        )  # @UndefinedVariable
+        self.dist = sp.stats.uniform(lower_bound, upper_bound - lower_bound)  # @UndefinedVariable
 
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
@@ -309,9 +303,7 @@ class IntegerParameter(Parameter):
         self.lower_bound = int(lower_bound)
         self.upper_bound = int(upper_bound)
 
-        self.dist = sp.stats.randint(
-            self.lower_bound, self.upper_bound + 1
-        )  # @UndefinedVariable
+        self.dist = sp.stats.randint(self.lower_bound, self.upper_bound + 1)  # @UndefinedVariable
 
         try:
             for idx, entry in enumerate(self.resolution):
@@ -434,9 +426,7 @@ class CategoricalParameter(IntegerParameter):
         # TODO:: how to handle this
         # probably need to pass categories as list and zip
         # categories to integers implied by dist
-        raise NotImplementedError(
-            "custom distributions over categories " "not supported yet"
-        )
+        raise NotImplementedError("custom distributions over categories " "not supported yet")
 
 
 class BooleanParameter(CategoricalParameter):

@@ -156,9 +156,7 @@ def envelopes(
                 log,
             )
         else:
-            single_envelope(
-                outcomes, outcome_to_plot, time, density, ax, ax_d, fill, log
-            )
+            single_envelope(outcomes, outcome_to_plot, time, density, ax, ax_d, fill, log)
 
         if ax_d:
             for tl in ax_d.get_yticklabels():
@@ -189,9 +187,7 @@ def envelopes(
     return figure, axes_dict
 
 
-def group_by_envelopes(
-    outcomes, outcome_to_plot, time, density, ax, ax_d, fill, group_labels, log
-):
+def group_by_envelopes(outcomes, outcome_to_plot, time, density, ax, ax_d, fill, group_labels, log):
     """Helper function responsible for generating an envelope plot
     based on a grouping.
 
@@ -384,9 +380,7 @@ def lines(
                 tl.set_visible(False)
 
         if group_by:
-            group_by_lines(
-                outcomes, outcome_to_plot, time, density, ax, ax_d, grouping_labels, log
-            )
+            group_by_lines(outcomes, outcome_to_plot, time, density, ax, ax_d, grouping_labels, log)
         else:
             simple_lines(outcomes, outcome_to_plot, time, density, ax, ax_d, log)
         ax.set_xlabel(TIME_LABEL)
@@ -513,9 +507,7 @@ def plot_lines_with_envelopes(
                 ax.plot(time.T[:, np.newaxis], value.T, c=get_color(j))
 
             if density:
-                group_density(
-                    ax_d, density, full_outcomes, outcome_to_plot, grouping_labels, log
-                )
+                group_density(ax_d, density, full_outcomes, outcome_to_plot, grouping_labels, log)
 
                 ax_d.get_yaxis().set_view_interval(
                     ax.get_yaxis().get_view_interval()[0],
@@ -554,9 +546,7 @@ def plot_lines_with_envelopes(
     return figure, axes_dict
 
 
-def group_by_lines(
-    outcomes, outcome_to_plot, time, density, ax, ax_d, group_by_labels, log
-):
+def group_by_lines(outcomes, outcome_to_plot, time, density, ax, ax_d, group_by_labels, log):
     """
 
     Helper function responsible for generating a grouped lines plot.
@@ -681,9 +671,7 @@ def kde_over_time(
         figures = []
         axes_dicts = {}
         for key, value in outcomes.items():
-            fig, axes_dict = simple_kde(
-                value, outcomes_to_show, colormap, log, minima, maxima
-            )
+            fig, axes_dict = simple_kde(value, outcomes_to_show, colormap, log, minima, maxima)
             fig.suptitle(key)
             figures.append(fig)
             axes_dicts[key] = axes_dict

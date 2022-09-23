@@ -57,9 +57,7 @@ class ScarcityModel(VensimModel):
         scale = kwargs.pop("lookup approximated learning speed")
         speed = kwargs.pop("lookup approximated learning scale")
         start = kwargs.pop("lookup approximated learning start")
-        lookup = [
-            self.approxLearning(x, speed, scale, start) for x in range(0, 101, 10)
-        ]
+        lookup = [self.approxLearning(x, speed, scale, start) for x in range(0, 101, 10)]
         kwargs["approximated learning effect lookup"] = lookup
 
         super().run_model(kwargs, policy)
@@ -68,9 +66,7 @@ class ScarcityModel(VensimModel):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.DEBUG)
 
-    model = ScarcityModel(
-        "scarcity", wd=r"./models/scarcity", model_file=r"\MetalsEMA.vpm"
-    )
+    model = ScarcityModel("scarcity", wd=r"./models/scarcity", model_file=r"\MetalsEMA.vpm")
 
     model.outcomes = [
         TimeSeriesOutcome("relative market price"),

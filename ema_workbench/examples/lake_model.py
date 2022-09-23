@@ -87,9 +87,7 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [
-        RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)
-    ]
+    lake_model.levers = [RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)]
 
     # specify outcomes
     lake_model.outcomes = [
@@ -107,6 +105,4 @@ if __name__ == "__main__":
     n_policies = 4
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        res = evaluator.perform_experiments(
-            n_scenarios, n_policies, lever_sampling=Samplers.MC
-        )
+        res = evaluator.perform_experiments(n_scenarios, n_policies, lever_sampling=Samplers.MC)

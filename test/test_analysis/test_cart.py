@@ -57,9 +57,7 @@ class CartTestCase(unittest.TestCase):
             y[k] = v[:, -1]
 
         temp_results = (x, y)
-        alg = cart.setup_cart(
-            temp_results, "deceased population region 1", mass_min=0.05
-        )
+        alg = cart.setup_cart(temp_results, "deceased population region 1", mass_min=0.05)
         self.assertTrue(alg.mode == RuleInductionType.REGRESSION)
 
         n_cols = 5
@@ -165,9 +163,7 @@ class CartTestCase(unittest.TestCase):
             y[k] = v
 
         temp_results = (x, y)
-        alg = cart.setup_cart(
-            temp_results, "deceased population region 1", mass_min=0.05
-        )
+        alg = cart.setup_cart(temp_results, "deceased population region 1", mass_min=0.05)
         alg.build_tree()
         self.assertTrue(isinstance(alg.clf, cart.tree.DecisionTreeRegressor))
 

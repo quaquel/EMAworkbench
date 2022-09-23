@@ -196,9 +196,7 @@ def log_to_stderr(level=None):
 
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
-        if (isinstance(entry, logging.StreamHandler)) and (
-            entry.formatter._fmt == LOG_FORMAT
-        ):
+        if (isinstance(entry, logging.StreamHandler)) and (entry.formatter._fmt == LOG_FORMAT):
             return logger
 
     formatter = logging.Formatter(LOG_FORMAT)

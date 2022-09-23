@@ -200,9 +200,7 @@ class BaseVadereModel(FileModel):
         scalar_res = []
         for file in self.processor_files:
             if file.endswith(".csv"):
-                timeseries_res[file] = pd.read_csv(
-                    os.path.join(output_dir, file), sep=" "
-                )
+                timeseries_res[file] = pd.read_csv(os.path.join(output_dir, file), sep=" ")
             if file.endswith(".txt"):
                 scalar_res.append(os.path.join(output_dir, file))
 

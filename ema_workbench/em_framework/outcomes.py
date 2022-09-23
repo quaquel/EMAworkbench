@@ -50,9 +50,7 @@ class Register:
         if outcome.name not in self.outcomes:
             self.outcomes[outcome.name] = outcome.__class__
         elif not isinstance(outcome, self.outcomes[outcome.name]):
-            raise ValueError(
-                "outcome with this name but of different class " "already exists"
-            )
+            raise ValueError("outcome with this name but of different class " "already exists")
         else:
             pass  # multiple instances of the same class and name is fine
 
@@ -73,9 +71,7 @@ class Register:
         try:
             stream, extension = self.outcomes[name].to_disk(values)
         except KeyError:
-            _logger.warning(
-                "outcome not defined, falling back on " "ArrayOutcome.to_disk"
-            )
+            _logger.warning("outcome not defined, falling back on " "ArrayOutcome.to_disk")
             stream, extension = ArrayOutcome.to_disk(values)
 
         return stream, f"{name}.{extension}"
@@ -186,9 +182,7 @@ class AbstractOutcome(Variable):
                 return self.function(*values)
         else:
             if len(values) > 1:
-                raise EMAError(
-                    "more than one value returned without " "processing function"
-                )
+                raise EMAError("more than one value returned without " "processing function")
 
             return values[0]
 
@@ -321,8 +315,7 @@ class ScalarOutcome(AbstractOutcome):
         values = super().process(values)
         if not isinstance(values, numbers.Number):
             raise EMAError(
-                f"outcome {self.name} should be a scalar, but is"
-                f" {type(values)}: {values}"
+                f"outcome {self.name} should be a scalar, but is" f" {type(values)}: {values}"
             )
         return values
 
@@ -389,9 +382,7 @@ class ArrayOutcome(AbstractOutcome):
 
     """
 
-    def __init__(
-        self, name, variable_name=None, function=None, expected_range=None, shape=None
-    ):
+    def __init__(self, name, variable_name=None, function=None, expected_range=None, shape=None):
         super().__init__(
             name,
             variable_name=variable_name,
@@ -480,9 +471,7 @@ class TimeSeriesOutcome(ArrayOutcome):
 
     """
 
-    def __init__(
-        self, name, variable_name=None, function=None, expected_range=None, shape=None
-    ):
+    def __init__(self, name, variable_name=None, function=None, expected_range=None, shape=None):
         super().__init__(
             name,
             variable_name=variable_name,

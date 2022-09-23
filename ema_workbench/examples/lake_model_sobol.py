@@ -82,14 +82,10 @@ def analyze(results, ooi):
     problem = get_SALib_problem(lake_model.uncertainties)
     y = outcomes[ooi]
     sobol_indices = sobol.analyze(problem, y)
-    sobol_stats = {
-        key: sobol_indices[key] for key in ["ST", "ST_conf", "S1", "S1_conf"]
-    }
+    sobol_stats = {key: sobol_indices[key] for key in ["ST", "ST_conf", "S1", "S1_conf"]}
     sobol_stats = pd.DataFrame(sobol_stats, index=problem["names"])
     sobol_stats.sort_values(by="ST", ascending=False)
-    s2 = pd.DataFrame(
-        sobol_indices["S2"], index=problem["names"], columns=problem["names"]
-    )
+    s2 = pd.DataFrame(sobol_indices["S2"], index=problem["names"], columns=problem["names"])
     s2_conf = pd.DataFrame(
         sobol_indices["S2_conf"], index=problem["names"], columns=problem["names"]
     )
@@ -114,9 +110,7 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [
-        RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)
-    ]
+    lake_model.levers = [RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)]
 
     # specify outcomes
     lake_model.outcomes = [

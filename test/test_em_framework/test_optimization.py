@@ -111,9 +111,7 @@ class TestOptimization(unittest.TestCase):
 
         for i, entry in enumerate(data):
             self.assertListEqual(list(df.loc[i, dvnames].values), entry.variables)
-            self.assertListEqual(
-                list(df.loc[i, outcome_names].values), entry.objectives
-            )
+            self.assertListEqual(list(df.loc[i, outcome_names].values), entry.objectives)
 
     @mock.patch("ema_workbench.em_framework.optimization.platypus")
     def test_to_platypus_types(self, mocked_platypus):
@@ -178,12 +176,8 @@ class TestRobustOptimization(unittest.TestCase):
 
         scenarios = 5
         robustness_functions = [
-            ScalarOutcome(
-                "mean x", variable_name="x", function=mock.Mock(), kind="maximize"
-            ),
-            ScalarOutcome(
-                "mean y", variable_name="y", function=mock.Mock(), kind="maximize"
-            ),
+            ScalarOutcome("mean x", variable_name="x", function=mock.Mock(), kind="maximize"),
+            ScalarOutcome("mean y", variable_name="y", function=mock.Mock(), kind="maximize"),
         ]
 
         problem = to_robust_problem(mocked_model, scenarios, robustness_functions)

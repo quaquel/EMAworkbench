@@ -155,9 +155,7 @@ def _determine_restricted_dims(box_limits, box_init):
 
     """
     cols = box_init.columns.values
-    restricted_dims = cols[
-        np.all(box_init.values == box_limits.values, axis=0) == False
-    ]
+    restricted_dims = cols[np.all(box_init.values == box_limits.values, axis=0) == False]
     #     restricted_dims = [column for column in box_init.columns if not
     #            np.all(box_init[column].values == box_limits[column].values)]
     return restricted_dims
@@ -193,9 +191,7 @@ def _compare(a, b):
     logical = np.ones((len(dtypesDesc)), dtype=bool)
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
-        logical[i] = (
-            logical[i] & (a[name][0] == b[name][0]) & (a[name][1] == b[name][1])
-        )
+        logical[i] = logical[i] & (a[name][0] == b[name][0]) & (a[name][1] == b[name][1])
     return logical
 
 
@@ -399,9 +395,7 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):
                 width = xlim[1] - xlim[0]
 
             xy = x, y
-            box = patches.Rectangle(
-                xy, width, height, edgecolor="red", facecolor="none", lw=3
-            )
+            box = patches.Rectangle(xy, width, height, edgecolor="red", facecolor="none", lw=3)
             ax.add_patch(box)
 
     # do the yticklabeling for categorical rows
@@ -642,15 +636,11 @@ def plot_ppt(peeling_trajectory):
 
     fig = plt.gcf()
 
-    make_legend(
-        ["mean", "mass", "coverage", "density", "restricted_dim"], ax, ncol=5, alpha=1
-    )
+    make_legend(["mean", "mass", "coverage", "density", "restricted_dim"], ax, ncol=5, alpha=1)
     return fig
 
 
-def plot_tradeoff(
-    peeling_trajectory, cmap=mpl.cm.viridis, annotated=False
-):  # @UndefinedVariable
+def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
     """Visualize the trade off between coverage and density. Color
     is used to denote the number of restricted dimensions.
 
@@ -695,9 +685,7 @@ def plot_tradeoff(
     return fig
 
 
-def plot_unc(
-    box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=sns.color_palette()[0]
-):
+def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=sns.color_palette()[0]):
     """
 
     Parameters:
