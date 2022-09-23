@@ -297,10 +297,7 @@ if __name__ == "__main__":
         ScalarOutcome("reliability", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)),
     ]
 
-    convergence_metrics = [
-        HyperVolume.from_outcomes(lake_model.outcomes),
-        EpsilonProgress(),
-    ]
+    convergence_metrics = [HyperVolume.from_outcomes(lake_model.outcomes), EpsilonProgress()]
 
     constraints = [
         Constraint("max pollution", outcome_names="max_P", function=lambda x: max(0, x - 5))

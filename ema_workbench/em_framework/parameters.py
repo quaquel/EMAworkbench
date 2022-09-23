@@ -347,13 +347,7 @@ class CategoricalParameter(IntegerParameter):
         self._categories.extend(values)
 
     def __init__(
-        self,
-        name,
-        categories,
-        default=None,
-        variable_name=None,
-        pff=False,
-        multivalue=False,
+        self, name, categories, default=None, variable_name=None, pff=False, multivalue=False
     ):
         lower_bound = 0
         upper_bound = len(categories) - 1
@@ -444,11 +438,7 @@ class BooleanParameter(CategoricalParameter):
 
     def __init__(self, name, default=None, variable_name=None, pff=False):
         super().__init__(
-            name,
-            categories=[True, False],
-            default=default,
-            variable_name=variable_name,
-            pff=pff,
+            name, categories=[True, False], default=default, variable_name=variable_name, pff=pff
         )
 
 

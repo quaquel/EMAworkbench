@@ -38,14 +38,7 @@ class Burnout(VensimModel):
             ),
             LookupUncertainty(
                 "hearne2",
-                [
-                    (-0.75, 0.75),
-                    (-0.75, 0.75),
-                    (0, 1.5),
-                    (0.1, 1.6),
-                    (-0.3, 1.5),
-                    (0.25, 2.5),
-                ],
+                [(-0.75, 0.75), (-0.75, 0.75), (0, 1.5), (0.1, 1.6), (-0.3, 1.5), (0.25, 2.5)],
                 "fractional change in expectations from perceived adequacy lookup",
                 self,
                 -1,

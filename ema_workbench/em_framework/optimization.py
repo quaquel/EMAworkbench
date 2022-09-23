@@ -14,12 +14,7 @@ import pandas as pd
 from . import callbacks, evaluators
 from .points import Scenario, Policy
 from .outcomes import AbstractOutcome
-from .parameters import (
-    IntegerParameter,
-    RealParameter,
-    CategoricalParameter,
-    BooleanParameter,
-)
+from .parameters import IntegerParameter, RealParameter, CategoricalParameter, BooleanParameter
 from .samplers import determine_parameters
 from .util import determine_objects, ProgressTrackingMixIn
 from ..util import get_module_logger, EMAError, temporary_filter, INFO
@@ -556,14 +551,7 @@ class Convergence(ProgressTrackingMixIn):
 
     valid_metrics = {"hypervolume", "epsilon_progress", "archive_logger"}
 
-    def __init__(
-        self,
-        metrics,
-        max_nfe,
-        convergence_freq=1000,
-        logging_freq=5,
-        log_progress=False,
-    ):
+    def __init__(self, metrics, max_nfe, convergence_freq=1000, logging_freq=5, log_progress=False):
         super().__init__(
             max_nfe,
             logging_freq,
@@ -748,7 +736,11 @@ class CombinedVariator(Variator):
         Subset: crossover_categorical,
     }
 
-    _mutate = {Real: mutate_real, Integer: mutate_integer, Subset: mutate_categorical}
+    _mutate = {
+        Real: mutate_real,
+        Integer: mutate_integer,
+        Subset: mutate_categorical,
+    }
 
 
 class CombinedMutator(CombinedVariator):

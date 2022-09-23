@@ -122,13 +122,7 @@ class AbstractOutcome(Variable):
     INFO = 0
 
     def __init__(
-        self,
-        name,
-        kind=INFO,
-        variable_name=None,
-        function=None,
-        expected_range=None,
-        shape=None,
+        self, name, kind=INFO, variable_name=None, function=None, expected_range=None, shape=None
     ):
         super().__init__(name)
 
@@ -148,9 +142,7 @@ class AbstractOutcome(Variable):
 
         if variable_name:
             if isinstance(variable_name, str):
-                variable_name = [
-                    variable_name,
-                ]
+                variable_name = [variable_name]
 
             self.variable_name = tuple(variable_name)
         else:
@@ -552,10 +544,7 @@ class Constraint(ScalarOutcome):
         variable_names = parameter_names + outcome_names
 
         super().__init__(
-            name,
-            kind=AbstractOutcome.INFO,
-            variable_name=variable_names,
-            function=function,
+            name, kind=AbstractOutcome.INFO, variable_name=variable_names, function=function
         )
 
         self.parameter_names = parameter_names

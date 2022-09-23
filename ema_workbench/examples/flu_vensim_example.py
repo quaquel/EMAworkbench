@@ -30,9 +30,7 @@ if __name__ == "__main__":
         TimeSeriesOutcome("deceased population region 1"),
         TimeSeriesOutcome("infected fraction R1"),
         ScalarOutcome(
-            "max infection fraction",
-            variable_name="infected fraction R1",
-            function=np.max,
+            "max infection fraction", variable_name="infected fraction R1", function=np.max
         ),
     ]
 

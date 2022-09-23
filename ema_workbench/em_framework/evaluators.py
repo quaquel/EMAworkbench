@@ -738,14 +738,7 @@ def optimize(
         evaluator = SequentialEvaluator(models)
 
     return _optimize(
-        problem,
-        evaluator,
-        algorithm,
-        convergence,
-        nfe,
-        convergence_freq,
-        logging_freq,
-        **kwargs,
+        problem, evaluator, algorithm, convergence, nfe, convergence_freq, logging_freq, **kwargs
     )
 
 
@@ -797,10 +790,7 @@ def robust_optimize(
         assert rf.function is not None
 
     problem = to_robust_problem(
-        model,
-        scenarios,
-        constraints=constraints,
-        robustness_functions=robustness_functions,
+        model, scenarios, constraints=constraints, robustness_functions=robustness_functions
     )
 
     # solve the optimization problem

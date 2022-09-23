@@ -57,12 +57,7 @@ class TestEvaluators(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
     @mock.patch("ema_workbench.em_framework.evaluators.experiment_generator")
     def test_ipyparallel_evaluator(
-        self,
-        mocked_generator,
-        mocked_callback,
-        mocked_start,
-        mocked_initialize,
-        mocked_set,
+        self, mocked_generator, mocked_callback, mocked_start, mocked_initialize, mocked_set
     ):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"

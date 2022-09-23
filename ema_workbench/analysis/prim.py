@@ -368,16 +368,7 @@ class PrimBox:
         self._resampled = []
         self.yi_initial = indices[:]
 
-        columns = [
-            "name",
-            "lower",
-            "upper",
-            "minimum",
-            "maximum",
-            "qp_lower",
-            "qp_upper",
-            "id",
-        ]
+        columns = ["name", "lower", "upper", "minimum", "maximum", "qp_lower", "qp_upper", "id"]
         self.boxes_quantitative = pd.DataFrame(columns=columns)
 
         columns = ["item", "name", "n_items", "x", "id"]
@@ -559,11 +550,7 @@ class PrimBox:
                     # unless we can force a selection?
                     name = f"{dim}, {qp.loc[qp.index[0], dim]: .2g}"
                     entry = dict(
-                        name=name,
-                        n_items=len(items) + 1,
-                        item=item,
-                        id=int(i),
-                        x=j / len(items),
+                        name=name, n_items=len(items) + 1, item=item, id=int(i), x=j / len(items)
                     )
                     nominal_vars.append(entry)
 
@@ -988,10 +975,7 @@ class Prim(sdutil.OutputFormatterMixin):
         mode=sdutil.RuleInductionType.BINARY,
         update_function="default",
     ):
-        assert mode in {
-            sdutil.RuleInductionType.BINARY,
-            sdutil.RuleInductionType.REGRESSION,
-        }
+        assert mode in {sdutil.RuleInductionType.BINARY, sdutil.RuleInductionType.REGRESSION}
         assert self._assert_mode(y, mode, update_function)
         # preprocess x
         try:
@@ -1207,7 +1191,7 @@ class Prim(sdutil.OutputFormatterMixin):
         # identify all possible peels
         possible_peels = []
 
-        for x, columns, dtype, in [
+        for x, columns, dtype in [
             (x_float, self.x_float_colums, "float"),
             (x_int, self.x_int_columns, "int"),
             (x_nominal, self.x_nominal_columns, "object"),
@@ -1421,7 +1405,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
         # identify all possible pastes
         possible_pastes = []
-        for columns, dtype, in [
+        for columns, dtype in [
             (self.x_float_colums, "float"),
             (self.x_int_columns, "int"),
             (self.x_nominal_columns, "object"),

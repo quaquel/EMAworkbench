@@ -809,10 +809,7 @@ class OutputFormatterMixin:
 
         columns = pd.MultiIndex.from_product([index, ["min", "max"]])
         df_boxes = pd.DataFrame(
-            np.zeros((len(uncs), nr_boxes * 2)),
-            index=uncs,
-            dtype=dtype,
-            columns=columns,
+            np.zeros((len(uncs), nr_boxes * 2)), index=uncs, dtype=dtype, columns=columns
         )
 
         # TODO should be possible to make more efficient

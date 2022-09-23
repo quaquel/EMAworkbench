@@ -276,12 +276,7 @@ def plot_pivot_table(
         height_ratios = dim_ratios(figsize=figsize, axis=0)
 
         gs = mpl.gridspec.GridSpec(
-            3,
-            3,
-            wspace=0.01,
-            hspace=0.01,
-            width_ratios=width_ratios,
-            height_ratios=height_ratios,
+            3, 3, wspace=0.01, hspace=0.01, width_ratios=width_ratios, height_ratios=height_ratios
         )
 
         ax_plot = fig.add_subplot(gs[2, 2])

@@ -35,18 +35,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         self.assertTrue(np.all(correct_result == result.values))
 
         x = pd.DataFrame(
-            [
-                (0, 0),
-                (1, 1),
-                (2, 2),
-                (3, 3),
-                (4, 4),
-                (5, 5),
-                (6, 6),
-                (7, 7),
-                (8, 8),
-                (9, 9),
-            ],
+            [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)],
             columns=["a", "b"],
         )
         boxlim = pd.DataFrame([(1, 0), (8, 7)], columns=["a", "b"])
@@ -340,8 +329,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             [[{"b"}, {"b"}, {"a"}, {"a"}], [0.5, 1, 0.1, 0.5]],
             index=["c", "a"],
             columns=pd.MultiIndex(
-                levels=[["box 1", "box 2"], ["max", "min"]],
-                codes=[[0, 0, 1, 1], [1, 0, 1, 0]],
+                levels=[["box 1", "box 2"], ["max", "min"]], codes=[[0, 0, 1, 1], [1, 0, 1, 0]]
             ),
         )
         self.assertTrue(expected_boxes.equals(boxes))
@@ -349,9 +337,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         # check stats
         stats = formatter.stats_to_dataframe()
         expected_stats = pd.DataFrame(
-            [[0.5, 1], [0.5, 1]],
-            index=["box 1", "box 2"],
-            columns=["coverage", "density"],
+            [[0.5, 1], [0.5, 1]], index=["box 1", "box 2"], columns=["coverage", "density"]
         )
 
         self.assertTrue(expected_stats.equals(stats))

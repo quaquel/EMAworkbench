@@ -50,11 +50,7 @@ class MockProcessLauncher(LocalProcessLauncher):
             # Store stdout & stderr to show with failing tests.
             # This is defined in IPython.testing.iptest
             self.process = Popen(
-                self.args,
-                stdout=blackhole,
-                stderr=STDOUT,
-                env=os.environ,
-                cwd=self.work_dir,
+                self.args, stdout=blackhole, stderr=STDOUT, env=os.environ, cwd=self.work_dir
             )
             self.notify_start(self.process.pid)
             self.poll = self.process.poll

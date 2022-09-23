@@ -322,8 +322,7 @@ def simple_density(density, value, ax_d, ax, log):
         ax.get_yaxis().get_view_interval()[0], ax.get_yaxis().get_view_interval()[1]
     )
     ax_d.set_ylim(
-        bottom=ax.get_yaxis().get_view_interval()[0],
-        top=ax.get_yaxis().get_view_interval()[1],
+        bottom=ax.get_yaxis().get_view_interval()[0], top=ax.get_yaxis().get_view_interval()[1]
     )
 
     ax_d.set_xlabel("")
@@ -676,13 +675,7 @@ def prepare_pairs_data(
         raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
 
     experiments, outcomes, outcomes_to_show, time, grouping_labels = prepare_data(
-        experiments,
-        None,
-        outcomes,
-        outcomes_to_show,
-        group_by,
-        grouping_specifiers,
-        filter_scalar,
+        experiments, None, outcomes, outcomes_to_show, group_by, grouping_specifiers, filter_scalar
     )
 
     def filter_outcomes(outcomes, point_in_time):

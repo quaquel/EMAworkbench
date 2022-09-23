@@ -21,13 +21,7 @@ from .em_framework import (
     ArrayOutcome,
     Samplers,
 )
-from .util import (
-    save_results,
-    load_results,
-    ema_logging,
-    EMAError,
-    process_replications,
-)
+from .util import save_results, load_results, ema_logging, EMAError, process_replications
 
 # from . import analysis
 

@@ -162,11 +162,7 @@ class MorrisSampler(SALibSampler):
 
     def sample(self, problem, size):
         return morris.sample(
-            problem,
-            size,
-            self.num_levels,
-            self.optimal_trajectories,
-            self.local_optimization,
+            problem, size, self.num_levels, self.optimal_trajectories, self.local_optimization
         )
 
 

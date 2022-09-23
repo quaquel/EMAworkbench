@@ -274,13 +274,9 @@ class TestPlotting(unittest.TestCase):
         # grouping, density as histograms
         # grouping and density
         set_fig_to_bw(
-            lines(
-                experiments,
-                new_outcomes,
-                group_by="policy",
-                density=Density.HIST,
-                legend=False,
-            )[0]
+            lines(experiments, new_outcomes, group_by="policy", density=Density.HIST, legend=False)[
+                0
+            ]
         )
 
         plt.draw()
@@ -296,10 +292,7 @@ class TestPlotting(unittest.TestCase):
         envelopes(experiments, outcomes, density=None, titles=None)
         envelopes(experiments, outcomes, density=None, titles={})
         envelopes(
-            experiments,
-            outcomes,
-            density=None,
-            titles={"total fraction new technologies": "a"},
+            experiments, outcomes, density=None, titles={"total fraction new technologies": "a"}
         )
 
         plt.draw()
@@ -309,10 +302,7 @@ class TestPlotting(unittest.TestCase):
         envelopes(experiments, outcomes, density=None, ylabels=None)
         envelopes(experiments, outcomes, density=None, ylabels={})
         envelopes(
-            experiments,
-            outcomes,
-            density=None,
-            ylabels={"total fraction new technologies": "a"},
+            experiments, outcomes, density=None, ylabels={"total fraction new technologies": "a"}
         )
 
         plt.draw()
@@ -375,13 +365,7 @@ class TestPlotting(unittest.TestCase):
         envelopes(experiments, outcomes, group_by="policy", density=Density.BOXPLOT, log=True)
         envelopes(experiments, outcomes, group_by="policy", density=Density.KDE, log=True)
         envelopes(experiments, outcomes, group_by="policy", density=Density.HIST, log=True)
-        envelopes(
-            experiments,
-            outcomes,
-            group_by="policy",
-            density=Density.BOXENPLOT,
-            log=True,
-        )
+        envelopes(experiments, outcomes, group_by="policy", density=Density.BOXENPLOT, log=True)
 
         plt.draw()
         plt.close("all")
@@ -421,11 +405,7 @@ class TestPlotting(unittest.TestCase):
 
         multiple_densities(experiments, outcomes, group_by="policy", points_in_time=[2010])
         multiple_densities(
-            experiments,
-            outcomes,
-            outcomes_to_show=ooi,
-            group_by="policy",
-            points_in_time=[2010],
+            experiments, outcomes, outcomes_to_show=ooi, group_by="policy", points_in_time=[2010]
         )
         multiple_densities(
             experiments,

@@ -130,10 +130,7 @@ class TestOptimization(unittest.TestCase):
     def test_to_problem(self, mocked_platypus):
         mocked_model = Model("test", function=mock.Mock())
         mocked_model.levers = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-        mocked_model.uncertainties = [
-            RealParameter("c", 0, 1),
-            RealParameter("d", 0, 1),
-        ]
+        mocked_model.uncertainties = [RealParameter("c", 0, 1), RealParameter("d", 0, 1)]
         mocked_model.outcomes = [ScalarOutcome("x", kind=1), ScalarOutcome("y", kind=1)]
 
         searchover = "levers"
@@ -168,10 +165,7 @@ class TestRobustOptimization(unittest.TestCase):
     def test_to_robust_problem(self, mocked_platypus):
         mocked_model = Model("test", function=mock.Mock())
         mocked_model.levers = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-        mocked_model.uncertainties = [
-            RealParameter("c", 0, 1),
-            RealParameter("d", 0, 1),
-        ]
+        mocked_model.uncertainties = [RealParameter("c", 0, 1), RealParameter("d", 0, 1)]
         mocked_model.outcomes = [ScalarOutcome("x"), ScalarOutcome("y")]
 
         scenarios = 5

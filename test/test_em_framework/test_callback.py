@@ -17,11 +17,7 @@ from ema_workbench.em_framework.parameters import (
 )
 from ema_workbench.em_framework.points import Policy, Scenario, Experiment
 from ema_workbench.util import EMAError
-from ema_workbench.em_framework.outcomes import (
-    ScalarOutcome,
-    ArrayOutcome,
-    TimeSeriesOutcome,
-)
+from ema_workbench.em_framework.outcomes import ScalarOutcome, ArrayOutcome, TimeSeriesOutcome
 from ema_workbench.em_framework.util import NamedObject
 
 

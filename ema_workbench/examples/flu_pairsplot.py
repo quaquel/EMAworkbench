@@ -7,11 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ema_workbench import load_results, ema_logging
-from ema_workbench.analysis.pairs_plotting import (
-    pairs_lines,
-    pairs_scatter,
-    pairs_density,
-)
+from ema_workbench.analysis.pairs_plotting import pairs_lines, pairs_scatter, pairs_density
 
 ema_logging.log_to_stderr(level=ema_logging.DEFAULT_LEVEL)
 

@@ -8,12 +8,7 @@ example
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 """
-from ema_workbench import (
-    TimeSeriesOutcome,
-    perform_experiments,
-    RealParameter,
-    ema_logging,
-)
+from ema_workbench import TimeSeriesOutcome, perform_experiments, RealParameter, ema_logging
 
 from ema_workbench.connectors.vensim import VensimModel
 
@@ -24,10 +19,7 @@ if __name__ == "__main__":
     # instantiate a model
     wd = "./models/vensim example"
     vensimModel = VensimModel("simpleModel", wd=wd, model_file="model.vpm")
-    vensimModel.uncertainties = [
-        RealParameter("x11", 0, 2.5),
-        RealParameter("x12", -2.5, 2.5),
-    ]
+    vensimModel.uncertainties = [RealParameter("x11", 0, 2.5), RealParameter("x12", -2.5, 2.5)]
 
     vensimModel.outcomes = [TimeSeriesOutcome("a")]
 

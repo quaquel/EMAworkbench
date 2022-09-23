@@ -658,21 +658,12 @@ class LookupUncertainty(Parameter):
         if self.x_max > 10:
             for i in range(int(self.x_min), int(self.x_max + 1)):
                 new_lookup.append(
-                    (
-                        i,
-                        max(min(self._gen_log(i, A, K, B, Q, M), self.y_max), self.y_min),
-                    )
+                    (i, max(min(self._gen_log(i, A, K, B, Q, M), self.y_max), self.y_min))
                 )
         else:
             for i in range(int(self.x_min * 10), int(self.x_max * 10 + 1), max(int(self.x_max), 1)):
                 new_lookup.append(
-                    (
-                        i / 10,
-                        max(
-                            min(self._gen_log(i / 10, A, K, B, Q, M), self.y_max),
-                            self.y_min,
-                        ),
-                    )
+                    (i / 10, max(min(self._gen_log(i / 10, A, K, B, Q, M), self.y_max), self.y_min))
                 )
         return new_lookup
 

@@ -118,13 +118,7 @@ def pairs_lines(
 
         for ax in figure.axes:
             gs2 = ax._subplotspec
-            if all(
-                (
-                    gs1._gridspec == gs2._gridspec,
-                    gs1.num1 == gs2.num1,
-                    gs1.num2 == gs2.num2,
-                )
-            ):
+            if all((gs1._gridspec == gs2._gridspec, gs1.num1 == gs2.num1, gs1.num2 == gs2.num2)):
                 break
 
         make_legend(grouping_labels, ax, legend_type=LegendEnum.LINE)
@@ -312,14 +306,7 @@ def determine_extents(outcomes, outcomes_to_show):
 
 
 def simple_pairs_density(
-    outcomes,
-    outcomes_to_show,
-    log,
-    colormap,
-    gridsize,
-    ylabels,
-    extents=None,
-    title=None,
+    outcomes, outcomes_to_show, log, colormap, gridsize, ylabels, extents=None, title=None
 ):
     """
 
@@ -509,13 +496,7 @@ def pairs_scatter(
 
         for ax in figure.axes:
             gs2 = ax._subplotspec
-            if all(
-                (
-                    gs1._gridspec == gs2._gridspec,
-                    gs1.num1 == gs2.num1,
-                    gs1.num2 == gs2.num2,
-                )
-            ):
+            if all((gs1._gridspec == gs2._gridspec, gs1.num1 == gs2.num1, gs1.num2 == gs2.num2)):
                 break
 
         make_legend(grouping_labels, ax, legend_type=LegendEnum.SCATTER)

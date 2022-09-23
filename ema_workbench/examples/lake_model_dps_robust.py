@@ -168,10 +168,7 @@ if __name__ == "__main__":
         ScalarOutcome("mean p", kind=MINIMIZE, variable_name="max_P", function=np.mean),
         ScalarOutcome("std p", kind=MINIMIZE, variable_name="max_P", function=np.std),
         ScalarOutcome(
-            "sn reliability",
-            kind=MAXIMIZE,
-            variable_name="reliability",
-            function=signal_to_noise,
+            "sn reliability", kind=MAXIMIZE, variable_name="reliability", function=signal_to_noise
         ),
     ]
     n_scenarios = 10

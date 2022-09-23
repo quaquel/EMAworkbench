@@ -16,13 +16,7 @@ import numpy as np
 from numpy import sin, min
 from scipy import exp
 
-from ema_workbench import (
-    Model,
-    RealParameter,
-    TimeSeriesOutcome,
-    perform_experiments,
-    ema_logging,
-)
+from ema_workbench import Model, RealParameter, TimeSeriesOutcome, perform_experiments, ema_logging
 from ema_workbench import MultiprocessingEvaluator
 from ema_workbench.analysis import lines, Density
 
@@ -426,10 +420,7 @@ def flu_model(
 
         # End of main code
 
-    return {
-        "TIME": runTime,
-        "deceased_population_region_1": deceased_population_region_1,
-    }
+    return {"TIME": runTime, "deceased_population_region_1": deceased_population_region_1}
 
 
 if __name__ == "__main__":
@@ -456,10 +447,7 @@ if __name__ == "__main__":
         RealParameter("x102", 0, 200),
     ]
 
-    model.outcomes = [
-        TimeSeriesOutcome("TIME"),
-        TimeSeriesOutcome("deceased_population_region_1"),
-    ]
+    model.outcomes = [TimeSeriesOutcome("TIME"), TimeSeriesOutcome("deceased_population_region_1")]
 
     nr_experiments = 500
 
