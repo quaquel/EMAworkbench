@@ -117,7 +117,11 @@ if __name__ == "__main__":
     with MultiprocessingEvaluator(lake_model) as evaluator:
         res = evaluator.optimize(
             algorithm=OutputSpaceExploration,
-            grid_spec=[(0, 12, 0.5), (0, 1, 0.05), (0, 1, 0.1), (0, 1, 0.1)],
+            grid_spec=[(0, 12, 0.5),
+                       (0, 1, 0.05),
+                       (0, 1, 0.1),
+                       (0, 1, 0.1),
+                       ],
             nfe=1000,
             searchover="uncertainties",
             reference=reference,
