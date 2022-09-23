@@ -34,7 +34,7 @@ recommended = ["ema_workbench[jupyter,dev,graph]"]
 all = ["ema_workbench[jupyter,dev,cov,docs,graph,parallel]"]
 
 jupyter = ["jupyter", "jupyter_client", "ipython", "ipykernel"]
-dev = ["pytest", "jupyter_client", "ipyparallel"]
+dev = ["pytest", "pytest-mock", "jupyter_client", "ipyparallel"]
 cov = ["pytest-cov", "coverage", "coveralls"]
 docs = ["sphinx", "nbsphinx", "myst", "pyscaffold", "myst-parser"]
 graph = ["altair", "pydot", "graphviz"]

@@ -82,3 +82,9 @@
 * store the uncertainty specification also in the json metadata
   * so we need the class, dist, scale and loc?
   * also add a way of getting the results metadata seperately
+
+
+# optimization
+* modify CombinedVariator and turn it into a GAOperator with a CombinedVariotor
+  and a CombinedMutator were the CombinedMutator uses the different mutators
+  in PlatypusOpt

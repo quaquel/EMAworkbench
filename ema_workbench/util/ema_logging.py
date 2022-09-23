@@ -77,8 +77,8 @@ class TemporaryFilter(logging.Filter):
 def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
     """temporary filter log message
 
-    Params
-    ------
+    Parameters
+    ----------
     name : str or list of str, optional
            logger on which to apply the filter.
     level: int, or list of int, optional

@@ -20,6 +20,7 @@ from .em_framework import (
     Constraint,
     ArrayOutcome,
     Samplers,
+    OutputSpaceExploration,
 )
 from .util import save_results, load_results, ema_logging, EMAError, process_replications
 

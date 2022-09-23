@@ -236,6 +236,7 @@ class BaseEvaluator:
         constraints=None,
         convergence_freq=1000,
         logging_freq=5,
+        variator=None,
         **kwargs,
     ):
         """convenience method for outcome optimization.
@@ -254,6 +255,7 @@ class BaseEvaluator:
             constraints=constraints,
             convergence_freq=convergence_freq,
             logging_freq=logging_freq,
+            variator=variator,
             **kwargs,
         )
 
@@ -683,6 +685,7 @@ def optimize(
     constraints=None,
     convergence_freq=1000,
     logging_freq=5,
+    variator=None,
     **kwargs,
 ):
     """optimize the model
@@ -704,6 +707,9 @@ def optimize(
                         nfe between convergence check
     logging_freq : int
                    number of generations between logging of progress
+    variator : platypus GAOperator instance, optional
+               if None, it falls back on the defaults in platypus-opts
+               which is SBX with PM
     kwargs : any additional arguments will be passed on to algorithm
 
     Returns
@@ -736,7 +742,15 @@ def optimize(
         evaluator = SequentialEvaluator(models)
 
     return _optimize(
-        problem, evaluator, algorithm, convergence, nfe, convergence_freq, logging_freq, **kwargs
+        problem,
+        evaluator,
+        algorithm,
+        convergence,
+        nfe,
+        convergence_freq,
+        logging_freq,
+        variator=variator,
+        **kwargs,
     )
 
 

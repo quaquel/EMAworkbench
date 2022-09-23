@@ -253,7 +253,7 @@ def to_dataframe(optimizer, dvnames, outcome_names):
     """
 
     solutions = []
-    for solution in platypus.unique(platypus.nondominated(optimizer.result)):
+    for solution in platypus.unique(optimizer.result):
         vars = transform_variables(solution.problem, solution.variables)  # @ReservedAssignment
 
         decision_vars = dict(zip(dvnames, vars))
@@ -577,7 +577,7 @@ class Convergence(ProgressTrackingMixIn):
             metric.reset()
 
     def __call__(self, optimizer):
-        nfe = optimizer.algorithm.nfe
+        nfe = optimizer.nfe
         super().__call__(nfe - self.i)
 
         self.generation += 1
@@ -743,52 +743,6 @@ class CombinedVariator(Variator):
     }
 
 
-class CombinedMutator(CombinedVariator):
-    """Data type aware Uniform mutator
-
-    Overwrites the mutator on the algorithm as used by adaptive time
-    continuation.
-
-    This is a dirty hack, mutator should be a keyword argument on
-    epsilon-NSGAII. Would require separating out explicitly the algorithm
-    kwargs and the AdaptiveTimeContinuation kwargs.
-
-    """
-
-    mutation_prob = 1.0
-
-    def evolve(self, parents):
-        _logger.debug(parents)
-
-        problem = parents[0].problem
-        children = []
-
-        for parent in parents:
-            child = copy.deepcopy(parent)
-            for i, type in enumerate(problem.types):  # @ReservedAssignment
-                if random.random() <= self.mutation_prob:
-                    klass = type.__class__
-                    child = self._mutate[klass](self, child, i, type)
-                    child.evaluated = False
-
-            children.append(child)
-        return children
-
-    def mutate_categorical(self, child, i, type):  # @ReservedAssignment
-        child.variables[i] = [random.choice(type.elements)]
-        return child
-
-    def mutate_integer(self, child, i, type):  # @ReservedAssignment
-        child.variables[i] = type.encode(random.randint(type.min_value, type.max_value))
-        return child
-
-    def mutate_real(self, child, i, type):  # @ReservedAssignment
-        child.variables[i] = random.uniform(type.min_value, type.max_value)
-        return child
-
-    _mutate = {Real: mutate_real, Integer: mutate_integer, Subset: mutate_categorical}
-
-
 def _optimize(
     problem,
     evaluator,
@@ -797,6 +751,7 @@ def _optimize(
     nfe,
     convergence_freq,
     logging_freq,
+    variator=None,
     **kwargs,
 ):
     klass = problem.types[0].__class__
@@ -809,16 +764,17 @@ def _optimize(
         if len(eps_values) != len(problem.outcome_names):
             raise EMAError("number of epsilon values does not match number " "of outcomes")
 
-    if all(isinstance(t, klass) for t in problem.types):
-        variator = None
-    else:
-        variator = CombinedVariator()
-    mutator = CombinedMutator()
+    if variator is None:
+        if all(isinstance(t, klass) for t in problem.types):
+            variator = None
+        else:
+            variator = CombinedVariator()
+    # mutator = CombinedMutator()
 
     optimizer = algorithm(
         problem, evaluator=evaluator, variator=variator, log_frequency=500, **kwargs
     )
-    optimizer.mutator = mutator
+    # optimizer.mutator = mutator
 
     convergence = Convergence(
         convergence, nfe, convergence_freq=convergence_freq, logging_freq=logging_freq
@@ -837,7 +793,7 @@ def _optimize(
     convergence = convergence.to_dataframe()
 
     message = "optimization completed, found {} solutions"
-    _logger.info(message.format(len(optimizer.algorithm.archive)))
+    _logger.info(message.format(len(optimizer.archive)))
 
     if convergence.empty:
         return results
