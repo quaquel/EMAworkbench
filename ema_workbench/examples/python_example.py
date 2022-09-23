@@ -6,13 +6,7 @@ It's main purpose has been to test the parallel processing functionality
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
-from ema_workbench import (
-    Model,
-    RealParameter,
-    ScalarOutcome,
-    ema_logging,
-    perform_experiments,
-)
+from ema_workbench import Model, RealParameter, ScalarOutcome, ema_logging, perform_experiments
 
 
 def some_model(x1=None, x2=None, x3=None):

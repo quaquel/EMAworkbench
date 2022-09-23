@@ -4,16 +4,9 @@
 import os
 import unittest
 
-from ema_workbench.em_framework import (
-    perform_experiments,
-    RealParameter,
-    TimeSeriesOutcome,
-)
+from ema_workbench.em_framework import perform_experiments, RealParameter, TimeSeriesOutcome
 from ema_workbench.connectors.pysd_connector import PysdModel
-from ema_workbench.em_framework.evaluators import (
-    MultiprocessingEvaluator,
-    SequentialEvaluator,
-)
+from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator, SequentialEvaluator
 
 # TODO:: model classes should be tested for their pickleability prior to
 # initialization

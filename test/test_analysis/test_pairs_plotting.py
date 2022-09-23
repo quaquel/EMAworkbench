@@ -5,11 +5,7 @@ Created on Mar 13, 2012
 """
 import matplotlib.pyplot as plt
 
-from ema_workbench.analysis.pairs_plotting import (
-    pairs_density,
-    pairs_lines,
-    pairs_scatter,
-)
+from ema_workbench.analysis.pairs_plotting import pairs_density, pairs_lines, pairs_scatter
 from test import utilities
 
 
@@ -30,9 +26,7 @@ def test_pairs_density():
     pairs_density(experiments, outcomes, colormap="binary")
     plt.draw()
 
-    pairs_density(
-        experiments, outcomes, group_by="policy", grouping_specifiers=["no policy"]
-    )
+    pairs_density(experiments, outcomes, group_by="policy", grouping_specifiers=["no policy"])
     plt.draw()
     plt.close("all")
 
@@ -43,11 +37,7 @@ def test_pairs_scatter():
     pairs_scatter(experiments, outcomes)
 
     pairs_scatter(
-        experiments,
-        outcomes,
-        group_by="policy",
-        grouping_specifiers="basic policy",
-        legend=False,
+        experiments, outcomes, group_by="policy", grouping_specifiers="basic policy", legend=False
     )
 
     pairs_scatter(

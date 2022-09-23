@@ -70,9 +70,7 @@ class AbstractModel(NamedObject):
     @property
     def output_variables(self):
         if self._output_variables is None:
-            self._output_variables = [
-                var for o in self.outcomes for var in o.variable_name
-            ]
+            self._output_variables = [var for o in self.outcomes for var in o.variable_name]
 
         return self._output_variables
 
@@ -98,9 +96,7 @@ class AbstractModel(NamedObject):
         super().__init__(name)
 
         if not self.name.isalnum():
-            raise EMAError(
-                "name of model should only contain " "alpha numerical characters"
-            )
+            raise EMAError("name of model should only contain " "alpha numerical characters")
 
         self._output_variables = None
         self._outcomes_output = {}
@@ -242,10 +238,7 @@ class AbstractModel(NamedObject):
 
         def join_attr(field):
             joined = ", ".join(
-                [
-                    repr(entry)
-                    for entry in sorted(field, key=operator.attrgetter("name"))
-                ]
+                [repr(entry) for entry in sorted(field, key=operator.attrgetter("name"))]
             )
             return f"[{joined}]"
 
@@ -293,9 +286,7 @@ class Replicator(AbstractModel):
             self._replications = [MyDict(**entry) for entry in replications]
             self.nreplications = len(replications)
         else:
-            raise TypeError(
-                f"replications should be int or list not {type(replications)}"
-            )
+            raise TypeError(f"replications should be int or list not {type(replications)}")
 
     @method_logger(__name__)
     def run_model(self, scenario, policy):

@@ -14,13 +14,7 @@ import operator
 import numpy as np
 import scipy as sp
 
-from ema_workbench import (
-    Model,
-    RealParameter,
-    ScalarOutcome,
-    ema_logging,
-    MultiprocessingEvaluator,
-)
+from ema_workbench import Model, RealParameter, ScalarOutcome, ema_logging, MultiprocessingEvaluator
 
 ##==============================================================================
 ## Implement the model described by Eijgenraam et al. (2012)
@@ -32,77 +26,17 @@ params = ("c", "b", "lam", "alpha", "eta", "zeta", "V0", "P0", "max_Pf")
 raw_data = {
     10: (16.6939, 0.6258, 0.0014, 0.033027, 0.320, 0.003774, 1564.9, 0.00044, 1 / 2000),
     11: (42.6200, 1.7068, 0.0000, 0.032000, 0.320, 0.003469, 1700.1, 0.00117, 1 / 2000),
-    15: (
-        125.6422,
-        1.1268,
-        0.0098,
-        0.050200,
-        0.760,
-        0.003764,
-        11810.4,
-        0.00137,
-        1 / 2000,
-    ),
-    16: (
-        324.6287,
-        2.1304,
-        0.0100,
-        0.057400,
-        0.760,
-        0.002032,
-        22656.5,
-        0.00110,
-        1 / 2000,
-    ),
-    22: (
-        154.4388,
-        0.9325,
-        0.0066,
-        0.070000,
-        0.620,
-        0.002893,
-        9641.1,
-        0.00055,
-        1 / 2000,
-    ),
+    15: (125.6422, 1.1268, 0.0098, 0.050200, 0.760, 0.003764, 11810.4, 0.00137, 1 / 2000),
+    16: (324.6287, 2.1304, 0.0100, 0.057400, 0.760, 0.002032, 22656.5, 0.00110, 1 / 2000),
+    22: (154.4388, 0.9325, 0.0066, 0.070000, 0.620, 0.002893, 9641.1, 0.00055, 1 / 2000),
     23: (26.4653, 0.5250, 0.0034, 0.053400, 0.800, 0.002031, 61.6, 0.00137, 1 / 2000),
     24: (71.6923, 1.0750, 0.0059, 0.043900, 1.060, 0.003733, 2706.4, 0.00188, 1 / 2000),
     35: (49.7384, 0.6888, 0.0088, 0.036000, 1.060, 0.004105, 4534.7, 0.00196, 1 / 2000),
     38: (24.3404, 0.7000, 0.0040, 0.025321, 0.412, 0.004153, 3062.6, 0.00171, 1 / 1250),
-    41: (
-        58.8110,
-        0.9250,
-        0.0033,
-        0.025321,
-        0.422,
-        0.002749,
-        10013.1,
-        0.00171,
-        1 / 1250,
-    ),
+    41: (58.8110, 0.9250, 0.0033, 0.025321, 0.422, 0.002749, 10013.1, 0.00171, 1 / 1250),
     42: (21.8254, 0.4625, 0.0019, 0.026194, 0.442, 0.001241, 1090.8, 0.00171, 1 / 1250),
-    43: (
-        340.5081,
-        4.2975,
-        0.0043,
-        0.025321,
-        0.448,
-        0.002043,
-        19767.6,
-        0.00171,
-        1 / 1250,
-    ),
-    44: (
-        24.0977,
-        0.7300,
-        0.0054,
-        0.031651,
-        0.316,
-        0.003485,
-        37596.3,
-        0.00033,
-        1 / 1250,
-    ),
+    43: (340.5081, 4.2975, 0.0043, 0.025321, 0.448, 0.002043, 19767.6, 0.00171, 1 / 1250),
+    44: (24.0977, 0.7300, 0.0054, 0.031651, 0.316, 0.003485, 37596.3, 0.00033, 1 / 1250),
     45: (3.4375, 0.1375, 0.0069, 0.033027, 0.320, 0.002397, 10421.2, 0.00016, 1 / 1250),
     47: (8.7813, 0.3513, 0.0026, 0.029000, 0.358, 0.003257, 1369.0, 0.00171, 1 / 1250),
     48: (35.6250, 1.4250, 0.0063, 0.023019, 0.496, 0.003076, 7046.4, 0.00171, 1 / 1250),
@@ -216,9 +150,7 @@ def eijgenraam_model(
     investment = 0
 
     for i in range(len(Xs)):
-        step_cost = exponential_investment_cost(
-            Xs[i], 0 if i == 0 else sum(Xs[:i]), c, b, lam
-        )
+        step_cost = exponential_investment_cost(Xs[i], 0 if i == 0 else sum(Xs[:i]), c, b, lam)
         step_discount = math.exp(-delta * Ts[i])
         investment += step_cost * step_discount
 
@@ -238,13 +170,7 @@ def eijgenraam_model(
     losses = losses * S0 / (beta - delta)
 
     # salvage term
-    losses += (
-        S0
-        * math.exp(beta * T)
-        * math.exp(-theta * sum(Xs))
-        * math.exp(-delta * T)
-        / delta
-    )
+    losses += S0 * math.exp(beta * T) * math.exp(-theta * sum(Xs)) * math.exp(-delta * T) / delta
 
     def find_height(t):
         if t < Ts[0]:
@@ -255,23 +181,13 @@ def eijgenraam_model(
             return sum(Xs[: bisect.bisect_right(Ts, t)])
 
     failure_probability = [
-        P0 * np.exp(alpha * eta * t) * np.exp(-alpha * find_height(t))
-        for t in range(T + 1)
+        P0 * np.exp(alpha * eta * t) * np.exp(-alpha * find_height(t)) for t in range(T + 1)
     ]
-    total_failure = 1 - functools.reduce(
-        operator.mul, [1 - p for p in failure_probability], 1
-    )
+    total_failure = 1 - functools.reduce(operator.mul, [1 - p for p in failure_probability], 1)
     mean_failure = sum(failure_probability) / (T + 1)
     max_failure = max(failure_probability)
 
-    return (
-        investment,
-        losses,
-        investment + losses,
-        total_failure,
-        mean_failure,
-        max_failure,
-    )
+    return (investment, losses, investment + losses, total_failure, mean_failure, max_failure)
 
 
 if __name__ == "__main__":

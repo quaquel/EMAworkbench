@@ -130,15 +130,15 @@ pygments_style = "sphinx"
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = dict(
-    github_user='quaquel',
-    github_repo='EMAworkbench',
-    github_version='/tree/master/docs/',
+    github_user="quaquel",
+    github_repo="EMAworkbench",
+    github_version="/tree/master/docs/",
     # On master branch and new branch still in
     # pre-release status: true; else: false.
-    in_progress='true',
+    in_progress="true",
     # On branches previous to "latest": true; else: false.
-    outdated='false',
-    )
+    outdated="false",
+)
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -257,9 +257,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ("index", "emaworkbench", "EMA workbench Documentation", ["J.H. Kwakkel"], 1)
-]
+man_pages = [("index", "emaworkbench", "EMA workbench Documentation", ["J.H. Kwakkel"], 1)]
 
 
 def setup(app):

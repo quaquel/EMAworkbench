@@ -58,9 +58,7 @@ maxima = x.max(axis=0)
 nominal = minima + (maxima - minima) / 2
 
 # fit the boosted tree
-bdt = AdaBoostClassifier(
-    DecisionTreeClassifier(max_depth=3), algorithm="SAMME", n_estimators=200
-)
+bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=3), algorithm="SAMME", n_estimators=200)
 bdt.fit(x, y)
 
 # determine which dimensions are most important

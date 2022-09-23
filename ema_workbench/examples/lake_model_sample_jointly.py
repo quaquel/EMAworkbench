@@ -71,7 +71,7 @@ def lake_problem(
     r2=0.5,
     w1=0.5,
 ):
-    Pcrit = brentq(lambda x: x ** q / (1 + x ** q) - b * x, 0.01, 1.5)
+    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
 
     X = np.zeros((myears,))
     average_daily_P = np.zeros((myears,))
@@ -83,12 +83,12 @@ def lake_problem(
         X[0] = 0.0
         decision = 0.1
 
-        decisions = np.zeros(myears,)
+        decisions = np.zeros(myears)
         decisions[0] = decision
 
         natural_inflows = np.random.lognormal(
-            math.log(mean ** 2 / math.sqrt(stdev ** 2 + mean ** 2)),
-            math.sqrt(math.log(1.0 + stdev ** 2 / mean ** 2)),
+            math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
+            math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
             size=myears,
         )
 
@@ -107,9 +107,7 @@ def lake_problem(
 
         reliability += np.sum(X < Pcrit) / (nsamples * myears)
         inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples * myears)
-        utility += (
-            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
-        )
+        utility += np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
     max_P = np.max(average_daily_P)
 
     return max_P, utility, inertia, reliability
@@ -125,14 +123,10 @@ def analyze(results, ooi):
     problem = get_SALib_problem(parameters)
     y = outcomes[ooi]
     sobol_indices = sobol.analyze(problem, y)
-    sobol_stats = {
-        key: sobol_indices[key] for key in ["ST", "ST_conf", "S1", "S1_conf"]
-    }
+    sobol_stats = {key: sobol_indices[key] for key in ["ST", "ST_conf", "S1", "S1_conf"]}
     sobol_stats = pd.DataFrame(sobol_stats, index=problem["names"])
     sobol_stats.sort_values(by="ST", ascending=False)
-    s2 = pd.DataFrame(
-        sobol_indices["S2"], index=problem["names"], columns=problem["names"]
-    )
+    s2 = pd.DataFrame(sobol_indices["S2"], index=problem["names"], columns=problem["names"])
     s2_conf = pd.DataFrame(
         sobol_indices["S2_conf"], index=problem["names"], columns=problem["names"]
     )

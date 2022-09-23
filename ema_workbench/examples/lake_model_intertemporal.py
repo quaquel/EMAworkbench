@@ -235,7 +235,7 @@ def lake_problem(
         ]
     )
 
-    Pcrit = brentq(lambda x: x ** q / (1 + x ** q) - b * x, 0.01, 1.5)
+    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
     nvars = len(decisions)
     X = np.zeros((nvars,))
     average_daily_P = np.zeros((nvars,))
@@ -246,8 +246,8 @@ def lake_problem(
         X[0] = 0.0
 
         natural_inflows = np.random.lognormal(
-            math.log(mean ** 2 / math.sqrt(stdev ** 2 + mean ** 2)),
-            math.sqrt(math.log(1.0 + stdev ** 2 / mean ** 2)),
+            math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
+            math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
             size=nvars,
         )
 
@@ -286,9 +286,7 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [
-        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
-    ]
+    lake_model.levers = [RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)]
 
     # specify outcomes
     # specify outcomes
@@ -296,20 +294,13 @@ if __name__ == "__main__":
         ScalarOutcome("max_P", kind=ScalarOutcome.MINIMIZE, expected_range=(0, 5)),
         ScalarOutcome("utility", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 2)),
         ScalarOutcome("inertia", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)),
-        ScalarOutcome(
-            "reliability", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)
-        ),
+        ScalarOutcome("reliability", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)),
     ]
 
-    convergence_metrics = [
-        HyperVolume.from_outcomes(lake_model.outcomes),
-        EpsilonProgress(),
-    ]
+    convergence_metrics = [HyperVolume.from_outcomes(lake_model.outcomes), EpsilonProgress()]
 
     constraints = [
-        Constraint(
-            "max pollution", outcome_names="max_P", function=lambda x: max(0, x - 5)
-        )
+        Constraint("max pollution", outcome_names="max_P", function=lambda x: max(0, x - 5))
     ]
 
     with MultiprocessingEvaluator(lake_model) as evaluator:

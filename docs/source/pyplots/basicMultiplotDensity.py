@@ -5,9 +5,7 @@ from analysis.pairs_plotting import pairs_scatter, pairs_density, pairs_lines
 from expWorkbench.util import load_results
 
 # load the data
-experiments, results = load_results(
-    r"../../../src/analysis/1000 flu cases.cPickle", zipped=False
-)
+experiments, results = load_results(r"../../../src/analysis/1000 flu cases.cPickle", zipped=False)
 
 # transform the results to the required format
 newResults = {}

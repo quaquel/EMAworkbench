@@ -188,9 +188,7 @@ def get_data(filename, varname, step=1):
 
 
 def VensimModelStructureInterface(name, wd=None, model_file=None):
-    warnings.warn(
-        "VensimModelStructureInterface is deprecated use " "VensimModel instead"
-    )
+    warnings.warn("VensimModelStructureInterface is deprecated use " "VensimModel instead")
 
     return VensimModel(name, wd=wd, model_file=model_file)
 
@@ -347,9 +345,7 @@ class BaseVensimModel(FileModel):
         for lookup_uncertainty in self._lookup_uncertainties:
             # ask the lookup to transform the retrieved uncertainties to the
             # proper lookup value
-            experiment[lookup_uncertainty.name] = lookup_uncertainty.transform(
-                experiment
-            )
+            experiment[lookup_uncertainty.name] = lookup_uncertainty.transform(experiment)
 
         for key, value in experiment.items():
             set_value(key, value)
@@ -395,9 +391,7 @@ class BaseVensimModel(FileModel):
         deleting lookup uncertainties from the uncertainty list
         """
         self._lookup_uncertainties = self._lookup_uncertainties[:]
-        self.uncertainties = [
-            x for x in self.uncertainties if x not in self._lookup_uncertainties
-        ]
+        self.uncertainties = [x for x in self.uncertainties if x not in self._lookup_uncertainties]
 
 
 class LookupUncertainty(Parameter):
@@ -495,9 +489,7 @@ class LookupUncertainty(Parameter):
         }
 
         if self.lookup_type == "categories":
-            msi.uncertainties.append(
-                CategoricalParameter("c-" + self.name), range(len(values))
-            )
+            msi.uncertainties.append(CategoricalParameter("c-" + self.name), range(len(values)))
             msi._lookup_uncertainties.append(self)
         elif self.lookup_type == "hearne1":
             msi.uncertainties.append(RealParameter("m-" + self.name, *values[0]))
@@ -624,9 +616,7 @@ class LookupUncertainty(Parameter):
                 df.append(l + m - ((m + l - u) * (i - p) / (self.x_min - p)))
         new_lookup = []
         for i in range(len(self.x)):
-            new_lookup.append(
-                (self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min))
-            )
+            new_lookup.append((self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min)))
         return new_lookup
 
     def _hearne2(self, case):
@@ -651,9 +641,7 @@ class LookupUncertainty(Parameter):
                     df.append(u + m2 - (m2 * (i - p2) / (self.x_max - p2)))
         new_lookup = []
         for i in range(len(self.x)):
-            new_lookup.append(
-                (self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min))
-            )
+            new_lookup.append((self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min)))
         return new_lookup
 
     def _approx(self, case):
@@ -670,25 +658,12 @@ class LookupUncertainty(Parameter):
         if self.x_max > 10:
             for i in range(int(self.x_min), int(self.x_max + 1)):
                 new_lookup.append(
-                    (
-                        i,
-                        max(
-                            min(self._gen_log(i, A, K, B, Q, M), self.y_max), self.y_min
-                        ),
-                    )
+                    (i, max(min(self._gen_log(i, A, K, B, Q, M), self.y_max), self.y_min))
                 )
         else:
-            for i in range(
-                int(self.x_min * 10), int(self.x_max * 10 + 1), max(int(self.x_max), 1)
-            ):
+            for i in range(int(self.x_min * 10), int(self.x_max * 10 + 1), max(int(self.x_max), 1)):
                 new_lookup.append(
-                    (
-                        i / 10,
-                        max(
-                            min(self._gen_log(i / 10, A, K, B, Q, M), self.y_max),
-                            self.y_min,
-                        ),
-                    )
+                    (i / 10, max(min(self._gen_log(i / 10, A, K, B, Q, M), self.y_max), self.y_min))
                 )
         return new_lookup
 

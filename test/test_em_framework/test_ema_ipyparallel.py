@@ -50,11 +50,7 @@ class MockProcessLauncher(LocalProcessLauncher):
             # Store stdout & stderr to show with failing tests.
             # This is defined in IPython.testing.iptest
             self.process = Popen(
-                self.args,
-                stdout=blackhole,
-                stderr=STDOUT,
-                env=os.environ,
-                cwd=self.work_dir,
+                self.args, stdout=blackhole, stderr=STDOUT, env=os.environ, cwd=self.work_dir
             )
             self.notify_start(self.process.pid)
             self.poll = self.process.poll
@@ -284,18 +280,14 @@ class TestLogWatcher(unittest.TestCase):
             mocked.return_value = mocked_logger
             raw = [b"engine.1.INFO.EMA", b"test"]
             self.watcher.log_message(raw)
-            mocked_logger.log.assert_called_once_with(
-                ema_logging.INFO, "[engine.1] test"
-            )
+            mocked_logger.log.assert_called_once_with(ema_logging.INFO, "[engine.1] test")
 
         with mock.patch("logging.getLogger") as mocked:
             mocked_logger = mock.Mock(spec=logging.Logger)
             mocked.return_value = mocked_logger
             raw = [b"engine.1.DEBUG.EMA", b"test"]
             self.watcher.log_message(raw)
-            mocked_logger.log.assert_called_once_with(
-                ema_logging.DEBUG, "[engine.1] test"
-            )
+            mocked_logger.log.assert_called_once_with(ema_logging.DEBUG, "[engine.1] test")
 
         with mock.patch("logging.getLogger") as mocked:
             mocked_logger = mock.Mock(spec=logging.Logger)
@@ -328,16 +320,12 @@ class TestEngine(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.ema_ipyparallel.get_engines_by_host")
     @mock.patch("ema_workbench.em_framework.ema_ipyparallel.os")
     @mock.patch("ema_workbench.em_framework.ema_ipyparallel.socket")
-    def test_update_cwd_on_all_engines(
-        self, mock_socket, mock_os, mock_engines_by_host
-    ):
+    def test_update_cwd_on_all_engines(self, mock_socket, mock_os, mock_engines_by_host):
         mock_socket.gethostname.return_value = "test host"
 
         mock_client = mock.create_autospec(ipyparallel.Client)
         mock_client.ids = [0, 1]  # pretend we have two engines
-        mock_view = mock.create_autospec(
-            ipyparallel.client.view.View
-        )  # @ @UndefinedVariable
+        mock_view = mock.create_autospec(ipyparallel.client.view.View)  # @ @UndefinedVariable
         mock_client.__getitem__.return_value = mock_view
 
         mock_engines_by_host.return_value = {"test host": [0, 1]}
@@ -350,9 +338,7 @@ class TestEngine(unittest.TestCase):
 
         # engines on another host
         mock_engines_by_host.return_value = {"other host": [0, 1]}
-        self.assertRaises(
-            NotImplementedError, ema.update_cwd_on_all_engines, mock_client
-        )
+        self.assertRaises(NotImplementedError, ema.update_cwd_on_all_engines, mock_client)
 
     def test_get_engines_by_host(self):
         engines_by_host = ema.get_engines_by_host(self.client)
@@ -399,9 +385,7 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
 
         mock_client = mock.create_autospec(ipyparallel.Client)
         mock_client.ids = [0, 1]  # pretend we have two engines
-        mock_view = mock.create_autospec(
-            ipyparallel.client.view.View
-        )  # @ @UndefinedVariable
+        mock_view = mock.create_autospec(ipyparallel.client.view.View)  # @ @UndefinedVariable
         mock_client.__getitem__.return_value = mock_view
 
         cwd = "."

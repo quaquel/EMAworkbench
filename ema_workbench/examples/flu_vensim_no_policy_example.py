@@ -21,9 +21,7 @@ from ema_workbench.connectors.vensim import VensimModel
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModel(
-        "fluCase", wd="./models/flu", model_file="FLUvensimV1basecase.vpm"
-    )
+    model = VensimModel("fluCase", wd="./models/flu", model_file="FLUvensimV1basecase.vpm")
 
     # outcomes
     model.outcomes = [

@@ -78,9 +78,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         super().__init__(nr_experiments, reporting_frequency, _logger, log_progress)
 
         if reporting_interval is None:
-            reporting_interval = max(
-                1, int(round(nr_experiments / reporting_frequency))
-            )
+            reporting_interval = max(1, int(round(nr_experiments / reporting_frequency)))
 
         self.reporting_interval = reporting_interval
 
@@ -124,9 +122,7 @@ class DefaultCallback(AbstractCallback):
     """
 
     shape_error_msg = "can only save up to 2d arrays, this array is {}d"
-    constraint_error_msg = (
-        "can only save 1d arrays for constraint, " "this array is {}d"
-    )
+    constraint_error_msg = "can only save 1d arrays for constraint, " "this array is {}d"
 
     def __init__(
         self,
@@ -198,8 +194,7 @@ class DefaultCallback(AbstractCallback):
         # FIXME:: issue with fragmented data frame warning
         index = np.arange(nr_experiments)
         column_dict = {
-            name: pd.Series(dtype=dtype, index=index)
-            for name, dtype in zip(columns, dtypes)
+            name: pd.Series(dtype=dtype, index=index) for name, dtype in zip(columns, dtypes)
         }
         df = pd.concat(column_dict, axis=1).copy()
 
@@ -210,9 +205,7 @@ class DefaultCallback(AbstractCallback):
             shape = outcome.shape
             if shape is not None:
                 shape = (nr_experiments,) + shape
-                self.results[outcome.name] = self._setup_outcomes_array(
-                    shape, dtype=float
-                )
+                self.results[outcome.name] = self._setup_outcomes_array(shape, dtype=float)
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
@@ -241,7 +234,7 @@ class DefaultCallback(AbstractCallback):
                 _logger.debug(message)
             else:
                 try:
-                    self.results[outcome][case_id,] = outcome_res
+                    self.results[outcome][case_id] = outcome_res
                 except KeyError:
                     data = np.asarray(outcome_res)
 
@@ -254,10 +247,8 @@ class DefaultCallback(AbstractCallback):
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
 
-                    self.results[outcome] = self._setup_outcomes_array(
-                        shape, data.dtype
-                    )
-                    self.results[outcome][case_id,] = outcome_res
+                    self.results[outcome] = self._setup_outcomes_array(shape, data.dtype)
+                    self.results[outcome][case_id] = outcome_res
 
     def __call__(self, experiment, outcomes):
         """
@@ -348,9 +339,7 @@ class FileBasedCallback(AbstractCallback):
 
         self.outcome_fhs = {}
         for outcome in self.outcomes:
-            self.outcome_fhs[outcome] = open(
-                os.path.join(self.directory, outcome + ".csv"), "w"
-            )
+            self.outcome_fhs[outcome] = open(os.path.join(self.directory, outcome + ".csv"), "w")
 
     def _store_case(self, experiment):
         scenario = experiment.scenario

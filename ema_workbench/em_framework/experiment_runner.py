@@ -39,8 +39,7 @@ class ExperimentRunner:
     def __init__(self, msis):
         self.msis = msis
         self.log_message = (
-            "running scenario {scenario_id} for policy "
-            "{policy_name} on model {model_name}"
+            "running scenario {scenario_id} for policy " "{policy_name} on model {model_name}"
         )
 
     @method_logger(__name__)

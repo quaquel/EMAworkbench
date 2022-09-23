@@ -7,12 +7,7 @@
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-from ema_workbench import (
-    RealParameter,
-    TimeSeriesOutcome,
-    ema_logging,
-    perform_experiments,
-)
+from ema_workbench import RealParameter, TimeSeriesOutcome, ema_logging, perform_experiments
 
 from ema_workbench.connectors.pysd_connector import PysdModel
 

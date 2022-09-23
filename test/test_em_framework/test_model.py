@@ -9,11 +9,7 @@ import unittest.mock as mock
 
 
 from ema_workbench.em_framework.model import Model, FileModel, ReplicatorModel
-from ema_workbench.em_framework.parameters import (
-    RealParameter,
-    Category,
-    CategoricalParameter,
-)
+from ema_workbench.em_framework.parameters import RealParameter, Category, CategoricalParameter
 from ema_workbench.em_framework.points import Scenario, Policy
 from ema_workbench.util import EMAError
 from ema_workbench.em_framework.outcomes import ScalarOutcome, ArrayOutcome
@@ -185,14 +181,7 @@ class TestModel(unittest.TestCase):
         model = Model(model_name, lambda x: x)
         model.uncertainties = [RealParameter("a", 0, 1)]
 
-        expected_keys = [
-            "class",
-            "name",
-            "uncertainties",
-            "outcomes",
-            "outcomes",
-            "constants",
-        ]
+        expected_keys = ["class", "name", "uncertainties", "outcomes", "outcomes", "constants"]
 
         dict_ = model.as_dict()
 

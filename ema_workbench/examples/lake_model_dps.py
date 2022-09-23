@@ -76,10 +76,10 @@ def lake_problem(
     r2=0.5,
     w1=0.5,
 ):
-    Pcrit = brentq(lambda x: x ** q / (1 + x ** q) - b * x, 0.01, 1.5)
+    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
 
-    X = np.zeros((myears,))
-    average_daily_P = np.zeros((myears,))
+    X = np.zeros((myears))
+    average_daily_P = np.zeros((myears))
     reliability = 0.0
     inertia = 0
     utility = 0
@@ -88,12 +88,12 @@ def lake_problem(
         X[0] = 0.0
         decision = 0.1
 
-        decisions = np.zeros(myears,)
+        decisions = np.zeros(myears)
         decisions[0] = decision
 
         natural_inflows = np.random.lognormal(
-            math.log(mean ** 2 / math.sqrt(stdev ** 2 + mean ** 2)),
-            math.sqrt(math.log(1.0 + stdev ** 2 / mean ** 2)),
+            math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
+            math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
             size=myears,
         )
 
@@ -112,9 +112,7 @@ def lake_problem(
 
         reliability += np.sum(X < Pcrit) / (nsamples * myears)
         inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples * myears)
-        utility += (
-            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
-        )
+        utility += np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
     max_P = np.max(average_daily_P)
 
     return max_P, utility, inertia, reliability
@@ -166,6 +164,6 @@ if __name__ == "__main__":
         evaluator.optimize(
             searchover="levers",
             nfe=100000,
-            epsilons=[0.1,] * len(lake_model.outcomes),
+            epsilons=[0.1] * len(lake_model.outcomes),
             reference=reference,
         )

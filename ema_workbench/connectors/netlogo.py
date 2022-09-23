@@ -60,9 +60,7 @@ class BaseNetLogoModel(FileModel):
         if self._ts_output_variables is None:
             timeseries = [o for o in self.outcomes if isinstance(o, ArrayOutcome)]
 
-            self._ts_output_variables = [
-                var for o in timeseries for var in o.variable_name
-            ]
+            self._ts_output_variables = [var for o in timeseries for var in o.variable_name]
 
         return self._ts_output_variables
 
@@ -185,9 +183,7 @@ class BaseNetLogoModel(FileModel):
         commands = []
         fns = {}
         for variable in self.ts_output_variables:
-            fn = r"{0}{3}{1}{2}".format(
-                self.working_directory, variable, ".txt", os.sep
-            )
+            fn = r"{0}{3}{1}{2}".format(self.working_directory, variable, ".txt", os.sep)
             fns[variable] = fn
             fn = f'"{fn}"'
             fn = fn.replace(os.sep, "/")
@@ -195,7 +191,7 @@ class BaseNetLogoModel(FileModel):
             if self.netlogo.report(f"is-agentset? {variable}"):
                 # if name is name of an agentset, we
                 # assume that we should count the total number of agents
-                nc = r"file-open {} file-write count {}".format(fn, variable,)
+                nc = r"file-open {} file-write count {}".format(fn, variable)
             else:
                 # it is not an agentset, so assume that it is
                 # a reporter / global variable

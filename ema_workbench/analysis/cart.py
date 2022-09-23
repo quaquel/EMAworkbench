@@ -304,7 +304,7 @@ class CART(sdutil.OutputFormatterMixin):
 
     def show_tree(self, mplfig=True, format="png"):
         """return a png (defaults) or svg of the tree
-        
+
         On Windows, graphviz needs to be installed with conda.
 
         Parameters
@@ -320,9 +320,7 @@ class CART(sdutil.OutputFormatterMixin):
         import pydot  # dirty hack for read the docs
 
         dot_data = StringIO()
-        tree.export_graphviz(
-            self.clf, out_file=dot_data, feature_names=self.feature_names
-        )
+        tree.export_graphviz(self.clf, out_file=dot_data, feature_names=self.feature_names)
         dot_data = dot_data.getvalue()  # .encode('ascii') # @UndefinedVariable
         graphs = pydot.graph_from_dot_data(dot_data)
 

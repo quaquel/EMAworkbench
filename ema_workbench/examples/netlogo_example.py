@@ -28,9 +28,7 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     model = NetLogoModel(
-        "predprey",
-        wd="./models/predatorPreyNetlogo",
-        model_file="Wolf Sheep Predation.nlogo",
+        "predprey", wd="./models/predatorPreyNetlogo", model_file="Wolf Sheep Predation.nlogo"
     )
     model.run_length = 100
     model.replications = 10
@@ -52,9 +50,7 @@ if __name__ == "__main__":
     # perform experiments
     n = 10
 
-    with MultiprocessingEvaluator(
-        model, n_processes=2, maxtasksperchild=4
-    ) as evaluator:
+    with MultiprocessingEvaluator(model, n_processes=2, maxtasksperchild=4) as evaluator:
         results = evaluator.perform_experiments(n)
 
     print()

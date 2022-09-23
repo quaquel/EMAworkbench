@@ -101,9 +101,7 @@ def plot_envelope(ax, j, time, value, fill=False):
     if fill:
         #        ax.plot(time, minimum, color=color, alpha=0.3)
         #        ax.plot(time, maximum, color=color, alpha=0.3)
-        ax.fill_between(
-            time, minimum, maximum, facecolor=color, alpha=0.3,
-        )
+        ax.fill_between(time, minimum, maximum, facecolor=color, alpha=0.3)
     else:
         ax.plot(time, minimum, c=color)
         ax.plot(time, maximum, c=color)
@@ -252,9 +250,7 @@ def plot_boxenplot(ax, values, log, group_labels=None):
     sns.boxenplot(x="variable", y="value", data=data, order=group_labels, ax=ax)
 
 
-def group_density(
-    ax_d, density, outcomes, outcome_to_plot, group_labels, log=False, index=-1
-):
+def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, log=False, index=-1):
     """
     helper function for plotting densities in case of grouped data
 
@@ -326,8 +322,7 @@ def simple_density(density, value, ax_d, ax, log):
         ax.get_yaxis().get_view_interval()[0], ax.get_yaxis().get_view_interval()[1]
     )
     ax_d.set_ylim(
-        bottom=ax.get_yaxis().get_view_interval()[0],
-        top=ax.get_yaxis().get_view_interval()[1],
+        bottom=ax.get_yaxis().get_view_interval()[0], top=ax.get_yaxis().get_view_interval()[1]
     )
 
     ax_d.set_xlabel("")
@@ -425,9 +420,7 @@ def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
             artist = mpl.lines.Line2D([0], [0], linestyle="none", c=color, marker="o")
 
         elif legend_type == LegendEnum.PATCH:
-            artist = plt.Rectangle(
-                (0, 0), 1, 1, edgecolor=color, facecolor=color, alpha=alpha
-            )
+            artist = plt.Rectangle((0, 0), 1, 1, edgecolor=color, facecolor=color, alpha=alpha)
 
         some_identifiers.append(artist)
 
@@ -515,9 +508,7 @@ def filter_scalar_outcomes(outcomes):
     temp = {}
     for key, value in outcomes.items():
         if value.ndim < 2:
-            _logger.info(
-                ("{} not shown because it is " "not time series data").format(key)
-            )
+            _logger.info(("{} not shown because it is " "not time series data").format(key))
         else:
             temp[key] = value
     return temp
@@ -556,9 +547,7 @@ def determine_time_dimension(outcomes):
     return time, outcomes
 
 
-def group_results(
-    experiments, outcomes, group_by, grouping_specifiers, grouping_labels
-):
+def group_results(experiments, outcomes, group_by, grouping_specifiers, grouping_labels):
     """
     Helper function that takes the experiments and results and returns a list
     based on groupings. Each element in the dictionary contains the experiments
@@ -608,13 +597,9 @@ def group_results(
             if grouping_specifiers.index(specifier) == len(grouping_specifiers) - 1:
                 # last case
 
-                logical = (column_to_group_by >= lower_limit) & (
-                    column_to_group_by <= upper_limit
-                )
+                logical = (column_to_group_by >= lower_limit) & (column_to_group_by <= upper_limit)
             else:
-                logical = (column_to_group_by >= lower_limit) & (
-                    column_to_group_by < upper_limit
-                )
+                logical = (column_to_group_by >= lower_limit) & (column_to_group_by < upper_limit)
         elif group_by == "index":
             # the grouping is based on indices
             logical = specifier
@@ -687,18 +672,10 @@ def prepare_pairs_data(
 
     """
     if isinstance(outcomes_to_show, str):
-        raise EMAError(
-            "for pair wise plotting, more than one outcome needs to be provided"
-        )
+        raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
 
     experiments, outcomes, outcomes_to_show, time, grouping_labels = prepare_data(
-        experiments,
-        None,
-        outcomes,
-        outcomes_to_show,
-        group_by,
-        grouping_specifiers,
-        filter_scalar,
+        experiments, None, outcomes, outcomes_to_show, group_by, grouping_specifiers, filter_scalar
     )
 
     def filter_outcomes(outcomes, point_in_time):
@@ -778,9 +755,7 @@ def prepare_data(
         if not grouping_specifiers:
             # no grouping specifier, so infer from the data
             if group_by == "index":
-                raise EMAError(
-                    "no grouping specifiers provided while " "trying to group on index"
-                )
+                raise EMAError("no grouping specifiers provided while " "trying to group on index")
             else:
                 column_to_group_by = experiments[group_by]
                 if column_to_group_by.dtype in (object, "category"):
@@ -796,9 +771,7 @@ def prepare_data(
                 grouping_labels = grouping_specifiers
             elif isinstance(grouping_specifiers, dict):
                 grouping_labels = sorted(grouping_specifiers.keys())
-                grouping_specifiers = [
-                    grouping_specifiers[key] for key in grouping_labels
-                ]
+                grouping_specifiers = [grouping_specifiers[key] for key in grouping_labels]
             else:
                 grouping_labels = grouping_specifiers
 
@@ -837,9 +810,7 @@ def do_titles(ax, titles, outcome):
             try:
                 ax.set_title(titles[outcome])
             except KeyError:
-                _logger.warning(
-                    f"key error in do_titles, no title provided for `{outcome}`"
-                )
+                _logger.warning(f"key error in do_titles, no title provided for `{outcome}`")
                 ax.set_title(outcome)
 
 
@@ -864,9 +835,7 @@ def do_ylabels(ax, ylabels, outcome):
             try:
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
-                _logger.warning(
-                    f"key error in do_ylabels, no ylabel provided for `{outcome}`"
-                )
+                _logger.warning(f"key error in do_ylabels, no ylabel provided for `{outcome}`")
                 ax.set_ylabel(outcome)
 
 

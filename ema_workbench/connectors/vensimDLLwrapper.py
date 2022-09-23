@@ -322,9 +322,7 @@ def get_varattrib(varname, attribute):
     buf = ctypes.create_string_buffer("", 10)
     maxBuf = ctypes.c_int(10)
 
-    bufferlength = vensim.vensim_get_varattrib(
-        varname.encode("utf-8"), attribute, buf, maxBuf
-    )
+    bufferlength = vensim.vensim_get_varattrib(varname.encode("utf-8"), attribute, buf, maxBuf)
     if bufferlength == -1:
         raise VensimWarning("variable not found")
 

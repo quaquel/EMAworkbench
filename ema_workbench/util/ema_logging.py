@@ -112,11 +112,11 @@ def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
 
     # make a list equal lengths?
     if len(names) < max_length:
-        names = [name,] * max_length
+        names = [name] * max_length
     if len(levels) < max_length:
-        levels = [level,] * max_length
+        levels = [level] * max_length
     if len(functnames) < max_length:
-        functnames = [functname,] * max_length
+        functnames = [functname] * max_length
 
     filters = {}
     for name, level, functname in zip(names, levels, functnames):
@@ -196,9 +196,7 @@ def log_to_stderr(level=None):
 
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
-        if (isinstance(entry, logging.StreamHandler)) and (
-            entry.formatter._fmt == LOG_FORMAT
-        ):
+        if (isinstance(entry, logging.StreamHandler)) and (entry.formatter._fmt == LOG_FORMAT):
             return logger
 
     formatter = logging.Formatter(LOG_FORMAT)
