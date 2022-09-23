@@ -176,5 +176,16 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
 # Mac crap
 .DS_Store
