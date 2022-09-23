@@ -1,5 +1,5 @@
 [run]
-source = 
+source =
     ema_workbench/em_framework/*
     ema_workbench/analysis/*
     ema_workbench/util/*

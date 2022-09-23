@@ -44,7 +44,7 @@ When running experiments with multiprocessing using the [`MultiprocessingEvaluat
 * Create release.yml file for automatic release notes generation by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/152
 * instantiating an Evaluator without one or more AbstractModel instances now raises a type error by @quaquel in https://github.com/quaquel/EMAworkbench/commit/a83533aa8166ca2414137cdfc3125a53ee3697ec
 * removes depreciated DataFrame.append by replacing it with DataFrame.concat (see the conversation on issue https://github.com/quaquel/EMAworkbench/issues/126):
-  * from feature scoring by @quaquel in https://github.com/quaquel/EMAworkbench/commit/8b8bfe41733e49b75c01e34b75563e0a6d5b4024 
+  * from feature scoring by @quaquel in https://github.com/quaquel/EMAworkbench/commit/8b8bfe41733e49b75c01e34b75563e0a6d5b4024
   *  from logistic_regression.py by @quaquel in https://github.com/quaquel/EMAworkbench/commit/255e3d6d9639dfe6fd4e797e1c63d59ba0522c2d
 * removes NumPy datatypes deprecated in 1.20 by @quaquel in https://github.com/quaquel/EMAworkbench/commit/e8fbf6fc64f14b7c7220fa4d3fc976c42d3757eb
 * replace deprecated scipy.stats.kde with scipy.stats by @quaquel in https://github.com/quaquel/EMAworkbench/commit/b5a9ca967740e74d503281018e88d6b28e74a27d
