@@ -31,23 +31,17 @@ def time_of_max(infected_fraction, time):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModel(
-        "fluCase", wd="./models/flu", model_file="FLUvensimV1basecase.vpm"
-    )
+    model = VensimModel("fluCase", wd="./models/flu", model_file="FLUvensimV1basecase.vpm")
 
     # outcomes
     model.outcomes = [
         TimeSeriesOutcome("deceased population region 1"),
         TimeSeriesOutcome("infected fraction R1"),
         ScalarOutcome(
-            "max infection fraction",
-            variable_name="infected fraction R1",
-            function=np.max,
+            "max infection fraction", variable_name="infected fraction R1", function=np.max
         ),
         ScalarOutcome(
-            "time of max",
-            variable_name=["infected fraction R1", "TIME"],
-            function=time_of_max,
+            "time of max", variable_name=["infected fraction R1", "TIME"], function=time_of_max
         ),
     ]
 

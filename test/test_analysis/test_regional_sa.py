@@ -44,14 +44,7 @@ class Test(unittest.TestCase):
         unc = "model"
 
         regional_sa.plot_individual_cdf(
-            ax,
-            unc,
-            x[unc],
-            y,
-            discrete=True,
-            legend=True,
-            xticklabels_on=True,
-            yticklabels_on=True,
+            ax, unc, x[unc], y, discrete=True, legend=True, xticklabels_on=True, yticklabels_on=True
         )
 
 

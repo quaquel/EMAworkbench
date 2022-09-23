@@ -54,7 +54,7 @@ def update_vadere_scenario(model_file, experiment, output_file):
                 desired path to save the modified vadere .scenario file
 
     """
-    with open(model_file, "r") as file:
+    with open(model_file) as file:
         v_model = json.load(file)
 
     for key, value in experiment.items():
@@ -109,7 +109,7 @@ class BaseVadereModel(FileModel):
         separate working directory prior to calling `model_init`.
 
         """
-        super(BaseVadereModel, self).__init__(name, wd=wd, model_file=model_file)
+        super().__init__(name, wd=wd, model_file=model_file)
 
         self.vadere_jar = vadere_jar
         self.processor_files = processor_files
@@ -126,7 +126,7 @@ class BaseVadereModel(FileModel):
 
 
         """
-        super(BaseVadereModel, self).model_init(policy)
+        super().model_init(policy)
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
@@ -176,7 +176,7 @@ class BaseVadereModel(FileModel):
         ]
 
         # run the experiment
-        process = run(self.vadere, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        process = run(self.vadere, stdin=PIPE, capture_output=True)
 
         # results are stored inside a temp dir
         # get path to nested result dir
@@ -200,9 +200,7 @@ class BaseVadereModel(FileModel):
         scalar_res = []
         for file in self.processor_files:
             if file.endswith(".csv"):
-                timeseries_res[file] = pd.read_csv(
-                    os.path.join(output_dir, file), sep=" "
-                )
+                timeseries_res[file] = pd.read_csv(os.path.join(output_dir, file), sep=" ")
             if file.endswith(".txt"):
                 scalar_res.append(os.path.join(output_dir, file))
 

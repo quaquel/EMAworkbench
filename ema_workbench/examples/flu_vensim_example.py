@@ -23,18 +23,14 @@ from ema_workbench.em_framework.parameters import Policy
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModel(
-        "fluCase", wd=r"./models/flu", model_file=r"FLUvensimV1basecase.vpm"
-    )
+    model = VensimModel("fluCase", wd=r"./models/flu", model_file=r"FLUvensimV1basecase.vpm")
 
     # outcomes
     model.outcomes = [
         TimeSeriesOutcome("deceased population region 1"),
         TimeSeriesOutcome("infected fraction R1"),
         ScalarOutcome(
-            "max infection fraction",
-            variable_name="infected fraction R1",
-            function=np.max,
+            "max infection fraction", variable_name="infected fraction R1", function=np.max
         ),
     ]
 

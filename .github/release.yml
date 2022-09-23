@@ -18,7 +18,7 @@ changelog:
     - title: 📜 Documentation improvements
       labels:
         - docs
-    - title: 🔧 Maintenance 
+    - title: 🔧 Maintenance
       labels:
         - ci
         - testing

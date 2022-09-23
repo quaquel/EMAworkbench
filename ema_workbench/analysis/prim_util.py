@@ -60,9 +60,7 @@ def get_quantile(data, quantile):
         value = (data[index_lower] + data[index_higher]) / 2
     else:
         # lower
-        while (data[index_lower] == data[index_higher]) & (
-            index_higher < len(data) - 1
-        ):
+        while (data[index_lower] == data[index_higher]) & (index_higher < len(data) - 1):
             index_higher += 1
         value = (data[index_lower] + data[index_higher]) / 2
 
@@ -170,9 +168,7 @@ def determine_rotation(experiments):
 
     # make the eigen vectors unit length
     for i in range(eigen_vectors.shape[1]):
-        eigen_vectors[:, i] / np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(
-            eigen_vals[i]
-        )
+        eigen_vectors[:, i] / np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(eigen_vals[i])
 
     return eigen_vectors
 

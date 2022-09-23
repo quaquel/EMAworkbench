@@ -6,7 +6,7 @@ Exploratory modeling framework
 
 .. toctree::
    :maxdepth: 2
-   
+
    ../../ema_documentation/em_framework/model.rst
    ../../ema_documentation/em_framework/parameters.rst
    ../../ema_documentation/em_framework/outcomes.rst
@@ -47,19 +47,19 @@ Analysis
    ../../ema_documentation/analysis/regional_sa.rst
    ../../ema_documentation/analysis/feature_scoring.rst
    ../../ema_documentation/analysis/plotting.rst
-   ../../ema_documentation/analysis/pairs_plotting.rst   
+   ../../ema_documentation/analysis/pairs_plotting.rst
    ../../ema_documentation/analysis/parcoords.rst
    ../../ema_documentation/analysis/b_and_w_plotting.rst
    ../../ema_documentation/analysis/plotting_util.rst
    ../../ema_documentation/analysis/scenario_discovery_util.rst
-   
-   
+
+
 Util
 ^^^^
 .. toctree::
    :maxdepth: 2
 
-   ../../ema_documentation/util/ema_exceptions.rst   
+   ../../ema_documentation/util/ema_exceptions.rst
    ../../ema_documentation/util/ema_logging.rst
    ../../ema_documentation/util/utilities.rst
 

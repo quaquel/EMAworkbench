@@ -231,9 +231,7 @@ class ParallelAxes:
             recoded[key] = data[key].astype(value).cat.codes
 
         # normalize the data
-        normalized_data = pd.DataFrame(
-            self.normalizer.transform(recoded), columns=recoded.columns
-        )
+        normalized_data = pd.DataFrame(self.normalizer.transform(recoded), columns=recoded.columns)
 
         # plot the data
         self._plot(normalized_data, color=color, **kwargs)
@@ -270,9 +268,7 @@ class ParallelAxes:
         """
 
         j = -1
-        for ax, label_i, label_j in zip(
-            self.axes, self.axis_labels[:-1], self.axis_labels[1::]
-        ):
+        for ax, label_i, label_j in zip(self.axes, self.axis_labels[:-1], self.axis_labels[1::]):
             plotdata = data.loc[:, [label_i, label_j]]
             j += 1
             lines = ax.plot([j + 1, j + 2], plotdata.values.T, **kwargs)

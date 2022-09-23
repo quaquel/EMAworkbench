@@ -72,9 +72,7 @@ class BaseExcelModel(FileModel):
 
     com_warning_msg = "com error: no cell(s) named %s found"
 
-    def __init__(
-        self, name, wd=None, model_file=None, default_sheet=None, pointers=None
-    ):
+    def __init__(self, name, wd=None, model_file=None, default_sheet=None, pointers=None):
         super().__init__(name, wd=wd, model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
@@ -191,14 +189,14 @@ class BaseExcelModel(FileModel):
             try:
                 self.wb.Close(False)
             except com_error as err:
-                _logger.warning(f"com error on wb.Close: {err}",)
+                _logger.warning(f"com error on wb.Close: {err}")
             del self.wb
         if self.xl:
             try:
                 self.xl.DisplayAlerts = False
                 self.xl.Quit()
             except com_error as err:
-                _logger.warning(f"com error on xl.Quit: {err}",)
+                _logger.warning(f"com error on xl.Quit: {err}")
             del self.xl
 
         self.xl = None
@@ -265,11 +263,7 @@ class BaseExcelModel(FileModel):
         try:
             value = sheet.Range(this_range).Value
         except com_error:
-            _logger.warning(
-                "com error: no cell(s) named {} found on sheet {}".format(
-                    this_range, this_sheet
-                ),
-            )
+            _logger.warning(f"com error: no cell(s) named {this_range} found on sheet {this_sheet}")
             value = None
 
         return value
@@ -306,11 +300,7 @@ class BaseExcelModel(FileModel):
         try:
             sheet.Range(this_range).Value = value
         except com_error:
-            _logger.warning(
-                "com error: no cell(s) named {} found on sheet {}".format(
-                    this_range, this_sheet
-                ),
-            )
+            _logger.warning(f"com error: no cell(s) named {this_range} found on sheet {this_sheet}")
 
     def get_wb_sheetnames(self):
         """get the names of all the workbook's worksheets"""

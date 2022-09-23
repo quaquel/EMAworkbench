@@ -80,7 +80,7 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on, ccdf):
                 freq = 1 - cum_freq
 
             x_plot = [j * 1, j * 1 + 1]
-            y_plot = [freq,] * 2
+            y_plot = [freq] * 2
 
             ax.plot(x_plot, y_plot, c=cp[i + 1], label=i == 1)
             ax.scatter(
@@ -105,9 +105,7 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on, ccdf):
             if ccdf:
                 cum_freq_un = (len(freqs) - j - 1) / n_cat
 
-            ax.plot(
-                x_plot, [cum_freq_un,] * 2, lw=1, c="darkgrey", zorder=1, label="x==y",
-            )
+            ax.plot(x_plot, [cum_freq_un] * 2, lw=1, c="darkgrey", zorder=1, label="x==y")
             ax.scatter(
                 x_plot[0],
                 cum_freq_un,

@@ -6,11 +6,7 @@ Created on Sep 13, 2013
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ema_workbench.analysis.b_and_w_plotting import (
-    set_fig_to_bw,
-    HATCHING,
-    GREYSCALE,
-)
+from ema_workbench.analysis.b_and_w_plotting import set_fig_to_bw, HATCHING, GREYSCALE
 
 
 def test_scatter():

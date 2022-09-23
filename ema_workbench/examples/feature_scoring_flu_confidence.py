@@ -9,10 +9,7 @@ import pandas as pd
 import seaborn as sns
 
 from ema_workbench import ema_logging, load_results
-from ema_workbench.analysis.feature_scoring import (
-    get_ex_feature_scores,
-    RuleInductionType,
-)
+from ema_workbench.analysis.feature_scoring import get_ex_feature_scores, RuleInductionType
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
@@ -29,9 +26,7 @@ for i in range(100):
     selected_x = x.iloc[indices, :]
     selected_y = y[indices]
 
-    scores = get_ex_feature_scores(
-        selected_x, selected_y, mode=RuleInductionType.REGRESSION
-    )[0]
+    scores = get_ex_feature_scores(selected_x, selected_y, mode=RuleInductionType.REGRESSION)[0]
     all_scores.append(scores)
 all_scores = pd.concat(all_scores, axis=1, sort=False)
 

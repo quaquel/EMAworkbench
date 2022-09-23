@@ -27,9 +27,7 @@ class LogitTestCase(unittest.TestCase):
         logitmodel = lr.Logit(experiments, y)
 
         columns = set(
-            experiments.drop(
-                ["scenario", "policy", "model"], axis=1
-            ).columns.values.tolist()
+            experiments.drop(["scenario", "policy", "model"], axis=1).columns.values.tolist()
         )
 
         # check init

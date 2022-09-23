@@ -116,10 +116,8 @@ class BaseEvaluator:
             for entry in msis:
                 if not isinstance(entry, AbstractModel):
                     raise TypeError(
-                        (
-                            f"{entry} should be an AbstractModel "
-                            f"instance but is a {entry.__class__} instance"
-                        )
+                        f"{entry} should be an AbstractModel "
+                        f"instance but is a {entry.__class__} instance"
                     )
 
         self._msis = msis
@@ -348,9 +346,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
         if isinstance(n_processes, int):
             if n_processes > 0:
                 if max_processes > n_processes:
-                    warnings.warn(
-                        f"the number of processes cannot be more then {max_processes}"
-                    )
+                    warnings.warn(f"the number of processes cannot be more then {max_processes}")
                 self.n_processes = min(n_processes, max_processes)
             else:
                 self.n_processes = max(max_processes + self.n_processes, 1)
@@ -380,9 +376,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
                 self.root_dir = None
                 break
         else:
-            random_part = [
-                random.choice(string.ascii_letters + string.digits) for _ in range(5)
-            ]
+            random_part = [random.choice(string.ascii_letters + string.digits) for _ in range(5)]
             random_part = "".join(random_part)
             self.root_dir = os.path.abspath("tmp" + random_part)
             os.makedirs(self.root_dir)
@@ -523,16 +517,12 @@ def perform_experiments(
     # unreadable in this form
 
     if not scenarios and not policies:
-        raise EMAError(
-            "no experiments possible since both " "scenarios and policies are 0"
-        )
+        raise EMAError("no experiments possible since both " "scenarios and policies are 0")
 
     scenarios, uncertainties, n_scenarios = setup_scenarios(
         scenarios, uncertainty_sampling, uncertainty_union, models
     )
-    policies, levers, n_policies = setup_policies(
-        policies, lever_sampling, lever_union, models
-    )
+    policies, levers, n_policies = setup_policies(policies, lever_sampling, lever_union, models)
 
     try:
         n_models = len(models)
@@ -547,20 +537,18 @@ def perform_experiments(
         # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
         # it
         _logger.info(
-            (
-                "performing {} scenarios * {} policies * {} model(s) = "
-                "{} experiments"
-            ).format(n_scenarios, n_policies, n_models, nr_of_exp)
+            ("performing {} scenarios * {} policies * {} model(s) = " "{} experiments").format(
+                n_scenarios, n_policies, n_models, nr_of_exp
+            )
         )
     else:
         nr_of_exp = n_models * max(n_scenarios, n_policies)
         # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
         # it
         _logger.info(
-            (
-                "performing max({} scenarios, {} policies) * {} model(s) = "
-                "{} experiments"
-            ).format(n_scenarios, n_policies, n_models, nr_of_exp)
+            ("performing max({} scenarios, {} policies) * {} model(s) = " "{} experiments").format(
+                n_scenarios, n_policies, n_models, nr_of_exp
+            )
         )
 
     callback = setup_callback(
@@ -736,38 +724,25 @@ def optimize(
     """
     if searchover not in ("levers", "uncertainties"):
         raise EMAError(
-            "searchover should be one of 'levers' or"
-            "'uncertainties' not {}".format(searchover)
+            "searchover should be one of 'levers' or" "'uncertainties' not {}".format(searchover)
         )
 
     try:
         if len(models) == 1:
             models = models[0]
         else:
-            raise NotImplementedError(
-                "optimization over multiple" "models yet supported"
-            )
+            raise NotImplementedError("optimization over multiple" "models yet supported")
     except TypeError:
         pass
 
-    problem = to_problem(
-        models, searchover, constraints=constraints, reference=reference
-    )
+    problem = to_problem(models, searchover, constraints=constraints, reference=reference)
 
     # solve the optimization problem
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
     return _optimize(
-        problem,
-        evaluator,
-        algorithm,
-        convergence,
-        nfe,
-        convergence_freq,
-        logging_freq,
-        variator=variator,
-        **kwargs,
+        problem, evaluator, algorithm, convergence, nfe, convergence_freq, logging_freq, variator=variator, **kwargs
     )
 
 
@@ -819,10 +794,7 @@ def robust_optimize(
         assert rf.function is not None
 
     problem = to_robust_problem(
-        model,
-        scenarios,
-        constraints=constraints,
-        robustness_functions=robustness_functions,
+        model, scenarios, constraints=constraints, robustness_functions=robustness_functions
     )
 
     # solve the optimization problem

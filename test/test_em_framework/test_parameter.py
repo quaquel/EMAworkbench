@@ -82,9 +82,7 @@ class RealParameterTestCase(unittest.TestCase):
         self.assertEqual(par.resolution, [0, 1])
 
         with self.assertRaises(ValueError):
-            parameters.RealParameter.from_dist(
-                "test", sp.stats.randint(0, 1)
-            )  # @UndefinedVariable
+            parameters.RealParameter.from_dist("test", sp.stats.randint(0, 1))  # @UndefinedVariable
             parameters.RealParameter.from_dist(
                 "test", sp.stats.uniform(0, 1), blaat=[0, 1]  # @UndefinedVariable
             )
@@ -109,20 +107,14 @@ class IntegerParameterTestCase(unittest.TestCase):
         upper_bound = 0
 
         with self.assertRaises(ValueError):
-            par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
-            )
+            par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution)
 
         with self.assertRaises(ValueError):
             resolution = [-1, 0]
-            par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
-            )
+            par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution)
 
             resolution = [0, 1, 3]
-            par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
-            )
+            par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution)
 
         with self.assertRaises(ValueError):
             par = parameters.IntegerParameter(name, lower_bound, 2.1, resolution)
@@ -130,9 +122,7 @@ class IntegerParameterTestCase(unittest.TestCase):
             par = parameters.IntegerParameter(name, 0.0, 2, resolution)
 
         with self.assertRaises(ValueError):
-            par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, [0, 1.5, 2]
-            )
+            par = parameters.IntegerParameter(name, lower_bound, upper_bound, [0, 1.5, 2])
 
     def test_dist(self):
         name = "test"

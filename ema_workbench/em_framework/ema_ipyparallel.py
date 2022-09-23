@@ -162,10 +162,7 @@ class LogWatcher(LoggingConfigurable):
 
     # configurables
     topics = List(
-        [""],
-        help=(
-            "The ZMQ topics to subscribe to. Default is to" "subscribe to all messages"
-        ),
+        [""], help=("The ZMQ topics to subscribe to. Default is to" "subscribe to all messages")
     ).tag(config=True)
     url = Unicode(help="ZMQ url on which to listen for log messages").tag(config=True)
 

@@ -63,9 +63,7 @@ class SimioModel(FileModel, SingleReplication):
     """
 
     @method_logger(__name__)
-    def __init__(
-        self, name, wd=None, model_file=None, main_model=None, n_replications=10
-    ):
+    def __init__(self, name, wd=None, model_file=None, main_model=None, n_replications=10):
         """interface to the model
 
         Parameters
@@ -126,9 +124,7 @@ class SimioModel(FileModel, SingleReplication):
 
         # set up new EMA specific experiment on model
         _logger.debug("setting up EMA experiment")
-        self.experiment = SimioAPI.IExperiment(
-            model.Experiments.Create("ema experiment")
-        )
+        self.experiment = SimioAPI.IExperiment(model.Experiments.Create("ema experiment"))
         SimioAPI.IExperimentResponses(self.experiment.Responses).Clear()
 
         # use all available responses as template for experiment responses
@@ -142,9 +138,7 @@ class SimioModel(FileModel, SingleReplication):
                 except KeyError:
                     raise EMAError(f"response with name '{name}' not found")
 
-                response = SimioAPI.IExperimentResponse(
-                    self.experiment.Responses.Create(name)
-                )
+                response = SimioAPI.IExperimentResponse(self.experiment.Responses.Create(name))
                 response.set_Expression(value.Expression)
                 response.set_Objective(value.Objective)
 

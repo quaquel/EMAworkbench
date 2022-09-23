@@ -1,5 +1,5 @@
 ## Exploratory Modeling workbench
-This is a stable version of the EMA workbench currently under 
+This is a stable version of the EMA workbench currently under
 development at Delft University of Technology.
 
 [![Build Status](https://github.com/quaquel/EMAworkbench/actions/workflows/ci.yml/badge.svg?master)](https://github.com/quaquel/EMAworkbench/actions)
@@ -9,8 +9,8 @@ development at Delft University of Technology.
 [![PyPi](https://img.shields.io/pypi/dm/ema_workbench.svg)](https://pypi.python.org/pypi/ema_workbench)
 
 If you are interested in using the most recent version of the workbench  and
-would like to contribute to its further development, contact Jan Kwakkel at 
-Delft University of Technology.  
+would like to contribute to its further development, contact Jan Kwakkel at
+Delft University of Technology.
 
 The workbench is available from pip. Version 1.x is compatible with both
 python 2 and 3, while the 2.x branch requires python 3.8 or newer.
@@ -31,6 +31,6 @@ Releases are published automatically when a tag is pushed to GitHub.
 
    # Push
    git push upstream --tags # for a fork
-   
+
    # use git push origin --tags if on origin
 ```

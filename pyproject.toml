@@ -29,13 +29,6 @@ dependencies = [
 ]
 dynamic = ["version"] # Version is read from ema_workbench/__init__.py
 
-[tool.setuptools.dynamic]
-version = {attr = "ema_workbench.__version__"}
-
-[tool.setuptools.package-data]
-"ema_workbench.examples.data" = ["**"]
-"ema_workbench.examples.models" = ["**"]
-
 [project.optional-dependencies]
 recommended = ["ema_workbench[jupyter,dev,graph]"]
 all = ["ema_workbench[jupyter,dev,cov,docs,graph,parallel]"]
@@ -55,3 +48,13 @@ simio = ["pythonnet"]  # Needs Windows as OS
 "Homepage" = "https://github.com/quaquel/EMAworkbench"
 "Documentation" = "https://emaworkbench.readthedocs.io/"
 "Bug Tracker" = "https://github.com/quaquel/EMAworkbench/issues"
+
+[tool.black]
+line-length = 100
+
+[tool.setuptools.dynamic]
+version = {attr = "ema_workbench.__version__"}
+
+[tool.setuptools.package-data]
+"ema_workbench.examples.data" = ["**"]
+"ema_workbench.examples.models" = ["**"]

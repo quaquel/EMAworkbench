@@ -2,27 +2,27 @@
 a= INTEG (
 	in-out,
 		2)
-	~	
+	~
 	~		|
 
 in=
 	x11*a
-	~	
+	~
 	~		|
 
 out=
 	x12*a
-	~	
+	~
 	~		|
 
 x11=
 	1.5
-	~	
+	~
 	~		|
 
 x12=
 	0.5
-	~	
+	~
 	~		|
 
 ********************************************************
@@ -41,8 +41,8 @@ INITIAL TIME  = 0
 	~	The initial time for the simulation.
 	|
 
-SAVEPER  = 
-        TIME STEP 
+SAVEPER  =
+        TIME STEP
 	~	Month [0,?]
 	~	The frequency with which output is stored.
 	|

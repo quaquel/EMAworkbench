@@ -18,15 +18,11 @@ class TestEvaluators(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
     @mock.patch("ema_workbench.em_framework.evaluators.experiment_generator")
     @mock.patch("ema_workbench.em_framework.evaluators.ExperimentRunner")
-    def test_sequential_evalutor(
-        self, mocked_runner, mocked_generator, mocked_callback
-    ):
+    def test_sequential_evalutor(self, mocked_runner, mocked_generator, mocked_callback):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"
         mocked_generator.return_value = [1]
-        mocked_runner.return_value = (
-            mocked_runner  # return the mock upon initialization
-        )
+        mocked_runner.return_value = mocked_runner  # return the mock upon initialization
         mocked_runner.run_experiment.return_value = {}, {}
 
         evaluator = evaluators.SequentialEvaluator(model)
@@ -61,12 +57,7 @@ class TestEvaluators(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
     @mock.patch("ema_workbench.em_framework.evaluators.experiment_generator")
     def test_ipyparallel_evaluator(
-        self,
-        mocked_generator,
-        mocked_callback,
-        mocked_start,
-        mocked_initialize,
-        mocked_set,
+        self, mocked_generator, mocked_callback, mocked_start, mocked_initialize, mocked_set
     ):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"

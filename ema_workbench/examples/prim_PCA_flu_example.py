@@ -25,9 +25,7 @@ x, outcomes = load_results(fn)
 # specify y
 y = outcomes["deceased population region 1"][:, -1] > 1000000
 
-rotated_experiments, rotation_matrix = prim.pca_preprocess(
-    x, y, exclude=["model", "policy"]
-)
+rotated_experiments, rotation_matrix = prim.pca_preprocess(x, y, exclude=["model", "policy"])
 
 # perform prim on modified results tuple
 prim_obj = prim.Prim(rotated_experiments, y, threshold=0.8)

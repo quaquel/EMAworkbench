@@ -14,12 +14,7 @@ import pandas as pd
 from . import callbacks, evaluators
 from .points import Scenario, Policy
 from .outcomes import AbstractOutcome
-from .parameters import (
-    IntegerParameter,
-    RealParameter,
-    CategoricalParameter,
-    BooleanParameter,
-)
+from .parameters import IntegerParameter, RealParameter, CategoricalParameter, BooleanParameter
 from .samplers import determine_parameters
 from .util import determine_objects, ProgressTrackingMixIn
 from ..util import get_module_logger, EMAError, temporary_filter, INFO
@@ -107,9 +102,7 @@ class Problem(PlatypusProblem):
     def parameter_names(self):
         return [e.name for e in self.parameters]
 
-    def __init__(
-        self, searchover, parameters, outcome_names, constraints, reference=None
-    ):
+    def __init__(self, searchover, parameters, outcome_names, constraints, reference=None):
         if constraints is None:
             constraints = []
 
@@ -136,9 +129,7 @@ class RobustProblem(Problem):
     """small extension to Problem object for robust optimization, adds the
     scenarios and the robustness functions"""
 
-    def __init__(
-        self, parameters, outcome_names, scenarios, robustness_functions, constraints
-    ):
+    def __init__(self, parameters, outcome_names, scenarios, robustness_functions, constraints):
         super().__init__("robust", parameters, outcome_names, constraints)
         assert len(robustness_functions) == len(outcome_names)
         self.scenarios = scenarios
@@ -172,9 +163,7 @@ def to_problem(model, searchover, reference=None, constraints=None):
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
-        raise EMAError(
-            "no outcomes specified to optimize over, " "all outcomes are of kind=INFO"
-        )
+        raise EMAError("no outcomes specified to optimize over, " "all outcomes are of kind=INFO")
 
     problem = Problem(
         searchover, decision_variables, outcome_names, constraints, reference=reference
@@ -211,9 +200,7 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
-        raise EMAError(
-            "no outcomes specified to optimize over, " "all outcomes are of kind=INFO"
-        )
+        raise EMAError("no outcomes specified to optimize over, " "all outcomes are of kind=INFO")
 
     problem = RobustProblem(
         decision_variables, outcome_names, scenarios, robustness_functions, constraints
@@ -266,12 +253,8 @@ def to_dataframe(optimizer, dvnames, outcome_names):
     """
 
     solutions = []
-    # for solution in platypus.unique(platypus.nondominated(optimizer.result)):
     for solution in platypus.unique(optimizer.result):
-
-        vars = transform_variables(
-            solution.problem, solution.variables  # @ReservedAssignment
-        )
+        vars = transform_variables(solution.problem, solution.variables)  # @ReservedAssignment
 
         decision_vars = dict(zip(dvnames, vars))
         decision_out = dict(zip(outcome_names, solution.objectives))
@@ -409,9 +392,7 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
 
         # TODO:: only retain uncertainties
         job_experiment = experiments[logical]
-        job_constraints = _evaluate_constraints(
-            job_experiment, job_outputs, constraints
-        )
+        job_constraints = _evaluate_constraints(job_experiment, job_outputs, constraints)
         job_outcomes = [job_outputs[key] for key in outcome_names]
 
         if job_constraints:
@@ -441,9 +422,7 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
 
         # TODO:: only retain levers
         job_experiment = experiments[logical].iloc[0]
-        job_constraints = _evaluate_constraints(
-            job_experiment, job_outcomes_dict, constraints
-        )
+        job_constraints = _evaluate_constraints(job_experiment, job_outcomes_dict, constraints)
 
         if job_constraints:
             job.solution.problem.function = lambda _: (job_outcomes, job_constraints)
@@ -513,9 +492,7 @@ class HyperVolume(AbstractConvergenceMetric):
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
     def __call__(self, optimizer):
-        self.results.append(
-            self.hypervolume_func.calculate(optimizer.algorithm.archive)
-        )
+        self.results.append(self.hypervolume_func.calculate(optimizer.algorithm.archive))
 
     @classmethod
     def from_outcomes(cls, outcomes):
@@ -539,9 +516,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
     """
 
-    def __init__(
-        self, directory, decision_varnames, outcome_varnames, base_filename="archive"
-    ):
+    def __init__(self, directory, decision_varnames, outcome_varnames, base_filename="archive"):
         super().__init__("archive_logger")
         self.directory = os.path.abspath(directory)
         self.base = base_filename
@@ -576,21 +551,13 @@ class Convergence(ProgressTrackingMixIn):
 
     valid_metrics = {"hypervolume", "epsilon_progress", "archive_logger"}
 
-    def __init__(
-        self,
-        metrics,
-        max_nfe,
-        convergence_freq=1000,
-        logging_freq=5,
-        log_progress=False,
-    ):
+    def __init__(self, metrics, max_nfe, convergence_freq=1000, logging_freq=5, log_progress=False):
         super().__init__(
             max_nfe,
             logging_freq,
             _logger,
             log_progress=log_progress,
-            log_func=lambda self: f"generation"
-            f" {self.generation}, {self.i}/{self.max_nfe}",
+            log_func=lambda self: f"generation" f" {self.generation}, {self.i}/{self.max_nfe}",
         )
 
         self.max_nfe = max_nfe
@@ -609,9 +576,7 @@ class Convergence(ProgressTrackingMixIn):
             assert isinstance(metric, AbstractConvergenceMetric)
             metric.reset()
 
-    def __call__(
-        self, optimizer,
-    ):
+    def __call__(self, optimizer):
         nfe = optimizer.nfe
         super().__call__(nfe - self.i)
 
@@ -625,9 +590,7 @@ class Convergence(ProgressTrackingMixIn):
                 metric(optimizer)
 
     def to_dataframe(self):
-        progress = {
-            metric.name: metric.results for metric in self.metrics if metric.results
-        }
+        progress = {metric.name: metric.results for metric in self.metrics if metric.results}
 
         progress = pd.DataFrame.from_dict(progress)
 
@@ -731,9 +694,7 @@ class CombinedVariator(Variator):
             delta = pow(b, 1.0 / (distribution_index + 1.0)) - 1.0
         else:
             bu = (upper - x) / dx
-            b = 2.0 * (1.0 - u) + 2.0 * (u - 0.5) * pow(
-                1.0 - bu, distribution_index + 1.0
-            )
+            b = 2.0 * (1.0 - u) + 2.0 * (u - 0.5) * pow(1.0 - bu, distribution_index + 1.0)
             delta = 1.0 - pow(b, 1.0 / (distribution_index + 1.0))
 
         x = x + delta * dx
@@ -775,7 +736,11 @@ class CombinedVariator(Variator):
         Subset: crossover_categorical,
     }
 
-    _mutate = {Real: mutate_real, Integer: mutate_integer, Subset: mutate_categorical}
+    _mutate = {
+        Real: mutate_real,
+        Integer: mutate_integer,
+        Subset: mutate_categorical,
+    }
 
 
 def _optimize(
@@ -797,9 +762,7 @@ def _optimize(
         pass
     else:
         if len(eps_values) != len(problem.outcome_names):
-            raise EMAError(
-                "number of epsilon values does not match number " "of outcomes"
-            )
+            raise EMAError("number of epsilon values does not match number " "of outcomes")
 
     if variator is None:
         if all(isinstance(t, klass) for t in problem.types):
@@ -920,9 +883,7 @@ class GenerationalBorg(EpsilonProgressContinuation):
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(
-                DifferentialEvolution(
-                    crossover_rate=self.de_rate, step_size=self.de_stepsize
-                ),
+                DifferentialEvolution(crossover_rate=self.de_rate, step_size=self.de_stepsize),
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(

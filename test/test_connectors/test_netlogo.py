@@ -10,11 +10,7 @@ from ema_workbench.connectors.netlogo import NetLogoModel
 # should be made conditional on the presence of jpype
 __test__ = False
 
-from ema_workbench.em_framework import (
-    RealParameter,
-    CategoricalParameter,
-    TimeSeriesOutcome,
-)
+from ema_workbench.em_framework import RealParameter, CategoricalParameter, TimeSeriesOutcome
 from ema_workbench.em_framework.parameters import Policy
 from ema_workbench.connectors import netlogo
 

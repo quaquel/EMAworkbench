@@ -210,9 +210,7 @@ def save_results(results, file_name):
     with tarfile.open(file_name, "w:gz") as z:
         # store experiments
         stream = BytesIO()
-        stream.write(
-            experiments.to_csv(header=True, encoding="UTF-8", index=False).encode()
-        )
+        stream.write(experiments.to_csv(header=True, encoding="UTF-8", index=False).encode())
         add_file(z, stream, "experiments.csv")
 
         # store outcomes
@@ -345,14 +343,10 @@ def process_replications(data, aggregation_func=np.mean):
 
     if isinstance(data, dict):
         # replications are the second dimension of the outcome arrays
-        outcomes_processed = {
-            key: aggregation_func(data[key], axis=1) for key in data.keys()
-        }
+        outcomes_processed = {key: aggregation_func(data[key], axis=1) for key in data.keys()}
         return outcomes_processed
     elif (
-        isinstance(data, tuple)
-        and isinstance(data[0], pd.DataFrame)
-        and isinstance(data[1], dict)
+        isinstance(data, tuple) and isinstance(data[0], pd.DataFrame) and isinstance(data[1], dict)
     ):
         experiments, outcomes = data  # split results
         outcomes_processed = {
@@ -362,6 +356,4 @@ def process_replications(data, aggregation_func=np.mean):
         return results_processed
 
     else:
-        raise EMAError(
-            f"data should be a dict or tuple, but is a {type(data)}".format()
-        )
+        raise EMAError(f"data should be a dict or tuple, but is a {type(data)}".format())

@@ -106,9 +106,7 @@ def contours(ax, model, xlabel, ylabel, levels):
     # rgb = [255*entry for entry in sns.color_palette()[1]]
     # hsl = 28, 100, 52.7
 
-    cmap = sns.diverging_palette(
-        244, 28, s=99.9, l=52.7, n=len(levels) - 1, as_cmap=True
-    )
+    cmap = sns.diverging_palette(244, 28, s=99.9, l=52.7, n=len(levels) - 1, as_cmap=True)
     ax.contourf(Xgrid, Ygrid, Zgrid, levels, cmap=cmap, zorder=0)
 
 
@@ -269,9 +267,7 @@ class Logit:
         a Figure instance
 
         """
-        return sdutil.plot_tradeoff(
-            self.peeling_trajectory, cmap=cmap, annotated=annotated
-        )
+        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
     # @UndefinedVariable
     def show_threshold_tradeoff(self, i, cmap=mpl.cm.viridis_r, step=0.1):
@@ -293,9 +289,7 @@ class Logit:
 
         fitted_model = self.models[i]
         x = self._normalized.loc[:, fitted_model.params.index.values]
-        coverage, density, thresholds = calculate_covden(
-            fitted_model, x, self.y, step=step
-        )
+        coverage, density, thresholds = calculate_covden(fitted_model, x, self.y, step=step)
 
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect="equal")
@@ -329,9 +323,7 @@ class Logit:
         model = self.models[i]
         x = self._normalized.loc[:, model.params.index.values]
         coverage, density, thresholds = calculate_covden(model, x, self.y, step=step)
-        data = pd.DataFrame(
-            {"coverage": coverage, "density": density, "thresholds": thresholds}
-        )
+        data = pd.DataFrame({"coverage": coverage, "density": density, "thresholds": thresholds})
         print(data)
         print()
 

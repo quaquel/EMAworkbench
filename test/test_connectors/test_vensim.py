@@ -69,12 +69,7 @@ class LookupTestModel(VensimModel):
         # self.uncertainties.pop()
         self.uncertainties.append(
             LookupUncertainty(
-                "approximation",
-                [(0, 4), (1, 5), (1, 5), (0, 2), (0, 2)],
-                "TF2",
-                self,
-                0,
-                10,
+                "approximation", [(0, 4), (1, 5), (1, 5), (0, 2), (0, 2)], "TF2", self, 0, 10
             )
         )
         # self.uncertainties.pop()

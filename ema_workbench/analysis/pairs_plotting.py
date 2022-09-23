@@ -87,9 +87,7 @@ def pairs_lines(
     figure = plt.figure()
     axes_dict = {}
 
-    combis = [
-        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
-    ]
+    combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
 
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -120,13 +118,7 @@ def pairs_lines(
 
         for ax in figure.axes:
             gs2 = ax._subplotspec
-            if all(
-                (
-                    gs1._gridspec == gs2._gridspec,
-                    gs1.num1 == gs2.num1,
-                    gs1.num2 == gs2.num2,
-                )
-            ):
+            if all((gs1._gridspec == gs2._gridspec, gs1.num1 == gs2.num1, gs1.num2 == gs2.num2)):
                 break
 
         make_legend(grouping_labels, ax, legend_type=LegendEnum.LINE)
@@ -255,11 +247,7 @@ def pairs_density(
             figures.append(figure)
 
         # harmonize the color scaling across figures
-        combis = [
-            (field1, field2)
-            for field1 in outcomes_to_show
-            for field2 in outcomes_to_show
-        ]
+        combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
         for combi in combis:
             if combi[0] == combi[1]:
                 continue
@@ -276,9 +264,7 @@ def pairs_density(
 
         return figures, axes_dicts
     else:
-        return simple_pairs_density(
-            outcomes, outcomes_to_show, log, colormap, gridsize, ylabels
-        )
+        return simple_pairs_density(outcomes, outcomes_to_show, log, colormap, gridsize, ylabels)
 
 
 def determine_extents(outcomes, outcomes_to_show):
@@ -311,9 +297,7 @@ def determine_extents(outcomes, outcomes_to_show):
             except KeyError:
                 limits[entry] = (minimum, maximum)
     extents = {}
-    combis = [
-        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
-    ]
+    combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
     for field1, field2 in combis:
         limits_1 = limits[field1]
         limits_2 = limits[field2]
@@ -322,14 +306,7 @@ def determine_extents(outcomes, outcomes_to_show):
 
 
 def simple_pairs_density(
-    outcomes,
-    outcomes_to_show,
-    log,
-    colormap,
-    gridsize,
-    ylabels,
-    extents=None,
-    title=None,
+    outcomes, outcomes_to_show, log, colormap, gridsize, ylabels, extents=None, title=None
 ):
     """
 
@@ -358,9 +335,7 @@ def simple_pairs_density(
     # the plotting
     figure = plt.figure()
 
-    combis = [
-        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
-    ]
+    combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
     axes_dict = {}
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -485,9 +460,7 @@ def pairs_scatter(
     figure = plt.figure()
     axes_dict = {}
 
-    combis = [
-        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
-    ]
+    combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
 
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -523,13 +496,7 @@ def pairs_scatter(
 
         for ax in figure.axes:
             gs2 = ax._subplotspec
-            if all(
-                (
-                    gs1._gridspec == gs2._gridspec,
-                    gs1.num1 == gs2.num1,
-                    gs1.num2 == gs2.num2,
-                )
-            ):
+            if all((gs1._gridspec == gs2._gridspec, gs1.num1 == gs2.num1, gs1.num2 == gs2.num2)):
                 break
 
         make_legend(grouping_labels, ax, legend_type=LegendEnum.SCATTER)

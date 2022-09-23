@@ -4,7 +4,9 @@
 name: Build and Test
 on:
   push:
+    paths-ignore: ['docs/**', '**.rst', '**.md']
   pull_request:
+    paths-ignore: ['docs/**', '**.rst', '**.md']
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 1'
@@ -26,9 +28,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+        cache-dependency-path: 'pyproject.toml'
     - name: Install dependencies
       run: |
         pip install --upgrade pip
@@ -47,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3
+    - uses: actions/setup-python@v4
       with:
         python-version: "3.10"
     - run: pip install flake8

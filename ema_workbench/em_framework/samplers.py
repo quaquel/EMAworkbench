@@ -605,9 +605,7 @@ def from_experiments(models, experiments):
 
     # we sample ff over models and policies so we need to ensure
     # we only get the experiments for a single model policy combination
-    logical = (experiments["model"] == model_names[0]) & (
-        experiments["policy"] == policy_names[0]
-    )
+    logical = (experiments["model"] == model_names[0]) & (experiments["policy"] == policy_names[0])
 
     experiments = experiments[logical]
 
