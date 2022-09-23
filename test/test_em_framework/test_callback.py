@@ -4,16 +4,18 @@ Created on 22 Jan 2013
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 import random
-import unittest
 import pytest
 
 import numpy as np
+import numpy.ma as ma
 
+import ema_workbench.em_framework.callbacks as callbacks
 from ema_workbench.em_framework.callbacks import DefaultCallback
 from ema_workbench.em_framework.parameters import (
     CategoricalParameter,
     RealParameter,
     IntegerParameter,
+    BooleanParameter,
 )
 from ema_workbench.em_framework.points import Policy, Scenario, Experiment
 from ema_workbench.util import EMAError
@@ -32,162 +34,209 @@ class TestDefaultCallback(unittest.TestCase):
         ]
         callback = DefaultCallback(uncs, [], outcomes, nr_experiments=100)
 
-        assert callback.i == 0
-        assert callback.nr_experiments == 100
-        assert callback.cases.shape[0] == 100
-        #         self.assertEqual(callback.outcomes, outcomes)
+def test_store_results(mocker):
+    nr_experiments = 3
+    uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
+    outcomes = [TimeSeriesOutcome("test")]
+    model = NamedObject("test")
 
-        names = callback.cases.columns.values.tolist()
-        names = set(names)
-        assert names == {"a", "b", "policy", "model", "scenario"}
+    experiment = Experiment(0, model, Policy("policy"), Scenario(a=1, b=0), 0)
 
-        assert "scalar" not in callback.results
-        assert "timeseries" not in callback.results
-        assert "array" in callback.results
+    # case 1 scalar shape = (1)
+    callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
+    model_outcomes = {outcomes[0].name: 1.0}
+    callback(experiment, model_outcomes)
 
-        a = np.all(np.isnan(callback.results["array"]))
-        assert a
+    _, out = callback.get_results()
 
-        # with levers
-        levers = [RealParameter("c", 0, 10)]
+    assert outcomes[0].name in set(out.keys())
+    assert out[outcomes[0].name].shape == (3,)
 
-        callback = DefaultCallback(uncs, levers, outcomes, nr_experiments=100)
+    # case 2 time series shape = (1, nr_time_steps)
+    callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
+    model_outcomes = {outcomes[0].name: np.random.rand(10)}
+    callback(experiment, model_outcomes)
 
-        assert callback.i == 0
-        assert callback.nr_experiments == 100
-        assert callback.cases.shape[0] == 100
-        #         self.assertEqual(callback.outcomes, [o.name for o in outcomes])
+    _, out = callback.get_results()
+    assert outcomes[0].name in out.keys()
+    assert out[outcomes[0].name].shape == (3, 10)
 
-        names = callback.cases.columns.values.tolist()
-        names = set(names)
-        assert names == {"a", "b", "c", "policy", "model", "scenario"}
+    # case 3 maps etc. shape = (x,y)
+    callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
+    model_outcomes = {outcomes[0].name: np.random.rand(2, 2)}
+    callback(experiment, model_outcomes)
 
-        assert "scalar" not in callback.results
-        assert "timeseries" not in callback.results
-        assert "array" in callback.results
+    _, out = callback.get_results()
+    assert outcomes[0].name in out.keys()
+    assert out[outcomes[0].name].shape == (3, 2, 2)
 
-        a = np.all(np.isnan(callback.results["array"]))
-        assert a
-
-    def test_store_results(self):
-        nr_experiments = 3
-        uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-        outcomes = [TimeSeriesOutcome("test")]
-        model = NamedObject("test")
-
-        experiment = Experiment(0, model, Policy("policy"), Scenario(a=1, b=0), 0)
-
-        # case 1 scalar shape = (1)
-        callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
-        model_outcomes = {outcomes[0].name: 1.0}
+    # case 4 assert raises EMAError
+    callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
+    model_outcomes = {outcomes[0].name: np.random.rand(2, 2, 2)}
+    with pytest.raises(EMAError):
         callback(experiment, model_outcomes)
 
-        _, out = callback.get_results()
-
-        assert outcomes[0].name in set(out.keys())
-        assert out[outcomes[0].name].shape == (3,)
-
-        # case 2 time series shape = (1, nr_time_steps)
-        callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
-        model_outcomes = {outcomes[0].name: np.random.rand(10)}
-        callback(experiment, model_outcomes)
-
-        _, out = callback.get_results()
-        assert outcomes[0].name in out.keys()
-        assert out[outcomes[0].name].shape == (3, 10)
-
-        # case 3 maps etc. shape = (x,y)
-        callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
-        model_outcomes = {outcomes[0].name: np.random.rand(2, 2)}
-        callback(experiment, model_outcomes)
-
-        _, out = callback.get_results()
-        assert outcomes[0].name in out.keys()
-        assert out[outcomes[0].name].shape == (3, 2, 2)
-
-        # case 4 assert raises EMAError
-        callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
-        model_outcomes = {outcomes[0].name: np.random.rand(2, 2, 2)}
-        with pytest.raises(EMAError):
-            callback(experiment, model_outcomes)
-
-    #         # KeyError
-    #         with mock.patch('ema_workbench.util.ema_logging.debug') as mocked_logging:
-    #             callback = DefaultCallback(uncs, [], outcomes,
-    #                                        nr_experiments=nr_experiments)
-    #             model_outcomes = {'incorrect': np.random.rand(2,)}
-    #             callback(experiment, model_outcomes)
-    #
-    #             for outcome in outcomes:
-    #                 mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
-
-    def test_store_cases(self):
-        nr_experiments = 3
-        uncs = [
-            RealParameter("a", 0, 1),
-            RealParameter("b", 0, 1),
-            CategoricalParameter("c", [0, 1, 2]),
-            IntegerParameter("d", 0, 1),
-        ]
-        outcomes = [TimeSeriesOutcome("test")]
-        case = {unc.name: random.random() for unc in uncs}
-        case["c"] = int(round(case["c"] * 2))
-        case["d"] = int(round(case["d"]))
-
-        model = NamedObject("test")
-        policy = Policy("policy")
-        scenario = Scenario(**case)
-        experiment = Experiment(0, model.name, policy, scenario, 0)
-
-        callback = DefaultCallback(
-            uncs, [], outcomes, nr_experiments=nr_experiments, reporting_interval=1
-        )
-        model_outcomes = {outcomes[0].name: 1.0}
-        callback(experiment, model_outcomes)
-
-        experiments, _ = callback.get_results()
-        design = case
-        design["policy"] = policy.name
-        design["model"] = model.name
-        design["scenario"] = scenario.name
-
-        names = experiments.columns.values.tolist()
-        for name in names:
-            entry_a = experiments[name][0]
-            entry_b = design[name]
-
-            assert entry_a == entry_b, "failed for " + name
-
-        # with levers
-        nr_experiments = 3
-        uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-        levers = [RealParameter("c", 0, 1), RealParameter("d", 0, 1)]
-        outcomes = [TimeSeriesOutcome("test")]
-        case = {unc.name: random.random() for unc in uncs}
-
-        model = NamedObject("test")
-        policy = Policy("policy", c=1, d=1)
-        scenario = Scenario(**case)
-        experiment = Experiment(0, model.name, policy, scenario, 0)
-
-        callback = DefaultCallback(
-            uncs, levers, outcomes, nr_experiments=nr_experiments, reporting_interval=1
-        )
-        model_outcomes = {outcomes[0].name: 1.0}
-        callback(experiment, model_outcomes)
-
-        experiments, _ = callback.get_results()
-        design = case
-        design["c"] = 1
-        design["d"] = 1
-        design["policy"] = policy.name
-        design["model"] = model.name
-        design["scenario"] = scenario.name
-
-        names = experiments.columns.values.tolist()
-        for name in names:
-            assert experiments[name][0] == design[name]
+    # case 5 assert raises KeyError
+    callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
+    model_outcomes = {"some_other_name": np.random.rand(2, 2, 2)}
+    mock = mocker.patch("ema_workbench.em_framework.callbacks._logger.debug")
+    callback._store_outcomes(1, model_outcomes)
+    assert mock.call_count == 2
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_init():
+    # let's add some uncertainties to this
+    uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
+    outcomes = [
+        ScalarOutcome("scalar"),
+        ArrayOutcome("array", shape=(10,)),
+        TimeSeriesOutcome("timeseries"),
+    ]
+    callback = DefaultCallback(uncs, [], outcomes, nr_experiments=100)
+
+    assert callback.i == 0
+    assert callback.nr_experiments == 100
+    assert callback.cases.shape[0] == 100
+    assert callback.reporting_interval == 100
+    #         self.assertEqual(callback.outcomes, outcomes)
+
+    names = callback.cases.columns.values.tolist()
+    names = set(names)
+    assert names == {"a", "b", "policy", "model", "scenario"}
+
+    assert "scalar" not in callback.results
+    assert "timeseries" not in callback.results
+    assert "array" in callback.results
+    assert ma.is_masked(callback.results["array"])
+
+    # with levers
+    levers = [RealParameter("c", 0, 10)]
+
+    callback = DefaultCallback(
+        uncs,
+        levers,
+        outcomes,
+        nr_experiments=1000,
+        reporting_interval=None,
+        reporting_frequency=4,
+    )
+
+    assert callback.i == 0
+    assert callback.nr_experiments == 1000
+    assert callback.cases.shape[0] == 1000
+    assert callback.reporting_interval == 250
+    #         self.assertEqual(callback.outcomes, [o.name for o in outcomes])
+
+    names = callback.cases.columns.values.tolist()
+    names = set(names)
+    assert names == {"a", "b", "c", "policy", "model", "scenario"}
+
+    assert "scalar" not in callback.results
+    assert "timeseries" not in callback.results
+    assert "array" in callback.results
+    assert ma.is_masked(callback.results["array"])
+
+
+#         # KeyError
+#         with mock.patch('ema_workbench.util.ema_logging.debug') as mocked_logging:
+#             callback = DefaultCallback(uncs, [], outcomes,
+#                                        nr_experiments=nr_experiments)
+#             model_outcomes = {'incorrect': np.random.rand(2,)}
+#             callback(experiment, model_outcomes)
+#
+#             for outcome in outcomes:
+#                 mocked_logging.assert_called_with("%s not specified as outcome in msi" % outcome.name)
+
+
+def test_store_cases():
+    nr_experiments = 3
+    uncs = [
+        RealParameter("a", 0, 1),
+        RealParameter("b", 0, 1),
+        CategoricalParameter("c", [0, 1, 2]),
+        IntegerParameter("d", 0, 1),
+        BooleanParameter("e"),
+    ]
+    outcomes = [TimeSeriesOutcome("test")]
+    case = {unc.name: random.random() for unc in uncs}
+    case["c"] = int(round(case["c"] * 2))
+    case["d"] = int(round(case["d"]))
+
+    model = NamedObject("test")
+    policy = Policy("policy")
+    scenario = Scenario(**case)
+    experiment = Experiment(0, model.name, policy, scenario, 0)
+
+    callback = DefaultCallback(
+        uncs, [], outcomes, nr_experiments=nr_experiments, reporting_interval=1
+    )
+    model_outcomes = {outcomes[0].name: 1.0}
+    callback(experiment, model_outcomes)
+
+    experiments, _ = callback.get_results()
+    design = case
+    design["policy"] = policy.name
+    design["model"] = model.name
+    design["scenario"] = scenario.name
+
+    names = experiments.columns.values.tolist()
+    for name in names:
+        entry_a = experiments[name][0]
+        entry_b = design[name]
+
+        assert entry_a == entry_b, "failed for " + name
+
+    # with levers
+    nr_experiments = 3
+    uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
+    levers = [RealParameter("c", 0, 1), RealParameter("d", 0, 1)]
+    outcomes = [TimeSeriesOutcome("test")]
+    case = {unc.name: random.random() for unc in uncs}
+
+    model = NamedObject("test")
+    policy = Policy("policy", c=1, d=1)
+    scenario = Scenario(**case)
+    experiment = Experiment(0, model.name, policy, scenario, 0)
+
+    callback = DefaultCallback(
+        uncs, levers, outcomes, nr_experiments=nr_experiments, reporting_interval=1
+    )
+    model_outcomes = {outcomes[0].name: 1.0}
+    callback(experiment, model_outcomes)
+
+    experiments, _ = callback.get_results()
+    design = case
+    design["c"] = 1
+    design["d"] = 1
+    design["policy"] = policy.name
+    design["model"] = model.name
+    design["scenario"] = scenario.name
+
+    names = experiments.columns.values.tolist()
+    for name in names:
+        assert experiments[name][0] == design[name]
+
+
+def test_get_results(mocker):
+    nr_experiments = 3
+    uncs = [
+        RealParameter("a", 0, 1),
+    ]
+    outcomes = [ScalarOutcome("other_test")]
+    outcomes[0].shape = (1,)
+
+    callback = DefaultCallback(
+        uncs, [], outcomes, nr_experiments=nr_experiments, reporting_interval=1
+    )
+
+    # test warning
+    mock = mocker.patch("ema_workbench.em_framework.callbacks._logger.warning")
+    callback.get_results()
+    assert mock.call_count == 1
+
+    # test without warning
+    mock = mocker.patch("ema_workbench.em_framework.callbacks._logger.warning")
+    callback.results = {k: v.data for k, v in callback.results.items()}
+    callback.get_results()
+    assert mock.call_count == 0
+
