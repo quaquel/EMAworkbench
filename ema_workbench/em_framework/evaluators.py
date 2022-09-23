@@ -720,6 +720,8 @@ def optimize(
     logging_freq : int
                    number of generations between logging of progress
     variator : platypus GAOperator instance, optional
+               if None, it falls back on the defaults in platypus-opts
+               which is SBX with PM
     kwargs : any additional arguments will be passed on to algorithm
 
     Returns

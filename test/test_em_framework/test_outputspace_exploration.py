@@ -22,7 +22,10 @@ def test_novelty(mocker):
 
 
 def test_hitbox(mocker):
-    grid_spec = [(0, 1, 0.1), (0, 1, 0.1)]
+    grid_spec = [
+        (0, 1, 0.1),
+        (0, 1, 0.1),
+    ]
 
     # test first more central and then farther away
     hitbox = outputspace_exploration.HitBox(grid_spec)
@@ -101,7 +104,10 @@ def test_core_algorithm(mocker):
 
     problem = to_problem(model, searchover="uncertainties")
     problem.function = some_callable
-    grid_spec = [(0, 1, 0.1), (0, 1, 0.1)]
+    grid_spec = [
+        (0, 1, 0.1),
+        (0, 1, 0.1),
+    ]
     evaluator = mocker.Mock()
     evaluator.evaluate_all.side_effect = evaluate_all
     population_size = 100
@@ -148,7 +154,10 @@ def test_user_facing_algorithms(mocker):
     ]
 
     problem = to_problem(model, searchover="uncertainties")
-    grid_spec = [(0, 1, 0.1), (0, 1, 0.1)]
+    grid_spec = [
+        (0, 1, 0.1),
+        (0, 1, 0.1),
+    ]
 
     outputspace_exploration.OutputSpaceExploration(problem, grid_spec=grid_spec)
 
