@@ -4,14 +4,14 @@ static COMPREAL temp0,temp1,temp2,temp3,temp4,temp5,temp6,temp7,temp8
 ,temp9,temp10,temp11,temp12,temp13,temp14,temp15,temp16,temp17,temp18
 ,temp19,temp20,temp21,temp22,temp23,temp24,temp25,temp26,temp27,temp28
 ,temp29,temp30,temp31 ;
-static int sumind0,forind0 ; 
-static int sumind1,forind1 ; 
-static int sumind2,forind2 ; 
-static int sumind3,forind3 ; 
-static int sumind4,forind4 ; 
-static int sumind5,forind5 ; 
-static int sumind6,forind6 ; 
-static int sumind7,forind7 ; 
+static int sumind0,forind0 ;
+static int sumind1,forind1 ;
+static int sumind2,forind2 ;
+static int sumind3,forind3 ;
+static int sumind4,forind4 ;
+static int sumind5,forind5 ;
+static int sumind6,forind6 ;
+static int sumind7,forind7 ;
 static int simultid ;
 #ifndef LINKEXTERN
 #endif

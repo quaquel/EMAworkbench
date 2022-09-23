@@ -13,7 +13,7 @@ Heat Loss to Room=
 
 Room Temperature=
 	70
-	~	
+	~
 	~		|
 
 Teacup Temperature= INTEG (
@@ -38,7 +38,7 @@ INITIAL TIME  = 0
 	~	The initial time for the simulation.
 	|
 
-SAVEPER  = 
+SAVEPER  =
         TIME STEP
 	~	Minute [0,?]
 	~	The frequency with which output is stored.

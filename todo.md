@@ -1,11 +1,11 @@
 # Priority list for 2.2
 * composable sampling
-* seed control 
+* seed control
 * boosted trees scenario discovery (see water programming blog)
 * timeseries outcomes via pandas dataframe
 * remove threshold kwarg from prim
 * add OrdinalParameter class
-* properly use ABC instead of raising NotImplementedError 
+* properly use ABC instead of raising NotImplementedError
 * enhancement issues on GitHub
 
 
@@ -40,7 +40,7 @@
 * centralized seed control
     mimic ideas found in mesa? what matters is only the numpy/scipy seeds
     since those are used in the workbench for sampling
-* When to reset the counters for scenario_id and policy_id?  
+* When to reset the counters for scenario_id and policy_id?
 
 # Documentation
 * add documentation on how to develop connectors

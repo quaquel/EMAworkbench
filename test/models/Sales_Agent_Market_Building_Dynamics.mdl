@@ -49,7 +49,7 @@ Effort Remaining after Servicing Existing Clients=
 
 Down Referral Fraction=
 	0.2
-	~	
+	~
 	~		|
 
 Effort Devoted to Tier 2 Leads=
@@ -337,7 +337,7 @@ Tier 2 Leads= INTEG (
 		0)
 	~	Persons
 	~	These are individuals who have been identified as targets and are somewhere in the \
-		sales process, before a sale has been made. 
+		sales process, before a sale has been made.
 		They may or may not have been contacted by the agent yet. If they can be \
 		converted to clients, they will have a regular level of return for the \
 		company.
@@ -376,10 +376,10 @@ Tier 1 Leads= INTEG (
 		100)
 	~	Persons
 	~	These are individuals who have been identified as targets and are somewhere in the \
-		sales process, before a sale has been made. 
+		sales process, before a sale has been made.
 		They may or may not have been contacted by the agent yet. If they can be converted \
 		to clients, they will have a regular level of return for the company.
-		
+
 		We initialize to 100 because agents begin their sales careers with a list \
 		of 200 friends and family, about 50% of whom they might contact.
 	|
@@ -408,7 +408,7 @@ INITIAL TIME  = 0
 	~	The initial time for the simulation.
 	|
 
-SAVEPER  = 
+SAVEPER  =
         TIME STEP
 	~	Month [0,?]
 	~	The frequency with which output is stored.
