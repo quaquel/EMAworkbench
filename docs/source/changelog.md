@@ -8,7 +8,7 @@ TODO: check https://jupyterlab.readthedocs.io/en/stable/getting_started/changelo
 
 ## [Unreleased]
 
-## [2.1.3] 
+## [2.1.3]
 ### Added
 
 ### Changed

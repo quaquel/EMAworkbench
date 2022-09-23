@@ -14,7 +14,7 @@ When still working on something, you can also open a draft pull request. This wa
 All Python code follows [Black](https://github.com/psf/black) formatting.
 
 #### First time Git(Hub) contributor
-If you have never contributed to a git project or specifically a project hosted on GitHub before, here are a few pointers on how to start. 
+If you have never contributed to a git project or specifically a project hosted on GitHub before, here are a few pointers on how to start.
 
 - From the GitHub quickstart: [Contributing to projects](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) (note that you can change your OS and preferred method on the top of the page)
 - A _very_ extensive guide: [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)

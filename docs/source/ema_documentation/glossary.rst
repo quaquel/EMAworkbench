@@ -2,13 +2,13 @@
 
 Glossary
 ========
-   
+
    parameter uncertainty
-     An uncertainty is a parameter uncertainty if the range is continuous from 
-     the lower bound to the upper bound. A parameter uncertainty  can be either 
+     An uncertainty is a parameter uncertainty if the range is continuous from
+     the lower bound to the upper bound. A parameter uncertainty  can be either
      real valued or discrete valued.
    categorical uncertainty
-      An uncertainty is categorical if there is not a range but a set of 
+      An uncertainty is categorical if there is not a range but a set of
       possibilities over which one wants to sample.
    lookup uncertainty
 	  vensim specific extension to categorical uncertainty for handling
@@ -23,7 +23,7 @@ Glossary
    working directory
       a directory that contains files that a model needs
    classification trees
-      a category of machine learning algorithms for rule induction  
+      a category of machine learning algorithms for rule induction
    prim (patient rule induction method)
       a rule induction algorithm
    coverage
@@ -35,9 +35,9 @@ Glossary
    case
       A case specifies the input parameters for a run of a model. It is
       a dict instance, with the names of the uncertainties as key, and their
-      sampled values as value. 
+      sampled values as value.
    experiment
-      An experiment is a complete specification for a run. It specifies the 
+      An experiment is a complete specification for a run. It specifies the
       case, the name of the policy, and the name of the model.
    policy
       a policy is by definition an object with a name attribute. So,
