@@ -263,9 +263,7 @@ class BaseExcelModel(FileModel):
         try:
             value = sheet.Range(this_range).Value
         except com_error:
-            _logger.warning(
-                f"com error: no cell(s) named {this_range} found on sheet {this_sheet}"
-            )
+            _logger.warning(f"com error: no cell(s) named {this_range} found on sheet {this_sheet}")
             value = None
 
         return value
@@ -302,9 +300,7 @@ class BaseExcelModel(FileModel):
         try:
             sheet.Range(this_range).Value = value
         except com_error:
-            _logger.warning(
-                f"com error: no cell(s) named {this_range} found on sheet {this_sheet}"
-            )
+            _logger.warning(f"com error: no cell(s) named {this_range} found on sheet {this_sheet}")
 
     def get_wb_sheetnames(self):
         """get the names of all the workbook's worksheets"""

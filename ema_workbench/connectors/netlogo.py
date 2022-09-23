@@ -191,7 +191,7 @@ class BaseNetLogoModel(FileModel):
             if self.netlogo.report(f"is-agentset? {variable}"):
                 # if name is name of an agentset, we
                 # assume that we should count the total number of agents
-                nc = fr"file-open {fn} file-write count {variable}"
+                nc = rf"file-open {fn} file-write count {variable}"
             else:
                 # it is not an agentset, so assume that it is
                 # a reporter / global variable

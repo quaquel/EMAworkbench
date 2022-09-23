@@ -116,8 +116,8 @@ class BaseEvaluator:
             for entry in msis:
                 if not isinstance(entry, AbstractModel):
                     raise TypeError(
-                            f"{entry} should be an AbstractModel "
-                            f"instance but is a {entry.__class__} instance"
+                        f"{entry} should be an AbstractModel "
+                        f"instance but is a {entry.__class__} instance"
                     )
 
         self._msis = msis
