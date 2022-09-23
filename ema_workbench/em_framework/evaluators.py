@@ -742,7 +742,15 @@ def optimize(
         evaluator = SequentialEvaluator(models)
 
     return _optimize(
-        problem, evaluator, algorithm, convergence, nfe, convergence_freq, logging_freq, variator=variator, **kwargs
+        problem,
+        evaluator,
+        algorithm,
+        convergence,
+        nfe,
+        convergence_freq,
+        logging_freq,
+        variator=variator,
+        **kwargs,
     )
 
 

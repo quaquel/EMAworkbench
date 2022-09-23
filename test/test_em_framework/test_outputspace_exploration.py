@@ -161,6 +161,4 @@ def test_user_facing_algorithms(mocker):
 
     outputspace_exploration.OutputSpaceExploration(problem, grid_spec=grid_spec)
 
-    outputspace_exploration.AutoAdaptiveOutputSpaceExploration(
-        problem, grid_spec=grid_spec
-    )
+    outputspace_exploration.AutoAdaptiveOutputSpaceExploration(problem, grid_spec=grid_spec)

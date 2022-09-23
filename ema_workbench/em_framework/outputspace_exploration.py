@@ -54,7 +54,7 @@ class Novelty(Dominance):
     """
 
     def __init__(self, algorithm):
-        super(Novelty, self).__init__()
+        super().__init__()
         self.algorithm = algorithm
 
     def compare(self, winner, candidate):
@@ -101,7 +101,7 @@ class HitBox(Archive):
     """
 
     def __init__(self, grid_spec):
-        super(HitBox, self).__init__(None)
+        super().__init__(None)
         self.archive = {}
         self.centroids = {}
         self.grid_counter = {}
@@ -130,9 +130,7 @@ class HitBox(Archive):
             distance_s = [(a - b) ** 2 for a, b in zip(solution.objectives, centroid)]
             distance_s = math.sqrt(sum(distance_s))
 
-            distance_c = [
-                (a - b) ** 2 for a, b in zip(self.archive[key].objectives, centroid)
-            ]
+            distance_c = [(a - b) ** 2 for a, b in zip(self.archive[key].objectives, centroid)]
             distance_c = math.sqrt(sum(distance_c))
 
             if distance_s < distance_c:
@@ -230,7 +228,7 @@ def get_index_for_solution(solution, grid_spec):
 
 
 def get_bin_index(value, minumum_value, epsilon):
-    """ maps the value for a single objective to the index
+    """maps the value for a single objective to the index
     of the grid cell along that diemnsion
 
     Parameters
@@ -379,9 +377,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(
-                DifferentialEvolution(
-                    crossover_rate=self.de_rate, step_size=self.de_stepsize
-                ),
+                DifferentialEvolution(crossover_rate=self.de_rate, step_size=self.de_stepsize),
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(
