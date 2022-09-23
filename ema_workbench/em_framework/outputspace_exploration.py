@@ -269,11 +269,11 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
     The epsilon like grid structure for tracking novelty is implemented
     using an archive, the Hit Box. Per epsilon grid cell, a single solution closes
     to the centre of the cell is maintained. This makes the algorithm
-    behave virtually identical to e-NSGAII. The archive is returned as results
-    and epsilon progress is defined.
+    behave virtually identical to `ε-NSGAII <https://link.springer.com/chapter/10.1007/978-3-540-31880-4_27>`_.
+    The archive is returned as results and epsilon progress is defined.
 
     To deal with a stalled search, adaptive time continuation, identical to
-    e-NSGAII is used.
+    ε-NSGAII is used.
 
     Notes
     -----
@@ -305,10 +305,19 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
 
 
 class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
-    """A combination of autoadaptive operator selection with OutputSpaceExploration.
+    """A combination of auto-adaptive operator selection with OutputSpaceExploration.
 
     The parametrization of all operators is based on the default values as used
     in Borg 1.9.
+
+
+    Parameters
+    ----------
+    problem : a platypus Problem instance
+    grid_spec : list of tuples
+                with min, max, and epsilon for
+                each outcome of interest
+    population_size : int, optional
 
 
     Notes

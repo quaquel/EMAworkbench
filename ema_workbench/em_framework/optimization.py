@@ -778,51 +778,6 @@ class CombinedVariator(Variator):
     _mutate = {Real: mutate_real, Integer: mutate_integer, Subset: mutate_categorical}
 
 
-# class CombinedMutator(CombinedVariator):
-#     """Data type aware Uniform mutator
-#
-#     Overwrites the mutator on the algorithm as used by adaptive time
-#     continuation.
-#
-#     """
-#     # TODO This is a dirty hack, mutator should be a keyword argument on
-#     # epsilon-NSGAII. Would require separating out explicitly the algorithm
-#     # kwargs and the AdaptiveTimeContinuation kwargs.
-#
-#     mutation_prob = 1.0
-#
-#     def evolve(self, parents):
-#         _logger.debug(parents)
-#
-#         problem = parents[0].problem
-#         children = []
-#
-#         for parent in parents:
-#             child = copy.deepcopy(parent)
-#             for i, type in enumerate(problem.types):  # @ReservedAssignment
-#                 if random.random() <= self.mutation_prob:
-#                     klass = type.__class__
-#                     child = self._mutate[klass](self, child, i, type)
-#                     child.evaluated = False
-#
-#             children.append(child)
-#         return children
-#
-#     def mutate_categorical(self, child, i, type):  # @ReservedAssignment
-#         child.variables[i] = [random.choice(type.elements)]
-#         return child
-#
-#     def mutate_integer(self, child, i, type):  # @ReservedAssignment
-#         child.variables[i] = type.encode(random.randint(type.min_value, type.max_value))
-#         return child
-#
-#     def mutate_real(self, child, i, type):  # @ReservedAssignment
-#         child.variables[i] = random.uniform(type.min_value, type.max_value)
-#         return child
-#
-#     _mutate = {Real: mutate_real, Integer: mutate_integer, Subset: mutate_categorical}
-
-
 def _optimize(
     problem,
     evaluator,

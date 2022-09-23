@@ -1,7 +1,7 @@
 """
-An example of the lake problem using the ema workbench.
+An example of using output space exploration on the lake problem
 
-The model itself is adapted from the Rhodium example by Dave Hadka,
+The lake problem itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
@@ -105,10 +105,15 @@ if __name__ == "__main__":
     # override some of the defaults of the model
     lake_model.constants = [Constant("alpha", 0.41), Constant("nsamples", 150)]
 
-    # generate some random policies by sampling over levers
+    # generate a reference policy
     n_scenarios = 1000
     reference = Policy("nopolicy", **{l.name: 0.02 for l in lake_model.levers})
 
+    # we are doing output space exploration given a reference
+    # policy, so we are exploring the output space over the uncertainties
+    # grid spec specifies the grid structure imposed on the output space
+    # each tuple is associated with an outcome. It gives the minimum
+    # maximum, and epsilon value.
     with MultiprocessingEvaluator(lake_model) as evaluator:
         res = evaluator.optimize(
             algorithm=OutputSpaceExploration,
