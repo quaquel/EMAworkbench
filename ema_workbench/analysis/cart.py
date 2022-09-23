@@ -304,7 +304,7 @@ class CART(sdutil.OutputFormatterMixin):
 
     def show_tree(self, mplfig=True, format="png"):
         """return a png (defaults) or svg of the tree
-        
+
         On Windows, graphviz needs to be installed with conda.
 
         Parameters

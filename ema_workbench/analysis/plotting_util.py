@@ -101,9 +101,7 @@ def plot_envelope(ax, j, time, value, fill=False):
     if fill:
         #        ax.plot(time, minimum, color=color, alpha=0.3)
         #        ax.plot(time, maximum, color=color, alpha=0.3)
-        ax.fill_between(
-            time, minimum, maximum, facecolor=color, alpha=0.3,
-        )
+        ax.fill_between(time, minimum, maximum, facecolor=color, alpha=0.3)
     else:
         ax.plot(time, minimum, c=color)
         ax.plot(time, maximum, c=color)

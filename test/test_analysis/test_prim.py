@@ -415,8 +415,8 @@ class PrimTestCase(unittest.TestCase):
         x = pd.DataFrame(
             list(
                 zip(
-                    np.random.rand(10,),
-                    ["a", "b", "a", "b", "a", "a", "b", "a", "b", "a",],
+                    np.random.rand(10),
+                    ["a", "b", "a", "b", "a", "a", "b", "a", "b", "a"],
                 )
             ),
             columns=["a", "b"],
@@ -447,7 +447,7 @@ class PrimTestCase(unittest.TestCase):
         a = ("a",)
         b = ("b",)
         x = pd.DataFrame(
-            list(zip(np.random.rand(10,), [a, b, a, b, a, a, b, a, b, a])),
+            list(zip(np.random.rand(10), [a, b, a, b, a, a, b, a, b, a])),
             columns=["a", "b"],
         )
 
@@ -474,19 +474,8 @@ class PrimTestCase(unittest.TestCase):
             self.assertEqual(len(pl[1]), 1)
 
     def test_categorical_paste(self):
-        a = np.random.rand(10,)
-        b = [
-            "a",
-            "b",
-            "a",
-            "b",
-            "a",
-            "a",
-            "b",
-            "a",
-            "b",
-            "a",
-        ]
+        a = np.random.rand(10)
+        b = ["a", "b", "a", "b", "a", "a", "b", "a", "b", "a"]
         x = pd.DataFrame(list(zip(a, b)), columns=["a", "b"])
         x["b"] = x["b"].astype("category")
 
@@ -497,7 +486,7 @@ class PrimTestCase(unittest.TestCase):
         classify = "y"
 
         prim_obj = prim.setup_prim(results, classify, threshold=0.8)
-        box_lims = pd.DataFrame([(0, {"a",},), (1, {"a",},),], columns=x.columns,)
+        box_lims = pd.DataFrame([(0, {"a"}), (1, {"a"})], columns=x.columns)
 
         yi = np.where(x.loc[:, "b"] == "a")
 

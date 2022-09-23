@@ -14,7 +14,7 @@ from ema_workbench.analysis.parcoords import ParallelAxes, get_limits
 class TestParcoords(unittest.TestCase):
     def test_parallelaxis(self):
         x = pd.DataFrame(
-            [[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]], columns=["a", "b", "c"],
+            [[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]], columns=["a", "b", "c"]
         )
 
         axes = ParallelAxes(x)
@@ -23,35 +23,25 @@ class TestParcoords(unittest.TestCase):
 
     def test_invert_axis(self):
         x = pd.DataFrame(
-            [[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]], columns=["a", "b", "c"],
+            [[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]], columns=["a", "b", "c"]
         )
 
         axes = ParallelAxes(x)
 
         axes.invert_axis("a")
-        self.assertEqual(
-            axes.flipped_axes, {"a"},
-        )
+        self.assertEqual(axes.flipped_axes, {"a"})
 
         axes.invert_axis("a")
-        self.assertEqual(
-            axes.flipped_axes, set(),
-        )
+        self.assertEqual(axes.flipped_axes, set())
 
         axes.invert_axis("c")
-        self.assertEqual(
-            axes.flipped_axes, {"c"},
-        )
+        self.assertEqual(axes.flipped_axes, {"c"})
 
         axes.invert_axis("c")
-        self.assertEqual(
-            axes.flipped_axes, set(),
-        )
+        self.assertEqual(axes.flipped_axes, set())
 
         axes.invert_axis(["a", "b"])
-        self.assertEqual(
-            axes.flipped_axes, {"a", "b"},
-        )
+        self.assertEqual(axes.flipped_axes, {"a", "b"})
 
     def test_plot(self):
         x = pd.DataFrame(

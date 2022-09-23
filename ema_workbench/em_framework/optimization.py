@@ -268,8 +268,8 @@ def to_dataframe(optimizer, dvnames, outcome_names):
     solutions = []
     for solution in platypus.unique(platypus.nondominated(optimizer.result)):
         vars = transform_variables(
-            solution.problem, solution.variables  # @ReservedAssignment
-        )
+            solution.problem, solution.variables
+        )  # @ReservedAssignment
 
         decision_vars = dict(zip(dvnames, vars))
         decision_out = dict(zip(outcome_names, solution.objectives))
@@ -607,9 +607,7 @@ class Convergence(ProgressTrackingMixIn):
             assert isinstance(metric, AbstractConvergenceMetric)
             metric.reset()
 
-    def __call__(
-        self, optimizer,
-    ):
+    def __call__(self, optimizer):
         nfe = optimizer.algorithm.nfe
         super().__call__(nfe - self.i)
 

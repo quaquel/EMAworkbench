@@ -191,14 +191,14 @@ class BaseExcelModel(FileModel):
             try:
                 self.wb.Close(False)
             except com_error as err:
-                _logger.warning(f"com error on wb.Close: {err}",)
+                _logger.warning(f"com error on wb.Close: {err}")
             del self.wb
         if self.xl:
             try:
                 self.xl.DisplayAlerts = False
                 self.xl.Quit()
             except com_error as err:
-                _logger.warning(f"com error on xl.Quit: {err}",)
+                _logger.warning(f"com error on xl.Quit: {err}")
             del self.xl
 
         self.xl = None
