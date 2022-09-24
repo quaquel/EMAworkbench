@@ -31,7 +31,7 @@ computational experiments to analyze complex and uncertain systems
 (`Bankes, 1993 <http://www.jstor.org/stable/10.2307/171847>`_). That is,
 exploratory modeling aims at offering computational decision support for
 decision making under `deep uncertainty <http://inderscience.metapress.com/content/y77p3q512x475523/>`_
-and `Robust decision making <http://en.wikipedia.org/wiki/Robust_decision_making>`_.
+and `Robust Decision Making <http://en.wikipedia.org/wiki/Robust_decision_making>`_.
 
 The EMA workbench aims at providing support for performing exploratory
 modeling with models developed in various modelling packages and environments.
@@ -44,6 +44,28 @@ experiments - including support for parallel processing on both a single
 machine as well as on clusters-, and analysing the results. To get started,
 take a look at the high level overview, the tutorial, or dive straight into
 the details of the API.
+
+So how does the workbench differ from other open source tools available for
+exploratory modeling? For Python, the main alternative tool is `Rhodium <>`_,
+which is part of `Project Platypus <>`_. Project Platypus is a collection of
+libraries for doing many objective optimization (`platypus-opt <>`_), setting
+up and performing simulation experiments (`rhodium <>`_), and
+scenario discovery using `prim (Patient Rule Induction Method) <>`_. The
+relationship between the workbench and the tools that form project platypus is a
+bit messy. For example, the workbench to relies on `platypus-opt <>`_ for many
+objective optimization, the `prim <>`_ package is a, by now very dated, fork of the
+prim code in the workbench, and both `rhodium <>`_ and the workbench rely on
+`SALib <>`_ for global sensitivity analysis. Moreover, the API of Rhodium was partly
+inspired by an older version of the workbench, while new ideas from the rhodium API
+have in turned resulting in profound changes in the API of the workbench.
+
+Currently, the workbench is still actively being developed. It is also not just used
+in teaching but also for research, and in practice by various organization globally.
+Moreover, the workbench is quite a bit more developed when it comes to providing off
+the shelf connectors for some popular modeling and simulation tools. Basically,
+everything that can be done with project Platypus can be done with the workbench
+and then the workbench offers additional functionality, a more up to date code
+base, and active support.
 
 .. toctree::
    :maxdepth: 1
