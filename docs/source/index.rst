@@ -46,18 +46,19 @@ take a look at the high level overview, the tutorial, or dive straight into
 the details of the API.
 
 So how does the workbench differ from other open source tools available for
-exploratory modeling? For Python, the main alternative tool is `Rhodium <>`_,
-which is part of `Project Platypus <>`_. Project Platypus is a collection of
-libraries for doing many objective optimization (`platypus-opt <>`_), setting
-up and performing simulation experiments (`rhodium <>`_), and
-scenario discovery using `prim (Patient Rule Induction Method) <>`_. The
+exploratory modeling? For Python, the main alternative tool is `rhodium <https://github.com/Project-Platypus/Rhodium>`_,
+which is part of `Project Platypus <https://github.com/Project-Platypus>`_. Project Platypus is a collection of
+libraries for doing many objective optimization (`platypus-opt <https://platypus.readthedocs.io/en/latest/>`_), setting
+up and performing simulation experiments (`rhodium <https://github.com/Project-Platypus/Rhodium>`_), and
+scenario discovery using the Patient Rule Induction Method (`prim <https://github.com/Project-Platypus/PRIM>`_). The
 relationship between the workbench and the tools that form project platypus is a
-bit messy. For example, the workbench to relies on `platypus-opt <>`_ for many
-objective optimization, the `prim <>`_ package is a, by now very dated, fork of the
-prim code in the workbench, and both `rhodium <>`_ and the workbench rely on
-`SALib <>`_ for global sensitivity analysis. Moreover, the API of Rhodium was partly
-inspired by an older version of the workbench, while new ideas from the rhodium API
-have in turned resulting in profound changes in the API of the workbench.
+bit messy. For example, the workbench too relies on `platypus-opt <https://platypus.readthedocs.io/en/latest/>`_ for many
+objective optimization, the `PRIM <https://github.com/Project-Platypus/PRIM>`_ package is a, by now very dated, fork of the
+prim code in the workbench, and both `rhodium <https://github.com/Project-Platypus/Rhodium>`_ and the workbench rely on
+`SALib <https://salib.readthedocs.io>`_ for global sensitivity analysis. Moreover, the API
+of `rhodium <https://github.com/Project-Platypus/Rhodium>`_ was partly inspired by an older version of the
+workbench, while new ideas from the rhodium API have in turned resulting in profound changes in the API of the
+workbench.
 
 Currently, the workbench is still actively being developed. It is also not just used
 in teaching but also for research, and in practice by various organization globally.
