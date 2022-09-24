@@ -343,7 +343,7 @@ class ScalarOutcome(AbstractOutcome):
 
 
 class ArrayOutcome(AbstractOutcome):
-    """Array Outcome class for n-dimensional collections
+    """Array Outcome class for n-dimensional arrays
 
     Parameters
     ----------
@@ -433,7 +433,7 @@ class ArrayOutcome(AbstractOutcome):
 
 class TimeSeriesOutcome(ArrayOutcome):
     """
-    TimeSeries Outcome class
+    TimeSeries Outcome class for 1D arrays
 
     Parameters
     ----------
@@ -460,6 +460,12 @@ class TimeSeriesOutcome(ArrayOutcome):
     function : callable
     shape : tuple
     expected_range : tuple
+
+    Notes
+    -----
+    Time series outcomes are currently assumed to be 1D arrays. If you
+    are dealing with higher dimensional outputs (e.g., multiple replications
+    resulting in 2D arrays), use ArrayOutcome instead.
 
     """
 
