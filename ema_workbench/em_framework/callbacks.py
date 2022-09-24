@@ -18,6 +18,7 @@ import os
 import shutil
 
 import numpy as np
+import numpy.ma as ma
 import pandas as pd
 
 from .parameters import CategoricalParameter, IntegerParameter, BooleanParameter
@@ -68,14 +69,19 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
     def __init__(
         self,
         uncertainties,
-        outcomes,
         levers,
+        outcomes,
         nr_experiments,
         reporting_interval=None,
         reporting_frequency=10,
         log_progress=False,
     ):
         super().__init__(nr_experiments, reporting_frequency, _logger, log_progress)
+
+        self.i = 0
+        self.nr_experiments = nr_experiments
+        self.outcomes = outcomes
+        self.parameters = uncertainties + levers
 
         if reporting_interval is None:
             reporting_interval = max(1, int(round(nr_experiments / reporting_frequency)))
@@ -126,7 +132,7 @@ class DefaultCallback(AbstractCallback):
 
     def __init__(
         self,
-        uncs,
+        uncertainties,
         levers,
         outcomes,
         nr_experiments,
@@ -138,7 +144,7 @@ class DefaultCallback(AbstractCallback):
 
         Parameters
         ----------
-        uncs : list
+        uncertainties : list
                 a list of the parameters over which the experiments
                 are being run.
         outcomes : list
@@ -155,7 +161,7 @@ class DefaultCallback(AbstractCallback):
 
         """
         super().__init__(
-            uncs,
+            uncertainties,
             levers,
             outcomes,
             nr_experiments,
@@ -163,25 +169,22 @@ class DefaultCallback(AbstractCallback):
             reporting_frequency,
             log_progress,
         )
-        self.i = 0
+
         self.cases = None
         self.results = {}
-        self.outcomes = outcomes
 
         # determine data types of parameters
         columns = []
         dtypes = []
-        self.parameters = []
 
-        for parameter in uncs + levers:
+        for parameter in self.parameters:
             name = parameter.name
-            self.parameters.append(name)
             dtype = "float"
 
-            if isinstance(parameter, CategoricalParameter):
-                dtype = "object"
-            elif isinstance(parameter, BooleanParameter):
+            if isinstance(parameter, BooleanParameter):
                 dtype = "bool"
+            elif isinstance(parameter, CategoricalParameter):
+                dtype = "object"
             elif isinstance(parameter, IntegerParameter):
                 dtype = "int"
             columns.append(name)
@@ -191,7 +194,6 @@ class DefaultCallback(AbstractCallback):
             columns.append(name)
             dtypes.append("object")
 
-        # FIXME:: issue with fragmented data frame warning
         index = np.arange(nr_experiments)
         column_dict = {
             name: pd.Series(dtype=dtype, index=index) for name, dtype in zip(columns, dtypes)
@@ -199,9 +201,8 @@ class DefaultCallback(AbstractCallback):
         df = pd.concat(column_dict, axis=1).copy()
 
         self.cases = df
-        self.nr_experiments = nr_experiments
 
-        for outcome in outcomes:
+        for outcome in self.outcomes:
             shape = outcome.shape
             if shape is not None:
                 shape = (nr_experiments,) + shape
@@ -234,7 +235,7 @@ class DefaultCallback(AbstractCallback):
                 _logger.debug(message)
             else:
                 try:
-                    self.results[outcome][case_id] = outcome_res
+                    self.results[outcome][case_id,] = outcome_res
                 except KeyError:
                     data = np.asarray(outcome_res)
 
@@ -248,7 +249,7 @@ class DefaultCallback(AbstractCallback):
                     shape.insert(0, self.nr_experiments)
 
                     self.results[outcome] = self._setup_outcomes_array(shape, data.dtype)
-                    self.results[outcome][case_id] = outcome_res
+                    self.results[outcome][case_id,] = outcome_res
 
     def __call__(self, experiment, outcomes):
         """
@@ -271,41 +272,47 @@ class DefaultCallback(AbstractCallback):
         self._store_outcomes(experiment.experiment_id, outcomes)
 
     def get_results(self):
-        return self.cases, self.results
+        results = {}
+        for k, v in self.results.items():
+            if not ma.is_masked(v):
+                results[k] = v.data
+            else:
+                _logger.warning("some experiments have failed, returning masked result arrays")
+                results[k] = v
+
+        return self.cases, results
 
     def _setup_outcomes_array(self, shape, dtype):
-        array = np.empty(shape, dtype=dtype)
-        array[:] = np.nan
+        array = ma.empty(shape, dtype=dtype)
+        array.mask = True
         return array
 
 
 class FileBasedCallback(AbstractCallback):
     """
-    Callback that stores data in csv files while running
+    Callback that stores data in csv files while running th model
 
     Parameters
     ----------
-    uncs : collection of Parameter instances
+    uncertainties : collection of Parameter instances
     levers : collection of Parameter instances
     outcomes : collection of Outcome instances
     nr_experiments : int
     reporting_interval : int, optional
     reporting_frequency : int, optional
 
+    Warnings
+    --------
+    This class is still in beta.
     the data is stored in ./temp, relative to the current
     working directory. If this directory already exists, it will be
     overwritten.
-
-    Warnings
-    --------
-    This class is still in beta. API is expected to change over the
-    coming months.
 
     """
 
     def __init__(
         self,
-        uncs,
+        uncertainties,
         levers,
         outcomes,
         nr_experiments,
@@ -313,18 +320,13 @@ class FileBasedCallback(AbstractCallback):
         reporting_frequency=10,
     ):
         super().__init__(
-            uncs,
+            uncertainties,
             levers,
             outcomes,
             nr_experiments,
             reporting_interval=reporting_interval,
             reporting_frequency=reporting_frequency,
         )
-
-        self.i = 0
-        self.nr_experiments = nr_experiments
-        self.outcomes = [outcome.name for outcome in outcomes]
-        self.parameters = [parameter.name for parameter in uncs + levers]
 
         self.directory = os.path.abspath("./temp")
         if os.path.exists(self.directory):
@@ -333,13 +335,15 @@ class FileBasedCallback(AbstractCallback):
 
         self.experiments_fh = open(os.path.join(self.directory, "experiments.csv"), "w")
 
-        header = self.parameters + ["scenario_id", "policy", "model"]
+        # write experiments.csv header row
+        header = [p.name for p in self.parameters] + ["scenario_id", "policy", "model"]
         writer = csv.writer(self.experiments_fh)
         writer.writerow(header)
 
         self.outcome_fhs = {}
         for outcome in self.outcomes:
-            self.outcome_fhs[outcome] = open(os.path.join(self.directory, outcome + ".csv"), "w")
+            name = outcome.name
+            self.outcome_fhs[name] = open(os.path.join(self.directory, f"{name}.csv"), "w")
 
     def _store_case(self, experiment):
         scenario = experiment.scenario
@@ -347,11 +351,12 @@ class FileBasedCallback(AbstractCallback):
 
         case = []
         for parameter in self.parameters:
+            name = parameter.name
             try:
-                value = scenario[parameter]
+                value = scenario[name]
             except KeyError:
                 try:
-                    value = policy[parameter]
+                    value = policy[name]
                 except KeyError:
                     value = np.nan
             finally:
@@ -366,14 +371,15 @@ class FileBasedCallback(AbstractCallback):
 
     def _store_outcomes(self, outcomes):
         for outcome in self.outcomes:
-            data = outcomes[outcome]
+            name = outcome.name
+            data = outcomes[name]
 
             try:
                 data = [str(entry) for entry in data]
             except TypeError:
                 data = [str(data)]
 
-            fh = self.outcome_fhs[outcome]
+            fh = self.outcome_fhs[name]
             writer = csv.writer(fh)
             writer.writerow(data)
 
@@ -402,7 +408,7 @@ class FileBasedCallback(AbstractCallback):
         # TODO:: metadata
 
         self.experiments_fh.close()
-        for value in self.outcome_fhs.items():
+        for value in self.outcome_fhs.values():
             value.close()
 
         return self.directory
