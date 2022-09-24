@@ -235,7 +235,9 @@ class DefaultCallback(AbstractCallback):
                 _logger.debug(message)
             else:
                 try:
-                    self.results[outcome][case_id,] = outcome_res
+                    self.results[outcome][
+                        case_id,
+                    ] = outcome_res
                 except KeyError:
                     data = np.asarray(outcome_res)
 
@@ -249,7 +251,9 @@ class DefaultCallback(AbstractCallback):
                     shape.insert(0, self.nr_experiments)
 
                     self.results[outcome] = self._setup_outcomes_array(shape, data.dtype)
-                    self.results[outcome][case_id,] = outcome_res
+                    self.results[outcome][
+                        case_id,
+                    ] = outcome_res
 
     def __call__(self, experiment, outcomes):
         """
