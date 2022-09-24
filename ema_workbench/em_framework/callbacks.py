@@ -290,7 +290,7 @@ class DefaultCallback(AbstractCallback):
 
 class FileBasedCallback(AbstractCallback):
     """
-    Callback that stores data in csv files while running th model
+    Callback that stores data in csv files while running the model
 
     Parameters
     ----------
