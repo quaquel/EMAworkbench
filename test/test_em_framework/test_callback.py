@@ -7,7 +7,6 @@ import random
 import pytest
 
 import numpy as np
-import numpy.ma as ma
 
 import ema_workbench.em_framework.callbacks as callbacks
 from ema_workbench.em_framework.callbacks import DefaultCallback, FileBasedCallback
@@ -100,7 +99,7 @@ def test_init():
     assert "scalar" not in callback.results
     assert "timeseries" not in callback.results
     assert "array" in callback.results
-    assert ma.is_masked(callback.results["array"])
+    assert np.ma.is_masked(callback.results["array"])
 
     # with levers
     levers = [RealParameter("c", 0, 10)]
@@ -127,7 +126,7 @@ def test_init():
     assert "scalar" not in callback.results
     assert "timeseries" not in callback.results
     assert "array" in callback.results
-    assert ma.is_masked(callback.results["array"])
+    assert np.ma.is_masked(callback.results["array"])
 
 
 #         # KeyError

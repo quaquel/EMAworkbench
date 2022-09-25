@@ -18,7 +18,6 @@ import os
 import shutil
 
 import numpy as np
-import numpy.ma as ma
 import pandas as pd
 
 from .parameters import CategoricalParameter, IntegerParameter, BooleanParameter
@@ -305,7 +304,7 @@ class DefaultCallback(AbstractCallback):
     def get_results(self):
         results = {}
         for k, v in self.results.items():
-            if not ma.is_masked(v):
+            if not np.ma.is_masked(v):
                 results[k] = v.data
             else:
                 _logger.warning("some experiments have failed, returning masked result arrays")
@@ -314,7 +313,7 @@ class DefaultCallback(AbstractCallback):
         return self.cases, results
 
     def _setup_outcomes_array(self, shape, dtype):
-        array = ma.empty(shape, dtype=dtype)
+        array = np.ma.empty(shape, dtype=dtype)
         array.mask = True
         return array
 
