@@ -44,7 +44,7 @@ experiments - including support for parallel processing on both a single
 machine as well as on clusters-, and analysing the results. To get started,
 take a look at the high level overview, the tutorial, or dive straight into
 the details of the API. For a comparison between the workbench and
-`rhodium <https://github.com/Project-Platypus/Rhodium>`_, see the comparison with
+`rhodium <https://github.com/Project-Platypus/Rhodium>`_, see
 :doc:`this discusion </getting_started/other_packages>`.
 
 
