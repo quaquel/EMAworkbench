@@ -42,18 +42,21 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
 
     Parameters
     ----------
-    uncs : list
-            a list of the parameters over which the experiments
-            are being run.
+    uncertainties : list
+                    list of uncertain parameters
+    levers : list
+             list of lever parameters
     outcomes : list
                a list of outcomes
     nr_experiments : int
                      the total number of experiments to be executed
     reporting_interval : int, optional
-                         the interval at which to provide progress
-                         information via logging.
+                         the interval between progress logs
     reporting_frequency: int, optional
                          the total number of progress logs
+    log_progress : bool, optional
+                   if true, progress is logged, if false, use
+                   tqdm progress bar.
 
 
     Attributes
@@ -61,6 +64,10 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
     i : int
         a counter that keeps track of how many experiments have been
         saved
+    nr_experiments: int
+    outcomes : list
+    parameters : list
+                 combined list of uncertain parameters and lever parameters
     reporting_interval : int,
                          the interval between progress logs
 
@@ -117,14 +124,33 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
 
 
 class DefaultCallback(AbstractCallback):
-    """
-    default callback system
-    callback can be used in perform_experiments as a means for
+    """Default callback class
+
+    Parameters
+    ----------
+    uncertainties : list
+                    list of uncertain parameters
+    levers : list
+             list of lever parameters
+    outcomes : list
+               a list of outcomes
+    nr_experiments : int
+                     the total number of experiments to be executed
+    reporting_interval : int, optional
+                         the interval between progress logs
+    reporting_frequency: int, optional
+                         the total number of progress logs
+    log_progress : bool, optional
+                   if true, progress is logged, if false, use
+                   tqdm progress bar.
+
+
+    Callback can be used in perform_experiments as a means for
     specifying the way in which the results should be handled. If no
     callback is specified, this default implementation is used. This
     one can be overwritten or replaced with a callback of your own
     design. For example if you prefer to store the result in a database
-    or write them to a text file
+    or write them to a text file.
     """
 
     shape_error_msg = "can only save up to 2d arrays, this array is {}d"
@@ -145,8 +171,9 @@ class DefaultCallback(AbstractCallback):
         Parameters
         ----------
         uncertainties : list
-                a list of the parameters over which the experiments
-                are being run.
+                        list of uncertain parameters
+        levers : list
+                 list of lever parameters
         outcomes : list
                    a list of outcomes
         nr_experiments : int
@@ -293,17 +320,25 @@ class DefaultCallback(AbstractCallback):
 
 
 class FileBasedCallback(AbstractCallback):
-    """
-    Callback that stores data in csv files while running th model
+    """Callback that stores data in csv files while running th model
 
     Parameters
     ----------
-    uncertainties : collection of Parameter instances
-    levers : collection of Parameter instances
-    outcomes : collection of Outcome instances
+    uncertainties : list
+                    list of uncertain parameters
+    levers : list
+             list of lever parameters
+    outcomes : list
+               a list of outcomes
     nr_experiments : int
+                     the total number of experiments to be executed
     reporting_interval : int, optional
-    reporting_frequency : int, optional
+                         the interval between progress logs
+    reporting_frequency: int, optional
+                         the total number of progress logs
+    log_progress : bool, optional
+                   if true, progress is logged, if false, use
+                   tqdm progress bar.
 
     Warnings
     --------
