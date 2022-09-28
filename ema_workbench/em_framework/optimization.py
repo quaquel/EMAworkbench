@@ -530,7 +530,11 @@ class ArchiveLogger(AbstractConvergenceMetric):
         fn = os.path.join(self.directory, f"{self.base}_{self.index}_{optimizer.nfe}_nfe.csv")
 
         archive = to_dataframe(optimizer, self.decision_varnames, self.outcome_varnames)
-        archive.to_csv(fn)
+
+        # primary purpose is to avoid writing an empty dataframe to disk when convergence tracking is
+        # called the first time
+        if not archive.empty:
+            archive.to_csv(fn)
 
 
 class OperatorProbabilities(AbstractConvergenceMetric):
@@ -582,7 +586,7 @@ class Convergence(ProgressTrackingMixIn):
 
         self.generation += 1
 
-        if (nfe >= self.last_check + self.convergence_freq) or force:
+        if (nfe >= self.last_check + self.convergence_freq) or (self.last_check == 0) or force:
             self.index.append(nfe)
             self.last_check = nfe
 
