@@ -527,7 +527,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
     def __call__(self, optimizer):
         self.index += 1
 
-        fn = os.path.join(self.directory, f"{self.base}_{self.index}.csv")
+        fn = os.path.join(self.directory, f"{self.base}_{self.index}_{optimizer.nfe}_nfe.csv")
 
         archive = to_dataframe(optimizer, self.decision_varnames, self.outcome_varnames)
         archive.to_csv(fn)
@@ -576,13 +576,13 @@ class Convergence(ProgressTrackingMixIn):
             assert isinstance(metric, AbstractConvergenceMetric)
             metric.reset()
 
-    def __call__(self, optimizer):
+    def __call__(self, optimizer, force=False):
         nfe = optimizer.nfe
         super().__call__(nfe - self.i)
 
         self.generation += 1
 
-        if (nfe >= self.last_check + self.convergence_freq) or self.last_check == 0:
+        if (nfe >= self.last_check + self.convergence_freq) or force:
             self.index.append(nfe)
             self.last_check = nfe
 
@@ -785,7 +785,7 @@ def _optimize(
     with temporary_filter(name=[callbacks.__name__, evaluators.__name__], level=INFO):
         optimizer.run(nfe)
 
-    convergence(optimizer)
+    convergence(optimizer, force=True)
 
     # convergence.pbar.__exit__(None, None, None)
 
