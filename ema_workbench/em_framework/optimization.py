@@ -6,10 +6,14 @@ import copy
 import functools
 import os
 import random
+import tarfile
+import tempfile
 import warnings
 
 import numpy as np
 import pandas as pd
+
+from io import BytesIO
 
 from . import callbacks, evaluators
 from .points import Scenario, Policy
@@ -457,6 +461,9 @@ class AbstractConvergenceMetric:
     def reset(self):
         self.results = []
 
+    def get_results(self):
+        return self.results
+
 
 class EpsilonProgress(AbstractConvergenceMetric):
     """epsilon progress convergence metric class"""
@@ -516,25 +523,47 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
     """
 
-    def __init__(self, directory, decision_varnames, outcome_varnames, base_filename="archive"):
+    def __init__(
+        self, directory, decision_varnames, outcome_varnames, base_filename="./archives.tar.gz"
+    ):
         super().__init__("archive_logger")
         self.directory = os.path.abspath(directory)
+        self.temp = tempfile.TemporaryDirectory(self.directory)
         self.base = base_filename
         self.decision_varnames = decision_varnames
         self.outcome_varnames = outcome_varnames
-        self.index = 0
+        self.tarfilename = base_filename
 
     def __call__(self, optimizer):
-        self.index += 1
+        # self.index += 1
 
-        fn = os.path.join(self.directory, f"{self.base}_{self.index}_{optimizer.nfe}_nfe.csv")
+        # fn = os.path.join(self.directory, f"{self.base}_{self.index}_{optimizer.nfe}_nfe.csv")
 
         archive = to_dataframe(optimizer, self.decision_varnames, self.outcome_varnames)
-
+        archive.to_csv(f"{optimizer.nfe}.csv")
         # primary purpose is to avoid writing an empty dataframe to disk when convergence tracking is
         # called the first time
-        if not archive.empty:
-            archive.to_csv(fn)
+        # if not archive.empty:
+        #     archive.to_csv(fn)
+
+        # with open(self.tarfilename, "w:gz") as z:
+        #     filename = f"{optimizer.nfe}.csv"
+        #     stream = BytesIO()
+        #     stream.write(archive.to_csv(header=True, encoding="UTF-8").encode())
+        #     stream.seek(0)
+        #     tarinfo = tarfile.TarInfo(filename)
+        #     tarinfo.size = len(stream.getbuffer())
+        #     z.addfile(tarinfo, stream)
+
+    def reset(self):
+        raise NotImplementedError()
+
+    def get_result(self):
+        with open(self.tarfilename, "w:gz") as z:
+            z.add(self.temp, arcname=os.path.basename(self.temp))
+
+        self.temp.cleanup()
+        return None
 
 
 class OperatorProbabilities(AbstractConvergenceMetric):
@@ -594,7 +623,7 @@ class Convergence(ProgressTrackingMixIn):
                 metric(optimizer)
 
     def to_dataframe(self):
-        progress = {metric.name: metric.results for metric in self.metrics if metric.results}
+        progress = {metric.name: metric.get_results() for metric in self.metrics if metric.results}
 
         progress = pd.DataFrame.from_dict(progress)
 
