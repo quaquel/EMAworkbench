@@ -6,14 +6,13 @@ import copy
 import functools
 import os
 import random
+import shutil
 import tarfile
-import tempfile
 import warnings
 
 import numpy as np
 import pandas as pd
 
-from io import BytesIO
 
 from . import callbacks, evaluators
 from .points import Scenario, Policy
@@ -45,6 +44,7 @@ try:
         UNDX,
         SPX,
         UM,
+        Solution,
     )  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
 
@@ -93,6 +93,8 @@ __all__ = [
     "HyperVolume",
     "Convergence",
     "ArchiveLogger",
+    "OperatorProbabilities",
+    "rebuild_platypus_population",
 ]
 _logger = get_module_logger(__name__)
 
@@ -519,50 +521,36 @@ class ArchiveLogger(AbstractConvergenceMetric):
     base_filename : str, optional
 
 
-    TODO:: put it in a tarbal instead of dedicated directory
-
     """
 
     def __init__(
-        self, directory, decision_varnames, outcome_varnames, base_filename="./archives.tar.gz"
+        self, directory, decision_varnames, outcome_varnames, base_filename="archives.tar.gz"
     ):
         super().__init__("archive_logger")
+
+        # FIXME how to handle case where directory already exists
         self.directory = os.path.abspath(directory)
-        self.temp = tempfile.TemporaryDirectory(self.directory)
+        self.temp = os.path.join(self.directory, "tmp")
+        os.mkdir(self.temp)
+
         self.base = base_filename
         self.decision_varnames = decision_varnames
         self.outcome_varnames = outcome_varnames
-        self.tarfilename = base_filename
+        self.tarfilename = os.path.join(self.directory, base_filename)
 
     def __call__(self, optimizer):
-        # self.index += 1
-
-        # fn = os.path.join(self.directory, f"{self.base}_{self.index}_{optimizer.nfe}_nfe.csv")
-
         archive = to_dataframe(optimizer, self.decision_varnames, self.outcome_varnames)
-        archive.to_csv(f"{optimizer.nfe}.csv")
-        # primary purpose is to avoid writing an empty dataframe to disk when convergence tracking is
-        # called the first time
-        # if not archive.empty:
-        #     archive.to_csv(fn)
-
-        # with open(self.tarfilename, "w:gz") as z:
-        #     filename = f"{optimizer.nfe}.csv"
-        #     stream = BytesIO()
-        #     stream.write(archive.to_csv(header=True, encoding="UTF-8").encode())
-        #     stream.seek(0)
-        #     tarinfo = tarfile.TarInfo(filename)
-        #     tarinfo.size = len(stream.getbuffer())
-        #     z.addfile(tarinfo, stream)
+        archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"))
 
     def reset(self):
-        raise NotImplementedError()
+        # FIXME what needs to go here?
+        pass
 
-    def get_result(self):
-        with open(self.tarfilename, "w:gz") as z:
+    def get_results(self):
+        with tarfile.open(self.tarfilename, "w:gz") as z:
             z.add(self.temp, arcname=os.path.basename(self.temp))
 
-        self.temp.cleanup()
+        shutil.rmtree(self.temp)
         return None
 
 
@@ -605,6 +593,7 @@ class Convergence(ProgressTrackingMixIn):
         self.convergence_freq = convergence_freq
         self.logging_freq = logging_freq
 
+        # TODO what is the point of this code?
         for metric in metrics:
             assert isinstance(metric, AbstractConvergenceMetric)
             metric.reset()
@@ -623,7 +612,12 @@ class Convergence(ProgressTrackingMixIn):
                 metric(optimizer)
 
     def to_dataframe(self):
-        progress = {metric.name: metric.get_results() for metric in self.metrics if metric.results}
+        progress = {}
+
+        for metric in self.metrics:
+            result = metric.get_results()
+            if result:
+                progress[metric.name] = result
 
         progress = pd.DataFrame.from_dict(progress)
 
@@ -631,6 +625,31 @@ class Convergence(ProgressTrackingMixIn):
             progress["nfe"] = self.index
 
         return progress
+
+
+def rebuild_platypus_population(archive, problem):
+    """rebuild a population of platypus Solution instances
+
+    Parameters
+    ----------
+    archive : DataFrame
+    problem : PlatypusProblem instance
+
+    Returns
+    -------
+    list of platypus Solutions
+
+    """
+    solutions = []
+    for i, row in archive.iterrows():
+        decision_variables = row[problem.parameter_names]
+        objectives = row[problem.outcome_names]
+
+        solution = Solution(problem)
+        solution.variables = decision_variables.values.tolist()
+        solution.objectives = objectives.values.tolist()
+        solutions.append(solution)
+    return solutions
 
 
 class CombinedVariator(Variator):

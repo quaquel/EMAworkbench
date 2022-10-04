@@ -26,6 +26,8 @@ from ema_workbench import (
     Scenario,
 )
 
+from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgress
+
 
 # Created on 1 Jun 2017
 #
@@ -160,10 +162,18 @@ if __name__ == "__main__":
     # Watson and Kasprzyk (2017)
     reference = Scenario("reference", b=0.4, q=2, mean=0.02, stdev=0.01)
 
+    convergence_metrics = [
+        ArchiveLogger(
+            "./data", [l.name for l in lake_model.levers], [o.name for o in lake_model.outcomes]
+        ),
+        EpsilonProgress(),
+    ]
+
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        evaluator.optimize(
+        results, convergence = evaluator.optimize(
             searchover="levers",
             nfe=100000,
             epsilons=[0.1] * len(lake_model.outcomes),
             reference=reference,
+            convergence=convergence_metrics,
         )
