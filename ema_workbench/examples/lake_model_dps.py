@@ -164,10 +164,7 @@ if __name__ == "__main__":
 
     convergence_metrics = [
         ArchiveLogger(
-            "./data",
-            [l.name for l in lake_model.levers],
-            [o.name for o in lake_model.outcomes],
-            base_filename="lake_model_dps_archive.tar.gz",
+            "./data", [l.name for l in lake_model.levers], [o.name for o in lake_model.outcomes]
         ),
         EpsilonProgress(),
     ]
