@@ -689,6 +689,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
         archive = to_dataframe(optimizer.result, self.decision_varnames, self.outcome_varnames)
         archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"))
 
+
     def reset(self):
         # FIXME what needs to go here?
         pass
