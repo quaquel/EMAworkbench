@@ -349,7 +349,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
                     warnings.warn(f"the number of processes cannot be more then {max_processes}")
                 self.n_processes = min(n_processes, max_processes)
             else:
-                self.n_processes = max(max_processes + self.n_processes, 1)
+                self.n_processes = max(max_processes + n_processes, 1)
         elif n_processes is None:
             self.n_processes = max_processes
         else:
