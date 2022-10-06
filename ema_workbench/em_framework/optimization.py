@@ -26,6 +26,8 @@ try:
     from platypus import (
         EpsNSGAII,
         Hypervolume,
+        EpsilonIndicator,
+        GenerationalDistance,
         Variator,
         Real,
         Integer,
@@ -45,6 +47,8 @@ try:
         SPX,
         UM,
         Solution,
+        InvertedGenerationalDistance,
+        Spacing,
     )  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
 
@@ -90,11 +94,13 @@ __all__ = [
     "Problem",
     "RobustProblem",
     "EpsilonProgress",
-    "HyperVolume",
     "Convergence",
     "ArchiveLogger",
     "OperatorProbabilities",
     "rebuild_platypus_population",
+    "HypervolumeMetric",
+    "GenerationalDistanceMetric",
+    "EpsilonIndicatorMetric",
 ]
 _logger = get_module_logger(__name__)
 
@@ -477,6 +483,135 @@ class EpsilonProgress(AbstractConvergenceMetric):
         self.results.append(optimizer.algorithm.archive.improvements)
 
 
+class MetricWrapper:
+    f"""wrapper class for wrapping platypus indicators
+
+    Parameters
+    ----------
+    reference_set : DataFrame
+    problem : PlatypusProblem instance
+    kwargs : dict
+             any additional keyword arguments to be passed
+             on to the wrapper platypus indicator class
+
+    Notes
+    -----
+    this class relies on multi-inheritance and careful consideration
+    of the MRO to conveniently wrap the convergence metrics provided
+    by platypus.
+
+    """
+
+    def __init__(self, reference_set, problem, **kwargs):
+        self.problem = problem
+        reference_set = rebuild_platypus_population(reference_set, self.problem)
+        super().__init__(reference_set=reference_set, **kwargs)
+
+    def calculate(self, archive):
+        solutions = rebuild_platypus_population(archive, self.problem)
+        return super().calculate(solutions)
+
+
+class HypervolumeMetric(MetricWrapper, Hypervolume):
+    """Hypervolume metric
+
+    Parameters
+    ----------
+    reference_set : DataFrame
+    problem : PlatypusProblem instance
+
+
+    this is a thin wrapper around Hypervolume as provided
+    by platypus to make it easier to use in conjunction with the
+    workbench.
+
+    """
+
+    pass
+
+
+class GenerationalDistanceMetric(MetricWrapper, GenerationalDistance):
+    """GenerationalDistance metric
+
+    Parameters
+    ----------
+    reference_set : DataFrame
+    problem : PlatypusProblem instance
+    d : int, default=1
+        the power in the intergenerational distance function
+
+
+    This is a thin wrapper around GenerationalDistance as provided
+    by platypus to make it easier to use in conjunction with the
+    workbench.
+
+    see https://link.springer.com/content/pdf/10.1007/978-3-319-15892-1_8.pdf
+    for more information
+
+    """
+
+    pass
+
+
+class InvertedGenerationalDistanceMetric(MetricWrapper, InvertedGenerationalDistance):
+    """InvertedGenerationalDistance metric
+
+    Parameters
+    ----------
+    reference_set : DataFrame
+    problem : PlatypusProblem instance
+    d : int, default=1
+        the power in the inverted intergenerational distance function
+
+
+    This is a thin wrapper around InvertedGenerationalDistance as provided
+    by platypus to make it easier to use in conjunction with the
+    workbench.
+
+    see https://link.springer.com/content/pdf/10.1007/978-3-319-15892-1_8.pdf
+    for more information
+
+    """
+
+    pass
+
+
+class EpsilonIndicatorMetric(MetricWrapper, EpsilonIndicator):
+    """EpsilonIndicator metric
+
+    Parameters
+    ----------
+    reference_set : DataFrame
+    problem : PlatypusProblem instance
+
+
+    this is a thin wrapper around EpsilonIndicator as provided
+    by platypus to make it easier to use in conjunction with the
+    workbench.
+
+    """
+
+    pass
+
+
+class SpacingMetric(MetricWrapper, Spacing):
+    """Spacing metric
+
+    Parameters
+    ----------
+    problem : PlatypusProblem instance
+
+
+    this is a thin wrapper around Spacing as provided
+    by platypus to make it easier to use in conjunction with the
+    workbench.
+
+    """
+
+    def __init__(self, problem):
+        self.problem = problem
+
+
 class HyperVolume(AbstractConvergenceMetric):
     """Hypervolume convergence metric class
 
@@ -494,10 +629,18 @@ class HyperVolume(AbstractConvergenceMetric):
     minimum : numpy array
     maximum : numpy array
 
+
+    This class is deprecated. Use ArchiveLogger instead and calculate hypervolume
+    in post using HypervolumeMetric as also shown in the directed search tutorial.
+
     """
 
     def __init__(self, minimum, maximum):
         super().__init__("hypervolume")
+        warnings.warn(
+            "HyperVolume is deprecated, use ArchiveLogger and HypervolumeMetric instead",
+            warnings.DeprecationWarning,
+        )
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
     def __call__(self, optimizer):
@@ -555,6 +698,16 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
 
 class OperatorProbabilities(AbstractConvergenceMetric):
+    """Operator Probabiliy convergence tracker for use with
+    auto adaptive operator selection
+
+    Parameters
+    ----------
+    name : str
+    index : int
+
+    """
+
     def __init__(self, name, index):
         super().__init__(name)
         self.index = index

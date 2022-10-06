@@ -34,12 +34,13 @@ __all__ = [
     "SequentialEvaluator",
     "ReplicatorModel",
     "EpsilonProgress",
-    "HyperVolume",
-    "Convergence",
     "ArchiveLogger",
     "ArrayOutcome",
     "Samplers",
     "OutputSpaceExploration",
+    "HypervolumeMetric",
+    "GenerationalDistanceMetric",
+    "EpsilonIndicatorMetric",
 ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Constraint, ArrayOutcome
@@ -73,7 +74,14 @@ from .evaluators import (
     SequentialEvaluator,
     Samplers,
 )
-from .optimization import Convergence, HyperVolume, EpsilonProgress, ArchiveLogger
+from .optimization import (
+    Convergence,
+    EpsilonProgress,
+    ArchiveLogger,
+    HypervolumeMetric,
+    EpsilonIndicatorMetric,
+    GenerationalDistanceMetric,
+)
 from .outputspace_exploration import OutputSpaceExploration
 
 try:
