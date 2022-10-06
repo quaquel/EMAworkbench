@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
+# 2.2.1
+The 2.2.1 release is a small patch release to address 3 bugs in the EMAworkbench 2.2.0 ([#155](https://github.com/quaquel/EMAworkbench/issues/155), [#168](https://github.com/quaquel/EMAworkbench/issues/168) and [#188](https://github.com/quaquel/EMAworkbench/issues/188)). Thanks @vioSpark and @steipatr for reporting those!
+
+### 🐛 Bugs fixed
+* Fix n-dimensional output bug in Netlogo connector by @quaquel in https://github.com/quaquel/EMAworkbench/commit/b25f9bd970a4492c1a392f67acf81be5bcf2a51a
+* switch to using format string in prim logging by @quaquel in https://github.com/quaquel/EMAworkbench/pull/161
+* Fix error for negative `n_processes` input in MultiprocessingEvaluator by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/189
+### 📜 Documentation improvements
+* update to outcomes documentation by @quaquel in https://github.com/quaquel/EMAworkbench/pull/183
+
+**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.2.0...2.2.1
 
 # 2.2.0
 ## Highlights
