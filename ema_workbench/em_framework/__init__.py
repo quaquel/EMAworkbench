@@ -33,20 +33,14 @@ __all__ = [
     "MultiprocessingEvaluator",
     "SequentialEvaluator",
     "ReplicatorModel",
+    "EpsilonProgress",
+    "ArchiveLogger",
     "ArrayOutcome",
     "Samplers",
     "OutputSpaceExploration",
-    "EpsilonProgress",
-    "ArchiveLogger",
     "HypervolumeMetric",
     "GenerationalDistanceMetric",
-    "SpacingMetric",
-    "InvertedGenerationalDistanceMetric",
     "EpsilonIndicatorMetric",
-    "epsilon_nondominated",
-    "rebuild_platypus_population",
-    "to_problem",
-    "to_robust_problem",
 ]
 
 from .outcomes import ScalarOutcome, TimeSeriesOutcome, Constraint, ArrayOutcome
@@ -87,12 +81,6 @@ from .optimization import (
     HypervolumeMetric,
     EpsilonIndicatorMetric,
     GenerationalDistanceMetric,
-    InvertedGenerationalDistanceMetric,
-    SpacingMetric,
-    epsilon_nondominated,
-    rebuild_platypus_population,
-    to_problem,
-    to_robust_problem,
 )
 from .outputspace_exploration import OutputSpaceExploration
 
