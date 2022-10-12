@@ -699,6 +699,26 @@ class ArchiveLogger(AbstractConvergenceMetric):
         shutil.rmtree(self.temp)
         return None
 
+    @classmethod
+    def load_archives(cls, filename):
+        """load the archives stored with the ArchiveLogger
+        Parameters
+        ----------
+        filename : str
+                   relative path to file
+        Returns
+        -------
+        dict with nfe as key and dataframe as vlaue
+        """
+
+        archives = {}
+        with tarfile.open(os.path.abspath(filename)) as fh:
+            for entry in fh.getmembers():
+                if entry.name.endswith("csv"):
+                    key = entry.name.split("/")[1][:-4]
+                    archives[int(key)] = pd.read_csv(fh.extractfile(entry))
+        return archives
+
 
 class OperatorProbabilities(AbstractConvergenceMetric):
     """Operator Probabiliy convergence tracker for use with
