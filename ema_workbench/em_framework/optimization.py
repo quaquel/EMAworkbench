@@ -254,23 +254,21 @@ def to_platypus_types(decision_variables):
     return types
 
 
-def to_dataframe(optimizer, dvnames, outcome_names):
-    """helper function to turn results of optimization into a pandas DataFrame
-
+def to_dataframe(solutions, dvnames, outcome_names):
+    """helper function to turn a collection of platypus Solution instances
+    into a pandas DataFrame
     Parameters
     ----------
-    optimizer : platypus algorithm instance
+    solutions : collection of Solution instances
     dvnames : list of str
     outcome_names : list of str
-
     Returns
     -------
     pandas DataFrame
-
     """
 
-    solutions = []
-    for solution in platypus.unique(optimizer.result):
+    results = []
+    for solution in platypus.unique(solutions):
         vars = transform_variables(solution.problem, solution.variables)  # @ReservedAssignment
 
         decision_vars = dict(zip(dvnames, vars))
@@ -279,9 +277,9 @@ def to_dataframe(optimizer, dvnames, outcome_names):
         result = decision_vars.copy()
         result.update(decision_out)
 
-        solutions.append(result)
+        results.append(result)
 
-    results = pd.DataFrame(solutions, columns=dvnames + outcome_names)
+    results = pd.DataFrame(results, columns=dvnames + outcome_names)
     return results
 
 
@@ -1025,7 +1023,7 @@ def _optimize(
 
     # convergence.pbar.__exit__(None, None, None)
 
-    results = to_dataframe(optimizer, problem.parameter_names, problem.outcome_names)
+    results = to_dataframe(optimizer.result, problem.parameter_names, problem.outcome_names)
     convergence = convergence.to_dataframe()
 
     message = "optimization completed, found {} solutions"
