@@ -100,7 +100,12 @@ __all__ = [
     "rebuild_platypus_population",
     "HypervolumeMetric",
     "GenerationalDistanceMetric",
+    "SpacingMetric",
+    "InvertedGenerationalDistanceMetric",
     "EpsilonIndicatorMetric",
+    "epsilon_nondominated",
+    "to_problem",
+    "to_robust_problem",
 ]
 _logger = get_module_logger(__name__)
 
@@ -718,6 +723,32 @@ class OperatorProbabilities(AbstractConvergenceMetric):
             self.results.append(props[self.index])
         except AttributeError:
             pass
+
+
+def epsilon_nondominated(results, epsilons, problem):
+    """Merge the list of results into a single set of
+    non dominated results using the provided epsilon values
+    Parameters
+    ----------
+    results : list of DataFrames
+    epsilons : epsilon values for each objective
+    problem : PlatypusProblem instance
+    Returns
+    -------
+    DataFrame
+    Notes
+    -----
+    this is a platypus based alternative to pareto.py (https://github.com/matthewjwoodruff/pareto.py)
+    """
+    if problem.nobjs != len(epsilons):
+        ValueError("the number of epsilon values must match the number of objectives")
+
+    results = pd.concat(results, ignore_index=True)
+    solutions = rebuild_platypus_population(results, problem)
+    archive = EpsilonBoxArchive(epsilons)
+    archive += solutions
+
+    return to_dataframe(archive, problem.parameter_names, problem.outcome_names)
 
 
 class Convergence(ProgressTrackingMixIn):
