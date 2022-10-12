@@ -685,7 +685,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
         self.tarfilename = os.path.join(self.directory, base_filename)
 
     def __call__(self, optimizer):
-        archive = to_dataframe(optimizer, self.decision_varnames, self.outcome_varnames)
+        archive = to_dataframe(optimizer.result, self.decision_varnames, self.outcome_varnames)
         archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"))
 
     def reset(self):
