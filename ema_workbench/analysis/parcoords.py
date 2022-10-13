@@ -259,7 +259,7 @@ class ParallelAxes:
         plt.subplots_adjust(wspace=0)
 
     def _plot(self, data, **kwargs):
-        """Plot the data onto the paralel axis
+        """Plot the data onto the parallel axis
 
         Parameters
         ----------

@@ -169,7 +169,7 @@ def get_data(filename, varname, step=1):
     varname : str
               the name of the variable to retrieve data on
     step : int (optional)
-           steps used in slicing. Defaults to 1, meaning the full recored time
+           steps used in slicing. Defaults to 1, meaning the full recorded time
            series is returned.
 
     Returns

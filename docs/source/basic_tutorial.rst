@@ -277,7 +277,7 @@ saved results in various analysis scripts. ::
 
 The above code snippet shows how we can use :func:`~util.save_results` for
 saving the results of our experiments. :func:`~util.save_results` stores the as
-csv files in a tarbal.
+csv files in a tarball.
 
 ^^^^^^^^^^^^^^^^^^^^^
 Mexican Flu: policies
@@ -330,7 +330,7 @@ comparison of results
 Using the following script, we reproduce figures similar to the 3D figures
 in `Pruyt & Hamarat (2010) <http://www.systemdynamics.org/conferences/2010/proceed/papers/P1389.pdf>`_.
 But using :func:`pairs_scatter`. It shows for the three different policies
-their behavior on the total number of deaths, the height of the heigest peak
+their behavior on the total number of deaths, the height of the highest peak
 of the pandemic, and the point in time at which this peak was reached.
 
 .. literalinclude:: ../../ema_workbench/examples/flu_pairsplot.py

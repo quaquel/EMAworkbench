@@ -75,7 +75,7 @@ class CartTestCase(unittest.TestCase):
         # check include uncertainties
 
         # string type
-        # --> classification vs. regresion
+        # --> classification vs. regression
 
         # callable
 

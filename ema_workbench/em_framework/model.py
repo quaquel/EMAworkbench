@@ -212,7 +212,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def reset_model(self):
-        """Method for reseting the model to its initial state. The default
+        """Method for resetting the model to its initial state. The default
         implementation only sets the outputs to an empty dict.
 
         """

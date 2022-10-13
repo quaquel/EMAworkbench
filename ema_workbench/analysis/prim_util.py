@@ -129,7 +129,7 @@ def rotate_subset(experiments, y):
     """
     mean = np.mean(experiments, axis=0)
     std = np.std(experiments, axis=0)
-    std[std == 0] = 1  # in order to avoid a devision by zero
+    std[std == 0] = 1  # in order to avoid a division by zero
     experiments = (experiments - mean) / std
 
     # normalize the data

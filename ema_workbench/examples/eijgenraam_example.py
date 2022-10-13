@@ -212,7 +212,7 @@ if __name__ == "__main__":
     ]  # @UndefinedVariable
 
     # having a list like parameter were values are automagically wrappen
-    # into a list can be quite usefull.....
+    # into a list can be quite useful.....
     model.levers = [RealParameter(f"X{i}", 0, 500) for i in range(1, 7)] + [
         RealParameter(f"T{i}", 0, 300) for i in range(1, 7)
     ]

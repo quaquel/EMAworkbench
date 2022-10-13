@@ -28,7 +28,7 @@ class TestEvaluators(unittest.TestCase):
         evaluator = evaluators.SequentialEvaluator(model)
         evaluator.evaluate_experiments(10, 10, mocked_callback)
 
-        mocked_runner.assert_called_once()  # test initalization of runner
+        mocked_runner.assert_called_once()  # test initialization of runner
         mocked_runner.run_experiment.assert_called_once_with(1)
 
     #         searchover

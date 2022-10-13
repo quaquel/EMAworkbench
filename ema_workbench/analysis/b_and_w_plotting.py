@@ -240,7 +240,7 @@ def set_legend_to_bw(leg, style, colormap, line_style="continuous"):
     """
     Takes the figure legend and converts it to black and white. Note that
     it currently only converts lines to black and white, other artist
-    intances are currently not being supported, and might cause errors or
+    instances are currently not being supported, and might cause errors or
     other unexpected behavior.
 
     Parameters
@@ -313,7 +313,7 @@ def set_fig_to_bw(fig, style=HATCHING, line_style="continuous"):
     scale, or simple black
 
     Take each axes in the figure and transform its content to black and white.
-    Lines are tranformed based on different line styles. Fills such as can
+    Lines are transformed based on different line styles. Fills such as can
     be used in `meth`:envelopes are gray-scaled. Heathmaps are also gray-scaled.
 
 

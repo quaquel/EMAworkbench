@@ -4,7 +4,7 @@ Contributions to the EMAworkbench are very welcome! In this document you will fi
 ### Issues
 Reporting issues, such as bugs or unclairties in the documentation can be done (as usual) via the [Issues](https://github.com/quaquel/EMAworkbench/issues) section. You can also request new features that you would like to see in the EMAworkbench. Please first search if your bug or request already exists.
 
-In case of a bug, please give us as much useful information possible to work with, including your coding environment, code snippets and if nessesary a model. Important are the exact steps to reproduce and what you already found out yourself.
+In case of a bug, please give us as much useful information possible to work with, including your coding environment, code snippets and if necessary a model. Important are the exact steps to reproduce and what you already found out yourself.
 
 ### PRs
 [Pull requests](https://github.com/quaquel/EMAworkbench/pulls) are very welcome, both to the code itself and the documentation. If you make a code change, make sure to document it well. This can be done inline, which will be picked up by Readthedocs, and in case of a larger feature, also in a tutorial and/or example.
@@ -25,7 +25,7 @@ For a simple single-file code or docs change, you can also just edit any file in
 
 
 ## Maintainers
-_This section is targetted at the maintainers_
+_This section is targeted at the maintainers_
 
 ### Releases
 The release process has been updated starting at the 2.2.0 release. To create a new release, follow the following steps:

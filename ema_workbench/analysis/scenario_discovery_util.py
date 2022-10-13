@@ -164,8 +164,8 @@ def _determine_restricted_dims(box_limits, box_init):
 def _determine_nr_restricted_dims(box_lims, box_init):
     """
 
-    determine the number of restriced dimensions of a box given
-    compared to the inital box that contains all the data
+    determine the number of restricted dimensions of a box given
+    compared to the initial box that contains all the data
 
     Parameters
     ----------

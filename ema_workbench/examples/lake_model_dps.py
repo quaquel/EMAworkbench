@@ -38,7 +38,7 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
     Parameters
     ----------
     xt : float
-         polution in lake at time t
+         pollution in lake at time t
     c1 : float
          center rbf 1
     c2 : float

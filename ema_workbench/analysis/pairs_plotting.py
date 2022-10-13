@@ -166,7 +166,7 @@ def pairs_density(
 
     hexbin makes hexagonal binning plot of x versus y, where x, y are 1-D
     sequences of the same length, N. If C is None (the default), this is a
-    histogram of the number of occurences of the observations at (x[i],y[i]).
+    histogram of the number of occurrences of the observations at (x[i],y[i]).
     For further detail see `matplotlib on hexbin <https://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.hexbin>`_
 
     Parameters
