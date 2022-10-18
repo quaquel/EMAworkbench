@@ -249,7 +249,7 @@ class TestLogWatcher(unittest.TestCase):
     def tearDownClass(cls):
         cls.watcher.stop()
         # TODO use some way to signal the thread to terminate
-        # despite that it is a deamon thread
+        # despite that it is a daemon thread
 
     def tearDown(self):
         self.client.clear(block=True)
