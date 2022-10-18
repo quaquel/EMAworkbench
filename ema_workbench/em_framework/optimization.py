@@ -512,7 +512,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
     base_filename : str, optional
 
 
-    TODO:: put it in a tarbal instead of dedicated directory
+    TODO:: put it in a tarball instead of dedicated directory
 
     """
 
