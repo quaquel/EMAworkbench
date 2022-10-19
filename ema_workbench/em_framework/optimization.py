@@ -845,12 +845,7 @@ class Convergence(ProgressTrackingMixIn):
                 metric(optimizer)
 
     def to_dataframe(self):
-        progress = {}
-
-        for metric in self.metrics:
-            result = metric.get_results()
-            if result:
-                progress[metric.name] = result
+        progress = {metric.name: result for metric in self.metrics if result := metric.get_results()}
 
         progress = pd.DataFrame.from_dict(progress)
 
