@@ -202,7 +202,6 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     robustness_functions : iterable of ScalarOutcomes
     constraints : list, optional
 
-
     Returns
     -------
     RobustProblem instance
@@ -262,6 +261,7 @@ def to_dataframe(solutions, dvnames, outcome_names):
     solutions : collection of Solution instances
     dvnames : list of str
     outcome_names : list of str
+
     Returns
     -------
     pandas DataFrame
@@ -704,10 +704,12 @@ class ArchiveLogger(AbstractConvergenceMetric):
     @classmethod
     def load_archives(cls, filename):
         """load the archives stored with the ArchiveLogger
+
         Parameters
         ----------
         filename : str
                    relative path to file
+
         Returns
         -------
         dict with nfe as key and dataframe as vlaue
@@ -757,11 +759,13 @@ class OperatorProbabilities(AbstractConvergenceMetric):
 def epsilon_nondominated(results, epsilons, problem):
     """Merge the list of results into a single set of
     non dominated results using the provided epsilon values
+
     Parameters
     ----------
     results : list of DataFrames
     epsilons : epsilon values for each objective
     problem : PlatypusProblem instance
+
     Returns
     -------
     DataFrame
