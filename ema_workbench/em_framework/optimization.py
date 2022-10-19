@@ -684,6 +684,8 @@ class ArchiveLogger(AbstractConvergenceMetric):
         self.outcome_varnames = outcome_varnames
         self.tarfilename = os.path.join(self.directory, base_filename)
 
+        # self.index = 0
+
     def __call__(self, optimizer):
         archive = to_dataframe(optimizer.result, self.decision_varnames, self.outcome_varnames)
         archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"))
@@ -721,13 +723,22 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
 
 class OperatorProbabilities(AbstractConvergenceMetric):
-    """Operator Probabiliy convergence tracker for use with
-    auto adaptive operator selection
+    """OperatorProbabiliy convergence tracker for use with
+    auto adaptive operator selection.
 
     Parameters
     ----------
     name : str
     index : int
+
+
+    State of the art MOEAs like Borg (and GenerationalBorg provided by the workbench)
+    use autoadaptive operator selection. The algorithm has multiple different evolutionary
+    operators. Over the run, it tracks how well each operator is doing in producing fitter
+    offspring. The probability of the algorithm using a given evolutionary operator is
+    proportional to how well this operator has been doing in producing fitter offspring in
+    recent generations. This class can be used to track these probabilities over the
+    run of the algorithm.
 
     """
 
@@ -759,7 +770,9 @@ def epsilon_nondominated(results, epsilons, problem):
     this is a platypus based alternative to pareto.py (https://github.com/matthewjwoodruff/pareto.py)
     """
     if problem.nobjs != len(epsilons):
-        ValueError("the number of epsilon values must match the number of objectives")
+        ValueError(
+            f"the number of epsilon values ({len(epsilons)}) must match the number of objectives {problem.nobjs}"
+        )
 
     results = pd.concat(results, ignore_index=True)
     solutions = rebuild_platypus_population(results, problem)
@@ -801,6 +814,24 @@ class Convergence(ProgressTrackingMixIn):
             metric.reset()
 
     def __call__(self, optimizer, force=False):
+        """Stores convergences information given specified convergence
+        frequency.
+
+        Parameters
+        ----------
+        optimizer : platypus optimizer instance
+        force : boolean, optional
+                if True, convergence information will always be stored
+                if False, converge information will be stored if the
+                the number of nfe since the last time of storing is equal to
+                or higher then convergence_freq
+
+
+        the primary use case for force is to force convergence frequency information
+        to be stored once the stopping condition of the optimizer has been reached
+        so that the final convergence information is kept.
+
+        """
         nfe = optimizer.nfe
         super().__call__(nfe - self.i)
 
@@ -843,13 +874,13 @@ def rebuild_platypus_population(archive, problem):
 
     """
     solutions = []
-    for i, row in archive.iterrows():
-        decision_variables = row[problem.parameter_names]
-        objectives = row[problem.outcome_names]
+    for row in archive.itertuples():
+        decision_variables = [getattr(row, attr) for attr in problem.parameter_names]
+        objectives = [getattr(row, attr) for attr in problem.outcome_names]
 
         solution = Solution(problem)
-        solution.variables = decision_variables.values.tolist()
-        solution.objectives = objectives.values.tolist()
+        solution.variables = decision_variables
+        solution.objectives = objectives
         solutions.append(solution)
     return solutions
 
