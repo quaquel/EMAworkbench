@@ -22,7 +22,7 @@ from IPython.paths import get_ipython_dir
 
 import ipyparallel
 from ipyparallel import Client
-from ipyparallel.apps.launcher import (
+from ipyparallel.cluster.launcher import (
     LocalProcessLauncher,
     ipengine_cmd_argv,
     ipcontroller_cmd_argv,
