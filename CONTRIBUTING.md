@@ -27,6 +27,20 @@ For a simple single-file code or docs change, you can also just edit any file in
 ## Maintainers
 _This section is targetted at the maintainers_
 
+### Merging Pull Requests
+Pull requests should be merged in a way that only [atomic commits](https://en.wikipedia.org/wiki/Atomic_commit) make it in the main branch. This keeps the git commit history clean and tidy, and therefore useful. This means every commit only pertains one fix or feature, and can't be breaked into multiple commits without breaking things. It also means no merge commits are allowed. For more about atomic commits, see [one](https://www.pauline-vos.nl/atomic-commits/) and [two](https://www.aleksandrhovhannisyan.com/blog/atomic-git-commits/).
+
+There are two ways to do this:
+ - For (reducing to) a _single_ commit: Use the _Squash and merge_ button in the GitHub UI. Make sure the commit message and description are properly formatted and contain all the improtant information from the PR when squashing.
+ - For (keeping) _multiple_ commits: Merge from the command line. First make sure all commits are atomic and contain proper commit messages. Us git amend, reset and rebase if nessesary. Then do a [fast-forward](https://blog.mergify.com/what-is-a-git-merge-fast-forward/) merge, using:
+   ```
+   git fetch origin
+   git checkout master
+   git merge --ff-only -S origin/BRANCH-TO-MERGE
+   git push origin
+   ```
+   In which `BRANCH-TO-MERGE` the branch is of the PR you want to merge, and `-S` makes sure you sign the commits.
+
 ### Releases
 The release process has been updated starting at the 2.2.0 release. To create a new release, follow the following steps:
  1. Make sure all PRs have a clear title and are labeled with at least one label. These will be used when drafting the changelog using the [.github/release.yml](https://github.com/quaquel/EMAworkbench/blob/master/.github/release.yml) configuration.
