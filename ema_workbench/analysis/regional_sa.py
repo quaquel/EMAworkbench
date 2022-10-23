@@ -295,6 +295,6 @@ def plot_cdfs(x, y, ccdf=False):
 
     proxies, labels = build_legend(x, y)
 
-    fig.legend(proxies, labels, "upper center")
+    fig.legend(proxies, labels, loc="upper center")
 
     return fig
