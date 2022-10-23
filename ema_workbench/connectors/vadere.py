@@ -215,13 +215,13 @@ class BaseVadereModel(FileModel):
             else:
                 timeseries_total = timeseries_res[next(iter(timeseries_res))]
             # format according to EMA preference
-            res = {col: series.values for col, series in timeseries_total.iteritems()}
+            res = {col: series.values for col, series in timeseries_total.items()}
 
         # handle scalar
         if scalar_res:
             for file in scalar_res:
                 s = pd.read_csv(file, sep=" ")
-                for column, data in s.iteritems():
+                for column, data in s.items():
                     res[column] = data.item()
 
         # remove temporal experiment output

@@ -64,7 +64,7 @@ class BasePysdModel(AbstractModel):
         res = self.model.run(params=experiment, return_columns=self.output_variables)
 
         # EMA wants output formatted properly
-        output = {col: series.values for col, series in res.iteritems()}
+        output = {col: series.values for col, series in res.items()}
         return output
 
     def reset_model(self):

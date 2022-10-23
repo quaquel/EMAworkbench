@@ -169,7 +169,7 @@ class ParallelAxes:
         self.fontsize = fontsize
 
         # recode data
-        for column, dtype in limits.dtypes.iteritems():
+        for column, dtype in limits.dtypes.items():
             if dtype == "object":
                 cats = limits[column][0]
                 self.recoding[column] = CategoricalDtype(categories=cats, ordered=False)

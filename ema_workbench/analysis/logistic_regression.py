@@ -181,7 +181,7 @@ class Logit:
         dummies = pd.get_dummies(x, prefix_sep=self.sep)
 
         self.dummiesmap = {}
-        for column, values in self.x.select_dtypes(exclude=np.number).iteritems():
+        for column, values in self.x.select_dtypes(exclude=np.number).items():
             mapping = {str(entry): entry for entry in values.unique()}
             self.dummiesmap[column] = mapping
 

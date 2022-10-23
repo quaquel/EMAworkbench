@@ -125,7 +125,7 @@ class CART(sdutil.OutputFormatterMixin):
         dummies = pd.get_dummies(self.x, prefix_sep=self.sep)
 
         self.dummiesmap = {}
-        for column, values in x.select_dtypes(exclude=np.number).iteritems():
+        for column, values in x.select_dtypes(exclude=np.number).items():
             mapping = {str(entry): entry for entry in values.unique()}
             self.dummiesmap[column] = mapping
 
