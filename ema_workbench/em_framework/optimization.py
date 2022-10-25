@@ -261,6 +261,7 @@ def to_dataframe(solutions, dvnames, outcome_names):
     solutions : collection of Solution instances
     dvnames : list of str
     outcome_names : list of str
+
     Returns
     -------
     pandas DataFrame
