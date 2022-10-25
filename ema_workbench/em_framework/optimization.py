@@ -1043,7 +1043,7 @@ def _optimize(
     klass = problem.types[0].__class__
 
     try:
-        eps_values = kwargs["epsilon"]
+        eps_values = kwargs["epsilons"]
     except KeyError:
         pass
     else:
