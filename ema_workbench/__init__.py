@@ -10,6 +10,8 @@ from .em_framework import (
     optimize,
     ScalarOutcome,
     TimeSeriesOutcome,
+    ArrayOutcome,
+    Constraint,
     Constant,
     Scenario,
     Policy,
@@ -17,10 +19,14 @@ from .em_framework import (
     IpyparallelEvaluator,
     SequentialEvaluator,
     ReplicatorModel,
-    Constraint,
-    ArrayOutcome,
     Samplers,
     OutputSpaceExploration,
+    HypervolumeMetric,
+    GenerationalDistanceMetric,
+    EpsilonIndicatorMetric,
+    InvertedGenerationalDistanceMetric,
+    SpacingMetric,
+    epsilon_nondominated,
 )
 from .util import save_results, load_results, ema_logging, EMAError, process_replications
 

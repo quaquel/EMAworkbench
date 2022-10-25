@@ -22,6 +22,7 @@ __all__ = [
     "combine",
     "NamedObjectMapDescriptor",
     "NamedObjectMap",
+    "determine_objects",
 ]
 
 
