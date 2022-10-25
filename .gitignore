@@ -189,3 +189,6 @@ coverage.xml
 
 # Mac crap
 .DS_Store
+
+# changelog
+./docs/source/changelog.md
