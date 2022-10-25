@@ -262,5 +262,5 @@ man_pages = [("index", "emaworkbench", "EMA workbench Documentation", ["J.H. Kwa
 
 def setup(app):
     # copy changelog into source folder for documentation
-    dest = osp.join(HERE, "getting_started/changelog.md")
+    dest = osp.join(HERE, "changelog.md")
     shutil.copy(osp.join(HERE, "..", "..", "CHANGELOG.md"), dest)
