@@ -191,4 +191,4 @@ coverage.xml
 .DS_Store
 
 # changelog
-./docs/source/changelog.md
+./docs/source/getting_started/changelog.md
