@@ -12,7 +12,7 @@ This release adds a new algorithm for [output space exploration](https://emawork
 
 With this new release, the installation process has been improved by reducing the number of required dependencies. Recommended packages and connectors can now be installed as _extras_ using pip, for example `pip install -U ema-workbench[recommended,netlogo]`. See the [updated installation instructions](https://emaworkbench.readthedocs.io/en/latest/getting_started/installation.html) for all options and details.
 
-The 2.3.x release series support Python 3.8 to 3.11 and is the last series that support Python 3.8. It can be installed as usual via PyPI, with:
+The 2.3.x release series supports Python 3.8 to 3.11. It can be installed as usual via PyPI, with:
 ```
 pip install --upgrade ema-workbench
 ```
