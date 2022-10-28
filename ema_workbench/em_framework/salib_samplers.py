@@ -11,12 +11,12 @@ from .parameters import IntegerParameter
 from .samplers import DefaultDesigns
 
 try:
-    from SALib.sample import saltelli
+    from SALib.sample import sobol
     from SALib.sample import morris
     from SALib.sample import fast_sampler
 except ImportError:
     warnings.warn("SALib samplers not available", ImportWarning)
-    saltelli = morris = fast_sampler = None
+    sobol = morris = fast_sampler = None
 
 # Created on 12 Jan 2017
 #
@@ -134,7 +134,7 @@ class SobolSampler(SALibSampler):
         super().__init__()
 
     def sample(self, problem, size):
-        return saltelli.sample(problem, size, calc_second_order=self.second_order)
+        return sobol.sample(problem, size, calc_second_order=self.second_order)
 
 
 class MorrisSampler(SALibSampler):
