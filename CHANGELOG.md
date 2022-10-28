@@ -49,13 +49,10 @@ pip install --upgrade ema-workbench
 * Add pre-commit configuration and auto update CI by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/181
 * Fix Matplotlib, ipyparallel and dict deprecation warnings by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/202
 * CI: Start testing on Python 3.11 by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/156
+* Replace deprecated `saltelli` with `sobol` SALib 1.4.6+. by @quaquel in https://github.com/quaquel/EMAworkbench/pull/211
 
 #### Other changes
 * Adds CITATION.cff by @quaquel in https://github.com/quaquel/EMAworkbench/pull/209
-
-### New Contributors
-* @github-actions made their first contribution in https://github.com/quaquel/EMAworkbench/pull/185
-* @pre-commit-ci made their first contribution in https://github.com/quaquel/EMAworkbench/pull/192
 
 **Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.2.0...2.3
 
