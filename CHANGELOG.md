@@ -13,7 +13,7 @@ convergence tracking for optimization is supported has been overhauled completel
 [directed search](https://emaworkbench.readthedocs.io/en/latest/indepth_tutorial/directed-search.html) user guide
 for full details. The documentation has moreover been expanded with a [comparison to Rhodium](https://emaworkbench.readthedocs.io/en/latest/getting_started/other_packages.html).
 
-With this new release, the installation process has been improved by reducing the number of required dependencies. Recommended packages and connectors can now be installed as _extras_ using pip, for example `pip install -U ema-workbench[recommended,netlogo]`. See the 
+With this new release, the installation process has been improved by reducing the number of required dependencies. Recommended packages and connectors can now be installed as _extras_ using pip, for example `pip install -U ema-workbench[recommended,netlogo]`. See the
 [updated installation instructions](https://emaworkbench.readthedocs.io/en/latest/getting_started/installation.html)
 for all options and details.
 
