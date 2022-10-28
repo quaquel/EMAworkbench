@@ -6,6 +6,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
+<!-- Release notes generated using configuration in .github/release.yml at master -->
+
+## 2.3.0
+### Highlights
+With this new release, the way in which to install the workbench is changed. See
+[the installation instructions](https://emaworkbench.readthedocs.io/en/latest/getting_started/installation.html)
+for full details.
+
+This release adds a new algorithm for output space exploration. The way in which
+convergence tracking for optimization is supported has been overhauled completely. See the updated
+[directed search](https://emaworkbench.readthedocs.io/en/latest/indepth_tutorial/directed-search.html) user guide
+for full details. THe documentation has moreover been  expanded with a comparison to Rhodium.
+
+### What's Changed
+
+#### 🎉 New features added
+* Output space exploration by @quaquel in https://github.com/quaquel/EMAworkbench/pull/170
+* Convergence tracking by @quaquel in https://github.com/quaquel/EMAworkbench/pull/193
+
+### 🛠 Enhancements made
+* switch to using format string in prim logging by @quaquel in https://github.com/quaquel/EMAworkbench/pull/161
+
+#### 🐛 Bugs fixed
+* use masked arrays for storing outcomes by @quaquel in https://github.com/quaquel/EMAworkbench/pull/176
+* Fix error for negative `n_processes` input in MultiprocessingEvaluator by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/189
+* optimization.py: Fix "epsilons" keyword argument in `_optimize()` by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/150
+
+#### 📜 Documentation improvements
+* Create initial CONTRIBUTING.md documentation by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/162
+* Replace setup.py with pyproject.toml and implement optional dependencies by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/166
+* Create Read the Docs yaml configuration by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/173
+* update to outcomes documentation by @quaquel in https://github.com/quaquel/EMAworkbench/pull/183
+* Improved directed search tutorial by @quaquel in https://github.com/quaquel/EMAworkbench/pull/194
+* Update Contributing.md with instructions how to merge PRs by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/200
+* Update Readme with an introduction and documentation, installation and contribution sections by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/199
+* Rhodium docs by @quaquel in https://github.com/quaquel/EMAworkbench/pull/184
+* Fix spelling mistakes by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/195
+
+#### 🔧 Maintenance
+* Replace depreciated `shade` keyword in Seaborn kdeplot with `fill` by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/169
+* CI: Add pip depencency caching, don't run on doc changes, update setup-python to v4 by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/174
+* Formatting: Format with Black, increase max line length to 100, combine multi-line blocks by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/178
+* Add pre-commit configuration and auto update CI by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/181
+* Fix Matplotlib, ipyparallel and dict deprecation warnings by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/202
+
+#### Other changes
+* [pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/quaquel/EMAworkbench/pull/196
+* Adds CITATION.cff by @quaquel in https://github.com/quaquel/EMAworkbench/pull/209
+
+### New Contributors
+* @github-actions made their first contribution in https://github.com/quaquel/EMAworkbench/pull/185
+* @pre-commit-ci made their first contribution in https://github.com/quaquel/EMAworkbench/pull/192
+
+**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.2.0...2.3
+
 ## 2.2.0
 ### Highlights
 With the 2.2 release, the EMAworkbench can now connect to [Vadere](https://www.vadere.org/) models on pedestrian dynamics. When inspecting a Prim Box peeling trajectory, multiple points on the peeling trajectory can be inspected simultaneously by inputting a list of integers into [`PrimBox.inspect()`](https://emaworkbench.readthedocs.io/en/latest/ema_documentation/analysis/prim.html#ema_workbench.analysis.prim.PrimBox.inspect).
