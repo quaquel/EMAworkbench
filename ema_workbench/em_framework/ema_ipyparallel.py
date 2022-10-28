@@ -79,7 +79,7 @@ def start_logwatcher():
             pass
 
     logwatcher_thread = threading.Thread(target=starter)
-    logwatcher_thread.deamon = True
+    logwatcher_thread.daemon = True
     logwatcher_thread.start()
 
     return logwatcher, logwatcher_thread

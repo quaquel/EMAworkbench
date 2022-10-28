@@ -303,7 +303,7 @@ def get_ex_feature_scores(
     # min_samples_leaf
     # 1000 - >
     # then proportional based on sqrt of N
-    # dus sqrt(N) / Sqrt(1000) met 1 als minimumd
+    # dus sqrt(N) / Sqrt(1000) met 1 also minimumd
     if max_features is None:
         max_features = int(round(x.shape[1] / 3))
     if min_samples_leaf is None:

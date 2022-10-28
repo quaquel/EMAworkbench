@@ -72,7 +72,7 @@
 # Saving and Loading
 * new save function using shutil.make_archive to avoid memory errors
   so create physical directory, save everything to it, turn it into an archive
-  and turn it into a tarbal / zipfile (shutil will make selecting extension
+  and turn it into a tarball / zipfile (shutil will make selecting extension
   easier.
 * have time index on TimeSeriesOutcome
     --> so TimeSeriesOutcome should be a DataFrame
@@ -81,7 +81,7 @@
      save_results if no file_name is specified.
 * store the uncertainty specification also in the json metadata
   * so we need the class, dist, scale and loc?
-  * also add a way of getting the results metadata seperately
+  * also add a way of getting the results metadata separately
 
 
 # optimization

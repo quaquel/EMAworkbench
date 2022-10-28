@@ -333,7 +333,7 @@ class CategoricalParameter(IntegerParameter):
     multivalue : boolean
                  if categories have a set of values, for each variable_name
                  a different one.
-    # TODO: should multivalue not be a seperate class?
+    # TODO: should multivalue not be a separate class?
     # TODO: multivalue as label is also horrible
 
     """

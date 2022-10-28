@@ -665,8 +665,6 @@ class ArchiveLogger(AbstractConvergenceMetric):
     decision_varnames : list of str
     outcome_varnames : list of str
     base_filename : str, optional
-
-
     """
 
     def __init__(

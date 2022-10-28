@@ -247,7 +247,7 @@ def experiment_generator(scenarios, model_structures, policies, combine="factori
 
     # TODO combine_ functions can be made more generic
     # basically combine any collection
-    # wrap around to yield specifc type of class (e.g. point
+    # wrap around to yield specific type of class (e.g. point
 
     if combine == "sample":
         jobs = zip_cycle(model_structures, policies, scenarios)

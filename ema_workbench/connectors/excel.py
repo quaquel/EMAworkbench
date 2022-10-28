@@ -64,7 +64,7 @@ class BaseExcelModel(FileModel):
                model neat with legible names, while not demanding that workbook
                cells be named.  Each (key, value) pair in pointers maps a key that
                gives the (concise) name of an input or output for the model to an
-               identfier for that input or output in the Excel workbook, in
+               identifier for that input or output in the Excel workbook, in
                'sheetName!A1' or 'sheetName!NamedCell' notation (the sheet name
                is optional if the cell or range exists in the default sheet).
 

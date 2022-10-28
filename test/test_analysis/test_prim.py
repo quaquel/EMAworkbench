@@ -280,7 +280,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertTrue(box_init.loc[0, "c"] == 2)
         self.assertTrue(box_init.loc[1, "c"] == 7)
 
-        # heterogenous without NAN
+        # heterogeneous without NAN
         x = pd.DataFrame(
             [
                 [0.1, 0, "a"],

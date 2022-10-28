@@ -222,7 +222,7 @@ def single_envelope(outcomes, outcome_to_plot, time, density, ax, ax_d, fill, lo
     Parameters
     ----------
     outcomes : OutcomesDict
-               a dictonary containing the various outcomes to plot
+               a dictionary containing the various outcomes to plot
     outcome_to_plot : str
                       the specific outcome to plot
     time : str

@@ -546,7 +546,7 @@ class PrimBox:
                 items = df[dim].values[0]
                 for j, item in enumerate(items):
                     # we need to have tick labeling to be dynamic?
-                    # adding it to the dict wont work, creates horrible figure
+                    # adding it to the dict won't work, creates horrible figure
                     # unless we can force a selection?
                     name = f"{dim}, {qp.loc[qp.index[0], dim]: .2g}"
                     entry = dict(
@@ -1652,7 +1652,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
     def _assert_dtypes(self, keys, dtypes):
         """
-        helper fucntion that checks whether none of the provided keys
+        helper function that checks whether none of the provided keys
         has a dtype object as value.
         """
 

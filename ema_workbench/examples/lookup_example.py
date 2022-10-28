@@ -2,7 +2,7 @@
 Created on Oct 1, 2012
 
 This is a simple example of the lookup uncertainty provided for
-use in conjuction with vensim models. This example is largely based on
+use in conjunction with vensim models. This example is largely based on
 `Eker et al. (2014) <https://onlinelibrary.wiley.com/doi/10.1002/sdr.1518/suppinfo>`_
 
 @author: sibeleker

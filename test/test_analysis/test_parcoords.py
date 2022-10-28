@@ -89,7 +89,7 @@ class TestParcoords(unittest.TestCase):
         plt.draw()
 
     def test_get_limits(self):
-        # heterogenous without NAN
+        # heterogeneous without NAN
         x = pd.DataFrame(
             [
                 [0.1, 0, "a"],

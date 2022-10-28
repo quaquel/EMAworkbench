@@ -12,7 +12,7 @@ from ema_workbench.analysis import clusterer, plotting, Density
 experiments, outcomes = load_results("./data/1000 flu cases no policy.tar.gz")
 data = outcomes["infected fraction R1"]
 
-# calcuate distances
+# calculate distances
 distances = clusterer.calculate_cid(data)
 
 # plot dedrog

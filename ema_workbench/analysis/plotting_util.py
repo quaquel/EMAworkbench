@@ -268,7 +268,7 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, log=Fa
     Raises
     ------
     EMAError
-        if density is unkown
+        if density is unknown
 
     """
     values = [outcomes[key][outcome_to_plot][:, index] for key in group_labels]
@@ -415,7 +415,7 @@ def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
             #                                         edgecolors = 'k',
             #                                         offsets = (0,0)
             #                                         )
-            # TODO work arround, should be a proper proxyartist for scatter
+            # TODO work around, should be a proper proxyartist for scatter
             # legends
             artist = mpl.lines.Line2D([0], [0], linestyle="none", c=color, marker="o")
 
@@ -865,7 +865,7 @@ def make_grid(outcomes_to_show, density=False):
 
 def get_color(index):
     """helper function for cycling over color list if the number of items
-    is higher than the legnth of the color list
+    is higher than the length of the color list
     """
     corrected_index = index % len(COLOR_LIST)
     return COLOR_LIST[corrected_index]

@@ -50,7 +50,7 @@ class TestNamedDict(unittest.TestCase):
 
         # test removal
         del nd["c"]
-        self.assertNotIn("c", nd, "item not removed succesfully")
+        self.assertNotIn("c", nd, "item not removed successfully")
 
 
 class TestCombine(unittest.TestCase):

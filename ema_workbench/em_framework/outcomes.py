@@ -91,7 +91,7 @@ class AbstractOutcome(Variable):
     ----------
     name : str
            Name of the outcome.
-    kind : {INFO, MINIMZE, MAXIMIZE}, optional
+    kind : {INFO, MINIMIZE, MAXIMIZE}, optional
     variable_name : str, optional
                     if the name of the outcome in the underlying model
                     is different from the name of the outcome, you can
@@ -258,7 +258,7 @@ class ScalarOutcome(AbstractOutcome):
     ----------
     name : str
            Name of the outcome.
-    kind : {INFO, MINIMZE, MAXIMIZE}, optional
+    kind : {INFO, MINIMIZE, MAXIMIZE}, optional
     variable_name : str, optional
                     if the name of the outcome in the underlying model
                     is different from the name of the outcome, you can
@@ -567,7 +567,7 @@ def create_outcomes(outcomes, **kwargs):
 
     Parameters
     ----------
-    outcomes : DataFrame, or something convertable to a DataFrame
+    outcomes : DataFrame, or something convertible to a DataFrame
                in case of string, the string will be passed
 
     Returns
