@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Jan"
+  given-names: "Kwakkel"
+  orcid: "https://orcid.org/0000-0001-9447-2954"
+title: "EMAworkbench"
+url: "https://github.com/quaquel/EMAworkbench"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Kwakkel"
+    given-names: "Jan"
+    orcid: "https://orcid.org/0000-0001-9447-2954"
+  doi: "10.1016/j.envsoft.2017.06.054"
+  journal: "Environmental Modelling & Software"
+  start: 239 # First page number
+  end: 250 # Last page number
+  title: "The Exploratory Modeling Workbench: An open source toolkit for exploratory modeling, scenario discovery, and (multi-objective) robust decision making"
+  volume: 96
+  year: 2017
