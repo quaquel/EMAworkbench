@@ -6,18 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
-<!-- Release notes generated using configuration in .github/release.yml at master -->
-
 ## 2.3.0
 ### Highlights
-With this new release, the way in which to install the workbench is changed. See
-[the installation instructions](https://emaworkbench.readthedocs.io/en/latest/getting_started/installation.html)
-for full details.
-
-This release adds a new algorithm for output space exploration. The way in which
-convergence tracking for optimization is supported has been overhauled completely. See the updated
+This release adds a new algorithm for [output space exploration](https://emaworkbench.readthedocs.io/en/latest/ema_documentation/em_framework/outputspace_exploration.html). The way in which
+convergence tracking for optimization is supported has been overhauled completely, see the updated
 [directed search](https://emaworkbench.readthedocs.io/en/latest/indepth_tutorial/directed-search.html) user guide
-for full details. THe documentation has moreover been  expanded with a comparison to Rhodium.
+for full details. The documentation has moreover been expanded with a [comparison to Rhodium](https://emaworkbench.readthedocs.io/en/latest/getting_started/other_packages.html).
+
+With this new release, the installation process has been improved by reducing the number of required dependencies. Recommended packages and connectors can now be installed as _extras_ using pip, for example `pip install -U ema-workbench[recommended,netlogo]`. See the 
+[updated installation instructions](https://emaworkbench.readthedocs.io/en/latest/getting_started/installation.html)
+for all options and details.
+
+The 2.3.x release series support Python 3.8 to 3.11 and is the last series that support Python 3.8. It can be installed as usual via PyPI, with:
+```
+pip install --upgrade ema-workbench
+```
 
 ### What's Changed
 
@@ -26,7 +29,8 @@ for full details. THe documentation has moreover been  expanded with a compariso
 * Convergence tracking by @quaquel in https://github.com/quaquel/EMAworkbench/pull/193
 
 ### 🛠 Enhancements made
-* switch to using format string in prim logging by @quaquel in https://github.com/quaquel/EMAworkbench/pull/161
+* Switch to using format string in prim logging by @quaquel in https://github.com/quaquel/EMAworkbench/pull/161
+* Replace setup.py with pyproject.toml and implement optional dependencies by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/166
 
 #### 🐛 Bugs fixed
 * use masked arrays for storing outcomes by @quaquel in https://github.com/quaquel/EMAworkbench/pull/176
@@ -35,7 +39,6 @@ for full details. THe documentation has moreover been  expanded with a compariso
 
 #### 📜 Documentation improvements
 * Create initial CONTRIBUTING.md documentation by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/162
-* Replace setup.py with pyproject.toml and implement optional dependencies by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/166
 * Create Read the Docs yaml configuration by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/173
 * update to outcomes documentation by @quaquel in https://github.com/quaquel/EMAworkbench/pull/183
 * Improved directed search tutorial by @quaquel in https://github.com/quaquel/EMAworkbench/pull/194
@@ -50,9 +53,9 @@ for full details. THe documentation has moreover been  expanded with a compariso
 * Formatting: Format with Black, increase max line length to 100, combine multi-line blocks by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/178
 * Add pre-commit configuration and auto update CI by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/181
 * Fix Matplotlib, ipyparallel and dict deprecation warnings by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/202
+* CI: Start testing on Python 3.11 by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/156
 
 #### Other changes
-* [pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/quaquel/EMAworkbench/pull/196
 * Adds CITATION.cff by @quaquel in https://github.com/quaquel/EMAworkbench/pull/209
 
 ### New Contributors
