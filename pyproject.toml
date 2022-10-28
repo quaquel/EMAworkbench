@@ -20,7 +20,7 @@ dependencies = [
     "numpy",
     "pandas",
     "scikit-learn",
-    "salib",
+    "salib>=1.4.6",
     "platypus-opt",
     "matplotlib",
     "statsmodels",
