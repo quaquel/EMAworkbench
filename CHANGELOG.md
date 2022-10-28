@@ -8,14 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 2.3.0
 ### Highlights
-This release adds a new algorithm for [output space exploration](https://emaworkbench.readthedocs.io/en/latest/ema_documentation/em_framework/outputspace_exploration.html). The way in which
-convergence tracking for optimization is supported has been overhauled completely, see the updated
-[directed search](https://emaworkbench.readthedocs.io/en/latest/indepth_tutorial/directed-search.html) user guide
-for full details. The documentation has moreover been expanded with a [comparison to Rhodium](https://emaworkbench.readthedocs.io/en/latest/getting_started/other_packages.html).
+This release adds a new algorithm for [output space exploration](https://emaworkbench.readthedocs.io/en/latest/ema_documentation/em_framework/outputspace_exploration.html). The way in which convergence tracking for optimization is supported has been overhauled completely, see the updated [directed search](https://emaworkbench.readthedocs.io/en/latest/indepth_tutorial/directed-search.html) user guide for full details. The documentation has moreover been expanded with a [comparison to Rhodium](https://emaworkbench.readthedocs.io/en/latest/getting_started/other_packages.html).
 
-With this new release, the installation process has been improved by reducing the number of required dependencies. Recommended packages and connectors can now be installed as _extras_ using pip, for example `pip install -U ema-workbench[recommended,netlogo]`. See the
-[updated installation instructions](https://emaworkbench.readthedocs.io/en/latest/getting_started/installation.html)
-for all options and details.
+With this new release, the installation process has been improved by reducing the number of required dependencies. Recommended packages and connectors can now be installed as _extras_ using pip, for example `pip install -U ema-workbench[recommended,netlogo]`. See the [updated installation instructions](https://emaworkbench.readthedocs.io/en/latest/getting_started/installation.html) for all options and details.
 
 The 2.3.x release series support Python 3.8 to 3.11 and is the last series that support Python 3.8. It can be installed as usual via PyPI, with:
 ```
