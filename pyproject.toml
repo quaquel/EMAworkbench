@@ -23,8 +23,7 @@ dependencies = [
     "salib>=1.4.6",
     "platypus-opt",
     "matplotlib",
-    "statsmodels; python_version < '3.11'",
-    "statsmodels @ git+https://github.com/statsmodels/statsmodels.git ; python_version >= '3.11'",
+    "statsmodels",
     "seaborn",
     "tqdm",
 ]
