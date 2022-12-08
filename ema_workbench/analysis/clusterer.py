@@ -100,7 +100,7 @@ def apply_agglomerative_clustering(distances, n_clusters, linkage="average"):
     """
 
     c = cluster.AgglomerativeClustering(
-        n_clusters=n_clusters, affinity="precomputed", linkage=linkage
+        n_clusters=n_clusters, metric="precomputed", linkage=linkage
     )
     clusters = c.fit_predict(distances)
     return clusters
