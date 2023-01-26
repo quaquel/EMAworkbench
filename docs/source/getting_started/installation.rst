@@ -63,11 +63,11 @@ As a developer you will want an edible install, in which you can modify the inst
 
 The latest commit on the master branch can be installed with::
 
-	pip install -e git+https://github.com/quaquel/EMAworkbench #egg=ema-workbench
+	pip install -e git+https://github.com/quaquel/EMAworkbench#egg=ema-workbench
 
 Or any other (development) branch on this repo or your own fork::
 
-	pip install -e git+https://github.com/YOUR_FORK/EMAworkbench@YOUR_BRANCH #egg=ema-workbench
+	pip install -e git+https://github.com/YOUR_FORK/EMAworkbench@YOUR_BRANCH#egg=ema-workbench
 
 The code is also available from `github <https://github.com/quaquel/EMAworkbench>`_.
 
