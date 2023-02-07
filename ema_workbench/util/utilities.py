@@ -72,7 +72,7 @@ def load_results(file_name):
         known_outcome_classes = {
             entry.__name__: entry for entry in AbstractOutcome.get_subclasses()
         }
-        for (outcome_type, name, filename) in metadata["outcomes"]:
+        for outcome_type, name, filename in metadata["outcomes"]:
             outcome = known_outcome_classes[outcome_type](name)
 
             values = register.deserialize(name, filename, archive)

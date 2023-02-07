@@ -29,7 +29,7 @@ def lake_problem(
     delta=0.98,  # standard deviation of natural inflows
     alpha=0.4,  # utility from pollution
     nsamples=100,  # Monte Carlo sampling of natural inflows
-    **kwargs
+    **kwargs,
 ):
     try:
         decisions = [kwargs[str(i)] for i in range(100)]

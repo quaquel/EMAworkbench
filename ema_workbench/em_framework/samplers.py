@@ -713,7 +713,6 @@ def design_generator(designs, params, kind):
     """
 
     for design in designs:
-
         design_dict = {}
         for param, value in zip(params, design):
             if isinstance(param, IntegerParameter):

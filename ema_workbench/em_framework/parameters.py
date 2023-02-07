@@ -461,7 +461,6 @@ def parameters_to_csv(parameters, file_name):
     params = {}
 
     for i, param in enumerate(parameters):
-
         if isinstance(param, CategoricalParameter):
             values = param.resolution
         else:
