@@ -84,7 +84,7 @@ def plot_dendrogram(distances):
     return fig
 
 
-def apply_agglomerative_clustering(distances, n_clusters, linkage="average"):
+def apply_agglomerative_clustering(distances, n_clusters, metric="precomputed", linkage="average"):
     """apply agglomerative clustering to the distances
 
     Parameters
@@ -100,7 +100,7 @@ def apply_agglomerative_clustering(distances, n_clusters, linkage="average"):
     """
 
     c = cluster.AgglomerativeClustering(
-        n_clusters=n_clusters, metric="precomputed", linkage=linkage
+        n_clusters=n_clusters, metric=metric, linkage=linkage
     )
     clusters = c.fit_predict(distances)
     return clusters
