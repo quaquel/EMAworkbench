@@ -45,7 +45,6 @@ class VensimExampleModel(VensimModel):
 
 class LookupTestModel(VensimModel):
     def __init__(self, working_directory, name):
-
         self.model_file = r"\lookup_model.vpm"
         super().__init__(working_directory, name)
 
@@ -107,7 +106,6 @@ class VensimTest(unittest.TestCase):
         pass
 
     def test_run_simulation(self):
-
         model_file = r"../models/model.vpm"
         load_model(model_file)
 
@@ -117,7 +115,6 @@ class VensimTest(unittest.TestCase):
 
 class VensimMSITest(unittest.TestCase):
     def test_vensim_model(self):
-
         # instantiate a model
         wd = r"../models"
         model = VensimExampleModel(wd, "simpleModel")

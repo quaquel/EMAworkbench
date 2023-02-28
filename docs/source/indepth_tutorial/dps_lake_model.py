@@ -108,7 +108,6 @@ def lake_model(
         )
 
         for t in range(1, myears):
-
             # here we use the decision rule
             decision = get_antropogenic_release(X[t - 1], c1, c2, r1, r2, w1)
             decisions[t] = decision

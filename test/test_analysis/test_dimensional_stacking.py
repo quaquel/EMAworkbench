@@ -14,7 +14,6 @@ from test import utilities
 
 class DimStackTestCase(unittest.TestCase):
     def test_discretize(self):
-
         float = np.random.rand(100)  # @ReservedAssignment
         integer = np.random.randint(0, 5, size=(100,))
         categorical = [str(i) for i in np.random.randint(0, 3, size=(100,))]

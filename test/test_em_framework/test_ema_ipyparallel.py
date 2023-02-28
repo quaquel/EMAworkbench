@@ -41,6 +41,7 @@ blackhole = os.open(os.devnull, os.O_WRONLY)
 
 warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*/IPython/.*")
 
+
 # Launcher class
 class MockProcessLauncher(LocalProcessLauncher):
     """subclass LocalProcessLauncher, to prevent extra sockets and threads being created on Windows"""
@@ -354,7 +355,6 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(experiment_runner.ExperimentRunner, type(engine.runner))
 
     def test_run_experiment(self):
-
         function = mock.Mock()
         mock_msi = Model("test", function)
         mock_runner = mock.create_autospec(experiment_runner.ExperimentRunner)
@@ -378,7 +378,6 @@ class TestEngine(unittest.TestCase):
 
 class TestIpyParallelUtilFunctions(unittest.TestCase):
     def test_initialize_engines(self):
-
         function = mock.Mock()
         mock_msi = Model("test", function)
         msis = {mock_msi.name: mock_msi}

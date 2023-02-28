@@ -26,7 +26,7 @@ def pairs_lines(
     grouping_specifiers=None,
     ylabels={},
     legend=True,
-    **kwargs
+    **kwargs,
 ):
     """
 
@@ -389,7 +389,7 @@ def pairs_scatter(
     legend=True,
     point_in_time=-1,
     filter_scalar=False,
-    **kwargs
+    **kwargs,
 ):
     """
 

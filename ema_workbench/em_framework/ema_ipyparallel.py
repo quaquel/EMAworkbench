@@ -142,7 +142,6 @@ def update_cwd_on_all_engines(client):
 
     notebook_host = socket.gethostname()
     for key, value in engines_by_host.items():
-
         if key == notebook_host:
             cwd = os.getcwd()
 
