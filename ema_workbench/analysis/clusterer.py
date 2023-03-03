@@ -100,8 +100,6 @@ def apply_agglomerative_clustering(distances, n_clusters, metric="precomputed", 
 
     """
 
-    c = cluster.AgglomerativeClustering(
-        n_clusters=n_clusters, metric=metric, linkage=linkage
-    )
+    c = cluster.AgglomerativeClustering(n_clusters=n_clusters, metric=metric, linkage=linkage)
     clusters = c.fit_predict(distances)
     return clusters
