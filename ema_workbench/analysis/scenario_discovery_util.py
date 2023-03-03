@@ -307,9 +307,9 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     Tbox = int(Tbox)
 
     # force one sided
-    qp = sp.stats.binom_test(Hbox, Tbox, p, alternative="greater")  # @UndefinedVariable
+    qp = sp.stats.binomtest(Hbox, Tbox, p, alternative="greater")  # @UndefinedVariable
 
-    return qp
+    return qp.pvalue
 
 
 def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):

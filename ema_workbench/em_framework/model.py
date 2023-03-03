@@ -132,7 +132,6 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def _transform(self, sampled_parameters, parameters):
-
         if not parameters:
             # no parameters defined, so nothing to transform, mainly
             # useful for manual specification of scenario /  policy
@@ -273,7 +272,6 @@ class Replicator(AbstractModel):
 
     @replications.setter
     def replications(self, replications):
-
         # int
         if isinstance(replications, int):
             # TODO:: use a repeating generator instead

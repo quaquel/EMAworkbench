@@ -260,7 +260,7 @@ def set_legend_to_bw(leg, style, colormap, line_style="continuous"):
         if isinstance(leg, list):
             leg = leg[0]
 
-        for element in leg.legendHandles:
+        for element in leg.legend_handles:
             if isinstance(element, mpl.collections.PathCollection):
                 rgb_orig = color_converter.to_rgb(element._facecolors[0])
                 new_color = color_converter.to_rgba(colormap[rgb_orig]["fill"])

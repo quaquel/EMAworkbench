@@ -30,7 +30,7 @@ To also install some recommended packages for plotting, testing and Jupyter supp
 ```
 pip install -U ema_workbench[recommended]
 ```
-There are way more options installing the workbench, including installing connector packages, edible installs for development, installs of custom forks and branches and more. See [Installing the workbench](https://emaworkbench.readthedocs.io/en/latest/installation.html) in the docs for all options.
+There are way more options installing the workbench, including installing connector packages, edible installs for development, installs of custom forks and branches and more. See [Installing the workbench](https://emaworkbench.readthedocs.io/en/latest/getting_started/installation.html) in the docs for all options.
 
 ## Contributing
 

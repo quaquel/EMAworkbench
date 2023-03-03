@@ -77,7 +77,6 @@ if struct.calcsize("P") * 8 == 64:
         raise ImportError("vensim dll not found")
     # 64 bit python
 else:
-
     if vensim_single and vensim_double:
         vensim = vensim_single
         _logger.info("both single and double precision vensim available, using single")
