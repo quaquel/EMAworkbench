@@ -91,6 +91,7 @@ def apply_agglomerative_clustering(distances, n_clusters, metric="precomputed", 
     ----------
     distances : ndarray
     n_clusters : int
+    metric : str, optional. The distance metric to use. The default is 'precomputed'. For a list of available metrics, see the documentation of scipy.spatial.distance.pdist.
     linkage : {'average', 'complete', 'single'}
 
     Returns
