@@ -978,6 +978,8 @@ class Prim(sdutil.OutputFormatterMixin):
         assert mode in {sdutil.RuleInductionType.BINARY, sdutil.RuleInductionType.REGRESSION}
         assert self._assert_mode(y, mode, update_function)
         # preprocess x
+        x = x.copy()
+
         try:
             x.drop(columns="scenario", inplace=True)
         except KeyError:
