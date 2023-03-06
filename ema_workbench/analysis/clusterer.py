@@ -84,13 +84,14 @@ def plot_dendrogram(distances):
     return fig
 
 
-def apply_agglomerative_clustering(distances, n_clusters, linkage="average"):
+def apply_agglomerative_clustering(distances, n_clusters, metric="precomputed", linkage="average"):
     """apply agglomerative clustering to the distances
 
     Parameters
     ----------
     distances : ndarray
     n_clusters : int
+    metric : str, optional. The distance metric to use. The default is 'precomputed'. For a list of available metrics, see the documentation of scipy.spatial.distance.pdist.
     linkage : {'average', 'complete', 'single'}
 
     Returns
@@ -99,8 +100,6 @@ def apply_agglomerative_clustering(distances, n_clusters, linkage="average"):
 
     """
 
-    c = cluster.AgglomerativeClustering(
-        n_clusters=n_clusters, metric="precomputed", linkage=linkage
-    )
+    c = cluster.AgglomerativeClustering(n_clusters=n_clusters, metric=metric, linkage=linkage)
     clusters = c.fit_predict(distances)
     return clusters
