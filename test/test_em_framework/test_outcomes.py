@@ -153,6 +153,14 @@ class TestTimeSeriesOutcome(TestScalarOutcome):
 
             outcome.process([1])
 
+        with self.assertRaises(ValueError):
+            name = "f"
+            outcome = self.outcome_class(name, function=function, shape=(1,))
+
+        with self.assertRaises(ValueError):
+            name = "f"
+            outcome = self.outcome_class(name, function=function, dtype=float)
+
 
 class CreateOutcomesTestCase(unittest.TestCase):
     def test_create_outcomes(self):

@@ -232,7 +232,7 @@ class DefaultCallback(AbstractCallback):
             shape = outcome.shape
             if shape is not None:
                 shape = (nr_experiments,) + shape
-                self.results[outcome.name] = self._setup_outcomes_array(shape, dtype=float)
+                self.results[outcome.name] = self._setup_outcomes_array(shape, dtype=outcome.dtype)
 
     def _store_case(self, experiment):
         scenario = experiment.scenario

@@ -81,7 +81,7 @@ def test_init():
     uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
     outcomes = [
         ScalarOutcome("scalar"),
-        ArrayOutcome("array", shape=(10,)),
+        ArrayOutcome("array", shape=(10,), dtype=float),
         TimeSeriesOutcome("timeseries"),
     ]
     callback = DefaultCallback(uncs, [], outcomes, nr_experiments=100)

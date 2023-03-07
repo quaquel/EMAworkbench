@@ -104,6 +104,11 @@ class AbstractOutcome(Variable):
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
     shape : {tuple, None} optional
+            must be used in conjunction with dtype. Enables pre-allocation
+            of data structure for storing results.
+    dtype : datatype, optional
+            must be used in conjunction with shape. Enables pre-allocation
+            of data structure for storing results.
 
     Attributes
     ----------
@@ -112,6 +117,7 @@ class AbstractOutcome(Variable):
     variable_name : str
     function : callable
     shape : tuple
+    dtype : dataype
 
     """
 
@@ -122,7 +128,14 @@ class AbstractOutcome(Variable):
     INFO = 0
 
     def __init__(
-        self, name, kind=INFO, variable_name=None, function=None, expected_range=None, shape=None
+        self,
+        name,
+        kind=INFO,
+        variable_name=None,
+        function=None,
+        expected_range=None,
+        shape=None,
+        dtype=None,
     ):
         super().__init__(name)
 
@@ -135,6 +148,8 @@ class AbstractOutcome(Variable):
                 raise ValueError("variable name must be a string or list of strings")
         if expected_range is not None and len(expected_range) != 2:
             raise ValueError("expected_range must be a min-max tuple")
+        if (shape is not None and dtype is None) or (dtype is not None and shape is None):
+            raise ValueError("if using shape or dtype, both need to be provided")
 
         register(self)
 
@@ -151,6 +166,7 @@ class AbstractOutcome(Variable):
         self.function = function
         self._expected_range = expected_range
         self.shape = shape
+        self.dtype = dtype
 
     def process(self, values):
         if self.function:
@@ -270,6 +286,8 @@ class ScalarOutcome(AbstractOutcome):
     expected_range : collection, optional
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
+    dtype : datatype, optional
+            Enables pre-allocation of data structure for storing results.
 
     Attributes
     ----------
@@ -279,6 +297,7 @@ class ScalarOutcome(AbstractOutcome):
     function : callable
     shape : tuple
     expected_range : tuple
+    dtype : datatype
 
     """
 
@@ -299,8 +318,14 @@ class ScalarOutcome(AbstractOutcome):
         variable_name=None,
         function=None,
         expected_range=None,
+        dtype=None,
     ):
-        super().__init__(name, kind, variable_name=variable_name, function=function)
+        shape = None
+        if dtype is not None:
+            shape = (1,)
+        super().__init__(
+            name, kind, variable_name=variable_name, function=function, dtype=dtype, shape=shape
+        )
         self.expected_range = expected_range
 
     def process(self, values):
@@ -360,7 +385,12 @@ class ArrayOutcome(AbstractOutcome):
     expected_range : 2 tuple, optional
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
-    shape : {tuple, None}, optional
+    shape : {tuple, None} optional
+            must be used in conjunction with dtype. Enables pre-allocation
+            of data structure for storing results.
+    dtype : datatype, optional
+            must be used in conjunction with shape. Enables pre-allocation
+            of data structure for storing results.
 
     Attributes
     ----------
@@ -370,17 +400,21 @@ class ArrayOutcome(AbstractOutcome):
     function : callable
     shape : tuple
     expected_range : tuple
+    dtype : datatype
 
 
     """
 
-    def __init__(self, name, variable_name=None, function=None, expected_range=None, shape=None):
+    def __init__(
+        self, name, variable_name=None, function=None, expected_range=None, shape=None, dtype=None
+    ):
         super().__init__(
             name,
             variable_name=variable_name,
             function=function,
             expected_range=expected_range,
             shape=shape,
+            dtype=dtype,
         )
 
     def process(self, values):
@@ -450,7 +484,12 @@ class TimeSeriesOutcome(ArrayOutcome):
     expected_range : 2 tuple, optional
                      expected min and max value for outcome,
                      used by HyperVolume convergence metric
-    shape : {tuple, None}, optional
+    shape : {tuple, None} optional
+            must be used in conjunction with dtype. Enables pre-allocation
+            of data structure for storing results.
+    dtype : datatype, optional
+            must be used in conjunction with shape. Enables pre-allocation
+            of data structure for storing results.
 
     Attributes
     ----------
@@ -460,6 +499,7 @@ class TimeSeriesOutcome(ArrayOutcome):
     function : callable
     shape : tuple
     expected_range : tuple
+    dtype : datatype
 
     Notes
     -----
@@ -469,13 +509,16 @@ class TimeSeriesOutcome(ArrayOutcome):
 
     """
 
-    def __init__(self, name, variable_name=None, function=None, expected_range=None, shape=None):
+    def __init__(
+        self, name, variable_name=None, function=None, expected_range=None, shape=None, dtype=None
+    ):
         super().__init__(
             name,
             variable_name=variable_name,
             function=function,
             expected_range=expected_range,
             shape=shape,
+            dtype=dtype,
         )
 
     @classmethod
