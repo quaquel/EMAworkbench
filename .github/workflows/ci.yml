@@ -14,7 +14,6 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -41,6 +40,7 @@ jobs:
         pip install --upgrade pip
         pip install .[dev,cov]
     - name: Test with Pytest
+      timeout-minutes: 15
       run:
         pytest --ignore=./test/test_connectors -v --cov=ema_workbench/em_framework --cov=ema_workbench/util --cov=ema_workbench/analysis
     - name: Coveralls
