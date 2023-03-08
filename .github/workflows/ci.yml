@@ -19,14 +19,19 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.10"]
+        python-version: ["3.11"]
+        name: [""]
         include:
           - os: ubuntu-latest
-            python-version: "3.11"
+            python-version: "3.10"
           - os: ubuntu-latest
             python-version: "3.9"
           - os: ubuntu-latest
             python-version: "3.8"
+          - os: ubuntu-latest
+            python-version: "3.11"
+            pip-pre: "--pre"  # Installs pre-release versions of pip dependencies
+            name: "Pre-release dependencies"
 
     steps:
     - uses: actions/checkout@v3
@@ -39,7 +44,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install .[dev,cov]
+        pip install .[dev,cov] ${{ matrix.pip-pre }}
     - name: Test with Pytest
       run:
         pytest --ignore=./test/test_connectors -v --cov=ema_workbench/em_framework --cov=ema_workbench/util --cov=ema_workbench/analysis
