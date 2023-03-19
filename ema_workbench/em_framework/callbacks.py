@@ -286,7 +286,9 @@ class DefaultCallback(AbstractCallback):
                 _logger.warning("some experiments have failed, returning masked result arrays")
                 results[k] = v
 
-        return self.cases, results
+        cases = pd.DataFrame(self.cases)
+        cases.columns = pd.MultiIndex.from_tuples(cases.columns, names=["parameter", ""])
+        return cases, results
 
     def _setup_outcomes_array(self, shape, dtype):
         array = np.ma.empty(shape, dtype=dtype)
