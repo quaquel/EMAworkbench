@@ -293,6 +293,7 @@ class DefaultCallback(AbstractCallback):
                 self.uncertainty_and_lever_labels, names=["parameter", ""]
             ),
         )
+        cases = cases.where(pd.notnull(cases), None)
         return cases, results
 
     def _setup_outcomes_array(self, shape, dtype):
