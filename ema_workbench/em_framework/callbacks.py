@@ -200,20 +200,22 @@ class DefaultCallback(AbstractCallback):
 
         dtypes = []
         for parameter in self.parameters:
-            dtype = 'float'
+            dtype = "float"
             if isinstance(parameter, BooleanParameter):
-                dtype = 'bool'
+                dtype = "bool"
             elif isinstance(parameter, CategoricalParameter):
-                dtype = 'object'
+                dtype = "object"
             elif isinstance(parameter, IntegerParameter):
-                dtype = 'int'
+                dtype = "int"
             dtypes.append((parameter.name, dtype))
 
-        dtypes.extend([
-            ("scenario", "object"),
-            ("policy", "object"),
-            ("model", "object"),
-        ])
+        dtypes.extend(
+            [
+                ("scenario", "object"),
+                ("policy", "object"),
+                ("model", "object"),
+            ]
+        )
 
         self.cases = np.empty(nr_experiments, dtype=dtypes)
 
@@ -228,8 +230,11 @@ class DefaultCallback(AbstractCallback):
         policy = experiment.policy
         index = experiment.experiment_id
 
-        self.cases[index] = (tuple(scenario.values()) + tuple(policy.values()) +
-                             (scenario.name, policy.name, experiment.model_name))
+        self.cases[index] = (
+            tuple(scenario.values())
+            + tuple(policy.values())
+            + (scenario.name, policy.name, experiment.model_name)
+        )
 
     def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
