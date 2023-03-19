@@ -195,7 +195,8 @@ class DefaultCallback(AbstractCallback):
             reporting_frequency,
             log_progress,
         )
-
+        self.cases = np.empty((nr_experiments, len(uncertainties) + len(levers)), dtype=object)
+        self.uncertainty_and_lever_labels = [(entry.name, "") for entry in uncertainties + levers]
         self.results = {}
 
         dtypes = []
@@ -286,8 +287,7 @@ class DefaultCallback(AbstractCallback):
                 _logger.warning("some experiments have failed, returning masked result arrays")
                 results[k] = v
 
-        cases = pd.DataFrame(self.cases)
-        cases.columns = pd.MultiIndex.from_tuples(cases.columns, names=["parameter", ""])
+        cases = pd.DataFrame(self.cases, columns=pd.MultiIndex.from_tuples(self.uncertainty_and_lever_labels, names=["parameter", ""]))
         return cases, results
 
     def _setup_outcomes_array(self, shape, dtype):
