@@ -287,7 +287,12 @@ class DefaultCallback(AbstractCallback):
                 _logger.warning("some experiments have failed, returning masked result arrays")
                 results[k] = v
 
-        cases = pd.DataFrame(self.cases, columns=pd.MultiIndex.from_tuples(self.uncertainty_and_lever_labels, names=["parameter", ""]))
+        cases = pd.DataFrame(
+            self.cases,
+            columns=pd.MultiIndex.from_tuples(
+                self.uncertainty_and_lever_labels, names=["parameter", ""]
+            ),
+        )
         return cases, results
 
     def _setup_outcomes_array(self, shape, dtype):

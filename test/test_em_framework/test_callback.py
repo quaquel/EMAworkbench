@@ -71,8 +71,11 @@ def test_store_results(mocker):
     # case 5 assert raises KeyError
     callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
     model_outcomes = {"some_other_name": np.random.rand(2, 2, 2)}
-    mock = mocker.patch("ema_workbench.em_framework.callbacks._logger.debug", autospec=True,
-                        side_effect=lambda *args, **kwargs: print(args, kwargs))
+    mock = mocker.patch(
+        "ema_workbench.em_framework.callbacks._logger.debug",
+        autospec=True,
+        side_effect=lambda *args, **kwargs: print(args, kwargs),
+    )
     callback._store_outcomes(1, model_outcomes)
     assert mock.call_count == 1
 
