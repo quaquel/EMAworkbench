@@ -197,6 +197,8 @@ class DefaultCallback(AbstractCallback):
         )
         self.cases = np.empty((nr_experiments, len(uncertainties) + len(levers)), dtype=object)
         self.uncertainty_and_lever_labels = [(entry.name, "") for entry in uncertainties + levers]
+        self.uncertainties = [u.name for u in uncertainties]
+        self.levers = [l.name for l in levers]
         self.results = {}
 
         dtypes = []
@@ -232,8 +234,8 @@ class DefaultCallback(AbstractCallback):
         index = experiment.experiment_id
 
         self.cases[index] = (
-            tuple(scenario.values())
-            + tuple(policy.values())
+            tuple([scenario[u] for u in self.uncertainties])
+            + tuple([policy[l] for l in self.levers])
             + (scenario.name, policy.name, experiment.model_name)
         )
 
