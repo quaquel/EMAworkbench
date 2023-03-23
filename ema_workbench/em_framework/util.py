@@ -195,12 +195,13 @@ def combine(*args):
     EMAError
         if a keyword argument exists in more than one dict
     """
-    experiment = copy.deepcopy(args[0])
-    for entry in args[1::]:
-        overlap = set(experiment.keys()).intersection(set(entry.keys()))
-        if overlap:
-            raise EMAError(f"parameters exist in {experiment} and {entry}, overlap is {overlap}")
-        experiment.update(entry)
+    experiment = {}
+
+    for entry in args:
+        for key, value in entry.items():
+            if key in experiment:
+                raise EMAError(f"parameters exist in {experiment} and {entry}, overlap is {key}")
+            experiment[key] = value
 
     return experiment
 
