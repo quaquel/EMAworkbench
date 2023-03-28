@@ -4,7 +4,7 @@
 """
 
 import unittest
-
+import copy
 from ema_workbench.em_framework import util
 
 
@@ -54,8 +54,46 @@ class TestNamedDict(unittest.TestCase):
 
 
 class TestCombine(unittest.TestCase):
-    def test_combine(self):
-        pass
+    def test_combine_two_dicts_no_overlap(self):
+        dict1 = {"a": 1, "b": 2}
+        dict2 = {"c": 3, "d": 4}
+        expected = {"a": 1, "b": 2, "c": 3, "d": 4}
+        result = util.combine(dict1, dict2)
+        self.assertEqual(result, expected)
+
+    def test_combine_multiple_dicts_no_overlap(self):
+        dict1 = {"a": 1, "b": 2}
+        dict2 = {"c": 3, "d": 4}
+        dict3 = {"e": 5, "f": 6}
+        expected = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6}
+        result = util.combine(dict1, dict2, dict3)
+        self.assertEqual(result, expected)
+
+    def test_combine_two_dicts_with_overlap(self):
+        dict1 = {"a": 1, "b": 2}
+        dict2 = {"b": 2, "c": 3}
+        with self.assertRaises(util.EMAError):
+            util.combine(dict1, dict2)
+
+    def test_combine_multiple_dicts_with_overlap(self):
+        dict1 = {"a": 1, "b": 2}
+        dict2 = {"c": 3, "d": 4}
+        dict3 = {"a": 1, "f": 6}
+        with self.assertRaises(util.EMAError):
+            util.combine(dict1, dict2, dict3)
+
+    def test_combine_empty_dicts(self):
+        dict1 = {}
+        dict2 = {}
+        expected = {}
+        result = util.combine(dict1, dict2)
+        self.assertEqual(result, expected)
+
+    def test_combine_single_dict(self):
+        dict1 = {"a": 1, "b": 2}
+        expected = copy.deepcopy(dict1)
+        result = util.combine(dict1)
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":
