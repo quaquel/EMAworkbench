@@ -13,11 +13,10 @@ compare the results.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import sin, min
-from scipy import exp
+from numpy import sin, min, exp
 
 from ema_workbench import Model, RealParameter, TimeSeriesOutcome, perform_experiments, ema_logging
-from ema_workbench import MultiprocessingEvaluator
+from ema_workbench import MultiprocessingEvaluator, SequentialEvaluator
 from ema_workbench.analysis import lines, Density
 
 # =============================================================================
@@ -137,7 +136,7 @@ def flu_model(
 
     # --End of Initialization--
 
-    Max_infected = 0
+    Max_infected = 0.0
 
     for time in range(int(INITIAL_TIME / TIME_STEP), int(FINAL_TIME / TIME_STEP)):
         runTime.append(runTime[-1] + TIME_STEP)
@@ -285,20 +284,22 @@ def flu_model(
 
         normal_immune_population_fraction_region_2 = switch_immunity_cap * min(
             (
-                sin((time * TIME_STEP / 2) + 1.5)
-                * additional_seasonal_immune_population_fraction_R2
-                / 2
-            )
-            + (
                 (
-                    (2 * permanent_immune_population_fraction_R2)
-                    + additional_seasonal_immune_population_fraction_R2
+                    sin((time * TIME_STEP / 2) + 1.5)
+                    * additional_seasonal_immune_population_fraction_R2
+                    / 2
                 )
-                / 2
-            ),
-            (
-                permanent_immune_population_fraction_R1
-                + additional_seasonal_immune_population_fraction_R1
+                + (
+                    (
+                        (2 * permanent_immune_population_fraction_R2)
+                        + additional_seasonal_immune_population_fraction_R2
+                    )
+                    / 2
+                ),
+                (
+                    permanent_immune_population_fraction_R1
+                    + additional_seasonal_immune_population_fraction_R1
+                ),
             ),
         ) + (
             (1 - switch_immunity_cap)
@@ -451,8 +452,10 @@ if __name__ == "__main__":
 
     nr_experiments = 500
 
-    with MultiprocessingEvaluator(model) as evaluator:
+    with SequentialEvaluator(model) as evaluator:
         results = perform_experiments(model, nr_experiments, evaluator=evaluator)
+
+    print("laat")
 
     lines(
         results,
