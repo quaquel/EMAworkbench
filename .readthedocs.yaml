@@ -25,8 +25,9 @@ python:
   install:
     - method: pip
       path: .
-    - requirements: pyproject.toml
-      extra_requirements: docs
+      requirements_file: pyproject.toml
+      extra_requirements:
+        - docs
 
 # Settings for more control over Server side search.
 # https://docs.readthedocs.io/en/stable/config-file/v2.html#search
