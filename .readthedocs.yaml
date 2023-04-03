@@ -9,7 +9,7 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.10"
+    python: "3"
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -18,6 +18,7 @@ sphinx:
 # If using Sphinx, optionally build your docs in additional formats such as PDF
 formats:
   - pdf
+  - htmlzip
 
 # Optionally declare the Python requirements required to build your docs
 python:
@@ -26,3 +27,16 @@ python:
       path: .
       extra_requirements:
         - docs
+
+# Settings for more control over Server side search.
+# https://docs.readthedocs.io/en/stable/config-file/v2.html#search
+search:
+  # Define which files pop up higher in the search results
+  ranking:
+    'docs/source/': 3
+    'ema_workbench/examples/*': 2
+    'ema_workbench/**': 1
+    '**/models/*': -1
+
+  # Exclude some files from the search
+  ignore: ['MANIFEST.in', '.gitattributes', '**/.gitignore', '**/data/*', '.eggs/**']
