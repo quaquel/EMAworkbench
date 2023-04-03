@@ -13,11 +13,13 @@ All configuration values have a default; values that are commented out
 serve to show the default.
 """
 
+import glob
 import sys
 import os
 import os.path as osp
 import re
 import shutil
+import string
 
 HERE = osp.abspath(osp.dirname(__file__))
 
@@ -264,3 +266,50 @@ def setup(app):
     # copy changelog into source folder for documentation
     dest = osp.join(HERE, "./getting_started/changelog.md")
     shutil.copy(osp.join(HERE, "..", "..", "CHANGELOG.md"), dest)
+
+    # create rst files for all examples
+    # check what examples exist
+    # TODO:: currently only covers .py files
+    examples_folder = osp.join(HERE, "..", "..", "ema_workbench", "examples")
+    examples = glob.glob(examples_folder + "/*.py")
+
+    # TODO:: __init__.py should also be ignored
+    examples = [
+        entry
+        for entry in examples
+        if not entry.endswith("test_examples.py") or not entry.endswith("model_debugger.py")
+    ]  # remove test_examples.py
+
+    # get all existing rst files
+    rst_files = glob.glob(os.path.join(HERE, "examples", "*.rst"))
+    rst_files = {os.path.basename(os.path.normpath(entry)) for entry in rst_files}
+
+    # check which rst files exist
+    with open(os.path.join(HERE, "example_template.txt")) as fh:
+        template = string.Template(fh.read())
+
+    for example in examples:
+        base_name = os.path.basename(os.path.normpath(example))
+        base, ext = os.path.splitext(base_name)
+
+        short_py_filename = f"{base}.py"
+        short_rst_filename = f"{base}.rst"
+        headerline = "=" * len(short_py_filename)
+
+        if short_rst_filename not in rst_files:
+            with open(os.path.join(HERE, "examples", short_rst_filename), "w") as fh:
+                relative_path = "../../ema_workbench/examples"
+                content = template.substitute(
+                    dict(short_filename=short_py_filename, headerline=headerline)
+                )
+                fh.write(content)
+        else:
+            rst_files.remove(short_rst_filename)
+
+    # these rst files are outdated because the example has been removed
+    for entry in rst_files:
+        fn = os.path.join(HERE, "examples", entry)
+        os.remove(fn)
+
+
+# setup(None)
