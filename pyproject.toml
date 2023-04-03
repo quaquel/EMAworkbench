@@ -36,7 +36,7 @@ all = ["ema_workbench[jupyter,dev,cov,docs,graph,parallel]"]
 jupyter = ["jupyter", "jupyter_client", "ipython", "ipykernel"]
 dev = ["pytest", "pytest-mock", "jupyter_client", "ipyparallel"]
 cov = ["pytest-cov", "coverage", "coveralls"]
-docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx", "myst", "pyscaffold", "myst-parser"]
+docs = ["sphinx", "sphinx-rtd-theme", "readthedocs-sphinx-ext", "nbsphinx", "myst", "pyscaffold", "myst-parser"]
 graph = ["altair", "pydot", "graphviz"]
 parallel = ["ipyparallel", "traitlets"]
 

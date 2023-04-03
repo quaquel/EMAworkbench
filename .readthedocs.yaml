@@ -25,7 +25,6 @@ python:
   install:
     - method: pip
       path: .
-      requirements_file: pyproject.toml
       extra_requirements:
         - docs
 
