@@ -309,6 +309,9 @@ class DefaultCallback(AbstractCallback):
                 _logger.warning("some experiments have failed, returning masked result arrays")
                 results[k] = v
 
+        # we want to ensure the dtypes for the columns in the experiments dataframe match
+        # the type of uncertainty. The exception is needed in case their are missing values (i.e. nans).
+        # nans can only ever be a float.
         for name, dtype in zip(self.columns, self.dtypes):
             try:
                 if dtype == "object":
