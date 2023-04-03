@@ -4,6 +4,8 @@ Created on 22 Jan 2013
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 import random
+
+import pandas as pd
 import pytest
 
 import numpy as np
@@ -153,6 +155,7 @@ def test_store_cases():
     case = {unc.name: random.random() for unc in uncs}
     case["c"] = int(round(case["c"] * 2))
     case["d"] = int(round(case["d"]))
+    case["e"] = True
 
     model = NamedObject("test")
     policy = Policy("policy")
@@ -166,15 +169,15 @@ def test_store_cases():
     callback(experiment, model_outcomes)
 
     experiments, _ = callback.get_results()
-    design = case
-    design["policy"] = policy.name
-    design["model"] = model.name
-    design["scenario"] = scenario.name
+    # design = case
+    case["policy"] = policy.name
+    case["model"] = model.name
+    case["scenario"] = scenario.name
 
     names = experiments.columns.values.tolist()
     for name in names:
         entry_a = experiments[name][0]
-        entry_b = design[name]
+        entry_b = case[name]
 
         assert entry_a == entry_b, "failed for " + name
 
@@ -213,6 +216,9 @@ def test_get_results(mocker):
     nr_experiments = 3
     uncs = [
         RealParameter("a", 0, 1),
+        CategoricalParameter("b", ["0", "1", "2", "3"]),
+        IntegerParameter("c", 0, 5),
+        BooleanParameter("d"),
     ]
     outcomes = [ScalarOutcome("other_test")]
     outcomes[0].shape = (1,)
@@ -220,17 +226,46 @@ def test_get_results(mocker):
     callback = DefaultCallback(
         uncs, [], outcomes, nr_experiments=nr_experiments, reporting_interval=1
     )
-
     # test warning
     mock = mocker.patch("ema_workbench.em_framework.callbacks._logger.warning")
     callback.get_results()
     assert mock.call_count == 1
 
     # test without warning
+    callback = DefaultCallback(
+        uncs, [], outcomes, nr_experiments=nr_experiments, reporting_interval=1
+    )
+
+    cases = []
+    for i in range(nr_experiments):
+        model = NamedObject("test")
+        policy = Policy("policy")
+        case = {"a": i * 0.15, "b": f"{i}", "c": i, "d": True if i % 2 == 0 else False}
+        scenario = Scenario(**case)
+        experiment = Experiment(0, model.name, policy, scenario, i)
+        model_outcomes = {outcomes[0].name: i * 1.25}
+        callback(experiment, model_outcomes)
+        cases.append(case)
+
     mock = mocker.patch("ema_workbench.em_framework.callbacks._logger.warning")
     callback.results = {k: v.data for k, v in callback.results.items()}
-    callback.get_results()
+    experiments, results = callback.get_results()
     assert mock.call_count == 0
+
+    # check if experiments dataframe contains the experiments correctly
+    data = pd.DataFrame.from_dict(cases)
+    assert np.all(data == experiments.loc[:, data.columns])
+
+    # check data types of columns in experiments dataframe
+    dtype_mapping = {
+        RealParameter: float,
+        CategoricalParameter: "category",
+        IntegerParameter: int,
+        BooleanParameter: bool,
+    }
+
+    for u in uncs:
+        assert experiments.loc[:, u.name].dtype == dtype_mapping[u.__class__]
 
 
 def test_filebasedcallback(mocker):

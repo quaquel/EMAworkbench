@@ -220,6 +220,9 @@ class DefaultCallback(AbstractCallback):
             columns.append(name)
             dtypes.append("object")
 
+        self.columns = columns
+        self.dtypes = dtypes
+
         index = np.arange(nr_experiments)
         column_dict = {
             name: pd.Series(dtype=dtype, index=index) for name, dtype in zip(columns, dtypes)
@@ -305,6 +308,17 @@ class DefaultCallback(AbstractCallback):
             else:
                 _logger.warning("some experiments have failed, returning masked result arrays")
                 results[k] = v
+
+        # we want to ensure the dtypes for the columns in the experiments dataframe match
+        # the type of uncertainty. The exception is needed in case their are missing values (i.e. nans).
+        # nans can only ever be a float.
+        for name, dtype in zip(self.columns, self.dtypes):
+            try:
+                if dtype == "object":
+                    dtype = "category"
+                self.cases[name] = self.cases[name].astype(dtype)
+            except Exception:
+                pass
 
         return self.cases, results
 
