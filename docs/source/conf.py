@@ -269,28 +269,26 @@ def setup(app):
 
     # create rst files for all examples
     # check what examples exist
-    # TODO:: currently only covers .py files
     examples_folder = osp.join(HERE, "..", "..", "ema_workbench", "examples")
     examples = glob.glob(examples_folder + "/*.py")
-
-    # TODO:: __init__.py should also be ignored
-    examples = [
-        entry
-        for entry in examples
-        if not entry.endswith("test_examples.py") or not entry.endswith("model_debugger.py")
-    ]  # remove test_examples.py
+    ignore_list = {"__init__", "test_examples", "model_debugger"}
 
     # get all existing rst files
     rst_files = glob.glob(os.path.join(HERE, "examples", "*.rst"))
     rst_files = {os.path.basename(os.path.normpath(entry)) for entry in rst_files}
 
     # check which rst files exist
+    # TODO:: consider stripping out top level docstring and add this as normal text to example
+    # TODO then only include remaining lines.
     with open(os.path.join(HERE, "example_template.txt")) as fh:
         template = string.Template(fh.read())
 
+    # TODO:: at the moment no idea what happens if example is updated. Does this trigger a rebuild of the html page?
     for example in examples:
         base_name = os.path.basename(os.path.normpath(example))
         base, ext = os.path.splitext(base_name)
+        if base in ignore_list:
+            continue
 
         short_py_filename = f"{base}.py"
         short_rst_filename = f"{base}.rst"
@@ -311,5 +309,11 @@ def setup(app):
         fn = os.path.join(HERE, "examples", entry)
         os.remove(fn)
 
+    notebooks = glob.glob(examples_folder + "/*.ipynb")
+    for entry in notebooks:
+        base_name = os.path.basename(os.path.normpath(entry))
+        shutil.copy(entry, os.path.join(HERE, "examples", base_name))
+        print(entry)
 
-# setup(None)
+
+setup(None)
