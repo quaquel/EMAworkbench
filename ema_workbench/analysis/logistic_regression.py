@@ -211,7 +211,7 @@ class Logit:
                 model = sm.Logit(self.y, data.astype(float))
 
                 try:
-                    model = model.fit()
+                    model = model.fit(method="newton", maxiter=2)
                 except np.linalg.LinAlgError:
                     continue
 
