@@ -143,6 +143,27 @@ class ParallelAxes:
     rot : float, optional
           rotation of axis labels
 
+
+    Attributes
+    ----------
+    limits : DataFrame
+    recoding : dict
+               non numeric columns are converting to integer variables
+    flipped_axes : set
+                   set of Axes that are to be shown flipped
+    axis_labels : list of str
+    fontsize : int
+    normalizer : MinMaxScaler instance
+    fig : a matplotlib Figure instance
+    axes : list of matplotlib Axes instances
+    ticklabels : list of str
+    datalabels : list of str
+                 labels associated with lines
+
+
+    The basic setup of the Parallel Axis plot is a row of mpl Axes instances, with all whitespace
+    in between removed. The number of Axes is the number of columns - 1.
+
     """
 
     def __init__(self, limits, formatter=None, fontsize=14, rot=90):
@@ -155,7 +176,6 @@ class ParallelAxes:
         formatter : dict, optional
                     specify precision formatters for minima and maxima,
                     defaults to .2f
-
         fontsize : int, optional
                    fontsize for defaults text items
         rot : float, optional
