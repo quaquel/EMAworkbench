@@ -143,24 +143,26 @@ class ParallelAxes:
     rot : float, optional
           rotation of axis labels
 
-
     Attributes
     ----------
     limits : DataFrame
+             A DataFrame specifying the limits for each dimension in the
+             data set. For categorical data, the first cell should contain all
+             categories.
     recoding : dict
                non numeric columns are converting to integer variables
     flipped_axes : set
                    set of Axes that are to be shown flipped
     axis_labels : list of str
     fontsize : int
-    normalizer : MinMaxScaler instance
     fig : a matplotlib Figure instance
     axes : list of matplotlib Axes instances
     ticklabels : list of str
     datalabels : list of str
                  labels associated with lines
 
-
+    Notes
+    -----
     The basic setup of the Parallel Axis plot is a row of mpl Axes instances, with all whitespace
     in between removed. The number of Axes is the number of columns - 1.
 
@@ -195,8 +197,8 @@ class ParallelAxes:
                 self.recoding[column] = CategoricalDtype(categories=cats, ordered=False)
                 self.limits.loc[:, column] = [0, len(cats) - 1]
 
-        self.normalizer = preprocessing.MinMaxScaler()
-        self.normalizer.fit(self.limits)
+        self._normalizer = preprocessing.MinMaxScaler()
+        self._normalizer.fit(self.limits)
 
         fig, axes, ticklabels = setup_parallel_plot(
             self.axis_labels,
@@ -251,7 +253,7 @@ class ParallelAxes:
             recoded[key] = data[key].astype(value).cat.codes
 
         # normalize the data
-        normalized_data = pd.DataFrame(self.normalizer.transform(recoded), columns=recoded.columns)
+        normalized_data = pd.DataFrame(self._normalizer.transform(recoded), columns=recoded.columns)
 
         # plot the data
         self._plot(normalized_data, color=color, **kwargs)
