@@ -34,17 +34,17 @@ class LogitTestCase(unittest.TestCase):
         for entry in logitmodel.feature_names:
             self.assertIn(entry, columns)
 
-        logitmodel.run()
+        logitmodel.run(method="newton", maxiter=2)
 
-        # logitmodel.show_tradeoff()
-        # logitmodel.show_threshold_tradeoff(1)
-        # logitmodel.plot_pairwise_scatter(1)
-        # logitmodel.inspect(1)
-        #
-        # logitmodel.threshold = 0.8
-        #
-        # plt.draw()
-        # plt.close("all")
+        logitmodel.show_tradeoff()
+        logitmodel.show_threshold_tradeoff(1)
+        logitmodel.plot_pairwise_scatter(1)
+        logitmodel.inspect(1)
+
+        logitmodel.threshold = 0.8
+
+        plt.draw()
+        plt.close("all")
 
 
 if __name__ == "__main__":
