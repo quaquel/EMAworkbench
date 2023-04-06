@@ -25,7 +25,7 @@ import os
 
 import numpy as np
 
-import pynetLogo
+import pynetlogo
 
 from ..em_framework.model import FileModel
 from ..util.ema_logging import method_logger
