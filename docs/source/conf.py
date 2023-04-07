@@ -262,11 +262,7 @@ latex_documents = [
 man_pages = [("index", "emaworkbench", "EMA workbench Documentation", ["J.H. Kwakkel"], 1)]
 
 
-def setup(app):
-    # copy changelog into source folder for documentation
-    dest = osp.join(HERE, "./getting_started/changelog.md")
-    shutil.copy(osp.join(HERE, "..", "..", "CHANGELOG.md"), dest)
-
+def setup_examples_pages():
     # create rst files for all examples
     # check what examples exist
     examples_folder = osp.join(HERE, "..", "..", "ema_workbench", "examples")
@@ -284,6 +280,7 @@ def setup(app):
         template = string.Template(fh.read())
 
     # TODO:: at the moment no idea what happens if example is updated. Does this trigger a rebuild of the html page?
+    examples_rst = []
     for example in examples:
         base_name = os.path.basename(os.path.normpath(example))
         base, ext = os.path.splitext(base_name)
@@ -293,10 +290,10 @@ def setup(app):
         short_py_filename = f"{base}.py"
         short_rst_filename = f"{base}.rst"
         headerline = "=" * len(short_py_filename)
+        examples_rst.append(f"./examples/{short_rst_filename}")
 
         if short_rst_filename not in rst_files:
             with open(os.path.join(HERE, "examples", short_rst_filename), "w") as fh:
-                relative_path = "../../ema_workbench/examples"
                 content = template.substitute(
                     dict(short_filename=short_py_filename, headerline=headerline)
                 )
@@ -309,11 +306,32 @@ def setup(app):
         fn = os.path.join(HERE, "examples", entry)
         os.remove(fn)
 
+    # copy and overwrite all notebooks
+    # TODO:: make this smarter by only copying if timestamp is newer of file does not exist
     notebooks = glob.glob(examples_folder + "/*.ipynb")
+    notebook_files = []
     for entry in notebooks:
         base_name = os.path.basename(os.path.normpath(entry))
+        notebook_files.append(f"./examples/{base_name}")
         shutil.copy(entry, os.path.join(HERE, "examples", base_name))
         print(entry)
 
+    # creeate examples.rst
+    with open(os.path.join(HERE, "examples_template.txt")) as fh:
+        template = string.Template(fh.read())
 
-setup(None)
+    with open(os.path.join(HERE, "examples.rst"), "w") as fh:
+        content = template.substitute(
+            dict(
+                notebooks="\n    ".join(sorted(notebook_files)),
+                python_files="\n    ".join(sorted(examples_rst)),
+            )
+        )
+        fh.write(content)
+
+
+def setup(app):
+    # copy changelog into source folder for documentation
+    dest = osp.join(HERE, "./getting_started/changelog.md")
+    shutil.copy(osp.join(HERE, "..", "..", "CHANGELOG.md"), dest)
+    setup_examples_pages()
