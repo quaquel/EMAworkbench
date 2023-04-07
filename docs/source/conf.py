@@ -270,25 +270,39 @@ def setup(app):
     # create rst files for all examples
     # check what examples exist
     examples_folder = osp.join(HERE, "..", "..", "ema_workbench", "examples")
-    examples = glob.glob(examples_folder + "/*.py")
+    examples = glob.glob(examples_folder + "/*.py") + glob.glob(examples_folder + "/*.ipynb")
     ignore_list = {"__init__", "test_examples", "model_debugger"}
 
     # get all existing rst files
     rst_files = glob.glob(os.path.join(HERE, "examples", "*.rst"))
     rst_files = {os.path.basename(os.path.normpath(entry)) for entry in rst_files}
 
-    # check which rst files exist
-    # TODO:: consider stripping out top level docstring and add this as normal text to example
-    # TODO then only include remaining lines.
-    with open(os.path.join(HERE, "example_template.txt")) as fh:
-        template = string.Template(fh.read())
+    # Add separate lists for .py and .ipynb files
+    py_examples = []
+    ipynb_examples = []
 
-    # TODO:: at the moment no idea what happens if example is updated. Does this trigger a rebuild of the html page?
+    # Iterate over all examples and categorize them
     for example in examples:
         base_name = os.path.basename(os.path.normpath(example))
         base, ext = os.path.splitext(base_name)
         if base in ignore_list:
             continue
+
+        if ext == '.py':
+            py_examples.append(example)
+        elif ext == '.ipynb':
+            ipynb_examples.append(example)
+
+    # TODO:: consider stripping out top level docstring and add this as normal text to example
+    # TODO then only include remaining lines.
+    with open(os.path.join(HERE, "example_template.txt")) as fh:
+        template = string.Template(fh.read())
+
+    # Handle .py examples
+    # TODO:: at the moment no idea what happens if example is updated. Does this trigger a rebuild of the html page?
+    for example in py_examples:
+        base_name = os.path.basename(os.path.normpath(example))
+        base, ext = os.path.splitext(base_name)
 
         short_py_filename = f"{base}.py"
         short_rst_filename = f"{base}.rst"
@@ -304,16 +318,29 @@ def setup(app):
         else:
             rst_files.remove(short_rst_filename)
 
+    # Handle .ipynb examples
+    for example in ipynb_examples:
+        base_name = os.path.basename(os.path.normpath(example))
+        base, ext = os.path.splitext(base_name)
+
+        short_ipynb_filename = f"{base}.ipynb"
+        short_rst_filename = f"{base}.rst"
+        headerline = "=" * len(short_ipynb_filename)
+
+        if short_rst_filename not in rst_files:
+            with open(os.path.join(HERE, "examples", short_rst_filename), "w") as fh:
+                relative_path = "../../ema_workbench/examples"
+                content = template.substitute(
+                    dict(short_filename=short_ipynb_filename, headerline=headerline)
+                )
+                fh.write(content)
+        else:
+            rst_files.remove(short_rst_filename)
+
     # these rst files are outdated because the example has been removed
     for entry in rst_files:
         fn = os.path.join(HERE, "examples", entry)
         os.remove(fn)
-
-    notebooks = glob.glob(examples_folder + "/*.ipynb")
-    for entry in notebooks:
-        base_name = os.path.basename(os.path.normpath(entry))
-        shutil.copy(entry, os.path.join(HERE, "examples", base_name))
-        print(entry)
 
 
 setup(None)
