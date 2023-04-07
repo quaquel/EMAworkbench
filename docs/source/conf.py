@@ -288,9 +288,9 @@ def setup(app):
         if base in ignore_list:
             continue
 
-        if ext == ".py":
+        if ext == '.py':
             py_examples.append(example)
-        elif ext == ".ipynb":
+        elif ext == '.ipynb':
             ipynb_examples.append(example)
 
     # TODO:: consider stripping out top level docstring and add this as normal text to example
@@ -300,6 +300,7 @@ def setup(app):
 
     # Handle .py examples
     # TODO:: at the moment no idea what happens if example is updated. Does this trigger a rebuild of the html page?
+    python_section = ""
     for example in py_examples:
         base_name = os.path.basename(os.path.normpath(example))
         base, ext = os.path.splitext(base_name)
@@ -312,13 +313,15 @@ def setup(app):
             with open(os.path.join(HERE, "examples", short_rst_filename), "w") as fh:
                 relative_path = "../../ema_workbench/examples"
                 content = template.substitute(
-                    dict(short_filename=short_py_filename, headerline=headerline)
+                    dict(short_filename=short_py_filename, headerline=headerline, relative_path=relative_path)
                 )
+                content = content.replace(".. only:: ipynb", ".. only:: !py")
                 fh.write(content)
         else:
             rst_files.remove(short_rst_filename)
 
     # Handle .ipynb examples
+    notebooks_section = ""
     for example in ipynb_examples:
         base_name = os.path.basename(os.path.normpath(example))
         base, ext = os.path.splitext(base_name)
@@ -331,8 +334,9 @@ def setup(app):
             with open(os.path.join(HERE, "examples", short_rst_filename), "w") as fh:
                 relative_path = "../../ema_workbench/examples"
                 content = template.substitute(
-                    dict(short_filename=short_ipynb_filename, headerline=headerline)
+                    dict(short_filename=short_ipynb_filename, headerline=headerline, relative_path=relative_path)
                 )
+                content = content.replace(".. only:: py", ".. only:: !ipynb")
                 fh.write(content)
         else:
             rst_files.remove(short_rst_filename)

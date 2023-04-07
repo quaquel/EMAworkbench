@@ -1,10 +1,13 @@
 .. meta::
    :description: $short_filename
 
-$headerline
-$short_filename
-$headerline
+${headerline}
+${short_filename}
+${headerline}
 
+.. only:: py
+    .. literalinclude:: ${relative_path}/${short_filename}
+       :language: python
 
-.. literalinclude:: ../../../ema_workbench/examples/$short_filename
-   :linenos:
+.. only:: ipynb
+    .. notebook:: ${relative_path}/${short_filename}
