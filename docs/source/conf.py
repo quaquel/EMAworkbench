@@ -288,9 +288,9 @@ def setup(app):
         if base in ignore_list:
             continue
 
-        if ext == '.py':
+        if ext == ".py":
             py_examples.append(example)
-        elif ext == '.ipynb':
+        elif ext == ".ipynb":
             ipynb_examples.append(example)
 
     # TODO:: consider stripping out top level docstring and add this as normal text to example
