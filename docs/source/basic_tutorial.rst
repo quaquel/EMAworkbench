@@ -67,7 +67,7 @@ sampling are also readily available. Read the documentation for
 
 .. rubric:: The complete code:
 
-.. literalinclude:: ../../ema_workbench/examples/python_example.py
+.. literalinclude:: ../../ema_workbench/examples/example_python.py
    :linenos:
 
 .. _A-simple-model-in-Vensim:
@@ -121,7 +121,7 @@ code, messages on progress or on errors will be shown.
 
 .. rubric:: The complete code
 
-.. literalinclude:: ../../ema_workbench/examples/vensim_example.py
+.. literalinclude:: ../../ema_workbench/examples/example_vensim.py
    :linenos:
 
 .. _A-simple-model-in-Excel:
@@ -140,7 +140,7 @@ the decimal separator and thousands separator are set correctly in Excel. This
 can be checked via file > options > advanced. These separators should follow
 the `anglo saxon convention <http://en.wikipedia.org/wiki/Decimal_mark>`_.
 
-.. literalinclude:: ../../ema_workbench/examples/excel_example.py
+.. literalinclude:: ../../ema_workbench/examples/example_excel.py
    :linenos:
 
 The example is relatively straight forward. We instantiate an excel model, we
@@ -242,7 +242,7 @@ normal contact rate region 2                             10             200
 
 Together, this results in the following code:
 
-.. literalinclude:: ../../ema_workbench/examples/flu_vensim_no_policy_example.py
+.. literalinclude:: ../../ema_workbench/examples/example_vensim_no_policy_flu.py
    :linenos:
 
 We have now instantiated the model, specified the uncertain factors and outcomes
@@ -273,7 +273,7 @@ for a series of experiments and save these results. One can then use these
 saved results in various analysis scripts. ::
 
    from ema_workbench import save_results
-   save_results(results, r'./1000 runs.tar.gz')
+   save_results(results, './1000 runs.tar.gz')
 
 The above code snippet shows how we can use :func:`~util.save_results` for
 saving the results of our experiments. :func:`~util.save_results` stores the as
@@ -321,7 +321,7 @@ argument ::
 We can now proceed in the same way as before, and perform a series of
 experiments. Together, this results in the following code:
 
-.. literalinclude:: ../../ema_workbench/examples/flu_vensim_example.py
+.. literalinclude:: ../../ema_workbench/examples/example_vensim_flu.py
    :linenos:
 
 comparison of results
@@ -333,7 +333,7 @@ But using :func:`pairs_scatter`. It shows for the three different policies
 their behavior on the total number of deaths, the height of the highest peak
 of the pandemic, and the point in time at which this peak was reached.
 
-.. literalinclude:: ../../ema_workbench/examples/flu_pairsplot.py
+.. literalinclude:: ../../ema_workbench/examples/plotting_pairsplot_flu.py
    :linenos:
 
 .. rubric:: no policy

@@ -1,0 +1,21 @@
+.. meta::
+   :description: Overview of all available examples
+
+
+********
+Examples
+********
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Notebooks
+
+    $notebooks
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Python examples
+
+    $python_files

@@ -1122,7 +1122,7 @@ class GenerationalBorg(EpsilonProgressContinuation):
     de_rate = 0.1
     de_stepsize = 0.5
 
-    um_p = BORGDefaultDescriptor(lambda x: x + 1)
+    um_p = BORGDefaultDescriptor(lambda x: 1 / x)
 
     spx_nparents = 10
     spx_noffspring = 2

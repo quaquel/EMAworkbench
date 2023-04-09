@@ -194,10 +194,14 @@ class Logit:
         columns = ["coverage", "density", "res_dim", "id"]
         self.peeling_trajectory = pd.DataFrame(columns=columns)
 
-    def run(self):
+    def run(self, **kwargs):
         """run logistic regression using forward selection using a Bayesian
         Information Criterion for selecting whether and if so which dimension
         to add
+
+        Parameters
+        ----------
+        kwargs are passed on to model.fit. For details, see https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.Logit.fit.html#statsmodels.discrete.discrete_model.Logit.fit
 
         """
         remaining = set(self._normalized.columns)
@@ -211,7 +215,7 @@ class Logit:
                 model = sm.Logit(self.y, data.astype(float))
 
                 try:
-                    model = model.fit()
+                    model = model.fit(**kwargs)
                 except np.linalg.LinAlgError:
                     continue
 

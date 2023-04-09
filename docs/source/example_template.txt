@@ -1,0 +1,10 @@
+.. meta::
+   :description: $short_filename
+
+$headerline
+$short_filename
+$headerline
+
+
+.. literalinclude:: ../../../ema_workbench/examples/$short_filename
+   :linenos:
