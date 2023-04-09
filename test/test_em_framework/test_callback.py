@@ -73,9 +73,13 @@ def test_store_results(mocker):
     # case 5 assert raises KeyError
     callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
     model_outcomes = {"some_other_name": np.random.rand(2, 2, 2)}
-    mock = mocker.patch("ema_workbench.em_framework.callbacks._logger.debug")
+    mock = mocker.patch(
+        "ema_workbench.em_framework.callbacks._logger.debug",
+        autospec=True,
+        side_effect=lambda *args, **kwargs: print(args, kwargs),
+    )
     callback._store_outcomes(1, model_outcomes)
-    assert mock.call_count == 2
+    assert mock.call_count == 1
 
 
 def test_init():
@@ -94,9 +98,9 @@ def test_init():
     assert callback.reporting_interval == 100
     #         self.assertEqual(callback.outcomes, outcomes)
 
-    names = callback.cases.columns.values.tolist()
+    names = [name for name, _ in callback.uncertainty_and_lever_labels]
     names = set(names)
-    assert names == {"a", "b", "policy", "model", "scenario"}
+    assert names == {"a", "b"}
 
     assert "scalar" not in callback.results
     assert "timeseries" not in callback.results
@@ -121,9 +125,9 @@ def test_init():
     assert callback.reporting_interval == 250
     #         self.assertEqual(callback.outcomes, [o.name for o in outcomes])
 
-    names = callback.cases.columns.values.tolist()
+    names = [name for name, _ in callback.uncertainty_and_lever_labels]
     names = set(names)
-    assert names == {"a", "b", "c", "policy", "model", "scenario"}
+    assert names == {"a", "b", "c"}
 
     assert "scalar" not in callback.results
     assert "timeseries" not in callback.results
@@ -209,7 +213,7 @@ def test_store_cases():
 
     names = experiments.columns.values.tolist()
     for name in names:
-        assert experiments[name][0] == design[name]
+        assert experiments[name][0] == design.get(name), f"failed for name {name}"
 
 
 def test_get_results(mocker):

@@ -195,41 +195,32 @@ class DefaultCallback(AbstractCallback):
             reporting_frequency,
             log_progress,
         )
-
-        self.cases = None
+        self.cases = np.empty((nr_experiments, len(uncertainties) + len(levers)), dtype=object)
+        self.uncertainty_and_lever_labels = [(entry.name, "") for entry in uncertainties + levers]
+        self.uncertainties = [u.name for u in uncertainties]
+        self.levers = [l.name for l in levers]
         self.results = {}
 
-        # determine data types of parameters
-        columns = []
         dtypes = []
-
         for parameter in self.parameters:
-            name = parameter.name
             dtype = "float"
-
             if isinstance(parameter, BooleanParameter):
                 dtype = "bool"
             elif isinstance(parameter, CategoricalParameter):
                 dtype = "object"
             elif isinstance(parameter, IntegerParameter):
                 dtype = "int"
-            columns.append(name)
-            dtypes.append(dtype)
+            dtypes.append((parameter.name, dtype))
 
-        for name in ["scenario", "policy", "model"]:
-            columns.append(name)
-            dtypes.append("object")
-
-        self.columns = columns
+        dtypes.extend(
+            [
+                ("scenario", "object"),
+                ("policy", "object"),
+                ("model", "object"),
+            ]
+        )
         self.dtypes = dtypes
-
-        index = np.arange(nr_experiments)
-        column_dict = {
-            name: pd.Series(dtype=dtype, index=index) for name, dtype in zip(columns, dtypes)
-        }
-        df = pd.concat(column_dict, axis=1).copy()
-
-        self.cases = df
+        self.cases = np.empty(nr_experiments, dtype=dtypes)
 
         for outcome in self.outcomes:
             shape = outcome.shape
@@ -242,34 +233,27 @@ class DefaultCallback(AbstractCallback):
         policy = experiment.policy
         index = experiment.experiment_id
 
-        self.cases.at[index, "scenario"] = scenario.name
-        self.cases.at[index, "policy"] = policy.name
-        self.cases.at[index, "model"] = experiment.model_name
-
-        for k, v in scenario.items():
-            self.cases.at[index, k] = v
-
-        for k, v in policy.items():
-            self.cases.at[index, k] = v
+        self.cases[index] = (
+            tuple([scenario[u] for u in self.uncertainties])
+            + tuple([policy[l] for l in self.levers])
+            + (scenario.name, policy.name, experiment.model_name)
+        )
 
     def _store_outcomes(self, case_id, outcomes):
         for outcome in self.outcomes:
-            outcome = outcome.name
-            _logger.debug(f"storing {outcome}")
+            outcome_name = outcome.name
 
             try:
-                outcome_res = outcomes[outcome]
+                outcome_res = outcomes[outcome_name]
             except KeyError:
-                message = f"{outcome} not specified as outcome in " f"model(s)"
+                message = f"{outcome_name} not specified as outcome in model(s)"
                 _logger.debug(message)
             else:
                 try:
-                    self.results[outcome][case_id,] = outcome_res
+                    self.results[outcome_name][case_id,] = outcome_res
                 except KeyError:
                     data = np.asarray(outcome_res)
-
                     shape = data.shape
-
                     if len(shape) > 2:
                         message = self.shape_error_msg.format(len(shape))
                         raise ema_exceptions.EMAError(message)
@@ -277,8 +261,8 @@ class DefaultCallback(AbstractCallback):
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
 
-                    self.results[outcome] = self._setup_outcomes_array(shape, data.dtype)
-                    self.results[outcome][case_id,] = outcome_res
+                    self.results[outcome_name] = self._setup_outcomes_array(shape, data.dtype)
+                    self.results[outcome_name][case_id,] = outcome_res
 
     def __call__(self, experiment, outcomes):
         """
@@ -293,11 +277,7 @@ class DefaultCallback(AbstractCallback):
 
         """
         super().__call__(experiment, outcomes)
-
-        # store the case
         self._store_case(experiment)
-
-        # store outcomes
         self._store_outcomes(experiment.experiment_id, outcomes)
 
     def get_results(self):
@@ -309,18 +289,20 @@ class DefaultCallback(AbstractCallback):
                 _logger.warning("some experiments have failed, returning masked result arrays")
                 results[k] = v
 
+        cases = pd.DataFrame.from_records(self.cases)
+
         # we want to ensure the dtypes for the columns in the experiments dataframe match
         # the type of uncertainty. The exception is needed in case their are missing values (i.e. nans).
         # nans can only ever be a float.
-        for name, dtype in zip(self.columns, self.dtypes):
+        for name, dtype in self.dtypes:
             try:
                 if dtype == "object":
                     dtype = "category"
-                self.cases[name] = self.cases[name].astype(dtype)
+                cases[name] = cases[name].astype(dtype)
             except Exception:
                 pass
 
-        return self.cases, results
+        return cases, results
 
     def _setup_outcomes_array(self, shape, dtype):
         array = np.ma.empty(shape, dtype=dtype)
