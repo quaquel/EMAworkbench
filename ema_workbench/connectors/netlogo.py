@@ -11,7 +11,7 @@ in combination with an agent-set or reporter. However, it introduces
 substantial overhead.
 
 """
-from pyNetLogo.core import NetLogoException
+from pynetlogo.core import NetLogoException
 
 from ema_workbench.em_framework.model import Replicator, SingleReplication
 from ema_workbench.em_framework.outcomes import ArrayOutcome
@@ -25,7 +25,7 @@ import os
 
 import numpy as np
 
-import pyNetLogo
+import pynetlogo
 
 from ..em_framework.model import FileModel
 from ..util.ema_logging import method_logger
@@ -72,10 +72,9 @@ class BaseNetLogoModel(FileModel):
         wd=None,
         model_file=None,
         netlogo_home=None,
-        netlogo_version=None,
-        jvm_home=None,
+        jvm_path=None,
         gui=False,
-        jvmargs=[],
+        jvm_args=[],
     ):
         """
         init of class
@@ -89,13 +88,11 @@ class BaseNetLogoModel(FileModel):
                alpha-numerical characters.
         netlogo_home : str, optional
                Path to the NetLogo installation directory (required on Linux)
-        netlogo_version : {'6','5'}, optional
-               Used to choose command syntax for link methods (required on Linux)
-        jvm_home : str, optional
+        jvm_path : str, optional
                Java home directory for Jpype
         gui : bool, optional
                If true, displays the NetLogo GUI (not supported on Mac)
-        jvmargs : list, optional
+        jvm_args : list, optional
 
         Raises
         ------
@@ -114,11 +111,10 @@ class BaseNetLogoModel(FileModel):
 
         self.run_length = None
         self.netlogo_home = netlogo_home
-        self.netlogo_version = netlogo_version
-        self.jvm_home = jvm_home
+        self.jvm_path = jvm_path
         self.gui = gui
         self._ts_output_variables = None
-        self.jvmargs = jvmargs
+        self.jvm_args = jvm_args
 
     @method_logger(__name__)
     def model_init(self, policy):
@@ -135,12 +131,11 @@ class BaseNetLogoModel(FileModel):
         super().model_init(policy)
         if not hasattr(self, "netlogo"):
             _logger.debug("trying to start NetLogo")
-            self.netlogo = pyNetLogo.NetLogoLink(
+            self.netlogo = pynetlogo.NetLogoLink(
                 netlogo_home=self.netlogo_home,
-                netlogo_version=self.netlogo_version,
-                jvm_home=self.jvm_home,
+                jvm_path=self.jvm_path,
                 gui=self.gui,
-                jvmargs=self.jvmargs,
+                jvmargs=self.jvm_args,
             )
             _logger.debug("netlogo started")
         path = os.path.join(self.working_directory, self.model_file)

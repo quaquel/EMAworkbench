@@ -289,13 +289,19 @@ class DefaultCallback(AbstractCallback):
                 _logger.warning("some experiments have failed, returning masked result arrays")
                 results[k] = v
 
-        cases = pd.DataFrame(
-            self.cases,
-            columns=pd.MultiIndex.from_tuples(
-                self.uncertainty_and_lever_labels, names=["parameter", ""]
-            ),
-        )
-        cases = cases.where(pd.notnull(cases), None)
+        cases = pd.DataFrame.from_records(self.cases)
+
+        # we want to ensure the dtypes for the columns in the experiments dataframe match
+        # the type of uncertainty. The exception is needed in case their are missing values (i.e. nans).
+        # nans can only ever be a float.
+        for name, dtype in self.dtypes:
+            try:
+                if dtype == "object":
+                    dtype = "category"
+                cases[name] = cases[name].astype(dtype)
+            except Exception:
+                pass
+
         return cases, results
 
     def _setup_outcomes_array(self, shape, dtype):
