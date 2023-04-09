@@ -219,7 +219,7 @@ class DefaultCallback(AbstractCallback):
                 ("model", "object"),
             ]
         )
-
+        self.dtypes = dtypes
         self.cases = np.empty(nr_experiments, dtype=dtypes)
 
         for outcome in self.outcomes:
