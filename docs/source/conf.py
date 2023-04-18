@@ -65,7 +65,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "ema_workbench"
-copyright = "2011-2022, J.H. Kwakkel"
+copyright = "2011-2023, J.H. Kwakkel"
 
 
 # The version info for the project you're documenting, acts as replacement for
