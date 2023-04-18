@@ -211,6 +211,9 @@ class RealParameter(Parameter):
     upper_bound : int or float
     resolution : iterable
     variable_name : str, or list of str
+    pff : bool
+          if true, sample over this parameter using resolution in case of
+          partial factorial sampling
 
     Raises
     ------
@@ -250,6 +253,16 @@ class RealParameter(Parameter):
             raise ValueError("dist should be instance of rv_continouos")
         return super().from_dist(name, dist, **kwargs)
 
+    def __repr__(self):
+        if isinstance(self.dist, sp.stats._distn_infrastructure.rv_continuous_frozen):
+            return (
+                f"RealParameter('{self.name}', {self.lower_bound}, {self.upper_bound}, "
+                f"resolution={self.resolution}, default={self.default}, variable_name={self.variable_name}, "
+                f"pff={self.pff})"
+            )
+        else:
+            return super().__repr__()
+
 
 class IntegerParameter(Parameter):
     """integer valued model input parameter
@@ -261,6 +274,9 @@ class IntegerParameter(Parameter):
     upper_bound : int
     resolution : iterable
     variable_name : str, or list of str
+    pff : bool
+          if true, sample over this parameter using resolution in case of
+          partial factorial sampling
 
     Raises
     ------
@@ -320,6 +336,16 @@ class IntegerParameter(Parameter):
         if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
             raise ValueError("dist should be instance of rv_discrete")
         return super().from_dist(name, dist, **kwargs)
+
+    def __repr__(self):
+        if isinstance(self.dist, sp.stats._distn_infrastructure.rv_discrete_frozen):
+            return (
+                f"IntegerParameter('{self.name}', {self.lower_bound}, {self.upper_bound}, "
+                f"resolution={self.resolution}, default={self.default}, variable_name={self.variable_name}, "
+                f"pff={self.pff})"
+            )
+        else:
+            return super().__repr__()
 
 
 class CategoricalParameter(IntegerParameter):
