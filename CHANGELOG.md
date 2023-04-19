@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
-## 2.4.0 
+## 2.4.0
 ### Highlights
 The latest release of the EMAworkbench introduces significant performance improvements and quality of life updates. The performance of `_store_outcomes` has been enhanced by approximately 35x in pull request #232, while the `combine` function has seen a 8x speedup in pull request #233. This results in the overhead of the EMAworkbench being reduced by over 70%. In a benchmark, a very simple Python model now performs approximately 40.000 iterations per second, compared to 15.000 in 2.3.0.
 
