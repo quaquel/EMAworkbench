@@ -22,7 +22,7 @@ There are also a lot of example models available at [ema_workbench/examples](ema
 
 ## Installation
 
-The workbench is available from [PyPI](https://pypi.org/project/ema-workbench/), and currently requires Python 3.8 or newer. It can be installed with:
+The workbench is available from [PyPI](https://pypi.org/project/ema-workbench/), and currently requires Python 3.9 or newer. It can be installed with:
 ```
 pip install -U ema_workbench
 ```

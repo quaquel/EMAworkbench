@@ -12,7 +12,7 @@ The latest release of the EMAworkbench introduces significant performance improv
 
 In addition to these performance upgrades, the examples have [been added](https://emaworkbench.readthedocs.io/en/latest/examples.html) to the ReadTheDocs documentation, more documentation improvements have been made and many bugs and deprecations have been fixed.
 
-The 2.4.x release series requires Python 3.8 and is tested on 3.8 to 3.11. It can be installed as usual via PyPI, with:
+The 2.4.x release series requires Python 3.8 and is tested on 3.8 to 3.11. It's the last release series supporting Python 3.8. It can be installed as usual via PyPI, with:
 ```
 pip install --upgrade ema-workbench
 ```

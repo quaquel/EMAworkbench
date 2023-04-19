@@ -2,7 +2,7 @@
 Installing the workbench
 ************************
 
-The 2.x version of the workbench requires Python 3.8 or higher.
+From version 2.5.0 the workbench requires Python 3.9 or higher. Version 2.0.0 to 2.4.x support Python 3.8+.
 
 Regular installations
 #####################
