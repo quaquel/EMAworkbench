@@ -467,6 +467,12 @@ class BooleanParameter(CategoricalParameter):
             name, categories=[True, False], default=default, variable_name=variable_name, pff=pff
         )
 
+    def __repr__(self):
+        return (
+            f"BooleanParameter('{self.name}', default={self.default}, "
+            f"variable_name={self.variable_name}, pff={self.pff})"
+        )
+
 
 def parameters_to_csv(parameters, file_name):
     """Helper function for writing a collection of parameters to a csv file
