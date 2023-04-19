@@ -32,4 +32,4 @@ from .util import save_results, load_results, ema_logging, EMAError, process_rep
 
 # from . import analysis
 
-__version__ = "2.4.0-dev"
+__version__ = "2.4.0"
