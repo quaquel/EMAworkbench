@@ -6,6 +6,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
+## 2.4.0 
+### Highlights
+The latest release of the EMAworkbench introduces significant performance improvements and quality of life updates. The performance of `_store_outcomes` has been enhanced by approximately 35x in pull request #232, while the `combine` function has seen a 8x speedup in pull request #233. This results in the overhead of the EMAworkbench being reduced by over 70%. In a benchmark, a very simple Python model now performs approximately 40.000 iterations per second, compared to 15.000 in 2.3.0.
+
+In addition to these performance upgrades, the examples have [been added](https://emaworkbench.readthedocs.io/en/latest/examples.html) to the ReadTheDocs documentation, more documentation improvements have been made and many bugs and deprecations have been fixed.
+
+The 2.4.x release series requires Python 3.8 and is tested on 3.8 to 3.11. It can be installed as usual via PyPI, with:
+```
+pip install --upgrade ema-workbench
+```
+
+### What's Changed
+#### 🎉 New features added
+* optional preallocation in callback based on outcome shape and type by @quaquel in https://github.com/quaquel/EMAworkbench/pull/229
+#### 🛠 Enhancements made
+* util: Speed up `combine` by ~8x  by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/233
+* callbacks: Improve performance of _store_outcomes by ~35x by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/232
+#### 🐛 Bugs fixed
+* fixes broken link to installation instructions by @quaquel in https://github.com/quaquel/EMAworkbench/pull/224
+* Docs: Fix developer installation commands by removing a space by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/220
+* fixes a bug where Prim modifies the experiments array by @quaquel in https://github.com/quaquel/EMAworkbench/pull/228
+* bugfix for warning on number of processes and max_processes by @quaquel in https://github.com/quaquel/EMAworkbench/pull/234
+* Fix deprecation warning and dtype issue in flu_example.py by @quaquel in https://github.com/quaquel/EMAworkbench/pull/235
+* test for get_results and categorical fix by @quaquel in https://github.com/quaquel/EMAworkbench/pull/241
+* Fix `pynetlogo` imports by decapitalizing `pyNetLogo` by @quaquel in https://github.com/quaquel/EMAworkbench/pull/248
+* change default value of um_p to be consistent with Borg documentation by @irene-sophia in https://github.com/quaquel/EMAworkbench/pull/250
+* Fix pretty print for RealParameter and IntegerParameter by @quaquel in https://github.com/quaquel/EMAworkbench/pull/255
+* Fix bug in AutoadaptiveOutputSpaceExploration with wrong default probabilities by @quaquel in https://github.com/quaquel/EMAworkbench/pull/252
+#### 📜 Documentation improvements
+* Parallexaxis doc by @quaquel in https://github.com/quaquel/EMAworkbench/pull/249
+* Examples added to the docs by @quaquel in https://github.com/quaquel/EMAworkbench/pull/244
+#### 🔧 Maintenance
+* clusterer: Update AgglomerativeClustering keyword to fix deprecation by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/218
+* Fix Matplotlib and SciPy deprecations by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/227
+* CI: Add job that runs tests with pre-release dependencies by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/217
+* Fix for stalling tests by @quaquel in https://github.com/quaquel/EMAworkbench/pull/247
+#### Other changes
+* add `metric` argument to allow for other linkages by @mikhailsirenko in https://github.com/quaquel/EMAworkbench/pull/222
+
+### New Contributors
+* @mikhailsirenko made their first contribution in https://github.com/quaquel/EMAworkbench/pull/222
+* @irene-sophia made their first contribution in https://github.com/quaquel/EMAworkbench/pull/250
+
+**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.3.0...2.4.0
+
+
 ## 2.3.0
 ### Highlights
 This release adds a new algorithm for [output space exploration](https://emaworkbench.readthedocs.io/en/latest/ema_documentation/em_framework/outputspace_exploration.html). The way in which convergence tracking for optimization is supported has been overhauled completely, see the updated [directed search](https://emaworkbench.readthedocs.io/en/latest/indepth_tutorial/directed-search.html) user guide for full details. The documentation has moreover been expanded with a [comparison to Rhodium](https://emaworkbench.readthedocs.io/en/latest/getting_started/other_packages.html).
