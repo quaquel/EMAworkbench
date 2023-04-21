@@ -1,4 +1,4 @@
-# Defining the minimum versions
+# Docs requirements
 sphinx>=6
 sphinx_rtd_theme>=1.2
 readthedocs-sphinx-search>=0.3
@@ -6,3 +6,14 @@ nbsphinx
 myst
 pyscaffold
 myst-parser
+
+# General requirements
+numpy
+pandas
+scikit-learn
+salib>=1.4.6
+platypus-opt
+matplotlib
+statsmodels
+seaborn
+tqdm
