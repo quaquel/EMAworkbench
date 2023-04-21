@@ -22,11 +22,8 @@ formats:
 
 # Optionally declare the Python requirements required to build your docs
 python:
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
+   install:
+   - requirements: docs/requirements.txt
 
 # Settings for more control over Server side search.
 # https://docs.readthedocs.io/en/stable/config-file/v2.html#search
@@ -34,8 +31,8 @@ search:
   # Define which files pop up higher in the search results
   ranking:
     'docs/source/': 3
-    'ema_workbench/examples/*': 2
-    'ema_workbench/**': 1
+    'ema_workbench/**': 2
+    'ema_workbench/examples/*': 1
     '**/models/*': -1
 
   # Exclude some files from the search

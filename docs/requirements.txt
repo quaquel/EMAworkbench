@@ -1,0 +1,8 @@
+# Defining the minimum versions
+sphinx>=6
+sphinx_rtd_theme>=1.2
+readthedocs-sphinx-search>=0.3
+nbsphinx
+myst
+pyscaffold
+myst-parser
