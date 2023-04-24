@@ -44,6 +44,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
+    "sphinxcontrib.jquery",
     "nbsphinx",
     "myst_parser",
 ]
