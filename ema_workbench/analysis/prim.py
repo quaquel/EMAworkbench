@@ -560,7 +560,7 @@ class PrimBox:
         width = 400
         height = width
 
-        point_selector = alt.selection_single(fields=["id"])
+        point_selector = alt.selection_point(fields=["id"])
 
         peeling = self.peeling_trajectory.copy()
         peeling["id"] = peeling.index
