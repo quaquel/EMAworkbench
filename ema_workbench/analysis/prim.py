@@ -583,7 +583,7 @@ class PrimBox:
                     alt.Tooltip("res_dim:O"),
                 ],
             )
-            .properties(selection=point_selector)
+            .add_selection(point_selector)
             .properties(width=width, height=height)
         )
 
