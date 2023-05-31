@@ -14,4 +14,4 @@ module load python
 module load py-numpy
 module load py-mpi4py
 
-srun python my_model.py > py_test.log
+srun python launcher.py > py_test.log

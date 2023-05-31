@@ -1,16 +1,32 @@
-## Login
+# Login (CMD)
 ssh -J eterhoeven@student-linux.tudelft.nl eterhoeven@login.delftblue.tudelft.nl
 
-## Make new directory
-mkdir python-test
+# Move to scratch folder
+cd ../../scratch/eterhoeven
+
+# Check if directory exists
+if [ -d "python-test" ]; then
+  # Remove all files and subdirectories inside the directory
+  rm -r python-test/*
+else
+  # Create new directory
+  mkdir python-test
+fi
+
+# Change to the python-test directory
 cd python-test
 
-## Move files
-cd C:\Users\Ewout\OneDrive\Studie\CapitaSelecta\
-scp -J eterhoeven@student-linux.tudelft.nl my_model.py eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
-scp -J eterhoeven@student-linux.tudelft.nl test_script.sh eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
+# Move files (NEW CMD)
+cd C:\Users\Ewout\Documents\GitHub\EMAworkbench\scripts
+scp -J eterhoeven@student-linux.tudelft.nl my_model.py launcher.py test_script.sh eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
 
-## Note: bash scripts (sh) needs LF line endings. Do that in atom.
+# Check if files are correctly tranfered
+ls
 
-## Run batch script
+# Note: bash scripts (sh) needs LF line endings. Do that in atom.
+
+# Run batch script
 sbatch test_script.sh
+
+# Check queue
+squeue -u eterhoeven

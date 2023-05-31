@@ -2,34 +2,23 @@
 from mpi4py import MPI
 import numpy as np
 import pickle
+from mpi4py.futures import MPIPoolExecutor
 
-def my_model(x, y):
+def my_model(data):
     # This could be any function that takes inputs and produces outputs
+    x, y = data
     return x**2 + y**2
 
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-size = comm.Get_size()
+if __name__ == '__main__':
+    # Define the input data
+    data = np.arange(20).reshape(-1, 2)  # Let's say we have 10 sets of (x, y) pairs
 
-# Define the input data
-data = np.arange(20).reshape(-1, 2)  # Let's say we have 10 sets of (x, y) pairs
+    with MPIPoolExecutor() as executor:
+        # Apply the model to the data
+        results = list(executor.map(my_model, data))
 
-# Divide the data among the available processes
-chunks = np.array_split(data, size)
-
-# Each process gets its chunk of the data
-chunk = chunks[rank]
-
-# Each process applies the model to its chunk of the data
-results = np.array([my_model(x, y) for x, y in chunk])
-
-# Gather the results back to the root process
-all_results = comm.gather(results, root=0)
-
-if rank == 0:
-    # Root process prints out the results
-    print(np.concatenate(all_results))
+    # Print out the results
+    print(results)
 
     with open('py_test.pickle', 'wb') as handle:
         pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
