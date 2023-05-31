@@ -1,0 +1,16 @@
+## Login
+ssh -J eterhoeven@student-linux.tudelft.nl eterhoeven@login.delftblue.tudelft.nl
+
+## Make new directory
+mkdir python-test
+cd python-test
+
+## Move files
+cd C:\Users\Ewout\OneDrive\Studie\CapitaSelecta\
+scp -J eterhoeven@student-linux.tudelft.nl my_model.py eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
+scp -J eterhoeven@student-linux.tudelft.nl test_script.sh eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
+
+## Note: bash scripts (sh) needs LF line endings. Do that in atom.
+
+## Run batch script
+sbatch test_script.sh
