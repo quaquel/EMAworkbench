@@ -1,24 +1,28 @@
 # Login (CMD)
 ssh -J eterhoeven@student-linux.tudelft.nl eterhoeven@login.delftblue.tudelft.nl
 
+# Set the directory name
+directory="python-test"
+
 # Move to scratch folder
 cd ../../scratch/eterhoeven
 
 # Check if directory exists
-if [ -d "python-test" ]; then
+if [ -d "$directory" ]; then
   # Remove all files and subdirectories inside the directory
-  rm -r python-test/*
+  rm -r "$directory"/*
 else
   # Create new directory
-  mkdir python-test
+  mkdir "$directory"
 fi
 
-# Change to the python-test directory
-cd python-test
+# Change to the specified directory
+cd "$directory"
+
 
 # Move files (NEW CMD)
 cd C:\Users\Ewout\Documents\GitHub\EMAworkbench\scripts
-scp -J eterhoeven@student-linux.tudelft.nl my_model.py launcher.py test_script.sh eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
+scp -J eterhoeven@student-linux.tudelft.nl my_model.py test_script.sh eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
 
 # Check if files are correctly tranfered
 ls

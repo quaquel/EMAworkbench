@@ -31,6 +31,4 @@ def main():
         pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
-    with MPIPoolExecutor() as executor:
-        future = executor.submit(main)
-        future.result()
+    main()
