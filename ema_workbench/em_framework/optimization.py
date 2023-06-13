@@ -767,6 +767,7 @@ def epsilon_nondominated(results, epsilons, problem):
     Returns
     -------
     DataFrame
+
     Notes
     -----
     this is a platypus based alternative to pareto.py (https://github.com/matthewjwoodruff/pareto.py)
@@ -878,7 +879,10 @@ def rebuild_platypus_population(archive, problem):
         objectives = [getattr(row, attr) for attr in problem.outcome_names]
 
         solution = Solution(problem)
-        solution.variables = decision_variables
+        solution.variables = [
+            platypus_type.encode(value)
+            for platypus_type, value in zip(problem.types, decision_variables)
+        ]
         solution.objectives = objectives
         solutions.append(solution)
     return solutions
