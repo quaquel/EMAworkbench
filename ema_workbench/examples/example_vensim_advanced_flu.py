@@ -55,7 +55,7 @@ if __name__ == "__main__":
         Policy("adaptive policy", model_file="FLUvensimV1dynamic.vpm"),
     ]
 
-    with MultiprocessingEvaluator(model, n_processes=4) as evaluator:
+    with MultiprocessingEvaluator(model, n_processes=-1) as evaluator:
         results = evaluator.perform_experiments(1000, policies=policies)
 
     save_results(results, "./data/1000 flu cases with policies.tar.gz")

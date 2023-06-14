@@ -219,5 +219,5 @@ if __name__ == "__main__":
 
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    with MultiprocessingEvaluator(model, n_processes=4) as evaluator:
+    with MultiprocessingEvaluator(model, n_processes=-1) as evaluator:
         results = evaluator.perform_experiments(1000, 4)
