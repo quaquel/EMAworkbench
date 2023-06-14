@@ -873,10 +873,24 @@ def rebuild_platypus_population(archive, problem):
     list of platypus Solutions
 
     """
+
+    if len(archive.columns) != problem.nvars + problem.nobjs:
+        raise EMAError(
+            "the number of columsn in the archive don't match the expected"
+            " number of decision variables and objectives"
+        )
+
     solutions = []
     for row in archive.itertuples():
-        decision_variables = [getattr(row, attr) for attr in problem.parameter_names]
-        objectives = [getattr(row, attr) for attr in problem.outcome_names]
+        try:
+            decision_variables = [getattr(row, attr) for attr in problem.parameter_names]
+        except AttributeError as e:
+            raise EMAError("parameter name not found in archive")
+
+        try:
+            objectives = [getattr(row, attr) for attr in problem.outcome_names]
+        except AttributeError as e:
+            raise EMAError("outcome name not found in archive'")
 
         solution = Solution(problem)
         solution.variables = [
