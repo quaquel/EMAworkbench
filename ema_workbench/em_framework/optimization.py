@@ -884,13 +884,15 @@ def rebuild_platypus_population(archive, problem):
     for row in archive.itertuples():
         try:
             decision_variables = [getattr(row, attr) for attr in problem.parameter_names]
-        except AttributeError as e:
-            raise EMAError("parameter name not found in archive")
+        except AttributeError:
+            missing_parameters = [attr for attr in problem.parameter_names if not hasattr(row, attr)]
+            raise EMAError(f"parameter names {missing_parameters} not found in archive")
 
         try:
             objectives = [getattr(row, attr) for attr in problem.outcome_names]
-        except AttributeError as e:
-            raise EMAError("outcome name not found in archive'")
+        except AttributeError:
+            missing_outcomes = [attr for attr in problem.outcome_names if not hasattr(row, attr)]
+            raise EMAError(f"outcome names {missing_outcomes} not found in archive'")
 
         solution = Solution(problem)
         solution.variables = [
