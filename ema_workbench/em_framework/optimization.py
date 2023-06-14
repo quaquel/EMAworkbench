@@ -767,6 +767,7 @@ def epsilon_nondominated(results, epsilons, problem):
     Returns
     -------
     DataFrame
+
     Notes
     -----
     this is a platypus based alternative to pareto.py (https://github.com/matthewjwoodruff/pareto.py)
@@ -872,13 +873,37 @@ def rebuild_platypus_population(archive, problem):
     list of platypus Solutions
 
     """
+
+    expected_columns = problem.nvars + problem.nobjs
+    actual_columns = len(archive.columns)
+
+    if actual_columns != expected_columns:
+        raise EMAError(
+            f"The number of columns in the archive ({actual_columns}) does not match the "
+            f"expected number of decision variables and objectives ({expected_columns})."
+        )
+
     solutions = []
     for row in archive.itertuples():
-        decision_variables = [getattr(row, attr) for attr in problem.parameter_names]
-        objectives = [getattr(row, attr) for attr in problem.outcome_names]
+        try:
+            decision_variables = [getattr(row, attr) for attr in problem.parameter_names]
+        except AttributeError:
+            missing_parameters = [
+                attr for attr in problem.parameter_names if not hasattr(row, attr)
+            ]
+            raise EMAError(f"parameter names {missing_parameters} not found in archive")
+
+        try:
+            objectives = [getattr(row, attr) for attr in problem.outcome_names]
+        except AttributeError:
+            missing_outcomes = [attr for attr in problem.outcome_names if not hasattr(row, attr)]
+            raise EMAError(f"outcome names {missing_outcomes} not found in archive'")
 
         solution = Solution(problem)
-        solution.variables = decision_variables
+        solution.variables = [
+            platypus_type.encode(value)
+            for platypus_type, value in zip(problem.types, decision_variables)
+        ]
         solution.objectives = objectives
         solutions.append(solution)
     return solutions
