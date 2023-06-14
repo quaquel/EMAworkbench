@@ -888,7 +888,9 @@ def rebuild_platypus_population(archive, problem):
         try:
             decision_variables = [getattr(row, attr) for attr in problem.parameter_names]
         except AttributeError:
-            missing_parameters = [attr for attr in problem.parameter_names if not hasattr(row, attr)]
+            missing_parameters = [
+                attr for attr in problem.parameter_names if not hasattr(row, attr)
+            ]
             raise EMAError(f"parameter names {missing_parameters} not found in archive")
 
         try:
