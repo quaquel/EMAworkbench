@@ -874,10 +874,13 @@ def rebuild_platypus_population(archive, problem):
 
     """
 
-    if len(archive.columns) != problem.nvars + problem.nobjs:
+    expected_columns = problem.nvars + problem.nobjs
+    actual_columns = len(archive.columns)
+
+    if actual_columns != expected_columns:
         raise EMAError(
-            "the number of columsn in the archive don't match the expected"
-            " number of decision variables and objectives"
+            f"The number of columns in the archive ({actual_columns}) does not match the "
+            f"expected number of decision variables and objectives ({expected_columns})."
         )
 
     solutions = []
