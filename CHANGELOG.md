@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
+## 2.4.1
+### Highlights
+2.4.1 is a small patch release of the EMAworkbench, primarily resolving issues #276 and #277 in the workbench itself, and a bug introduced by #241 in the docs. The EMAworkbench now also raise exception when sampling scenarios or policies while no uncertainties or levers are defined (#282).
+
+### What's Changed
+#### 🛠 Enhancements made
+* Enhancement for #271: raise exception by @quaquel in https://github.com/quaquel/EMAworkbench/pull/282
+
+#### 🐛 Bugs fixed
+* bugfix to `rebuild_platypus_population` by @quaquel in https://github.com/quaquel/EMAworkbench/pull/276
+* Fixed dtype handling in `load_results` function. The dtype metadata is now correctly applied, resolving issue #277.
+* Fixed the documentation bug introduced by #241 in the general introduction section, which now accurately reflects the handling of categorical uncertainties in the experiment dataframe.
+
+#### 📜 Documentation improvements
+* readthedocs: Add search ranking and use latest Python version by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/242
+* docs/examples: Always use `n_processes=-1` in MultiprocessingEvaluator by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/278
+
+
 ## 2.4.0
 ### Highlights
 The latest release of the EMAworkbench introduces significant performance improvements and quality of life updates. The performance of `_store_outcomes` has been enhanced by approximately 35x in pull request #232, while the `combine` function has seen a 8x speedup in pull request #233. This results in the overhead of the EMAworkbench being reduced by over 70%. In a benchmark, a very simple Python model now performs approximately 40.000 iterations per second, compared to 15.000 in 2.3.0.
