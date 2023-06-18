@@ -41,9 +41,11 @@ class SaveResultsTestCase(unittest.TestCase):
 
         # test for 1d
         nr_experiments = 10000
-        experiments = pd.DataFrame(
-            index=np.arange(nr_experiments), columns={"x": float, "y": float}
+        cases = np.empty(
+            nr_experiments, dtype=[("x", float), ("y", int), ("z", bool), ("q", object)]
         )
+        experiments = pd.DataFrame.from_records(cases)
+        experiments["q"] = experiments["q"].astype("category")
         outcome_q = np.random.rand(nr_experiments, 1)
 
         outcomes = {ScalarOutcome("q").name: outcome_q}
@@ -85,19 +87,19 @@ class SaveResultsTestCase(unittest.TestCase):
 
 class LoadResultsTestCase(unittest.TestCase):
     def test_load_results(self):
-        # test for 1d
-
-        # test for 3d
-
         nr_experiments = 10000
 
         # test for 2d
-        experiments = pd.DataFrame(
-            index=np.arange(nr_experiments), columns={"x": float, "y": float}
+        cases = np.empty(
+            nr_experiments, dtype=[("x", float), ("y", int), ("z", bool), ("q", object)]
         )
+        experiments = pd.DataFrame.from_records(cases)
 
         experiments["x"] = np.random.rand(nr_experiments)
-        experiments["y"] = np.random.rand(nr_experiments)
+        experiments["y"] = np.random.randint(0, 10, size=nr_experiments)
+        experiments["y"] = np.random.randint(0, 1, size=nr_experiments, dtype=bool)
+        experiments["q"] = np.random.randint(0, 10, size=nr_experiments).astype(object)
+        experiments["q"] = experiments["q"].astype("category")
 
         outcome_a = np.zeros((nr_experiments, 1))
 
@@ -110,6 +112,12 @@ class LoadResultsTestCase(unittest.TestCase):
         self.assertTrue(np.all(np.allclose(outcomes["a"], outcome_a)))
         self.assertTrue(np.all(np.allclose(experiments["x"], loaded_experiments["x"])))
         self.assertTrue(np.all(np.allclose(experiments["y"], loaded_experiments["y"])))
+
+        for name, dtype in experiments.dtypes.items():
+            self.assertTrue(
+                dtype == loaded_experiments[name].dtype,
+                msg=f"{name}, {dtype}, {loaded_experiments[name].dtype}",
+            )
 
         os.remove("../data/test.tar.gz")
 
