@@ -16,9 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### 🐛 Bugs fixed
 * bugfix to `rebuild_platypus_population` by @quaquel in https://github.com/quaquel/EMAworkbench/pull/276
-* Fixed dtype handling in `load_results` function. The dtype metadata is now correctly applied, resolving issue #277. 
+* Fixed dtype handling in `load_results` function. The dtype metadata is now correctly applied, resolving issue #277.
 * Fixed the documentation bug introduced by #241 in the general introduction section, which now accurately reflects the handling of categorical uncertainties in the experiment dataframe.
-  
+
 #### 📜 Documentation improvements
 * readthedocs: Add search ranking and use latest Python version by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/242
 * docs/examples: Always use `n_processes=-1` in MultiprocessingEvaluator by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/278
