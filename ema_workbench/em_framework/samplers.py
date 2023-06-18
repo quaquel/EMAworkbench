@@ -20,6 +20,7 @@ from ema_workbench.em_framework.parameters import (
     BooleanParameter,
     CategoricalParameter,
 )
+from ema_workbench.util.ema_exceptions import EMAError
 
 # Created on 16 aug. 2011
 #
@@ -526,6 +527,10 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
 
     """
     levers = determine_parameters(models, "levers", union=union)
+
+    if not levers:
+        raise EMAError("you are trying to sample policies, but no levers have been defined")
+
     return sample_parameters(levers, n_samples, sampler, Policy)
 
 
@@ -547,6 +552,10 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
 
     """
     uncertainties = determine_parameters(models, "uncertainties", union=union)
+
+    if not uncertainties:
+        raise EMAError("you are trying to sample scenarios, but no uncertainties have been defined")
+
     return sample_parameters(uncertainties, n_samples, sampler, Policy)
 
 
