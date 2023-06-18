@@ -64,6 +64,9 @@ def load_results(file_name):
             except TypeError:
                 dtype = pd.api.types.pandas_dtype(dtype)
 
+            if experiments[name].dtype is not dtype:
+                experiments[name] = experiments[name].astype(dtype)
+            # this check is for backward compatability with data stored with 2.4.
             if pd.api.types.is_object_dtype(dtype):
                 experiments[name] = experiments[name].astype("category")
 
