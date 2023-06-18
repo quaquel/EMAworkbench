@@ -97,7 +97,7 @@ class LoadResultsTestCase(unittest.TestCase):
 
         experiments["x"] = np.random.rand(nr_experiments)
         experiments["y"] = np.random.randint(0, 10, size=nr_experiments)
-        experiments["y"] = np.random.randint(0, 1, size=nr_experiments, dtype=bool)
+        experiments["z"] = np.random.randint(0, 1, size=nr_experiments, dtype=bool)
         experiments["q"] = np.random.randint(0, 10, size=nr_experiments).astype(object)
         experiments["q"] = experiments["q"].astype("category")
 
