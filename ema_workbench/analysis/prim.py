@@ -827,7 +827,9 @@ class PrimBox:
         """
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
-    def show_pairs_scatter(self, i=None, dims=None, cdf=False, upper = 'scatter', lower = 'contour', fill_subplots = True):
+    def show_pairs_scatter(
+        self, i=None, dims=None, cdf=False, upper="scatter", lower="contour", fill_subplots=True
+    ):
         """Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
         interest or not and the boxlims superimposed on top.
@@ -838,22 +840,22 @@ class PrimBox:
         dims : list of str, optional
                dimensions to show, defaults to all restricted dimensions
         cdf : Boolean, optional
-               Plot diagonal as kernel density estimate ('kde') or 
+               Plot diagonal as kernel density estimate ('kde') or
                cumulative density function ('cdf').
         upper, lower: string, optional
-               Use either 'scatter', 'contour', or 'hist' (bivariate 
+               Use either 'scatter', 'contour', or 'hist' (bivariate
                histogram) plots for upper and lower triangles. Upper triangle
                can also be 'none' to eliminate redundancy. Legend uses
                lower triangle style for markers.
         fill_subplots: Boolean, optional
                        if True, subplots are resized to fill their respective axes.
-                       This removes unnecessary whitespace, but may be undesirable 
+                       This removes unnecessary whitespace, but may be undesirable
                        for some variable combinations.
-    
+
         Returns
         -------
         seaborn PairGrid
-    
+
         """
         if i is None:
             i = self._cur_box
@@ -862,9 +864,9 @@ class PrimBox:
             dims = sdutil._determine_restricted_dims(self.box_lims[i], self.prim.box_init)
 
         if cdf == False:
-            diag = 'kde'
+            diag = "kde"
         else:
-            diag = 'cdf'
+            diag = "cdf"
 
         return sdutil.plot_pair_wise_scatter(
             self.prim.x.iloc[self.yi_initial, :],
@@ -875,7 +877,7 @@ class PrimBox:
             diag=diag,
             upper=upper,
             lower=lower,
-            fill_subplots=fill_subplots
+            fill_subplots=fill_subplots,
         )
 
     def write_ppt_to_stdout(self):
