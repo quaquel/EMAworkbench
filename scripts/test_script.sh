@@ -6,9 +6,9 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=compute
 #SBATCH --mem-per-cpu=1GB
-#SBATCH --account=education-tpm-msc-epa
+#SBATCH --account=research-tpm-mas
 
-module load 2022r2
+module load 2023r1
 module load openmpi
 module load python
 module load py-numpy
