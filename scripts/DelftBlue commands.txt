@@ -24,7 +24,7 @@ cd "$directory"
 cd C:\Users\Ewout\Documents\GitHub\EMAworkbench\scripts
 scp -J eterhoeven@student-linux.tudelft.nl my_model.py test_script.sh eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
 
-# Check if files are correctly tranfered
+# Check if files are correctly tranfered (Logged in)
 ls
 
 # Note: bash scripts (sh) needs LF line endings. Do that in atom.

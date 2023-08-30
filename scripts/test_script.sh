@@ -14,4 +14,4 @@ module load python
 module load py-numpy
 module load py-mpi4py
 
-python my_model.py > py_test.log
+mpiexec -n 10 python -m mpi4py.futures my_model.py > py_test.log
