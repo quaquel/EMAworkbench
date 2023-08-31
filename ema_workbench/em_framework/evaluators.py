@@ -434,7 +434,8 @@ class MPIEvaluator(BaseEvaluator):
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-        model_gen = (self._msis[experiment.model_name] for experiment in ex_gen)
+        experiments_list = list(ex_gen)  # Convert generator to list
+        model_gen = (self._msis[experiment.model_name] for experiment in experiments_list)
 
         # Here, we're using the map function from MPIPoolExecutor. This function behaves
         # like the built-in map, but the tasks are executed in parallel processes.
