@@ -434,20 +434,21 @@ class MPIEvaluator(BaseEvaluator):
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
+        model_gen = (self._msis[experiment.model_name] for experiment in ex_gen)
 
         # Here, we're using the map function from MPIPoolExecutor. This function behaves
         # like the built-in map, but the tasks are executed in parallel processes.
         # Depending on how your experiments and callback are structured,
         # you may need to adjust this to fit your exact needs.
 
-        results = self._pool.map(run_experiment_mpi, ex_gen)
+        results = self._pool.map(run_experiment_mpi, ex_gen, model_gen)
+
         for experiment, outcomes in results:
             callback(experiment, outcomes)
 
-def run_experiment_mpi(experiment):
-    # This function assumes you have a function to run your experiment similar
-    # to how the `ExperimentRunner` was used in the SequentialEvaluator.
-    runner = ExperimentRunner([experiment.model])
+def run_experiment_mpi(experiment, model):
+    model_for_experiment = {experiment.model_name: model}
+    runner = ExperimentRunner(model_for_experiment)
     outcomes = runner.run_experiment(experiment)
     return experiment, outcomes
 
