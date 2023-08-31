@@ -16,7 +16,6 @@ def some_model(x1=None, x2=None, x3=None):
     return {"y": y}
 
 
-
 if __name__ == "__main__":
     model = Model("simpleModel", function=some_model)  # instantiate the model
 
