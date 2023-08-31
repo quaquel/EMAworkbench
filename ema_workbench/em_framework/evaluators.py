@@ -13,6 +13,7 @@ import string
 import sys
 import threading
 import warnings
+from mpi4py.futures import MPIPoolExecutor
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 from .callbacks import DefaultCallback
@@ -413,6 +414,42 @@ class MultiprocessingEvaluator(BaseEvaluator):
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
         add_tasks(self.n_processes, self._pool, ex_gen, callback)
+
+
+class MPIEvaluator(BaseEvaluator):
+    """Evaluator for experiments using MPI Pool Executor from mpi4py"""
+
+    def __init__(self, msis, **kwargs):
+        super().__init__(msis, **kwargs)
+        self._pool = None
+
+    def initialize(self):
+        self._pool = MPIPoolExecutor()
+        _logger.info(f"MPI pool started with {self._pool._max_workers} workers")
+        return self
+
+    def finalize(self):
+        self._pool.shutdown()
+        _logger.info("MPI pool has been shut down")
+
+    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
+
+        # Here, we're using the map function from MPIPoolExecutor. This function behaves
+        # like the built-in map, but the tasks are executed in parallel processes.
+        # Depending on how your experiments and callback are structured,
+        # you may need to adjust this to fit your exact needs.
+
+        results = self._pool.map(run_experiment_mpi, ex_gen)
+        for experiment, outcomes in results:
+            callback(experiment, outcomes)
+
+def run_experiment_mpi(experiment):
+    # This function assumes you have a function to run your experiment similar
+    # to how the `ExperimentRunner` was used in the SequentialEvaluator.
+    runner = ExperimentRunner([experiment.model])
+    outcomes = runner.run_experiment(experiment)
+    return experiment, outcomes
 
 
 class IpyparallelEvaluator(BaseEvaluator):
