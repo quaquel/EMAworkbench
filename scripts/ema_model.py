@@ -7,6 +7,7 @@ from ema_workbench import Model, RealParameter, ScalarOutcome, perform_experimen
 def some_model(x1=None, x2=None, x3=None):
     return {"y": x1 * x2 + x3}
 
+
 if __name__ == "__main__":
     model = Model("simpleModel", function=some_model)  # instantiate the model
 
@@ -21,5 +22,5 @@ if __name__ == "__main__":
 
     results = perform_experiments(model, 25)
 
-    with open('ema_test.pickle', 'wb') as handle:
+    with open("ema_test.pickle", "wb") as handle:
         pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
