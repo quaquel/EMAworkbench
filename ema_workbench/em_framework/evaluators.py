@@ -13,7 +13,6 @@ import string
 import sys
 import threading
 import warnings
-from mpi4py.futures import MPIPoolExecutor
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 from .callbacks import DefaultCallback
@@ -420,6 +419,8 @@ class MPIEvaluator(BaseEvaluator):
     """Evaluator for experiments using MPI Pool Executor from mpi4py"""
 
     def __init__(self, msis, **kwargs):
+        from mpi4py.futures import MPIPoolExecutor
+
         super().__init__(msis, **kwargs)
         self._pool = None
 
