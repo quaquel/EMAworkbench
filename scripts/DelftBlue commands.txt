@@ -34,3 +34,14 @@ sbatch test_script.sh
 
 # Check queue
 squeue -u eterhoeven
+
+
+
+#
+cd ..
+rm -rf python-test
+mkdir python-test
+cd python-test
+
+#
+pip install -e -U git+https://github.com/quaquel/EMAworkbench@multi-node-development#egg=ema-workbench
