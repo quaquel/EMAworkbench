@@ -501,7 +501,7 @@ class FileModel(WorkingDirectoryModel):
 
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
-            raise ValueError(f"cannot find model file: {model_file}")
+            raise ValueError(f"cannot find model file: {model_file},\nPath to file: {path_to_file}")
 
         if os.getcwd() == self.working_directory:
             raise ValueError(
