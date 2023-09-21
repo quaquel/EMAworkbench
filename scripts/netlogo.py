@@ -6,7 +6,7 @@ from ema_workbench import (
     ArrayOutcome,
     SequentialEvaluator,
     MultiprocessingEvaluator,
-    MPIEvaluator
+    MPIEvaluator,
 )
 from ema_workbench.connectors.netlogo import NetLogoModel
 
