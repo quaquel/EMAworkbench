@@ -30,6 +30,7 @@ __all__ = [
     "perform_experiments",
     "optimize",
     "IpyparallelEvaluator",
+    "MPIEvaluator",
     "MultiprocessingEvaluator",
     "SequentialEvaluator",
     "ReplicatorModel",
@@ -76,6 +77,7 @@ from .salib_samplers import SobolSampler, MorrisSampler, FASTSampler, get_SALib_
 from .evaluators import (
     perform_experiments,
     optimize,
+    MPIEvaluator,
     MultiprocessingEvaluator,
     SequentialEvaluator,
     Samplers,
