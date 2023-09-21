@@ -2,7 +2,7 @@
 ssh -J eterhoeven@student-linux.tudelft.nl eterhoeven@login.delftblue.tudelft.nl
 
 # Set the directory name
-directory="python-test"
+directory="netlogo-test"
 
 # Move to scratch folder
 cd ../../scratch/eterhoeven
@@ -19,10 +19,19 @@ fi
 # Change to the specified directory
 cd "$directory"
 
+# Install NetLogo
+wget https://ccl.northwestern.edu/netlogo/6.2.2/NetLogo-6.2.2-64.tgz
+tar -xzf NetLogo-6.2.2-64.tgz
+sudo mv NetLogo\ 6.2.2 netlogo
+echo 'export PATH=$PATH:/scratch/<your_netid>/netlogo' >> ~/.bashrc
+source ~/.bashrc
+netlogo-headless.sh --version
+# remove: sudo rm -r /opt/netlogo
+
 
 # Move files (NEW CMD)
 cd C:\Users\Ewout\Documents\GitHub\EMAworkbench\scripts
-scp -J eterhoeven@student-linux.tudelft.nl my_model.py test_script.sh eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/python-test
+scp -J eterhoeven@student-linux.tudelft.nl netlogo.py test_script.sh eterhoeven@login.delftblue.tudelft.nl:/scratch/eterhoeven/netlogo-test
 
 # Check if files are correctly tranfered (Logged in)
 ls
