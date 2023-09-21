@@ -6,6 +6,7 @@ from ema_workbench import (
     ArrayOutcome,
     SequentialEvaluator,
     MultiprocessingEvaluator,
+    MPIEvaluator
 )
 from ema_workbench.connectors.netlogo import NetLogoModel
 
@@ -17,9 +18,9 @@ if __name__ == "__main__":
     # 1. Setting Up the NetLogo Interface:
     model = NetLogoModel(
         "WolfSheepPredation",
-        wd="./netlogo-test",
-        netlogo_home="/opt/netlogo",
-        model_file="/opt/netlogo/app/models/Sample Models/Biology/Wolf Sheep Predation.nlogo",
+        wd="./netlogo-scratch",
+        netlogo_home="../netlogo",
+        model_file="../netlogo/app/models/Sample Models/Biology/Wolf Sheep Predation.nlogo",
     )
     # jvm_path="/opt/netlogo/lib/runtime/lib/server/libjvm.so")
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
 
     # 3. Run Experiments using the MultiprocessingEvaluator:
 
-    with SequentialEvaluator(model) as evaluator:
+    with MPIEvaluator(model) as evaluator:
         results = evaluator.perform_experiments(scenarios=25)
 
     experiments, outcomes = results
