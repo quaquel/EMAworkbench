@@ -14,8 +14,6 @@ import sys
 import threading
 import warnings
 
-from mpi4py.futures import MPIPoolExecutor
-
 from ema_workbench.em_framework.samplers import AbstractSampler
 from .callbacks import DefaultCallback
 from .points import experiment_generator, Scenario, Policy
@@ -434,6 +432,9 @@ class MPIEvaluator(BaseEvaluator):
         self._pool = None
 
     def initialize(self):
+        # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
+        from mpi4py.futures import MPIPoolExecutor
+
         # Instead of instantiating the ExperimentRunner for each experiment, instantiate it once here
         models = NamedObjectMap(AbstractModel)
         models.extend(self._msis)
