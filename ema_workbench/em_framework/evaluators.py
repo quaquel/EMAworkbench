@@ -442,6 +442,10 @@ class MPIEvaluator(BaseEvaluator):
         # Use the initializer function to set up the ExperimentRunner for all the worker processes
         self._pool = MPIPoolExecutor(initializer=mpi_initializer, initargs=(models,))
         _logger.info(f"MPI pool started with {self._pool._max_workers} workers")
+        if self._pool._max_workers <= 10:
+            _logger.warning(
+                f"With only a few workers ({self._pool._max_workers}), the MPIEvaluator may be slower than the Sequential- or MultiprocessingEvaluator"
+            )
         return self
 
     def finalize(self):
@@ -456,17 +460,30 @@ class MPIEvaluator(BaseEvaluator):
         packed = [(experiment, experiment.model_name) for experiment in experiments]
 
         # Use the pool to execute in parallel
+        _logger.debug(
+            f"MPIEvaluator: Starting {len(packed)} experiments using MPI pool with {self._pool._max_workers} workers"
+        )
         results = self._pool.map(run_experiment_mpi, packed)
 
+        _logger.debug(f"MPIEvaluator: Completed all {len(packed)} experiments")
         for experiment, outcomes in results:
             callback(experiment, outcomes)
+        _logger.debug(f"MPIEvaluator: Callback completed for all {len(packed)} experiments")
 
 
 def run_experiment_mpi(packed_data):
+    from mpi4py.MPI import COMM_WORLD
+
+    rank = COMM_WORLD.Get_rank()
+
     experiment, model_name = packed_data
+    # TODO logger: They don't seem to use the main module logger/syntax, fix this
+    _logger.debug(f"MPI Rank {rank}: starting {experiment}")
 
     # Use the global ExperimentRunner created by the initializer
     outcomes = experiment_runner.run_experiment(experiment)
+
+    _logger.debug(f"MPI Rank {rank}: completed {experiment}")
 
     return experiment, outcomes
 
