@@ -108,6 +108,9 @@ class Experiment(NamedObject):
         self.model_name = model_name
         self.scenario = scenario
 
+    def __repr__(self):
+        return f"Experiment {self.experiment_id} (model: {self.model_name}, policy: {self.policy.name}, scenario: {self.scenario.name})"
+
 
 class ExperimentReplication(NamedDict):
     """helper class that combines scenario, policy, any constants, and
