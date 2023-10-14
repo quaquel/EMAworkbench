@@ -109,6 +109,11 @@ class Experiment(NamedObject):
         self.scenario = scenario
 
     def __repr__(self):
+        return (f"Experiment(name={self.name!r}, model_name={self.model_name!r}, "
+                f"policy={self.policy!r}, scenario={self.scenario!r}, "
+                f"experiment_id={self.experiment_id!r})")
+
+    def __str__(self):
         return f"Experiment {self.experiment_id} (model: {self.model_name}, policy: {self.policy.name}, scenario: {self.scenario.name})"
 
 
