@@ -1,3 +1,4 @@
+wsl
 cd /mnt
 cd "c/Users/Ewout/Documents/GitHub/EMAworkbench"
 
@@ -7,9 +8,10 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 pip install -U pip
 pip install -U wheel setuptools
-pip install .
+pip install -U mpi4py
+pip install -U .
 
-mpiexec python3 -m mpi4py.futures scripts/ema_model.py > ema_test2.log
+mpiexec python3 -m mpi4py.futures scripts/ema_model.py
 
 # NetLogo install
 wget https://ccl.northwestern.edu/netlogo/6.2.2/NetLogo-6.2.2-64.tgz
@@ -20,4 +22,4 @@ source ~/.bashrc
 netlogo-headless.sh --version
 # remove: sudo rm -r /opt/netlogo
 
-python3 scripts/netlogo.py > netlogo.log
+mpiexec python3 -m mpi4py.futures scripts/netlogo.py > netlogo.log

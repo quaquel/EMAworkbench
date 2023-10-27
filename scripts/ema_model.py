@@ -3,20 +3,25 @@ import time
 
 from ema_workbench import Model, RealParameter, ScalarOutcome
 from ema_workbench.em_framework.evaluators import MPIEvaluator
+# Import ema logging
+from ema_workbench.util import ema_logging
 
 
 def some_model(x1=None, x2=None, x3=None):
     # Print current time in seconds, HH:MM;SS, without the date
-    print(f"Starting: {time.strftime('%H:%M:%S', time.localtime())}")
+    # print(f"Starting: {time.strftime('%H:%M:%S', time.localtime())}")
     # Sleep 10 seconds
-    time.sleep(1)
+    time.sleep(0.2)
     y = x1 * x2 + x3
-    print(f"Ending: {time.strftime('%H:%M:%S', time.localtime())}, y = {y}")
+    # print(f"Ending: {time.strftime('%H:%M:%S', time.localtime())}, y = {y}")
 
     return {"y": y}
 
 
 if __name__ == "__main__":
+    ema_logging.log_to_stderr(level=10)
+    # TODO: Test logging to file
+
     model = Model("simpleModel", function=some_model)  # instantiate the model
 
     # specify uncertainties
@@ -29,7 +34,7 @@ if __name__ == "__main__":
     model.outcomes = [ScalarOutcome("y")]
 
     with MPIEvaluator(model) as evaluator:
-        results = evaluator.perform_experiments(scenarios=100)
+        results = evaluator.perform_experiments(scenarios=25)
 
     with open("ema_test.pickle", "wb") as handle:
         pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
