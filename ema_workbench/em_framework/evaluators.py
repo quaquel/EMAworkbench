@@ -13,6 +13,7 @@ import string
 import sys
 import threading
 import warnings
+import logging
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 from .callbacks import DefaultCallback
@@ -419,9 +420,12 @@ class MultiprocessingEvaluator(BaseEvaluator):
 experiment_runner = None
 
 
-def mpi_initializer(models):
+def mpi_initializer(models, logger_level):
     global experiment_runner
     experiment_runner = ExperimentRunner(models)
+
+    # Configure logger based on the passed level and adjusted format
+    logging.basicConfig(level=logger_level, format="[%(processName)s/%(levelname)s] %(message)s")
 
 
 class MPIEvaluator(BaseEvaluator):
@@ -440,7 +444,7 @@ class MPIEvaluator(BaseEvaluator):
         models.extend(self._msis)
 
         # Use the initializer function to set up the ExperimentRunner for all the worker processes
-        self._pool = MPIPoolExecutor(initializer=mpi_initializer, initargs=(models,))
+        self._pool = MPIPoolExecutor(initializer=mpi_initializer, initargs=(models, _logger.level))
         _logger.info(f"MPI pool started with {self._pool._max_workers} workers")
         if self._pool._max_workers <= 10:
             _logger.warning(
@@ -460,15 +464,15 @@ class MPIEvaluator(BaseEvaluator):
         packed = [(experiment, experiment.model_name) for experiment in experiments]
 
         # Use the pool to execute in parallel
-        _logger.debug(
+        _logger.info(
             f"MPIEvaluator: Starting {len(packed)} experiments using MPI pool with {self._pool._max_workers} workers"
         )
         results = self._pool.map(run_experiment_mpi, packed)
 
-        _logger.debug(f"MPIEvaluator: Completed all {len(packed)} experiments")
+        _logger.info(f"MPIEvaluator: Completed all {len(packed)} experiments")
         for experiment, outcomes in results:
             callback(experiment, outcomes)
-        _logger.debug(f"MPIEvaluator: Callback completed for all {len(packed)} experiments")
+        _logger.info(f"MPIEvaluator: Callback completed for all {len(packed)} experiments")
 
 
 def run_experiment_mpi(packed_data):
@@ -477,13 +481,12 @@ def run_experiment_mpi(packed_data):
     rank = COMM_WORLD.Get_rank()
 
     experiment, model_name = packed_data
-    # TODO logger: They don't seem to use the main module logger/syntax, fix this
-    _logger.debug(f"MPI Rank {rank}: starting {experiment}")
+    _logger.info(f"MPI Rank {rank}: starting {repr(experiment)}")
 
     # Use the global ExperimentRunner created by the initializer
     outcomes = experiment_runner.run_experiment(experiment)
 
-    _logger.debug(f"MPI Rank {rank}: completed {experiment}")
+    _logger.info(f"MPI Rank {rank}: completed {experiment}")
 
     return experiment, outcomes
 

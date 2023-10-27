@@ -19,8 +19,7 @@ def some_model(x1=None, x2=None, x3=None):
 
 
 if __name__ == "__main__":
-    ema_logging.log_to_stderr(level=10)
-    # TODO: Test logging to file
+    ema_logging.log_to_stderr(level=20, set_root_logger_levels=True)
 
     model = Model("simpleModel", function=some_model)  # instantiate the model
 

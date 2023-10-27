@@ -178,7 +178,7 @@ def get_rootlogger():
     return _rootlogger
 
 
-def log_to_stderr(level=None):
+def log_to_stderr(level=None, set_root_logger_levels=False):
     """
     Turn on logging and add a handler which prints to stderr
 
@@ -205,5 +205,9 @@ def log_to_stderr(level=None):
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.propagate = False
+
+    if set_root_logger_levels:
+        for _, mod_logger in _module_loggers.items():
+            mod_logger.setLevel(level)
 
     return logger
