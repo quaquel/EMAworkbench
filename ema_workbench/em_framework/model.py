@@ -96,7 +96,9 @@ class AbstractModel(NamedObject):
         super().__init__(name)
 
         if not self.name.isalnum():
-            raise EMAError("name of model should only contain " "alpha numerical characters")
+            raise EMAError(
+                f"Name of model ({self.name}) should only contain alpha numerical characters"
+            )
 
         self._output_variables = None
         self._outcomes_output = {}
@@ -147,7 +149,7 @@ class AbstractModel(NamedObject):
                 if par.default is not None:
                     value = par.default
                 else:
-                    _logger.debug(f"{par.name} not found")
+                    _logger.debug(f"parameter {par.name} not found in sampled_parameters")
                     continue
 
             multivalue = False
@@ -206,7 +208,11 @@ class AbstractModel(NamedObject):
         -------
         dict with the results of a model run.
         """
-        warnings.warn("deprecated, use model.output instead")
+        # TODO: We should determine a version in which this method is removed and add that to the deprecation warning
+        warnings.warn(
+            "The 'retrieve_output' method is deprecated and will be removed in a future version. Use 'model.output' instead.",
+            DeprecationWarning,
+        )
         return self.output
 
     @method_logger(__name__)
@@ -284,7 +290,7 @@ class Replicator(AbstractModel):
             self._replications = [MyDict(**entry) for entry in replications]
             self.nreplications = len(replications)
         else:
-            raise TypeError(f"replications should be int or list not {type(replications)}")
+            raise TypeError(f"Replications should be int or list, not {type(replications)}")
 
     @method_logger(__name__)
     def run_model(self, scenario, policy):
@@ -303,7 +309,7 @@ class Replicator(AbstractModel):
         partial_experiment = combine(scenario, self.policy, constants)
 
         for i, rep in enumerate(self.replications):
-            _logger.debug(f"replication {i}")
+            _logger.debug(f"replication {i} of {self.nreplications}")
             rep.id = i
             experiment = ExperimentReplication(scenario, self.policy, constants, rep)
             output = self.run_experiment(experiment)
@@ -376,7 +382,7 @@ class BaseModel(AbstractModel):
         super().__init__(name)
 
         if not callable(function):
-            raise ValueError("function should be callable")
+            raise ValueError("Function should be callable")
 
         self.function = function
 
@@ -400,7 +406,7 @@ class BaseModel(AbstractModel):
             try:
                 value = model_output[variable]
             except KeyError:
-                _logger.warning(variable + " not found in model output")
+                _logger.warning(f"variable {variable} not found in model output")
                 value = None
             except TypeError:
                 value = model_output[i]
@@ -423,7 +429,7 @@ class WorkingDirectoryModel(AbstractModel):
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
-        _logger.debug("setting working directory to " + wd)
+        _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
     def __init__(self, name, wd=None):
@@ -446,7 +452,7 @@ class WorkingDirectoryModel(AbstractModel):
         self.working_directory = wd
 
         if not os.path.exists(self.working_directory):
-            raise ValueError(f"{self.working_directory} does not exist")
+            raise ValueError(f"Working directory {self.working_directory} does not exist")
 
     def as_dict(self):
         model_specs = super().as_dict()
@@ -462,7 +468,7 @@ class FileModel(WorkingDirectoryModel):
     @working_directory.setter
     def working_directory(self, path):
         wd = os.path.abspath(path)
-        _logger.debug("setting working directory to " + wd)
+        _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
     def __init__(self, name, wd=None, model_file=None):
@@ -501,12 +507,11 @@ class FileModel(WorkingDirectoryModel):
 
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
-            raise ValueError("cannot find model file")
+            raise ValueError(f"Cannot find model file: {model_file},\nPath to file: {path_to_file}")
 
         if os.getcwd() == self.working_directory:
             raise ValueError(
-                "the working directory of the model cannot be "
-                "the same as the current working directory"
+                f"The working directory of the model cannot be the same as the current working directory\nBoth are: {self.working_directory}"
             )
 
         self.model_file = model_file

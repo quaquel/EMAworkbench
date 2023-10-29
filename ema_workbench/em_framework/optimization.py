@@ -56,7 +56,10 @@ try:
 
 
 except ImportError:
-    warnings.warn("platypus based optimization not available", ImportWarning)
+    warnings.warn(
+        f"Platypus based optimization not available. Install with `pip install platypus-opt`",
+        ImportWarning,
+    )
 
     class PlatypusProblem:
         constraints = []
@@ -180,7 +183,7 @@ def to_problem(model, searchover, reference=None, constraints=None):
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
-        raise EMAError("no outcomes specified to optimize over, " "all outcomes are of kind=INFO")
+        raise EMAError("No outcomes specified to optimize over, all outcomes are of kind=INFO")
 
     problem = Problem(
         searchover, decision_variables, outcome_names, constraints, reference=reference
@@ -216,7 +219,7 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
-        raise EMAError("no outcomes specified to optimize over, " "all outcomes are of kind=INFO")
+        raise EMAError("No outcomes specified to optimize over, all outcomes are of kind=INFO")
 
     problem = RobustProblem(
         decision_variables, outcome_names, scenarios, robustness_functions, constraints
@@ -640,9 +643,10 @@ class HyperVolume(AbstractConvergenceMetric):
 
     def __init__(self, minimum, maximum):
         super().__init__("hypervolume")
+        # TODO: Add version in which we're going to remove HyperVolume to the deprecation warning
         warnings.warn(
             "HyperVolume is deprecated, use ArchiveLogger and HypervolumeMetric instead",
-            warnings.DeprecationWarning,
+            DeprecationWarning,
         )
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
@@ -774,7 +778,7 @@ def epsilon_nondominated(results, epsilons, problem):
     """
     if problem.nobjs != len(epsilons):
         ValueError(
-            f"the number of epsilon values ({len(epsilons)}) must match the number of objectives {problem.nobjs}"
+            f"The number of epsilon values ({len(epsilons)}) must match the number of objectives {problem.nobjs}"
         )
 
     results = pd.concat(results, ignore_index=True)
@@ -891,13 +895,13 @@ def rebuild_platypus_population(archive, problem):
             missing_parameters = [
                 attr for attr in problem.parameter_names if not hasattr(row, attr)
             ]
-            raise EMAError(f"parameter names {missing_parameters} not found in archive")
+            raise EMAError(f"Parameter names {missing_parameters} not found in archive")
 
         try:
             objectives = [getattr(row, attr) for attr in problem.outcome_names]
         except AttributeError:
             missing_outcomes = [attr for attr in problem.outcome_names if not hasattr(row, attr)]
-            raise EMAError(f"outcome names {missing_outcomes} not found in archive'")
+            raise EMAError(f"Outcome names {missing_outcomes} not found in archive'")
 
         solution = Solution(problem)
         solution.variables = [
@@ -1071,7 +1075,7 @@ def _optimize(
         pass
     else:
         if len(eps_values) != len(problem.outcome_names):
-            raise EMAError("number of epsilon values does not match number " "of outcomes")
+            raise EMAError("Number of epsilon values does not match number of outcomes")
 
     if variator is None:
         if all(isinstance(t, klass) for t in problem.types):
