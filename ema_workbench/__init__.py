@@ -15,6 +15,7 @@ from .em_framework import (
     Constant,
     Scenario,
     Policy,
+    MPIEvaluator,
     MultiprocessingEvaluator,
     IpyparallelEvaluator,
     SequentialEvaluator,
