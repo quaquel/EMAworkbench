@@ -23,6 +23,7 @@ jobs:
         include:
           - os: ubuntu-latest
             python-version: "3.10"
+            test-mpi: true
           - os: ubuntu-latest
             python-version: "3.9"
           - os: ubuntu-latest
@@ -42,6 +43,12 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install .[dev,cov] ${{ matrix.pip-pre }}
+    - name: Install MPI and mpi4py
+      if: matrix.test-mpi == true
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libopenmpi-dev
+        pip install mpi4py
     - name: Test with Pytest
       timeout-minutes: 15
       run:
