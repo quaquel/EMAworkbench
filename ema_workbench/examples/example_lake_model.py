@@ -35,37 +35,47 @@ def lake_problem(
         decisions = [kwargs[str(i)] for i in range(100)]
     except KeyError:
         decisions = [0] * 100
+        print("No valid decisions found, using 0 water release every year as default")
 
-    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
     nvars = len(decisions)
-    X = np.zeros((nvars,))
-    average_daily_P = np.zeros((nvars,))
     decisions = np.array(decisions)
-    reliability = 0.0
 
-    for _ in range(nsamples):
-        X[0] = 0.0
+    # Calculate the critical pollution level (Pcrit)
+    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
 
-        natural_inflows = np.random.lognormal(
-            math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
-            math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
-            size=nvars,
+    # Generate natural inflows using lognormal distribution
+    natural_inflows = np.random.lognormal(
+        mean=math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
+        sigma=math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
+        size=(nsamples, nvars),
+    )
+
+    # Initialize the pollution level matrix X
+    X = np.zeros((nsamples, nvars))
+
+    # Loop through time to compute the pollution levels
+    for t in range(1, nvars):
+        X[:, t] = (
+            (1 - b) * X[:, t - 1]
+            + (X[:, t - 1] ** q / (1 + X[:, t - 1] ** q))
+            + decisions[t - 1]
+            + natural_inflows[:, t - 1]
         )
 
-        for t in range(1, nvars):
-            X[t] = (
-                (1 - b) * X[t - 1]
-                + X[t - 1] ** q / (1 + X[t - 1] ** q)
-                + decisions[t - 1]
-                + natural_inflows[t - 1]
-            )
-            average_daily_P[t] += X[t] / float(nsamples)
+    # Calculate the average daily pollution for each time step
+    average_daily_P = np.mean(X, axis=0)
 
-        reliability += np.sum(X < Pcrit) / float(nsamples * nvars)
+    # Calculate the reliability (probability of the pollution level being below Pcrit)
+    reliability = np.sum(X < Pcrit) / float(nsamples * nvars)
 
+    # Calculate the maximum pollution level (max_P)
     max_P = np.max(average_daily_P)
+
+    # Calculate the utility by discounting the decisions using the discount factor (delta)
     utility = np.sum(alpha * decisions * np.power(delta, np.arange(nvars)))
-    inertia = np.sum(np.absolute(np.diff(decisions)) < 0.02) / float(nvars - 1)
+
+    # Calculate the inertia (the fraction of time steps with changes larger than 0.02)
+    inertia = np.sum(np.abs(np.diff(decisions)) > 0.02) / float(nvars - 1)
 
     return max_P, utility, inertia, reliability
 
