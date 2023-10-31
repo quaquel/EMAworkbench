@@ -62,6 +62,13 @@ class Variable(NamedObject):
             name = [name]
         self._variable_name = name
 
+    def __init__(self, name):
+        try:
+            name.isidentifier()
+        except Exception as e:
+            raise e
+        super().__init__(name)
+
 
 class NamedObjectMap:
     def __init__(self, kind):  # @ReservedAssignment
