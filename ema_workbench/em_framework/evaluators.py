@@ -416,35 +416,19 @@ class MultiprocessingEvaluator(BaseEvaluator):
         add_tasks(self.n_processes, self._pool, ex_gen, callback)
 
 
-# Create a global ExperimentRunner that will be used by all the worker processes
-experiment_runner = None
-
-
-def mpi_initializer(models, logger_level):
-    global experiment_runner
-    experiment_runner = ExperimentRunner(models)
-
-    # Configure logger based on the passed level and adjusted format
-    logging.basicConfig(level=logger_level, format="[%(processName)s/%(levelname)s] %(message)s")
-
-
 class MPIEvaluator(BaseEvaluator):
     """Evaluator for experiments using MPI Pool Executor from mpi4py"""
 
-    def __init__(self, msis, **kwargs):
+    def __init__(self, msis, n_processes=None, **kwargs):
         super().__init__(msis, **kwargs)
         self._pool = None
+        self.n_processes = n_processes
 
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
 
-        # Instead of instantiating the ExperimentRunner for each experiment, instantiate it once here
-        models = NamedObjectMap(AbstractModel)
-        models.extend(self._msis)
-
-        # Use the initializer function to set up the ExperimentRunner for all the worker processes
-        self._pool = MPIPoolExecutor(initializer=mpi_initializer, initargs=(models, _logger.level))
+        self._pool = MPIPoolExecutor(max_workers=self.n_processes)  # Removed initializer arguments
         _logger.info(f"MPI pool started with {self._pool._max_workers} workers")
         if self._pool._max_workers <= 10:
             _logger.warning(
@@ -458,12 +442,10 @@ class MPIEvaluator(BaseEvaluator):
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-        experiments = list(ex_gen)  # Convert generator to list
+        experiments = list(ex_gen)
 
-        # Instead of sending all models for each experiment, send only the model_name
-        packed = [(experiment, experiment.model_name) for experiment in experiments]
+        packed = [(experiment, experiment.model_name, self._msis) for experiment in experiments]
 
-        # Use the pool to execute in parallel
         _logger.info(
             f"MPIEvaluator: Starting {len(packed)} experiments using MPI pool with {self._pool._max_workers} workers"
         )
@@ -480,10 +462,13 @@ def run_experiment_mpi(packed_data):
 
     rank = COMM_WORLD.Get_rank()
 
-    experiment, model_name = packed_data
+    experiment, model_name, msis = packed_data
     _logger.debug(f"MPI Rank {rank}: starting {repr(experiment)}")
 
-    # Use the global ExperimentRunner created by the initializer
+    models = NamedObjectMap(AbstractModel)
+    models.extend(msis)
+    experiment_runner = ExperimentRunner(models)
+
     outcomes = experiment_runner.run_experiment(experiment)
 
     _logger.debug(f"MPI Rank {rank}: completed {experiment}")
