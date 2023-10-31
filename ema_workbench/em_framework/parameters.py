@@ -63,7 +63,7 @@ class LowerBound(Bound):
         return bound
 
 
-class Constant(NamedObject):
+class Constant(Variable):
     """Constant class,
 
     can be used for any parameter that has to be set to a fixed value
