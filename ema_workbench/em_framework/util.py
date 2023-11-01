@@ -63,10 +63,8 @@ class Variable(NamedObject):
         self._variable_name = name
 
     def __init__(self, name):
-        try:
-            name.isidentifier()
-        except Exception as e:
-            raise e
+        if not name.isidentifier():
+            raise ValueError(f"'{name}' is not a valid Python identifier.")
         super().__init__(name)
 
 
