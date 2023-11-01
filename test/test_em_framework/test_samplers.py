@@ -23,9 +23,9 @@ from ema_workbench.em_framework import Model
 
 class SamplerTestCase(unittest.TestCase):
     uncertainties = [
-        RealParameter("1", 0, 10),
-        IntegerParameter("2", 0, 10),
-        CategoricalParameter("3", ["a", "b", "c"]),
+        RealParameter("a", 0, 10),
+        IntegerParameter("b", 0, 10),
+        CategoricalParameter("c", ["a", "b", "c"]),
     ]
 
     def _test_generate_designs(self, sampler):
@@ -37,9 +37,9 @@ class SamplerTestCase(unittest.TestCase):
         for design in designs:
             actual_nr_designs += 1
 
-        self.assertIn("1", design, msg)
-        self.assertIn("2", design, msg)
-        self.assertIn("3", design, msg)
+        self.assertIn("a", design, msg)
+        self.assertIn("b", design, msg)
+        self.assertIn("c", design, msg)
         self.assertEqual(designs.n, actual_nr_designs, msg)
 
     def test_lhs_sampler(self):
