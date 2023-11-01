@@ -82,46 +82,48 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on, ccdf):
             x_plot = [j * 1, j * 1 + 1]
             y_plot = [freq] * 2
 
-            ax.plot(x_plot, y_plot, c=cp[i + 1], label=i == 1)
-            ax.scatter(
-                x_plot[0],
-                y_plot[0],
-                edgecolors=cp[i + 1],
-                facecolors=cp[i + 1],
-                linewidths=1,
-                zorder=2,
-            )
-            ax.scatter(
-                x_plot[1],
-                y_plot[0],
-                edgecolors=cp[i + 1],
-                facecolors="white",
-                linewidths=1,
-                zorder=2,
-            )
+            ax.plot(x_plot, y_plot, c=cp[i + 1], label=i == 1, marker="o")
+            # ax.scatter(
+            #     x_plot[0],
+            #     y_plot[0],
+            #     edgecolors=cp[i + 1],
+            #     facecolors=cp[i + 1],
+            #     linewidths=1,
+            #     zorder=2,
+            # )
+            # ax.scatter(
+            #     x_plot[1],
+            #     y_plot[0],
+            #     edgecolors=cp[i + 1],
+            #     facecolors="white",
+            #     linewidths=1,
+            #     zorder=2,
+            # )
 
             # misnomer
             cum_freq_un = (j + 1) / n_cat
             if ccdf:
                 cum_freq_un = (len(freqs) - j - 1) / n_cat
 
-            ax.plot(x_plot, [cum_freq_un] * 2, lw=1, c="darkgrey", zorder=1, label="x==y")
-            ax.scatter(
-                x_plot[0],
-                cum_freq_un,
-                edgecolors="darkgrey",
-                facecolors="darkgrey",
-                linewidths=1,
-                zorder=1,
+            ax.plot(
+                x_plot, [cum_freq_un] * 2, lw=1, c="darkgrey", zorder=1, label="x==y", marker="o"
             )
-            ax.scatter(
-                x_plot[1],
-                cum_freq_un,
-                edgecolors="darkgrey",
-                facecolors="white",
-                linewidths=1,
-                zorder=1,
-            )
+            # ax.scatter(
+            #     x_plot[0],
+            #     cum_freq_un,
+            #     edgecolors="darkgrey",
+            #     facecolors="darkgrey",
+            #     linewidths=1,
+            #     zorder=1,
+            # )
+            # ax.scatter(
+            #     x_plot[1],
+            #     cum_freq_un,
+            #     edgecolors="darkgrey",
+            #     facecolors="white",
+            #     linewidths=1,
+            #     zorder=1,
+            # )
 
     ax.set_xticklabels([])
     if xticklabels_on:
@@ -256,9 +258,17 @@ def plot_cdfs(x, y, ccdf=False):
     x = x.copy()
 
     try:
-        x = x.drop("scenario", axis=1)
+        x = x.drop("scenario_id", axis=1)
     except KeyError:
         pass
+
+    for entry in ["model", "policy"]:
+        if x.loc[:, entry].unique().shape != (1,):
+            continue
+        try:
+            x = x.drop(entry, axis=1)
+        except KeyError:
+            pass
 
     uncs = x.columns.tolist()
     cp = sns.color_palette()
