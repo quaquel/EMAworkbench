@@ -38,25 +38,25 @@ class ScarcityModel(VensimModel):
     def run_model(self, scenario, policy):
         """Method for running an instantiated model structure"""
         kwargs = scenario
-        loc = kwargs.pop("lookup shortage loc")
-        speed = kwargs.pop("lookup shortage speed")
+        loc = kwargs.pop("lookup_shortage_loc")
+        speed = kwargs.pop("lookup_shortage_speed")
         lookup = [self.f(x / 10, speed, loc) for x in range(0, 100)]
         kwargs["shortage price effect lookup"] = lookup
 
-        speed = kwargs.pop("lookup price substitute speed")
-        begin = kwargs.pop("lookup price substitute begin")
-        end = kwargs.pop("lookup price substitute end")
+        speed = kwargs.pop("lookup_price_substitute_speed")
+        begin = kwargs.pop("lookup_price_substitute_begin")
+        end = kwargs.pop("lookup_price_substitute_end")
         lookup = [self.priceSubstite(x, speed, begin, end) for x in range(0, 100, 10)]
         kwargs["relative price substitute lookup"] = lookup
 
-        scale = kwargs.pop("lookup returns to scale speed")
-        speed = kwargs.pop("lookup returns to scale scale")
+        scale = kwargs.pop("lookup_returns_to_scale_speed")
+        speed = kwargs.pop("lookup_returns_to_scale_scale")
         lookup = [self.returnsToScale(x, speed, scale) for x in range(0, 101, 10)]
         kwargs["returns to scale lookup"] = lookup
 
-        scale = kwargs.pop("lookup approximated learning speed")
-        speed = kwargs.pop("lookup approximated learning scale")
-        start = kwargs.pop("lookup approximated learning start")
+        scale = kwargs.pop("lookup_approximated_learning_speed")
+        speed = kwargs.pop("lookup_approximated_learning_scale")
+        start = kwargs.pop("lookup_approximated_learning_start")
         lookup = [self.approxLearning(x, speed, scale, start) for x in range(0, 101, 10)]
         kwargs["approximated learning effect lookup"] = lookup
 
@@ -66,7 +66,7 @@ class ScarcityModel(VensimModel):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.DEBUG)
 
-    model = ScarcityModel("scarcity", wd=r"./models/scarcity", model_file=r"\MetalsEMA.vpm")
+    model = ScarcityModel("scarcity", wd="./models/scarcity", model_file="MetalsEMA.vpm")
 
     model.outcomes = [
         TimeSeriesOutcome("relative_market_price", variable_name="relative market price"),
@@ -111,9 +111,9 @@ if __name__ == "__main__":
         ),
         RealParameter("normal_profit_margin", 0, 0.4, variable_name="normal profit margin"),
         RealParameter(
-            "initial_annual supply", 100000, 120000, variable_name="initial annual supply"
+            "initial_annual_supply", 100000, 120000, variable_name="initial annual supply"
         ),
-        RealParameter("initial_in goods", 1500000, 2500000, variable_name="initial in goods"),
+        RealParameter("initial_in_goods", 1500000, 2500000, variable_name="initial in goods"),
         RealParameter(
             "average_construction_time_extraction_capacity",
             1,
@@ -152,57 +152,57 @@ if __name__ == "__main__":
         ),
         # order of delay
         CategoricalParameter(
-            "order in goods delay", (1, 4, 10, 1000), variable_name="order in goods delay"
+            "order_in_goods_delay", (1, 4, 10, 1000), variable_name="order in goods delay"
         ),
         CategoricalParameter(
-            "order recycling capacity delay",
+            "order_recycling_capacity_delay",
             (1, 4, 10),
             variable_name="order recycling capacity delay",
         ),
         CategoricalParameter(
-            "order extraction capacity delay",
+            "order_extraction_capacity_delay",
             (1, 4, 10),
             variable_name="order extraction capacity delay",
         ),
         # uncertainties associated with lookups
-        RealParameter("lookup shortage loc", 20, 50, variable_name="lookup shortage loc"),
-        RealParameter("lookup shortage speed", 1, 5, variable_name="lookup shortage speed"),
+        RealParameter("lookup_shortage_loc", 20, 50, variable_name="lookup shortage loc"),
+        RealParameter("lookup_shortage_speed", 1, 5, variable_name="lookup shortage speed"),
         RealParameter(
-            "lookup price substitute speed", 0.1, 0.5, variable_name="lookup price substitute speed"
+            "lookup_price_substitute_speed", 0.1, 0.5, variable_name="lookup price substitute speed"
         ),
         RealParameter(
-            "lookup price substitute begin", 3, 7, variable_name="lookup price substitute begin"
+            "lookup_price_substitute_begin", 3, 7, variable_name="lookup price substitute begin"
         ),
         RealParameter(
-            "lookup price substitute end", 15, 25, variable_name="lookup price substitute end"
+            "lookup_price_substitute_end", 15, 25, variable_name="lookup price substitute end"
         ),
         RealParameter(
-            "lookup returns to scale speed",
+            "lookup_returns_to_scale_speed",
             0.01,
             0.2,
             variable_name="lookup returns to scale speed",
         ),
         RealParameter(
-            "lookup returns to scale scale", 0.3, 0.7, variable_name="lookup returns to scale scale"
+            "lookup_returns_to_scale_scale", 0.3, 0.7, variable_name="lookup returns to scale scale"
         ),
         RealParameter(
-            "lookup approximated learning speed",
+            "lookup_approximated_learning_speed",
             0.01,
             0.2,
             variable_name="lookup approximated learning speed",
         ),
         RealParameter(
-            "lookup approximated learning scale",
+            "lookup_approximated_learning_scale",
             0.3,
             0.6,
             variable_name="lookup approximated learning scale",
         ),
         RealParameter(
-            "lookup approximated learning start",
+            "lookup_approximated_learning_start",
             30,
             60,
             variable_name="lookup approximated learning start",
         ),
     ]
 
-    results = perform_experiments(model, 50)
+    results = perform_experiments(model, 1000)
