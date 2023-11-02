@@ -79,11 +79,9 @@ class Constant(Variable):
 
 
 class Category(NamedObject):
-
     def __init__(self, name, value):
         super().__init__(name)
         self.value = value
-
 
 
 def create_category(cat):
