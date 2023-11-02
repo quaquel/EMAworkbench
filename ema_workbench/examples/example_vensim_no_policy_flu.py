@@ -14,6 +14,7 @@ from ema_workbench import (
     ema_logging,
     perform_experiments,
     MultiprocessingEvaluator,
+    save_results
 )
 
 from ema_workbench.connectors.vensim import VensimModel
@@ -21,12 +22,12 @@ from ema_workbench.connectors.vensim import VensimModel
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModel("fluCase", wd="./models/flu", model_file="FLUvensimV1basecase.vpm")
+    model = VensimModel("fluCase", wd=r"./models/flu", model_file=r"FLUvensimV1basecase.vpm")
 
     # outcomes
     model.outcomes = [
         TimeSeriesOutcome(
-            "deceased_population_region 1", variable_name="deceased population region 1"
+            "deceased_population_region_1", variable_name="deceased population region 1"
         ),
         TimeSeriesOutcome("infected_fraction_R1", variable_name="infected fraction R1"),
     ]
@@ -90,29 +91,30 @@ if __name__ == "__main__":
             variable_name="susceptible to immune population delay time region 1",
         ),
         RealParameter(
-            "susceptible_to_immune_population_delay_time_regionv2",
+            "susceptible_to_immune_population_delay_time_region_2",
             0.5,
             2,
             variable_name="susceptible to immune population delay time region 2",
         ),
         RealParameter(
-            "root contact_rate_region 1", 0.01, 5, variable_name="root contact rate region 1"
+            "root_contact_rate_region_1", 0.01, 5, variable_name="root contact rate region 1"
         ),
         RealParameter(
-            "root contact_ratio_region 2", 0.01, 5, variable_name="root contact ratio region 2"
+            "root_contact_ratio_region_2", 0.01, 5, variable_name="root contact ratio region 2"
         ),
         RealParameter(
-            "infection_ratio_region 1", 0, 0.15, variable_name="infection ratio region 1"
+            "infection_ratio_region_1", 0, 0.15, variable_name="infection ratio region 1"
         ),
-        RealParameter("infection_rate_region 2", 0, 0.15, variable_name="infection rate region 2"),
+        RealParameter("infection_rate_region_2", 0, 0.15, variable_name="infection rate region 2"),
         RealParameter(
-            "normal_contact_rate_region 1", 10, 100, variable_name="normal contact rate region 1"
+            "normal_contact_rate_region_1", 10, 100, variable_name="normal contact rate region 1"
         ),
-        RealParameter("normal_contact_rate_region 2", 10, 200, "normal contact rate region 2"),
+        RealParameter("normal_contact_rate_region_2", 10, 200, variable_name="normal contact rate region 2"),
     ]
 
-    # Plain Parametric Uncertainties
 
-    nr_experiments = 10
+    nr_experiments = 1000
     with MultiprocessingEvaluator(model) as evaluator:
         results = perform_experiments(model, nr_experiments, evaluator=evaluator)
+
+    save_results(results, './data/1000 flu cases no policy.tar.gz')
