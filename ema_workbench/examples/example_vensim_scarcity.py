@@ -69,45 +69,140 @@ if __name__ == "__main__":
     model = ScarcityModel("scarcity", wd=r"./models/scarcity", model_file=r"\MetalsEMA.vpm")
 
     model.outcomes = [
-        TimeSeriesOutcome("relative market price"),
-        TimeSeriesOutcome("supply demand ratio"),
-        TimeSeriesOutcome("real annual demand"),
-        TimeSeriesOutcome("produced of intrinsically demanded"),
-        TimeSeriesOutcome("supply"),
-        TimeSeriesOutcome("Installed Recycling Capacity"),
-        TimeSeriesOutcome("Installed Extraction Capacity"),
+        TimeSeriesOutcome("relative_market_price", variable_name="relative market price"),
+        TimeSeriesOutcome("supply_demand_ratio", variable_name="supply demand ratio"),
+        TimeSeriesOutcome("real_annual_demand", variable_name="real annual demand"),
+        TimeSeriesOutcome(
+            "produced_of_intrinsically_demanded", variable_name="produced of intrinsically demanded"
+        ),
+        TimeSeriesOutcome("supply", variable_name="supply"),
+        TimeSeriesOutcome(
+            "Installed_Recycling_Capacity", variable_name="Installed Recycling Capacity"
+        ),
+        TimeSeriesOutcome(
+            "Installed_Extraction_Capacity", variable_name="Installed Extraction Capacity"
+        ),
     ]
 
     model.uncertainties = [
-        RealParameter("price elasticity of demand", 0, 0.5),
-        RealParameter("fraction of maximum extraction capacity used", 0.6, 1.2),
-        RealParameter("initial average recycling cost", 1, 4),
-        RealParameter("exogenously planned extraction capacity", 0, 15000),
-        RealParameter("absolute recycling loss fraction", 0.1, 0.5),
-        RealParameter("normal profit margin", 0, 0.4),
-        RealParameter("initial annual supply", 100000, 120000),
-        RealParameter("initial in goods", 1500000, 2500000),
-        RealParameter("average construction time extraction capacity", 1, 10),
-        RealParameter("average lifetime extraction capacity", 20, 40),
-        RealParameter("average lifetime recycling capacity", 20, 40),
-        RealParameter("initial extraction capacity under construction", 5000, 20000),
-        RealParameter("initial recycling capacity under construction", 5000, 20000),
-        RealParameter("initial recycling infrastructure", 5000, 20000),
+        RealParameter(
+            "price_elasticity_of_demand", 0, 0.5, variable_name="price elasticity of demand"
+        ),
+        RealParameter(
+            "fraction_of_maximum_extraction_capacity_used",
+            0.6,
+            1.2,
+            variable_name="fraction of maximum extraction capacity used",
+        ),
+        RealParameter(
+            "initial_average_recycling_cost", 1, 4, variable_name="initial average recycling cost"
+        ),
+        RealParameter(
+            "exogenously_planned_extraction_capacity",
+            0,
+            15000,
+            variable_name="exogenously planned extraction capacity",
+        ),
+        RealParameter(
+            "absolute_recycling_loss_fraction",
+            0.1,
+            0.5,
+            variable_name="absolute recycling loss fraction",
+        ),
+        RealParameter("normal_profit_margin", 0, 0.4, variable_name="normal profit margin"),
+        RealParameter(
+            "initial_annual supply", 100000, 120000, variable_name="initial annual supply"
+        ),
+        RealParameter("initial_in goods", 1500000, 2500000, variable_name="initial in goods"),
+        RealParameter(
+            "average_construction_time_extraction_capacity",
+            1,
+            10,
+            variable_name="average construction time extraction capacity",
+        ),
+        RealParameter(
+            "average_lifetime_extraction_capacity",
+            20,
+            40,
+            variable_name="average lifetime extraction capacity",
+        ),
+        RealParameter(
+            "average_lifetime_recycling_capacity",
+            20,
+            40,
+            variable_name="average lifetime recycling capacity",
+        ),
+        RealParameter(
+            "initial_extraction_capacity_under_construction",
+            5000,
+            20000,
+            variable_name="initial extraction capacity under construction",
+        ),
+        RealParameter(
+            "initial_recycling_capacity_under_construction",
+            5000,
+            20000,
+            variable_name="initial recycling capacity under construction",
+        ),
+        RealParameter(
+            "initial_recycling_infrastructure",
+            5000,
+            20000,
+            variable_name="initial recycling infrastructure",
+        ),
         # order of delay
-        CategoricalParameter("order in goods delay", (1, 4, 10, 1000)),
-        CategoricalParameter("order recycling capacity delay", (1, 4, 10)),
-        CategoricalParameter("order extraction capacity delay", (1, 4, 10)),
+        CategoricalParameter(
+            "order in goods delay", (1, 4, 10, 1000), variable_name="order in goods delay"
+        ),
+        CategoricalParameter(
+            "order recycling capacity delay",
+            (1, 4, 10),
+            variable_name="order recycling capacity delay",
+        ),
+        CategoricalParameter(
+            "order extraction capacity delay",
+            (1, 4, 10),
+            variable_name="order extraction capacity delay",
+        ),
         # uncertainties associated with lookups
-        RealParameter("lookup shortage loc", 20, 50),
-        RealParameter("lookup shortage speed", 1, 5),
-        RealParameter("lookup price substitute speed", 0.1, 0.5),
-        RealParameter("lookup price substitute begin", 3, 7),
-        RealParameter("lookup price substitute end", 15, 25),
-        RealParameter("lookup returns to scale speed", 0.01, 0.2),
-        RealParameter("lookup returns to scale scale", 0.3, 0.7),
-        RealParameter("lookup approximated learning speed", 0.01, 0.2),
-        RealParameter("lookup approximated learning scale", 0.3, 0.6),
-        RealParameter("lookup approximated learning start", 30, 60),
+        RealParameter("lookup shortage loc", 20, 50, variable_name="lookup shortage loc"),
+        RealParameter("lookup shortage speed", 1, 5, variable_name="lookup shortage speed"),
+        RealParameter(
+            "lookup price substitute speed", 0.1, 0.5, variable_name="lookup price substitute speed"
+        ),
+        RealParameter(
+            "lookup price substitute begin", 3, 7, variable_name="lookup price substitute begin"
+        ),
+        RealParameter(
+            "lookup price substitute end", 15, 25, variable_name="lookup price substitute end"
+        ),
+        RealParameter(
+            "lookup returns to scale speed",
+            0.01,
+            0.2,
+            variable_name="lookup returns to scale speed",
+        ),
+        RealParameter(
+            "lookup returns to scale scale", 0.3, 0.7, variable_name="lookup returns to scale scale"
+        ),
+        RealParameter(
+            "lookup approximated learning speed",
+            0.01,
+            0.2,
+            variable_name="lookup approximated learning speed",
+        ),
+        RealParameter(
+            "lookup approximated learning scale",
+            0.3,
+            0.6,
+            variable_name="lookup approximated learning scale",
+        ),
+        RealParameter(
+            "lookup approximated learning start",
+            30,
+            60,
+            variable_name="lookup approximated learning start",
+        ),
     ]
 
     results = perform_experiments(model, 50)

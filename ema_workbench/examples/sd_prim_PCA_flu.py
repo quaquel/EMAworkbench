@@ -23,7 +23,7 @@ fn = r"./data/1000 flu cases no policy.tar.gz"
 x, outcomes = load_results(fn)
 
 # specify y
-y = outcomes["deceased population region 1"][:, -1] > 1000000
+y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
 rotated_experiments, rotation_matrix = prim.pca_preprocess(x, y, exclude=["model", "policy"])
 

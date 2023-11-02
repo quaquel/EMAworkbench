@@ -18,7 +18,9 @@ if __name__ == "__main__":
 
     model = PysdModel(mdl_file=mdl_file)
 
-    model.uncertainties = [RealParameter("Room Temperature", 33, 120)]
-    model.outcomes = [TimeSeriesOutcome("Teacup Temperature")]
+    model.uncertainties = [
+        RealParameter("room_temperature", 33, 120, variable_name="Room Temperature")
+    ]
+    model.outcomes = [TimeSeriesOutcome("teacup_temperature", variable_name="Teacup Temperature")]
 
     perform_experiments(model, 100)

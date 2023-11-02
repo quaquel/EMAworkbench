@@ -49,7 +49,7 @@ experiments, outcomes = load_results("./data/1000 flu cases with policies.tar.gz
 
 # transform to numpy array with proper recoding of cateogorical variables
 x, columns = feature_scoring._prepare_experiments(experiments)
-y = outcomes["deceased population region 1"][:, -1] > 1000000
+y = outcomes["deceased_population_region 1"][:, -1] > 1000000
 
 # establish mean case for factor maps
 # this is questionable in particular in case of categorical dimensions

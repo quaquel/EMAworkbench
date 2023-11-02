@@ -35,17 +35,20 @@ if __name__ == "__main__":
 
     # outcomes
     model.outcomes = [
-        TimeSeriesOutcome("deceased population region 1"),
-        TimeSeriesOutcome("infected fraction R1"),
+        TimeSeriesOutcome(
+            "deceased_population_region_1", variable_name="deceased population region 1"
+        ),
+        TimeSeriesOutcome("infected_fraction_R1", variable_name="infected fraction R1"),
         ScalarOutcome(
-            "max infection fraction", variable_name="infected fraction R1", function=np.max
+            "max_infection_fraction", variable_name="infected fraction R1", function=np.max
         ),
         ScalarOutcome(
-            "time of max", variable_name=["infected fraction R1", "TIME"], function=time_of_max
+            "time_of_max", variable_name=["infected fraction R1", "TIME"], function=time_of_max
         ),
     ]
 
     # create uncertainties based on csv
+    # FIXME csv is missing
     model.uncertainties = parameters_from_csv("./models/flu/flu_uncertainties.csv")
 
     # add policies
