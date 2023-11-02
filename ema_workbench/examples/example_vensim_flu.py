@@ -17,7 +17,7 @@ from ema_workbench import (
     ScalarOutcome,
     perform_experiments,
     Policy,
-    save_results
+    save_results,
 )
 from ema_workbench.connectors.vensim import VensimModel
 
@@ -114,7 +114,9 @@ if __name__ == "__main__":
         RealParameter(
             "normal_contact_rate_region_1", 10, 100, variable_name="normal contact rate region 1"
         ),
-        RealParameter("normal_contact_rate_region_2", 10, 200, variable_name="normal contact rate region 2"),
+        RealParameter(
+            "normal_contact_rate_region_2", 10, 200, variable_name="normal contact rate region 2"
+        ),
     ]
 
     # add policies
@@ -125,4 +127,4 @@ if __name__ == "__main__":
     ]
 
     results = perform_experiments(model, 1000, policies=policies)
-    save_results(results, './data/1000 flu cases with policies.tar.gz')
+    save_results(results, "./data/1000 flu cases with policies.tar.gz")
