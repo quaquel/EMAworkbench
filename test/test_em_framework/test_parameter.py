@@ -55,7 +55,7 @@ class RealParameterTestCase(unittest.TestCase):
         name = "test"
         par1 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
 
-        name = "what?"
+        name = "what"
         par2 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
         self.assertFalse(par1 == par2)
 

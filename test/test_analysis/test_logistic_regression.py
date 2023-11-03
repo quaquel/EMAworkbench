@@ -15,7 +15,7 @@ from test import utilities
 
 def flu_classify(data):
     # get the output for deceased population
-    result = data["deceased population region 1"][:, -1]
+    result = data["deceased_population_region_1"][:, -1]
     return result > 1000000
 
 

@@ -64,7 +64,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
         # string type correct
         ooi = "nr deaths"
-        outcomes[ooi] = outcomes["deceased population region 1"][:, -1]
+        outcomes[ooi] = outcomes["deceased_population_region_1"][:, -1]
         y, categorical = fs._prepare_outcomes(outcomes, ooi)
 
         self.assertFalse(categorical)
@@ -76,7 +76,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
         # classify function correct
         def classify(data):
-            result = data["deceased population region 1"]
+            result = data["deceased_population_region_1"]
             classes = np.zeros(result.shape[0])
             classes[result[:, -1] > 1000000] = 1
             return classes
@@ -95,7 +95,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
         def classify(data):
             # get the output for deceased population
-            result = data["deceased population region 1"]
+            result = data["deceased_population_region_1"]
 
             # make an empty array of length equal to number of cases
             classes = np.zeros(result.shape[0])
@@ -116,7 +116,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertEqual(len(scores), len(x.columns) - 3)
 
         # f regression
-        y = outcomes["deceased population region 1"][:, -1]
+        y = outcomes["deceased_population_region_1"][:, -1]
         scores = fs.get_univariate_feature_scores(x, y, score_func=F_REGRESSION)
         self.assertEqual(len(scores), len(x.columns) - 3)
 
@@ -125,7 +125,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
         def classify(data):
             # get the output for deceased population
-            result = data["deceased population region 1"]
+            result = data["deceased_population_region_1"]
 
             # make an empty array of length equal to number of cases
             classes = np.zeros(result.shape[0])
@@ -147,7 +147,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError, fs.get_rf_feature_scores, x, y, mode="illegal argument")
 
-        y = outcomes["deceased population region 1"][:, -1]
+        y = outcomes["deceased_population_region_1"][:, -1]
         scores, forest = fs.get_rf_feature_scores(
             x, y, mode=RuleInductionType.REGRESSION, random_state=10
         )
@@ -157,7 +157,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
     def test_get_ex_feature_scores(self):
         x, outcomes = utilities.load_flu_data()
-        y = outcomes["deceased population region 1"][:, -1] > 1000000
+        y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
         scores, forest = fs.get_ex_feature_scores(
             x, y, mode=RuleInductionType.CLASSIFICATION, random_state=10
@@ -168,7 +168,7 @@ class FeatureScoringTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError, fs.get_ex_feature_scores, x, y, mode="illegal argument")
 
-        y = outcomes["deceased population region 1"][:, -1]
+        y = outcomes["deceased_population_region_1"][:, -1]
         scores, forest = fs.get_ex_feature_scores(
             x, y, mode=RuleInductionType.REGRESSION, random_state=10
         )
@@ -181,8 +181,8 @@ class FeatureScoringTestCase(unittest.TestCase):
 
         # we have timeseries so we need scalars
         y = {
-            "deceased population": outcomes["deceased population region 1"][:, -1],
-            "max. infected fraction": np.max(outcomes["infected fraction R1"], axis=1),
+            "deceased population": outcomes["deceased_population_region_1"][:, -1],
+            "max. infected fraction": np.max(outcomes["infected_fraction_R1"], axis=1),
         }
         scores = fs.get_feature_scores_all(x, y)
 
