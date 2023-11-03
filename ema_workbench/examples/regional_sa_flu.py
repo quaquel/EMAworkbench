@@ -14,9 +14,5 @@ x, outcomes = results
 y = outcomes["deceased population region 1"][:, -1] > 1000000
 
 fig = regional_sa.plot_cdfs(x, y)
-# regional_sa.plot_cdfs(x, y, ccdf=True)
-
-# regional_sa.plot_cdfs(x, y, ccdf=True)
-
 
 plt.show()
