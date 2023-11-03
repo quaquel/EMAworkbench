@@ -65,6 +65,7 @@ the details of the API. For a comparison between the workbench and
    ./indepth_tutorial/general-introduction.ipynb
    ./indepth_tutorial/open-exploration.ipynb
    ./indepth_tutorial/directed-search.ipynb
+   ./indepth_tutorial/mpi-evaluator.ipynb
    ./examples.rst
    ./best_practices.rst
    ./vensim-tips-and-tricks.rst
