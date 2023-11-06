@@ -425,7 +425,7 @@ def plot_pair_wise_scatter(
     elif diag == "kde":
         grid.map_diag(sns.kdeplot, fill=False, common_norm=False, cut=0)
     else:
-        raise NotImplementedError(f"diag = {diag} not implemented.")
+        raise NotImplementedError(f"diag = {diag} not implemented. Use either 'kde' (kernel density estimate) or 'cdf' (cumulative density function).")
 
     # draw box
     pad = 0.1
