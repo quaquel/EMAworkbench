@@ -399,7 +399,7 @@ def plot_pair_wise_scatter(
     elif upper == "none":
         None
     else:
-        raise NotImplementedError(f"upper = {upper} not implemented.")
+        raise NotImplementedError(f"upper = {upper} not implemented. Use either 'scatter', 'contour', 'hist' (bivariate histogram) or None plots for upper triangle.")
 
     # lower triangle
     if lower == "contour":
