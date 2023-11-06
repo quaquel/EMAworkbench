@@ -320,7 +320,7 @@ def plot_pair_wise_scatter(
     restricted_dims,
     diag="kde",
     upper="scatter",
-    lower="contour",
+    lower="hist",
     fill_subplots=True,
 ):
     """helper function for pair wise scatter plotting
