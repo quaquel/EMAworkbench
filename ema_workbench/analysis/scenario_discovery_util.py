@@ -312,17 +312,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     return qp.pvalue
 
 
-def plot_pair_wise_scatter(
-    x,
-    y,
-    boxlim,
-    box_init,
-    restricted_dims,
-    diag="kde",
-    upper="scatter",
-    lower="hist",
-    fill_subplots=True,
-):
+def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, diag = 'kde', upper = 'scatter', lower = 'hist', fill_subplots = True):
     """helper function for pair wise scatter plotting
     Parameters
     ----------
@@ -336,16 +326,16 @@ def plot_pair_wise_scatter(
     restricted_dims : collection of strings
                       list of uncertainties that define the boxlims
     diag : string, optional
-           Plot diagonal as kernel density estimate ('kde') or
+           Plot diagonal as kernel density estimate ('kde') or 
            cumulative density function ('cdf').
     upper, lower: string, optional
-           Use either 'scatter', 'contour', or 'hist' (bivariate
+           Use either 'scatter', 'contour', or 'hist' (bivariate 
            histogram) plots for upper and lower triangles. Upper triangle
            can also be 'none' to eliminate redundancy. Legend uses
            lower triangle style for markers.
     fill_subplots: Boolean, optional
                    if True, subplots are resized to fill their respective axes.
-                   This removes unnecessary whitespace, but may be undesirable
+                   This removes unnecessary whitespace, but may be undesirable 
                    for some variable combinations.
     """
 
@@ -371,102 +361,93 @@ def plot_pair_wise_scatter(
         # replace column with codes
         data[column] = data[column].cat.codes
 
-    # add outcome of interest to DataFrame
+    #add outcome of interest to DataFrame
     data["y"] = y
 
     # ensures cases of interest are plotted on top
     data.sort_values("y", inplace=True)
+    
+    #main plot body
 
-    # main plot body
+    grid = sns.PairGrid(data = data,
+                        hue = 'y',
+                        vars = x.columns.values,
+                        diag_sharey=False) #enables different plots in upper and lower triangles
 
-    grid = sns.PairGrid(
-        data=data, hue="y", vars=x.columns.values, diag_sharey=False
-    )  # enables different plots in upper and lower triangles
-
-    # upper triangle
-    if upper == "contour":
-        # draw contours twice to get different fill and line alphas, more interpretable
-        grid.map_upper(
-            sns.kdeplot, fill=True, alpha=0.8, bw_adjust=1.2, levels=5, common_norm=False, cut=0
-        )  # cut = 0
-        grid.map_upper(
-            sns.kdeplot, fill=False, alpha=1, bw_adjust=1.2, levels=5, common_norm=False, cut=0
-        )
-    elif upper == "hist":
+    #upper triangle
+    if upper == 'contour':   
+        #draw contours twice to get different fill and line alphas, more interpretable
+        grid.map_upper(sns.kdeplot, fill = True, alpha = 0.8, bw_adjust = 1.2, levels = 5, common_norm = False, cut = 0) #cut = 0
+        grid.map_upper(sns.kdeplot, fill = False, alpha = 1, bw_adjust = 1.2, levels = 5, common_norm = False, cut = 0)
+    elif upper == 'hist':
         grid.map_upper(sns.histplot)
-    elif upper == "scatter":
+    elif upper == 'scatter':
         grid.map_upper(sns.scatterplot)
-    elif upper == "none":
+    elif upper == 'none':
         None
     else:
-        raise NotImplementedError(f"upper = {upper} not implemented.")
-
-    # lower triangle
-    if lower == "contour":
-        # draw contours twice to get different fill and line alphas, more interpretable
-        grid.map_lower(
-            sns.kdeplot, fill=True, alpha=0.8, bw_adjust=1.2, levels=5, common_norm=False, cut=0
-        )  # cut = 0
-        grid.map_lower(
-            sns.kdeplot, fill=False, alpha=1, bw_adjust=1.2, levels=5, common_norm=False, cut=0
-        )
-    elif lower == "hist":
+        raise NotImplementedError(f'upper = {upper} not implemented.')
+    
+    #lower triangle
+    if lower == 'contour':   
+        #draw contours twice to get different fill and line alphas, more interpretable
+        grid.map_lower(sns.kdeplot, fill = True, alpha = 0.8, bw_adjust = 1.2, levels = 5, common_norm = False, cut = 0) #cut = 0
+        grid.map_lower(sns.kdeplot, fill = False, alpha = 1, bw_adjust = 1.2, levels = 5, common_norm = False, cut = 0)
+    elif lower == 'hist':
         grid.map_lower(sns.histplot)
-    elif lower == "scatter":
-        grid.map_lower(sns.scatterplot)
-    elif lower == "none":
-        raise ValueError(f"Lower triangle cannot be none.")
+    elif lower == 'scatter':
+        grid.map_lower(sns.scatterplot) 
+    elif lower == 'none':
+        raise ValueError(f'Lower triangle cannot be none.')
     else:
-        raise NotImplementedError(f"lower = {lower} not implemented.")
-
-    # diagonal
-    if diag == "cdf":
+        raise NotImplementedError(f'lower = {lower} not implemented.')
+        
+    #diagonal
+    if diag == 'cdf':
         grid.map_diag(sns.ecdfplot)
-    elif diag == "kde":
-        grid.map_diag(sns.kdeplot, fill=False, common_norm=False, cut=0)
+    elif diag == 'kde':
+        grid.map_diag(sns.kdeplot, fill = False, common_norm = False, cut = 0) 
     else:
-        raise NotImplementedError(f"diag = {diag} not implemented.")
-
-    # draw box
+        raise NotImplementedError(f'diag = {diag} not implemented.')
+        
+    #draw box
     pad = 0.1
-
+    
     cats = set(categorical_columns)
     for row, ylabel in zip(grid.axes, grid.y_vars):
-        ylim = boxlim[ylabel]
-
-        if ylabel in cats:
-            height = (len(ylim[0]) - 1) + pad
-            y = -pad / 2
-            # y = -0.2
-            # height = len(ylim[0]) - 0.6  # 2 * 0.2
-        else:
-            y = ylim[0]
-            height = ylim[1] - ylim[0]
 
         for ax, xlabel in zip(row, grid.x_vars):
             if ylabel == xlabel:
                 continue
+            
+            xrange = ax.get_xlim()[1] - ax.get_xlim()[0]
+            yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+
+            ylim = boxlim[ylabel]
+            
+            if ylabel in cats:
+                height = (len(ylim[0]) - 1)  + pad * yrange
+                y = - yrange  * pad / 2
+            else:
+                y = ylim[0]
+                height = ylim[1] - ylim[0]
 
             if xlabel in cats:
                 xlim = boxlim.at[0, xlabel]
-                width = (len(xlim) - 1) + pad
-                x = -pad / 2
-                # x = -0.2
-                # width = len(xlim) - 0.6  # 2 * 0.2
+                width = (len(xlim) - 1)  + pad * xrange
+                x = - xrange * pad / 2
             else:
                 xlim = boxlim[xlabel]
                 x = xlim[0]
                 width = xlim[1] - xlim[0]
 
             xy = x, y
-            box = patches.Rectangle(
-                xy, width, height, edgecolor="red", facecolor="none", lw=3, zorder=100
-            )
-            if ax.has_data() == True:
+            box = patches.Rectangle(xy, width, height, edgecolor="red", facecolor="none", lw=3, zorder = 100)
+            if ax.has_data() == True: #keeps box from being drawn in upper triangle if empty
                 ax.add_patch(box)
             else:
-                ax.set_axis_off()
-
+                ax.set_axis_off()              
+    
     # do the yticklabeling for categorical rows
     for row, ylabel in zip(grid.axes, grid.y_vars):
         if ylabel in cats:
@@ -499,31 +480,31 @@ def plot_pair_wise_scatter(
                 labels.append(label)
             ax.set_xticks(locs)
             ax.set_xticklabels(labels, rotation=90)
-
-    # fit subplot to data ranges, with some padding for aesthetics
+    
+    #fit subplot to data ranges, with some padding for aesthetics
     if fill_subplots == True:
         for axis in grid.axes:
-            for subplot in axis:
-                if subplot.get_xlabel() != "":
+            for subplot in axis:          
+                if subplot.get_xlabel() != '':
                     upper = data[subplot.get_xlabel()].max()
                     lower = data[subplot.get_xlabel()].min()
 
-                    pad_rel = (upper - lower) * pad  # padding relative to range of data points
+                    pad_rel = (upper - lower) * 0.1 #padding relative to range of data points
 
                     subplot.set_xlim(lower - pad_rel, upper + pad_rel)
 
-                if subplot.get_ylabel() != "":
+                if subplot.get_ylabel() != '':
                     upper = data[subplot.get_ylabel()].max()
                     lower = data[subplot.get_ylabel()].min()
 
-                    pad_rel = (upper - lower) * pad  # padding relative to range of data points
+                    pad_rel = (upper - lower) * 0.1 #padding relative to range of data points
 
                     subplot.set_ylim(lower - pad_rel, upper + pad_rel)
+                
 
     grid.add_legend()
-
+            
     return grid
-
 
 def _setup_figure(uncs):
     """
