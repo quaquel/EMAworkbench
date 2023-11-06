@@ -828,7 +828,7 @@ class PrimBox:
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
     def show_pairs_scatter(
-        self, i=None, dims=None, cdf=False, upper="scatter", lower="contour", fill_subplots=True
+        self, i=None, dims=None, cdf=False, upper="scatter", lower="hist", fill_subplots=True
     ):
         """Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
