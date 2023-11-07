@@ -465,7 +465,7 @@ def plot_pair_wise_scatter(
             box = patches.Rectangle(
                 xy, width, height, edgecolor="red", facecolor="none", lw=3, zorder=100
             )
-            if ax.has_data() == True:  # keeps box from being drawn in upper triangle if empty
+            if ax.has_data():  # keeps box from being drawn in upper triangle if empty
                 ax.add_patch(box)
             else:
                 ax.set_axis_off()
