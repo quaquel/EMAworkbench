@@ -320,7 +320,7 @@ def plot_pair_wise_scatter(
     restricted_dims,
     diag="kde",
     upper="scatter",
-    lower="contour",
+    lower="hist",
     fill_subplots=True,
 ):
     """helper function for pair wise scatter plotting
@@ -399,7 +399,9 @@ def plot_pair_wise_scatter(
     elif upper == "none":
         None
     else:
-        raise NotImplementedError(f"upper = {upper} not implemented.")
+        raise NotImplementedError(
+            f"upper = {upper} not implemented. Use either 'scatter', 'contour', 'hist' (bivariate histogram) or None plots for upper triangle."
+        )
 
     # lower triangle
     if lower == "contour":
@@ -417,7 +419,9 @@ def plot_pair_wise_scatter(
     elif lower == "none":
         raise ValueError(f"Lower triangle cannot be none.")
     else:
-        raise NotImplementedError(f"lower = {lower} not implemented.")
+        raise NotImplementedError(
+            f"lower = {lower} not implemented. Use either 'scatter', 'contour' or 'hist' (bivariate histogram) plots for lower triangle."
+        )
 
     # diagonal
     if diag == "cdf":
@@ -425,34 +429,35 @@ def plot_pair_wise_scatter(
     elif diag == "kde":
         grid.map_diag(sns.kdeplot, fill=False, common_norm=False, cut=0)
     else:
-        raise NotImplementedError(f"diag = {diag} not implemented.")
+        raise NotImplementedError(
+            f"diag = {diag} not implemented. Use either 'kde' (kernel density estimate) or 'cdf' (cumulative density function)."
+        )
 
     # draw box
     pad = 0.1
 
     cats = set(categorical_columns)
     for row, ylabel in zip(grid.axes, grid.y_vars):
-        ylim = boxlim[ylabel]
-
-        if ylabel in cats:
-            height = (len(ylim[0]) - 1) + pad
-            y = -pad / 2
-            # y = -0.2
-            # height = len(ylim[0]) - 0.6  # 2 * 0.2
-        else:
-            y = ylim[0]
-            height = ylim[1] - ylim[0]
-
         for ax, xlabel in zip(row, grid.x_vars):
             if ylabel == xlabel:
                 continue
 
+            xrange = ax.get_xlim()[1] - ax.get_xlim()[0]
+            yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+
+            ylim = boxlim[ylabel]
+
+            if ylabel in cats:
+                height = (len(ylim[0]) - 1) + pad * yrange
+                y = -yrange * pad / 2
+            else:
+                y = ylim[0]
+                height = ylim[1] - ylim[0]
+
             if xlabel in cats:
                 xlim = boxlim.at[0, xlabel]
-                width = (len(xlim) - 1) + pad
-                x = -pad / 2
-                # x = -0.2
-                # width = len(xlim) - 0.6  # 2 * 0.2
+                width = (len(xlim) - 1) + pad * xrange
+                x = -xrange * pad / 2
             else:
                 xlim = boxlim[xlabel]
                 x = xlim[0]
@@ -462,7 +467,7 @@ def plot_pair_wise_scatter(
             box = patches.Rectangle(
                 xy, width, height, edgecolor="red", facecolor="none", lw=3, zorder=100
             )
-            if ax.has_data() == True:
+            if ax.has_data():  # keeps box from being drawn in upper triangle if empty
                 ax.add_patch(box)
             else:
                 ax.set_axis_off()
@@ -508,7 +513,7 @@ def plot_pair_wise_scatter(
                     upper = data[subplot.get_xlabel()].max()
                     lower = data[subplot.get_xlabel()].min()
 
-                    pad_rel = (upper - lower) * pad  # padding relative to range of data points
+                    pad_rel = (upper - lower) * 0.1  # padding relative to range of data points
 
                     subplot.set_xlim(lower - pad_rel, upper + pad_rel)
 
@@ -516,7 +521,7 @@ def plot_pair_wise_scatter(
                     upper = data[subplot.get_ylabel()].max()
                     lower = data[subplot.get_ylabel()].min()
 
-                    pad_rel = (upper - lower) * pad  # padding relative to range of data points
+                    pad_rel = (upper - lower) * 0.1  # padding relative to range of data points
 
                     subplot.set_ylim(lower - pad_rel, upper + pad_rel)
 
