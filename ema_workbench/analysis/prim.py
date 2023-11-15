@@ -42,6 +42,7 @@ from .prim_util import (
     calculate_qp,
     determine_dimres,
     is_significant,
+    DiagKind,
 )
 
 # Created on 22 feb. 2013
@@ -828,7 +829,13 @@ class PrimBox:
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
     def show_pairs_scatter(
-        self, i=None, dims=None, cdf=False, upper="scatter", lower="contour", fill_subplots=True
+        self,
+        i=None,
+        dims=None,
+        diag_kind=DiagKind.KDE,
+        upper="scatter",
+        lower="contour",
+        fill_subplots=True,
     ):
         """Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
@@ -839,7 +846,7 @@ class PrimBox:
         i : int, optional
         dims : list of str, optional
                dimensions to show, defaults to all restricted dimensions
-        cdf : Boolean, optional
+        diag_kind : {DiagKind.KDE, DiagKind.CDF}
                Plot diagonal as kernel density estimate ('kde') or
                cumulative density function ('cdf').
         upper, lower: string, optional
@@ -863,10 +870,11 @@ class PrimBox:
         if dims is None:
             dims = sdutil._determine_restricted_dims(self.box_lims[i], self.prim.box_init)
 
-        if cdf == False:
-            diag = "kde"
-        else:
-            diag = "cdf"
+        if diag_kind not in diag_kind.__members__:
+            raise ValueError(
+                f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag_kind}"
+            )
+        diag = diag_kind.value
 
         return sdutil.plot_pair_wise_scatter(
             self.prim.x.iloc[self.yi_initial, :],
