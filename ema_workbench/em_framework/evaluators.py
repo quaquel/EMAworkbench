@@ -421,6 +421,11 @@ class MPIEvaluator(BaseEvaluator):
 
     def __init__(self, msis, n_processes=None, **kwargs):
         super().__init__(msis, **kwargs)
+        warnings.warn(
+            "The MPIEvaluator is experimental. Its interface and functionality might change in future releases.\n"
+            "We welcome your feedback at: https://github.com/quaquel/EMAworkbench/discussions/311",
+            FutureWarning,
+        )
         self._pool = None
         self.n_processes = n_processes
 
