@@ -312,9 +312,18 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):
     return qp.pvalue
 
 
-def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):
+def plot_pair_wise_scatter(
+    x,
+    y,
+    boxlim,
+    box_init,
+    restricted_dims,
+    diag="kde",
+    upper="scatter",
+    lower="hist",
+    fill_subplots=True,
+):
     """helper function for pair wise scatter plotting
-
     Parameters
     ----------
     x : DataFrame
@@ -326,18 +335,23 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):
     box_init : DataFrame
     restricted_dims : collection of strings
                       list of uncertainties that define the boxlims
-    cdf : bool, optional
-          plot diagonal as pdf or cdf, defaults to kde approx. of pdf
-
-
+    diag : string, optional
+           Plot diagonal as kernel density estimate ('kde') or
+           cumulative density function ('cdf').
+    upper, lower: string, optional
+           Use either 'scatter', 'contour', or 'hist' (bivariate
+           histogram) plots for upper and lower triangles. Upper triangle
+           can also be 'none' to eliminate redundancy. Legend uses
+           lower triangle style for markers.
+    fill_subplots: Boolean, optional
+                   if True, subplots are resized to fill their respective axes.
+                   This removes unnecessary whitespace, but may be undesirable
+                   for some variable combinations.
     """
 
     x = x[restricted_dims]
     data = x.copy()
 
-    # TODO:: have option to change
-    # diag to CDF, gives you effectively the
-    # regional sensitivity analysis results
     categorical_columns = data.select_dtypes("category").columns.values
     categorical_mappings = {}
     for column in categorical_columns:
@@ -357,59 +371,122 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):
         # replace column with codes
         data[column] = data[column].cat.codes
 
+    # add outcome of interest to DataFrame
     data["y"] = y
 
     # ensures cases of interest are plotted on top
     data.sort_values("y", inplace=True)
 
-    grid = sns.pairplot(
-        data=data,
-        hue="y",
-        vars=x.columns.values,
-        diag_kind="kde",
-        diag_kws={"cumulative": cdf, "common_norm": False, "fill": False},
-    )
+    # main plot body
+
+    grid = sns.PairGrid(
+        data=data, hue="y", vars=x.columns.values, diag_sharey=False
+    )  # enables different plots in upper and lower triangles
+
+    # upper triangle
+    if upper == "contour":
+        # draw contours twice to get different fill and line alphas, more interpretable
+        grid.map_upper(
+            sns.kdeplot, fill=True, alpha=0.8, bw_adjust=1.2, levels=5, common_norm=False, cut=0
+        )  # cut = 0
+        grid.map_upper(
+            sns.kdeplot, fill=False, alpha=1, bw_adjust=1.2, levels=5, common_norm=False, cut=0
+        )
+    elif upper == "hist":
+        grid.map_upper(sns.histplot)
+    elif upper == "scatter":
+        grid.map_upper(sns.scatterplot)
+    elif upper == "none":
+        None
+    else:
+        raise NotImplementedError(
+            f"upper = {upper} not implemented. Use either 'scatter', 'contour', 'hist' (bivariate histogram) or None plots for upper triangle."
+        )
+
+    # lower triangle
+    if lower == "contour":
+        # draw contours twice to get different fill and line alphas, more interpretable
+        grid.map_lower(
+            sns.kdeplot, fill=True, alpha=0.8, bw_adjust=1.2, levels=5, common_norm=False, cut=0
+        )  # cut = 0
+        grid.map_lower(
+            sns.kdeplot, fill=False, alpha=1, bw_adjust=1.2, levels=5, common_norm=False, cut=0
+        )
+    elif lower == "hist":
+        grid.map_lower(sns.histplot)
+    elif lower == "scatter":
+        grid.map_lower(sns.scatterplot)
+    elif lower == "none":
+        raise ValueError(f"Lower triangle cannot be none.")
+    else:
+        raise NotImplementedError(
+            f"lower = {lower} not implemented. Use either 'scatter', 'contour' or 'hist' (bivariate histogram) plots for lower triangle."
+        )
+
+    # diagonal
+    if diag == "cdf":
+        grid.map_diag(sns.ecdfplot)
+    elif diag == "kde":
+        grid.map_diag(sns.kdeplot, fill=False, common_norm=False, cut=0)
+    else:
+        raise NotImplementedError(
+            f"diag = {diag} not implemented. Use either 'kde' (kernel density estimate) or 'cdf' (cumulative density function)."
+        )
+
+    # draw box
+    pad = 0.1
 
     cats = set(categorical_columns)
     for row, ylabel in zip(grid.axes, grid.y_vars):
-        ylim = boxlim[ylabel]
-
-        if ylabel in cats:
-            y = -0.2
-            height = len(ylim[0]) - 0.6  # 2 * 0.2
-        else:
-            y = ylim[0]
-            height = ylim[1] - ylim[0]
-
         for ax, xlabel in zip(row, grid.x_vars):
             if ylabel == xlabel:
                 continue
 
+            xrange = ax.get_xlim()[1] - ax.get_xlim()[0]
+            yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
+
+            ylim = boxlim[ylabel]
+
+            if ylabel in cats:
+                height = (len(ylim[0]) - 1) + pad * yrange
+                y = -yrange * pad / 2
+            else:
+                y = ylim[0]
+                height = ylim[1] - ylim[0]
+
             if xlabel in cats:
                 xlim = boxlim.at[0, xlabel]
-                x = -0.2
-                width = len(xlim) - 0.6  # 2 * 0.2
+                width = (len(xlim) - 1) + pad * xrange
+                x = -xrange * pad / 2
             else:
                 xlim = boxlim[xlabel]
                 x = xlim[0]
                 width = xlim[1] - xlim[0]
 
             xy = x, y
-            box = patches.Rectangle(xy, width, height, edgecolor="red", facecolor="none", lw=3)
-            ax.add_patch(box)
+            box = patches.Rectangle(
+                xy, width, height, edgecolor="red", facecolor="none", lw=3, zorder=100
+            )
+            if ax.has_data():  # keeps box from being drawn in upper triangle if empty
+                ax.add_patch(box)
+            else:
+                ax.set_axis_off()
 
     # do the yticklabeling for categorical rows
     for row, ylabel in zip(grid.axes, grid.y_vars):
         if ylabel in cats:
             ax = row[0]
             labels = []
-            for entry in ax.get_yticklabels():
-                _, value = entry.get_position()
+            locs = []
+            mapping = categorical_mappings[ylabel]
+            for i in range(-1, len(mapping) + 1):
+                locs.append(i)
                 try:
-                    label = categorical_mappings[ylabel][value]
+                    label = categorical_mappings[ylabel][i]
                 except KeyError:
                     label = ""
                 labels.append(label)
+            ax.set_yticks(locs)
             ax.set_yticklabels(labels)
 
     # do the xticklabeling for categorical columns
@@ -427,6 +504,29 @@ def plot_pair_wise_scatter(x, y, boxlim, box_init, restricted_dims, cdf=False):
                 labels.append(label)
             ax.set_xticks(locs)
             ax.set_xticklabels(labels, rotation=90)
+
+    # fit subplot to data ranges, with some padding for aesthetics
+    if fill_subplots == True:
+        for axis in grid.axes:
+            for subplot in axis:
+                if subplot.get_xlabel() != "":
+                    upper = data[subplot.get_xlabel()].max()
+                    lower = data[subplot.get_xlabel()].min()
+
+                    pad_rel = (upper - lower) * 0.1  # padding relative to range of data points
+
+                    subplot.set_xlim(lower - pad_rel, upper + pad_rel)
+
+                if subplot.get_ylabel() != "":
+                    upper = data[subplot.get_ylabel()].max()
+                    lower = data[subplot.get_ylabel()].min()
+
+                    pad_rel = (upper - lower) * 0.1  # padding relative to range of data points
+
+                    subplot.set_ylim(lower - pad_rel, upper + pad_rel)
+
+    grid.add_legend()
+
     return grid
 
 

@@ -42,6 +42,7 @@ from .prim_util import (
     calculate_qp,
     determine_dimres,
     is_significant,
+    DiagKind,
 )
 
 # Created on 22 feb. 2013
@@ -827,7 +828,15 @@ class PrimBox:
         """
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
-    def show_pairs_scatter(self, i=None, dims=None, cdf=False):
+    def show_pairs_scatter(
+        self,
+        i=None,
+        dims=None,
+        diag_kind=DiagKind.KDE,
+        upper="scatter",
+        lower="contour",
+        fill_subplots=True,
+    ):
         """Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
         interest or not and the boxlims superimposed on top.
@@ -837,8 +846,18 @@ class PrimBox:
         i : int, optional
         dims : list of str, optional
                dimensions to show, defaults to all restricted dimensions
-        cdf : bool, optional
-              plot diag as cdf or pdf
+        diag_kind : {DiagKind.KDE, DiagKind.CDF}
+               Plot diagonal as kernel density estimate ('kde') or
+               cumulative density function ('cdf').
+        upper, lower: string, optional
+               Use either 'scatter', 'contour', or 'hist' (bivariate
+               histogram) plots for upper and lower triangles. Upper triangle
+               can also be 'none' to eliminate redundancy. Legend uses
+               lower triangle style for markers.
+        fill_subplots: Boolean, optional
+                       if True, subplots are resized to fill their respective axes.
+                       This removes unnecessary whitespace, but may be undesirable
+                       for some variable combinations.
 
         Returns
         -------
@@ -851,9 +870,11 @@ class PrimBox:
         if dims is None:
             dims = sdutil._determine_restricted_dims(self.box_lims[i], self.prim.box_init)
 
-        #         x =
-        #         y = self.prim.y[self.yi_initial]
-        #         order = np.argsort(y)
+        if diag_kind not in diag_kind.__members__:
+            raise ValueError(
+                f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag_kind}"
+            )
+        diag = diag_kind.value
 
         return sdutil.plot_pair_wise_scatter(
             self.prim.x.iloc[self.yi_initial, :],
@@ -861,7 +882,10 @@ class PrimBox:
             self.box_lims[i],
             self.prim.box_init,
             dims,
-            cdf=cdf,
+            diag=diag,
+            upper=upper,
+            lower=lower,
+            fill_subplots=fill_subplots,
         )
 
     def write_ppt_to_stdout(self):
