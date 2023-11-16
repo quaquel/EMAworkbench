@@ -418,8 +418,9 @@ class ArrayOutcome(AbstractOutcome):
     def process(self, values):
         values = super().process(values)
         if not isinstance(values, collections.abc.Iterable):
-            raise EMAError(
-                f"Outcome {self.name} should be a collection, but is a {type(values)}: {values}"
+            raise TypeError(
+                f"Outcome '{self.name}' expects an iterable type (like list, tuple, or array), "
+                f"but received a {type(values).__name__}."
             )
         return values
 

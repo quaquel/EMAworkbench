@@ -203,14 +203,15 @@ class AbstractModel(NamedObject):
     @method_logger(__name__)
     def retrieve_output(self):
         """Method for retrieving output after a model run.
+        Deprecated, will be removed in version 3.0 of the EMAworkbench.
 
         Returns
         -------
         dict with the results of a model run.
         """
-        # TODO: We should determine a version in which this method is removed and add that to the deprecation warning
         warnings.warn(
-            "The 'retrieve_output' method is deprecated and will be removed in a future version. Use 'model.output' instead.",
+            "The 'retrieve_output' method is deprecated and will be removed in version 3.0 of the EMAworkbench."
+            "Use 'model.output' instead.",
             DeprecationWarning,
         )
         return self.output

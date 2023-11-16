@@ -786,13 +786,13 @@ def optimize(
 
     """
     if searchover not in ("levers", "uncertainties"):
-        raise EMAError(f"Searchover should be one of 'levers' or 'uncertainties' not {searchover}")
+        raise EMAError(f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}")
 
     try:
         if len(models) == 1:
             models = models[0]
         else:
-            raise NotImplementedError("Optimization over multiple models yet supported")
+            raise NotImplementedError("Optimization over multiple models is not yet supported")
     except TypeError:
         pass
 
