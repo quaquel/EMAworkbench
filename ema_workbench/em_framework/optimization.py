@@ -621,9 +621,6 @@ class SpacingMetric(MetricWrapper, Spacing):
 class HyperVolume(AbstractConvergenceMetric):
     """Hypervolume convergence metric class
 
-    Deprecated, this class will be removed in version 3.0 of the EMAworkbench.
-    Use ArchiveLogger and HypervolumeMetric instead.
-
     This metric is derived from a hyper-volume measure, which describes the
     multi-dimensional volume of space contained within the pareto front. When
     computed with minimum and maximums, it describes the ratio of dominated
@@ -639,8 +636,9 @@ class HyperVolume(AbstractConvergenceMetric):
     maximum : numpy array
 
 
-    This class is deprecated. Use ArchiveLogger instead and calculate hypervolume
-    in post using HypervolumeMetric as also shown in the directed search tutorial.
+    This class is deprecated and will be removed in version 3.0 of the EMAworkbench.
+    Use ArchiveLogger instead and calculate hypervolume in post using HypervolumeMetric
+    as also shown in the directed search tutorial.
 
     """
 
