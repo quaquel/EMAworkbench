@@ -108,7 +108,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     if not x.select_dtypes(exclude=np.number).empty:
         raise RuntimeError("X includes non numeric columns")
     if not set(np.unique(y)) == {0, 1}:
-        raise RuntimeError("y should only contain 0s and 1s")
+        raise RuntimeError(f"y should only contain 0s and 1s, currently y contains {set(np.unique(y))}.")
 
     # if no subsets are provided all uncertainties with non dtype object
     # are in the same subset, the name of this is r, for rotation
@@ -416,7 +416,7 @@ class PrimBox:
             i = [i]
 
         if not all(isinstance(x, int) for x in i):
-            raise TypeError("i must be an integer or list of integers")
+            raise TypeError(f"i must be an integer or list of integers, not {type(i)}")
 
         return [self._inspect(entry, style=style, **kwargs) for entry in i]
 
@@ -450,7 +450,7 @@ class PrimBox:
         elif style == "data":
             return self._inspect_data(i, uncs, qp_values)
         else:
-            raise ValueError("style must be one of graph, table or data")
+            raise ValueError(f"style must be one of 'graph', 'table' or 'data', not {style}.")
 
     def _inspect_data(self, i, uncs, qp_values):
         """Helper method for inspecting boxes,
@@ -1044,9 +1044,9 @@ class Prim(sdutil.OutputFormatterMixin):
         self._update_yi_remaining = self._update_functions[update_function]
 
         if len(self.y.shape) > 1:
-            raise PrimException("y is not a 1-d array")
+            raise PrimException(f"y is not a 1-d array, but has shape {self.y.shape}")
         if self.y.shape[0] != len(self.x):
-            raise PrimException("len(y) != len(x)")
+            raise PrimException(f"len(y) != len(x): {self.y.shape[0]} != {len(self.x)}")
 
         # store the remainder of the parameters
         self.paste_alpha = paste_alpha

@@ -148,7 +148,7 @@ def set_ax_collections_to_bw(ax, style, colormap):
         try:
             converter_func = _collection_converter[collection_type]
         except KeyError:
-            raise EMAError(f"converter for {collection_type} not implemented")
+            raise EMAError(f"Converter for collection type {collection_type} not implemented")
         else:
             converter_func(collection, ax, style, colormap)
 

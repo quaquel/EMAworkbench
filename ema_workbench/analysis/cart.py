@@ -60,7 +60,7 @@ def setup_cart(results, classify, incl_unc=None, mass_min=0.05):
         y = classify(outcomes)
         mode = sdutil.RuleInductionType.BINARY
     else:
-        raise TypeError("unknown type for classify")
+        raise TypeError(f"Unknown type for classify: {type(classify)}")
 
     return CART(x, y, mass_min, mode=mode)
 
@@ -329,7 +329,7 @@ class CART(sdutil.OutputFormatterMixin):
         # but just in case, we raise an error if assumption of len==1 does
         # not hold
         if len(graphs) > 1:
-            raise EMAError("trying to visualize more than one tree")
+            raise EMAError(f"Expected a single tree for visualization, but found {len(graphs)} trees.")
 
         graph = graphs[0]
 
@@ -343,6 +343,6 @@ class CART(sdutil.OutputFormatterMixin):
         elif format == "svg":
             img = graph.create_svg()
         else:
-            raise TypeError("""format must be in {'png', 'svg'}""")
+            raise TypeError(f"format must be 'png' or 'svg' (instead of {format}).")
 
         return img

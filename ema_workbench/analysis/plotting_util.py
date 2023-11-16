@@ -284,7 +284,7 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, log=Fa
     elif density == Density.BOXENPLOT:
         plot_boxenplot(ax_d, values, log, group_labels=group_labels)
     else:
-        raise EMAError(f"unknown density type: {density}")
+        raise EMAError(f"Unknown density plot type: {density}")
 
     ax_d.set_xlabel("")
     ax_d.set_ylabel("")
@@ -316,7 +316,7 @@ def simple_density(density, value, ax_d, ax, log):
     elif density == Density.BOXENPLOT:
         plot_boxenplot(ax_d, [value[:, -1]], log)
     else:
-        raise EMAError("unknown density plot type")
+        raise EMAError(f"Unknown density plot type: {density}")
 
     ax_d.get_yaxis().set_view_interval(
         ax.get_yaxis().get_view_interval()[0], ax.get_yaxis().get_view_interval()[1]
@@ -671,8 +671,12 @@ def prepare_pairs_data(
     filter_scalar : bool, optional
 
     """
-    if isinstance(outcomes_to_show, str):
-        raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
+    if outcomes_to_show is not None:
+        if not isinstance(outcomes_to_show, list):
+            raise TypeError(f"For pair-wise plotting multiple outcomes need to be provided.\n"
+                            f"outcomes_to_show must be a list of strings or None, instead of a {type(outcomes_to_show)}")
+        elif len(outcomes_to_show) < 2:
+            raise ValueError(f"Only {len(outcomes_to_show)} outcome provided, at least two are needed for pair-wise plotting.")
 
     experiments, outcomes, outcomes_to_show, time, grouping_labels = prepare_data(
         experiments, None, outcomes, outcomes_to_show, group_by, grouping_specifiers, filter_scalar
@@ -755,7 +759,7 @@ def prepare_data(
         if not grouping_specifiers:
             # no grouping specifier, so infer from the data
             if group_by == "index":
-                raise EMAError("no grouping specifiers provided while " "trying to group on index")
+                raise EMAError("No grouping specifiers provided while trying to group on index")
             else:
                 column_to_group_by = experiments[group_by]
                 if column_to_group_by.dtype in (object, "category"):

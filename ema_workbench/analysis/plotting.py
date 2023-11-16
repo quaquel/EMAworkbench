@@ -747,7 +747,7 @@ def multiple_densities(
 
         # making of grid
         if not points_in_time:
-            raise EMAError("no points in time specified")
+            raise EMAError("No points in time specified, should be a list of length 1-6")
         if len(points_in_time) == 1:
             ax_env = plt.subplot2grid((2, 3), (0, 0), colspan=3)
             ax1 = plt.subplot2grid((2, 3), (1, 1), sharey=ax_env)
@@ -788,7 +788,7 @@ def multiple_densities(
             ax6 = plt.subplot2grid((2, 6), (1, 5), sharex=ax1, sharey=ax_env)
             kde_axes = [ax1, ax2, ax3, ax4, ax5, ax6]
         else:
-            raise EMAError("too many points in time provided")
+            raise EMAError(f"Too many points in time specified: {len(points_in_time)}, max is 6")
 
         axes_dict["main plot"] = ax_env
         for n, entry in enumerate(kde_axes):
