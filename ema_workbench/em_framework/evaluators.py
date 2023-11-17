@@ -117,8 +117,7 @@ class BaseEvaluator:
             for entry in msis:
                 if not isinstance(entry, AbstractModel):
                     raise TypeError(
-                        f"{entry} should be an AbstractModel "
-                        f"instance but is a {entry.__class__} instance"
+                        f"{entry} should be an AbstractModel instance, but is a {entry.__class__} instance"
                     )
 
         self._msis = msis
@@ -347,14 +346,16 @@ class MultiprocessingEvaluator(BaseEvaluator):
         if isinstance(n_processes, int):
             if n_processes > 0:
                 if max_processes < n_processes:
-                    warnings.warn(f"the number of processes cannot be more then {max_processes}")
+                    warnings.warn(
+                        f"The number of processes cannot be more then {max_processes}", UserWarning
+                    )
                 self.n_processes = min(n_processes, max_processes)
             else:
                 self.n_processes = max(max_processes + n_processes, 1)
         elif n_processes is None:
             self.n_processes = max_processes
         else:
-            raise ValueError("max_processes must be an integer or None")
+            raise ValueError(f"max_processes must be an integer or None, not {type(n_processes)}")
 
         self.maxtasksperchild = maxtasksperchild
 
@@ -635,11 +636,7 @@ def perform_experiments(
 
     if callback.i != nr_of_exp:
         raise EMAError(
-            (
-                "some fatal error has occurred while "
-                "running the experiments, not all runs have "
-                "completed. expected {}, got {}"
-            ).format(nr_of_exp, callback.i)
+            f"Some fatal error has occurred while running the experiments, not all runs have completed. Expected {nr_of_exp}, got {callback.i}"
         )
 
     _logger.info("experiments finished")
@@ -789,15 +786,13 @@ def optimize(
 
     """
     if searchover not in ("levers", "uncertainties"):
-        raise EMAError(
-            "searchover should be one of 'levers' or" "'uncertainties' not {}".format(searchover)
-        )
+        raise EMAError(f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}")
 
     try:
         if len(models) == 1:
             models = models[0]
         else:
-            raise NotImplementedError("optimization over multiple" "models yet supported")
+            raise NotImplementedError("Optimization over multiple models is not yet supported")
     except TypeError:
         pass
 

@@ -265,7 +265,7 @@ def experiment_generator(scenarios, model_structures, policies, combine="factori
         # full factorial
         jobs = itertools.product(model_structures, policies, scenarios)
     else:
-        raise ValueError(f"{combine} is unknown value for combine")
+        raise ValueError(f"{combine} is unknown value for combine, use 'factorial' or 'sample'")
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job

@@ -204,7 +204,7 @@ class LogQueueReader(threading.Thread):
                 record = self.queue.get()
                 # get the logger for this record
                 if record is None:
-                    _logger.debug("none received")
+                    _logger.debug("no record received from queue")
                     break
 
                 logger = logging.getLogger(record.name)
@@ -247,7 +247,7 @@ class ResultsReader(threading.Thread):
                 result = self.queue.get()
                 # get the logger for this record
                 if result is None:
-                    _logger.debug("none received")
+                    _logger.debug("no record received from queue")
                     break
 
                 self.callback(*result.get())
