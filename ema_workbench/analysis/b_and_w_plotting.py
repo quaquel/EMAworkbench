@@ -148,7 +148,7 @@ def set_ax_collections_to_bw(ax, style, colormap):
         try:
             converter_func = _collection_converter[collection_type]
         except KeyError:
-            raise EMAError(f"converter for {collection_type} not implemented")
+            raise EMAError(f"Converter for collection type {collection_type} not implemented")
         else:
             converter_func(collection, ax, style, colormap)
 
@@ -333,7 +333,9 @@ def set_fig_to_bw(fig, style=HATCHING, line_style="continuous"):
 
     if len(all_colors) > len(bw_mapping):
         mapping_cycle = itertools.cycle(bw_mapping)
-        _logger.warning("more colors used than provided in B&W mapping, cycling over mapping")
+        _logger.warning(
+            f"more colors ({len(all_colors)}) used than provided in B&W mapping ({len(bw_mapping)}), cycling over mapping"
+        )
     else:
         mapping_cycle = bw_mapping
     colormap = dict(zip(all_colors, mapping_cycle))

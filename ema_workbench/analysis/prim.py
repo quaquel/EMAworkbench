@@ -27,7 +27,7 @@ try:
     import altair as alt
 except ImportError:
     alt = None
-    warnings.warn(("altair based interactive " "inspection not available"), ImportWarning)
+    warnings.warn("altair based interactive inspection not available", ImportWarning)
 
 from ..util import EMAError, temporary_filter, INFO, get_module_logger
 from . import scenario_discovery_util as sdutil
@@ -108,7 +108,9 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     if not x.select_dtypes(exclude=np.number).empty:
         raise RuntimeError("X includes non numeric columns")
     if not set(np.unique(y)) == {0, 1}:
-        raise RuntimeError("y should only contain 0s and 1s")
+        raise RuntimeError(
+            f"y should only contain 0s and 1s, currently y contains {set(np.unique(y))}."
+        )
 
     # if no subsets are provided all uncertainties with non dtype object
     # are in the same subset, the name of this is r, for rotation
@@ -416,7 +418,7 @@ class PrimBox:
             i = [i]
 
         if not all(isinstance(x, int) for x in i):
-            raise TypeError("i must be an integer or list of integers")
+            raise TypeError(f"i must be an integer or list of integers, not {type(i)}")
 
         return [self._inspect(entry, style=style, **kwargs) for entry in i]
 
@@ -450,7 +452,7 @@ class PrimBox:
         elif style == "data":
             return self._inspect_data(i, uncs, qp_values)
         else:
-            raise ValueError("style must be one of graph, table or data")
+            raise ValueError(f"style must be one of 'graph', 'table' or 'data', not {style}.")
 
     def _inspect_data(self, i, uncs, qp_values):
         """Helper method for inspecting boxes,
@@ -1026,7 +1028,9 @@ class Prim(sdutil.OutputFormatterMixin):
         for column in x_nominal.columns.values:
             if np.unique(x[column]).shape == (1,):
                 x = x.drop(column, axis=1)
-                _logger.info(f"{column} dropped from analysis " "because only a single category")
+                _logger.info(
+                    f"column {column} dropped from analysis because it has only one category"
+                )
 
         x_nominal = x.select_dtypes(exclude=np.number)
         self.x_nominal = x_nominal.values
@@ -1044,9 +1048,9 @@ class Prim(sdutil.OutputFormatterMixin):
         self._update_yi_remaining = self._update_functions[update_function]
 
         if len(self.y.shape) > 1:
-            raise PrimException("y is not a 1-d array")
+            raise PrimException(f"y is not a 1-d array, but has shape {self.y.shape}")
         if self.y.shape[0] != len(self.x):
-            raise PrimException("len(y) != len(x)")
+            raise PrimException(f"len(y) != len(x): {self.y.shape[0]} != {len(self.x)}")
 
         # store the remainder of the parameters
         self.paste_alpha = paste_alpha
@@ -1100,7 +1104,7 @@ class Prim(sdutil.OutputFormatterMixin):
             box._frozen = True
 
         if self.yi_remaining.shape[0] == 0:
-            _logger.info("no data remaining")
+            _logger.info("no data remaining, exiting")
             return
 
         # log how much data and how many coi are remaining
@@ -1119,7 +1123,7 @@ class Prim(sdutil.OutputFormatterMixin):
         box = self._paste(box)
         _logger.debug("pasting completed")
 
-        message = "mean: {0}, mass: {1}, coverage: {2}, " "density: {3} restricted_dimensions: {4}"
+        message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
         message = message.format(box.mean, box.mass, box.coverage, box.density, box.res_dim)
 
         if (self.threshold_type == ABOVE) & (box.mean >= self.threshold):
@@ -1133,7 +1137,8 @@ class Prim(sdutil.OutputFormatterMixin):
         else:
             # make a dump box
             _logger.info(
-                f"box does not meet threshold criteria, value is {box.mean}, returning dump box"
+                f"box mean ({box.mean}) does not meet threshold criteria ({self.threshold_type} {self.threshold}),"
+                f"returning dump box"
             )
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self._boxes.append(box)

@@ -112,7 +112,7 @@ def _prepare_outcomes(outcomes, classify):
         y = classify(outcomes)
         categorical = True
     else:
-        raise TypeError("unknown type for classify")
+        raise TypeError(f"Unknown type for classify: {type(classify)}")
 
     return y, categorical
 

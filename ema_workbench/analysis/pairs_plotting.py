@@ -548,7 +548,7 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
             try:
                 ax.set_xlabel(ylabels.get(field2))
             except KeyError:
-                _logger.info("no label specified for " + field2)
+                _logger.info(f"no label specified for {field2}")
         else:
             ax.set_xlabel(field2)
 
@@ -561,6 +561,6 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
             try:
                 ax.set_ylabel(ylabels.get(field1))
             except KeyError:
-                _logger.info("no label specified for " + field1)
+                _logger.info(f"no label specified for {field1}")
         else:
             ax.set_ylabel(field1)
