@@ -664,7 +664,7 @@ def prepare_pairs_data(
     Parameters
     ----------
     results : tuple
-    outcomes_to_show : list of str, optional
+    outcomes_to_show : list of str, optional. Both None and an empty list indicate that all outcomes should be shown.
     group_by : str, optional
     grouping_specifiers : iterable, optional
     point_in_time : int, optional
@@ -677,7 +677,6 @@ def prepare_pairs_data(
                 f"For pair-wise plotting multiple outcomes need to be provided.\n"
                 f"outcomes_to_show must be a list of strings or None, instead of a {type(outcomes_to_show)}"
             )
-        # TODO: Apparently an empty list [] is allowed. Is this intended?
         elif len(outcomes_to_show) == 1:
             raise ValueError(
                 f"Only {len(outcomes_to_show)} outcome provided, at least two are needed for pair-wise plotting."
