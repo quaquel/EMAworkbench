@@ -329,7 +329,9 @@ class CART(sdutil.OutputFormatterMixin):
         # but just in case, we raise an error if assumption of len==1 does
         # not hold
         if len(graphs) > 1:
-            raise EMAError(f"Expected a single tree for visualization, but found {len(graphs)} trees.")
+            raise EMAError(
+                f"Expected a single tree for visualization, but found {len(graphs)} trees."
+            )
 
         graph = graphs[0]
 

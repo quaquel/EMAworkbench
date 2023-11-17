@@ -673,10 +673,14 @@ def prepare_pairs_data(
     """
     if outcomes_to_show is not None:
         if not isinstance(outcomes_to_show, list):
-            raise TypeError(f"For pair-wise plotting multiple outcomes need to be provided.\n"
-                            f"outcomes_to_show must be a list of strings or None, instead of a {type(outcomes_to_show)}")
+            raise TypeError(
+                f"For pair-wise plotting multiple outcomes need to be provided.\n"
+                f"outcomes_to_show must be a list of strings or None, instead of a {type(outcomes_to_show)}"
+            )
         elif len(outcomes_to_show) < 2:
-            raise ValueError(f"Only {len(outcomes_to_show)} outcome provided, at least two are needed for pair-wise plotting.")
+            raise ValueError(
+                f"Only {len(outcomes_to_show)} outcome provided, at least two are needed for pair-wise plotting."
+            )
 
     experiments, outcomes, outcomes_to_show, time, grouping_labels = prepare_data(
         experiments, None, outcomes, outcomes_to_show, group_by, grouping_specifiers, filter_scalar
@@ -839,7 +843,9 @@ def do_ylabels(ax, ylabels, outcome):
             try:
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
-                _logger.warning(f"KeyError in do_ylabels, no ylabel provided for outcome `{outcome}`")
+                _logger.warning(
+                    f"KeyError in do_ylabels, no ylabel provided for outcome `{outcome}`"
+                )
                 ax.set_ylabel(outcome)
 
 
