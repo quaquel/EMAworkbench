@@ -73,7 +73,7 @@ class TestEvaluators(unittest.TestCase):
 
         with evaluators.IpyparallelEvaluator(model, client) as evaluator:
             evaluator.evaluate_experiments(10, 10, mocked_callback)
-            lb_view.map.called_once()
+            lb_view.map.assert_called_once()
 
     # Check if mpi4py is installed and if we're on a Linux environment
     try:
