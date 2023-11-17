@@ -483,7 +483,7 @@ def determine_kde(data, size_kde=1000, ymin=None, ymax=None):
     #         best_kde = grid.best_estimator_
     #         kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
     except Exception as e:
-        _logger.warning(e)
+        _logger.warning(f"error in determine_kde: {e}")
         kde_x = np.zeros(kde_y.shape)
 
     return kde_x, kde_y
@@ -508,7 +508,7 @@ def filter_scalar_outcomes(outcomes):
     temp = {}
     for key, value in outcomes.items():
         if value.ndim < 2:
-            _logger.info(("{} not shown because it is " "not time series data").format(key))
+            _logger.info(f"outcome {key} not shown because it is not time series data")
         else:
             temp[key] = value
     return temp
@@ -814,7 +814,7 @@ def do_titles(ax, titles, outcome):
             try:
                 ax.set_title(titles[outcome])
             except KeyError:
-                _logger.warning(f"key error in do_titles, no title provided for `{outcome}`")
+                _logger.warning(f"KeyError in do_titles, no title provided for outcome `{outcome}`")
                 ax.set_title(outcome)
 
 
@@ -839,7 +839,7 @@ def do_ylabels(ax, ylabels, outcome):
             try:
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
-                _logger.warning(f"key error in do_ylabels, no ylabel provided for `{outcome}`")
+                _logger.warning(f"KeyError in do_ylabels, no ylabel provided for outcome `{outcome}`")
                 ax.set_ylabel(outcome)
 
 

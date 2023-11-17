@@ -27,7 +27,7 @@ try:
     import altair as alt
 except ImportError:
     alt = None
-    warnings.warn(("altair based interactive " "inspection not available"), ImportWarning)
+    warnings.warn("altair based interactive inspection not available", ImportWarning)
 
 from ..util import EMAError, temporary_filter, INFO, get_module_logger
 from . import scenario_discovery_util as sdutil
@@ -108,7 +108,9 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     if not x.select_dtypes(exclude=np.number).empty:
         raise RuntimeError("X includes non numeric columns")
     if not set(np.unique(y)) == {0, 1}:
-        raise RuntimeError(f"y should only contain 0s and 1s, currently y contains {set(np.unique(y))}.")
+        raise RuntimeError(
+            f"y should only contain 0s and 1s, currently y contains {set(np.unique(y))}."
+        )
 
     # if no subsets are provided all uncertainties with non dtype object
     # are in the same subset, the name of this is r, for rotation
@@ -1026,7 +1028,9 @@ class Prim(sdutil.OutputFormatterMixin):
         for column in x_nominal.columns.values:
             if np.unique(x[column]).shape == (1,):
                 x = x.drop(column, axis=1)
-                _logger.info(f"{column} dropped from analysis " "because only a single category")
+                _logger.info(
+                    f"column {column} dropped from analysis because it has only one category"
+                )
 
         x_nominal = x.select_dtypes(exclude=np.number)
         self.x_nominal = x_nominal.values
@@ -1100,7 +1104,7 @@ class Prim(sdutil.OutputFormatterMixin):
             box._frozen = True
 
         if self.yi_remaining.shape[0] == 0:
-            _logger.info("no data remaining")
+            _logger.info("no data remaining, exiting")
             return
 
         # log how much data and how many coi are remaining
@@ -1119,7 +1123,7 @@ class Prim(sdutil.OutputFormatterMixin):
         box = self._paste(box)
         _logger.debug("pasting completed")
 
-        message = "mean: {0}, mass: {1}, coverage: {2}, " "density: {3} restricted_dimensions: {4}"
+        message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
         message = message.format(box.mean, box.mass, box.coverage, box.density, box.res_dim)
 
         if (self.threshold_type == ABOVE) & (box.mean >= self.threshold):
@@ -1133,7 +1137,8 @@ class Prim(sdutil.OutputFormatterMixin):
         else:
             # make a dump box
             _logger.info(
-                f"box does not meet threshold criteria, value is {box.mean}, returning dump box"
+                f"box mean ({box.mean}) does not meet threshold criteria ({self.threshold_type} {self.threshold}),"
+                f"returning dump box"
             )
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self._boxes.append(box)

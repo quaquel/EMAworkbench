@@ -203,7 +203,7 @@ def group_by_envelopes(outcomes, outcome_to_plot, time, density, ax, ax_d, fill,
         try:
             plot_envelope(ax, j, time, value, fill)
         except ValueError:
-            _logger.exception(f"value error when plotting for {key}")
+            _logger.exception(f"ValueError when plotting for {key}")
             raise
 
     if density:
