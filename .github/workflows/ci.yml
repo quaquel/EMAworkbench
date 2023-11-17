@@ -18,16 +18,18 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.11"]
+        python-version: ["3.12"]
         name: [""]
         include:
           - os: ubuntu-latest
-            python-version: "3.10"
+            python-version: "3.11"
             test-mpi: true
+          - os: ubuntu-latest
+            python-version: "3.10"
           - os: ubuntu-latest
             python-version: "3.9"
           - os: ubuntu-latest
-            python-version: "3.11"
+            python-version: "3.12"
             pip-pre: "--pre"  # Installs pre-release versions of pip dependencies
             name: "Pre-release dependencies"
 
@@ -66,7 +68,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
+        python-version: "3.12"
     - run: pip install flake8
     - name: Lint with flake8
       run: |
