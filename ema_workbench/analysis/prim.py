@@ -360,8 +360,8 @@ class PrimBox:
             "res_dim": pd.Series(dtype=int),
             "mass": pd.Series(dtype=float),
             "id": pd.Series(dtype=int),
-            "n": pd.Series(dtype=int),
-            "k": pd.Series(dtype=int),
+            "n": pd.Series(dtype=int),  # items in box
+            "k": pd.Series(dtype=int),  # items of interest in box
         }
 
         self.peeling_trajectory = pd.DataFrame(columns)
@@ -874,7 +874,7 @@ class PrimBox:
         if dims is None:
             dims = sdutil._determine_restricted_dims(self.box_lims[i], self.prim.box_init)
 
-        if diag_kind not in diag_kind.__members__:
+        if diag_kind not in DiagKind:
             raise ValueError(
                 f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag_kind}"
             )
