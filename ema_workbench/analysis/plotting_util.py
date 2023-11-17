@@ -677,7 +677,8 @@ def prepare_pairs_data(
                 f"For pair-wise plotting multiple outcomes need to be provided.\n"
                 f"outcomes_to_show must be a list of strings or None, instead of a {type(outcomes_to_show)}"
             )
-        elif len(outcomes_to_show) < 2:
+        # TODO: Apparently an empty list [] is allowed. Is this intended?
+        elif len(outcomes_to_show) == 1:
             raise ValueError(
                 f"Only {len(outcomes_to_show)} outcome provided, at least two are needed for pair-wise plotting."
             )
