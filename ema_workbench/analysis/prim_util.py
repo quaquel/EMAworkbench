@@ -37,6 +37,9 @@ class DiagKind(Enum):
     CDF = "cdf"
     """constant for plotting diagonal in pairs_scatter as cdf"""
 
+    def __contains__(cls, item):
+        return item in cls.__members__.values()
+
 
 def get_quantile(data, quantile):
     """

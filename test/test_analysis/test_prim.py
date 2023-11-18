@@ -38,7 +38,7 @@ class PrimBoxTestCase(unittest.TestCase):
         prim_obj = prim.setup_prim(results, "y", threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        self.assertEqual(box.peeling_trajectory.shape, (1, 6))
+        self.assertEqual(box.peeling_trajectory.shape, (1, 8))
 
     def test_select(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])

@@ -362,6 +362,8 @@ class PrimBox:
             "res_dim": pd.Series(dtype=int),
             "mass": pd.Series(dtype=float),
             "id": pd.Series(dtype=int),
+            "n": pd.Series(dtype=int),  # items in box
+            "k": pd.Series(dtype=int),  # items of interest in box
         }
 
         self.peeling_trajectory = pd.DataFrame(columns)
@@ -796,6 +798,8 @@ class PrimBox:
             "res_dim": restricted_dims.shape[0],
             "mass": y.shape[0] / self.prim.n,
             "id": i,
+            "n": y.shape[0],
+            "k": coi,
         }
         new_row = pd.DataFrame([data])
         # self.peeling_trajectory = self.peeling_trajectory.append(
@@ -872,7 +876,7 @@ class PrimBox:
         if dims is None:
             dims = sdutil._determine_restricted_dims(self.box_lims[i], self.prim.box_init)
 
-        if diag_kind not in diag_kind.__members__:
+        if diag_kind not in DiagKind:
             raise ValueError(
                 f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag_kind}"
             )
@@ -916,10 +920,10 @@ class PrimBox:
         box_lim = box_lim[restricted_dims]
 
         # total nr. of cases in box
-        Tbox = self.peeling_trajectory["mass"][i] * self.prim.n
+        Tbox = self.peeling_trajectory.loc[i, "n"]
 
         # total nr. of cases of interest in box
-        Hbox = self.peeling_trajectory["coverage"][i] * self.prim.t_coi
+        Hbox = self.peeling_trajectory.loc[i, "k"]
 
         x = self.prim.x.loc[self.prim.yi_remaining, restricted_dims]
         y = self.prim.y[self.prim.yi_remaining]
