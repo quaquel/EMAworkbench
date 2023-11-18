@@ -19,6 +19,7 @@ import warnings
 from operator import itemgetter
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -398,7 +399,7 @@ class PrimBox:
 
     def inspect(self, i=None, style="table", **kwargs):
         """Write the stats and box limits of the user specified box to
-        standard out. if i is not provided, the last box will be
+        standard out. If i is not provided, the last box will be
         printed
 
         Parameters
@@ -450,7 +451,13 @@ class PrimBox:
         if style == "table":
             return self._inspect_table(i, uncs, qp_values)
         elif style == "graph":
-            return self._inspect_graph(i, uncs, qp_values, **kwargs)
+            # makes it possible to use _inspect to plot multiple
+            # boxes into a single figure
+            try:
+                ax = kwargs.pop("ax")
+            except KeyError:
+                fig, ax = plt.subplots()
+            return self._inspect_graph(i, uncs, qp_values, ax=ax, **kwargs)
         elif style == "data":
             return self._inspect_data(i, uncs, qp_values)
         else:
@@ -496,6 +503,7 @@ class PrimBox:
         ticklabel_formatter="{} ({})",
         boxlim_formatter="{: .2g}",
         table_formatter="{:.3g}",
+        ax=None,
     ):
         """Helper method for visualizing box statistics in
         graph form"""
@@ -510,6 +518,7 @@ class PrimBox:
             ticklabel_formatter=ticklabel_formatter,
             boxlim_formatter=boxlim_formatter,
             table_formatter=table_formatter,
+            ax=ax,
         )
 
     def inspect_tradeoff(self):

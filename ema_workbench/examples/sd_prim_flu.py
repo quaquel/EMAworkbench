@@ -35,7 +35,14 @@ prim_obj = prim.setup_prim(results, classify, threshold=0.8, threshold_type=1)
 box_1 = prim_obj.find_box()
 box_1.show_ppt()
 box_1.show_tradeoff()
-box_1.inspect(5, style="graph", boxlim_formatter="{: .2f}")
+# box_1.inspect([5, 6], style="graph", boxlim_formatter="{: .2f}")
+
+fig, axes = plt.subplots(nrows=2, ncols=1)
+
+for i, ax in zip([5, 6], axes):
+    box_1._inspect(i, style="graph", boxlim_formatter="{: .2f}", ax=ax)
+plt.show()
+
 box_1.inspect(5)
 box_1.select(5)
 box_1.write_ppt_to_stdout()
