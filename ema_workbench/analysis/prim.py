@@ -397,7 +397,7 @@ class PrimBox:
         else:
             raise AttributeError
 
-    def inspect(self, i=None, style="table", **kwargs):
+    def inspect(self, i=None, style="table", ax=None, **kwargs):
         """Write the stats and box limits of the user specified box to
         standard out. If i is not provided, the last box will be
         printed
@@ -410,20 +410,38 @@ class PrimBox:
                 the style of the visualization. 'table' prints the stats and
                 boxlim. 'graph' creates a figure. 'data' returns a list of
                 tuples, where each tuple contains the stats and the box_lims.
+        ax : axes or list of axes instances, optional
+             used in conjunction with `graph` style, allows you to control the axes on which graph is plotted
+             if i is list, axes should be list of equal length. If axes is None, each i_j in i will be plotted
+             in a separate figure.
 
         additional kwargs are passed to the helper function that
         generates the table or graph
 
         """
+        if style not in {"table", "graph", "data"}:
+            raise ValueError(f"style must be one of 'table', 'graph', or 'data', not {style}")
+
         if i is None:
             i = [self._cur_box]
         elif isinstance(i, int):
             i = [i]
 
+        if isinstance(ax, mpl.axes.Axes):
+            ax = [ax]
+
         if not all(isinstance(x, int) for x in i):
             raise TypeError(f"i must be an integer or list of integers, not {type(i)}")
 
-        return [self._inspect(entry, style=style, **kwargs) for entry in i]
+        if (ax is not None) and style == "graph":
+            if len(ax) != len(i):
+                raise ValueError(
+                    f"the number of axes ({len(ax)}) does not match the number of boxes to inspect ({len(i)})"
+                )
+            else:
+                return [self._inspect(i_j, style=style, ax=ax, **kwargs) for i_j, ax in zip(i, ax)]
+        else:
+            return [self._inspect(entry, style=style, **kwargs) for entry in i]
 
     def _inspect(self, i=None, style="table", **kwargs):
         """Helper method for inspecting one or more boxes on the
@@ -515,10 +533,10 @@ class PrimBox:
             uncs,
             self.peeling_trajectory.at[i, "coverage"],
             self.peeling_trajectory.at[i, "density"],
+            ax,
             ticklabel_formatter=ticklabel_formatter,
             boxlim_formatter=boxlim_formatter,
             table_formatter=table_formatter,
-            ax=ax,
         )
 
     def inspect_tradeoff(self):

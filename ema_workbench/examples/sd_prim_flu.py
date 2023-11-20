@@ -39,8 +39,7 @@ box_1.show_tradeoff()
 
 fig, axes = plt.subplots(nrows=2, ncols=1)
 
-for i, ax in zip([5, 6], axes):
-    box_1._inspect(i, style="graph", boxlim_formatter="{: .2f}", ax=ax)
+box_1.inspect([5, 6], style="graph", boxlim_formatter="{: .2f}", ax=axes)
 plt.show()
 
 box_1.inspect(5)

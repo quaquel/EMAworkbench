@@ -564,10 +564,10 @@ def plot_box(
     uncs,
     coverage,
     density,
+    ax,
     ticklabel_formatter="{} ({})",
     boxlim_formatter="{: .2g}",
     table_formatter="{:.3g}",
-    ax=None,
 ):
     """Helper function for parallel coordinate style visualization
     of a box
