@@ -77,11 +77,13 @@ from .salib_samplers import SobolSampler, MorrisSampler, FASTSampler, get_SALib_
 from .evaluators import (
     perform_experiments,
     optimize,
-    MPIEvaluator,
     MultiprocessingEvaluator,
     SequentialEvaluator,
     Samplers,
 )
+
+from .ema_mpi import MPIEvaluator
+
 from .optimization import (
     Convergence,
     EpsilonProgress,
