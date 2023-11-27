@@ -87,6 +87,7 @@ def lake_problem(
 
 if __name__ == "__main__":
     # run with mpiexec -n 4 python -m mpi4py.futures example_mpi_lake_model.py
+    starttime = time.time()
 
     ema_logging.log_to_stderr(ema_logging.INFO, pass_root_logger_level=False)
 
@@ -123,3 +124,5 @@ if __name__ == "__main__":
 
     with MPIEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies)
+
+    print(time.time() - starttime)
