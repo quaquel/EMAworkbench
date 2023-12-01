@@ -2,6 +2,9 @@ import warnings
 
 
 from .evaluators import BaseEvaluator, experiment_generator
+from .util import NamedObjectMap
+from .model import AbstractModel
+from .experiment_runner import ExperimentRunner
 from ..util import get_module_logger
 
 
