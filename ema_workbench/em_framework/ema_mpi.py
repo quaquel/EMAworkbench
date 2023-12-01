@@ -16,13 +16,11 @@ __all__ = ["MPIEvaluator"]
 
 class RankFilter(logging.Filter):
     """
-    This is a filter which injects contextual information into the log.
-
-    Rather than use actual contextual information, we just use random
-    data in this demo.
+    adds MPI rank to log message
     """
 
     def __init__(self, rank):
+        super().__init__()
         self.rank = rank
 
     def filter(self, record):
@@ -43,7 +41,8 @@ def mpi_initializer(models, log_level, root_dir):
     experiment_runner = ExperimentRunner(msis)
 
     # setup the logging
-    logging.basicConfig(level=log_level, format="[%(rank)s/%(levelname)s] %(message)s")
+    # print(f"{log_level}")
+    # logging.basicConfig(level=log_level, format="[%(rank)s/%(levelname)s] %(message)s")
 
     filter = RankFilter(rank)
     ema_logging.get_rootlogger().addFilter(filter)
@@ -133,7 +132,8 @@ class MPIEvaluator(BaseEvaluator):
         # )
         results = self._pool.map(run_experiment_mpi, experiments)
 
-        _logger.info(f"MPIEvaluator: Completed all {len(experiments)} experiments")
         for experiment, outcomes in results:
             callback(experiment, outcomes)
-        _logger.info(f"MPIEvaluator: Callback completed for all {len(experiments)} experiments")
+        _logger.info(f"MPIEvaluator: Completed all {len(experiments)} experiments")
+
+        # _logger.info(f"MPIEvaluator: Callback completed for all {len(experiments)} experiments")
