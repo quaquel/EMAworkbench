@@ -1,7 +1,6 @@
 import warnings
 
 __all__ = [
-    "ema_parallel",
     "parameters",
     "model",
     "outcomes",
@@ -77,7 +76,6 @@ from .salib_samplers import SobolSampler, MorrisSampler, FASTSampler, get_SALib_
 from .evaluators import (
     perform_experiments,
     optimize,
-    MultiprocessingEvaluator,
     SequentialEvaluator,
     Samplers,
 )
@@ -98,6 +96,9 @@ from .optimization import (
     to_problem,
     to_robust_problem,
 )
+from .futures_ipyparallel import IpyparallelEvaluator
+from .futures_multiprocessing import MultiprocessingEvaluator
+from .futures_mpi import MPIEvaluator
 from .outputspace_exploration import OutputSpaceExploration
 
 try:

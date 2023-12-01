@@ -4,21 +4,12 @@ optimization
 
 """
 import enum
-import multiprocessing
 import numbers
 import os
-import random
-import shutil
-import string
-import sys
-import threading
-import warnings
-import logging
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 from .callbacks import DefaultCallback
 from .points import experiment_generator, Scenario, Policy
-from .ema_multiprocessing import LogQueueReader, initializer, add_tasks
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (
@@ -45,26 +36,12 @@ from .samplers import (
 from .util import NamedObjectMap, determine_objects
 from ..util import EMAError, get_module_logger, ema_logging
 
-warnings.simplefilter("once", ImportWarning)
-
-try:
-    from .ema_ipyparallel import (
-        start_logwatcher,
-        set_engine_logger,
-        initialize_engines,
-        cleanup,
-        _run_experiment,
-    )
-except (ImportError, ModuleNotFoundError):
-    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
 
 # Created on 5 Mar 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "MultiprocessingEvaluator",
-    "IpyparallelEvaluator",
     "optimize",
     "perform_experiments",
     "SequentialEvaluator",
@@ -312,144 +289,6 @@ class SequentialEvaluator(BaseEvaluator):
             callback(experiment, outcomes)
         runner.cleanup()
         os.chdir(cwd)
-
-
-class MultiprocessingEvaluator(BaseEvaluator):
-    """evaluator for experiments using a multiprocessing pool
-
-    Parameters
-    ----------
-    msis : collection of models
-    n_processes : int (optional)
-                  A negative number can be inputted to use the number of logical cores minus the negative cores.
-                  For example, on a 12 thread processor, -2 results in using 10 threads.
-    max_tasks : int (optional)
-
-
-    note that the maximum number of available processes is either multiprocessing.cpu_count()
-    and in case of windows, this never can be higher then 61
-
-    """
-
-    def __init__(self, msis, n_processes=None, maxtasksperchild=None, **kwargs):
-        super().__init__(msis, **kwargs)
-
-        self._pool = None
-
-        # Calculate n_processes if negative value is inputted
-        max_processes = multiprocessing.cpu_count()
-        if sys.platform == "win32":
-            # on windows the max number of processes is currently
-            # still limited to 61
-            max_processes = min(max_processes, 61)
-
-        if isinstance(n_processes, int):
-            if n_processes > 0:
-                if max_processes < n_processes:
-                    warnings.warn(
-                        f"The number of processes cannot be more then {max_processes}", UserWarning
-                    )
-                self.n_processes = min(n_processes, max_processes)
-            else:
-                self.n_processes = max(max_processes + n_processes, 1)
-        elif n_processes is None:
-            self.n_processes = max_processes
-        else:
-            raise ValueError(f"max_processes must be an integer or None, not {type(n_processes)}")
-
-        self.maxtasksperchild = maxtasksperchild
-
-    def initialize(self):
-        log_queue = multiprocessing.Queue()
-
-        log_queue_reader = LogQueueReader(log_queue)
-        log_queue_reader.start()
-
-        try:
-            loglevel = ema_logging._rootlogger.getEffectiveLevel()
-        except AttributeError:
-            loglevel = 30
-
-        # check if we need a working directory
-
-        self.root_dir = determine_rootdir(self._msis)
-
-        self._pool = multiprocessing.Pool(
-            self.n_processes,
-            initializer,
-            (self._msis, log_queue, loglevel, self.root_dir),
-            self.maxtasksperchild,
-        )
-        self.n_processes = self._pool._processes
-        _logger.info(f"pool started with {self.n_processes} workers")
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        _logger.info("terminating pool")
-
-        if exc_type is not None:
-            # When an exception is thrown stop accepting new jobs
-            # and abort pending jobs without waiting.
-            self._pool.terminate()
-            return False
-
-        super().__exit__(exc_type, exc_value, traceback)
-
-    def finalize(self):
-        # Stop accepting new jobs and wait for pending jobs to finish.
-        self._pool.close()
-        self._pool.join()
-
-        if self.root_dir:
-            shutil.rmtree(self.root_dir)
-
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
-        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-        add_tasks(self.n_processes, self._pool, ex_gen, callback)
-
-
-class IpyparallelEvaluator(BaseEvaluator):
-    """evaluator for using an ipypparallel pool"""
-
-    def __init__(self, msis, client, **kwargs):
-        super().__init__(msis, **kwargs)
-        self.client = client
-
-    def initialize(self):
-        import ipyparallel
-
-        _logger.debug("starting ipyparallel pool")
-
-        try:
-            TIMEOUT_MAX = threading.TIMEOUT_MAX
-        except AttributeError:
-            TIMEOUT_MAX = 1e10  # noqa
-        ipyparallel.client.asyncresult._FOREVER = TIMEOUT_MAX
-        # update loggers on all engines
-        self.client[:].apply_sync(set_engine_logger)
-
-        _logger.debug("initializing engines")
-        initialize_engines(self.client, self._msis, os.getcwd())
-
-        self.logwatcher, self.logwatcher_thread = start_logwatcher()
-
-        _logger.debug("successfully started ipyparallel pool")
-        _logger.info("performing experiments using ipyparallel")
-
-        return self
-
-    def finalize(self):
-        self.logwatcher.stop()
-        cleanup(self.client)
-
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
-        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-
-        lb_view = self.client.load_balanced_view()
-        results = lb_view.map(_run_experiment, ex_gen, ordered=False, block=False)
-
-        for entry in results:
-            callback(*entry)
 
 
 def perform_experiments(
