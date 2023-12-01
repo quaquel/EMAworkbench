@@ -80,8 +80,6 @@ from .evaluators import (
     Samplers,
 )
 
-from .ema_mpi import MPIEvaluator
-
 from .optimization import (
     Convergence,
     EpsilonProgress,
@@ -100,11 +98,5 @@ from .futures_ipyparallel import IpyparallelEvaluator
 from .futures_multiprocessing import MultiprocessingEvaluator
 from .futures_mpi import MPIEvaluator
 from .outputspace_exploration import OutputSpaceExploration
-
-try:
-    from .evaluators import IpyparallelEvaluator
-except ImportError:
-    IpyparallelEvaluator = None
-    warnings.warn("ipyparallel not available", ImportWarning)
 
 del warnings

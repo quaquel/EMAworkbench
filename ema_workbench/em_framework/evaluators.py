@@ -502,21 +502,6 @@ def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union, models):
     return scenarios, uncertainties, n_scenarios
 
 
-def determine_rootdir(msis):
-    for model in msis:
-        try:
-            model.working_directory
-        except AttributeError:
-            root_dir = None
-            break
-    else:
-        random_part = [random.choice(string.ascii_letters + string.digits) for _ in range(5)]
-        random_part = "".join(random_part)
-        root_dir = os.path.abspath("tmp" + random_part)
-        os.makedirs(root_dir)
-    return root_dir
-
-
 def optimize(
     models,
     algorithm=EpsNSGAII,

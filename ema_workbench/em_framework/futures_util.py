@@ -1,12 +1,49 @@
 import os
 import shutil
+import string
+import random
+
 
 from collections import defaultdict
 
 from ..util import get_module_logger
 
 
+__all__ = ["finalizer", "setup_working_directories", "determine_rootdir"]
+
 _logger = get_module_logger(__name__)
+
+
+def determine_rootdir(msis):
+    for model in msis:
+        try:
+            model.working_directory
+        except AttributeError:
+            root_dir = None
+            break
+    else:
+        random_part = [random.choice(string.ascii_letters + string.digits) for _ in range(5)]
+        random_part = "".join(random_part)
+        root_dir = os.path.abspath("tmp" + random_part)
+        os.makedirs(root_dir)
+    return root_dir
+
+
+def finalizer(tmpdir):
+    """cleanup"""
+    global experiment_runner
+    _logger.info("finalizing")
+
+    experiment_runner.cleanup()
+    del experiment_runner
+
+    time.sleep(1)
+
+    if tmpdir:
+        try:
+            shutil.rmtree(tmpdir)
+        except OSError:
+            pass
 
 
 def setup_working_directories(models, root_dir):

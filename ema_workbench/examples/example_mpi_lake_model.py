@@ -15,14 +15,8 @@ sys.path.insert(0, "/Users/jhkwakkel/Documents/GitHub/EMAworkbench")
 import numpy as np
 from scipy.optimize import brentq
 
-from ema_workbench import (
-    Model,
-    RealParameter,
-    ScalarOutcome,
-    Constant,
-    ema_logging,
-    MPIEvaluator,
-)
+import ema_workbench
+from ema_workbench import Model, RealParameter, ScalarOutcome, Constant, ema_logging, MPIEvaluator
 from ema_workbench.em_framework.evaluators import Samplers
 
 
@@ -124,5 +118,7 @@ if __name__ == "__main__":
 
     with MPIEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies)
+
+    print(ema_workbench.em_framework.futures_mpi._logger.level)
 
     print(time.time() - starttime)

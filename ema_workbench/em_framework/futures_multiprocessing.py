@@ -11,7 +11,6 @@ import shutil
 import string
 import sys
 import threading
-import time
 import traceback
 from logging import handlers
 import warnings
@@ -21,7 +20,7 @@ from .model import AbstractModel
 from .util import NamedObjectMap
 from ..util import get_module_logger, ema_logging
 from .evaluators import BaseEvaluator, experiment_generator
-from .futures_util import setup_working_directories
+from .futures_util import setup_working_directories, finalizer, determine_rootdir
 
 # Created on 22 Feb 2017
 #
@@ -69,23 +68,6 @@ def initializer(*args):
         multiprocessing.util.Finalize(
             None, finalizer, args=(os.path.abspath(tmpdir),), exitpriority=10
         )
-
-
-def finalizer(tmpdir):
-    """cleanup"""
-    global experiment_runner
-    _logger.info("finalizing")
-
-    experiment_runner.cleanup()
-    del experiment_runner
-
-    time.sleep(1)
-
-    if tmpdir:
-        try:
-            shutil.rmtree(tmpdir)
-        except OSError:
-            pass
 
 
 def setup_logging(queue, log_level):
@@ -262,7 +244,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
 
     def __init__(self, msis, n_processes=None, maxtasksperchild=None, **kwargs):
         super().__init__(msis, **kwargs)
-
+        self.root_dir = None
         self._pool = None
 
         # Calculate n_processes if negative value is inputted
@@ -300,17 +282,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
             loglevel = 30
 
         # check if we need a working directory
-        for model in self._msis:
-            try:
-                model.working_directory
-            except AttributeError:
-                self.root_dir = None
-                break
-        else:
-            random_part = [random.choice(string.ascii_letters + string.digits) for _ in range(5)]
-            random_part = "".join(random_part)
-            self.root_dir = os.path.abspath("tmp" + random_part)
-            os.makedirs(self.root_dir)
+        self.root_dir = determine_rootdir
 
         self._pool = multiprocessing.Pool(
             self.n_processes,
