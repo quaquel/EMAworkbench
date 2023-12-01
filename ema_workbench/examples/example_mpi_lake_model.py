@@ -125,7 +125,4 @@ if __name__ == "__main__":
     with MPIEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies)
 
-    with MPIEvaluator(lake_model) as evaluator:
-        res = evaluator.perform_experiments(n_scenarios, n_policies)
-
     print(time.time() - starttime)
