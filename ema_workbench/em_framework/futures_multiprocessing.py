@@ -118,6 +118,7 @@ class LogQueueReader(threading.Thread):
     found `online <https://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python>`_
 
     TODO:: should be generalized with logwatcher used with ipyparallel
+    TODO:: might be replaced by QueueListener from logging.handlers
 
     """
 

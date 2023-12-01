@@ -119,6 +119,4 @@ if __name__ == "__main__":
     with MPIEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies)
 
-    print(ema_workbench.em_framework.futures_mpi._logger.level)
-
     print(time.time() - starttime)
