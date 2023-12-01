@@ -9,24 +9,33 @@ import os
 import shutil
 import socket
 import threading
+import warnings
 
-import zmq
-from ipyparallel.engine.log import EnginePUBHandler
-from jupyter_client.localinterfaces import localhost
-from traitlets import Unicode, Instance, List
-from traitlets.config import Application
-from traitlets.config.configurable import LoggingConfigurable
-from zmq.eventloop import ioloop, zmqstream
+warnings.simplefilter("once", ImportWarning)
+
+try:
+    import zmq
+    from ipyparallel.engine.log import EnginePUBHandler
+    from jupyter_client.localinterfaces import localhost
+    from traitlets import Unicode, Instance, List
+    from traitlets.config import Application
+    from traitlets.config.configurable import LoggingConfigurable
+    from zmq.eventloop import ioloop, zmqstream
+except (ImportError, ModuleNotFoundError):
+    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
 
 from . import experiment_runner
-from .ema_multiprocessing import setup_working_directories
+from .futures_util import setup_working_directories
 from .model import AbstractModel
 from .util import NamedObjectMap
 from ..util import ema_exceptions, ema_logging, get_module_logger
+from .evaluators import BaseEvaluator, experiment_generator
 
 # Created on Jul 16, 2015
 #
 # .. codeauthor::  jhkwakkel
+
+__all__ = ["IpyparallelEvaluator"]
 
 SUBTOPIC = ema_logging.LOGGER_NAME
 engine = None
@@ -330,3 +339,47 @@ def _cleanup():
     global engine
     engine.cleanup_working_directory()
     del engine
+
+
+class IpyparallelEvaluator(BaseEvaluator):
+    """evaluator for using an ipypparallel pool"""
+
+    def __init__(self, msis, client, **kwargs):
+        super().__init__(msis, **kwargs)
+        self.client = client
+
+    def initialize(self):
+        import ipyparallel
+
+        _logger.debug("starting ipyparallel pool")
+
+        try:
+            TIMEOUT_MAX = threading.TIMEOUT_MAX
+        except AttributeError:
+            TIMEOUT_MAX = 1e10  # noqa
+        ipyparallel.client.asyncresult._FOREVER = TIMEOUT_MAX
+        # update loggers on all engines
+        self.client[:].apply_sync(set_engine_logger)
+
+        _logger.debug("initializing engines")
+        initialize_engines(self.client, self._msis, os.getcwd())
+
+        self.logwatcher, self.logwatcher_thread = start_logwatcher()
+
+        _logger.debug("successfully started ipyparallel pool")
+        _logger.info("performing experiments using ipyparallel")
+
+        return self
+
+    def finalize(self):
+        self.logwatcher.stop()
+        cleanup(self.client)
+
+    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
+
+        lb_view = self.client.load_balanced_view()
+        results = lb_view.map(_run_experiment, ex_gen, ordered=False, block=False)
+
+        for entry in results:
+            callback(*entry)

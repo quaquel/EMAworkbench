@@ -11,19 +11,20 @@ import sys
 import threading
 import time
 import traceback
-from collections import defaultdict
 from logging import handlers
 
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .util import NamedObjectMap
 from ..util import get_module_logger, ema_logging
+from .evaluators import BaseEvaluator, experiment_generator
+from .futures_util import setup_working_directories
 
 # Created on 22 Feb 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["setup_working_directories"]
+__all__ = ["MultiprocessingEvaluator"]
 
 _logger = get_module_logger(__name__)
 
@@ -107,53 +108,6 @@ def setup_logging(queue, log_level):
 
     # set the log_level
     logger.setLevel(log_level)
-
-
-def setup_working_directories(models, root_dir):
-    """copies the working directory of each model to a process specific
-    temporary directory and update the working directory of the model
-
-    Parameters
-    ----------
-    models : list
-    root_dir : str
-
-    """
-
-    # group models by working directory to avoid copying the same directory
-    # multiple times
-    wd_by_model = defaultdict(list)
-    for model in models:
-        try:
-            wd = model.working_directory
-        except AttributeError:
-            pass
-        else:
-            wd_by_model[wd].append(model)
-
-    # if the dict is not empty
-    if wd_by_model:
-        # make a directory with the process id as identifier
-        tmpdir_name = f"tmp{os.getpid()}"
-        tmpdir = os.path.join(root_dir, tmpdir_name)
-        os.mkdir(tmpdir)
-
-        _logger.debug(f"setting up working directory: {tmpdir}")
-
-        for key, value in wd_by_model.items():
-            # we need a sub directory in the process working directory
-            # for each unique model working directory
-            subdir = os.path.basename(os.path.normpath(key))
-            new_wd = os.path.join(tmpdir, subdir)
-
-            # the copy operation
-            shutil.copytree(key, new_wd)
-
-            for model in value:
-                model.working_directory = new_wd
-        return tmpdir
-    else:
-        return None
 
 
 def worker(experiment):
@@ -284,3 +238,106 @@ def add_tasks(n_processes, pool, experiments, callback):
     feeder.join()
     results_queue.put(None)
     reader.join()
+
+
+class MultiprocessingEvaluator(BaseEvaluator):
+    """evaluator for experiments using a multiprocessing pool
+
+    Parameters
+    ----------
+    msis : collection of models
+    n_processes : int (optional)
+                  A negative number can be inputted to use the number of logical cores minus the negative cores.
+                  For example, on a 12 thread processor, -2 results in using 10 threads.
+    max_tasks : int (optional)
+
+
+    note that the maximum number of available processes is either multiprocessing.cpu_count()
+    and in case of windows, this never can be higher then 61
+
+    """
+
+    def __init__(self, msis, n_processes=None, maxtasksperchild=None, **kwargs):
+        super().__init__(msis, **kwargs)
+
+        self._pool = None
+
+        # Calculate n_processes if negative value is inputted
+        max_processes = multiprocessing.cpu_count()
+        if sys.platform == "win32":
+            # on windows the max number of processes is currently
+            # still limited to 61
+            max_processes = min(max_processes, 61)
+
+        if isinstance(n_processes, int):
+            if n_processes > 0:
+                if max_processes < n_processes:
+                    warnings.warn(
+                        f"The number of processes cannot be more then {max_processes}", UserWarning
+                    )
+                self.n_processes = min(n_processes, max_processes)
+            else:
+                self.n_processes = max(max_processes + n_processes, 1)
+        elif n_processes is None:
+            self.n_processes = max_processes
+        else:
+            raise ValueError(f"max_processes must be an integer or None, not {type(n_processes)}")
+
+        self.maxtasksperchild = maxtasksperchild
+
+    def initialize(self):
+        log_queue = multiprocessing.Queue()
+
+        log_queue_reader = LogQueueReader(log_queue)
+        log_queue_reader.start()
+
+        try:
+            loglevel = ema_logging._rootlogger.getEffectiveLevel()
+        except AttributeError:
+            loglevel = 30
+
+        # check if we need a working directory
+        for model in self._msis:
+            try:
+                model.working_directory
+            except AttributeError:
+                self.root_dir = None
+                break
+        else:
+            random_part = [random.choice(string.ascii_letters + string.digits) for _ in range(5)]
+            random_part = "".join(random_part)
+            self.root_dir = os.path.abspath("tmp" + random_part)
+            os.makedirs(self.root_dir)
+
+        self._pool = multiprocessing.Pool(
+            self.n_processes,
+            initializer,
+            (self._msis, log_queue, loglevel, self.root_dir),
+            self.maxtasksperchild,
+        )
+        self.n_processes = self._pool._processes
+        _logger.info(f"pool started with {self.n_processes} workers")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        _logger.info("terminating pool")
+
+        if exc_type is not None:
+            # When an exception is thrown stop accepting new jobs
+            # and abort pending jobs without waiting.
+            self._pool.terminate()
+            return False
+
+        super().__exit__(exc_type, exc_value, traceback)
+
+    def finalize(self):
+        # Stop accepting new jobs and wait for pending jobs to finish.
+        self._pool.close()
+        self._pool.join()
+
+        if self.root_dir:
+            shutil.rmtree(self.root_dir)
+
+    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
+        add_tasks(self.n_processes, self._pool, ex_gen, callback)
