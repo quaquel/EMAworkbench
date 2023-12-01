@@ -400,7 +400,7 @@ class TestIpyParallelEvaluator(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.initialize_engines")
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.start_logwatcher")
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    @mock.patch("ema_workbench.em_framework.evaluators.experiment_generator")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.experiment_generator")
     def test_ipyparallel_evaluator(
         self, mocked_generator, mocked_callback, mocked_start, mocked_initialize, mocked_set
     ):

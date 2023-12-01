@@ -14,14 +14,15 @@ class TestMPIEvaluator(unittest.TestCase):
         MPI_AVAILABLE = True
     except ImportError:
         MPI_AVAILABLE = False
-    IS_LINUX = platform.system() == "Linux"
+    CAN_TEST = (platform.system() == "Linux") or (platform.system() == "Darwin")
 
     @unittest.skipUnless(
-        MPI_AVAILABLE and IS_LINUX, "Test requires mpi4py installed and a Linux environment"
+        MPI_AVAILABLE and CAN_TEST,
+        "Test requires mpi4py installed and a Linux or Mac OS environment",
     )
     @mock.patch("mpi4py.futures.MPIPoolExecutor")
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    @mock.patch("ema_workbench.em_framework.evaluators.experiment_generator")
+    @mock.patch("ema_workbench.em_framework.futures_mpi.experiment_generator")
     def test_mpi_evaluator(self, mocked_generator, mocked_callback, mocked_MPIPoolExecutor):
         try:
             import mpi4py
@@ -36,7 +37,9 @@ class TestMPIEvaluator(unittest.TestCase):
         # Create a mock experiment with the required attribute
         mock_experiment = mock.Mock()
         mock_experiment.model_name = "test"
-        mocked_generator.return_value = [mock_experiment]
+        mocked_generator.return_value = [
+            mock_experiment,
+        ]
 
         pool_mock = mock.Mock()
         pool_mock.map.return_value = [(1, ({}, {}))]
