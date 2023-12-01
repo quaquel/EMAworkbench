@@ -23,8 +23,6 @@ try:
     from zmq.eventloop import ioloop, zmqstream
 except (ImportError, ModuleNotFoundError):
     warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
-    LoggingConfigurable = object
-    List = Instance = object
 
 from . import experiment_runner
 from .futures_util import setup_working_directories
