@@ -1,56 +1,93 @@
-import unittest.mock as mock
-import unittest
 import platform
+import pytest
+
+from unittest.mock import Mock
 
 import ema_workbench
 from ema_workbench.em_framework import futures_mpi
 
+# Check if mpi4py is installed and if we're on a Linux environment
+try:
+    import mpi4py
+except ImportError:
+    MPI_AVAILABLE = False
+else:
+    MPI_AVAILABLE = True
+CAN_TEST = (platform.system() == "Linux") or (platform.system() == "Darwin")
 
-class TestMPIEvaluator(unittest.TestCase):
-    # Check if mpi4py is installed and if we're on a Linux environment
+
+@pytest.mark.skipif(
+    (not MPI_AVAILABLE) or (not CAN_TEST),
+    reason="Test requires mpi4py installed and a Linux or Mac OS environment",
+)
+def test_mpi_evaluator(mocker):
     try:
         import mpi4py
-
-        MPI_AVAILABLE = True
     except ImportError:
-        MPI_AVAILABLE = False
-    CAN_TEST = (platform.system() == "Linux") or (platform.system() == "Darwin")
+        pytest.fail(
+            "mpi4py is not installed. It's required for this test. Install with: pip install mpi4py"
+        )
 
-    @unittest.skipUnless(
-        MPI_AVAILABLE and CAN_TEST,
-        "Test requires mpi4py installed and a Linux or Mac OS environment",
+    mocked_MPIPoolExecutor = mocker.patch("mpi4py.futures.MPIPoolExecutor", autospec=True)
+    mocker.patch("ema_workbench.em_framework.futures_mpi.threading.Thread", autospec=True)
+    mocked_callback = mocker.patch(
+        "ema_workbench.em_framework.evaluators.DefaultCallback",
     )
-    @mock.patch("mpi4py.futures.MPIPoolExecutor")
-    @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    @mock.patch("ema_workbench.em_framework.futures_mpi.experiment_generator")
-    def test_mpi_evaluator(self, mocked_generator, mocked_callback, mocked_MPIPoolExecutor):
-        try:
-            import mpi4py
-        except ImportError:
-            self.fail(
-                "mpi4py is not installed. It's required for this test. Install with: pip install mpi4py"
-            )
+    mocked_generator = mocker.patch(
+        "ema_workbench.em_framework.futures_mpi.experiment_generator",
+        autospec=True,
+    )
 
-        model = mock.Mock(spec=ema_workbench.Model)
-        model.name = "test"
+    model = Mock(spec=ema_workbench.Model)
+    model.name = "test"
 
-        # Create a mock experiment with the required attribute
-        mock_experiment = mock.Mock()
-        mock_experiment.model_name = "test"
-        mocked_generator.return_value = [
-            mock_experiment,
-        ]
+    # Create a mock experiment with the required attribute
+    mock_experiment = Mock()
+    mock_experiment.model_name = "test"
+    mocked_generator.return_value = [
+        mock_experiment,
+    ]
 
-        pool_mock = mock.Mock()
-        pool_mock.map.return_value = [(1, ({}, {}))]
-        pool_mock._max_workers = 5  # Arbitrary number
-        mocked_MPIPoolExecutor.return_value = pool_mock
+    pool_mock = Mock()
+    pool_mock.map.return_value = [(1, ({}, {}))]
+    pool_mock._max_workers = 5  # Arbitrary number
+    mocked_MPIPoolExecutor.return_value = pool_mock
 
-        with futures_mpi.MPIEvaluator(model) as evaluator:
-            evaluator.evaluate_experiments(10, 10, mocked_callback)
+    with futures_mpi.MPIEvaluator(model) as evaluator:
+        evaluator.evaluate_experiments(10, 10, mocked_callback)
 
-            mocked_MPIPoolExecutor.assert_called_once()
-            pool_mock.map.assert_called_once()
+        mocked_MPIPoolExecutor.assert_called_once()
+        pool_mock.map.assert_called_once()
 
-        # Check that pool shutdown was called
-        pool_mock.shutdown.assert_called_once()
+    # Check that pool shutdown was called
+    pool_mock.shutdown.assert_called_once()
+
+
+@pytest.mark.skipif(
+    (not MPI_AVAILABLE) or (not CAN_TEST),
+    reason="Test requires mpi4py installed and a Linux or Mac OS environment",
+)
+def test_logwatcher(mocker):
+    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)
+    mocked_MPI.COMM_WORLD = Mock()
+    mocked_MPI.COMM_WORLD.Get_rank.return_value = 0
+
+    mocked_get_logger = mocker.patch("logging.getLogger", autospec=True)
+    mocked_logger = Mock()
+    mocked_get_logger.return_value = mocked_logger
+
+    mocked_MPI.INFO_NULL = None
+    mocked_MPI.Open_port.return_value = "somestring"
+
+    comm_mock = Mock()
+    mocked_MPI.COMM_WORLD.Accept.return_value = comm_mock
+
+    message = Mock()
+    message.name = "EMA.worker_0"
+    comm_mock.recv.side_effect = [message, None]
+
+    mocked_MPI.COMM_WORLD.bcast.return_value = True
+    futures_mpi.logwatcher()
+
+    mocked_get_logger.assert_called_once_with(message.name)
+    mocked_logger.callHandlers.assert_called_once_with(message)

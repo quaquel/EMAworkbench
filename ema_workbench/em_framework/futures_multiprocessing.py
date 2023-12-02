@@ -283,7 +283,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
             loglevel = 30
 
         # check if we need a working directory
-        self.root_dir = determine_rootdir
+        self.root_dir = determine_rootdir(self._msis)
 
         self._pool = multiprocessing.Pool(
             self.n_processes,

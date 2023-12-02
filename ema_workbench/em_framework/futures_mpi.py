@@ -55,19 +55,13 @@ def mpi_initializer(models, log_level, root_dir):
     port = MPI.Lookup_name(service)
     logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
 
-    rootlogger = get_rootlogger()
-    rootlogger.setLevel(log_level)
+    root_logger = get_rootlogger()
+    root_logger.setLevel(log_level)
 
-    formatter = logging.Formatter("[%(rank)s/%(levelname)s] %(message)s")
     handler = MPIHandler(logcomm)
-    handler.setFormatter(formatter)
-    rootlogger.addHandler(handler)
-
-    # can't we handle this at the handler before sending the message?
-    logfilter = RankFilter(rank)
-    rootlogger.addFilter(logfilter)
-    for _, mod_logger in ema_logging._module_loggers.items():
-        mod_logger.addFilter(logfilter)
+    handler.addFilter(RankFilter(rank))
+    handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
+    root_logger.addHandler(handler)
 
     # setup the working directories
     tmpdir = setup_working_directories(models, root_dir)
@@ -98,14 +92,16 @@ def logwatcher():
     while True:
         done = False
         if rank == root:
-            message = comm.recv(None, MPI.ANY_SOURCE, tag=0)
-            if message is None:
+            record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
+            if record is None:
                 done = True
             else:
                 try:
-                    print(f"{message.msg}")
+                    logger = logging.getLogger(record.name)
                 except Exception:
-                    print("invalid expression: %s" % message)
+                    raise
+                else:
+                    logger.callHandlers(record)
         done = MPI.COMM_WORLD.bcast(done, root)
         if done:
             break
