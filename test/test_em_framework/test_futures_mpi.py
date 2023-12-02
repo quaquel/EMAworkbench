@@ -63,10 +63,6 @@ def test_mpi_evaluator(mocker):
     pool_mock.shutdown.assert_called_once()
 
 
-@pytest.mark.skipif(
-    (not MPI_AVAILABLE) or (not CAN_TEST),
-    reason="Test requires mpi4py installed and a Linux or Mac OS environment",
-)
 def test_logwatcher(mocker):
     mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)
     mocked_MPI.COMM_WORLD = Mock()
@@ -91,3 +87,39 @@ def test_logwatcher(mocker):
 
     mocked_get_logger.assert_called_once_with(message.name)
     mocked_logger.callHandlers.assert_called_once_with(message)
+
+
+@pytest.mark.skipif(
+    (not MPI_AVAILABLE) or (not CAN_TEST),
+    reason="Test requires mpi4py installed and a Linux or Mac OS environment",
+)
+def test_mpi_initializer(mocker):
+    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)
+    mocked_generator = mocker.patch(
+        "ema_workbench.em_framework.futures_mpi.experiment_generator",
+        autospec=True,
+    )
+
+    mocked_MPI.COMM_WORLD = Mock()
+    mocked_MPI.COMM_WORLD.Get_rank.return_value = 0
+    mocked_MPI.INFO_NULL = None
+    mocked_MPI.Lookup_name.return_value = "somestring"
+
+    comm_mock = Mock()
+    mocked_MPI.COMM_WORLD.Connect.return_value = comm_mock
+
+    handler_mock_instance = Mock(spec=ema_workbench.em_framework.futures_mpi.MPIHandler)
+    handler_mock_instance.level = 0
+
+    handler_mock = mocker.patch("ema_workbench.em_framework.futures_mpi.MPIHandler")
+    handler_mock.return_value = handler_mock_instance
+
+    model = Mock(spec=ema_workbench.Model)
+    model.name = "test"
+    models = [model]
+    log_level = 10
+    root_dir = None
+
+    futures_mpi.mpi_initializer(models, log_level, root_dir)
+
+    # handler_mock.handle.assert_called()

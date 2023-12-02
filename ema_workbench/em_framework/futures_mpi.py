@@ -39,7 +39,6 @@ class RankFilter(logging.Filter):
 def mpi_initializer(models, log_level, root_dir):
     global experiment_runner
     global rank
-    # global logcomm
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
@@ -89,8 +88,8 @@ def logwatcher():
     comm = MPI.COMM_WORLD.Accept(port, info, root)
     _logger.debug("client connected...")
 
-    while True:
-        done = False
+    done = False
+    while not done:
         if rank == root:
             record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
             if record is None:
@@ -102,9 +101,6 @@ def logwatcher():
                     raise
                 else:
                     logger.callHandlers(record)
-        done = MPI.COMM_WORLD.bcast(done, root)
-        if done:
-            break
 
 
 def run_experiment_mpi(experiment):
