@@ -153,3 +153,35 @@ def test_MPIHandler():
 
     communicator.send.side_effect = Exception()
     handler.emit(record)
+
+
+@pytest.mark.skipif(
+    (not MPI_AVAILABLE) or (not CAN_TEST),
+    reason="Test requires mpi4py installed and a Linux or Mac OS environment",
+)
+def test_run_experiment_mpi(mocker):
+    mocked_generator = mocker.patch(
+        "ema_workbench.em_framework.futures_mpi.experiment_runner",
+        autospec=True,
+    )
+
+    mock_experiment = Mock()
+    mock_experiment.model_name = "test"
+
+    futures_mpi.run_experiment_mpi(mock_experiment)
+
+    mocked_generator.run_experiment.assert_called_once_with(mock_experiment)
+
+
+@pytest.mark.skipif(
+    (not MPI_AVAILABLE) or (not CAN_TEST),
+    reason="Test requires mpi4py installed and a Linux or Mac OS environment",
+)
+def test_RankFilter():
+    rank = 1
+    filter = futures_mpi.RankFilter(rank)
+
+    record = Mock()
+    filter.filter(record)
+
+    assert record.rank == rank
