@@ -1,4 +1,7 @@
+import logging
 import platform
+import threading
+
 import pytest
 
 from unittest.mock import Mock
@@ -80,10 +83,14 @@ def test_logwatcher(mocker):
 
     message = Mock()
     message.name = "EMA.worker_0"
-    comm_mock.recv.side_effect = [message, None]
+    comm_mock.recv.side_effect = [
+        message,
+    ]
 
     mocked_MPI.COMM_WORLD.bcast.return_value = True
-    futures_mpi.logwatcher()
+    event = Mock()
+    event.is_set.side_effect = [False, True]
+    futures_mpi.logwatcher(event)
 
     mocked_get_logger.assert_called_once_with(message.name)
     mocked_logger.callHandlers.assert_called_once_with(message)
@@ -123,3 +130,26 @@ def test_mpi_initializer(mocker):
     futures_mpi.mpi_initializer(models, log_level, root_dir)
 
     # handler_mock.handle.assert_called()
+
+
+@pytest.mark.skipif(
+    (not MPI_AVAILABLE) or (not CAN_TEST),
+    reason="Test requires mpi4py installed and a Linux or Mac OS environment",
+)
+def test_MPIHandler():
+    communicator = Mock()
+
+    handler = futures_mpi.MPIHandler(communicator)
+
+    record = Mock(spec=logging.LogRecord)
+    record.fmt = Mock(spec=logging.Formatter)
+    record.fmt.format.return_value = "some text"
+    record.exc_info = None
+    record.exc_text = None
+    record.stack_info = None
+
+    handler.emit(record)
+    communicator.send.assert_called_once()
+
+    communicator.send.side_effect = Exception()
+    handler.emit(record)

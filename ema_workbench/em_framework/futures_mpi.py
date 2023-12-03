@@ -4,7 +4,10 @@ import logging
 import os
 import shutil
 import threading
+import time
 import warnings
+
+from logging.handlers import QueueHandler
 
 from .evaluators import BaseEvaluator, experiment_generator
 from .futures_util import setup_working_directories, finalizer, determine_rootdir
@@ -55,10 +58,10 @@ def mpi_initializer(models, log_level, root_dir):
     logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
 
     root_logger = get_rootlogger()
-    root_logger.setLevel(log_level)
 
     handler = MPIHandler(logcomm)
     handler.addFilter(RankFilter(rank))
+    handler.setLevel(log_level)
     handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
     root_logger.addHandler(handler)
 
@@ -70,7 +73,7 @@ def mpi_initializer(models, log_level, root_dir):
     _logger.info(f"worker {rank} initialized")
 
 
-def logwatcher():
+def logwatcher(stop_event):
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
@@ -88,32 +91,30 @@ def logwatcher():
     comm = MPI.COMM_WORLD.Accept(port, info, root)
     _logger.debug("client connected...")
 
-    done = False
-    while not done:
+    while not stop_event.is_set():
         if rank == root:
             record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
-            if record is None:
-                done = True
+            try:
+                logger = logging.getLogger(record.name)
+            except Exception as e:
+                # AttributeError if record does not have a name attribute
+                # TypeError record.name is not a string
+                raise e
             else:
-                try:
-                    logger = logging.getLogger(record.name)
-                except Exception:
-                    raise
-                else:
-                    logger.callHandlers(record)
+                logger.callHandlers(record)
 
 
 def run_experiment_mpi(experiment):
-    _logger.debug(f"MPI Rank {rank}: starting {repr(experiment)}")
+    _logger.debug(f"starting {experiment.experiment_id}")
 
     outcomes = experiment_runner.run_experiment(experiment)
 
-    _logger.debug(f"MPI Rank {rank}: completed {experiment}")
+    _logger.debug(f"completed {experiment.experiment_id}")
 
     return experiment, outcomes
 
 
-class MPIHandler(logging.Handler):
+class MPIHandler(QueueHandler):
     """
     This handler sends events from the worker process to the master process
 
@@ -125,37 +126,6 @@ class MPIHandler(logging.Handler):
         """
         logging.Handler.__init__(self)
         self.communicator = communicator
-
-    def prepare(self, record):
-        """
-
-        Adapted from Queuehandler
-
-        Prepares a record for queuing. The object returned by this method is
-        enqueued.
-
-        The base implementation formats the record to merge the message
-        and arguments, and removes unpickleable items from the record
-        in-place.
-
-        You might want to override this method if you want to convert
-        the record to a dict or JSON string, or send a modified copy
-        of the record while leaving the original intact.
-        """
-        # The format operation gets traceback text into record.exc_text
-        # (if there's exception data), and also returns the formatted
-        # message. We can then use this to replace the original
-        # msg + args, as these might be unpickleable. We also zap the
-        # exc_info and exc_text attributes, as they are no longer
-        # needed and, if not None, will typically not be pickleable.
-        msg = self.format(record)
-        record = copy.copy(record)
-        record.message = msg
-        record.msg = msg
-        record.args = None
-        record.exc_info = None
-        record.exc_text = None
-        return record
 
     def emit(self, record):
         """
@@ -183,12 +153,16 @@ class MPIEvaluator(BaseEvaluator):
         self._pool = None
         self.n_processes = n_processes
         self.root_dir = None
+        self.stop_event = None
 
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
 
-        self.logwatcher_thread = threading.Thread(name="logwatcher", target=logwatcher, daemon=True)
+        self.stop_event = threading.Event()
+        self.logwatcher_thread = threading.Thread(
+            name="logwatcher", target=logwatcher, daemon=True, args=(self.stop_event,)
+        )
         self.logwatcher_thread.start()
 
         self.root_dir = determine_rootdir(self._msis)
@@ -206,10 +180,13 @@ class MPIEvaluator(BaseEvaluator):
 
     def finalize(self):
         self._pool.shutdown()
+        self.stop_event.set()
         _logger.info("MPI pool has been shut down")
 
         if self.root_dir:
             shutil.rmtree(self.root_dir)
+
+        time.sleep(0.1)
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
