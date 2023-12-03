@@ -66,6 +66,10 @@ def test_mpi_evaluator(mocker):
     pool_mock.shutdown.assert_called_once()
 
 
+@pytest.mark.skipif(
+    (not MPI_AVAILABLE) or (not CAN_TEST),
+    reason="Test requires mpi4py installed and a Linux or Mac OS environment",
+)
 def test_logwatcher(mocker):
     mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)
     mocked_MPI.COMM_WORLD = Mock()
