@@ -324,6 +324,7 @@ def plot_pair_wise_scatter(
     fill_subplots=True,
 ):
     """helper function for pair wise scatter plotting
+
     Parameters
     ----------
     x : DataFrame
@@ -530,16 +531,19 @@ def plot_pair_wise_scatter(
     return grid
 
 
-def _setup_figure(uncs):
+def _setup_figure(uncs, ax):
     """
 
     helper function for creating the basic layout for the figures that
     show the box lims.
 
+    Parameters
+    ----------
+    uncs : list of str
+    ax : axes instance
+
     """
     nr_unc = len(uncs)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
 
     # create the shaded grey background
     rect = mpl.patches.Rectangle(
@@ -551,7 +555,6 @@ def _setup_figure(uncs):
     ax.yaxis.set_ticks(list(range(nr_unc)))
     ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
     ax.set_yticklabels(uncs[::-1])
-    return fig, ax
 
 
 def plot_box(
@@ -561,6 +564,7 @@ def plot_box(
     uncs,
     coverage,
     density,
+    ax,
     ticklabel_formatter="{} ({})",
     boxlim_formatter="{: .2g}",
     table_formatter="{:.3g}",
@@ -579,6 +583,7 @@ def plot_box(
     ticklabel_formatter : str
     boxlim_formatter : str
     table_formatter : str
+    ax : Axes instance
 
     Returns
     -------
@@ -587,8 +592,9 @@ def plot_box(
 
     """
     norm_box_lim = _normalize(boxlim, box_init, uncs)
+    fig = plt.gcf()
 
-    fig, ax = _setup_figure(uncs)
+    _setup_figure(uncs, ax)
     for j, u in enumerate(uncs):
         # we want to have the most restricted dimension
         # at the top of the figure
@@ -842,7 +848,8 @@ def plot_boxes(x, boxes, together):
     norm_box_lims = [_normalize(box_lim, box_init, uncs) for box_lim in boxes]
 
     if together:
-        fig, ax = _setup_figure(uncs)
+        fig, ax = plt.subplots()
+        _setup_figure(uncs, ax)
 
         for i, u in enumerate(uncs):
             colors = itertools.cycle(COLOR_LIST)
@@ -862,7 +869,8 @@ def plot_boxes(x, boxes, together):
         colors = itertools.cycle(COLOR_LIST)
 
         for j, norm_box_lim in enumerate(norm_box_lims):
-            fig, ax = _setup_figure(uncs)
+            fig, ax = plt.subplots()
+            _setup_figure(uncs, ax)
             ax.set_title(f"box {j}")
             color = next(colors)
 
