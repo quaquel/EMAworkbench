@@ -22,7 +22,7 @@ try:
     from traitlets.config.configurable import LoggingConfigurable
     from zmq.eventloop import ioloop, zmqstream
 except (ImportError, ModuleNotFoundError):
-    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
+    raise
 
 from . import experiment_runner
 from .futures_util import setup_working_directories

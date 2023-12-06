@@ -16,6 +16,6 @@ module load py-scipy
 module load py-mpi4py
 module load py-pip
 
-pip install -e --user git+https://github.com/quaquel/EMAworkbench@mpi_update#egg=ema-workbench
+pip install --user -e git+https://github.com/quaquel/EMAworkbench@mpi_update#egg=ema-workbench
 
 MPI4PY_FUTURES_MAX_WORKERS=25 mpiexec -n 1 python3 example_mpi_lake_model.py
