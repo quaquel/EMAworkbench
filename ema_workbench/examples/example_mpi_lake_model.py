@@ -6,18 +6,24 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 import math
-import sys
 import time
 
 # FIXME
-sys.path.insert(0, "/Users/jhkwakkel/Documents/GitHub/EMAworkbench")
+# import sys
+# sys.path.insert(0, "/Users/jhkwakkel/Documents/GitHub/EMAworkbench")
 
 import numpy as np
 from scipy.optimize import brentq
 
-import ema_workbench
-from ema_workbench import Model, RealParameter, ScalarOutcome, Constant, ema_logging, MPIEvaluator
-from ema_workbench.em_framework.evaluators import Samplers
+from ema_workbench import (
+    Model,
+    RealParameter,
+    ScalarOutcome,
+    Constant,
+    ema_logging,
+    MPIEvaluator,
+    save_results,
+)
 
 
 def lake_problem(
@@ -80,8 +86,8 @@ def lake_problem(
 
 
 if __name__ == "__main__":
-    # run with mpiexec -n 4 python -m mpi4py.futures example_mpi_lake_model.py
-    starttime = time.time()
+    # run with mpiexec -n 1 -usize {ntasks} python example_mpi_lake_model.py
+    starttime = time.perf_counter()
 
     ema_logging.log_to_stderr(ema_logging.INFO, pass_root_logger_level=True)
 
@@ -113,10 +119,12 @@ if __name__ == "__main__":
     lake_model.constants = [Constant("alpha", 0.41), Constant("nsamples", 150)]
 
     # generate some random policies by sampling over levers
-    n_scenarios = 1000
+    n_scenarios = 10000
     n_policies = 4
 
     with MPIEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies)
 
-    print(time.time() - starttime)
+    save_results(res, "test.tar.gz")
+
+    print(time.perf_counter() - starttime)
