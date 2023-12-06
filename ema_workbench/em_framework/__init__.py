@@ -94,7 +94,13 @@ from .optimization import (
     to_problem,
     to_robust_problem,
 )
-from .futures_ipyparallel import IpyparallelEvaluator
+
+try:
+    from .futures_ipyparallel import IpyparallelEvaluator
+except ImportError:
+    warnings.warn("ipyparallel not installed - IpyparallelEvaluator not available")
+    IpyparallelEvaluator = None
+
 from .futures_multiprocessing import MultiprocessingEvaluator
 from .futures_mpi import MPIEvaluator
 from .outputspace_exploration import OutputSpaceExploration
