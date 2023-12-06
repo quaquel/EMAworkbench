@@ -52,18 +52,18 @@ def mpi_initializer(models, log_level, root_dir):
     experiment_runner = ExperimentRunner(msis)
 
     # setup the logging
-    info = MPI.INFO_NULL
-    service = "logwatcher"
-    port = MPI.Lookup_name(service)
-    logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
-
-    root_logger = get_rootlogger()
-
-    handler = MPIHandler(logcomm)
-    handler.addFilter(RankFilter(rank))
-    handler.setLevel(log_level)
-    handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
-    root_logger.addHandler(handler)
+    # info = MPI.INFO_NULL
+    # service = "logwatcher"
+    # port = MPI.Lookup_name(service)
+    # logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
+    #
+    # root_logger = get_rootlogger()
+    #
+    # handler = MPIHandler(logcomm)
+    # handler.addFilter(RankFilter(rank))
+    # handler.setLevel(log_level)
+    # handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
+    # root_logger.addHandler(handler)
 
     # setup the working directories
     tmpdir = setup_working_directories(models, root_dir)
@@ -159,11 +159,11 @@ class MPIEvaluator(BaseEvaluator):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
 
-        self.stop_event = threading.Event()
-        self.logwatcher_thread = threading.Thread(
-            name="logwatcher", target=logwatcher, daemon=True, args=(self.stop_event,)
-        )
-        self.logwatcher_thread.start()
+        # self.stop_event = threading.Event()
+        # self.logwatcher_thread = threading.Thread(
+        #     name="logwatcher", target=logwatcher, daemon=True, args=(self.stop_event,)
+        # )
+        # self.logwatcher_thread.start()
 
         self.root_dir = determine_rootdir(self._msis)
         self._pool = MPIPoolExecutor(
@@ -180,7 +180,7 @@ class MPIEvaluator(BaseEvaluator):
 
     def finalize(self):
         self._pool.shutdown()
-        self.stop_event.set()
+        # self.stop_event.set()
         _logger.info("MPI pool has been shut down")
 
         if self.root_dir:
