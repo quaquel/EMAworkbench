@@ -56,16 +56,16 @@ def mpi_initializer(models, log_level, root_dir):
     info = MPI.INFO_NULL
     service = "logwatcher"
     port = MPI.Lookup_name(service)
-    # print(f"server: {rank} {port}")
-    # logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
-    #
-    # root_logger = get_rootlogger()
-    #
-    # handler = MPIHandler(logcomm)
-    # handler.addFilter(RankFilter(rank))
-    # handler.setLevel(log_level)
-    # handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
-    # root_logger.addHandler(handler)
+    print(f"server: {rank} {port}")
+    logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
+
+    root_logger = get_rootlogger()
+
+    handler = MPIHandler(logcomm)
+    handler.addFilter(RankFilter(rank))
+    handler.setLevel(log_level)
+    handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
+    root_logger.addHandler(handler)
 
     # setup the working directories
     tmpdir = setup_working_directories(models, root_dir)
