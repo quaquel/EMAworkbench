@@ -60,11 +60,11 @@ def mpi_initializer(models, log_level, root_dir):
 
     root_logger = get_rootlogger()
 
-    # handler = MPIHandler(logcomm)
-    # handler.addFilter(RankFilter(rank))
-    # handler.setLevel(log_level)
-    # handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
-    # root_logger.addHandler(handler)
+    handler = MPIHandler(logcomm)
+    handler.addFilter(RankFilter(rank))
+    handler.setLevel(log_level)
+    handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
+    root_logger.addHandler(handler)
 
     # setup the working directories
     tmpdir = setup_working_directories(models, root_dir)
@@ -88,22 +88,21 @@ def logwatcher(stop_event):
     _logger.debug(f"published service: {service}")
 
     root = 0
-    # _logger.debug("waiting for client connection...")
-    # comm = MPI.COMM_WORLD.Accept(port, info, root)
-    # _logger.debug("client connected...")
+    _logger.debug("waiting for client connection...")
+    comm = MPI.COMM_WORLD.Accept(port, info, root)
+    _logger.debug("client connected...")
 
     while not stop_event.is_set():
-        time.sleep(1)
-        # if rank == root:
-        #     record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
-        #     try:
-        #         logger = logging.getLogger(record.name)
-        #     except Exception as e:
-        #         # AttributeError if record does not have a name attribute
-        #         # TypeError record.name is not a string
-        #         raise e
-        #     else:
-        #         logger.callHandlers(record)
+        if rank == root:
+            record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
+            try:
+                logger = logging.getLogger(record.name)
+            except Exception as e:
+                # AttributeError if record does not have a name attribute
+                # TypeError record.name is not a string
+                raise e
+            else:
+                logger.callHandlers(record)
 
 
 def run_experiment_mpi(experiment):
@@ -160,10 +159,6 @@ class MPIEvaluator(BaseEvaluator):
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
-        from mpi4py import MPI
-
-        _logger.info(f"universe size is { MPI.COMM_WORLD.Get_attr(MPI.UNIVERSE_SIZE)}")
-        _logger.info(f"world size is {MPI.COMM_WORLD.Get_size()}")
 
         self.stop_event = threading.Event()
         self.logwatcher_thread = threading.Thread(
