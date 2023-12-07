@@ -45,7 +45,7 @@ def mpi_initializer(models, log_level, root_dir):
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
-    print(f"{MPI.COMM_WORLD.Get_rank()} {MPI.COMM_WORLD.Get_size()}")
+    # print(f"{MPI.COMM_WORLD.Get_rank()} {MPI.COMM_WORLD.Get_size()}")
 
     # setup the experiment runner
     msis = NamedObjectMap(AbstractModel)
@@ -56,7 +56,7 @@ def mpi_initializer(models, log_level, root_dir):
     info = MPI.INFO_NULL
     service = "logwatcher"
     port = MPI.Lookup_name(service)
-    # logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
+    logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
 
     root_logger = get_rootlogger()
 
