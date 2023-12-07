@@ -56,7 +56,7 @@ def mpi_initializer(models, log_level, root_dir):
     info = MPI.INFO_NULL
     service = "logwatcher"
     port = MPI.Lookup_name(service)
-    print(port)
+    print(f"server: {rank} {port}")
     logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
 
     root_logger = get_rootlogger()
@@ -82,7 +82,7 @@ def logwatcher(stop_event):
 
     info = MPI.INFO_NULL
     port = MPI.Open_port(info)
-    print(port)
+    print(f"client: {rank} {port}")
     _logger.debug(f"opened port: {port}")
 
     service = "logwatcher"
