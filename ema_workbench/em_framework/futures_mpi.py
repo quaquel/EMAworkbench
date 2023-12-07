@@ -45,6 +45,7 @@ def mpi_initializer(models, log_level, root_dir):
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
+    print(f"{MPI.COMM_WORLD.Get_rank()} {MPI.COMM_WORLD.Get_size()}")
 
     # setup the experiment runner
     msis = NamedObjectMap(AbstractModel)
@@ -52,13 +53,13 @@ def mpi_initializer(models, log_level, root_dir):
     experiment_runner = ExperimentRunner(msis)
 
     # setup the logging
-    # info = MPI.INFO_NULL
-    # service = "logwatcher"
-    # port = MPI.Lookup_name(service)
+    info = MPI.INFO_NULL
+    service = "logwatcher"
+    port = MPI.Lookup_name(service)
     # logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
-    #
-    # root_logger = get_rootlogger()
-    #
+
+    root_logger = get_rootlogger()
+
     # handler = MPIHandler(logcomm)
     # handler.addFilter(RankFilter(rank))
     # handler.setLevel(log_level)
@@ -87,21 +88,22 @@ def logwatcher(stop_event):
     _logger.debug(f"published service: {service}")
 
     root = 0
-    _logger.debug("waiting for client connection...")
-    comm = MPI.COMM_WORLD.Accept(port, info, root)
-    _logger.debug("client connected...")
+    # _logger.debug("waiting for client connection...")
+    # comm = MPI.COMM_WORLD.Accept(port, info, root)
+    # _logger.debug("client connected...")
 
     while not stop_event.is_set():
-        if rank == root:
-            record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
-            try:
-                logger = logging.getLogger(record.name)
-            except Exception as e:
-                # AttributeError if record does not have a name attribute
-                # TypeError record.name is not a string
-                raise e
-            else:
-                logger.callHandlers(record)
+        time.sleep(1)
+        # if rank == root:
+        #     record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
+        #     try:
+        #         logger = logging.getLogger(record.name)
+        #     except Exception as e:
+        #         # AttributeError if record does not have a name attribute
+        #         # TypeError record.name is not a string
+        #         raise e
+        #     else:
+        #         logger.callHandlers(record)
 
 
 def run_experiment_mpi(experiment):
@@ -158,12 +160,15 @@ class MPIEvaluator(BaseEvaluator):
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
+        from mpi4py import MPI
 
-        # self.stop_event = threading.Event()
-        # self.logwatcher_thread = threading.Thread(
-        #     name="logwatcher", target=logwatcher, daemon=True, args=(self.stop_event,)
-        # )
-        # self.logwatcher_thread.start()
+        _logger.info(f"universe size is {MPI.UNIVERSE_SIZE}")
+
+        self.stop_event = threading.Event()
+        self.logwatcher_thread = threading.Thread(
+            name="logwatcher", target=logwatcher, daemon=True, args=(self.stop_event,)
+        )
+        self.logwatcher_thread.start()
 
         self.root_dir = determine_rootdir(self._msis)
         self._pool = MPIPoolExecutor(
@@ -180,7 +185,7 @@ class MPIEvaluator(BaseEvaluator):
 
     def finalize(self):
         self._pool.shutdown()
-        # self.stop_event.set()
+        self.stop_event.set()
         _logger.info("MPI pool has been shut down")
 
         if self.root_dir:
