@@ -16,6 +16,7 @@ module load py-scipy
 module load py-mpi4py
 module load py-pip
 
+pip install ipyparallel
 pip install --user -e git+https://github.com/quaquel/EMAworkbench@mpi_update#egg=ema-workbench
 
-srun python3 -m mpi4py.futures example_mpi_lake_model.py
+mpiexec -n 1 python3 example_mpi_lake_model.py

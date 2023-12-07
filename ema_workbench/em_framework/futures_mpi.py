@@ -162,7 +162,8 @@ class MPIEvaluator(BaseEvaluator):
         from mpi4py.futures import MPIPoolExecutor
         from mpi4py import MPI
 
-        _logger.info(f"universe size is {MPI.UNIVERSE_SIZE}")
+        _logger.info(f"universe size is { MPI.COMM_WORLD.Get_attr(MPI.UNIVERSE_SIZE)}")
+        _logger.info(f"world size is {MPI.COMM_WORLD.Get_size()")
 
         self.stop_event = threading.Event()
         self.logwatcher_thread = threading.Thread(
