@@ -6,6 +6,7 @@ nbsphinx
 myst
 pyscaffold
 myst-parser
+ipyparallel
 
 # General requirements
 numpy

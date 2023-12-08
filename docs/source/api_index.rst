@@ -18,8 +18,10 @@ Exploratory modeling framework
    ../../ema_documentation/em_framework/experiment_runner.rst
    ../../ema_documentation/em_framework/callbacks.rst
    ../../ema_documentation/em_framework/points.rst
-   ../../ema_documentation/em_framework/ema_multiprocessing.rst
-   ../../ema_documentation/em_framework/ema_ipyparallel.rst
+   ../../ema_documentation/em_framework/futures_multiprocessing.rst
+   ../../ema_documentation/em_framework/futures_ipyparallel.rst
+   ../../ema_documentation/em_framework/futures_mpi.rst
+   ../../ema_documentation/em_framework/futures_util.rst
    ../../ema_documentation/em_framework/util.rst
 
 Connectors

@@ -1,7 +1,6 @@
 import warnings
 
 __all__ = [
-    "ema_parallel",
     "parameters",
     "model",
     "outcomes",
@@ -77,8 +76,6 @@ from .salib_samplers import SobolSampler, MorrisSampler, FASTSampler, get_SALib_
 from .evaluators import (
     perform_experiments,
     optimize,
-    MPIEvaluator,
-    MultiprocessingEvaluator,
     SequentialEvaluator,
     Samplers,
 )
@@ -96,12 +93,15 @@ from .optimization import (
     to_problem,
     to_robust_problem,
 )
-from .outputspace_exploration import OutputSpaceExploration
 
 try:
-    from .evaluators import IpyparallelEvaluator
+    from .futures_ipyparallel import IpyparallelEvaluator
 except ImportError:
+    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
     IpyparallelEvaluator = None
-    warnings.warn("ipyparallel not available", ImportWarning)
+
+from .futures_multiprocessing import MultiprocessingEvaluator
+from .futures_mpi import MPIEvaluator
+from .outputspace_exploration import OutputSpaceExploration
 
 del warnings

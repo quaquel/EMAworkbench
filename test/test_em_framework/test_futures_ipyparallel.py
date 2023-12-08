@@ -30,10 +30,11 @@ from ipyparallel.cluster.launcher import (
     ProcessStateError,
 )
 
-from ema_workbench.em_framework import ema_ipyparallel as ema
+import ema_workbench
+from ema_workbench.em_framework import futures_ipyparallel as ema
 from ema_workbench.em_framework import experiment_runner, Model
 from ema_workbench.util import ema_logging, EMAError, EMAParallelError
-from ema_workbench.em_framework.ema_ipyparallel import LogWatcher
+from ema_workbench.em_framework.futures_ipyparallel import LogWatcher
 
 
 launchers = []
@@ -164,8 +165,8 @@ class TestEngineLoggerAdapter(unittest.TestCase):
             self.assertEqual(f"{ema.SUBTOPIC}::{input_msg}", msg)
             self.assertEqual(input_kwargs, kwargs)
 
-    @mock.patch("ema_workbench.em_framework.ema_ipyparallel.EngingeLoggerAdapter")
-    @mock.patch("ema_workbench.em_framework.ema_ipyparallel.Application")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.EngingeLoggerAdapter")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.Application")
     def test_engine_logger(self, mocked_application, mocked_adapter):
         logger = ema_logging.get_rootlogger()
         mocked_logger = mock.Mock(spec=logger)
@@ -318,9 +319,9 @@ class TestEngine(unittest.TestCase):
     def tearDownClass(cls):
         pass
 
-    @mock.patch("ema_workbench.em_framework.ema_ipyparallel.get_engines_by_host")
-    @mock.patch("ema_workbench.em_framework.ema_ipyparallel.os")
-    @mock.patch("ema_workbench.em_framework.ema_ipyparallel.socket")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.get_engines_by_host")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.os")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.socket")
     def test_update_cwd_on_all_engines(self, mock_socket, mock_os, mock_engines_by_host):
         mock_socket.gethostname.return_value = "test host"
 
@@ -392,6 +393,31 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
 
         mock_view.apply_sync.assert_any_call(ema._initialize_engine, 0, msis, cwd)
         mock_view.apply_sync.assert_any_call(ema._initialize_engine, 1, msis, cwd)
+
+
+class TestIpyParallelEvaluator(unittest.TestCase):
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.set_engine_logger")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.initialize_engines")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.start_logwatcher")
+    @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.experiment_generator")
+    def test_ipyparallel_evaluator(
+        self, mocked_generator, mocked_callback, mocked_start, mocked_initialize, mocked_set
+    ):
+        model = mock.Mock(spec=ema_workbench.Model)
+        model.name = "test"
+        mocked_generator.return_value = [1]
+        mocked_start.return_value = mocked_start, None
+
+        client = mock.MagicMock(spec=ipyparallel.Client)
+        lb_view = mock.Mock()
+        lb_view.map.return_value = [(1, ({}, {}))]
+
+        client.load_balanced_view.return_value = lb_view
+
+        with ema.IpyparallelEvaluator(model, client) as evaluator:
+            evaluator.evaluate_experiments(10, 10, mocked_callback)
+            lb_view.map.assert_called_once()
 
 
 if __name__ == "__main__":
