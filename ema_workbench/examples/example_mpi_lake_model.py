@@ -120,11 +120,11 @@ if __name__ == "__main__":
     lake_model.constants = [Constant("alpha", 0.41), Constant("nsamples", 150)]
 
     # generate some random policies by sampling over levers
-    n_scenarios = 1000
+    n_scenarios = 10000
     n_policies = 4
 
     with MPIEvaluator(lake_model) as evaluator:
-        res = evaluator.perform_experiments(n_scenarios, n_policies)
+        res = evaluator.perform_experiments(n_scenarios, n_policies, chunksize=250)
 
     save_results(res, "test.tar.gz")
 

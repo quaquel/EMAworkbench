@@ -375,11 +375,11 @@ class IpyparallelEvaluator(BaseEvaluator):
         self.logwatcher.stop()
         cleanup(self.client)
 
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
 
         lb_view = self.client.load_balanced_view()
-        results = lb_view.map(_run_experiment, ex_gen, ordered=False, block=False)
+        results = lb_view.map(_run_experiment, ex_gen, ordered=False, block=False, **kwargs)
 
         for entry in results:
             callback(*entry)

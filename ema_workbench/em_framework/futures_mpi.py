@@ -24,7 +24,6 @@ _logger = get_module_logger(__name__)
 
 
 experiment_runner = None
-rank = None
 
 
 class RankFilter(logging.Filter):
@@ -41,11 +40,9 @@ class RankFilter(logging.Filter):
 
 def mpi_initializer(models, log_level, root_dir):
     global experiment_runner
-    global rank
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
-    # print(f"{MPI.COMM_WORLD.Get_rank()} {MPI.COMM_WORLD.Get_size()}")
 
     # setup the experiment runner
     msis = NamedObjectMap(AbstractModel)
@@ -56,7 +53,6 @@ def mpi_initializer(models, log_level, root_dir):
     info = MPI.INFO_NULL
     service = "logwatcher"
     port = MPI.Lookup_name(service)
-    print(f"server: {rank} {port}")
     logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
 
     root_logger = get_rootlogger()
@@ -73,7 +69,7 @@ def mpi_initializer(models, log_level, root_dir):
         atexit.register(finalizer, os.path.abspath(tmpdir))
 
     # _logger.info(f"worker {rank} initialized")
-    print(f"worker {rank} initialized")
+    root_logger.info(f"worker {rank} initialized")
 
 
 def logwatcher(stop_event):
@@ -83,7 +79,7 @@ def logwatcher(stop_event):
 
     info = MPI.INFO_NULL
     port = MPI.Open_port(info)
-    print(f"client: {rank} {port}")
+    # print(f"client: {rank} {port}")
     _logger.debug(f"opened port: {port}")
 
     service = "logwatcher"
@@ -192,11 +188,11 @@ class MPIEvaluator(BaseEvaluator):
 
         time.sleep(0.1)
 
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
         experiments = list(ex_gen)
 
-        results = self._pool.map(run_experiment_mpi, experiments)
+        results = self._pool.map(run_experiment_mpi, experiments, **kwargs)
         for experiment, outcomes in results:
             callback(experiment, outcomes)
 
