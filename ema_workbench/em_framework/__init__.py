@@ -98,7 +98,7 @@ from .optimization import (
 try:
     from .futures_ipyparallel import IpyparallelEvaluator
 except ImportError:
-    warnings.warn("ipyparallel not installed - IpyparallelEvaluator not available")
+    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
     IpyparallelEvaluator = None
 
 from .futures_multiprocessing import MultiprocessingEvaluator

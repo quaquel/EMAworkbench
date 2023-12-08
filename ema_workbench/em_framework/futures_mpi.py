@@ -22,7 +22,6 @@ __all__ = ["MPIEvaluator"]
 
 _logger = get_module_logger(__name__)
 
-
 experiment_runner = None
 
 
@@ -151,13 +150,14 @@ class MPIEvaluator(BaseEvaluator):
             FutureWarning,
         )
         self._pool = None
-        self.n_processes = n_processes
         self.root_dir = None
         self.stop_event = None
+
 
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
+
 
         self.stop_event = threading.Event()
         self.logwatcher_thread = threading.Thread(
@@ -171,6 +171,8 @@ class MPIEvaluator(BaseEvaluator):
             initializer=mpi_initializer,
             initargs=(self._msis, _logger.level, self.root_dir),
         )  # Removed initializer arguments
+
+        self._pool = MPIPoolExecutor(max_workers=self.n_processes)  # Removed initializer arguments
         _logger.info(f"MPI pool started with {self._pool._max_workers} workers")
         if self._pool._max_workers <= 10:
             _logger.warning(
@@ -187,6 +189,7 @@ class MPIEvaluator(BaseEvaluator):
             shutil.rmtree(self.root_dir)
 
         time.sleep(0.1)
+        _logger.info("MPI pool has been shut down")
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
@@ -197,3 +200,4 @@ class MPIEvaluator(BaseEvaluator):
             callback(experiment, outcomes)
 
         _logger.info(f"MPIEvaluator: Completed all {len(experiments)} experiments")
+

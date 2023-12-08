@@ -9,20 +9,14 @@ import os
 import shutil
 import socket
 import threading
-import warnings
 
-warnings.simplefilter("once", ImportWarning)
-
-try:
-    import zmq
-    from ipyparallel.engine.log import EnginePUBHandler
-    from jupyter_client.localinterfaces import localhost
-    from traitlets import Unicode, Instance, List
-    from traitlets.config import Application
-    from traitlets.config.configurable import LoggingConfigurable
-    from zmq.eventloop import ioloop, zmqstream
-except (ImportError, ModuleNotFoundError):
-    raise
+import zmq
+from ipyparallel.engine.log import EnginePUBHandler
+from jupyter_client.localinterfaces import localhost
+from traitlets import Unicode, Instance, List
+from traitlets.config import Application
+from traitlets.config.configurable import LoggingConfigurable
+from zmq.eventloop import ioloop, zmqstream
 
 from . import experiment_runner
 from .futures_util import setup_working_directories
@@ -374,6 +368,7 @@ class IpyparallelEvaluator(BaseEvaluator):
     def finalize(self):
         self.logwatcher.stop()
         cleanup(self.client)
+
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
