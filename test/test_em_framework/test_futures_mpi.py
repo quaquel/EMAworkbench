@@ -190,7 +190,7 @@ def test_RankFilter():
     filter.filter(record)
 
     assert record.rank == rank
-=======
+
 
 class TestMPIEvaluator(unittest.TestCase):
     # Check if mpi4py is installed and if we're on a Linux environment
@@ -240,4 +240,3 @@ class TestMPIEvaluator(unittest.TestCase):
 
         # Check that pool shutdown was called
         pool_mock.shutdown.assert_called_once()
-
