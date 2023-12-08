@@ -9,20 +9,14 @@ import os
 import shutil
 import socket
 import threading
-import warnings
 
-warnings.simplefilter("once", ImportWarning)
-
-try:
-    import zmq
-    from ipyparallel.engine.log import EnginePUBHandler
-    from jupyter_client.localinterfaces import localhost
-    from traitlets import Unicode, Instance, List
-    from traitlets.config import Application
-    from traitlets.config.configurable import LoggingConfigurable
-    from zmq.eventloop import ioloop, zmqstream
-except (ImportError, ModuleNotFoundError):
-    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
+import zmq
+from ipyparallel.engine.log import EnginePUBHandler
+from jupyter_client.localinterfaces import localhost
+from traitlets import Unicode, Instance, List
+from traitlets.config import Application
+from traitlets.config.configurable import LoggingConfigurable
+from zmq.eventloop import ioloop, zmqstream
 
 from . import experiment_runner
 from .futures_util import setup_working_directories
