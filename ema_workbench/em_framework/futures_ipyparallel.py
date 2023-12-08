@@ -369,7 +369,6 @@ class IpyparallelEvaluator(BaseEvaluator):
         self.logwatcher.stop()
         cleanup(self.client)
 
-
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
 

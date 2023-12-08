@@ -153,11 +153,9 @@ class MPIEvaluator(BaseEvaluator):
         self.root_dir = None
         self.stop_event = None
 
-
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
-
 
         self.stop_event = threading.Event()
         self.logwatcher_thread = threading.Thread(
@@ -200,4 +198,3 @@ class MPIEvaluator(BaseEvaluator):
             callback(experiment, outcomes)
 
         _logger.info(f"MPIEvaluator: Completed all {len(experiments)} experiments")
-
