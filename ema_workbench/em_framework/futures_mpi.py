@@ -152,6 +152,7 @@ class MPIEvaluator(BaseEvaluator):
         self._pool = None
         self.root_dir = None
         self.stop_event = None
+        self.n_processes = n_processes
 
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
