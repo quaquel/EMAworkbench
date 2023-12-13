@@ -16,7 +16,8 @@ from jupyter_client.localinterfaces import localhost
 from traitlets import Unicode, Instance, List
 from traitlets.config import Application
 from traitlets.config.configurable import LoggingConfigurable
-from zmq.eventloop import ioloop, zmqstream
+from tornado import ioloop
+from zmq.eventloop import zmqstream
 
 from . import experiment_runner
 from .futures_util import setup_working_directories
