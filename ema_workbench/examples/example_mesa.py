@@ -1,25 +1,15 @@
 """
 
-This example is a proof of principle for how MESA models can be
-controlled using the ema_workbench.
+This example is a proof of principle for how NetLogo models can be
+controlled using pyNetLogo and the ema_workbench. Note that this
+example uses the NetLogo 6 version of the predator prey model that
+comes with NetLogo. If you are using NetLogo 5, replace the model file
+with the one that comes with NetLogo.
 
 """
 
-# Import EMA Workbench modules
-from ema_workbench import (
-    ReplicatorModel,
-    RealParameter,
-    BooleanParameter,
-    IntegerParameter,
-    Constant,
-    TimeSeriesOutcome,
-    perform_experiments,
-    save_results,
-    ema_logging,
-)
-
-# Initialize logger to keep track of experiments run
-ema_logging.log_to_stderr(ema_logging.INFO)
+# Import EMA Workbench modules 
+from ema_workbench import (ReplicatorModel, RealParameter, BooleanParameter, IntegerParameter, Constant, ArrayOutcome, perform_experiments, save_results, ema_logging)
 
 # Necessary packages for the model
 import math
@@ -27,8 +17,8 @@ from enum import Enum
 import mesa
 import networkx as nx
 
+#MESA demo model "Virus on a Network", from https://github.com/projectmesa/mesa-examples/blob/d16736778fdb500a3e5e05e082b27db78673b562/examples/virus_on_network/virus_on_network/model.py
 
-# MESA demo model "Virus on a Network", from https://github.com/projectmesa/mesa-examples/blob/d16736778fdb500a3e5e05e082b27db78673b562/examples/virus_on_network/virus_on_network/model.py
 class State(Enum):
     SUSCEPTIBLE = 0
     INFECTED = 1
@@ -49,7 +39,6 @@ def number_susceptible(model):
 
 def number_resistant(model):
     return number_state(model, State.RESISTANT)
-
 
 class VirusOnNetwork(mesa.Model):
     """A virus model with some number of agents"""
@@ -110,7 +99,9 @@ class VirusOnNetwork(mesa.Model):
 
     def resistant_susceptible_ratio(self):
         try:
-            return number_state(self, State.RESISTANT) / number_state(self, State.SUSCEPTIBLE)
+            return number_state(self, State.RESISTANT) / number_state(
+                self, State.SUSCEPTIBLE
+            )
         except ZeroDivisionError:
             return math.inf
 
@@ -145,7 +136,9 @@ class VirusAgent(mesa.Agent):
         self.gain_resistance_chance = gain_resistance_chance
 
     def try_to_infect_neighbors(self):
-        neighbors_nodes = self.model.grid.get_neighborhood(self.pos, include_center=False)
+        neighbors_nodes = self.model.grid.get_neighborhood(
+            self.pos, include_center=False
+        )
         susceptible_neighbors = [
             agent
             for agent in self.model.grid.get_cell_list_contents(neighbors_nodes)
@@ -170,7 +163,9 @@ class VirusAgent(mesa.Agent):
             self.state = State.INFECTED
 
     def try_check_situation(self):
-        if (self.random.random() < self.virus_check_frequency) and (self.state is State.INFECTED):
+        if (self.random.random() < self.virus_check_frequency) and (
+            self.state is State.INFECTED
+        ):
             self.try_remove_infection()
 
     def step(self):
@@ -178,73 +173,65 @@ class VirusAgent(mesa.Agent):
             self.try_to_infect_neighbors()
         self.try_check_situation()
 
-
 # Setting up the model as a function
-def model_virus_on_network(
-    num_nodes=1,
-    avg_node_degree=1,
-    initial_outbreak_size=1,
-    virus_spread_chance=1,
-    virus_check_frequency=1,
-    recovery_chance=1,
-    gain_resistance_chance=1,
-    steps=10,
-):
-    # Initialising the model
-    virus_on_network = VirusOnNetwork(
-        num_nodes=num_nodes,
-        avg_node_degree=avg_node_degree,
-        initial_outbreak_size=initial_outbreak_size,
-        virus_spread_chance=virus_spread_chance,
-        virus_check_frequency=virus_check_frequency,
-        recovery_chance=recovery_chance,
-        gain_resistance_chance=gain_resistance_chance,
-    )
+def model_virus_on_network(num_nodes=1, 
+                           avg_node_degree=1, 
+                           initial_outbreak_size=1, 
+                           virus_spread_chance=1, 
+                           virus_check_frequency=1, 
+                           recovery_chance=1, 
+                           gain_resistance_chance=1,
+                           steps=10):
+    
+        # Initialising the model
+        virus_on_network = VirusOnNetwork(num_nodes=num_nodes, 
+                                        avg_node_degree=avg_node_degree, 
+                                        initial_outbreak_size=initial_outbreak_size, 
+                                        virus_spread_chance=virus_spread_chance, 
+                                        virus_check_frequency=virus_check_frequency, 
+                                        recovery_chance=recovery_chance, 
+                                        gain_resistance_chance=gain_resistance_chance)
 
-    # Run the model steps times
-    virus_on_network.run_model(steps)
+        # Run the model steps times
+        virus_on_network.run_model(steps)
 
-    # Get model outcomes
-    outcomes = virus_on_network.datacollector.get_model_vars_dataframe()
+        # Get model outcomes
+        outcomes = virus_on_network.datacollector.get_model_vars_dataframe()
 
-    # Return model outcomes
-    return {
-        "TIME": list(range(steps + 1)),
-        "Infected": outcomes["Infected"].tolist(),
-        "Susceptible": outcomes["Susceptible"].tolist(),
-        "Resistant": outcomes["Resistant"].tolist(),
-    }
+        # Return model outcomes
+        return {"Infected" : outcomes["Infected"].tolist(),
+        "Susceptible" : outcomes["Susceptible"].tolist(),
+        "Resistant" : outcomes["Resistant"].tolist()}
 
+if __name__ == "__main__":
+    # Initialize logger to keep track of experiments run
+    ema_logging.log_to_stderr(ema_logging.INFO)
 
-# Instantiate and pass the model
-model = ReplicatorModel("VirusOnNetwork", function=model_virus_on_network)
+    # Instantiate and pass the model 
+    model = ReplicatorModel('VirusOnNetwork', function=model_virus_on_network)
 
-# Define model parameters and their ranges to be sampled
-model.uncertainties = [
-    IntegerParameter("num_nodes", 10, 100),
-    IntegerParameter("avg_node_degree", 2, 8),
-    RealParameter("virus_spread_chance", 0.1, 1),
-    RealParameter("virus_check_frequency", 0.1, 1),
-    RealParameter("recovery_chance", 0.1, 1),
-    RealParameter("gain_resistance_chance", 0.1, 1),
-]
+    # Define model parameters and their ranges to be sampled
+    model.uncertainties = [IntegerParameter("num_nodes", 10, 100),
+                        IntegerParameter("avg_node_degree", 2, 8),
+                        RealParameter("virus_spread_chance", 0.1, 1),
+                        RealParameter("virus_check_frequency", 0.1, 1),
+                        RealParameter("recovery_chance", 0.1, 1),
+                        RealParameter("gain_resistance_chance", 0.1, 1)]
 
-# Define model parameters that will remain constant
-model.constants = [Constant("initial_outbreak_size", 1), Constant("steps", 30)]
+    # Define model parameters that will remain constant
+    model.constants = [Constant("initial_outbreak_size", 1),
+                    Constant('steps', 30)]
 
-# Define model outcomes
-model.outcomes = [
-    TimeSeriesOutcome("TIME"),
-    TimeSeriesOutcome("Infected"),
-    TimeSeriesOutcome("Susceptible"),
-    TimeSeriesOutcome("Resistant"),
-]
+    # Define model outcomes
+    model.outcomes = [ArrayOutcome('Infected'),
+                    ArrayOutcome('Susceptible'),
+                    ArrayOutcome('Resistant')]
 
-# Define the number of replications
-model.replications = 5
+    # Define the number of replications
+    model.replications = 5
 
-# Run experiments with the aforementioned parameters and outputs
-results = perform_experiments(models=model, scenarios=20)
+    # Run experiments with the aforementioned parameters and outputs
+    results = perform_experiments(models=model, scenarios = 20)
 
-# Get the results
-experiments, outcomes = results
+    # Get the results
+    experiments, outcomes = results
