@@ -40,20 +40,20 @@ class BasePysdModel(AbstractModel):
         if not os.path.isfile(mdl_file):
             raise ValueError("mdl_file not found")
 
+        mdl_file = os.path.abspath(mdl_file)
+
         # Todo: replace when pysd adds an attribute for the .py filename
         self.py_model_name = mdl_file.replace(".mdl", ".py")
         self._mdl_file = mdl_file
 
-    def __init__(self, name=None, mdl_file=None):
-        self.mdl_file = mdl_file
-        if name is None:
-            name = pysd.utils.make_python_identifier(mdl_file)[0]
-            name = name.replace("_", "")
+    def __init__(self, name, mdl_file=None):
         super().__init__(name)
+        self.mdl_file = mdl_file
+        self.model = None
 
     @method_logger(__name__)
     def model_init(self, policy, **kwargs):
-        AbstractModel.model_init(self, policy, **kwargs)
+        super().model_init(policy)
 
         # TODO:: should be updated only if mdl file has been changed
         # or if not initialized
