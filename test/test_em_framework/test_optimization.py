@@ -170,8 +170,8 @@ class TestRobustOptimization(unittest.TestCase):
 
         scenarios = 5
         robustness_functions = [
-            ScalarOutcome("mean x", variable_name="x", function=mock.Mock(), kind="maximize"),
-            ScalarOutcome("mean y", variable_name="y", function=mock.Mock(), kind="maximize"),
+            ScalarOutcome("mean_x", variable_name="x", function=mock.Mock(), kind="maximize"),
+            ScalarOutcome("mean_y", variable_name="y", function=mock.Mock(), kind="maximize"),
         ]
 
         problem = to_robust_problem(mocked_model, scenarios, robustness_functions)
@@ -179,7 +179,7 @@ class TestRobustOptimization(unittest.TestCase):
         self.assertEqual("robust", problem.searchover)
         for entry in problem.parameters:
             self.assertIn(entry.name, mocked_model.levers.keys())
-        self.assertEqual(["mean x", "mean y"], problem.outcome_names)
+        self.assertEqual(["mean_x", "mean_y"], problem.outcome_names)
 
     def test_process_robust(self):
         pass

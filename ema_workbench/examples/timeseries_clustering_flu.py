@@ -10,7 +10,7 @@ from ema_workbench import load_results
 from ema_workbench.analysis import clusterer, plotting, Density
 
 experiments, outcomes = load_results("./data/1000 flu cases no policy.tar.gz")
-data = outcomes["infected fraction R1"]
+data = outcomes["infected_fraction_R1"]
 
 # calculate distances
 distances = clusterer.calculate_cid(data)

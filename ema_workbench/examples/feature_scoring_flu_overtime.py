@@ -18,7 +18,7 @@ fn = r"./data/1000 flu cases no policy.tar.gz"
 x, outcomes = load_results(fn)
 x = x.drop(["model", "policy"], axis=1)
 
-y = outcomes["deceased population region 1"]
+y = outcomes["deceased_population_region_1"]
 
 all_scores = []
 

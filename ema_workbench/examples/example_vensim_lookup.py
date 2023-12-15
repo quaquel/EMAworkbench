@@ -18,10 +18,10 @@ from ema_workbench.connectors.vensim import LookupUncertainty, VensimModel
 class Burnout(VensimModel):
     model_file = r"\BURNOUT.vpm"
     outcomes = [
-        TimeSeriesOutcome("Accomplishments to Date"),
-        TimeSeriesOutcome("Energy Level"),
-        TimeSeriesOutcome("Hours Worked Per Week"),
-        TimeSeriesOutcome("accomplishments per hour"),
+        TimeSeriesOutcome("accomplishments_to_date", variable_name="Accomplishments to Date"),
+        TimeSeriesOutcome("energy_level", variable_name="Energy Level"),
+        TimeSeriesOutcome("hours_worked_per_week", variable_name="Hours Worked Per Week"),
+        TimeSeriesOutcome("accomplishments_per_hour", variable_name="accomplishments per hour"),
     ]
 
     def __init__(self, working_directory, name):

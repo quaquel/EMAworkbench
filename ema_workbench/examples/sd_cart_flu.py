@@ -13,7 +13,7 @@ ema_logging.log_to_stderr(level=ema_logging.INFO)
 
 def classify(data):
     # get the output for deceased population
-    result = data["deceased population region 1"]
+    result = data["deceased_population_region_1"]
 
     # if deceased population is higher then 1.000.000 people,
     # classify as 1

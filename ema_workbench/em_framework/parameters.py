@@ -63,7 +63,7 @@ class LowerBound(Bound):
         return bound
 
 
-class Constant(NamedObject):
+class Constant(Variable):
     """Constant class,
 
     can be used for any parameter that has to be set to a fixed value
@@ -78,8 +78,10 @@ class Constant(NamedObject):
         return f"{self.__class__.__name__}('{self.name}', {self.value})"
 
 
-class Category(Constant):
-    pass
+class Category(NamedObject):
+    def __init__(self, name, value):
+        super().__init__(name)
+        self.value = value
 
 
 def create_category(cat):

@@ -35,7 +35,7 @@ class DimStackTestCase(unittest.TestCase):
 
     def test_create_pivot_plot(self):
         x, outcomes = utilities.load_flu_data()
-        y = outcomes["deceased population region 1"][:, -1] > 1000000
+        y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
         dimensional_stacking.create_pivot_plot(x, y, 2)
         dimensional_stacking.create_pivot_plot(x, y, 2, labels=False, bin_labels=True)

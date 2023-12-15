@@ -16,7 +16,7 @@ from test import utilities
 
 def flu_classify(data):
     # get the output for deceased population
-    result = data["deceased population region 1"]
+    result = data["deceased_population_region_1"]
 
     # make an empty array of length equal to number of cases
     classes = np.zeros(result.shape[0])
@@ -28,7 +28,7 @@ def flu_classify(data):
 
 
 def scarcity_classify(outcomes):
-    outcome = outcomes["relative market price"]
+    outcome = outcomes["relative_market_price"]
     change = np.abs(outcome[:, 1::] - outcome[:, 0:-1])
 
     neg_change = np.min(change, axis=1)
@@ -57,7 +57,7 @@ class CartTestCase(unittest.TestCase):
             y[k] = v[:, -1]
 
         temp_results = (x, y)
-        alg = cart.setup_cart(temp_results, "deceased population region 1", mass_min=0.05)
+        alg = cart.setup_cart(temp_results, "deceased_population_region_1", mass_min=0.05)
         self.assertTrue(alg.mode == RuleInductionType.REGRESSION)
 
         n_cols = 5
@@ -137,7 +137,7 @@ class CartTestCase(unittest.TestCase):
         alg.build_tree()
         stats = alg.stats_to_dataframe()
 
-        y = outcomes["deceased population region 1"][:, -1]
+        y = outcomes["deceased_population_region_1"][:, -1]
         alg = cart.CART(x, y, mode=RuleInductionType.REGRESSION)
         alg.build_tree()
         stats = alg.stats_to_dataframe()
@@ -163,7 +163,7 @@ class CartTestCase(unittest.TestCase):
             y[k] = v
 
         temp_results = (x, y)
-        alg = cart.setup_cart(temp_results, "deceased population region 1", mass_min=0.05)
+        alg = cart.setup_cart(temp_results, "deceased_population_region_1", mass_min=0.05)
         alg.build_tree()
         self.assertTrue(isinstance(alg.clf, cart.tree.DecisionTreeRegressor))
 

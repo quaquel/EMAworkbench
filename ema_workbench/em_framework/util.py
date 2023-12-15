@@ -62,6 +62,11 @@ class Variable(NamedObject):
             name = [name]
         self._variable_name = name
 
+    def __init__(self, name):
+        if not name.isidentifier():
+            raise ValueError(f"'{name}' is not a valid Python identifier.")
+        super().__init__(name)
+
 
 class NamedObjectMap:
     def __init__(self, kind):  # @ReservedAssignment

@@ -18,8 +18,8 @@ x, outcomes = load_results(fn)
 
 # we have timeseries so we need scalars
 y = {
-    "deceased population": outcomes["deceased population region 1"][:, -1],
-    "max. infected fraction": np.max(outcomes["infected fraction R1"], axis=1),
+    "deceased population": outcomes["deceased_population_region_1"][:, -1],
+    "max. infected fraction": np.max(outcomes["infected_fraction_R1"], axis=1),
 }
 
 scores = feature_scoring.get_feature_scores_all(x, y)

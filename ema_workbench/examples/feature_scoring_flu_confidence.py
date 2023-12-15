@@ -18,7 +18,7 @@ fn = r"./data/1000 flu cases no policy.tar.gz"
 x, outcomes = load_results(fn)
 
 x = x.drop(["model", "policy"], axis=1)
-y = np.max(outcomes["infected fraction R1"], axis=1)
+y = np.max(outcomes["infected_fraction_R1"], axis=1)
 
 all_scores = []
 for i in range(100):

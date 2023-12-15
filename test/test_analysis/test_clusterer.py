@@ -10,7 +10,7 @@ class ClusterTestCase(unittest.TestCase):
     def test_cluster(self):
         n = 10
         experiments, outcomes = utilities.load_flu_data()
-        data = outcomes["infected fraction R1"][0:n, :]
+        data = outcomes["infected_fraction_R1"][0:n, :]
 
         distances = clusterer.calculate_cid(data)
         self.assertEqual(distances.shape, (n, n))
