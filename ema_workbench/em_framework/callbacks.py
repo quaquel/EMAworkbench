@@ -246,7 +246,7 @@ class DefaultCallback(AbstractCallback):
             try:
                 outcome_res = outcomes[outcome_name]
             except KeyError:
-                message = f"{outcome_name} not specified as outcome in model(s)"
+                message = f"outcome {outcome_name} not specified as outcome in model(s)"
                 _logger.debug(message)
             else:
                 try:

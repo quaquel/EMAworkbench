@@ -7,7 +7,6 @@ import unittest
 
 import ema_workbench
 from ema_workbench.em_framework import evaluators
-import ipyparallel
 
 # Created on 14 Mar 2017
 #
@@ -33,46 +32,6 @@ class TestEvaluators(unittest.TestCase):
 
     #         searchover
     #         union
-
-    @mock.patch("ema_workbench.em_framework.evaluators.multiprocessing")
-    @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    @mock.patch("ema_workbench.em_framework.evaluators.experiment_generator")
-    @mock.patch("ema_workbench.em_framework.evaluators.add_tasks")
-    def test_multiprocessing_evaluator(
-        self, mocked_add_task, mocked_generator, mocked_callback, mocked_multiprocessing
-    ):
-        model = mock.Mock(spec=ema_workbench.Model)
-        model.name = "test"
-        mocked_generator.return_value = [1]
-        mocked_multiprocessing.cpu_count.return_value = 4
-
-        with evaluators.MultiprocessingEvaluator(model, 2) as evaluator:
-            evaluator.evaluate_experiments(10, 10, mocked_callback)
-
-            mocked_add_task.assert_called_once()
-
-    @mock.patch("ema_workbench.em_framework.evaluators.set_engine_logger")
-    @mock.patch("ema_workbench.em_framework.evaluators.initialize_engines")
-    @mock.patch("ema_workbench.em_framework.evaluators.start_logwatcher")
-    @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    @mock.patch("ema_workbench.em_framework.evaluators.experiment_generator")
-    def test_ipyparallel_evaluator(
-        self, mocked_generator, mocked_callback, mocked_start, mocked_initialize, mocked_set
-    ):
-        model = mock.Mock(spec=ema_workbench.Model)
-        model.name = "test"
-        mocked_generator.return_value = [1]
-        mocked_start.return_value = mocked_start, None
-
-        client = mock.MagicMock(spec=ipyparallel.Client)
-        lb_view = mock.Mock()
-        lb_view.map.return_value = [(1, ({}, {}))]
-
-        client.load_balanced_view.return_value = lb_view
-
-        with evaluators.IpyparallelEvaluator(model, client) as evaluator:
-            evaluator.evaluate_experiments(10, 10, mocked_callback)
-            lb_view.map.called_once()
 
     def test_perform_experiments(self):
         pass

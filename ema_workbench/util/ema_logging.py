@@ -178,7 +178,7 @@ def get_rootlogger():
     return _rootlogger
 
 
-def log_to_stderr(level=None):
+def log_to_stderr(level=None, pass_root_logger_level=False):
     """
     Turn on logging and add a handler which prints to stderr
 
@@ -186,6 +186,10 @@ def log_to_stderr(level=None):
     ----------
     level : int
             minimum level of the messages that will be logged
+    pas_root_logger_level: bool, optional. Default False
+            if true, all module loggers will be set to the
+            same logging level as the root logger.
+            Recommended True when using the MPIEvaluator.
 
     """
 
@@ -205,5 +209,9 @@ def log_to_stderr(level=None):
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.propagate = False
+
+    if pass_root_logger_level:
+        for _, mod_logger in _module_loggers.items():
+            mod_logger.setLevel(level)
 
     return logger

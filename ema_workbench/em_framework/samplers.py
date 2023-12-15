@@ -529,7 +529,7 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     levers = determine_parameters(models, "levers", union=union)
 
     if not levers:
-        raise EMAError("you are trying to sample policies, but no levers have been defined")
+        raise EMAError("You are trying to sample policies, but no levers have been defined")
 
     return sample_parameters(levers, n_samples, sampler, Policy)
 
@@ -554,7 +554,7 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
     uncertainties = determine_parameters(models, "uncertainties", union=union)
 
     if not uncertainties:
-        raise EMAError("you are trying to sample scenarios, but no uncertainties have been defined")
+        raise EMAError("You are trying to sample scenarios, but no uncertainties have been defined")
 
     return sample_parameters(uncertainties, n_samples, sampler, Policy)
 
@@ -644,9 +644,7 @@ class DefaultDesigns:
         return design_generator(self.designs, self.parameters, self.kind)
 
     def __str__(self):
-        return ("ema_workbench.DefaultDesigns, " "{} designs on {} parameters").format(
-            self.n, len(self.params)
-        )
+        return f"ema_workbench.DefaultDesigns, {self.n} designs on {len(self.params)} parameters"
 
 
 # class PartialFactorialDesigns(object):

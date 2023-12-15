@@ -188,7 +188,10 @@ def get_data(filename, varname, step=1):
 
 
 def VensimModelStructureInterface(name, wd=None, model_file=None):
-    warnings.warn("VensimModelStructureInterface is deprecated use " "VensimModel instead")
+    warnings.warn(
+        "VensimModelStructureInterface is deprecated and will be removed in version 3.0 of the EMAworkbench. Use VensimModel instead.",
+        DeprecationWarning,
+    )
 
     return VensimModel(name, wd=wd, model_file=model_file)
 

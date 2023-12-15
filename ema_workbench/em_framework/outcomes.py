@@ -182,15 +182,13 @@ class AbstractOutcome(Variable):
                 return self.function(values)
             elif n_variables != n_values:
                 raise ValueError(
-                    ("number of variables is {}, " "number of outputs is {}").format(
-                        n_variables, n_values
-                    )
+                    f"Number of variables is {n_variables}, number of outputs is {n_values}. They should be equal."
                 )
             else:
                 return self.function(*values)
         else:
             if len(values) > 1:
-                raise EMAError("more than one value returned without " "processing function")
+                raise EMAError("More than one value returned without processing function")
 
             return values[0]
 
@@ -304,7 +302,7 @@ class ScalarOutcome(AbstractOutcome):
     @property
     def expected_range(self):
         if self._expected_range is None:
-            raise ValueError(f"no expected_range is set for {self.variable_name}")
+            raise ValueError(f"No expected_range is set for variable {self.variable_name}")
         return self._expected_range
 
     @expected_range.setter
@@ -332,7 +330,7 @@ class ScalarOutcome(AbstractOutcome):
         values = super().process(values)
         if not isinstance(values, numbers.Number):
             raise EMAError(
-                f"outcome {self.name} should be a scalar, but is" f" {type(values)}: {values}"
+                f"Outcome {self.name} should be a scalar, but is a {type(values)}: {values}"
             )
         return values
 
@@ -420,7 +418,10 @@ class ArrayOutcome(AbstractOutcome):
     def process(self, values):
         values = super().process(values)
         if not isinstance(values, collections.abc.Iterable):
-            raise EMAError(f"outcome {self.name} should be a collection")
+            raise TypeError(
+                f"Outcome '{self.name}' expects an iterable type (like list, tuple, or array), "
+                f"but received a {type(values).__name__}."
+            )
         return values
 
     @classmethod
@@ -462,7 +463,7 @@ class ArrayOutcome(AbstractOutcome):
             array_file.seek(0)
             return np.load(array_file)
         else:
-            raise EMAError("unknown file extension")
+            raise EMAError(f"Unknown file extension {filename}. Only .csv and .npy are supported.")
 
 
 class TimeSeriesOutcome(ArrayOutcome):
@@ -549,7 +550,7 @@ class TimeSeriesOutcome(ArrayOutcome):
         if filename.endswith("csv"):
             return pd.read_csv(f, index_col=False, header=0).values
         else:
-            raise EMAError("unknown file extension")
+            raise EMAError(f"Unknown file extension {filename}. Only .csv and .npy are supported.")
 
 
 class Constraint(ScalarOutcome):
@@ -626,7 +627,7 @@ def create_outcomes(outcomes, **kwargs):
 
     for entry in ["name", "type"]:
         if entry not in outcomes.columns:
-            raise ValueError(f"no {entry} column in dataframe")
+            raise ValueError(f"No {entry} column in outcome DataFrame")
 
     temp_outcomes = []
     for _, row in outcomes.iterrows():
@@ -638,6 +639,8 @@ def create_outcomes(outcomes, **kwargs):
         elif kind == "timeseries":
             outcome = TimeSeriesOutcome(name)
         else:
-            raise ValueError("unknown type for " + name)
+            raise ValueError(
+                f"Unknown type for outcome {name}: {kind}. Should be 'scalar' or 'timeseries'"
+            )
         temp_outcomes.append(outcome)
     return temp_outcomes

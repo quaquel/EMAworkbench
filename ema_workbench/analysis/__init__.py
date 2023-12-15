@@ -15,4 +15,5 @@ from .logistic_regression import Logit
 from .plotting import lines, envelopes, kde_over_time, multiple_densities
 from .plotting_util import Density, PlotType
 from .prim import Prim, run_constrained_prim, pca_preprocess, setup_prim
+from .prim_util import DiagKind
 from .scenario_discovery_util import RuleInductionType

@@ -284,7 +284,7 @@ def group_density(ax_d, density, outcomes, outcome_to_plot, group_labels, log=Fa
     elif density == Density.BOXENPLOT:
         plot_boxenplot(ax_d, values, log, group_labels=group_labels)
     else:
-        raise EMAError(f"unknown density type: {density}")
+        raise EMAError(f"Unknown density plot type: {density}")
 
     ax_d.set_xlabel("")
     ax_d.set_ylabel("")
@@ -316,7 +316,7 @@ def simple_density(density, value, ax_d, ax, log):
     elif density == Density.BOXENPLOT:
         plot_boxenplot(ax_d, [value[:, -1]], log)
     else:
-        raise EMAError("unknown density plot type")
+        raise EMAError(f"Unknown density plot type: {density}")
 
     ax_d.get_yaxis().set_view_interval(
         ax.get_yaxis().get_view_interval()[0], ax.get_yaxis().get_view_interval()[1]
@@ -483,7 +483,7 @@ def determine_kde(data, size_kde=1000, ymin=None, ymax=None):
     #         best_kde = grid.best_estimator_
     #         kde_x = np.exp(best_kde.score_samples(kde_y[:, np.newaxis]))
     except Exception as e:
-        _logger.warning(e)
+        _logger.warning(f"error in determine_kde: {e}")
         kde_x = np.zeros(kde_y.shape)
 
     return kde_x, kde_y
@@ -508,7 +508,7 @@ def filter_scalar_outcomes(outcomes):
     temp = {}
     for key, value in outcomes.items():
         if value.ndim < 2:
-            _logger.info(("{} not shown because it is " "not time series data").format(key))
+            _logger.info(f"outcome {key} not shown because it is not time series data")
         else:
             temp[key] = value
     return temp
@@ -664,15 +664,23 @@ def prepare_pairs_data(
     Parameters
     ----------
     results : tuple
-    outcomes_to_show : list of str, optional
+    outcomes_to_show : list of str, optional. Both None and an empty list indicate that all outcomes should be shown.
     group_by : str, optional
     grouping_specifiers : iterable, optional
     point_in_time : int, optional
     filter_scalar : bool, optional
 
     """
-    if isinstance(outcomes_to_show, str):
-        raise EMAError("for pair wise plotting, more than one outcome needs to be provided")
+    if outcomes_to_show is not None:
+        if not isinstance(outcomes_to_show, list):
+            raise TypeError(
+                f"For pair-wise plotting multiple outcomes need to be provided.\n"
+                f"outcomes_to_show must be a list of strings or None, instead of a {type(outcomes_to_show)}"
+            )
+        elif len(outcomes_to_show) == 1:
+            raise ValueError(
+                f"Only {len(outcomes_to_show)} outcome provided, at least two are needed for pair-wise plotting."
+            )
 
     experiments, outcomes, outcomes_to_show, time, grouping_labels = prepare_data(
         experiments, None, outcomes, outcomes_to_show, group_by, grouping_specifiers, filter_scalar
@@ -755,7 +763,7 @@ def prepare_data(
         if not grouping_specifiers:
             # no grouping specifier, so infer from the data
             if group_by == "index":
-                raise EMAError("no grouping specifiers provided while " "trying to group on index")
+                raise EMAError("No grouping specifiers provided while trying to group on index")
             else:
                 column_to_group_by = experiments[group_by]
                 if column_to_group_by.dtype in (object, "category"):
@@ -810,7 +818,7 @@ def do_titles(ax, titles, outcome):
             try:
                 ax.set_title(titles[outcome])
             except KeyError:
-                _logger.warning(f"key error in do_titles, no title provided for `{outcome}`")
+                _logger.warning(f"KeyError in do_titles, no title provided for outcome `{outcome}`")
                 ax.set_title(outcome)
 
 
@@ -835,7 +843,9 @@ def do_ylabels(ax, ylabels, outcome):
             try:
                 ax.set_ylabel(ylabels[outcome])
             except KeyError:
-                _logger.warning(f"key error in do_ylabels, no ylabel provided for `{outcome}`")
+                _logger.warning(
+                    f"KeyError in do_ylabels, no ylabel provided for outcome `{outcome}`"
+                )
                 ax.set_ylabel(outcome)
 
 

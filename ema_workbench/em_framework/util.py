@@ -75,7 +75,7 @@ class NamedObjectMap:
         self._data = OrderedDict()
 
         if not issubclass(kind, NamedObject):
-            raise TypeError("type must be a NamedObject")
+            raise TypeError(f"Type must be a (subclass of a) NamedObject, not {type(kind)}")
 
     def clear(self):
         self._data = OrderedDict()
@@ -100,7 +100,7 @@ class NamedObjectMap:
 
     def __setitem__(self, key, value):
         if not isinstance(value, self.kind):
-            raise TypeError("can only add " + self.kind.__name__ + " objects")
+            raise TypeError(f"Can only add {self.kind.__name__} objects, not {type(value)}")
 
         if isinstance(key, int):
             self._data = OrderedDict(
@@ -111,7 +111,7 @@ class NamedObjectMap:
             )
         else:
             if value.name != key:
-                raise ValueError("key does not match name of " + self.kind.__name__)
+                raise ValueError(f"Key ({key}) does not match name of {self.kind.__name__}")
 
             self._data[key] = value
 
@@ -131,7 +131,7 @@ class NamedObjectMap:
             for item in value:
                 self._data[item.name] = item
         else:
-            raise TypeError("can only add " + str(type) + " objects")
+            raise TypeError(f"Can only add {str(type)} objects")
 
     def __add__(self, value):
         data = self.copy()
@@ -205,7 +205,9 @@ def combine(*args):
     for entry in args:
         for key, value in entry.items():
             if key in experiment:
-                raise EMAError(f"parameters exist in {experiment} and {entry}, overlap is {key}")
+                raise EMAError(
+                    f"Parameters exist in both {experiment} and {entry}, overlap is {key}"
+                )
             experiment[key] = value
 
     return experiment
@@ -286,7 +288,7 @@ class ProgressTrackingMixIn:
         reporting_interval,
         logger,
         log_progress=False,
-        log_func=lambda self: self._logger.info(f"{self.i} " "experiments completed"),
+        log_func=lambda self: self._logger.info(f"{self.i} experiments completed"),
     ):
         # TODO:: how to enable variable log messages which might include
         # different attributes?

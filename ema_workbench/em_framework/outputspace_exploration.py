@@ -158,7 +158,8 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
     ):
         if problem.nobjs != len(grid_spec):
             raise EMAError(
-                "the number of items in grid_spec does not match the number of objectives"
+                f"The number of items in grid_spec ({len(grid_spec)})"
+                f"does not match the number of  objectives ({problem.nobjs})."
             )
         super().__init__(problem, population_size, generator=generator, **kwargs)
         self.archive = HitBox(grid_spec)

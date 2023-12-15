@@ -126,7 +126,9 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     def resolution(self, value):
         if value:
             if (min(value) < self.lower_bound) or (max(value) > self.upper_bound):
-                raise ValueError("resolution not consistent with lower and " "upper bound")
+                raise ValueError(
+                    f"Resolution ({value}) not consistent with lower ({self.lower_bound}) and upper bound ({self.upper_bound})."
+                )
         self._resolution = value
 
     def __init__(
@@ -170,7 +172,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
             if k in {"default", "resolution", "variable_name", "pff"}:
                 setattr(self, k, v)
             else:
-                raise ValueError(f"unknown property {k} for Parameter")
+                raise ValueError(f"Unknown property {k} for Parameter")
 
         return self
 
@@ -252,7 +254,7 @@ class RealParameter(Parameter):
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
         if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
-            raise ValueError("dist should be instance of rv_continouos")
+            raise ValueError(f"dist should be instance of rv_continouos, not {dist.dist}")
         return super().from_dist(name, dist, **kwargs)
 
     def __repr__(self):
@@ -316,7 +318,9 @@ class IntegerParameter(Parameter):
         up_int = float(upper_bound).is_integer()
 
         if not (lb_int and up_int):
-            raise ValueError("lower bound and upper bound must be integers")
+            raise ValueError(
+                f"Lower bound and upper bound must be integers, not {type(lower_bound)} and {type(upper_bound)}"
+            )
 
         self.lower_bound = int(lower_bound)
         self.upper_bound = int(upper_bound)
@@ -326,7 +330,9 @@ class IntegerParameter(Parameter):
         try:
             for idx, entry in enumerate(self.resolution):
                 if not float(entry).is_integer():
-                    raise ValueError("all entries in resolution should be " "integers")
+                    raise ValueError(
+                        f"All entries in resolution should be integers, not {type(entry)}"
+                    )
                 else:
                     self.resolution[idx] = int(entry)
         except TypeError:
@@ -336,7 +342,7 @@ class IntegerParameter(Parameter):
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
         if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
-            raise ValueError("dist should be instance of rv_discrete")
+            raise ValueError(f"dist should be instance of rv_discrete, not {dist.dist}")
         return super().from_dist(name, dist, **kwargs)
 
     def __repr__(self):
@@ -381,7 +387,7 @@ class CategoricalParameter(IntegerParameter):
         upper_bound = len(categories) - 1
 
         if upper_bound == 0:
-            raise ValueError("there should be more than 1 category")
+            raise ValueError(f"There should be more than 1 category, instead of {len(categories)}")
 
         super().__init__(
             name,
@@ -416,7 +422,7 @@ class CategoricalParameter(IntegerParameter):
         for i, cat in enumerate(self.categories):
             if cat.name == category:
                 return i
-        raise ValueError("category not found")
+        raise ValueError(f"Category {category} not found")
 
     def cat_for_index(self, index):
         """return category given index
@@ -448,7 +454,7 @@ class CategoricalParameter(IntegerParameter):
         # TODO:: how to handle this
         # probably need to pass categories as list and zip
         # categories to integers implied by dist
-        raise NotImplementedError("custom distributions over categories " "not supported yet")
+        raise NotImplementedError("Custom distributions over categories not supported yet")
 
 
 class BooleanParameter(CategoricalParameter):
@@ -612,9 +618,7 @@ def parameters_from_csv(uncertainties, **kwargs):
 
             if (type != "cat") and (len(values) != 2):
                 raise ValueError(
-                    "too many values specified for {}, is {}, should be 2".format(
-                        name, values.shape[0]
-                    )
+                    f"Too many values specified for {name}, is {values.shape[0]}, should be 2"
                 )
 
         if type == "cat":

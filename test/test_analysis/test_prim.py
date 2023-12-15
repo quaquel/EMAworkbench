@@ -8,6 +8,7 @@ import pytest
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
@@ -38,7 +39,7 @@ class PrimBoxTestCase(unittest.TestCase):
         prim_obj = prim.setup_prim(results, "y", threshold=0.8)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
-        self.assertEqual(box.peeling_trajectory.shape, (1, 6))
+        self.assertEqual(box.peeling_trajectory.shape, (1, 8))
 
     def test_select(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
@@ -69,9 +70,19 @@ class PrimBoxTestCase(unittest.TestCase):
         box.inspect(1)
         box.inspect()
         box.inspect(style="graph")
+        box.inspect(style="data")
 
         box.inspect([0, 1])
 
+        fig, axes = plt.subplots(2)
+        box.inspect([0, 1], ax=axes, style="graph")
+
+        fig, ax = plt.subplots()
+        box.inspect(0, ax=ax, style="graph")
+
+        with pytest.raises(ValueError):
+            fig, axes = plt.subplots(3)
+            box.inspect([0, 1], ax=axes, style="graph")
         with pytest.raises(ValueError):
             box.inspect(style="some unknown style")
         with pytest.raises(TypeError):

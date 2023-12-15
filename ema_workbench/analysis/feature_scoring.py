@@ -66,9 +66,7 @@ def _prepare_experiments(experiments):
     for column in x_nominal_columns:
         if np.unique(x[column]).shape == (1,):
             x = x.drop(column, axis=1)
-            _logger.info(
-                ("{} dropped from analysis " "because only a single category").format(column)
-            )
+            _logger.debug(f"{column} dropped from analysis because it has only a single category")
         else:
             x[column] = x[column].astype("category").cat.codes
 
@@ -112,7 +110,7 @@ def _prepare_outcomes(outcomes, classify):
         y = classify(outcomes)
         categorical = True
     else:
-        raise TypeError("unknown type for classify")
+        raise TypeError(f"Unknown type for classify: {type(classify)}")
 
     return y, categorical
 

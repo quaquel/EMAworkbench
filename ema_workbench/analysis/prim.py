@@ -19,6 +19,7 @@ import warnings
 from operator import itemgetter
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -27,7 +28,7 @@ try:
     import altair as alt
 except ImportError:
     alt = None
-    warnings.warn(("altair based interactive " "inspection not available"), ImportWarning)
+    warnings.warn("altair based interactive inspection not available", ImportWarning)
 
 from ..util import EMAError, temporary_filter, INFO, get_module_logger
 from . import scenario_discovery_util as sdutil
@@ -42,6 +43,7 @@ from .prim_util import (
     calculate_qp,
     determine_dimres,
     is_significant,
+    DiagKind,
 )
 
 # Created on 22 feb. 2013
@@ -107,7 +109,9 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     if not x.select_dtypes(exclude=np.number).empty:
         raise RuntimeError("X includes non numeric columns")
     if not set(np.unique(y)) == {0, 1}:
-        raise RuntimeError("y should only contain 0s and 1s")
+        raise RuntimeError(
+            f"y should only contain 0s and 1s, currently y contains {set(np.unique(y))}."
+        )
 
     # if no subsets are provided all uncertainties with non dtype object
     # are in the same subset, the name of this is r, for rotation
@@ -359,6 +363,8 @@ class PrimBox:
             "res_dim": pd.Series(dtype=int),
             "mass": pd.Series(dtype=float),
             "id": pd.Series(dtype=int),
+            "n": pd.Series(dtype=int),  # items in box
+            "k": pd.Series(dtype=int),  # items of interest in box
         }
 
         self.peeling_trajectory = pd.DataFrame(columns)
@@ -391,9 +397,9 @@ class PrimBox:
         else:
             raise AttributeError
 
-    def inspect(self, i=None, style="table", **kwargs):
+    def inspect(self, i=None, style="table", ax=None, **kwargs):
         """Write the stats and box limits of the user specified box to
-        standard out. if i is not provided, the last box will be
+        standard out. If i is not provided, the last box will be
         printed
 
         Parameters
@@ -404,20 +410,38 @@ class PrimBox:
                 the style of the visualization. 'table' prints the stats and
                 boxlim. 'graph' creates a figure. 'data' returns a list of
                 tuples, where each tuple contains the stats and the box_lims.
+        ax : axes or list of axes instances, optional
+             used in conjunction with `graph` style, allows you to control the axes on which graph is plotted
+             if i is list, axes should be list of equal length. If axes is None, each i_j in i will be plotted
+             in a separate figure.
 
         additional kwargs are passed to the helper function that
         generates the table or graph
 
         """
+        if style not in {"table", "graph", "data"}:
+            raise ValueError(f"style must be one of 'table', 'graph', or 'data', not {style}")
+
         if i is None:
             i = [self._cur_box]
         elif isinstance(i, int):
             i = [i]
 
-        if not all(isinstance(x, int) for x in i):
-            raise TypeError("i must be an integer or list of integers")
+        if isinstance(ax, mpl.axes.Axes):
+            ax = [ax]
 
-        return [self._inspect(entry, style=style, **kwargs) for entry in i]
+        if not all(isinstance(x, int) for x in i):
+            raise TypeError(f"i must be an integer or list of integers, not {type(i)}")
+
+        if (ax is not None) and style == "graph":
+            if len(ax) != len(i):
+                raise ValueError(
+                    f"the number of axes ({len(ax)}) does not match the number of boxes to inspect ({len(i)})"
+                )
+            else:
+                return [self._inspect(i_j, style=style, ax=ax, **kwargs) for i_j, ax in zip(i, ax)]
+        else:
+            return [self._inspect(entry, style=style, **kwargs) for entry in i]
 
     def _inspect(self, i=None, style="table", **kwargs):
         """Helper method for inspecting one or more boxes on the
@@ -445,11 +469,17 @@ class PrimBox:
         if style == "table":
             return self._inspect_table(i, uncs, qp_values)
         elif style == "graph":
-            return self._inspect_graph(i, uncs, qp_values, **kwargs)
+            # makes it possible to use _inspect to plot multiple
+            # boxes into a single figure
+            try:
+                ax = kwargs.pop("ax")
+            except KeyError:
+                fig, ax = plt.subplots()
+            return self._inspect_graph(i, uncs, qp_values, ax=ax, **kwargs)
         elif style == "data":
             return self._inspect_data(i, uncs, qp_values)
         else:
-            raise ValueError("style must be one of graph, table or data")
+            raise ValueError(f"style must be one of 'graph', 'table' or 'data', not {style}.")
 
     def _inspect_data(self, i, uncs, qp_values):
         """Helper method for inspecting boxes,
@@ -491,6 +521,7 @@ class PrimBox:
         ticklabel_formatter="{} ({})",
         boxlim_formatter="{: .2g}",
         table_formatter="{:.3g}",
+        ax=None,
     ):
         """Helper method for visualizing box statistics in
         graph form"""
@@ -502,6 +533,7 @@ class PrimBox:
             uncs,
             self.peeling_trajectory.at[i, "coverage"],
             self.peeling_trajectory.at[i, "density"],
+            ax,
             ticklabel_formatter=ticklabel_formatter,
             boxlim_formatter=boxlim_formatter,
             table_formatter=table_formatter,
@@ -793,6 +825,8 @@ class PrimBox:
             "res_dim": restricted_dims.shape[0],
             "mass": y.shape[0] / self.prim.n,
             "id": i,
+            "n": y.shape[0],
+            "k": coi,
         }
         new_row = pd.DataFrame([data])
         # self.peeling_trajectory = self.peeling_trajectory.append(
@@ -827,7 +861,15 @@ class PrimBox:
         """
         return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
-    def show_pairs_scatter(self, i=None, dims=None, cdf=False):
+    def show_pairs_scatter(
+        self,
+        i=None,
+        dims=None,
+        diag_kind=DiagKind.KDE,
+        upper="scatter",
+        lower="contour",
+        fill_subplots=True,
+    ):
         """Make a pair wise scatter plot of all the restricted
         dimensions with color denoting whether a given point is of
         interest or not and the boxlims superimposed on top.
@@ -837,8 +879,18 @@ class PrimBox:
         i : int, optional
         dims : list of str, optional
                dimensions to show, defaults to all restricted dimensions
-        cdf : bool, optional
-              plot diag as cdf or pdf
+        diag_kind : {DiagKind.KDE, DiagKind.CDF}
+               Plot diagonal as kernel density estimate ('kde') or
+               cumulative density function ('cdf').
+        upper, lower: string, optional
+               Use either 'scatter', 'contour', or 'hist' (bivariate
+               histogram) plots for upper and lower triangles. Upper triangle
+               can also be 'none' to eliminate redundancy. Legend uses
+               lower triangle style for markers.
+        fill_subplots: Boolean, optional
+                       if True, subplots are resized to fill their respective axes.
+                       This removes unnecessary whitespace, but may be undesirable
+                       for some variable combinations.
 
         Returns
         -------
@@ -851,9 +903,11 @@ class PrimBox:
         if dims is None:
             dims = sdutil._determine_restricted_dims(self.box_lims[i], self.prim.box_init)
 
-        #         x =
-        #         y = self.prim.y[self.yi_initial]
-        #         order = np.argsort(y)
+        if diag_kind not in DiagKind:
+            raise ValueError(
+                f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag_kind}"
+            )
+        diag = diag_kind.value
 
         return sdutil.plot_pair_wise_scatter(
             self.prim.x.iloc[self.yi_initial, :],
@@ -861,7 +915,10 @@ class PrimBox:
             self.box_lims[i],
             self.prim.box_init,
             dims,
-            cdf=cdf,
+            diag=diag,
+            upper=upper,
+            lower=lower,
+            fill_subplots=fill_subplots,
         )
 
     def write_ppt_to_stdout(self):
@@ -890,10 +947,10 @@ class PrimBox:
         box_lim = box_lim[restricted_dims]
 
         # total nr. of cases in box
-        Tbox = self.peeling_trajectory["mass"][i] * self.prim.n
+        Tbox = self.peeling_trajectory.loc[i, "n"]
 
         # total nr. of cases of interest in box
-        Hbox = self.peeling_trajectory["coverage"][i] * self.prim.t_coi
+        Hbox = self.peeling_trajectory.loc[i, "k"]
 
         x = self.prim.x.loc[self.prim.yi_remaining, restricted_dims]
         y = self.prim.y[self.prim.yi_remaining]
@@ -1002,7 +1059,9 @@ class Prim(sdutil.OutputFormatterMixin):
         for column in x_nominal.columns.values:
             if np.unique(x[column]).shape == (1,):
                 x = x.drop(column, axis=1)
-                _logger.info(f"{column} dropped from analysis " "because only a single category")
+                _logger.info(
+                    f"column {column} dropped from analysis because it has only one category"
+                )
 
         x_nominal = x.select_dtypes(exclude=np.number)
         self.x_nominal = x_nominal.values
@@ -1020,9 +1079,9 @@ class Prim(sdutil.OutputFormatterMixin):
         self._update_yi_remaining = self._update_functions[update_function]
 
         if len(self.y.shape) > 1:
-            raise PrimException("y is not a 1-d array")
+            raise PrimException(f"y is not a 1-d array, but has shape {self.y.shape}")
         if self.y.shape[0] != len(self.x):
-            raise PrimException("len(y) != len(x)")
+            raise PrimException(f"len(y) != len(x): {self.y.shape[0]} != {len(self.x)}")
 
         # store the remainder of the parameters
         self.paste_alpha = paste_alpha
@@ -1076,7 +1135,7 @@ class Prim(sdutil.OutputFormatterMixin):
             box._frozen = True
 
         if self.yi_remaining.shape[0] == 0:
-            _logger.info("no data remaining")
+            _logger.info("no data remaining, exiting")
             return
 
         # log how much data and how many coi are remaining
@@ -1095,7 +1154,7 @@ class Prim(sdutil.OutputFormatterMixin):
         box = self._paste(box)
         _logger.debug("pasting completed")
 
-        message = "mean: {0}, mass: {1}, coverage: {2}, " "density: {3} restricted_dimensions: {4}"
+        message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
         message = message.format(box.mean, box.mass, box.coverage, box.density, box.res_dim)
 
         if (self.threshold_type == ABOVE) & (box.mean >= self.threshold):
@@ -1109,7 +1168,8 @@ class Prim(sdutil.OutputFormatterMixin):
         else:
             # make a dump box
             _logger.info(
-                f"box does not meet threshold criteria, value is {box.mean}, returning dump box"
+                f"box mean ({box.mean}) does not meet threshold criteria ({self.threshold_type} {self.threshold}),"
+                f"returning dump box"
             )
             box = PrimBox(self, self.box_init, self.yi_remaining[:])
             self._boxes.append(box)
