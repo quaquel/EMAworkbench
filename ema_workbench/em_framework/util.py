@@ -64,7 +64,9 @@ class Variable(NamedObject):
 
     def __init__(self, name):
         if not name.isidentifier():
-            raise ValueError(f"'{name}' is not a valid Python identifier.")
+            DeprecationWarning(
+                f"'{name}' is not a valid Python identifier. In future versions of the workbench, names must be valid python identifiers"
+            )
         super().__init__(name)
 
 

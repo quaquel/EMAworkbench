@@ -42,6 +42,10 @@ class Bound(metaclass=abc.ABCMeta):
         self.name = name
         self.internal_name = "_" + name
 
+    @abc.abstractmethod
+    def get_bound(self, instance):
+        ...
+
 
 class UpperBound(Bound):
     def get_bound(self, instance):
