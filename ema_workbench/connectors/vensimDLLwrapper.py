@@ -180,7 +180,7 @@ def get_data(filename, variable_name, tname="Time"):
     return_val = vensim.vensim_get_data(filename, varname, tname, vval, tval, maxn)
 
     if return_val == 0:
-        raise VensimWarning("variable " + variable_name + " not found in dataset")
+        raise VensimWarning(f"variable {variable_name} not found in dataset")
 
     vval = (ctypes.c_float * int(return_val))()
     tval = (ctypes.c_float * int(return_val))()
@@ -237,8 +237,8 @@ def get_info(infowanted):
 
     result = repr(buf.raw)
     result = result.strip()
-    result = result.rstrip("'")
-    result = result.lstrip("'")
+    result = result.rstrip(b"'")
+    result = result.lstrip(b"'")
     result = result.split(r"\x00")
     result = result[0:-2]
     return result
@@ -318,28 +318,28 @@ def get_varattrib(varname, attribute):
     ====== =============
 
     """
-    buf = ctypes.create_string_buffer("", 10)
+    buf = ctypes.create_string_buffer(b"", 10)
     maxBuf = ctypes.c_int(10)
 
     bufferlength = vensim.vensim_get_varattrib(varname.encode("utf-8"), attribute, buf, maxBuf)
     if bufferlength == -1:
-        raise VensimWarning("variable not found")
+        raise VensimWarning(f"variable {varname} not found")
 
-    buf = ctypes.create_string_buffer("", int(bufferlength))
+    buf = ctypes.create_string_buffer(b"", int(bufferlength))
     maxBuf = ctypes.c_int(int(bufferlength))
     vensim.vensim_get_varattrib(varname.encode("utf-8"), attribute, buf, maxBuf)
 
     result = repr(buf.raw)
     result = result.strip()
-    result = result.rstrip("'")
-    result = result.lstrip("'")
+    result = result.rstrip(b"'")
+    result = result.lstrip(b"'")
     result = result.split(r"\x00")
     result = [varname for varname in result if len(varname) != 0]
 
     return result
 
 
-def get_varnames(filter="*", vartype=0):  # @ReservedAssignment
+def get_varnames(filter=b"*", vartype=0):  # @ReservedAssignment
     r"""
     This function returns variable names in the model a filter can be specified
     in the same way as Vensim variable Selection filter  (use * for all),
@@ -383,18 +383,18 @@ def get_varnames(filter="*", vartype=0):  # @ReservedAssignment
 
     filter = ctypes.c_char_p(filter)  # @ReservedAssignment
     vartype = ctypes.c_int(vartype)
-    buf = ctypes.create_string_buffer("", 512)
+    buf = ctypes.create_string_buffer(b"", 512)
     maxBuf = ctypes.c_int(512)
 
     a = vensim.vensim_get_varnames(filter, vartype, buf, maxBuf)
-    buf = ctypes.create_string_buffer("", int(a))
+    buf = ctypes.create_string_buffer(b"", int(a))
     maxBuf = ctypes.c_int(int(a))
     vensim.vensim_get_varnames(filter, vartype, buf, maxBuf)
 
     varnames = repr(buf.raw)
     varnames = varnames.strip()
-    varnames = varnames.rstrip("'")
-    varnames = varnames.lstrip("'")
+    varnames = varnames.rstrip(b"'")
+    varnames = varnames.lstrip(b"'")
     varnames = varnames.split(r"\x00")
     varnames = [varname for varname in varnames if len(varname) != 0]
 
