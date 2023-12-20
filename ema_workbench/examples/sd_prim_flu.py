@@ -21,7 +21,7 @@ ema_logging.log_to_stderr(level=ema_logging.INFO)
 
 def classify(data):
     # get the output for deceased population
-    ooi = data["deceased population region 1"]
+    ooi = data["deceased_population_region_1"]
     return ooi[:, -1] > 1000000
 
 

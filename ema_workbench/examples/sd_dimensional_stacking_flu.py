@@ -18,7 +18,7 @@ ema_logging.log_to_stderr(level=ema_logging.INFO)
 fn = "./data/1000 flu cases no policy.tar.gz"
 x, outcomes = load_results(fn)
 
-y = outcomes["deceased population region 1"][:, -1] > 1000000
+y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
 fig = dimensional_stacking.create_pivot_plot(x, y, 2, bin_labels=True)
 

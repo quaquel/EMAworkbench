@@ -73,12 +73,12 @@ class TestPlotting(unittest.TestCase):
         print(experiments.shape[0], total_data)
 
         # test continuous parameter type
-        array = experiments["average planning and construction period T1"]
+        array = experiments["average_planning_and_construction_period_T1"]
         grouping_specifiers = make_continuous_grouping_specifiers(array, nr_of_groups=5)
         groups = group_results(
             experiments,
             outcomes,
-            group_by="average planning and construction period T1",
+            group_by="average_planning_and_construction_period_T1",
             grouping_specifiers=grouping_specifiers,
             grouping_labels=[str(entry) for entry in grouping_specifiers],
         )
@@ -88,12 +88,12 @@ class TestPlotting(unittest.TestCase):
         print(experiments.shape[0], total_data)
 
         # test integer type
-        array = experiments["seed PR T1"]
+        array = experiments["seed_PR_T1"]
         grouping_specifiers = make_continuous_grouping_specifiers(array, nr_of_groups=10)
         groups = group_results(
             experiments,
             outcomes,
-            group_by="seed PR T1",
+            group_by="seed_PR_T1",
             grouping_specifiers=grouping_specifiers,
             grouping_labels=[str(entry) for entry in grouping_specifiers],
         )
@@ -122,7 +122,7 @@ class TestPlotting(unittest.TestCase):
         lines(
             experiments,
             outcomes,
-            outcomes_to_show="total fraction new technologies",
+            outcomes_to_show="total_fraction_new_technologies",
             experiments_to_show=np.arange(0, 600, 20),
             group_by="policy",
             grouping_specifiers="basic policy",
@@ -292,7 +292,7 @@ class TestPlotting(unittest.TestCase):
         envelopes(experiments, outcomes, density=None, titles=None)
         envelopes(experiments, outcomes, density=None, titles={})
         envelopes(
-            experiments, outcomes, density=None, titles={"total fraction new technologies": "a"}
+            experiments, outcomes, density=None, titles={"total_fraction_new_technologies": "a"}
         )
 
         plt.draw()
@@ -302,7 +302,7 @@ class TestPlotting(unittest.TestCase):
         envelopes(experiments, outcomes, density=None, ylabels=None)
         envelopes(experiments, outcomes, density=None, ylabels={})
         envelopes(
-            experiments, outcomes, density=None, ylabels={"total fraction new technologies": "a"}
+            experiments, outcomes, density=None, ylabels={"total_fraction_new_technologies": "a"}
         )
 
         plt.draw()
@@ -401,7 +401,7 @@ class TestPlotting(unittest.TestCase):
 
     def test_multiple_densities(self):
         experiments, outcomes = utilities.load_eng_trans_data()
-        ooi = "total fraction new technologies"
+        ooi = "total_fraction_new_technologies"
 
         multiple_densities(experiments, outcomes, group_by="policy", points_in_time=[2010])
         multiple_densities(

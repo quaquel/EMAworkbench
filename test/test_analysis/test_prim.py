@@ -19,7 +19,7 @@ from ema_workbench.em_framework.outcomes import ScalarOutcome
 
 def flu_classify(data):
     # get the output for deceased population
-    result = data["deceased population region 1"]
+    result = data["deceased_population_region_1"]
 
     # make an empty array of length equal to number of cases
     classes = np.zeros(result.shape[0])
@@ -178,7 +178,7 @@ class PrimTestCase(unittest.TestCase):
 
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or higher than the threshold
-        outcomes["death toll"] = outcomes["deceased population region 1"][:, -1]
+        outcomes["death toll"] = outcomes["deceased_population_region_1"][:, -1]
         results = experiments, outcomes
         threshold = 10000
         prim_obj = prim.setup_prim(
@@ -228,7 +228,7 @@ class PrimTestCase(unittest.TestCase):
 
         # test initialization, including t_coi calculation in case of searching
         # for results equal to or higher than the threshold
-        outcomes["death toll"] = outcomes["deceased population region 1"][:, -1]
+        outcomes["death toll"] = outcomes["deceased_population_region_1"][:, -1]
         results = experiments, outcomes
         threshold = 10000
         prim_obj = prim.setup_prim(
@@ -323,7 +323,7 @@ class PrimTestCase(unittest.TestCase):
     def test_prim_exceptions(self):
         results = utilities.load_flu_data()
         x, outcomes = results
-        y = outcomes["deceased population region 1"]
+        y = outcomes["deceased_population_region_1"]
 
         self.assertRaises(
             prim.PrimException, prim.Prim, x, y, threshold=0.8, mode=RuleInductionType.REGRESSION

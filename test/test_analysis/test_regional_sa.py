@@ -14,7 +14,7 @@ from test import utilities
 class Test(unittest.TestCase):
     def test_plot_cdfs(self):
         x, outcomes = utilities.load_flu_data()
-        y = outcomes["deceased population region 1"][:, -1] > 1000000
+        y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
         regional_sa.plot_cdfs(x, y)
         regional_sa.plot_cdfs(x, y, ccdf=True)
@@ -24,10 +24,10 @@ class Test(unittest.TestCase):
 
     def test_plot__individual_cdf(self):
         x, outcomes = utilities.load_flu_data()
-        y = outcomes["deceased population region 1"][:, -1] > 1000000
+        y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
         fig, ax = plt.subplots()
-        unc = "fatality ratio region 1"
+        unc = "fatality_ratio_region_1"
 
         regional_sa.plot_individual_cdf(
             ax,

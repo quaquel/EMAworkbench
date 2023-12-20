@@ -24,7 +24,7 @@ tr = {}
 time = outcomes.pop("TIME")
 
 for key, value in outcomes.items():
-    if key == "deceased population region 1":
+    if key == "deceased_population_region_1":
         tr[key] = value[:, -1]  # we want the end value
     else:
         # we want the maximum value of the peak
