@@ -34,8 +34,8 @@ sys.path.append(os.path.abspath("../../"))
 # -- General configuration
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = "6.0"
-needs_extensions = {"sphinx_rtd_theme": "1.0"}
+# needs_sphinx = "6.0"
+# needs_extensions = {"sphinx_rtd_theme": "1.0"}
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -47,6 +47,7 @@ extensions = [
     "sphinxcontrib.jquery",
     "nbsphinx",
     "myst_parser",
+    "sphinx_rtd_theme",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
