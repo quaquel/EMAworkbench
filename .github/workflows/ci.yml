@@ -56,7 +56,7 @@ jobs:
       run:
         pytest --ignore=./test/test_connectors -v --cov=ema_workbench/em_framework --cov=ema_workbench/util --cov=ema_workbench/analysis
     - name: Coveralls
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
       env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: coveralls --service=github

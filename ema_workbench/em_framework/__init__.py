@@ -79,6 +79,7 @@ from .evaluators import (
     SequentialEvaluator,
     Samplers,
 )
+
 from .optimization import (
     Convergence,
     EpsilonProgress,
