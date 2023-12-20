@@ -33,4 +33,4 @@ from .util import save_results, load_results, ema_logging, EMAError, process_rep
 
 # from . import analysis
 
-__version__ = "2.5.0"
+__version__ = "3.0.0-dev"
