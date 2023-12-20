@@ -6,6 +6,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
+## 2.5.0
+### Highlights
+In the 2.5.0 release of the EMAworkbench we introduce a new experimental MPIevaluator to run on multi-node (HPC) systems (#299, #328). We would love feedback on it in #311.
+
+Furthermore, the pair plots for scenario discovery now allow contour plots and bivariate histograms (#288). When doing Prim you can inspect multiple boxed and display them in a single figure (#317).
+
+### Breaking changes
+From 3.0 onwards, the names of parameters, constants, constraints, and outcomes must be valid python identifiers. From this version onwards, a DeprecationWarning is raised if the name is not a valid Python identifier. 
+
+### What's Changed
+#### 🎉 New features added
+* Improved pair plots for scenario discovery by @steipatr in https://github.com/quaquel/EMAworkbench/pull/288
+* Introducing MPIEvaluator: Run on multi-node HPC systems using mpi4py by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/299
+* inspect multiple boxes and display them in a single figure by @quaquel in https://github.com/quaquel/EMAworkbench/pull/317
+#### 🛠 Enhancements made
+* Enhancement for #271: raise exception by @quaquel in https://github.com/quaquel/EMAworkbench/pull/282
+* em_framework/points: Add string representation to Experiment class by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/297
+* Speed up of plot_discrete_cdfs by 2 orders of magnitude by @quaquel in https://github.com/quaquel/EMAworkbench/pull/306
+* em_framework: Improve log messages, warning and errors by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/300
+* analysis: Improve log messages, warning and errors by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/313
+* change to log message and log level in feature scoring by @quaquel in https://github.com/quaquel/EMAworkbench/pull/318
+* [WIP] MPI update by @quaquel in https://github.com/quaquel/EMAworkbench/pull/328
+#### 🐛 Bugs fixed
+* Fix search in Readthedocs configuration with workaround by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/264
+* bugfix introduced by #241 in general-introduction from docs by @quaquel in https://github.com/quaquel/EMAworkbench/pull/265
+* prim: Replace deprecated Altair function by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/270
+* bugfix to rebuild_platypus_population by @quaquel in https://github.com/quaquel/EMAworkbench/pull/276
+* bugfix for #277 : load_results properly handles experiments dtypes by @quaquel in https://github.com/quaquel/EMAworkbench/pull/280
+* fixes a bug where binomtest fails because of floating point math by @quaquel in https://github.com/quaquel/EMAworkbench/pull/315
+* make workbench compatible with latest version of pysd by @quaquel in https://github.com/quaquel/EMAworkbench/pull/336
+* bugfixes for string vs bytestring by @quaquel in https://github.com/quaquel/EMAworkbench/pull/339
+#### 📜 Documentation improvements
+* Drop Python 3.8 support, require 3.9+ by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/259
+* readthedocs: Add search ranking and use latest Python version by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/242
+* docs/examples: Always use n_processes=-1 in MultiprocessingEvaluator by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/278
+* Docs: Add MPIEvaluator tutorial for multi-node HPC systems, including DelftBlue by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/308
+* Add Mesa example by @steipatr in https://github.com/quaquel/EMAworkbench/pull/335
+* Fix htmltheme of docs by @quaquel in https://github.com/quaquel/EMAworkbench/pull/342
+#### 🔧 Maintenance
+* CI: Switch default jobs to Python 3.12 by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/314
+* Reorganization of evaluator code and renaming of modules by @quaquel in https://github.com/quaquel/EMAworkbench/pull/320
+* Replace deprecated zmq.eventloop.ioloop with Tornado's ioloop by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/334
+#### Other changes
+* examples: Speedup the lake_problem function by ~30x by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/301
+* Create an GitHub issue chooser by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/331
+* Depracation warning for parameter names not being valid python identifiers by @quaquel in https://github.com/quaquel/EMAworkbench/pull/337
+
+**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.4.0...2.5.0
+
 ## 2.4.1
 ### Highlights
 2.4.1 is a small patch release of the EMAworkbench, primarily resolving issues #276 and #277 in the workbench itself, and a bug introduced by #241 in the docs. The EMAworkbench now also raise exception when sampling scenarios or policies while no uncertainties or levers are defined (#282).
