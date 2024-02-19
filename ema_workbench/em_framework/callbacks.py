@@ -12,6 +12,7 @@ The only method to implement is the __call__ magic method. To use logging of
 progress, always call super.
 
 """
+
 import abc
 import csv
 import os

@@ -2,6 +2,7 @@
 Python model "Sales_Agent_Market_Building_Dynamics.py"
 Translated using PySD version 1.3.0
 """
+
 from os import path
 import numpy as np
 

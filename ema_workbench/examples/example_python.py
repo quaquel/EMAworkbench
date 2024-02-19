@@ -6,6 +6,7 @@ It's main purpose has been to test the parallel processing functionality
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
+
 from ema_workbench import Model, RealParameter, ScalarOutcome, ema_logging, perform_experiments
 
 

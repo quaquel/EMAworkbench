@@ -8,6 +8,7 @@ selection of the appropriate number of dimensions to include. It is modeled
 as much as possible on the api used for PRIM and CART.
 
 """
+
 import sys
 
 import matplotlib as mpl

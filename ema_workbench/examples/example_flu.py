@@ -11,6 +11,7 @@ compare the results.
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import sin, min, exp

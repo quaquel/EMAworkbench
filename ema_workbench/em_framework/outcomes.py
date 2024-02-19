@@ -2,6 +2,7 @@
 Module for outcome classes
 
 """
+
 import abc
 import collections
 import numbers

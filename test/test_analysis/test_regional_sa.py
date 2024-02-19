@@ -3,6 +3,7 @@ Created on 19 Nov 2018
 
 @author: jhkwakkel
 """
+
 import unittest
 
 import matplotlib.pyplot as plt

@@ -3,6 +3,7 @@ This module provides time series clustering functionality using
 complex invariant distance. For details see `Steinmann et al (2020) <https://doi.org/10.1016/j.techfore.2020.120052>`_
 
 """
+
 import itertools
 
 import matplotlib.pyplot as plt
