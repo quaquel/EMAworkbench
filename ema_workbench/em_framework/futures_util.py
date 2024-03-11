@@ -30,21 +30,23 @@ def determine_rootdir(msis):
     return root_dir
 
 
-def finalizer(tmpdir):
+def finalizer(experiment_runner):
     """cleanup"""
-    global experiment_runner
-    _logger.info("finalizing")
 
-    experiment_runner.cleanup()
-    del experiment_runner
+    def finalizer(tmpdir):
+        _logger.info("finalizing")
 
-    time.sleep(1)
+        experiment_runner.cleanup()
+        del experiment_runner
 
-    if tmpdir:
-        try:
-            shutil.rmtree(tmpdir)
-        except OSError:
-            pass
+        time.sleep(1)
+
+        if tmpdir:
+            try:
+                shutil.rmtree(tmpdir)
+            except OSError:
+                pass
+    return finalizer
 
 
 def setup_working_directories(models, root_dir):
