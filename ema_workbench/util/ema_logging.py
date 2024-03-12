@@ -6,6 +6,7 @@ Python <https://docs.python.org/library/logging.html>`_.
 This logging system will also work in case of multiprocessing.
 
 """
+
 import inspect
 import logging
 from contextlib import contextmanager

@@ -1,6 +1,7 @@
 """
 Scenario discovery utilities used by both :mod:`cart` and :mod:`prim`
 """
+
 import abc
 import enum
 import itertools

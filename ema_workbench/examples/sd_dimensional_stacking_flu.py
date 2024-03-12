@@ -7,6 +7,7 @@ stacking for scenario discovery
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 """
+
 import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results

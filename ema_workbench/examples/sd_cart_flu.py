@@ -3,6 +3,7 @@ Created on May 26, 2015
 
 @author: jhkwakkel
 """
+
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.cart as cart

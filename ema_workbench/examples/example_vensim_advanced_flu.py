@@ -8,6 +8,7 @@ is the same as used in fluExample
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
 """
+
 import numpy as np
 
 from ema_workbench import (

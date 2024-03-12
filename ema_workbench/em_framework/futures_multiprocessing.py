@@ -2,6 +2,7 @@
 support for using the multiprocessing library in combination with the workbench
 
 """
+
 import logging
 import multiprocessing
 import os

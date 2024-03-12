@@ -2,6 +2,7 @@
 
 
 """
+
 import matplotlib.pyplot as plt
 
 from ema_workbench.analysis import regional_sa

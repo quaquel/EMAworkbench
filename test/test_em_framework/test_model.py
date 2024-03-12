@@ -3,6 +3,7 @@ Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
+
 import unittest
 
 import unittest.mock as mock

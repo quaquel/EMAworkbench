@@ -4,6 +4,7 @@ Any model that is to be controlled from the workbench is controlled via
 an instance of an extension of this abstract base class.
 
 """
+
 import operator
 import os
 import warnings

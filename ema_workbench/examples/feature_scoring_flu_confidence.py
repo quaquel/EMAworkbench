@@ -3,6 +3,7 @@ Created on 30 Oct 2018
 
 @author: jhkwakkel
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

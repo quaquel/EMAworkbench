@@ -11,6 +11,7 @@ in combination with an agent-set or reporter. However, it introduces
 substantial overhead.
 
 """
+
 from pynetlogo.core import NetLogoException
 
 from ema_workbench.em_framework.model import Replicator, SingleReplication

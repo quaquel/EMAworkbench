@@ -3,6 +3,7 @@ A scenario discovery oriented implementation of CART. It essentially is
 a wrapper around scikit-learn's version of CART.
 
 """
+
 import io
 import math
 from io import StringIO

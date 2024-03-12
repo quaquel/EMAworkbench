@@ -3,6 +3,7 @@ Created on Jul 8, 2014
 
 @author: jhkwakkel@tudelft.net
 """
+
 import math
 
 import matplotlib.pyplot as plt

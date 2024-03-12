@@ -10,6 +10,7 @@ This excel file implements a simple predator prey model.
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
+
 from ema_workbench import RealParameter, TimeSeriesOutcome, ema_logging, perform_experiments
 
 from ema_workbench.connectors.excel import ExcelModel

@@ -4,6 +4,7 @@ test code for ema_ipyparallel. The setup and teardown of the cluster is
 taken from the ipyparallel test code with some minor adaptations
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
+
 import logging
 
 import unittest.mock as mock
