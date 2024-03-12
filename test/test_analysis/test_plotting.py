@@ -3,6 +3,7 @@ Created on 22 jul. 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
+
 import unittest
 
 import matplotlib.pyplot as plt

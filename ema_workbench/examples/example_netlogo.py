@@ -7,6 +7,7 @@ comes with NetLogo. If you are using NetLogo 5, replace the model file
 with the one that comes with NetLogo.
 
 """
+
 import numpy as np
 
 from ema_workbench import (

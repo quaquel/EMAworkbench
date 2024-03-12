@@ -3,6 +3,7 @@ Created on 27 Jun 2019
 
 @author: jhkwakkel
 """
+
 from ema_workbench import ema_logging, CategoricalParameter, MultiprocessingEvaluator, ScalarOutcome
 
 from ema_workbench.connectors.simio_connector import SimioModel

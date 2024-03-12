@@ -13,7 +13,7 @@ In the 2.5.0 release of the EMAworkbench we introduce a new experimental MPIeval
 Furthermore, the pair plots for scenario discovery now allow contour plots and bivariate histograms (#288). When doing Prim you can inspect multiple boxed and display them in a single figure (#317).
 
 ### Breaking changes
-From 3.0 onwards, the names of parameters, constants, constraints, and outcomes must be valid python identifiers. From this version onwards, a DeprecationWarning is raised if the name is not a valid Python identifier. 
+From 3.0 onwards, the names of parameters, constants, constraints, and outcomes must be valid python identifiers. From this version onwards, a DeprecationWarning is raised if the name is not a valid Python identifier.
 
 ### What's Changed
 #### 🎉 New features added

@@ -13,6 +13,7 @@ The implementation is designed for interactive use in combination with
 the jupyter notebook.
 
 """
+
 import copy
 import itertools
 import warnings

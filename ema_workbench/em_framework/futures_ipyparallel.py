@@ -3,6 +3,7 @@ This module provides functionality for combining the EMA workbench
 with IPython parallel.
 
 """
+
 import collections
 import logging
 import os

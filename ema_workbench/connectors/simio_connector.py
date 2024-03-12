@@ -2,6 +2,7 @@
 connector assumes Simio is installed in C:/Program Files (x86)/Simio
 
 """
+
 import os
 import sys
 import numpy as np

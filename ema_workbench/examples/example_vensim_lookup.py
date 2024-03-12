@@ -8,6 +8,7 @@ use in conjunction with vensim models. This example is largely based on
 @author: sibeleker
 @author: jhkwakkel
 """
+
 import matplotlib.pyplot as plt
 
 from ema_workbench import TimeSeriesOutcome, perform_experiments, ema_logging

@@ -3,6 +3,7 @@
 Plotting utility functions
 
 """
+
 import copy
 import enum
 

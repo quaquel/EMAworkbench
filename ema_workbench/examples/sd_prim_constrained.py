@@ -5,6 +5,7 @@ for more details see Kwakkel (2019) A generalized many‐objective optimization
 approach for scenario discovery, doi: https://doi.org/10.1002/ffo2.8
 
 """
+
 import matplotlib.pyplot as plt
 import pandas as pd
 

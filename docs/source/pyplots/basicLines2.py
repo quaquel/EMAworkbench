@@ -3,6 +3,7 @@ Created on 26 sep. 2011
 
 @author: jhkwakkel
 """
+
 import matplotlib.pyplot as plt
 
 from expWorkbench import load_results
