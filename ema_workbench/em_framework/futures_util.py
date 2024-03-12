@@ -37,7 +37,7 @@ def finalizer(experiment_runner):
         _logger.info("finalizing")
 
         experiment_runner.cleanup()
-        del experiment_runner
+        # del experiment_runner
 
         time.sleep(1)
 
@@ -46,6 +46,7 @@ def finalizer(experiment_runner):
                 shutil.rmtree(tmpdir)
             except OSError:
                 pass
+
     return finalizer
 
 
