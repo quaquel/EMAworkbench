@@ -65,7 +65,7 @@ def mpi_initializer(models, log_level, root_dir):
     # setup the working directories
     tmpdir = setup_working_directories(models, root_dir)
     if tmpdir:
-        atexit.register(finalizer, os.path.abspath(tmpdir))
+        atexit.register(finalizer(experiment_runner), os.path.abspath(tmpdir))
 
     # _logger.info(f"worker {rank} initialized")
     root_logger.info(f"worker {rank} initialized")
