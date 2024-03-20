@@ -9,11 +9,6 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 import math
 import time
 
-# FIXME
-import sys
-
-sys.path.insert(0, "/Users/jhkwakkel/Documents/GitHub/EMAworkbench")
-
 import numpy as np
 from scipy.optimize import brentq
 
