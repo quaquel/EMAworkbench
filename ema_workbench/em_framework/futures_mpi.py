@@ -169,9 +169,8 @@ class MPIEvaluator(BaseEvaluator):
             max_workers=self.n_processes,
             initializer=mpi_initializer,
             initargs=(self._msis, _logger.level, self.root_dir),
-        )  # Removed initializer arguments
+        )
 
-        self._pool = MPIPoolExecutor(max_workers=self.n_processes)  # Removed initializer arguments
         _logger.info(f"MPI pool started with {self._pool._max_workers} workers")
         if self._pool._max_workers <= 10:
             _logger.warning(
