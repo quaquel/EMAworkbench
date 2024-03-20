@@ -101,6 +101,8 @@ def logwatcher(stop_event):
                 raise e
             else:
                 logger.callHandlers(record)
+    else:
+        _logger.debug("closing logwatchter")
 
 
 def run_experiment_mpi(experiment):
