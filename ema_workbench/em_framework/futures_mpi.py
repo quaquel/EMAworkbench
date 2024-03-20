@@ -14,7 +14,7 @@ from .futures_util import setup_working_directories, finalizer, determine_rootdi
 from .util import NamedObjectMap
 from .model import AbstractModel
 from .experiment_runner import ExperimentRunner
-from ..util import get_module_logger, get_rootlogger
+from ..util import get_module_logger, get_rootlogger, method_logger
 
 from ..util import ema_logging
 
@@ -154,6 +154,7 @@ class MPIEvaluator(BaseEvaluator):
         self.stop_event = None
         self.n_processes = n_processes
 
+    @method_logger(__name__)
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
@@ -178,6 +179,7 @@ class MPIEvaluator(BaseEvaluator):
             )
         return self
 
+    @method_logger(__name__)
     def finalize(self):
         self._pool.shutdown()
         self.stop_event.set()
@@ -189,6 +191,7 @@ class MPIEvaluator(BaseEvaluator):
         time.sleep(0.1)
         _logger.info("MPI pool has been shut down")
 
+    @method_logger(__name__)
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
         experiments = list(ex_gen)
