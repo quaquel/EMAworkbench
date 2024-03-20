@@ -163,7 +163,7 @@ class MPIEvaluator(BaseEvaluator):
 
         self.stop_event = threading.Event()
         self.logwatcher_thread = threading.Thread(
-            name="logwatcher", target=logwatcher, daemon=True, args=(self.stop_event,)
+            name="logwatcher", target=logwatcher, daemon=False, args=(self.stop_event,)
         )
         self.logwatcher_thread.start()
 
@@ -185,6 +185,11 @@ class MPIEvaluator(BaseEvaluator):
     def finalize(self):
         self._pool.shutdown()
         self.stop_event.set()
+        self.logwatcher_thread.join(timeout=60)
+
+        if self.logwatcher_thread.is_alive():
+            _logger.warning(f"houston we have a problem")
+
         _logger.info("MPI pool has been shut down")
 
         if self.root_dir:
@@ -195,8 +200,7 @@ class MPIEvaluator(BaseEvaluator):
 
     @method_logger(__name__)
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
-        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-        experiments = list(ex_gen)
+        experiments = list(experiment_generator(scenarios, self._msis, policies, combine=combine))
 
         results = self._pool.map(run_experiment_mpi, experiments, **kwargs)
         for experiment, outcomes in results:
