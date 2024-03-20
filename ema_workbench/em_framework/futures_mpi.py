@@ -102,7 +102,7 @@ def logwatcher(stop_event):
             else:
                 logger.callHandlers(record)
     else:
-        _logger.debug("closing logwatchter")
+        _logger.info("closing logwatcher")
 
 
 def run_experiment_mpi(experiment):
