@@ -10,7 +10,7 @@ authors = [
 description = "Exploratory modelling in Python"
 readme = "README.md"
 license = { file="LICENSE.md" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers=[
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: BSD License",
