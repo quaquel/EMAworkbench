@@ -90,46 +90,50 @@ def logwatcher(stop_event):
     comm = MPI.COMM_WORLD.Accept(port, info, root)
     _logger.debug("client connected...")
 
-    while not stop_event.is_set():
-        record = comm.irecv(None, MPI.ANY_SOURCE, tag=0)
-        success = False
-        message = None
-        start_time = time.time()
-
-        while not success or (
-            (time.time() - start_time) > 10
-        ):  # what is a good timeout number given initialization of worker processes?
-            success, message = record.test()
-            time.sleep(1)
-
-        if success:
-            try:
-                logger = logging.getLogger(message.name)
-            except Exception as e:
-                # AttributeError if record does not have a name attribute
-                # TypeError record.name is not a string
-                raise e
-            else:
-                logger.callHandlers(message)
-        else:
-            record.cancel()
-            record.Free()
-    else:
-        _logger.info("closing logwatcher")
-
     # while not stop_event.is_set():
-    #     if rank == root:
-    #         record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
+    #     record = comm.irecv(None, MPI.ANY_SOURCE, tag=0)
+    #     success = False
+    #     message = None
+    #     start_time = time.time()
+    #
+    #     while not success or (
+    #         (time.time() - start_time) > 10
+    #     ):  # what is a good timeout number given initialization of worker processes?
+    #         success, message = record.test()
+    #         time.sleep(1)
+    #
+    #     if success:
     #         try:
-    #             logger = logging.getLogger(record.name)
+    #             logger = logging.getLogger(message.name)
     #         except Exception as e:
     #             # AttributeError if record does not have a name attribute
     #             # TypeError record.name is not a string
     #             raise e
     #         else:
-    #             logger.callHandlers(record)
+    #             logger.callHandlers(message)
+    #     else:
+    #         record.cancel()
+    #         record.Free()
     # else:
     #     _logger.info("closing logwatcher")
+
+    while not stop_event.is_set():
+        if rank == root:
+            record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
+            try:
+                logger = logging.getLogger(record.name)
+            except Exception as e:
+                if record.msg is None:
+                    _logger.info("received sentinel")
+                    break
+                else:
+                    # AttributeError if record does not have a name attribute
+                    # TypeError record.name is not a string
+                    raise e
+            else:
+                logger.callHandlers(record)
+    else:
+        _logger.info("closing logwatcher")
 
 
 def run_experiment_mpi(experiment):
@@ -140,6 +144,14 @@ def run_experiment_mpi(experiment):
     _logger.debug(f"completed {experiment.experiment_id}")
 
     return experiment, outcomes
+
+
+def send_sentinel():
+    record = logging.makeLogRecord({})
+
+    for handler in _logger.handlers:
+        if isinstance(handler, MPIHandler):
+            handler.emit(record)
 
 
 class MPIHandler(QueueHandler):
@@ -210,6 +222,9 @@ class MPIEvaluator(BaseEvaluator):
 
     @method_logger(__name__)
     def finalize(self):
+        # submit sentinel
+        self._pool.submit()
+
         self._pool.shutdown()
         self.stop_event.set()
         self.logwatcher_thread.join(timeout=60)
