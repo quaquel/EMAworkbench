@@ -106,8 +106,8 @@ def logwatcher(stop_event):
                     raise e
             else:
                 logger.callHandlers(record)
-    else:
-        _logger.info("closing logwatcher")
+
+    _logger.info("closing logwatcher")
 
 
 def run_experiment_mpi(experiment):
@@ -126,7 +126,6 @@ def send_sentinel():
     for handler in get_rootlogger().handlers:
         if isinstance(handler, MPIHandler):
             _logger.debug("sending sentinel")
-            # handler.emit(record)
             handler.communicator.send(record, 0, 0)
 
 
