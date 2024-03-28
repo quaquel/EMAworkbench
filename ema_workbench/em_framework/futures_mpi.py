@@ -71,7 +71,7 @@ def mpi_initializer(models, log_level, root_dir):
     root_logger.info(f"worker {rank} initialized")
 
 
-def logwatcher(stop_event):
+def logwatcher(start_event, stop_event):
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
@@ -84,6 +84,7 @@ def logwatcher(stop_event):
     service = "logwatcher"
     MPI.Publish_name(service, info, port)
     _logger.debug(f"published service: {service}")
+    start_event.set()
 
     root = 0
     _logger.debug("waiting for client connection...")
@@ -174,11 +175,19 @@ class MPIEvaluator(BaseEvaluator):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
 
+        start_event = threading.Event()
         self.stop_event = threading.Event()
         self.logwatcher_thread = threading.Thread(
-            name="logwatcher", target=logwatcher, daemon=False, args=(self.stop_event,)
+            name="logwatcher",
+            target=logwatcher,
+            daemon=False,
+            args=(
+                start_event,
+                self.stop_event,
+            ),
         )
         self.logwatcher_thread.start()
+        start_event.wait()
 
         self.root_dir = determine_rootdir(self._msis)
         self._pool = MPIPoolExecutor(
