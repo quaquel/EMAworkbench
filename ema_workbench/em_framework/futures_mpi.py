@@ -152,7 +152,7 @@ def send_sentinel():
 
     for handler in get_rootlogger().handlers:
         if isinstance(handler, MPIHandler):
-            _logger.info("sending sentinel")
+            _logger.debug("sending sentinel")
             handler.emit(record)
 
 
