@@ -150,7 +150,7 @@ def run_experiment_mpi(experiment):
 def send_sentinel():
     record = logging.makeLogRecord(dict(level=logging.CRITICAL, msg=None))
 
-    for handler in _logger.handlers:
+    for handler in get_rootlogger().handlers:
         if isinstance(handler, MPIHandler):
             _logger.info("sending sentinel")
             handler.emit(record)
