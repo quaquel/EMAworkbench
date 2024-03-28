@@ -129,6 +129,7 @@ def logwatcher(stop_event):
                 else:
                     # AttributeError if record does not have a name attribute
                     # TypeError record.name is not a string
+                    _logger.info("some exception {e}")
                     raise e
             else:
                 logger.callHandlers(record)
@@ -148,6 +149,7 @@ def run_experiment_mpi(experiment):
 
 def send_sentinel():
     record = logging.makeLogRecord({})
+    _logger.info("sending sentinel")
 
     for handler in _logger.handlers:
         if isinstance(handler, MPIHandler):
@@ -223,7 +225,7 @@ class MPIEvaluator(BaseEvaluator):
     @method_logger(__name__)
     def finalize(self):
         # submit sentinel
-        self._pool.submit(send_sentinel)
+        f = self._pool.submit(send_sentinel)
 
         self._pool.shutdown()
         self.stop_event.set()
@@ -231,8 +233,6 @@ class MPIEvaluator(BaseEvaluator):
 
         if self.logwatcher_thread.is_alive():
             _logger.warning(f"houston we have a problem")
-
-        _logger.info("MPI pool has been shut down")
 
         if self.root_dir:
             shutil.rmtree(self.root_dir)
