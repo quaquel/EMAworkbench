@@ -126,7 +126,8 @@ def send_sentinel():
     for handler in get_rootlogger().handlers:
         if isinstance(handler, MPIHandler):
             _logger.debug("sending sentinel")
-            handler.emit(record)
+            # handler.emit(record)
+            handler.communicator.send(record, 0, 0)
 
 
 class MPIHandler(QueueHandler):
