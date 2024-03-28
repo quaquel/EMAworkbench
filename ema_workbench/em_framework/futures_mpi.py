@@ -188,6 +188,7 @@ class MPIEvaluator(BaseEvaluator):
         )
         self.logwatcher_thread.start()
         start_event.wait()
+        _logger.info("logwatcher server started")
 
         self.root_dir = determine_rootdir(self._msis)
         self._pool = MPIPoolExecutor(
