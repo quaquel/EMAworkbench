@@ -223,7 +223,7 @@ class MPIEvaluator(BaseEvaluator):
     @method_logger(__name__)
     def finalize(self):
         # submit sentinel
-        self._pool.submit()
+        self._pool.submit(send_sentinel)
 
         self._pool.shutdown()
         self.stop_event.set()
