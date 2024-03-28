@@ -96,9 +96,8 @@ def logwatcher(stop_event):
             try:
                 logger = logging.getLogger(record.name)
             except Exception as e:
-                _logger.info(repr(record))
                 if record.msg is None:
-                    _logger.info("received sentinel")
+                    _logger.debug("received sentinel")
                     break
                 else:
                     # AttributeError if record does not have a name attribute
