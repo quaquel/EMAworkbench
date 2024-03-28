@@ -225,10 +225,9 @@ class MPIEvaluator(BaseEvaluator):
     @method_logger(__name__)
     def finalize(self):
         # submit sentinel
-        f = self._pool.submit(send_sentinel)
-
-        self._pool.shutdown()
         self.stop_event.set()
+        self._pool.submit(send_sentinel)
+        self._pool.shutdown()
         self.logwatcher_thread.join(timeout=60)
 
         if self.logwatcher_thread.is_alive():
