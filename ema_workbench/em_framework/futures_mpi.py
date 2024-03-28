@@ -97,7 +97,7 @@ def logwatcher(stop_event):
         start_time = time.time()
 
         while not success or (
-            (time.time() - start_time()) > 10
+            (time.time() - start_time) > 10
         ):  # what is a good timeout number given initialization of worker processes?
             success, message = record.test()
             time.sleep(1)
