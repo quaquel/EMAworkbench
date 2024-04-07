@@ -8,11 +8,6 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 import math
 import time
 
-# FIXME
-import sys
-
-sys.path.insert(0, "/Users/jhkwakkel/Documents/GitHub/EMAworkbench")
-
 import numpy as np
 from scipy.optimize import brentq
 
@@ -87,10 +82,13 @@ def lake_problem(
 
 
 if __name__ == "__main__":
+    import ema_workbench
+
     # run with mpiexec -n 1 -usize {ntasks} python example_mpi_lake_model.py
     starttime = time.perf_counter()
 
     ema_logging.log_to_stderr(ema_logging.INFO, pass_root_logger_level=True)
+    ema_logging.get_rootlogger().info(f"{ema_workbench.__version__}")
 
     # instantiate the model
     lake_model = Model("lakeproblem", function=lake_problem)
