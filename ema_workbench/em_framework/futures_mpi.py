@@ -14,7 +14,7 @@ from .futures_util import setup_working_directories, finalizer, determine_rootdi
 from .util import NamedObjectMap
 from .model import AbstractModel
 from .experiment_runner import ExperimentRunner
-from ..util import get_module_logger, get_rootlogger
+from ..util import get_module_logger, get_rootlogger, method_logger
 
 from ..util import ema_logging
 
@@ -71,7 +71,7 @@ def mpi_initializer(models, log_level, root_dir):
     root_logger.info(f"worker {rank} initialized")
 
 
-def logwatcher(stop_event):
+def logwatcher(start_event, stop_event):
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
@@ -84,6 +84,7 @@ def logwatcher(stop_event):
     service = "logwatcher"
     MPI.Publish_name(service, info, port)
     _logger.debug(f"published service: {service}")
+    start_event.set()
 
     root = 0
     _logger.debug("waiting for client connection...")
@@ -96,11 +97,17 @@ def logwatcher(stop_event):
             try:
                 logger = logging.getLogger(record.name)
             except Exception as e:
-                # AttributeError if record does not have a name attribute
-                # TypeError record.name is not a string
-                raise e
+                if record.msg is None:
+                    _logger.debug("received sentinel")
+                    break
+                else:
+                    # AttributeError if record does not have a name attribute
+                    # TypeError record.name is not a string
+                    raise e
             else:
                 logger.callHandlers(record)
+
+    _logger.info("closing logwatcher")
 
 
 def run_experiment_mpi(experiment):
@@ -111,6 +118,15 @@ def run_experiment_mpi(experiment):
     _logger.debug(f"completed {experiment.experiment_id}")
 
     return experiment, outcomes
+
+
+def send_sentinel():
+    record = logging.makeLogRecord(dict(level=logging.CRITICAL, msg=None, name=42))
+
+    for handler in get_rootlogger().handlers:
+        if isinstance(handler, MPIHandler):
+            _logger.debug("sending sentinel")
+            handler.communicator.send(record, 0, 0)
 
 
 class MPIHandler(QueueHandler):
@@ -154,24 +170,33 @@ class MPIEvaluator(BaseEvaluator):
         self.stop_event = None
         self.n_processes = n_processes
 
+    @method_logger(__name__)
     def initialize(self):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
 
+        start_event = threading.Event()
         self.stop_event = threading.Event()
         self.logwatcher_thread = threading.Thread(
-            name="logwatcher", target=logwatcher, daemon=True, args=(self.stop_event,)
+            name="logwatcher",
+            target=logwatcher,
+            daemon=False,
+            args=(
+                start_event,
+                self.stop_event,
+            ),
         )
         self.logwatcher_thread.start()
+        start_event.wait()
+        _logger.info("logwatcher server started")
 
         self.root_dir = determine_rootdir(self._msis)
         self._pool = MPIPoolExecutor(
             max_workers=self.n_processes,
             initializer=mpi_initializer,
             initargs=(self._msis, _logger.level, self.root_dir),
-        )  # Removed initializer arguments
+        )
 
-        self._pool = MPIPoolExecutor(max_workers=self.n_processes)  # Removed initializer arguments
         _logger.info(f"MPI pool started with {self._pool._max_workers} workers")
         if self._pool._max_workers <= 10:
             _logger.warning(
@@ -179,10 +204,16 @@ class MPIEvaluator(BaseEvaluator):
             )
         return self
 
+    @method_logger(__name__)
     def finalize(self):
-        self._pool.shutdown()
+        # submit sentinel
         self.stop_event.set()
-        _logger.info("MPI pool has been shut down")
+        self._pool.submit(send_sentinel)
+        self._pool.shutdown()
+        self.logwatcher_thread.join(timeout=60)
+
+        if self.logwatcher_thread.is_alive():
+            _logger.warning(f"houston we have a problem")
 
         if self.root_dir:
             shutil.rmtree(self.root_dir)
@@ -190,9 +221,9 @@ class MPIEvaluator(BaseEvaluator):
         time.sleep(0.1)
         _logger.info("MPI pool has been shut down")
 
+    @method_logger(__name__)
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
-        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-        experiments = list(ex_gen)
+        experiments = list(experiment_generator(scenarios, self._msis, policies, combine=combine))
 
         results = self._pool.map(run_experiment_mpi, experiments, **kwargs)
         for experiment, outcomes in results:
