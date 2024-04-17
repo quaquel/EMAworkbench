@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
+## 2.5.1
+The 2.5.1 release is a small patch release with two bugfixes.
+* The first PR (#346) corrects a dependency issue where the finalizer in `futures_util.py` incorrectly assumed the presence of `experiment_runner` in its module namespace, leading to failures in futures models like multiprocessing and mpi. This is resolved by adjusting the finalizer function to expect `experiment_runner` as an argument.
+* The second PR (#349) addresses a redundancy problem in the MPI evaluator, where the pool was inadvertently created twice.
+
+### What's Changed
+#### 🐛 Bugs fixed
+* Fix finalizer dependency on global experiment_runner by @quaquel in https://github.com/quaquel/EMAworkbench/pull/346
+* bug fix in MPI evaluator by @quaquel in https://github.com/quaquel/EMAworkbench/pull/349
+
+**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.5.0...2.5.1
+
 ## 2.5.0
 ### Highlights
 In the 2.5.0 release of the EMAworkbench we introduce a new experimental MPIevaluator to run on multi-node (HPC) systems (#299, #328). We would love feedback on it in #311.
