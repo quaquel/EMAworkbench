@@ -39,18 +39,16 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-        cache-dependency-path: 'pyproject.toml'
+    - run: pip install uv
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
-        pip install .[dev,cov] ${{ matrix.pip-pre }}
+        uv pip install .[dev,cov] --system ${{ matrix.pip-pre }}
     - name: Install MPI and mpi4py
       if: matrix.test-mpi == true
       run: |
         sudo apt-get update
         sudo apt-get install -y libopenmpi-dev
-        pip install mpi4py
+        uv pip install mpi4py --system
     - name: Test with Pytest
       timeout-minutes: 15
       run:
