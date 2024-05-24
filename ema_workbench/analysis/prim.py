@@ -499,7 +499,7 @@ class PrimBox:
         for unc in uncs:
             values = self.box_lims[i][unc]
             box_lim.loc[unc] = values.values.tolist() + qp_values[unc]
-            box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.NaN)
+            box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.nan)
 
         return stats, box_lim
 
@@ -968,7 +968,7 @@ class PrimBox:
         # TODO:: this has knock on consequences
         # TODO:: elsewhere in the code (e.g. all box visualizations
         # TODO:: as well as in CART etc.)
-        # qp_values = qp_values.replace(-1, np.NaN)
+        # qp_values = qp_values.replace(-1, np.nan)
         qp_values = qp_values.to_dict(orient="list")
         return qp_values
 
