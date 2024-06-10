@@ -3,6 +3,7 @@
 This module provides R style pairs plotting functionality.
 
 """
+
 import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt

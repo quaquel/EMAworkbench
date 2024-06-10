@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     mdl_file = "./models/pysd/Teacup.mdl"
 
-    model = PysdModel(mdl_file=mdl_file)
+    model = PysdModel("teacup", mdl_file=mdl_file)
 
     model.uncertainties = [
         RealParameter("room_temperature", 33, 120, variable_name="Room Temperature")

@@ -4,6 +4,7 @@ this module provides functions for generating some basic figures. The code can
 be used as is, or serve as an example for writing your own code.
 
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import ConnectionPatch

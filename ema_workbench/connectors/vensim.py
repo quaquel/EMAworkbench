@@ -8,6 +8,7 @@ used functions with error checking. For more fine grained control, the
 :mod:`vensimDLLwrapper` can also be used directly.
 
 """
+
 import decimal
 import math
 import os

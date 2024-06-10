@@ -3,6 +3,7 @@ Created on Jul 9, 2014
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
+
 import unittest
 
 import numpy as np

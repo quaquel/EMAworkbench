@@ -8,6 +8,7 @@ See flu_example.py for the code.
 
 
 """
+
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.prim as prim

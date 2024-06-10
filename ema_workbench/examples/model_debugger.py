@@ -24,6 +24,7 @@ To be able to debug the Vensim model, a few steps are needed:
     6.  Vensim tells you about your critical mistake
 
 """
+
 fileSpecifyingError = ""
 
 pathToExistingModel = "/salinization/Verzilting_aanpassingen incorrect.mdl"

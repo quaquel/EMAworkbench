@@ -8,6 +8,7 @@ example
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 """
+
 from ema_workbench import TimeSeriesOutcome, perform_experiments, RealParameter, ema_logging
 
 from ema_workbench.connectors.vensim import VensimModel

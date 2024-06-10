@@ -1,4 +1,5 @@
 """parameters and related helper classes and functions"""
+
 import abc
 import numbers
 
@@ -41,6 +42,9 @@ class Bound(metaclass=abc.ABCMeta):
     def __set_name__(self, cls, name):
         self.name = name
         self.internal_name = "_" + name
+
+    @abc.abstractmethod
+    def get_bound(self, instance): ...
 
 
 class UpperBound(Bound):

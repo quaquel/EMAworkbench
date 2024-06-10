@@ -3,6 +3,7 @@ Created on Mar 13, 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
+
 import matplotlib.pyplot as plt
 
 from ema_workbench.analysis.pairs_plotting import pairs_density, pairs_lines, pairs_scatter

@@ -5,6 +5,7 @@ In this particular case, we want to apply Sobol analysis over both the
 uncertainties and levers at the same time.
 
 """
+
 import math
 
 import numpy as np

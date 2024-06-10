@@ -11,6 +11,7 @@ See flu_example.py for the code.
                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 """
+
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.prim as prim

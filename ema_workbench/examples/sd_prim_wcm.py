@@ -8,6 +8,7 @@ using the world container model
 
 
 """
+
 import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results

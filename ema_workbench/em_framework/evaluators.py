@@ -3,6 +3,7 @@ collection of evaluators for performing experiments, optimization, and robust
 optimization
 
 """
+
 import enum
 import numbers
 import os
@@ -118,7 +119,7 @@ class BaseEvaluator:
         """finalize the evaluator"""
         raise NotImplementedError
 
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
         """used by ema_workbench"""
         raise NotImplementedError
 
@@ -181,6 +182,7 @@ class BaseEvaluator:
         lever_sampling=Samplers.LHS,
         callback=None,
         combine="factorial",
+        **kwargs,
     ):
         """convenience method for performing experiments.
 
@@ -202,6 +204,7 @@ class BaseEvaluator:
             lever_sampling=lever_sampling,
             callback=callback,
             combine=combine,
+            **kwargs,
         )
 
     def optimize(
@@ -307,6 +310,7 @@ def perform_experiments(
     return_callback=False,
     combine="factorial",
     log_progress=False,
+    **kwargs,
 ):
     """sample uncertainties and levers, and perform the resulting experiments
     on each of the models
@@ -335,6 +339,8 @@ def perform_experiments(
               In case of 'zipover', both are sampled separately and
               then combined by cycling over the shortest of the the two sets
               of designs until the longest set of designs is exhausted.
+
+    Additional keyword arguments are passed on to evaluate_experiments of the evaluator
 
     Returns
     -------
@@ -397,7 +403,7 @@ def perform_experiments(
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
-    evaluator.evaluate_experiments(scenarios, policies, callback, combine=combine)
+    evaluator.evaluate_experiments(scenarios, policies, callback, combine=combine, **kwargs)
 
     if callback.i != nr_of_exp:
         raise EMAError(

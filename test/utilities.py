@@ -3,6 +3,7 @@ Created on Mar 22, 2014
 
 @author: jhkwakkel
 """
+
 import os
 
 from ema_workbench.util import load_results

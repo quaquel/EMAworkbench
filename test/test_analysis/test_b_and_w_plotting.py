@@ -3,6 +3,7 @@ Created on Sep 13, 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
