@@ -65,9 +65,7 @@ class Variable(NamedObject):
 
     def __init__(self, name):
         if not name.isidentifier():
-            DeprecationWarning(
-                f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers"
-            )
+            raise ValueError(f"'{name}' is not a valid Python identifier.")
         super().__init__(name)
 
 
