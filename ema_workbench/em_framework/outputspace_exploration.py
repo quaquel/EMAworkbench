@@ -1,4 +1,4 @@
-""" Provides a genetic algorithm based on novelty search for output space exploration.
+"""Provides a genetic algorithm based on novelty search for output space exploration.
 
 The algorithm is inspired by `Chérel et al (2015) <https://doi.org/10.1371/journal.pone.0138212>`_. In short,
 from Chérel et al, we have taken the idea of the HitBox. Basically, this is an epsilon archive where one
