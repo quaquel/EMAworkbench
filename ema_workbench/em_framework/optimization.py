@@ -910,7 +910,7 @@ def rebuild_platypus_population(archive, problem):
             platypus_type.encode(value)
             for platypus_type, value in zip(problem.types, decision_variables)
         ]
-        solution.objectives = objectives
+        solution.objectives[:] = objectives
         solutions.append(solution)
     return solutions
 
