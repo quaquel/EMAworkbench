@@ -487,7 +487,7 @@ class EpsilonProgress(AbstractConvergenceMetric):
         super().__init__("epsilon_progress")
 
     def __call__(self, optimizer):
-        self.results.append(optimizer.algorithm.archive.improvements)
+        self.results.append(optimizer.archive.improvements)
 
 
 class MetricWrapper:
@@ -653,7 +653,7 @@ class HyperVolume(AbstractConvergenceMetric):
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
     def __call__(self, optimizer):
-        self.results.append(self.hypervolume_func.calculate(optimizer.algorithm.archive))
+        self.results.append(self.hypervolume_func.calculate(optimizer.archive))
 
     @classmethod
     def from_outcomes(cls, outcomes):
@@ -692,7 +692,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
     def __call__(self, optimizer):
         archive = to_dataframe(optimizer.result, self.decision_varnames, self.outcome_varnames)
-        archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"))
+        archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"), index=False)
 
     def reset(self):
         # FIXME what needs to go here?
