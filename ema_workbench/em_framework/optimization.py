@@ -906,7 +906,7 @@ def rebuild_platypus_population(archive, problem):
             raise EMAError(f"Outcome names {missing_outcomes} not found in archive'")
 
         solution = Solution(problem)
-        solution.variables = [
+        solution.variables[:] = [
             platypus_type.encode(value)
             for platypus_type, value in zip(problem.types, decision_variables)
         ]
