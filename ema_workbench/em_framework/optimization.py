@@ -189,8 +189,8 @@ def to_problem(model, searchover, reference=None, constraints=None):
     problem = Problem(
         searchover, decision_variables, outcome_names, constraints, reference=reference
     )
-    problem.types = to_platypus_types(decision_variables)
-    problem.directions = [outcome.kind for outcome in outcomes]
+    problem.types[:] = to_platypus_types(decision_variables)
+    problem.directions[:] = [outcome.kind for outcome in outcomes]
     problem.constraints[:] = "==0"
 
     return problem
