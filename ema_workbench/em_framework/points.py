@@ -62,7 +62,7 @@ class Policy(Point):
     #     return [self[param.name] for param in parameters]
 
     def __repr__(self):
-        return f"Policy({super(Policy, self).__repr__()})"
+        return f"Policy({super().__repr__()})"
 
 
 class Scenario(Point):
@@ -84,7 +84,7 @@ class Scenario(Point):
         super().__init__(name, Scenario.id_counter(), **kwargs)
 
     def __repr__(self):
-        return f"Scenario({super(Scenario, self).__repr__()})"
+        return f"Scenario({super().__repr__()})"
 
 
 class Experiment(NamedObject):
