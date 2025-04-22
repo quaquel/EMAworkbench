@@ -104,7 +104,7 @@ def worker(experiment):
     experiment : dict
 
     """
-    global experiment_runner
+    # global experiment_runner
     return experiment, experiment_runner.run_experiment(experiment)
 
 
