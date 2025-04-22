@@ -11,7 +11,13 @@ import math
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib.collections import PolyCollection, PathCollection, FillBetweenPolyCollection
+from matplotlib.collections import PolyCollection, PathCollection
+
+try:
+    from matplotlib.collections import FillBetweenPolyCollection
+except ImportError:
+    FillBetweenPolyCollection = PolyCollection
+
 from matplotlib.colors import ColorConverter
 
 from ema_workbench.util import get_module_logger
