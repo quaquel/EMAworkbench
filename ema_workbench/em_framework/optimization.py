@@ -226,8 +226,8 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
         decision_variables, outcome_names, scenarios, robustness_functions, constraints
     )
 
-    problem.types = to_platypus_types(decision_variables)
-    problem.directions = [outcome.kind for outcome in outcomes]
+    problem.types[:] = to_platypus_types(decision_variables)
+    problem.directions[:] = [outcome.kind for outcome in outcomes]
     problem.constraints[:] = "==0"
 
     return problem
