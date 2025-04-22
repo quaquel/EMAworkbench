@@ -11,7 +11,7 @@ import math
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib.collections import PolyCollection, PathCollection
+from matplotlib.collections import PolyCollection, PathCollection, FillBetweenPolyCollection
 from matplotlib.colors import ColorConverter
 
 from ema_workbench.util import get_module_logger
@@ -234,6 +234,7 @@ _collection_converter = {
     PathCollection.__name__: _set_ax_pathcollection_to_bw,
     # @UndefinedVariable
     PolyCollection.__name__: _set_ax_polycollection_to_bw,
+    FillBetweenPolyCollection.__name__: _set_ax_polycollection_to_bw,
 }  # @UndefinedVariable
 
 
