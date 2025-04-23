@@ -28,7 +28,6 @@ from platypus import (
     Dominance,
     AbstractGeneticAlgorithm,
     default_variator,
-    AdaptiveTimeContinuation,
     GAOperator,
     SBX,
     PM,
@@ -39,6 +38,7 @@ from platypus import (
     UNDX,
     Multimethod,
     PlatypusConfig,
+    AdaptiveTimeContinuationExtension,
 )
 
 
@@ -247,7 +247,7 @@ def get_bin_index(value, minumum_value, epsilon):
     return math.floor((value - minumum_value) / epsilon)
 
 
-class OutputSpaceExploration(AdaptiveTimeContinuation):
+class OutputSpaceExploration(AdaptiveTimeContinuationExtension):
     """Basic genetic algorithm for output space exploration using novelty
     search.
 
@@ -304,7 +304,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
         )
 
 
-class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
+class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuationExtension):
     """A combination of auto-adaptive operator selection with OutputSpaceExploration.
 
     The parametrization of all operators is based on the default values as used
