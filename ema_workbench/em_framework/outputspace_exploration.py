@@ -38,6 +38,7 @@ from platypus import (
     PCX,
     UNDX,
     Multimethod,
+    PlatypusConfig,
 )
 
 
@@ -186,7 +187,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
             self.archive += self.population
 
         if self.variator is None:
-            self.variator = default_variator(self.problem)
+            self.variator = PlatypusConfig.default_variator(self.problem)
 
     def iterate(self):
         offspring = []
