@@ -1,7 +1,4 @@
-"""
-
-
-"""
+""" """
 
 import copy
 import functools
