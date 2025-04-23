@@ -385,7 +385,7 @@ class PrimTestCase(unittest.TestCase):
             self.assertTrue(isinstance(tempbox, pd.DataFrame))
 
         # have modified boxlims as starting point
-        x.a[x.a > 5] = 5
+        x.loc[x.a > 5, "a"] = 5
         primalg = prim.Prim(x, y, threshold=0.8)
         boxlims = primalg.box_init
         boxlims.a = [5, 8]
@@ -394,7 +394,7 @@ class PrimTestCase(unittest.TestCase):
         peels = primalg._discrete_peel(box, "a", 0, primalg.x_int)
         self.assertEqual(len(peels), 2)
 
-        x.a[x.a < 5] = 5
+        x.loc[x.a < 5, "a"] = 5
         primalg = prim.Prim(x, y, threshold=0.8)
         boxlims = primalg.box_init
         boxlims.a = [5, 8]
