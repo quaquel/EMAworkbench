@@ -189,8 +189,8 @@ def to_problem(model, searchover, reference=None, constraints=None):
     problem = Problem(
         searchover, decision_variables, outcome_names, constraints, reference=reference
     )
-    problem.types = to_platypus_types(decision_variables)
-    problem.directions = [outcome.kind for outcome in outcomes]
+    problem.types[:] = to_platypus_types(decision_variables)
+    problem.directions[:] = [outcome.kind for outcome in outcomes]
     problem.constraints[:] = "==0"
 
     return problem
@@ -226,8 +226,8 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
         decision_variables, outcome_names, scenarios, robustness_functions, constraints
     )
 
-    problem.types = to_platypus_types(decision_variables)
-    problem.directions = [outcome.kind for outcome in outcomes]
+    problem.types[:] = to_platypus_types(decision_variables)
+    problem.directions[:] = [outcome.kind for outcome in outcomes]
     problem.constraints[:] = "==0"
 
     return problem
@@ -487,7 +487,7 @@ class EpsilonProgress(AbstractConvergenceMetric):
         super().__init__("epsilon_progress")
 
     def __call__(self, optimizer):
-        self.results.append(optimizer.algorithm.archive.improvements)
+        self.results.append(optimizer.archive.improvements)
 
 
 class MetricWrapper:
@@ -653,7 +653,7 @@ class HyperVolume(AbstractConvergenceMetric):
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
     def __call__(self, optimizer):
-        self.results.append(self.hypervolume_func.calculate(optimizer.algorithm.archive))
+        self.results.append(self.hypervolume_func.calculate(optimizer.archive))
 
     @classmethod
     def from_outcomes(cls, outcomes):
@@ -692,7 +692,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
     def __call__(self, optimizer):
         archive = to_dataframe(optimizer.result, self.decision_varnames, self.outcome_varnames)
-        archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"))
+        archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"), index=False)
 
     def reset(self):
         # FIXME what needs to go here?
@@ -906,11 +906,11 @@ def rebuild_platypus_population(archive, problem):
             raise EMAError(f"Outcome names {missing_outcomes} not found in archive'")
 
         solution = Solution(problem)
-        solution.variables = [
+        solution.variables[:] = [
             platypus_type.encode(value)
             for platypus_type, value in zip(problem.types, decision_variables)
         ]
-        solution.objectives = objectives
+        solution.objectives[:] = objectives
         solutions.append(solution)
     return solutions
 

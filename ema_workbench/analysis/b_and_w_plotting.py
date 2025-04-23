@@ -12,6 +12,14 @@ import math
 import matplotlib as mpl
 import numpy as np
 from matplotlib.collections import PolyCollection, PathCollection
+
+# Python 3.9 and the associated newest matplotlib version don't have FillBetweenPolyCollection, while newer versions do have it.
+# This ensures that the workbench still works with 3.9 and ensures full backward compatibility.
+try:
+    from matplotlib.collections import FillBetweenPolyCollection
+except ImportError:
+    FillBetweenPolyCollection = PolyCollection
+
 from matplotlib.colors import ColorConverter
 
 from ema_workbench.util import get_module_logger
@@ -234,6 +242,7 @@ _collection_converter = {
     PathCollection.__name__: _set_ax_pathcollection_to_bw,
     # @UndefinedVariable
     PolyCollection.__name__: _set_ax_polycollection_to_bw,
+    FillBetweenPolyCollection.__name__: _set_ax_polycollection_to_bw,
 }  # @UndefinedVariable
 
 
