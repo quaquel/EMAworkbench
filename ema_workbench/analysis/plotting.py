@@ -837,7 +837,6 @@ def multiple_densities(
 
         min_y, max_y = ax_env.get_ylim()
         ax_env.autoscale(enable=False, axis="y")
-
         # draw line to connect each point in time in the main plot
         # to the associated density plot
         for i, ax in enumerate(kde_axes):
@@ -847,10 +846,8 @@ def multiple_densities(
             con = ConnectionPatch(
                 xyA=(time_value, min_y),
                 xyB=(ax.get_xlim()[0], max_y),
-                coordsA="data",
-                coordsB="data",
-                axesA=ax_env,
-                axesB=ax,
+                coordsA=ax_env.transData,
+                coordsB=ax.transData,
             )
             ax_env.add_artist(con)
 

@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
+## 2.5.2
+2.5.2 is a small patch release that makes the EMAworkbench compatible with NumPy 2.0 and improves the MPIEvaluator tutorial.
+
+### What's Changed
+#### 🐛 Bugs fixed
+* Replace deprecated np.NaN with np.nan by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/361
+#### 📜 Documentation improvements
+* Clear up DelftBlue tutorial by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/359
+
+**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.5.1...2.5.2
+
 ## 2.5.1
 The 2.5.1 release is a small patch release with two bugfixes.
 * The first PR (#346) corrects a dependency issue where the finalizer in `futures_util.py` incorrectly assumed the presence of `experiment_runner` in its module namespace, leading to failures in futures models like multiprocessing and mpi. This is resolved by adjusting the finalizer function to expect `experiment_runner` as an argument.

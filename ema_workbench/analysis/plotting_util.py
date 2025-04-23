@@ -221,8 +221,10 @@ def plot_violinplot(ax, values, log, group_labels=None):
     if not group_labels:
         group_labels = [""]
 
-    data = pd.DataFrame.from_records(dict(zip(group_labels, values)))
-    data = pd.melt(data)
+    a = dict(zip(group_labels, values))
+    b = [pd.DataFrame({k: v}) for k, v in a.items()]
+    c = [pd.melt(entry) for entry in b]
+    data = pd.concat(c)
 
     sns.violinplot(x="variable", y="value", data=data, order=group_labels, ax=ax)
 
