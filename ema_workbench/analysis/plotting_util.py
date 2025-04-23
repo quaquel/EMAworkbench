@@ -226,7 +226,6 @@ def plot_violinplot(ax, values, log, group_labels=None):
     c = [pd.melt(entry) for entry in b]
     data = pd.concat(c)
 
-
     sns.violinplot(x="variable", y="value", data=data, order=group_labels, ax=ax)
 
 
