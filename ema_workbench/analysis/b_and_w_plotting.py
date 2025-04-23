@@ -13,6 +13,8 @@ import matplotlib as mpl
 import numpy as np
 from matplotlib.collections import PolyCollection, PathCollection
 
+# Python 3.9 and the associated newest matplotlib version don't have FillBetweenPolyCollection, while newer versions do have it.
+# This ensures that the workbench still works with 3.9 and ensures full backward compatibility.
 try:
     from matplotlib.collections import FillBetweenPolyCollection
 except ImportError:
