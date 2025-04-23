@@ -1,7 +1,4 @@
-""" A simple example of performing regional sensitivity analysis
-
-
-"""
+"""A simple example of performing regional sensitivity analysis"""
 
 import matplotlib.pyplot as plt
 
