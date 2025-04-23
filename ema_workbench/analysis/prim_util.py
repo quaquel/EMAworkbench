@@ -1,6 +1,4 @@
-"""Collection of utility functions used by PRIM module
-
-"""
+"""Collection of utility functions used by PRIM module"""
 
 import math
 from enum import Enum

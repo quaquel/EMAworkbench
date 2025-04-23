@@ -1,7 +1,4 @@
-"""
-
-
-"""
+""" """
 
 import unittest
 import copy
