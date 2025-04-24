@@ -35,7 +35,7 @@ class LogitTestCase(unittest.TestCase):
         for entry in logitmodel.feature_names:
             self.assertIn(entry, columns)
 
-        logitmodel.run(method="newton", maxiter=10)
+        logitmodel.run(method="newton", maxiter=5)
 
         logitmodel.show_tradeoff()
         logitmodel.show_threshold_tradeoff(1)
