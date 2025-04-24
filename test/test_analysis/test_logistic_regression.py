@@ -37,8 +37,9 @@ class LogitTestCase(unittest.TestCase):
         for entry in logitmodel.feature_names:
             self.assertIn(entry, columns)
 
-        warnings.filterwarnings("ignore", category=ConvergenceWarning)
-        logitmodel.run(method="newton", maxiter=2)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            logitmodel.run(method="newton", maxiter=2)
 
         logitmodel.show_tradeoff()
         logitmodel.show_threshold_tradeoff(1)
