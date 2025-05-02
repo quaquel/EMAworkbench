@@ -82,7 +82,7 @@ def logwatcher(start_event, stop_event):
     _logger.debug(f"opened port: {port}")
     #
     service = "logwatcher"
-    MPI.Publish_name(service, info, port)
+    MPI.Publish_name(service, port)
     _logger.info(f"published service: {service}")
     start_event.set()
     #

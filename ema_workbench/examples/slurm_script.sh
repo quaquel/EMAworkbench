@@ -11,13 +11,13 @@
 module load 2024r1
 module load openmpi
 module load python
-module load py-numpy
-module load py-scipy
-module load py-mpi4py
-module load py-pip
+#module load py-numpy
+#module load py-scipy
+#module load py-mpi4py
+#module load py-pip
 
-pip install ipyparallel
-pip install --user -e git+https://github.com/quaquel/EMAworkbench@mpi_testing#egg=ema_workbench
+#python -m pip install --user ipyparallel
+#python -m pip install --user -e git+https://github.com/quaquel/EMAworkbench@mpi_testing#egg=ema_workbench
 
 mpiexec -n 1 python3 example_mpi_lake_model.py
 
