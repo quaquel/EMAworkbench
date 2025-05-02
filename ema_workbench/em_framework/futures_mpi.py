@@ -52,23 +52,23 @@ def mpi_initializer(models, log_level, root_dir):
     info = MPI.INFO_NULL
     service = "logwatcher"
     port = MPI.Lookup_name(service)
-    # logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
+    logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
 
-    # root_logger = get_rootlogger()
+    root_logger = get_rootlogger()
 
-    # handler = MPIHandler(logcomm)
-    # handler.addFilter(RankFilter(rank))
-    # handler.setLevel(log_level)
-    # handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
-    # root_logger.addHandler(handler)
-    #
-    # # setup the working directories
-    # tmpdir = setup_working_directories(models, root_dir)
-    # if tmpdir:
-    #     atexit.register(finalizer(experiment_runner), os.path.abspath(tmpdir))
-    #
-    # # _logger.info(f"worker {rank} initialized")
-    # root_logger.info(f"worker {rank} initialized")
+    handler = MPIHandler(logcomm)
+    handler.addFilter(RankFilter(rank))
+    handler.setLevel(log_level)
+    handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
+    root_logger.addHandler(handler)
+
+    # setup the working directories
+    tmpdir = setup_working_directories(models, root_dir)
+    if tmpdir:
+        atexit.register(finalizer(experiment_runner), os.path.abspath(tmpdir))
+
+    # _logger.info(f"worker {rank} initialized")
+    root_logger.info(f"worker {rank} initialized")
 
 
 def logwatcher(start_event, stop_event):
@@ -78,36 +78,35 @@ def logwatcher(start_event, stop_event):
 
     info = MPI.INFO_NULL
     port = MPI.Open_port(info)
-    # print(f"client: {rank} {port}")
     _logger.debug(f"opened port: {port}")
-    #
+
     service = "logwatcher"
     MPI.Publish_name(service, port)
     _logger.info(f"published service: {service}")
     start_event.set()
-    #
-    # root = 0
-    _logger.debug("waiting for client connections...")
-    comm = MPI.COMM_WORLD.Accept(port)
-    _logger.debug("clients connected...")
 
-    # while not stop_event.is_set():
-    #     if rank == root:
-    #         record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
-    #         try:
-    #             logger = logging.getLogger(record.name)
-    #         except Exception as e:
-    #             if record.msg is None:
-    #                 _logger.debug("received sentinel")
-    #                 break
-    #             else:
-    #                 # AttributeError if record does not have a name attribute
-    #                 # TypeError record.name is not a string
-    #                 raise e
-    #         else:
-    #             logger.callHandlers(record)
-    #
-    # _logger.info("closing logwatcher")
+    root = 0
+    _logger.info("waiting for client connections...")
+    comm = MPI.COMM_WORLD.Accept(port)
+    _logger.info("clients connected...")
+
+    while not stop_event.is_set():
+        if rank == root:
+            record = comm.recv(None, MPI.ANY_SOURCE, tag=0)
+            try:
+                logger = logging.getLogger(record.name)
+            except Exception as e:
+                if record.msg is None:
+                    _logger.debug("received sentinel")
+                    break
+                else:
+                    # AttributeError if record does not have a name attribute
+                    # TypeError record.name is not a string
+                    raise e
+            else:
+                logger.callHandlers(record)
+
+    _logger.info("closing logwatcher")
 
 
 def run_experiment_mpi(experiment):
