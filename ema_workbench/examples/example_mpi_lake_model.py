@@ -93,7 +93,7 @@ if __name__ == "__main__":
     # run with mpiexec -n 1 -usize {ntasks} python example_mpi_lake_model.py
     starttime = time.perf_counter()
 
-    ema_logging.log_to_stderr(ema_logging.DEBUG, pass_root_logger_level=True)
+    ema_logging.log_to_stderr(ema_logging.INFO, pass_root_logger_level=True)
     ema_logging.get_rootlogger().info(f"{ema_workbench.__version__}")
 
     # instantiate the model

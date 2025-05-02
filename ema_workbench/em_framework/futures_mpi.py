@@ -52,10 +52,10 @@ def mpi_initializer(models, log_level, root_dir):
     info = MPI.INFO_NULL
     service = "logwatcher"
     port = MPI.Lookup_name(service)
-    logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
+    # logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
 
-    root_logger = get_rootlogger()
-    #
+    # root_logger = get_rootlogger()
+
     # handler = MPIHandler(logcomm)
     # handler.addFilter(RankFilter(rank))
     # handler.setLevel(log_level)
@@ -83,13 +83,13 @@ def logwatcher(start_event, stop_event):
     #
     service = "logwatcher"
     MPI.Publish_name(service, info, port)
-    _logger.debug(f"published service: {service}")
+    _logger.info(f"published service: {service}")
     start_event.set()
     #
     # root = 0
-    _logger.debug("waiting for client connection...")
+    _logger.debug("waiting for client connections...")
     comm = MPI.COMM_WORLD.Accept(port)
-    _logger.debug("client connected...")
+    _logger.debug("clients connected...")
 
     # while not stop_event.is_set():
     #     if rank == root:
