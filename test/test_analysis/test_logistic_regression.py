@@ -4,6 +4,7 @@ Created on 16 Mar 2019
 @author: jhkwakkel
 """
 
+import warnings
 import unittest
 
 import matplotlib.pyplot as plt
@@ -12,6 +13,7 @@ import pandas as pd
 
 from ema_workbench.analysis import logistic_regression as lr
 from test import utilities
+from statsmodels.tools.sm_exceptions import ConvergenceWarning
 
 
 def flu_classify(data):
@@ -35,7 +37,9 @@ class LogitTestCase(unittest.TestCase):
         for entry in logitmodel.feature_names:
             self.assertIn(entry, columns)
 
-        logitmodel.run(method="newton", maxiter=2)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=ConvergenceWarning)
+            logitmodel.run(method="newton", maxiter=2)
 
         logitmodel.show_tradeoff()
         logitmodel.show_threshold_tradeoff(1)

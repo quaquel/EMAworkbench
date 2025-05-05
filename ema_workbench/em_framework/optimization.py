@@ -30,7 +30,6 @@ try:
         Real,
         Integer,
         Subset,
-        EpsilonProgressContinuation,
         RandomGenerator,
         TournamentSelector,
         NSGAII,
@@ -47,6 +46,7 @@ try:
         Solution,
         InvertedGenerationalDistance,
         Spacing,
+        EpsilonProgressContinuationExtension,
     )  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
 
@@ -1126,7 +1126,7 @@ class BORGDefaultDescriptor:
         self.name = name
 
 
-class GenerationalBorg(EpsilonProgressContinuation):
+class GenerationalBorg(EpsilonProgressContinuationExtension):
     """A generational implementation of the BORG Framework
 
     This algorithm adopts Epsilon Progress Continuation, and Auto Adaptive
