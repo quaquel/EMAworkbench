@@ -678,7 +678,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
         # FIXME how to handle case where directory already exists
         self.directory = os.path.abspath(directory)
         self.temp = os.path.join(self.directory, "tmp")
-        os.mkdir(self.temp)
+        os.makedirs(self.temp, exist_ok=True)
 
         self.base = base_filename
         self.decision_varnames = decision_varnames
