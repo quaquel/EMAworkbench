@@ -675,7 +675,6 @@ class ArchiveLogger(AbstractConvergenceMetric):
     ):
         super().__init__("archive_logger")
 
-
         self.directory = os.path.abspath(directory)
         self.temp = os.path.join(self.directory, "tmp")
         os.makedirs(self.temp, exist_ok=True)
