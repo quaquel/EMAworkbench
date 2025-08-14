@@ -6,15 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
-## 2.5.3
-2.5.3 is a small patch release that makes the EMAworkbench compatible with the latest version of matplotlib, pandas, and platypus-opt
-
-## What's Changed
-### Other changes
-* Various small changes to ensure the workbench is compatible with the latest releases of matplotlib, pandas, and platypus-opt @quaquel in https://github.com/quaquel/EMAworkbench/pull/379
-
-**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.5.2...2.5.3
-
 ## 2.5.2
 2.5.2 is a small patch release that makes the EMAworkbench compatible with NumPy 2.0 and improves the MPIEvaluator tutorial.
 
