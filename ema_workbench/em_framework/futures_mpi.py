@@ -49,25 +49,25 @@ def mpi_initializer(models, log_level, root_dir):
     experiment_runner = ExperimentRunner(msis)
 
     # setup the logging
-    service = "logwatcher"
-    port = MPI.Lookup_name(service)
-    logcomm = MPI.COMM_WORLD.Connect(port)
-
-    root_logger = get_rootlogger()
-
-    handler = MPIHandler(logcomm)
-    handler.addFilter(RankFilter(rank))
-    handler.setLevel(log_level)
-    handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
-    root_logger.addHandler(handler)
-
-    # setup the working directories
+    # service = "logwatcher"
+    # port = MPI.Lookup_name(service)
+    # logcomm = MPI.COMM_WORLD.Connect(port)
+    #
+    # root_logger = get_rootlogger()
+    #
+    # handler = MPIHandler(logcomm)
+    # handler.addFilter(RankFilter(rank))
+    # handler.setLevel(log_level)
+    # handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
+    # root_logger.addHandler(handler)
+    #
+    # # setup the working directories
     tmpdir = setup_working_directories(models, root_dir)
     if tmpdir:
         atexit.register(finalizer(experiment_runner), os.path.abspath(tmpdir))
 
-    # _logger.info(f"worker {rank} initialized")
-    root_logger.info(f"worker {rank} initialized")
+    # # _logger.info(f"worker {rank} initialized")
+    # root_logger.info(f"worker {rank} initialized")
 
 
 def logwatcher(start_event, stop_event):
@@ -173,20 +173,20 @@ class MPIEvaluator(BaseEvaluator):
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
 
-        start_event = threading.Event()
-        self.stop_event = threading.Event()
-        self.logwatcher_thread = threading.Thread(
-            name="logwatcher",
-            target=logwatcher,
-            daemon=False,
-            args=(
-                start_event,
-                self.stop_event,
-            ),
-        )
-        self.logwatcher_thread.start()
-        start_event.wait()
-        _logger.info("logwatcher server started")
+        # start_event = threading.Event()
+        # self.stop_event = threading.Event()
+        # self.logwatcher_thread = threading.Thread(
+        #     name="logwatcher",
+        #     target=logwatcher,
+        #     daemon=False,
+        #     args=(
+        #         start_event,
+        #         self.stop_event,
+        #     ),
+        # )
+        # self.logwatcher_thread.start()
+        # start_event.wait()
+        # _logger.info("logwatcher server started")
 
         self.root_dir = determine_rootdir(self._msis)
         self._pool = MPIPoolExecutor(
@@ -205,13 +205,13 @@ class MPIEvaluator(BaseEvaluator):
     @method_logger(__name__)
     def finalize(self):
         # submit sentinel
-        self.stop_event.set()
+        # self.stop_event.set()
         self._pool.submit(send_sentinel)
         self._pool.shutdown()
-        self.logwatcher_thread.join(timeout=60)
-
-        if self.logwatcher_thread.is_alive():
-            _logger.warning(f"houston we have a problem")
+        # self.logwatcher_thread.join(timeout=60)
+        #
+        # if self.logwatcher_thread.is_alive():
+        #     _logger.warning(f"houston we have a problem")
 
         if self.root_dir:
             shutil.rmtree(self.root_dir)

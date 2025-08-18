@@ -6,6 +6,10 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
+import os, sys
+
+sys.path.insert(1, os.path.abspath("../../"))
+
 import math
 import time
 
