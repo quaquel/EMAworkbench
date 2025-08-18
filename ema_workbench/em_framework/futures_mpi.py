@@ -49,10 +49,9 @@ def mpi_initializer(models, log_level, root_dir):
     experiment_runner = ExperimentRunner(msis)
 
     # setup the logging
-    info = MPI.INFO_NULL
     service = "logwatcher"
     port = MPI.Lookup_name(service)
-    logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
+    logcomm = MPI.COMM_WORLD.Connect(port)
 
     root_logger = get_rootlogger()
 
