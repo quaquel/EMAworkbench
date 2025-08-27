@@ -35,7 +35,7 @@ from .samplers import (
     sample_uncertainties,
 )
 from .util import NamedObjectMap, determine_objects
-from ..util import EMAError, get_module_logger, ema_logging
+from ..util import EMAError, get_module_logger
 
 
 # Created on 5 Mar 2017

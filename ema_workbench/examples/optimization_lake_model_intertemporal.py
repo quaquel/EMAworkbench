@@ -19,7 +19,7 @@ from ema_workbench import (
     MultiprocessingEvaluator,
     Constraint,
 )
-from ema_workbench.em_framework.optimization import HyperVolume, EpsilonProgress
+from ema_workbench.em_framework.optimization import EpsilonProgress
 
 
 def lake_problem(

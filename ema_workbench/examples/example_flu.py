@@ -17,7 +17,7 @@ import numpy as np
 from numpy import sin, min, exp
 
 from ema_workbench import Model, RealParameter, TimeSeriesOutcome, perform_experiments, ema_logging
-from ema_workbench import MultiprocessingEvaluator, SequentialEvaluator
+from ema_workbench import SequentialEvaluator
 from ema_workbench.analysis import lines, Density
 
 # =============================================================================

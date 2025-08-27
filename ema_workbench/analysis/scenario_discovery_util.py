@@ -419,7 +419,7 @@ def plot_pair_wise_scatter(
     elif lower == "scatter":
         grid.map_lower(sns.scatterplot)
     elif lower == "none":
-        raise ValueError(f"Lower triangle cannot be none.")
+        raise ValueError("Lower triangle cannot be none.")
     else:
         raise NotImplementedError(
             f"lower = {lower} not implemented. Use either 'scatter', 'contour' or 'hist' (bivariate histogram) plots for lower triangle."

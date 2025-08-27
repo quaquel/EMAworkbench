@@ -1,5 +1,4 @@
 import atexit
-import copy
 import logging
 import os
 import shutil
@@ -16,7 +15,6 @@ from .model import AbstractModel
 from .experiment_runner import ExperimentRunner
 from ..util import get_module_logger, get_rootlogger, method_logger
 
-from ..util import ema_logging
 
 __all__ = ["MPIEvaluator"]
 
@@ -209,7 +207,7 @@ class MPIEvaluator(BaseEvaluator):
         self.logwatcher_thread.join(timeout=60)
 
         if self.logwatcher_thread.is_alive():
-            _logger.warning(f"houston we have a problem, logwatcher is still alive")
+            _logger.warning("houston we have a problem, logwatcher is still alive")
 
         if self.root_dir:
             shutil.rmtree(self.root_dir)

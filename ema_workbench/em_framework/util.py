@@ -1,6 +1,5 @@
 """utilities used throughout em_framework"""
 
-import copy
 import itertools
 from collections import OrderedDict, UserDict
 

@@ -9,14 +9,10 @@ from ema_workbench import (
     TimeSeriesOutcome,
     ema_logging,
     MultiprocessingEvaluator,
-    ScalarOutcome,
-    perform_experiments,
     CategoricalParameter,
-    save_results,
     Policy,
 )
 from ema_workbench.connectors.vensim import VensimModel
-from ema_workbench.em_framework.evaluators import SequentialEvaluator
 
 
 def get_energy_model():
