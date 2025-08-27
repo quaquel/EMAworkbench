@@ -141,7 +141,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
 
     # put the uncertainties with object dtypes already into the new
     for entry in exclude:
-        rotated_experiments[name] = experiments[entry]
+        rotated_experiments[entry] = experiments[entry]
 
     # iterate over the subsets, rotate them, and put them into the new
     # experiments dataframe
