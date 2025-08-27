@@ -1,10 +1,8 @@
 import logging
 import platform
-import threading
+from unittest.mock import Mock
 
 import pytest
-
-from unittest.mock import Mock
 
 import ema_workbench
 from ema_workbench.em_framework import futures_mpi
@@ -31,8 +29,12 @@ def test_mpi_evaluator(mocker):
             "mpi4py is not installed. It's required for this test. Install with: pip install mpi4py"
         )
 
-    mocked_MPIPoolExecutor = mocker.patch("mpi4py.futures.MPIPoolExecutor", autospec=True)
-    mocker.patch("ema_workbench.em_framework.futures_mpi.threading.Thread", autospec=True)
+    mocked_MPIPoolExecutor = mocker.patch(
+        "mpi4py.futures.MPIPoolExecutor", autospec=True
+    )
+    mocker.patch(
+        "ema_workbench.em_framework.futures_mpi.threading.Thread", autospec=True
+    )
     mocked_callback = mocker.patch(
         "ema_workbench.em_framework.evaluators.DefaultCallback",
     )

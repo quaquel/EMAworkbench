@@ -1,5 +1,4 @@
-"""
-An example of the lake problem using the ema workbench.
+"""An example of the lake problem using the ema workbench.
 
 The model itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
@@ -12,14 +11,14 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (
+    Constraint,
     Model,
+    MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
     ema_logging,
-    MultiprocessingEvaluator,
-    Constraint,
 )
-from ema_workbench.em_framework.optimization import HyperVolume, EpsilonProgress
+from ema_workbench.em_framework.optimization import EpsilonProgress
 
 
 def lake_problem(
@@ -261,7 +260,7 @@ def lake_problem(
             )
             average_daily_P[t] += X[t] / float(nsamples)
 
-        reliability += np.sum(X < Pcrit) / float(nsamples * nvars)
+        reliability += np.sum(Pcrit > X) / float(nsamples * nvars)
 
     max_P = np.max(average_daily_P)
     utility = np.sum(alpha * decisions * np.power(delta, np.arange(nvars)))
@@ -287,7 +286,9 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)]
+    lake_model.levers = [
+        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
+    ]
 
     # specify outcomes
     # specify outcomes
@@ -295,13 +296,17 @@ if __name__ == "__main__":
         ScalarOutcome("max_P", kind=ScalarOutcome.MINIMIZE, expected_range=(0, 5)),
         ScalarOutcome("utility", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 2)),
         ScalarOutcome("inertia", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)),
-        ScalarOutcome("reliability", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)),
+        ScalarOutcome(
+            "reliability", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)
+        ),
     ]
 
     convergence_metrics = [EpsilonProgress()]
 
     constraints = [
-        Constraint("max pollution", outcome_names="max_P", function=lambda x: max(0, x - 5))
+        Constraint(
+            "max pollution", outcome_names="max_P", function=lambda x: max(0, x - 5)
+        )
     ]
 
     with MultiprocessingEvaluator(lake_model) as evaluator:

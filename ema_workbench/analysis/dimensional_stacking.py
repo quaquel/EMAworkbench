@@ -1,5 +1,4 @@
-"""
-This module provides functionality for doing dimensional stacking of
+"""This module provides functionality for doing dimensional stacking of
 uncertain factors in order to reveal patterns in the values for a single
 outcome of interests. It is inspired by the work reported `here <https://www.onepetro.org/conference-paper/SPE-174774-MS>`_
 with one deviation.
@@ -18,8 +17,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from . import feature_scoring
 from ..util import get_module_logger
+from . import feature_scoring
 
 # Created on Nov 13, 2015
 #
@@ -39,7 +38,7 @@ def discretize(data, nbins=3, with_labels=False):
             the number of bins to use (default is 3)
     with_labels : bool, optional
 
-    Returns
+    Returns:
     -------
     discretized
         the discretized data frame
@@ -73,7 +72,9 @@ def discretize(data, nbins=3, with_labels=False):
             if with_labels:
                 indices = pd.cut(column_data, n, precision=2, retbins=True)[0]
             else:
-                indices = pd.cut(column_data, n, retbins=False, labels=False, precision=2)
+                indices = pd.cut(
+                    column_data, n, retbins=False, labels=False, precision=2
+                )
 
         discretized[column] = indices
 
@@ -107,8 +108,8 @@ def dim_ratios(axis, figsize):
 
 def plot_line(ax, axis, i, lw, length):
     """Helper function for plotting lines separating bins in the hierarchical
-    index"""
-
+    index
+    """
     if axis == 0:
         ax.plot([i, i], [length, 1], lw=lw, color="grey")
     else:
@@ -116,8 +117,7 @@ def plot_line(ax, axis, i, lw, length):
 
 
 def plot_category(ax, axis, i, label, pos, level):
-    """helper function for plotting label"""
-
+    """Helper function for plotting label"""
     if axis == 0:
         rot = "horizontal"
         if (level > 0) & (len(str(label)) > 4):
@@ -131,7 +131,7 @@ def plot_category(ax, axis, i, label, pos, level):
 
 
 def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
-    """helper function for visualizing the hierarchical index
+    """Helper function for visualizing the hierarchical index
 
     Parameters
     ----------
@@ -148,7 +148,6 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
                 if true, plot category names for uncertain factors
 
     """
-
     for entry in ["bottom", "top", "right", "left"]:
         ax.spines["bottom"].set_color("grey")
 
@@ -164,7 +163,9 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         ax.set_xticks([])
 
         if plot_labels:
-            tick_locs = np.linspace(1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names))
+            tick_locs = np.linspace(
+                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names)
+            )
             ax.set_yticks(tick_locs)
             ax.set_yticklabels(names)
         else:
@@ -180,7 +181,9 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         ax.spines["right"].set_linewidth(1.0)
 
         if plot_labels:
-            tick_locs = np.linspace(1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names))
+            tick_locs = np.linspace(
+                1 / (2 * len(names)), 1 - 1 / (2 * len(names)), len(names)
+            )
             ax.set_xticks(tick_locs)
             ax.set_xticklabels(names, rotation="vertical")
         else:
@@ -215,7 +218,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
         offsets[i] = offset
 
     if plot_cats:
-        for p in range(0, nr_levels):
+        for p in range(nr_levels):
             pos = 1 / (2 * nr_levels) + p / (nr_levels)
             plot_category(ax, axis, 0 + offsets[p] * len(index), last[p], pos, p)
 
@@ -248,7 +251,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
 def plot_pivot_table(
     table, plot_labels=True, plot_cats=True, figsize=(10, 10), cmap="viridis", **kwargs
 ):
-    """visualize a pivot table using colors
+    """Visualize a pivot table using colors
 
     Parameters
     ----------
@@ -264,12 +267,11 @@ def plot_pivot_table(
     kwargs : other keyword arguments
              All other keyword arguments are passed to ax.pcolormesh.
 
-    Returns
+    Returns:
     -------
     Figure
 
     """
-
     with sns.axes_style("white"):
         fig = plt.figure(figsize=figsize)
 
@@ -277,7 +279,12 @@ def plot_pivot_table(
         height_ratios = dim_ratios(figsize=figsize, axis=0)
 
         gs = mpl.gridspec.GridSpec(
-            3, 3, wspace=0.01, hspace=0.01, width_ratios=width_ratios, height_ratios=height_ratios
+            3,
+            3,
+            wspace=0.01,
+            hspace=0.01,
+            width_ratios=width_ratios,
+            height_ratios=height_ratios,
         )
 
         ax_plot = fig.add_subplot(gs[2, 2])
@@ -287,7 +294,9 @@ def plot_pivot_table(
 
         # actual plotting
         plot_data = table.values
-        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, vmin=0, vmax=1, **kwargs)
+        sns.heatmap(
+            plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, vmin=0, vmax=1, **kwargs
+        )
 
         # set the tick labels
         ax_plot.set_xticks([])
@@ -321,14 +330,13 @@ def plot_pivot_table(
 
 
 def _prepare_experiments(experiments):
-    """
-    transform the experiments data frame into a numpy array.
+    """Transform the experiments data frame into a numpy array.
 
     Parameters
     ----------
     experiments :DataFrame
 
-    Returns
+    Returns:
     -------
     ndarray, list
 
@@ -347,7 +355,7 @@ def _prepare_experiments(experiments):
         if np.unique(x[column]).shape == (1,):
             x = x.drop(column, axis=1)
             _logger.info(
-                ("{} dropped from analysis " "because only a single category").format(column)
+                f"{column} dropped from analysis because only a single category"
             )
         else:
             x[column] = x[column].astype("category")
@@ -355,8 +363,10 @@ def _prepare_experiments(experiments):
     return x
 
 
-def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True, nbins=3, bin_labels=False):
-    """convenience function for easily creating a pivot plot
+def create_pivot_plot(
+    x, y, nr_levels=3, labels=True, categories=True, nbins=3, bin_labels=False
+):
+    """Convenience function for easily creating a pivot plot
 
     Parameters
     ----------
@@ -377,7 +387,7 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True, nbins=3, 
                  if True show bin interval / name, otherwise show
                  only a number
 
-    Returns
+    Returns:
     -------
     Figure
 
@@ -405,7 +415,9 @@ def create_pivot_plot(x, y, nr_levels=3, labels=True, categories=True, nbins=3, 
     ooi = pd.DataFrame(y[:, np.newaxis], columns=[ooi_label])
 
     x_y_concat = pd.concat([discretized_x, ooi], axis=1)
-    pvt = pd.pivot_table(x_y_concat, values=ooi_label, index=rows, columns=columns, dropna=False)
+    pvt = pd.pivot_table(
+        x_y_concat, values=ooi_label, index=rows, columns=columns, dropna=False
+    )
 
     fig = plot_pivot_table(pvt, plot_labels=labels, plot_cats=categories)
 

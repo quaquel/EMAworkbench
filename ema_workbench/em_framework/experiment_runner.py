@@ -1,10 +1,10 @@
-"""
-helper module for running experiments and keeping track of which model
+"""helper module for running experiments and keeping track of which model
 has been initialized with which policy.
 """
 
 from ema_workbench.util.ema_logging import method_logger
-from ..util import get_module_logger, EMAError, CaseError
+
+from ..util import CaseError, EMAError, get_module_logger
 
 # Created on Aug 11, 2015
 #
@@ -25,7 +25,7 @@ class ExperimentRunner:
     msis : dict
     model_kwargs : dict
 
-    Attributes
+    Attributes:
     ----------
     msi_initializiation : dict
                           keeps track of which model is initialized with
@@ -40,7 +40,8 @@ class ExperimentRunner:
     def __init__(self, msis):
         self.msis = msis
         self.log_message = (
-            "running scenario {scenario_id} for policy " "{policy_name} on model {model_name}"
+            "running scenario {scenario_id} for policy "
+            "{policy_name} on model {model_name}"
         )
 
     @method_logger(__name__)
@@ -58,7 +59,7 @@ class ExperimentRunner:
         ----------
         experiment : Case instance
 
-        Returns
+        Returns:
         -------
         experiment_id: int
         case : dict
@@ -66,7 +67,7 @@ class ExperimentRunner:
         model_name : str
         result : dict
 
-        Raises
+        Raises:
         ------
         EMAError
             if the model instance raises an EMA error, these are reraised.
@@ -105,7 +106,7 @@ class ExperimentRunner:
             #                 sys.stderr.write("\n")
 
             errortype = type(e).__name__
-            raise EMAError(f"Exception in run_model\nCaused by: {errortype}: {str(e)}")
+            raise EMAError(f"Exception in run_model\nCaused by: {errortype}: {e!s}")
 
         outcomes = model.outcomes_output
         model.reset_model()

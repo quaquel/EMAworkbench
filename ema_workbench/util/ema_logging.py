@@ -1,6 +1,4 @@
-"""
-
-This module contains code for logging EMA processes. It is modeled on the
+"""This module contains code for logging EMA processes. It is modeled on the
 default `logging approach that comes with
 Python <https://docs.python.org/library/logging.html>`_.
 This logging system will also work in case of multiprocessing.
@@ -18,15 +16,15 @@ from logging import DEBUG, INFO
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "get_rootlogger",
-    "get_module_logger",
-    "log_to_stderr",
-    "temporary_filter",
     "DEBUG",
-    "INFO",
     "DEFAULT_LEVEL",
+    "INFO",
     "LOGGER_NAME",
+    "get_module_logger",
+    "get_rootlogger",
+    "log_to_stderr",
     "method_logger",
+    "temporary_filter",
 ]
 LOGGER_NAME = "EMA"
 DEFAULT_LEVEL = DEBUG
@@ -76,7 +74,7 @@ class TemporaryFilter(logging.Filter):
 
 @contextmanager
 def temporary_filter(name=LOGGER_NAME, level=0, functname=None):
-    """temporary filter log message
+    """Temporary filter log message
 
     Parameters
     ----------
@@ -160,10 +158,9 @@ def method_logger(name):
 
 
 def get_rootlogger():
-    """
-    Returns root logger used by the EMA workbench
+    """Returns root logger used by the EMA workbench
 
-    Returns
+    Returns:
     -------
     the logger of the EMA workbench
 
@@ -180,8 +177,7 @@ def get_rootlogger():
 
 
 def log_to_stderr(level=None, pass_root_logger_level=False):
-    """
-    Turn on logging and add a handler which prints to stderr
+    """Turn on logging and add a handler which prints to stderr
 
     Parameters
     ----------
@@ -193,7 +189,6 @@ def log_to_stderr(level=None, pass_root_logger_level=False):
             Recommended True when using the MPIEvaluator.
 
     """
-
     if not level:
         level = DEFAULT_LEVEL
 
@@ -201,7 +196,9 @@ def log_to_stderr(level=None, pass_root_logger_level=False):
 
     # avoid creation of multiple stream handlers for logging to console
     for entry in logger.handlers:
-        if (isinstance(entry, logging.StreamHandler)) and (entry.formatter._fmt == LOG_FORMAT):
+        if (isinstance(entry, logging.StreamHandler)) and (
+            entry.formatter._fmt == LOG_FORMAT
+        ):
             return logger
 
     formatter = logging.Formatter(LOG_FORMAT)

@@ -1,5 +1,4 @@
-"""
-Created on 11 Apr 2019
+"""Created on 11 Apr 2019
 
 @author: jhkwakkel
 """
@@ -8,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from ema_workbench import load_results
-from ema_workbench.analysis import clusterer, plotting, Density
+from ema_workbench.analysis import Density, clusterer, plotting
 
 experiments, outcomes = load_results("./data/1000 flu cases no policy.tar.gz")
 data = outcomes["infected_fraction_R1"]

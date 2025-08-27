@@ -1,6 +1,4 @@
-"""
-
-convenience functions and classes to be used in combination with Vensim.
+"""convenience functions and classes to be used in combination with Vensim.
 
 Most importantly, it specifies a generic ModelStructureInterface class
 for controlling vensim models. In addition, this module contains frequently
@@ -16,35 +14,34 @@ import warnings
 
 import numpy as np
 
-from . import vensimDLLwrapper
-from .vensimDLLwrapper import command, get_val, VensimError, VensimWarning
-from ..em_framework import TimeSeriesOutcome, FileModel
+from ..em_framework import FileModel, TimeSeriesOutcome
 from ..em_framework.model import SingleReplication
-from ..em_framework.parameters import Parameter, RealParameter, CategoricalParameter
+from ..em_framework.parameters import CategoricalParameter, Parameter, RealParameter
 from ..em_framework.util import NamedObjectMap
 from ..util import CaseError, EMAError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
+from . import vensimDLLwrapper
+from .vensimDLLwrapper import VensimError, VensimWarning, command, get_val
 
 # Created on 25 mei 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
+    "LookupUncertainty",
+    "VensimModel",
     "be_quiet",
+    "get_data",
     "load_model",
     "read_cin_file",
-    "set_value",
     "run_simulation",
-    "get_data",
-    "VensimModel",
-    "LookupUncertainty",
+    "set_value",
 ]
 _logger = get_module_logger(__name__)
 
 
 def be_quiet():
-    """
-    this allows you to turn off the work in progress dialog that Vensim
+    """This allows you to turn off the work in progress dialog that Vensim
     displays during simulation and other activities, and also prevent the
     appearance of yes or no dialogs.
 
@@ -55,15 +52,14 @@ def be_quiet():
 
 
 def load_model(file_name):
-    """
-    load the model
+    """Load the model
 
     Parameters
     ----------
     file_name : str
                 file name of model, relative to working directory
 
-    Raises
+    Raises:
     -------
     VensimError if the model cannot be loaded.
 
@@ -79,15 +75,14 @@ def load_model(file_name):
 
 
 def read_cin_file(file_name):
-    """
-    read a .cin file
+    """Read a .cin file
 
     Parameters
     ----------
     file_name : str
                 file name of cin file, relative to working directory
 
-    Raises
+    Raises:
     ------
     VensimWarning if the cin file cannot be read.
 
@@ -101,8 +96,7 @@ def read_cin_file(file_name):
 
 
 def set_value(variable, value):
-    """
-    set the value of a variable to value
+    """Set the value of a variable to value
 
     current implementation only works for lookups and normal values. In case
     of a list, a lookup is assumed, else a normal value is assumed.
@@ -130,8 +124,7 @@ def set_value(variable, value):
 
 
 def run_simulation(file_name):
-    """
-    Convenient function to run a model and store the results of the run in
+    """Convenient function to run a model and store the results of the run in
     the specified .vdf file. The specified output file will be overwritten
     by default
 
@@ -141,12 +134,11 @@ def run_simulation(file_name):
                 the file name of the output file relative to the working
                 directory
 
-    Raises
+    Raises:
     ------
     VensimError if running the model failed in some way.
 
     """
-
     file_name = str(file_name)
 
     try:
@@ -160,8 +152,7 @@ def run_simulation(file_name):
 
 
 def get_data(filename, varname, step=1):
-    """
-    Retrieves data from simulation runs or imported data sets.
+    """Retrieves data from simulation runs or imported data sets.
 
     Parameters
     ----------
@@ -173,12 +164,11 @@ def get_data(filename, varname, step=1):
            steps used in slicing. Defaults to 1, meaning the full recorded time
            series is returned.
 
-    Returns
+    Returns:
     -------
     numpy array with the values for varname over the simulation
 
     """
-
     vval = []
     try:
         vval, _ = vensimDLLwrapper.get_data(filename, str(varname))
@@ -198,8 +188,7 @@ def VensimModelStructureInterface(name, wd=None, model_file=None):
 
 
 class BaseVensimModel(FileModel):
-    """
-    This is a convenience extension of :class:`~model.ModelStructureInterface`
+    """This is a convenience extension of :class:`~model.ModelStructureInterface`
     that can be used as a base class for performing EMA on Vensim models. This
     class will handle starting Vensim, loading a model, setting parameters
     on the model, running the model, and retrieving the results. To this end
@@ -226,7 +215,7 @@ class BaseVensimModel(FileModel):
         return os.path.join(self.working_directory, self._resultfile)
 
     def __init__(self, name, wd=None, model_file=None):
-        """interface to the model
+        """Interface to the model
 
         interface to the model
 
@@ -240,7 +229,7 @@ class BaseVensimModel(FileModel):
         model_file  : str
                      The path to the vensim model to be loaded.
 
-        Raises
+        Raises:
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -278,8 +267,7 @@ class BaseVensimModel(FileModel):
         _logger.debug("vensim interface init completed")
 
     def model_init(self, policy):
-        """
-        Init of the model, The provided implementation here assumes
+        """Init of the model, The provided implementation here assumes
         that `self.model_file`  is set correctly. In case of using different
         vensim models for different policies, it is recommended to extent
         this method, extract the model file from the policy dict, set
@@ -315,8 +303,7 @@ class BaseVensimModel(FileModel):
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """
-        Method for running an instantiated model structure.
+        """Method for running an instantiated model structure.
         the provided implementation assumes that the keys in the
         case match the variable names in the Vensim model.
 
@@ -349,7 +336,9 @@ class BaseVensimModel(FileModel):
         for lookup_uncertainty in self._lookup_uncertainties:
             # ask the lookup to transform the retrieved uncertainties to the
             # proper lookup value
-            experiment[lookup_uncertainty.name] = lookup_uncertainty.transform(experiment)
+            experiment[lookup_uncertainty.name] = lookup_uncertainty.transform(
+                experiment
+            )
 
         for key, value in experiment.items():
             set_value(key, value)
@@ -391,11 +380,11 @@ class BaseVensimModel(FileModel):
         return results
 
     def _delete_lookup_uncertainties(self):
-        """
-        deleting lookup uncertainties from the uncertainty list
-        """
+        """Deleting lookup uncertainties from the uncertainty list"""
         self._lookup_uncertainties = self._lookup_uncertainties[:]
-        self.uncertainties = [x for x in self.uncertainties if x not in self._lookup_uncertainties]
+        self.uncertainties = [
+            x for x in self.uncertainties if x not in self._lookup_uncertainties
+        ]
 
 
 class LookupUncertainty(Parameter):
@@ -414,9 +403,7 @@ class LookupUncertainty(Parameter):
     y = []
 
     def __init__(self, lookup_type, values, name, msi, ymin=None, ymax=None):
-        """
-
-        Parameters
+        """Parameters
         ----------
         lookup_type : {'categories', 'hearne', 'approximation'}
                       the method to be used for alternative generation.
@@ -493,7 +480,9 @@ class LookupUncertainty(Parameter):
         }
 
         if self.lookup_type == "categories":
-            msi.uncertainties.append(CategoricalParameter("c-" + self.name), range(len(values)))
+            msi.uncertainties.append(
+                CategoricalParameter("c-" + self.name), range(len(values))
+            )
             msi._lookup_uncertainties.append(self)
         elif self.lookup_type == "hearne1":
             msi.uncertainties.append(RealParameter("m-" + self.name, *values[0]))
@@ -518,8 +507,7 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message)
 
     def _get_initial_lookup(self, name):
-        """
-        Helper function to retrieve the lookup function as defined in the
+        """Helper function to retrieve the lookup function as defined in the
         vensim model. This lookup is transformed using a distortion function.
 
         Parameters
@@ -528,7 +516,6 @@ class LookupUncertainty(Parameter):
                name of variable in vensim model that contains the lookup
 
         """
-
         a = vensimDLLwrapper.get_varattrib(name, 3)[0]
         elements = a.split("],", 1)
         b = elements[1][0:-1]
@@ -560,9 +547,7 @@ class LookupUncertainty(Parameter):
         return (x, y)
 
     def _gen_log(self, t, A, K, B, Q, M):
-        """
-
-        helper function implements a logistic function
+        """Helper function implements a logistic function
 
         Parameters
         ----------
@@ -593,8 +578,7 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message)
 
     def identity(self):
-        """
-        helper method that returns the elements that define an uncertainty.
+        """Helper method that returns the elements that define an uncertainty.
         By default these are the name, the lower value of the range and the
         upper value of the range.
 
@@ -620,7 +604,9 @@ class LookupUncertainty(Parameter):
                 df.append(l + m - ((m + l - u) * (i - p) / (self.x_min - p)))
         new_lookup = []
         for i in range(len(self.x)):
-            new_lookup.append((self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min)))
+            new_lookup.append(
+                (self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min))
+            )
         return new_lookup
 
     def _hearne2(self, case):
@@ -645,7 +631,9 @@ class LookupUncertainty(Parameter):
                     df.append(u + m2 - (m2 * (i - p2) / (self.x_max - p2)))
         new_lookup = []
         for i in range(len(self.x)):
-            new_lookup.append((self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min)))
+            new_lookup.append(
+                (self.x[i], max(min(df[i] * self.y[i], self.y_max), self.y_min))
+            )
         return new_lookup
 
     def _approx(self, case):
@@ -662,12 +650,25 @@ class LookupUncertainty(Parameter):
         if self.x_max > 10:
             for i in range(int(self.x_min), int(self.x_max + 1)):
                 new_lookup.append(
-                    (i, max(min(self._gen_log(i, A, K, B, Q, M), self.y_max), self.y_min))
+                    (
+                        i,
+                        max(
+                            min(self._gen_log(i, A, K, B, Q, M), self.y_max), self.y_min
+                        ),
+                    )
                 )
         else:
-            for i in range(int(self.x_min * 10), int(self.x_max * 10 + 1), max(int(self.x_max), 1)):
+            for i in range(
+                int(self.x_min * 10), int(self.x_max * 10 + 1), max(int(self.x_max), 1)
+            ):
                 new_lookup.append(
-                    (i / 10, max(min(self._gen_log(i / 10, A, K, B, Q, M), self.y_max), self.y_min))
+                    (
+                        i / 10,
+                        max(
+                            min(self._gen_log(i / 10, A, K, B, Q, M), self.y_max),
+                            self.y_min,
+                        ),
+                    )
                 )
         return new_lookup
 
@@ -713,7 +714,6 @@ def create_model_for_debugging(path_to_existing_model, path_to_new_model, error)
             the case error, only containing the parameterization
 
     """
-
     # we assume the case specification was copied from the logger
     experiment = error.split(",")
     variables = {}

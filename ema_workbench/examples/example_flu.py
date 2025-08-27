@@ -1,5 +1,4 @@
-"""
-Created on 20 dec. 2010
+"""Created on 20 dec. 2010
 
 This file illustrated the use of the workbench for a model
 specified in Python itself. The example is based on `Pruyt & Hamarat <https://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
@@ -14,11 +13,17 @@ compare the results.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import sin, min, exp
+from numpy import exp, min, sin
 
-from ema_workbench import Model, RealParameter, TimeSeriesOutcome, perform_experiments, ema_logging
-from ema_workbench import MultiprocessingEvaluator, SequentialEvaluator
-from ema_workbench.analysis import lines, Density
+from ema_workbench import (
+    Model,
+    RealParameter,
+    SequentialEvaluator,
+    TimeSeriesOutcome,
+    ema_logging,
+    perform_experiments,
+)
+from ema_workbench.analysis import Density, lines
 
 # =============================================================================
 #
@@ -37,7 +42,9 @@ switch_immunity_cap = 1.0
 
 
 def LookupFunctionX(variable, start, end, step, skew, growth, v=0.5):
-    return start + ((end - start) / ((1 + skew * exp(-growth * (variable - step))) ** (1 / v)))
+    return start + (
+        (end - start) / ((1 + skew * exp(-growth * (variable - step))) ** (1 / v))
+    )
 
 
 def flu_model(
@@ -157,8 +164,12 @@ def flu_model(
         infected_population_region_1 = max(0, infected_population_region_1)
         infected_population_region_2 = max(0, infected_population_region_2)
 
-        infected_fraction_region_1 = infected_population_region_1 / total_population_region_1
-        infected_fraction_region_2 = infected_population_region_2 / total_population_region_2
+        infected_fraction_region_1 = (
+            infected_population_region_1 / total_population_region_1
+        )
+        infected_fraction_region_2 = (
+            infected_population_region_2 / total_population_region_2
+        )
 
         impact_infected_population_on_contact_rate_region_1 = 1 - (
             infected_fraction_region_1 ** (1 / root_contact_rate_region_1)
@@ -176,10 +187,12 @@ def flu_model(
         )
 
         contact_rate_region_1 = (
-            normal_contact_rate_region_1 * impact_infected_population_on_contact_rate_region_1
+            normal_contact_rate_region_1
+            * impact_infected_population_on_contact_rate_region_1
         )
         contact_rate_region_2 = (
-            normal_contact_rate_region_2 * impact_infected_population_on_contact_rate_region_2
+            normal_contact_rate_region_2
+            * impact_infected_population_on_contact_rate_region_2
         )
 
         recoveries_region_1 = (
@@ -230,13 +243,18 @@ def flu_model(
         )
 
         infected_population_region_1_NEXT = infected_population_region_1 + (
-            TIME_STEP * (infections_region_1 - flu_deaths_region_1 - recoveries_region_1)
+            TIME_STEP
+            * (infections_region_1 - flu_deaths_region_1 - recoveries_region_1)
         )
         infected_population_region_2_NEXT = infected_population_region_2 + (
-            TIME_STEP * (infections_region_2 - flu_deaths_region_2 - recoveries_region_2)
+            TIME_STEP
+            * (infections_region_2 - flu_deaths_region_2 - recoveries_region_2)
         )
 
-        if infected_population_region_1_NEXT < 0 or infected_population_region_2_NEXT < 0:
+        if (
+            infected_population_region_1_NEXT < 0
+            or infected_population_region_2_NEXT < 0
+        ):
             pass
 
         recovered_population_region_1_NEXT = recovered_population_region_1 + (
@@ -336,7 +354,8 @@ def flu_model(
                 / susceptible_to_immune_population_delay_time_region_1
             )
             susmaxreg1 = -(
-                immune_population_region_1 / susceptible_to_immune_population_delay_time_region_1
+                immune_population_region_1
+                / susceptible_to_immune_population_delay_time_region_1
             )
             if (susmaxreg1 >= susminreg1_1) or (susmaxreg1 >= susminreg1_2):
                 susceptible_to_immune_population_flow_region_1 = susmaxreg1
@@ -356,7 +375,8 @@ def flu_model(
                 / susceptible_to_immune_population_delay_time_region_2
             )
             susmaxreg2 = -(
-                immune_population_region_2 / susceptible_to_immune_population_delay_time_region_2
+                immune_population_region_2
+                / susceptible_to_immune_population_delay_time_region_2
             )
             if (susmaxreg2 >= susminreg2_1) or (susmaxreg2 >= susminreg2_2):
                 susceptible_to_immune_population_flow_region_2 = susmaxreg2
@@ -368,10 +388,12 @@ def flu_model(
             susceptible_to_immune_population_flow_region_2 = 0
 
         susceptible_population_region_1_NEXT = susceptible_population_region_1 - (
-            TIME_STEP * (infections_region_1 + susceptible_to_immune_population_flow_region_1)
+            TIME_STEP
+            * (infections_region_1 + susceptible_to_immune_population_flow_region_1)
         )
         susceptible_population_region_2_NEXT = susceptible_population_region_2 - (
-            TIME_STEP * (infections_region_2 + susceptible_to_immune_population_flow_region_2)
+            TIME_STEP
+            * (infections_region_2 + susceptible_to_immune_population_flow_region_2)
         )
 
         immune_population_region_1_NEXT = immune_population_region_1 + (
@@ -422,7 +444,10 @@ def flu_model(
 
         # End of main code
 
-    return {"TIME": runTime, "deceased_population_region_1": deceased_population_region_1}
+    return {
+        "TIME": runTime,
+        "deceased_population_region_1": deceased_population_region_1,
+    }
 
 
 if __name__ == "__main__":
@@ -449,7 +474,10 @@ if __name__ == "__main__":
         RealParameter("x102", 0, 200),
     ]
 
-    model.outcomes = [TimeSeriesOutcome("TIME"), TimeSeriesOutcome("deceased_population_region_1")]
+    model.outcomes = [
+        TimeSeriesOutcome("TIME"),
+        TimeSeriesOutcome("deceased_population_region_1"),
+    ]
 
     nr_experiments = 500
 

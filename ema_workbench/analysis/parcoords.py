@@ -18,7 +18,7 @@ __all__ = ["ParallelAxes", "get_limits"]
 
 
 def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
-    """helper function for setting up the parallel axes plot
+    """Helper function for setting up the parallel axes plot
 
     Parameters
     ----------
@@ -104,14 +104,14 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
 
 
 def get_limits(data):
-    """helper function to get limits of a FataFrame that can serve as input
+    """Helper function to get limits of a FataFrame that can serve as input
     to ParallelAxis
 
     Parameters
     ----------
     data : DataFrame
 
-    Returns
+    Returns:
     -------
     DataFrame
 
@@ -144,7 +144,7 @@ class ParallelAxes:
     rot : float, optional
           rotation of axis labels
 
-    Attributes
+    Attributes:
     ----------
     limits : DataFrame
              A DataFrame specifying the limits for each dimension in the
@@ -162,7 +162,7 @@ class ParallelAxes:
     datalabels : list of str
                  labels associated with lines
 
-    Notes
+    Notes:
     -----
     The basic setup of the Parallel Axis plot is a row of mpl Axes instances, with all whitespace
     in between removed. The number of Axes is the number of columns - 1.
@@ -170,9 +170,7 @@ class ParallelAxes:
     """
 
     def __init__(self, limits, formatter=None, fontsize=14, rot=90):
-        """
-
-        Parameters
+        """Parameters
         ----------
         limits : DataFrame
                  categorical data, first cell should contain all categories
@@ -221,7 +219,7 @@ class ParallelAxes:
         plt.subplots_adjust(wspace=0)
 
     def plot(self, data, color=None, label=None, **kwargs):
-        """plot data on parallel axes
+        """Plot data on parallel axes
 
         Parameters
         ----------
@@ -254,14 +252,15 @@ class ParallelAxes:
             recoded[key] = data[key].astype(value).cat.codes
 
         # normalize the data
-        normalized_data = pd.DataFrame(self._normalizer.transform(recoded), columns=recoded.columns)
+        normalized_data = pd.DataFrame(
+            self._normalizer.transform(recoded), columns=recoded.columns
+        )
 
         # plot the data
         self._plot(normalized_data, color=color, **kwargs)
 
     def legend(self):
-        """add a legend to the figure"""
-
+        """Add a legend to the figure"""
         artists = []
         labels = []
         for label, color in self.datalabels:
@@ -289,9 +288,10 @@ class ParallelAxes:
         data : DataFrame
 
         """
-
         j = -1
-        for ax, label_i, label_j in zip(self.axes, self.axis_labels[:-1], self.axis_labels[1::]):
+        for ax, label_i, label_j in zip(
+            self.axes, self.axis_labels[:-1], self.axis_labels[1::]
+        ):
             plotdata = data.loc[:, [label_i, label_j]]
             j += 1
             lines = ax.plot([j + 1, j + 2], plotdata.values.T, **kwargs)
@@ -302,7 +302,7 @@ class ParallelAxes:
                 self._update_plot_data(ax, 1, lines=lines)
 
     def invert_axis(self, axis):
-        """flip direction for specified axis
+        """Flip direction for specified axis
 
         Parameters
         ----------
@@ -322,13 +322,10 @@ class ParallelAxes:
                 self.flipped_axes.remove(entry)
 
     def _invert_axis(self, axis):
-        """
-
-        Parameters
+        """Parameters
         ----------
 
         """
-
         ids = self._get_axes_ids(axis)
 
         if len(ids) == 1:
@@ -347,9 +344,7 @@ class ParallelAxes:
         self._update_ticklabels(axis)
 
     def _update_plot_data(self, ax, index, lines=None):
-        """
-
-        Parameters
+        """Parameters
         ----------
         index : {0, 1}
 
@@ -363,14 +358,11 @@ class ParallelAxes:
             line.set_ydata(ydata)
 
     def _update_ticklabels(self, axis):
-        """
-
-        Parameters
+        """Parameters
         ----------
         axis : str
 
         """
-
         for label in self.ticklabels[axis]:
             x, y = label.get_position()
             if y == -0.01:
@@ -400,9 +392,7 @@ class ParallelAxes:
     #             ax.set_yticklabels(tick_labels)
 
     def _get_axes_ids(self, column):
-        """
-
-        Parameters
+        """Parameters
         ----------
         column : str
 

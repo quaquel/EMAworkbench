@@ -1,5 +1,4 @@
-"""
-An example of using output space exploration on the lake problem
+"""An example of using output space exploration on the lake problem
 
 The lake problem itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
@@ -12,15 +11,14 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (
-    Model,
-    RealParameter,
-    ScalarOutcome,
     Constant,
-    ema_logging,
+    Model,
     MultiprocessingEvaluator,
     Policy,
+    RealParameter,
+    ScalarOutcome,
+    ema_logging,
 )
-
 from ema_workbench.em_framework.outputspace_exploration import OutputSpaceExploration
 
 
@@ -66,7 +64,7 @@ def lake_problem(
             )
             average_daily_P[t] += X[t] / float(nsamples)
 
-        reliability += np.sum(X < Pcrit) / float(nsamples * nvars)
+        reliability += np.sum(Pcrit > X) / float(nsamples * nvars)
 
     max_P = np.max(average_daily_P)
     utility = np.sum(alpha * decisions * np.power(delta, np.arange(nvars)))
@@ -92,7 +90,9 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)]
+    lake_model.levers = [
+        RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)
+    ]
 
     # specify outcomes
     # note that outcomes of kind INFO will be ignored

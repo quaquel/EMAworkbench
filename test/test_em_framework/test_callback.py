@@ -1,32 +1,29 @@
-"""
-Created on 22 Jan 2013
+"""Created on 22 Jan 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
 import random
 
+import numpy as np
 import pandas as pd
 import pytest
 
-import numpy as np
-
-import ema_workbench.em_framework.callbacks as callbacks
 from ema_workbench.em_framework.callbacks import DefaultCallback, FileBasedCallback
-from ema_workbench.em_framework.parameters import (
-    CategoricalParameter,
-    RealParameter,
-    IntegerParameter,
-    BooleanParameter,
-)
-from ema_workbench.em_framework.points import Policy, Scenario, Experiment
-from ema_workbench.util import EMAError
 from ema_workbench.em_framework.outcomes import (
-    ScalarOutcome,
     ArrayOutcome,
+    ScalarOutcome,
     TimeSeriesOutcome,
 )
+from ema_workbench.em_framework.parameters import (
+    BooleanParameter,
+    CategoricalParameter,
+    IntegerParameter,
+    RealParameter,
+)
+from ema_workbench.em_framework.points import Experiment, Policy, Scenario
 from ema_workbench.em_framework.util import NamedObject
+from ema_workbench.util import EMAError
 
 
 def test_store_results(mocker):
@@ -292,8 +289,8 @@ def test_filebasedcallback(mocker):
     outcomes = [ScalarOutcome("other"), TimeSeriesOutcome("time")]
 
     model = NamedObject("test")
-    scenario = Scenario(**{"a": random.random()})
-    policy = Policy(name="policy", **{"b": random.random()})
+    scenario = Scenario(a=random.random())
+    policy = Policy(name="policy", b=random.random())
     experiment = Experiment(0, model.name, policy, scenario, 0)
 
     callback = FileBasedCallback(

@@ -1,5 +1,4 @@
-"""
-Created on Oct 1, 2012
+"""Created on Oct 1, 2012
 
 This is a simple example of the lookup uncertainty provided for
 use in conjunction with vensim models. This example is largely based on
@@ -11,18 +10,24 @@ use in conjunction with vensim models. This example is largely based on
 
 import matplotlib.pyplot as plt
 
-from ema_workbench import TimeSeriesOutcome, perform_experiments, ema_logging
-from ema_workbench.analysis import lines, Density
+from ema_workbench import TimeSeriesOutcome, ema_logging, perform_experiments
+from ema_workbench.analysis import Density, lines
 from ema_workbench.connectors.vensim import LookupUncertainty, VensimModel
 
 
 class Burnout(VensimModel):
     model_file = r"\BURNOUT.vpm"
     outcomes = [
-        TimeSeriesOutcome("accomplishments_to_date", variable_name="Accomplishments to Date"),
+        TimeSeriesOutcome(
+            "accomplishments_to_date", variable_name="Accomplishments to Date"
+        ),
         TimeSeriesOutcome("energy_level", variable_name="Energy Level"),
-        TimeSeriesOutcome("hours_worked_per_week", variable_name="Hours Worked Per Week"),
-        TimeSeriesOutcome("accomplishments_per_hour", variable_name="accomplishments per hour"),
+        TimeSeriesOutcome(
+            "hours_worked_per_week", variable_name="Hours Worked Per Week"
+        ),
+        TimeSeriesOutcome(
+            "accomplishments_per_hour", variable_name="accomplishments per hour"
+        ),
     ]
 
     def __init__(self, working_directory, name):
@@ -39,7 +44,14 @@ class Burnout(VensimModel):
             ),
             LookupUncertainty(
                 "hearne2",
-                [(-0.75, 0.75), (-0.75, 0.75), (0, 1.5), (0.1, 1.6), (-0.3, 1.5), (0.25, 2.5)],
+                [
+                    (-0.75, 0.75),
+                    (-0.75, 0.75),
+                    (0, 1.5),
+                    (0.1, 1.6),
+                    (-0.3, 1.5),
+                    (0.25, 2.5),
+                ],
                 "fractional change in expectations from perceived adequacy lookup",
                 self,
                 -1,

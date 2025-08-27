@@ -1,9 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
-
 import analysis.prim as prim
-from expWorkbench import load_results
 import expWorkbench.ema_logging as ema_logging
+import matplotlib.pyplot as plt
+import numpy as np
+from expWorkbench import load_results
 
 # perform_prim logs information to the logger
 ema_logging.log_to_stderr(level=ema_logging.INFO)
@@ -37,7 +36,9 @@ for key, value in results.items():
 results = (newExperiments, newResults)
 
 # perform prim on modified results tuple
-prims, uncertainties, x = prim.perform_prim(results, classify, threshold=0.8, threshold_type=1)
+prims, uncertainties, x = prim.perform_prim(
+    results, classify, threshold=0.8, threshold_type=1
+)
 
 # visualize
 

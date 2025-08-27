@@ -1,7 +1,4 @@
-"""
-Samplers for working with SALib
-
-"""
+"""Samplers for working with SALib"""
 
 import operator
 import warnings
@@ -12,9 +9,7 @@ from .parameters import IntegerParameter
 from .samplers import DefaultDesigns
 
 try:
-    from SALib.sample import sobol
-    from SALib.sample import morris
-    from SALib.sample import fast_sampler
+    from SALib.sample import fast_sampler, morris, sobol
 except ImportError:
     warnings.warn("SALib samplers not available", ImportWarning)
     sobol = morris = fast_sampler = None
@@ -23,12 +18,11 @@ except ImportError:
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["SobolSampler", "MorrisSampler", "FASTSampler", "get_SALib_problem"]
+__all__ = ["FASTSampler", "MorrisSampler", "SobolSampler", "get_SALib_problem"]
 
 
 def get_SALib_problem(uncertainties):
-    """returns a dict with a problem specification as required by SALib"""
-
+    """Returns a dict with a problem specification as required by SALib"""
     _warning = False
     uncertainties = sorted(uncertainties, key=operator.attrgetter("name"))
     bounds = []
@@ -51,8 +45,7 @@ def get_SALib_problem(uncertainties):
 
 class SALibSampler:
     def generate_samples(self, uncertainties, size):
-        """
-        The main method of :class: `~sampler.Sampler` and its
+        """The main method of :class: `~sampler.Sampler` and its
         children. This will call the sample method for each of the
         uncertainties and return the resulting designs.
 
@@ -64,13 +57,12 @@ class SALibSampler:
                the number of samples to generate.
 
 
-        Returns
+        Returns:
         -------
         dict
             dict with the uncertainty.name as key, and the sample as value
 
         """
-
         problem = get_SALib_problem(uncertainties)
         samples = self.sample(problem, size)
 
@@ -84,7 +76,7 @@ class SALibSampler:
         return temp
 
     def generate_designs(self, parameters, nr_samples):
-        """external interface to sampler. Returns the computational
+        """External interface to sampler. Returns the computational
         experiments over the specified parameters, for the given number
         of samples for each parameter.
 
@@ -97,7 +89,7 @@ class SALibSampler:
                      the number of samples to draw for each parameter
 
 
-        Returns
+        Returns:
         -------
         generator
             a generator object that yields the designs resulting from
@@ -155,7 +147,9 @@ class MorrisSampler(SALibSampler):
         Stating this variable to be true causes the function to ignore gurobi.
     """
 
-    def __init__(self, num_levels=4, optimal_trajectories=None, local_optimization=True):
+    def __init__(
+        self, num_levels=4, optimal_trajectories=None, local_optimization=True
+    ):
         super().__init__()
         self.num_levels = num_levels
         self.optimal_trajectories = optimal_trajectories
@@ -163,7 +157,11 @@ class MorrisSampler(SALibSampler):
 
     def sample(self, problem, size):
         return morris.sample(
-            problem, size, self.num_levels, self.optimal_trajectories, self.local_optimization
+            problem,
+            size,
+            self.num_levels,
+            self.optimal_trajectories,
+            self.local_optimization,
         )
 
 

@@ -1,6 +1,5 @@
 """utilities used throughout em_framework"""
 
-import copy
 import itertools
 from collections import OrderedDict, UserDict
 
@@ -15,15 +14,15 @@ from ..util import EMAError
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "NamedObject",
-    "NamedDict",
     "Counter",
-    "representation",
+    "NamedDict",
+    "NamedObject",
+    "NamedObjectMap",
+    "NamedObjectMapDescriptor",
     "ProgressTrackingMixIn",
     "combine",
-    "NamedObjectMapDescriptor",
-    "NamedObjectMap",
     "determine_objects",
+    "representation",
 ]
 
 
@@ -43,7 +42,7 @@ class Counter:
 
 
 def representation(named_dict):
-    """helper function for generating repr based names for NamedDicts"""
+    """Helper function for generating repr based names for NamedDicts"""
     return repr(named_dict)
 
 
@@ -78,7 +77,9 @@ class NamedObjectMap:
         self._data = OrderedDict()
 
         if not issubclass(kind, NamedObject):
-            raise TypeError(f"Type must be a (subclass of a) NamedObject, not {type(kind)}")
+            raise TypeError(
+                f"Type must be a (subclass of a) NamedObject, not {type(kind)}"
+            )
 
     def clear(self):
         self._data = OrderedDict()
@@ -103,7 +104,9 @@ class NamedObjectMap:
 
     def __setitem__(self, key, value):
         if not isinstance(value, self.kind):
-            raise TypeError(f"Can only add {self.kind.__name__} objects, not {type(value)}")
+            raise TypeError(
+                f"Can only add {self.kind.__name__} objects, not {type(value)}"
+            )
 
         if isinstance(key, int):
             self._data = OrderedDict(
@@ -114,7 +117,9 @@ class NamedObjectMap:
             )
         else:
             if value.name != key:
-                raise ValueError(f"Key ({key}) does not match name of {self.kind.__name__}")
+                raise ValueError(
+                    f"Key ({key}) does not match name of {self.kind.__name__}"
+                )
 
             self._data[key] = value
 
@@ -134,7 +139,7 @@ class NamedObjectMap:
             for item in value:
                 self._data[item.name] = item
         else:
-            raise TypeError(f"Can only add {str(type)} objects")
+            raise TypeError(f"Can only add {type!s} objects")
 
     def __add__(self, value):
         data = self.copy()
@@ -188,17 +193,17 @@ class NamedDict(UserDict, NamedObject):
 
 
 def combine(*args):
-    """combine scenario and policy into a single experiment dict
+    """Combine scenario and policy into a single experiment dict
 
     Parameters
     ----------
     args : two or more dicts that need to be combined
 
-    Returns
+    Returns:
     -------
     a single unified dict containing the entries from all dicts
 
-    Raises
+    Raises:
     ------
     EMAError
         if a keyword argument exists in more than one dict
@@ -217,7 +222,7 @@ def combine(*args):
 
 
 def determine_objects(models, attribute, union=True):
-    """determine the parameters over which to sample
+    """Determine the parameters over which to sample
 
     Parameters
     ----------
@@ -227,7 +232,7 @@ def determine_objects(models, attribute, union=True):
             in case of multiple models, sample over the union of
             levers, or over the intersection of the levers
 
-    Returns
+    Returns:
     -------
     collection of Parameter instances
 
@@ -273,7 +278,7 @@ class ProgressTrackingMixIn:
                function called with self as only argument, should invoke
                self._logger with custom log message
 
-    Attributes
+    Attributes:
     ----------
     i : int
     reporting_interval : int

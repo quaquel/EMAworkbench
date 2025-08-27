@@ -1,5 +1,4 @@
-"""
-Created on 20 May, 2011
+"""Created on 20 May, 2011
 
 This module shows how you can use vensim models directly
 instead of coding the model in Python. The underlying case
@@ -10,20 +9,21 @@ is the same as used in fluExample
 """
 
 from ema_workbench import (
+    MultiprocessingEvaluator,
     RealParameter,
     TimeSeriesOutcome,
     ema_logging,
     perform_experiments,
-    MultiprocessingEvaluator,
     save_results,
 )
-
 from ema_workbench.connectors.vensim import VensimModel
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModel("fluCase", wd=r"./models/flu", model_file=r"FLUvensimV1basecase.vpm")
+    model = VensimModel(
+        "fluCase", wd=r"./models/flu", model_file=r"FLUvensimV1basecase.vpm"
+    )
 
     # outcomes
     model.outcomes = [
@@ -48,10 +48,16 @@ if __name__ == "__main__":
             variable_name="additional seasonal immune population fraction R2",
         ),
         RealParameter(
-            "fatality_ratio_region_1", 0.0001, 0.1, variable_name="fatality ratio region 1"
+            "fatality_ratio_region_1",
+            0.0001,
+            0.1,
+            variable_name="fatality ratio region 1",
         ),
         RealParameter(
-            "fatality_rate_region_2", 0.0001, 0.1, variable_name="fatality rate region 2"
+            "fatality_rate_region_2",
+            0.0001,
+            0.1,
+            variable_name="fatality rate region 2",
         ),
         RealParameter(
             "initial_immune_fraction_of_the_population_of_region_1",
@@ -83,8 +89,12 @@ if __name__ == "__main__":
             0.5,
             variable_name="permanent immune population fraction R2",
         ),
-        RealParameter("recovery_time_region_1", 0.1, 0.75, variable_name="recovery time region 1"),
-        RealParameter("recovery_time_region_2", 0.1, 0.75, variable_name="recovery time region 2"),
+        RealParameter(
+            "recovery_time_region_1", 0.1, 0.75, variable_name="recovery time region 1"
+        ),
+        RealParameter(
+            "recovery_time_region_2", 0.1, 0.75, variable_name="recovery time region 2"
+        ),
         RealParameter(
             "susceptible_to_immune_population_delay_time_region_1",
             0.5,
@@ -98,20 +108,37 @@ if __name__ == "__main__":
             variable_name="susceptible to immune population delay time region 2",
         ),
         RealParameter(
-            "root_contact_rate_region_1", 0.01, 5, variable_name="root contact rate region 1"
+            "root_contact_rate_region_1",
+            0.01,
+            5,
+            variable_name="root contact rate region 1",
         ),
         RealParameter(
-            "root_contact_ratio_region_2", 0.01, 5, variable_name="root contact ratio region 2"
+            "root_contact_ratio_region_2",
+            0.01,
+            5,
+            variable_name="root contact ratio region 2",
         ),
         RealParameter(
-            "infection_ratio_region_1", 0, 0.15, variable_name="infection ratio region 1"
+            "infection_ratio_region_1",
+            0,
+            0.15,
+            variable_name="infection ratio region 1",
         ),
-        RealParameter("infection_rate_region_2", 0, 0.15, variable_name="infection rate region 2"),
         RealParameter(
-            "normal_contact_rate_region_1", 10, 100, variable_name="normal contact rate region 1"
+            "infection_rate_region_2", 0, 0.15, variable_name="infection rate region 2"
         ),
         RealParameter(
-            "normal_contact_rate_region_2", 10, 200, variable_name="normal contact rate region 2"
+            "normal_contact_rate_region_1",
+            10,
+            100,
+            variable_name="normal contact rate region 1",
+        ),
+        RealParameter(
+            "normal_contact_rate_region_2",
+            10,
+            200,
+            variable_name="normal contact rate region 2",
         ),
     ]
 

@@ -1,11 +1,9 @@
-"""
-Created on Jul 28, 2015
+"""Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
 import logging
-
 import unittest
 
 from ema_workbench.util import ema_logging

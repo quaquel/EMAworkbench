@@ -11,10 +11,10 @@ from sklearn.ensemble import (
     RandomForestClassifier,
     RandomForestRegressor,
 )
-from sklearn.feature_selection import f_regression, f_classif, chi2
+from sklearn.feature_selection import chi2, f_classif, f_regression
 
-from .scenario_discovery_util import RuleInductionType
 from ..util import get_module_logger
+from .scenario_discovery_util import RuleInductionType
 
 # Created on Jul 9, 2014
 #
@@ -25,13 +25,13 @@ from ..util import get_module_logger
 
 
 __all__ = [
-    "F_REGRESSION",
-    "F_CLASSIFICATION",
     "CHI2",
-    "get_univariate_feature_scores",
-    "get_rf_feature_scores",
+    "F_CLASSIFICATION",
+    "F_REGRESSION",
     "get_ex_feature_scores",
     "get_feature_scores_all",
+    "get_rf_feature_scores",
+    "get_univariate_feature_scores",
 ]
 
 _logger = get_module_logger(__name__)
@@ -42,14 +42,13 @@ CHI2 = chi2
 
 
 def _prepare_experiments(experiments):
-    """
-    transform the experiments data frame into a numpy array.
+    """Transform the experiments data frame into a numpy array.
 
     Parameters
     ----------
     experiments :DataFrame
 
-    Returns
+    Returns:
     -------
     ndarray, list
 
@@ -67,7 +66,9 @@ def _prepare_experiments(experiments):
     for column in x_nominal_columns:
         if np.unique(x[column]).shape == (1,):
             x = x.drop(column, axis=1)
-            _logger.debug(f"{column} dropped from analysis because it has only a single category")
+            _logger.debug(
+                f"{column} dropped from analysis because it has only a single category"
+            )
         else:
             x[column] = x[column].astype("category").cat.codes
 
@@ -75,8 +76,7 @@ def _prepare_experiments(experiments):
 
 
 def _prepare_outcomes(outcomes, classify):
-    """
-    transform the outcomes dict into a vector with either the class allocation
+    """Transform the outcomes dict into a vector with either the class allocation
     or the value.
 
     Parameters
@@ -86,14 +86,14 @@ def _prepare_outcomes(outcomes, classify):
     classify : callable or str
                a classify function or variable analogous to PRIM
 
-    Returns
+    Returns:
     -------
     1d ndarray
         the return from classify
     bool
         data is categorical (True) or continuous (False)
 
-    Raises
+    Raises:
     --------
     TypeError
         if classify is neither a StringType nor a callable
@@ -117,9 +117,7 @@ def _prepare_outcomes(outcomes, classify):
 
 
 def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
-    """
-
-    calculate feature scores using univariate statistical tests. In case of
+    """Calculate feature scores using univariate statistical tests. In case of
     categorical data, chi square or the Anova F value is used. In case of
     continuous data the Anova F value is used.
 
@@ -130,7 +128,8 @@ def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
     score_func : {F_CLASSIFICATION, F_REGRESSION, CHI2}
                 the score function to use, one of f_regression (regression), or
                 f_classification or chi2 (classification).
-    Returns
+
+    Returns:
     -------
     pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature
@@ -166,8 +165,7 @@ def get_rf_feature_scores(
     oob_score=True,
     random_state=None,
 ):
-    """
-    Get feature scores using a random forest
+    """Get feature scores using a random forest
 
     Parameters
     ----------
@@ -191,7 +189,7 @@ def get_rf_feature_scores(
     random_state : int, optional
                    see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
 
-    Returns
+    Returns:
     -------
     pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature
@@ -251,8 +249,7 @@ def get_ex_feature_scores(
     oob_score=True,
     random_state=None,
 ):
-    """
-    Get feature scores using extra trees
+    """Get feature scores using extra trees
 
     Parameters
     ----------
@@ -285,7 +282,7 @@ def get_ex_feature_scores(
     random_state : int, optional
                    see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
 
-    Returns
+    Returns:
     -------
     pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature
@@ -351,8 +348,10 @@ algorithms = {
 }
 
 
-def get_feature_scores_all(x, y, alg="extra trees", mode=RuleInductionType.REGRESSION, **kwargs):
-    """perform feature scoring for all outcomes using the specified feature
+def get_feature_scores_all(
+    x, y, alg="extra trees", mode=RuleInductionType.REGRESSION, **kwargs
+):
+    """Perform feature scoring for all outcomes using the specified feature
     scoring algorithm
 
     Parameters
@@ -366,7 +365,7 @@ def get_feature_scores_all(x, y, alg="extra trees", mode=RuleInductionType.REGRE
              any remaining keyword arguments will be passed to the specific
              feature scoring algorithm
 
-    Returns
+    Returns:
     -------
     DataFrame instance
 
