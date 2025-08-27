@@ -15,7 +15,6 @@ import pandas as pd
 import scipy.stats as stats
 import seaborn as sns
 
-from ..em_framework.outcomes import AbstractOutcome, ScalarOutcome
 from ..util import EMAError, get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>

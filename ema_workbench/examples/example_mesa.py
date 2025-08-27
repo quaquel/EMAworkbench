@@ -9,12 +9,10 @@ controlled using the ema_workbench.
 from ema_workbench import (
     ReplicatorModel,
     RealParameter,
-    BooleanParameter,
     IntegerParameter,
     Constant,
     ArrayOutcome,
     perform_experiments,
-    save_results,
     ema_logging,
 )
 

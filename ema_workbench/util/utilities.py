@@ -99,7 +99,7 @@ def load_results_old(archive):
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import ScalarOutcome, ArrayOutcome, register
+    from ..em_framework.outcomes import ScalarOutcome, ArrayOutcome
 
     outcomes = {}
 

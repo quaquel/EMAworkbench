@@ -55,7 +55,7 @@ try:
 
 except ImportError:
     warnings.warn(
-        f"Platypus based optimization not available. Install with `pip install platypus-opt`",
+        "Platypus based optimization not available. Install with `pip install platypus-opt`",
         ImportWarning,
     )
 
@@ -488,7 +488,7 @@ class EpsilonProgress(AbstractConvergenceMetric):
 
 
 class MetricWrapper:
-    f"""wrapper class for wrapping platypus indicators
+    """wrapper class for wrapping platypus indicators
 
     Parameters
     ----------

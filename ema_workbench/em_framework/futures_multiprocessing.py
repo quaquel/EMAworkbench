@@ -7,9 +7,7 @@ import logging
 import multiprocessing
 import os
 import queue
-import random
 import shutil
-import string
 import sys
 import threading
 import traceback
