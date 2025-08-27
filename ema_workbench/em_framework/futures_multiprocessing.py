@@ -1,7 +1,4 @@
-"""
-support for using the multiprocessing library in combination with the workbench
-
-"""
+"""support for using the multiprocessing library in combination with the workbench"""
 
 import logging
 import multiprocessing
@@ -11,15 +8,15 @@ import shutil
 import sys
 import threading
 import traceback
-from logging import handlers
 import warnings
+from logging import handlers
 
+from ..util import ema_logging, get_module_logger
+from .evaluators import BaseEvaluator, experiment_generator
 from .experiment_runner import ExperimentRunner
+from .futures_util import determine_rootdir, finalizer, setup_working_directories
 from .model import AbstractModel
 from .util import NamedObjectMap
-from ..util import get_module_logger, ema_logging
-from .evaluators import BaseEvaluator, experiment_generator
-from .futures_util import setup_working_directories, finalizer, determine_rootdir
 
 # Created on 22 Feb 2017
 #
@@ -31,7 +28,7 @@ _logger = get_module_logger(__name__)
 
 
 def initializer(*args):
-    """initializer for a worker process
+    """Initializer for a worker process
 
     Parameters
     ----------
@@ -65,12 +62,15 @@ def initializer(*args):
     # remove the root temp
     if tmpdir:
         multiprocessing.util.Finalize(
-            None, finalizer(experiment_runner), args=(os.path.abspath(tmpdir),), exitpriority=10
+            None,
+            finalizer(experiment_runner),
+            args=(os.path.abspath(tmpdir),),
+            exitpriority=10,
         )
 
 
 def setup_logging(queue, log_level):
-    """helper function for enabling logging from the workers to the main
+    """Helper function for enabling logging from the workers to the main
     process
 
     Parameters
@@ -79,7 +79,6 @@ def setup_logging(queue, log_level):
     log_level : int
 
     """
-
     # create a logger
     logger = logging.getLogger(ema_logging.LOGGER_NAME + ".subprocess")
     ema_logging._logger = logger
@@ -95,7 +94,7 @@ def setup_logging(queue, log_level):
 
 
 def worker(experiment):
-    """the worker function for executing an individual experiment
+    """The worker function for executing an individual experiment
 
     Parameters
     ----------
@@ -106,9 +105,7 @@ def worker(experiment):
 
 
 class LogQueueReader(threading.Thread):
-    """
-
-    thread to write subprocesses log records to main process log
+    """thread to write subprocesses log records to main process log
 
     This thread reads the records written by subprocesses and writes them to
     the handlers defined in the main process's handlers.
@@ -126,8 +123,7 @@ class LogQueueReader(threading.Thread):
         self.daemon = True
 
     def run(self):
-        """
-        read from the queue and write to the log handlers
+        """Read from the queue and write to the log handlers
 
         The logging documentation says logging is thread safe, so there
         shouldn't be contention between normal logging (from the main
@@ -136,7 +132,6 @@ class LogQueueReader(threading.Thread):
         Note that we're using the name of the original logger.
 
         """
-
         while True:
             try:
                 record = self.queue.get()
@@ -200,7 +195,7 @@ class ResultsReader(threading.Thread):
 
 
 def add_tasks(n_processes, pool, experiments, callback):
-    """add experiments to pool
+    """Add experiments to pool
 
     Parameters
     ----------
@@ -257,7 +252,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
             if n_processes > 0:
                 if max_processes < n_processes:
                     warnings.warn(
-                        f"The number of processes cannot be more then {max_processes}", UserWarning
+                        f"The number of processes cannot be more then {max_processes}",
+                        UserWarning,
                     )
                 self.n_processes = min(n_processes, max_processes)
             else:
@@ -265,7 +261,9 @@ class MultiprocessingEvaluator(BaseEvaluator):
         elif n_processes is None:
             self.n_processes = max_processes
         else:
-            raise ValueError(f"max_processes must be an integer or None, not {type(n_processes)}")
+            raise ValueError(
+                f"max_processes must be an integer or None, not {type(n_processes)}"
+            )
 
         self.maxtasksperchild = maxtasksperchild
 

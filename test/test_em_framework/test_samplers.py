@@ -1,25 +1,24 @@
-"""
-Created on 21 jan. 2013
+"""Created on 21 jan. 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
-import unittest.mock as mock
 import unittest
+import unittest.mock as mock
 
-from ema_workbench.em_framework.samplers import (
-    LHSSampler,
-    MonteCarloSampler,
-    FullFactorialSampler,
-    determine_parameters,
-)
+from ema_workbench.em_framework import Model
 from ema_workbench.em_framework.parameters import (
-    RealParameter,
-    IntegerParameter,
     CategoricalParameter,
+    IntegerParameter,
+    RealParameter,
 )
 from ema_workbench.em_framework.points import Scenario
-from ema_workbench.em_framework import Model
+from ema_workbench.em_framework.samplers import (
+    FullFactorialSampler,
+    LHSSampler,
+    MonteCarloSampler,
+    determine_parameters,
+)
 
 
 class SamplerTestCase(unittest.TestCase):

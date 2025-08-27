@@ -1,6 +1,4 @@
-"""
-Scenario discovery utilities used by both :mod:`cart` and :mod:`prim`
-"""
+"""Scenario discovery utilities used by both :mod:`cart` and :mod:`prim`"""
 
 import abc
 import enum
@@ -46,13 +44,12 @@ def _get_sorted_box_lims(boxes, box_init):
     boxes : list of DataFrames
     box_init : DataFrmae
 
-    Returns
+    Returns:
     -------
     tuple
         with the sorted boxes, and the list of restricted uncertainties
 
     """
-
     # determine the uncertainties that are being restricted
     # in one or more boxes
     uncs = set()
@@ -75,20 +72,18 @@ def _get_sorted_box_lims(boxes, box_init):
 
 
 def _make_box(x):
-    """
-    Make a box that encompasses all the data
+    """Make a box that encompasses all the data
 
     Parameters
     ----------
     x : DataFrame
 
-    Returns
+    Returns:
     -------
     DataFrame
 
 
     """
-
     # x.select_dtypes(np.number)
 
     def limits(x):
@@ -114,7 +109,7 @@ def _normalize(box_lim, box_init, uncertainties):
     uncertainties : list of strings
                     valid names of columns that exist in both DataFrames
 
-    Returns
+    Returns:
     -------
     ndarray
         a numpy array of the shape (2, len(uncertainties) with the
@@ -122,7 +117,6 @@ def _normalize(box_lim, box_init, uncertainties):
 
 
     """
-
     # normalize the range for the first box
     norm_box_lim = np.zeros((len(uncertainties), box_lim.shape[0]))
 
@@ -143,29 +137,29 @@ def _normalize(box_lim, box_init, uncertainties):
 
 
 def _determine_restricted_dims(box_limits, box_init):
-    """returns a list of dimensions that is restricted
+    """Returns a list of dimensions that is restricted
 
     Parameters
     ----------
     box_limits : pd.DataFrame
     box_init : pd.DataFrame
 
-    Returns
+    Returns:
     -------
     list of str
 
     """
     cols = box_init.columns.values
-    restricted_dims = cols[np.all(box_init.values == box_limits.values, axis=0) == False]
+    restricted_dims = cols[
+        np.all(box_init.values == box_limits.values, axis=0) == False
+    ]
     #     restricted_dims = [column for column in box_init.columns if not
     #            np.all(box_init[column].values == box_limits[column].values)]
     return restricted_dims
 
 
 def _determine_nr_restricted_dims(box_lims, box_init):
-    """
-
-    determine the number of restricted dimensions of a box given
+    """Determine the number of restricted dimensions of a box given
     compared to the initial box that contains all the data
 
     Parameters
@@ -176,30 +170,30 @@ def _determine_nr_restricted_dims(box_lims, box_init):
                the initial box containing all data points
 
 
-    Returns
+    Returns:
     -------
     int
 
     """
-
     return _determine_restricted_dims(box_lims, box_init).shape[0]
 
 
 def _compare(a, b):
-    """compare two boxes, for each dimension return True if the
-    same and false otherwise"""
+    """Compare two boxes, for each dimension return True if the
+    same and false otherwise
+    """
     dtypesDesc = a.dtype.descr
     logical = np.ones((len(dtypesDesc)), dtype=bool)
     for i, entry in enumerate(dtypesDesc):
         name = entry[0]
-        logical[i] = logical[i] & (a[name][0] == b[name][0]) & (a[name][1] == b[name][1])
+        logical[i] = (
+            logical[i] & (a[name][0] == b[name][0]) & (a[name][1] == b[name][1])
+        )
     return logical
 
 
 def _in_box(x, boxlim):
-    """
-
-    returns the a boolean index indicated which data points are inside
+    """Returns the a boolean index indicated which data points are inside
     and which are outside of the given box_lims
 
     Parameters
@@ -207,18 +201,17 @@ def _in_box(x, boxlim):
     x : pd.DataFrame
     boxlim : pd.DataFrame
 
-    Returns
+    Returns:
     -------
     ndarray
         boolean 1D array
 
-    Raises
+    Raises:
     ------
     Attribute error if not numbered columns are not pandas
     category dtype
 
     """
-
     x_numbered = x.select_dtypes(np.number)
     boxlim_numbered = boxlim.select_dtypes(np.number)
     logical = (boxlim_numbered.loc[0, :].values <= x_numbered.values) & (
@@ -239,7 +232,7 @@ def _in_box(x, boxlim):
 
 
 def _setup(results, classify, incl_unc=[]):
-    """helper function for setting up CART or PRIM
+    """Helper function for setting up CART or PRIM
 
     Parameters
     ----------
@@ -250,12 +243,12 @@ def _setup(results, classify, incl_unc=[]):
                use or a function.
     incl_unc : list of strings
 
-    Notes
+    Notes:
     -----
     CART, PRIM, and feature scoring only work for a 1D numpy array
     for the dependent variable
 
-    Raises
+    Raises:
     ------
     TypeError
         if classify is not a string or a callable.
@@ -281,9 +274,7 @@ def _setup(results, classify, incl_unc=[]):
 
 
 def _calculate_quasip(x, y, box, Hbox, Tbox):
-    """
-
-    Parameters
+    """Parameters
     ----------
     x : DataFrame
     y : np.array
@@ -324,7 +315,7 @@ def plot_pair_wise_scatter(
     lower="hist",
     fill_subplots=True,
 ):
-    """helper function for pair wise scatter plotting
+    """Helper function for pair wise scatter plotting
 
     Parameters
     ----------
@@ -350,7 +341,6 @@ def plot_pair_wise_scatter(
                    This removes unnecessary whitespace, but may be undesirable
                    for some variable combinations.
     """
-
     x = x[restricted_dims]
     data = x.copy()
 
@@ -389,10 +379,22 @@ def plot_pair_wise_scatter(
     if upper == "contour":
         # draw contours twice to get different fill and line alphas, more interpretable
         grid.map_upper(
-            sns.kdeplot, fill=True, alpha=0.8, bw_adjust=1.2, levels=5, common_norm=False, cut=0
+            sns.kdeplot,
+            fill=True,
+            alpha=0.8,
+            bw_adjust=1.2,
+            levels=5,
+            common_norm=False,
+            cut=0,
         )  # cut = 0
         grid.map_upper(
-            sns.kdeplot, fill=False, alpha=1, bw_adjust=1.2, levels=5, common_norm=False, cut=0
+            sns.kdeplot,
+            fill=False,
+            alpha=1,
+            bw_adjust=1.2,
+            levels=5,
+            common_norm=False,
+            cut=0,
         )
     elif upper == "hist":
         grid.map_upper(sns.histplot)
@@ -409,10 +411,22 @@ def plot_pair_wise_scatter(
     if lower == "contour":
         # draw contours twice to get different fill and line alphas, more interpretable
         grid.map_lower(
-            sns.kdeplot, fill=True, alpha=0.8, bw_adjust=1.2, levels=5, common_norm=False, cut=0
+            sns.kdeplot,
+            fill=True,
+            alpha=0.8,
+            bw_adjust=1.2,
+            levels=5,
+            common_norm=False,
+            cut=0,
         )  # cut = 0
         grid.map_lower(
-            sns.kdeplot, fill=False, alpha=1, bw_adjust=1.2, levels=5, common_norm=False, cut=0
+            sns.kdeplot,
+            fill=False,
+            alpha=1,
+            bw_adjust=1.2,
+            levels=5,
+            common_norm=False,
+            cut=0,
         )
     elif lower == "hist":
         grid.map_lower(sns.histplot)
@@ -515,7 +529,9 @@ def plot_pair_wise_scatter(
                     upper = data[subplot.get_xlabel()].max()
                     lower = data[subplot.get_xlabel()].min()
 
-                    pad_rel = (upper - lower) * 0.1  # padding relative to range of data points
+                    pad_rel = (
+                        upper - lower
+                    ) * 0.1  # padding relative to range of data points
 
                     subplot.set_xlim(lower - pad_rel, upper + pad_rel)
 
@@ -523,7 +539,9 @@ def plot_pair_wise_scatter(
                     upper = data[subplot.get_ylabel()].max()
                     lower = data[subplot.get_ylabel()].min()
 
-                    pad_rel = (upper - lower) * 0.1  # padding relative to range of data points
+                    pad_rel = (
+                        upper - lower
+                    ) * 0.1  # padding relative to range of data points
 
                     subplot.set_ylim(lower - pad_rel, upper + pad_rel)
 
@@ -533,9 +551,7 @@ def plot_pair_wise_scatter(
 
 
 def _setup_figure(uncs, ax):
-    """
-
-    helper function for creating the basic layout for the figures that
+    """Helper function for creating the basic layout for the figures that
     show the box lims.
 
     Parameters
@@ -586,7 +602,7 @@ def plot_box(
     table_formatter : str
     ax : Axes instance
 
-    Returns
+    Returns:
     -------
     a Figure instance
 
@@ -725,8 +741,7 @@ def plot_box(
 
 
 def plot_ppt(peeling_trajectory):
-    """show the peeling and pasting trajectory in a figure"""
-
+    """Show the peeling and pasting trajectory in a figure"""
     ax = host_subplot(111)
     ax.set_xlabel("peeling and pasting trajectory")
 
@@ -743,11 +758,15 @@ def plot_ppt(peeling_trajectory):
 
     fig = plt.gcf()
 
-    make_legend(["mean", "mass", "coverage", "density", "restricted_dim"], ax, ncol=5, alpha=1)
+    make_legend(
+        ["mean", "mass", "coverage", "density", "restricted_dim"], ax, ncol=5, alpha=1
+    )
     return fig
 
 
-def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
+def plot_tradeoff(
+    peeling_trajectory, cmap=mpl.cm.viridis, annotated=False
+):  # @UndefinedVariable
     """Visualize the trade off between coverage and density. Color
     is used to denote the number of restricted dimensions.
 
@@ -756,12 +775,11 @@ def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis, annotated=False):  # 
     cmap : valid matplotlib colormap
     annotated : bool, optional. Shows point labels if True.
 
-    Returns
+    Returns:
     -------
     a Figure instance
 
     """
-
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect="equal")
 
@@ -792,10 +810,10 @@ def plot_tradeoff(peeling_trajectory, cmap=mpl.cm.viridis, annotated=False):  # 
     return fig
 
 
-def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=sns.color_palette()[0]):
-    """
-
-    Parameters:
+def plot_unc(
+    box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=sns.color_palette()[0]
+):
+    """Parameters:
     ----------
     xi : int
          the row at which to plot
@@ -809,7 +827,6 @@ def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=sns.color_p
          the ax on which to plot
 
     """
-
     dtype = box_init[u].dtype
 
     y = xi - j * 0.1
@@ -838,7 +855,6 @@ def plot_boxes(x, boxes, together):
     together : bool
 
     """
-
     box_init = _make_box(x)
     box_lims, uncs = _get_sorted_box_lims(boxes, box_init)
 
@@ -890,19 +906,17 @@ class OutputFormatterMixin:
     @abc.abstractproperty
     def boxes(self):
         """Property for getting a list of box limits"""
-
         raise NotImplementedError
 
     @abc.abstractproperty
     def stats(self):
-        """property for getting a list of dicts containing the statistics
-        for each box"""
-
+        """Property for getting a list of dicts containing the statistics
+        for each box
+        """
         raise NotImplementedError
 
     def boxes_to_dataframe(self):
-        """convert boxes to pandas dataframe"""
-
+        """Convert boxes to pandas dataframe"""
         boxes = self.boxes
 
         # determine the restricted dimensions
@@ -918,7 +932,10 @@ class OutputFormatterMixin:
 
         columns = pd.MultiIndex.from_product([index, ["min", "max"]])
         df_boxes = pd.DataFrame(
-            np.zeros((len(uncs), nr_boxes * 2)), index=uncs, dtype=dtype, columns=columns
+            np.zeros((len(uncs), nr_boxes * 2)),
+            index=uncs,
+            dtype=dtype,
+            columns=columns,
         )
 
         # TODO should be possible to make more efficient
@@ -930,8 +947,7 @@ class OutputFormatterMixin:
         return df_boxes
 
     def stats_to_dataframe(self):
-        """convert stats to pandas dataframe"""
-
+        """Convert stats to pandas dataframe"""
         stats = self.stats
 
         index = pd.Index([f"box {i + 1}" for i in range(len(stats))])
@@ -939,7 +955,7 @@ class OutputFormatterMixin:
         return pd.DataFrame(stats, index=index)
 
     def show_boxes(self, together=False):
-        """display boxes
+        """Display boxes
 
         Parameters
         ----------

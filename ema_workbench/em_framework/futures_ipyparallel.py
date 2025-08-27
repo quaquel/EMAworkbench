@@ -1,5 +1,4 @@
-"""
-This module provides functionality for combining the EMA workbench
+"""This module provides functionality for combining the EMA workbench
 with IPython parallel.
 
 """
@@ -14,18 +13,18 @@ import threading
 import zmq
 from ipyparallel.engine.log import EnginePUBHandler
 from jupyter_client.localinterfaces import localhost
-from traitlets import Unicode, Instance, List
+from tornado import ioloop
+from traitlets import Instance, List, Unicode
 from traitlets.config import Application
 from traitlets.config.configurable import LoggingConfigurable
-from tornado import ioloop
 from zmq.eventloop import zmqstream
 
+from ..util import ema_exceptions, ema_logging, get_module_logger
 from . import experiment_runner
+from .evaluators import BaseEvaluator, experiment_generator
 from .futures_util import setup_working_directories
 from .model import AbstractModel
 from .util import NamedObjectMap
-from ..util import ema_exceptions, ema_logging, get_module_logger
-from .evaluators import BaseEvaluator, experiment_generator
 
 # Created on Jul 16, 2015
 #
@@ -59,9 +58,9 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
 
 
 def start_logwatcher():
-    """convenience function for starting the LogWatcher
+    """Convenience function for starting the LogWatcher
 
-    Returns
+    Returns:
     -------
     LogWatcher
         the log watcher instance
@@ -71,7 +70,6 @@ def start_logwatcher():
     .. note : there can only be one log watcher on a given url.
 
     """
-
     logwatcher = LogWatcher()
 
     def starter():
@@ -94,7 +92,6 @@ def set_engine_logger():
     """Updates EMA logging on the engines with an EngineLoggerAdapter
     This adapter injects EMA as a topic into all messages
     """
-
     logger = Application.instance().log
     logger.setLevel(ema_logging.DEBUG)
 
@@ -109,20 +106,19 @@ def set_engine_logger():
 
 
 def get_engines_by_host(client):
-    """returns the engine ids by host
+    """Returns the engine ids by host
 
     Parameters
     ----------
     client : IPython.parallel.Client instance
 
-    Returns
+    Returns:
     -------
     dict
         a dict with hostnames as keys, and a list
         of engine ids
 
     """
-
     results = {i: client[i].apply_sync(socket.gethostname) for i in client.ids}
 
     engines_by_host = collections.defaultdict(list)
@@ -132,7 +128,7 @@ def get_engines_by_host(client):
 
 
 def update_cwd_on_all_engines(client):
-    """updates the current working directory on the engines to point to the
+    """Updates the current working directory on the engines to point to the
     same working directory as this notebook
 
     currently only works if engines are on same machine.
@@ -142,7 +138,6 @@ def update_cwd_on_all_engines(client):
     client : IPython.parallel.Client instance
 
     """
-
     engines_by_host = get_engines_by_host(client)
 
     notebook_host = socket.gethostname()
@@ -166,7 +161,8 @@ class LogWatcher(LoggingConfigurable):
 
     # configurables
     topics = List(
-        [""], help=("The ZMQ topics to subscribe to. Default is to" "subscribe to all messages")
+        [""],
+        help=("The ZMQ topics to subscribe to. Default is tosubscribe to all messages"),
     ).tag(config=True)
     url = Unicode(help="ZMQ url on which to listen for log messages").tag(config=True)
 
@@ -228,7 +224,7 @@ class LogWatcher(LoggingConfigurable):
         return level, ".".join(topics)
 
     def log_message(self, raw):
-        """receive and parse a message, then log it."""
+        """Receive and parse a message, then log it."""
         raw = [r.decode("utf-8") for r in raw]
 
         if len(raw) != 2 or "." not in raw[0]:
@@ -279,14 +275,14 @@ class Engine:
         self.tmpdir = setup_working_directories(msis, os.getcwd())
 
     def cleanup_working_directory(self):
-        """remove the root working directory of the engine"""
+        """Remove the root working directory of the engine"""
         if self.tmpdir:
             shutil.rmtree(self.tmpdir)
 
     def run_experiment(self, experiment):
-        """run the experiment, the actual running is delegated
-        to an ExperimentRunner instance"""
-
+        """Run the experiment, the actual running is delegated
+        to an ExperimentRunner instance
+        """
         try:
             return self.runner.run_experiment(experiment)
         except ema_exceptions.EMAError:
@@ -296,7 +292,7 @@ class Engine:
 
 
 def initialize_engines(client, msis, cwd):
-    """initialize engine instances on all engines
+    """Initialize engine instances on all engines
 
     Parameters
     ----------
@@ -311,7 +307,7 @@ def initialize_engines(client, msis, cwd):
 
 
 def cleanup(client):
-    """cleanup directory tree structure on all engines"""
+    """Cleanup directory tree structure on all engines"""
     client[:].apply_sync(_cleanup)
 
 
@@ -319,19 +315,18 @@ def cleanup(client):
 # these functions are wrappers around the relevant Engine methods
 # the engine instance is part of the namespace of the module.
 def _run_experiment(experiment):
-    """wrapper function for engine.run_experiment"""
-
+    """Wrapper function for engine.run_experiment"""
     return experiment, engine.run_experiment(experiment)
 
 
 def _initialize_engine(engine_id, msis, cwd):
-    """wrapper function for initializing an engine"""
+    """Wrapper function for initializing an engine"""
     global engine
     engine = Engine(engine_id, msis, cwd)
 
 
 def _cleanup():
-    """wrapper function for engine.cleanup_working_directory"""
+    """Wrapper function for engine.cleanup_working_directory"""
     global engine
     engine.cleanup_working_directory()
     del engine
@@ -371,11 +366,15 @@ class IpyparallelEvaluator(BaseEvaluator):
         self.logwatcher.stop()
         cleanup(self.client)
 
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
+    def evaluate_experiments(
+        self, scenarios, policies, callback, combine="factorial", **kwargs
+    ):
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
 
         lb_view = self.client.load_balanced_view()
-        results = lb_view.map(_run_experiment, ex_gen, ordered=False, block=False, **kwargs)
+        results = lb_view.map(
+            _run_experiment, ex_gen, ordered=False, block=False, **kwargs
+        )
 
         for entry in results:
             callback(*entry)

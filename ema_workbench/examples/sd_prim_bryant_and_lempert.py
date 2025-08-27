@@ -1,5 +1,4 @@
-"""
-Created on 12 Nov 2018
+"""Created on 12 Nov 2018
 
 @author: jhkwakkel
 """

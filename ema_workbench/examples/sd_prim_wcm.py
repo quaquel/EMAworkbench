@@ -1,5 +1,4 @@
-"""
-Created on Feb 13, 2014
+"""Created on Feb 13, 2014
 
 This example demonstrates the use of PRIM. The dataset was generated
 using the world container model

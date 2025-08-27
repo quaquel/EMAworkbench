@@ -1,5 +1,4 @@
-"""
-Created on 20 sep. 2011
+"""Created on 20 sep. 2011
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
@@ -7,8 +6,12 @@ Created on 20 sep. 2011
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ema_workbench import load_results, ema_logging
-from ema_workbench.analysis.pairs_plotting import pairs_lines, pairs_scatter, pairs_density
+from ema_workbench import ema_logging, load_results
+from ema_workbench.analysis.pairs_plotting import (
+    pairs_density,
+    pairs_lines,
+    pairs_scatter,
+)
 
 ema_logging.log_to_stderr(level=ema_logging.DEFAULT_LEVEL)
 
@@ -35,7 +38,7 @@ for key, value in outcomes.items():
         # we want the time at which the maximum occurred
         # the code here is a bit obscure, I don't know why the transpose
         # of value is needed. This however does produce the appropriate results
-        logical = value.T == np.max(value, axis=1)
+        logical = np.max(value, axis=1) == value.T
         tr["time of max"] = time[logical.T]
 
 pairs_scatter(experiments, tr, filter_scalar=False)

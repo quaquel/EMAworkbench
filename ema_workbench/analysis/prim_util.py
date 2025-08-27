@@ -5,8 +5,8 @@ from enum import Enum
 
 import numpy as np
 
-from . import scenario_discovery_util as sdutil
 from ..util.ema_logging import get_module_logger
+from . import scenario_discovery_util as sdutil
 
 _logger = get_module_logger(__name__)
 
@@ -18,8 +18,6 @@ _logger = get_module_logger(__name__)
 
 class PrimException(Exception):
     """Base exception class for prim related exceptions"""
-
-    pass
 
 
 class PRIMObjectiveFunctions(Enum):
@@ -40,8 +38,7 @@ class DiagKind(Enum):
 
 
 def get_quantile(data, quantile):
-    """
-    quantile calculation modeled on the implementation used in sdtoolkit
+    """Quantile calculation modeled on the implementation used in sdtoolkit
 
     Parameters
     ----------
@@ -69,7 +66,9 @@ def get_quantile(data, quantile):
         value = (data[index_lower] + data[index_higher]) / 2
     else:
         # lower
-        while (data[index_lower] == data[index_higher]) & (index_higher < len(data) - 1):
+        while (data[index_lower] == data[index_higher]) & (
+            index_higher < len(data) - 1
+        ):
             index_higher += 1
         value = (data[index_lower] + data[index_higher]) / 2
 
@@ -78,7 +77,8 @@ def get_quantile(data, quantile):
 
 class CurEntry:
     """a descriptor for the current entry on the peeling and pasting
-    trajectory"""
+    trajectory
+    """
 
     def __init__(self, name):
         self.name = name
@@ -120,15 +120,14 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
 
 
 def rotate_subset(experiments, y):
-    """
-    rotate a subset
+    """Rotate a subset
 
     Parameters
     ----------
     experiments_subset : DataFrame
     y : ndarray
 
-    Returns
+    Returns:
     -------
     rotation_matrix
         DataFrame
@@ -153,15 +152,13 @@ def rotate_subset(experiments, y):
 
 
 def determine_rotation(experiments):
-    """
-    Determine the rotation for the specified experiments
-
+    """Determine the rotation for the specified experiments
 
     Parameters
     ----------
     experiments : pd.DataFrame
 
-    Returns
+    Returns:
     -------
     ndarray
 
@@ -177,7 +174,9 @@ def determine_rotation(experiments):
 
     # make the eigen vectors unit length
     for i in range(eigen_vectors.shape[1]):
-        eigen_vectors[:, i] / np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(eigen_vals[i])
+        eigen_vectors[:, i] / np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(
+            eigen_vals[i]
+        )
 
     return eigen_vectors
 
