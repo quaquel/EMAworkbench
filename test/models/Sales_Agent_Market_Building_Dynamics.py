@@ -1,12 +1,13 @@
-"""Python model "Sales_Agent_Market_Building_Dynamics.py"
+"""
+Python model "Sales_Agent_Market_Building_Dynamics.py"
 Translated using PySD version 1.3.0
 """
 
 from os import path
-
 import numpy as np
-from pysd import cache
+
 from pysd.py_backend.functions import Integ, if_then_else
+from pysd import cache
 
 _subscript_dict = {}
 
@@ -92,7 +93,8 @@ def time():
 
 @cache.step
 def accumulating_income():
-    """Real Name: Accumulating Income
+    """
+    Real Name: Accumulating Income
     Original Eqn: Income
     Units: Months/Month
     Limits: (None, None)
@@ -106,7 +108,8 @@ def accumulating_income():
 
 @cache.step
 def accumulating_sales():
-    """Real Name: Accumulating Sales
+    """
+    Real Name: Accumulating Sales
     Original Eqn: Tier 1 Sales + Tier 2 Sales
     Units: Persons/Month
     Limits: (None, None)
@@ -120,7 +123,8 @@ def accumulating_sales():
 
 @cache.step
 def accumulating_tenure():
-    """Real Name: Accumulating Tenure
+    """
+    Real Name: Accumulating Tenure
     Original Eqn: Still Employed
     Units: Months/Month
     Limits: (None, None)
@@ -134,7 +138,8 @@ def accumulating_tenure():
 
 @cache.step
 def total_cumulative_sales():
-    """Real Name: Total Cumulative Sales
+    """
+    Real Name: Total Cumulative Sales
     Original Eqn: INTEG ( Accumulating Sales, 0)
     Units: Persons
     Limits: (None, None)
@@ -148,7 +153,8 @@ def total_cumulative_sales():
 
 @cache.step
 def tenure():
-    """Real Name: Tenure
+    """
+    Real Name: Tenure
     Original Eqn: INTEG ( Accumulating Tenure, 0)
     Units: Months
     Limits: (None, None)
@@ -162,7 +168,8 @@ def tenure():
 
 @cache.step
 def total_cumulative_income():
-    """Real Name: Total Cumulative Income
+    """
+    Real Name: Total Cumulative Income
     Original Eqn: INTEG ( Accumulating Income, 0)
     Units: Months
     Limits: (None, None)
@@ -176,7 +183,8 @@ def total_cumulative_income():
 
 @cache.step
 def tier_2_referrals():
-    """Real Name: Tier 2 Referrals
+    """
+    Real Name: Tier 2 Referrals
     Original Eqn: Referrals from Tier 2 Clients * (1-Down Referral Fraction)
     Units: Referrals/Month
     Limits: (None, None)
@@ -191,7 +199,8 @@ def tier_2_referrals():
 
 @cache.step
 def effort_remaining_after_servicing_existing_clients():
-    """Real Name: Effort Remaining after Servicing Existing Clients
+    """
+    Real Name: Effort Remaining after Servicing Existing Clients
     Original Eqn: MAX(Sales Effort Available - (Effort Devoted to Tier 1 Clients + Effort Devoted to Tier 2 Clients), 0)
     Units: Hours/Month
     Limits: (None, None)
@@ -210,7 +219,8 @@ def effort_remaining_after_servicing_existing_clients():
 
 @cache.run
 def down_referral_fraction():
-    """Real Name: Down Referral Fraction
+    """
+    Real Name: Down Referral Fraction
     Original Eqn: 0.2
     Units:
     Limits: (None, None)
@@ -224,7 +234,8 @@ def down_referral_fraction():
 
 @cache.step
 def effort_devoted_to_tier_2_leads():
-    """Real Name: Effort Devoted to Tier 2 Leads
+    """
+    Real Name: Effort Devoted to Tier 2 Leads
     Original Eqn: MIN(Effort Remaining after Servicing Existing Clients, Effort Required to Make a Sale* Tier 2 Leads / Minimum Time to Make a Sale )
     Units: Hours/Month
     Limits: (None, None)
@@ -236,15 +247,14 @@ def effort_devoted_to_tier_2_leads():
     """
     return np.minimum(
         effort_remaining_after_servicing_existing_clients(),
-        effort_required_to_make_a_sale()
-        * tier_2_leads()
-        / minimum_time_to_make_a_sale(),
+        effort_required_to_make_a_sale() * tier_2_leads() / minimum_time_to_make_a_sale(),
     )
 
 
 @cache.step
 def tier_2_lead_aquisition():
-    """Real Name: Tier 2 Lead Aquisition
+    """
+    Real Name: Tier 2 Lead Aquisition
     Original Eqn: Qualification Rate * (Tier 2 Referrals + Tier 2 Referrals from Tier 1)
     Units: Persons/Month
     Limits: (None, None)
@@ -258,7 +268,8 @@ def tier_2_lead_aquisition():
 
 @cache.step
 def tier_1_referrals_from_tier_2():
-    """Real Name: Tier 1 Referrals from Tier 2
+    """
+    Real Name: Tier 1 Referrals from Tier 2
     Original Eqn: Referrals from Tier 2 Clients * Down Referral Fraction
     Units: Referrals/Month
     Limits: (None, None)
@@ -273,7 +284,8 @@ def tier_1_referrals_from_tier_2():
 
 @cache.step
 def effort_remaining_after_servicing_tier_2_leads():
-    """Real Name: Effort Remaining after Servicing Tier 2 Leads
+    """
+    Real Name: Effort Remaining after Servicing Tier 2 Leads
     Original Eqn: MAX(Effort Remaining after Servicing Existing Clients - Effort Devoted to Tier 2 Leads, 0)
     Units: Hours/Month
     Limits: (None, None)
@@ -284,15 +296,14 @@ def effort_remaining_after_servicing_tier_2_leads():
         activities are complete?
     """
     return np.maximum(
-        effort_remaining_after_servicing_existing_clients()
-        - effort_devoted_to_tier_2_leads(),
-        0,
+        effort_remaining_after_servicing_existing_clients() - effort_devoted_to_tier_2_leads(), 0
     )
 
 
 @cache.step
 def income():
-    """Real Name: Income
+    """
+    Real Name: Income
     Original Eqn: Tier 1 Income + Tier 2 Income + IF THEN ELSE(Time < Startup Subsidy Length, Startup Subsidy, 0 )
     Units: Months/Month
     Limits: (None, None)
@@ -310,7 +321,8 @@ def income():
 
 @cache.run
 def qualification_rate():
-    """Real Name: Qualification Rate
+    """
+    Real Name: Qualification Rate
     Original Eqn: 1
     Units: Persons/Referral
     Limits: (None, None)
@@ -327,7 +339,8 @@ def qualification_rate():
 
 @cache.step
 def tier_1_lead_aquisition():
-    """Real Name: Tier 1 Lead Aquisition
+    """
+    Real Name: Tier 1 Lead Aquisition
     Original Eqn: Qualification Rate * (Tier 1 Referrals + Tier 1 Referrals from Tier 2)
     Units: Persons/Month
     Limits: (None, None)
@@ -341,7 +354,8 @@ def tier_1_lead_aquisition():
 
 @cache.run
 def success_rate():
-    """Real Name: Success Rate
+    """
+    Real Name: Success Rate
     Original Eqn: 0.2
     Units: Dmnl
     Limits: (None, None)
@@ -356,7 +370,8 @@ def success_rate():
 
 @cache.step
 def tier_1_sales():
-    """Real Name: Tier 1 Sales
+    """
+    Real Name: Tier 1 Sales
     Original Eqn: Success Rate*MIN(Effort Devoted to Tier 1 Leads / Effort Required to Make a Sale, Tier 1 Leads/Minimum Time to Make a Sale)
     Units: Persons/Month
     Limits: (None, None)
@@ -375,7 +390,8 @@ def tier_1_sales():
 
 @cache.step
 def tier_2_sales():
-    """Real Name: Tier 2 Sales
+    """
+    Real Name: Tier 2 Sales
     Original Eqn: Success Rate*MIN(Effort Devoted to Tier 2 Leads / Effort Required to Make a Sale, Tier 2 Leads/Minimum Time to Make a Sale)
     Units: Persons/Month
     Limits: (None, None)
@@ -394,7 +410,8 @@ def tier_2_sales():
 
 @cache.step
 def still_employed():
-    """Real Name: Still Employed
+    """
+    Real Name: Still Employed
     Original Eqn: IF THEN ELSE(Months of Buffer < 0 , 0 , 1 )
     Units: Dmnl
     Limits: (None, None)
@@ -409,7 +426,8 @@ def still_employed():
 
 @cache.step
 def effort_devoted_to_tier_1_clients():
-    """Real Name: Effort Devoted to Tier 1 Clients
+    """
+    Real Name: Effort Devoted to Tier 1 Clients
     Original Eqn: Tier 1 Clients * Time per Client Meeting * Frequency of Meetings
     Units: Hours/Month
     Limits: (None, None)
@@ -424,7 +442,8 @@ def effort_devoted_to_tier_1_clients():
 
 @cache.step
 def tier_1_income():
-    """Real Name: Tier 1 Income
+    """
+    Real Name: Tier 1 Income
     Original Eqn: Tier 1 Sales * Months of Expenses per Tier 1 Sale
     Units: Months/Month
     Limits: (None, None)
@@ -439,7 +458,8 @@ def tier_1_income():
 
 @cache.step
 def effort_devoted_to_tier_2_clients():
-    """Real Name: Effort Devoted to Tier 2 Clients
+    """
+    Real Name: Effort Devoted to Tier 2 Clients
     Original Eqn: Tier 2 Clients * Time per Client Meeting * Frequency of Meetings
     Units: Hours/Month
     Limits: (None, None)
@@ -454,7 +474,8 @@ def effort_devoted_to_tier_2_clients():
 
 @cache.run
 def fraction_of_effort_for_sales():
-    """Real Name: Fraction of Effort for Sales
+    """
+    Real Name: Fraction of Effort for Sales
     Original Eqn: 0.25
     Units: Dmnl
     Limits: (None, None)
@@ -470,7 +491,8 @@ def fraction_of_effort_for_sales():
 
 @cache.run
 def expenses():
-    """Real Name: Expenses
+    """
+    Real Name: Expenses
     Original Eqn: 1
     Units: Months/Month
     Limits: (None, None)
@@ -486,7 +508,8 @@ def expenses():
 
 @cache.step
 def sales_effort_available():
-    """Real Name: Sales Effort Available
+    """
+    Real Name: Sales Effort Available
     Original Eqn: Fraction of Effort for Sales * Total Effort Available * Still Employed
     Units: Hours/Month
     Limits: (None, None)
@@ -501,7 +524,8 @@ def sales_effort_available():
 
 @cache.run
 def initial_buffer():
-    """Real Name: Initial Buffer
+    """
+    Real Name: Initial Buffer
     Original Eqn: 6
     Units: Months
     Limits: (None, None)
@@ -517,7 +541,8 @@ def initial_buffer():
 
 @cache.run
 def startup_subsidy_length():
-    """Real Name: Startup Subsidy Length
+    """
+    Real Name: Startup Subsidy Length
     Original Eqn: 3
     Units: Months
     Limits: (None, None)
@@ -531,7 +556,8 @@ def startup_subsidy_length():
 
 @cache.run
 def total_effort_available():
-    """Real Name: Total Effort Available
+    """
+    Real Name: Total Effort Available
     Original Eqn: 200
     Units: Hours/Month
     Limits: (None, None)
@@ -545,7 +571,8 @@ def total_effort_available():
 
 @cache.step
 def months_of_buffer():
-    """Real Name: Months of Buffer
+    """
+    Real Name: Months of Buffer
     Original Eqn: INTEG ( Income-Expenses, Initial Buffer)
     Units: Months
     Limits: (None, None)
@@ -560,7 +587,8 @@ def months_of_buffer():
 
 @cache.run
 def months_of_expenses_per_tier_1_sale():
-    """Real Name: Months of Expenses per Tier 1 Sale
+    """
+    Real Name: Months of Expenses per Tier 1 Sale
     Original Eqn: 12/300
     Units: Months/Person
     Limits: (None, None)
@@ -575,7 +603,8 @@ def months_of_expenses_per_tier_1_sale():
 
 @cache.run
 def months_of_expenses_per_tier_2_sale():
-    """Real Name: Months of Expenses per Tier 2 Sale
+    """
+    Real Name: Months of Expenses per Tier 2 Sale
     Original Eqn: 12/30
     Units: Months/Person
     Limits: (None, None)
@@ -590,7 +619,8 @@ def months_of_expenses_per_tier_2_sale():
 
 @cache.step
 def tier_2_income():
-    """Real Name: Tier 2 Income
+    """
+    Real Name: Tier 2 Income
     Original Eqn: Months of Expenses per Tier 2 Sale * Tier 2 Sales
     Units: Months/Month
     Limits: (None, None)
@@ -605,7 +635,8 @@ def tier_2_income():
 
 @cache.run
 def startup_subsidy():
-    """Real Name: Startup Subsidy
+    """
+    Real Name: Startup Subsidy
     Original Eqn: 0.75
     Units: Months/Month
     Limits: (0.0, 1.0, 0.1)
@@ -620,7 +651,8 @@ def startup_subsidy():
 
 @cache.run
 def time_per_client_meeting():
-    """Real Name: Time per Client Meeting
+    """
+    Real Name: Time per Client Meeting
     Original Eqn: 1
     Units: Hours/Meeting
     Limits: (None, None)
@@ -635,7 +667,8 @@ def time_per_client_meeting():
 
 @cache.run
 def client_lifetime():
-    """Real Name: Client Lifetime
+    """
+    Real Name: Client Lifetime
     Original Eqn: 120
     Units: Months
     Limits: (None, None)
@@ -649,7 +682,8 @@ def client_lifetime():
 
 @cache.step
 def effort_devoted_to_tier_1_leads():
-    """Real Name: Effort Devoted to Tier 1 Leads
+    """
+    Real Name: Effort Devoted to Tier 1 Leads
     Original Eqn: Effort Remaining after Servicing Tier 2 Leads
     Units: Hours/Month
     Limits: (None, None)
@@ -664,7 +698,8 @@ def effort_devoted_to_tier_1_leads():
 
 @cache.run
 def frequency_of_meetings():
-    """Real Name: Frequency of Meetings
+    """
+    Real Name: Frequency of Meetings
     Original Eqn: 1/12
     Units: Meetings/Month/Person
     Limits: (None, None)
@@ -679,7 +714,8 @@ def frequency_of_meetings():
 
 @cache.run
 def lead_shelf_life():
-    """Real Name: Lead Shelf Life
+    """
+    Real Name: Lead Shelf Life
     Original Eqn: 3
     Units: Months
     Limits: (None, None)
@@ -694,7 +730,8 @@ def lead_shelf_life():
 
 @cache.step
 def referrals_from_tier_1_clients():
-    """Real Name: Referrals from Tier 1 Clients
+    """
+    Real Name: Referrals from Tier 1 Clients
     Original Eqn: Tier 1 Clients * Frequency of Meetings * Referrals per meeting
     Units: Referrals/Month
     Limits: (None, None)
@@ -709,7 +746,8 @@ def referrals_from_tier_1_clients():
 
 @cache.step
 def referrals_from_tier_2_clients():
-    """Real Name: Referrals from Tier 2 Clients
+    """
+    Real Name: Referrals from Tier 2 Clients
     Original Eqn: Tier 2 Clients * Referrals per meeting * Frequency of Meetings
     Units: Referrals/Month
     Limits: (None, None)
@@ -724,7 +762,8 @@ def referrals_from_tier_2_clients():
 
 @cache.run
 def referrals_per_meeting():
-    """Real Name: Referrals per meeting
+    """
+    Real Name: Referrals per meeting
     Original Eqn: 2
     Units: Referrals/Meeting
     Limits: (None, None)
@@ -739,7 +778,8 @@ def referrals_per_meeting():
 
 @cache.step
 def tier_1_client_turnover():
-    """Real Name: Tier 1 Client Turnover
+    """
+    Real Name: Tier 1 Client Turnover
     Original Eqn: Tier 1 Clients/Client Lifetime
     Units: Persons/Month
     Limits: (None, None)
@@ -753,7 +793,8 @@ def tier_1_client_turnover():
 
 @cache.run
 def up_referral_fraction():
-    """Real Name: Up Referral Fraction
+    """
+    Real Name: Up Referral Fraction
     Original Eqn: 0.15
     Units: Dmnl
     Limits: (None, None)
@@ -768,7 +809,8 @@ def up_referral_fraction():
 
 @cache.step
 def tier_1_leads_going_stale():
-    """Real Name: Tier 1 Leads Going Stale
+    """
+    Real Name: Tier 1 Leads Going Stale
     Original Eqn: Tier 1 Leads/Lead Shelf Life
     Units: Persons/Month
     Limits: (None, None)
@@ -783,7 +825,8 @@ def tier_1_leads_going_stale():
 
 @cache.step
 def tier_1_referrals():
-    """Real Name: Tier 1 Referrals
+    """
+    Real Name: Tier 1 Referrals
     Original Eqn: Referrals from Tier 1 Clients * (1-Up Referral Fraction)
     Units: Referrals/Month
     Limits: (None, None)
@@ -798,7 +841,8 @@ def tier_1_referrals():
 
 @cache.step
 def tier_2_client_turnover():
-    """Real Name: Tier 2 Client Turnover
+    """
+    Real Name: Tier 2 Client Turnover
     Original Eqn: Tier 2 Clients/Client Lifetime
     Units: Persons/Month
     Limits: (None, None)
@@ -812,7 +856,8 @@ def tier_2_client_turnover():
 
 @cache.step
 def tier_2_clients():
-    """Real Name: Tier 2 Clients
+    """
+    Real Name: Tier 2 Clients
     Original Eqn: INTEG ( Tier 2 Sales-Tier 2 Client Turnover, 0)
     Units: Persons
     Limits: (None, None)
@@ -827,7 +872,8 @@ def tier_2_clients():
 
 @cache.step
 def tier_2_leads():
-    """Real Name: Tier 2 Leads
+    """
+    Real Name: Tier 2 Leads
     Original Eqn: INTEG ( Tier 2 Lead Aquisition+Tier 2 Sales-Tier 2 Leads Going Stale, 0)
     Units: Persons
     Limits: (None, None)
@@ -844,7 +890,8 @@ def tier_2_leads():
 
 @cache.step
 def tier_2_leads_going_stale():
-    """Real Name: Tier 2 Leads Going Stale
+    """
+    Real Name: Tier 2 Leads Going Stale
     Original Eqn: Tier 2 Leads/Lead Shelf Life
     Units: Persons/Month
     Limits: (None, None)
@@ -859,7 +906,8 @@ def tier_2_leads_going_stale():
 
 @cache.step
 def tier_2_referrals_from_tier_1():
-    """Real Name: Tier 2 Referrals from Tier 1
+    """
+    Real Name: Tier 2 Referrals from Tier 1
     Original Eqn: Referrals from Tier 1 Clients * Up Referral Fraction
     Units: Referrals/Month
     Limits: (None, None)
@@ -874,7 +922,8 @@ def tier_2_referrals_from_tier_1():
 
 @cache.run
 def effort_required_to_make_a_sale():
-    """Real Name: Effort Required to Make a Sale
+    """
+    Real Name: Effort Required to Make a Sale
     Original Eqn: 4
     Units: Hours/Person
     Limits: (0.0, 50.0)
@@ -889,7 +938,8 @@ def effort_required_to_make_a_sale():
 
 @cache.run
 def minimum_time_to_make_a_sale():
-    """Real Name: Minimum Time to Make a Sale
+    """
+    Real Name: Minimum Time to Make a Sale
     Original Eqn: 1
     Units: Months
     Limits: (None, None)
@@ -904,7 +954,8 @@ def minimum_time_to_make_a_sale():
 
 @cache.step
 def tier_1_leads():
-    """Real Name: Tier 1 Leads
+    """
+    Real Name: Tier 1 Leads
     Original Eqn: INTEG ( Tier 1 Lead Aquisition+Tier 1 Sales-Tier 1 Leads Going Stale, 100)
     Units: Persons
     Limits: (None, None)
@@ -921,7 +972,8 @@ def tier_1_leads():
 
 @cache.step
 def tier_1_clients():
-    """Real Name: Tier 1 Clients
+    """
+    Real Name: Tier 1 Clients
     Original Eqn: INTEG ( Tier 1 Sales-Tier 1 Client Turnover, 0)
     Units: Persons
     Limits: (None, None)
@@ -936,7 +988,8 @@ def tier_1_clients():
 
 @cache.run
 def final_time():
-    """Real Name: FINAL TIME
+    """
+    Real Name: FINAL TIME
     Original Eqn: 200
     Units: Month
     Limits: (None, None)
@@ -950,7 +1003,8 @@ def final_time():
 
 @cache.run
 def initial_time():
-    """Real Name: INITIAL TIME
+    """
+    Real Name: INITIAL TIME
     Original Eqn: 0
     Units: Month
     Limits: (None, None)
@@ -964,7 +1018,8 @@ def initial_time():
 
 @cache.step
 def saveper():
-    """Real Name: SAVEPER
+    """
+    Real Name: SAVEPER
     Original Eqn: TIME STEP
     Units: Month
     Limits: (0.0, None)
@@ -978,7 +1033,8 @@ def saveper():
 
 @cache.run
 def time_step():
-    """Real Name: TIME STEP
+    """
+    Real Name: TIME STEP
     Original Eqn: 0.0625
     Units: Month
     Limits: (0.0, None)
@@ -1002,23 +1058,17 @@ _integ_total_cumulative_income = Integ(accumulating_income, lambda: 0)
 _integ_months_of_buffer = Integ(lambda: income() - expenses(), initial_buffer)
 
 
-_integ_tier_2_clients = Integ(
-    lambda: tier_2_sales() - tier_2_client_turnover(), lambda: 0
-)
+_integ_tier_2_clients = Integ(lambda: tier_2_sales() - tier_2_client_turnover(), lambda: 0)
 
 
 _integ_tier_2_leads = Integ(
-    lambda: tier_2_lead_aquisition() + tier_2_sales() - tier_2_leads_going_stale(),
-    lambda: 0,
+    lambda: tier_2_lead_aquisition() + tier_2_sales() - tier_2_leads_going_stale(), lambda: 0
 )
 
 
 _integ_tier_1_leads = Integ(
-    lambda: tier_1_lead_aquisition() + tier_1_sales() - tier_1_leads_going_stale(),
-    lambda: 100,
+    lambda: tier_1_lead_aquisition() + tier_1_sales() - tier_1_leads_going_stale(), lambda: 100
 )
 
 
-_integ_tier_1_clients = Integ(
-    lambda: tier_1_sales() - tier_1_client_turnover(), lambda: 0
-)
+_integ_tier_1_clients = Integ(lambda: tier_1_sales() - tier_1_client_turnover(), lambda: 0)

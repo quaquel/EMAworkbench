@@ -1,40 +1,35 @@
-from . import em_framework, util
+from . import em_framework
+from . import util
 from .em_framework import (
-    ArrayOutcome,
-    BooleanParameter,
-    CategoricalParameter,
-    Constant,
-    Constraint,
-    EpsilonIndicatorMetric,
-    GenerationalDistanceMetric,
-    HypervolumeMetric,
-    IntegerParameter,
-    InvertedGenerationalDistanceMetric,
-    IpyparallelEvaluator,
     Model,
+    RealParameter,
+    CategoricalParameter,
+    BooleanParameter,
+    IntegerParameter,
+    perform_experiments,
+    optimize,
+    ScalarOutcome,
+    TimeSeriesOutcome,
+    ArrayOutcome,
+    Constraint,
+    Constant,
+    Scenario,
+    Policy,
     MPIEvaluator,
     MultiprocessingEvaluator,
-    OutputSpaceExploration,
-    Policy,
-    RealParameter,
+    IpyparallelEvaluator,
+    SequentialEvaluator,
     ReplicatorModel,
     Samplers,
-    ScalarOutcome,
-    Scenario,
-    SequentialEvaluator,
+    OutputSpaceExploration,
+    HypervolumeMetric,
+    GenerationalDistanceMetric,
+    EpsilonIndicatorMetric,
+    InvertedGenerationalDistanceMetric,
     SpacingMetric,
-    TimeSeriesOutcome,
     epsilon_nondominated,
-    optimize,
-    perform_experiments,
 )
-from .util import (
-    EMAError,
-    ema_logging,
-    load_results,
-    process_replications,
-    save_results,
-)
+from .util import save_results, load_results, ema_logging, EMAError, process_replications
 
 # from . import analysis
 

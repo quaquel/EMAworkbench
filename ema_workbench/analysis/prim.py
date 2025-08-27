@@ -1,4 +1,6 @@
-"""A scenario discovery oriented implementation of PRIM.
+"""
+
+A scenario discovery oriented implementation of PRIM.
 
 The implementation of prim provided here is data type aware, so
 categorical variables will be handled appropriately. It also uses a
@@ -29,20 +31,20 @@ except ImportError:
     alt = None
     warnings.warn("altair based interactive inspection not available", ImportWarning)
 
-from ..util import INFO, EMAError, get_module_logger, temporary_filter
+from ..util import EMAError, temporary_filter, INFO, get_module_logger
 from . import scenario_discovery_util as sdutil
 from .prim_util import (
-    CurEntry,
-    DiagKind,
-    NotSeen,
     PrimException,
+    CurEntry,
     PRIMObjectiveFunctions,
+    NotSeen,
+    is_pareto_efficient,
+    get_quantile,
+    rotate_subset,
     calculate_qp,
     determine_dimres,
-    get_quantile,
-    is_pareto_efficient,
     is_significant,
-    rotate_subset,
+    DiagKind,
 )
 
 # Created on 22 feb. 2013
@@ -53,12 +55,12 @@ from .prim_util import (
 __all__ = [
     "ABOVE",
     "BELOW",
-    "PRIMObjectiveFunctions",
+    "setup_prim",
     "Prim",
     "PrimBox",
     "pca_preprocess",
     "run_constrained_prim",
-    "setup_prim",
+    "PRIMObjectiveFunctions",
 ]
 _logger = get_module_logger(__name__)
 
@@ -68,7 +70,7 @@ PRECISION = ".2f"
 
 
 def pca_preprocess(experiments, y, subsets=None, exclude=set()):
-    """Perform PCA to preprocess experiments before running PRIM
+    """perform PCA to preprocess experiments before running PRIM
 
     Pre-process the data by performing a pca based rotation on it.
     This effectively turns the algorithm into PCA-PRIM as described
@@ -86,14 +88,14 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
     exclude : list of str, optional
               the uncertainties that should be excluded from the rotation
 
-    Returns:
+    Returns
     -------
     rotated_experiments
         DataFrame
     rotation_matrix
         DataFrame
 
-    Raises:
+    Raises
     ------
     RuntimeError
         if mode is not binary (i.e. y is not a binary classification).
@@ -160,9 +162,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=set()):
             rotated_experiments[name] = subset_experiments[:, i]
             [column_names.append(name)]
 
-    rotation_matrix = pd.DataFrame(
-        rotation_matrix, index=row_names, columns=column_names
-    )
+    rotation_matrix = pd.DataFrame(rotation_matrix, index=row_names, columns=column_names)
 
     return rotated_experiments, rotation_matrix
 
@@ -184,7 +184,7 @@ def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
     **kwargs : any additional keyword arguments are passed on to PRIM
 
 
-    Returns:
+    Returns
     -------
     PrimBox instance
 
@@ -290,17 +290,18 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
     kwargs : dict
              valid keyword arguments for prim.Prim
 
-    Returns:
+    Returns
     -------
     a Prim instance
 
-    Raises:
+    Raises
     ------
     PrimException
         if data resulting from classify is not a 1-d array.
     TypeError
         if classify is not a string or a callable.
     """
+
     x, y, mode = sdutil._setup(results, classify, incl_unc)
 
     return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
@@ -309,7 +310,7 @@ def setup_prim(results, classify, threshold, incl_unc=[], **kwargs):
 class PrimBox:
     """A class that holds information for a specific box
 
-    Attributes:
+    Attributes
     ----------
     coverage : float
                coverage of currently selected box
@@ -342,7 +343,7 @@ class PrimBox:
     _frozen = False
 
     def __init__(self, prim, box_lims, indices):
-        """Init
+        """init
 
         Parameters
         ----------
@@ -352,6 +353,7 @@ class PrimBox:
 
 
         """
+
         self.prim = prim
 
         # peeling and pasting trajectory
@@ -373,16 +375,7 @@ class PrimBox:
         self._resampled = []
         self.yi_initial = indices[:]
 
-        columns = [
-            "name",
-            "lower",
-            "upper",
-            "minimum",
-            "maximum",
-            "qp_lower",
-            "qp_upper",
-            "id",
-        ]
+        columns = ["name", "lower", "upper", "minimum", "maximum", "qp_lower", "qp_upper", "id"]
         self.boxes_quantitative = pd.DataFrame(columns=columns)
 
         columns = ["item", "name", "n_items", "x", "id"]
@@ -394,10 +387,12 @@ class PrimBox:
         self.update(box_lims, indices)
 
     def __getattr__(self, name):
-        """Used here to give box_lim same behaviour as coverage, density,
+        """
+        used here to give box_lim same behaviour as coverage, density,
         mean, res_dim, and mass. That is, it will return the box lim
         associated with the currently selected box.
         """
+
         if name == "box_lim":
             return self.box_lims[self._cur_box]
         else:
@@ -426,9 +421,7 @@ class PrimBox:
 
         """
         if style not in {"table", "graph", "data"}:
-            raise ValueError(
-                f"style must be one of 'table', 'graph', or 'data', not {style}"
-            )
+            raise ValueError(f"style must be one of 'table', 'graph', or 'data', not {style}")
 
         if i is None:
             i = [self._cur_box]
@@ -447,10 +440,7 @@ class PrimBox:
                     f"the number of axes ({len(ax)}) does not match the number of boxes to inspect ({len(i)})"
                 )
             else:
-                return [
-                    self._inspect(i_j, style=style, ax=ax, **kwargs)
-                    for i_j, ax in zip(i, ax)
-                ]
+                return [self._inspect(i_j, style=style, ax=ax, **kwargs) for i_j, ax in zip(i, ax)]
         else:
             return [self._inspect(entry, style=style, **kwargs) for entry in i]
 
@@ -467,6 +457,7 @@ class PrimBox:
         generates the table or graph
 
         """
+
         stats = self.peeling_trajectory.iloc[i].to_dict()
         stats["restricted_dim"] = stats["res_dim"]
 
@@ -489,9 +480,7 @@ class PrimBox:
         elif style == "data":
             return self._inspect_data(i, uncs, qp_values)
         else:
-            raise ValueError(
-                f"style must be one of 'graph', 'table' or 'data', not {style}."
-            )
+            raise ValueError(f"style must be one of 'graph', 'table' or 'data', not {style}.")
 
     def _inspect_data(self, i, uncs, qp_values):
         """Helper method for inspecting boxes,
@@ -504,9 +493,7 @@ class PrimBox:
         stats = self.peeling_trajectory.iloc[i]
 
         # make the box definition
-        columns = pd.MultiIndex.from_product(
-            [[f"box {i}"], ["min", "max", "qp value", "qp value"]]
-        )
+        columns = pd.MultiIndex.from_product([[f"box {i}"], ["min", "max", "qp value", "qp value"]])
         box_lim = pd.DataFrame(np.zeros((len(uncs), 4)), index=uncs, columns=columns)
 
         for unc in uncs:
@@ -518,8 +505,7 @@ class PrimBox:
 
     def _inspect_table(self, i, uncs, qp_values):
         """Helper method for visualizing box statistics in
-        table form
-        """
+        table form"""
         # make the descriptive statistics for the box
         stats, box_lim = self._inspect_data(i, uncs, qp_values)
 
@@ -539,8 +525,8 @@ class PrimBox:
         ax=None,
     ):
         """Helper method for visualizing box statistics in
-        graph form
-        """
+        graph form"""
+
         return sdutil.plot_box(
             self.box_lims[i],
             qp_values,
@@ -597,11 +583,7 @@ class PrimBox:
                     # unless we can force a selection?
                     name = f"{dim}, {qp.loc[qp.index[0], dim]: .2g}"
                     entry = dict(
-                        name=name,
-                        n_items=len(items) + 1,
-                        item=item,
-                        id=int(i),
-                        x=j / len(items),
+                        name=name, n_items=len(items) + 1, item=item, id=int(i), x=j / len(items)
                     )
                     nominal_vars.append(entry)
 
@@ -624,9 +606,7 @@ class PrimBox:
                 y=alt.Y("density:Q", scale=alt.Scale(domain=(0, 1.1))),
                 color=alt.Color(
                     "res_dim:O",
-                    scale=alt.Scale(
-                        range=sns.color_palette("YlGnBu", n_colors=8).as_hex()
-                    ),
+                    scale=alt.Scale(range=sns.color_palette("YlGnBu", n_colors=8).as_hex()),
                 ),
                 opacity=alt.condition(point_selector, alt.value(1), alt.value(0.4)),
                 tooltip=[
@@ -700,9 +680,7 @@ class PrimBox:
             .properties(width=width)
         )
 
-        texts3 = nominal.mark_text(baseline="top", dy=5, align="center").encode(
-            text="item:N"
-        )
+        texts3 = nominal.mark_text(baseline="top", dy=5, align="center").encode(text="item:N")
 
         layered = alt.layer(lines, texts1, texts2, rect, nominal, texts3)
 
@@ -718,7 +696,7 @@ class PrimBox:
         p : float, optional
 
 
-        Returns:
+        Returns
         -------
         DataFrame
 
@@ -733,9 +711,7 @@ class PrimBox:
             with temporary_filter(__name__, INFO, "find_box"):
                 for j in range(len(self._resampled), iterations):
                     _logger.info(f"resample {j}")
-                    index = np.random.choice(
-                        x.index, size=int(x.shape[0] * p), replace=False
-                    )
+                    index = np.random.choice(x.index, size=int(x.shape[0] * p), replace=False)
                     x_temp = x.loc[index, :].reset_index(drop=True)
                     y_temp = y[index]
 
@@ -750,7 +726,7 @@ class PrimBox:
 
         counters = []
         for _ in range(2):
-            counter = dict.fromkeys(x.columns, 0.0)
+            counter = {column: 0.0 for column in x.columns}
             counters.append(counter)
 
         coverage = self.peeling_trajectory.coverage[i]
@@ -771,12 +747,11 @@ class PrimBox:
             ).T
             * 100
         )
-        return scores.sort_values(
-            by=["reproduce coverage", "reproduce density"], ascending=False
-        )
+        return scores.sort_values(by=["reproduce coverage", "reproduce density"], ascending=False)
 
     def select(self, i):
-        """Select an entry from the peeling and pasting trajectory and
+        """
+        select an entry from the peeling and pasting trajectory and
         update the prim box to this selected box.
 
         Parameters
@@ -787,14 +762,10 @@ class PrimBox:
         """
         if self._frozen:
             raise PrimException(
-                "box has been frozen because PRIM "
-                "has found at least one more recent "
-                "box"
+                "box has been frozen because PRIM " "has found at least one more recent " "box"
             )
 
-        res_dim = sdutil._determine_restricted_dims(
-            self.box_lims[i], self.prim.box_init
-        )
+        res_dim = sdutil._determine_restricted_dims(self.box_lims[i], self.prim.box_init)
 
         indices = sdutil._in_box(
             self.prim.x.loc[self.prim.yi_remaining, res_dim], self.box_lims[i][res_dim]
@@ -823,14 +794,12 @@ class PrimBox:
 
         new_box_lim = self.box_lims[i].copy()
         new_box_lim.loc[:, uncertainty] = self.box_lims[0].loc[:, uncertainty]
-        indices = sdutil._in_box(
-            self.prim.x.loc[self.prim.yi_remaining, :], new_box_lim
-        )
+        indices = sdutil._in_box(self.prim.x.loc[self.prim.yi_remaining, :], new_box_lim)
         indices = self.prim.yi_remaining[indices]
         self.update(new_box_lim, indices)
 
     def update(self, box_lims, indices):
-        """Update the box to the provided box limits.
+        """update the box to the provided box limits.
 
         Parameters
         ----------
@@ -848,9 +817,7 @@ class PrimBox:
         y = self.prim.y[self.yi]
         coi = self.prim.determine_coi(self.yi)
 
-        restricted_dims = sdutil._determine_restricted_dims(
-            self.box_lims[-1], self.prim.box_init
-        )
+        restricted_dims = sdutil._determine_restricted_dims(self.box_lims[-1], self.prim.box_init)
 
         data = {
             "coverage": coi / self.prim.t_coi,
@@ -876,7 +843,7 @@ class PrimBox:
         self._cur_box = len(self.peeling_trajectory) - 1
 
     def show_ppt(self):
-        """Show the peeling and pasting trajectory in a figure"""
+        """show the peeling and pasting trajectory in a figure"""
         return sdutil.plot_ppt(self.peeling_trajectory)
 
     def show_tradeoff(self, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
@@ -888,14 +855,12 @@ class PrimBox:
         cmap : valid matplotlib colormap
         annotated : bool, optional. Shows point labels if True.
 
-        Returns:
+        Returns
         -------
         a Figure instance
 
         """
-        return sdutil.plot_tradeoff(
-            self.peeling_trajectory, cmap=cmap, annotated=annotated
-        )
+        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
     def show_pairs_scatter(
         self,
@@ -928,7 +893,7 @@ class PrimBox:
                        This removes unnecessary whitespace, but may be undesirable
                        for some variable combinations.
 
-        Returns:
+        Returns
         -------
         seaborn PairGrid
 
@@ -937,9 +902,7 @@ class PrimBox:
             i = self._cur_box
 
         if dims is None:
-            dims = sdutil._determine_restricted_dims(
-                self.box_lims[i], self.prim.box_init
-            )
+            dims = sdutil._determine_restricted_dims(self.box_lims[i], self.prim.box_init)
 
         if diag_kind not in DiagKind:
             raise ValueError(
@@ -960,12 +923,12 @@ class PrimBox:
         )
 
     def write_ppt_to_stdout(self):
-        """Write the peeling and pasting trajectory to stdout"""
+        """write the peeling and pasting trajectory to stdout"""
         print(self.peeling_trajectory)
         print("\n")
 
     def _calculate_quasi_p(self, i, restricted_dims):
-        """Helper function for calculating quasi-p values as discussed
+        """helper function for calculating quasi-p values as discussed
         in Bryant and Lempert (2010). This is a one sided  binomial
         test.
 
@@ -975,11 +938,12 @@ class PrimBox:
             the specific box in the peeling trajectory for which the
             quasi-p values are to be calculated.
 
-        Returns:
+        Returns
         -------
         dict
 
         """
+
         box_lim = self.box_lims[i]
         box_lim = box_lim[restricted_dims]
 
@@ -1047,7 +1011,7 @@ class Prim(sdutil.OutputFormatterMixin):
                       all points to be no longer of interest (only
                       valid in binary mode).
 
-    See Also:
+    See also
     --------
     :mod:`cart`
 
@@ -1069,10 +1033,7 @@ class Prim(sdutil.OutputFormatterMixin):
         mode=sdutil.RuleInductionType.BINARY,
         update_function="default",
     ):
-        assert mode in {
-            sdutil.RuleInductionType.BINARY,
-            sdutil.RuleInductionType.REGRESSION,
-        }
+        assert mode in {sdutil.RuleInductionType.BINARY, sdutil.RuleInductionType.REGRESSION}
         assert self._assert_mode(y, mode, update_function)
         # preprocess x
         x = x.copy()
@@ -1091,9 +1052,7 @@ class Prim(sdutil.OutputFormatterMixin):
         self.x_int = x_int.values
         self.x_int_columns = x_int.columns.values
 
-        self.x_numeric_columns = np.concatenate(
-            [self.x_float_colums, self.x_int_columns]
-        )
+        self.x_numeric_columns = np.concatenate([self.x_float_colums, self.x_int_columns])
 
         x_nominal = x.select_dtypes(exclude=np.number)
 
@@ -1168,8 +1127,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
     def find_box(self):
         """Execute one iteration of the PRIM algorithm. That is, find one
-        box, starting from the current state of Prim.
-        """
+        box, starting from the current state of Prim."""
         # set the indices
         self._update_yi_remaining(self)
 
@@ -1183,9 +1141,7 @@ class Prim(sdutil.OutputFormatterMixin):
 
         # log how much data and how many coi are remaining
         _logger.info(
-            self.message.format(
-                self.yi_remaining.shape[0], self.determine_coi(self.yi_remaining)
-            )
+            self.message.format(self.yi_remaining.shape[0], self.determine_coi(self.yi_remaining))
         )
 
         # make a new box that contains all the remaining data points
@@ -1200,13 +1156,13 @@ class Prim(sdutil.OutputFormatterMixin):
         _logger.debug("pasting completed")
 
         message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
-        message = message.format(
-            box.mean, box.mass, box.coverage, box.density, box.res_dim
-        )
+        message = message.format(box.mean, box.mass, box.coverage, box.density, box.res_dim)
 
-        if (self.threshold_type == ABOVE) & (box.mean >= self.threshold) or (
-            self.threshold_type == BELOW
-        ) & (box.mean <= self.threshold):
+        if (self.threshold_type == ABOVE) & (box.mean >= self.threshold):
+            _logger.info(message)
+            self._boxes.append(box)
+            return box
+        elif (self.threshold_type == BELOW) & (box.mean <= self.threshold):
             _logger.info(message)
             self._boxes.append(box)
             return box
@@ -1221,7 +1177,8 @@ class Prim(sdutil.OutputFormatterMixin):
             return box
 
     def determine_coi(self, indices):
-        """Given a set of indices on y, how many cases of interest are
+        """
+        Given a set of indices on y, how many cases of interest are
         there in this set.
 
         Parameters
@@ -1229,17 +1186,18 @@ class Prim(sdutil.OutputFormatterMixin):
         indices: ndarray
                  a valid index for y
 
-        Returns:
+        Returns
         -------
         int
             the number of cases of interest.
 
-        Raises:
+        Raises
         ------
         ValueError
             if threshold_type is not either ABOVE or BELOW
 
         """
+
         y = self.y[indices]
 
         if self.threshold_type == ABOVE:
@@ -1252,10 +1210,13 @@ class Prim(sdutil.OutputFormatterMixin):
         return coi
 
     def _update_yi_remaining_default(self):
-        """Update yi_remaining in light of the state of the boxes
+        """
+
+        Update yi_remaining in light of the state of the boxes
         associated with this prim instance.
 
         """
+
         # set the indices
         logical = np.ones(self.yi.shape[0], dtype=bool)
         for box in self._boxes:
@@ -1263,7 +1224,9 @@ class Prim(sdutil.OutputFormatterMixin):
         self.yi_remaining = self.yi[logical]
 
     def _update_yi_remaining_guivarch(self):
-        """Update yi_remaining in light of the state of the boxes
+        """
+
+        Update yi_remaining in light of the state of the boxes
         associated with this prim instance using the modified version
         from  Guivarch et al (2016) doi:10.1016/j.envsoft.2016.03.006
 
@@ -1275,10 +1238,13 @@ class Prim(sdutil.OutputFormatterMixin):
         self.yi_remaining = self.yi
 
     def _peel(self, box):
-        """Executes the peeling phase of the PRIM algorithm. Delegates
+        """
+
+        Executes the peeling phase of the PRIM algorithm. Delegates
         peeling to data type specific helper methods.
 
         """
+
         mass_old = box.yi.shape[0] / self.n
 
         x_float = self.x_float[box.yi]
@@ -1307,9 +1273,7 @@ class Prim(sdutil.OutputFormatterMixin):
         for entry in possible_peels:
             i, box_lim = entry
             obj = self.obj_func(self, self.y[box.yi], self.y[i])
-            non_res_dim = self.n_cols - sdutil._determine_nr_restricted_dims(
-                box_lim, self.box_init
-            )
+            non_res_dim = self.n_cols - sdutil._determine_nr_restricted_dims(box_lim, self.box_init)
             score = (obj, non_res_dim, box_lim, i)
             scores.append(score)
 
@@ -1329,7 +1293,9 @@ class Prim(sdutil.OutputFormatterMixin):
             return box
 
     def _real_peel(self, box, u, j, x):
-        """Returns two candidate new boxes, peel along upper and lower
+        """
+
+        returns two candidate new boxes, peel along upper and lower
         dimension
 
         Parameters
@@ -1341,12 +1307,13 @@ class Prim(sdutil.OutputFormatterMixin):
             column for which to peel
         x : ndarray
 
-        Returns:
+        Returns
         -------
         tuple
             two box lims and the associated indices
 
         """
+
         peels = []
         for direction in ["upper", "lower"]:
             xj = x[:, j]
@@ -1372,7 +1339,9 @@ class Prim(sdutil.OutputFormatterMixin):
         return peels
 
     def _discrete_peel(self, box, u, j, x):
-        """Returns two candidate new boxes, peel along upper and lower
+        """
+
+        returns two candidate new boxes, peel along upper and lower
         dimension
 
         Parameters
@@ -1384,7 +1353,7 @@ class Prim(sdutil.OutputFormatterMixin):
             column for which to peel
         x : ndarray
 
-        Returns:
+        Returns
         -------
         tuple
             two box lims and the associated indices
@@ -1436,7 +1405,9 @@ class Prim(sdutil.OutputFormatterMixin):
         return peels
 
     def _categorical_peel(self, box, u, j, x):
-        """Returns candidate new boxes for each possible removal of a
+        """
+
+        returns candidate new boxes for each possible removal of a
         single  category. So. if the box[u] is a categorical variable
         with 4 categories, this method will return 4 boxes.
 
@@ -1449,7 +1420,7 @@ class Prim(sdutil.OutputFormatterMixin):
             column for which to peel
         x : ndarray
 
-        Returns:
+        Returns
         -------
         tuple
             a list of box lims and the associated indices
@@ -1485,14 +1456,12 @@ class Prim(sdutil.OutputFormatterMixin):
 
     def _paste(self, box):
         """Executes the pasting phase of the PRIM. Delegates pasting
-        to data type specific helper methods.
-        """
+        to data type specific helper methods."""
+
         mass_old = box.yi.shape[0] / self.n
 
         # need to break this down by dtype
-        restricted_dims = sdutil._determine_restricted_dims(
-            box.box_lims[-1], self.box_init
-        )
+        restricted_dims = sdutil._determine_restricted_dims(box.box_lims[-1], self.box_init)
         res_dim = set(restricted_dims)
 
         x = self.x.loc[self.yi_remaining, :]
@@ -1534,12 +1503,7 @@ class Prim(sdutil.OutputFormatterMixin):
         mean_old = np.mean(self.y[box.yi])
         mean_new = np.mean(self.y[indices])
 
-        if (
-            (mass_new >= self.mass_min)
-            & (mass_new > mass_old)
-            & (obj > 0)
-            & (mean_new > mean_old)
-        ):
+        if (mass_new >= self.mass_min) & (mass_new > mass_old) & (obj > 0) & (mean_new > mean_old):
             box.update(box_new, indices)
             return self._paste(box)
         else:
@@ -1547,7 +1511,7 @@ class Prim(sdutil.OutputFormatterMixin):
             return box
 
     def _real_paste(self, box, u, x, resdim):
-        """Returns two candidate new boxes, pasted along upper and
+        """returns two candidate new boxes, pasted along upper and
         lower dimension
 
         Parameters
@@ -1558,12 +1522,13 @@ class Prim(sdutil.OutputFormatterMixin):
         x : ndarray
 
 
-        Returns:
+        Returns
         -------
         tuple
             two box lims and the associated indices
 
         """
+
         pastes = []
         boxlim = box.box_lims[-1]
 
@@ -1610,7 +1575,9 @@ class Prim(sdutil.OutputFormatterMixin):
         return pastes
 
     def _categorical_paste(self, box, u, x, resdim):
-        """Return a list of pastes, equal to the number of classes currently
+        """
+
+        Return a list of pastes, equal to the number of classes currently
         not on the box lim.
 
         Parameters
@@ -1621,7 +1588,7 @@ class Prim(sdutil.OutputFormatterMixin):
         x : ndarray
 
 
-        Returns:
+        Returns
         -------
         tuple
             a list of box lims and the associated indices
@@ -1652,7 +1619,8 @@ class Prim(sdutil.OutputFormatterMixin):
             return []
 
     def _lenient1_obj_func(self, y_old, y_new):
-        r"""The default objective function used by prim, instead of the
+        r"""
+        the default objective function used by prim, instead of the
         original objective function, This function can cope with
         continuous, integer, and categorical uncertainties. The basic
         idea is that the gain in mean is divided by the loss in mass.
@@ -1690,13 +1658,20 @@ class Prim(sdutil.OutputFormatterMixin):
                 obj = (mean_new - mean_old) / (y_new.shape[0] - y_old.shape[0])
             else:
                 raise PrimException(
-                    f"""mean is different {mean_old} vs {mean_new}, while shape is the same,
-                                       this cannot be the case"""
+                    """mean is different {} vs {}, while shape is the same,
+                                       this cannot be the case""".format(
+                        mean_old, mean_new
+                    )
                 )
         return obj
 
     def _lenient2_obj_func(self, y_old, y_new):
-        """Friedman and fisher 14.6"""
+        """
+
+        friedman and fisher 14.6
+
+
+        """
         mean_old = np.mean(y_old)
 
         if y_new.shape[0] > 0:
@@ -1708,8 +1683,10 @@ class Prim(sdutil.OutputFormatterMixin):
         if mean_old != mean_new:
             if y_old.shape == y_new.shape:
                 raise PrimException(
-                    f"""mean is different {mean_old} vs {mean_new}, while shape is the same,
-                                       this cannot be the case"""
+                    """mean is different {} vs {}, while shape is the same,
+                                       this cannot be the case""".format(
+                        mean_old, mean_new
+                    )
                 )
 
             change_mean = mean_new - mean_old
@@ -1722,8 +1699,8 @@ class Prim(sdutil.OutputFormatterMixin):
 
     def _original_obj_func(self, y_old, y_new):
         """The original objective function: the mean of the data
-        inside the box
-        """
+        inside the box"""
+
         if y_new.shape[0] > 0:
             return np.mean(y_new)
         else:
@@ -1737,9 +1714,11 @@ class Prim(sdutil.OutputFormatterMixin):
         return True
 
     def _assert_dtypes(self, keys, dtypes):
-        """Helper function that checks whether none of the provided keys
+        """
+        helper function that checks whether none of the provided keys
         has a dtype object as value.
         """
+
         for key in keys:
             if dtypes[key][0] == np.dtype(object):
                 raise EMAError(f"{key} has dtype object and can thus not be rotated")

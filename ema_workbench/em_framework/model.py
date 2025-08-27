@@ -1,4 +1,5 @@
-"""This module specifies the abstract base class for interfacing with models.
+"""
+This module specifies the abstract base class for interfacing with models.
 Any model that is to be controlled from the workbench is controlled via
 an instance of an extension of this abstract base class.
 
@@ -9,12 +10,12 @@ import os
 import warnings
 from collections import defaultdict
 
-from ..util import EMAError
-from ..util.ema_logging import get_module_logger, method_logger
-from .outcomes import AbstractOutcome
-from .parameters import CategoricalParameter, Constant, Parameter
 from .points import ExperimentReplication
-from .util import NamedObject, NamedObjectMapDescriptor, combine
+from .outcomes import AbstractOutcome
+from .parameters import Parameter, Constant, CategoricalParameter
+from .util import NamedObject, combine, NamedObjectMapDescriptor
+from ..util import EMAError
+from ..util.ema_logging import method_logger, get_module_logger
 
 # Created on 23 dec. 2010
 #
@@ -23,21 +24,22 @@ from .util import NamedObject, NamedObjectMapDescriptor, combine
 
 __all__ = [
     "AbstractModel",
-    "FileModel",
     "Model",
+    "FileModel",
     "Replicator",
-    "ReplicatorModel",
     "SingleReplication",
+    "ReplicatorModel",
 ]
 _logger = get_module_logger(__name__)
 
 
 class AbstractModel(NamedObject):
-    """:class:`ModelStructureInterface` is one of the the two main
+    """
+    :class:`ModelStructureInterface` is one of the the two main
     classes used for performing EMA. This is an abstract base class
     and cannot be used directly.
 
-    Attributes:
+    Attributes
     ----------
     uncertainties : list
                     list of parameter instances
@@ -69,9 +71,7 @@ class AbstractModel(NamedObject):
     @property
     def output_variables(self):
         if self._output_variables is None:
-            self._output_variables = [
-                var for o in self.outcomes for var in o.variable_name
-            ]
+            self._output_variables = [var for o in self.outcomes for var in o.variable_name]
 
         return self._output_variables
 
@@ -81,7 +81,7 @@ class AbstractModel(NamedObject):
     constants = NamedObjectMapDescriptor(Constant)
 
     def __init__(self, name):
-        """Interface to the model
+        """interface to the model
 
         Parameters
         ----------
@@ -89,7 +89,7 @@ class AbstractModel(NamedObject):
                name of the modelInterface. The name should contain
                only alpha-numerical characters.
 
-        Raises:
+        Raises
         ------
         EMAError if name contains non alpha-numerical characters
 
@@ -116,7 +116,7 @@ class AbstractModel(NamedObject):
                  policy to be run.
 
 
-        Note:
+        Note
         ----
         This method should always be implemented. Although in
         simple cases, a simple pass can suffice.
@@ -150,9 +150,7 @@ class AbstractModel(NamedObject):
                 if par.default is not None:
                     value = par.default
                 else:
-                    _logger.debug(
-                        f"parameter {par.name} not found in sampled_parameters"
-                    )
+                    _logger.debug(f"parameter {par.name} not found in sampled_parameters")
                     continue
 
             multivalue = False
@@ -190,13 +188,14 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def initialized(self, policy):
-        """Check if model has been initialized
+        """check if model has been initialized
 
         Parameters
         ----------
         policy : a Policy instance
 
         """
+
         try:
             return self.policy.name == policy.name
         except AttributeError:
@@ -207,7 +206,7 @@ class AbstractModel(NamedObject):
         """Method for retrieving output after a model run.
         Deprecated, will be removed in version 3.0 of the EMAworkbench.
 
-        Returns:
+        Returns
         -------
         dict with the results of a model run.
         """
@@ -229,7 +228,8 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def cleanup(self):
-        """This model is called after finishing all the experiments, but
+        """
+        This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
         doing any cleanup, such as closing applications.
 
@@ -238,16 +238,14 @@ class AbstractModel(NamedObject):
         directories.
 
         """
+        pass
 
     def as_dict(self):
-        """Returns a dict representation of the model"""
+        """returns a dict representation of the model"""
 
         def join_attr(field):
             joined = ", ".join(
-                [
-                    repr(entry)
-                    for entry in sorted(field, key=operator.attrgetter("name"))
-                ]
+                [repr(entry) for entry in sorted(field, key=operator.attrgetter("name"))]
             )
             return f"[{joined}]"
 
@@ -294,9 +292,7 @@ class Replicator(AbstractModel):
             self._replications = [MyDict(**entry) for entry in replications]
             self.nreplications = len(replications)
         else:
-            raise TypeError(
-                f"Replications should be int or list, not {type(replications)}"
-            )
+            raise TypeError(f"Replications should be int or list, not {type(replications)}")
 
     @method_logger(__name__)
     def run_model(self, scenario, policy):
@@ -333,7 +329,8 @@ class Replicator(AbstractModel):
 class SingleReplication(AbstractModel):
     @method_logger(__name__)
     def run_model(self, scenario, policy):
-        """Method for running an instantiated model structure.
+        """
+        Method for running an instantiated model structure.
 
         Parameters
         ----------
@@ -364,7 +361,7 @@ class BaseModel(AbstractModel):
                a function with each of the uncertain parameters as a
                keyword argument
 
-    Attributes:
+    Attributes
     ----------
     uncertainties : listlike
                     list of parameter
@@ -438,7 +435,7 @@ class WorkingDirectoryModel(AbstractModel):
         self._working_directory = wd
 
     def __init__(self, name, wd=None):
-        """Interface to the model
+        """interface to the model
         Parameters
         ----------
         name : str
@@ -446,8 +443,7 @@ class WorkingDirectoryModel(AbstractModel):
                alpha-numerical characters.
         working_directory : str
                             working_directory for the model.
-
-        Raises:
+        Raises
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -458,9 +454,7 @@ class WorkingDirectoryModel(AbstractModel):
         self.working_directory = wd
 
         if not os.path.exists(self.working_directory):
-            raise ValueError(
-                f"Working directory {self.working_directory} does not exist"
-            )
+            raise ValueError(f"Working directory {self.working_directory} does not exist")
 
     def as_dict(self):
         model_specs = super().as_dict()
@@ -480,7 +474,7 @@ class FileModel(WorkingDirectoryModel):
         self._working_directory = wd
 
     def __init__(self, name, wd=None, model_file=None):
-        """Interface to the model
+        """interface to the model
 
         Parameters
         ----------
@@ -492,7 +486,7 @@ class FileModel(WorkingDirectoryModel):
         model_file  : str
                      the name of the model file
 
-        Raises:
+        Raises
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -515,9 +509,7 @@ class FileModel(WorkingDirectoryModel):
 
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
-            raise ValueError(
-                f"Cannot find model file: {model_file},\nPath to file: {path_to_file}"
-            )
+            raise ValueError(f"Cannot find model file: {model_file},\nPath to file: {path_to_file}")
 
         if os.getcwd() == self.working_directory:
             raise ValueError(

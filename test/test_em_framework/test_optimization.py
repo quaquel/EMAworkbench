@@ -1,9 +1,17 @@
 """ """
 
 import unittest
+
 import unittest.mock as mock
 
+
 from ema_workbench.em_framework.model import Model
+from ema_workbench.em_framework.parameters import (
+    RealParameter,
+    IntegerParameter,
+    CategoricalParameter,
+)
+from ema_workbench.em_framework.outcomes import ScalarOutcome, Constraint
 from ema_workbench.em_framework.optimization import (
     Problem,
     RobustProblem,
@@ -11,12 +19,6 @@ from ema_workbench.em_framework.optimization import (
     to_platypus_types,
     to_problem,
     to_robust_problem,
-)
-from ema_workbench.em_framework.outcomes import Constraint, ScalarOutcome
-from ema_workbench.em_framework.parameters import (
-    CategoricalParameter,
-    IntegerParameter,
-    RealParameter,
 )
 
 # Created on 6 Jun 2017
@@ -105,9 +107,7 @@ class TestOptimization(unittest.TestCase):
 
         for i, entry in enumerate(data):
             self.assertListEqual(list(df.loc[i, dvnames].values), entry.variables)
-            self.assertListEqual(
-                list(df.loc[i, outcome_names].values), entry.objectives
-            )
+            self.assertListEqual(list(df.loc[i, outcome_names].values), entry.objectives)
 
     @mock.patch("ema_workbench.em_framework.optimization.platypus")
     def test_to_platypus_types(self, mocked_platypus):
@@ -126,10 +126,7 @@ class TestOptimization(unittest.TestCase):
     def test_to_problem(self, mocked_platypus):
         mocked_model = Model("test", function=mock.Mock())
         mocked_model.levers = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-        mocked_model.uncertainties = [
-            RealParameter("c", 0, 1),
-            RealParameter("d", 0, 1),
-        ]
+        mocked_model.uncertainties = [RealParameter("c", 0, 1), RealParameter("d", 0, 1)]
         mocked_model.outcomes = [ScalarOutcome("x", kind=1), ScalarOutcome("y", kind=1)]
 
         searchover = "levers"
@@ -164,20 +161,13 @@ class TestRobustOptimization(unittest.TestCase):
     def test_to_robust_problem(self, mocked_platypus):
         mocked_model = Model("test", function=mock.Mock())
         mocked_model.levers = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-        mocked_model.uncertainties = [
-            RealParameter("c", 0, 1),
-            RealParameter("d", 0, 1),
-        ]
+        mocked_model.uncertainties = [RealParameter("c", 0, 1), RealParameter("d", 0, 1)]
         mocked_model.outcomes = [ScalarOutcome("x"), ScalarOutcome("y")]
 
         scenarios = 5
         robustness_functions = [
-            ScalarOutcome(
-                "mean_x", variable_name="x", function=mock.Mock(), kind="maximize"
-            ),
-            ScalarOutcome(
-                "mean_y", variable_name="y", function=mock.Mock(), kind="maximize"
-            ),
+            ScalarOutcome("mean_x", variable_name="x", function=mock.Mock(), kind="maximize"),
+            ScalarOutcome("mean_y", variable_name="y", function=mock.Mock(), kind="maximize"),
         ]
 
         problem = to_robust_problem(mocked_model, scenarios, robustness_functions)

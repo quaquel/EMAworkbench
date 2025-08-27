@@ -1,18 +1,22 @@
 import atexit
+import copy
 import logging
 import os
 import shutil
 import threading
 import time
 import warnings
+
 from logging.handlers import QueueHandler
 
-from ..util import get_module_logger, get_rootlogger, method_logger
 from .evaluators import BaseEvaluator, experiment_generator
-from .experiment_runner import ExperimentRunner
-from .futures_util import determine_rootdir, finalizer, setup_working_directories
-from .model import AbstractModel
+from .futures_util import setup_working_directories, finalizer, determine_rootdir
 from .util import NamedObjectMap
+from .model import AbstractModel
+from .experiment_runner import ExperimentRunner
+from ..util import get_module_logger, get_rootlogger, method_logger
+
+from ..util import ema_logging
 
 __all__ = ["MPIEvaluator"]
 
@@ -59,9 +63,7 @@ def mpi_initializer(models, log_level, root_dir):
     handler = MPIHandler(logcomm)
     handler.addFilter(RankFilter(rank))
     handler.setLevel(log_level)
-    handler.setFormatter(
-        logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s")
-    )
+    handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
     root_logger.addHandler(handler)
     _logger.info(f"worker {rank} initialized")
 
@@ -124,15 +126,21 @@ def send_sentinel():
 
 
 class MPIHandler(QueueHandler):
-    """This handler sends events from the worker process to the master process"""
+    """
+    This handler sends events from the worker process to the master process
+
+    """
 
     def __init__(self, communicator):
-        """Initialise an instance, using the passed queue."""
+        """
+        Initialise an instance, using the passed queue.
+        """
         logging.Handler.__init__(self)
         self.communicator = communicator
 
     def emit(self, record):
-        """Emit a record.
+        """
+        Emit a record.
 
         Writes the LogRecord to the queue, preparing it for pickling first.
         """
@@ -201,7 +209,7 @@ class MPIEvaluator(BaseEvaluator):
         self.logwatcher_thread.join(timeout=60)
 
         if self.logwatcher_thread.is_alive():
-            _logger.warning("houston we have a problem, logwatcher is still alive")
+            _logger.warning(f"houston we have a problem, logwatcher is still alive")
 
         if self.root_dir:
             shutil.rmtree(self.root_dir)
@@ -210,12 +218,8 @@ class MPIEvaluator(BaseEvaluator):
         _logger.info("MPI pool has been shut down")
 
     @method_logger(__name__)
-    def evaluate_experiments(
-        self, scenarios, policies, callback, combine="factorial", **kwargs
-    ):
-        experiments = list(
-            experiment_generator(scenarios, self._msis, policies, combine=combine)
-        )
+    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
+        experiments = list(experiment_generator(scenarios, self._msis, policies, combine=combine))
 
         results = self._pool.map(run_experiment_mpi, experiments, **kwargs)
         for experiment, outcomes in results:

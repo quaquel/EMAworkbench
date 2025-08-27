@@ -1,12 +1,14 @@
-"""Created on Jul 28, 2015
+"""
+Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
-import sys
 import unittest
+import sys
 
-from ema_workbench.util.ema_exceptions import CaseError, EMAError
+
+from ema_workbench.util.ema_exceptions import EMAError, CaseError
 
 
 class TestEMAError(unittest.TestCase):

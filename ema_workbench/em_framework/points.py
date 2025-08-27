@@ -3,22 +3,23 @@ hellper functions
 
 """
 
+from collections import ChainMap
 import itertools
 import random
-from collections import ChainMap
 
-from ema_workbench.em_framework.util import Counter, NamedDict, NamedObject, combine
+from ema_workbench.em_framework.util import NamedDict, Counter, NamedObject
+from ema_workbench.em_framework.util import combine
 from ema_workbench.util import get_module_logger
 
 __all__ = [
-    "Experiment",
-    "ExperimentReplication",
     "Point",
     "Policy",
-    "Scenario",
-    "combine_cases_factorial",
+    "Experiment",
+    "ExperimentReplication",
     "combine_cases_sampling",
+    "combine_cases_factorial",
     "experiment_generator",
+    "Scenario",
 ]
 _logger = get_module_logger(__name__)
 
@@ -40,7 +41,7 @@ class Point(NamedDict):
 class Policy(Point):
     """Helper class representing a policy
 
-    Attributes:
+    Attributes
     ----------
     name : str, int, or float
     id : int
@@ -67,7 +68,7 @@ class Policy(Point):
 class Scenario(Point):
     """Helper class representing a scenario
 
-    Attributes:
+    Attributes
     ----------
     name : str, int, or float
     id : int
@@ -90,7 +91,7 @@ class Experiment(NamedObject):
     """A convenience object that contains a specification
     of the model, policy, and scenario to run
 
-    Attributes:
+    Attributes
     ----------
     name : str
     model_name : str
@@ -164,7 +165,7 @@ def combine_cases_sampling(*point_collection):
     ----------
     point_collection : collection of collection of Point instances
 
-    Yields:
+    Yields
     -------
     Point
 
@@ -191,7 +192,7 @@ def combine_cases_factorial(*point_collections):
     ----------
     point_collections : collection of collections of Point instances
 
-    Yields:
+    Yields
     -------
     Point
 
@@ -228,7 +229,9 @@ def combine_cases_factorial(*point_collections):
 
 
 def experiment_generator(scenarios, model_structures, policies, combine="factorial"):
-    """Generator function which yields experiments
+    """
+
+    generator function which yields experiments
 
     Parameters
     ----------
@@ -239,7 +242,7 @@ def experiment_generator(scenarios, model_structures, policies, combine="factori
               controls how to combine scenarios, policies, and model_structures
               into experiments.
 
-    Notes:
+    Notes
     -----
     if combine is 'factorial' then this generator is essentially three nested
     loops: for each model structure, for each policy, for each scenario,
@@ -251,6 +254,7 @@ def experiment_generator(scenarios, model_structures, policies, combine="factori
     exhausted.
 
     """
+
     # TODO combine_ functions can be made more generic
     # basically combine any collection
     # wrap around to yield specific type of class (e.g. point
@@ -261,9 +265,7 @@ def experiment_generator(scenarios, model_structures, policies, combine="factori
         # full factorial
         jobs = itertools.product(model_structures, policies, scenarios)
     else:
-        raise ValueError(
-            f"{combine} is unknown value for combine, use 'factorial' or 'sample'"
-        )
+        raise ValueError(f"{combine} is unknown value for combine, use 'factorial' or 'sample'")
 
     for i, job in enumerate(jobs):
         msi, policy, scenario = job

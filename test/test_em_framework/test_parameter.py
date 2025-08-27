@@ -2,10 +2,13 @@
 
 import unittest
 import unittest.mock as mock
-
 import scipy as sp
 
 from ema_workbench.em_framework import parameters
+from ema_workbench.em_framework.points import Scenario, Policy
+from ema_workbench.em_framework.samplers import LHSSampler
+from ema_workbench.em_framework.model import Model
+from ema_workbench.em_framework.util import NamedObject
 
 
 class RealParameterTestCase(unittest.TestCase):
@@ -66,9 +69,7 @@ class RealParameterTestCase(unittest.TestCase):
 
     def test_from_dist(self):
         par = parameters.RealParameter.from_dist(
-            "test",
-            sp.stats.uniform(0, 1),
-            resolution=[0, 1],  # @UndefinedVariable
+            "test", sp.stats.uniform(0, 1), resolution=[0, 1]  # @UndefinedVariable
         )
 
         self.assertEqual(par.name, "test")
@@ -78,13 +79,9 @@ class RealParameterTestCase(unittest.TestCase):
         self.assertEqual(par.resolution, [0, 1])
 
         with self.assertRaises(ValueError):
+            parameters.RealParameter.from_dist("test", sp.stats.randint(0, 1))  # @UndefinedVariable
             parameters.RealParameter.from_dist(
-                "test", sp.stats.randint(0, 1)
-            )  # @UndefinedVariable
-            parameters.RealParameter.from_dist(
-                "test",
-                sp.stats.uniform(0, 1),
-                blaat=[0, 1],  # @UndefinedVariable
+                "test", sp.stats.uniform(0, 1), blaat=[0, 1]  # @UndefinedVariable
             )
 
 
@@ -107,20 +104,14 @@ class IntegerParameterTestCase(unittest.TestCase):
         upper_bound = 0
 
         with self.assertRaises(ValueError):
-            par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
-            )
+            par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution)
 
         with self.assertRaises(ValueError):
             resolution = [-1, 0]
-            par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
-            )
+            par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution)
 
             resolution = [0, 1, 3]
-            par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
-            )
+            par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution)
 
         with self.assertRaises(ValueError):
             par = parameters.IntegerParameter(name, lower_bound, 2.1, resolution)
@@ -128,9 +119,7 @@ class IntegerParameterTestCase(unittest.TestCase):
             par = parameters.IntegerParameter(name, 0.0, 2, resolution)
 
         with self.assertRaises(ValueError):
-            par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, [0, 1.5, 2]
-            )
+            par = parameters.IntegerParameter(name, lower_bound, upper_bound, [0, 1.5, 2])
 
     def test_dist(self):
         name = "test"
@@ -145,9 +134,7 @@ class IntegerParameterTestCase(unittest.TestCase):
 
     def test_from_dist(self):
         par = parameters.IntegerParameter.from_dist(
-            "test",
-            sp.stats.randint(0, 10),
-            resolution=[0, 9],  # @UndefinedVariable
+            "test", sp.stats.randint(0, 10), resolution=[0, 9]  # @UndefinedVariable
         )
 
         self.assertEqual(par.name, "test")
@@ -161,14 +148,10 @@ class IntegerParameterTestCase(unittest.TestCase):
                 "test", sp.stats.uniform(0, 1)
             )  # @UndefinedVariable
             parameters.IntegerParameter.from_dist(
-                "test",
-                sp.stats.randint(0, 1),
-                blaat=[0, 1],  # @UndefinedVariable
+                "test", sp.stats.randint(0, 1), blaat=[0, 1]  # @UndefinedVariable
             )
             parameters.IntegerParameter.from_dist(
-                "test",
-                sp.stats.randint(0, 10),
-                resolution=[0, 9],  # @UndefinedVariable
+                "test", sp.stats.randint(0, 10), resolution=[0, 9]  # @UndefinedVariable
             )
 
 

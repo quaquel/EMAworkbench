@@ -1,4 +1,5 @@
-"""Created on May 22, 2015
+"""
+Created on May 22, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
@@ -35,18 +36,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         self.assertTrue(np.all(correct_result == result.values))
 
         x = pd.DataFrame(
-            [
-                (0, 0),
-                (1, 1),
-                (2, 2),
-                (3, 3),
-                (4, 4),
-                (5, 5),
-                (6, 6),
-                (7, 7),
-                (8, 8),
-                (9, 9),
-            ],
+            [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)],
             columns=["a", "b"],
         )
         boxlim = pd.DataFrame([(1, 0), (8, 7)], columns=["a", "b"])
@@ -70,9 +60,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             ],
             columns=["a", "b", "c"],
         )
-        boxlim = pd.DataFrame(
-            [(1.2, 0, {"a", "b"}), (8.0, 7, {"a", "b"})], columns=["a", "b", "c"]
-        )
+        boxlim = pd.DataFrame([(1.2, 0, {"a", "b"}), (8.0, 7, {"a", "b"})], columns=["a", "b", "c"])
         x["c"] = x["c"].astype("category")
 
         correct_result = x.loc[[2, 3], :]
@@ -115,12 +103,8 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
 
         for i, lims in enumerate([(0, 2 / 3), (0, 1), (0, 0.2)]):
             lower, upper = lims
-            self.assertAlmostEqual(
-                normalized[i, 0], lower, msg="lower unequal for " + uncs[i]
-            )
-            self.assertAlmostEqual(
-                normalized[i, 1], upper, msg="upper unequal for " + uncs[i]
-            )
+            self.assertAlmostEqual(normalized[i, 0], lower, msg="lower unequal for " + uncs[i])
+            self.assertAlmostEqual(normalized[i, 1], upper, msg="upper unequal for " + uncs[i])
 
     def test_determine_restricted_dims(self):
         x = np.random.rand(5, 2)
@@ -347,8 +331,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             [[{"b"}, {"b"}, {"a"}, {"a"}], [0.5, 1, 0.1, 0.5]],
             index=["c", "a"],
             columns=pd.MultiIndex(
-                levels=[["box 1", "box 2"], ["max", "min"]],
-                codes=[[0, 0, 1, 1], [1, 0, 1, 0]],
+                levels=[["box 1", "box 2"], ["max", "min"]], codes=[[0, 0, 1, 1], [1, 0, 1, 0]]
             ),
         )
         self.assertTrue(expected_boxes.equals(boxes))
@@ -356,9 +339,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         # check stats
         stats = formatter.stats_to_dataframe()
         expected_stats = pd.DataFrame(
-            [[0.5, 1], [0.5, 1]],
-            index=["box 1", "box 2"],
-            columns=["coverage", "density"],
+            [[0.5, 1], [0.5, 1]], index=["box 1", "box 2"], columns=["coverage", "density"]
         )
 
         self.assertTrue(expected_stats.equals(stats))

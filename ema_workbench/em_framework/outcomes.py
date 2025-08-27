@@ -1,4 +1,7 @@
-"""Module for outcome classes"""
+"""
+Module for outcome classes
+
+"""
 
 import abc
 import collections
@@ -10,20 +13,19 @@ import numpy as np
 import pandas as pd
 
 from ema_workbench.util.ema_exceptions import EMAError
-
-from ..util import get_module_logger
 from .util import Variable
+from ..util import get_module_logger
 
 # Created on 24 mei 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "AbstractOutcome",
-    "ArrayOutcome",
-    "Constraint",
     "ScalarOutcome",
+    "ArrayOutcome",
     "TimeSeriesOutcome",
+    "Constraint",
+    "AbstractOutcome",
     "register",
 ]
 _logger = get_module_logger(__name__)
@@ -35,7 +37,7 @@ class Register:
     this class stores outcomes by name, and is used to save_results
     to look up how to save each outcome.
 
-    Raises:
+    Raises
     ------
     ValueError if a given outcome name already exists but with a different
     outcome class.
@@ -49,27 +51,28 @@ class Register:
         if outcome.name not in self.outcomes:
             self.outcomes[outcome.name] = outcome.__class__
         elif not isinstance(outcome, self.outcomes[outcome.name]):
-            raise ValueError(
-                "outcome with this name but of different class already exists"
-            )
+            raise ValueError("outcome with this name but of different class " "already exists")
         else:
             pass  # multiple instances of the same class and name is fine
 
     def serialize(self, name, values):
-        """Parameters
+        """
+
+        Parameters
         ----------
         name : str
         values : numpy array or dataframe
 
-        Returns:
+        Returns
         -------
         BytesIO, str
 
         """
+
         try:
             stream, extension = self.outcomes[name].to_disk(values)
         except KeyError:
-            _logger.warning("outcome not defined, falling back on ArrayOutcome.to_disk")
+            _logger.warning("outcome not defined, falling back on " "ArrayOutcome.to_disk")
             stream, extension = ArrayOutcome.to_disk(values)
 
         return stream, f"{name}.{extension}"
@@ -82,7 +85,8 @@ register = Register()
 
 
 class AbstractOutcome(Variable):
-    """Base Outcome class
+    """
+    Base Outcome class
 
     Parameters
     ----------
@@ -107,7 +111,7 @@ class AbstractOutcome(Variable):
             must be used in conjunction with shape. Enables pre-allocation
             of data structure for storing results.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     kind : int
@@ -145,9 +149,7 @@ class AbstractOutcome(Variable):
                 raise ValueError("variable name must be a string or list of strings")
         if expected_range is not None and len(expected_range) != 2:
             raise ValueError("expected_range must be a min-max tuple")
-        if (shape is not None and dtype is None) or (
-            dtype is not None and shape is None
-        ):
+        if (shape is not None and dtype is None) or (dtype is not None and shape is None):
             raise ValueError("if using shape or dtype, both need to be provided")
 
         register(self)
@@ -187,9 +189,7 @@ class AbstractOutcome(Variable):
                 return self.function(*values)
         else:
             if len(values) > 1:
-                raise EMAError(
-                    "More than one value returned without processing function"
-                )
+                raise EMAError("More than one value returned without processing function")
 
             return values[0]
 
@@ -228,14 +228,14 @@ class AbstractOutcome(Variable):
     @classmethod
     @abc.abstractmethod
     def to_disk(cls, values):
-        """Helper function for writing outcome to disk
+        """helper function for writing outcome to disk
 
         Parameters
         ----------
         values : obj
             data to store
 
-        Returns:
+        Returns
         -------
         BytesIO
 
@@ -245,14 +245,14 @@ class AbstractOutcome(Variable):
     @classmethod
     @abc.abstractmethod
     def from_disk(cls, filename, archive):
-        """Helper function for loading from disk
+        """helper function for loading from disk
 
         Parameters
         ----------
         filename : str
         archive : Tarfile
 
-        Returns:
+        Returns
         -------
 
         """
@@ -266,7 +266,8 @@ class AbstractOutcome(Variable):
 
 
 class ScalarOutcome(AbstractOutcome):
-    """Scalar Outcome class
+    """
+    Scalar Outcome class
 
     Parameters
     ----------
@@ -287,7 +288,7 @@ class ScalarOutcome(AbstractOutcome):
     dtype : datatype, optional
             Enables pre-allocation of data structure for storing results.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     kind : int
@@ -302,9 +303,7 @@ class ScalarOutcome(AbstractOutcome):
     @property
     def expected_range(self):
         if self._expected_range is None:
-            raise ValueError(
-                f"No expected_range is set for variable {self.variable_name}"
-            )
+            raise ValueError(f"No expected_range is set for variable {self.variable_name}")
         return self._expected_range
 
     @expected_range.setter
@@ -324,12 +323,7 @@ class ScalarOutcome(AbstractOutcome):
         if dtype is not None:
             shape = (1,)
         super().__init__(
-            name,
-            kind,
-            variable_name=variable_name,
-            function=function,
-            dtype=dtype,
-            shape=shape,
+            name, kind, variable_name=variable_name, function=function, dtype=dtype, shape=shape
         )
         self.expected_range = expected_range
 
@@ -343,14 +337,15 @@ class ScalarOutcome(AbstractOutcome):
 
     @classmethod
     def to_disk(cls, values):
-        """Helper function for writing outcome to disk
+        """helper function for writing outcome to disk
+
 
         Parameters
         ----------
         values : 1D array
 
 
-        Returns:
+        Returns
         -------
         BytesIO
         filename
@@ -396,7 +391,7 @@ class ArrayOutcome(AbstractOutcome):
             must be used in conjunction with shape. Enables pre-allocation
             of data structure for storing results.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     kind : int
@@ -410,13 +405,7 @@ class ArrayOutcome(AbstractOutcome):
     """
 
     def __init__(
-        self,
-        name,
-        variable_name=None,
-        function=None,
-        expected_range=None,
-        shape=None,
-        dtype=None,
+        self, name, variable_name=None, function=None, expected_range=None, shape=None, dtype=None
     ):
         super().__init__(
             name,
@@ -438,18 +427,19 @@ class ArrayOutcome(AbstractOutcome):
 
     @classmethod
     def to_disk(cls, values):
-        """Helper function for writing outcome to disk
+        """helper function for writing outcome to disk
 
         Parameters
         ----------
         values : ND array
 
-        Returns:
+        Returns
         -------
         BytesIO
         filename
 
         """
+
         if values.ndim < 3:
             fh = BytesIO()
             data = pd.DataFrame(values)
@@ -474,13 +464,12 @@ class ArrayOutcome(AbstractOutcome):
             array_file.seek(0)
             return np.load(array_file)
         else:
-            raise EMAError(
-                f"Unknown file extension {filename}. Only .csv and .npy are supported."
-            )
+            raise EMAError(f"Unknown file extension {filename}. Only .csv and .npy are supported.")
 
 
 class TimeSeriesOutcome(ArrayOutcome):
-    """TimeSeries Outcome class for 1D arrays
+    """
+    TimeSeries Outcome class for 1D arrays
 
     Parameters
     ----------
@@ -504,7 +493,7 @@ class TimeSeriesOutcome(ArrayOutcome):
             must be used in conjunction with shape. Enables pre-allocation
             of data structure for storing results.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     kind : int
@@ -514,7 +503,7 @@ class TimeSeriesOutcome(ArrayOutcome):
     expected_range : tuple
     dtype : datatype
 
-    Notes:
+    Notes
     -----
     Time series outcomes are currently assumed to be 1D arrays. If you
     are dealing with higher dimensional outputs (e.g., multiple replications
@@ -523,13 +512,7 @@ class TimeSeriesOutcome(ArrayOutcome):
     """
 
     def __init__(
-        self,
-        name,
-        variable_name=None,
-        function=None,
-        expected_range=None,
-        shape=None,
-        dtype=None,
+        self, name, variable_name=None, function=None, expected_range=None, shape=None, dtype=None
     ):
         super().__init__(
             name,
@@ -542,14 +525,14 @@ class TimeSeriesOutcome(ArrayOutcome):
 
     @classmethod
     def to_disk(cls, values):
-        """Helper function for writing outcome to disk
+        """helper function for writing outcome to disk
 
         Parameters
         ----------
         values : DataFrame
 
 
-        Returns:
+        Returns
         -------
         StringIO
         filename
@@ -568,9 +551,7 @@ class TimeSeriesOutcome(ArrayOutcome):
         if filename.endswith("csv"):
             return pd.read_csv(f, index_col=False, header=0).values
         else:
-            raise EMAError(
-                f"Unknown file extension {filename}. Only .csv and .npy are supported."
-            )
+            raise EMAError(f"Unknown file extension {filename}. Only .csv and .npy are supported.")
 
 
 class Constraint(ScalarOutcome):
@@ -584,7 +565,7 @@ class Constraint(ScalarOutcome):
     outcome_names : str or collection of str
     function : callable
 
-    Attributes:
+    Attributes
     ----------
     name : str
     parameter_names : str, list of str
@@ -614,10 +595,7 @@ class Constraint(ScalarOutcome):
         variable_names = parameter_names + outcome_names
 
         super().__init__(
-            name,
-            kind=AbstractOutcome.INFO,
-            variable_name=variable_names,
-            function=function,
+            name, kind=AbstractOutcome.INFO, variable_name=variable_names, function=function
         )
 
         self.parameter_names = parameter_names
@@ -637,11 +615,12 @@ def create_outcomes(outcomes, **kwargs):
     outcomes : DataFrame, or something convertible to a DataFrame
                in case of string, the string will be passed
 
-    Returns:
+    Returns
     -------
     list
 
     """
+
     if isinstance(outcomes, str):
         outcomes = pd.read_csv(outcomes, **kwargs)
     elif not isinstance(outcomes, pd.DataFrame):

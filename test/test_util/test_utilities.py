@@ -1,4 +1,5 @@
-"""Created on 22 nov. 2012
+"""
+Created on 22 nov. 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
@@ -9,16 +10,17 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from ema_workbench.em_framework.outcomes import (
-    ArrayOutcome,
-    ScalarOutcome,
-    register,
-)
 from ema_workbench.util.utilities import (
-    get_ema_project_home_dir,
+    save_results,
     load_results,
     merge_results,
-    save_results,
+    get_ema_project_home_dir,
+)
+from ema_workbench.em_framework.outcomes import (
+    ScalarOutcome,
+    ArrayOutcome,
+    TimeSeriesOutcome,
+    register,
 )
 
 

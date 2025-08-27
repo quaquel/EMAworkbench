@@ -18,29 +18,30 @@ Just pass an OutputSpaceExploration instance as algorithm to optimize.
 import functools
 import math
 
+from .optimization import BORGDefaultDescriptor
+from ..util.ema_exceptions import EMAError
+
 from platypus import (
-    PCX,
-    PM,
-    SBX,
-    SPX,
-    UM,
-    UNDX,
+    TournamentSelector,
+    Archive,
+    RandomGenerator,
+    Dominance,
     AbstractGeneticAlgorithm,
     AdaptiveTimeContinuation,
-    Archive,
-    DifferentialEvolution,
-    Dominance,
     GAOperator,
+    SBX,
+    PM,
+    DifferentialEvolution,
+    SPX,
+    UM,
+    PCX,
+    UNDX,
     Multimethod,
     PlatypusConfig,
-    RandomGenerator,
-    TournamentSelector,
 )
 
-from ..util.ema_exceptions import EMAError
-from .optimization import BORGDefaultDescriptor
 
-__all__ = ["AutoAdaptiveOutputSpaceExploration", "OutputSpaceExploration"]
+__all__ = ["OutputSpaceExploration", "AutoAdaptiveOutputSpaceExploration"]
 
 
 class Novelty(Dominance):
@@ -129,9 +130,7 @@ class HitBox(Archive):
             distance_s = [(a - b) ** 2 for a, b in zip(solution.objectives, centroid)]
             distance_s = math.sqrt(sum(distance_s))
 
-            distance_c = [
-                (a - b) ** 2 for a, b in zip(self.archive[key].objectives, centroid)
-            ]
+            distance_c = [(a - b) ** 2 for a, b in zip(self.archive[key].objectives, centroid)]
             distance_c = math.sqrt(sum(distance_c))
 
             if distance_s < distance_c:
@@ -207,7 +206,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
 
 
 def get_index_for_solution(solution, grid_spec):
-    """Maps the objectives to the key for the grid cell
+    """maps the objectives to the key for the grid cell
     into which this solution falls.
 
     Parameters
@@ -215,7 +214,7 @@ def get_index_for_solution(solution, grid_spec):
     solution : platypus Solution instance
     grid_spec :
 
-    Returns:
+    Returns
     -------
     tuple
 
@@ -230,7 +229,7 @@ def get_index_for_solution(solution, grid_spec):
 
 
 def get_bin_index(value, minumum_value, epsilon):
-    """Maps the value for a single objective to the index
+    """maps the value for a single objective to the index
     of the grid cell along that diemnsion
 
     Parameters
@@ -239,7 +238,7 @@ def get_bin_index(value, minumum_value, epsilon):
     minumum_value
     epsilon
 
-    Returns:
+    Returns
     -------
     int
 
@@ -275,7 +274,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
     To deal with a stalled search, adaptive time continuation, identical to
     ε-NSGAII is used.
 
-    Notes:
+    Notes
     -----
     Output space exploration relies on the optimization functionality of the
     workbench. Therefore, outcomes of kind INFO are ignored. For output
@@ -320,7 +319,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
     population_size : int, optional
 
 
-    Notes:
+    Notes
     -----
     Limited to RealParameters only.
 
@@ -379,9 +378,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(
-                DifferentialEvolution(
-                    crossover_rate=self.de_rate, step_size=self.de_stepsize
-                ),
+                DifferentialEvolution(crossover_rate=self.de_rate, step_size=self.de_stepsize),
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(

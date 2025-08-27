@@ -1,19 +1,21 @@
-"""Created on Mar 13, 2012
+"""
+Created on Mar 13, 2012
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
 import unittest
+import pytest
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pytest
+import matplotlib.pyplot as plt
 
 from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
-from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
 from test import utilities
+from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
+from ema_workbench.em_framework.outcomes import ScalarOutcome
 
 
 def flu_classify(data):
@@ -181,10 +183,7 @@ class PrimTestCase(unittest.TestCase):
         results = experiments, outcomes
         threshold = 10000
         prim_obj = prim.setup_prim(
-            results,
-            classify="death toll",
-            threshold_type=prim.ABOVE,
-            threshold=threshold,
+            results, classify="death toll", threshold_type=prim.ABOVE, threshold=threshold
         )
 
         value = np.ones((experiments.shape[0],))
@@ -195,10 +194,7 @@ class PrimTestCase(unittest.TestCase):
         # for results equal to or lower  than the threshold
         threshold = 1000
         prim_obj = prim.setup_prim(
-            results,
-            classify="death toll",
-            threshold_type=prim.BELOW,
-            threshold=threshold,
+            results, classify="death toll", threshold_type=prim.BELOW, threshold=threshold
         )
 
         value = np.ones((experiments.shape[0],))
@@ -218,9 +214,7 @@ class PrimTestCase(unittest.TestCase):
         self.assertEqual(len(boxes), 1, "box length not correct")
 
         # real data test case
-        prim_obj = prim.setup_prim(
-            utilities.load_flu_data(), flu_classify, threshold=0.8
-        )
+        prim_obj = prim.setup_prim(utilities.load_flu_data(), flu_classify, threshold=0.8)
         prim_obj.find_box()
         boxes = prim_obj.boxes
         self.assertEqual(len(boxes), 1, "box length not correct")
@@ -254,10 +248,7 @@ class PrimTestCase(unittest.TestCase):
         # for results equal to or lower  than the threshold
         threshold = 1000
         prim_obj = prim.setup_prim(
-            results,
-            classify="death toll",
-            threshold_type=prim.BELOW,
-            threshold=threshold,
+            results, classify="death toll", threshold_type=prim.BELOW, threshold=threshold
         )
 
         value = np.ones((experiments.shape[0],))
@@ -336,12 +327,7 @@ class PrimTestCase(unittest.TestCase):
         y = outcomes["deceased_population_region_1"]
 
         self.assertRaises(
-            prim.PrimException,
-            prim.Prim,
-            x,
-            y,
-            threshold=0.8,
-            mode=RuleInductionType.REGRESSION,
+            prim.PrimException, prim.Prim, x, y, threshold=0.8, mode=RuleInductionType.REGRESSION
         )
 
     def test_find_box(self):
@@ -358,15 +344,11 @@ class PrimTestCase(unittest.TestCase):
         box_2 = prim_obj.find_box()
         prim_obj._update_yi_remaining(prim_obj)
 
-        after_find = (
-            box_1.yi.shape[0] + box_2.yi.shape[0] + prim_obj.yi_remaining.shape[0]
-        )
+        after_find = box_1.yi.shape[0] + box_2.yi.shape[0] + prim_obj.yi_remaining.shape[0]
         self.assertEqual(after_find, prim_obj.y.shape[0])
 
     def test_discrete_peel(self):
-        x = pd.DataFrame(
-            np.random.randint(0, 10, size=(100,), dtype=int), columns=["a"]
-        )
+        x = pd.DataFrame(np.random.randint(0, 10, size=(100,), dtype=int), columns=["a"])
         y = np.zeros(100)
         y[x.a > 5] = 1
 
@@ -423,12 +405,7 @@ class PrimTestCase(unittest.TestCase):
 
     def test_categorical_peel(self):
         x = pd.DataFrame(
-            list(
-                zip(
-                    np.random.rand(10),
-                    ["a", "b", "a", "b", "a", "a", "b", "a", "b", "a"],
-                )
-            ),
+            list(zip(np.random.rand(10), ["a", "b", "a", "b", "a", "a", "b", "a", "b", "a"])),
             columns=["a", "b"],
         )
 
@@ -457,8 +434,7 @@ class PrimTestCase(unittest.TestCase):
         a = ("a",)
         b = ("b",)
         x = pd.DataFrame(
-            list(zip(np.random.rand(10), [a, b, a, b, a, a, b, a, b, a])),
-            columns=["a", "b"],
+            list(zip(np.random.rand(10), [a, b, a, b, a, a, b, a, b, a])), columns=["a", "b"]
         )
 
         y = np.random.randint(0, 2, (10,))

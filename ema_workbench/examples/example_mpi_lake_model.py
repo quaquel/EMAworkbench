@@ -1,12 +1,12 @@
-"""An example of the lake problem using the ema workbench in combination with the MPI evaluator
+"""
+An example of the lake problem using the ema workbench in combination with the MPI evaluator
 
 The model itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-import os
-import sys
+import os, sys
 
 sys.path.insert(1, os.path.abspath("../../"))
 
@@ -17,12 +17,12 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (
-    Constant,
     Model,
-    MPIEvaluator,
     RealParameter,
     ScalarOutcome,
+    Constant,
     ema_logging,
+    MPIEvaluator,
     save_results,
 )
 
@@ -72,7 +72,7 @@ def lake_problem(
     average_daily_P = np.mean(X, axis=0)
 
     # Calculate the reliability (probability of the pollution level being below Pcrit)
-    reliability = np.sum(Pcrit > X) / float(nsamples * nvars)
+    reliability = np.sum(X < Pcrit) / float(nsamples * nvars)
 
     # Calculate the maximum pollution level (max_P)
     max_P = np.max(average_daily_P)
@@ -109,9 +109,7 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [
-        RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)
-    ]
+    lake_model.levers = [RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)]
 
     # specify outcomes
     lake_model.outcomes = [

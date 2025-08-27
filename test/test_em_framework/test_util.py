@@ -1,8 +1,7 @@
 """ """
 
-import copy
 import unittest
-
+import copy
 from ema_workbench.em_framework import util
 
 
@@ -24,9 +23,7 @@ class TestNamedDict(unittest.TestCase):
         self.assertEqual(nd.name, name, "name not equal")
 
         for key, value in nd.items():
-            self.assertEqual(
-                kwargs[key], value, "kwargs not set on inner dict correctly"
-            )
+            self.assertEqual(kwargs[key], value, "kwargs not set on inner dict correctly")
 
         kwargs = {"a": 1, "b": 2}
 
@@ -34,9 +31,7 @@ class TestNamedDict(unittest.TestCase):
 
         self.assertEqual(nd.name, repr(kwargs), "name not equal")
         for key, value in nd.items():
-            self.assertEqual(
-                kwargs[key], value, "kwargs not set on inner dict correctly"
-            )
+            self.assertEqual(kwargs[key], value, "kwargs not set on inner dict correctly")
 
         # test len
         self.assertEqual(2, len(nd), "length not correct")

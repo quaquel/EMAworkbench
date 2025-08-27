@@ -1,7 +1,6 @@
-import unittest
-
 import matplotlib.pyplot as plt
 import numpy as np
+import unittest
 
 from ema_workbench.analysis import clusterer
 from test import utilities

@@ -1,4 +1,5 @@
-"""This module implements logistic regression for scenario discovery.
+"""
+This module implements logistic regression for scenario discovery.
 
 The module draws its inspiration from Quinn et al (2018) 10.1029/2018WR022743
 and Lamontagne et al (2019). The implementation here generalizes their work
@@ -17,9 +18,9 @@ import pandas as pd
 import seaborn as sns
 import statsmodels.api as sm
 
-from ..util import get_module_logger
 from . import scenario_discovery_util as sdutil
 from .prim_util import CurEntry
+from ..util import get_module_logger
 
 __all__ = ["Logit"]
 
@@ -43,6 +44,7 @@ def calculate_covden(fitted_model, x, y, step=0.1):
     step : float, optional
 
     """
+
     predicted = fitted_model.predict(x.loc[:, fitted_model.params.index])
     coverage = []
     density = []
@@ -57,6 +59,7 @@ def calculate_covden(fitted_model, x, y, step=0.1):
 
 def calculate_covden_for_treshold(predicted, y, threshold):
     """Helper function for calculating coverage and density"""
+
     tp = np.sum(((predicted > threshold) == True) & (y == True))
     fp = np.sum(((predicted > threshold) == True) & (y == False))
     fn = np.sum(((predicted > threshold) == False) & (y == True))
@@ -68,7 +71,7 @@ def calculate_covden_for_treshold(predicted, y, threshold):
 
 
 def contours(ax, model, xlabel, ylabel, levels):
-    """Helper function for plotting contours
+    """helper function for plotting contours
 
     Parameters
     ----------
@@ -78,6 +81,7 @@ def contours(ax, model, xlabel, ylabel, levels):
     levels : list of floats in interval [0, 1]
 
     """
+
     Xgrid, Ygrid = np.meshgrid(np.arange(-0.1, 1.1, 0.01), np.arange(-0.1, 1.1, 0.01))
 
     xflatten = Xgrid.flatten()
@@ -103,9 +107,7 @@ def contours(ax, model, xlabel, ylabel, levels):
     # rgb = [255*entry for entry in sns.color_palette()[1]]
     # hsl = 28, 100, 52.7
 
-    cmap = sns.diverging_palette(
-        244, 28, s=99.9, l=52.7, n=len(levels) - 1, as_cmap=True
-    )
+    cmap = sns.diverging_palette(244, 28, s=99.9, l=52.7, n=len(levels) - 1, as_cmap=True)
     ax.contourf(Xgrid, Ygrid, Zgrid, levels, cmap=cmap, zorder=0)
 
 
@@ -121,7 +123,7 @@ class Logit:
     threshold : float
 
 
-    Attributes:
+    Attributes
     ----------
     coverage : float
                coverage of currently selected model
@@ -194,7 +196,7 @@ class Logit:
         self.peeling_trajectory = pd.DataFrame(columns=columns)
 
     def run(self, **kwargs):
-        """Run logistic regression using forward selection using a Bayesian
+        """run logistic regression using forward selection using a Bayesian
         Information Criterion for selecting whether and if so which dimension
         to add
 
@@ -233,7 +235,7 @@ class Logit:
                 current_score = best_new_score
 
     def update(self, model, selected):
-        """Helper function for adding a model to the collection of models and
+        """helper function for adding a model to the collection of models and
         update the associated attributes
 
         Parameters
@@ -242,6 +244,7 @@ class Logit:
         selected : list of str
 
         """
+
         predicted = model.predict(self._normalized.loc[:, selected + ["Intercept"]])
         den, cov = calculate_covden_for_treshold(predicted, self.y, self.threshold)
 
@@ -264,14 +267,12 @@ class Logit:
         cmap : valid matplotlib colormap
         annotated : bool, optional. Shows point labels if True.
 
-        Returns:
+        Returns
         -------
         a Figure instance
 
         """
-        return sdutil.plot_tradeoff(
-            self.peeling_trajectory, cmap=cmap, annotated=annotated
-        )
+        return sdutil.plot_tradeoff(self.peeling_trajectory, cmap=cmap, annotated=annotated)
 
     # @UndefinedVariable
     def show_threshold_tradeoff(self, i, cmap=mpl.cm.viridis_r, step=0.1):
@@ -284,7 +285,7 @@ class Logit:
         cmap : valid matplotlib colormap
         step : float, optional
 
-        Returns:
+        Returns
         -------
         a Figure instance
 
@@ -293,9 +294,7 @@ class Logit:
 
         fitted_model = self.models[i]
         x = self._normalized.loc[:, fitted_model.params.index.values]
-        coverage, density, thresholds = calculate_covden(
-            fitted_model, x, self.y, step=step
-        )
+        coverage, density, thresholds = calculate_covden(fitted_model, x, self.y, step=step)
 
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect="equal")
@@ -325,19 +324,18 @@ class Logit:
         step : float between [0, 1]
 
         """
+
         model = self.models[i]
         x = self._normalized.loc[:, model.params.index.values]
         coverage, density, thresholds = calculate_covden(model, x, self.y, step=step)
-        data = pd.DataFrame(
-            {"coverage": coverage, "density": density, "thresholds": thresholds}
-        )
+        data = pd.DataFrame({"coverage": coverage, "density": density, "thresholds": thresholds})
         print(data)
         print()
 
         print(model.summary2())
 
     def plot_pairwise_scatter(self, i, threshold=0.95):
-        """Plot pairwise scatter plot of data points, with contours as
+        """plot pairwise scatter plot of data points, with contours as
         background
 
 
@@ -346,7 +344,7 @@ class Logit:
         i : int
         threshold : float
 
-        Returns:
+        Returns
         -------
         Figure instance
 

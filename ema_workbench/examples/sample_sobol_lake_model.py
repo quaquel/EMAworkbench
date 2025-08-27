@@ -1,4 +1,5 @@
-"""An example of the lake problem using the ema workbench.
+"""
+An example of the lake problem using the ema workbench.
 
 The model itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
@@ -13,13 +14,13 @@ from SALib.analyze import sobol
 from scipy.optimize import brentq
 
 from ema_workbench import (
-    Constant,
     Model,
-    MultiprocessingEvaluator,
-    Policy,
     RealParameter,
     ScalarOutcome,
+    Constant,
     ema_logging,
+    MultiprocessingEvaluator,
+    Policy,
 )
 from ema_workbench.em_framework import get_SALib_problem
 from ema_workbench.em_framework.evaluators import Samplers
@@ -65,7 +66,7 @@ def lake_problem(
             )
             average_daily_P[t] += X[t] / float(nsamples)
 
-        reliability += np.sum(Pcrit > X) / float(nsamples * nvars)
+        reliability += np.sum(X < Pcrit) / float(nsamples * nvars)
 
     max_P = np.max(average_daily_P)
     utility = np.sum(alpha * decisions * np.power(delta, np.arange(nvars)))
@@ -75,20 +76,17 @@ def lake_problem(
 
 
 def analyze(results, ooi):
-    """Analyze results using SALib sobol, returns a dataframe"""
+    """analyze results using SALib sobol, returns a dataframe"""
+
     _, outcomes = results
 
     problem = get_SALib_problem(lake_model.uncertainties)
     y = outcomes[ooi]
     sobol_indices = sobol.analyze(problem, y)
-    sobol_stats = {
-        key: sobol_indices[key] for key in ["ST", "ST_conf", "S1", "S1_conf"]
-    }
+    sobol_stats = {key: sobol_indices[key] for key in ["ST", "ST_conf", "S1", "S1_conf"]}
     sobol_stats = pd.DataFrame(sobol_stats, index=problem["names"])
     sobol_stats.sort_values(by="ST", ascending=False)
-    s2 = pd.DataFrame(
-        sobol_indices["S2"], index=problem["names"], columns=problem["names"]
-    )
+    s2 = pd.DataFrame(sobol_indices["S2"], index=problem["names"], columns=problem["names"])
     s2_conf = pd.DataFrame(
         sobol_indices["S2_conf"], index=problem["names"], columns=problem["names"]
     )
@@ -113,9 +111,7 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [
-        RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)
-    ]
+    lake_model.levers = [RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)]
 
     # specify outcomes
     lake_model.outcomes = [

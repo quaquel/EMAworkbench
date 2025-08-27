@@ -1,18 +1,21 @@
-"""This module provides R style pairs plotting functionality."""
+"""
+
+This module provides R style pairs plotting functionality.
+
+"""
 
 import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..util import get_module_logger
-
 # from . import plotting_util
-from .plotting_util import LegendEnum, get_color, make_legend, prepare_pairs_data
+from .plotting_util import LegendEnum, get_color, prepare_pairs_data, make_legend
+from ..util import get_module_logger
 
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["pairs_density", "pairs_lines", "pairs_scatter"]
+__all__ = ["pairs_scatter", "pairs_lines", "pairs_density"]
 _logger = get_module_logger(__name__)
 
 
@@ -26,7 +29,9 @@ def pairs_lines(
     legend=True,
     **kwargs,
 ):
-    """Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
+    """
+
+    Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     lines multiplot. It shows the behavior of two outcomes over time against
     each other. The origin is denoted with a circle and the end is denoted
     with a '+'.
@@ -58,7 +63,7 @@ def pairs_lines(
                     None is provided (default), the end states are used.
                     point_in_time should be a valid value on time
 
-    Returns:
+    Returns
     -------
     fig
         the figure instance
@@ -67,6 +72,7 @@ def pairs_lines(
         instance
 
     """
+
     # unravel return from run_experiments
     _logger.debug("making a pairwise line plot")
 
@@ -82,9 +88,7 @@ def pairs_lines(
     figure = plt.figure()
     axes_dict = {}
 
-    combis = [
-        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
-    ]
+    combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
 
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -115,13 +119,7 @@ def pairs_lines(
 
         for ax in figure.axes:
             gs2 = ax._subplotspec
-            if all(
-                (
-                    gs1._gridspec == gs2._gridspec,
-                    gs1.num1 == gs2.num1,
-                    gs1.num2 == gs2.num2,
-                )
-            ):
+            if all((gs1._gridspec == gs2._gridspec, gs1.num1 == gs2.num1, gs1.num2 == gs2.num2)):
                 break
 
         make_legend(grouping_labels, ax, legend_type=LegendEnum.LINE)
@@ -130,7 +128,9 @@ def pairs_lines(
 
 
 def simple_pairs_lines(ax, y_data, x_data, color):
-    """Helper function for generating a simple pairs lines plot
+    """
+
+    Helper function for generating a simple pairs lines plot
 
     Parameters
     ----------
@@ -140,6 +140,7 @@ def simple_pairs_lines(ax, y_data, x_data, color):
     color : str
 
     """
+
     ax.plot(x_data.T, y_data.T, c=color)
     ax.scatter(x_data[:, 0], y_data[:, 0], edgecolor=color, facecolor=color, marker="o")
     ax.scatter(x_data[:, -1], y_data[:, -1], facecolor=color, marker="+")
@@ -158,7 +159,9 @@ def pairs_density(
     colormap="coolwarm",
     filter_scalar=True,
 ):
-    """Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
+    """
+
+    Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     hexbin density multiplot. In case of time-series data, the end
     states are used.
 
@@ -202,7 +205,7 @@ def pairs_density(
     filter_scalar: bool, optional
                    remove the non-time-series outcomes. Defaults to True.
 
-    Returns:
+    Returns
     -------
     fig
         the figure instance
@@ -245,11 +248,7 @@ def pairs_density(
             figures.append(figure)
 
         # harmonize the color scaling across figures
-        combis = [
-            (field1, field2)
-            for field1 in outcomes_to_show
-            for field2 in outcomes_to_show
-        ]
+        combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
         for combi in combis:
             if combi[0] == combi[1]:
                 continue
@@ -266,13 +265,12 @@ def pairs_density(
 
         return figures, axes_dicts
     else:
-        return simple_pairs_density(
-            outcomes, outcomes_to_show, log, colormap, gridsize, ylabels
-        )
+        return simple_pairs_density(outcomes, outcomes_to_show, log, colormap, gridsize, ylabels)
 
 
 def determine_extents(outcomes, outcomes_to_show):
-    """Helper function used by pairs_density to make sure that multiple groups
+    """
+    Helper function used by pairs_density to make sure that multiple groups
     share the same axes extent.
 
     Parameters
@@ -280,12 +278,13 @@ def determine_extents(outcomes, outcomes_to_show):
     outcomes : dict
     outcomes_to_show : list of str
 
-    Returns:
+    Returns
     -------
     dict
         tuple of str as key, and 4-tuple with extent
 
     """
+
     limits = {}
     for pol_out in outcomes.values():
         for entry in outcomes_to_show:
@@ -299,9 +298,7 @@ def determine_extents(outcomes, outcomes_to_show):
             except KeyError:
                 limits[entry] = (minimum, maximum)
     extents = {}
-    combis = [
-        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
-    ]
+    combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
     for field1, field2 in combis:
         limits_1 = limits[field1]
         limits_2 = limits[field2]
@@ -310,16 +307,11 @@ def determine_extents(outcomes, outcomes_to_show):
 
 
 def simple_pairs_density(
-    outcomes,
-    outcomes_to_show,
-    log,
-    colormap,
-    gridsize,
-    ylabels,
-    extents=None,
-    title=None,
+    outcomes, outcomes_to_show, log, colormap, gridsize, ylabels, extents=None, title=None
 ):
-    """Helper function for generating a simple pairs density plot
+    """
+
+    Helper function for generating a simple pairs density plot
 
     Parameters
     ----------
@@ -337,15 +329,14 @@ def simple_pairs_density(
 
 
     """
+
     grid = gridspec.GridSpec(len(outcomes_to_show), len(outcomes_to_show))
     grid.update(wspace=0.1, hspace=0.1)
 
     # the plotting
     figure = plt.figure()
 
-    combis = [
-        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
-    ]
+    combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
     axes_dict = {}
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -401,7 +392,9 @@ def pairs_scatter(
     filter_scalar=False,
     **kwargs,
 ):
-    """Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
+    """
+
+    Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
     scatter multiplot. In case of time-series data, the end states are used.
 
     Parameters
@@ -433,7 +426,7 @@ def pairs_scatter(
     filter_scalar: bool, optional
                    remove the non-time-series outcomes. Defaults to True.
 
-    Returns:
+    Returns
     -------
     fig : Figure instance
           the figure instance
@@ -447,6 +440,7 @@ def pairs_scatter(
               in COLOR_LIST.
 
     """
+
     _logger.debug("generating pairwise scatter plot")
 
     prepared_data = prepare_pairs_data(
@@ -467,9 +461,7 @@ def pairs_scatter(
     figure = plt.figure()
     axes_dict = {}
 
-    combis = [
-        (field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show
-    ]
+    combis = [(field1, field2) for field1 in outcomes_to_show for field2 in outcomes_to_show]
 
     for field1, field2 in combis:
         i = list(outcomes_to_show).index(field1)
@@ -505,13 +497,7 @@ def pairs_scatter(
 
         for ax in figure.axes:
             gs2 = ax._subplotspec
-            if all(
-                (
-                    gs1._gridspec == gs2._gridspec,
-                    gs1.num1 == gs2.num1,
-                    gs1.num2 == gs2.num2,
-                )
-            ):
+            if all((gs1._gridspec == gs2._gridspec, gs1.num1 == gs2.num1, gs1.num2 == gs2.num2)):
                 break
 
         make_legend(grouping_labels, ax, legend_type=LegendEnum.SCATTER)
@@ -520,7 +506,9 @@ def pairs_scatter(
 
 
 def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
-    """Helper function for setting the tick labels on the axes correctly on and
+    """
+
+    Helper function for setting the tick labels on the axes correctly on and
     off
 
     Parameters
@@ -535,6 +523,7 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
 
 
     """
+
     # text and labels
     if i == j:
         # only plot the name in the middle

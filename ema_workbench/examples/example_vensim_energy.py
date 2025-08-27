@@ -1,17 +1,22 @@
-"""Created on 27 Jan 2014
+"""
+Created on 27 Jan 2014
 
 @author: jhkwakkel
 """
 
 from ema_workbench import (
-    CategoricalParameter,
-    MultiprocessingEvaluator,
-    Policy,
     RealParameter,
     TimeSeriesOutcome,
     ema_logging,
+    MultiprocessingEvaluator,
+    ScalarOutcome,
+    perform_experiments,
+    CategoricalParameter,
+    save_results,
+    Policy,
 )
 from ema_workbench.connectors.vensim import VensimModel
+from ema_workbench.em_framework.evaluators import SequentialEvaluator
 
 
 def get_energy_model():
@@ -31,9 +36,7 @@ def get_energy_model():
         ),
         TimeSeriesOutcome("fraction_renewables", variable_name="fraction renewables"),
         TimeSeriesOutcome("average_total_costs", variable_name="average total costs"),
-        TimeSeriesOutcome(
-            "total_costs_of_electricity", variable_name="total costs of electricity"
-        ),
+        TimeSeriesOutcome("total_costs_of_electricity", variable_name="total costs of electricity"),
     ]
 
     model.uncertainties = [
@@ -44,38 +47,18 @@ def get_energy_model():
             variable_name="demand fuel price elasticity factor",
         ),
         RealParameter(
-            "economic_lifetime_biomass",
-            30,
-            50,
-            variable_name="economic lifetime biomass",
+            "economic_lifetime_biomass", 30, 50, variable_name="economic lifetime biomass"
         ),
+        RealParameter("economic_lifetime_coal", 30, 50, variable_name="economic lifetime coal"),
+        RealParameter("economic_lifetime_gas", 25, 40, variable_name="economic lifetime gas"),
+        RealParameter("economic_lifetime_igcc", 30, 50, variable_name="economic lifetime igcc"),
+        RealParameter("economic_lifetime_ngcc", 25, 40, variable_name="economic lifetime ngcc"),
         RealParameter(
-            "economic_lifetime_coal", 30, 50, variable_name="economic lifetime coal"
+            "economic_lifetime_nuclear", 50, 70, variable_name="economic lifetime nuclear"
         ),
-        RealParameter(
-            "economic_lifetime_gas", 25, 40, variable_name="economic lifetime gas"
-        ),
-        RealParameter(
-            "economic_lifetime_igcc", 30, 50, variable_name="economic lifetime igcc"
-        ),
-        RealParameter(
-            "economic_lifetime_ngcc", 25, 40, variable_name="economic lifetime ngcc"
-        ),
-        RealParameter(
-            "economic_lifetime_nuclear",
-            50,
-            70,
-            variable_name="economic lifetime nuclear",
-        ),
-        RealParameter(
-            "economic_lifetime_pv", 20, 30, variable_name="economic lifetime pv"
-        ),
-        RealParameter(
-            "economic_lifetime_wind", 20, 30, variable_name="economic lifetime wind"
-        ),
-        RealParameter(
-            "economic_lifetime_hydro", 50, 70, variable_name="economic lifetime hydro"
-        ),
+        RealParameter("economic_lifetime_pv", 20, 30, variable_name="economic lifetime pv"),
+        RealParameter("economic_lifetime_wind", 20, 30, variable_name="economic lifetime wind"),
+        RealParameter("economic_lifetime_hydro", 50, 70, variable_name="economic lifetime hydro"),
         RealParameter(
             "uncertainty_initial_gross_fuel_costs",
             0.5,
@@ -106,38 +89,17 @@ def get_energy_model():
             0.2,
             variable_name="price volatility global resource markets",
         ),
+        RealParameter("progress_ratio_biomass", 0.85, 1, variable_name="progress ratio biomass"),
+        RealParameter("progress_ratio_coal", 0.9, 1.05, variable_name="progress ratio coal"),
+        RealParameter("progress_ratio_gas", 0.85, 1, variable_name="progress ratio gas"),
+        RealParameter("progress_ratio_igcc", 0.9, 1.05, variable_name="progress ratio igcc"),
+        RealParameter("progress_ratio_ngcc", 0.85, 1, variable_name="progress ratio ngcc"),
+        RealParameter("progress_ratio_nuclear", 0.9, 1.05, variable_name="progress ratio nuclear"),
+        RealParameter("progress_ratio_pv", 0.75, 0.9, variable_name="progress ratio pv"),
+        RealParameter("progress_ratio_wind", 0.85, 1, variable_name="progress ratio wind"),
+        RealParameter("progress_ratio_hydro", 0.9, 1.05, variable_name="progress ratio hydro"),
         RealParameter(
-            "progress_ratio_biomass", 0.85, 1, variable_name="progress ratio biomass"
-        ),
-        RealParameter(
-            "progress_ratio_coal", 0.9, 1.05, variable_name="progress ratio coal"
-        ),
-        RealParameter(
-            "progress_ratio_gas", 0.85, 1, variable_name="progress ratio gas"
-        ),
-        RealParameter(
-            "progress_ratio_igcc", 0.9, 1.05, variable_name="progress ratio igcc"
-        ),
-        RealParameter(
-            "progress_ratio_ngcc", 0.85, 1, variable_name="progress ratio ngcc"
-        ),
-        RealParameter(
-            "progress_ratio_nuclear", 0.9, 1.05, variable_name="progress ratio nuclear"
-        ),
-        RealParameter(
-            "progress_ratio_pv", 0.75, 0.9, variable_name="progress ratio pv"
-        ),
-        RealParameter(
-            "progress_ratio_wind", 0.85, 1, variable_name="progress ratio wind"
-        ),
-        RealParameter(
-            "progress_ratio_hydro", 0.9, 1.05, variable_name="progress ratio hydro"
-        ),
-        RealParameter(
-            "starting_construction_time",
-            0.1,
-            3,
-            variable_name="starting construction time",
+            "starting_construction_time", 0.1, 3, variable_name="starting construction time"
         ),
         RealParameter(
             "time_of_nuclear_power_plant_ban",
@@ -146,10 +108,7 @@ def get_energy_model():
             variable_name="time of nuclear power plant ban",
         ),
         RealParameter(
-            "weight_factor_carbon_abatement",
-            1,
-            10,
-            variable_name="weight factor carbon abatement",
+            "weight_factor_carbon_abatement", 1, 10, variable_name="weight factor carbon abatement"
         ),
         RealParameter(
             "weight_factor_marginal_investment_costs",
@@ -188,19 +147,13 @@ def get_energy_model():
             variable_name="maximum no storage penetration rate pv",
         ),
         CategoricalParameter(
-            "SWITCH_lookup_curve_TGC",
-            (1, 2, 3, 4),
-            variable_name="SWITCH lookup curve TGC",
+            "SWITCH_lookup_curve_TGC", (1, 2, 3, 4), variable_name="SWITCH lookup curve TGC"
         ),
         CategoricalParameter(
-            "SWTICH_preference_carbon_curve",
-            (1, 2),
-            variable_name="SWTICH preference carbon curve",
+            "SWTICH_preference_carbon_curve", (1, 2), variable_name="SWTICH preference carbon curve"
         ),
         CategoricalParameter(
-            "SWITCH_economic_growth",
-            (1, 2, 3, 4, 5, 6),
-            variable_name="SWITCH economic growth",
+            "SWITCH_economic_growth", (1, 2, 3, 4, 5, 6), variable_name="SWITCH economic growth"
         ),
         CategoricalParameter(
             "SWITCH_electrification_rate",
@@ -230,13 +183,9 @@ def get_energy_model():
             (1, 2, 3, 4, 5, 6, 7),
             variable_name="SWITCH storage for intermittent supply",
         ),
+        CategoricalParameter("SWITCH_carbon_cap", (1, 2, 3), variable_name="SWITCH carbon cap"),
         CategoricalParameter(
-            "SWITCH_carbon_cap", (1, 2, 3), variable_name="SWITCH carbon cap"
-        ),
-        CategoricalParameter(
-            "SWITCH_TGC_obligation_curve",
-            (1, 2, 3),
-            variable_name="SWITCH TGC obligation curve",
+            "SWITCH_TGC_obligation_curve", (1, 2, 3), variable_name="SWITCH TGC obligation curve"
         ),
         CategoricalParameter(
             "SWITCH_carbon_price_determination",
