@@ -48,11 +48,15 @@ def mpi_initializer(models, log_level, root_dir):
     msis.extend(models)
     experiment_runner = ExperimentRunner(msis)
 
+    # setup the working directories
+    tmpdir = setup_working_directories(models, root_dir)
+    if tmpdir:
+        atexit.register(finalizer(experiment_runner), os.path.abspath(tmpdir))
+
     # setup the logging
-    info = MPI.INFO_NULL
     service = "logwatcher"
     port = MPI.Lookup_name(service)
-    logcomm = MPI.COMM_WORLD.Connect(port, info, 0)
+    logcomm = MPI.COMM_WORLD.Connect(port)
 
     root_logger = get_rootlogger()
 
@@ -61,14 +65,7 @@ def mpi_initializer(models, log_level, root_dir):
     handler.setLevel(log_level)
     handler.setFormatter(logging.Formatter("[worker %(rank)s/%(levelname)s] %(message)s"))
     root_logger.addHandler(handler)
-
-    # setup the working directories
-    tmpdir = setup_working_directories(models, root_dir)
-    if tmpdir:
-        atexit.register(finalizer(experiment_runner), os.path.abspath(tmpdir))
-
-    # _logger.info(f"worker {rank} initialized")
-    root_logger.info(f"worker {rank} initialized")
+    _logger.info(f"worker {rank} initialized")
 
 
 def logwatcher(start_event, stop_event):
@@ -78,18 +75,17 @@ def logwatcher(start_event, stop_event):
 
     info = MPI.INFO_NULL
     port = MPI.Open_port(info)
-    # print(f"client: {rank} {port}")
     _logger.debug(f"opened port: {port}")
 
     service = "logwatcher"
-    MPI.Publish_name(service, info, port)
-    _logger.debug(f"published service: {service}")
+    MPI.Publish_name(service, port)
+    _logger.info(f"published service: {service}")
     start_event.set()
 
     root = 0
-    _logger.debug("waiting for client connection...")
-    comm = MPI.COMM_WORLD.Accept(port, info, root)
-    _logger.debug("client connected...")
+    _logger.info("waiting for client connections...")
+    comm = MPI.COMM_WORLD.Accept(port)
+    _logger.info("clients connected...")
 
     while not stop_event.is_set():
         if rank == root:
@@ -213,7 +209,7 @@ class MPIEvaluator(BaseEvaluator):
         self.logwatcher_thread.join(timeout=60)
 
         if self.logwatcher_thread.is_alive():
-            _logger.warning(f"houston we have a problem")
+            _logger.warning(f"houston we have a problem, logwatcher is still alive")
 
         if self.root_dir:
             shutil.rmtree(self.root_dir)

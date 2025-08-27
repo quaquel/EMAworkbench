@@ -1,10 +1,14 @@
 """
-An example of the lake problem using the ema workbench.
+An example of the lake problem using the ema workbench in combination with the MPI evaluator
 
 The model itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
+
+import os, sys
+
+sys.path.insert(1, os.path.abspath("../../"))
 
 import math
 import time
@@ -85,7 +89,7 @@ def lake_problem(
 if __name__ == "__main__":
     import ema_workbench
 
-    # run with mpiexec -n 1 -usize {ntasks} python example_mpi_lake_model.py
+    # run with env MPI4PY_FUTURES_MAX_WORKERS=4 mpiexec -n 1 python example_mpi_lake_model.py
     starttime = time.perf_counter()
 
     ema_logging.log_to_stderr(ema_logging.INFO, pass_root_logger_level=True)
