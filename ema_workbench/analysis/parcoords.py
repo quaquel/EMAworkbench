@@ -1,7 +1,4 @@
-"""This module offers a general purpose parallel coordinate plotting Class
-using matplotlib.
-
-"""
+"""This module offers a general purpose matplotlib-based parallel coordinate plotting Class."""
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -18,7 +15,7 @@ __all__ = ["ParallelAxes", "get_limits"]
 
 
 def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
-    """Helper function for setting up the parallel axes plot
+    """Helper function for setting up the parallel axes plot.
 
     Parameters
     ----------
@@ -45,7 +42,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
 
     # we need one axes less than the shape
     for i, label in enumerate(labels[:-1]):
-        i += 1
+        i += 1 # noqa: PLW2901
         ax = fig.add_subplot(1, nr_columns - 1, i, ylim=(-0.1, 1.1))
         axes.append(ax)
         ax.set_xlim([i, i + 1])
@@ -104,8 +101,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
 
 
 def get_limits(data):
-    """Helper function to get limits of a FataFrame that can serve as input
-    to ParallelAxis
+    """Helper function to get limits of a FataFrame that can serve as input to ParallelAxis.
 
     Parameters
     ----------
@@ -170,7 +166,9 @@ class ParallelAxes:
     """
 
     def __init__(self, limits, formatter=None, fontsize=14, rot=90):
-        """Parameters
+        """Init.
+
+        Parameters
         ----------
         limits : DataFrame
                  categorical data, first cell should contain all categories
@@ -219,7 +217,7 @@ class ParallelAxes:
         plt.subplots_adjust(wspace=0)
 
     def plot(self, data, color=None, label=None, **kwargs):
-        """Plot data on parallel axes
+        """Plot data on parallel axes.
 
         Parameters
         ----------
@@ -260,7 +258,7 @@ class ParallelAxes:
         self._plot(normalized_data, color=color, **kwargs)
 
     def legend(self):
-        """Add a legend to the figure"""
+        """Add a legend to the figure."""
         artists = []
         labels = []
         for label, color in self.datalabels:
@@ -281,7 +279,7 @@ class ParallelAxes:
         plt.subplots_adjust(wspace=0)
 
     def _plot(self, data, **kwargs):
-        """Plot the data onto the parallel axis
+        """Plot the data onto the parallel axis.
 
         Parameters
         ----------
@@ -302,7 +300,7 @@ class ParallelAxes:
                 self._update_plot_data(ax, 1, lines=lines)
 
     def invert_axis(self, axis):
-        """Flip direction for specified axis
+        """Flip direction for specified axis.
 
         Parameters
         ----------
@@ -322,18 +320,12 @@ class ParallelAxes:
                 self.flipped_axes.remove(entry)
 
     def _invert_axis(self, axis):
-        """Parameters
-        ----------
-
-        """
         ids = self._get_axes_ids(axis)
 
         if len(ids) == 1:
             id = ids[0]  # @ReservedAssignment
-            if id == 0:
-                index = 0
-            else:
-                index = 1
+
+            index = 0 if id == 0 else 1
 
             ax = self.axes[id]
             self._update_plot_data(ax, index)
@@ -344,7 +336,9 @@ class ParallelAxes:
         self._update_ticklabels(axis)
 
     def _update_plot_data(self, ax, index, lines=None):
-        """Parameters
+        """Helper method.
+
+        Parameters
         ----------
         index : {0, 1}
 
@@ -358,7 +352,9 @@ class ParallelAxes:
             line.set_ydata(ydata)
 
     def _update_ticklabels(self, axis):
-        """Parameters
+        """Helper method.
+
+        Parameters
         ----------
         axis : str
 
@@ -392,7 +388,9 @@ class ParallelAxes:
     #             ax.set_yticklabels(tick_labels)
 
     def _get_axes_ids(self, column):
-        """Parameters
+        """Helper method.
+
+        Parameters
         ----------
         column : str
 
