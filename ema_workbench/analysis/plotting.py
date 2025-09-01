@@ -1,5 +1,6 @@
-"""this module provides functions for generating some basic figures. The code can
-be used as is, or serve as an example for writing your own code.
+"""this module provides functions for generating some basic figures.
+
+The code can be used as is, or serve as an example for writing your own code.
 
 """
 
@@ -43,8 +44,8 @@ def envelopes(
     density=None,
     fill=False,
     legend=True,
-    titles={},
-    ylabels={},
+    titles=None,
+    ylabels=None,
     log=False,
 ):
     """Make envelop plots.
@@ -104,17 +105,17 @@ def envelopes(
     Examples:
     --------
     >>> import util as util
-    >>> data = util.load_results(r'1000 flu cases.cPickle')
+    >>> data = util.load_results('1000 flu cases.tar.gz')
     >>> envelopes(data, group_by='policy')
 
-    will show an envelope for three three different policies, for all the
+    will show an envelope for three different policies, for all the
     outcomes of interest. while
 
     >>> envelopes(data, group_by='policy', categories=['static policy',
                   'adaptive policy'])
 
     will only show results for the two specified policies, ignoring any results
-    associated with \'no policy\'.
+    associated with no policy.
 
     """
     _logger.debug("generating envelopes")
@@ -191,8 +192,7 @@ def envelopes(
 def group_by_envelopes(
     outcomes, outcome_to_plot, time, density, ax, ax_d, fill, group_labels, log
 ):
-    """Helper function responsible for generating an envelope plot
-    based on a grouping.
+    """Helper function responsible for generating an envelope plot based on a grouping.
 
     Parameters
     ----------
@@ -262,19 +262,20 @@ def single_envelope(outcomes, outcome_to_plot, time, density, ax, ax_d, fill, lo
 def lines(
     experiments,
     outcomes,
-    outcomes_to_show=[],
+    outcomes_to_show=None,
     group_by=None,
     grouping_specifiers=None,
     density="",
     legend=True,
-    titles={},
-    ylabels={},
+    titles=None,
+    ylabels=None,
     experiments_to_show=None,
     show_envelope=False,
     log=False,
 ):
-    """This function takes the results from :meth:`perform_experiments` and
-    visualizes these as line plots. It is thus to be used in case of time
+    """Visualize results from experiments as line plots.
+
+    It is thus to be used in case of time
     series data. The function will try to find a result labeled "TIME". If this
     is present, these values will be used on the X-axis. In case of Vensim
     models, TIME is present by default.
@@ -410,18 +411,17 @@ def lines(
 def plot_lines_with_envelopes(
     experiments,
     outcomes,
-    outcomes_to_show=[],
+    outcomes_to_show=None,
     group_by=None,
     grouping_specifiers=None,
     density="",
     legend=True,
-    titles={},
-    ylabels={},
+    titles=None,
+    ylabels=None,
     experiments_to_show=None,
     log=False,
 ):
-    """Helper function for generating a plot which contains both an envelope and
-    lines.
+    """Helper function for generating a plot which both an envelope and lines.
 
     Parameters
     ----------
@@ -609,7 +609,7 @@ def kde_over_time(
     colormap="viridis",
     log=True,
 ):
-    """Plot a KDE over time. The KDE is is visualized through a heatmap
+    """Plot a KDE over time. The KDE is visualized through a heatmap.
 
     Parameters
     ----------
@@ -687,14 +687,14 @@ def multiple_densities(
     grouping_specifiers=None,
     density=Density.KDE,
     legend=True,
-    titles={},
-    ylabels={},
+    titles=None,
+    ylabels=None,
     experiments_to_show=None,
     plot_type=PlotType.ENVELOPE,
     log=False,
     **kwargs,
 ):
-    """Make an envelope plot with multiple density plots over the run time
+    """Make an envelope plot with multiple density plots over the run time.
 
     Parameters
     ----------
