@@ -287,7 +287,7 @@ def set_legend_to_bw(leg, style, colormap, line_style="continuous"):
                 orig_color = line.get_color()
 
                 line.set_color("black")
-                if not line_style == "continuous":
+                if line_style != "continuous":
                     line.set_dashes(colormap[orig_color]["dash"])
                     line.set_marker(colormap[orig_color]["marker"])
                     line.set_markersize(MARKERSIZE)
