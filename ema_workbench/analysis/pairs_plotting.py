@@ -19,15 +19,16 @@ _logger = get_module_logger(__name__)
 def pairs_lines(
     experiments,
     outcomes,
-    outcomes_to_show=[],
+    outcomes_to_show=None,
     group_by=None,
     grouping_specifiers=None,
-    ylabels={},
+    ylabels=None,
     legend=True,
     **kwargs,
 ):
-    """Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
-    lines multiplot. It shows the behavior of two outcomes over time against
+    """Generate a pairs lines multiplot.
+
+    It shows the behavior of two outcomes over time against
     each other. The origin is denoted with a circle and the end is denoted
     with a '+'.
 
@@ -130,7 +131,7 @@ def pairs_lines(
 
 
 def simple_pairs_lines(ax, y_data, x_data, color):
-    """Helper function for generating a simple pairs lines plot
+    """Helper function for generating a simple pairs lines plot.
 
     Parameters
     ----------
@@ -148,19 +149,19 @@ def simple_pairs_lines(ax, y_data, x_data, color):
 def pairs_density(
     experiments,
     outcomes,
-    outcomes_to_show=[],
+    outcomes_to_show=None,
     group_by=None,
     grouping_specifiers=None,
-    ylabels={},
+    ylabels=None,
     point_in_time=-1,
     log=True,
     gridsize=50,
     colormap="coolwarm",
     filter_scalar=True,
 ):
-    """Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
-    hexbin density multiplot. In case of time-series data, the end
-    states are used.
+    """Generate a pairs hexbin density multiplot.
+
+    In case of time-series data, the end states are used.
 
     hexbin makes hexagonal binning plot of x versus y, where x, y are 1-D
     sequences of the same length, N. If C is None (the default), this is a
@@ -272,8 +273,9 @@ def pairs_density(
 
 
 def determine_extents(outcomes, outcomes_to_show):
-    """Helper function used by pairs_density to make sure that multiple groups
-    share the same axes extent.
+    """Helper function used by pairs_density.
+
+    It makes sure that multiple groups share the same axes extent.
 
     Parameters
     ----------
@@ -319,7 +321,7 @@ def simple_pairs_density(
     extents=None,
     title=None,
 ):
-    """Helper function for generating a simple pairs density plot
+    """Helper function for generating a simple pairs density plot.
 
     Parameters
     ----------
@@ -392,17 +394,18 @@ def simple_pairs_density(
 def pairs_scatter(
     experiments,
     outcomes,
-    outcomes_to_show=[],
+    outcomes_to_show=None,
     group_by=None,
     grouping_specifiers=None,
-    ylabels={},
+    ylabels=None,
     legend=True,
     point_in_time=-1,
     filter_scalar=False,
     **kwargs,
 ):
-    """Generate a `R style pairs <https://www.stat.psu.edu/~dhunter/R/html/graphics/html/pairs.html>`_
-    scatter multiplot. In case of time-series data, the end states are used.
+    """Generate a pairs scatter multiplot.
+
+    In case of time-series data, the end states are used.
 
     Parameters
     ----------
@@ -520,8 +523,7 @@ def pairs_scatter(
 
 
 def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
-    """Helper function for setting the tick labels on the axes correctly on and
-    off
+    """Helper function for e the tick labels on the axes on and off.
 
     Parameters
     ----------
@@ -538,10 +540,8 @@ def do_text_ticks_labels(ax, i, j, field1, field2, ylabels, outcomes_to_show):
     # text and labels
     if i == j:
         # only plot the name in the middle
-        if ylabels:
-            text = ylabels[field1]
-        else:
-            text = field1
+
+        text = ylabels[field1] if ylabels else field1
         ax.text(
             0.5,
             0.5,
