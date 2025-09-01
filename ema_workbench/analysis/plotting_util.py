@@ -1,4 +1,4 @@
-"""Plotting utility functions"""
+"""Plotting utility functions."""
 
 import copy
 import enum
@@ -33,27 +33,27 @@ TIME = "TIME"
 
 
 class Density(enum.Enum):
-    """Enum for different types of density plots"""
+    """Enum for different types of density plots."""
 
     KDE = "kde"
-    """constant for plotting density as a kernel density estimate"""
+    """constant for plotting density as a kernel density estimate."""
 
     HIST = "hist"
-    """constant for plotting density as a histogram"""
+    """constant for plotting density as a histogram."""
 
     BOXPLOT = "boxplot"
-    """constant for plotting density as a boxplot"""
+    """constant for plotting density as a boxplot."""
 
     VIOLIN = "violin"
     """constant for plotting density as a violin plot, which combines a
-    Gaussian density estimate with a boxplot"""
+    Gaussian density estimate with a boxplot."""
 
     BOXENPLOT = "boxenplot"
-    """constant for plotting density as a boxenplot"""
+    """constant for plotting density as a boxenplot."""
 
 
 class LegendEnum(enum.Enum):
-    """Enum for different styles of legends"""
+    """Enum for different styles of legends."""
 
     # used for legend
     LINE = "line"
@@ -62,14 +62,16 @@ class LegendEnum(enum.Enum):
 
 
 class PlotType(enum.Enum):
+    """Enum for different types of plots."""
+
     ENVELOPE = "envelope"
-    """constant for plotting envelopes"""
+    """constant for plotting envelopes."""
 
     LINES = "lines"
-    """constant for plotting lines"""
+    """constant for plotting lines."""
 
     ENV_LIN = "env_lin"
-    """constant for plotting envelopes with lines"""
+    """constant for plotting envelopes with lines."""
 
 
 def plot_envelope(ax, j, time, value, fill=False):
@@ -101,7 +103,7 @@ def plot_envelope(ax, j, time, value, fill=False):
 
 
 def plot_histogram(ax, values, log):
-    """Helper function, responsible for plotting a histogram
+    """Helper function, responsible for plotting a histogram.
 
     Parameters
     ----------
@@ -154,7 +156,7 @@ def plot_kde(ax, values, log):
 
 
 def plot_boxplots(ax, values, log, group_labels=None):
-    """Helper function for plotting a boxplot
+    """Helper function for plotting a boxplot.
 
     Parameters
     ----------
@@ -179,7 +181,7 @@ def plot_boxplots(ax, values, log, group_labels=None):
 
     dfs = []
     for k, v in zip(group_labels, values):
-        v = pd.DataFrame(v)
+        v = pd.DataFrame(v) # noqa:PLW2901
         v["id_var"] = k
         dfs.append(v)
     data = pd.concat(dfs)
@@ -188,7 +190,7 @@ def plot_boxplots(ax, values, log, group_labels=None):
 
 
 def plot_violinplot(ax, values, log, group_labels=None):
-    """Helper function for plotting violin plots on axes
+    """Helper function for plotting violin plots on axes.
 
     Parameters
     ----------
@@ -213,7 +215,7 @@ def plot_violinplot(ax, values, log, group_labels=None):
 
 
 def plot_boxenplot(ax, values, log, group_labels=None):
-    """Helper function for plotting boxenplot plots on axes
+    """Helper function for plotting boxenplot plots on axes.
 
     Parameters
     ----------
@@ -237,7 +239,7 @@ def plot_boxenplot(ax, values, log, group_labels=None):
 def group_density(
     ax_d, density, outcomes, outcome_to_plot, group_labels, log=False, index=-1
 ):
-    """Helper function for plotting densities in case of grouped data
+    """Helper function for plotting densities in case of grouped data.
 
     Parameters
     ----------
@@ -275,7 +277,7 @@ def group_density(
 
 
 def simple_density(density, value, ax_d, ax, log):
-    """Helper function, responsible for producing a density plot
+    """Helper function, responsible for producing a density plot.
 
     Parameters
     ----------
@@ -312,7 +314,7 @@ def simple_density(density, value, ax_d, ax, log):
 
 
 def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
-    """Helper function for generating a density heatmap over time
+    """Helper function for generating a density heatmap over time.
 
     Parameters
     ----------
@@ -359,7 +361,7 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
 
 
 def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
-    """Helper function responsible for making the legend
+    """Helper function responsible for making the legend.
 
     Parameters
     ----------
@@ -403,12 +405,7 @@ def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
             )
 
         some_identifiers.append(artist)
-
-        if isinstance(category, tuple):
-            label = "%.2f - %.2f" % category
-        else:
-            label = category
-
+        label = "%.2f - %.2f" % category if isinstance(category, tuple) else category # noqa: UP031
         labels.append(str(label))
 
     ax.legend(
@@ -423,7 +420,7 @@ def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
 
 
 def determine_kde(data, size_kde=1000, ymin=None, ymax=None):
-    """Helper function responsible for performing a KDE
+    """Helper function responsible for performing a KDE.
 
     Parameters
     ----------
@@ -468,8 +465,7 @@ def determine_kde(data, size_kde=1000, ymin=None, ymax=None):
 
 
 def filter_scalar_outcomes(outcomes):
-    """Helper function that removes non time series outcomes from all the
-    outcomes.
+    """Helper function that removes non time series outcomes from all the utcomes.
 
     Parameters
     ----------
@@ -492,7 +488,7 @@ def filter_scalar_outcomes(outcomes):
 
 
 def determine_time_dimension(outcomes):
-    """Helper function for determining or creating time dimension
+    """Helper function for determining or creating time dimension.
 
     Parameters
     ----------
@@ -524,8 +520,9 @@ def determine_time_dimension(outcomes):
 def group_results(
     experiments, outcomes, group_by, grouping_specifiers, grouping_labels
 ):
-    """Helper function that takes the experiments and results and returns a list
-    based on groupings. Each element in the dictionary contains the experiments
+    """Helper function that takes the experiments and results and returns a list based on groupoing.
+
+    Each element in the dictionary contains the experiments
     and results for a particular group, the key is the grouping specifier.
 
     Parameters
@@ -588,7 +585,7 @@ def group_results(
 
         group_outcomes = {}
         for key, value in outcomes.items():
-            value = value[logical]
+            value = value[logical] # noqa: PLW2901
             group_outcomes[key] = value
         groups[label] = (experiments.loc[logical, :], group_outcomes)
 
@@ -596,8 +593,9 @@ def group_results(
 
 
 def make_continuous_grouping_specifiers(array, nr_of_groups=5):
-    """Helper function for discretizing a continuous array. By default, the
-    array is split into 5 equally wide intervals.
+    """Helper function for discretizing a continuous array.
+
+    By default, the array is split into 5 equally wide intervals.
 
     Parameters
     ----------
@@ -636,7 +634,9 @@ def prepare_pairs_data(
     point_in_time=-1,
     filter_scalar=True,
 ):
-    """Parameters
+    """Helper function to prepare the data for pairs plotting.
+
+    Parameters
     ----------
     results : tuple
     outcomes_to_show : list of str, optional. Both None and an empty list indicate that all outcomes should be shown.
@@ -668,6 +668,7 @@ def prepare_pairs_data(
     )
 
     def filter_outcomes(outcomes, point_in_time):
+        """Helper function for filtering outcomes."""
         new_outcomes = {}
         for key, value in outcomes.items():
             if len(value.shape) == 2:
@@ -699,7 +700,7 @@ def prepare_data(
     grouping_specifiers=None,
     filter_scalar=True,
 ):
-    """Helper function for preparing datasets prior to plotting
+    """Helper function for preparing datasets prior to plotting.
 
     Parameters
     ----------
@@ -783,7 +784,7 @@ def prepare_data(
 
 
 def do_titles(ax, titles, outcome):
-    """Helper function for setting the title on an ax
+    """Helper function for setting the title on an ax.
 
     Parameters
     ----------
@@ -808,7 +809,7 @@ def do_titles(ax, titles, outcome):
 
 
 def do_ylabels(ax, ylabels, outcome):
-    """Helper function for setting the y labels on an ax
+    """Helper function for setting the y labels on an ax.
 
     Parameters
     ----------
@@ -833,8 +834,7 @@ def do_ylabels(ax, ylabels, outcome):
 
 
 def make_grid(outcomes_to_show, density=False):
-    """Helper function for making the grid that specifies the size and location
-    of the various axes.
+    """Helper function for making the grid that specifies the size and location of all axes.
 
     Parameters
     ----------
@@ -855,8 +855,9 @@ def make_grid(outcomes_to_show, density=False):
 
 
 def get_color(index):
-    """Helper function for cycling over color list if the number of items
-    is higher than the length of the color list
+    """Helper function for cycling over color list.
+
+    Useful if the number of items is higher than the length of the color list.
     """
     corrected_index = index % len(COLOR_LIST)
     return COLOR_LIST[corrected_index]
