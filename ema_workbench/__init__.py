@@ -1,3 +1,43 @@
+"""main namespace for workbench."""
+
+__all__ = [
+    "ArrayOutcome",
+    "BooleanParameter",
+    "CategoricalParameter",
+    "Constant",
+    "Constraint",
+    "EMAError",
+    "EpsilonIndicatorMetric",
+    "GenerationalDistanceMetric",
+    "HypervolumeMetric",
+    "IntegerParameter",
+    "InvertedGenerationalDistanceMetric",
+    "IpyparallelEvaluator",
+    "MPIEvaluator",
+    "Model",
+    "MultiprocessingEvaluator",
+    "OutputSpaceExploration",
+    "Policy",
+    "RealParameter",
+    "ReplicatorModel",
+    "Samplers",
+    "ScalarOutcome",
+    "Scenario",
+    "SequentialEvaluator",
+    "SpacingMetric",
+    "TimeSeriesOutcome",
+    "em_framework",
+    "ema_logging",
+    "epsilon_nondominated",
+    "load_results",
+    "optimize",
+    "perform_experiments",
+    "process_replications",
+    "save_results",
+    "util",
+    ]
+
+
 from . import em_framework, util
 from .em_framework import (
     ArrayOutcome,
