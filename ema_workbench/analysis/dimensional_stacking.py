@@ -1,15 +1,14 @@
-"""This module provides functionality for doing dimensional stacking of
-uncertain factors in order to reveal patterns in the values for a single
-outcome of interests. It is inspired by the work reported `here <https://www.onepetro.org/conference-paper/SPE-174774-MS>`_
-with one deviation.
+"""This module provides functionality for doing dimensional stacking.
 
-Rather than using association rules to identify the
+It is inspired by the work reported `here <https://www.onepetro.org/conference-paper/SPE-174774-MS>`_
+with one deviation. Rather than using association rules to identify the
 uncertain factors to use, this code uses random forest based feature scoring
 instead. It is also possible to use the code provided here in combination
 with any other feature scoring or factor prioritization technique instead, or
 by simply selecting uncertain factors in some other manner.
 
 """
+import contextlib
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -82,7 +81,7 @@ def discretize(data, nbins=3, with_labels=False):
 
 
 def dim_ratios(axis, figsize):
-    """Get the proportions of the figure taken up by each axes
+    """Get the proportions of the figure taken up by each axes.
 
     adapted from seaborn
     """
@@ -107,9 +106,7 @@ def dim_ratios(axis, figsize):
 
 
 def plot_line(ax, axis, i, lw, length):
-    """Helper function for plotting lines separating bins in the hierarchical
-    index
-    """
+    """Helper function for plotting lines separating bins in the hierarchical index."""
     if axis == 0:
         ax.plot([i, i], [length, 1], lw=lw, color="grey")
     else:
@@ -117,7 +114,7 @@ def plot_line(ax, axis, i, lw, length):
 
 
 def plot_category(ax, axis, i, label, pos, level):
-    """Helper function for plotting label"""
+    """Helper function for plotting label."""
     if axis == 0:
         rot = "horizontal"
         if (level > 0) & (len(str(label)) > 4):
@@ -131,7 +128,7 @@ def plot_category(ax, axis, i, label, pos, level):
 
 
 def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
-    """Helper function for visualizing the hierarchical index
+    """Helper function for visualizing the hierarchical index.
 
     Parameters
     ----------
@@ -149,7 +146,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
 
     """
     for entry in ["bottom", "top", "right", "left"]:
-        ax.spines["bottom"].set_color("grey")
+        ax.spines[entry].set_color("grey")
 
     if axis == 0:
         names = index.names
@@ -223,7 +220,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
             plot_category(ax, axis, 0 + offsets[p] * len(index), last[p], pos, p)
 
     for i, entry in enumerate(indices[1::]):
-        i += 1
+        i += 1  #noqa:PLW2901
         comparison = map(lambda a, b: a == b, entry, last)
 
         for j, item in enumerate(comparison):
@@ -251,7 +248,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
 def plot_pivot_table(
     table, plot_labels=True, plot_cats=True, figsize=(10, 10), cmap="viridis", **kwargs
 ):
-    """Visualize a pivot table using colors
+    """Visualize a pivot table using colors.
 
     Parameters
     ----------
@@ -341,10 +338,8 @@ def _prepare_experiments(experiments):
     ndarray, list
 
     """
-    try:
+    with contextlib.suppress(KeyError):
         experiments = experiments.drop("scenario", axis=1)
-    except KeyError:
-        pass
 
     x = experiments.copy()
 
@@ -366,7 +361,7 @@ def _prepare_experiments(experiments):
 def create_pivot_plot(
     x, y, nr_levels=3, labels=True, categories=True, nbins=3, bin_labels=False
 ):
-    """Convenience function for easily creating a pivot plot
+    """Convenience function for easily creating a pivot plot.
 
     Parameters
     ----------
