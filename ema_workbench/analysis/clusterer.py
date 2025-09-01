@@ -1,5 +1,6 @@
-"""This module provides time series clustering functionality using
-complex invariant distance. For details see `Steinmann et al (2020) <https://doi.org/10.1016/j.techfore.2020.120052>`_
+"""This module provides time series clustering functionality using complex invariant distance.
+
+For details see `Steinmann et al (2020) <https://doi.org/10.1016/j.techfore.2020.120052>`_
 
 """
 
@@ -25,11 +26,12 @@ _logger = get_module_logger(__name__)
 
 
 def CID(xi, xj, ce_i, ce_j):
+    """Calculate Complex Invariant Distance between two points."""
     return np.linalg.norm(xi - xj) * (max(ce_i, ce_j) / min(ce_i, ce_j))
 
 
 def calculate_cid(data, condensed_form=False):
-    """Calculate the complex invariant distance between all rows
+    """Calculate the complex invariant distance between all rows.
 
     Parameters
     ----------
@@ -41,7 +43,6 @@ def calculate_cid(data, condensed_form=False):
     distances
         a 2D ndarray with the distances between all time series, or condensed
         form similar to scipy.spatial.distance.pdist¶
-
 
 
     """
@@ -67,7 +68,7 @@ def calculate_cid(data, condensed_form=False):
 
 
 def plot_dendrogram(distances):
-    """Plot dendrogram for distances"""
+    """Plot dendrogram for distances."""
     if distances.ndim == 2:
         distances = sp.spatial.distance.squareform(distances)
     linked = sp.cluster.hierarchy.linkage(distances)  # @UndefinedVariable
@@ -85,7 +86,7 @@ def plot_dendrogram(distances):
 def apply_agglomerative_clustering(
     distances, n_clusters, metric="precomputed", linkage="average"
 ):
-    """Apply agglomerative clustering to the distances
+    """Apply agglomerative clustering to the distances.
 
     Parameters
     ----------
