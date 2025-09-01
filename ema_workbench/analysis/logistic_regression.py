@@ -56,9 +56,9 @@ def calculate_covden(fitted_model, x, y, step=0.1):
 
 def calculate_covden_for_treshold(predicted, y, threshold):
     """Helper function for calculating coverage and density."""
-    tp = np.sum((predicted > threshold) & (y))
-    fp = np.sum((predicted > threshold) & (not y))
-    fn = np.sum((not (predicted > threshold)) & (y))
+    tp = np.sum((predicted > threshold) & y)
+    fp = np.sum((predicted > threshold) & (np.logical_not(y)))
+    fn = np.sum((np.logical_not(predicted > threshold)) & y)
 
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
