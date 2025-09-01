@@ -1,5 +1,5 @@
-"""Feature scoring functionality"""
-
+"""Feature scoring functionality."""
+import contextlib
 import math
 from operator import itemgetter
 
@@ -53,10 +53,8 @@ def _prepare_experiments(experiments):
     ndarray, list
 
     """
-    try:
+    with contextlib.suppress(KeyError):
         experiments = experiments.drop("scenario", axis=1)
-    except KeyError:
-        pass
 
     x = experiments.copy()
 
@@ -76,8 +74,7 @@ def _prepare_experiments(experiments):
 
 
 def _prepare_outcomes(outcomes, classify):
-    """Transform the outcomes dict into a vector with either the class allocation
-    or the value.
+    """Transform the outcomes dict into a vector with the class allocation or the value.
 
     Parameters
     ----------
@@ -117,9 +114,10 @@ def _prepare_outcomes(outcomes, classify):
 
 
 def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
-    """Calculate feature scores using univariate statistical tests. In case of
-    categorical data, chi square or the Anova F value is used. In case of
-    continuous data the Anova F value is used.
+    """Calculate feature scores using univariate statistical tests.
+
+    In case of categorical data, chi square or the Anova F value is used.
+    In case of continuous data the Anova F value is used.
 
     Parameters
     ----------
@@ -165,7 +163,7 @@ def get_rf_feature_scores(
     oob_score=True,
     random_state=None,
 ):
-    """Get feature scores using a random forest
+    """Get feature scores using a random forest.
 
     Parameters
     ----------
@@ -249,7 +247,7 @@ def get_ex_feature_scores(
     oob_score=True,
     random_state=None,
 ):
-    """Get feature scores using extra trees
+    """Get feature scores using extra trees.
 
     Parameters
     ----------
@@ -351,8 +349,7 @@ algorithms = {
 def get_feature_scores_all(
     x, y, alg="extra trees", mode=RuleInductionType.REGRESSION, **kwargs
 ):
-    """Perform feature scoring for all outcomes using the specified feature
-    scoring algorithm
+    """Perform feature scoring for all outcomes using the specified feature scoring algorithm.
 
     Parameters
     ----------
