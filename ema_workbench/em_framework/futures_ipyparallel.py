@@ -1,7 +1,4 @@
-"""This module provides functionality for combining the EMA workbench
-with IPython parallel.
-
-"""
+"""This module provides functionality for combining the EMA workbench with IPython parallel."""
 
 import collections
 import logging
@@ -39,7 +36,7 @@ _logger = get_module_logger(__name__)
 
 
 class EngingeLoggerAdapter(logging.LoggerAdapter):
-    """LoggerAdapter that inserts EMA as a topic into log messages
+    """LoggerAdapter that inserts EMA as a topic into log messages.
 
     Parameters
     ----------
@@ -49,16 +46,18 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
     """
 
     def __init__(self, logger, topic):
+        """Init."""
         super().__init__(logger, None)
         self.topic = topic
 
     def process(self, msg, kwargs):
+        """Process the log message."""
         msg = f"{self.topic}::{msg}"
         return msg, kwargs
 
 
 def start_logwatcher():
-    """Convenience function for starting the LogWatcher
+    """Convenience function for starting the LogWatcher.
 
     Returns:
     -------
@@ -89,7 +88,8 @@ def start_logwatcher():
 
 
 def set_engine_logger():
-    """Updates EMA logging on the engines with an EngineLoggerAdapter
+    """Updates EMA logging on the engines with an EngineLoggerAdapter.
+
     This adapter injects EMA as a topic into all messages
     """
     logger = Application.instance().log
@@ -106,7 +106,7 @@ def set_engine_logger():
 
 
 def get_engines_by_host(client):
-    """Returns the engine ids by host
+    """Returns the engine ids by host.
 
     Parameters
     ----------
@@ -128,10 +128,9 @@ def get_engines_by_host(client):
 
 
 def update_cwd_on_all_engines(client):
-    """Updates the current working directory on the engines to point to the
-    same working directory as this notebook
+    """Updates cwd on the engines to point to the same working directory as the notebook.
 
-    currently only works if engines are on same machine.
+    Currently only works if engines are on same machine.
 
     Parameters
     ----------
@@ -153,7 +152,9 @@ def update_cwd_on_all_engines(client):
 
 
 class LogWatcher(LoggingConfigurable):
-    """A simple class that receives messages on a SUB socket, as published
+    """Helper class for handling logging.
+
+    A simple class that receives messages on a SUB socket, as published
     by subclasses of `zmq.log.handlers.PUBHandler`, and logs them itself.
 
     This can subscribe to multiple topics, but defaults to all topics.
@@ -172,15 +173,19 @@ class LogWatcher(LoggingConfigurable):
     loop = Instance("tornado.ioloop.IOLoop")  # @UndefinedVariable
 
     def _url_default(self):
+        """Default url."""
         return f"tcp://{localhost()}:20202"
 
     def _context_default(self):
+        """Default context."""
         return zmq.Context.instance()
 
     def _loop_default(self):
+        """Default io loop."""
         return ioloop.IOLoop.instance()
 
     def __init__(self, **kwargs):
+        """Init."""
         super().__init__(**kwargs)
         self.s = self.context.socket(zmq.SUB)  # @UndefinedVariable
         self.s.bind(self.url)
@@ -189,9 +194,11 @@ class LogWatcher(LoggingConfigurable):
         self.observe(self.subscribe, "topics")
 
     def start(self):
+        """Start the log watcher."""
         self.stream.on_recv(self.log_message)
 
     def stop(self):
+        """Stop the log watcher."""
         self.stream.setsockopt(zmq.UNSUBSCRIBE, b"")  # @UndefinedVariable
         self.stream.stop_on_recv()
         self.s.close()
@@ -209,9 +216,9 @@ class LogWatcher(LoggingConfigurable):
                 self.stream.setsockopt(zmq.SUBSCRIBE, topic)
 
     def _extract_level(self, topic_str):
-        """Turn 'engine.0.INFO.extra' into (logging.INFO, 'engine.0.extra')"""
+        """Turn 'engine.0.INFO.extra' into (logging.INFO, 'engine.0.extra')."""
         topics = topic_str.split(".")
-        for idx, t in enumerate(topics):
+        for idx, t in enumerate(topics):  # noqa: B007
             level = getattr(logging, t, None)
             if level is not None:
                 break
@@ -248,7 +255,9 @@ class LogWatcher(LoggingConfigurable):
 
 
 class Engine:
-    """class for setting up ema specific stuff on each engine
+    """Engine class.
+
+    class for setting up ema specific stuff on each engine
     also functions as a convenient namespace for workbench
     relevant variables
 
@@ -261,6 +270,7 @@ class Engine:
     """
 
     def __init__(self, engine_id, msis, cwd):
+        """Init."""
         _logger.debug(f"starting engine {engine_id}")
         self.engine_id = engine_id
         self.msis = msis
@@ -275,24 +285,25 @@ class Engine:
         self.tmpdir = setup_working_directories(msis, os.getcwd())
 
     def cleanup_working_directory(self):
-        """Remove the root working directory of the engine"""
+        """Remove the root working directory of the engine."""
         if self.tmpdir:
             shutil.rmtree(self.tmpdir)
 
     def run_experiment(self, experiment):
-        """Run the experiment, the actual running is delegated
-        to an ExperimentRunner instance
+        """Run the experiment.
+
+        The actual running is delegated to an ExperimentRunner instance
         """
         try:
             return self.runner.run_experiment(experiment)
         except ema_exceptions.EMAError:
             raise
-        except Exception:
-            raise ema_exceptions.EMAParallelError(str(Exception))
+        except Exception as e:
+            raise ema_exceptions.EMAParallelError(str(Exception)) from e
 
 
 def initialize_engines(client, msis, cwd):
-    """Initialize engine instances on all engines
+    """Initialize engine instances on all engines.
 
     Parameters
     ----------
@@ -307,7 +318,7 @@ def initialize_engines(client, msis, cwd):
 
 
 def cleanup(client):
-    """Cleanup directory tree structure on all engines"""
+    """Cleanup directory tree structure on all engines."""
     client[:].apply_sync(_cleanup)
 
 
@@ -315,39 +326,41 @@ def cleanup(client):
 # these functions are wrappers around the relevant Engine methods
 # the engine instance is part of the namespace of the module.
 def _run_experiment(experiment):
-    """Wrapper function for engine.run_experiment"""
+    """Wrapper function for engine.run_experiment."""
     return experiment, engine.run_experiment(experiment)
 
 
 def _initialize_engine(engine_id, msis, cwd):
-    """Wrapper function for initializing an engine"""
-    global engine
+    """Wrapper function for initializing an engine."""
+    global engine # noqa PLW0603
     engine = Engine(engine_id, msis, cwd)
 
 
 def _cleanup():
-    """Wrapper function for engine.cleanup_working_directory"""
-    global engine
+    """Wrapper function for engine.cleanup_working_directory."""
+    global engine #noqa: PLW0603
     engine.cleanup_working_directory()
     del engine
 
 
 class IpyparallelEvaluator(BaseEvaluator):
-    """evaluator for using an ipypparallel pool"""
+    """evaluator for using an ipypparallel pool."""
 
     def __init__(self, msis, client, **kwargs):
+        """Init."""
         super().__init__(msis, **kwargs)
         self.client = client
 
     def initialize(self):
+        """Initialize the pool."""
         import ipyparallel
 
         _logger.debug("starting ipyparallel pool")
 
         try:
-            TIMEOUT_MAX = threading.TIMEOUT_MAX
+            TIMEOUT_MAX = threading.TIMEOUT_MAX # noqa: N806
         except AttributeError:
-            TIMEOUT_MAX = 1e10  # noqa
+            TIMEOUT_MAX = 1e10  # noqa: N806
         ipyparallel.client.asyncresult._FOREVER = TIMEOUT_MAX
         # update loggers on all engines
         self.client[:].apply_sync(set_engine_logger)
@@ -363,12 +376,14 @@ class IpyparallelEvaluator(BaseEvaluator):
         return self
 
     def finalize(self):
+        """Finalize the pool."""
         self.logwatcher.stop()
         cleanup(self.client)
 
     def evaluate_experiments(
         self, scenarios, policies, callback, combine="factorial", **kwargs
     ):
+        """Evaluate experiments."""
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
 
         lb_view = self.client.load_balanced_view()
