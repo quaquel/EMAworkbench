@@ -124,6 +124,7 @@ extend-ignore = [
   "S603",   # `subprocess` call: check for execution of untrusted input
   "ISC001", # ruff format asks to disable this feature
   "S311",   # Standard pseudo-random generators are not suitable for cryptographic purposes
+  "SIM105", # I prefer explicit try, pass over contextlib in most cases for readability
 ]
 # Ignore all docstring errors in examples and tutorials
 per-file-ignores = {"mesa/examples/*"= ["D"], "docs/tutorials/*" = ["D", "E", "F", "N"], "docs/conf.py"=["C", "D", "DTZ011", "E"]}
