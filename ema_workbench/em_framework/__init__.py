@@ -1,3 +1,5 @@
+"""em_framework namespace."""
+
 import warnings
 
 __all__ = [
@@ -8,18 +10,22 @@ __all__ = [
     "Category",
     "Constant",
     "Constraint",
+    "Convergence",
     "EpsilonIndicatorMetric",
     "EpsilonProgress",
     "ExperimentReplication",
     "FASTSampler",
     "FileModel",
+    "FullFactorialSampler",
     "GenerationalDistanceMetric",
     "HypervolumeMetric",
     "IntegerParameter",
     "InvertedGenerationalDistanceMetric",
     "IpyparallelEvaluator",
+    "LHSSampler",
     "MPIEvaluator",
     "Model",
+    "MonteCarloSampler",
     "MorrisSampler",
     "MultiprocessingEvaluator",
     "OutputSpaceExploration",
@@ -55,7 +61,7 @@ from .evaluators import (
     optimize,
     perform_experiments,
 )
-from .model import FileModel, Model, Replicator, ReplicatorModel, SingleReplication
+from .model import FileModel, Model, ReplicatorModel
 from .optimization import (
     ArchiveLogger,
     Convergence,
@@ -81,21 +87,18 @@ from .parameters import (
     parameters_from_csv,
     parameters_to_csv,
 )
-from .points import ExperimentReplication, Point, Policy, Scenario, experiment_generator
+from .points import ExperimentReplication, Policy, Scenario
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler, get_SALib_problem
 from .samplers import (
     FullFactorialSampler,
     LHSSampler,
     MonteCarloSampler,
-    sample_levers,
-    sample_parameters,
-    sample_uncertainties,
 )
 
 try:
     from .futures_ipyparallel import IpyparallelEvaluator
 except ImportError:
-    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
+    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available", stacklevel=2)
     IpyparallelEvaluator = None
 
 from .futures_mpi import MPIEvaluator
