@@ -1,4 +1,4 @@
-"""Samplers for working with SALib"""
+"""Samplers for working with SALib."""
 
 import operator
 import warnings
@@ -11,7 +11,7 @@ from .samplers import DefaultDesigns
 try:
     from SALib.sample import fast_sampler, morris, sobol
 except ImportError:
-    warnings.warn("SALib samplers not available", ImportWarning)
+    warnings.warn("SALib samplers not available", ImportWarning, stacklevel=2)
     sobol = morris = fast_sampler = None
 
 # Created on 12 Jan 2017
@@ -22,7 +22,7 @@ __all__ = ["FASTSampler", "MorrisSampler", "SobolSampler", "get_SALib_problem"]
 
 
 def get_SALib_problem(uncertainties):
-    """Returns a dict with a problem specification as required by SALib"""
+    """Returns a dict with a problem specification as required by SALib."""
     _warning = False
     uncertainties = sorted(uncertainties, key=operator.attrgetter("name"))
     bounds = []
@@ -44,8 +44,12 @@ def get_SALib_problem(uncertainties):
 
 
 class SALibSampler:
+    """Base wrapper class for SALib samplers."""
+
     def generate_samples(self, uncertainties, size):
-        """The main method of :class: `~sampler.Sampler` and its
+        """Generate samples.
+
+        The main method of :class: `~sampler.Sampler` and its
         children. This will call the sample method for each of the
         uncertainties and return the resulting designs.
 
@@ -76,9 +80,10 @@ class SALibSampler:
         return temp
 
     def generate_designs(self, parameters, nr_samples):
-        """External interface to sampler. Returns the computational
-        experiments over the specified parameters, for the given number
-        of samples for each parameter.
+        """External interface to sampler.
+
+        Returns the computational experiments over the specified parameters,
+        for the given number of samples for each parameter.
 
         Parameters
         ----------
@@ -111,7 +116,7 @@ class SALibSampler:
 
 
 class SobolSampler(SALibSampler):
-    """Sampler generating a Sobol design using SALib
+    """Sampler generating a Sobol design using SALib.
 
     Parameters
     ----------
@@ -120,18 +125,18 @@ class SobolSampler(SALibSampler):
 
     """
 
-    def __init__(self, second_order=True):
+    def __init__(self, second_order=True): # noqa: D107
         self.second_order = second_order
         self._warning = False
 
         super().__init__()
 
-    def sample(self, problem, size):
+    def sample(self, problem, size):  # noqa: D102
         return sobol.sample(problem, size, calc_second_order=self.second_order)
 
 
 class MorrisSampler(SALibSampler):
-    """Sampler generating a morris design using SALib
+    """Sampler generating a morris design using SALib.
 
     Parameters
     ----------
@@ -147,15 +152,13 @@ class MorrisSampler(SALibSampler):
         Stating this variable to be true causes the function to ignore gurobi.
     """
 
-    def __init__(
-        self, num_levels=4, optimal_trajectories=None, local_optimization=True
-    ):
+    def __init__(self, num_levels=4, optimal_trajectories=None, local_optimization=True):  # noqa: D107
         super().__init__()
         self.num_levels = num_levels
         self.optimal_trajectories = optimal_trajectories
         self.local_optimization = local_optimization
 
-    def sample(self, problem, size):
+    def sample(self, problem, size):  # noqa: D102
         return morris.sample(
             problem,
             size,
@@ -166,8 +169,7 @@ class MorrisSampler(SALibSampler):
 
 
 class FASTSampler(SALibSampler):
-    """Sampler generating a Fourier Amplitude Sensitivity Test (FAST) using
-    SALib
+    """Sampler generating a Fourier Amplitude Sensitivity Test (FAST).
 
     Parameters
     ----------
@@ -176,9 +178,9 @@ class FASTSampler(SALibSampler):
         Fourier series decomposition
     """
 
-    def __init__(self, m=4):
+    def __init__(self, m=4):  # noqa: D107
         super().__init__()
         self.m = m
 
-    def sample(self, problem, size):
+    def sample(self, problem, size):  # noqa: D102
         return fast_sampler.sample(problem, size, self.m)
