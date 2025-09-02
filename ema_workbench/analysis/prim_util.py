@@ -1,4 +1,4 @@
-"""Collection of utility functions used by PRIM module"""
+"""Collection of utility functions used by PRIM module."""
 
 import math
 from enum import Enum
@@ -16,29 +16,32 @@ _logger = get_module_logger(__name__)
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
-class PrimException(Exception):
-    """Base exception class for prim related exceptions"""
+class PrimException(Exception): #noqa: N818
+    """Base exception class for prim related exceptions."""
 
 
 class PRIMObjectiveFunctions(Enum):
+    """Enum for the prim objectives functions."""
     LENIENT2 = "lenient2"
     LENIENT1 = "lenient1"
     ORIGINAL = "original"
 
 
 class DiagKind(Enum):
+    """Enum for the type of diagonal plot in pairwise scatter plots."""
+
     KDE = "kde"
-    """constant for plotting diagonal in pairs_scatter as kde"""
+    """constant for plotting diagonal in pairs_scatter as kde."""
 
     CDF = "cdf"
-    """constant for plotting diagonal in pairs_scatter as cdf"""
+    """constant for plotting diagonal in pairs_scatter as cdf."""
 
-    def __contains__(cls, item):
+    def __contains__(cls, item): # noqa: D105 N805
         return item in cls.__members__.values()
 
 
 def get_quantile(data, quantile):
-    """Quantile calculation modeled on the implementation used in sdtoolkit
+    """Quantile calculation modeled on the implementation used in sdtoolkit.
 
     Parameters
     ----------
@@ -76,22 +79,21 @@ def get_quantile(data, quantile):
 
 
 class CurEntry:
-    """a descriptor for the current entry on the peeling and pasting
-    trajectory
-    """
+    """a descriptor for the current entry on the peeling and pasting trajectory."""
 
     def __init__(self, name):
+        """Init."""
         self.name = name
 
-    def __get__(self, instance, _):
+    def __get__(self, instance, _):  # noqa: D105
         return instance.peeling_trajectory[self.name][instance._cur_box]
 
-    def __set__(self, instance, value):
+    def __set__(self, instance, value): # noqa: D105
         raise PrimException("this property cannot be assigned to")
 
 
-def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
-    """Helper function for calculating quasi p-values"""
+def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim): # noqa: N803
+    """Helper function for calculating quasi p-values."""
     if data.size == 0:
         return [-1, -1]
 
@@ -120,7 +122,7 @@ def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):
 
 
 def rotate_subset(experiments, y):
-    """Rotate a subset
+    """Rotate a subset.
 
     Parameters
     ----------
@@ -152,7 +154,7 @@ def rotate_subset(experiments, y):
 
 
 def determine_rotation(experiments):
-    """Determine the rotation for the specified experiments
+    """Determine the rotation for the specified experiments.
 
     Parameters
     ----------
@@ -182,6 +184,8 @@ def determine_rotation(experiments):
 
 
 def determine_dimres(box, issignificant=True, significance_threshold=0.1):
+    """Helper function for determining the restricted dimensions."""
+
     def is_significant(v):
         for entry in v:
             if (entry >= 0) & (entry <= significance_threshold):
@@ -198,6 +202,7 @@ def determine_dimres(box, issignificant=True, significance_threshold=0.1):
 
 
 def box_to_tuple(box):
+    """Helper function for converting box limits to tuple."""
     names = box.columns
     sorted(names)
     tupled_box = []
@@ -206,7 +211,7 @@ def box_to_tuple(box):
         formatted = []
         for entry in values:
             if isinstance(entry, set):
-                entry = tuple(entry)
+                entry = tuple(entry) # noqa: PLW2901
             formatted.append(entry)
         tupled_box += tuple(formatted)
     tupled_box = tuple(tupled_box)
@@ -214,10 +219,13 @@ def box_to_tuple(box):
 
 
 class NotSeen:
+    """Helper class."""
+
     def __init__(self):
+        """Init."""
         self.seen = set()
 
-    def __call__(self, box):
+    def __call__(self, box): # noqa: D102
         tupled = box_to_tuple(box)
         if tupled in self.seen:
             return False
@@ -227,21 +235,24 @@ class NotSeen:
 
 
 def is_significant(box, i, alpha=0.05):
+    """Check if quasi-p values are significant."""
     qp = box.qp[i]
     return not any(value > alpha for values in qp.values() for value in values)
 
 
 def is_pareto_efficient(data):
+    """Check if a given datapoint is pareto efficient."""
     fronts = calc_fronts(data)
     return fronts == 0
 
 
-def calc_fronts(M):
+def calc_fronts(boxes):
+    """Non dominated sort."""
     # taken from
     # https://stackoverflow.com/questions/41740596/pareto-frontier-indices-using-numpy
-    i_dominates_j = np.all(M[:, None] >= M, axis=-1) & np.any(M[:, None] > M, axis=-1)
-    remaining = np.arange(len(M))
-    fronts = np.empty(len(M), int)
+    i_dominates_j = np.all(boxes[:, None] >= boxes, axis=-1) & np.any(boxes[:, None] > boxes, axis=-1)
+    remaining = np.arange(len(boxes))
+    fronts = np.empty(len(boxes), int)
     frontier_index = 0
     while remaining.size > 0:
         dominated = np.any(i_dominates_j[remaining[:, None], remaining], axis=0)
