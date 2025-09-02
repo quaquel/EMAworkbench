@@ -1,5 +1,6 @@
-"""This module contains various classes that can be used for specifying different
-types of samplers. These different samplers implement basic sampling
+"""This module contains various classes specifying different types of samplers.
+
+These different samplers implement basic sampling
 techniques including Full Factorial sampling, Latin Hypercube sampling, and
 Monte Carlo sampling.
 
@@ -48,8 +49,10 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 
     """
 
+    @abc.abstractmethod
     def sample(self, distribution, size):
         """Method for sampling a number of samples from a particular distribution.
+
         The various samplers differ with respect to their implementation of
         this method.
 
@@ -67,8 +70,9 @@ class AbstractSampler(metaclass=abc.ABCMeta):
         """
 
     def generate_samples(self, parameters, size):
-        """The main method of :class: `~sampler.Sampler` and its
-        children. This will call the sample method for each of the
+        """The main method of :class: `~sampler.Sampler` and its children.
+
+        This will call the sample method for each of the
         parameters and return the resulting designs.
 
         Parameters
@@ -91,9 +95,10 @@ class AbstractSampler(metaclass=abc.ABCMeta):
         return {param.name: self.sample(param.dist, size) for param in parameters}
 
     def generate_designs(self, parameters, nr_samples):
-        """External interface for Sampler. Returns the computational experiments
-        over the specified parameters, for the given number of samples for each
-        parameter.
+        """External interface for Sampler.
+
+        Returns the computational experiments over the specified parameters,
+        for the given number of samples for each parameter.
 
         Parameters
         ----------
@@ -122,7 +127,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 
 
 class LHSSampler(AbstractSampler):
-    """generates a Latin Hypercube sample for each of the parameters"""
+    """generates a Latin Hypercube sample for each of the parameters."""
 
     def sample(self, distribution, size):
         """Generate a Latin Hypercube Sample.
@@ -148,14 +153,18 @@ class LHSSampler(AbstractSampler):
         # corner case fix (try siz=49)
         # is not a proper fix, it means that perc is wrong
         # so your intervals are wrong
-        samples = samples[np.isnan(samples) == False]
+        samples = samples[np.isnan(samples) == False] # noqa: E712
 
         return samples
 
 
 class UniformLHSSampler(LHSSampler):
+    """LHS sampler assuming uniform distributions."""
+
     def generate_samples(self, parameters, size):
-        """Parameters
+        """Generate samples.
+
+        Parameters
         ----------
         parameters : collection
         size : int
@@ -232,7 +241,7 @@ class UniformLHSSampler(LHSSampler):
 
 
 class MonteCarloSampler(AbstractSampler):
-    """generates a Monte Carlo sample for each of the parameters."""
+    """Monte Carlo sampler for each of the parameters."""
 
     def sample(self, distribution, size):
         """Generate a Monte Carlo Sample.
@@ -253,17 +262,18 @@ class MonteCarloSampler(AbstractSampler):
 
 
 class FullFactorialSampler(AbstractSampler):
-    """generates a full factorial sample.
+    """Generates a full factorial sample.
 
-    If the parameter is non categorical, the resolution is set the
+    If the parameter is non-categorical, the resolution is set the
     number of samples. If the parameter is categorical, the specified value
     for samples will be ignored and each category will be used instead.
 
     """
 
     def generate_samples(self, parameters, size):
-        """The main method of :class: `~sampler.Sampler` and its
-        children. This will call the sample method for each of the
+        """Generate FF samples.
+
+        This will call the sample method for each of the
         parameters and return the resulting samples
 
         Parameters
@@ -294,9 +304,7 @@ class FullFactorialSampler(AbstractSampler):
         return samples
 
     def generate_designs(self, parameters, nr_samples):
-        """This method provides an alternative implementation to the default
-        implementation provided by :class:`~sampler.Sampler`. This
-        version returns a full factorial design across the parameters.
+        """Returns a full factorial design across the parameters.
 
         Parameters
         ----------
@@ -328,8 +336,9 @@ class FullFactorialSampler(AbstractSampler):
         return designs
 
     def determine_nr_of_designs(self, sampled_parameters):
-        """Helper function for determining the number of experiments that will
-        be generated given the sampled parameters.
+        """Helper method for determining the number of experiments.
+
+        Based on the given parameters.
 
         Parameters
         ----------
@@ -448,7 +457,7 @@ class FullFactorialSampler(AbstractSampler):
 
 
 def determine_parameters(models, attribute, union=True):
-    """Determine the parameters over which to sample
+    """Determine the parameters over which to sample.
 
     Parameters
     ----------
@@ -466,8 +475,8 @@ def determine_parameters(models, attribute, union=True):
     return util.determine_objects(models, attribute, union=union)
 
 
-def sample_parameters(parameters, n_samples, sampler=LHSSampler(), kind=Point):
-    """Generate cases by sampling over the parameters
+def sample_parameters(parameters, n_samples, sampler=None, kind=Point):
+    """Generate cases by sampling over the parameters.
 
     Parameters
     ----------
@@ -482,14 +491,16 @@ def sample_parameters(parameters, n_samples, sampler=LHSSampler(), kind=Point):
     generator yielding Case, Scenario, or Policy instances
 
     """
+    if sampler is None:
+        sampler = LHSSampler()
     samples = sampler.generate_designs(parameters, n_samples)
     samples.kind = kind
 
     return samples
 
 
-def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
-    """Generate policies by sampling over the levers
+def sample_levers(models, n_samples, union=True, sampler=None):
+    """Generate policies by sampling over the levers.
 
     Parameters
     ----------
@@ -505,6 +516,8 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     generator yielding Policy instances
 
     """
+    if sampler is None:
+        sampler = LHSSampler()
     levers = determine_parameters(models, "levers", union=union)
 
     if not levers:
@@ -515,8 +528,8 @@ def sample_levers(models, n_samples, union=True, sampler=LHSSampler()):
     return sample_parameters(levers, n_samples, sampler, Policy)
 
 
-def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
-    """Generate scenarios by sampling over the uncertainties
+def sample_uncertainties(models, n_samples, union=True, sampler=None):
+    """Generate scenarios by sampling over the uncertainties.
 
     Parameters
     ----------
@@ -532,6 +545,8 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
     generator yielding Scenario instances
 
     """
+    if sampler is None:
+        sampler = LHSSampler()
     uncertainties = determine_parameters(models, "uncertainties", union=union)
 
     if not uncertainties:
@@ -579,7 +594,7 @@ def sample_uncertainties(models, n_samples, union=True, sampler=LHSSampler()):
 
 
 def from_experiments(models, experiments):
-    """Generate scenarios from an existing experiments DataFrame
+    """Generate scenarios from an existing experiments DataFrame.
 
     Parameters
     ----------
@@ -613,9 +628,9 @@ def from_experiments(models, experiments):
 
 
 class DefaultDesigns:
-    """iterable for the experimental designs"""
+    """iterable for the experimental designs."""
 
-    def __init__(self, designs, parameters, n):
+    def __init__(self, designs, parameters, n):  # noqa: D107
         self.designs = list(designs)
         self.parameters = parameters
         self.params = [p.name for p in parameters]
@@ -624,10 +639,10 @@ class DefaultDesigns:
 
     @abc.abstractmethod
     def __iter__(self):
-        """Should return iterator"""
+        """Should return iterator."""
         return design_generator(self.designs, self.parameters, self.kind)
 
-    def __str__(self):
+    def __str__(self):  # noqa: D105
         return f"ema_workbench.DefaultDesigns, {self.n} designs on {len(self.params)} parameters"
 
 
@@ -687,8 +702,7 @@ class DefaultDesigns:
 
 
 def design_generator(designs, params, kind):
-    """Generator that combines the sampled parameters with their correct
-    name in order to return dicts.
+    """Generator that combines the sampled parameters with their correct name to return dicts.
 
     Parameters
     ----------
@@ -706,13 +720,13 @@ def design_generator(designs, params, kind):
         design_dict = {}
         for param, value in zip(params, design):
             if isinstance(param, IntegerParameter):
-                value = int(value)
+                value = int(value) # noqa: PLW2901
             if isinstance(param, BooleanParameter):
-                value = bool(value)
+                value = bool(value) # noqa: PLW2901
             if isinstance(param, CategoricalParameter):
                 # categorical parameter is an integer parameter, so
                 # conversion to int is already done
-                value = param.cat_for_index(value).value
+                value = param.cat_for_index(value).value # noqa: PLW2901
 
             design_dict[param.name] = value
 
