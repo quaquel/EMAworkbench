@@ -101,11 +101,6 @@ class ExperimentRunner:
             except Exception as e2:
                 raise e2
 
-            #             exception = traceback.print_exc()
-            #             if exception:
-            #                 sys.stderr.write(exception)
-            #                 sys.stderr.write("\n")
-
             errortype = type(e).__name__
             raise EMAError(f"Exception in run_model\nCaused by: {errortype}: {e!s}") from e
 
