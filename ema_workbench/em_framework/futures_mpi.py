@@ -1,3 +1,5 @@
+"""Support for MPI evaluators."""
+
 import atexit
 import logging
 import os
@@ -22,19 +24,22 @@ experiment_runner = None
 
 
 class RankFilter(logging.Filter):
-    """Filter for adding mpi rank to log message"""
+    """Filter for adding mpi rank to log message."""
 
     def __init__(self, rank):
+        """Init."""
         super().__init__()
         self.rank = rank
 
     def filter(self, record):
+        """Filter records."""
         record.rank = self.rank
         return True
 
 
 def mpi_initializer(models, log_level, root_dir):
-    global experiment_runner
+    """Initalizer."""
+    global experiment_runner # noqa: PLW0603
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
@@ -67,6 +72,7 @@ def mpi_initializer(models, log_level, root_dir):
 
 
 def logwatcher(start_event, stop_event):
+    """Logwatcher function."""
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
@@ -105,6 +111,7 @@ def logwatcher(start_event, stop_event):
 
 
 def run_experiment_mpi(experiment):
+    """Run a single experiment."""
     _logger.debug(f"starting {experiment.experiment_id}")
 
     outcomes = experiment_runner.run_experiment(experiment)
@@ -115,7 +122,8 @@ def run_experiment_mpi(experiment):
 
 
 def send_sentinel():
-    record = logging.makeLogRecord(dict(level=logging.CRITICAL, msg=None, name=42))
+    """Send sentinel to ensure logging is closed down."""
+    record = logging.makeLogRecord({"level":logging.CRITICAL, "msg":None, "name":42})
 
     for handler in get_rootlogger().handlers:
         if isinstance(handler, MPIHandler):
@@ -124,7 +132,7 @@ def send_sentinel():
 
 
 class MPIHandler(QueueHandler):
-    """This handler sends events from the worker process to the master process"""
+    """This handler sends events from the worker process to the master process."""
 
     def __init__(self, communicator):
         """Initialise an instance, using the passed queue."""
@@ -144,14 +152,15 @@ class MPIHandler(QueueHandler):
 
 
 class MPIEvaluator(BaseEvaluator):
-    """Evaluator for experiments using MPI Pool Executor from mpi4py"""
+    """Evaluator for experiments using MPI Pool Executor from mpi4py."""
 
     def __init__(self, msis, n_processes=None, **kwargs):
+        """Init."""
         super().__init__(msis, **kwargs)
         warnings.warn(
             "The MPIEvaluator is experimental. Its interface and functionality might change in future releases.\n"
             "We welcome your feedback at: https://github.com/quaquel/EMAworkbench/discussions/311",
-            FutureWarning,
+            FutureWarning, stacklevel=2,
         )
         self._pool = None
         self.root_dir = None
@@ -160,6 +169,7 @@ class MPIEvaluator(BaseEvaluator):
 
     @method_logger(__name__)
     def initialize(self):
+        """Initialize the MPI pool."""
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
         from mpi4py.futures import MPIPoolExecutor
 
@@ -194,6 +204,7 @@ class MPIEvaluator(BaseEvaluator):
 
     @method_logger(__name__)
     def finalize(self):
+        """Finalize the MPIPoolExecutor."""
         # submit sentinel
         self.stop_event.set()
         self._pool.submit(send_sentinel)
@@ -213,6 +224,7 @@ class MPIEvaluator(BaseEvaluator):
     def evaluate_experiments(
         self, scenarios, policies, callback, combine="factorial", **kwargs
     ):
+        """Evaluate experiments using MPIPoolExecutor."""
         experiments = list(
             experiment_generator(scenarios, self._msis, policies, combine=combine)
         )
