@@ -1,4 +1,4 @@
-"""support for using the multiprocessing library in combination with the workbench"""
+"""support for using the multiprocessing library in combination with the workbench."""
 
 import logging
 import multiprocessing
@@ -28,7 +28,7 @@ _logger = get_module_logger(__name__)
 
 
 def initializer(*args):
-    """Initializer for a worker process
+    """Initializer for a worker process.
 
     Parameters
     ----------
@@ -40,7 +40,7 @@ def initializer(*args):
     * setting up the working directory
     * setting up the logging
     """
-    global experiment_runner, current_process
+    global experiment_runner, current_process  # noqa: PLW0603
 
     current_process = multiprocessing.current_process()
     models, queue, log_level, root_dir = args
@@ -70,8 +70,7 @@ def initializer(*args):
 
 
 def setup_logging(queue, log_level):
-    """Helper function for enabling logging from the workers to the main
-    process
+    """Helper function for enabling logging from the workers to the main process.
 
     Parameters
     ----------
@@ -94,7 +93,7 @@ def setup_logging(queue, log_level):
 
 
 def worker(experiment):
-    """The worker function for executing an individual experiment
+    """The worker function for executing an individual experiment.
 
     Parameters
     ----------
@@ -105,7 +104,7 @@ def worker(experiment):
 
 
 class LogQueueReader(threading.Thread):
-    """thread to write subprocesses log records to main process log
+    """thread to write subprocesses log records to main process log.
 
     This thread reads the records written by subprocesses and writes them to
     the handlers defined in the main process's handlers.
@@ -123,7 +122,7 @@ class LogQueueReader(threading.Thread):
         self.daemon = True
 
     def run(self):
-        """Read from the queue and write to the log handlers
+        """Read from the queue and write to the log handlers.
 
         The logging documentation says logging is thread safe, so there
         shouldn't be contention between normal logging (from the main
@@ -153,7 +152,10 @@ class LogQueueReader(threading.Thread):
 
 
 class ExperimentFeeder(threading.Thread):
+    """Thread for feeding experiments to pool."""
+
     def __init__(self, pool, results_queue, experiments):
+        """Init."""
         threading.Thread.__init__(self, name="task feeder")
         self.pool = pool
         self.experiments = experiments
@@ -162,19 +164,24 @@ class ExperimentFeeder(threading.Thread):
         self.daemon = True
 
     def run(self):
+        """Run the task feeder."""
         for experiment in self.experiments:
             result = self.pool.apply_async(worker, [experiment])
             self.results_queue.put(result)
 
 
 class ResultsReader(threading.Thread):
+    """Thread for reading results from the results queue."""
+
     def __init__(self, queue, callback):
+        """Init."""
         threading.Thread.__init__(self, name="results reader")
         self.queue = queue
         self.callback = callback
         self.daemon = True
 
     def run(self):
+        """Run the results reader."""
         while True:
             try:
                 result = self.queue.get()
@@ -195,7 +202,7 @@ class ResultsReader(threading.Thread):
 
 
 def add_tasks(n_processes, pool, experiments, callback):
-    """Add experiments to pool
+    """Add experiments to pool.
 
     Parameters
     ----------
@@ -220,7 +227,7 @@ def add_tasks(n_processes, pool, experiments, callback):
 
 
 class MultiprocessingEvaluator(BaseEvaluator):
-    """evaluator for experiments using a multiprocessing pool
+    """Evaluator for experiments using a multiprocessing pool.
 
     Parameters
     ----------
@@ -237,6 +244,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
     """
 
     def __init__(self, msis, n_processes=None, maxtasksperchild=None, **kwargs):
+        """Init."""
         super().__init__(msis, **kwargs)
         self.root_dir = None
         self._pool = None
@@ -253,7 +261,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
                 if max_processes < n_processes:
                     warnings.warn(
                         f"The number of processes cannot be more then {max_processes}",
-                        UserWarning,
+                        UserWarning, stacklevel=2
                     )
                 self.n_processes = min(n_processes, max_processes)
             else:
@@ -268,6 +276,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
         self.maxtasksperchild = maxtasksperchild
 
     def initialize(self):
+        """Initialize the multiprocessing pool."""
         log_queue = multiprocessing.Queue()
 
         log_queue_reader = LogQueueReader(log_queue)
@@ -292,6 +301,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Context handler for exit."""
         _logger.info("terminating pool")
 
         if exc_type is not None:
@@ -303,6 +313,7 @@ class MultiprocessingEvaluator(BaseEvaluator):
         super().__exit__(exc_type, exc_value, traceback)
 
     def finalize(self):
+        """Finalize the pool."""
         # Stop accepting new jobs and wait for pending jobs to finish.
         self._pool.close()
         self._pool.join()
@@ -311,5 +322,6 @@ class MultiprocessingEvaluator(BaseEvaluator):
             shutil.rmtree(self.root_dir)
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+        """Evaluate experiments."""
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
         add_tasks(self.n_processes, self._pool, ex_gen, callback)
