@@ -316,6 +316,14 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         with self.assertRaises(AttributeError):
 
             class WrongTestFormatter(sdutil.OutputFormatterMixin):
+                @property
+                def boxes(self):
+                    pass
+
+                @property
+                def stats(self):
+                    pass
+
                 pass
 
             formatter = WrongTestFormatter()
@@ -326,12 +334,19 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             ]
 
         class TestFormatter(sdutil.OutputFormatterMixin):
-            boxes = []
-            stats = []
+
+            @property
+            def boxes(self):
+                return self._boxes
+
+            @property
+            def stats(self):
+                return self._stats
+
 
         formatter = TestFormatter()
-        formatter.boxes = [boxlim1, boxlim2]
-        formatter.stats = [
+        formatter._boxes = [boxlim1, boxlim2]
+        formatter._stats = [
             {"coverage": 0.5, "density": 1},
             {"coverage": 0.5, "density": 1},
         ]
@@ -351,7 +366,9 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
                 codes=[[0, 0, 1, 1], [1, 0, 1, 0]],
             ),
         )
-        self.assertTrue(expected_boxes.equals(boxes))
+
+        a = expected_boxes.equals(boxes)
+        self.assertTrue(a)
 
         # check stats
         stats = formatter.stats_to_dataframe()
@@ -363,9 +380,9 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
 
         self.assertTrue(expected_stats.equals(stats))
 
-
-if __name__ == "__main__":
-    unittest.main()
+#
+# if __name__ == "__main__":
+#     unittest.main()
 
 #     suite = unittest.TestSuite()
 #     suite.addTest(PrimTestCase("test_write_boxes_to_stdout"))
