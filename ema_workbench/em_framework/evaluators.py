@@ -1,7 +1,4 @@
-"""collection of evaluators for performing experiments, optimization, and robust
-optimization
-
-"""
+"""collection of evaluators for performing experiments, optimization, and robust optimization."""
 
 import enum
 import numbers
@@ -52,7 +49,7 @@ _logger = get_module_logger(__name__)
 
 
 class Samplers(enum.Enum):
-    """Enum for different kinds of samplers"""
+    """Enum for different kinds of samplers."""
 
     ## TODO:: have samplers register themselves on class instantiation
     ## TODO:: should not be defined here
@@ -67,7 +64,7 @@ class Samplers(enum.Enum):
 
 
 class BaseEvaluator:
-    """evaluator for experiments using a multiprocessing pool
+    """evaluator for experiments using a multiprocessing pool.
 
     Parameters
     ----------
@@ -109,23 +106,21 @@ class BaseEvaluator:
             return False
 
     def initialize(self):
-        """Initialize the evaluator"""
+        """Initialize the evaluator."""
         raise NotImplementedError
 
     def finalize(self):
-        """Finalize the evaluator"""
+        """Finalize the evaluator."""
         raise NotImplementedError
 
     def evaluate_experiments(
         self, scenarios, policies, callback, combine="factorial", **kwargs
     ):
-        """Used by ema_workbench"""
+        """Used by ema_workbench."""
         raise NotImplementedError
 
     def evaluate_all(self, jobs, **kwargs):
-        """Makes ema_workbench evaluators compatible with Platypus
-        evaluators as used by platypus algorithms
-        """
+        """Makes ema_workbench evaluators compatible with platypus evaluators."""
         self.callback()
 
         try:
@@ -268,13 +263,18 @@ class BaseEvaluator:
 
 
 class SequentialEvaluator(BaseEvaluator):
+    """Sequential evaluator."""
+
     def initialize(self):
-        pass
+        """Initializer."""
+
 
     def finalize(self):
-        pass
+        """Finalizer."""
+
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+        """Evaluate experiments."""
         _logger.info("performing experiments sequentially")
 
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
@@ -311,8 +311,7 @@ def perform_experiments(
     log_progress=False,
     **kwargs,
 ):
-    """Sample uncertainties and levers, and perform the resulting experiments
-    on each of the models
+    """Sample uncertainties and levers, and perform the resulting experiments on each of the models.
 
     Parameters
     ----------
@@ -478,7 +477,7 @@ def setup_policies(policies, levers_sampling, lever_union, models):
             if isinstance(policies, Policy):
                 policies = [policies]
 
-            levers = [l for l in levers if l.name in policies[0]]
+            levers = [l for l in levers if l.name in policies[0]] #noqa: E741
             n_policies = len(policies)
     return policies, levers, n_policies
 
@@ -525,7 +524,7 @@ def optimize(
     variator=None,
     **kwargs,
 ):
-    """Optimize the model
+    """Optimize the model.
 
     Parameters
     ----------
@@ -608,7 +607,7 @@ def robust_optimize(
     logging_freq=5,
     **kwargs,
 ):
-    """Perform robust optimization
+    """Perform robust optimization.
 
     Parameters
     ----------
