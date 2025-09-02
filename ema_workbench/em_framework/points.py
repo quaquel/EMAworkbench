@@ -1,5 +1,6 @@
-"""classes for representing points in parameter space, as well as associated
-hellper functions
+"""Classes for representing points in parameter space.
+
+As well as associated helper functions
 
 """
 
@@ -24,10 +25,12 @@ _logger = get_module_logger(__name__)
 
 
 class Point(NamedDict):
+    """A point in parameter space."""
+
     id_counter = Counter(1)
     name_counter = Counter(0)
 
-    def __init__(self, name=None, unique_id=None, **kwargs):
+    def __init__(self, name=None, unique_id=None, **kwargs): #noqa: D107
         if name is None:
             name = Point.name_counter()
         if unique_id is None:
@@ -38,7 +41,7 @@ class Point(NamedDict):
 
 
 class Policy(Point):
-    """Helper class representing a policy
+    """Helper class representing a policy.
 
     Attributes:
     ----------
@@ -51,7 +54,7 @@ class Policy(Point):
 
     id_counter = Counter(1)
 
-    def __init__(self, name=None, **kwargs):
+    def __init__(self, name=None, **kwargs): # noqa: D107
         super().__init__(name, Policy.id_counter(), **kwargs)
 
     # def to_list(self, parameters):
@@ -60,12 +63,12 @@ class Policy(Point):
     #
     #     return [self[param.name] for param in parameters]
 
-    def __repr__(self):
+    def __repr__(self): # noqa D105
         return f"Policy({super().__repr__()})"
 
 
 class Scenario(Point):
-    """Helper class representing a scenario
+    """Helper class representing a scenario.
 
     Attributes:
     ----------
@@ -79,16 +82,15 @@ class Scenario(Point):
     # we need to start from 1 so scenario id is known
     id_counter = Counter(1)
 
-    def __init__(self, name=None, **kwargs):
+    def __init__(self, name=None, **kwargs):  # noqa: D107
         super().__init__(name, Scenario.id_counter(), **kwargs)
 
-    def __repr__(self):
+    def __repr__(self): # noqa: D105
         return f"Scenario({super().__repr__()})"
 
 
 class Experiment(NamedObject):
-    """A convenience object that contains a specification
-    of the model, policy, and scenario to run
+    """A convenience object that contains a specification of the model, policy, and scenario to run.
 
     Attributes:
     ----------
@@ -100,34 +102,33 @@ class Experiment(NamedObject):
 
     """
 
-    def __init__(self, name, model_name, policy, scenario, experiment_id):
+    def __init__(self, name, model_name, policy, scenario, experiment_id):  # noqa: D107
         super().__init__(name)
         self.experiment_id = experiment_id
         self.policy = policy
         self.model_name = model_name
         self.scenario = scenario
 
-    def __repr__(self):
+    def __repr__(self): # noqa: D105
         return (
             f"Experiment(name={self.name!r}, model_name={self.model_name!r}, "
             f"policy={self.policy!r}, scenario={self.scenario!r}, "
             f"experiment_id={self.experiment_id!r})"
         )
 
-    def __str__(self):
+    def __str__(self):  # noqa: D105
         return f"Experiment {self.experiment_id} (model: {self.model_name}, policy: {self.policy.name}, scenario: {self.scenario.name})"
 
 
 class ExperimentReplication(NamedDict):
-    """helper class that combines scenario, policy, any constants, and
-    replication information (seed etc) into a single dictionary.
+    """Helper class that combines scenario, policy, any constants, and replication information.
 
     This class represent the complete specification of parameters to run for
     a given experiment.
 
     """
 
-    def __init__(self, scenario, policy, constants, replication=None):
+    def __init__(self, scenario, policy, constants, replication=None):  # noqa: D107
         scenario_id = scenario.unique_id
         policy_id = policy.unique_id
 
@@ -146,6 +147,7 @@ class ExperimentReplication(NamedDict):
 
 
 def zip_cycle(*args):
+    """Helper function for cycling over zips."""
     # zipover
     #     taken from jpn
     #     getting the max might by tricky
@@ -157,8 +159,10 @@ def zip_cycle(*args):
 
 
 def combine_cases_sampling(*point_collection):
-    """Combine collections of cases by iterating over the longest collection
-    while sampling with replacement from the others
+    """Helper function for combining cases sampling.
+
+    Combine collections of cases by iterating over the longest collection
+    while sampling with replacement from the others.
 
     Parameters
     ----------
@@ -185,7 +189,7 @@ def combine_cases_sampling(*point_collection):
 
 
 def combine_cases_factorial(*point_collections):
-    """Combine collections of cases in a full factorial manner
+    """Combine collections of cases in a full factorial manner.
 
     Parameters
     ----------
@@ -228,7 +232,7 @@ def combine_cases_factorial(*point_collections):
 
 
 def experiment_generator(scenarios, model_structures, policies, combine="factorial"):
-    """Generator function which yields experiments
+    """Generator function which yields experiments.
 
     Parameters
     ----------
