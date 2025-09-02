@@ -1,4 +1,4 @@
-"""parameters and related helper classes and functions"""
+"""parameters and related helper classes and functions."""
 
 import abc
 import numbers
@@ -28,6 +28,8 @@ _logger = get_module_logger(__name__)
 
 
 class Bound(metaclass=abc.ABCMeta):
+    """Bounds class."""
+
     def __get__(self, instance, cls):
         try:
             bound = instance.__dict__[self.internal_name]
@@ -68,27 +70,32 @@ class LowerBound(Bound):
 
 
 class Constant(Variable):
-    """Constant class,
+    """Constant class.
 
     can be used for any parameter that has to be set to a fixed value
 
     """
 
     def __init__(self, name, value):
+        """Init."""
         super().__init__(name)
         self.value = value
 
-    def __repr__(self, *args, **kwargs):
+    def __repr__(self, *args, **kwargs): # noqa: D105
         return f"{self.__class__.__name__}('{self.name}', {self.value})"
 
 
 class Category(NamedObject):
+    """Category class."""
+
     def __init__(self, name, value):
+        """Init."""
         super().__init__(name)
         self.value = value
 
 
 def create_category(cat):
+    """Helper function for creating a Category object."""
     if isinstance(cat, Category):
         return cat
     else:
@@ -96,7 +103,7 @@ def create_category(cat):
 
 
 class Parameter(Variable, metaclass=abc.ABCMeta):
-    """Base class for any model input parameter
+    """Base class for any model input parameter.
 
     Parameters
     ----------
@@ -124,11 +131,13 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
     @property
     def resolution(self):
+        """Getter for resolution."""
         return self._resolution
 
     @resolution.setter
     def resolution(self, value):
-        if value:
+        """Setter for resolution."""
+        if value: # noqa: SIM102
             if (min(value) < self.lower_bound) or (max(value) > self.upper_bound):
                 raise ValueError(
                     f"Resolution ({value}) not consistent with lower ({self.lower_bound}) and upper bound ({self.upper_bound})."
@@ -145,6 +154,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         variable_name=None,
         pff=False,
     ):
+        """Init."""
         super().__init__(name)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
@@ -155,7 +165,9 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
-        """Alternative constructor for creating a parameter from a frozen
+        """Factory method for creating a Parameter from a scipy distribution.
+
+        Alternative constructor for creating a parameter from a frozen
         scipy.stats distribution directly
 
         Parameters
@@ -182,7 +194,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
         return self
 
-    def __eq__(self, other):
+    def __eq__(self, other): # noqa: D105
         if not isinstance(self, other.__class__):
             return False
 
@@ -206,12 +218,12 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
             return True
 
-    def __str__(self):
+    def __str__(self): # noqa: D105
         return self.name
 
 
 class RealParameter(Parameter):
-    """real valued model input parameter
+    """real valued model input parameter.
 
     Parameters
     ----------
@@ -244,6 +256,7 @@ class RealParameter(Parameter):
         variable_name=None,
         pff=False,
     ):
+        """Init."""
         super().__init__(
             name,
             lower_bound,
@@ -259,14 +272,14 @@ class RealParameter(Parameter):
         )  # @UndefinedVariable
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs):
+    def from_dist(cls, name, dist, **kwargs): # noqa: D102
         if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
             raise ValueError(
                 f"dist should be instance of rv_continouos, not {dist.dist}"
             )
         return super().from_dist(name, dist, **kwargs)
 
-    def __repr__(self):
+    def __repr__(self): # noqa: D105
         if isinstance(self.dist, sp.stats._distn_infrastructure.rv_continuous_frozen):
             return (
                 f"RealParameter('{self.name}', {self.lower_bound}, {self.upper_bound}, "
@@ -278,7 +291,7 @@ class RealParameter(Parameter):
 
 
 class IntegerParameter(Parameter):
-    """integer valued model input parameter
+    """integer valued model input parameter.
 
     Parameters
     ----------
@@ -313,6 +326,7 @@ class IntegerParameter(Parameter):
         variable_name=None,
         pff=False,
     ):
+        """Init."""
         super().__init__(
             name,
             lower_bound,
@@ -351,12 +365,12 @@ class IntegerParameter(Parameter):
             pass
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs):
+    def from_dist(cls, name, dist, **kwargs): # noqa: D102
         if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
             raise ValueError(f"dist should be instance of rv_discrete, not {dist.dist}")
         return super().from_dist(name, dist, **kwargs)
 
-    def __repr__(self):
+    def __repr__(self): # noqa: D105
         if isinstance(self.dist, sp.stats._distn_infrastructure.rv_discrete_frozen):
             return (
                 f"IntegerParameter('{self.name}', {self.lower_bound}, {self.upper_bound}, "
@@ -368,7 +382,7 @@ class IntegerParameter(Parameter):
 
 
 class CategoricalParameter(IntegerParameter):
-    """categorical model input parameter
+    """categorical model input parameter.
 
     Parameters
     ----------
@@ -384,7 +398,7 @@ class CategoricalParameter(IntegerParameter):
     """
 
     @property
-    def categories(self):
+    def categories(self): # noqa: D102
         return self._categories
 
     @categories.setter
@@ -400,6 +414,7 @@ class CategoricalParameter(IntegerParameter):
         pff=False,
         multivalue=False,
     ):
+        """Init."""
         lower_bound = 0
         upper_bound = len(categories) - 1
 
@@ -426,7 +441,7 @@ class CategoricalParameter(IntegerParameter):
         self.multivalue = multivalue
 
     def index_for_cat(self, category):
-        """Return index of category
+        """Return index of category.
 
         Parameters
         ----------
@@ -444,7 +459,7 @@ class CategoricalParameter(IntegerParameter):
         raise ValueError(f"Category {category} not found")
 
     def cat_for_index(self, index):
-        """Return category given index
+        """Return category given index.
 
         Parameters
         ----------
@@ -457,7 +472,7 @@ class CategoricalParameter(IntegerParameter):
         """
         return self.categories[index]
 
-    def __repr__(self, *args, **kwargs):
+    def __repr__(self, *args, **kwargs): # noqa: D105
         template1 = "CategoricalParameter('{}', {}, default={})"
         template2 = "CategoricalParameter('{}', {})"
 
@@ -468,7 +483,7 @@ class CategoricalParameter(IntegerParameter):
 
         return representation
 
-    def from_dist(self, name, dist):
+    def from_dist(self, name, dist):  # noqa: D102
         # TODO:: how to handle this
         # probably need to pass categories as list and zip
         # categories to integers implied by dist
@@ -478,7 +493,7 @@ class CategoricalParameter(IntegerParameter):
 
 
 class BooleanParameter(CategoricalParameter):
-    """boolean model input parameter
+    """boolean model input parameter.
 
     A BooleanParameter is similar to a CategoricalParameter, except
     the category values can only be True or False.
@@ -491,6 +506,7 @@ class BooleanParameter(CategoricalParameter):
     """
 
     def __init__(self, name, default=None, variable_name=None, pff=False):
+        """Init."""
         super().__init__(
             name,
             categories=[True, False],
@@ -499,7 +515,7 @@ class BooleanParameter(CategoricalParameter):
             pff=pff,
         )
 
-    def __repr__(self):
+    def __repr__(self): # noqa: D105
         return (
             f"BooleanParameter('{self.name}', default={self.default}, "
             f"variable_name={self.variable_name}, pff={self.pff})"
@@ -507,7 +523,7 @@ class BooleanParameter(CategoricalParameter):
 
 
 def parameters_to_csv(parameters, file_name):
-    """Helper function for writing a collection of parameters to a csv file
+    """Helper function for writing a collection of parameters to a csv file.
 
     Parameters
     ----------
@@ -547,8 +563,7 @@ def parameters_to_csv(parameters, file_name):
 
 
 def parameters_from_csv(uncertainties, **kwargs):
-    """Helper function for creating many Parameters based on a DataFrame
-    or csv file
+    """Helper function for creating many Parameters based on a DataFrame or csv file.
 
     Parameters
     ----------
@@ -628,7 +643,7 @@ def parameters_from_csv(uncertainties, **kwargs):
             if len(values) != 2:
                 type = "cat"  # @ReservedAssignment
             else:
-                l, u = values
+                l, u = values # noqa: E741
 
                 if isinstance(l, numbers.Integral) and isinstance(u, numbers.Integral):
                     type = "int"  # @ReservedAssignment
