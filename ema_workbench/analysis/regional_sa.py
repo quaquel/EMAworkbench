@@ -1,10 +1,11 @@
-"""Module offers support for performing basic regional sensitivity analysis. The
-module can be used to perform regional sensitivity analysis on all
+"""Module offers support for performing basic regional sensitivity analysis.
+
+Th module can be used to perform regional sensitivity analysis on all
 uncertainties specified in the experiment array, as well as the ability to
 zoom in on any given uncertainty in more detail.
 
 """
-
+import contextlib
 import math
 import operator
 
@@ -22,7 +23,7 @@ cp = sns.color_palette()
 
 
 def build_legend(x, y):
-    """Helper function for building a legend
+    """Helper function for building a legend.
 
     Parameters
     ----------
@@ -42,8 +43,9 @@ def build_legend(x, y):
 
 
 def plot_discrete_cdf(ax, unc, x, y, xticklabels_on, ccdf):
-    """Plot a discrete cdf on ax for data,
-    grouping data by logical index.
+    """Plot a discrete cdf on ax for data.
+
+    Grouping data by logical index.
 
     Parameters
     ----------
@@ -73,10 +75,10 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on, ccdf):
         for j, freq in enumerate(freqs):
             cum_freq += freq
 
-            freq = cum_freq
+            freq = cum_freq  # noqa: PLW2901
 
             if ccdf:
-                freq = 1 - cum_freq
+                freq = 1 - cum_freq # noqa: PLW2901
 
             x_plot = [j * 1, j * 1 + 1]
             y_plot = [freq] * 2
@@ -112,8 +114,9 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on, ccdf):
 
 
 def plot_continuous_cdf(ax, unc, x, y, xticklabels_on, ccdf):
-    """Plot a continuous cdf on ax for data,grouping data by the groups
-    specified in y.
+    """Plot a continuous cdf on ax for data.
+
+    Grouping data by the groups specified in y.
 
     Parameters
     ----------
@@ -163,7 +166,7 @@ def plot_individual_cdf(
     yticklabels_on=False,
     ccdf=False,
 ):
-    """Plot cdf for x conditional on y
+    """Plot cdf for x conditional on y.
 
     Parameters
     ----------
@@ -208,8 +211,9 @@ def plot_individual_cdf(
 
 
 def plot_cdfs(x, y, ccdf=False):
-    """Plot cumulative density functions for each column in x, based on
-    the  classification specified in y.
+    """Plot cumulative density functions for each column in x.
+
+    Based on the classification specified in y.
 
     Parameters
     ----------
@@ -228,21 +232,17 @@ def plot_cdfs(x, y, ccdf=False):
     """
     x = x.copy()
 
-    try:
+    with contextlib.suppress(KeyError):
         x = x.drop("scenario_id", axis=1)
-    except KeyError:
-        pass
 
     for entry in ["model", "policy"]:
         if x.loc[:, entry].unique().shape != (1,):
             continue
-        try:
+        with contextlib.suppress(KeyError):
             x = x.drop(entry, axis=1)
-        except KeyError:
-            pass
 
     uncs = x.columns.tolist()
-    cp = sns.color_palette()
+    # cp = sns.color_palette() # FIXME?? should this be used?
 
     n_col = 4
     n_row = math.ceil(len(uncs) / n_col)
