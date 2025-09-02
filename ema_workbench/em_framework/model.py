@@ -1,4 +1,5 @@
 """This module specifies the abstract base class for interfacing with models.
+
 Any model that is to be controlled from the workbench is controlled via
 an instance of an extension of this abstract base class.
 
@@ -6,7 +7,6 @@ an instance of an extension of this abstract base class.
 
 import operator
 import os
-import warnings
 from collections import defaultdict
 
 from ..util import EMAError
@@ -33,8 +33,9 @@ _logger = get_module_logger(__name__)
 
 
 class AbstractModel(NamedObject):
-    """:class:`ModelStructureInterface` is one of the the two main
-    classes used for performing EMA. This is an abstract base class
+    """Abstract base class for models.
+
+    This is an abstract base class
     and cannot be used directly.
 
     Attributes:
@@ -58,16 +59,19 @@ class AbstractModel(NamedObject):
 
     @property
     def outcomes_output(self):
+        """Getter for outcomes output."""
         return self._outcomes_output
 
     @outcomes_output.setter
     def outcomes_output(self, outputs):
+        """Setter for outcomes output."""
         for outcome in self.outcomes:
             data = [outputs[var] for var in outcome.variable_name]
             self._outcomes_output[outcome.name] = outcome.process(data)
 
     @property
     def output_variables(self):
+        """Getter for output variables."""
         if self._output_variables is None:
             self._output_variables = [
                 var for o in self.outcomes for var in o.variable_name
@@ -81,7 +85,7 @@ class AbstractModel(NamedObject):
     constants = NamedObjectMapDescriptor(Constant)
 
     def __init__(self, name):
-        """Interface to the model
+        """Interface to the model.
 
         Parameters
         ----------
@@ -135,6 +139,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def _transform(self, sampled_parameters, parameters):
+        """Helper method to transform the sampled parameters."""
         if not parameters:
             # no parameters defined, so nothing to transform, mainly
             # useful for manual specification of scenario /  policy
@@ -156,10 +161,9 @@ class AbstractModel(NamedObject):
                     continue
 
             multivalue = False
-            if isinstance(par, CategoricalParameter):
-                if par.multivalue:
-                    multivalue = True
-                    values = value
+            if isinstance(par, CategoricalParameter) and par.multivalue:
+                multivalue = True
+                values = value
 
             # translate uncertainty name to variable name
             for i, varname in enumerate(par.variable_name):
@@ -190,7 +194,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def initialized(self, policy):
-        """Check if model has been initialized
+        """Check if model has been initialized.
 
         Parameters
         ----------
@@ -203,25 +207,10 @@ class AbstractModel(NamedObject):
             return False
 
     @method_logger(__name__)
-    def retrieve_output(self):
-        """Method for retrieving output after a model run.
-        Deprecated, will be removed in version 3.0 of the EMAworkbench.
-
-        Returns:
-        -------
-        dict with the results of a model run.
-        """
-        warnings.warn(
-            "The 'retrieve_output' method is deprecated and will be removed in version 3.0 of the EMAworkbench."
-            "Use 'model.output' instead.",
-            DeprecationWarning,
-        )
-        return self.output
-
-    @method_logger(__name__)
     def reset_model(self):
-        """Method for resetting the model to its initial state. The default
-        implementation only sets the outputs to an empty dict.
+        """Method for resetting the model to its initial state.
+
+        The default implementation only sets the outputs to an empty dict.
 
         """
         self._outcome_output = {}
@@ -229,7 +218,9 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def cleanup(self):
-        """This model is called after finishing all the experiments, but
+        """Hook for performing cleanup after all experiments have completed.
+
+        This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
         doing any cleanup, such as closing applications.
 
@@ -240,7 +231,7 @@ class AbstractModel(NamedObject):
         """
 
     def as_dict(self):
-        """Returns a dict representation of the model"""
+        """Returns a dict representation of the model."""
 
         def join_attr(field):
             joined = ", ".join(
@@ -270,18 +261,21 @@ class AbstractModel(NamedObject):
 
 
 class MyDict(dict):
+    """Hacky helper class."""
     # bit of a dirty hack to be able to assign attributes to a dict
     # in a replication context
-    pass
 
 
 class Replicator(AbstractModel):
+    """Base class for a model where experiments are run for multiple replications."""
     @property
     def replications(self):
+        """Getter for replications."""
         return self._replications
 
     @replications.setter
     def replications(self, replications):
+        """Setter for replications."""
         # int
         if isinstance(replications, int):
             # TODO:: use a repeating generator instead
@@ -331,6 +325,8 @@ class Replicator(AbstractModel):
 
 
 class SingleReplication(AbstractModel):
+    """Base class for models that require only a single replication."""
+
     @method_logger(__name__)
     def run_model(self, scenario, policy):
         """Method for running an instantiated model structure.
@@ -354,8 +350,7 @@ class SingleReplication(AbstractModel):
 
 
 class BaseModel(AbstractModel):
-    """generic class for working with models implemented as a Python
-    callable
+    """Generic class for working with models implemented as a Python callable.
 
     Parameters
     ----------
@@ -384,6 +379,7 @@ class BaseModel(AbstractModel):
     """
 
     def __init__(self, name, function=None):
+        """Init."""
         super().__init__(name)
 
         if not callable(function):
@@ -419,26 +415,30 @@ class BaseModel(AbstractModel):
         return results
 
     def as_dict(self):
+        """Returns a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["function"] = self.function
         return model_specs
 
 
 class WorkingDirectoryModel(AbstractModel):
-    """Base class for a model that needs its dedicated working directory"""
+    """Base class for a model that needs its dedicated working directory."""
 
     @property
     def working_directory(self):
+        """Getter for working directory."""
         return self._working_directory
 
     @working_directory.setter
     def working_directory(self, path):
+        """Setter for working directory."""
         wd = os.path.abspath(path)
         _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
     def __init__(self, name, wd=None):
-        """Interface to the model
+        """Interface to the model.
+
         Parameters
         ----------
         name : str
@@ -463,24 +463,29 @@ class WorkingDirectoryModel(AbstractModel):
             )
 
     def as_dict(self):
+        """Returns a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["working_directory"] = self.working_directory
         return model_specs
 
 
 class FileModel(WorkingDirectoryModel):
+    """Base class for a model that uses underlying files."""
+
     @property
     def working_directory(self):
+        """Getter for working directory."""
         return self._working_directory
 
     @working_directory.setter
     def working_directory(self, path):
+        """Setter for working directory."""
         wd = os.path.abspath(path)
         _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
     def __init__(self, name, wd=None, model_file=None):
-        """Interface to the model
+        """Interface to the model.
 
         Parameters
         ----------
@@ -508,7 +513,7 @@ class FileModel(WorkingDirectoryModel):
 
         It is best practice to place the model files in a subdirectory of
         the folder within which the file resides used for performing
-        experiments
+        experiments.
 
         """
         super().__init__(name, wd=wd)
@@ -527,14 +532,15 @@ class FileModel(WorkingDirectoryModel):
         self.model_file = model_file
 
     def as_dict(self):
+        """Returns a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["model_file"] = self.model_file
         return model_specs
 
 
 class Model(SingleReplication, BaseModel):
-    pass
+    """Default model class for python callables that are run once per experiment."""
 
 
 class ReplicatorModel(Replicator, BaseModel):
-    pass
+    """Default model class for python callables that are run for multiple replications per experiment."""
