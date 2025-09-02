@@ -1,3 +1,5 @@
+"""Utilities for futures modules."""
+
 import os
 import random
 import shutil
@@ -13,9 +15,10 @@ _logger = get_module_logger(__name__)
 
 
 def determine_rootdir(msis):
+    """Determine common root directory for all models."""
     for model in msis:
         try:
-            model.working_directory
+            model.working_directory # noqa: B018
         except AttributeError:
             root_dir = None
             break
@@ -30,7 +33,7 @@ def determine_rootdir(msis):
 
 
 def finalizer(experiment_runner):
-    """Cleanup"""
+    """Cleanup."""
 
     def finalizer(tmpdir):
         _logger.info("finalizing")
@@ -50,8 +53,10 @@ def finalizer(experiment_runner):
 
 
 def setup_working_directories(models, root_dir):
-    """Copies the working directory of each model to a process specific
-    temporary directory and update the working directory of the model
+    """Setup working directories when running in parallel.
+
+    Copies the working directory of each model to a process specific
+    temporary directory and update the working directory of the model.
 
     Parameters
     ----------
