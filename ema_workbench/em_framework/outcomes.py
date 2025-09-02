@@ -1,4 +1,4 @@
-"""Module for outcome classes"""
+"""Module for outcome classes."""
 
 import abc
 import collections
@@ -30,7 +30,7 @@ _logger = get_module_logger(__name__)
 
 
 class Register:
-    """helper class for storing outcomes to disk
+    """helper class for storing outcomes to disk.
 
     this class stores outcomes by name, and is used to save_results
     to look up how to save each outcome.
@@ -56,7 +56,9 @@ class Register:
             pass  # multiple instances of the same class and name is fine
 
     def serialize(self, name, values):
-        """Parameters
+        """Serialize the given outcome.
+
+        Parameters
         ----------
         name : str
         values : numpy array or dataframe
@@ -75,6 +77,7 @@ class Register:
         return stream, f"{name}.{extension}"
 
     def deserialize(self, name, filename, archive):
+        """"Serialize the given outcome."""
         return self.outcomes[name].from_disk(filename, archive)
 
 
@@ -82,7 +85,7 @@ register = Register()
 
 
 class AbstractOutcome(Variable):
-    """Base Outcome class
+    """Base Outcome class.
 
     Parameters
     ----------
@@ -134,11 +137,12 @@ class AbstractOutcome(Variable):
         shape=None,
         dtype=None,
     ):
+        """Init."""
         super().__init__(name)
 
         if function is not None and not callable(function):
             raise ValueError("function must be a callable")
-        if variable_name:
+        if variable_name: # noqa: SIM102
             if (not isinstance(variable_name, str)) and (
                 not all(isinstance(elem, str) for elem in variable_name)
             ):
@@ -168,6 +172,7 @@ class AbstractOutcome(Variable):
         self.dtype = dtype
 
     def process(self, values):
+        """Process the values."""
         if self.function:
             var_names = self.variable_name
 
@@ -193,7 +198,7 @@ class AbstractOutcome(Variable):
 
             return values[0]
 
-    def __eq__(self, other):
+    def __eq__(self, other): # noqa: D105
         comparison = [
             all(
                 hasattr(self, key) == hasattr(other, key)
@@ -204,7 +209,7 @@ class AbstractOutcome(Variable):
         ]
         return all(comparison)
 
-    def __repr__(self, *args, **kwargs):
+    def __repr__(self, *args, **kwargs):  # noqa: D105
         klass = self.__class__.__name__
         name = self.name
 
@@ -219,7 +224,7 @@ class AbstractOutcome(Variable):
 
         return rep
 
-    def __hash__(self):
+    def __hash__(self):  # noqa: D105
         items = [self.name, self._variable_name, self._expected_range, self.shape]
         items = tuple(entry for entry in items if entry is not None)
 
@@ -228,7 +233,7 @@ class AbstractOutcome(Variable):
     @classmethod
     @abc.abstractmethod
     def to_disk(cls, values):
-        """Helper function for writing outcome to disk
+        """Helper function for writing outcome to disk.
 
         Parameters
         ----------
@@ -245,28 +250,26 @@ class AbstractOutcome(Variable):
     @classmethod
     @abc.abstractmethod
     def from_disk(cls, filename, archive):
-        """Helper function for loading from disk
+        """Helper function for loading from disk.
 
         Parameters
         ----------
         filename : str
         archive : Tarfile
 
-        Returns:
-        -------
-
         """
         raise NotImplementedError
 
     @classmethod
-    def get_subclasses(cls):
+    def get_subclasses(cls): # noqa: D102
+        # fixme can be handled more cleanly using python built in stuff
         for subclass in cls.__subclasses__():
             yield from subclass.get_subclasses()
             yield subclass
 
 
 class ScalarOutcome(AbstractOutcome):
-    """Scalar Outcome class
+    """Scalar Outcome class.
 
     Parameters
     ----------
@@ -300,7 +303,7 @@ class ScalarOutcome(AbstractOutcome):
     """
 
     @property
-    def expected_range(self):
+    def expected_range(self): #noqa: D102
         if self._expected_range is None:
             raise ValueError(
                 f"No expected_range is set for variable {self.variable_name}"
@@ -320,6 +323,7 @@ class ScalarOutcome(AbstractOutcome):
         expected_range=None,
         dtype=None,
     ):
+        """Init."""
         shape = None
         if dtype is not None:
             shape = (1,)
@@ -333,7 +337,7 @@ class ScalarOutcome(AbstractOutcome):
         )
         self.expected_range = expected_range
 
-    def process(self, values):
+    def process(self, values): #noqa: D102
         values = super().process(values)
         if not isinstance(values, numbers.Number):
             raise EMAError(
@@ -343,7 +347,7 @@ class ScalarOutcome(AbstractOutcome):
 
     @classmethod
     def to_disk(cls, values):
-        """Helper function for writing outcome to disk
+        """Helper function for writing outcome to disk.
 
         Parameters
         ----------
@@ -363,7 +367,7 @@ class ScalarOutcome(AbstractOutcome):
         return fh, "cls"
 
     @classmethod
-    def from_disk(cls, filename, archive):
+    def from_disk(cls, filename, archive): #noqa: D102
         f = archive.extractfile(filename)
         values = pd.read_csv(f, index_col=False, header=None).values
         values = np.reshape(values, (values.shape[0],))
@@ -372,7 +376,7 @@ class ScalarOutcome(AbstractOutcome):
 
 
 class ArrayOutcome(AbstractOutcome):
-    """Array Outcome class for n-dimensional arrays
+    """Array Outcome class for n-dimensional arrays.
 
     Parameters
     ----------
@@ -418,6 +422,7 @@ class ArrayOutcome(AbstractOutcome):
         shape=None,
         dtype=None,
     ):
+        """Init."""
         super().__init__(
             name,
             variable_name=variable_name,
@@ -427,7 +432,7 @@ class ArrayOutcome(AbstractOutcome):
             dtype=dtype,
         )
 
-    def process(self, values):
+    def process(self, values):# noqa: D102
         values = super().process(values)
         if not isinstance(values, collections.abc.Iterable):
             raise TypeError(
@@ -438,7 +443,7 @@ class ArrayOutcome(AbstractOutcome):
 
     @classmethod
     def to_disk(cls, values):
-        """Helper function for writing outcome to disk
+        """Helper function for writing outcome to disk.
 
         Parameters
         ----------
@@ -463,7 +468,7 @@ class ArrayOutcome(AbstractOutcome):
         return fh, extension
 
     @classmethod
-    def from_disk(cls, filename, archive):
+    def from_disk(cls, filename, archive): #noqa: D102
         f = archive.extractfile(filename)
 
         if filename.endswith("csv"):
@@ -480,7 +485,7 @@ class ArrayOutcome(AbstractOutcome):
 
 
 class TimeSeriesOutcome(ArrayOutcome):
-    """TimeSeries Outcome class for 1D arrays
+    """TimeSeries Outcome class for 1D arrays.
 
     Parameters
     ----------
@@ -531,6 +536,7 @@ class TimeSeriesOutcome(ArrayOutcome):
         shape=None,
         dtype=None,
     ):
+        """Init."""
         super().__init__(
             name,
             variable_name=variable_name,
@@ -542,7 +548,7 @@ class TimeSeriesOutcome(ArrayOutcome):
 
     @classmethod
     def to_disk(cls, values):
-        """Helper function for writing outcome to disk
+        """Helper function for writing outcome to disk.
 
         Parameters
         ----------
@@ -555,14 +561,14 @@ class TimeSeriesOutcome(ArrayOutcome):
         filename
 
         """
-        warnings.warn("still to be tested!!")
+        warnings.warn("Timeseries outcome seralization still to be tested!!", stacklevel=2)
         fh = BytesIO()
         data = pd.DataFrame(values)
         fh.write(data.to_csv(header=True, index=False, encoding="UTF-8").encode())
         return fh, "csv"
 
     @classmethod
-    def from_disk(cls, filename, archive):
+    def from_disk(cls, filename, archive): #noqa: D102
         f = archive.extractfile(filename)
 
         if filename.endswith("csv"):
@@ -574,8 +580,7 @@ class TimeSeriesOutcome(ArrayOutcome):
 
 
 class Constraint(ScalarOutcome):
-    """Constraints class that can be used when defining constrained
-    optimization problems.
+    """Constraints class that can be used when defining constrained optimization problems.
 
     Parameters
     ----------
@@ -600,6 +605,7 @@ class Constraint(ScalarOutcome):
     """
 
     def __init__(self, name, parameter_names=None, outcome_names=None, function=None):
+        """Init."""
         assert callable(function)
         if not parameter_names:
             parameter_names = []
@@ -623,14 +629,14 @@ class Constraint(ScalarOutcome):
         self.parameter_names = parameter_names
         self.outcome_names = outcome_names
 
-    def process(self, values):
+    def process(self, values): #noqa: D102
         value = super().process(values)
         assert value >= 0
         return value
 
 
 def create_outcomes(outcomes, **kwargs):
-    """Helper function for creating multiple outcomes
+    """Helper function for creating multiple outcomes.
 
     Parameters
     ----------
