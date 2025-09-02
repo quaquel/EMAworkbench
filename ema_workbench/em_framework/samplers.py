@@ -270,6 +270,10 @@ class FullFactorialSampler(AbstractSampler):
 
     """
 
+    def sample(self, distribution, size):
+        # fixme, should be integrated into generate_samples so it's called from there
+        pass
+
     def generate_samples(self, parameters, size):
         """Generate FF samples.
 
