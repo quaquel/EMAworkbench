@@ -98,12 +98,17 @@ class AbstractModel(NamedObject):
         EMAError if name contains non alpha-numerical characters
 
         """
+        if not name.isidentifier():
+            raise EMAError(
+                f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench,"
+                 " the name of model must be valid python identifiers"
+            )
+
         super().__init__(name)
 
-        if not self.name.isalnum():
-            raise EMAError(
-                f"Name of model ({self.name}) should only contain alpha numerical characters"
-            )
+
+
+
 
         self._output_variables = None
         self._outcomes_output = {}
