@@ -29,6 +29,7 @@ jobs:
             python-version: "3.12"
             pip-pre: "--pre"  # Installs pre-release versions of pip dependencies
             name: "Pre-release dependencies"
+            test-mpi: False
           - os: ubuntu-latest
             python-version: "3.12"
             test-mpi: true
