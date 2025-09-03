@@ -1,31 +1,29 @@
-"""Utilities for futures modules."""
-
 import os
 import random
 import shutil
 import string
 import time
+
+
 from collections import defaultdict
 
 from ..util import get_module_logger
 
-__all__ = ["determine_rootdir", "finalizer", "setup_working_directories"]
+
+__all__ = ["finalizer", "setup_working_directories", "determine_rootdir"]
 
 _logger = get_module_logger(__name__)
 
 
 def determine_rootdir(msis):
-    """Determine common root directory for all models."""
     for model in msis:
         try:
-            model.working_directory # noqa: B018
+            model.working_directory
         except AttributeError:
             root_dir = None
             break
     else:
-        random_part = [
-            random.choice(string.ascii_letters + string.digits) for _ in range(5)
-        ]
+        random_part = [random.choice(string.ascii_letters + string.digits) for _ in range(5)]
         random_part = "".join(random_part)
         root_dir = os.path.abspath("tmp" + random_part)
         os.makedirs(root_dir)
@@ -33,7 +31,7 @@ def determine_rootdir(msis):
 
 
 def finalizer(experiment_runner):
-    """Cleanup."""
+    """cleanup"""
 
     def finalizer(tmpdir):
         _logger.info("finalizing")
@@ -53,10 +51,8 @@ def finalizer(experiment_runner):
 
 
 def setup_working_directories(models, root_dir):
-    """Setup working directories when running in parallel.
-
-    Copies the working directory of each model to a process specific
-    temporary directory and update the working directory of the model.
+    """copies the working directory of each model to a process specific
+    temporary directory and update the working directory of the model
 
     Parameters
     ----------
@@ -64,6 +60,7 @@ def setup_working_directories(models, root_dir):
     root_dir : str
 
     """
+
     # group models by working directory to avoid copying the same directory
     # multiple times
     wd_by_model = defaultdict(list)

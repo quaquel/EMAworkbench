@@ -1,12 +1,8 @@
 import pytest
 
-from ema_workbench.em_framework import (
-    Model,
-    RealParameter,
-    ScalarOutcome,
-    outputspace_exploration,
-)
+from ema_workbench.em_framework import outputspace_exploration
 from ema_workbench.em_framework.optimization import to_problem
+from ema_workbench.em_framework import Model, RealParameter, ScalarOutcome
 from ema_workbench.util import EMAError
 
 
@@ -165,6 +161,4 @@ def test_user_facing_algorithms(mocker):
 
     outputspace_exploration.OutputSpaceExploration(problem, grid_spec=grid_spec)
 
-    outputspace_exploration.AutoAdaptiveOutputSpaceExploration(
-        problem, grid_spec=grid_spec
-    )
+    outputspace_exploration.AutoAdaptiveOutputSpaceExploration(problem, grid_spec=grid_spec)

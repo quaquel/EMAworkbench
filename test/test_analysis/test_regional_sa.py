@@ -1,4 +1,5 @@
-"""Created on 19 Nov 2018
+"""
+Created on 19 Nov 2018
 
 @author: jhkwakkel
 """
@@ -44,14 +45,7 @@ class Test(unittest.TestCase):
         unc = "model"
 
         regional_sa.plot_individual_cdf(
-            ax,
-            unc,
-            x[unc],
-            y,
-            discrete=True,
-            legend=True,
-            xticklabels_on=True,
-            yticklabels_on=True,
+            ax, unc, x[unc], y, discrete=True, legend=True, xticklabels_on=True, yticklabels_on=True
         )
 
 

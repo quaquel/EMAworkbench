@@ -1,4 +1,5 @@
-"""Created on 27 Jul. 2011
+"""
+Created on 27 Jul. 2011
 
 This file illustrated the use the EMA classes for a model in Excel.
 
@@ -10,21 +11,15 @@ This excel file implements a simple predator prey model.
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
-from ema_workbench import (
-    RealParameter,
-    TimeSeriesOutcome,
-    ema_logging,
-    perform_experiments,
-)
+from ema_workbench import RealParameter, TimeSeriesOutcome, ema_logging, perform_experiments
+
 from ema_workbench.connectors.excel import ExcelModel
 from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(level=ema_logging.INFO)
 
-    model = ExcelModel(
-        "predatorPrey", wd="./models/excelModel", model_file="excel example.xlsx"
-    )
+    model = ExcelModel("predatorPrey", wd="./models/excelModel", model_file="excel example.xlsx")
     model.uncertainties = [
         RealParameter("K2", 0.01, 0.2),
         # we can refer to a cell in the normal way
@@ -47,6 +42,4 @@ if __name__ == "__main__":
     model.default_sheet = "Sheet1"
 
     with MultiprocessingEvaluator(model) as evaluator:
-        results = perform_experiments(
-            model, 100, reporting_interval=1, evaluator=evaluator
-        )
+        results = perform_experiments(model, 100, reporting_interval=1, evaluator=evaluator)

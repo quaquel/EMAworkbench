@@ -3,16 +3,9 @@
 import os
 import unittest
 
+from ema_workbench.em_framework import perform_experiments, RealParameter, TimeSeriesOutcome
 from ema_workbench.connectors.pysd_connector import PysdModel
-from ema_workbench.em_framework import (
-    RealParameter,
-    TimeSeriesOutcome,
-    perform_experiments,
-)
-from ema_workbench.em_framework.evaluators import (
-    MultiprocessingEvaluator,
-    SequentialEvaluator,
-)
+from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator, SequentialEvaluator
 
 # TODO:: model classes should be tested for their pickleability prior to
 # initialization
@@ -20,12 +13,13 @@ from ema_workbench.em_framework.evaluators import (
 
 class TestPySDConnector(unittest.TestCase):
     def test_connector_basic(self):
-        """Test that the connector can instantiate the pysd interface object
-
-        Returns:
+        """
+        Test that the connector can instantiate the pysd interface object
+        Returns
         -------
 
         """
+
         directory = os.path.dirname(__file__)
         relative_path_to_file = "../models/Teacup.mdl"
         mdl_file = os.path.join(directory, relative_path_to_file)
@@ -34,9 +28,9 @@ class TestPySDConnector(unittest.TestCase):
         self.assertIsInstance(model, PysdModel)
 
     def test_parallel_experiment(self):
-        """Test running an experiment in parallel
-
-        Returns:
+        """
+        Test running an experiment in parallel
+        Returns
         -------
 
         """
@@ -54,9 +48,9 @@ class TestPySDConnector(unittest.TestCase):
             evaluator.perform_experiments(5)
 
     def test_sequential_experiment(self):
-        """Test running an experiment in parallel
-
-        Returns:
+        """
+        Test running an experiment in parallel
+        Returns
         -------
 
         """
@@ -74,12 +68,13 @@ class TestPySDConnector(unittest.TestCase):
             evaluator.perform_experiments(5)
 
     def test_multiple_models(self):
-        """Test running running with two different pysd models
-
-        Returns:
+        """
+        Test running running with two different pysd models
+        Returns
         -------
 
         """
+
         directory = os.path.dirname(__file__)
 
         relative_path_to_file = "../models/Sales_Agent_Market_Building_Dynamics.mdl"

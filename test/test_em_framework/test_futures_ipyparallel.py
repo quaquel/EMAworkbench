@@ -1,35 +1,42 @@
-"""Created on Jul 28, 2015
+"""
+Created on Jul 28, 2015
 test code for ema_ipyparallel. The setup and teardown of the cluster is
 taken from the ipyparallel test code with some minor adaptations
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
 import logging
+
+import unittest.mock as mock
+
+
 import os
 import socket
 import time
 import unittest
-import unittest.mock as mock
 import warnings
-from subprocess import STDOUT, Popen
+
+from subprocess import Popen, STDOUT
+
+from jupyter_client.localinterfaces import localhost
+from IPython.paths import get_ipython_dir
 
 import ipyparallel
 from ipyparallel import Client
 from ipyparallel.cluster.launcher import (
-    SIGKILL,
     LocalProcessLauncher,
-    ProcessStateError,
-    ipcontroller_cmd_argv,
     ipengine_cmd_argv,
+    ipcontroller_cmd_argv,
+    SIGKILL,
+    ProcessStateError,
 )
-from IPython.paths import get_ipython_dir
-from jupyter_client.localinterfaces import localhost
 
 import ema_workbench
-from ema_workbench.em_framework import Model, experiment_runner
 from ema_workbench.em_framework import futures_ipyparallel as ema
+from ema_workbench.em_framework import experiment_runner, Model
+from ema_workbench.util import ema_logging, EMAError, EMAParallelError
 from ema_workbench.em_framework.futures_ipyparallel import LogWatcher
-from ema_workbench.util import EMAError, EMAParallelError, ema_logging
+
 
 launchers = []
 blackhole = os.open(os.devnull, os.O_WRONLY)
@@ -46,11 +53,7 @@ class MockProcessLauncher(LocalProcessLauncher):
             # Store stdout & stderr to show with failing tests.
             # This is defined in IPython.testing.iptest
             self.process = Popen(
-                self.args,
-                stdout=blackhole,
-                stderr=STDOUT,
-                env=os.environ,
-                cwd=self.work_dir,
+                self.args, stdout=blackhole, stderr=STDOUT, env=os.environ, cwd=self.work_dir
             )
             self.notify_start(self.process.pid)
             self.poll = self.process.poll
@@ -60,7 +63,7 @@ class MockProcessLauncher(LocalProcessLauncher):
 
 
 def add_engines(n=1, profile="iptest", total=False):
-    """Add a number of engines to a given profile.
+    """add a number of engines to a given profile.
 
     If total is True, then already running engines are counted, and only
     the additional engines necessary (if any) are started.
@@ -127,6 +130,7 @@ def tearDownModule():
                 p.stop()
             except Exception as e:
                 print(e)
+                pass
         if p.poll() is None:
             try:
                 time.sleep(0.25)
@@ -279,18 +283,14 @@ class TestLogWatcher(unittest.TestCase):
             mocked.return_value = mocked_logger
             raw = [b"engine.1.INFO.EMA", b"test"]
             self.watcher.log_message(raw)
-            mocked_logger.log.assert_called_once_with(
-                ema_logging.INFO, "[engine.1] test"
-            )
+            mocked_logger.log.assert_called_once_with(ema_logging.INFO, "[engine.1] test")
 
         with mock.patch("logging.getLogger") as mocked:
             mocked_logger = mock.Mock(spec=logging.Logger)
             mocked.return_value = mocked_logger
             raw = [b"engine.1.DEBUG.EMA", b"test"]
             self.watcher.log_message(raw)
-            mocked_logger.log.assert_called_once_with(
-                ema_logging.DEBUG, "[engine.1] test"
-            )
+            mocked_logger.log.assert_called_once_with(ema_logging.DEBUG, "[engine.1] test")
 
         with mock.patch("logging.getLogger") as mocked:
             mocked_logger = mock.Mock(spec=logging.Logger)
@@ -323,16 +323,12 @@ class TestEngine(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.get_engines_by_host")
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.os")
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.socket")
-    def test_update_cwd_on_all_engines(
-        self, mock_socket, mock_os, mock_engines_by_host
-    ):
+    def test_update_cwd_on_all_engines(self, mock_socket, mock_os, mock_engines_by_host):
         mock_socket.gethostname.return_value = "test host"
 
         mock_client = mock.create_autospec(ipyparallel.Client)
         mock_client.ids = [0, 1]  # pretend we have two engines
-        mock_view = mock.create_autospec(
-            ipyparallel.client.view.View
-        )  # @ @UndefinedVariable
+        mock_view = mock.create_autospec(ipyparallel.client.view.View)  # @ @UndefinedVariable
         mock_client.__getitem__.return_value = mock_view
 
         mock_engines_by_host.return_value = {"test host": [0, 1]}
@@ -345,9 +341,7 @@ class TestEngine(unittest.TestCase):
 
         # engines on another host
         mock_engines_by_host.return_value = {"other host": [0, 1]}
-        self.assertRaises(
-            NotImplementedError, ema.update_cwd_on_all_engines, mock_client
-        )
+        self.assertRaises(NotImplementedError, ema.update_cwd_on_all_engines, mock_client)
 
     def test_get_engines_by_host(self):
         engines_by_host = ema.get_engines_by_host(self.client)
@@ -392,9 +386,7 @@ class TestIpyParallelUtilFunctions(unittest.TestCase):
 
         mock_client = mock.create_autospec(ipyparallel.Client)
         mock_client.ids = [0, 1]  # pretend we have two engines
-        mock_view = mock.create_autospec(
-            ipyparallel.client.view.View
-        )  # @ @UndefinedVariable
+        mock_view = mock.create_autospec(ipyparallel.client.view.View)  # @ @UndefinedVariable
         mock_client.__getitem__.return_value = mock_view
 
         cwd = "."
@@ -411,12 +403,7 @@ class TestIpyParallelEvaluator(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.experiment_generator")
     def test_ipyparallel_evaluator(
-        self,
-        mocked_generator,
-        mocked_callback,
-        mocked_start,
-        mocked_initialize,
-        mocked_set,
+        self, mocked_generator, mocked_callback, mocked_start, mocked_initialize, mocked_set
     ):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"

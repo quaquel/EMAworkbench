@@ -1,4 +1,6 @@
-"""This file illustrated the use of the workbench for doing
+"""
+
+This file illustrated the use of the workbench for doing
 a PRIM analysis with PCA preprocessing
 
 The data was generated using a system dynamics models implemented in Vensim.
@@ -24,9 +26,7 @@ x, outcomes = load_results(fn)
 # specify y
 y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
-rotated_experiments, rotation_matrix = prim.pca_preprocess(
-    x, y, exclude=["model", "policy"]
-)
+rotated_experiments, rotation_matrix = prim.pca_preprocess(x, y, exclude=["model", "policy"])
 
 # perform prim on modified results tuple
 prim_obj = prim.Prim(rotated_experiments, y, threshold=0.8)

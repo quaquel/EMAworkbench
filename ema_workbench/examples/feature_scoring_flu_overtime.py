@@ -1,4 +1,5 @@
-"""Created on 30 Oct 2018
+"""
+Created on 30 Oct 2018
 
 @author: jhkwakkel
 """
@@ -8,7 +9,7 @@ import pandas as pd
 import seaborn as sns
 
 from ema_workbench import ema_logging, load_results
-from ema_workbench.analysis import RuleInductionType, get_ex_feature_scores
+from ema_workbench.analysis import get_ex_feature_scores, RuleInductionType
 
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 

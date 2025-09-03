@@ -34,7 +34,7 @@ recommended = ["ema_workbench[jupyter,dev,graph]"]
 all = ["ema_workbench[jupyter,dev,cov,docs,graph,parallel]"]
 
 jupyter = ["jupyter", "jupyter_client", "ipython", "ipykernel"]
-dev = ["pytest", "pytest-mock", "jupyter_client", "ipyparallel", "ruff"]
+dev = ["pytest", "pytest-mock", "jupyter_client", "ipyparallel"]
 cov = ["pytest-cov", "coverage", "coveralls"]
 docs = ["sphinx", "sphinx-rtd-theme", "readthedocs-sphinx-search", "nbsphinx", "myst", "pyscaffold", "myst-parser"]
 graph = ["altair", "pydot", "graphviz"]
@@ -49,88 +49,8 @@ simio = ["pythonnet"]  # Needs Windows as OS
 "Documentation" = "https://emaworkbench.readthedocs.io/"
 "Bug Tracker" = "https://github.com/quaquel/EMAworkbench/issues"
 
-[tool.ruff]
-# See https://github.com/charliermarsh/ruff#rules for error code definitions.
-# Hardcode to Python 3.11.
-# Reminder to update mesa-examples if the value below is changed.
-exclude = [
-    ".eggs",
-    ".git",
-    ".github",
-    ".idea",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "venv",
-    "docs",
-    "test"
-]
-
-
-target-version = "py311"
-extend-exclude = ["build"]
-
-[tool.ruff.lint]
-select = [
-  # "ANN", # annotations TODO
-  "B",   # bugbear
-  "C4",  # comprehensions
-  "DTZ", # naive datetime
-  "E",   # style errors
-  "F",   # flakes
-  "I",   # import sorting
-  "ISC", # string concatenation
-  "N",   # naming
-  "PGH", # pygrep-hooks
-  "PIE", # miscellaneous
-  "PLC", # pylint convention
-  "PLE", # pylint error
-  # "PLR", # pylint refactor TODO
-  "PLW", # pylint warning
-  "Q",   # quotes
-  "RUF", # Ruff
-  "S",   # security
-  "SIM", # simplify
-  "T10", # debugger
-  "UP",  # upgrade
-  "W",   # style warnings
-  "YTT", # sys.version
-  "D",  # docstring
-]
-# Ignore list taken from https://github.com/psf/black/blob/master/.flake8
-# E203	Whitespace before ':'
-# E266	Too many leading '#' for block comment
-# W503	Line break occurred before a binary operator
-# But we don't specify them because ruff's formatter
-# checks for it.
-# See https://github.com/charliermarsh/ruff/issues/1842#issuecomment-1381210185
-extend-ignore = [
-  "E501",
-  "S101",   # Use of `assert` detected
-  "B017",   # `assertRaises(Exception)` should be considered evil TODO
-  "PGH004", # Use specific rule codes when using `noqa` TODO
-  "B905",   # `zip()` without an explicit `strict=` parameter
-  "N802",   # Function name should be lowercase
-  "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar` TODO
-  "S310",   # Audit URL open for permitted schemes. Allowing use of `file:` or custom schemes is often unexpected.
-  "S603",   # `subprocess` call: check for execution of untrusted input
-  "ISC001", # ruff format asks to disable this feature
-  "S311",   # Standard pseudo-random generators are not suitable for cryptographic purposes
-  "SIM105", # I prefer explicit try, pass over contextlib in most cases for readability
-]
-# Ignore all docstring errors in examples and tutorials
-per-file-ignores = {"mesa/examples/*"= ["D"], "docs/tutorials/*" = ["D", "E", "F", "N"], "docs/conf.py"=["C", "D", "DTZ011", "E"]}
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"
+[tool.black]
+line-length = 100
 
 [tool.setuptools.dynamic]
 version = {attr = "ema_workbench.__version__"}

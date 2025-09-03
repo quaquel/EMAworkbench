@@ -1,4 +1,5 @@
-"""Created on Sep 13, 2013
+"""
+Created on Sep 13, 2013
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
@@ -6,7 +7,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ema_workbench.analysis.b_and_w_plotting import GREYSCALE, HATCHING, set_fig_to_bw
+from ema_workbench.analysis.b_and_w_plotting import set_fig_to_bw, HATCHING, GREYSCALE
 
 
 def test_scatter():

@@ -1,30 +1,27 @@
-"""Created on 15 Aug 2019
+"""
+Created on 15 Aug 2019
 
 @author: jhkwakkel
 """
 
-import unittest
-
 import matplotlib.pyplot as plt
 import pandas as pd
+
+import unittest
 
 from ema_workbench.analysis.parcoords import ParallelAxes, get_limits
 
 
 class TestParcoords(unittest.TestCase):
     def test_parallelaxis(self):
-        x = pd.DataFrame(
-            [[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]], columns=["a", "b", "c"]
-        )
+        x = pd.DataFrame([[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]], columns=["a", "b", "c"])
 
         axes = ParallelAxes(x)
 
         self.assertEqual(2, len(axes.axes))
 
     def test_invert_axis(self):
-        x = pd.DataFrame(
-            [[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]], columns=["a", "b", "c"]
-        )
+        x = pd.DataFrame([[0.1, 0, {"a", "b"}], [1.0, 9, {"a", "b"}]], columns=["a", "b", "c"])
 
         axes = ParallelAxes(x)
 

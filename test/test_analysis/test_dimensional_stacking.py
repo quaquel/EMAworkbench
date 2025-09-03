@@ -1,13 +1,13 @@
-"""Created on Nov 30, 2015
+"""
+Created on Nov 30, 2015
 
 @author: jhkwakkel
 """
 
-import unittest
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import unittest
 
 from ema_workbench.analysis import dimensional_stacking
 from test import utilities

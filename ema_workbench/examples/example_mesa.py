@@ -1,25 +1,26 @@
-"""This example is a proof of principle for how MESA models can be
+"""
+
+This example is a proof of principle for how MESA models can be
 controlled using the ema_workbench.
 
 """
 
 # Import EMA Workbench modules
+from ema_workbench import (
+    ReplicatorModel,
+    RealParameter,
+    IntegerParameter,
+    Constant,
+    ArrayOutcome,
+    perform_experiments,
+    ema_logging,
+)
+
 # Necessary packages for the model
 import math
 from enum import Enum
-
 import mesa
 import networkx as nx
-
-from ema_workbench import (
-    ArrayOutcome,
-    Constant,
-    IntegerParameter,
-    RealParameter,
-    ReplicatorModel,
-    ema_logging,
-    perform_experiments,
-)
 
 # MESA demo model "Virus on a Network", from https://github.com/projectmesa/mesa-examples/blob/d16736778fdb500a3e5e05e082b27db78673b562/examples/virus_on_network/virus_on_network/model.py
 
@@ -105,9 +106,7 @@ class VirusOnNetwork(mesa.Model):
 
     def resistant_susceptible_ratio(self):
         try:
-            return number_state(self, State.RESISTANT) / number_state(
-                self, State.SUSCEPTIBLE
-            )
+            return number_state(self, State.RESISTANT) / number_state(self, State.SUSCEPTIBLE)
         except ZeroDivisionError:
             return math.inf
 
@@ -142,9 +141,7 @@ class VirusAgent(mesa.Agent):
         self.gain_resistance_chance = gain_resistance_chance
 
     def try_to_infect_neighbors(self):
-        neighbors_nodes = self.model.grid.get_neighborhood(
-            self.pos, include_center=False
-        )
+        neighbors_nodes = self.model.grid.get_neighborhood(self.pos, include_center=False)
         susceptible_neighbors = [
             agent
             for agent in self.model.grid.get_cell_list_contents(neighbors_nodes)
@@ -169,9 +166,7 @@ class VirusAgent(mesa.Agent):
             self.state = State.INFECTED
 
     def try_check_situation(self):
-        if (self.random.random() < self.virus_check_frequency) and (
-            self.state is State.INFECTED
-        ):
+        if (self.random.random() < self.virus_check_frequency) and (self.state is State.INFECTED):
             self.try_remove_infection()
 
     def step(self):

@@ -1,20 +1,19 @@
-"""Created on Jul 28, 2015
+"""
+Created on Jul 28, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
 import unittest
+
 import unittest.mock as mock
 
-from ema_workbench.em_framework.model import FileModel, Model, ReplicatorModel
-from ema_workbench.em_framework.outcomes import ArrayOutcome
-from ema_workbench.em_framework.parameters import (
-    CategoricalParameter,
-    Category,
-    RealParameter,
-)
-from ema_workbench.em_framework.points import Policy, Scenario
+
+from ema_workbench.em_framework.model import Model, FileModel, ReplicatorModel
+from ema_workbench.em_framework.parameters import RealParameter, Category, CategoricalParameter
+from ema_workbench.em_framework.points import Scenario, Policy
 from ema_workbench.util import EMAError
+from ema_workbench.em_framework.outcomes import ScalarOutcome, ArrayOutcome
 
 
 class FileModelTest(FileModel):
@@ -82,7 +81,7 @@ class TestModel(unittest.TestCase):
 
         model = Model(model_name, function)
         model.uncertainties = [RealParameter("a", 0, 1)]
-        model.run_model(Scenario(a=0.1, b=1), Policy("test"))
+        model.run_model(Scenario(**{"a": 0.1, "b": 1}), Policy("test"))
         function.assert_called_once_with(a=0.1)
 
         # test complete translation of scenario
@@ -90,7 +89,7 @@ class TestModel(unittest.TestCase):
         model = Model(model_name, function)
         model.uncertainties = [RealParameter("a", 0, 1, variable_name=["a", "b"])]
 
-        scenario = Scenario(a=0.1)
+        scenario = Scenario(**{"a": 0.1})
         model.run_model(scenario, Policy("test"))
 
         self.assertIn("a", scenario.keys())
@@ -102,7 +101,7 @@ class TestModel(unittest.TestCase):
             CategoricalParameter("a", cats, variable_name=["a", "b"], multivalue=True)
         ]
 
-        scenario = Scenario(a=cats[0].value)
+        scenario = Scenario(**{"a": cats[0].value})
         model.run_model(scenario, Policy("test"))
 
         self.assertIn("a", scenario.keys())
@@ -110,7 +109,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(scenario["a"], 1)
         self.assertEqual(scenario["b"], 2)
 
-        scenario = Scenario(a=cats[1].value)
+        scenario = Scenario(**{"a": cats[1].value})
         model.run_model(scenario, Policy("test"))
 
         self.assertIn("a", scenario.keys())
@@ -124,7 +123,7 @@ class TestModel(unittest.TestCase):
 
         model = Model(model_name, function)
         model.uncertainties = [RealParameter("a", 0, 1)]
-        model.run_model(Scenario(a=0.1, b=1), Policy("test"))
+        model.run_model(Scenario(**{"a": 0.1, "b": 1}), Policy("test"))
         function.assert_called_once_with(a=0.1)
 
         # test complete translation of scenario
@@ -132,7 +131,7 @@ class TestModel(unittest.TestCase):
         model = Model(model_name, function)
         model.uncertainties = [RealParameter("a", 0, 1, variable_name=["a", "b"])]
 
-        scenario = Scenario(a=0.1)
+        scenario = Scenario(**{"a": 0.1})
         model.run_model(scenario, Policy("test"))
 
         self.assertIn("a", scenario.keys())
@@ -144,7 +143,7 @@ class TestModel(unittest.TestCase):
             CategoricalParameter("a", cats, variable_name=["a", "b"], multivalue=True)
         ]
 
-        scenario = Scenario(a=cats[0].value)
+        scenario = Scenario(**{"a": cats[0].value})
         model.run_model(scenario, Policy("test"))
 
         self.assertIn("a", scenario.keys())
@@ -152,7 +151,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(scenario["a"], 1)
         self.assertEqual(scenario["b"], 2)
 
-        scenario = Scenario(a=cats[1].value)
+        scenario = Scenario(**{"a": cats[1].value})
         model.run_model(scenario, Policy("test"))
 
         self.assertIn("a", scenario.keys())
@@ -183,14 +182,7 @@ class TestModel(unittest.TestCase):
         model = Model(model_name, lambda x: x)
         model.uncertainties = [RealParameter("a", 0, 1)]
 
-        expected_keys = [
-            "class",
-            "name",
-            "uncertainties",
-            "outcomes",
-            "outcomes",
-            "constants",
-        ]
+        expected_keys = ["class", "name", "uncertainties", "outcomes", "outcomes", "constants"]
 
         dict_ = model.as_dict()
 
@@ -210,7 +202,7 @@ class TestReplicatorModel(unittest.TestCase):
         model.outcomes = [ArrayOutcome("outcome")]
         model.replications = 2
 
-        model.run_model(Scenario(a=0.1, b=1), Policy("test"))
+        model.run_model(Scenario(**{"a": 0.1, "b": 1}), Policy("test"))
         self.assertEqual(function.call_count, 2)
         self.assertEqual({"outcome": [2, 2]}, model.outcomes_output)
 

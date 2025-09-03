@@ -1,4 +1,5 @@
-"""Created on Jul 9, 2014
+"""
+Created on Jul 9, 2014
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
@@ -7,25 +8,23 @@ import unittest
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import (
-    ExtraTreesClassifier,
-    ExtraTreesRegressor,
-    RandomForestClassifier,
-    RandomForestRegressor,
-)
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesClassifier, ExtraTreesRegressor
 
 from ema_workbench.analysis import feature_scoring as fs
-from ema_workbench.analysis.feature_scoring import CHI2, F_CLASSIFICATION, F_REGRESSION
+from ema_workbench.analysis.feature_scoring import F_CLASSIFICATION, CHI2, F_REGRESSION
 from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
 from ema_workbench.util import ema_logging
+
+from ema_workbench import ScalarOutcome
+
 from test import utilities
 
 
 class FeatureScoringTestCase(unittest.TestCase):
     def test_prepare_experiments(self):
-        x = pd.DataFrame(
-            [(0, 1, 2, 1), (2, 5, 6, 1), (3, 2, 1, 1)], columns=["a", "b", "c", "d"]
-        )
+        x = pd.DataFrame([(0, 1, 2, 1), (2, 5, 6, 1), (3, 2, 1, 1)], columns=["a", "b", "c", "d"])
         x, _ = fs._prepare_experiments(x)
 
         correct = np.array([[0, 1, 2, 1], [2, 5, 6, 1], [3, 2, 1, 1]], dtype=float)
@@ -147,9 +146,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertEqual(len(scores), len(x.columns) - 3)
         self.assertTrue(isinstance(forest, RandomForestClassifier))
 
-        self.assertRaises(
-            ValueError, fs.get_rf_feature_scores, x, y, mode="illegal argument"
-        )
+        self.assertRaises(ValueError, fs.get_rf_feature_scores, x, y, mode="illegal argument")
 
         y = outcomes["deceased_population_region_1"][:, -1]
         scores, forest = fs.get_rf_feature_scores(
@@ -170,9 +167,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertEqual(len(scores), len(x.columns) - 3)
         self.assertTrue(isinstance(forest, ExtraTreesClassifier))
 
-        self.assertRaises(
-            ValueError, fs.get_ex_feature_scores, x, y, mode="illegal argument"
-        )
+        self.assertRaises(ValueError, fs.get_ex_feature_scores, x, y, mode="illegal argument")
 
         y = outcomes["deceased_population_region_1"][:, -1]
         scores, forest = fs.get_ex_feature_scores(

@@ -1,4 +1,5 @@
-"""An example of the lake problem using the ema workbench. This example
+"""
+An example of the lake problem using the ema workbench. This example
 illustrated how you can control more finely how samples are being generated.
 In this particular case, we want to apply Sobol analysis over both the
 uncertainties and levers at the same time.
@@ -13,25 +14,24 @@ from SALib.analyze import sobol
 from scipy.optimize import brentq
 
 from ema_workbench import (
-    Constant,
     Model,
-    MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
-    Scenario,
+    Constant,
     ema_logging,
+    MultiprocessingEvaluator,
+    Scenario,
 )
-from ema_workbench.em_framework import (
-    SobolSampler,
-    get_SALib_problem,
-    sample_parameters,
-)
+from ema_workbench.em_framework import get_SALib_problem, sample_parameters
+from ema_workbench.em_framework import SobolSampler
 
 # from ema_workbench.em_framework.evaluators import Samplers
 
 
 def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
-    """Parameters
+    """
+
+    Parameters
     ----------
     xt : float
          pollution in lake at time t
@@ -49,6 +49,7 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
     note:: w2 = 1 - w1
 
     """
+
     rule = w1 * (abs(xt - c1) / r1) ** 3 + (1 - w1) * (abs(xt - c2) / r2) ** 3
     at1 = max(rule, 0.01)
     at = min(at1, 0.1)
@@ -105,18 +106,17 @@ def lake_problem(
             )
             average_daily_P[t] += X[t] / nsamples
 
-        reliability += np.sum(Pcrit > X) / (nsamples * myears)
+        reliability += np.sum(X < Pcrit) / (nsamples * myears)
         inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples * myears)
-        utility += (
-            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
-        )
+        utility += np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
     max_P = np.max(average_daily_P)
 
     return max_P, utility, inertia, reliability
 
 
 def analyze(results, ooi):
-    """Analyze results using SALib sobol, returns a dataframe"""
+    """analyze results using SALib sobol, returns a dataframe"""
+
     _, outcomes = results
 
     parameters = lake_model.uncertainties.copy() + lake_model.levers.copy()
@@ -124,14 +124,10 @@ def analyze(results, ooi):
     problem = get_SALib_problem(parameters)
     y = outcomes[ooi]
     sobol_indices = sobol.analyze(problem, y)
-    sobol_stats = {
-        key: sobol_indices[key] for key in ["ST", "ST_conf", "S1", "S1_conf"]
-    }
+    sobol_stats = {key: sobol_indices[key] for key in ["ST", "ST_conf", "S1", "S1_conf"]}
     sobol_stats = pd.DataFrame(sobol_stats, index=problem["names"])
     sobol_stats.sort_values(by="ST", ascending=False)
-    s2 = pd.DataFrame(
-        sobol_indices["S2"], index=problem["names"], columns=problem["names"]
-    )
+    s2 = pd.DataFrame(sobol_indices["S2"], index=problem["names"], columns=problem["names"])
     s2_conf = pd.DataFrame(
         sobol_indices["S2_conf"], index=problem["names"], columns=problem["names"]
     )

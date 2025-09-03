@@ -1,6 +1,8 @@
-"""This module offers basic functionality for converting a matplotlib figure to black and white.
+"""
 
-The provided functionality is largely determined by what is needed for the workbench.
+This module offers basic functionality for converting a matplotlib figure
+to black and white. The provided functionality is largely determined by
+what is needed for the workbench.
 
 """
 
@@ -9,7 +11,7 @@ import math
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib.collections import PathCollection, PolyCollection
+from matplotlib.collections import PolyCollection, PathCollection
 
 # Python 3.9 and the associated newest matplotlib version don't have FillBetweenPolyCollection, while newer versions do have it.
 # This ensures that the workbench still works with 3.9 and ensures full backward compatibility.
@@ -21,7 +23,6 @@ except ImportError:
 from matplotlib.colors import ColorConverter
 
 from ema_workbench.util import get_module_logger
-
 from ..util import EMAError
 
 # Created on 18 sep. 2012
@@ -47,7 +48,11 @@ GREYSCALE = "grey_scale"
 
 
 def _identify_colors(fig):
-    """Identify the various colors that are used in the figure and return as a set."""
+    """Identify the various colors that are used in the figure and
+    return as a set
+
+    """
+
     color_converter = ColorConverter()
     all_colors = set()
 
@@ -69,7 +74,9 @@ def _identify_colors(fig):
 
 
 def set_ax_lines_bw(ax, colormap, line_style="continuous"):
-    """Take each Line2D in ax, and convert the line style to be suitable for black and white viewing.
+    """
+    Take each Line2D in the axes, ax, and convert the line style to be
+    suitable for black and white viewing.
 
     Derived from and expanded for use in the EMA workbench from:
     https://stackoverflow.com/questions/7358118/matplotlib-black-white-colormap-with-dashes-dots-etc
@@ -85,6 +92,7 @@ def set_ax_lines_bw(ax, colormap, line_style="continuous"):
                 or None
 
     """
+
     for line in ax.get_lines():
         orig_color = line.get_color()
         try:
@@ -108,7 +116,9 @@ def set_ax_lines_bw(ax, colormap, line_style="continuous"):
 
 
 def set_ax_patches_bw(ax, colormap):
-    """Take each patch in ax, and convert the face color to be suitable for black and white viewing.
+    """
+    Take each patch in the axes, ax, and convert the face color to be
+    suitable for black and white viewing.
 
     Parameters
     ----------
@@ -118,6 +128,7 @@ def set_ax_patches_bw(ax, colormap):
                mapping of color to B&W rendering
 
     """
+
     color_converter = ColorConverter()
 
     for patch in ax.patches:
@@ -128,7 +139,9 @@ def set_ax_patches_bw(ax, colormap):
 
 
 def set_ax_collections_to_bw(ax, style, colormap):
-    """Take each polycollection in ax, and convert the face color to be suitable for black and white viewing.
+    """
+    Take each polycollection in the axes, ax, and convert the face color to be
+    suitable for black and white viewing.
 
     Parameters
     ----------
@@ -143,16 +156,14 @@ def set_ax_collections_to_bw(ax, style, colormap):
         collection_type = type(collection).__name__
         try:
             converter_func = _collection_converter[collection_type]
-        except KeyError as e:
-            raise EMAError(
-                f"Converter for collection type {collection_type} not implemented"
-            ) from e
+        except KeyError:
+            raise EMAError(f"Converter for collection type {collection_type} not implemented")
         else:
             converter_func(collection, ax, style, colormap)
 
 
 def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
-    """Helper function for converting a polycollection to black and white.
+    """helper function for converting a polycollection to black and white
 
     Parameters
     ----------
@@ -164,6 +175,7 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
 
 
     """
+
     if style == GREYSCALE:
         color_converter = ColorConverter()
         for polycollection in ax.collections:
@@ -191,15 +203,13 @@ def _set_ax_polycollection_to_bw(collection, ax, style, colormap):
             collection.update({"alpha": 1})
 
             for path in collection.get_paths():
-                p1 = mpl.patches.PathPatch(
-                    path, fc="none", hatch=colormap[orig_color]["hatch"]
-                )
+                p1 = mpl.patches.PathPatch(path, fc="none", hatch=colormap[orig_color]["hatch"])
                 ax.add_patch(p1)
                 p1.set_zorder(collection.get_zorder() - 0.1)
 
 
 def _set_ax_pathcollection_to_bw(collection, ax, style, colormap):
-    """Helper function for converting a pathcollection to black and white.
+    """helper function for converting a pathcollection to black and white
 
     Parameters
     ----------
@@ -237,9 +247,9 @@ _collection_converter = {
 
 
 def set_legend_to_bw(leg, style, colormap, line_style="continuous"):
-    """Takes the figure legend and converts it to black and white.
-
-    Note that it currently only converts lines to black and white, other artist
+    """
+    Takes the figure legend and converts it to black and white. Note that
+    it currently only converts lines to black and white, other artist
     instances are currently not being supported, and might cause errors or
     other unexpected behavior.
 
@@ -282,14 +292,14 @@ def set_legend_to_bw(leg, style, colormap, line_style="continuous"):
                 orig_color = line.get_color()
 
                 line.set_color("black")
-                if line_style != "continuous":
+                if not line_style == "continuous":
                     line.set_dashes(colormap[orig_color]["dash"])
                     line.set_marker(colormap[orig_color]["marker"])
                     line.set_markersize(MARKERSIZE)
 
 
 def set_ax_legend_to_bw(ax, style, colormap, line_style="continuous"):
-    """Convert axes legend to black and white.
+    """convert axes legend to black and white
 
     Parameters
     ----------
@@ -302,13 +312,17 @@ def set_ax_legend_to_bw(ax, style, colormap, line_style="continuous"):
                 or None
 
     """
+
     legend = ax.legend_
     set_legend_to_bw(legend, style, colormap, line_style)
 
 
 def set_fig_to_bw(fig, style=HATCHING, line_style="continuous"):
-    """Take each axes in the figure and transform its content to black and white.
+    """
+    TODO it would be nice if for lines you can select either markers, gray
+    scale, or simple black
 
+    Take each axes in the figure and transform its content to black and white.
     Lines are transformed based on different line styles. Fills such as can
     be used in `meth`:envelopes are gray-scaled. Heathmaps are also gray-scaled.
 
@@ -325,9 +339,6 @@ def set_fig_to_bw(fig, style=HATCHING, line_style="continuous"):
     line_style: str, {'continuous', 'black', None}
 
     """
-    #FIXME it would be nice if for lines you can select either markers, gray
-    # FIXMEscale, or simple black
-
     all_colors = _identify_colors(fig)
 
     if len(all_colors) > len(bw_mapping):

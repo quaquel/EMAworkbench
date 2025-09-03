@@ -5,9 +5,9 @@ connector assumes Simio is installed in C:/Program Files (x86)/Simio
 
 import os
 import sys
+import numpy as np
 
 import clr  # @UnresolvedImport
-import numpy as np
 
 from ema_workbench.em_framework import FileModel, SingleReplication
 from ema_workbench.util import CaseError, EMAError
@@ -46,7 +46,7 @@ class SimioModel(FileModel, SingleReplication):
     main_model : str
     n_replications : int, optional
 
-    Attributes:
+    Attributes
     ----------
     name : str
     wd : str
@@ -55,7 +55,7 @@ class SimioModel(FileModel, SingleReplication):
     output : dict
     n_replications : int
 
-    Notes:
+    Notes
     -----
     responses are stored for each replication. It is up to the user
     to specify on the Python side what descriptive statistics need to be saved
@@ -64,10 +64,8 @@ class SimioModel(FileModel, SingleReplication):
     """
 
     @method_logger(__name__)
-    def __init__(
-        self, name, wd=None, model_file=None, main_model=None, n_replications=10
-    ):
-        """Interface to the model
+    def __init__(self, name, wd=None, model_file=None, main_model=None, n_replications=10):
+        """interface to the model
 
         Parameters
         ----------
@@ -81,7 +79,7 @@ class SimioModel(FileModel, SingleReplication):
         main_model : str
         n_replications : int, optional
 
-        Raises:
+        Raises
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -127,9 +125,7 @@ class SimioModel(FileModel, SingleReplication):
 
         # set up new EMA specific experiment on model
         _logger.debug("setting up EMA experiment")
-        self.experiment = SimioAPI.IExperiment(
-            model.Experiments.Create("ema experiment")
-        )
+        self.experiment = SimioAPI.IExperiment(model.Experiments.Create("ema experiment"))
         SimioAPI.IExperimentResponses(self.experiment.Responses).Clear()
 
         # use all available responses as template for experiment responses
@@ -143,9 +139,7 @@ class SimioModel(FileModel, SingleReplication):
                 except KeyError:
                     raise EMAError(f"response with name '{name}' not found")
 
-                response = SimioAPI.IExperimentResponse(
-                    self.experiment.Responses.Create(name)
-                )
+                response = SimioAPI.IExperimentResponse(self.experiment.Responses.Create(name))
                 response.set_Expression(value.Expression)
                 response.set_Objective(value.Objective)
 
@@ -201,7 +195,8 @@ class SimioModel(FileModel, SingleReplication):
 
     @method_logger(__name__)
     def reset_model(self):
-        """Method for resetting the model to its initial state. The default
+        """
+        Method for resetting the model to its initial state. The default
         implementation only sets the outputs to an empty dict.
 
         """
@@ -212,7 +207,8 @@ class SimioModel(FileModel, SingleReplication):
 
     @method_logger(__name__)
     def scenario_ended(self, sender, scenario_ended_event):
-        """Scenario ended event handler"""
+        """scenario ended event handler"""
+
         #         ema_logging.debug('scenario ended called!')
 
         # This event handler will be called when all replications for a
@@ -263,7 +259,8 @@ class SimioModel(FileModel, SingleReplication):
 
     @method_logger(__name__)
     def run_completed(self, sender, run_completed_event):
-        """Run completed event handler"""
+        """run completed event handler"""
+
         _logger.debug("run completed")
 
         # This event handler is the last one to be called during the run.
@@ -285,6 +282,7 @@ def get_responses(model):
     model : SimioAPI.IModel instance
 
     """
+
     response_map = {}
 
     experiments = SimioAPI.IExperiments(model.Experiments)

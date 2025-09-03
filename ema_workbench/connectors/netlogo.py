@@ -1,4 +1,5 @@
-"""This module specifies a generic Model class for controlling
+"""
+This module specifies a generic Model class for controlling
 NetLogo models.
 
 ScalarOutcomes and ArrayOutcomes are assumed to be reporters on the
@@ -24,6 +25,7 @@ except ImportError:
 import os
 
 import numpy as np
+
 import pynetlogo
 
 from ..em_framework.model import FileModel
@@ -41,7 +43,7 @@ class BaseNetLogoModel(FileModel):
     """Base class for interfacing with netlogo models. This class
     extends :class:`em_framework.ModelStructureInterface`.
 
-    Attributes:
+    Attributes
     ----------
     model_file : str
                  a relative path from the working directory to the model
@@ -59,9 +61,7 @@ class BaseNetLogoModel(FileModel):
         if self._ts_output_variables is None:
             timeseries = [o for o in self.outcomes if isinstance(o, ArrayOutcome)]
 
-            self._ts_output_variables = [
-                var for o in timeseries for var in o.variable_name
-            ]
+            self._ts_output_variables = [var for o in timeseries for var in o.variable_name]
 
         return self._ts_output_variables
 
@@ -77,7 +77,8 @@ class BaseNetLogoModel(FileModel):
         gui=False,
         jvm_args=[],
     ):
-        """Init of class
+        """
+        init of class
 
         Parameters
         ----------
@@ -94,11 +95,11 @@ class BaseNetLogoModel(FileModel):
                If true, displays the NetLogo GUI (not supported on Mac)
         jvm_args : list, optional
 
-        Raises:
+        Raises
         ------
         EMAError if name contains non alpha-numerical characters
 
-        Note:
+        Note
         ----
         Anything that is relative to `self.working_directory`should be
         specified in `model_init` and not in `src`. Otherwise, the code
@@ -118,7 +119,8 @@ class BaseNetLogoModel(FileModel):
 
     @method_logger(__name__)
     def model_init(self, policy):
-        """Method called to initialize the model.
+        """
+        Method called to initialize the model.
 
         Parameters
         ----------
@@ -143,14 +145,15 @@ class BaseNetLogoModel(FileModel):
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """Method for running an instantiated model structure.
+        """
+        Method for running an instantiated model structure.
 
         Parameters
         ----------
         experiment : dict like
 
 
-        Raises:
+        Raises
         ------
         jpype.JavaException if there is any exception thrown by the netlogo
         model
@@ -162,7 +165,7 @@ class BaseNetLogoModel(FileModel):
             try:
                 self.netlogo.command(self.command_format.format(key, value))
             except jpype.JavaException as e:
-                _logger.warning(f"variable {key} throws exception: {e!s}")
+                _logger.warning(f"variable {key} throws exception: {str(e)}")
 
         _logger.debug("model parameters set successfully")
 
@@ -176,9 +179,7 @@ class BaseNetLogoModel(FileModel):
         commands = []
         fns = {}
         for variable in self.ts_output_variables:
-            fn = r"{0}{3}{1}{2}".format(
-                self.working_directory, variable, ".txt", os.sep
-            )
+            fn = r"{0}{3}{1}{2}".format(self.working_directory, variable, ".txt", os.sep)
             fns[variable] = fn
             fn = f'"{fn}"'
             fn = fn.replace(os.sep, "/")
@@ -222,9 +223,10 @@ class BaseNetLogoModel(FileModel):
         return results
 
     def retrieve_output(self):
-        """Method for retrieving output after a model run.
+        """
+        Method for retrieving output after a model run.
 
-        Returns:
+        Returns
         -------
         dict with the results of a model run.
 
@@ -233,7 +235,8 @@ class BaseNetLogoModel(FileModel):
 
     @method_logger(__name__)
     def cleanup(self):
-        """This model is called after finishing all the experiments, but
+        """
+        This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
         doing any cleanup, such as closing applications.
 
@@ -251,7 +254,8 @@ class BaseNetLogoModel(FileModel):
     #         self.netlogo = None
 
     def _handle_outcomes(self, fns):
-        """Helper function for parsing outcomes"""
+        """helper function for parsing outcomes"""
+
         results = {}
         for key, value in fns.items():
             with open(value) as fh:
