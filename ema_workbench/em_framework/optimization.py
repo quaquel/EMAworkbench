@@ -1,4 +1,4 @@
-""" """
+"""Wrapper around platypus-opt."""
 
 import copy
 import functools
@@ -11,52 +11,55 @@ import warnings
 import numpy as np
 import pandas as pd
 
-
+from ..util import INFO, EMAError, get_module_logger, temporary_filter
 from . import callbacks, evaluators
-from .points import Scenario, Policy
 from .outcomes import AbstractOutcome
-from .parameters import IntegerParameter, RealParameter, CategoricalParameter, BooleanParameter
+from .parameters import (
+    BooleanParameter,
+    CategoricalParameter,
+    IntegerParameter,
+    RealParameter,
+)
+from .points import Policy, Scenario
 from .samplers import determine_parameters
-from .util import determine_objects, ProgressTrackingMixIn
-from ..util import get_module_logger, EMAError, temporary_filter, INFO
+from .util import ProgressTrackingMixIn, determine_objects
 
 try:
+    import platypus
     from platypus import (
-        EpsNSGAII,
-        Hypervolume,
-        EpsilonIndicator,
-        GenerationalDistance,
-        Variator,
-        Real,
-        Integer,
-        Subset,
-        EpsilonProgressContinuation,
-        RandomGenerator,
-        TournamentSelector,
         NSGAII,
-        EpsilonBoxArchive,
-        Multimethod,
-        GAOperator,
-        SBX,
-        PM,
         PCX,
-        DifferentialEvolution,
-        UNDX,
+        PM,
+        SBX,
         SPX,
         UM,
-        Solution,
+        UNDX,
+        DifferentialEvolution,
+        EpsilonBoxArchive,
+        EpsilonIndicator,
+        EpsilonProgressContinuation,
+        EpsNSGAII,
+        GAOperator,
+        GenerationalDistance,
+        Hypervolume,
+        Integer,
         InvertedGenerationalDistance,
+        Multimethod,
+        RandomGenerator,
+        Real,
+        Solution,
         Spacing,
+        Subset,
+        TournamentSelector,
+        Variator,
     )  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
-
-    import platypus
 
 
 except ImportError:
     warnings.warn(
         "Platypus based optimization not available. Install with `pip install platypus-opt`",
-        ImportWarning,
+        ImportWarning, stacklevel=2
     )
 
     class PlatypusProblem:
@@ -92,19 +95,19 @@ except ImportError:
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
+    "ArchiveLogger",
+    "Convergence",
+    "EpsilonIndicatorMetric",
+    "EpsilonProgress",
+    "GenerationalDistanceMetric",
+    "HypervolumeMetric",
+    "InvertedGenerationalDistanceMetric",
+    "OperatorProbabilities",
     "Problem",
     "RobustProblem",
-    "EpsilonProgress",
-    "Convergence",
-    "ArchiveLogger",
-    "OperatorProbabilities",
-    "rebuild_platypus_population",
-    "HypervolumeMetric",
-    "GenerationalDistanceMetric",
     "SpacingMetric",
-    "InvertedGenerationalDistanceMetric",
-    "EpsilonIndicatorMetric",
     "epsilon_nondominated",
+    "rebuild_platypus_population",
     "to_problem",
     "to_robust_problem",
 ]
@@ -112,15 +115,21 @@ _logger = get_module_logger(__name__)
 
 
 class Problem(PlatypusProblem):
-    """small extension to Platypus problem object, includes information on
-    the names of the decision variables, the names of the outcomes,
-    and the type of search"""
+    """Small extension to Platypus problem object.
+
+    Includes information on the names of the decision variables, the names of the outcomes,
+    and the type of search.
+    """
 
     @property
     def parameter_names(self):
+        """Getter for parameter names."""
         return [e.name for e in self.parameters]
 
-    def __init__(self, searchover, parameters, outcome_names, constraints, reference=None):
+    def __init__(
+        self, searchover, parameters, outcome_names, constraints, reference=None
+    ):
+        """Init."""
         if constraints is None:
             constraints = []
 
@@ -144,10 +153,15 @@ class Problem(PlatypusProblem):
 
 
 class RobustProblem(Problem):
-    """small extension to Problem object for robust optimization, adds the
-    scenarios and the robustness functions"""
+    """Small extension to Problem object for robust optimization.
 
-    def __init__(self, parameters, outcome_names, scenarios, robustness_functions, constraints):
+    adds the scenarios and the robustness functions
+    """
+
+    def __init__(
+        self, parameters, outcome_names, scenarios, robustness_functions, constraints
+    ):
+        """Init."""
         super().__init__("robust", parameters, outcome_names, constraints)
         assert len(robustness_functions) == len(outcome_names)
         self.scenarios = scenarios
@@ -155,7 +169,7 @@ class RobustProblem(Problem):
 
 
 def to_problem(model, searchover, reference=None, constraints=None):
-    """helper function to create Problem object
+    """Helper function to create Problem object.
 
     Parameters
     ----------
@@ -167,12 +181,11 @@ def to_problem(model, searchover, reference=None, constraints=None):
                 uncertainties
     constraints : list, optional
 
-    Returns
+    Returns:
     -------
     Problem instance
 
     """
-
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, searchover, union=True)
 
@@ -181,7 +194,9 @@ def to_problem(model, searchover, reference=None, constraints=None):
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
-        raise EMAError("No outcomes specified to optimize over, all outcomes are of kind=INFO")
+        raise EMAError(
+            "No outcomes specified to optimize over, all outcomes are of kind=INFO"
+        )
 
     problem = Problem(
         searchover, decision_variables, outcome_names, constraints, reference=reference
@@ -194,7 +209,7 @@ def to_problem(model, searchover, reference=None, constraints=None):
 
 
 def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
-    """helper function to create RobustProblem object
+    """Helper function to create RobustProblem object.
 
     Parameters
     ----------
@@ -203,12 +218,11 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     robustness_functions : iterable of ScalarOutcomes
     constraints : list, optional
 
-    Returns
+    Returns:
     -------
     RobustProblem instance
 
     """
-
     # extract the levers and the outcomes
     decision_variables = determine_parameters(model, "levers", union=True)
 
@@ -217,7 +231,9 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
-        raise EMAError("No outcomes specified to optimize over, all outcomes are of kind=INFO")
+        raise EMAError(
+            "No outcomes specified to optimize over, all outcomes are of kind=INFO"
+        )
 
     problem = RobustProblem(
         decision_variables, outcome_names, scenarios, robustness_functions, constraints
@@ -231,8 +247,7 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
 
 
 def to_platypus_types(decision_variables):
-    """helper function for mapping from workbench parameter types to
-    platypus parameter types"""
+    """Helper function for mapping from workbench parameter types to platypus parameter types."""
     # TODO:: should categorical not be platypus.Subset, with size == 1?
     _type_mapping = {
         RealParameter: platypus.Real,
@@ -245,7 +260,7 @@ def to_platypus_types(decision_variables):
     for dv in decision_variables:
         klass = _type_mapping[type(dv)]
 
-        if not isinstance(dv, (CategoricalParameter, BooleanParameter)):
+        if not isinstance(dv, (CategoricalParameter | BooleanParameter)):
             decision_variable = klass(dv.lower_bound, dv.upper_bound)
         else:
             decision_variable = klass(dv.categories, 1)
@@ -255,22 +270,23 @@ def to_platypus_types(decision_variables):
 
 
 def to_dataframe(solutions, dvnames, outcome_names):
-    """helper function to turn a collection of platypus Solution instances
-    into a pandas DataFrame
+    """Helper function to turn a collection of platypus Solution instances into a pandas DataFrame.
+
     Parameters
     ----------
     solutions : collection of Solution instances
     dvnames : list of str
     outcome_names : list of str
 
-    Returns
+    Returns:
     -------
     pandas DataFrame
     """
-
     results = []
     for solution in platypus.unique(solutions):
-        vars = transform_variables(solution.problem, solution.variables)  # @ReservedAssignment
+        vars = transform_variables(
+            solution.problem, solution.variables
+        )  # @ReservedAssignment
 
         decision_vars = dict(zip(dvnames, vars))
         decision_out = dict(zip(outcome_names, solution.objectives))
@@ -285,13 +301,13 @@ def to_dataframe(solutions, dvnames, outcome_names):
 
 
 def process_uncertainties(jobs):
-    """helper function to map jobs generated by platypus to Scenario objects
+    """Helper function to map jobs generated by platypus to Scenario objects.
 
     Parameters
     ----------
     jobs : collection
 
-    Returns
+    Returns:
     -------
     scenarios, policies
 
@@ -311,13 +327,13 @@ def process_uncertainties(jobs):
 
 
 def process_levers(jobs):
-    """helper function to map jobs generated by platypus to Policy objects
+    """Helper function to map jobs generated by platypus to Policy objects.
 
     Parameters
     ----------
     jobs : collection
 
-    Returns
+    Returns:
     -------
     scenarios, policies
 
@@ -327,8 +343,8 @@ def process_levers(jobs):
     jobs = _process(jobs, problem)
     for i, job in enumerate(jobs):
         name = str(i)
-        job = Policy(name=name, **job)
-        policies.append(job)
+        policy = Policy(name=name, **job)
+        policies.append(policy)
 
     scenarios = problem.reference
 
@@ -336,16 +352,14 @@ def process_levers(jobs):
 
 
 def _process(jobs, problem):
-    """helper function to transform platypus job to dict with correct
-    values for workbench"""
-
+    """Helper function to transform platypus job to dict with correct values for workbench."""
     processed_jobs = []
     for job in jobs:
         variables = transform_variables(problem, job.solution.variables)
         processed_job = {}
         for param, var in zip(problem.parameters, variables):
             try:
-                var = var.value
+                var = var.value # noqa: PLW2901
             except AttributeError:
                 pass
             processed_job[param.name] = var
@@ -354,13 +368,13 @@ def _process(jobs, problem):
 
 
 def process_robust(jobs):
-    """Helper function to process robust optimization jobs
+    """Helper function to process robust optimization jobs.
 
     Parameters
     ----------
     jobs : collection
 
-    Returns
+    Returns:
     -------
     scenarios, policies
 
@@ -372,13 +386,12 @@ def process_robust(jobs):
 
 
 def transform_variables(problem, variables):
-    """helper function for transforming platypus variables"""
-
+    """Helper function for transforming platypus variables."""
     converted_vars = []
     for type, var in zip(problem.types, variables):  # @ReservedAssignment
-        var = type.decode(var)
+        var = type.decode(var) # noqa: PLW2901
         try:
-            var = var[0]
+            var = var[0] # noqa: PLW2901
         except TypeError:
             pass
 
@@ -387,17 +400,12 @@ def transform_variables(problem, variables):
 
 
 def evaluate(jobs_collection, experiments, outcomes, problem):
-    """Helper function for mapping the results from perform_experiments back
-    to what platypus needs"""
-
+    """Helper function for mapping the results from perform_experiments back to what platypus needs."""
     searchover = problem.searchover
     outcome_names = problem.outcome_names
     constraints = problem.ema_constraints
 
-    if searchover == "levers":
-        column = "policy"
-    else:
-        column = "scenario"
+    column = "policy" if searchover == "levers" else "scenario"
 
     for entry, job in jobs_collection:
         logical = experiments[column] == entry.name
@@ -408,20 +416,20 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
 
         # TODO:: only retain uncertainties
         job_experiment = experiments[logical]
-        job_constraints = _evaluate_constraints(job_experiment, job_outputs, constraints)
+        job_constraints = _evaluate_constraints(
+            job_experiment, job_outputs, constraints
+        )
         job_outcomes = [job_outputs[key] for key in outcome_names]
 
         if job_constraints:
-            job.solution.problem.function = lambda _: (job_outcomes, job_constraints)
+            job.solution.problem.function = lambda _: (job_outcomes, job_constraints) # noqa: B023
         else:
-            job.solution.problem.function = lambda _: job_outcomes
+            job.solution.problem.function = lambda _: job_outcomes  # noqa: B023
         job.solution.evaluate()
 
 
 def evaluate_robust(jobs_collection, experiments, outcomes, problem):
-    """Helper function for mapping the results from perform_experiments back
-    to what Platypus needs"""
-
+    """Helper function for mapping the results from perform_experiments back to what Platypus needs."""
     robustness_functions = problem.robustness_functions
     constraints = problem.ema_constraints
 
@@ -438,18 +446,20 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
 
         # TODO:: only retain levers
         job_experiment = experiments[logical].iloc[0]
-        job_constraints = _evaluate_constraints(job_experiment, job_outcomes_dict, constraints)
+        job_constraints = _evaluate_constraints(
+            job_experiment, job_outcomes_dict, constraints
+        )
 
         if job_constraints:
-            job.solution.problem.function = lambda _: (job_outcomes, job_constraints)
+            job.solution.problem.function = lambda _: (job_outcomes, job_constraints)  # noqa: B023
         else:
-            job.solution.problem.function = lambda _: job_outcomes
+            job.solution.problem.function = lambda _: job_outcomes  # noqa: B023
 
         job.solution.evaluate()
 
 
 def _evaluate_constraints(job_experiment, job_outcomes, constraints):
-    """Helper function for evaluating the constraints for a given job"""
+    """Helper function for evaluating the constraints for a given job."""
     job_constraints = []
     for constraint in constraints:
         data = [job_experiment[var] for var in constraint.parameter_names]
@@ -460,9 +470,10 @@ def _evaluate_constraints(job_experiment, job_outcomes, constraints):
 
 
 class AbstractConvergenceMetric:
-    """base convergence metric class"""
+    """Base convergence metric class."""
 
     def __init__(self, name):
+        """Init."""
         super().__init__()
         self.name = name
         self.results = []
@@ -478,17 +489,18 @@ class AbstractConvergenceMetric:
 
 
 class EpsilonProgress(AbstractConvergenceMetric):
-    """epsilon progress convergence metric class"""
+    """Epsilon progress convergence metric class."""
 
     def __init__(self):
+        """Init."""
         super().__init__("epsilon_progress")
 
-    def __call__(self, optimizer):
+    def __call__(self, optimizer): # noqa: D102
         self.results.append(optimizer.archive.improvements)
 
 
 class MetricWrapper:
-    """wrapper class for wrapping platypus indicators
+    """Wrapper class for wrapping platypus indicators.
 
     Parameters
     ----------
@@ -498,7 +510,7 @@ class MetricWrapper:
              any additional keyword arguments to be passed
              on to the wrapper platypus indicator class
 
-    Notes
+    Notes:
     -----
     this class relies on multi-inheritance and careful consideration
     of the MRO to conveniently wrap the convergence metrics provided
@@ -517,13 +529,12 @@ class MetricWrapper:
 
 
 class HypervolumeMetric(MetricWrapper, Hypervolume):
-    """Hypervolume metric
+    """Hypervolume metric.
 
     Parameters
     ----------
     reference_set : DataFrame
     problem : PlatypusProblem instance
-
 
     this is a thin wrapper around Hypervolume as provided
     by platypus to make it easier to use in conjunction with the
@@ -531,11 +542,9 @@ class HypervolumeMetric(MetricWrapper, Hypervolume):
 
     """
 
-    pass
-
 
 class GenerationalDistanceMetric(MetricWrapper, GenerationalDistance):
-    """GenerationalDistance metric
+    """GenerationalDistance metric.
 
     Parameters
     ----------
@@ -554,11 +563,9 @@ class GenerationalDistanceMetric(MetricWrapper, GenerationalDistance):
 
     """
 
-    pass
-
 
 class InvertedGenerationalDistanceMetric(MetricWrapper, InvertedGenerationalDistance):
-    """InvertedGenerationalDistance metric
+    """InvertedGenerationalDistance metric.
 
     Parameters
     ----------
@@ -577,11 +584,9 @@ class InvertedGenerationalDistanceMetric(MetricWrapper, InvertedGenerationalDist
 
     """
 
-    pass
-
 
 class EpsilonIndicatorMetric(MetricWrapper, EpsilonIndicator):
-    """EpsilonIndicator metric
+    """EpsilonIndicator metric.
 
     Parameters
     ----------
@@ -595,11 +600,9 @@ class EpsilonIndicatorMetric(MetricWrapper, EpsilonIndicator):
 
     """
 
-    pass
-
 
 class SpacingMetric(MetricWrapper, Spacing):
-    """Spacing metric
+    """Spacing metric.
 
     Parameters
     ----------
@@ -612,12 +615,12 @@ class SpacingMetric(MetricWrapper, Spacing):
 
     """
 
-    def __init__(self, problem):
+    def __init__(self, problem):  # noqa: D107
         self.problem = problem
 
 
 class HyperVolume(AbstractConvergenceMetric):
-    """Hypervolume convergence metric class
+    """Hypervolume convergence metric class.
 
     This metric is derived from a hyper-volume measure, which describes the
     multi-dimensional volume of space contained within the pareto front. When
@@ -645,7 +648,7 @@ class HyperVolume(AbstractConvergenceMetric):
         warnings.warn(
             "HyperVolume is deprecated and will be removed in version 3.0 of the EMAworkbench."
             "Use ArchiveLogger and HypervolumeMetric instead",
-            DeprecationWarning,
+            DeprecationWarning, stacklevel=2
         )
         self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
@@ -660,7 +663,7 @@ class HyperVolume(AbstractConvergenceMetric):
 
 
 class ArchiveLogger(AbstractConvergenceMetric):
-    """Helper class to write the archive to disk at each iteration
+    """Helper class to write the archive to disk at each iteration.
 
     Parameters
     ----------
@@ -671,8 +674,13 @@ class ArchiveLogger(AbstractConvergenceMetric):
     """
 
     def __init__(
-        self, directory, decision_varnames, outcome_varnames, base_filename="archives.tar.gz"
+        self,
+        directory,
+        decision_varnames,
+        outcome_varnames,
+        base_filename="archives.tar.gz",
     ):
+        """Init."""
         super().__init__("archive_logger")
 
         self.directory = os.path.abspath(directory)
@@ -686,15 +694,17 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
         # self.index = 0
 
-    def __call__(self, optimizer):
-        archive = to_dataframe(optimizer.result, self.decision_varnames, self.outcome_varnames)
+    def __call__(self, optimizer):  # noqa: D102
+        archive = to_dataframe(
+            optimizer.result, self.decision_varnames, self.outcome_varnames
+        )
         archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"), index=False)
 
-    def reset(self):
+    def reset(self):  # noqa: D102
         # FIXME what needs to go here?
         pass
 
-    def get_results(self):
+    def get_results(self):  # noqa: D102
         with tarfile.open(self.tarfilename, "w:gz") as z:
             z.add(self.temp, arcname=os.path.basename(self.temp))
 
@@ -703,18 +713,17 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
     @classmethod
     def load_archives(cls, filename):
-        """load the archives stored with the ArchiveLogger
+        """Load the archives stored with the ArchiveLogger.
 
         Parameters
         ----------
         filename : str
                    relative path to file
 
-        Returns
+        Returns:
         -------
         dict with nfe as key and dataframe as vlaue
         """
-
         archives = {}
         with tarfile.open(os.path.abspath(filename)) as fh:
             for entry in fh.getmembers():
@@ -725,8 +734,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
 
 
 class OperatorProbabilities(AbstractConvergenceMetric):
-    """OperatorProbabiliy convergence tracker for use with
-    auto adaptive operator selection.
+    """OperatorProbabiliy convergence tracker for use with auto adaptive operator selection.
 
     Parameters
     ----------
@@ -744,11 +752,11 @@ class OperatorProbabilities(AbstractConvergenceMetric):
 
     """
 
-    def __init__(self, name, index):
+    def __init__(self, name, index):  # noqa: D107
         super().__init__(name)
         self.index = index
 
-    def __call__(self, optimizer):
+    def __call__(self, optimizer):  # noqa: D102
         try:
             props = optimizer.algorithm.variator.probabilities
             self.results.append(props[self.index])
@@ -757,8 +765,7 @@ class OperatorProbabilities(AbstractConvergenceMetric):
 
 
 def epsilon_nondominated(results, epsilons, problem):
-    """Merge the list of results into a single set of
-    non dominated results using the provided epsilon values
+    """Merge the list of results into a single set of non dominated results using the provided epsilon values.
 
     Parameters
     ----------
@@ -766,16 +773,16 @@ def epsilon_nondominated(results, epsilons, problem):
     epsilons : epsilon values for each objective
     problem : PlatypusProblem instance
 
-    Returns
+    Returns:
     -------
     DataFrame
 
-    Notes
+    Notes:
     -----
     this is a platypus based alternative to pareto.py (https://github.com/matthewjwoodruff/pareto.py)
     """
     if problem.nobjs != len(epsilons):
-        ValueError(
+        raise ValueError(
             f"The number of epsilon values ({len(epsilons)}) must match the number of objectives {problem.nobjs}"
         )
 
@@ -788,17 +795,26 @@ def epsilon_nondominated(results, epsilons, problem):
 
 
 class Convergence(ProgressTrackingMixIn):
-    """helper class for tracking convergence of optimization"""
+    """helper class for tracking convergence of optimization."""
 
     valid_metrics = {"hypervolume", "epsilon_progress", "archive_logger"}
 
-    def __init__(self, metrics, max_nfe, convergence_freq=1000, logging_freq=5, log_progress=False):
+    def __init__(
+        self,
+        metrics,
+        max_nfe,
+        convergence_freq=1000,
+        logging_freq=5,
+        log_progress=False,
+    ):
+        """Init."""
         super().__init__(
             max_nfe,
             logging_freq,
             _logger,
             log_progress=log_progress,
-            log_func=lambda self: f"generation" f" {self.generation}, {self.i}/{self.max_nfe}",
+            log_func=lambda self: f"generation"
+            f" {self.generation}, {self.i}/{self.max_nfe}",
         )
 
         self.max_nfe = max_nfe
@@ -819,8 +835,7 @@ class Convergence(ProgressTrackingMixIn):
             metric.reset()
 
     def __call__(self, optimizer, force=False):
-        """Stores convergences information given specified convergence
-        frequency.
+        """Stores convergences information given specified convergence frequency.
 
         Parameters
         ----------
@@ -842,16 +857,22 @@ class Convergence(ProgressTrackingMixIn):
 
         self.generation += 1
 
-        if (nfe >= self.last_check + self.convergence_freq) or (self.last_check == 0) or force:
+        if (
+            (nfe >= self.last_check + self.convergence_freq)
+            or (self.last_check == 0)
+            or force
+        ):
             self.index.append(nfe)
             self.last_check = nfe
 
             for metric in self.metrics:
                 metric(optimizer)
 
-    def to_dataframe(self):
+    def to_dataframe(self):  # noqa: D102
         progress = {
-            metric.name: result for metric in self.metrics if (result := metric.get_results())
+            metric.name: result
+            for metric in self.metrics
+            if (result := metric.get_results())
         }
 
         progress = pd.DataFrame.from_dict(progress)
@@ -863,19 +884,18 @@ class Convergence(ProgressTrackingMixIn):
 
 
 def rebuild_platypus_population(archive, problem):
-    """rebuild a population of platypus Solution instances
+    """Rebuild a population of platypus Solution instances.
 
     Parameters
     ----------
     archive : DataFrame
     problem : PlatypusProblem instance
 
-    Returns
+    Returns:
     -------
     list of platypus Solutions
 
     """
-
     expected_columns = problem.nvars + problem.nobjs
     actual_columns = len(archive.columns)
 
@@ -888,18 +908,22 @@ def rebuild_platypus_population(archive, problem):
     solutions = []
     for row in archive.itertuples():
         try:
-            decision_variables = [getattr(row, attr) for attr in problem.parameter_names]
-        except AttributeError:
+            decision_variables = [
+                getattr(row, attr) for attr in problem.parameter_names
+            ]
+        except AttributeError as e:
             missing_parameters = [
                 attr for attr in problem.parameter_names if not hasattr(row, attr)
             ]
-            raise EMAError(f"Parameter names {missing_parameters} not found in archive")
+            raise EMAError(f"Parameter names {missing_parameters} not found in archive") from e
 
         try:
             objectives = [getattr(row, attr) for attr in problem.outcome_names]
-        except AttributeError:
-            missing_outcomes = [attr for attr in problem.outcome_names if not hasattr(row, attr)]
-            raise EMAError(f"Outcome names {missing_outcomes} not found in archive'")
+        except AttributeError as e:
+            missing_outcomes = [
+                attr for attr in problem.outcome_names if not hasattr(row, attr)
+            ]
+            raise EMAError(f"Outcome names {missing_outcomes} not found in archive'") from e
 
         solution = Solution(problem)
         solution.variables[:] = [
@@ -912,6 +936,8 @@ def rebuild_platypus_population(archive, problem):
 
 
 class CombinedVariator(Variator):
+    """Combined variator."""
+
     def __init__(self, crossover_prob=0.5, mutation_prob=1):
         super().__init__(2)
         self.SBX = platypus.SBX()
@@ -964,7 +990,7 @@ class CombinedVariator(Variator):
     def crossover_integer(self, child1, child2, i, type):  # @ReservedAssignment
         # HUX()
         for j in range(type.nbits):
-            if child1.variables[i][j] != child2.variables[i][j]:
+            if child1.variables[i][j] != child2.variables[i][j]: # noqa: SIM102
                 if bool(random.getrandbits(1)):
                     child1.variables[i][j] = not child1.variables[i][j]
                     child2.variables[i][j] = not child2.variables[i][j]
@@ -1005,7 +1031,9 @@ class CombinedVariator(Variator):
             delta = pow(b, 1.0 / (distribution_index + 1.0)) - 1.0
         else:
             bu = (upper - x) / dx
-            b = 2.0 * (1.0 - u) + 2.0 * (u - 0.5) * pow(1.0 - bu, distribution_index + 1.0)
+            b = 2.0 * (1.0 - u) + 2.0 * (u - 0.5) * pow(
+                1.0 - bu, distribution_index + 1.0
+            )
             delta = 1.0 - pow(b, 1.0 / (distribution_index + 1.0))
 
         x = x + delta * dx
@@ -1065,6 +1093,7 @@ def _optimize(
     variator=None,
     **kwargs,
 ):
+    """Helper function for optimization."""
     klass = problem.types[0].__class__
 
     try:
@@ -1100,7 +1129,9 @@ def _optimize(
 
     # convergence.pbar.__exit__(None, None, None)
 
-    results = to_dataframe(optimizer.result, problem.parameter_names, problem.outcome_names)
+    results = to_dataframe(
+        optimizer.result, problem.parameter_names, problem.outcome_names
+    )
     convergence = convergence.to_dataframe()
 
     message = "optimization completed, found {} solutions"
@@ -1113,6 +1144,7 @@ def _optimize(
 
 
 class BORGDefaultDescriptor:
+    """Descriptor used by Borg."""
     # this treats defaults as class level attributes!
 
     def __init__(self, default_function):
@@ -1126,7 +1158,7 @@ class BORGDefaultDescriptor:
 
 
 class GenerationalBorg(EpsilonProgressContinuation):
-    """A generational implementation of the BORG Framework
+    """A generational implementation of the BORG Framework.
 
     This algorithm adopts Epsilon Progress Continuation, and Auto Adaptive
     Operator Selection, but embeds them within the NSGAII generational
@@ -1170,11 +1202,12 @@ class GenerationalBorg(EpsilonProgressContinuation):
         problem,
         epsilons,
         population_size=100,
-        generator=RandomGenerator(),
-        selector=TournamentSelector(2),
+        generator=RandomGenerator(), # noqa: B008
+        selector=TournamentSelector(2), # noqa: B008
         variator=None,
         **kwargs,
     ):
+        """Init."""
         self.problem = problem
 
         # Parameterization taken from
@@ -1194,7 +1227,9 @@ class GenerationalBorg(EpsilonProgressContinuation):
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(
-                DifferentialEvolution(crossover_rate=self.de_rate, step_size=self.de_stepsize),
+                DifferentialEvolution(
+                    crossover_rate=self.de_rate, step_size=self.de_stepsize
+                ),
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(

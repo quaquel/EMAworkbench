@@ -1,12 +1,11 @@
-"""
-Python model "Teacup.py"
+"""Python model "Teacup.py"
 Translated using PySD version 1.3.0
 """
 
 from os import path
 
-from pysd.py_backend.functions import Integ
 from pysd import cache
+from pysd.py_backend.functions import Integ
 
 _subscript_dict = {}
 
@@ -41,8 +40,7 @@ def time():
 
 @cache.run
 def characteristic_time():
-    """
-    Real Name: Characteristic Time
+    """Real Name: Characteristic Time
     Original Eqn: 10
     Units: Minutes
     Limits: (None, None)
@@ -56,8 +54,7 @@ def characteristic_time():
 
 @cache.step
 def heat_loss_to_room():
-    """
-    Real Name: Heat Loss to Room
+    """Real Name: Heat Loss to Room
     Original Eqn: (Teacup Temperature - Room Temperature) / Characteristic Time
     Units: Degrees/Minute
     Limits: (None, None)
@@ -72,8 +69,7 @@ def heat_loss_to_room():
 
 @cache.run
 def room_temperature():
-    """
-    Real Name: Room Temperature
+    """Real Name: Room Temperature
     Original Eqn: 70
     Units:
     Limits: (None, None)
@@ -87,8 +83,7 @@ def room_temperature():
 
 @cache.step
 def teacup_temperature():
-    """
-    Real Name: Teacup Temperature
+    """Real Name: Teacup Temperature
     Original Eqn: INTEG ( -Heat Loss to Room, 180)
     Units: Degrees
     Limits: (None, None)
@@ -102,8 +97,7 @@ def teacup_temperature():
 
 @cache.run
 def final_time():
-    """
-    Real Name: FINAL TIME
+    """Real Name: FINAL TIME
     Original Eqn: 30
     Units: Minute
     Limits: (None, None)
@@ -117,8 +111,7 @@ def final_time():
 
 @cache.run
 def initial_time():
-    """
-    Real Name: INITIAL TIME
+    """Real Name: INITIAL TIME
     Original Eqn: 0
     Units: Minute
     Limits: (None, None)
@@ -132,8 +125,7 @@ def initial_time():
 
 @cache.step
 def saveper():
-    """
-    Real Name: SAVEPER
+    """Real Name: SAVEPER
     Original Eqn: TIME STEP
     Units: Minute
     Limits: (0.0, None)
@@ -147,8 +139,7 @@ def saveper():
 
 @cache.run
 def time_step():
-    """
-    Real Name: TIME STEP
+    """Real Name: TIME STEP
     Original Eqn: 0.125
     Units: Minute
     Limits: (0.0, None)

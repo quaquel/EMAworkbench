@@ -1,5 +1,4 @@
-"""
-This example takes the direct policy search formulation of the lake problem as
+"""This example takes the direct policy search formulation of the lake problem as
 found in Quinn et al (2017), but embeds in in a robust optimization.
 
 Quinn, J.D., Reed, P.M., Keller, K. (2017)
@@ -16,12 +15,12 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (
+    Constant,
     Model,
+    MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
-    Constant,
     ema_logging,
-    MultiprocessingEvaluator,
 )
 from ema_workbench.em_framework.samplers import sample_uncertainties
 
@@ -33,9 +32,7 @@ __all__ = []
 
 
 def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
-    """
-
-    Parameters
+    """Parameters
     ----------
     xt : float
          pollution in lake at time t
@@ -53,7 +50,6 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
     note:: w2 = 1 - w1
 
     """
-
     rule = w1 * (abs(xt - c1 / r1)) ** 3 + (1 - w1) * (abs(xt - c2 / r2) ** 3)
     at1 = max(rule, 0.01)
     at = min(at1, 0.1)
@@ -110,9 +106,11 @@ def lake_problem(
             )
             average_daily_P[t] += X[t] / nsamples
 
-        reliability += np.sum(X < Pcrit) / (nsamples * myears)
+        reliability += np.sum(Pcrit > X) / (nsamples * myears)
         inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples * myears)
-        utility += np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
+        utility += (
+            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
+        )
     max_P = np.max(average_daily_P)
 
     return max_P, utility, inertia, reliability
@@ -169,7 +167,10 @@ if __name__ == "__main__":
         ScalarOutcome("mean p", kind=MINIMIZE, variable_name="max_P", function=np.mean),
         ScalarOutcome("std p", kind=MINIMIZE, variable_name="max_P", function=np.std),
         ScalarOutcome(
-            "sn reliability", kind=MAXIMIZE, variable_name="reliability", function=signal_to_noise
+            "sn reliability",
+            kind=MAXIMIZE,
+            variable_name="reliability",
+            function=signal_to_noise,
         ),
     ]
     n_scenarios = 10

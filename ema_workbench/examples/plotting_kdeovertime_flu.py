@@ -1,5 +1,4 @@
-"""
-Created on Jul 8, 2014
+"""Created on Jul 8, 2014
 
 @author: jhkwakkel@tudelft.net
 """

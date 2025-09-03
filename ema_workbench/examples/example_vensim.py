@@ -1,5 +1,4 @@
-"""
-Created on 3 Jan. 2011
+"""Created on 3 Jan. 2011
 
 This file illustrated the use the EMA classes for a contrived vensim
 example
@@ -9,8 +8,12 @@ example
                 chamarat <c.hamarat (at) tudelft (dot) nl>
 """
 
-from ema_workbench import TimeSeriesOutcome, perform_experiments, RealParameter, ema_logging
-
+from ema_workbench import (
+    RealParameter,
+    TimeSeriesOutcome,
+    ema_logging,
+    perform_experiments,
+)
 from ema_workbench.connectors.vensim import VensimModel
 
 if __name__ == "__main__":
@@ -20,7 +23,10 @@ if __name__ == "__main__":
     # instantiate a model
     wd = "./models/vensim example"
     vensimModel = VensimModel("simpleModel", wd=wd, model_file="model.vpm")
-    vensimModel.uncertainties = [RealParameter("x11", 0, 2.5), RealParameter("x12", -2.5, 2.5)]
+    vensimModel.uncertainties = [
+        RealParameter("x11", 0, 2.5),
+        RealParameter("x12", -2.5, 2.5),
+    ]
 
     vensimModel.outcomes = [TimeSeriesOutcome("a")]
 

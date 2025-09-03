@@ -1,13 +1,11 @@
 import math
-import numpy as np
 
+import numpy as np
 from scipy.optimize import brentq
 
 
 def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
-    """
-
-    Parameters
+    """Parameters
     ----------
     xt : float
          pollution in lake at time t
@@ -22,14 +20,13 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
     w1 : float
          weight of rbf 1
 
-    Returns
+    Returns:
     -------
     float
 
     note:: w2 = 1 - w1
 
     """
-
     rule = w1 * (abs(xt - c1) / r1) ** 3 + (1 - w1) * (abs(xt - c2) / r2) ** 3
     at1 = max(rule, 0.01)
     at = min(at1, 0.1)
@@ -53,7 +50,7 @@ def lake_model(
     w1=0.5,
     seed=None,
 ):
-    """runs the lake model for nsamples stochastic realisation using
+    """Runs the lake model for nsamples stochastic realisation using
     specified random seed.
 
     Parameters
@@ -80,7 +77,7 @@ def lake_model(
     seed : int, optional
            seed for the random number generator
 
-    Returns
+    Returns:
     -------
     tuple
 
@@ -120,8 +117,10 @@ def lake_model(
             )
             average_daily_P[t] += X[t] / nsamples
 
-        reliability += np.sum(X < Pcrit) / (nsamples * myears)
+        reliability += np.sum(Pcrit > X) / (nsamples * myears)
         inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples * myears)
-        utility += np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
+        utility += (
+            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
+        )
     max_P = np.max(average_daily_P)
     return max_P, utility, inertia, reliability

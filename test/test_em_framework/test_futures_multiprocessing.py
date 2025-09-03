@@ -1,10 +1,9 @@
 """ """
 
-import unittest.mock as mock
 import unittest
+import unittest.mock as mock
 
 import ema_workbench
-
 from ema_workbench.em_framework import futures_multiprocessing
 
 # Created on 14 Mar 2017
@@ -17,7 +16,9 @@ __all__ = []
 class TestEvaluators(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.futures_multiprocessing.multiprocessing")
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    @mock.patch("ema_workbench.em_framework.futures_multiprocessing.experiment_generator")
+    @mock.patch(
+        "ema_workbench.em_framework.futures_multiprocessing.experiment_generator"
+    )
     @mock.patch("ema_workbench.em_framework.futures_multiprocessing.add_tasks")
     def test_multiprocessing_evaluator(
         self, mocked_add_task, mocked_generator, mocked_callback, mocked_multiprocessing

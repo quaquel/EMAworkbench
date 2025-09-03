@@ -1,7 +1,7 @@
 import unittest
 
-from ema_workbench.em_framework.util import NamedObject
 from ema_workbench.em_framework import points
+from ema_workbench.em_framework.util import NamedObject
 
 
 class TestCases(unittest.TestCase):
@@ -14,13 +14,17 @@ class TestCases(unittest.TestCase):
             scenarios, model_structures, policies, combine="factorial"
         )
         experiments = list(experiments)
-        self.assertEqual(len(experiments), 6, ("wrong number of experiments " "for factorial"))
+        self.assertEqual(
+            len(experiments), 6, ("wrong number of experiments for factorial")
+        )
 
         experiments = points.experiment_generator(
             scenarios, model_structures, policies, combine="sample"
         )
         experiments = list(experiments)
-        self.assertEqual(len(experiments), 3, ("wrong number of experiments " "for zipover"))
+        self.assertEqual(
+            len(experiments), 3, ("wrong number of experiments for zipover")
+        )
 
         with self.assertRaises(ValueError):
             experiments = points.experiment_generator(
