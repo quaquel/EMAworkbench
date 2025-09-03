@@ -558,7 +558,7 @@ def sample_uncertainties(models, n_samples, union=True, sampler=None):
             "You are trying to sample scenarios, but no uncertainties have been defined"
         )
 
-    return sample_parameters(uncertainties, n_samples, sampler, Policy)
+    return sample_parameters(uncertainties, n_samples, sampler, Scenario)
 
 
 # def sample_jointly(models, n_samples, uncertainty_union=True, lever_union=True,
