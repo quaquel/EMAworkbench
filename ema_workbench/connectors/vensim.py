@@ -175,7 +175,7 @@ def get_data(filename, varname, step=1):
     return vval
 
 
-class BaseVensimModel(FileModel):
+class VensimModel(SingleReplication, FileModel):
     """Base class for controlling Vensim models.
 
     This class will handle starting Vensim, loading a model, setting parameters
@@ -653,10 +653,6 @@ class LookupUncertainty(Parameter):
 
     def _cat(self, case):
         return self.values[case.pop("c-" + self.name)]
-
-
-class VensimModel(SingleReplication, BaseVensimModel):
-    """Main model class for dealing with Vensim models."""
 
 
 def create_model_for_debugging(path_to_existing_model, path_to_new_model, error):

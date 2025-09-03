@@ -16,7 +16,7 @@ from ema_workbench import (
     RealParameter,
     ScalarOutcome,
     SequentialEvaluator,
-    ema_logging,
+    ema_logging, MultiprocessingEvaluator,
 )
 from ema_workbench.em_framework.evaluators import Samplers
 
@@ -114,10 +114,10 @@ if __name__ == "__main__":
     lake_model.constants = [Constant("alpha", 0.41), Constant("nsamples", 150)]
 
     # generate some random policies by sampling over levers
-    n_scenarios = 1000
+    n_scenarios = 100
     n_policies = 4
 
-    with SequentialEvaluator(lake_model) as evaluator:
+    with MultiprocessingEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(
             n_scenarios, n_policies, lever_sampling=Samplers.MC
         )

@@ -171,7 +171,7 @@ class AbstractModel(NamedObject):
         sampled_parameters.data = temp
 
     @method_logger(__name__)
-    def run_model(self, scenario, policy):
+    def run_model(self, scenario, policy, constants):
         """Method for running an instantiated model structure.
 
         Parameters
@@ -185,6 +185,7 @@ class AbstractModel(NamedObject):
 
         self._transform(scenario, self.uncertainties)
         self._transform(policy, self.levers)
+        self._transform(constants, self.constants)
 
     @method_logger(__name__)
     def initialized(self, policy):
@@ -287,16 +288,17 @@ class Replicator(AbstractModel):
             )
 
     @method_logger(__name__)
-    def run_model(self, scenario, policy):
+    def run_model(self, scenario, policy, constants):
         """Method for running an instantiated model structure.
 
         Parameters
         ----------
         scenario : Scenario instance
         policy : Policy instance
+        constants : ??
 
         """
-        super().run_model(scenario, policy)
+        super().run_model(scenario, policy, constants)
 
         constants = {c.name: c.value for c in self.constants}
         outputs = defaultdict(list)
@@ -322,19 +324,17 @@ class SingleReplication(AbstractModel):
     """Base class for models that require only a single replication."""
 
     @method_logger(__name__)
-    def run_model(self, scenario, policy):
+    def run_model(self, scenario, policy, constants):
         """Method for running an instantiated model structure.
 
         Parameters
         ----------
         scenario : Scenario instance
         policy : Policy instance
+        constants : ??
 
         """
-        super().run_model(scenario, policy)
-
-        constants = {c.name: c.value for c in self.constants}
-
+        super().run_model(scenario, policy, constants)
         experiment = ExperimentReplication(scenario, self.policy, constants)
 
         outputs = self.run_experiment(experiment)

@@ -70,7 +70,7 @@ class Variable(NamedObject):
                 f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers"
             )
         super().__init__(name)
-        self._variable_name = variable_name
+        self.variable_name = variable_name
 
 
 class NamedObjectMap:

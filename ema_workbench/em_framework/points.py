@@ -39,6 +39,8 @@ class Point(NamedDict):
         super().__init__(name, **kwargs)
         self.unique_id = unique_id
 
+    def __repr__(self): # noqa D105
+        return f"Point({super().__repr__()})"
 
 class Policy(Point):
     """Helper class representing a policy.
@@ -55,7 +57,7 @@ class Policy(Point):
     id_counter = Counter(1)
 
     def __init__(self, name=None, **kwargs): # noqa: D107
-        super().__init__(name, Policy.id_counter(), **kwargs)
+        super().__init__(name, unique_id=Policy.id_counter(), **kwargs)
 
     # def to_list(self, parameters):
     #     """get list like representation of policy where the
@@ -83,7 +85,7 @@ class Scenario(Point):
     id_counter = Counter(1)
 
     def __init__(self, name=None, **kwargs):  # noqa: D107
-        super().__init__(name, Scenario.id_counter(), **kwargs)
+        super().__init__(name, unique_id=Scenario.id_counter(), **kwargs)
 
     def __repr__(self): # noqa: D105
         return f"Scenario({super().__repr__()})"
