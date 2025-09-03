@@ -1,4 +1,4 @@
-"""convenience functions and classes to be used in combination with Vensim.
+"""Convenience functions and classes to be used in combination with Vensim.
 
 Most importantly, it specifies a generic ModelStructureInterface class
 for controlling vensim models. In addition, this module contains frequently
@@ -10,7 +10,6 @@ used functions with error checking. For more fine grained control, the
 import decimal
 import math
 import os
-import warnings
 
 import numpy as np
 
@@ -41,18 +40,16 @@ _logger = get_module_logger(__name__)
 
 
 def be_quiet():
-    """This allows you to turn off the work in progress dialog that Vensim
-    displays during simulation and other activities, and also prevent the
-    appearance of yes or no dialogs.
+    """Turn off the work in progress dialog of Vensim.
 
-    defaults to 2, suppressing all windows, for more fine grained control, use
+    Defaults to 2, suppressing all windows, for more fine-grained control, use
     :mod:`vensimDLLwrapper` directly .
     """
     vensimDLLwrapper.be_quiet(2)
 
 
 def load_model(file_name):
-    """Load the model
+    """Load the model.
 
     Parameters
     ----------
@@ -71,11 +68,11 @@ def load_model(file_name):
         command("SPECIAL>LOADMODEL|" + str(file_name))
     except VensimWarning as w:
         _logger.warning(str(w))
-        raise VensimError("vensim file not found")
+        raise VensimError("vensim file not found") from w
 
 
 def read_cin_file(file_name):
-    """Read a .cin file
+    """Read a .cin file.
 
     Parameters
     ----------
@@ -96,7 +93,7 @@ def read_cin_file(file_name):
 
 
 def set_value(variable, value):
-    """Set the value of a variable to value
+    """Set the value of a variable to value.
 
     current implementation only works for lookups and normal values. In case
     of a list, a lookup is assumed, else a normal value is assumed.
@@ -124,9 +121,9 @@ def set_value(variable, value):
 
 
 def run_simulation(file_name):
-    """Convenient function to run a model and store the results of the run in
-    the specified .vdf file. The specified output file will be overwritten
-    by default
+    """Rn a model and store the results of the run in the specified .vdf file.
+
+    The specified output file will be overwritten by default
 
     Parameters
     ----------
@@ -148,7 +145,7 @@ def run_simulation(file_name):
         command("MENU>RUN|o")
     except VensimWarning as w:
         _logger.warning(str(w))
-        raise VensimError(str(w))
+        raise VensimError(str(w)) from w
 
 
 def get_data(filename, varname, step=1):
@@ -178,32 +175,12 @@ def get_data(filename, varname, step=1):
     return vval
 
 
-def VensimModelStructureInterface(name, wd=None, model_file=None):
-    warnings.warn(
-        "VensimModelStructureInterface is deprecated and will be removed in version 3.0 of the EMAworkbench. Use VensimModel instead.",
-        DeprecationWarning,
-    )
-
-    return VensimModel(name, wd=wd, model_file=model_file)
-
-
 class BaseVensimModel(FileModel):
-    """This is a convenience extension of :class:`~model.ModelStructureInterface`
-    that can be used as a base class for performing EMA on Vensim models. This
-    class will handle starting Vensim, loading a model, setting parameters
+    """Base class for controlling Vensim models.
+
+    This class will handle starting Vensim, loading a model, setting parameters
     on the model, running the model, and retrieving the results. To this end
     it implements:
-
-    * `src`
-    * `model_init`
-    * `run_model`
-
-    For the simplest case, it is sufficient to only specify _`_init__` in more
-    detail. That is, specify the uncertainties and the outcomes. For
-    more elaborate cases, for example when using different policies, it might
-    be necessary to overwrite or extent `model_init`, while for dealing with
-    lookups etc. it might be necessary to also extent `run_model`. The
-    examples folder contains examples of each of these extensions.
 
     .. note:: This class relies on the Vensim DLL, thus a complete installation
               of Vensim DSS is needed.
@@ -212,12 +189,11 @@ class BaseVensimModel(FileModel):
 
     @property
     def result_file(self):
-        return os.path.join(self.working_directory, self._resultfile)
+        """Return path to results file."""
+        return os.path.join(self.working_directory, self._result_file)
 
     def __init__(self, name, wd=None, model_file=None):
-        """Interface to the model
-
-        interface to the model
+        """Interface to the model.
 
         Parameters
         ----------
@@ -247,11 +223,11 @@ class BaseVensimModel(FileModel):
         if vensimDLLwrapper.vensim_64 is not None:
             if not model_file.endswith(".vpmx") and not model_file.endswith(".vpm"):
                 raise ValueError("model file should be a .vpm or .vpmx file")
-            self._resultfile = "Current.vdfx"
+            self._result_file = "Current.vdfx"
         else:
             if not model_file.endswith(".vpm"):
                 raise ValueError("model file should be a vpm file")
-            self._resultfile = "Current.vdf"
+            self._result_file = "Current.vdf"
 
         super().__init__(name, wd=wd, model_file=model_file)
         self.outcomes.extend(TimeSeriesOutcome("TIME", variable_name="Time"))
@@ -261,18 +237,15 @@ class BaseVensimModel(FileModel):
         #: attribute that can be set when one wants to load a cin file
         self.cin_file = None
 
+        self.run_length = None
+
         # default name of the results file (default: 'Current.vdfx'
         # for 64 bit, and Current.vdf for 32 bit)
 
         _logger.debug("vensim interface init completed")
 
     def model_init(self, policy):
-        """Init of the model, The provided implementation here assumes
-        that `self.model_file`  is set correctly. In case of using different
-        vensim models for different policies, it is recommended to extent
-        this method, extract the model file from the policy dict, set
-        `self.model_file` to this file and then call this implementation
-        through calling `super`.
+        """Init of the model.
 
         Parameters
         ----------
@@ -289,22 +262,23 @@ class BaseVensimModel(FileModel):
         be_quiet()  # minimize the screens that are shown
 
         try:
-            initialTime = get_val("INITIAL TIME")
-            finalTime = get_val("FINAL TIME")
-            timeStep = get_val("TIME STEP")
-            savePer = get_val("SAVEPER")
+            initial_time = get_val("INITIAL TIME")
+            final_time = get_val("FINAL TIME")
+            time_step = get_val("TIME STEP")
+            save_per = get_val("SAVEPER")
 
-            if savePer > 0:
-                timeStep = savePer
+            if save_per > 0:
+                time_step = save_per
 
-            self.run_length = int((finalTime - initialTime) / timeStep + 1)
-        except VensimWarning:
-            raise EMAWarning(str(VensimWarning))
+            self.run_length = int((final_time - initial_time) / time_step + 1)
+        except VensimWarning as w:
+            raise EMAWarning(str(VensimWarning)) from w
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """Method for running an instantiated model structure.
-        the provided implementation assumes that the keys in the
+        """Run the experiment.
+
+        The provided implementation assumes that the keys in the
         case match the variable names in the Vensim model.
 
         If lookups are to be set specify their transformation from
@@ -316,7 +290,7 @@ class BaseVensimModel(FileModel):
 
         Parameters
         ----------
-        scenario : dict like
+        experiment : dict like
 
         .. note:: setting parameters should always be done via run_model.
                   The model is reset to its initial values automatically after
@@ -380,7 +354,7 @@ class BaseVensimModel(FileModel):
         return results
 
     def _delete_lookup_uncertainties(self):
-        """Deleting lookup uncertainties from the uncertainty list"""
+        """Deleting lookup uncertainties from the uncertainty list."""
         self._lookup_uncertainties = self._lookup_uncertainties[:]
         self.uncertainties = [
             x for x in self.uncertainties if x not in self._lookup_uncertainties
@@ -388,6 +362,7 @@ class BaseVensimModel(FileModel):
 
 
 class LookupUncertainty(Parameter):
+    """Convenience class to do sensitivity analysis on lookups."""
     HEARNE1 = "hearne1"
     HEARNE2 = "hearne2"
     APPROX = "approximation"
@@ -403,7 +378,9 @@ class LookupUncertainty(Parameter):
     y = []
 
     def __init__(self, lookup_type, values, name, msi, ymin=None, ymax=None):
-        """Parameters
+        """Init.
+
+        Parameters
         ----------
         lookup_type : {'categories', 'hearne', 'approximation'}
                       the method to be used for alternative generation.
@@ -507,8 +484,9 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message)
 
     def _get_initial_lookup(self, name):
-        """Helper function to retrieve the lookup function as defined in the
-        vensim model. This lookup is transformed using a distortion function.
+        """Helper function to retrieve the lookup function as defined in the vensim model.
+
+        This lookup is transformed using a distortion function.
 
         Parameters
         ----------
@@ -536,18 +514,18 @@ class LookupUncertainty(Parameter):
                 number[:] = []
         x = []
         y = []
-        xT = True
+        x_t = True
         for i in list2:
-            if xT:
+            if x_t:
                 x.append(i)
-                xT = False
+                x_t = False
             else:
                 y.append(i)
-                xT = True
-        return (x, y)
+                x_t = True
+        return x, y
 
-    def _gen_log(self, t, A, K, B, Q, M):
-        """Helper function implements a logistic function
+    def _gen_log(self, t, A, K, B, Q, M): # noqa: N803
+        """Helper function implements a logistic function.
 
         Parameters
         ----------
@@ -564,7 +542,7 @@ class LookupUncertainty(Parameter):
         res = A + ((K - A) / (1 + Q * pow(ex, t) / pow(ex, M)))
         return res
 
-    def transform(self, case):
+    def transform(self, case): # noqa D102
         if not self.x:
             # first time transform is called
             self.x, self.y = self._get_initial_lookup(self.name)
@@ -574,11 +552,12 @@ class LookupUncertainty(Parameter):
             func = self.transform_functions[self.lookup_type]
 
             return func(case)
-        except KeyError:
-            raise EMAError(self.error_message)
+        except KeyError as e:
+            raise EMAError(self.error_message) from e
 
     def identity(self):
         """Helper method that returns the elements that define an uncertainty.
+
         By default these are the name, the lower value of the range and the
         upper value of the range.
 
@@ -590,7 +569,7 @@ class LookupUncertainty(Parameter):
     def _hearne1(self, case):
         m = case["m-" + self.name]
         p = case["p-" + self.name]
-        l = case["l-" + self.name]
+        l = case["l-" + self.name] # noqa: E741
         u = case["u-" + self.name]
 
         for char in ["m-", "p-", "l-", "u-"]:
@@ -614,7 +593,7 @@ class LookupUncertainty(Parameter):
         m2 = case["m2-" + self.name]
         p1 = case["p1-" + self.name]
         p2 = case["p2-" + self.name]
-        l = case["l-" + self.name]
+        l = case["l-" + self.name] # noqa: E741
         u = case["u-" + self.name]
 
         for char in ["m1-", "m2-", "p1-", "p2-", "l-", "u-"]:
@@ -637,11 +616,11 @@ class LookupUncertainty(Parameter):
         return new_lookup
 
     def _approx(self, case):
-        A = case["A-" + self.name]
-        K = case["K-" + self.name]
-        B = case["B-" + self.name]
-        Q = case["Q-" + self.name]
-        M = case["M-" + self.name]
+        A = case["A-" + self.name] # noqa: N806
+        K = case["K-" + self.name] # noqa: N806
+        B = case["B-" + self.name] # noqa: N806
+        Q = case["Q-" + self.name] # noqa: N806
+        M = case["M-" + self.name] # noqa: N806
 
         for char in ["A-", "K-", "B-", "Q-", "M-"]:
             case.pop(char + self.name)
@@ -677,17 +656,16 @@ class LookupUncertainty(Parameter):
 
 
 class VensimModel(SingleReplication, BaseVensimModel):
-    pass
+    """Main model class for dealing with Vensim models."""
 
 
 def create_model_for_debugging(path_to_existing_model, path_to_new_model, error):
-    """Helper function for creating a vensim mdl file parameterized according
-    to the experiment which created the error
+    """Create a vensim mdl file parameterized according to the experiment.
 
     To be able to debug the Vensim model, a few steps are needed:
 
-    1.  The case that gave a bug, needs to be saved in a text  file. The entire
-        case description should be on a single line.
+    1.  The experiment that gave a bug, needs to be saved in a text  file. The entire
+        experiment description should be on a single line.
     2.  Reform and clean your model ( In the Vensim menu: Model, Reform and
         Clean). Choose
 
@@ -696,7 +674,7 @@ def create_model_for_debugging(path_to_existing_model, path_to_new_model, error)
 
     3.  Save your model as text (File, Save as..., Save as Type: Text Format
         Models
-    4.  Run this script
+    4.  Call this function.
     5.  If the print in the end is not set([]), but set([array]), the array
         gives the values that where not found and changed
     5.  Run your new model (for example 'new text.mdl')
@@ -735,10 +713,10 @@ def create_model_for_debugging(path_to_existing_model, path_to_new_model, error)
     with open(path_to_new_model, "wb") as new_model:
         skip_next_line = False
 
-        for line in open(path_to_existing_model, "rb"):
+        for line in open(path_to_existing_model, "rb"): # noqa: SIM115
             if skip_next_line:
                 skip_next_line = False
-                line = b"\n"
+                lin_to_write = b"\n"
             elif line.find(b"=") != -1:
                 variable = line.split(b"=")[0]
                 variable = variable.strip()
@@ -748,10 +726,10 @@ def create_model_for_debugging(path_to_existing_model, path_to_new_model, error)
                 except KeyError:
                     pass
                 else:
-                    line = variable + b" = " + value
+                    lin_to_write = variable + b" = " + value
                     skip_next_line = True
 
-            new_model.write(line)
+            new_model.write(lin_to_write)
 
     _logger.info("parameters not set:")
     _logger.info(set(variables.keys()))
