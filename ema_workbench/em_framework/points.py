@@ -231,27 +231,27 @@ def combine_cases_factorial(*point_collections):
 #     return combined_cases
 
 
-def experiment_generator(scenarios, model_structures, policies, combine="factorial"):
+def experiment_generator(scenarios, models, policies, combine="factorial"):
     """Generator function which yields experiments.
 
     Parameters
     ----------
     scenarios : iterable of dicts
-    model_structures : list
+    models : list
     policies : list
     combine = {'factorial, sample'}
-              controls how to combine scenarios, policies, and model_structures
+              controls how to combine scenarios, policies, and models
               into experiments.
 
     Notes:
     -----
     if combine is 'factorial' then this generator is essentially three nested
-    loops: for each model structure, for each policy, for each scenario,
+    loops: for each model, for each policy, for each scenario,
     return the experiment. This means that designs should not be a generator
     because this will be exhausted after the running the first policy on the
     first model.
     if combine is 'zipover' then this generator cycles over scenarios, policies
-    and model structures until the longest of the three collections is
+    and models until the longest of the three collections is
     exhausted.
 
     """
@@ -260,17 +260,17 @@ def experiment_generator(scenarios, model_structures, policies, combine="factori
     # wrap around to yield specific type of class (e.g. point
 
     if combine == "sample":
-        jobs = zip_cycle(model_structures, policies, scenarios)
+        jobs = zip_cycle(models, policies, scenarios)
     elif combine == "factorial":
         # full factorial
-        jobs = itertools.product(model_structures, policies, scenarios)
+        jobs = itertools.product(models, policies, scenarios)
     else:
         raise ValueError(
             f"{combine} is unknown value for combine, use 'factorial' or 'sample'"
         )
 
     for i, job in enumerate(jobs):
-        msi, policy, scenario = job
-        name = f"{msi.name} {policy.name} {i}"
-        experiment = Experiment(name, msi.name, policy, scenario, i)
+        model, policy, scenario = job
+        name = f"{model.name} {policy.name} {i}"
+        experiment = Experiment(name, model.name, policy, scenario, i)
         yield experiment

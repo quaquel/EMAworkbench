@@ -90,12 +90,11 @@ class AbstractModel(NamedObject):
         Parameters
         ----------
         name : str
-               name of the modelInterface. The name should contain
-               only alpha-numerical characters.
+               name of the model. The name should be a valid python identifier
 
         Raises:
         ------
-        EMAError if name contains non alpha-numerical characters
+        EMAError if name is not a valid python identifier
 
         """
         if not name.isidentifier():
@@ -105,10 +104,6 @@ class AbstractModel(NamedObject):
             )
 
         super().__init__(name)
-
-
-
-
 
         self._output_variables = None
         self._outcomes_output = {}
@@ -123,12 +118,6 @@ class AbstractModel(NamedObject):
         ----------
         policy : dict
                  policy to be run.
-
-
-        Note:
-        ----
-        This method should always be implemented. Although in
-        simple cases, a simple pass can suffice.
 
         """
         self.policy = policy
@@ -376,10 +365,6 @@ class BaseModel(AbstractModel):
            alphanumerical name of model structure interface
     output : dict
              this should be a dict with the names of the outcomes as key
-    working_directory : str
-                        absolute path, all file operations in the model
-                        structure interface should be resolved from this
-                        directory.
 
     """
 
