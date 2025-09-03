@@ -1,5 +1,4 @@
-"""
-Created on Jul 8, 2014
+"""Created on Jul 8, 2014
 
 @author: jhkwakkel@tudelft.net
 """
@@ -9,7 +8,7 @@ import math
 import matplotlib.pyplot as plt
 
 from ema_workbench import ema_logging, load_results
-from ema_workbench.analysis import multiple_densities, Density
+from ema_workbench.analysis import Density, multiple_densities
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 

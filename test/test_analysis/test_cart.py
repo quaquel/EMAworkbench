@@ -1,5 +1,4 @@
-"""
-Created on May 22, 2015
+"""Created on May 22, 2015
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
@@ -11,7 +10,6 @@ import pandas as pd
 
 from ema_workbench.analysis import cart
 from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
-
 from test import utilities
 
 
@@ -58,7 +56,9 @@ class CartTestCase(unittest.TestCase):
             y[k] = v[:, -1]
 
         temp_results = (x, y)
-        alg = cart.setup_cart(temp_results, "deceased_population_region_1", mass_min=0.05)
+        alg = cart.setup_cart(
+            temp_results, "deceased_population_region_1", mass_min=0.05
+        )
         self.assertTrue(alg.mode == RuleInductionType.REGRESSION)
 
         n_cols = 5
@@ -164,7 +164,9 @@ class CartTestCase(unittest.TestCase):
             y[k] = v
 
         temp_results = (x, y)
-        alg = cart.setup_cart(temp_results, "deceased_population_region_1", mass_min=0.05)
+        alg = cart.setup_cart(
+            temp_results, "deceased_population_region_1", mass_min=0.05
+        )
         alg.build_tree()
         self.assertTrue(isinstance(alg.clf, cart.tree.DecisionTreeRegressor))
 

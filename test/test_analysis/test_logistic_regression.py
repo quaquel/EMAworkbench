@@ -1,5 +1,4 @@
-"""
-Created on 16 Mar 2019
+"""Created on 16 Mar 2019
 
 @author: jhkwakkel
 """
@@ -7,8 +6,6 @@ Created on 16 Mar 2019
 import unittest
 
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 
 from ema_workbench.analysis import logistic_regression as lr
 from test import utilities
@@ -28,7 +25,9 @@ class LogitTestCase(unittest.TestCase):
         logitmodel = lr.Logit(experiments, y)
 
         columns = set(
-            experiments.drop(["scenario", "policy", "model"], axis=1).columns.values.tolist()
+            experiments.drop(
+                ["scenario", "policy", "model"], axis=1
+            ).columns.values.tolist()
         )
 
         # check init

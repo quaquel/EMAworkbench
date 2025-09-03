@@ -1,10 +1,8 @@
-"""
-helper module for running experiments and keeping track of which model
-has been initialized with which policy.
-"""
+"""helper module for running individual experiments."""
 
 from ema_workbench.util.ema_logging import method_logger
-from ..util import get_module_logger, EMAError, CaseError
+
+from ..util import CaseError, EMAError, get_module_logger
 
 # Created on Aug 11, 2015
 #
@@ -15,7 +13,7 @@ _logger = get_module_logger(__name__)
 
 
 class ExperimentRunner:
-    """Helper class for running the experiments
+    """Helper class for running the experiments.
 
     This class contains the logic for initializing models properly,
     running the experiment, getting the results, and cleaning up afterwards.
@@ -25,7 +23,7 @@ class ExperimentRunner:
     msis : dict
     model_kwargs : dict
 
-    Attributes
+    Attributes:
     ----------
     msi_initializiation : dict
                           keeps track of which model is initialized with
@@ -38,27 +36,31 @@ class ExperimentRunner:
     """
 
     def __init__(self, msis):
+        """Init."""
         self.msis = msis
         self.log_message = (
-            "running scenario {scenario_id} for policy " "{policy_name} on model {model_name}"
+            "running scenario {scenario_id} for policy "
+            "{policy_name} on model {model_name}"
         )
 
     @method_logger(__name__)
     def cleanup(self):
+        """Cleanup after running."""
         for msi in self.msis:
             msi.cleanup()
         self.msis = None
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """The logic for running a single experiment. This code makes
-        sure that model(s) are initialized correctly.
+        """The logic for running a single experiment.
+
+        This code makes sure that model(s) are initialized correctly.
 
         Parameters
         ----------
         experiment : Case instance
 
-        Returns
+        Returns:
         -------
         experiment_id: int
         case : dict
@@ -66,7 +68,7 @@ class ExperimentRunner:
         model_name : str
         result : dict
 
-        Raises
+        Raises:
         ------
         EMAError
             if the model instance raises an EMA error, these are reraised.
@@ -96,16 +98,11 @@ class ExperimentRunner:
             _logger.exception(str(e))
             try:
                 self.cleanup()
-            except Exception:
-                raise e
-
-            #             exception = traceback.print_exc()
-            #             if exception:
-            #                 sys.stderr.write(exception)
-            #                 sys.stderr.write("\n")
+            except Exception as e2:
+                raise e2
 
             errortype = type(e).__name__
-            raise EMAError(f"Exception in run_model\nCaused by: {errortype}: {str(e)}")
+            raise EMAError(f"Exception in run_model\nCaused by: {errortype}: {e!s}") from e
 
         outcomes = model.outcomes_output
         model.reset_model()

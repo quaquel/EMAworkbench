@@ -1,5 +1,4 @@
-"""
-This example replicates Quinn, J.D., Reed, P.M., Keller, K. (2017)
+"""This example replicates Quinn, J.D., Reed, P.M., Keller, K. (2017)
 Direct policy search for robust multi-objective management of deeply
 uncertain socio-ecological tipping points. Environmental Modelling &
 Software 92, 125-141.
@@ -17,18 +16,16 @@ import numpy as np
 from scipy.optimize import brentq
 
 from ema_workbench import (
+    CategoricalParameter,
+    Constant,
     Model,
+    MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
-    Constant,
-    ema_logging,
-    MultiprocessingEvaluator,
-    CategoricalParameter,
     Scenario,
+    ema_logging,
 )
-
 from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgress
-
 
 # Created on 1 Jun 2017
 #
@@ -36,9 +33,7 @@ from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgre
 
 
 def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
-    """
-
-    Parameters
+    """Parameters
     ----------
     xt : float
          pollution in lake at time t
@@ -56,7 +51,6 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
     note:: w2 = 1 - w1
 
     """
-
     rule = w1 * (abs(xt - c1) / r1) ** 3 + (1 - w1) * (abs(xt - c2) / r2) ** 3
     at1 = max(rule, 0.01)
     at = min(at1, 0.1)
@@ -113,9 +107,11 @@ def lake_problem(
             )
             average_daily_P[t] += X[t] / nsamples
 
-        reliability += np.sum(X < Pcrit) / (nsamples * myears)
+        reliability += np.sum(Pcrit > X) / (nsamples * myears)
         inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples * myears)
-        utility += np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
+        utility += (
+            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
+        )
     max_P = np.max(average_daily_P)
 
     return max_P, utility, inertia, reliability

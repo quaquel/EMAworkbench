@@ -1,8 +1,4 @@
-"""
-
-This module provides various convenience functions and classes.
-
-"""
+"""This module provides various convenience functions and classes."""
 
 import configparser
 import json
@@ -15,18 +11,16 @@ import pandas as pd
 
 from . import EMAError, get_module_logger
 
-
 # Created on 13 jan. 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["load_results", "save_results", "merge_results", "process_replications"]
+__all__ = ["load_results", "merge_results", "process_replications", "save_results"]
 _logger = get_module_logger(__name__)
 
 
 def load_results(file_name):
-    """
-    load the specified bz2 file. the file is assumed to be saves
+    """Load the specified bz2 file. the file is assumed to be saves
     using save_results.
 
     Parameters
@@ -34,7 +28,7 @@ def load_results(file_name):
     file_name : str
                 the path to the file
 
-    Raises
+    Raises:
     ------
     IOError if file not found
 
@@ -86,20 +80,19 @@ def load_results(file_name):
 
 
 def load_results_old(archive):
-    """
-    load the specified bz2 file. the file is assumed to be saves
+    """Load the specified bz2 file. the file is assumed to be saves
     using save_results.
 
     Parameters
     ----------
     file_name : TarFile
 
-    Raises
+    Raises:
     ------
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import ScalarOutcome, ArrayOutcome
+    from ..em_framework.outcomes import ArrayOutcome, ScalarOutcome
 
     outcomes = {}
 
@@ -179,8 +172,7 @@ def load_results_old(archive):
 
 
 def save_results(results, file_name):
-    """
-    save the results to the specified tar.gz file.
+    """Save the results to the specified tar.gz file.
 
     The way in which results are stored depends. Experiments are saved
     as csv. Outcomes depend on the outcome type. Scalar, and <3D arrays are
@@ -193,7 +185,7 @@ def save_results(results, file_name):
     file_name : str
                 the path of the file
 
-    Raises
+    Raises:
     ------
     IOError if file not found
 
@@ -213,7 +205,9 @@ def save_results(results, file_name):
     with tarfile.open(file_name, "w:gz") as z:
         # store experiments
         stream = BytesIO()
-        stream.write(experiments.to_csv(header=True, encoding="UTF-8", index=False).encode())
+        stream.write(
+            experiments.to_csv(header=True, encoding="UTF-8", index=False).encode()
+        )
         add_file(z, stream, "experiments.csv")
 
         # store outcomes
@@ -239,8 +233,7 @@ def save_results(results, file_name):
 
 
 def merge_results(results1, results2):
-    """
-    convenience function for merging the return from
+    """Convenience function for merging the return from
     :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
 
     The function merges results2 with results1. For the experiments,
@@ -262,13 +255,12 @@ def merge_results(results1, results2):
     results2 : tuple
                second results to be merged
 
-    Returns
+    Returns:
     -------
     the merged results
 
 
     """
-
     # start of merging
     exp1, res1 = results1
     exp2, res2 = results2
@@ -316,8 +308,7 @@ def get_ema_project_home_dir():
 
 
 def process_replications(data, aggregation_func=np.mean):
-    """
-    Convenience function for processing the replications of a stochastic
+    """Convenience function for processing the replications of a stochastic
     model's outcomes.
 
     The default behavior is to take the mean of the replications. This reduces
@@ -337,19 +328,22 @@ def process_replications(data, aggregation_func=np.mean):
     aggregation_func : callabale, optional
         aggregation function to be applied, defaults to np.mean.
 
-    Returns
+    Returns:
     -------
     dict, tuple
 
 
     """
-
     if isinstance(data, dict):
         # replications are the second dimension of the outcome arrays
-        outcomes_processed = {key: aggregation_func(data[key], axis=1) for key in data.keys()}
+        outcomes_processed = {
+            key: aggregation_func(data[key], axis=1) for key in data.keys()
+        }
         return outcomes_processed
     elif (
-        isinstance(data, tuple) and isinstance(data[0], pd.DataFrame) and isinstance(data[1], dict)
+        isinstance(data, tuple)
+        and isinstance(data[0], pd.DataFrame)
+        and isinstance(data[1], dict)
     ):
         experiments, outcomes = data  # split results
         outcomes_processed = {
@@ -359,4 +353,6 @@ def process_replications(data, aggregation_func=np.mean):
         return results_processed
 
     else:
-        raise EMAError(f"data should be a dict or tuple, but is a {type(data)}".format())
+        raise EMAError(
+            f"data should be a dict or tuple, but is a {type(data)}".format()
+        )

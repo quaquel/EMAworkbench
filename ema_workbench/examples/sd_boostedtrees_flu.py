@@ -7,14 +7,14 @@ from matplotlib.collections import CircleCollection
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 
-from ema_workbench import load_results, ema_logging
+from ema_workbench import ema_logging, load_results
 from ema_workbench.analysis import feature_scoring
 
 ema_logging.log_to_stderr(ema_logging.INFO)
 
 
 def plot_factormap(x1, x2, ax, bdt, nominal):
-    """helper function for plotting a 2d factor map"""
+    """Helper function for plotting a 2d factor map"""
     x_min, x_max = x[:, x1].min(), x[:, x1].max()
     y_min, y_max = x[:, x2].min(), x[:, x2].max()
     xx, yy = np.meshgrid(np.linspace(x_min, x_max, 500), np.linspace(y_min, y_max, 500))
@@ -56,7 +56,9 @@ maxima = x.max(axis=0)
 nominal = minima + (maxima - minima) / 2
 
 # fit the boosted tree
-bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=3), algorithm="SAMME", n_estimators=200)
+bdt = AdaBoostClassifier(
+    DecisionTreeClassifier(max_depth=3), algorithm="SAMME", n_estimators=200
+)
 bdt.fit(x, y)
 
 # determine which dimensions are most important

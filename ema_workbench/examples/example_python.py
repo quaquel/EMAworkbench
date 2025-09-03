@@ -1,5 +1,4 @@
-"""
-Created on 20 dec. 2010
+"""Created on 20 dec. 2010
 
 This file illustrated the use the EMA classes for a contrived example
 It's main purpose has been to test the parallel processing functionality
@@ -7,7 +6,13 @@ It's main purpose has been to test the parallel processing functionality
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
-from ema_workbench import Model, RealParameter, ScalarOutcome, ema_logging, perform_experiments
+from ema_workbench import (
+    Model,
+    RealParameter,
+    ScalarOutcome,
+    ema_logging,
+    perform_experiments,
+)
 
 
 def some_model(x1=None, x2=None, x3=None):

@@ -1,6 +1,4 @@
-"""
-
-This file illustrated the use of the workbench for using dimensional
+"""This file illustrated the use of the workbench for using dimensional
 stacking for scenario discovery
 
 

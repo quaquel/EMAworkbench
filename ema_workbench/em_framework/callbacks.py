@@ -1,7 +1,4 @@
-"""
-
-This module provides an abstract base class for a callback and a default
-implementation.
+"""This module provides an abstract base class for a callback and a default implementation.
 
 If you want to store the data in a way that is different from the
 functionality provided by the default callback, you can write your own
@@ -21,9 +18,9 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from .parameters import CategoricalParameter, IntegerParameter, BooleanParameter
-from .util import ProgressTrackingMixIn
 from ..util import ema_exceptions, get_module_logger
+from .parameters import BooleanParameter, CategoricalParameter, IntegerParameter
+from .util import ProgressTrackingMixIn
 
 #
 # Created on 22 Jan 2013
@@ -36,8 +33,8 @@ _logger = get_module_logger(__name__)
 
 
 class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
-    """
-    Abstract base class from which different call back classes can be derived.
+    """Abstract base class from which different call back classes can be derived.
+
     Callback is responsible for storing the results of the runs.
 
     Parameters
@@ -59,7 +56,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
                    tqdm progress bar.
 
 
-    Attributes
+    Attributes:
     ----------
     i : int
         a counter that keeps track of how many experiments have been
@@ -83,6 +80,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         reporting_frequency=10,
         log_progress=False,
     ):
+        """Init."""
         super().__init__(nr_experiments, reporting_frequency, _logger, log_progress)
 
         self.i = 0
@@ -91,14 +89,15 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         self.parameters = uncertainties + levers
 
         if reporting_interval is None:
-            reporting_interval = max(1, int(round(nr_experiments / reporting_frequency)))
+            reporting_interval = max(
+                1, int(round(nr_experiments / reporting_frequency))
+            )
 
         self.reporting_interval = reporting_interval
 
     @abc.abstractmethod
     def __call__(self, experiment, outcomes):
-        """
-        Method responsible for storing results.
+        """Method responsible for storing results.
 
         The implementation in this class only keeps track of how many runs
         have been completed and logging this. Any extension of
@@ -116,15 +115,15 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_results(self):
-        """
-        method for retrieving the results. Called after all experiments
-        have been completed. Any extension of AbstractCallback needs to
+        """Method for retrieving the results.
+
+        Called after all experiments have been completed. Any extension of AbstractCallback needs to
         implement this method.
         """
 
 
 class DefaultCallback(AbstractCallback):
-    """Default callback class
+    """Default callback class.
 
     Parameters
     ----------
@@ -154,7 +153,7 @@ class DefaultCallback(AbstractCallback):
     """
 
     shape_error_msg = "can only save up to 2d arrays, this array is {}d"
-    constraint_error_msg = "can only save 1d arrays for constraint, " "this array is {}d"
+    constraint_error_msg = "can only save 1d arrays for constraint, this array is {}d"
 
     def __init__(
         self,
@@ -166,7 +165,7 @@ class DefaultCallback(AbstractCallback):
         reporting_frequency=10,
         log_progress=False,
     ):
-        """
+        """Init.
 
         Parameters
         ----------
@@ -196,10 +195,14 @@ class DefaultCallback(AbstractCallback):
             reporting_frequency,
             log_progress,
         )
-        self.cases = np.empty((nr_experiments, len(uncertainties) + len(levers)), dtype=object)
-        self.uncertainty_and_lever_labels = [(entry.name, "") for entry in uncertainties + levers]
+        self.cases = np.empty(
+            (nr_experiments, len(uncertainties) + len(levers)), dtype=object
+        )
+        self.uncertainty_and_lever_labels = [
+            (entry.name, "") for entry in uncertainties + levers
+        ]
         self.uncertainties = [u.name for u in uncertainties]
-        self.levers = [l.name for l in levers]
+        self.levers = [l.name for l in levers] # noqa: E741
         self.results = {}
 
         dtypes = []
@@ -226,21 +229,25 @@ class DefaultCallback(AbstractCallback):
         for outcome in self.outcomes:
             shape = outcome.shape
             if shape is not None:
-                shape = (nr_experiments,) + shape
-                self.results[outcome.name] = self._setup_outcomes_array(shape, dtype=outcome.dtype)
+                shape = (nr_experiments, *shape)
+                self.results[outcome.name] = self._setup_outcomes_array(
+                    shape, dtype=outcome.dtype
+                )
 
     def _store_case(self, experiment):
+        """Helper method for storing cases."""
         scenario = experiment.scenario
         policy = experiment.policy
         index = experiment.experiment_id
 
         self.cases[index] = (
             tuple([scenario[u] for u in self.uncertainties])
-            + tuple([policy[l] for l in self.levers])
+            + tuple([policy[l] for l in self.levers])  # noqa: E741
             + (scenario.name, policy.name, experiment.model_name)
         )
 
     def _store_outcomes(self, case_id, outcomes):
+        """Helper method for storing outcomes."""
         for outcome in self.outcomes:
             outcome_name = outcome.name
 
@@ -252,23 +259,25 @@ class DefaultCallback(AbstractCallback):
             else:
                 try:
                     self.results[outcome_name][case_id,] = outcome_res
-                except KeyError:
+                except KeyError as e:
                     data = np.asarray(outcome_res)
                     shape = data.shape
                     if len(shape) > 2:
                         message = self.shape_error_msg.format(len(shape))
-                        raise ema_exceptions.EMAError(message)
+                        raise ema_exceptions.EMAError(message) from e
 
                     shape = list(shape)
                     shape.insert(0, self.nr_experiments)
 
-                    self.results[outcome_name] = self._setup_outcomes_array(shape, data.dtype)
+                    self.results[outcome_name] = self._setup_outcomes_array(
+                        shape, data.dtype
+                    )
                     self.results[outcome_name][case_id,] = outcome_res
 
     def __call__(self, experiment, outcomes):
-        """
-        Method responsible for storing results. This method calls
-        :meth:`super` first, thus utilizing the logging provided there.
+        """Method responsible for storing results.
+
+        This method calls :meth:`super` first, thus utilizing the logging provided there.
 
         Parameters
         ----------
@@ -282,12 +291,15 @@ class DefaultCallback(AbstractCallback):
         self._store_outcomes(experiment.experiment_id, outcomes)
 
     def get_results(self):
+        """Return the experiments and their results."""
         results = {}
         for k, v in self.results.items():
             if not np.ma.is_masked(v):
                 results[k] = v.data
             else:
-                _logger.warning("some experiments have failed, returning masked result arrays")
+                _logger.warning(
+                    "some experiments have failed, returning masked result arrays"
+                )
                 results[k] = v
 
         cases = pd.DataFrame.from_records(self.cases)
@@ -298,21 +310,22 @@ class DefaultCallback(AbstractCallback):
         for name, dtype in self.dtypes:
             try:
                 if dtype == "object":
-                    dtype = "category"
+                    dtype = "category"  # noqa: PLW2901
                 cases[name] = cases[name].astype(dtype)
-            except Exception:
+            except Exception:  # noqa S110
                 pass
 
         return cases, results
 
     def _setup_outcomes_array(self, shape, dtype):
+        """Helper method for setting up the datastructure for the outcomes."""
         array = np.ma.empty(shape, dtype=dtype)
         array.mask = True
         return array
 
 
 class FileBasedCallback(AbstractCallback):
-    """Callback that stores data in csv files while running th model
+    """Callback that stores data in csv files while running th model.
 
     Parameters
     ----------
@@ -332,7 +345,7 @@ class FileBasedCallback(AbstractCallback):
                    if true, progress is logged, if false, use
                    tqdm progress bar.
 
-    Warnings
+    Warnings:
     --------
     This class is still in beta.
     the data is stored in ./temp, relative to the current
@@ -350,6 +363,7 @@ class FileBasedCallback(AbstractCallback):
         reporting_interval=100,
         reporting_frequency=10,
     ):
+        """Init."""
         super().__init__(
             uncertainties,
             levers,
@@ -364,7 +378,7 @@ class FileBasedCallback(AbstractCallback):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
 
-        self.experiments_fh = open(os.path.join(self.directory, "experiments.csv"), "w")
+        self.experiments_fh = open(os.path.join(self.directory, "experiments.csv"), "w") # noqa SIM115
 
         # write experiments.csv header row
         header = [p.name for p in self.parameters] + ["scenario_id", "policy", "model"]
@@ -374,9 +388,10 @@ class FileBasedCallback(AbstractCallback):
         self.outcome_fhs = {}
         for outcome in self.outcomes:
             name = outcome.name
-            self.outcome_fhs[name] = open(os.path.join(self.directory, f"{name}.csv"), "w")
+            self.outcome_fhs[name] = open(os.path.join(self.directory, f"{name}.csv"), "w") # noqa SIM115
 
     def _store_case(self, experiment):
+        """Helper method for storing a single experiment."""
         scenario = experiment.scenario
         policy = experiment.policy
 
@@ -401,6 +416,7 @@ class FileBasedCallback(AbstractCallback):
         writer.writerow(case)
 
     def _store_outcomes(self, outcomes):
+        """Helper method for storing outcomes."""
         for outcome in self.outcomes:
             name = outcome.name
             data = outcomes[name]
@@ -415,9 +431,9 @@ class FileBasedCallback(AbstractCallback):
             writer.writerow(data)
 
     def __call__(self, experiment, outcomes):
-        """
-        Method responsible for storing results. This method calls
-        :meth:`super` first, thus utilizing the logging provided there.
+        """Method responsible for storing results.
+
+        This method calls :meth:`super` first, thus utilizing the logging provided there.
 
         Parameters
         ----------
@@ -435,6 +451,7 @@ class FileBasedCallback(AbstractCallback):
         self._store_outcomes(outcomes)
 
     def get_results(self):
+        """Return the experiments and their results."""
         # TODO:: metadata
 
         self.experiments_fh.close()

@@ -1,6 +1,4 @@
-"""
-pysd connector
-"""
+"""pysd connector"""
 
 import os
 
@@ -8,6 +6,7 @@ import pysd
 
 from ema_workbench.em_framework.model import SingleReplication
 from ema_workbench.util.ema_logging import method_logger
+
 from ..em_framework.model import AbstractModel
 
 __all__ = ["PysdModel"]
@@ -69,8 +68,7 @@ class BasePysdModel(AbstractModel):
         return output
 
     def reset_model(self):
-        """
-        Method for resetting the model to its initial state. The default
+        """Method for resetting the model to its initial state. The default
         implementation only sets the outputs to an empty dict.
 
         """

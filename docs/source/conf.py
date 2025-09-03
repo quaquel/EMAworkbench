@@ -1,5 +1,4 @@
-"""
--*- coding: utf-8 -*-
+"""-*- coding: utf-8 -*-
 
 EMA workbench documentation build configuration file, created by
 sphinx-quickstart on Wed Sep 07 13:56:32 2011.
@@ -14,12 +13,12 @@ serve to show the default.
 """
 
 import glob
-import sys
 import os
 import os.path as osp
 import re
 import shutil
 import string
+import sys
 
 HERE = osp.abspath(osp.dirname(__file__))
 
@@ -262,7 +261,9 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "emaworkbench", "EMA workbench Documentation", ["J.H. Kwakkel"], 1)]
+man_pages = [
+    ("index", "emaworkbench", "EMA workbench Documentation", ["J.H. Kwakkel"], 1)
+]
 
 
 def setup_examples_pages():

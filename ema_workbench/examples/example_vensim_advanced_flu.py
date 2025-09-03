@@ -1,5 +1,4 @@
-"""
-Created on 20 May, 2011
+"""Created on 20 May, 2011
 
 This module shows how you can use vensim models directly
 instead of coding the model in Python. The underlying case
@@ -12,11 +11,11 @@ is the same as used in fluExample
 import numpy as np
 
 from ema_workbench import (
-    TimeSeriesOutcome,
-    ScalarOutcome,
-    ema_logging,
-    Policy,
     MultiprocessingEvaluator,
+    Policy,
+    ScalarOutcome,
+    TimeSeriesOutcome,
+    ema_logging,
     save_results,
 )
 from ema_workbench.connectors.vensim import VensimModel
@@ -32,7 +31,9 @@ def time_of_max(infected_fraction, time):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModel("fluCase", wd="./models/flu", model_file="FLUvensimV1basecase.vpm")
+    model = VensimModel(
+        "fluCase", wd="./models/flu", model_file="FLUvensimV1basecase.vpm"
+    )
 
     # outcomes
     model.outcomes = [
@@ -41,10 +42,14 @@ if __name__ == "__main__":
         ),
         TimeSeriesOutcome("infected_fraction_R1", variable_name="infected fraction R1"),
         ScalarOutcome(
-            "max_infection_fraction", variable_name="infected fraction R1", function=np.max
+            "max_infection_fraction",
+            variable_name="infected fraction R1",
+            function=np.max,
         ),
         ScalarOutcome(
-            "time_of_max", variable_name=["infected fraction R1", "TIME"], function=time_of_max
+            "time_of_max",
+            variable_name=["infected fraction R1", "TIME"],
+            function=time_of_max,
         ),
     ]
 
