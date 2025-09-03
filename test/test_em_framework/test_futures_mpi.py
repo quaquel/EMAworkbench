@@ -35,6 +35,10 @@ def test_mpi_evaluator(mocker):
     mocker.patch(
         "ema_workbench.em_framework.futures_mpi.threading.Thread", autospec=True
     )
+    mocker.patch(
+        "ema_workbench.em_framework.futures_mpi.threading.Event", autospec=True
+    )
+
     mocked_callback = mocker.patch(
         "ema_workbench.em_framework.evaluators.DefaultCallback",
     )
@@ -42,6 +46,7 @@ def test_mpi_evaluator(mocker):
         "ema_workbench.em_framework.futures_mpi.experiment_generator",
         autospec=True,
     )
+
 
     model = Mock(spec=ema_workbench.Model)
     model.name = "test"
@@ -94,9 +99,13 @@ def test_logwatcher(mocker):
     ]
 
     mocked_MPI.COMM_WORLD.bcast.return_value = True
-    event = Mock()
-    event.is_set.side_effect = [False, True]
-    futures_mpi.logwatcher(event)
+    start_event = Mock()
+    start_event.is_set.side_effect = [False, True]
+
+    stop_event = Mock()
+    stop_event.is_set.side_effect = [False, True]
+
+    futures_mpi.logwatcher(start_event, stop_event)
 
     mocked_get_logger.assert_called_once_with(message.name)
     mocked_logger.callHandlers.assert_called_once_with(message)
