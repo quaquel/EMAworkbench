@@ -1,7 +1,9 @@
-"""Created on Aug 11, 2015
+"""Unit tests for experiment runner."""
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-"""
+# Created on Aug 11, 2015
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 
 import unittest
 import unittest.mock as mock
