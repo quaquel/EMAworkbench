@@ -25,53 +25,56 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         self.assertEqual(msis, runner.msis)
 
     def test_run_experiment(self):
-        mockMSI = mock.Mock(spec=Model)
-        mockMSI.name = "test"
-        mockMSI.uncertainties = [RealParameter("a", 0, 10), RealParameter("b", 0, 10)]
+        mock_msi = mock.Mock(spec=Model)
+        mock_msi.name = "test"
+        mock_msi.uncertainties = [RealParameter("a", 0, 10), RealParameter("b", 0, 10)]
+        mock_msi.constants = []
 
         msis = NamedObjectMap(AbstractModel)
-        msis["test"] = mockMSI
+        msis["test"] = mock_msi
 
         runner = ExperimentRunner(msis)
 
         experiment = Experiment(
-            "test", mockMSI.name, Policy("none"), Scenario(a=1, b=2), 0
+            "test", mock_msi.name, Policy("none"), Scenario(a=1, b=2), 0
         )
 
         runner.run_experiment(experiment)
 
-        sc, p = mockMSI.run_model.call_args[0]
+        sc, p, c = mock_msi.run_model.call_args[0]
         self.assertEqual(sc.name, experiment.scenario.name)
         self.assertEqual(p, experiment.policy)
 
-        mockMSI.reset_model.assert_called_once_with()
+        mock_msi.reset_model.assert_called_once_with()
 
         # assert handling of case error
-        mockMSI = mock.Mock(spec=Model)
-        mockMSI.name = "test"
-        mockMSI.run_model.side_effect = Exception("some exception")
+        mock_msi = mock.Mock(spec=Model)
+        mock_msi.name = "test"
+        mock_msi.run_model.side_effect = Exception("some exception")
+        mock_msi.constants = []
         msis = NamedObjectMap(AbstractModel)
-        msis["test"] = mockMSI
+        msis["test"] = mock_msi
 
         runner = ExperimentRunner(msis)
 
         experiment = Experiment(
-            "test", mockMSI.name, Policy("none"), Scenario(a=1, b=2), 0
+            "test", mock_msi.name, Policy("none"), Scenario(a=1, b=2), 0
         )
 
         with self.assertRaises(EMAError):
             runner.run_experiment(experiment)
 
         # assert handling of case error
-        mockMSI = mock.Mock(spec=Model)
-        mockMSI.name = "test"
-        mockMSI.run_model.side_effect = CaseError("message", {})
+        mock_msi = mock.Mock(spec=Model)
+        mock_msi.name = "test"
+        mock_msi.run_model.side_effect = CaseError("message", {})
         msis = NamedObjectMap(AbstractModel)
-        msis["test"] = mockMSI
+        msis["test"] = mock_msi
+        mock_msi.constants = []
         runner = ExperimentRunner(msis)
 
         experiment = Experiment(
-            "test", mockMSI.name, Policy("none"), Scenario(a=1, b=2), 0
+            "test", mock_msi.name, Policy("none"), Scenario(a=1, b=2), 0
         )
         runner.run_experiment(experiment)
 
