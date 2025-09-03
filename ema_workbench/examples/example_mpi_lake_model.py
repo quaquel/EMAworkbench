@@ -131,6 +131,6 @@ if __name__ == "__main__":
     with MPIEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(n_scenarios, n_policies, chunksize=250)
 
-    save_results(res, "test.tar.gz")
+    save_results(res, f"mpi_{n_scenarios}-scen-{n_policies}-policies-results.tar.gz")
 
     print(time.perf_counter() - starttime)
