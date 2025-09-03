@@ -38,6 +38,7 @@ def run_exectests(test_dir, log_path="exectests.log"):
                 except BaseException:
                     traceback.print_exc()
                     failed.append(fname)
+                    pass
 
     print(f">> Passed {len(passed)}/{len(test_files)} tests: ")
     print("Passed: " + ", ".join(passed))

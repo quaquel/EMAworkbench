@@ -1,4 +1,5 @@
-"""Created on Jul 17, 2014
+"""
+Created on Jul 17, 2014
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
@@ -6,14 +7,18 @@
 import os
 import unittest
 
-from ema_workbench.connectors.vensim import LookupUncertainty, VensimModel, load_model
+
 from ema_workbench.em_framework import (
-    CategoricalParameter,
-    RealParameter,
     TimeSeriesOutcome,
+    RealParameter,
+    CategoricalParameter,
     perform_experiments,
 )
+
+from ema_workbench.connectors.vensim import VensimModel, load_model, LookupUncertainty
+
 from ema_workbench.util import ema_logging
+
 
 __test__ = True
 
@@ -22,7 +27,8 @@ if os.name != "nt":
 
 
 class VensimExampleModel(VensimModel):
-    """example of the most simple case of doing EMA on
+    """
+    example of the most simple case of doing EMA on
     a Vensim model.
 
     """
@@ -63,12 +69,7 @@ class LookupTestModel(VensimModel):
         # self.uncertainties.pop()
         self.uncertainties.append(
             LookupUncertainty(
-                "approximation",
-                [(0, 4), (1, 5), (1, 5), (0, 2), (0, 2)],
-                "TF2",
-                self,
-                0,
-                10,
+                "approximation", [(0, 4), (1, 5), (1, 5), (0, 2), (0, 2)], "TF2", self, 0, 10
             )
         )
         # self.uncertainties.pop()
@@ -129,7 +130,8 @@ class VensimMSITest(unittest.TestCase):
 
 class LookupUncertaintyTest(unittest.TestCase):
     def test_added_uncertainties(self):
-        """The lookup uncertainty replaces itself with a set of other
+        """
+        the lookup uncertainty replaces itself with a set of other
         uncertainties. Here we test whether this works correctly for
         each of the options provided by the lookup uncertainty
 
@@ -193,7 +195,8 @@ class LookupUncertaintyTest(unittest.TestCase):
             self.assertTrue(isinstance(unc, RealParameter))
 
     def test_running_lookup_uncertainties(self):
-        """This is the more comprehensive test, given that the lookup
+        """
+        This is the more comprehensive test, given that the lookup
         uncertainty replaces itself with a bunch of other uncertainties, check
         whether we can successfully run a set of experiments and get results
         back. We assert that the uncertainties are correctly replaced by

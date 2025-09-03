@@ -1,4 +1,6 @@
-"""This file illustrated the use of the workbench for doing
+"""
+
+This file illustrated the use of the workbench for doing
 a PRIM analysis.
 
 The data was generated using a system dynamics models implemented in Vensim.

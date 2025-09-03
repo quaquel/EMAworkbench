@@ -1,4 +1,4 @@
-"""utilities used throughout em_framework."""
+"""utilities used throughout em_framework"""
 
 import itertools
 from collections import OrderedDict, UserDict
@@ -14,42 +14,40 @@ from ..util import EMAError
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "Counter",
-    "NamedDict",
     "NamedObject",
-    "NamedObjectMap",
-    "NamedObjectMapDescriptor",
+    "NamedDict",
+    "Counter",
+    "representation",
     "ProgressTrackingMixIn",
     "combine",
+    "NamedObjectMapDescriptor",
+    "NamedObjectMap",
     "determine_objects",
-    "representation",
 ]
 
 
 class NamedObject:
-    """Base object with a name attribute."""
-
-    def __init__(self, name): # noqa: D107
+    def __init__(self, name):
         self.name = name
 
 
 class Counter:
-    """helper function for generating counter based names for NamedDicts."""
+    """helper function for generating counter based names for NamedDicts"""
 
-    def __init__(self, startfrom=0): # noqa: D107
+    def __init__(self, startfrom=0):
         self._counter = itertools.count(startfrom)
 
-    def __call__(self, *args):# noqa: D102
+    def __call__(self, *args):
         return next(self._counter)
 
 
 def representation(named_dict):
-    """Helper function for generating repr based names for NamedDicts."""
+    """helper function for generating repr based names for NamedDicts"""
     return repr(named_dict)
 
 
 class Variable(NamedObject):
-    """Root class for input parameters and outcomes."""
+    """Root class for input parameters and outcomes"""
 
     @property
     def variable_name(self):
@@ -66,38 +64,34 @@ class Variable(NamedObject):
 
     def __init__(self, name):
         if not name.isidentifier():
-            raise DeprecationWarning(
+            DeprecationWarning(
                 f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers"
             )
         super().__init__(name)
 
 
 class NamedObjectMap:
-    """A named object mapping class."""
-
-    def __init__(self, kind): # noqa: D107
+    def __init__(self, kind):  # @ReservedAssignment
         super().__init__()
         self.kind = kind
         self._data = OrderedDict()
 
         if not issubclass(kind, NamedObject):
-            raise TypeError(
-                f"Type must be a (subclass of a) NamedObject, not {type(kind)}"
-            )
+            raise TypeError(f"Type must be a (subclass of a) NamedObject, not {type(kind)}")
 
-    def clear(self): # noqa: D102
+    def clear(self):
         self._data = OrderedDict()
 
-    def copy(self): # noqa: D102
+    def copy(self):
         copy = NamedObjectMap(self.kind)
         copy._data = self._data.copy()
 
         return copy
 
-    def __len__(self): # noqa: D105
+    def __len__(self):
         return len(self._data)
 
-    def __getitem__(self, key): # noqa: D105
+    def __getitem__(self, key):
         if isinstance(key, int):
             for i, (_, v) in enumerate(self._data.items()):
                 if i == key:
@@ -106,11 +100,9 @@ class NamedObjectMap:
         else:
             return self._data[key]
 
-    def __setitem__(self, key, value): # noqa: D105
+    def __setitem__(self, key, value):
         if not isinstance(value, self.kind):
-            raise TypeError(
-                f"Can only add {self.kind.__name__} objects, not {type(value)}"
-            )
+            raise TypeError(f"Can only add {self.kind.__name__} objects, not {type(value)}")
 
         if isinstance(key, int):
             self._data = OrderedDict(
@@ -121,50 +113,46 @@ class NamedObjectMap:
             )
         else:
             if value.name != key:
-                raise ValueError(
-                    f"Key ({key}) does not match name of {self.kind.__name__}"
-                )
+                raise ValueError(f"Key ({key}) does not match name of {self.kind.__name__}")
 
             self._data[key] = value
 
-    def __delitem__(self, key): # noqa: D105
+    def __delitem__(self, key):
         del self._data[key]
 
-    def __iter__(self): # noqa: D105
+    def __iter__(self):
         return iter(self._data.values())
 
-    def __contains__(self, item): # noqa: D105
+    def __contains__(self, item):
         return item in self._data
 
-    def extend(self, value): # noqa: D102
+    def extend(self, value):
         if isinstance(value, NamedObject):
             self._data[value.name] = value
         elif hasattr(value, "__iter__"):
             for item in value:
                 self._data[item.name] = item
         else:
-            raise TypeError(f"Can only add {type!s} objects")
+            raise TypeError(f"Can only add {str(type)} objects")
 
-    def __add__(self, value): # noqa: D105
+    def __add__(self, value):
         data = self.copy()
         data.extend(value)
         return data
 
-    def __iadd__(self, value): # noqa: D105
+    def __iadd__(self, value):
         self.extend(value)
         return self
 
-    def keys(self): # noqa: D102
+    def keys(self):
         return self._data.keys()
 
 
 class NamedObjectMapDescriptor:
-    """Descriptor class for named objects."""
-
-    def __init__(self, kind): # noqa: D107
+    def __init__(self, kind):
         self.kind = kind
 
-    def __get__(self, instance, owner): # noqa: D105
+    def __get__(self, instance, owner):
         if instance is None:
             return self
         try:
@@ -174,7 +162,7 @@ class NamedObjectMapDescriptor:
             setattr(instance, self.internal_name, mapping)
             return mapping
 
-    def __set__(self, instance, values): # noqa: D105
+    def __set__(self, instance, values):
         try:
             mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
@@ -183,15 +171,13 @@ class NamedObjectMapDescriptor:
 
         mapping.extend(values)
 
-    def __set_name__(self, owner, name): # noqa: D105
+    def __set_name__(self, owner, name):
         self.name = name
         self.internal_name = "_" + name
 
 
 class NamedDict(UserDict, NamedObject):
-    """Named dictionary class."""
-
-    def __init__(self, name=representation, **kwargs): # noqa: D107
+    def __init__(self, name=representation, **kwargs):
         super().__init__(**kwargs)
         if name is None:
             raise ValueError()
@@ -201,17 +187,17 @@ class NamedDict(UserDict, NamedObject):
 
 
 def combine(*args):
-    """Combine scenario and policy into a single experiment dict.
+    """combine scenario and policy into a single experiment dict
 
     Parameters
     ----------
     args : two or more dicts that need to be combined
 
-    Returns:
+    Returns
     -------
     a single unified dict containing the entries from all dicts
 
-    Raises:
+    Raises
     ------
     EMAError
         if a keyword argument exists in more than one dict
@@ -230,7 +216,7 @@ def combine(*args):
 
 
 def determine_objects(models, attribute, union=True):
-    """Determine the parameters over which to sample.
+    """determine the parameters over which to sample
 
     Parameters
     ----------
@@ -240,7 +226,7 @@ def determine_objects(models, attribute, union=True):
             in case of multiple models, sample over the union of
             levers, or over the intersection of the levers
 
-    Returns:
+    Returns
     -------
     collection of Parameter instances
 
@@ -272,7 +258,7 @@ def determine_objects(models, attribute, union=True):
 
 
 class ProgressTrackingMixIn:
-    """Mixin for monitoring progress.
+    """Mixin for monitoring progress
 
     Parameters
     ----------
@@ -286,7 +272,7 @@ class ProgressTrackingMixIn:
                function called with self as only argument, should invoke
                self._logger with custom log message
 
-    Attributes:
+    Attributes
     ----------
     i : int
     reporting_interval : int
@@ -300,13 +286,12 @@ class ProgressTrackingMixIn:
 
     def __init__(
         self,
-        N, # noqa: N803
+        N,
         reporting_interval,
         logger,
         log_progress=False,
         log_func=lambda self: self._logger.info(f"{self.i} experiments completed"),
     ):
-        """Init."""
         # TODO:: how to enable variable log messages which might include
         # different attributes?
 
@@ -319,7 +304,7 @@ class ProgressTrackingMixIn:
         if not log_progress:
             self.pbar = tqdm.tqdm(total=N, ncols=79)
 
-    def __call__(self, n): # noqa: D102
+    def __call__(self, n):
         self.i += n
         self._logger.debug(f"{self.i} experiments performed")
 
@@ -332,7 +317,7 @@ class ProgressTrackingMixIn:
             if self.i % self.reporting_interval == 0:
                 self.log_func(self)
 
-    def close(self): # noqa: D102
+    def close(self):
         try:
             self.pbar.__exit__(None, None, None)
         except AttributeError:

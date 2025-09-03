@@ -1,4 +1,5 @@
-"""Created on 11 aug. 2011
+"""
+Created on 11 aug. 2011
 
 .. codeauthor:: wauping <w.auping (at) student (dot) tudelft (dot) nl>
                 jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>

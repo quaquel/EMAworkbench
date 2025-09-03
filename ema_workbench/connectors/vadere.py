@@ -1,29 +1,27 @@
-import json
-import operator
 import os
-import shutil
-from ast import literal_eval
-from functools import reduce
-from subprocess import PIPE, run
-
 import pandas as pd
-
+from functools import reduce
+import operator
+from ast import literal_eval
+import json
+from subprocess import PIPE, run
+import shutil
 from ema_workbench.em_framework.model import Replicator, SingleReplication
-
 from ..em_framework.model import FileModel
-from ..util import EMAError
 from ..util.ema_logging import method_logger
+from ..util import EMAError
 
 __all__ = [
-    "SingleReplicationVadereModel",
-    "VadereModel",
     "change_vadere_scenario",
     "update_vadere_scenario",
+    "VadereModel",
+    "SingleReplicationVadereModel",
 ]
 
 
 def change_vadere_scenario(model_file, variable, value):
-    """Change variable in vadere .scenario file structure. Note that a vadere scenario takes the format of a nested directory.
+    """
+    Change variable in vadere .scenario file structure. Note that a vadere scenario takes the format of a nested directory.
     This function enables to modify any variable in the .scenario file, given the exact level of nesting.
 
     Parameters
@@ -43,7 +41,8 @@ def change_vadere_scenario(model_file, variable, value):
 
 
 def update_vadere_scenario(model_file, experiment, output_file):
-    """Load a vadere .scenario file, change it depending on the passed experiment, and save it again as .scenario file.
+    """
+    Load a vadere .scenario file, change it depending on the passed experiment, and save it again as .scenario file.
 
     Parameters
     ----------
@@ -68,7 +67,7 @@ def update_vadere_scenario(model_file, experiment, output_file):
 class BaseVadereModel(FileModel):
     """Base class for interfacing with Vadere models.
 
-    Attributes:
+    Attributes
     ----------
     model_file : str
                 a relative path from the working directory
@@ -79,7 +78,8 @@ class BaseVadereModel(FileModel):
     """
 
     def __init__(self, name, vadere_jar, processor_files, wd, model_file):
-        """Init of class
+        """
+        init of class
 
         Parameters
         ----------
@@ -96,11 +96,11 @@ class BaseVadereModel(FileModel):
                     on set processors. A .csv file is assumed for timeseries output,
                     and a .txt for a scaler output.
 
-        Raises:
+        Raises
         ------
         EMAError if name contains non alpha-numerical characters
 
-        Note:
+        Note
         ----
         Anything that is relative to `self.working_directory`should be
         specified in `model_init` and not in `src`. Otherwise, the code
@@ -116,7 +116,8 @@ class BaseVadereModel(FileModel):
 
     @method_logger(__name__)
     def model_init(self, policy):
-        """Method called to initialize the model.
+        """
+        Method called to initialize the model.
 
         Parameters
         ----------
@@ -129,13 +130,14 @@ class BaseVadereModel(FileModel):
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """Method for running an instantiated model structure.
+        """
+        Method for running an instantiated model structure.
 
         Parameters
         ----------
         experiment : dict like
 
-        Raises:
+        Raises
         ------
         EMAError if the Vadere run returns no results
 
@@ -174,7 +176,7 @@ class BaseVadereModel(FileModel):
         ]
 
         # run the experiment
-        process = run(self.vadere, check=False, stdin=PIPE, capture_output=True)
+        process = run(self.vadere, stdin=PIPE, capture_output=True)
 
         # results are stored inside a temp dir
         # get path to nested result dir
@@ -187,7 +189,9 @@ class BaseVadereModel(FileModel):
                 output_dir = os.path.join(root, subdir)
         if not output_dir:
             raise EMAError(
-                f"Vadere model run resulted in no output files. Please check model. \n Vadere run error error: {process.stderr}"
+                "Vadere model run resulted in no output files. Please check model. \n Vadere run error error: {}".format(
+                    process.stderr
+                )
             )
         # load results
         # .csv is assumed to be timeseries, .txt scaler
@@ -196,9 +200,7 @@ class BaseVadereModel(FileModel):
         scalar_res = []
         for file in self.processor_files:
             if file.endswith(".csv"):
-                timeseries_res[file] = pd.read_csv(
-                    os.path.join(output_dir, file), sep=" "
-                )
+                timeseries_res[file] = pd.read_csv(os.path.join(output_dir, file), sep=" ")
             if file.endswith(".txt"):
                 scalar_res.append(os.path.join(output_dir, file))
 
@@ -230,7 +232,8 @@ class BaseVadereModel(FileModel):
         return res
 
     def cleanup(self):
-        """This model is called after finishing all the experiments, but
+        """
+        This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
         doing any cleanup, such as closing applications.
 
@@ -241,6 +244,7 @@ class BaseVadereModel(FileModel):
         """
         # cleanup moved to run_experiment, so temp dir is removed before new
         # experiment starts
+        pass
 
 
 class VadereModel(Replicator, BaseVadereModel):

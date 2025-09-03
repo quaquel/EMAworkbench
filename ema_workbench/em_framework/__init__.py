@@ -1,74 +1,92 @@
-"""em_framework namespace."""
-
 import warnings
 
 __all__ = [
-    "ArchiveLogger",
-    "ArrayOutcome",
-    "BooleanParameter",
-    "CategoricalParameter",
-    "Category",
-    "Constant",
-    "Constraint",
-    "Convergence",
-    "EpsilonIndicatorMetric",
-    "EpsilonProgress",
-    "ExperimentReplication",
-    "FASTSampler",
-    "FileModel",
-    "FullFactorialSampler",
-    "GenerationalDistanceMetric",
-    "HypervolumeMetric",
-    "IntegerParameter",
-    "InvertedGenerationalDistanceMetric",
-    "IpyparallelEvaluator",
-    "LHSSampler",
-    "MPIEvaluator",
-    "Model",
-    "MonteCarloSampler",
-    "MorrisSampler",
-    "MultiprocessingEvaluator",
-    "OutputSpaceExploration",
-    "Policy",
-    "RealParameter",
-    "ReplicatorModel",
-    "ReplicatorModel",
-    "Samplers",
-    "ScalarOutcome",
-    "Scenario",
-    "SequentialEvaluator",
-    "SobolSampler",
-    "SpacingMetric",
-    "TimeSeriesOutcome",
-    "epsilon_nondominated",
-    "get_SALib_problem",
-    "model",
-    "optimize",
-    "outcomes",
     "parameters",
+    "model",
+    "outcomes",
+    "samplers",
+    "Model",
+    "FileModel",
+    "ReplicatorModel",
+    "ScalarOutcome",
+    "TimeSeriesOutcome",
+    "Constraint",
+    "RealParameter",
+    "IntegerParameter",
+    "CategoricalParameter",
+    "BooleanParameter",
+    "Scenario",
+    "Policy",
+    "ExperimentReplication",
+    "Constant",
     "parameters_from_csv",
     "parameters_to_csv",
+    "Category",
+    "SobolSampler",
+    "MorrisSampler",
+    "get_SALib_problem",
+    "FASTSampler",
     "perform_experiments",
+    "optimize",
+    "IpyparallelEvaluator",
+    "MPIEvaluator",
+    "MultiprocessingEvaluator",
+    "SequentialEvaluator",
+    "ReplicatorModel",
+    "ArrayOutcome",
+    "Samplers",
+    "OutputSpaceExploration",
+    "EpsilonProgress",
+    "ArchiveLogger",
+    "HypervolumeMetric",
+    "GenerationalDistanceMetric",
+    "SpacingMetric",
+    "InvertedGenerationalDistanceMetric",
+    "EpsilonIndicatorMetric",
+    "epsilon_nondominated",
     "rebuild_platypus_population",
-    "samplers",
     "to_problem",
     "to_robust_problem",
 ]
 
-from .evaluators import (
-    Samplers,
-    SequentialEvaluator,
-    optimize,
-    perform_experiments,
+from .outcomes import ScalarOutcome, TimeSeriesOutcome, Constraint, ArrayOutcome
+from .model import Model, FileModel, ReplicatorModel, Replicator, SingleReplication
+
+from .parameters import (
+    RealParameter,
+    IntegerParameter,
+    CategoricalParameter,
+    BooleanParameter,
+    Constant,
+    parameters_from_csv,
+    parameters_to_csv,
+    Category,
 )
-from .model import FileModel, Model, ReplicatorModel
+from .samplers import (
+    MonteCarloSampler,
+    FullFactorialSampler,
+    LHSSampler,
+    sample_levers,
+    sample_uncertainties,
+    sample_parameters,
+)
+from .points import Scenario, Policy, Point, ExperimentReplication, experiment_generator
+
+from .salib_samplers import SobolSampler, MorrisSampler, FASTSampler, get_SALib_problem
+from .evaluators import (
+    perform_experiments,
+    optimize,
+    SequentialEvaluator,
+    Samplers,
+)
+
 from .optimization import (
-    ArchiveLogger,
     Convergence,
-    EpsilonIndicatorMetric,
     EpsilonProgress,
-    GenerationalDistanceMetric,
+    ArchiveLogger,
     HypervolumeMetric,
+    EpsilonIndicatorMetric,
+    GenerationalDistanceMetric,
     InvertedGenerationalDistanceMetric,
     SpacingMetric,
     epsilon_nondominated,
@@ -76,33 +94,15 @@ from .optimization import (
     to_problem,
     to_robust_problem,
 )
-from .outcomes import ArrayOutcome, Constraint, ScalarOutcome, TimeSeriesOutcome
-from .parameters import (
-    BooleanParameter,
-    CategoricalParameter,
-    Category,
-    Constant,
-    IntegerParameter,
-    RealParameter,
-    parameters_from_csv,
-    parameters_to_csv,
-)
-from .points import ExperimentReplication, Policy, Scenario
-from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler, get_SALib_problem
-from .samplers import (
-    FullFactorialSampler,
-    LHSSampler,
-    MonteCarloSampler,
-)
 
 try:
     from .futures_ipyparallel import IpyparallelEvaluator
 except ImportError:
-    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available", stacklevel=2)
+    warnings.warn("ipyparallel not installed - IpyparalleEvaluator not available")
     IpyparallelEvaluator = None
 
-from .futures_mpi import MPIEvaluator
 from .futures_multiprocessing import MultiprocessingEvaluator
+from .futures_mpi import MPIEvaluator
 from .outputspace_exploration import OutputSpaceExploration
 
 del warnings

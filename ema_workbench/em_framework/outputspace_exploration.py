@@ -18,33 +18,34 @@ Just pass an OutputSpaceExploration instance as algorithm to optimize.
 import functools
 import math
 
+from .optimization import BORGDefaultDescriptor
+from ..util.ema_exceptions import EMAError
+
 from platypus import (
-    PCX,
-    PM,
-    SBX,
-    SPX,
-    UM,
-    UNDX,
+    TournamentSelector,
+    Archive,
+    RandomGenerator,
+    Dominance,
     AbstractGeneticAlgorithm,
     AdaptiveTimeContinuation,
-    Archive,
-    DifferentialEvolution,
-    Dominance,
     GAOperator,
+    SBX,
+    PM,
+    DifferentialEvolution,
+    SPX,
+    UM,
+    PCX,
+    UNDX,
     Multimethod,
     PlatypusConfig,
-    RandomGenerator,
-    TournamentSelector,
 )
 
-from ..util.ema_exceptions import EMAError
-from .optimization import BORGDefaultDescriptor
 
-__all__ = ["AutoAdaptiveOutputSpaceExploration", "OutputSpaceExploration"]
+__all__ = ["OutputSpaceExploration", "AutoAdaptiveOutputSpaceExploration"]
 
 
 class Novelty(Dominance):
-    """Compares to solutions based on their novelty.
+    """Compares to solutions based on their novelty
 
     Parameters
     ----------
@@ -82,7 +83,7 @@ class Novelty(Dominance):
 
 
 class HitBox(Archive):
-    """Hit Box archive.
+    """Hit Box archive
 
     Parameters:
     ----------
@@ -100,7 +101,6 @@ class HitBox(Archive):
     """
 
     def __init__(self, grid_spec):
-        """Init."""
         super().__init__(None)
         self.archive = {}
         self.centroids = {}
@@ -110,7 +110,6 @@ class HitBox(Archive):
         self.overall_novelty = 0
 
     def add(self, solution):
-        """Add a solution to the archive."""
         key = get_index_for_solution(solution, self.grid_spec)
 
         try:
@@ -131,9 +130,7 @@ class HitBox(Archive):
             distance_s = [(a - b) ** 2 for a, b in zip(solution.objectives, centroid)]
             distance_s = math.sqrt(sum(distance_s))
 
-            distance_c = [
-                (a - b) ** 2 for a, b in zip(self.archive[key].objectives, centroid)
-            ]
+            distance_c = [(a - b) ** 2 for a, b in zip(self.archive[key].objectives, centroid)]
             distance_c = math.sqrt(sum(distance_c))
 
             if distance_s < distance_c:
@@ -145,36 +142,20 @@ class HitBox(Archive):
         return True
 
     def get_novelty_score(self, solution):
-        """Return the novelty score of the solution."""
-        # fixme make property
         key = get_index_for_solution(solution, self.grid_spec)
         return 1 / self.grid_counter[key]
 
 
 class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
-    """Algorithm for novelty search based exploration of output space.
-
-    Parameters
-    ----------
-    problem: the optimization problem
-    grid_spec: specification of the grid used for novelty search
-    population_size: population size for the algorithm
-    generator: generator of candidate solutions
-    variator: the evolutionary variator to create new solutions.
-
-
-
-    """
     def __init__(
         self,
         problem,
         grid_spec=None,
         population_size=100,
-        generator=RandomGenerator(), # noqa: B008
+        generator=RandomGenerator(),
         variator=None,
         **kwargs,
     ):
-        """Init."""
         if problem.nobjs != len(grid_spec):
             raise EMAError(
                 f"The number of items in grid_spec ({len(grid_spec)})"
@@ -191,7 +172,6 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         self.comparator = Novelty(self)
 
     def step(self):
-        """A single step of the algorithm."""
         if self.nfe == 0:
             self.initialize()
         else:
@@ -200,7 +180,6 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         self.result = self.archive
 
     def initialize(self):
-        """Initialize the algorithm."""
         super().initialize()
 
         if self.archive is not None:
@@ -210,7 +189,6 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
             self.variator = PlatypusConfig.default_variator(self.problem)
 
     def iterate(self):
-        """A signle iteration of the algorithm."""
         offspring = []
 
         while len(offspring) < self.population_size:
@@ -228,14 +206,15 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
 
 
 def get_index_for_solution(solution, grid_spec):
-    """Maps the objectives to the key for the grid cell into which this solution falls.
+    """maps the objectives to the key for the grid cell
+    into which this solution falls.
 
     Parameters
     ----------
     solution : platypus Solution instance
     grid_spec :
 
-    Returns:
+    Returns
     -------
     tuple
 
@@ -250,7 +229,8 @@ def get_index_for_solution(solution, grid_spec):
 
 
 def get_bin_index(value, minumum_value, epsilon):
-    """Maps the value for a single objective to the index of the grid cell along that dimension.
+    """maps the value for a single objective to the index
+    of the grid cell along that diemnsion
 
     Parameters
     ----------
@@ -258,7 +238,7 @@ def get_bin_index(value, minumum_value, epsilon):
     minumum_value
     epsilon
 
-    Returns:
+    Returns
     -------
     int
 
@@ -267,7 +247,8 @@ def get_bin_index(value, minumum_value, epsilon):
 
 
 class OutputSpaceExploration(AdaptiveTimeContinuation):
-    """Basic genetic algorithm for output space exploration using novelty search.
+    """Basic genetic algorithm for output space exploration using novelty
+    search.
 
     Parameters
     ----------
@@ -293,7 +274,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
     To deal with a stalled search, adaptive time continuation, identical to
     ε-NSGAII is used.
 
-    Notes:
+    Notes
     -----
     Output space exploration relies on the optimization functionality of the
     workbench. Therefore, outcomes of kind INFO are ignored. For output
@@ -306,11 +287,10 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
         problem,
         grid_spec=None,
         population_size=100,
-        generator=RandomGenerator(), # noqa: B008
+        generator=RandomGenerator(),
         variator=None,
         **kwargs,
     ):
-        """Init."""
         super().__init__(
             OutputSpaceExplorationAlgorithm(
                 problem,
@@ -339,7 +319,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
     population_size : int, optional
 
 
-    Notes:
+    Notes
     -----
     Limited to RealParameters only.
 
@@ -375,11 +355,10 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
         problem,
         grid_spec=None,
         population_size=100,
-        generator=RandomGenerator(), # noqa: B008
+        generator=RandomGenerator(),
         variator=None,
         **kwargs,
     ):
-        """Init."""
         self.problem = problem
 
         # Parameterization taken from
@@ -399,9 +378,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(
-                DifferentialEvolution(
-                    crossover_rate=self.de_rate, step_size=self.de_stepsize
-                ),
+                DifferentialEvolution(crossover_rate=self.de_rate, step_size=self.de_stepsize),
                 PM(probability=self.pm_p, distribution_index=self.pm_dist),
             ),
             GAOperator(

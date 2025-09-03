@@ -1,4 +1,5 @@
-"""Created on 8 mrt. 2011
+"""
+Created on 8 mrt. 2011
 
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
                 epruyt <e.pruyt (at) tudelft (dot) nl>
@@ -8,8 +9,8 @@ from math import exp
 
 from ema_workbench.connectors.vensim import VensimModel
 from ema_workbench.em_framework import (
-    CategoricalParameter,
     RealParameter,
+    CategoricalParameter,
     TimeSeriesOutcome,
     perform_experiments,
 )
@@ -40,7 +41,7 @@ class ScarcityModel(VensimModel):
         kwargs = scenario
         loc = kwargs.pop("lookup_shortage_loc")
         speed = kwargs.pop("lookup_shortage_speed")
-        lookup = [self.f(x / 10, speed, loc) for x in range(100)]
+        lookup = [self.f(x / 10, speed, loc) for x in range(0, 100)]
         kwargs["shortage price effect lookup"] = lookup
 
         speed = kwargs.pop("lookup_price_substitute_speed")
@@ -57,9 +58,7 @@ class ScarcityModel(VensimModel):
         scale = kwargs.pop("lookup_approximated_learning_speed")
         speed = kwargs.pop("lookup_approximated_learning_scale")
         start = kwargs.pop("lookup_approximated_learning_start")
-        lookup = [
-            self.approxLearning(x, speed, scale, start) for x in range(0, 101, 10)
-        ]
+        lookup = [self.approxLearning(x, speed, scale, start) for x in range(0, 101, 10)]
         kwargs["approximated learning effect lookup"] = lookup
 
         super().run_model(kwargs, policy)
@@ -68,36 +67,27 @@ class ScarcityModel(VensimModel):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.DEBUG)
 
-    model = ScarcityModel(
-        "scarcity", wd="./models/scarcity", model_file="MetalsEMA.vpm"
-    )
+    model = ScarcityModel("scarcity", wd="./models/scarcity", model_file="MetalsEMA.vpm")
 
     model.outcomes = [
-        TimeSeriesOutcome(
-            "relative_market_price", variable_name="relative market price"
-        ),
+        TimeSeriesOutcome("relative_market_price", variable_name="relative market price"),
         TimeSeriesOutcome("supply_demand_ratio", variable_name="supply demand ratio"),
         TimeSeriesOutcome("real_annual_demand", variable_name="real annual demand"),
         TimeSeriesOutcome(
-            "produced_of_intrinsically_demanded",
-            variable_name="produced of intrinsically demanded",
+            "produced_of_intrinsically_demanded", variable_name="produced of intrinsically demanded"
         ),
         TimeSeriesOutcome("supply", variable_name="supply"),
         TimeSeriesOutcome(
             "Installed_Recycling_Capacity", variable_name="Installed Recycling Capacity"
         ),
         TimeSeriesOutcome(
-            "Installed_Extraction_Capacity",
-            variable_name="Installed Extraction Capacity",
+            "Installed_Extraction_Capacity", variable_name="Installed Extraction Capacity"
         ),
     ]
 
     model.uncertainties = [
         RealParameter(
-            "price_elasticity_of_demand",
-            0,
-            0.5,
-            variable_name="price elasticity of demand",
+            "price_elasticity_of_demand", 0, 0.5, variable_name="price elasticity of demand"
         ),
         RealParameter(
             "fraction_of_maximum_extraction_capacity_used",
@@ -106,10 +96,7 @@ if __name__ == "__main__":
             variable_name="fraction of maximum extraction capacity used",
         ),
         RealParameter(
-            "initial_average_recycling_cost",
-            1,
-            4,
-            variable_name="initial average recycling cost",
+            "initial_average_recycling_cost", 1, 4, variable_name="initial average recycling cost"
         ),
         RealParameter(
             "exogenously_planned_extraction_capacity",
@@ -123,18 +110,11 @@ if __name__ == "__main__":
             0.5,
             variable_name="absolute recycling loss fraction",
         ),
+        RealParameter("normal_profit_margin", 0, 0.4, variable_name="normal profit margin"),
         RealParameter(
-            "normal_profit_margin", 0, 0.4, variable_name="normal profit margin"
+            "initial_annual_supply", 100000, 120000, variable_name="initial annual supply"
         ),
-        RealParameter(
-            "initial_annual_supply",
-            100000,
-            120000,
-            variable_name="initial annual supply",
-        ),
-        RealParameter(
-            "initial_in_goods", 1500000, 2500000, variable_name="initial in goods"
-        ),
+        RealParameter("initial_in_goods", 1500000, 2500000, variable_name="initial in goods"),
         RealParameter(
             "average_construction_time_extraction_capacity",
             1,
@@ -173,9 +153,7 @@ if __name__ == "__main__":
         ),
         # order of delay
         CategoricalParameter(
-            "order_in_goods_delay",
-            (1, 4, 10, 1000),
-            variable_name="order in goods delay",
+            "order_in_goods_delay", (1, 4, 10, 1000), variable_name="order in goods delay"
         ),
         CategoricalParameter(
             "order_recycling_capacity_delay",
@@ -188,29 +166,16 @@ if __name__ == "__main__":
             variable_name="order extraction capacity delay",
         ),
         # uncertainties associated with lookups
+        RealParameter("lookup_shortage_loc", 20, 50, variable_name="lookup shortage loc"),
+        RealParameter("lookup_shortage_speed", 1, 5, variable_name="lookup shortage speed"),
         RealParameter(
-            "lookup_shortage_loc", 20, 50, variable_name="lookup shortage loc"
+            "lookup_price_substitute_speed", 0.1, 0.5, variable_name="lookup price substitute speed"
         ),
         RealParameter(
-            "lookup_shortage_speed", 1, 5, variable_name="lookup shortage speed"
+            "lookup_price_substitute_begin", 3, 7, variable_name="lookup price substitute begin"
         ),
         RealParameter(
-            "lookup_price_substitute_speed",
-            0.1,
-            0.5,
-            variable_name="lookup price substitute speed",
-        ),
-        RealParameter(
-            "lookup_price_substitute_begin",
-            3,
-            7,
-            variable_name="lookup price substitute begin",
-        ),
-        RealParameter(
-            "lookup_price_substitute_end",
-            15,
-            25,
-            variable_name="lookup price substitute end",
+            "lookup_price_substitute_end", 15, 25, variable_name="lookup price substitute end"
         ),
         RealParameter(
             "lookup_returns_to_scale_speed",
@@ -219,10 +184,7 @@ if __name__ == "__main__":
             variable_name="lookup returns to scale speed",
         ),
         RealParameter(
-            "lookup_returns_to_scale_scale",
-            0.3,
-            0.7,
-            variable_name="lookup returns to scale scale",
+            "lookup_returns_to_scale_scale", 0.3, 0.7, variable_name="lookup returns to scale scale"
         ),
         RealParameter(
             "lookup_approximated_learning_speed",

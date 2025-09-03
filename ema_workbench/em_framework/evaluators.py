@@ -1,55 +1,61 @@
-"""collection of evaluators for performing experiments, optimization, and robust optimization."""
+"""
+collection of evaluators for performing experiments, optimization, and robust
+optimization
+
+"""
 
 import enum
 import numbers
 import os
 
 from ema_workbench.em_framework.samplers import AbstractSampler
-
-from ..util import EMAError, get_module_logger
 from .callbacks import DefaultCallback
+from .points import experiment_generator, Scenario, Policy
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (
-    EpsNSGAII,
-    _optimize,
-    evaluate,
     evaluate_robust,
-    process_levers,
-    process_robust,
-    process_uncertainties,
+    evaluate,
+    EpsNSGAII,
     to_problem,
     to_robust_problem,
+    process_levers,
+    process_uncertainties,
+    process_robust,
+    _optimize,
 )
-from .outcomes import AbstractOutcome, ScalarOutcome
-from .points import Policy, Scenario, experiment_generator
-from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
+from .outcomes import ScalarOutcome, AbstractOutcome
+from .salib_samplers import SobolSampler, MorrisSampler, FASTSampler
 from .samplers import (
+    MonteCarloSampler,
     FullFactorialSampler,
     LHSSampler,
-    MonteCarloSampler,
     UniformLHSSampler,
     sample_levers,
     sample_uncertainties,
 )
 from .util import NamedObjectMap, determine_objects
+from ..util import EMAError, get_module_logger
+
 
 # Created on 5 Mar 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "Samplers",
-    "SequentialEvaluator",
     "optimize",
     "perform_experiments",
+    "SequentialEvaluator",
+    "Samplers",
 ]
 
 _logger = get_module_logger(__name__)
 
 
 class Samplers(enum.Enum):
-    """Enum for different kinds of samplers."""
+    """
+    Enum for different kinds of samplers
+    """
 
     ## TODO:: have samplers register themselves on class instantiation
     ## TODO:: should not be defined here
@@ -64,7 +70,7 @@ class Samplers(enum.Enum):
 
 
 class BaseEvaluator:
-    """evaluator for experiments using a multiprocessing pool.
+    """evaluator for experiments using a multiprocessing pool
 
     Parameters
     ----------
@@ -72,7 +78,7 @@ class BaseEvaluator:
     searchover : {None, 'levers', 'uncertainties'}, optional
                   to be used in combination with platypus
 
-    Raises:
+    Raises
     ------
     ValueError
 
@@ -106,21 +112,21 @@ class BaseEvaluator:
             return False
 
     def initialize(self):
-        """Initialize the evaluator."""
+        """initialize the evaluator"""
         raise NotImplementedError
 
     def finalize(self):
-        """Finalize the evaluator."""
+        """finalize the evaluator"""
         raise NotImplementedError
 
-    def evaluate_experiments(
-        self, scenarios, policies, callback, combine="factorial", **kwargs
-    ):
-        """Used by ema_workbench."""
+    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial", **kwargs):
+        """used by ema_workbench"""
         raise NotImplementedError
 
     def evaluate_all(self, jobs, **kwargs):
-        """Makes ema_workbench evaluators compatible with platypus evaluators."""
+        """makes ema_workbench evaluators compatible with Platypus
+        evaluators as used by platypus algorithms
+        """
         self.callback()
 
         try:
@@ -178,7 +184,7 @@ class BaseEvaluator:
         combine="factorial",
         **kwargs,
     ):
-        """Convenience method for performing experiments.
+        """convenience method for performing experiments.
 
         is forwarded to :func:perform_experiments, with evaluator and
         models arguments added in.
@@ -213,7 +219,7 @@ class BaseEvaluator:
         variator=None,
         **kwargs,
     ):
-        """Convenience method for outcome optimization.
+        """convenience method for outcome optimization.
 
         is forwarded to :func:optimize, with evaluator and models
         arguments added in.
@@ -243,7 +249,7 @@ class BaseEvaluator:
         logging_freq=5,
         **kwargs,
     ):
-        """Convenience method for robust optimization.
+        """convenience method for robust optimization.
 
         is forwarded to :func:robust_optimize, with evaluator and models
         arguments added in.
@@ -263,18 +269,13 @@ class BaseEvaluator:
 
 
 class SequentialEvaluator(BaseEvaluator):
-    """Sequential evaluator."""
-
     def initialize(self):
-        """Initializer."""
-
+        pass
 
     def finalize(self):
-        """Finalizer."""
-
+        pass
 
     def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
-        """Evaluate experiments."""
         _logger.info("performing experiments sequentially")
 
         ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
@@ -311,7 +312,8 @@ def perform_experiments(
     log_progress=False,
     **kwargs,
 ):
-    """Sample uncertainties and levers, and perform the resulting experiments on each of the models.
+    """sample uncertainties and levers, and perform the resulting experiments
+    on each of the models
 
     Parameters
     ----------
@@ -340,7 +342,7 @@ def perform_experiments(
 
     Additional keyword arguments are passed on to evaluate_experiments of the evaluator
 
-    Returns:
+    Returns
     -------
     tuple
         the experiments as a dataframe, and a dict
@@ -353,16 +355,12 @@ def perform_experiments(
     # unreadable in this form
 
     if not scenarios and not policies:
-        raise EMAError(
-            "no experiments possible since both scenarios and policies are 0"
-        )
+        raise EMAError("no experiments possible since both " "scenarios and policies are 0")
 
     scenarios, uncertainties, n_scenarios = setup_scenarios(
         scenarios, uncertainty_sampling, uncertainty_union, models
     )
-    policies, levers, n_policies = setup_policies(
-        policies, lever_sampling, lever_union, models
-    )
+    policies, levers, n_policies = setup_policies(policies, lever_sampling, lever_union, models)
 
     try:
         n_models = len(models)
@@ -377,16 +375,18 @@ def perform_experiments(
         # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
         # it
         _logger.info(
-            f"performing {n_scenarios} scenarios * {n_policies} policies * {n_models} model(s) = "
-            f"{nr_of_exp} experiments"
+            ("performing {} scenarios * {} policies * {} model(s) = " "{} experiments").format(
+                n_scenarios, n_policies, n_models, nr_of_exp
+            )
         )
     else:
         nr_of_exp = n_models * max(n_scenarios, n_policies)
         # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
         # it
         _logger.info(
-            f"performing max({n_scenarios} scenarios, {n_policies} policies) * {n_models} model(s) = "
-            f"{nr_of_exp} experiments"
+            ("performing max({} scenarios, {} policies) * {} model(s) = " "{} experiments").format(
+                n_scenarios, n_policies, n_models, nr_of_exp
+            )
         )
 
     callback = setup_callback(
@@ -403,9 +403,7 @@ def perform_experiments(
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
-    evaluator.evaluate_experiments(
-        scenarios, policies, callback, combine=combine, **kwargs
-    )
+    evaluator.evaluate_experiments(scenarios, policies, callback, combine=combine, **kwargs)
 
     if callback.i != nr_of_exp:
         raise EMAError(
@@ -456,7 +454,7 @@ def setup_callback(
 
 def setup_policies(policies, levers_sampling, lever_union, models):
     if not policies:
-        policies = [Policy("None")]
+        policies = [Policy("None", **{})]
         levers = []
         n_policies = 1
     elif isinstance(policies, numbers.Integral):
@@ -477,14 +475,14 @@ def setup_policies(policies, levers_sampling, lever_union, models):
             if isinstance(policies, Policy):
                 policies = [policies]
 
-            levers = [l for l in levers if l.name in policies[0]] #noqa: E741
+            levers = [l for l in levers if l.name in policies[0]]
             n_policies = len(policies)
     return policies, levers, n_policies
 
 
 def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union, models):
     if not scenarios:
-        scenarios = [Scenario("None")]
+        scenarios = [Scenario("None", **{})]
         uncertainties = []
         n_scenarios = 1
     elif isinstance(scenarios, numbers.Integral):
@@ -524,7 +522,7 @@ def optimize(
     variator=None,
     **kwargs,
 ):
-    """Optimize the model.
+    """optimize the model
 
     Parameters
     ----------
@@ -548,34 +546,28 @@ def optimize(
                which is SBX with PM
     kwargs : any additional arguments will be passed on to algorithm
 
-    Returns:
+    Returns
     -------
     pandas DataFrame
 
-    Raises:
+    Raises
     ------
     EMAError if searchover is not one of 'uncertainties' or 'levers'
     NotImplementedError if len(models) > 1
 
     """
     if searchover not in ("levers", "uncertainties"):
-        raise EMAError(
-            f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
-        )
+        raise EMAError(f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}")
 
     try:
         if len(models) == 1:
             models = models[0]
         else:
-            raise NotImplementedError(
-                "Optimization over multiple models is not yet supported"
-            )
+            raise NotImplementedError("Optimization over multiple models is not yet supported")
     except TypeError:
         pass
 
-    problem = to_problem(
-        models, searchover, constraints=constraints, reference=reference
-    )
+    problem = to_problem(models, searchover, constraints=constraints, reference=reference)
 
     # solve the optimization problem
     if not evaluator:
@@ -607,7 +599,7 @@ def robust_optimize(
     logging_freq=5,
     **kwargs,
 ):
-    """Perform robust optimization.
+    """perform robust optimization
 
     Parameters
     ----------
@@ -626,7 +618,7 @@ def robust_optimize(
                    number of generations between logging of progress
     kwargs : any additional arguments will be passed on to algorithm
 
-    Raises:
+    Raises
     ------
     AssertionError if robustness_function is not a ScalarOutcome,
     if robustness_function.kind is INFO, or
@@ -642,10 +634,7 @@ def robust_optimize(
         assert rf.function is not None
 
     problem = to_robust_problem(
-        model,
-        scenarios,
-        constraints=constraints,
-        robustness_functions=robustness_functions,
+        model, scenarios, constraints=constraints, robustness_functions=robustness_functions
     )
 
     # solve the optimization problem

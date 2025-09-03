@@ -1,15 +1,18 @@
-"""embedding SALib sampling within the workbench"""
+"""
+embedding SALib sampling within the workbench
+
+"""
 
 import unittest
-
 from ema_workbench import RealParameter
-from ema_workbench.em_framework.parameters import IntegerParameter
 from ema_workbench.em_framework.salib_samplers import (
-    FASTSampler,
-    MorrisSampler,
-    SobolSampler,
     get_SALib_problem,
+    SobolSampler,
+    MorrisSampler,
+    FASTSampler,
 )
+from ema_workbench.em_framework.parameters import IntegerParameter
+
 
 # Created on 14 Mar 2017
 #

@@ -1,5 +1,5 @@
-"""This module specifies the abstract base class for interfacing with models.
-
+"""
+This module specifies the abstract base class for interfacing with models.
 Any model that is to be controlled from the workbench is controlled via
 an instance of an extension of this abstract base class.
 
@@ -7,14 +7,15 @@ an instance of an extension of this abstract base class.
 
 import operator
 import os
+import warnings
 from collections import defaultdict
 
-from ..util import EMAError
-from ..util.ema_logging import get_module_logger, method_logger
-from .outcomes import AbstractOutcome
-from .parameters import CategoricalParameter, Constant, Parameter
 from .points import ExperimentReplication
-from .util import NamedObject, NamedObjectMapDescriptor, combine
+from .outcomes import AbstractOutcome
+from .parameters import Parameter, Constant, CategoricalParameter
+from .util import NamedObject, combine, NamedObjectMapDescriptor
+from ..util import EMAError
+from ..util.ema_logging import method_logger, get_module_logger
 
 # Created on 23 dec. 2010
 #
@@ -23,22 +24,22 @@ from .util import NamedObject, NamedObjectMapDescriptor, combine
 
 __all__ = [
     "AbstractModel",
-    "FileModel",
     "Model",
+    "FileModel",
     "Replicator",
-    "ReplicatorModel",
     "SingleReplication",
+    "ReplicatorModel",
 ]
 _logger = get_module_logger(__name__)
 
 
 class AbstractModel(NamedObject):
-    """Abstract base class for models.
-
-    This is an abstract base class
+    """
+    :class:`ModelStructureInterface` is one of the the two main
+    classes used for performing EMA. This is an abstract base class
     and cannot be used directly.
 
-    Attributes:
+    Attributes
     ----------
     uncertainties : list
                     list of parameter instances
@@ -59,23 +60,18 @@ class AbstractModel(NamedObject):
 
     @property
     def outcomes_output(self):
-        """Getter for outcomes output."""
         return self._outcomes_output
 
     @outcomes_output.setter
     def outcomes_output(self, outputs):
-        """Setter for outcomes output."""
         for outcome in self.outcomes:
             data = [outputs[var] for var in outcome.variable_name]
             self._outcomes_output[outcome.name] = outcome.process(data)
 
     @property
     def output_variables(self):
-        """Getter for output variables."""
         if self._output_variables is None:
-            self._output_variables = [
-                var for o in self.outcomes for var in o.variable_name
-            ]
+            self._output_variables = [var for o in self.outcomes for var in o.variable_name]
 
         return self._output_variables
 
@@ -85,7 +81,7 @@ class AbstractModel(NamedObject):
     constants = NamedObjectMapDescriptor(Constant)
 
     def __init__(self, name):
-        """Interface to the model.
+        """interface to the model
 
         Parameters
         ----------
@@ -93,7 +89,7 @@ class AbstractModel(NamedObject):
                name of the modelInterface. The name should contain
                only alpha-numerical characters.
 
-        Raises:
+        Raises
         ------
         EMAError if name contains non alpha-numerical characters
 
@@ -120,7 +116,7 @@ class AbstractModel(NamedObject):
                  policy to be run.
 
 
-        Note:
+        Note
         ----
         This method should always be implemented. Although in
         simple cases, a simple pass can suffice.
@@ -139,7 +135,6 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def _transform(self, sampled_parameters, parameters):
-        """Helper method to transform the sampled parameters."""
         if not parameters:
             # no parameters defined, so nothing to transform, mainly
             # useful for manual specification of scenario /  policy
@@ -155,15 +150,14 @@ class AbstractModel(NamedObject):
                 if par.default is not None:
                     value = par.default
                 else:
-                    _logger.debug(
-                        f"parameter {par.name} not found in sampled_parameters"
-                    )
+                    _logger.debug(f"parameter {par.name} not found in sampled_parameters")
                     continue
 
             multivalue = False
-            if isinstance(par, CategoricalParameter) and par.multivalue:
-                multivalue = True
-                values = value
+            if isinstance(par, CategoricalParameter):
+                if par.multivalue:
+                    multivalue = True
+                    values = value
 
             # translate uncertainty name to variable name
             for i, varname in enumerate(par.variable_name):
@@ -194,23 +188,39 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def initialized(self, policy):
-        """Check if model has been initialized.
+        """check if model has been initialized
 
         Parameters
         ----------
         policy : a Policy instance
 
         """
+
         try:
             return self.policy.name == policy.name
         except AttributeError:
             return False
 
     @method_logger(__name__)
-    def reset_model(self):
-        """Method for resetting the model to its initial state.
+    def retrieve_output(self):
+        """Method for retrieving output after a model run.
+        Deprecated, will be removed in version 3.0 of the EMAworkbench.
 
-        The default implementation only sets the outputs to an empty dict.
+        Returns
+        -------
+        dict with the results of a model run.
+        """
+        warnings.warn(
+            "The 'retrieve_output' method is deprecated and will be removed in version 3.0 of the EMAworkbench."
+            "Use 'model.output' instead.",
+            DeprecationWarning,
+        )
+        return self.output
+
+    @method_logger(__name__)
+    def reset_model(self):
+        """Method for resetting the model to its initial state. The default
+        implementation only sets the outputs to an empty dict.
 
         """
         self._outcome_output = {}
@@ -218,8 +228,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def cleanup(self):
-        """Hook for performing cleanup after all experiments have completed.
-
+        """
         This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
         doing any cleanup, such as closing applications.
@@ -229,16 +238,14 @@ class AbstractModel(NamedObject):
         directories.
 
         """
+        pass
 
     def as_dict(self):
-        """Returns a dict representation of the model."""
+        """returns a dict representation of the model"""
 
         def join_attr(field):
             joined = ", ".join(
-                [
-                    repr(entry)
-                    for entry in sorted(field, key=operator.attrgetter("name"))
-                ]
+                [repr(entry) for entry in sorted(field, key=operator.attrgetter("name"))]
             )
             return f"[{joined}]"
 
@@ -261,21 +268,18 @@ class AbstractModel(NamedObject):
 
 
 class MyDict(dict):
-    """Hacky helper class."""
     # bit of a dirty hack to be able to assign attributes to a dict
     # in a replication context
+    pass
 
 
 class Replicator(AbstractModel):
-    """Base class for a model where experiments are run for multiple replications."""
     @property
     def replications(self):
-        """Getter for replications."""
         return self._replications
 
     @replications.setter
     def replications(self, replications):
-        """Setter for replications."""
         # int
         if isinstance(replications, int):
             # TODO:: use a repeating generator instead
@@ -288,9 +292,7 @@ class Replicator(AbstractModel):
             self._replications = [MyDict(**entry) for entry in replications]
             self.nreplications = len(replications)
         else:
-            raise TypeError(
-                f"Replications should be int or list, not {type(replications)}"
-            )
+            raise TypeError(f"Replications should be int or list, not {type(replications)}")
 
     @method_logger(__name__)
     def run_model(self, scenario, policy):
@@ -325,11 +327,10 @@ class Replicator(AbstractModel):
 
 
 class SingleReplication(AbstractModel):
-    """Base class for models that require only a single replication."""
-
     @method_logger(__name__)
     def run_model(self, scenario, policy):
-        """Method for running an instantiated model structure.
+        """
+        Method for running an instantiated model structure.
 
         Parameters
         ----------
@@ -350,7 +351,8 @@ class SingleReplication(AbstractModel):
 
 
 class BaseModel(AbstractModel):
-    """Generic class for working with models implemented as a Python callable.
+    """generic class for working with models implemented as a Python
+    callable
 
     Parameters
     ----------
@@ -359,7 +361,7 @@ class BaseModel(AbstractModel):
                a function with each of the uncertain parameters as a
                keyword argument
 
-    Attributes:
+    Attributes
     ----------
     uncertainties : listlike
                     list of parameter
@@ -379,7 +381,6 @@ class BaseModel(AbstractModel):
     """
 
     def __init__(self, name, function=None):
-        """Init."""
         super().__init__(name)
 
         if not callable(function):
@@ -415,30 +416,26 @@ class BaseModel(AbstractModel):
         return results
 
     def as_dict(self):
-        """Returns a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["function"] = self.function
         return model_specs
 
 
 class WorkingDirectoryModel(AbstractModel):
-    """Base class for a model that needs its dedicated working directory."""
+    """Base class for a model that needs its dedicated working directory"""
 
     @property
     def working_directory(self):
-        """Getter for working directory."""
         return self._working_directory
 
     @working_directory.setter
     def working_directory(self, path):
-        """Setter for working directory."""
         wd = os.path.abspath(path)
         _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
     def __init__(self, name, wd=None):
-        """Interface to the model.
-
+        """interface to the model
         Parameters
         ----------
         name : str
@@ -446,8 +443,7 @@ class WorkingDirectoryModel(AbstractModel):
                alpha-numerical characters.
         working_directory : str
                             working_directory for the model.
-
-        Raises:
+        Raises
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -458,34 +454,27 @@ class WorkingDirectoryModel(AbstractModel):
         self.working_directory = wd
 
         if not os.path.exists(self.working_directory):
-            raise ValueError(
-                f"Working directory {self.working_directory} does not exist"
-            )
+            raise ValueError(f"Working directory {self.working_directory} does not exist")
 
     def as_dict(self):
-        """Returns a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["working_directory"] = self.working_directory
         return model_specs
 
 
 class FileModel(WorkingDirectoryModel):
-    """Base class for a model that uses underlying files."""
-
     @property
     def working_directory(self):
-        """Getter for working directory."""
         return self._working_directory
 
     @working_directory.setter
     def working_directory(self, path):
-        """Setter for working directory."""
         wd = os.path.abspath(path)
         _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
     def __init__(self, name, wd=None, model_file=None):
-        """Interface to the model.
+        """interface to the model
 
         Parameters
         ----------
@@ -497,7 +486,7 @@ class FileModel(WorkingDirectoryModel):
         model_file  : str
                      the name of the model file
 
-        Raises:
+        Raises
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -513,16 +502,14 @@ class FileModel(WorkingDirectoryModel):
 
         It is best practice to place the model files in a subdirectory of
         the folder within which the file resides used for performing
-        experiments.
+        experiments
 
         """
         super().__init__(name, wd=wd)
 
         path_to_file = os.path.join(self.working_directory, model_file)
         if not os.path.isfile(path_to_file):
-            raise ValueError(
-                f"Cannot find model file: {model_file},\nPath to file: {path_to_file}"
-            )
+            raise ValueError(f"Cannot find model file: {model_file},\nPath to file: {path_to_file}")
 
         if os.getcwd() == self.working_directory:
             raise ValueError(
@@ -532,15 +519,14 @@ class FileModel(WorkingDirectoryModel):
         self.model_file = model_file
 
     def as_dict(self):
-        """Returns a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["model_file"] = self.model_file
         return model_specs
 
 
 class Model(SingleReplication, BaseModel):
-    """Default model class for python callables that are run once per experiment."""
+    pass
 
 
 class ReplicatorModel(Replicator, BaseModel):
-    """Default model class for python callables that are run for multiple replications per experiment."""
+    pass
