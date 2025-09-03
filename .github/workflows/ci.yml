@@ -27,6 +27,8 @@ jobs:
             python-version: "3.11"
           - os: ubuntu-latest
             python-version: "3.12"
+          - os: ubuntu-latest
+            python-version: "3.12"
             pip-pre: "--pre"  # Installs pre-release versions of pip dependencies
             name: "Pre-release dependencies"
           - os: ubuntu-latest
