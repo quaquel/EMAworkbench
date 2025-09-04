@@ -180,8 +180,7 @@ class VensimModel(SingleReplication, FileModel):
     """Base class for controlling Vensim models.
 
     This class will handle starting Vensim, loading a model, setting parameters
-    on the model, running the model, and retrieving the results. To this end
-    it implements:
+    on the model, running the model, and retrieving the results. T
 
     .. note:: This class relies on the Vensim DLL, thus a complete installation
               of Vensim DSS is needed.
