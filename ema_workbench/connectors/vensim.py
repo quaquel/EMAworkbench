@@ -199,9 +199,10 @@ class VensimModel(SingleReplication, FileModel):
         Parameters
         ----------
         name : name of the model, should be a valid python identifier
-        working_directory : working_directory for the model.
+        wd : working directory for the model.
         model_file  : The name of the vensim file to be loaded
-        replace_underscores : whether to replace underscores in uncertainties, levers, constants, and outcomes with spaces
+        replace_underscores : whether to replace underscores in the name of uncertainties, levers, constants,
+                              and outcomes with spaces
 
         Raises
         ------
