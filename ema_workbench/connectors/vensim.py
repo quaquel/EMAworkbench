@@ -16,7 +16,8 @@ import numpy as np
 from ..em_framework import FileModel, TimeSeriesOutcome
 from ..em_framework.model import SingleReplication
 from ..em_framework.parameters import CategoricalParameter, Parameter, RealParameter
-from ..em_framework.util import NamedObjectMap
+from ..em_framework.points import Scenario, Policy, Experiment
+from ..em_framework.util import NamedObjectMap, Variable
 from ..util import CaseError, EMAError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
 from . import vensimDLLwrapper
@@ -192,23 +193,20 @@ class VensimModel(SingleReplication, FileModel):
         """Return path to results file."""
         return os.path.join(self.working_directory, self._result_file)
 
-    def __init__(self, name, wd=None, model_file=None):
+    def __init__(self, name:str, wd:str=None, model_file:str=None, replace_underscores:bool=True):
         """Interface to the model.
 
         Parameters
         ----------
-        name : str
-               name of the modelInterface. The name should contain only
-               alpha-numerical characters.
-        working_directory : str
-                            working_directory for the model.
-        model_file  : str
-                     The path to the vensim model to be loaded.
+        name : name of the model, should be a valid python identifier
+        working_directory : working_directory for the model.
+        model_file  : The name of the vensim file to be loaded
+        replace_underscores (optional) : whether to replace underscores in uncertainties, levers, constants, and outcomes with spaces
 
         Raises:
         ------
         EMAError
-            if name contains non alpha-numerical characters
+            if name is not a valid python idenfier
         ValueError
             if model_file cannot be found or is not a vpm file
 
@@ -239,20 +237,36 @@ class VensimModel(SingleReplication, FileModel):
 
         self.run_length = None
 
+        if replace_underscores:
+            self._first_call = True
+
         # default name of the results file (default: 'Current.vdfx'
         # for 64 bit, and Current.vdf for 32 bit)
 
         _logger.debug("vensim interface init completed")
 
-    def model_init(self, policy):
+    def model_init(self, policy: Policy):
         """Init of the model.
 
         Parameters
         ----------
-        policy : dict
-                 policy to be run.
+        policy : policy to be run.
         """
         super().model_init(policy)
+
+        if self._first_call:
+            self._first_call = False
+
+            def handle_underscores(variables: list[Variable]):
+                for variable in variables:
+                    if (len(variable.variable_name) == 1) and (variable.variable_name[0] == variable.name):
+                        variable.variable_name = variable.name.replace("_", " ")
+
+            handle_underscores(self.uncertainties)
+            handle_underscores(self.outcomes)
+            handle_underscores(self.constants)
+            handle_underscores(self.levers)
+
 
         fn = os.path.join(self.working_directory, self.model_file)
         load_model(fn)  # load the model
@@ -275,7 +289,7 @@ class VensimModel(SingleReplication, FileModel):
             raise EMAWarning(str(VensimWarning)) from w
 
     @method_logger(__name__)
-    def run_experiment(self, experiment):
+    def run_experiment(self, experiment: Experiment):
         """Run the experiment.
 
         The provided implementation assumes that the keys in the
@@ -290,7 +304,7 @@ class VensimModel(SingleReplication, FileModel):
 
         Parameters
         ----------
-        experiment : dict like
+        experiment : the experiment to run
 
         .. note:: setting parameters should always be done via run_model.
                   The model is reset to its initial values automatically after
