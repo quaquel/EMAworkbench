@@ -1,12 +1,15 @@
-"""Created on 20 May, 2011
+"""A showcase of a mexican flu model with Vensim.
 
 This module shows how you can use vensim models directly
 instead of coding the model in Python. The underlying case
-is the same as used in fluExample
+is the same as used in example_flu.py
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-                epruyt <e.pruyt (at) tudelft (dot) nl>
+
 """
+
+# Created on 20 May, 2011
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#                 epruyt <e.pruyt (at) tudelft (dot) nl>
 
 import numpy as np
 
@@ -41,11 +44,7 @@ if __name__ == "__main__":
 
     # Plain Parametric Uncertainties
     model.uncertainties = [
-        RealParameter(
-            "additional_seasonal_immune_population_fraction_R1",
-            0,
-            0.5,
-        ),
+        RealParameter("additional_seasonal_immune_population_fraction_R1",0,0.5),
         RealParameter(
             "additional_seasonal_immune_population_fraction_R2",
             0,

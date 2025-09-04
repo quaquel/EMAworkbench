@@ -16,7 +16,7 @@ import numpy as np
 from ..em_framework import FileModel, TimeSeriesOutcome
 from ..em_framework.model import SingleReplication
 from ..em_framework.parameters import CategoricalParameter, Parameter, RealParameter
-from ..em_framework.points import Scenario, Policy, Experiment
+from ..em_framework.points import Experiment, Policy
 from ..em_framework.util import NamedObjectMap, Variable
 from ..util import CaseError, EMAError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
@@ -57,8 +57,8 @@ def load_model(file_name):
     file_name : str
                 file name of model, relative to working directory
 
-    Raises:
-    -------
+    Raises
+    ------
     VensimError if the model cannot be loaded.
 
     .. note: only works for .vpm files
@@ -80,7 +80,7 @@ def read_cin_file(file_name):
     file_name : str
                 file name of cin file, relative to working directory
 
-    Raises:
+    Raises
     ------
     VensimWarning if the cin file cannot be read.
 
@@ -132,7 +132,7 @@ def run_simulation(file_name):
                 the file name of the output file relative to the working
                 directory
 
-    Raises:
+    Raises
     ------
     VensimError if running the model failed in some way.
 
@@ -150,7 +150,7 @@ def run_simulation(file_name):
 
 
 def get_data(filename, varname, step=1):
-    """Retrieves data from simulation runs or imported data sets.
+    """Retrieve data from simulation runs or imported data sets.
 
     Parameters
     ----------
@@ -162,7 +162,7 @@ def get_data(filename, varname, step=1):
            steps used in slicing. Defaults to 1, meaning the full recorded time
            series is returned.
 
-    Returns:
+    Returns
     -------
     numpy array with the values for varname over the simulation
 
@@ -193,7 +193,7 @@ class VensimModel(SingleReplication, FileModel):
         """Return path to results file."""
         return os.path.join(self.working_directory, self._result_file)
 
-    def __init__(self, name:str, wd:str=None, model_file:str=None, replace_underscores:bool=True):
+    def __init__(self, name:str, wd:str|None=None, model_file:str|None=None, replace_underscores:bool=True):
         """Interface to the model.
 
         Parameters
@@ -201,9 +201,9 @@ class VensimModel(SingleReplication, FileModel):
         name : name of the model, should be a valid python identifier
         working_directory : working_directory for the model.
         model_file  : The name of the vensim file to be loaded
-        replace_underscores (optional) : whether to replace underscores in uncertainties, levers, constants, and outcomes with spaces
+        replace_underscores : whether to replace underscores in uncertainties, levers, constants, and outcomes with spaces
 
-        Raises:
+        Raises
         ------
         EMAError
             if name is not a valid python idenfier
@@ -368,7 +368,7 @@ class VensimModel(SingleReplication, FileModel):
         return results
 
     def _delete_lookup_uncertainties(self):
-        """Deleting lookup uncertainties from the uncertainty list."""
+        """Delete lookup uncertainties from the uncertainty list."""
         self._lookup_uncertainties = self._lookup_uncertainties[:]
         self.uncertainties = [
             x for x in self.uncertainties if x not in self._lookup_uncertainties
@@ -377,6 +377,7 @@ class VensimModel(SingleReplication, FileModel):
 
 class LookupUncertainty(Parameter):
     """Convenience class to do sensitivity analysis on lookups."""
+
     HEARNE1 = "hearne1"
     HEARNE2 = "hearne2"
     APPROX = "approximation"
@@ -498,7 +499,7 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message)
 
     def _get_initial_lookup(self, name):
-        """Helper function to retrieve the lookup function as defined in the vensim model.
+        """Retrieve the lookup function as defined in the vensim model.
 
         This lookup is transformed using a distortion function.
 
@@ -539,7 +540,7 @@ class LookupUncertainty(Parameter):
         return x, y
 
     def _gen_log(self, t, A, K, B, Q, M): # noqa: N803
-        """Helper function implements a logistic function.
+        """Create a logistic function, helper method.
 
         Parameters
         ----------
@@ -570,7 +571,7 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message) from e
 
     def identity(self):
-        """Helper method that returns the elements that define an uncertainty.
+        """HReturns the elements that uniquely define an uncertainty.
 
         By default these are the name, the lower value of the range and the
         upper value of the range.
@@ -693,7 +694,6 @@ def create_model_for_debugging(path_to_existing_model, path_to_new_model, error)
 
     Parameters
     ----------
-
     path_to_existing_model : str
                              path to the original mdl file
     path_to_new_model : str
