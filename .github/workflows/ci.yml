@@ -57,7 +57,7 @@ jobs:
         coverage run -m pytest --ignore=./test/test_connectors -v
         coverage xml
     - name: Coveralls
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' &&  matrix.test-mpi == true
       uses: coverallsapp/github-action@v2
       with:
         format: cobertura
