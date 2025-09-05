@@ -239,7 +239,7 @@ class TestLogWatcher(unittest.TestCase):
         mocked_logger.handlers = []
         ema_logging._logger = mocked_logger
 
-        cls.client = ipyparallel.Client(profile="default")
+        cls.client = mock.Mock(spec=ipyparallel.Client)
         cls.url = f"tcp://{localhost()}:20202"
         #         cls.watcher, cls.thread = ema.start_logwatcher()
         cls.watcher = LogWatcher()
