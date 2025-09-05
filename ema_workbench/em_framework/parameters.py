@@ -72,13 +72,13 @@ class LowerBound(Bound):
 class Constant(Variable):
     """Constant class.
 
-    can be used for any parameter that has to be set to a fixed value
+    Can be used for any parameter that has to be set to a fixed value
 
     """
 
-    def __init__(self, name, value):
+    def __init__(self, name, value, variable_name=None):
         """Init."""
-        super().__init__(name)
+        super().__init__(name, variable_name=variable_name)
         self.value = value
 
     def __repr__(self, *args, **kwargs): # noqa: D105
@@ -155,12 +155,11 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         pff=False,
     ):
         """Init."""
-        super().__init__(name)
+        super().__init__(name, variable_name=variable_name)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
         self.resolution = resolution
         self.default = default
-        self.variable_name = variable_name
         self.pff = pff
 
     @classmethod

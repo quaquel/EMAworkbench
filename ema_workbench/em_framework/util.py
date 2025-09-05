@@ -64,12 +64,13 @@ class Variable(NamedObject):
             name = [name]
         self._variable_name = name
 
-    def __init__(self, name):
+    def __init__(self, name, variable_name=None):
         if not name.isidentifier():
             raise DeprecationWarning(
                 f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers"
             )
         super().__init__(name)
+        self.variable_name = variable_name
 
 
 class NamedObjectMap:

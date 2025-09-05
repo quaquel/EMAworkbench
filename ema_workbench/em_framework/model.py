@@ -1,4 +1,4 @@
-"""This module specifies the abstract base class for interfacing with models.
+"""A collection of classes for interfacing with simulation models.
 
 Any model that is to be controlled from the workbench is controlled via
 an instance of an extension of this abstract base class.
@@ -8,12 +8,13 @@ an instance of an extension of this abstract base class.
 import operator
 import os
 from collections import defaultdict
+from collections.abc import Callable
 
 from ..util import EMAError
 from ..util.ema_logging import get_module_logger, method_logger
 from .outcomes import AbstractOutcome
-from .parameters import CategoricalParameter, Constant, Parameter
-from .points import ExperimentReplication
+from .parameters import CategoricalParameter, Constant, Parameter, Variable
+from .points import ExperimentReplication, Point, Policy, Scenario
 from .util import NamedObject, NamedObjectMapDescriptor, combine
 
 # Created on 23 dec. 2010
@@ -38,7 +39,7 @@ class AbstractModel(NamedObject):
     This is an abstract base class
     and cannot be used directly.
 
-    Attributes:
+    Attributes
     ----------
     uncertainties : list
                     list of parameter instances
@@ -84,18 +85,17 @@ class AbstractModel(NamedObject):
     outcomes = NamedObjectMapDescriptor(AbstractOutcome)
     constants = NamedObjectMapDescriptor(Constant)
 
-    def __init__(self, name):
+    def __init__(self, name: str):
         """Interface to the model.
 
         Parameters
         ----------
         name : str
-               name of the modelInterface. The name should contain
-               only alpha-numerical characters.
+               name of the model. The name should be a valid python identifier
 
-        Raises:
+        Raises
         ------
-        EMAError if name contains non alpha-numerical characters
+        EMAError if name is not a valid python identifier
 
         """
         if not name.isidentifier():
@@ -106,29 +106,19 @@ class AbstractModel(NamedObject):
 
         super().__init__(name)
 
-
-
-
-
         self._output_variables = None
         self._outcomes_output = {}
         self._constraints_output = {}
         self.policy = None
 
     @method_logger(__name__)
-    def model_init(self, policy):
-        """Method called to initialize the model.
+    def model_init(self, policy: Policy):
+        """Initialize the model.
 
         Parameters
         ----------
         policy : dict
                  policy to be run.
-
-
-        Note:
-        ----
-        This method should always be implemented. Although in
-        simple cases, a simple pass can suffice.
 
         """
         self.policy = policy
@@ -143,8 +133,8 @@ class AbstractModel(NamedObject):
             del policy[k]
 
     @method_logger(__name__)
-    def _transform(self, sampled_parameters, parameters):
-        """Helper method to transform the sampled parameters."""
+    def _transform(self, sampled_parameters: Point, parameters: list[Variable]):
+        """Transform the sampled parameters."""
         if not parameters:
             # no parameters defined, so nothing to transform, mainly
             # useful for manual specification of scenario /  policy
@@ -182,8 +172,8 @@ class AbstractModel(NamedObject):
         sampled_parameters.data = temp
 
     @method_logger(__name__)
-    def run_model(self, scenario, policy):
-        """Method for running an instantiated model structure.
+    def run_model(self, scenario: Scenario, policy: Policy, constants: Point):
+        """Run the model for the specified scenario, policy, and constants.
 
         Parameters
         ----------
@@ -196,9 +186,10 @@ class AbstractModel(NamedObject):
 
         self._transform(scenario, self.uncertainties)
         self._transform(policy, self.levers)
+        self._transform(constants, self.constants)
 
     @method_logger(__name__)
-    def initialized(self, policy):
+    def initialized(self, policy: Policy):
         """Check if model has been initialized.
 
         Parameters
@@ -213,7 +204,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def reset_model(self):
-        """Method for resetting the model to its initial state.
+        """Reset the model.
 
         The default implementation only sets the outputs to an empty dict.
 
@@ -223,7 +214,7 @@ class AbstractModel(NamedObject):
 
     @method_logger(__name__)
     def cleanup(self):
-        """Hook for performing cleanup after all experiments have completed.
+        """Perform any cleanup after all experiments have completed.
 
         This model is called after finishing all the experiments, but
         just prior to returning the results. This method gives a hook for
@@ -236,7 +227,7 @@ class AbstractModel(NamedObject):
         """
 
     def as_dict(self):
-        """Returns a dict representation of the model."""
+        """Return a dict representation of the model."""
 
         def join_attr(field):
             joined = ", ".join(
@@ -273,13 +264,14 @@ class MyDict(dict):
 
 class Replicator(AbstractModel):
     """Base class for a model where experiments are run for multiple replications."""
+
     @property
     def replications(self):
         """Getter for replications."""
         return self._replications
 
     @replications.setter
-    def replications(self, replications):
+    def replications(self, replications: int|list[dict]):
         """Setter for replications."""
         # int
         if isinstance(replications, int):
@@ -298,16 +290,17 @@ class Replicator(AbstractModel):
             )
 
     @method_logger(__name__)
-    def run_model(self, scenario, policy):
-        """Method for running an instantiated model structure.
+    def run_model(self, scenario:Scenario, policy:Policy, constants:Point):
+        """Run the model for the specified scenario, policy, and constants.
 
         Parameters
         ----------
         scenario : Scenario instance
         policy : Policy instance
+        constants : ??
 
         """
-        super().run_model(scenario, policy)
+        super().run_model(scenario, policy, constants)
 
         constants = {c.name: c.value for c in self.constants}
         outputs = defaultdict(list)
@@ -333,19 +326,17 @@ class SingleReplication(AbstractModel):
     """Base class for models that require only a single replication."""
 
     @method_logger(__name__)
-    def run_model(self, scenario, policy):
-        """Method for running an instantiated model structure.
+    def run_model(self, scenario:Scenario, policy:Policy, constants:Point):
+        """Run the model for the specified scenario, policy, and constants.
 
         Parameters
         ----------
         scenario : Scenario instance
         policy : Policy instance
+        constants : ??
 
         """
-        super().run_model(scenario, policy)
-
-        constants = {c.name: c.value for c in self.constants}
-
+        super().run_model(scenario, policy, constants)
         experiment = ExperimentReplication(scenario, self.policy, constants)
 
         outputs = self.run_experiment(experiment)
@@ -364,7 +355,7 @@ class BaseModel(AbstractModel):
                a function with each of the uncertain parameters as a
                keyword argument
 
-    Attributes:
+    Attributes
     ----------
     uncertainties : listlike
                     list of parameter
@@ -376,14 +367,10 @@ class BaseModel(AbstractModel):
            alphanumerical name of model structure interface
     output : dict
              this should be a dict with the names of the outcomes as key
-    working_directory : str
-                        absolute path, all file operations in the model
-                        structure interface should be resolved from this
-                        directory.
 
     """
 
-    def __init__(self, name, function=None):
+    def __init__(self, name:str, function:Callable|None=None):
         """Init."""
         super().__init__(name)
 
@@ -393,8 +380,8 @@ class BaseModel(AbstractModel):
         self.function = function
 
     @method_logger(__name__)
-    def run_experiment(self, experiment):
-        """Method for running an instantiated model structure.
+    def run_experiment(self, experiment:ExperimentReplication):
+        """Run the model for the specified single replication of an experiment.
 
         Parameters
         ----------
@@ -419,8 +406,8 @@ class BaseModel(AbstractModel):
             results[variable] = value
         return results
 
-    def as_dict(self):
-        """Returns a dict representation of the model."""
+    def as_dict(self)->dict:
+        """Return a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["function"] = self.function
         return model_specs
@@ -430,18 +417,18 @@ class WorkingDirectoryModel(AbstractModel):
     """Base class for a model that needs its dedicated working directory."""
 
     @property
-    def working_directory(self):
+    def working_directory(self)->str:
         """Getter for working directory."""
         return self._working_directory
 
     @working_directory.setter
-    def working_directory(self, path):
+    def working_directory(self, path:str):
         """Setter for working directory."""
         wd = os.path.abspath(path)
         _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
-    def __init__(self, name, wd=None):
+    def __init__(self, name:str, wd:str|None=None):
         """Interface to the model.
 
         Parameters
@@ -452,7 +439,7 @@ class WorkingDirectoryModel(AbstractModel):
         working_directory : str
                             working_directory for the model.
 
-        Raises:
+        Raises
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -467,8 +454,8 @@ class WorkingDirectoryModel(AbstractModel):
                 f"Working directory {self.working_directory} does not exist"
             )
 
-    def as_dict(self):
-        """Returns a dict representation of the model."""
+    def as_dict(self)->dict:
+        """Return a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["working_directory"] = self.working_directory
         return model_specs
@@ -478,18 +465,18 @@ class FileModel(WorkingDirectoryModel):
     """Base class for a model that uses underlying files."""
 
     @property
-    def working_directory(self):
+    def working_directory(self)->str:
         """Getter for working directory."""
         return self._working_directory
 
     @working_directory.setter
-    def working_directory(self, path):
+    def working_directory(self, path:str):
         """Setter for working directory."""
         wd = os.path.abspath(path)
         _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
-    def __init__(self, name, wd=None, model_file=None):
+    def __init__(self, name, wd:str|None=None, model_file:str|None=None):
         """Interface to the model.
 
         Parameters
@@ -502,7 +489,7 @@ class FileModel(WorkingDirectoryModel):
         model_file  : str
                      the name of the model file
 
-        Raises:
+        Raises
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -536,8 +523,8 @@ class FileModel(WorkingDirectoryModel):
 
         self.model_file = model_file
 
-    def as_dict(self):
-        """Returns a dict representation of the model."""
+    def as_dict(self)->dict:
+        """Return a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["model_file"] = self.model_file
         return model_specs

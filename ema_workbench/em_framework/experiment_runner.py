@@ -2,6 +2,7 @@
 
 from ema_workbench.util.ema_logging import method_logger
 
+from .points import Point
 from ..util import CaseError, EMAError, get_module_logger
 
 # Created on Aug 11, 2015
@@ -84,6 +85,8 @@ class ExperimentRunner:
         scenario = experiment.scenario.copy()
         scenario_id = experiment.scenario.name
 
+        constants = Point(**{c.name:c.value for c in model.constants})
+
         _logger.debug(
             self.log_message.format(
                 scenario_id=scenario_id, policy_name=policy_name, model_name=model_name
@@ -91,7 +94,7 @@ class ExperimentRunner:
         )
 
         try:
-            model.run_model(scenario, policy)
+            model.run_model(scenario, policy, constants)
         except CaseError as e:
             _logger.warning(str(e))
         except Exception as e:
