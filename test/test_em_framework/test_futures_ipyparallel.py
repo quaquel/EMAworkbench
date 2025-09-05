@@ -6,7 +6,6 @@ taken from the ipyparallel test code with some minor adaptations
 
 import logging
 import os
-import socket
 import time
 import unittest
 import unittest.mock as mock
@@ -312,7 +311,7 @@ class TestLogWatcher(unittest.TestCase):
 class TestEngine(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.client = ipyparallel.Client(profile="default")
+        cls.client = mock.Mock(spec=ipyparallel.Client)
 
     #         cls.client = ipyparallel.Client()
 
@@ -349,9 +348,20 @@ class TestEngine(unittest.TestCase):
             NotImplementedError, ema.update_cwd_on_all_engines, mock_client
         )
 
-    def test_get_engines_by_host(self):
-        engines_by_host = ema.get_engines_by_host(self.client)
-        self.assertEqual({socket.gethostname(): [0, 1]}, engines_by_host)
+
+    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.socket")
+    def test_get_engines_by_host(self, mock_socket):
+        mock_client = mock.create_autospec(ipyparallel.Client)
+        mock_client.ids = [0, 1]  # pretend we have two engines
+        mock_view = mock.create_autospec(
+            ipyparallel.client.view.View
+        )  # @ @UndefinedVariable
+        mock_client.__getitem__.return_value = mock_view
+        mock_view.apply_sync.return_value = "test host"
+
+        engines_by_host = ema.get_engines_by_host(mock_client)
+        print(engines_by_host)
+        self.assertEqual({"test host": [0, 1]}, engines_by_host)
 
     def test_init(self):
         msis = []
