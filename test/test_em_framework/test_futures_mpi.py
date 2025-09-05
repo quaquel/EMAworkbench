@@ -1,3 +1,5 @@
+""""Unit tests for the MPI evaluator."""
+
 import logging
 import platform
 from unittest.mock import Mock
@@ -9,7 +11,7 @@ from ema_workbench.em_framework import futures_mpi
 
 # Check if mpi4py is installed and if we're on a Linux environment
 try:
-    import mpi4py
+    import mpi4py  # noqa: F401
 except ImportError:
     MPI_AVAILABLE = False
 else:
@@ -22,19 +24,24 @@ CAN_TEST = (platform.system() == "Linux") or (platform.system() == "Darwin")
     reason="Test requires mpi4py installed and a Linux or Mac OS environment",
 )
 def test_mpi_evaluator(mocker):
+    """Test mpi evaluator."""
     try:
-        import mpi4py
+        import mpi4py  # noqa: F401
     except ImportError:
         pytest.fail(
             "mpi4py is not installed. It's required for this test. Install with: pip install mpi4py"
         )
 
-    mocked_MPIPoolExecutor = mocker.patch(
+    mocked_MPIPoolExecutor = mocker.patch( #noqa: N806
         "mpi4py.futures.MPIPoolExecutor", autospec=True
     )
     mocker.patch(
         "ema_workbench.em_framework.futures_mpi.threading.Thread", autospec=True
     )
+    mocker.patch(
+        "ema_workbench.em_framework.futures_mpi.threading.Event", autospec=True
+    )
+
     mocked_callback = mocker.patch(
         "ema_workbench.em_framework.evaluators.DefaultCallback",
     )
@@ -42,6 +49,7 @@ def test_mpi_evaluator(mocker):
         "ema_workbench.em_framework.futures_mpi.experiment_generator",
         autospec=True,
     )
+
 
     model = Mock(spec=ema_workbench.Model)
     model.name = "test"
@@ -73,7 +81,8 @@ def test_mpi_evaluator(mocker):
     reason="Test requires mpi4py installed and a Linux or Mac OS environment",
 )
 def test_logwatcher(mocker):
-    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)
+    """Test log watcher."""
+    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True) # noqa: N806
     mocked_MPI.COMM_WORLD = Mock()
     mocked_MPI.COMM_WORLD.Get_rank.return_value = 0
 
@@ -94,9 +103,13 @@ def test_logwatcher(mocker):
     ]
 
     mocked_MPI.COMM_WORLD.bcast.return_value = True
-    event = Mock()
-    event.is_set.side_effect = [False, True]
-    futures_mpi.logwatcher(event)
+    start_event = Mock()
+    start_event.is_set.side_effect = [False, True]
+
+    stop_event = Mock()
+    stop_event.is_set.side_effect = [False, True]
+
+    futures_mpi.logwatcher(start_event, stop_event)
 
     mocked_get_logger.assert_called_once_with(message.name)
     mocked_logger.callHandlers.assert_called_once_with(message)
@@ -107,8 +120,10 @@ def test_logwatcher(mocker):
     reason="Test requires mpi4py installed and a Linux or Mac OS environment",
 )
 def test_mpi_initializer(mocker):
-    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)
-    mocked_generator = mocker.patch(
+    """Test initializer of the MPI pool."""
+    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True) # noqa: N806
+
+    mocker.patch(
         "ema_workbench.em_framework.futures_mpi.experiment_generator",
         autospec=True,
     )
@@ -143,6 +158,7 @@ def test_mpi_initializer(mocker):
     reason="Test requires mpi4py installed and a Linux or Mac OS environment",
 )
 def test_MPIHandler():
+    """Test hander for logging in MPI."""
     communicator = Mock()
 
     handler = futures_mpi.MPIHandler(communicator)
@@ -167,6 +183,7 @@ def test_MPIHandler():
     reason="Test requires mpi4py installed and a Linux or Mac OS environment",
 )
 def test_run_experiment_mpi(mocker):
+    """Test running an experiment using MPI."""
     mocked_generator = mocker.patch(
         "ema_workbench.em_framework.futures_mpi.experiment_runner",
         autospec=True,
@@ -185,6 +202,7 @@ def test_run_experiment_mpi(mocker):
     reason="Test requires mpi4py installed and a Linux or Mac OS environment",
 )
 def test_RankFilter():
+    """Test RankFilter class."""
     rank = 1
     filter = futures_mpi.RankFilter(rank)
 
