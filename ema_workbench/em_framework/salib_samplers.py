@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 
 from .parameters import IntegerParameter, Parameter
-from .samplers import DesignIterator, AbstractSampler
+from .samplers import AbstractSampler
 
 try:
     from SALib.sample import fast_sampler, morris, sobol
@@ -72,12 +72,12 @@ class SALibSampler(AbstractSampler):
 
         """
         problem = get_SALib_problem(parameters)
-        samples = self.sample(problem, size)
+        samples = self.sample(problem, size, rng)
 
         return samples
 
     @abc.abstractmethod
-    def sample(self, problem:dict, size:int) -> np.ndarray:
+    def sample(self, problem:dict, size:int, rng:np.random.Generator|None) -> np.ndarray:
         """Call the underlying salib sampling method and return the samples."""
 
 
@@ -97,8 +97,8 @@ class SobolSampler(SALibSampler):
 
         super().__init__()
 
-    def sample(self, problem:dict, size:int) -> np.ndarray:
-        return sobol.sample(problem, size, calc_second_order=self.second_order)
+    def sample(self, problem:dict, size:int, rng:np.random.Generator|None) -> np.ndarray:
+        return sobol.sample(problem, size, calc_second_order=self.second_order, seed=rng)
 
 
 class MorrisSampler(SALibSampler):
@@ -124,7 +124,7 @@ class MorrisSampler(SALibSampler):
         self.optimal_trajectories = optimal_trajectories
         self.local_optimization = local_optimization
 
-    def sample(self, problem:dict, size:int) -> np.ndarray:
+    def sample(self, problem:dict, size:int, rng:np.random.Generator|None) -> np.ndarray:
         return morris.sample(
             problem,
             size,
