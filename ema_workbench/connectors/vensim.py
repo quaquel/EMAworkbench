@@ -16,7 +16,8 @@ import numpy as np
 from ..em_framework import FileModel, TimeSeriesOutcome
 from ..em_framework.model import SingleReplication
 from ..em_framework.parameters import CategoricalParameter, Parameter, RealParameter
-from ..em_framework.util import NamedObjectMap
+from ..em_framework.points import Experiment, Policy
+from ..em_framework.util import NamedObjectMap, Variable
 from ..util import CaseError, EMAError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
 from . import vensimDLLwrapper
@@ -56,8 +57,8 @@ def load_model(file_name):
     file_name : str
                 file name of model, relative to working directory
 
-    Raises:
-    -------
+    Raises
+    ------
     VensimError if the model cannot be loaded.
 
     .. note: only works for .vpm files
@@ -79,7 +80,7 @@ def read_cin_file(file_name):
     file_name : str
                 file name of cin file, relative to working directory
 
-    Raises:
+    Raises
     ------
     VensimWarning if the cin file cannot be read.
 
@@ -131,7 +132,7 @@ def run_simulation(file_name):
                 the file name of the output file relative to the working
                 directory
 
-    Raises:
+    Raises
     ------
     VensimError if running the model failed in some way.
 
@@ -149,7 +150,7 @@ def run_simulation(file_name):
 
 
 def get_data(filename, varname, step=1):
-    """Retrieves data from simulation runs or imported data sets.
+    """Retrieve data from simulation runs or imported data sets.
 
     Parameters
     ----------
@@ -161,7 +162,7 @@ def get_data(filename, varname, step=1):
            steps used in slicing. Defaults to 1, meaning the full recorded time
            series is returned.
 
-    Returns:
+    Returns
     -------
     numpy array with the values for varname over the simulation
 
@@ -175,12 +176,11 @@ def get_data(filename, varname, step=1):
     return vval
 
 
-class BaseVensimModel(FileModel):
+class VensimModel(SingleReplication, FileModel):
     """Base class for controlling Vensim models.
 
     This class will handle starting Vensim, loading a model, setting parameters
-    on the model, running the model, and retrieving the results. To this end
-    it implements:
+    on the model, running the model, and retrieving the results. T
 
     .. note:: This class relies on the Vensim DLL, thus a complete installation
               of Vensim DSS is needed.
@@ -192,23 +192,21 @@ class BaseVensimModel(FileModel):
         """Return path to results file."""
         return os.path.join(self.working_directory, self._result_file)
 
-    def __init__(self, name, wd=None, model_file=None):
+    def __init__(self, name:str, wd:str|None=None, model_file:str|None=None, replace_underscores:bool=True):
         """Interface to the model.
 
         Parameters
         ----------
-        name : str
-               name of the modelInterface. The name should contain only
-               alpha-numerical characters.
-        working_directory : str
-                            working_directory for the model.
-        model_file  : str
-                     The path to the vensim model to be loaded.
+        name : name of the model, should be a valid python identifier
+        wd : working directory for the model.
+        model_file  : The name of the vensim file to be loaded
+        replace_underscores : whether to replace underscores in the name of uncertainties, levers, constants,
+                              and outcomes with spaces
 
-        Raises:
+        Raises
         ------
         EMAError
-            if name contains non alpha-numerical characters
+            if name is not a valid python idenfier
         ValueError
             if model_file cannot be found or is not a vpm file
 
@@ -239,20 +237,36 @@ class BaseVensimModel(FileModel):
 
         self.run_length = None
 
+        if replace_underscores:
+            self._first_call = True
+
         # default name of the results file (default: 'Current.vdfx'
         # for 64 bit, and Current.vdf for 32 bit)
 
         _logger.debug("vensim interface init completed")
 
-    def model_init(self, policy):
+    def model_init(self, policy: Policy):
         """Init of the model.
 
         Parameters
         ----------
-        policy : dict
-                 policy to be run.
+        policy : policy to be run.
         """
         super().model_init(policy)
+
+        if self._first_call:
+            self._first_call = False
+
+            def handle_underscores(variables: list[Variable]):
+                for variable in variables:
+                    if (len(variable.variable_name) == 1) and (variable.variable_name[0] == variable.name):
+                        variable.variable_name = variable.name.replace("_", " ")
+
+            handle_underscores(self.uncertainties)
+            handle_underscores(self.outcomes)
+            handle_underscores(self.constants)
+            handle_underscores(self.levers)
+
 
         fn = os.path.join(self.working_directory, self.model_file)
         load_model(fn)  # load the model
@@ -275,7 +289,7 @@ class BaseVensimModel(FileModel):
             raise EMAWarning(str(VensimWarning)) from w
 
     @method_logger(__name__)
-    def run_experiment(self, experiment):
+    def run_experiment(self, experiment: Experiment):
         """Run the experiment.
 
         The provided implementation assumes that the keys in the
@@ -290,7 +304,7 @@ class BaseVensimModel(FileModel):
 
         Parameters
         ----------
-        experiment : dict like
+        experiment : the experiment to run
 
         .. note:: setting parameters should always be done via run_model.
                   The model is reset to its initial values automatically after
@@ -354,7 +368,7 @@ class BaseVensimModel(FileModel):
         return results
 
     def _delete_lookup_uncertainties(self):
-        """Deleting lookup uncertainties from the uncertainty list."""
+        """Delete lookup uncertainties from the uncertainty list."""
         self._lookup_uncertainties = self._lookup_uncertainties[:]
         self.uncertainties = [
             x for x in self.uncertainties if x not in self._lookup_uncertainties
@@ -363,6 +377,7 @@ class BaseVensimModel(FileModel):
 
 class LookupUncertainty(Parameter):
     """Convenience class to do sensitivity analysis on lookups."""
+
     HEARNE1 = "hearne1"
     HEARNE2 = "hearne2"
     APPROX = "approximation"
@@ -484,7 +499,7 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message)
 
     def _get_initial_lookup(self, name):
-        """Helper function to retrieve the lookup function as defined in the vensim model.
+        """Retrieve the lookup function as defined in the vensim model.
 
         This lookup is transformed using a distortion function.
 
@@ -525,7 +540,7 @@ class LookupUncertainty(Parameter):
         return x, y
 
     def _gen_log(self, t, A, K, B, Q, M): # noqa: N803
-        """Helper function implements a logistic function.
+        """Create a logistic function, helper method.
 
         Parameters
         ----------
@@ -556,7 +571,7 @@ class LookupUncertainty(Parameter):
             raise EMAError(self.error_message) from e
 
     def identity(self):
-        """Helper method that returns the elements that define an uncertainty.
+        """HReturns the elements that uniquely define an uncertainty.
 
         By default these are the name, the lower value of the range and the
         upper value of the range.
@@ -655,10 +670,6 @@ class LookupUncertainty(Parameter):
         return self.values[case.pop("c-" + self.name)]
 
 
-class VensimModel(SingleReplication, BaseVensimModel):
-    """Main model class for dealing with Vensim models."""
-
-
 def create_model_for_debugging(path_to_existing_model, path_to_new_model, error):
     """Create a vensim mdl file parameterized according to the experiment.
 
@@ -683,7 +694,6 @@ def create_model_for_debugging(path_to_existing_model, path_to_new_model, error)
 
     Parameters
     ----------
-
     path_to_existing_model : str
                              path to the original mdl file
     path_to_new_model : str

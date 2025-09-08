@@ -13,10 +13,10 @@ from scipy.optimize import brentq
 from ema_workbench import (
     Constant,
     Model,
-    MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
-    ema_logging,
+    SequentialEvaluator,
+    ema_logging, MultiprocessingEvaluator,
 )
 from ema_workbench.em_framework.evaluators import Samplers
 
@@ -31,17 +31,18 @@ def lake_problem(
     nsamples=100,  # Monte Carlo sampling of natural inflows
     **kwargs,
 ):
+    """Run the intertemporal version of the shallow lake model."""
     try:
-        decisions = [kwargs[str(i)] for i in range(100)]
+        decisions = [kwargs[f"l{i}"] for i in range(100)]
     except KeyError:
         decisions = [0] * 100
-        print("No valid decisions found, using 0 water release every year as default")
+        print("No valid decisions found, using 0 pollution release per year as default")
 
     nvars = len(decisions)
     decisions = np.array(decisions)
 
-    # Calculate the critical pollution level (Pcrit)
-    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
+    # Calculate the critical pollution level (p_crit)
+    p_crit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
 
     # Generate natural inflows using lognormal distribution
     natural_inflows = np.random.lognormal(
@@ -51,7 +52,7 @@ def lake_problem(
     )
 
     # Initialize the pollution level matrix X
-    X = np.zeros((nsamples, nvars))
+    X = np.zeros((nsamples, nvars)) # noqa: N806
 
     # Loop through time to compute the pollution levels
     for t in range(1, nvars):
@@ -63,13 +64,13 @@ def lake_problem(
         )
 
     # Calculate the average daily pollution for each time step
-    average_daily_P = np.mean(X, axis=0)
+    average_daily_p = np.mean(X, axis=0)
 
     # Calculate the reliability (probability of the pollution level being below Pcrit)
-    reliability = np.sum(Pcrit > X) / float(nsamples * nvars)
+    reliability = np.sum(p_crit > X) / float(nsamples * nvars)
 
     # Calculate the maximum pollution level (max_P)
-    max_P = np.max(average_daily_P)
+    max_p = np.max(average_daily_p)
 
     # Calculate the utility by discounting the decisions using the discount factor (delta)
     utility = np.sum(alpha * decisions * np.power(delta, np.arange(nvars)))
@@ -77,7 +78,7 @@ def lake_problem(
     # Calculate the inertia (the fraction of time steps with changes larger than 0.02)
     inertia = np.sum(np.abs(np.diff(decisions)) > 0.02) / float(nvars - 1)
 
-    return max_P, utility, inertia, reliability
+    return max_p, utility, inertia, reliability
 
 
 if __name__ == "__main__":
@@ -98,7 +99,7 @@ if __name__ == "__main__":
 
     # set levers, one for each time step
     lake_model.levers = [
-        RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)
+        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
     ]
 
     # specify outcomes
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     lake_model.constants = [Constant("alpha", 0.41), Constant("nsamples", 150)]
 
     # generate some random policies by sampling over levers
-    n_scenarios = 1000
+    n_scenarios = 100
     n_policies = 4
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
