@@ -28,7 +28,6 @@ from .samplers import (
     FullFactorialSampler,
     LHSSampler,
     MonteCarloSampler,
-    UniformLHSSampler,
     sample_levers,
     sample_uncertainties,
 )
@@ -56,7 +55,6 @@ class Samplers(enum.Enum):
 
     MC = MonteCarloSampler()
     LHS = LHSSampler()
-    UNIFORM_LHS = UniformLHSSampler()
     FF = FullFactorialSampler()
     SOBOL = SobolSampler()
     FAST = FASTSampler()

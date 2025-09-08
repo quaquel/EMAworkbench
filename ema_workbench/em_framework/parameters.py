@@ -146,13 +146,13 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
     def __init__(
         self,
-        name,
+        name:str,
         lower_bound,
         upper_bound,
         resolution=None,
         default=None,
-        variable_name=None,
-        pff=False,
+        variable_name:str|list[str]|None=None,
+        pff:bool=False,
     ):
         """Init."""
         super().__init__(name, variable_name=variable_name)
@@ -161,6 +161,9 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.resolution = resolution
         self.default = default
         self.pff = pff
+        self.dist = None
+        self.uniform=True
+
 
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
@@ -184,6 +187,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.resolution = None
         self.variable_name = None
         self.ppf = None
+        self.uniform = False
 
         for k, v in kwargs.items():
             if k in {"default", "resolution", "variable_name", "pff"}:
@@ -247,13 +251,13 @@ class RealParameter(Parameter):
 
     def __init__(
         self,
-        name,
+        name:str,
         lower_bound,
         upper_bound,
         resolution=None,
         default=None,
-        variable_name=None,
-        pff=False,
+        variable_name:str|list[str]|None=None,
+        pff:bool=False,
     ):
         """Init."""
         super().__init__(

@@ -29,8 +29,8 @@ __all__ = [
 class NamedObject:
     """Base object with a name attribute."""
 
-    def __init__(self, name): # noqa: D107
-        self.name = name
+    def __init__(self, name:str): # noqa: D107
+        self.name:str = name
 
 
 class Counter:
@@ -64,7 +64,7 @@ class Variable(NamedObject):
             name = [name]
         self._variable_name = name
 
-    def __init__(self, name, variable_name=None):
+    def __init__(self, name:str, variable_name:str|list[str]|None=None):
         if not name.isidentifier():
             raise DeprecationWarning(
                 f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers"

@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 
 from .parameters import IntegerParameter
-from .samplers import DefaultDesigns
+from .samplers import DesignIterator
 
 try:
     from SALib.sample import fast_sampler, morris, sobol
@@ -110,7 +110,7 @@ class SALibSampler:
 
         params = sorted(sampled_parameters.keys())
         designs = zip(*[sampled_parameters[u] for u in params])
-        designs = DefaultDesigns(designs, parameters, nr_designs)
+        designs = DesignIterator(designs, parameters, nr_designs)
 
         return designs
 
