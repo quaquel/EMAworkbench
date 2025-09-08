@@ -7,18 +7,15 @@ used functions with error checking. For more fine grained control, the
 
 """
 
-import decimal
-import math
 import os
 
 import numpy as np
 
 from ..em_framework import FileModel, TimeSeriesOutcome
 from ..em_framework.model import SingleReplication
-from ..em_framework.parameters import CategoricalParameter, Parameter, RealParameter
 from ..em_framework.points import Experiment, Policy
-from ..em_framework.util import NamedObjectMap, Variable
-from ..util import CaseError, EMAError, EMAWarning, get_module_logger
+from ..em_framework.util import Variable
+from ..util import CaseError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
 from . import vensimDLLwrapper
 from .vensimDLLwrapper import VensimError, VensimWarning, command, get_val
