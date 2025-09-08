@@ -48,7 +48,6 @@ def test_mc_sampler():
 
     assert samples.shape == (100, 3)
 
-
 def test_ff_sampler():
     uncertainties = [
         RealParameter("a", 0, 10),
@@ -87,7 +86,6 @@ def test_determine_parameters(mocker):
     assert "c" not in parameters.keys()
     assert "a" not in parameters.keys()
 
-
 def test_sample_parameters():
     parameters = [
         RealParameter("a", 0, 10),
@@ -99,6 +97,21 @@ def test_sample_parameters():
 
     assert samples.n == 100
     assert samples.kind is Point
+
+    for sample in samples:
+        for parameter in parameters:
+            value = sample[parameter.name]
+
+            match parameter.name:
+                case "a":
+                    assert parameter.lower_bound <= value <= parameter.upper_bound
+                    assert isinstance(value, float)
+                case "b":
+                    assert parameter.lower_bound <= value <= parameter.upper_bound
+                    assert isinstance(value, int)
+                case "c":
+                    assert value in parameter.categories
+                    assert isinstance(value, str)
 
 
 def test_sample_uncertainties(mocker):

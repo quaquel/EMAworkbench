@@ -1,12 +1,13 @@
 """Samplers for working with SALib."""
 
+import abc
 import operator
 import warnings
 
 import numpy as np
 
-from .parameters import IntegerParameter
-from .samplers import DesignIterator
+from .parameters import IntegerParameter, Parameter
+from .samplers import DesignIterator, AbstractSampler
 
 try:
     from SALib.sample import fast_sampler, morris, sobol
@@ -23,6 +24,9 @@ __all__ = ["FASTSampler", "MorrisSampler", "SobolSampler", "get_SALib_problem"]
 
 def get_SALib_problem(uncertainties):
     """Returns a dict with a problem specification as required by SALib."""
+    # fixme include distribution information here so salib rescaling works
+    # fixme or sample on uniform domain, and handle all rescaling in workbench...
+
     _warning = False
     uncertainties = sorted(uncertainties, key=operator.attrgetter("name"))
     bounds = []
@@ -43,10 +47,10 @@ def get_SALib_problem(uncertainties):
     return problem
 
 
-class SALibSampler:
+class SALibSampler(AbstractSampler):
     """Base wrapper class for SALib samplers."""
 
-    def generate_samples(self, uncertainties, size):
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None) -> np.ndarray:
         """Generate samples.
 
         The main method of :class: `~sampler.Sampler` and its
@@ -67,52 +71,14 @@ class SALibSampler:
             dict with the uncertainty.name as key, and the sample as value
 
         """
-        problem = get_SALib_problem(uncertainties)
+        problem = get_SALib_problem(parameters)
         samples = self.sample(problem, size)
 
-        temp = {}
-        for i, unc in enumerate(uncertainties):
-            sample = samples[:, i]
-            if isinstance(unc, IntegerParameter):
-                sample = np.floor(sample)
-            temp[unc.name] = sample
+        return samples
 
-        return temp
-
-    def generate_designs(self, parameters, nr_samples):
-        """External interface to sampler.
-
-        Returns the computational experiments over the specified parameters,
-        for the given number of samples for each parameter.
-
-        Parameters
-        ----------
-        parameters : list
-                        a list of parameters for which to generate the
-                        experimental designs
-        nr_samples : int
-                     the number of samples to draw for each parameter
-
-
-        Returns:
-        -------
-        generator
-            a generator object that yields the designs resulting from
-            combining the parameters
-        int
-            the number of experimental designs
-
-        """
-        parameters = sorted(parameters, key=operator.attrgetter("name"))
-        sampled_parameters = self.generate_samples(parameters, nr_samples)
-
-        nr_designs = next(iter(sampled_parameters.values())).shape[0]
-
-        params = sorted(sampled_parameters.keys())
-        designs = zip(*[sampled_parameters[u] for u in params])
-        designs = DesignIterator(designs, parameters, nr_designs)
-
-        return designs
+    @abc.abstractmethod
+    def sample(self, problem:dict, size:int) -> np.ndarray:
+        """Call the underlying salib sampling method and return the samples."""
 
 
 class SobolSampler(SALibSampler):
@@ -131,7 +97,7 @@ class SobolSampler(SALibSampler):
 
         super().__init__()
 
-    def sample(self, problem, size):  # noqa: D102
+    def sample(self, problem:dict, size:int) -> np.ndarray:
         return sobol.sample(problem, size, calc_second_order=self.second_order)
 
 
@@ -158,7 +124,7 @@ class MorrisSampler(SALibSampler):
         self.optimal_trajectories = optimal_trajectories
         self.local_optimization = local_optimization
 
-    def sample(self, problem, size):  # noqa: D102
+    def sample(self, problem:dict, size:int) -> np.ndarray:
         return morris.sample(
             problem,
             size,
@@ -182,5 +148,5 @@ class FASTSampler(SALibSampler):
         super().__init__()
         self.m = m
 
-    def sample(self, problem, size):  # noqa: D102
+    def sample(self, problem:dict, size:int) -> np.ndarray:
         return fast_sampler.sample(problem, size, self.m)
