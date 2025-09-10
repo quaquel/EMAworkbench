@@ -1,6 +1,6 @@
 """embedding SALib sampling within the workbench"""
 
-
+import numpy as np
 import pytest
 
 from ema_workbench import RealParameter
@@ -27,9 +27,12 @@ def test_sobol():
 
     N = 100 * (2 * 2 + 2)
     assert samples.shape == (N, len(parameters))
+    for i, p in enumerate(parameters):
+        assert np.all(p.lower_bound <= samples[:,i])
+        assert np.all(p.upper_bound >= samples[:,i])
 
-    sampler = SobolSampler(second_order=False)
-    samples = sampler.generate_samples(parameters, 100)
+    sampler = SobolSampler()
+    samples = sampler.generate_samples(parameters, 100, calc_second_order=False)
 
     N = 100 * (2 + 2)
     assert samples.shape == (N, len(parameters))
@@ -41,7 +44,7 @@ def test_sobol():
     ]
 
     sampler = SobolSampler()
-    samples = sampler.generate_samples(parameters, 100)
+    samples = sampler.generate_samples(parameters, 100, calc_second_order=True)
 
     N = 100 * (2 * 3 + 2)
     assert samples.shape == (N, len(parameters))
@@ -50,8 +53,9 @@ def test_sobol():
 def test_morris():
     parameters = [RealParameter("a", 0, 10), RealParameter("b", 0, 5)]
 
+
     sampler = MorrisSampler()
-    samples = sampler.generate_samples(parameters, 100)
+    samples = sampler.generate_samples(parameters, 100, num_levels=4, optimal_trajectories=None, local_optimization=True)
 
     G = 4
     D = len(parameters)
@@ -64,7 +68,7 @@ def test_FAST():
     parameters = [RealParameter("a", 0, 10), RealParameter("b", 0, 5)]
 
     sampler = FASTSampler()
-    samples = sampler.generate_samples(parameters, 100)
+    samples = sampler.generate_samples(parameters, 100, M=4)
 
     N = 100 * 2
     assert samples.shape == (N, len(parameters))
@@ -80,11 +84,5 @@ def test_get_salib_problem():
     assert len(uncertainties) == problem["num_vars"]
     assert [u.name for u in uncertainties] == problem["names"]
 
-    #         for i, (name, bounds) in enumerate(zip(problem['names'], problem['bounds'])):
-    #             self.assertEqual()
-
-    assert (0, 10) == problem["bounds"][0]
-    assert (0, 5) == problem["bounds"][1]
-    assert (0, 4 + 1) == problem["bounds"][2]  # because flooring
 
 

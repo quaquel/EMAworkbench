@@ -51,7 +51,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None) -> np.ndarray:
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
         """Generate n samples from the parameters.
 
         Parameters
@@ -64,6 +64,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
         size : int
                the number of samples to generate.
         rng: numpy random number generator
+        kwargs : any additional keyword arguments
 
         Returns
         -------
@@ -87,9 +88,34 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 class LHSSampler(AbstractSampler):
     """generates a Latin Hypercube sample over the parameters."""
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None) -> np.ndarray:
-        """Generate samples using latin hypercube sampling."""
-        lhs = qmc.LatinHypercube(d=len(parameters), rng=rng)
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+        """Generate samples using latin hypercube sampling.
+
+        Parameters
+        ----------
+        parameters : collection
+                     a collection of :class:`~parameters.RealParameter`,
+                     :class:`~parameters.IntegerParameter`,
+                     and :class:`~parameters.CategoricalParameter`
+                     instances.
+        size : int
+               the number of samples to generate.
+        rng: numpy random number generator
+        kwargs : any additional keyword arguments
+
+        Additional valid keyword arguments are
+
+        scramble : bool, optional
+        optimization : {None, "random-cd", "lloyd"}, optional
+        strength : {1, 2}, optional
+
+
+        Returns
+        -------
+        numpy array with samples
+
+        """
+        lhs = qmc.LatinHypercube(d=len(parameters), rng=rng, **kwargs)
         samples = lhs.random(size)
         samples = self._rescale(parameters, samples)
         return samples
@@ -98,8 +124,24 @@ class LHSSampler(AbstractSampler):
 class MonteCarloSampler(AbstractSampler):
     """Monte Carlo sampler for each of the parameters."""
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None) -> np.ndarray:
-        """Generate samples using Monte Carlo sampling."""
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+        """Generate samples using Monte Carlo sampling.
+
+        Parameters
+        ----------
+        parameters : collection
+                     a collection of :class:`~parameters.RealParameter`,
+                     :class:`~parameters.IntegerParameter`,
+                     and :class:`~parameters.CategoricalParameter`
+                     instances.
+        size : int
+               the number of samples to generate.
+        rng: numpy random number generator
+        kwargs : any additional keyword arguments
+
+        There are no additional valid keyword arguments for the Monte Carlo sampler.
+
+        """
         samples = stats.uniform.rvs(size=(size, len(parameters)), random_state=rng)
         samples = self._rescale(parameters, samples)
         return samples
@@ -114,8 +156,24 @@ class FullFactorialSampler(AbstractSampler):
 
     """
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None) -> Iterable[Point]:
-        """Generate samples using full factorial sampling."""
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> Iterable[Point]:
+        """Generate samples using full factorial sampling.
+
+        Parameters
+        ----------
+        parameters : collection
+                     a collection of :class:`~parameters.RealParameter`,
+                     :class:`~parameters.IntegerParameter`,
+                     and :class:`~parameters.CategoricalParameter`
+                     instances.
+        size : int
+               the number of samples to generate.
+        rng: numpy random number generator
+        kwargs : any additional keyword arguments
+
+        There are no additional valid keyword arguments for the Monte Carlo sampler.
+
+        """
         samples = []
         for param in parameters:
             cats = param.resolution
@@ -152,7 +210,7 @@ def determine_parameters(models, attribute, union=True):
     return util.determine_objects(models, attribute, union=union)
 
 
-def sample_parameters(parameters, n_samples, sampler=None, kind=Point):
+def sample_parameters(parameters, n_samples, sampler=None, kind=Point, **kwargs):
     """Generate cases by sampling over the parameters.
 
     Parameters
@@ -170,12 +228,12 @@ def sample_parameters(parameters, n_samples, sampler=None, kind=Point):
     """
     if sampler is None:
         sampler = LHSSampler()
-    samples = sampler.generate_samples(parameters, n_samples)
+    samples = sampler.generate_samples(parameters, n_samples, **kwargs)
 
     return DesignIterator(samples, parameters, kind)
 
 
-def sample_levers(models, n_samples, union=True, sampler=None):
+def sample_levers(models, n_samples, union=True, sampler=None, **kwargs):
     """Generate policies by sampling over the levers.
 
     Parameters
@@ -201,10 +259,10 @@ def sample_levers(models, n_samples, union=True, sampler=None):
             "You are trying to sample policies, but no levers have been defined"
         )
 
-    return sample_parameters(levers, n_samples, sampler, Policy)
+    return sample_parameters(levers, n_samples, sampler, Policy, **kwargs)
 
 
-def sample_uncertainties(models, n_samples, union=True, sampler=None):
+def sample_uncertainties(models, n_samples, union=True, sampler=None, **kwargs):
     """Generate scenarios by sampling over the uncertainties.
 
     Parameters
@@ -230,7 +288,7 @@ def sample_uncertainties(models, n_samples, union=True, sampler=None):
             "You are trying to sample scenarios, but no uncertainties have been defined"
         )
 
-    return sample_parameters(uncertainties, n_samples, sampler, Scenario)
+    return sample_parameters(uncertainties, n_samples, sampler, Scenario, **kwargs)
 
 def from_experiments(models, experiments):
     """Generate scenarios from an existing experiments DataFrame.

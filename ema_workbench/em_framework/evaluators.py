@@ -3,6 +3,7 @@
 import enum
 import numbers
 import os
+from collections.abc import Callable
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
@@ -30,6 +31,7 @@ from .samplers import (
     MonteCarloSampler,
     sample_levers,
     sample_uncertainties,
+    DesignIterator
 )
 from .util import NamedObjectMap, determine_objects
 
@@ -292,21 +294,23 @@ class SequentialEvaluator(BaseEvaluator):
 
 
 def perform_experiments(
-    models,
-    scenarios=0,
-    policies=0,
-    evaluator=None,
-    reporting_interval=None,
-    reporting_frequency=10,
-    uncertainty_union=False,
-    lever_union=False,
-    outcome_union=False,
-    uncertainty_sampling=Samplers.LHS,
-    lever_sampling=Samplers.LHS,
-    callback=None,
-    return_callback=False,
+    models: AbstractModel|list[AbstractModel],
+    scenarios:int|DesignIterator=0,
+    policies:int|DesignIterator=0,
+    evaluator:BaseEvaluator|None=None,
+    reporting_interval:int|None=None,
+    reporting_frequency:int|None=10,
+    uncertainty_union:bool=False,
+    lever_union:bool=False,
+    outcome_union:bool=False,
+    uncertainty_sampling:AbstractSampler=Samplers.LHS,
+    uncertainty_sampling_kwargs:dict|None=None,
+    lever_sampling:AbstractSampler=Samplers.LHS,
+    lever_sampling_kwargs:dict|None=None,
+    callback:Callable|None=None,
+    return_callback:bool=False,
     combine="factorial",
-    log_progress=False,
+    log_progress:bool=False,
     **kwargs,
 ):
     """Sample uncertainties and levers, and perform the resulting experiments on each of the models.
@@ -322,8 +326,10 @@ def perform_experiments(
     uncertainty_union : boolean, optional
     lever_union : boolean, optional
     outcome_union : boolean, optional
-    uncertainty_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional
-    lever_sampling : {LHS, MC, FF, PFF, SOBOL, MORRIS, FAST}, optional TODO:: update doc
+    uncertainty_sampling : {LHS, MC, FF, SOBOL, MORRIS, FAST}, optional
+    uncertainty_sampling_kwargs : dict, optional
+    lever_sampling : {LHS, MC, FF, SOBOL, MORRIS, FAST}, optional TODO:: update doc
+    lever_sampling_kwargs : dict, optional
     callback  : Callback instance, optional
     return_callback : boolean, optional
     log_progress : bool, optional
@@ -354,12 +360,18 @@ def perform_experiments(
         raise EMAError(
             "no experiments possible since both scenarios and policies are 0"
         )
+    if uncertainty_sampling_kwargs is None:
+        uncertainty_sampling_kwargs = {}
+    if lever_sampling_kwargs is None:
+        lever_sampling_kwargs = {}
+    uncertainty_sampling_kwargs["uncertainty_union"] = uncertainty_union
+    lever_sampling_kwargs["lever_union"] = lever_union
 
     scenarios, uncertainties, n_scenarios = setup_scenarios(
-        scenarios, uncertainty_sampling, uncertainty_union, models
+        scenarios, uncertainty_sampling, uncertainty_sampling_kwargs, models
     )
     policies, levers, n_policies = setup_policies(
-        policies, lever_sampling, lever_union, models
+        policies, lever_sampling, lever_sampling_kwargs, models
     )
 
     try:
@@ -452,7 +464,7 @@ def setup_callback(
     return callback
 
 
-def setup_policies(policies, levers_sampling, lever_union, models):
+def setup_policies(policies, levers_sampling, lever_sampling_kwargs, models):
     if not policies:
         policies = [Policy("None")]
         levers = []
@@ -463,7 +475,7 @@ def setup_policies(policies, levers_sampling, lever_union, models):
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
 
-        policies = sample_levers(models, policies, union=lever_union, sampler=sampler)
+        policies = sample_levers(models, policies, sampler=sampler,  *lever_sampling_kwargs)
         levers = policies.parameters
         n_policies = policies.n
     else:
@@ -480,7 +492,7 @@ def setup_policies(policies, levers_sampling, lever_union, models):
     return policies, levers, n_policies
 
 
-def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union, models):
+def setup_scenarios(scenarios:int|DesignIterator, uncertainty_sampling, uncertainty_sampling_kwargs, models):
     if not scenarios:
         scenarios = [Scenario("None")]
         uncertainties = []
@@ -490,7 +502,7 @@ def setup_scenarios(scenarios, uncertainty_sampling, uncertainty_union, models):
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
         scenarios = sample_uncertainties(
-            models, scenarios, sampler=sampler, union=uncertainty_union
+            models, scenarios, sampler=sampler, *uncertainty_sampling_kwargs
         )
         uncertainties = scenarios.parameters
         n_scenarios = scenarios.n
