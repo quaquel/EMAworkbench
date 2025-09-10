@@ -164,19 +164,21 @@ class BaseEvaluator:
         return jobs
 
     def perform_experiments(
-        self,
-        scenarios=0,
-        policies=0,
-        reporting_interval=None,
-        reporting_frequency=10,
-        uncertainty_union=False,
-        lever_union=False,
-        outcome_union=False,
-        uncertainty_sampling=Samplers.LHS,
-        lever_sampling=Samplers.LHS,
-        callback=None,
-        combine="factorial",
-        **kwargs,
+            self,
+            scenarios: int | DesignIterator | Scenario = 0,
+            policies: int | DesignIterator | Policy = 0,
+            reporting_interval: int | None = None,
+            reporting_frequency: int | None = 10,
+            uncertainty_union: bool = False,
+            lever_union: bool = False,
+            outcome_union: bool = False,
+            uncertainty_sampling: AbstractSampler = Samplers.LHS,
+            uncertainty_sampling_kwargs: dict | None = None,
+            lever_sampling: AbstractSampler = Samplers.LHS,
+            lever_sampling_kwargs: dict | None = None,
+            callback: Callable | None = None,
+            combine="factorial",
+            **kwargs,
     ):
         """Convenience method for performing experiments.
 
@@ -195,7 +197,9 @@ class BaseEvaluator:
             lever_union=lever_union,
             outcome_union=outcome_union,
             uncertainty_sampling=uncertainty_sampling,
+            uncertainty_sampling_kwargs=uncertainty_sampling_kwargs,
             lever_sampling=lever_sampling,
+            lever_sampling_kwargs=lever_sampling_kwargs,
             callback=callback,
             combine=combine,
             **kwargs,
@@ -295,8 +299,8 @@ class SequentialEvaluator(BaseEvaluator):
 
 def perform_experiments(
     models: AbstractModel|list[AbstractModel],
-    scenarios:int|DesignIterator=0,
-    policies:int|DesignIterator=0,
+    scenarios:int|DesignIterator|Scenario=0,
+    policies:int|DesignIterator|Policy=0,
     evaluator:BaseEvaluator|None=None,
     reporting_interval:int|None=None,
     reporting_frequency:int|None=10,
@@ -464,18 +468,20 @@ def setup_callback(
     return callback
 
 
-def setup_policies(policies, levers_sampling, lever_sampling_kwargs, models):
+def setup_policies(policies:int|DesignIterator, sampler:AbstractSampler|None, lever_sampling_kwargs, models):
+    # todo fix sampler type hints by adding Literal[all fields of sampler enum]
+
     if not policies:
         policies = [Policy("None")]
         levers = []
         n_policies = 1
     elif isinstance(policies, numbers.Integral):
-        sampler = levers_sampling
+        sampler = sampler
 
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
 
-        policies = sample_levers(models, policies, sampler=sampler,  *lever_sampling_kwargs)
+        policies = sample_levers(models, policies, sampler=sampler,  **lever_sampling_kwargs)
         levers = policies.parameters
         n_policies = policies.n
     else:
@@ -492,17 +498,19 @@ def setup_policies(policies, levers_sampling, lever_sampling_kwargs, models):
     return policies, levers, n_policies
 
 
-def setup_scenarios(scenarios:int|DesignIterator, uncertainty_sampling, uncertainty_sampling_kwargs, models):
+def setup_scenarios(scenarios:int|DesignIterator, sampler:AbstractSampler|None, uncertainty_sampling_kwargs, models):
+    # todo fix sampler type hints by adding Literal[all fields of sampler enum]
+
     if not scenarios:
         scenarios = [Scenario("None")]
         uncertainties = []
         n_scenarios = 1
     elif isinstance(scenarios, numbers.Integral):
-        sampler = uncertainty_sampling
+        sampler = sampler
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
         scenarios = sample_uncertainties(
-            models, scenarios, sampler=sampler, *uncertainty_sampling_kwargs
+            models, scenarios, sampler=sampler, **uncertainty_sampling_kwargs
         )
         uncertainties = scenarios.parameters
         n_scenarios = scenarios.n
