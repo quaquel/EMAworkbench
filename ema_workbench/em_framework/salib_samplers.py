@@ -50,11 +50,17 @@ class SALibSampler(AbstractSampler):
                the number of samples to generate.
         rng: np.random.Generator|None
 
-
         Returns
         -------
         dict
             dict with the uncertainty.name as key, and the sample as value
+
+        Notes
+        -----
+        Salib, at least for version 1.5.1 is not consistent in how it handles the seeding of random number
+        generators. Sobol usies the moderns numpy.random.Generator approach, while other parts use the older approach.
+        So, when controlling the seeding for SALIB samplers, please check the valid types for seed in salib and
+        adapt the value passed to rng accordingly.
 
         """
         problem = get_SALib_problem(parameters)
