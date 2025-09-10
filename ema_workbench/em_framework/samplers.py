@@ -8,6 +8,7 @@ Monte Carlo sampling.
 
 import abc
 import itertools
+import numbers
 from collections.abc import Iterable
 
 import numpy as np
@@ -233,7 +234,7 @@ def sample_parameters(parameters, n_samples, sampler=None, kind=Point, **kwargs)
     return DesignIterator(samples, parameters, kind)
 
 
-def sample_levers(models, n_samples, union=True, sampler=None, **kwargs):
+def sample_levers(models, n_samples:numbers.Integral, sampler:AbstractSampler|None=None, **kwargs):
     """Generate policies by sampling over the levers.
 
     Parameters
@@ -250,6 +251,8 @@ def sample_levers(models, n_samples, union=True, sampler=None, **kwargs):
     generator yielding Policy instances
 
     """
+    union = kwargs.pop('lever_union', True)
+
     if sampler is None:
         sampler = LHSSampler()
     levers = determine_parameters(models, "levers", union=union)
@@ -262,7 +265,7 @@ def sample_levers(models, n_samples, union=True, sampler=None, **kwargs):
     return sample_parameters(levers, n_samples, sampler, Policy, **kwargs)
 
 
-def sample_uncertainties(models, n_samples, union=True, sampler=None, **kwargs):
+def sample_uncertainties(models, n_samples:numbers.Integral, sampler:AbstractSampler|None=None, **kwargs):
     """Generate scenarios by sampling over the uncertainties.
 
     Parameters
@@ -279,6 +282,8 @@ def sample_uncertainties(models, n_samples, union=True, sampler=None, **kwargs):
     generator yielding Scenario instances
 
     """
+    union = kwargs.pop('uncertainty_union', True)
+
     if sampler is None:
         sampler = LHSSampler()
     uncertainties = determine_parameters(models, "uncertainties", union=union)
