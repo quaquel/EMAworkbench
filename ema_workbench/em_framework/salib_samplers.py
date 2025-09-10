@@ -1,12 +1,14 @@
 """Samplers for working with SALib."""
+# Created on 12 Jan 2017
+#
+# .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 import abc
-import operator
 import warnings
 
 import numpy as np
 
-from .parameters import IntegerParameter, Parameter
+from .parameters import Parameter
 from .samplers import AbstractSampler
 
 try:
@@ -15,28 +17,12 @@ except ImportError:
     warnings.warn("SALib samplers not available", ImportWarning, stacklevel=2)
     sobol = morris = fast_sampler = None
 
-# Created on 12 Jan 2017
-#
-# .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
 __all__ = ["FASTSampler", "MorrisSampler", "SobolSampler", "get_SALib_problem"]
 
 
 def get_SALib_problem(parameters:list[Parameter]):
     """Returns a dict with a problem specification as required by SALib."""
-    # fixme include distribution information here so salib rescaling works
-    # fixme or sample on uniform domain, and handle all rescaling in workbench...
-
-    _warning = False
     bounds = [(0,1)] * len(parameters)
-
-    # for u in uncertainties:
-    #     lower = u.lower_bound
-    #     upper = u.upper_bound
-    #     if isinstance(u, IntegerParameter):
-    #         upper += 1  # to deal with floorin in generate_samples
-    #
-    #     bounds.append((lower, upper))
 
     problem = {
         "num_vars": len(parameters),
@@ -65,7 +51,7 @@ class SALibSampler(AbstractSampler):
         rng: np.random.Generator|None
 
 
-        Returns:
+        Returns
         -------
         dict
             dict with the uncertainty.name as key, and the sample as value
@@ -83,7 +69,7 @@ class SALibSampler(AbstractSampler):
         Any additional keyword arguments will be passed to the underlying salib sampling method
 
         Parameters
-        ---------
+        ----------
         problem : a dictionary with the problem specification
         size : the number of samples to generate
         rng : a np.random.Generator, or something that can seed a rgn.
@@ -108,7 +94,7 @@ class SobolSampler(SALibSampler):
         Any additional keyword arguments will be passed to the underlying salib sampling method
 
         Parameters
-        ---------
+        ----------
         problem : a dictionary with the problem specification
         size : the number of samples to generate
         rng : a np.random.Generator, or something that can seed a rgn.
@@ -126,8 +112,6 @@ class SobolSampler(SALibSampler):
             `scramble` and `skip_values` can be used together.
             Default is 0.
 
-
-
         """
         return sobol.sample(problem, size, seed=rng, **kwargs)
 
@@ -141,7 +125,7 @@ class MorrisSampler(SALibSampler):
         Any additional keyword arguments will be passed to the underlying salib sampling method
 
         Parameters
-        ---------
+        ----------
         problem : a dictionary with the problem specification
         size : the number of samples to generate
         rng : a np.random.Generator, or something that can seed a rgn.
@@ -160,7 +144,6 @@ class MorrisSampler(SALibSampler):
             Stating this variable to be true causes the function to ignore gurobi.
 
         """
-
         return morris.sample(
             problem,
             size,
@@ -178,7 +161,7 @@ class FASTSampler(SALibSampler):
         Any additional keyword arguments will be passed to the underlying salib sampling method
 
         Parameters
-        ---------
+        ----------
         problem : a dictionary with the problem specification
         size : the number of samples to generate
         rng : a np.random.Generator, or something that can seed a rgn.
@@ -191,5 +174,4 @@ class FASTSampler(SALibSampler):
         Fourier series decomposition
 
         """
-
         return fast_sampler.sample(problem, size, seed=rng, **kwargs)

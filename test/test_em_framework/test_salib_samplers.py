@@ -53,7 +53,6 @@ def test_sobol():
 def test_morris():
     parameters = [RealParameter("a", 0, 10), RealParameter("b", 0, 5)]
 
-
     sampler = MorrisSampler()
     samples = sampler.generate_samples(parameters, 100, num_levels=4, optimal_trajectories=None, local_optimization=True)
 

@@ -304,7 +304,6 @@ def from_experiments(models, experiments):
         yielding Scenario instances
 
     """
-
     # fixme
 
     policy_names = np.unique(experiments["policy"])
