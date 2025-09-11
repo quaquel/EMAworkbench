@@ -157,7 +157,7 @@ class FullFactorialSampler(AbstractSampler):
 
     """
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> Iterable[Point]:
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
         """Generate samples using full factorial sampling.
 
         Parameters
