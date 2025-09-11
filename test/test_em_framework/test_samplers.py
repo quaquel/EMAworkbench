@@ -36,6 +36,10 @@ def test_lhs_sampler():
 
     assert samples.shape == (100,3)
 
+    for i, u in enumerate(uncertainties):
+        assert np.all(samples[:, i] >= u.lower_bound)
+        assert np.all(samples[:, i] <= u.upper_bound)
+
 def test_mc_sampler():
     uncertainties = [
         RealParameter("a", 0, 10),
@@ -47,6 +51,9 @@ def test_mc_sampler():
     samples = sampler.generate_samples(uncertainties, 100, rng=np.random.default_rng(42))
 
     assert samples.shape == (100, 3)
+    for i, u in enumerate(uncertainties):
+        assert np.all(samples[:, i] >= u.lower_bound)
+        assert np.all(samples[:, i] <= u.upper_bound)
 
 def test_ff_sampler():
     uncertainties = [
@@ -59,6 +66,9 @@ def test_ff_sampler():
     samples = sampler.generate_samples(uncertainties, 100)
 
     assert samples.shape == (100*11*3, 3)
+    for i, u in enumerate(uncertainties):
+        assert np.all(samples[:, i] >= u.lower_bound)
+        assert np.all(samples[:, i] <= u.upper_bound)
 
 def test_determine_parameters(mocker):
     function = mocker.Mock()
