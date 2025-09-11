@@ -57,8 +57,8 @@ class SALibSampler(AbstractSampler):
 
         Notes
         -----
-        Salib, at least for version 1.5.1 is not consistent in how it handles the seeding of random number
-        generators. Sobol usies the moderns numpy.random.Generator approach, while other parts use the older approach.
+        Salib, at least for version 1.5.1, is not consistent in how it handles the seeding of random number
+        generators. Sobol uses the moderns numpy.random.Generator approach, while other parts use the older approach.
         So, when controlling the seeding for SALIB samplers, please check the valid types for seed in salib and
         adapt the value passed to rng accordingly.
 
