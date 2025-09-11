@@ -111,11 +111,8 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     lower_bound : int or float
     upper_bound : int or float
     resolution : collection
-    pff : bool
-          if true, sample over this parameter using resolution in case of
-          partial factorial sampling
 
-    Raises:
+    Raises
     ------
     ValueError
         if lower bound is larger than upper bound
@@ -146,13 +143,12 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
     def __init__(
         self,
-        name,
+        name:str,
         lower_bound,
         upper_bound,
         resolution=None,
         default=None,
-        variable_name=None,
-        pff=False,
+        variable_name:str|list[str]|None=None,
     ):
         """Init."""
         super().__init__(name, variable_name=variable_name)
@@ -160,7 +156,9 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.upper_bound = upper_bound
         self.resolution = resolution
         self.default = default
-        self.pff = pff
+        self.dist = None
+        self.uniform=True
+
 
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
@@ -183,10 +181,10 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.name = name
         self.resolution = None
         self.variable_name = None
-        self.ppf = None
+        self.uniform = False
 
         for k, v in kwargs.items():
-            if k in {"default", "resolution", "variable_name", "pff"}:
+            if k in {"default", "resolution", "variable_name"}:
                 setattr(self, k, v)
             else:
                 raise ValueError(f"Unknown property {k} for Parameter")
@@ -231,11 +229,8 @@ class RealParameter(Parameter):
     upper_bound : int or float
     resolution : iterable
     variable_name : str, or list of str
-    pff : bool
-          if true, sample over this parameter using resolution in case of
-          partial factorial sampling
 
-    Raises:
+    Raises
     ------
     ValueError
         if lower bound is larger than upper bound
@@ -247,13 +242,12 @@ class RealParameter(Parameter):
 
     def __init__(
         self,
-        name,
+        name:str,
         lower_bound,
         upper_bound,
         resolution=None,
         default=None,
-        variable_name=None,
-        pff=False,
+        variable_name:str|list[str]|None=None,
     ):
         """Init."""
         super().__init__(
@@ -263,7 +257,6 @@ class RealParameter(Parameter):
             resolution=resolution,
             default=default,
             variable_name=variable_name,
-            pff=pff,
         )
 
         self.dist = sp.stats.uniform(
@@ -282,8 +275,7 @@ class RealParameter(Parameter):
         if isinstance(self.dist, sp.stats._distn_infrastructure.rv_continuous_frozen):
             return (
                 f"RealParameter('{self.name}', {self.lower_bound}, {self.upper_bound}, "
-                f"resolution={self.resolution}, default={self.default}, variable_name={self.variable_name}, "
-                f"pff={self.pff})"
+                f"resolution={self.resolution}, default={self.default}, variable_name={self.variable_name})"
             )
         else:
             return super().__repr__()
@@ -299,11 +291,8 @@ class IntegerParameter(Parameter):
     upper_bound : int
     resolution : iterable
     variable_name : str, or list of str
-    pff : bool
-          if true, sample over this parameter using resolution in case of
-          partial factorial sampling
 
-    Raises:
+    Raises
     ------
     ValueError
         if lower bound is larger than upper bound
@@ -323,7 +312,6 @@ class IntegerParameter(Parameter):
         resolution=None,
         default=None,
         variable_name=None,
-        pff=False,
     ):
         """Init."""
         super().__init__(
@@ -333,7 +321,6 @@ class IntegerParameter(Parameter):
             resolution=resolution,
             default=default,
             variable_name=variable_name,
-            pff=pff,
         )
 
         lb_int = float(lower_bound).is_integer()
@@ -373,8 +360,7 @@ class IntegerParameter(Parameter):
         if isinstance(self.dist, sp.stats._distn_infrastructure.rv_discrete_frozen):
             return (
                 f"IntegerParameter('{self.name}', {self.lower_bound}, {self.upper_bound}, "
-                f"resolution={self.resolution}, default={self.default}, variable_name={self.variable_name}, "
-                f"pff={self.pff})"
+                f"resolution={self.resolution}, default={self.default}, variable_name={self.variable_name})"
             )
         else:
             return super().__repr__()
@@ -410,7 +396,6 @@ class CategoricalParameter(IntegerParameter):
         categories,
         default=None,
         variable_name=None,
-        pff=False,
         multivalue=False,
     ):
         """Init."""
@@ -429,7 +414,6 @@ class CategoricalParameter(IntegerParameter):
             resolution=None,
             default=default,
             variable_name=variable_name,
-            pff=pff,
         )
         cats = [create_category(cat) for cat in categories]
 
@@ -446,7 +430,7 @@ class CategoricalParameter(IntegerParameter):
         ----------
         category : object
 
-        Returns:
+        Returns
         -------
         int
 
@@ -464,7 +448,7 @@ class CategoricalParameter(IntegerParameter):
         ----------
         index  : int
 
-        Returns:
+        Returns
         -------
         object
 
@@ -504,20 +488,19 @@ class BooleanParameter(CategoricalParameter):
 
     """
 
-    def __init__(self, name, default=None, variable_name=None, pff=False):
+    def __init__(self, name, default=None, variable_name=None):
         """Init."""
         super().__init__(
             name,
             categories=[True, False],
             default=default,
             variable_name=variable_name,
-            pff=pff,
         )
 
     def __repr__(self): # noqa: D105
         return (
             f"BooleanParameter('{self.name}', default={self.default}, "
-            f"variable_name={self.variable_name}, pff={self.pff})"
+            f"variable_name={self.variable_name})"
         )
 
 
@@ -569,7 +552,7 @@ def parameters_from_csv(uncertainties, **kwargs):
     uncertainties : str, DataFrame
     **kwargs : dict, arguments to pass to pandas.read_csv
 
-    Returns:
+    Returns
     -------
     list of Parameter instances
 

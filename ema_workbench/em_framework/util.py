@@ -1,17 +1,16 @@
 """utilities used throughout em_framework."""
 
+# Created on Jul 16, 2016
+#
+# .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
+
 import itertools
 from collections import OrderedDict, UserDict
 
 import tqdm
 
 from ..util import EMAError
-
-# from .parameters import Parameter
-
-# Created on Jul 16, 2016
-#
-# .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
     "Counter",
@@ -29,14 +28,14 @@ __all__ = [
 class NamedObject:
     """Base object with a name attribute."""
 
-    def __init__(self, name): # noqa: D107
-        self.name = name
+    def __init__(self, name:str):
+        self.name:str = name
 
 
 class Counter:
     """helper function for generating counter based names for NamedDicts."""
 
-    def __init__(self, startfrom=0): # noqa: D107
+    def __init__(self, startfrom=0):
         self._counter = itertools.count(startfrom)
 
     def __call__(self, *args):# noqa: D102
@@ -64,7 +63,7 @@ class Variable(NamedObject):
             name = [name]
         self._variable_name = name
 
-    def __init__(self, name, variable_name=None):
+    def __init__(self, name:str, variable_name:str|list[str]|None=None):
         if not name.isidentifier():
             raise DeprecationWarning(
                 f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers"
@@ -76,7 +75,7 @@ class Variable(NamedObject):
 class NamedObjectMap:
     """A named object mapping class."""
 
-    def __init__(self, kind): # noqa: D107
+    def __init__(self, kind):
         super().__init__()
         self.kind = kind
         self._data = OrderedDict()
@@ -162,7 +161,7 @@ class NamedObjectMap:
 class NamedObjectMapDescriptor:
     """Descriptor class for named objects."""
 
-    def __init__(self, kind): # noqa: D107
+    def __init__(self, kind):
         self.kind = kind
 
     def __get__(self, instance, owner): # noqa: D105
@@ -192,7 +191,7 @@ class NamedObjectMapDescriptor:
 class NamedDict(UserDict, NamedObject):
     """Named dictionary class."""
 
-    def __init__(self, name=representation, **kwargs): # noqa: D107
+    def __init__(self, name=representation, **kwargs):
         super().__init__(**kwargs)
         if name is None:
             raise ValueError()
@@ -208,11 +207,11 @@ def combine(*args):
     ----------
     args : two or more dicts that need to be combined
 
-    Returns:
+    Returns
     -------
     a single unified dict containing the entries from all dicts
 
-    Raises:
+    Raises
     ------
     EMAError
         if a keyword argument exists in more than one dict
@@ -241,7 +240,7 @@ def determine_objects(models, attribute, union=True):
             in case of multiple models, sample over the union of
             levers, or over the intersection of the levers
 
-    Returns:
+    Returns
     -------
     collection of Parameter instances
 
@@ -287,7 +286,7 @@ class ProgressTrackingMixIn:
                function called with self as only argument, should invoke
                self._logger with custom log message
 
-    Attributes:
+    Attributes
     ----------
     i : int
     reporting_interval : int

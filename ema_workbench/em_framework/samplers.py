@@ -1,4 +1,4 @@
-"""This module contains various classes specifying different types of samplers.
+"""A variety of samplers.
 
 These different samplers implement basic sampling
 techniques including Full Factorial sampling, Latin Hypercube sampling, and
@@ -8,16 +8,19 @@ Monte Carlo sampling.
 
 import abc
 import itertools
-import operator
+import numbers
+from collections.abc import Iterable
 
 import numpy as np
 import scipy.stats as stats
+import scipy.stats.qmc as qmc
 
 from ema_workbench.em_framework import util
 from ema_workbench.em_framework.parameters import (
     BooleanParameter,
     CategoricalParameter,
     IntegerParameter,
+    Parameter,
 )
 from ema_workbench.em_framework.points import Point, Policy, Scenario
 from ema_workbench.util.ema_exceptions import EMAError
@@ -28,11 +31,10 @@ from ema_workbench.util.ema_exceptions import EMAError
 
 __all__ = [
     "AbstractSampler",
-    "DefaultDesigns",
+    "DesignIterator",
     "FullFactorialSampler",
     "LHSSampler",
     "MonteCarloSampler",
-    "UniformLHSSampler",
     "determine_parameters",
     "sample_levers",
     "sample_parameters",
@@ -50,30 +52,8 @@ class AbstractSampler(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def sample(self, distribution, size):
-        """Method for sampling a number of samples from a particular distribution.
-
-        The various samplers differ with respect to their implementation of
-        this method.
-
-        Parameters
-        ----------
-        distribution : scipy frozen distribution
-        size : int
-               the number of samples to generate
-
-        Returns:
-        -------
-        numpy array
-            the samples for the distribution and specified parameters
-
-        """
-
-    def generate_samples(self, parameters, size):
-        """The main method of :class: `~sampler.Sampler` and its children.
-
-        This will call the sample method for each of the
-        parameters and return the resulting designs.
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+        """Generate n samples from the parameters.
 
         Parameters
         ----------
@@ -84,181 +64,88 @@ class AbstractSampler(metaclass=abc.ABCMeta):
                      instances.
         size : int
                the number of samples to generate.
+        rng: numpy random number generator
+        kwargs : any additional keyword arguments
 
-
-        Returns:
+        Returns
         -------
-        dict
-            dict with the parameter.name as key, and the sample as value
+        numpy array with samples
 
         """
-        return {param.name: self.sample(param.dist, size) for param in parameters}
 
-    def generate_designs(self, parameters, nr_samples):
-        """External interface for Sampler.
+    def _rescale(self, parameters:list[Parameter], samples) -> np.ndarray:
+        """Rescale uniform samples using dist and process integers."""
+        for j, p in enumerate(parameters):
+            samples_j = samples[:, j]
 
-        Returns the computational experiments over the specified parameters,
-        for the given number of samples for each parameter.
+            samples[:, j] = p.dist.ppf(samples_j)
 
-        Parameters
-        ----------
-        parameters : list
-                        a list of parameters for which to generate the
-                        experimental designs
-        nr_samples : int
-                     the number of samples to draw for each parameter
-
-
-        Returns:
-        -------
-        generator
-            a generator object that yields the designs resulting from
-            combining the parameters
-        int
-            the number of experimental designs
-
-        """
-        parameters = sorted(parameters, key=operator.attrgetter("name"))
-        sampled_parameters = self.generate_samples(parameters, nr_samples)
-        designs = zip(*[sampled_parameters[u.name] for u in parameters])
-        designs = DefaultDesigns(designs, parameters, nr_samples)
-
-        return designs
-
-
-class LHSSampler(AbstractSampler):
-    """generates a Latin Hypercube sample for each of the parameters."""
-
-    def sample(self, distribution, size):
-        """Generate a Latin Hypercube Sample.
-
-        Parameters
-        ----------
-        distribution : scipy frozen distribution
-        size : int
-               the number of samples to generate
-
-        Returns:
-        -------
-        dict
-            with the paramertainty.name as key, and the sample as value
-
-        """
-        perc = np.arange(0, 1.0, 1.0 / size)
-        np.random.shuffle(perc)
-        smp = stats.uniform(perc, 1.0 / size).rvs()
-        samples = distribution.ppf(smp)
-
-        # TODO::
-        # corner case fix (try siz=49)
-        # is not a proper fix, it means that perc is wrong
-        # so your intervals are wrong
-        samples = samples[np.isnan(samples) == False] # noqa: E712
-
+            if isinstance(p, IntegerParameter):
+                samples_j = np.floor(samples_j)
+            samples[:, j] = samples_j
         return samples
 
 
-class UniformLHSSampler(LHSSampler):
-    """LHS sampler assuming uniform distributions."""
+class LHSSampler(AbstractSampler):
+    """generates a Latin Hypercube sample over the parameters."""
 
-    def generate_samples(self, parameters, size):
-        """Generate samples.
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+        """Generate samples using latin hypercube sampling.
 
         Parameters
         ----------
         parameters : collection
+                     a collection of :class:`~parameters.RealParameter`,
+                     :class:`~parameters.IntegerParameter`,
+                     and :class:`~parameters.CategoricalParameter`
+                     instances.
         size : int
+               the number of samples to generate.
+        rng: numpy random number generator
+        kwargs : any additional keyword arguments
 
-        Returns:
+        Additional valid keyword arguments are
+
+        scramble : bool, optional
+        optimization : {None, "random-cd", "lloyd"}, optional
+        strength : {1, 2}, optional
+
+
+        Returns
         -------
-        dict
-            dict with the parameter.name as key, and the sample as value
+        numpy array with samples
 
         """
-        samples = {}
-        for param in parameters:
-            lower_bound = param.lower_bound
-            upper_bound = param.upper_bound
-
-            if isinstance(param.dist, stats.rv_continuous):
-                dist = stats.uniform(lower_bound, upper_bound - lower_bound)
-            else:
-                dist = stats.randint(lower_bound, upper_bound + 1)
-            samples[param.name] = self.sample(dist, size)
+        lhs = qmc.LatinHypercube(d=len(parameters), rng=rng, **kwargs)
+        samples = lhs.random(size)
+        samples = self._rescale(parameters, samples)
         return samples
-
-
-# class FactorialLHSSampler(LHSSampler):
-#     """generate LHS samples over the well characterized and the deeply
-#     uncertain factors separately, and than combine them in a full factorial
-#     way
-#
-#     Parameters
-#     ----------
-#     n_uniform : int
-#                 the number of samples for the deeply uncertain factor
-#     n_informative : int
-#                     the number of samples for the well characterized uncertain
-#                     factors
-#
-#     TODO:: needs a better name
-#     """
-#
-#     def __init__(self, n_uniform, n_informative):
-#         LHSSampler.__init__(self)
-#
-#     def generate_designs(self, parameters, nr_samples):
-#         """
-#
-#         Parameters
-#         ----------
-#         parameters : list
-#         nr_samples : int
-#
-#         Returns
-#         -------
-#         generator
-#         int
-#
-#         """
-#         parameters = sorted(parameters, key=operator.attrgetter('name'))
-#
-#         deeply_uncertain_parameters = []
-#         well_characterized_parameters = []
-#         for parameter in parameters:
-#             if isinstance(parameter.dist, (stats.randint, stats.uniform)):
-#                 deeply_uncertain_parameters.append(parameter)
-#             else:
-#                 well_characterized_parameters.append(parameter)
-#
-#         raise NotImplementedError
-#         # code below here makes no sense
-#         sampled_parameters = self.generate_samples(parameters, nr_samples)
-#         designs = zip(*[sampled_parameters[u.name] for u in parameters])
-#         designs = DefaultDesigns(designs, parameters, nr_samples)
-#
-#         return designs
 
 
 class MonteCarloSampler(AbstractSampler):
     """Monte Carlo sampler for each of the parameters."""
 
-    def sample(self, distribution, size):
-        """Generate a Monte Carlo Sample.
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+        """Generate samples using Monte Carlo sampling.
 
         Parameters
         ----------
-        distribution : scipy frozen distribution
+        parameters : collection
+                     a collection of :class:`~parameters.RealParameter`,
+                     :class:`~parameters.IntegerParameter`,
+                     and :class:`~parameters.CategoricalParameter`
+                     instances.
         size : int
-               the number of samples to generate
+               the number of samples to generate.
+        rng: numpy random number generator
+        kwargs : any additional keyword arguments
 
-        Returns:
-        -------
-        dict
-            with the paramertainty.name as key, and the sample as value
+        There are no additional valid keyword arguments for the Monte Carlo sampler.
 
         """
-        return distribution.rvs(size)
+        samples = stats.uniform.rvs(size=(size, len(parameters)), random_state=rng)
+        samples = self._rescale(parameters, samples)
+        return samples
 
 
 class FullFactorialSampler(AbstractSampler):
@@ -270,30 +157,25 @@ class FullFactorialSampler(AbstractSampler):
 
     """
 
-    def sample(self, distribution, size):
-        # fixme, should be integrated into generate_samples so it's called from there
-        pass
-
-    def generate_samples(self, parameters, size):
-        """Generate FF samples.
-
-        This will call the sample method for each of the
-        parameters and return the resulting samples
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+        """Generate samples using full factorial sampling.
 
         Parameters
         ----------
         parameters : collection
-                        a collection of :class:`~parameters.Parameter`
-                        instances
+                     a collection of :class:`~parameters.RealParameter`,
+                     :class:`~parameters.IntegerParameter`,
+                     and :class:`~parameters.CategoricalParameter`
+                     instances.
         size : int
-                the number of samples to generate.
+               the number of samples to generate.
+        rng: numpy random number generator
+        kwargs : any additional keyword arguments
 
-        Returns:
-        -------
-        dict
-            with the paramertainty.name as key, and the sample as value
+        There are no additional valid keyword arguments for the Monte Carlo sampler.
+
         """
-        samples = {}
+        samples = []
         for param in parameters:
             cats = param.resolution
             if not cats:
@@ -303,161 +185,11 @@ class FullFactorialSampler(AbstractSampler):
                     cats = set(cats)
                     cats = (int(entry) for entry in cats)
                     cats = sorted(cats)
-            samples[param.name] = cats
+            samples.append(cats)
+
+        samples = np.asarray(list(itertools.product(*samples)))
 
         return samples
-
-    def generate_designs(self, parameters, nr_samples):
-        """Returns a full factorial design across the parameters.
-
-        Parameters
-        ----------
-        parameters : list
-                        a list of parameters for which to generate the
-                        experimental designs
-        nr_samples : int
-                     the number of intervals to use on each
-                     Parameter. Categorical parameters always
-                     return all their categories
-
-        Returns:
-        -------
-        generator
-            a generator object that yields the designs resulting from
-            combining the parameters
-        int
-            the number of experimental designs
-
-        """
-        parameters = sorted(parameters, key=operator.attrgetter("name"))
-
-        samples = self.generate_samples(parameters, nr_samples)
-        zipped_samples = itertools.product(*[samples[u.name] for u in parameters])
-
-        n_designs = self.determine_nr_of_designs(samples)
-        designs = DefaultDesigns(zipped_samples, parameters, n_designs)
-
-        return designs
-
-    def determine_nr_of_designs(self, sampled_parameters):
-        """Helper method for determining the number of experiments.
-
-        Based on the given parameters.
-
-        Parameters
-        ----------
-        sampled_parameters : list
-                        a list of sampled parameters, as
-                        the values return by generate_samples
-
-        Returns:
-        -------
-        int
-            the total number of experimental design
-        """
-        nr_designs = 1
-        for value in sampled_parameters.values():
-            nr_designs *= len(value)
-        return nr_designs
-
-
-# class PartialFactorialSampler(AbstractSampler):
-#     """
-#     generates a partial factorial design over the parameters. Any parameter
-#     where factorial is true will be included in a factorial design, while the
-#     remainder will be sampled using LHS or MC sampling.
-#
-#     Parameters
-#     ----------
-#     sampling: {PartialFactorialSampler.LHS, PartialFactorialSampler.MC}, optional
-#               the desired sampling for the non factorial parameters.
-#
-#     Raises
-#     ------
-#     ValueError
-#         if sampling is not either LHS or MC
-#
-#     """
-#
-#     LHS = 'LHS'
-#     MC = 'MC'
-#
-#     def __init__(self, sampling='LHS'):
-#         super(PartialFactorialSampler, self).__init__()
-#
-#         if sampling == PartialFactorialSampler.LHS:
-#             self.sampler = LHSSampler()
-#         elif sampling == PartialFactorialSampler.MC:
-#             self.sampler = MonteCarloSampler()
-#         else:
-#             raise ValueError(('invalid value for sampling type, should be LHS '
-#                               'or MC'))
-#         self.ff = FullFactorialSampler()
-#
-#     def _sort_parameters(self, parameters):
-#         """sort parameters into full factorial and other
-#
-#         Parameters
-#         ----------
-#         parameters : list of parameters
-#
-#         """
-#         ff_params = []
-#         other_params = []
-#
-#         for param in parameters:
-#             if param.pff:
-#                 ff_params.append(param)
-#             else:
-#                 other_params.append(param)
-#
-#         if not ff_params:
-#             raise EMAError("no parameters for full factorial sampling")
-#         if not other_params:
-#             raise EMAError("no parameters for normal sampling")
-#
-#         return ff_params, other_params
-#
-#     def generate_designs(self, parameters, nr_samples):
-#         """external interface to sampler. Returns the computational experiments
-#         over the specified parameters, for the given number of samples for each
-#         parameter.
-#
-#         Parameters
-#         ----------
-#         parameters : list
-#                         a list of parameters for which to generate the
-#                         experimental designs
-#         nr_samples : int
-#                      the number of samples to draw for each parameter
-#
-#         Returns
-#         -------
-#         generator
-#             a generator object that yields the designs resulting from
-#             combining the parameters
-#         int
-#             the number of experimental designs
-#
-#         """
-#
-#         ff_params, other_params = self._sort_parameters(parameters)
-#
-#         # generate a design over the factorials
-#         # TODO update ff to use resolution if present
-#         ff_designs = self.ff.generate_designs(ff_params, nr_samples)
-#
-#         # generate a design over the remainder
-#         # for each factorial, run the MC design
-#         other_designs = self.sampler.generate_designs(other_params,
-#                                                       nr_samples)
-#
-#         nr_designs = other_designs.n * ff_designs.n
-#
-#         designs = PartialFactorialDesigns(ff_designs, other_designs,
-#                                           ff_params + other_params, nr_designs)
-#
-#         return designs
 
 
 def determine_parameters(models, attribute, union=True):
@@ -471,7 +203,7 @@ def determine_parameters(models, attribute, union=True):
             in case of multiple models, sample over the union of
             levers, or over the intersection of the levers
 
-    Returns:
+    Returns
     -------
     collection of Parameter instances
 
@@ -479,7 +211,7 @@ def determine_parameters(models, attribute, union=True):
     return util.determine_objects(models, attribute, union=union)
 
 
-def sample_parameters(parameters, n_samples, sampler=None, kind=Point):
+def sample_parameters(parameters:list[Parameter], n_samples: numbers.Integral, sampler:AbstractSampler|None=None, kind=Point, **kwargs):
     """Generate cases by sampling over the parameters.
 
     Parameters
@@ -489,21 +221,21 @@ def sample_parameters(parameters, n_samples, sampler=None, kind=Point):
     sampler : Sampler instance, optional
     kind : {Case, Scenario, Policy}, optional
             the class into which the samples are collected
+    kwargs : any additional keyword arguments
 
-    Returns:
+    Returns
     -------
     generator yielding Case, Scenario, or Policy instances
 
     """
     if sampler is None:
         sampler = LHSSampler()
-    samples = sampler.generate_designs(parameters, n_samples)
-    samples.kind = kind
+    samples = sampler.generate_samples(parameters, n_samples, **kwargs)
 
-    return samples
+    return DesignIterator(samples, parameters, kind)
 
 
-def sample_levers(models, n_samples, union=True, sampler=None):
+def sample_levers(models, n_samples:numbers.Integral, sampler:AbstractSampler|None=None, **kwargs):
     """Generate policies by sampling over the levers.
 
     Parameters
@@ -515,11 +247,13 @@ def sample_levers(models, n_samples, union=True, sampler=None):
             levers, or over the intersection of the levers
     sampler : Sampler instance, optional
 
-    Returns:
+    Returns
     -------
     generator yielding Policy instances
 
     """
+    union = kwargs.pop("lever_union", True)
+
     if sampler is None:
         sampler = LHSSampler()
     levers = determine_parameters(models, "levers", union=union)
@@ -529,26 +263,25 @@ def sample_levers(models, n_samples, union=True, sampler=None):
             "You are trying to sample policies, but no levers have been defined"
         )
 
-    return sample_parameters(levers, n_samples, sampler, Policy)
+    return sample_parameters(levers, n_samples, sampler, Policy, **kwargs)
 
-
-def sample_uncertainties(models, n_samples, union=True, sampler=None):
+def sample_uncertainties(models, n_samples: numbers.Integral, sampler: AbstractSampler | None = None, **kwargs):
     """Generate scenarios by sampling over the uncertainties.
 
     Parameters
     ----------
     models : a collection of AbstractModel instances
     n_samples : int
-    union : bool, optional
-            in case of multiple models, sample over the union of
-            uncertainties, or over the intersection of the uncertainties
     sampler : Sampler instance, optional
+    kwargs : any additional keyword arguments
 
-    Returns:
+    Returns
     -------
     generator yielding Scenario instances
 
     """
+    union = kwargs.pop("uncertainty_union", True)
+
     if sampler is None:
         sampler = LHSSampler()
     uncertainties = determine_parameters(models, "uncertainties", union=union)
@@ -558,44 +291,7 @@ def sample_uncertainties(models, n_samples, union=True, sampler=None):
             "You are trying to sample scenarios, but no uncertainties have been defined"
         )
 
-    return sample_parameters(uncertainties, n_samples, sampler, Scenario)
-
-
-# def sample_jointly(models, n_samples, uncertainty_union=True, lever_union=True,
-#                    sampler=LHSSampler()):
-#     """generate scenarios by sampling over the uncertainties
-#
-#     Parameters
-#     ----------
-#     models : a collection of AbstractModel instances
-#     n_samples : int
-#     uncertainty_union : bool, optional
-#             in case of multiple models, sample over the union of
-#             uncertainties, or over the intersection of the uncertainties
-#     lever_union : bool, optional
-#             in case of multiple models, sample over the union of
-#             levers, or over the intersection of the levers
-#     sampler : Sampler instance, optional
-#
-#     Returns
-#     -------
-#     generator
-#         yielding Scenario instances
-#     collection
-#         the collection of parameters over which to sample
-#     n_samples
-#         the number of designs
-#     """
-#     uncertainties = determine_parameters(models, 'uncertainties',
-#                                          union=uncertainty_union)
-#     levers = determine_parameters(models, 'levers', union=lever_union)
-#     parameters = uncertainties.copy() + levers.copy()
-#
-#     samples = sampler.generate_designs(parameters, n_samples)
-#     samples.kind = Scenario
-#
-#     return samples
-
+    return sample_parameters(uncertainties, n_samples, sampler, Scenario, **kwargs)
 
 def from_experiments(models, experiments):
     """Generate scenarios from an existing experiments DataFrame.
@@ -605,12 +301,14 @@ def from_experiments(models, experiments):
     models : collection of AbstractModel instances
     experiments : DataFrame
 
-    Returns:
+    Returns
     -------
      generator
         yielding Scenario instances
 
     """
+    # fixme
+
     policy_names = np.unique(experiments["policy"])
     model_names = np.unique(experiments["model"])
 
@@ -625,104 +323,51 @@ def from_experiments(models, experiments):
     uncertainties = util.determine_objects(models, "uncertainties", union=True)
     samples = {unc.name: experiments[:, unc.name] for unc in uncertainties}
 
-    scenarios = DefaultDesigns(samples, uncertainties, experiments.shape[0])
+    scenarios = DesignIterator(samples, uncertainties, experiments.shape[0])
     scenarios.kind = Scenario
 
     return scenarios
 
 
-class DefaultDesigns:
+class DesignIterator:
     """iterable for the experimental designs."""
 
-    def __init__(self, designs, parameters, n):  # noqa: D107
-        self.designs = list(designs)
-        self.parameters = parameters
-        self.params = [p.name for p in parameters]
-        self.kind = None
-        self.n = n
+    # the construction with a class and the generator ensures we can repeatedly iterate over the samples.
 
-    @abc.abstractmethod
-    def __iter__(self):
-        """Should return iterator."""
-        return design_generator(self.designs, self.parameters, self.kind)
+    def __init__(self, samples:np.ndarray, parameters:list[Parameter],  kind:type[Point]):
+        self.samples = samples
+        self.parameters = parameters
+        self.kind = kind
+        self.n = self.samples.shape[0]
+
+    def __iter__(self) -> Iterable[Point]:
+        """Return an iterator yielding Points instances."""
+        return design_generator(self.samples, self.parameters, self.kind)
 
     def __str__(self):  # noqa: D105
-        return f"ema_workbench.DefaultDesigns, {self.n} designs on {len(self.params)} parameters"
+        return f"ema_workbench.DesignIterator, {self.n} designs on {len(self.params)} parameters"
 
 
-# class PartialFactorialDesigns(object):
-#
-#     @property
-#     def kind(self):
-#         return self._kind
-#
-#     @kind.setter
-#     def kind(self, value):
-#         self._kind = value
-#         self.ff_designs.kind = value
-#         self.other_designs.kind = value
-#
-#     def __init__(self, ff_designs, other_designs, parameters, n):
-#         self.ff_designs = ff_designs
-#         self.other_designs = other_designs
-#
-#         self.parameters = parameters
-#         self.params = [p.name for p in parameters]
-#
-#         self._kind = None
-#         self.n = n
-#
-#     def __iter__(self):
-#         designs = itertools.product(self.ff_designs, self.other_designs)
-#         return partial_designs_generator(designs)
+def design_generator(samples:np.ndarray, params:list[Parameter], kind:type[Point]):
+    """Return a generator yielding points instances.
 
-
-# def partial_designs_generator(designs):
-#     """generator which combines the full factorial part of the design
-#     with the non full factorial part into a single dict
-#
-#     Parameters
-#     ----------
-#     designs: iterable of tuples
-#
-#     Yields
-#     ------
-#     dict
-#         experimental design dict
-#
-#     """
-#
-#     for design in designs:
-#         try:
-#             ff_part, other_part = design
-#         except ValueError:
-#             ff_part = design
-#             other_part = {}
-#
-#         design = ff_part.copy()
-#         design.update(other_part)
-#
-#         yield design
-
-
-def design_generator(designs, params, kind):
-    """Generator that combines the sampled parameters with their correct name to return dicts.
+    This generator iterates over the samples, and turns each row into a Point and ensures datatypes are corrrectly handled.
 
     Parameters
     ----------
-    designs : iterable of tuples
-    params : iterable of str
-    kind : cls
+    samples : The samples taken for the parameters
+    params : the Parameter instances that have been sampled
+    kind : the (sub)class of Point to use
 
-    Yields:
+    Yields
     ------
-    dict
-        experimental design dictionary
+    Point
+
 
     """
-    for design in designs:
+    for sample in samples:
         design_dict = {}
-        for param, value in zip(params, design):
+        for param, value in zip(params, sample):
             if isinstance(param, IntegerParameter):
                 value = int(value) # noqa: PLW2901
             if isinstance(param, BooleanParameter):

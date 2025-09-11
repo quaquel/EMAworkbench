@@ -118,6 +118,7 @@ extend-ignore = [
   "ISC001", # ruff format asks to disable this feature
   "S311",   # Standard pseudo-random generators are not suitable for cryptographic purposes
   "SIM105", # I prefer explicit try, pass over contextlib in most cases for readability
+  "D401",   # Too restrictive on how docstrings are written
 ]
 
 [tool.ruff.lint.pydocstyle]

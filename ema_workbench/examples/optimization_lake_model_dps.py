@@ -1,4 +1,6 @@
-"""This example replicates Quinn, J.D., Reed, P.M., Keller, K. (2017)
+"""An example of using the workbench for many objective optimization.
+
+This example replicates Quinn, J.D., Reed, P.M., Keller, K. (2017)
 Direct policy search for robust multi-objective management of deeply
 uncertain socio-ecological tipping points. Environmental Modelling &
 Software 92, 125-141.
@@ -32,8 +34,10 @@ from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgre
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
-def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
-    """Parameters
+def get_antropogenic_release(xt:float, c1:float, c2:float, r1:float, r2:float, w1:float):
+    """Return antropogenic release at xt.
+
+    Parameters
     ----------
     xt : float
          pollution in lake at time t
@@ -42,9 +46,9 @@ def get_antropogenic_release(xt, c1, c2, r1, r2, w1):
     c2 : float
          center rbf 2
     r1 : float
-         ratius rbf 1
+         radius rbf 1
     r2 : float
-         ratius rbf 2
+         radius rbf 2
     w1 : float
          weight of rbf 1
 
@@ -65,7 +69,7 @@ def lake_problem(
     stdev=0.001,  # future utility discount rate
     delta=0.98,  # standard deviation of natural inflows
     alpha=0.4,  # utility from pollution
-    nsamples=100,  # Monte Carlo sampling of natural inflows
+    n_samples=100,  # Monte Carlo sampling of natural inflows
     myears=1,  # the runtime of the simulation model
     c1=0.25,
     c2=0.25,
@@ -73,15 +77,16 @@ def lake_problem(
     r2=0.5,
     w1=0.5,
 ):
-    Pcrit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
+    """DPS version of the lake problem."""
+    p_crit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
 
-    X = np.zeros(myears)
-    average_daily_P = np.zeros(myears)
+    X = np.zeros(myears) # noqa: N806
+    average_daily_p = np.zeros(myears)
     reliability = 0.0
     inertia = 0
     utility = 0
 
-    for _ in range(nsamples):
+    for _ in range(n_samples):
         X[0] = 0.0
         decision = 0.1
 
@@ -105,16 +110,16 @@ def lake_problem(
                 + decision
                 + natural_inflows[t - 1]
             )
-            average_daily_P[t] += X[t] / nsamples
+            average_daily_p[t] += X[t] / n_samples
 
-        reliability += np.sum(Pcrit > X) / (nsamples * myears)
-        inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (nsamples * myears)
+        reliability += np.sum(p_crit > X) / (n_samples * myears)
+        inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (n_samples * myears)
         utility += (
-            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / nsamples
+                np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / n_samples
         )
-    max_P = np.max(average_daily_P)
+    max_p = np.max(average_daily_p)
 
-    return max_P, utility, inertia, reliability
+    return max_p, utility, inertia, reliability
 
 
 if __name__ == "__main__":
@@ -141,7 +146,7 @@ if __name__ == "__main__":
     ]
     # specify outcomes
     lake_model.outcomes = [
-        ScalarOutcome("max_P", kind=ScalarOutcome.MINIMIZE),
+        ScalarOutcome("max_p", kind=ScalarOutcome.MINIMIZE),
         ScalarOutcome("utility", kind=ScalarOutcome.MAXIMIZE),
         ScalarOutcome("inertia", kind=ScalarOutcome.MAXIMIZE),
         ScalarOutcome("reliability", kind=ScalarOutcome.MAXIMIZE),
@@ -150,7 +155,7 @@ if __name__ == "__main__":
     # override some of the defaults of the model
     lake_model.constants = [
         Constant("alpha", 0.41),
-        Constant("nsamples", 100),
+        Constant("n_samples", 100),
         Constant("myears", 100),
     ]
 
@@ -162,7 +167,7 @@ if __name__ == "__main__":
     convergence_metrics = [
         ArchiveLogger(
             "./data",
-            [l.name for l in lake_model.levers],
+            [l.name for l in lake_model.levers], # noqa E741
             [o.name for o in lake_model.outcomes],
             base_filename="lake_model_dps_archive.tar.gz",
         ),
