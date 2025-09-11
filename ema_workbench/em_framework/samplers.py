@@ -265,7 +265,6 @@ def sample_levers(models, n_samples:numbers.Integral, sampler:AbstractSampler|No
     return sample_parameters(levers, n_samples, sampler, Policy, **kwargs)
 
 
-def sample_uncertainties(models, n_samples:numbers.Integral, sampler:AbstractSampler|None=None, **kwargs):
     """Generate scenarios by sampling over the uncertainties.
 
     Parameters
