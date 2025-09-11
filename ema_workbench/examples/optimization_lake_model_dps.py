@@ -146,7 +146,7 @@ if __name__ == "__main__":
     ]
     # specify outcomes
     lake_model.outcomes = [
-        ScalarOutcome("max_P", kind=ScalarOutcome.MINIMIZE),
+        ScalarOutcome("max_p", kind=ScalarOutcome.MINIMIZE),
         ScalarOutcome("utility", kind=ScalarOutcome.MAXIMIZE),
         ScalarOutcome("inertia", kind=ScalarOutcome.MAXIMIZE),
         ScalarOutcome("reliability", kind=ScalarOutcome.MAXIMIZE),
