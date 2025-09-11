@@ -251,7 +251,7 @@ def sample_levers(models, n_samples:numbers.Integral, sampler:AbstractSampler|No
     generator yielding Policy instances
 
     """
-    union = kwargs.pop('lever_union', True)
+    union = kwargs.pop("lever_union", True)
 
     if sampler is None:
         sampler = LHSSampler()
@@ -281,7 +281,7 @@ def sample_uncertainties(models, n_samples: numbers.Integral, sampler: AbstractS
     generator yielding Scenario instances
 
     """
-    union = kwargs.pop('uncertainty_union', True)
+    union = kwargs.pop("uncertainty_union", True)
 
     if sampler is None:
         sampler = LHSSampler()

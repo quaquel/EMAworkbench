@@ -26,12 +26,12 @@ from .outcomes import AbstractOutcome, ScalarOutcome
 from .points import Policy, Scenario, experiment_generator
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
 from .samplers import (
+    DesignIterator,
     FullFactorialSampler,
     LHSSampler,
     MonteCarloSampler,
     sample_levers,
     sample_uncertainties,
-    DesignIterator
 )
 from .util import NamedObjectMap, determine_objects
 
@@ -72,7 +72,7 @@ class BaseEvaluator:
     searchover : {None, 'levers', 'uncertainties'}, optional
                   to be used in combination with platypus
 
-    Raises:
+    Raises
     ------
     ValueError
 
@@ -348,7 +348,7 @@ def perform_experiments(
 
     Additional keyword arguments are passed on to evaluate_experiments of the evaluator
 
-    Returns:
+    Returns
     -------
     tuple
         the experiments as a dataframe, and a dict
@@ -476,8 +476,6 @@ def setup_policies(policies:int|DesignIterator, sampler:AbstractSampler|None, le
         levers = []
         n_policies = 1
     elif isinstance(policies, numbers.Integral):
-        sampler = sampler
-
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
 
@@ -506,7 +504,6 @@ def setup_scenarios(scenarios:int|DesignIterator, sampler:AbstractSampler|None, 
         uncertainties = []
         n_scenarios = 1
     elif isinstance(scenarios, numbers.Integral):
-        sampler = sampler
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
         scenarios = sample_uncertainties(
@@ -566,11 +563,11 @@ def optimize(
                which is SBX with PM
     kwargs : any additional arguments will be passed on to algorithm
 
-    Returns:
+    Returns
     -------
     pandas DataFrame
 
-    Raises:
+    Raises
     ------
     EMAError if searchover is not one of 'uncertainties' or 'levers'
     NotImplementedError if len(models) > 1
@@ -644,7 +641,7 @@ def robust_optimize(
                    number of generations between logging of progress
     kwargs : any additional arguments will be passed on to algorithm
 
-    Raises:
+    Raises
     ------
     AssertionError if robustness_function is not a ScalarOutcome,
     if robustness_function.kind is INFO, or

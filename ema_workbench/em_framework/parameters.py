@@ -112,7 +112,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     upper_bound : int or float
     resolution : collection
 
-    Raises:
+    Raises
     ------
     ValueError
         if lower bound is larger than upper bound
@@ -229,7 +229,8 @@ class RealParameter(Parameter):
     upper_bound : int or float
     resolution : iterable
     variable_name : str, or list of str
-    Raises:
+
+    Raises
     ------
     ValueError
         if lower bound is larger than upper bound
@@ -291,7 +292,7 @@ class IntegerParameter(Parameter):
     resolution : iterable
     variable_name : str, or list of str
 
-    Raises:
+    Raises
     ------
     ValueError
         if lower bound is larger than upper bound
@@ -429,7 +430,7 @@ class CategoricalParameter(IntegerParameter):
         ----------
         category : object
 
-        Returns:
+        Returns
         -------
         int
 
@@ -447,7 +448,7 @@ class CategoricalParameter(IntegerParameter):
         ----------
         index  : int
 
-        Returns:
+        Returns
         -------
         object
 
@@ -551,7 +552,7 @@ def parameters_from_csv(uncertainties, **kwargs):
     uncertainties : str, DataFrame
     **kwargs : dict, arguments to pass to pandas.read_csv
 
-    Returns:
+    Returns
     -------
     list of Parameter instances
 
