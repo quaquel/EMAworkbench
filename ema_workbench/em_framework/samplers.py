@@ -211,7 +211,7 @@ def determine_parameters(models, attribute, union=True):
     return util.determine_objects(models, attribute, union=union)
 
 
-def sample_parameters(parameters, n_samples, sampler=None, kind=Point, **kwargs):
+def sample_parameters(parameters:list[Parameter], n_samples: numbers.Integral, sampler:AbstractSampler|None=None, kind=Point, **kwargs):
     """Generate cases by sampling over the parameters.
 
     Parameters
@@ -221,6 +221,7 @@ def sample_parameters(parameters, n_samples, sampler=None, kind=Point, **kwargs)
     sampler : Sampler instance, optional
     kind : {Case, Scenario, Policy}, optional
             the class into which the samples are collected
+    kwargs : any additional keyword arguments
 
     Returns
     -------
@@ -271,10 +272,8 @@ def sample_uncertainties(models, n_samples: numbers.Integral, sampler: AbstractS
     ----------
     models : a collection of AbstractModel instances
     n_samples : int
-    union : bool, optional
-            in case of multiple models, sample over the union of
-            uncertainties, or over the intersection of the uncertainties
     sampler : Sampler instance, optional
+    kwargs : any additional keyword arguments
 
     Returns
     -------
