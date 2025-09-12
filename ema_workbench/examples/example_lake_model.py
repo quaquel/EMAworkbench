@@ -16,12 +16,13 @@ from ema_workbench import (
     ema_logging,
 )
 from ema_workbench.em_framework.evaluators import Samplers
+from lake_models import lake_problem_intertemporal
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     # instantiate the model
-    lake_model = Model("lakeproblem", function=lake_problem)
+    lake_model = Model("lakeproblem", function=lake_problem_intertemporal)
     lake_model.time_horizon = 100
 
     # specify uncertainties
