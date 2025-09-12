@@ -21,6 +21,6 @@ jobs:
     - name: Integration test of examples
       timeout-minutes: 15
       run: |
-      working-directory: ema_workbench/examples
+      working-directory: ./ema_workbench/examples
         python example_lake_model.py
         python optimization_lake_model_dps.py
