@@ -12,10 +12,9 @@ Software 89, 159-171.
 
 """
 
-import math
 
 import numpy as np
-from scipy.optimize import brentq
+from lake_models import lake_problem_dps
 
 from ema_workbench import (
     CategoricalParameter,
@@ -28,8 +27,6 @@ from ema_workbench import (
     ema_logging,
 )
 from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgress
-
-from lake_models import lake_problem_dps
 
 # Created on 1 Jun 2017
 #

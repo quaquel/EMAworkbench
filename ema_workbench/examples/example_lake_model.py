@@ -5,24 +5,17 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-import math
 
-import numpy as np
-from scipy.optimize import brentq
 
 from ema_workbench import (
     Constant,
     Model,
+    MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
-    SequentialEvaluator,
-    ema_logging, MultiprocessingEvaluator,
+    ema_logging,
 )
 from ema_workbench.em_framework.evaluators import Samplers
-
-
-
-
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)

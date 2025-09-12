@@ -5,10 +5,9 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-import math
 
-import numpy as np
-from scipy.optimize import brentq
+
+from lake_models import lake_problem_intertemporal
 
 from ema_workbench import (
     Constant,
@@ -20,9 +19,6 @@ from ema_workbench import (
     ema_logging,
 )
 from ema_workbench.em_framework.outputspace_exploration import OutputSpaceExploration
-
-from lake_models import lake_problem_intertemporal
-
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)

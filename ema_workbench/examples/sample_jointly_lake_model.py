@@ -5,12 +5,10 @@ uncertainties and levers at the same time.
 
 """
 
-import math
 
-import numpy as np
 import pandas as pd
+from lake_models import lake_problem_dps
 from SALib.analyze import sobol
-from scipy.optimize import brentq
 
 from ema_workbench import (
     Constant,
@@ -25,8 +23,6 @@ from ema_workbench.em_framework import (
     SobolSampler,
     get_SALib_problem,
 )
-
-from lake_models import lake_problem_dps
 
 
 def analyze(results, ooi):

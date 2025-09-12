@@ -5,8 +5,10 @@ import math
 import numpy as np
 from scipy.optimize import brentq
 
-__all__ = ["lake_problem_intertemporal",
-           "lake_problem_dps"]
+__all__ = [
+    "lake_problem_dps",
+    "lake_problem_intertemporal",
+]
 
 def lake_problem_intertemporal(
     b=0.42,  # decay rate for P in lake (0.42 = irreversible)

@@ -5,12 +5,10 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-import math
 
-import numpy as np
 import pandas as pd
+from lake_models import lake_problem_intertemporal
 from SALib.analyze import sobol
-from scipy.optimize import brentq
 
 from ema_workbench import (
     Constant,
@@ -23,8 +21,6 @@ from ema_workbench import (
 )
 from ema_workbench.em_framework import get_SALib_problem
 from ema_workbench.em_framework.evaluators import Samplers
-
-from lake_models import lake_problem_intertemporal
 
 
 def analyze(results, ooi):
