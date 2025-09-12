@@ -1,9 +1,9 @@
 """collection of evaluators for performing experiments, optimization, and robust optimization."""
-
+import abc
 import enum
 import numbers
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
@@ -23,7 +23,7 @@ from .optimization import (
     to_robust_problem,
 )
 from .outcomes import AbstractOutcome, ScalarOutcome
-from .points import Policy, Scenario, experiment_generator
+from .points import Experiment, Policy, Scenario, experiment_generator
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
 from .samplers import (
     DesignIterator,
@@ -63,14 +63,12 @@ class Samplers(enum.Enum):
     MORRIS = MorrisSampler()
 
 
-class BaseEvaluator:
+class BaseEvaluator(abc.ABC):
     """evaluator for experiments using a multiprocessing pool.
 
     Parameters
     ----------
     msis : collection of models
-    searchover : {None, 'levers', 'uncertainties'}, optional
-                  to be used in combination with platypus
 
     Raises
     ------
@@ -80,7 +78,7 @@ class BaseEvaluator:
 
     reporting_frequency = 3
 
-    def __init__(self, msis):
+    def __init__(self, msis:AbstractModel|list[AbstractModel]):
         super().__init__()
 
         if isinstance(msis, AbstractModel):
@@ -105,19 +103,22 @@ class BaseEvaluator:
         if exc_type is not None:
             return False
 
+    @abc.abstractmethod
     def initialize(self):
         """Initialize the evaluator."""
-        raise NotImplementedError
 
+
+    @abc.abstractmethod
     def finalize(self):
         """Finalize the evaluator."""
-        raise NotImplementedError
 
+
+    @abc.abstractmethod
     def evaluate_experiments(
-        self, scenarios, policies, callback, combine="factorial", **kwargs
+        self, experiments:Iterable[Experiment], callback:Callable, **kwargs
     ):
         """Used by ema_workbench."""
-        raise NotImplementedError
+
 
     def evaluate_all(self, jobs, **kwargs):
         """Makes ema_workbench evaluators compatible with platypus evaluators."""
@@ -182,12 +183,12 @@ class BaseEvaluator:
     ):
         """Convenience method for performing experiments.
 
-        is forwarded to :func:perform_experiments, with evaluator and
+        A call to this method is forwarded to :func:perform_experiments, with evaluator and
         models arguments added in.
 
         """
         return perform_experiments(
-            self._msis,
+            self._msis.copy(),
             scenarios=scenarios,
             policies=policies,
             evaluator=self,
@@ -219,7 +220,7 @@ class BaseEvaluator:
     ):
         """Convenience method for outcome optimization.
 
-        is forwarded to :func:optimize, with evaluator and models
+        A call to this method is forwarded to :func:optimize, with evaluator and models
         arguments added in.
 
         """
@@ -249,7 +250,7 @@ class BaseEvaluator:
     ):
         """Convenience method for robust optimization.
 
-        is forwarded to :func:robust_optimize, with evaluator and models
+        A call to this method is forwarded to :func:robust_optimize, with evaluator and models
         arguments added in.
 
         """
@@ -277,20 +278,15 @@ class SequentialEvaluator(BaseEvaluator):
         """Finalizer."""
 
 
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+    def evaluate_experiments(self, experiments:Iterable[Experiment], callback:Callable, **kwargs):
         """Evaluate experiments."""
         _logger.info("performing experiments sequentially")
 
-        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-
-        models = NamedObjectMap(AbstractModel)
-        models.extend(self._msis)
-
         # TODO:: replace with context manager
         cwd = os.getcwd()
-        runner = ExperimentRunner(models)
+        runner = ExperimentRunner(self._msis)
 
-        for experiment in ex_gen:
+        for experiment in experiments:
             outcomes = runner.run_experiment(experiment)
             callback(experiment, outcomes)
         runner.cleanup()
@@ -417,9 +413,9 @@ def perform_experiments(
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
-    evaluator.evaluate_experiments(
-        scenarios, policies, callback, combine=combine, **kwargs
-    )
+    experiments = experiment_generator(scenarios, policies, callback, combine=combine)
+
+    evaluator.evaluate_experiments(experiments, callback,**kwargs)
 
     if callback.i != nr_of_exp:
         raise EMAError(

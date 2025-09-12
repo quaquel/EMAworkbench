@@ -7,13 +7,15 @@ import shutil
 import threading
 import time
 import warnings
+from collections.abc import Callable, Iterable
 from logging.handlers import QueueHandler
 
 from ..util import get_module_logger, get_rootlogger, method_logger
-from .evaluators import BaseEvaluator, experiment_generator
+from .evaluators import BaseEvaluator
 from .experiment_runner import ExperimentRunner
 from .futures_util import determine_rootdir, finalizer, setup_working_directories
 from .model import AbstractModel
+from .points import Experiment
 from .util import NamedObjectMap
 
 __all__ = ["MPIEvaluator"]
@@ -222,12 +224,10 @@ class MPIEvaluator(BaseEvaluator):
 
     @method_logger(__name__)
     def evaluate_experiments(
-        self, scenarios, policies, callback, combine="factorial", **kwargs
+        self, experiments:Iterable[Experiment], callback:Callable, **kwargs
     ):
         """Evaluate experiments using MPIPoolExecutor."""
-        experiments = list(
-            experiment_generator(scenarios, self._msis, policies, combine=combine)
-        )
+        experiments = list(experiments)
 
         results = self._pool.map(run_experiment_mpi, experiments, **kwargs)
         for experiment, outcomes in results:
