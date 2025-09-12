@@ -309,7 +309,7 @@ def perform_experiments(
     lever_sampling_kwargs:dict|None=None,
     callback:Callable|None=None,
     return_callback:bool=False,
-    combine="factorial",
+    combine:str="factorial",
     log_progress:bool=False,
     **kwargs,
 ):
@@ -413,7 +413,7 @@ def perform_experiments(
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
-    experiments = experiment_generator(scenarios, policies, callback, combine=combine)
+    experiments = experiment_generator(models, scenarios, policies, combine=combine)
 
     evaluator.evaluate_experiments(experiments, callback,**kwargs)
 

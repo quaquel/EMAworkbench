@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     # specify outcomes
     lake_model.outcomes = [
-        ScalarOutcome("max_P"),
+        ScalarOutcome("max_p"),
         ScalarOutcome("utility"),
         ScalarOutcome("inertia"),
         ScalarOutcome("reliability"),

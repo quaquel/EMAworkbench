@@ -234,7 +234,7 @@ def combine_cases_factorial(*point_collections):
 #     return combined_cases
 
 
-def experiment_generator(scenarios:Iterable[Scenario], models:Iterable["AbstractModel"], policies:Iterable[Policy], combine:str="factorial"):
+def experiment_generator(models:Iterable["AbstractModel"], scenarios:Iterable[Scenario], policies:Iterable[Policy], combine:str="factorial"):
     """Generator function which yields experiments.
 
     Parameters
