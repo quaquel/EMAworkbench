@@ -8,7 +8,7 @@ from collections.abc import Callable, Iterable
 from ema_workbench.em_framework.samplers import AbstractSampler
 
 from ..util import EMAError, get_module_logger
-from .callbacks import DefaultCallback
+from .callbacks import DefaultCallback, AbstractCallback
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (
@@ -177,7 +177,7 @@ class BaseEvaluator(abc.ABC):
             uncertainty_sampling_kwargs: dict | None = None,
             lever_sampling: AbstractSampler = Samplers.LHS,
             lever_sampling_kwargs: dict | None = None,
-            callback: Callable | None = None,
+            callback: type[AbstractCallback] | None = None,
             combine="factorial",
             **kwargs,
     ):
@@ -307,7 +307,7 @@ def perform_experiments(
     uncertainty_sampling_kwargs:dict|None=None,
     lever_sampling:AbstractSampler=Samplers.LHS,
     lever_sampling_kwargs:dict|None=None,
-    callback:Callable|None=None,
+    callback:type[AbstractCallback]|None=None,
     return_callback:bool=False,
     combine:str="factorial",
     log_progress:bool=False,
@@ -333,12 +333,12 @@ def perform_experiments(
     callback  : Callback instance, optional
     return_callback : boolean, optional
     log_progress : bool, optional
-    combine : {'factorial', 'zipover'}, optional
+    combine : {'factorial', 'sample'}, optional
               how to combine uncertainties and levers?
               In case of 'factorial', both are sampled separately using their
               respective samplers. Next the resulting designs are combined in a
               full factorial manner.
-              In case of 'zipover', both are sampled separately and
+              In case of 'sample', both are sampled separately and
               then combined by cycling over the shortest of the the two sets
               of designs until the longest set of designs is exhausted.
 
@@ -382,23 +382,28 @@ def perform_experiments(
 
     outcomes = determine_objects(models, "outcomes", union=outcome_union)
 
-    if combine == "factorial":
-        nr_of_exp = n_models * n_scenarios * n_policies
 
-        # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
-        # it
-        _logger.info(
-            f"performing {n_scenarios} scenarios * {n_policies} policies * {n_models} model(s) = "
-            f"{nr_of_exp} experiments"
-        )
-    else:
-        nr_of_exp = n_models * max(n_scenarios, n_policies)
-        # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
-        # it
-        _logger.info(
-            f"performing max({n_scenarios} scenarios, {n_policies} policies) * {n_models} model(s) = "
-            f"{nr_of_exp} experiments"
-        )
+    match combine:
+        case "factorial":
+
+            nr_of_exp = n_models * n_scenarios * n_policies
+
+            # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
+            # it
+            _logger.info(
+                f"performing {n_scenarios} scenarios * {n_policies} policies * {n_models} model(s) = "
+                f"{nr_of_exp} experiments"
+            )
+        case "sample":
+            nr_of_exp = n_models * max(n_scenarios, n_policies)
+            # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
+            # it
+            _logger.info(
+                f"performing max({n_scenarios} scenarios, {n_policies} policies) * {n_models} model(s) = "
+                f"{nr_of_exp} experiments"
+            )
+        case _:
+            raise ValueError(f"unknown value for combine, got {combine}, should be one of \"zipover\" or \"factorial\"")
 
     callback = setup_callback(
         callback,
@@ -465,7 +470,7 @@ def setup_callback(
     return callback
 
 
-def setup_policies(policies:int|DesignIterator, sampler:AbstractSampler|None, lever_sampling_kwargs, models):
+def setup_policies(policies:int|DesignIterator|Policy, sampler:AbstractSampler|None, lever_sampling_kwargs, models):
     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
 
     if not policies:
@@ -493,7 +498,7 @@ def setup_policies(policies:int|DesignIterator, sampler:AbstractSampler|None, le
     return policies, levers, n_policies
 
 
-def setup_scenarios(scenarios:int|DesignIterator, sampler:AbstractSampler|None, uncertainty_sampling_kwargs, models):
+def setup_scenarios(scenarios:int|DesignIterator|Scenario, sampler:AbstractSampler|None, uncertainty_sampling_kwargs, models):
     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
 
     if not scenarios:

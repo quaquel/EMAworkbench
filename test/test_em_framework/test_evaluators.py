@@ -44,25 +44,49 @@ def test_perform_experiments(mocker):
     model.levers = [RealParameter("b", 0,1)]
     model.outcomes = [ScalarOutcome("c")]
 
-    n_experiments = 10
+    n_scenarios = 10
+    n_policies = 2
+    n_experiments = n_scenarios * n_policies
 
-    mocked_callback = mocker.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    mocked_callback.return_value.i = n_experiments
+    mocked_callback_class = mocker.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
+    mocked_callback_instance = mocker.Mock()
+    mocked_callback_class.return_value = mocked_callback_instance
+    mocked_callback_instance.i = n_experiments # this is an implicit assert
 
     with  evaluators.SequentialEvaluator(model) as evaluator:
-        evaluator.perform_experiments(10, 1,)
+        evaluator.perform_experiments(n_scenarios, n_policies,)
+
+
+    mocked_callback_class = mocker.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
+    mocked_callback_instance = mocker.Mock()
+    mocked_callback_class.return_value = mocked_callback_instance
+    mocked_callback_instance.i = n_scenarios # this is an implicit assert
+
+    with  evaluators.SequentialEvaluator(model) as evaluator:
+        evaluator.perform_experiments(n_scenarios, n_policies, combine="sample")
 
     # what to check?
+    # fixme, all kinds of permutations of all the possible keyword arguments
 
-    evaluators.perform_experiments(model,10, 1,)
+    mocked_callback_class = mocker.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
+    mocked_callback_instance = mocker.Mock()
+    mocked_callback_class.return_value = mocked_callback_instance
+    mocked_callback_instance.i = n_experiments
+    ret = evaluators.perform_experiments(model,n_scenarios, n_policies, return_callback=True, callback=mocked_callback_class)
+    assert ret == mocked_callback_instance
 
-    mocked_callback.return_value.i = 1
+    mocked_callback_class = mocker.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
+    mocked_callback_instance = mocker.Mock()
+    mocked_callback_class.return_value = mocked_callback_instance
+    mocked_callback_instance.i = 1
     with pytest.raises(EMAError):
-        evaluators.perform_experiments(model, 10, 1, )
+        evaluators.perform_experiments(model, n_scenarios, n_policies, )
 
     with pytest.raises(EMAError):
         evaluators.perform_experiments(model )
 
+    with pytest.raises(ValueError):
+        evaluators.perform_experiments(model, n_scenarios, n_policies, combine="wrong value" )
 
 def test_optimize(mocker):
     pass

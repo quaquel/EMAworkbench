@@ -157,7 +157,7 @@ def zip_cycle(*args):
     #     policies and scenarios are generators themselves?
     # TODO to be replaced with sample based combining
 
-    max_len = max(len(a) for a in args)
+    max_len = max(len(list(a)) for a in args)
     return itertools.islice(zip(*(itertools.cycle(a) for a in args)), max_len)
 
 
