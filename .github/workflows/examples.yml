@@ -6,20 +6,21 @@ on:
     paths-ignore: [ 'docs/**', '**.rst', '**.md' ]
 
 jobs:
-  runs-on: ubuntu-latest
-  steps:
-  - uses: actions/checkout@v5
-  - name: Set up Python 3.12
-    uses: actions/setup-python@v6
-    with:
-      python-version: "3.12"
-  - run: pip install uv
-  - name: Install dependencies
-    run: |
-      uv pip install .[dev,cov] --system
-  - name: Integration test of examples
-    timeout-minutes: 15
-    run: |
-    working-directory: ema_workbench/examples
-      python example_lake_model.py
-      python optimization_lake_model_dps.py
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.12"
+    - run: pip install uv
+    - name: Install dependencies
+      run: |
+        uv pip install .[dev,cov] --system
+    - name: Integration test of examples
+      timeout-minutes: 15
+      run: |
+      working-directory: ema_workbench/examples
+        python example_lake_model.py
+        python optimization_lake_model_dps.py
