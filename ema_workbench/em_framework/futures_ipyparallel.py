@@ -1,4 +1,4 @@
-"""This module provides functionality for combining the EMA workbench with IPython parallel."""
+"""Functionality for combining the EMA workbench with IPython parallel."""
 
 import collections
 import logging
@@ -59,7 +59,7 @@ class EngingeLoggerAdapter(logging.LoggerAdapter):
 def start_logwatcher():
     """Convenience function for starting the LogWatcher.
 
-    Returns:
+    Returns
     -------
     LogWatcher
         the log watcher instance
@@ -112,7 +112,7 @@ def get_engines_by_host(client):
     ----------
     client : IPython.parallel.Client instance
 
-    Returns:
+    Returns
     -------
     dict
         a dict with hostnames as keys, and a list

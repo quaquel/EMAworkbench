@@ -84,7 +84,7 @@ class Novelty(Dominance):
 class HitBox(Archive):
     """Hit Box archive.
 
-    Parameters:
+    Parameters
     ----------
     grid_spec : list of tuples
                 each tuple specifies the minimum value, maximum value, and epsilon
@@ -165,6 +165,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
 
 
     """
+
     def __init__(
         self,
         problem,
@@ -235,7 +236,7 @@ def get_index_for_solution(solution, grid_spec):
     solution : platypus Solution instance
     grid_spec :
 
-    Returns:
+    Returns
     -------
     tuple
 
@@ -258,7 +259,7 @@ def get_bin_index(value, minumum_value, epsilon):
     minumum_value
     epsilon
 
-    Returns:
+    Returns
     -------
     int
 
@@ -293,7 +294,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
     To deal with a stalled search, adaptive time continuation, identical to
     ε-NSGAII is used.
 
-    Notes:
+    Notes
     -----
     Output space exploration relies on the optimization functionality of the
     workbench. Therefore, outcomes of kind INFO are ignored. For output
@@ -339,7 +340,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
     population_size : int, optional
 
 
-    Notes:
+    Notes
     -----
     Limited to RealParameters only.
 

@@ -1,4 +1,4 @@
-"""This module provides an abstract base class for a callback and a default implementation.
+"""Abstract base class for a callback and a default implementation.
 
 If you want to store the data in a way that is different from the
 functionality provided by the default callback, you can write your own
@@ -56,7 +56,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
                    tqdm progress bar.
 
 
-    Attributes:
+    Attributes
     ----------
     i : int
         a counter that keeps track of how many experiments have been

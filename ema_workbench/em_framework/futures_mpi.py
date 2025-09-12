@@ -132,7 +132,7 @@ def send_sentinel():
 
 
 class MPIHandler(QueueHandler):
-    """This handler sends events from the worker process to the master process."""
+    """Handler that sends events from the worker process to the master process."""
 
     def __init__(self, communicator):
         """Initialise an instance, using the passed queue."""
