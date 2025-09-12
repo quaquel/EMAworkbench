@@ -47,9 +47,7 @@ def mpi_initializer(models, log_level, root_dir):
     rank = MPI.COMM_WORLD.Get_rank()
 
     # setup the experiment runner
-    msis = NamedObjectMap(AbstractModel)
-    msis.extend(models)
-    experiment_runner = ExperimentRunner(msis)
+    experiment_runner = ExperimentRunner(models)
 
     # setup the working directories
     tmpdir = setup_working_directories(models, root_dir)

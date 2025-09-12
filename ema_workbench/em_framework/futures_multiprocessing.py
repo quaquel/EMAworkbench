@@ -48,9 +48,7 @@ def initializer(*args):
     models, queue, log_level, root_dir = args
 
     # setup the experiment runner
-    msis = NamedObjectMap(AbstractModel)
-    msis.extend(models)
-    experiment_runner = ExperimentRunner(msis)
+    experiment_runner = ExperimentRunner(models)
 
     # setup the logging
     setup_logging(queue, log_level)

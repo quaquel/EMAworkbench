@@ -33,7 +33,7 @@ from .samplers import (
     sample_levers,
     sample_uncertainties,
 )
-from .util import NamedObjectMap, determine_objects
+from .util import determine_objects
 
 # Created on 5 Mar 2017
 #
@@ -378,6 +378,7 @@ def perform_experiments(
         n_models = len(models)
     except TypeError:
         n_models = 1
+        models = [models,]
 
     outcomes = determine_objects(models, "outcomes", union=outcome_union)
 

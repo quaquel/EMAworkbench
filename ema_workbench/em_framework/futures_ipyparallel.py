@@ -280,9 +280,7 @@ class Engine:
         _logger.debug(f"setting root working directory to {cwd}")
         os.chdir(cwd)
 
-        models = NamedObjectMap(AbstractModel)
-        models.extend(msis)
-        self.runner = experiment_runner.ExperimentRunner(models)
+        self.runner = experiment_runner.ExperimentRunner(msis)
 
         self.tmpdir = setup_working_directories(msis, os.getcwd())
 
