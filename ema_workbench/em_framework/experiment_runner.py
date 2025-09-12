@@ -2,8 +2,8 @@
 
 from ema_workbench.util.ema_logging import method_logger
 
-from .points import Point
 from ..util import CaseError, EMAError, get_module_logger
+from .points import Point
 
 # Created on Aug 11, 2015
 #
@@ -24,7 +24,7 @@ class ExperimentRunner:
     msis : dict
     model_kwargs : dict
 
-    Attributes:
+    Attributes
     ----------
     msi_initializiation : dict
                           keeps track of which model is initialized with
@@ -61,7 +61,7 @@ class ExperimentRunner:
         ----------
         experiment : Case instance
 
-        Returns:
+        Returns
         -------
         experiment_id: int
         case : dict
@@ -69,7 +69,7 @@ class ExperimentRunner:
         model_name : str
         result : dict
 
-        Raises:
+        Raises
         ------
         EMAError
             if the model instance raises an EMA error, these are reraised.

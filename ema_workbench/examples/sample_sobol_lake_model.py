@@ -5,12 +5,10 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-import math
 
-import numpy as np
 import pandas as pd
+from lake_models import lake_problem_intertemporal
 from SALib.analyze import sobol
-from scipy.optimize import brentq
 
 from ema_workbench import (
     Constant,
@@ -23,57 +21,6 @@ from ema_workbench import (
 )
 from ema_workbench.em_framework import get_SALib_problem
 from ema_workbench.em_framework.evaluators import Samplers
-
-
-def lake_problem(
-    b=0.42,  # decay rate for P in lake (0.42 = irreversible)
-    q=2.0,  # recycling exponent
-    mean=0.02,  # mean of natural inflows
-    stdev=0.001,  # future utility discount rate
-    delta=0.98,  # standard deviation of natural inflows
-    alpha=0.4,  # utility from pollution
-    nsamples=100,  # Monte Carlo sampling of natural inflows
-    **kwargs,
-):
-    """Intertemporoal version of the shallow lake problem."""
-
-    try:
-        decisions = [kwargs[f"l{i}"] for i in range(100)]
-    except KeyError:
-        decisions = [0] * 100
-
-    p_crit = brentq(lambda x: x ** q / (1 + x ** q) - b * x, 0.01, 1.5)
-    n_vars = len(decisions)
-    X = np.zeros((n_vars,))
-    average_daily_p = np.zeros((n_vars,))
-    decisions = np.array(decisions)
-    reliability = 0.0
-
-    for _ in range(nsamples):
-        X[0] = 0.0
-
-        natural_inflows = np.random.lognormal(
-            math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
-            math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
-            size=n_vars,
-        )
-
-        for t in range(1, n_vars):
-            X[t] = (
-                (1 - b) * X[t - 1]
-                + X[t - 1] ** q / (1 + X[t - 1] ** q)
-                + decisions[t - 1]
-                + natural_inflows[t - 1]
-            )
-            average_daily_p[t] += X[t] / float(nsamples)
-
-        reliability += np.sum(p_crit > X) / float(nsamples * n_vars)
-
-    max_p = np.max(average_daily_p)
-    utility = np.sum(alpha * decisions * np.power(delta, np.arange(n_vars)))
-    inertia = np.sum(np.absolute(np.diff(decisions)) < 0.02) / float(n_vars - 1)
-
-    return max_p, utility, inertia, reliability
 
 
 def analyze(results, ooi):
@@ -102,7 +49,7 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     # instantiate the model
-    lake_model = Model("lakeproblem", function=lake_problem)
+    lake_model = Model("lakeproblem", function=lake_problem_intertemporal)
     lake_model.time_horizon = 100
 
     # specify uncertainties
@@ -128,7 +75,7 @@ if __name__ == "__main__":
     ]
 
     # override some of the defaults of the model
-    lake_model.constants = [Constant("alpha", 0.41), Constant("nsamples", 150)]
+    lake_model.constants = [Constant("alpha", 0.41), Constant("n_samples", 150)]
 
     # generate sa single default no release policy
     policy = Policy("no release", **{f"l{i}": 0.1 for i in range(100)})

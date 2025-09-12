@@ -5,87 +5,24 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-import math
 
-import numpy as np
-from scipy.optimize import brentq
 
 from ema_workbench import (
     Constant,
     Model,
+    MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
-    SequentialEvaluator,
-    ema_logging, MultiprocessingEvaluator,
+    ema_logging,
 )
 from ema_workbench.em_framework.evaluators import Samplers
-
-
-def lake_problem(
-    b=0.42,  # decay rate for P in lake (0.42 = irreversible)
-    q=2.0,  # recycling exponent
-    mean=0.02,  # mean of natural inflows
-    stdev=0.001,  # future utility discount rate
-    delta=0.98,  # standard deviation of natural inflows
-    alpha=0.4,  # utility from pollution
-    nsamples=100,  # Monte Carlo sampling of natural inflows
-    **kwargs,
-):
-    """Run the intertemporal version of the shallow lake model."""
-    try:
-        decisions = [kwargs[f"l{i}"] for i in range(100)]
-    except KeyError:
-        decisions = [0] * 100
-        print("No valid decisions found, using 0 pollution release per year as default")
-
-    nvars = len(decisions)
-    decisions = np.array(decisions)
-
-    # Calculate the critical pollution level (p_crit)
-    p_crit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
-
-    # Generate natural inflows using lognormal distribution
-    natural_inflows = np.random.lognormal(
-        mean=math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
-        sigma=math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
-        size=(nsamples, nvars),
-    )
-
-    # Initialize the pollution level matrix X
-    X = np.zeros((nsamples, nvars)) # noqa: N806
-
-    # Loop through time to compute the pollution levels
-    for t in range(1, nvars):
-        X[:, t] = (
-            (1 - b) * X[:, t - 1]
-            + (X[:, t - 1] ** q / (1 + X[:, t - 1] ** q))
-            + decisions[t - 1]
-            + natural_inflows[:, t - 1]
-        )
-
-    # Calculate the average daily pollution for each time step
-    average_daily_p = np.mean(X, axis=0)
-
-    # Calculate the reliability (probability of the pollution level being below Pcrit)
-    reliability = np.sum(p_crit > X) / float(nsamples * nvars)
-
-    # Calculate the maximum pollution level (max_P)
-    max_p = np.max(average_daily_p)
-
-    # Calculate the utility by discounting the decisions using the discount factor (delta)
-    utility = np.sum(alpha * decisions * np.power(delta, np.arange(nvars)))
-
-    # Calculate the inertia (the fraction of time steps with changes larger than 0.02)
-    inertia = np.sum(np.abs(np.diff(decisions)) > 0.02) / float(nvars - 1)
-
-    return max_p, utility, inertia, reliability
-
+from lake_models import lake_problem_intertemporal
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     # instantiate the model
-    lake_model = Model("lakeproblem", function=lake_problem)
+    lake_model = Model("lakeproblem", function=lake_problem_intertemporal)
     lake_model.time_horizon = 100
 
     # specify uncertainties
@@ -111,7 +48,7 @@ if __name__ == "__main__":
     ]
 
     # override some of the defaults of the model
-    lake_model.constants = [Constant("alpha", 0.41), Constant("nsamples", 150)]
+    lake_model.constants = [Constant("alpha", 0.41), Constant("n_samples", 150)]
 
     # generate some random policies by sampling over levers
     n_scenarios = 100

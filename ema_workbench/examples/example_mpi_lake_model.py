@@ -122,7 +122,7 @@ if __name__ == "__main__":
     ]
 
     # override some of the defaults of the model
-    lake_model.constants = [Constant("alpha", 0.41), Constant("nsamples", 150)]
+    lake_model.constants = [Constant("alpha", 0.41), Constant("n_samples", 150)]
 
     # generate some random policies by sampling over levers
     n_scenarios = 10000

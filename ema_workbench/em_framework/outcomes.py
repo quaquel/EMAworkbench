@@ -35,7 +35,7 @@ class Register:
     this class stores outcomes by name, and is used to save_results
     to look up how to save each outcome.
 
-    Raises:
+    Raises
     ------
     ValueError if a given outcome name already exists but with a different
     outcome class.
@@ -63,7 +63,7 @@ class Register:
         name : str
         values : numpy array or dataframe
 
-        Returns:
+        Returns
         -------
         BytesIO, str
 
@@ -110,7 +110,7 @@ class AbstractOutcome(Variable):
             must be used in conjunction with shape. Enables pre-allocation
             of data structure for storing results.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     kind : int
@@ -240,7 +240,7 @@ class AbstractOutcome(Variable):
         values : obj
             data to store
 
-        Returns:
+        Returns
         -------
         BytesIO
 
@@ -290,7 +290,7 @@ class ScalarOutcome(AbstractOutcome):
     dtype : datatype, optional
             Enables pre-allocation of data structure for storing results.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     kind : int
@@ -354,7 +354,7 @@ class ScalarOutcome(AbstractOutcome):
         values : 1D array
 
 
-        Returns:
+        Returns
         -------
         BytesIO
         filename
@@ -400,7 +400,7 @@ class ArrayOutcome(AbstractOutcome):
             must be used in conjunction with shape. Enables pre-allocation
             of data structure for storing results.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     kind : int
@@ -449,7 +449,7 @@ class ArrayOutcome(AbstractOutcome):
         ----------
         values : ND array
 
-        Returns:
+        Returns
         -------
         BytesIO
         filename
@@ -509,7 +509,7 @@ class TimeSeriesOutcome(ArrayOutcome):
             must be used in conjunction with shape. Enables pre-allocation
             of data structure for storing results.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     kind : int
@@ -519,7 +519,7 @@ class TimeSeriesOutcome(ArrayOutcome):
     expected_range : tuple
     dtype : datatype
 
-    Notes:
+    Notes
     -----
     Time series outcomes are currently assumed to be 1D arrays. If you
     are dealing with higher dimensional outputs (e.g., multiple replications
@@ -555,7 +555,7 @@ class TimeSeriesOutcome(ArrayOutcome):
         values : DataFrame
 
 
-        Returns:
+        Returns
         -------
         StringIO
         filename
@@ -589,7 +589,7 @@ class Constraint(ScalarOutcome):
     outcome_names : str or collection of str
     function : callable
 
-    Attributes:
+    Attributes
     ----------
     name : str
     parameter_names : str, list of str
@@ -643,7 +643,7 @@ def create_outcomes(outcomes, **kwargs):
     outcomes : DataFrame, or something convertible to a DataFrame
                in case of string, the string will be passed
 
-    Returns:
+    Returns
     -------
     list
 

@@ -30,7 +30,7 @@ class Point(NamedDict):
     id_counter = Counter(1)
     name_counter = Counter(0)
 
-    def __init__(self, name=None, unique_id=None, **kwargs): #noqa: D107
+    def __init__(self, name=None, unique_id=None, **kwargs):
         if name is None:
             name = Point.name_counter()
         if unique_id is None:
@@ -45,7 +45,7 @@ class Point(NamedDict):
 class Policy(Point):
     """Helper class representing a policy.
 
-    Attributes:
+    Attributes
     ----------
     name : str, int, or float
     id : int
@@ -56,7 +56,7 @@ class Policy(Point):
 
     id_counter = Counter(1)
 
-    def __init__(self, name=None, **kwargs): # noqa: D107
+    def __init__(self, name=None, **kwargs):
         super().__init__(name, unique_id=Policy.id_counter(), **kwargs)
 
     # def to_list(self, parameters):
@@ -72,7 +72,7 @@ class Policy(Point):
 class Scenario(Point):
     """Helper class representing a scenario.
 
-    Attributes:
+    Attributes
     ----------
     name : str, int, or float
     id : int
@@ -84,7 +84,7 @@ class Scenario(Point):
     # we need to start from 1 so scenario id is known
     id_counter = Counter(1)
 
-    def __init__(self, name=None, **kwargs):  # noqa: D107
+    def __init__(self, name=None, **kwargs):
         super().__init__(name, unique_id=Scenario.id_counter(), **kwargs)
 
     def __repr__(self): # noqa: D105
@@ -94,7 +94,7 @@ class Scenario(Point):
 class Experiment(NamedObject):
     """A convenience object that contains a specification of the model, policy, and scenario to run.
 
-    Attributes:
+    Attributes
     ----------
     name : str
     model_name : str
@@ -104,7 +104,7 @@ class Experiment(NamedObject):
 
     """
 
-    def __init__(self, name, model_name, policy, scenario, experiment_id):  # noqa: D107
+    def __init__(self, name, model_name, policy, scenario, experiment_id):
         super().__init__(name)
         self.experiment_id = experiment_id
         self.policy = policy
@@ -130,7 +130,7 @@ class ExperimentReplication(NamedDict):
 
     """
 
-    def __init__(self, scenario, policy, constants, replication=None):  # noqa: D107
+    def __init__(self, scenario, policy, constants, replication=None):
         scenario_id = scenario.unique_id
         policy_id = policy.unique_id
 
@@ -170,8 +170,8 @@ def combine_cases_sampling(*point_collection):
     ----------
     point_collection : collection of collection of Point instances
 
-    Yields:
-    -------
+    Yields
+    ------
     Point
 
     """
@@ -197,8 +197,8 @@ def combine_cases_factorial(*point_collections):
     ----------
     point_collections : collection of collections of Point instances
 
-    Yields:
-    -------
+    Yields
+    ------
     Point
 
     """
@@ -245,7 +245,7 @@ def experiment_generator(scenarios, models, policies, combine="factorial"):
               controls how to combine scenarios, policies, and models
               into experiments.
 
-    Notes:
+    Notes
     -----
     if combine is 'factorial' then this generator is essentially three nested
     loops: for each model, for each policy, for each scenario,

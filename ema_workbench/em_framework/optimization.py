@@ -181,7 +181,7 @@ def to_problem(model, searchover, reference=None, constraints=None):
                 uncertainties
     constraints : list, optional
 
-    Returns:
+    Returns
     -------
     Problem instance
 
@@ -218,7 +218,7 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     robustness_functions : iterable of ScalarOutcomes
     constraints : list, optional
 
-    Returns:
+    Returns
     -------
     RobustProblem instance
 
@@ -278,7 +278,7 @@ def to_dataframe(solutions, dvnames, outcome_names):
     dvnames : list of str
     outcome_names : list of str
 
-    Returns:
+    Returns
     -------
     pandas DataFrame
     """
@@ -307,7 +307,7 @@ def process_uncertainties(jobs):
     ----------
     jobs : collection
 
-    Returns:
+    Returns
     -------
     scenarios, policies
 
@@ -333,7 +333,7 @@ def process_levers(jobs):
     ----------
     jobs : collection
 
-    Returns:
+    Returns
     -------
     scenarios, policies
 
@@ -374,7 +374,7 @@ def process_robust(jobs):
     ----------
     jobs : collection
 
-    Returns:
+    Returns
     -------
     scenarios, policies
 
@@ -510,7 +510,7 @@ class MetricWrapper:
              any additional keyword arguments to be passed
              on to the wrapper platypus indicator class
 
-    Notes:
+    Notes
     -----
     this class relies on multi-inheritance and careful consideration
     of the MRO to conveniently wrap the convergence metrics provided
@@ -615,7 +615,7 @@ class SpacingMetric(MetricWrapper, Spacing):
 
     """
 
-    def __init__(self, problem):  # noqa: D107
+    def __init__(self, problem):
         self.problem = problem
 
 
@@ -632,7 +632,7 @@ class HyperVolume(AbstractConvergenceMetric):
     an indicator of convergence.
 
     Parameters
-    ---------
+    ----------
     minimum : numpy array
     maximum : numpy array
 
@@ -720,7 +720,7 @@ class ArchiveLogger(AbstractConvergenceMetric):
         filename : str
                    relative path to file
 
-        Returns:
+        Returns
         -------
         dict with nfe as key and dataframe as vlaue
         """
@@ -752,7 +752,7 @@ class OperatorProbabilities(AbstractConvergenceMetric):
 
     """
 
-    def __init__(self, name, index):  # noqa: D107
+    def __init__(self, name, index):
         super().__init__(name)
         self.index = index
 
@@ -773,11 +773,11 @@ def epsilon_nondominated(results, epsilons, problem):
     epsilons : epsilon values for each objective
     problem : PlatypusProblem instance
 
-    Returns:
+    Returns
     -------
     DataFrame
 
-    Notes:
+    Notes
     -----
     this is a platypus based alternative to pareto.py (https://github.com/matthewjwoodruff/pareto.py)
     """
@@ -891,7 +891,7 @@ def rebuild_platypus_population(archive, problem):
     archive : DataFrame
     problem : PlatypusProblem instance
 
-    Returns:
+    Returns
     -------
     list of platypus Solutions
 
@@ -1145,6 +1145,7 @@ def _optimize(
 
 class BORGDefaultDescriptor:
     """Descriptor used by Borg."""
+
     # this treats defaults as class level attributes!
 
     def __init__(self, default_function):

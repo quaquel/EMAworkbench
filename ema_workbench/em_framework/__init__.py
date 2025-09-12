@@ -50,6 +50,9 @@ __all__ = [
     "parameters_to_csv",
     "perform_experiments",
     "rebuild_platypus_population",
+    "sample_levers",
+    "sample_parameters",
+    "sample_uncertainties",
     "samplers",
     "to_problem",
     "to_robust_problem",
@@ -93,6 +96,9 @@ from .samplers import (
     FullFactorialSampler,
     LHSSampler,
     MonteCarloSampler,
+    sample_levers,
+    sample_parameters,
+    sample_uncertainties,
 )
 
 try:
