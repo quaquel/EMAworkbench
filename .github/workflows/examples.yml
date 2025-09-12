@@ -20,8 +20,7 @@ jobs:
         uv pip install .[dev,cov] --system
     - name: Integration test of examples
       timeout-minutes: 15
+      working-directory: ./ema_workbench/examples
       run: |
-      working-directory: ema_workbench
-        ls
-        python ./examples/example_lake_model.py
-        python ./examples/optimization_lake_model_dps.py
+        python example_lake_model.py
+        python optimization_lake_model_dps.py
