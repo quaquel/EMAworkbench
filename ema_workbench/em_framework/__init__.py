@@ -53,6 +53,9 @@ __all__ = [
     "samplers",
     "to_problem",
     "to_robust_problem",
+    "sample_parameters",
+    "sample_uncertainties",
+    "sample_levers",
 ]
 
 from .evaluators import (
@@ -93,6 +96,9 @@ from .samplers import (
     FullFactorialSampler,
     LHSSampler,
     MonteCarloSampler,
+    sample_parameters,
+    sample_uncertainties,
+    sample_levers
 )
 
 try:
