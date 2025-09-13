@@ -89,7 +89,22 @@ def test_perform_experiments(mocker):
         evaluators.perform_experiments(model, n_scenarios, n_policies, combine="wrong value" )
 
 def test_optimize(mocker):
-    pass
+    mocked_function = mocker.Mock(return_value={"d":1, "e":1})
+    model = ema_workbench.Model("test", function=mocked_function)
+    model.uncertainties = [RealParameter("a", 0,1)]
+    model.levers = [RealParameter("b", 0,1),
+                    RealParameter("c", 0,1)]
+    model.outcomes = [ScalarOutcome("d", kind=ScalarOutcome.MAXIMIZE),
+                      ScalarOutcome("e", kind=ScalarOutcome.MAXIMIZE)]
+
+    nfe = 100
+
+    with  evaluators.SequentialEvaluator(model) as evaluator:
+        evaluator.optimize(nfe=nfe, searchover='levers', epsilons=[0.1, 0.1])
+
+    # fixme what to mock
+    # fixme what to assert
+
 
 def test_robust_optimize(mocker):
     pass

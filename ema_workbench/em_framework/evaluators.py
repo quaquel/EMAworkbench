@@ -5,6 +5,8 @@ import numbers
 import os
 from collections.abc import Callable, Iterable
 
+from platypus import Algorithm
+
 from ema_workbench.em_framework.samplers import AbstractSampler
 
 from ..util import EMAError, get_module_logger
@@ -21,9 +23,10 @@ from .optimization import (
     process_uncertainties,
     to_problem,
     to_robust_problem,
+    Variator
 )
-from .outcomes import AbstractOutcome, ScalarOutcome
-from .points import Experiment, Policy, Scenario, experiment_generator
+from .outcomes import AbstractOutcome, ScalarOutcome, Constraint
+from .points import Experiment, Policy, Scenario, experiment_generator, Point
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
 from .samplers import (
     DesignIterator,
@@ -44,6 +47,7 @@ __all__ = [
     "SequentialEvaluator",
     "optimize",
     "perform_experiments",
+    "BaseEvaluator"
 ]
 
 _logger = get_module_logger(__name__)
@@ -208,14 +212,14 @@ class BaseEvaluator(abc.ABC):
 
     def optimize(
         self,
-        algorithm=EpsNSGAII,
-        nfe=10000,
-        searchover="levers",
-        reference=None,
-        constraints=None,
-        convergence_freq=1000,
-        logging_freq=5,
-        variator=None,
+        algorithm:type[Algorithm]=EpsNSGAII,
+        nfe:int=10000,
+        searchover:str="levers",
+        reference:Scenario|Policy|None=None,
+        constraints:Iterable[Constraint]=None,
+        convergence_freq:int=1000,
+        logging_freq:int=5,
+        variator:type[Variator]=None,
         **kwargs,
     ):
         """Convenience method for outcome optimization.
@@ -382,7 +386,7 @@ def perform_experiments(
 
     outcomes = determine_objects(models, "outcomes", union=outcome_union)
 
-
+    nr_of_exp = -1
     match combine:
         case "factorial":
 
@@ -528,17 +532,17 @@ def setup_scenarios(scenarios:int|DesignIterator|Scenario, sampler:AbstractSampl
 
 
 def optimize(
-    models,
-    algorithm=EpsNSGAII,
-    nfe=10000,
-    searchover="levers",
-    evaluator=None,
-    reference=None,
-    convergence=None,
-    constraints=None,
-    convergence_freq=1000,
-    logging_freq=5,
-    variator=None,
+    models:list[AbstractModel]|AbstractModel,
+    algorithm:type[Algorithm]=EpsNSGAII,
+    nfe:int=10000,
+    searchover:str="levers",
+    evaluator:BaseEvaluator|None=None,
+    reference:Policy|Scenario|None=None,
+    convergence:Iterable[Callable]|None=None,
+    constraints:Iterable[Constraint]|None=None,
+    convergence_freq:int=1000,
+    logging_freq:int=5,
+    variator:Variator=None,
     **kwargs,
 ):
     """Optimize the model.
@@ -580,6 +584,9 @@ def optimize(
             f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
         )
 
+    # fixme,
+    # if models is just a model, fine
+    # if model is a list, ensure length is 1 and use first one
     try:
         if len(models) == 1:
             models = models[0]
