@@ -1,5 +1,6 @@
 """Wrapper around platypus-opt."""
 
+import abc
 import copy
 import functools
 import os
@@ -7,6 +8,8 @@ import random
 import shutil
 import tarfile
 import warnings
+
+from collections.abc import Callable, Iterable
 
 import numpy as np
 import pandas as pd
@@ -23,6 +26,7 @@ from .parameters import (
 from .points import Policy, Scenario
 from .samplers import determine_parameters
 from .util import ProgressTrackingMixIn, determine_objects
+from .model import AbstractModel
 
 try:
     import platypus
@@ -51,8 +55,8 @@ try:
         Spacing,
         Subset,
         TournamentSelector,
-        Variator,
-    )  # @UnresolvedImport
+        Variator, Algorithm,
+)  # @UnresolvedImport
     from platypus import Problem as PlatypusProblem
 
 
@@ -168,7 +172,7 @@ class RobustProblem(Problem):
         self.robustness_functions = robustness_functions
 
 
-def to_problem(model, searchover, reference=None, constraints=None):
+def to_problem(model:AbstractModel, searchover:str, reference=None, constraints=None):
     """Helper function to create Problem object.
 
     Parameters
@@ -469,7 +473,7 @@ def _evaluate_constraints(job_experiment, job_outcomes, constraints):
     return job_constraints
 
 
-class AbstractConvergenceMetric:
+class AbstractConvergenceMetric(abc.ABC):
     """Base convergence metric class."""
 
     def __init__(self, name):
@@ -478,8 +482,9 @@ class AbstractConvergenceMetric:
         self.name = name
         self.results = []
 
+    @abc.abstractmethod
     def __call__(self, optimizer):
-        raise NotImplementedError
+        """Call the convergence metric."""
 
     def reset(self):
         self.results = []
@@ -1083,14 +1088,14 @@ class CombinedVariator(Variator):
 
 
 def _optimize(
-    problem,
-    evaluator,
-    algorithm,
-    convergence,
-    nfe,
-    convergence_freq,
-    logging_freq,
-    variator=None,
+    problem:PlatypusProblem,
+    evaluator:"BaseEvaluator",
+    algorithm:type[Algorithm],
+    convergence:Iterable[Callable],
+    nfe:int,
+    convergence_freq:int,
+    logging_freq:int,
+    variator:Variator=None,
     **kwargs,
 ):
     """Helper function for optimization."""

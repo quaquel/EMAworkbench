@@ -6,6 +6,7 @@ import os
 import shutil
 import socket
 import threading
+from collections.abc import Callable, Iterable
 
 import zmq
 from ipyparallel.engine.log import EnginePUBHandler
@@ -18,9 +19,10 @@ from zmq.eventloop import zmqstream
 
 from ..util import ema_exceptions, ema_logging, get_module_logger
 from . import experiment_runner
-from .evaluators import BaseEvaluator, experiment_generator
+from .evaluators import BaseEvaluator
 from .futures_util import setup_working_directories
 from .model import AbstractModel
+from .points import Experiment
 from .util import NamedObjectMap
 
 # Created on Jul 16, 2015
@@ -278,9 +280,7 @@ class Engine:
         _logger.debug(f"setting root working directory to {cwd}")
         os.chdir(cwd)
 
-        models = NamedObjectMap(AbstractModel)
-        models.extend(msis)
-        self.runner = experiment_runner.ExperimentRunner(models)
+        self.runner = experiment_runner.ExperimentRunner(msis)
 
         self.tmpdir = setup_working_directories(msis, os.getcwd())
 
@@ -381,14 +381,12 @@ class IpyparallelEvaluator(BaseEvaluator):
         cleanup(self.client)
 
     def evaluate_experiments(
-        self, scenarios, policies, callback, combine="factorial", **kwargs
+        self, experiments:Iterable[Experiment], callback:Callable, **kwargs
     ):
         """Evaluate experiments."""
-        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-
         lb_view = self.client.load_balanced_view()
         results = lb_view.map(
-            _run_experiment, ex_gen, ordered=False, block=False, **kwargs
+            _run_experiment, experiments, ordered=False, block=False, **kwargs
         )
 
         for entry in results:

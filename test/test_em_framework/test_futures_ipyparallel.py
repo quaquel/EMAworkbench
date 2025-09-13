@@ -1,8 +1,13 @@
-"""Created on Jul 28, 2015
-test code for ema_ipyparallel. The setup and teardown of the cluster is
+"""Tests for ipyparallelEvaluator.
+
+Test code for ema_ipyparallel. The setup and teardown of the cluster is
 taken from the ipyparallel test code with some minor adaptations
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
+
 """
+
+# Created on Jul 28, 2015
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 import logging
 import os
@@ -38,7 +43,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*/IPytho
 
 # Launcher class
 class MockProcessLauncher(LocalProcessLauncher):
-    """subclass LocalProcessLauncher, to prevent extra sockets and threads being created on Windows"""
+    """subclass LocalProcessLauncher, to prevent extra sockets and threads being created on Windows."""
 
     def start(self):
         if self.state == "before":
@@ -419,10 +424,8 @@ class TestIpyParallelEvaluator(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.initialize_engines")
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.start_logwatcher")
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    @mock.patch("ema_workbench.em_framework.futures_ipyparallel.experiment_generator")
     def test_ipyparallel_evaluator(
         self,
-        mocked_generator,
         mocked_callback,
         mocked_start,
         mocked_initialize,
@@ -430,6 +433,8 @@ class TestIpyParallelEvaluator(unittest.TestCase):
     ):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"
+
+        mocked_generator = mock.Mock("ema_workbench.em_framework.points.experiment_generator")
         mocked_generator.return_value = [1]
         mocked_start.return_value = mocked_start, None
 
@@ -440,7 +445,7 @@ class TestIpyParallelEvaluator(unittest.TestCase):
         client.load_balanced_view.return_value = lb_view
 
         with ema.IpyparallelEvaluator(model, client) as evaluator:
-            evaluator.evaluate_experiments(10, 10, mocked_callback)
+            evaluator.evaluate_experiments(mocked_generator, mocked_callback)
             lb_view.map.assert_called_once()
 
 

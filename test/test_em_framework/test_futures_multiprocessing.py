@@ -16,19 +16,17 @@ __all__ = []
 class TestEvaluators(unittest.TestCase):
     @mock.patch("ema_workbench.em_framework.futures_multiprocessing.multiprocessing")
     @mock.patch("ema_workbench.em_framework.evaluators.DefaultCallback")
-    @mock.patch(
-        "ema_workbench.em_framework.futures_multiprocessing.experiment_generator"
-    )
     @mock.patch("ema_workbench.em_framework.futures_multiprocessing.add_tasks")
     def test_multiprocessing_evaluator(
-        self, mocked_add_task, mocked_generator, mocked_callback, mocked_multiprocessing
+        self, mocked_add_task, mocked_callback, mocked_multiprocessing
     ):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"
+        mocked_generator = mock.Mock("ema_workbench.em_framework.points.experiment_generator")
         mocked_generator.return_value = [1]
         mocked_multiprocessing.cpu_count.return_value = 4
 
         with futures_multiprocessing.MultiprocessingEvaluator(model, 2) as evaluator:
-            evaluator.evaluate_experiments(10, 10, mocked_callback)
+            evaluator.evaluate_experiments(mocked_generator, mocked_callback)
 
             mocked_add_task.assert_called_once()

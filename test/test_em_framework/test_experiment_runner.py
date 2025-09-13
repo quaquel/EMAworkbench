@@ -20,11 +20,9 @@ class ExperimentRunnerTestCase(unittest.TestCase):
     def test_init(self):
         mockMSI = mock.Mock(spec=Model)
         mockMSI.name = "test"
-        msis = {"test": mockMSI}
+        runner = ExperimentRunner( [mockMSI])
 
-        runner = ExperimentRunner(msis)
-
-        self.assertEqual(msis, runner.msis)
+        self.assertEqual(mockMSI, runner.msis[mockMSI.name])
 
     def test_run_experiment(self):
         mock_msi = mock.Mock(spec=Model)
@@ -32,10 +30,7 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         mock_msi.uncertainties = [RealParameter("a", 0, 10), RealParameter("b", 0, 10)]
         mock_msi.constants = []
 
-        msis = NamedObjectMap(AbstractModel)
-        msis["test"] = mock_msi
-
-        runner = ExperimentRunner(msis)
+        runner = ExperimentRunner([mock_msi])
 
         experiment = Experiment(
             "test", mock_msi.name, Policy("none"), Scenario(a=1, b=2), 0
