@@ -6,6 +6,8 @@ controlled using the ema_workbench.
 # Import EMA Workbench modules
 # Necessary packages for the model
 import math
+import sys
+import numpy as np
 from enum import Enum
 
 import mesa
@@ -58,12 +60,13 @@ class VirusOnNetwork(mesa.Model):
         virus_check_frequency=0.4,
         recovery_chance=0.3,
         gain_resistance_chance=0.5,
+        rng=None
     ):
+        super().__init__(rng=rng)
         self.num_nodes = num_nodes
         prob = avg_node_degree / self.num_nodes
         self.G = nx.erdos_renyi_graph(n=self.num_nodes, p=prob)
         self.grid = mesa.space.NetworkGrid(self.G)
-        self.schedule = mesa.time.RandomActivation(self)
         self.initial_outbreak_size = (
             initial_outbreak_size if initial_outbreak_size <= num_nodes else num_nodes
         )
@@ -83,7 +86,6 @@ class VirusOnNetwork(mesa.Model):
         # Create agents
         for i, node in enumerate(self.G.nodes()):
             a = VirusAgent(
-                i,
                 self,
                 State.SUSCEPTIBLE,
                 self.virus_spread_chance,
@@ -91,7 +93,6 @@ class VirusOnNetwork(mesa.Model):
                 self.recovery_chance,
                 self.gain_resistance_chance,
             )
-            self.schedule.add(a)
             # Add the agent to the node
             self.grid.place_agent(a, node)
 
@@ -112,8 +113,8 @@ class VirusOnNetwork(mesa.Model):
             return math.inf
 
     def step(self):
-        self.schedule.step()
         # collect data
+        self.agents.shuffle_do("step")
         self.datacollector.collect(self)
 
     def run_model(self, n):
@@ -124,7 +125,6 @@ class VirusOnNetwork(mesa.Model):
 class VirusAgent(mesa.Agent):
     def __init__(
         self,
-        unique_id,
         model,
         initial_state,
         virus_spread_chance,
@@ -132,7 +132,7 @@ class VirusAgent(mesa.Agent):
         recovery_chance,
         gain_resistance_chance,
     ):
-        super().__init__(unique_id, model)
+        super().__init__( model)
 
         self.state = initial_state
 
@@ -190,6 +190,7 @@ def model_virus_on_network(
     recovery_chance=1,
     gain_resistance_chance=1,
     steps=10,
+    rng=None,
 ):
     # Initialising the model
     virus_on_network = VirusOnNetwork(
@@ -200,6 +201,7 @@ def model_virus_on_network(
         virus_check_frequency=virus_check_frequency,
         recovery_chance=recovery_chance,
         gain_resistance_chance=gain_resistance_chance,
+        rng=rng
     )
 
     # Run the model steps times
@@ -244,7 +246,7 @@ if __name__ == "__main__":
     ]
 
     # Define the number of replications
-    model.replications = 5
+    model.replications = [{"rng": i} for i in np.random.default_rng().integers(sys.maxsize, size=10)]
 
     # Run experiments with the aforementioned parameters and outputs
     results = perform_experiments(models=model, scenarios=20)
