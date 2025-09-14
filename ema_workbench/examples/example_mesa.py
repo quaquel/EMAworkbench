@@ -1,17 +1,14 @@
-"""This example is a proof of principle for how MESA models can be
-controlled using the ema_workbench.
-
-"""
+"""Example of using the workbench together with mesa."""
 
 # Import EMA Workbench modules
 # Necessary packages for the model
 import math
 import sys
-import numpy as np
 from enum import Enum
 
 import mesa
 import networkx as nx
+import numpy as np
 
 from ema_workbench import (
     ArrayOutcome,
@@ -27,6 +24,8 @@ from ema_workbench import (
 
 
 class State(Enum):
+    """Possible states of an agent."""
+
     SUSCEPTIBLE = 0
     INFECTED = 1
     RESISTANT = 2
@@ -49,7 +48,7 @@ def number_resistant(model):
 
 
 class VirusOnNetwork(mesa.Model):
-    """A virus model with some number of agents"""
+    """A virus model with some number of agents."""
 
     def __init__(
         self,
@@ -84,7 +83,7 @@ class VirusOnNetwork(mesa.Model):
         )
 
         # Create agents
-        for i, node in enumerate(self.G.nodes()):
+        for node in self.G.nodes():
             a = VirusAgent(
                 self,
                 State.SUSCEPTIBLE,
@@ -118,7 +117,7 @@ class VirusOnNetwork(mesa.Model):
         self.datacollector.collect(self)
 
     def run_model(self, n):
-        for i in range(n):
+        for _ in range(n):
             self.step()
 
 
