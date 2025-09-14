@@ -137,7 +137,7 @@ class BaseEvaluator(abc.ABC):
 
         searchover = problem.searchover
 
-        jobs_collection, scenarios, policies = None * 3
+        jobs_collection, scenarios, policies = (None,) * 3
         match searchover:
             case 'levers':
                 scenarios, policies = process_levers(jobs)
