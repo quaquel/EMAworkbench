@@ -10,11 +10,13 @@ from platypus import Algorithm
 from ema_workbench.em_framework.samplers import AbstractSampler
 
 from ..util import EMAError, get_module_logger
-from .callbacks import DefaultCallback, AbstractCallback
+from .callbacks import AbstractCallback, DefaultCallback
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (
+    AbstractConvergenceMetric,
     EpsNSGAII,
+    Variator,
     _optimize,
     evaluate,
     evaluate_robust,
@@ -23,10 +25,9 @@ from .optimization import (
     process_uncertainties,
     to_problem,
     to_robust_problem,
-    Variator
 )
-from .outcomes import AbstractOutcome, ScalarOutcome, Constraint
-from .points import Experiment, Policy, Scenario, experiment_generator, Point
+from .outcomes import AbstractOutcome, Constraint, ScalarOutcome
+from .points import Experiment, Policy, Scenario, experiment_generator
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
 from .samplers import (
     DesignIterator,
@@ -43,11 +44,11 @@ from .util import determine_objects
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
+    "BaseEvaluator",
     "Samplers",
     "SequentialEvaluator",
     "optimize",
-    "perform_experiments",
-    "BaseEvaluator"
+    "perform_experiments"
 ]
 
 _logger = get_module_logger(__name__)
@@ -136,17 +137,19 @@ class BaseEvaluator(abc.ABC):
 
         searchover = problem.searchover
 
-        if searchover == "levers":
-            scenarios, policies = process_levers(jobs)
-            jobs_collection = zip(policies, jobs)
-        elif searchover == "uncertainties":
-            scenarios, policies = process_uncertainties(jobs)
-            jobs_collection = zip(scenarios, jobs)
-        elif searchover == "robust":
-            scenarios, policies = process_robust(jobs)
-            jobs_collection = zip(policies, jobs)
-        else:
-            raise NotImplementedError()
+        jobs_collection, scenarios, policies = None * 3
+        match searchover:
+            case 'levers':
+                scenarios, policies = process_levers(jobs)
+                jobs_collection = zip(policies, jobs)
+            case "uncertainties":
+                scenarios, policies = process_uncertainties(jobs)
+                jobs_collection = zip(scenarios, jobs)
+            case "robust":
+                scenarios, policies = process_robust(jobs)
+                jobs_collection = zip(policies, jobs)
+            case _:
+                raise NotImplementedError()
 
         # overwrite the default 10 progress reports  with 5 reports
         callback = perform_experiments(
@@ -244,12 +247,12 @@ class BaseEvaluator(abc.ABC):
 
     def robust_optimize(
         self,
-        robustness_functions,
-        scenarios,
-        algorithm=EpsNSGAII,
-        nfe=10000,
-        convergence_freq=1000,
-        logging_freq=5,
+        robustness_functions:list[ScalarOutcome],
+        scenarios:int|list[Scenario],
+        algorithm:type[Algorithm]=EpsNSGAII,
+        nfe:int=10000,
+        convergence_freq:int=1000,
+        logging_freq:int=5,
         **kwargs,
     ):
         """Convenience method for robust optimization.
@@ -316,7 +319,7 @@ def perform_experiments(
     combine:str="factorial",
     log_progress:bool=False,
     **kwargs,
-):
+) -> DefaultCallback:
     """Sample uncertainties and levers, and perform the resulting experiments on each of the models.
 
     Parameters
@@ -407,7 +410,7 @@ def perform_experiments(
                 f"{nr_of_exp} experiments"
             )
         case _:
-            raise ValueError(f"unknown value for combine, got {combine}, should be one of \"zipover\" or \"factorial\"")
+            raise ValueError(f'unknown value for combine, got {combine}, should be one of "zipover" or "factorial"')
 
     callback = setup_callback(
         callback,
@@ -538,7 +541,7 @@ def optimize(
     searchover:str="levers",
     evaluator:BaseEvaluator|None=None,
     reference:Policy|Scenario|None=None,
-    convergence:Iterable[Callable]|None=None,
+    convergence:Iterable[AbstractConvergenceMetric]|None=None,
     constraints:Iterable[Constraint]|None=None,
     convergence_freq:int=1000,
     logging_freq:int=5,
@@ -584,26 +587,23 @@ def optimize(
             f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
         )
 
-    # fixme,
-    # if models is just a model, fine
-    # if model is a list, ensure length is 1 and use first one
-    try:
-        if len(models) == 1:
-            models = models[0]
-        else:
+    if not isinstance(models, AbstractModel):
+        if len(models) > 1:
             raise NotImplementedError(
                 "Optimization over multiple models is not yet supported"
             )
-    except TypeError:
-        pass
+        model = models[0]
+    else:
+        model = models
+
 
     problem = to_problem(
-        models, searchover, constraints=constraints, reference=reference
+        model, searchover, constraints=constraints, reference=reference
     )
 
     # solve the optimization problem
     if not evaluator:
-        evaluator = SequentialEvaluator(models)
+        evaluator = SequentialEvaluator(model)
 
     return _optimize(
         problem,
@@ -619,16 +619,16 @@ def optimize(
 
 
 def robust_optimize(
-    model,
-    robustness_functions,
-    scenarios,
-    evaluator=None,
-    algorithm=EpsNSGAII,
-    nfe=10000,
-    convergence=None,
-    constraints=None,
-    convergence_freq=1000,
-    logging_freq=5,
+    model:AbstractModel,
+    robustness_functions:list[ScalarOutcome],
+    scenarios:int|list[Scenario],
+    evaluator:BaseEvaluator|None=None,
+    algorithm:type[Algorithm]=EpsNSGAII,
+    nfe:int=10000,
+    convergence:Iterable[AbstractConvergenceMetric]|None=None,
+    constraints:Iterable[Constraint]|None=None,
+    convergence_freq:int=1000,
+    logging_freq:int=5,
     **kwargs,
 ):
     """Perform robust optimization.

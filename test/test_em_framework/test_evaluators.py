@@ -99,11 +99,25 @@ def test_optimize(mocker):
 
     nfe = 100
 
+    mocked_optimize = mocker.patch("ema_workbench.em_framework.evaluators._optimize", autospec=True)
     with  evaluators.SequentialEvaluator(model) as evaluator:
         evaluator.optimize(nfe=nfe, searchover='levers', epsilons=[0.1, 0.1])
+    assert mocked_optimize.call_count == 1
 
-    # fixme what to mock
-    # fixme what to assert
+    mocked_optimize.reset_mock()
+    with  evaluators.SequentialEvaluator(model) as evaluator:
+        evaluator.optimize(nfe=nfe, searchover='uncertainties', epsilons=[0.1, 0.1])
+    assert mocked_optimize.call_count == 1
+
+    mocked_optimize.reset_mock()
+    evaluators.optimize(model, nfe=nfe, searchover='uncertainties', epsilons=[0.1, 0.1])
+    assert mocked_optimize.call_count == 1
+
+
+    with pytest.raises(NotImplementedError):
+        evaluators.optimize([model, model], nfe=nfe, searchover='uncertainties', epsilons=[0.1, 0.1])
+    with pytest.raises(EMAError):
+        evaluators.optimize([model, model], nfe=nfe, searchover='unknown value', epsilons=[0.1, 0.1])
 
 
 def test_robust_optimize(mocker):
