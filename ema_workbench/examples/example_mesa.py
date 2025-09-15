@@ -92,8 +92,6 @@ class VirusOnNetwork(mesa.Model):
             list(self.grid.all_cells),
         )
 
-
-
         # Infect some nodes
         infected_nodes = mesa.discrete_space.CellCollection(
             self.random.sample(list(self.grid.all_cells), self.initial_outbreak_size),
@@ -144,7 +142,7 @@ class VirusAgent(mesa.discrete_space.FixedAgent):
         self.gain_resistance_chance = gain_resistance_chance
         self.cell = cell
 
-    def try_to_infect_neighbors(self):
+    def try_infect_neighbors(self):
         for agent in self.cell.neighborhood.agents:
             if (agent.state is State.SUSCEPTIBLE) and (
                 self.random.random() < self.virus_spread_chance
@@ -173,7 +171,7 @@ class VirusAgent(mesa.discrete_space.FixedAgent):
 
     def step(self):
         if self.state is State.INFECTED:
-            self.try_to_infect_neighbors()
+            self.try_infect_neighbors()
         self.check_situation()
 
 
@@ -189,6 +187,7 @@ def model_virus_on_network(
     steps=10,
     rng=None,
 ):
+    """Run the model once."""
     # Initialising the model
     virus_on_network = VirusOnNetwork(
         num_nodes=num_nodes,
@@ -247,7 +246,5 @@ if __name__ == "__main__":
     model.replications = [{"rng": i} for i in np.random.default_rng().integers(sys.maxsize, size=n_replications)]
 
     # Run experiments with the aforementioned parameters and outputs
-    results = perform_experiments(models=model, scenarios=20)
+    experiments, outcomes  = perform_experiments(models=model, scenarios=20)
 
-    # Get the results
-    experiments, outcomes = results
