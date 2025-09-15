@@ -18,6 +18,7 @@ def lake_problem_intertemporal(
     delta=0.98,  # standard deviation of natural inflows
     alpha=0.4,  # utility from pollution
     nsamples=100,  # Monte Carlo sampling of natural inflows
+    rng = 42,
     **kwargs,
 ):
     """Run the intertemporal version of the shallow lake model."""
@@ -27,6 +28,8 @@ def lake_problem_intertemporal(
         decisions = [0] * 100
         print("No valid decisions found, using 0 pollution release per year as default")
 
+    rng = np.random.default_rng(rng)
+
     nvars = len(decisions)
     decisions = np.array(decisions)
 
@@ -34,7 +37,7 @@ def lake_problem_intertemporal(
     p_crit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
 
     # Generate natural inflows using lognormal distribution
-    natural_inflows = np.random.lognormal(
+    natural_inflows = rng.lognormal(
         mean=math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
         sigma=math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
         size=(nsamples, nvars),
@@ -112,9 +115,12 @@ def lake_problem_dps(
     r1=0.5,
     r2=0.5,
     w1=0.5,
+    rng=42,
 ):
     """DPS version of the lake problem."""
     p_crit = brentq(lambda x: x**q / (1 + x**q) - b * x, 0.01, 1.5)
+
+    rng = np.random.default_rng(rng)
 
     X = np.zeros(myears) # noqa: N806
     average_daily_p = np.zeros(myears)
@@ -129,7 +135,7 @@ def lake_problem_dps(
         decisions = np.zeros(myears)
         decisions[0] = decision
 
-        natural_inflows = np.random.lognormal(
+        natural_inflows = rng.lognormal(
             math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
             math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
             size=myears,

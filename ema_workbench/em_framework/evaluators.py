@@ -4,6 +4,7 @@ import enum
 import numbers
 import os
 from collections.abc import Callable, Iterable
+from typing import Literal
 
 from platypus import Algorithm
 
@@ -67,6 +68,8 @@ class Samplers(enum.Enum):
     FAST = FASTSampler()
     MORRIS = MorrisSampler()
 
+
+SamplerTypes = Literal[Samplers.MC, Samplers.LHS, Samplers.FF, Samplers.SOBOL, Samplers.FAST, Samplers.MORRIS]
 
 class BaseEvaluator(abc.ABC):
     """evaluator for experiments using a multiprocessing pool.
@@ -180,9 +183,9 @@ class BaseEvaluator(abc.ABC):
             uncertainty_union: bool = False,
             lever_union: bool = False,
             outcome_union: bool = False,
-            uncertainty_sampling: AbstractSampler = Samplers.LHS,
+            uncertainty_sampling: AbstractSampler|SamplerTypes = Samplers.LHS,
             uncertainty_sampling_kwargs: dict | None = None,
-            lever_sampling: AbstractSampler = Samplers.LHS,
+            lever_sampling: AbstractSampler|SamplerTypes = Samplers.LHS,
             lever_sampling_kwargs: dict | None = None,
             callback: type[AbstractCallback] | None = None,
             combine="factorial",
@@ -310,9 +313,9 @@ def perform_experiments(
     uncertainty_union:bool=False,
     lever_union:bool=False,
     outcome_union:bool=False,
-    uncertainty_sampling:AbstractSampler=Samplers.LHS,
+    uncertainty_sampling:AbstractSampler|SamplerTypes=Samplers.LHS,
     uncertainty_sampling_kwargs:dict|None=None,
-    lever_sampling:AbstractSampler=Samplers.LHS,
+    lever_sampling:AbstractSampler|SamplerTypes=Samplers.LHS,
     lever_sampling_kwargs:dict|None=None,
     callback:type[AbstractCallback]|None=None,
     return_callback:bool=False,
@@ -476,7 +479,7 @@ def setup_callback(
     return callback
 
 
-def setup_policies(policies:int|DesignIterator|Policy, sampler:AbstractSampler|None, lever_sampling_kwargs, models):
+def setup_policies(policies:int|DesignIterator|Policy, sampler:AbstractSampler|SamplerTypes|None, lever_sampling_kwargs, models):
     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
 
     if not policies:
@@ -504,7 +507,7 @@ def setup_policies(policies:int|DesignIterator|Policy, sampler:AbstractSampler|N
     return policies, levers, n_policies
 
 
-def setup_scenarios(scenarios:int|DesignIterator|Scenario, sampler:AbstractSampler|None, uncertainty_sampling_kwargs, models):
+def setup_scenarios(scenarios:int|DesignIterator|Scenario, sampler:AbstractSampler|SamplerTypes|None, uncertainty_sampling_kwargs, models):
     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
 
     if not scenarios:

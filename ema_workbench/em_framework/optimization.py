@@ -1127,6 +1127,8 @@ def _optimize(
     callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
 
+
+
     with temporary_filter(name=[callbacks.__name__, evaluators.__name__], level=INFO):
         optimizer.run(nfe)
 
