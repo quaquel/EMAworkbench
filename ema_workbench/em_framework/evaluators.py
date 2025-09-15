@@ -3,6 +3,7 @@ import abc
 import enum
 import numbers
 import os
+import random
 from collections.abc import Callable, Iterable
 from typing import Literal
 
@@ -101,11 +102,11 @@ class BaseEvaluator(abc.ABC):
         self._msis = msis
         self.callback = None
 
-    def __enter__(self):
+    def __enter__(self): # noqa: D105
         self.initialize()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):  # noqa: D105
         self.finalize()
 
         if exc_type is not None:
@@ -142,7 +143,7 @@ class BaseEvaluator(abc.ABC):
 
         jobs_collection, scenarios, policies = (None,) * 3
         match searchover:
-            case 'levers':
+            case "levers":
                 scenarios, policies = process_levers(jobs)
                 jobs_collection = zip(policies, jobs)
             case "uncertainties":
@@ -225,7 +226,8 @@ class BaseEvaluator(abc.ABC):
         constraints:Iterable[Constraint]=None,
         convergence_freq:int=1000,
         logging_freq:int=5,
-        variator:type[Variator]=None,
+        variator:type[Variator]|None=None,
+        rng:int|None=None,
         **kwargs,
     ):
         """Convenience method for outcome optimization.
@@ -234,8 +236,14 @@ class BaseEvaluator(abc.ABC):
         arguments added in.
 
         """
+        if len(self._msis) > 1:
+            raise NotImplementedError(
+                "Optimization over multiple models is not yet supported"
+            )
+        model = self._msis[0]
+
         return optimize(
-            self._msis,
+            model,
             algorithm=algorithm,
             nfe=int(nfe),
             searchover=searchover,
@@ -245,6 +253,7 @@ class BaseEvaluator(abc.ABC):
             convergence_freq=convergence_freq,
             logging_freq=logging_freq,
             variator=variator,
+            rng=rng,
             **kwargs,
         )
 
@@ -256,6 +265,7 @@ class BaseEvaluator(abc.ABC):
         nfe:int=10000,
         convergence_freq:int=1000,
         logging_freq:int=5,
+        rng: int | None = None,
         **kwargs,
     ):
         """Convenience method for robust optimization.
@@ -264,8 +274,15 @@ class BaseEvaluator(abc.ABC):
         arguments added in.
 
         """
+        if len(self._msis) > 1:
+            raise NotImplementedError(
+                "Optimization over multiple models is not yet supported"
+            )
+        model = self._msis[0]
+
+
         return robust_optimize(
-            self._msis,
+            model,
             robustness_functions,
             scenarios,
             self,
@@ -273,6 +290,7 @@ class BaseEvaluator(abc.ABC):
             nfe=nfe,
             convergence_freq=convergence_freq,
             logging_freq=logging_freq,
+            rng=rng,
             **kwargs,
         )
 
@@ -537,7 +555,7 @@ def setup_scenarios(scenarios:int|DesignIterator|Scenario, sampler:AbstractSampl
 
 
 def optimize(
-    models:list[AbstractModel]|AbstractModel,
+    model:AbstractModel,
     algorithm:type[Algorithm]=EpsNSGAII,
     nfe:int=10000,
     searchover:str="levers",
@@ -548,6 +566,7 @@ def optimize(
     convergence_freq:int=1000,
     logging_freq:int=5,
     variator:Variator=None,
+    rng:int|None=None,
     **kwargs,
 ):
     """Optimize the model.
@@ -572,6 +591,9 @@ def optimize(
     variator : platypus GAOperator instance, optional
                if None, it falls back on the defaults in platypus-opts
                which is SBX with PM
+    rng : seed for initializing the global python random number generator as used by platypus-opt
+          because platypus-opt uses the global random number generator, full reproducibility cannot
+          be guaranteed in case of threading.
     kwargs : any additional arguments will be passed on to algorithm
 
     Returns
@@ -581,7 +603,6 @@ def optimize(
     Raises
     ------
     EMAError if searchover is not one of 'uncertainties' or 'levers'
-    NotImplementedError if len(models) > 1
 
     """
     if searchover not in ("levers", "uncertainties"):
@@ -589,15 +610,7 @@ def optimize(
             f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
         )
 
-    if not isinstance(models, AbstractModel):
-        if len(models) > 1:
-            raise NotImplementedError(
-                "Optimization over multiple models is not yet supported"
-            )
-        model = models[0]
-    else:
-        model = models
-
+    random.seed(rng)
 
     problem = to_problem(
         model, searchover, constraints=constraints, reference=reference
@@ -631,6 +644,7 @@ def robust_optimize(
     constraints:Iterable[Constraint]|None=None,
     convergence_freq:int=1000,
     logging_freq:int=5,
+    rng:int|None=None,
     **kwargs,
 ):
     """Perform robust optimization.
@@ -650,6 +664,9 @@ def robust_optimize(
                         nfe between convergence check
     logging_freq : int
                    number of generations between logging of progress
+    rng : seed for initializing the global python random number generator as used by platypus-opt
+          because platypus-opt uses the global random number generator, full reproducibility cannot
+          be guaranteed in case of threading.
     kwargs : any additional arguments will be passed on to algorithm
 
     Raises
@@ -673,6 +690,8 @@ def robust_optimize(
         constraints=constraints,
         robustness_functions=robustness_functions,
     )
+
+    random.seed(rng)
 
     # solve the optimization problem
     if not evaluator:

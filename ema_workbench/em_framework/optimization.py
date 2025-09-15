@@ -172,7 +172,7 @@ class RobustProblem(Problem):
         self.robustness_functions = robustness_functions
 
 
-def to_problem(model:AbstractModel, searchover:str, reference=None, constraints=None):
+def to_problem(model:AbstractModel, searchover:str, reference:Scenario|Policy|None=None, constraints=None):
     """Helper function to create Problem object.
 
     Parameters
@@ -1126,8 +1126,6 @@ def _optimize(
     )
     callback = functools.partial(convergence, optimizer)
     evaluator.callback = callback
-
-
 
     with temporary_filter(name=[callbacks.__name__, evaluators.__name__], level=INFO):
         optimizer.run(nfe)
