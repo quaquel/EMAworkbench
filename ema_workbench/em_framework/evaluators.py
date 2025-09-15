@@ -392,7 +392,6 @@ def perform_experiments(
     nr_of_exp = -1
     match combine:
         case "factorial":
-
             nr_of_exp = n_models * n_scenarios * n_policies
 
             # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for

@@ -121,6 +121,24 @@ def test_optimize(mocker):
 
 
 def test_robust_optimize(mocker):
-    pass
+    mocked_function = mocker.Mock(return_value={"d":1, "e":1})
+    model = ema_workbench.Model("test", function=mocked_function)
+    model.uncertainties = [RealParameter("a", 0,1)]
+    model.levers = [RealParameter("b", 0,1),
+                    RealParameter("c", 0,1)]
+    model.outcomes = [ScalarOutcome("d", kind=ScalarOutcome.MAXIMIZE),
+                      ScalarOutcome("e", kind=ScalarOutcome.MAXIMIZE)]
+
+
+    robustness_functions = [ScalarOutcome("robustness_d", kind=ScalarOutcome.MAXIMIZE, variable_name="d", function=mocker.Mock(return_value={"r_d":0.5})),
+                            ScalarOutcome("robustness_e", kind=ScalarOutcome.MAXIMIZE, variable_name="e", function=mocker.Mock(return_value={"r_e":0.5})),]
+    scenarios = 10
+
+    nfe = 100
+
+    mocked_optimize = mocker.patch("ema_workbench.em_framework.evaluators._optimize", autospec=True)
+    with  evaluators.SequentialEvaluator(model) as evaluator:
+        evaluator.robust_optimize(robustness_functions, scenarios=scenarios, nfe=nfe, epsilons=[0.1, 0.1])
+    assert mocked_optimize.call_count == 1
 
 
