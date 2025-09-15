@@ -4,6 +4,8 @@ from ema_workbench.util.ema_logging import method_logger
 
 from ..util import CaseError, EMAError, get_module_logger
 from .points import Point
+from .util import NamedObjectMap
+from .model import AbstractModel
 
 # Created on Aug 11, 2015
 #
@@ -38,7 +40,9 @@ class ExperimentRunner:
 
     def __init__(self, msis):
         """Init."""
-        self.msis = msis
+        self.msis = NamedObjectMap(AbstractModel)
+        self.msis.extend(msis)
+
         self.log_message = (
             "running scenario {scenario_id} for policy "
             "{policy_name} on model {model_name}"

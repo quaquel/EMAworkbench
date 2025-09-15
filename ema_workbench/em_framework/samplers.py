@@ -9,7 +9,7 @@ Monte Carlo sampling.
 import abc
 import itertools
 import numbers
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
 import numpy as np
 import scipy.stats as stats
@@ -42,6 +42,9 @@ __all__ = [
 ]
 
 
+SeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
+RNGLike = np.random.Generator | np.random.BitGenerator
+
 class AbstractSampler(metaclass=abc.ABCMeta):
     """Abstract base class from which different samplers can be derived.
 
@@ -52,7 +55,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:SeedLike|RNGLike|None = None, **kwargs) -> np.ndarray:
         """Generate n samples from the parameters.
 
         Parameters
@@ -89,7 +92,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 class LHSSampler(AbstractSampler):
     """generates a Latin Hypercube sample over the parameters."""
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:SeedLike|RNGLike|None = None, **kwargs) -> np.ndarray:
         """Generate samples using latin hypercube sampling.
 
         Parameters
@@ -125,7 +128,7 @@ class LHSSampler(AbstractSampler):
 class MonteCarloSampler(AbstractSampler):
     """Monte Carlo sampler for each of the parameters."""
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:SeedLike|RNGLike|None = None, **kwargs) -> np.ndarray:
         """Generate samples using Monte Carlo sampling.
 
         Parameters
@@ -157,7 +160,7 @@ class FullFactorialSampler(AbstractSampler):
 
     """
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(self, parameters:list[Parameter], size:int, rng:SeedLike|RNGLike|None = None, **kwargs) -> np.ndarray:
         """Generate samples using full factorial sampling.
 
         Parameters
@@ -211,7 +214,7 @@ def determine_parameters(models, attribute, union=True):
     return util.determine_objects(models, attribute, union=union)
 
 
-def sample_parameters(parameters:list[Parameter], n_samples: numbers.Integral, sampler:AbstractSampler|None=None, kind=Point, **kwargs):
+def sample_parameters(parameters:list[Parameter], n_samples: int, sampler:AbstractSampler|None=None, kind=Point, **kwargs):
     """Generate cases by sampling over the parameters.
 
     Parameters
@@ -235,7 +238,7 @@ def sample_parameters(parameters:list[Parameter], n_samples: numbers.Integral, s
     return DesignIterator(samples, parameters, kind)
 
 
-def sample_levers(models, n_samples:numbers.Integral, sampler:AbstractSampler|None=None, **kwargs):
+def sample_levers(models, n_samples:int, sampler:AbstractSampler|None=None, **kwargs):
     """Generate policies by sampling over the levers.
 
     Parameters

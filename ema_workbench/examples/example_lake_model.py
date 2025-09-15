@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     # specify outcomes
     lake_model.outcomes = [
-        ScalarOutcome("max_P"),
+        ScalarOutcome("max_p"),
         ScalarOutcome("utility"),
         ScalarOutcome("inertia"),
         ScalarOutcome("reliability"),
@@ -56,5 +56,7 @@ if __name__ == "__main__":
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(
-            n_scenarios, n_policies, lever_sampling=Samplers.MC
+            n_scenarios, n_policies, lever_sampling=Samplers.MC,
+            lever_sampling_kwargs={"rng":42},
+            uncertainty_sampling_kwargs={"rng":42},
         )

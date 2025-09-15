@@ -9,13 +9,15 @@ import sys
 import threading
 import traceback
 import warnings
+from collections.abc import Callable, Iterable
 from logging import handlers
 
 from ..util import ema_logging, get_module_logger
-from .evaluators import BaseEvaluator, experiment_generator
+from .evaluators import BaseEvaluator
 from .experiment_runner import ExperimentRunner
 from .futures_util import determine_rootdir, finalizer, setup_working_directories
 from .model import AbstractModel
+from .points import Experiment
 from .util import NamedObjectMap
 
 # Created on 22 Feb 2017
@@ -46,9 +48,7 @@ def initializer(*args):
     models, queue, log_level, root_dir = args
 
     # setup the experiment runner
-    msis = NamedObjectMap(AbstractModel)
-    msis.extend(models)
-    experiment_runner = ExperimentRunner(msis)
+    experiment_runner = ExperimentRunner(models)
 
     # setup the logging
     setup_logging(queue, log_level)
@@ -321,7 +321,6 @@ class MultiprocessingEvaluator(BaseEvaluator):
         if self.root_dir:
             shutil.rmtree(self.root_dir)
 
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+    def evaluate_experiments(self, experiments:Iterable[Experiment], callback:Callable, **kwargs):
         """Evaluate experiments."""
-        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-        add_tasks(self.n_processes, self._pool, ex_gen, callback)
+        add_tasks(self.n_processes, self._pool, experiments, callback)

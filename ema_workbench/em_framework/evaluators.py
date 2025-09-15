@@ -1,18 +1,24 @@
 """collection of evaluators for performing experiments, optimization, and robust optimization."""
-
+import abc
 import enum
 import numbers
 import os
-from collections.abc import Callable
+import random
+from collections.abc import Callable, Iterable
+from typing import Literal
+
+from platypus import Algorithm
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
 from ..util import EMAError, get_module_logger
-from .callbacks import DefaultCallback
+from .callbacks import AbstractCallback, DefaultCallback
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (
+    AbstractConvergenceMetric,
     EpsNSGAII,
+    Variator,
     _optimize,
     evaluate,
     evaluate_robust,
@@ -22,8 +28,8 @@ from .optimization import (
     to_problem,
     to_robust_problem,
 )
-from .outcomes import AbstractOutcome, ScalarOutcome
-from .points import Policy, Scenario, experiment_generator
+from .outcomes import AbstractOutcome, Constraint, ScalarOutcome
+from .points import Experiment, Policy, Scenario, experiment_generator
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
 from .samplers import (
     DesignIterator,
@@ -33,17 +39,18 @@ from .samplers import (
     sample_levers,
     sample_uncertainties,
 )
-from .util import NamedObjectMap, determine_objects
+from .util import determine_objects
 
 # Created on 5 Mar 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
+    "BaseEvaluator",
     "Samplers",
     "SequentialEvaluator",
     "optimize",
-    "perform_experiments",
+    "perform_experiments"
 ]
 
 _logger = get_module_logger(__name__)
@@ -63,14 +70,14 @@ class Samplers(enum.Enum):
     MORRIS = MorrisSampler()
 
 
-class BaseEvaluator:
+SamplerTypes = Literal[Samplers.MC, Samplers.LHS, Samplers.FF, Samplers.SOBOL, Samplers.FAST, Samplers.MORRIS]
+
+class BaseEvaluator(abc.ABC):
     """evaluator for experiments using a multiprocessing pool.
 
     Parameters
     ----------
     msis : collection of models
-    searchover : {None, 'levers', 'uncertainties'}, optional
-                  to be used in combination with platypus
 
     Raises
     ------
@@ -80,7 +87,7 @@ class BaseEvaluator:
 
     reporting_frequency = 3
 
-    def __init__(self, msis):
+    def __init__(self, msis:AbstractModel|list[AbstractModel]):
         super().__init__()
 
         if isinstance(msis, AbstractModel):
@@ -95,29 +102,32 @@ class BaseEvaluator:
         self._msis = msis
         self.callback = None
 
-    def __enter__(self):
+    def __enter__(self): # noqa: D105
         self.initialize()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):  # noqa: D105
         self.finalize()
 
         if exc_type is not None:
             return False
 
+    @abc.abstractmethod
     def initialize(self):
         """Initialize the evaluator."""
-        raise NotImplementedError
 
+
+    @abc.abstractmethod
     def finalize(self):
         """Finalize the evaluator."""
-        raise NotImplementedError
 
+
+    @abc.abstractmethod
     def evaluate_experiments(
-        self, scenarios, policies, callback, combine="factorial", **kwargs
+        self, experiments:Iterable[Experiment], callback:Callable, **kwargs
     ):
         """Used by ema_workbench."""
-        raise NotImplementedError
+
 
     def evaluate_all(self, jobs, **kwargs):
         """Makes ema_workbench evaluators compatible with platypus evaluators."""
@@ -131,17 +141,19 @@ class BaseEvaluator:
 
         searchover = problem.searchover
 
-        if searchover == "levers":
-            scenarios, policies = process_levers(jobs)
-            jobs_collection = zip(policies, jobs)
-        elif searchover == "uncertainties":
-            scenarios, policies = process_uncertainties(jobs)
-            jobs_collection = zip(scenarios, jobs)
-        elif searchover == "robust":
-            scenarios, policies = process_robust(jobs)
-            jobs_collection = zip(policies, jobs)
-        else:
-            raise NotImplementedError()
+        jobs_collection, scenarios, policies = (None,) * 3
+        match searchover:
+            case "levers":
+                scenarios, policies = process_levers(jobs)
+                jobs_collection = zip(policies, jobs)
+            case "uncertainties":
+                scenarios, policies = process_uncertainties(jobs)
+                jobs_collection = zip(scenarios, jobs)
+            case "robust":
+                scenarios, policies = process_robust(jobs)
+                jobs_collection = zip(policies, jobs)
+            case _:
+                raise NotImplementedError()
 
         # overwrite the default 10 progress reports  with 5 reports
         callback = perform_experiments(
@@ -172,22 +184,22 @@ class BaseEvaluator:
             uncertainty_union: bool = False,
             lever_union: bool = False,
             outcome_union: bool = False,
-            uncertainty_sampling: AbstractSampler = Samplers.LHS,
+            uncertainty_sampling: AbstractSampler|SamplerTypes = Samplers.LHS,
             uncertainty_sampling_kwargs: dict | None = None,
-            lever_sampling: AbstractSampler = Samplers.LHS,
+            lever_sampling: AbstractSampler|SamplerTypes = Samplers.LHS,
             lever_sampling_kwargs: dict | None = None,
-            callback: Callable | None = None,
+            callback: type[AbstractCallback] | None = None,
             combine="factorial",
             **kwargs,
     ):
         """Convenience method for performing experiments.
 
-        is forwarded to :func:perform_experiments, with evaluator and
+        A call to this method is forwarded to :func:perform_experiments, with evaluator and
         models arguments added in.
 
         """
         return perform_experiments(
-            self._msis,
+            self._msis.copy(),
             scenarios=scenarios,
             policies=policies,
             evaluator=self,
@@ -207,24 +219,31 @@ class BaseEvaluator:
 
     def optimize(
         self,
-        algorithm=EpsNSGAII,
-        nfe=10000,
-        searchover="levers",
-        reference=None,
-        constraints=None,
-        convergence_freq=1000,
-        logging_freq=5,
-        variator=None,
+        algorithm:type[Algorithm]=EpsNSGAII,
+        nfe:int=10000,
+        searchover:str="levers",
+        reference:Scenario|Policy|None=None,
+        constraints:Iterable[Constraint]=None,
+        convergence_freq:int=1000,
+        logging_freq:int=5,
+        variator:type[Variator]|None=None,
+        rng:int|None=None,
         **kwargs,
     ):
         """Convenience method for outcome optimization.
 
-        is forwarded to :func:optimize, with evaluator and models
+        A call to this method is forwarded to :func:optimize, with evaluator and models
         arguments added in.
 
         """
+        if len(self._msis) > 1:
+            raise NotImplementedError(
+                "Optimization over multiple models is not yet supported"
+            )
+        model = self._msis[0]
+
         return optimize(
-            self._msis,
+            model,
             algorithm=algorithm,
             nfe=int(nfe),
             searchover=searchover,
@@ -234,27 +253,36 @@ class BaseEvaluator:
             convergence_freq=convergence_freq,
             logging_freq=logging_freq,
             variator=variator,
+            rng=rng,
             **kwargs,
         )
 
     def robust_optimize(
         self,
-        robustness_functions,
-        scenarios,
-        algorithm=EpsNSGAII,
-        nfe=10000,
-        convergence_freq=1000,
-        logging_freq=5,
+        robustness_functions:list[ScalarOutcome],
+        scenarios:int|list[Scenario],
+        algorithm:type[Algorithm]=EpsNSGAII,
+        nfe:int=10000,
+        convergence_freq:int=1000,
+        logging_freq:int=5,
+        rng: int | None = None,
         **kwargs,
     ):
         """Convenience method for robust optimization.
 
-        is forwarded to :func:robust_optimize, with evaluator and models
+        A call to this method is forwarded to :func:robust_optimize, with evaluator and models
         arguments added in.
 
         """
+        if len(self._msis) > 1:
+            raise NotImplementedError(
+                "Optimization over multiple models is not yet supported"
+            )
+        model = self._msis[0]
+
+
         return robust_optimize(
-            self._msis,
+            model,
             robustness_functions,
             scenarios,
             self,
@@ -262,6 +290,7 @@ class BaseEvaluator:
             nfe=nfe,
             convergence_freq=convergence_freq,
             logging_freq=logging_freq,
+            rng=rng,
             **kwargs,
         )
 
@@ -277,20 +306,15 @@ class SequentialEvaluator(BaseEvaluator):
         """Finalizer."""
 
 
-    def evaluate_experiments(self, scenarios, policies, callback, combine="factorial"):
+    def evaluate_experiments(self, experiments:Iterable[Experiment], callback:Callable, **kwargs):
         """Evaluate experiments."""
         _logger.info("performing experiments sequentially")
 
-        ex_gen = experiment_generator(scenarios, self._msis, policies, combine=combine)
-
-        models = NamedObjectMap(AbstractModel)
-        models.extend(self._msis)
-
         # TODO:: replace with context manager
         cwd = os.getcwd()
-        runner = ExperimentRunner(models)
+        runner = ExperimentRunner(self._msis)
 
-        for experiment in ex_gen:
+        for experiment in experiments:
             outcomes = runner.run_experiment(experiment)
             callback(experiment, outcomes)
         runner.cleanup()
@@ -307,16 +331,16 @@ def perform_experiments(
     uncertainty_union:bool=False,
     lever_union:bool=False,
     outcome_union:bool=False,
-    uncertainty_sampling:AbstractSampler=Samplers.LHS,
+    uncertainty_sampling:AbstractSampler|SamplerTypes=Samplers.LHS,
     uncertainty_sampling_kwargs:dict|None=None,
-    lever_sampling:AbstractSampler=Samplers.LHS,
+    lever_sampling:AbstractSampler|SamplerTypes=Samplers.LHS,
     lever_sampling_kwargs:dict|None=None,
-    callback:Callable|None=None,
+    callback:type[AbstractCallback]|None=None,
     return_callback:bool=False,
-    combine="factorial",
+    combine:str="factorial",
     log_progress:bool=False,
     **kwargs,
-):
+) -> DefaultCallback:
     """Sample uncertainties and levers, and perform the resulting experiments on each of the models.
 
     Parameters
@@ -337,12 +361,12 @@ def perform_experiments(
     callback  : Callback instance, optional
     return_callback : boolean, optional
     log_progress : bool, optional
-    combine : {'factorial', 'zipover'}, optional
+    combine : {'factorial', 'sample'}, optional
               how to combine uncertainties and levers?
               In case of 'factorial', both are sampled separately using their
               respective samplers. Next the resulting designs are combined in a
               full factorial manner.
-              In case of 'zipover', both are sampled separately and
+              In case of 'sample', both are sampled separately and
               then combined by cycling over the shortest of the the two sets
               of designs until the longest set of designs is exhausted.
 
@@ -382,26 +406,31 @@ def perform_experiments(
         n_models = len(models)
     except TypeError:
         n_models = 1
+        models = [models,]
 
     outcomes = determine_objects(models, "outcomes", union=outcome_union)
 
-    if combine == "factorial":
-        nr_of_exp = n_models * n_scenarios * n_policies
+    nr_of_exp = -1
+    match combine:
+        case "factorial":
+            nr_of_exp = n_models * n_scenarios * n_policies
 
-        # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
-        # it
-        _logger.info(
-            f"performing {n_scenarios} scenarios * {n_policies} policies * {n_models} model(s) = "
-            f"{nr_of_exp} experiments"
-        )
-    else:
-        nr_of_exp = n_models * max(n_scenarios, n_policies)
-        # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
-        # it
-        _logger.info(
-            f"performing max({n_scenarios} scenarios, {n_policies} policies) * {n_models} model(s) = "
-            f"{nr_of_exp} experiments"
-        )
+            # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
+            # it
+            _logger.info(
+                f"performing {n_scenarios} scenarios * {n_policies} policies * {n_models} model(s) = "
+                f"{nr_of_exp} experiments"
+            )
+        case "sample":
+            nr_of_exp = n_models * max(n_scenarios, n_policies)
+            # TODO:: change to 0 policies / 0 scenarios is sampling set to 0 for
+            # it
+            _logger.info(
+                f"performing max({n_scenarios} scenarios, {n_policies} policies) * {n_models} model(s) = "
+                f"{nr_of_exp} experiments"
+            )
+        case _:
+            raise ValueError(f'unknown value for combine, got {combine}, should be one of "zipover" or "factorial"')
 
     callback = setup_callback(
         callback,
@@ -417,9 +446,9 @@ def perform_experiments(
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
-    evaluator.evaluate_experiments(
-        scenarios, policies, callback, combine=combine, **kwargs
-    )
+    experiments = experiment_generator(models, scenarios, policies, combine=combine)
+
+    evaluator.evaluate_experiments(experiments, callback,**kwargs)
 
     if callback.i != nr_of_exp:
         raise EMAError(
@@ -468,7 +497,7 @@ def setup_callback(
     return callback
 
 
-def setup_policies(policies:int|DesignIterator, sampler:AbstractSampler|None, lever_sampling_kwargs, models):
+def setup_policies(policies:int|DesignIterator|Policy, sampler:AbstractSampler|SamplerTypes|None, lever_sampling_kwargs, models):
     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
 
     if not policies:
@@ -496,7 +525,7 @@ def setup_policies(policies:int|DesignIterator, sampler:AbstractSampler|None, le
     return policies, levers, n_policies
 
 
-def setup_scenarios(scenarios:int|DesignIterator, sampler:AbstractSampler|None, uncertainty_sampling_kwargs, models):
+def setup_scenarios(scenarios:int|DesignIterator|Scenario, sampler:AbstractSampler|SamplerTypes|None, uncertainty_sampling_kwargs, models):
     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
 
     if not scenarios:
@@ -526,17 +555,18 @@ def setup_scenarios(scenarios:int|DesignIterator, sampler:AbstractSampler|None, 
 
 
 def optimize(
-    models,
-    algorithm=EpsNSGAII,
-    nfe=10000,
-    searchover="levers",
-    evaluator=None,
-    reference=None,
-    convergence=None,
-    constraints=None,
-    convergence_freq=1000,
-    logging_freq=5,
-    variator=None,
+    model:AbstractModel,
+    algorithm:type[Algorithm]=EpsNSGAII,
+    nfe:int=10000,
+    searchover:str="levers",
+    evaluator:BaseEvaluator|None=None,
+    reference:Policy|Scenario|None=None,
+    convergence:Iterable[AbstractConvergenceMetric]|None=None,
+    constraints:Iterable[Constraint]|None=None,
+    convergence_freq:int=1000,
+    logging_freq:int=5,
+    variator:Variator=None,
+    rng:int|None=None,
     **kwargs,
 ):
     """Optimize the model.
@@ -561,6 +591,9 @@ def optimize(
     variator : platypus GAOperator instance, optional
                if None, it falls back on the defaults in platypus-opts
                which is SBX with PM
+    rng : seed for initializing the global python random number generator as used by platypus-opt
+          because platypus-opt uses the global random number generator, full reproducibility cannot
+          be guaranteed in case of threading.
     kwargs : any additional arguments will be passed on to algorithm
 
     Returns
@@ -570,7 +603,6 @@ def optimize(
     Raises
     ------
     EMAError if searchover is not one of 'uncertainties' or 'levers'
-    NotImplementedError if len(models) > 1
 
     """
     if searchover not in ("levers", "uncertainties"):
@@ -578,23 +610,15 @@ def optimize(
             f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
         )
 
-    try:
-        if len(models) == 1:
-            models = models[0]
-        else:
-            raise NotImplementedError(
-                "Optimization over multiple models is not yet supported"
-            )
-    except TypeError:
-        pass
+    random.seed(rng)
 
     problem = to_problem(
-        models, searchover, constraints=constraints, reference=reference
+        model, searchover, constraints=constraints, reference=reference
     )
 
     # solve the optimization problem
     if not evaluator:
-        evaluator = SequentialEvaluator(models)
+        evaluator = SequentialEvaluator(model)
 
     return _optimize(
         problem,
@@ -610,16 +634,17 @@ def optimize(
 
 
 def robust_optimize(
-    model,
-    robustness_functions,
-    scenarios,
-    evaluator=None,
-    algorithm=EpsNSGAII,
-    nfe=10000,
-    convergence=None,
-    constraints=None,
-    convergence_freq=1000,
-    logging_freq=5,
+    model:AbstractModel,
+    robustness_functions:list[ScalarOutcome],
+    scenarios:int|list[Scenario],
+    evaluator:BaseEvaluator|None=None,
+    algorithm:type[Algorithm]=EpsNSGAII,
+    nfe:int=10000,
+    convergence:Iterable[AbstractConvergenceMetric]|None=None,
+    constraints:Iterable[Constraint]|None=None,
+    convergence_freq:int=1000,
+    logging_freq:int=5,
+    rng:int|None=None,
     **kwargs,
 ):
     """Perform robust optimization.
@@ -639,6 +664,9 @@ def robust_optimize(
                         nfe between convergence check
     logging_freq : int
                    number of generations between logging of progress
+    rng : seed for initializing the global python random number generator as used by platypus-opt
+          because platypus-opt uses the global random number generator, full reproducibility cannot
+          be guaranteed in case of threading.
     kwargs : any additional arguments will be passed on to algorithm
 
     Raises
@@ -662,6 +690,8 @@ def robust_optimize(
         constraints=constraints,
         robustness_functions=robustness_functions,
     )
+
+    random.seed(rng)
 
     # solve the optimization problem
     if not evaluator:

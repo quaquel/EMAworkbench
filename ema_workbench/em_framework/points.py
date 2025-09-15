@@ -7,6 +7,7 @@ As well as associated helper functions
 import itertools
 import random
 from collections import ChainMap
+from collections.abc import Iterable
 
 from ema_workbench.em_framework.util import Counter, NamedDict, NamedObject, combine
 from ema_workbench.util import get_module_logger
@@ -104,7 +105,7 @@ class Experiment(NamedObject):
 
     """
 
-    def __init__(self, name, model_name, policy, scenario, experiment_id):
+    def  __init__(self, name, model_name, policy, scenario, experiment_id):
         super().__init__(name)
         self.experiment_id = experiment_id
         self.policy = policy
@@ -156,7 +157,7 @@ def zip_cycle(*args):
     #     policies and scenarios are generators themselves?
     # TODO to be replaced with sample based combining
 
-    max_len = max(len(a) for a in args)
+    max_len = max(len(list(a)) for a in args)
     return itertools.islice(zip(*(itertools.cycle(a) for a in args)), max_len)
 
 
@@ -233,7 +234,7 @@ def combine_cases_factorial(*point_collections):
 #     return combined_cases
 
 
-def experiment_generator(scenarios, models, policies, combine="factorial"):
+def experiment_generator(models:Iterable["AbstractModel"], scenarios:Iterable[Scenario], policies:Iterable[Policy], combine:str="factorial"):
     """Generator function which yields experiments.
 
     Parameters
@@ -259,7 +260,7 @@ def experiment_generator(scenarios, models, policies, combine="factorial"):
     """
     # TODO combine_ functions can be made more generic
     # basically combine any collection
-    # wrap around to yield specific type of class (e.g. point
+    # wrap around to yield specific type of class (e.g. point)
 
     if combine == "sample":
         jobs = zip_cycle(models, policies, scenarios)

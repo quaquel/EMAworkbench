@@ -46,9 +46,9 @@ def test_mpi_evaluator(mocker):
         "ema_workbench.em_framework.evaluators.DefaultCallback",
     )
     mocked_generator = mocker.patch(
-        "ema_workbench.em_framework.futures_mpi.experiment_generator",
-        autospec=True,
+        "ema_workbench.em_framework.points.experiment_generator", autospec=True
     )
+    mocked_generator.return_value = iter([1,])
 
 
     model = Mock(spec=ema_workbench.Model)
@@ -67,7 +67,7 @@ def test_mpi_evaluator(mocker):
     mocked_MPIPoolExecutor.return_value = pool_mock
 
     with futures_mpi.MPIEvaluator(model) as evaluator:
-        evaluator.evaluate_experiments(10, 10, mocked_callback)
+        evaluator.evaluate_experiments(mocked_generator([], [], []), mocked_callback)
 
         mocked_MPIPoolExecutor.assert_called()
         pool_mock.map.assert_called_once()
@@ -124,8 +124,7 @@ def test_mpi_initializer(mocker):
     mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True) # noqa: N806
 
     mocker.patch(
-        "ema_workbench.em_framework.futures_mpi.experiment_generator",
-        autospec=True,
+        "ema_workbench.em_framework.points.experiment_generator", autospec=True
     )
 
     mocked_MPI.COMM_WORLD = Mock()
