@@ -115,9 +115,11 @@ def test_optimize(mocker):
 
 
     with pytest.raises(NotImplementedError):
-        evaluators.optimize([model, model], nfe=nfe, searchover='uncertainties', epsilons=[0.1, 0.1])
+        with  evaluators.SequentialEvaluator([model, model]) as evaluator:
+            evaluator.optimize(nfe=nfe, searchover='uncertainties', epsilons=[0.1, 0.1])
     with pytest.raises(EMAError):
-        evaluators.optimize([model, model], nfe=nfe, searchover='unknown value', epsilons=[0.1, 0.1])
+        with  evaluators.SequentialEvaluator(model) as evaluator:
+            evaluator.optimize(nfe=nfe, searchover='unknown value', epsilons=[0.1, 0.1])
 
 
 def test_robust_optimize(mocker):
