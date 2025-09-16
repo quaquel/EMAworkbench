@@ -16,12 +16,13 @@ _logger = get_module_logger(__name__)
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
-class PrimException(Exception): #noqa: N818
+class PrimException(Exception):  # noqa: N818
     """Base exception class for prim related exceptions."""
 
 
 class PRIMObjectiveFunctions(Enum):
     """Enum for the prim objectives functions."""
+
     LENIENT2 = "lenient2"
     LENIENT1 = "lenient1"
     ORIGINAL = "original"
@@ -36,7 +37,7 @@ class DiagKind(Enum):
     CDF = "cdf"
     """constant for plotting diagonal in pairs_scatter as cdf."""
 
-    def __contains__(cls, item): # noqa: D105 N805
+    def __contains__(cls, item):  # noqa: D105 N805
         return item in cls.__members__.values()
 
 
@@ -89,11 +90,11 @@ class CurEntry:
     def __get__(self, instance, _):  # noqa: D105
         return instance.peeling_trajectory[self.name][instance._cur_box]
 
-    def __set__(self, instance, value): # noqa: D105
+    def __set__(self, instance, value):  # noqa: D105
         raise PrimException("this property cannot be assigned to")
 
 
-def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim): # noqa: N803
+def calculate_qp(data, x, y, Hbox, Tbox, box_lim, initial_boxlim):  # noqa: N803
     """Helper function for calculating quasi p-values."""
     if data.size == 0:
         return [-1, -1]
@@ -212,7 +213,7 @@ def box_to_tuple(box):
         formatted = []
         for entry in values:
             if isinstance(entry, set):
-                entry = tuple(entry) # noqa: PLW2901
+                entry = tuple(entry)  # noqa: PLW2901
             formatted.append(entry)
         tupled_box += tuple(formatted)
     tupled_box = tuple(tupled_box)
@@ -226,7 +227,7 @@ class NotSeen:
         """Init."""
         self.seen = set()
 
-    def __call__(self, box): # noqa: D102
+    def __call__(self, box):  # noqa: D102
         tupled = box_to_tuple(box)
         if tupled in self.seen:
             return False
@@ -251,7 +252,9 @@ def calc_fronts(boxes):
     """Non dominated sort."""
     # taken from
     # https://stackoverflow.com/questions/41740596/pareto-frontier-indices-using-numpy
-    i_dominates_j = np.all(boxes[:, None] >= boxes, axis=-1) & np.any(boxes[:, None] > boxes, axis=-1)
+    i_dominates_j = np.all(boxes[:, None] >= boxes, axis=-1) & np.any(
+        boxes[:, None] > boxes, axis=-1
+    )
     remaining = np.arange(len(boxes))
     fronts = np.empty(len(boxes), int)
     frontier_index = 0
