@@ -35,20 +35,18 @@ def flu_classify(data):
 class TestPrimBox:
     def test_init(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
-        y = {"y": np.array([0, 1, 2])}
-        results = (x, y)
+        y = np.array([0, 1, 0])
 
-        prim_obj = prim.setup_prim(results, "y")
+        prim_obj = prim.Prim(x, y)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
         assert box.peeling_trajectory.shape == (1, 8)
 
     def test_select(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
-        y = {"y": np.array([1, 1, 0])}
-        results = (x, y)
+        y = np.array([1, 1, 0])
 
-        prim_obj = prim.setup_prim(results, "y")
+        prim_obj =  prim.Prim(x, y)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
         new_box_lim = pd.DataFrame([(0, 1, 1), (2, 5, 6)], columns=["a", "b", "c"])
@@ -122,10 +120,9 @@ class TestPrimBox:
 
     def test_update(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
-        y = {"y": np.array([1, 1, 0])}
-        results = (x, y)
+        y = np.array([1, 1, 0])
 
-        prim_obj = prim.setup_prim(results, "y")
+        prim_obj = prim.Prim(x,y)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
         new_box_lim = pd.DataFrame([(0, 1, 1), (2, 5, 6)], columns=["a", "b", "c"])
@@ -140,10 +137,9 @@ class TestPrimBox:
 
     def test_drop_restriction(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
-        y = {"y": np.array([1, 1, 0])}
-        results = (x, y)
+        y = np.array([1, 1, 0])
 
-        prim_obj = prim.setup_prim(results, "y")
+        prim_obj = prim.Prim(x,y)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
         new_box_lim = pd.DataFrame([(0, 1, 1), (2, 2, 6)], columns=["a", "b", "c"])
@@ -175,7 +171,7 @@ class TestPrimBox:
         y = flu_classify(outcomes)
 
         alg = prim.Prim(experiments, y)
-        box = alg.find_box
+        box = alg.find_box()
 
         box.resample()
 
@@ -215,19 +211,19 @@ class TestPrim:
 
     def test_boxes(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
-        y = {"y": np.array([0, 1, 2])}
-        results = (x, y)
+        y = np.array([0, 1, 1])
 
-        prim_obj = prim.setup_prim(results, "y")
+        prim_obj = prim.Prim(x,y)
         boxes = prim_obj.boxes
 
         assert len(boxes) == 1, "box length not correct"
 
         # real data test case
-        prim_obj = prim.setup_prim(
-            utilities.load_flu_data(), flu_classify
-        )
-        prim_obj.find_box
+        x, outcomes = utilities.load_flu_data()
+        y = flu_classify(outcomes)
+
+        prim_obj = prim.Prim(x, y)
+        prim_obj.find_box()
         boxes = prim_obj.boxes
         assert len(boxes) == 1, "box length not correct"
 
@@ -297,17 +293,17 @@ class TestPrim:
     #     assert box_init["c"][1] == {"a", "b"}
 
     def test_find_box(self):
-        results = utilities.load_flu_data()
-        classify = flu_classify
+        x, outcomes = utilities.load_flu_data()
+        y = flu_classify(outcomes)
 
-        prim_obj = prim.setup_prim(results, classify)
-        box_1 = prim_obj.find_box
+        prim_obj = prim.Prim(x, y)
+        box_1 = prim_obj.find_box()
         prim_obj._update_yi_remaining(prim_obj)
 
         after_find = box_1.yi.shape[0] + prim_obj.yi_remaining.shape[0]
         assert after_find, prim_obj.y.shape[0]
 
-        box_2 = prim_obj.find_box
+        box_2 = prim_obj.find_box()
         prim_obj._update_yi_remaining(prim_obj)
 
         after_find = (
@@ -384,13 +380,10 @@ class TestPrim:
             columns=["a", "b"],
         )
 
-        y = np.random.randint(0, 2, (10,))
+        y = np.random.randint(0, 1, (10,))
         y = y.astype(int)
-        y = {"y": y}
-        results = x, y
-        classify = "y"
 
-        prim_obj = prim.setup_prim(results, classify)
+        prim_obj = prim.Prim(x,y)
         box_lims = pd.DataFrame([(0, {"a", "b"}), (1, {"a", "b"})], columns=["a", "b"])
         box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
 
@@ -415,11 +408,8 @@ class TestPrim:
 
         y = np.random.randint(0, 2, (10,))
         y = y.astype(int)
-        y = {"y": y}
-        results = x, y
-        classify = "y"
 
-        prim_obj = prim.setup_prim(results, classify)
+        prim_obj = prim.Prim(x, y )
         box_lims = prim_obj.box_init
         box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
 
@@ -443,11 +433,8 @@ class TestPrim:
 
         y = np.random.randint(0, 2, (10,))
         y = y.astype(int)
-        y = {"y": y}
-        results = x, y
-        classify = "y"
 
-        prim_obj = prim.setup_prim(results, classify)
+        prim_obj = prim.Prim(x,y)
         box_lims = pd.DataFrame([(0, {"a"}), (1, {"a"})], columns=x.columns)
 
         yi = np.where(x.loc[:, "b"] == "a")

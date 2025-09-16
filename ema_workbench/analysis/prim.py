@@ -209,7 +209,7 @@ def run_constrained_prim(
     merged_qp = []
 
     alg = Prim(experiments, y, **kwargs)
-    boxn = alg.find_box
+    boxn = alg.find_box()
 
     dims = determine_dimres(boxn, issignificant=issignificant)
 
@@ -225,7 +225,7 @@ def run_constrained_prim(
         with temporary_filter(__name__, INFO):
             x = experiments.loc[:, subset].copy()
             alg = Prim(x, y, **kwargs)
-            box = alg.find_box
+            box = alg.find_box()
             boxes.append(box)
 
     box_init = boxn.prim.box_init
@@ -284,56 +284,6 @@ def run_constrained_prim(
     box.qp = sorted_qps
     return box
 
-
-def setup_prim(
-    results: tuple,
-    classify: Callable | str,
-    incl_unc: list[str] | None = None,
-    **kwargs,
-):
-    """Helper function for setting up the prim algorithm.
-
-    Parameters
-    ----------
-    results : tuple
-              tuple of DataFrame and dict with numpy arrays
-              the return from :meth:`perform_experiments`.
-    classify : str or callable
-               either a string denoting the outcome of interest to
-               use or a function.
-    threshold : double
-                the minimum score on the density of the last box
-                on the peeling trajectory. In case of a binary
-                classification, this should be between 0 and 1.
-    incl_unc : list of str, optional
-               list of uncertainties to include in prim analysis
-    kwargs : dict
-             valid keyword arguments for prim.Prim
-
-    Returns
-    -------
-    a Prim instance
-
-    Raises
-    ------
-    PrimException
-        if data resulting from classify is not a 1-d array.
-    TypeError
-        if classify is not a string or a callable.
-    """
-    x, y, mode = sdutil._setup(results, classify, incl_unc)
-
-    match mode:
-        case sdutil.RuleInductionType.REGRESSION:
-            algorithm = RegressionPrim
-
-        case sdutil.RuleInductionType.BINARY:
-            algorithm = Prim
-
-        case _:
-            raise ValueError("Unknown prim mode")
-
-    return algorithm(x, y, **kwargs)
 
 
 class BasePrimBox(abc.ABC):
@@ -802,7 +752,7 @@ class PrimBox(BasePrimBox):
                         y_temp,
                         peel_alpha=self.prim.peel_alpha,
                         paste_alpha=self.prim.paste_alpha,
-                    ).find_box
+                    ).find_box()
                     self._resampled.append(box)
 
         counters = []
@@ -1290,7 +1240,6 @@ class BasePrim(sdutil.OutputFormatterMixin):
         """Return all stats."""
         return [box.stats for box in self._boxes]
 
-    @property
     def find_box(self) -> BasePrimBox | None:
         """Execute one iteration of the PRIM algorithm.
 

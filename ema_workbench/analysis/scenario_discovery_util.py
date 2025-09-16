@@ -235,48 +235,6 @@ def _in_box(x, boxlim):
     return logical
 
 
-def _setup(results:tuple[pd.DataFrame, dict], classify:str|Callable, incl_unc:list[str]|None=None):
-    """Helper function for setting up CART or PRIM.
-
-    Parameters
-    ----------
-    results : tuple of DataFrame and dict with numpy arrays
-              the return from :meth:`perform_experiments`.
-    classify : string, function or callable
-               either a string denoting the outcome of interest to
-               use or a function.
-    incl_unc : list of strings
-
-    Notes:
-    -----
-    CART, PRIM, and feature scoring only work for a 1D numpy array
-    for the dependent variable
-
-    Raises:
-    ------
-    TypeError
-        if classify is not a string or a callable.
-
-    """
-    x, outcomes = results
-
-    if incl_unc:
-        drop_names = set(x.columns.values.tolist()) - set(incl_unc)
-        x = x.drop(drop_names, axis=1)
-    if isinstance(classify, str):
-        y = outcomes[classify]
-        mode = RuleInductionType.REGRESSION
-    elif callable(classify):
-        y = classify(outcomes)
-        mode = RuleInductionType.BINARY
-    else:
-        raise TypeError("unknown type for classify")
-
-    assert y.ndim == 1
-
-    return x, y, mode
-
-
 def _calculate_quasip(x, y, box, Hbox, Tbox):  #noqa: N803
     """Calculate quasi-p values.
 
