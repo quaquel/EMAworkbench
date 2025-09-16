@@ -81,9 +81,10 @@ def get_quantile(data, quantile):
 class CurEntry:
     """a descriptor for the current entry on the peeling and pasting trajectory."""
 
-    def __init__(self, name):
+    def __init__(self, name, dtype):
         """Init."""
         self.name = name
+        self.dtype = dtype
 
     def __get__(self, instance, _):  # noqa: D105
         return instance.peeling_trajectory[self.name][instance._cur_box]

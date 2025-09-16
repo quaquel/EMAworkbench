@@ -3,6 +3,7 @@
 import abc
 import enum
 import itertools
+from collections.abc import Callable
 
 import matplotlib as mpl
 import matplotlib.patches as patches
@@ -234,7 +235,7 @@ def _in_box(x, boxlim):
     return logical
 
 
-def _setup(results, classify, incl_unc=None):
+def _setup(results:tuple[pd.DataFrame, dict], classify:str|Callable, incl_unc:list[str]|None=None):
     """Helper function for setting up CART or PRIM.
 
     Parameters
