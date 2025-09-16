@@ -170,6 +170,14 @@ class TestPrimBox:
     def test_calculate_quasi_p(self):
         pass
 
+    def test_resample(self  ):
+        experiments, outcomes = utilities.load_flu_data()
+        y = flu_classify(outcomes)
+
+        alg = prim.Prim(experiments, y)
+        box = alg.find_box()
+
+        box.resample()
 
 class TestPrim:
     # def test_setup_prim(self):
@@ -222,44 +230,6 @@ class TestPrim:
         prim_obj.find_box()
         boxes = prim_obj.boxes
         assert len(boxes) == 1, "box length not correct"
-
-    def test_prim_init_select(self):
-        # fixme this is all for prim regression not prim binary
-        self.results = utilities.load_flu_data()
-        self.classify = flu_classify
-
-        experiments, outcomes = self.results
-
-        unc = experiments.columns.values.tolist()
-
-        # test initialization, including t_coi calculation in case of searching
-        # for results equal to or higher than the threshold
-        outcomes["death toll"] = outcomes["deceased_population_region_1"][:, -1]
-        results = experiments, outcomes
-        threshold = 10000
-        prim_obj = prim.setup_prim(
-            results,
-            classify="death toll",
-            incl_unc=unc,
-        )
-
-        value = np.ones((experiments.shape[0],))
-        value = value[outcomes["death toll"] >= threshold].shape[0]
-        assert prim_obj.t_coi == value
-
-        # test initialization, including t_coi calculation in case of searching
-        # for results equal to or lower  than the threshold
-        threshold = 1000
-        prim_obj = prim.setup_prim(
-            results,
-            classify="death toll",
-        )
-
-        value = np.ones((experiments.shape[0],))
-        value = value[outcomes["death toll"] <= threshold].shape[0]
-        assert prim_obj.t_coi == value
-
-        prim.setup_prim(self.results, self.classify)
 
     def test_quantile(self):
         data = pd.Series(np.arange(10))
@@ -500,4 +470,14 @@ class TestPrim:
         y = flu_classify(outcomes)
 
         box = prim.run_constrained_prim(experiments, y, issignificant=True)
+
+
+class TestRegressionPrim:
+
+    def test_find_box(self  ):
+        experiments, outcomes = utilities.load_flu_data()
+        y = outcomes["deceased_population_region_1"][:, -1]
+
+        alg = prim.RegressionPrim(experiments, y)
+        box = alg.find_box()
 
