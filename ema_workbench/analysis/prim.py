@@ -16,6 +16,7 @@ import abc
 import contextlib
 import copy
 import itertools
+import numbers
 import warnings
 from collections.abc import Callable, Sequence
 from operator import itemgetter
@@ -189,7 +190,7 @@ def run_constrained_prim(
 
     Parameters
     ----------
-    x : DataFrame
+    experiments : DataFrame
     y : numpy array
     issignificant : bool, optional
                     if True, run prim only on subsets of dimensions
@@ -208,7 +209,7 @@ def run_constrained_prim(
     merged_qp = []
 
     alg = Prim(experiments, y, **kwargs)
-    boxn = alg.find_box()
+    boxn = alg.find_box
 
     dims = determine_dimres(boxn, issignificant=issignificant)
 
@@ -224,7 +225,7 @@ def run_constrained_prim(
         with temporary_filter(__name__, INFO):
             x = experiments.loc[:, subset].copy()
             alg = Prim(x, y, **kwargs)
-            box = alg.find_box()
+            box = alg.find_box
             boxes.append(box)
 
     box_init = boxn.prim.box_init
@@ -338,11 +339,9 @@ def setup_prim(
 class BasePrimBox(abc.ABC):
     _frozen = False
 
-    mean = CurEntry(
-        "mean", float
-    )  # fixme, can't we use __get_name__ to get rid of name in CurEntry init?
-    res_dim = CurEntry("res_dim", int)
-    mass = CurEntry("mass", float)
+    mean = CurEntry(float)  # fixme, can't we use __get_name__ to get rid of name in CurEntry init?
+    res_dim = CurEntry(int)
+    mass = CurEntry(float)
 
     def __init__(self, prim: "BasePrim", box_lims: pd.DataFrame, indices: np.ndarray):
         """Init.
@@ -361,9 +360,6 @@ class BasePrimBox(abc.ABC):
         columns = {
             "id": pd.Series(dtype=int),
             "n": pd.Series(dtype=int),  # items in box
-            "k": pd.Series(
-                dtype=int
-            ),  # items of interest in box # fixme should be moved to PrimBox
         }
         for klass in type(self).__mro__:
             for name, value in vars(klass).items():
@@ -387,6 +383,11 @@ class BasePrimBox(abc.ABC):
             return self.box_lims[self._cur_box]
         else:
             raise AttributeError
+
+    @property
+    @abc.abstractmethod
+    def stats(self):
+        ...
 
     def inspect(
         self,
@@ -577,8 +578,9 @@ class PrimBox(BasePrimBox):
 
     """
 
-    coverage = CurEntry("coverage", float)
-    density = CurEntry("density", float)
+    coverage = CurEntry(float)
+    density = CurEntry(float)
+    k = CurEntry(int)
 
     def __init__(self, prim: "BasePrim", box_lims: pd.DataFrame, indices: np.ndarray):
         """Init.
@@ -597,6 +599,10 @@ class PrimBox(BasePrimBox):
 
         # indices van data in box
         self.update(box_lims, indices)
+
+    @property
+    def stats(self):
+        return {k: getattr(self, k) for k in ["coverage", "density", "mass", "res_dim"]}
 
     def inspect_tradeoff(self):
         """Inspecting tradeoff using altair."""
@@ -796,7 +802,7 @@ class PrimBox(BasePrimBox):
                         y_temp,
                         peel_alpha=self.prim.peel_alpha,
                         paste_alpha=self.prim.paste_alpha,
-                    ).find_box()
+                    ).find_box
                     self._resampled.append(box)
 
         counters = []
@@ -1095,8 +1101,7 @@ class PrimBox(BasePrimBox):
 
 
 class RegressionPrimBox(BasePrimBox):
-    # fixme
-    rmse = CurEntry("rmse", float)
+    rmse = CurEntry(float)
 
     def __init__(self, prim: "BasePrim", box_lims: pd.DataFrame, indices: np.ndarray):
         """Init.
@@ -1112,6 +1117,10 @@ class RegressionPrimBox(BasePrimBox):
         super().__init__(prim, box_lims, indices)
         # indices van data in box
         self.update(box_lims, indices)
+
+    @property
+    def stats(self):
+        return {k:getattr(self, k) for k in ["rmse", "mean", "mass", "res_dim"]}
 
     def _inspect(self, i: int | None = None, style="table", **kwargs):
         """Helper method for inspecting one or more boxes on the peeling trajectory.
@@ -1172,7 +1181,6 @@ class RegressionPrimBox(BasePrimBox):
             "mass": y.shape[0] / self.prim.n,
             "id": i,
             "n": y.shape[0],
-            "k": -1,  # fixme
         }
         new_row = pd.DataFrame([data])
 
@@ -1184,6 +1192,7 @@ class RegressionPrimBox(BasePrimBox):
 
 
 class BasePrim(sdutil.OutputFormatterMixin):
+    """Abstract base class for the prim algorithm."""
 
     def __init__(
         self,
@@ -1201,6 +1210,8 @@ class BasePrim(sdutil.OutputFormatterMixin):
     ):
         if y.ndim != 1:
             raise ValueError("y must be one-dimensional")
+        if y.shape[0] != x.shape[0]:
+            raise ValueError(f"len(y) != len(x): {y.shape[0]} != {x.shape[0]}")
 
         # preprocess x
         x = x.copy()
@@ -1244,11 +1255,6 @@ class BasePrim(sdutil.OutputFormatterMixin):
 
         self._update_yi_remaining = self._update_functions[update_function]
 
-        if len(self.y.shape) > 1:
-            raise PrimException(f"y is not a 1-d array, but has shape {self.y.shape}")
-        if self.y.shape[0] != len(self.x):
-            raise PrimException(f"len(y) != len(x): {self.y.shape[0]} != {len(self.x)}")
-
         # store the remainder of the parameters
         self.paste_alpha = paste_alpha
         self.peel_alpha = peel_alpha
@@ -1266,9 +1272,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
 
         # make a list in which the identified boxes can be put
         self._boxes = []
-
         self._update_yi_remaining(self)
-
         self._prim_box_klass = None
         self._maximization = True
 
@@ -1282,15 +1286,12 @@ class BasePrim(sdutil.OutputFormatterMixin):
         return boxes
 
     @property
-    def stats(self):
+    def stats(self)->list[dict[str, numbers.Number]]:
         """Return all stats."""
-        stats = []
-        items = ["coverage", "density", "mass", "res_dim"]
-        for box in self._boxes:
-            stats.append({key: getattr(box, key) for key in items})
-        return stats
+        return [box.stats for box in self._boxes]
 
-    def find_box(self) -> BasePrimBox:
+    @property
+    def find_box(self) -> BasePrimBox | None:
         """Execute one iteration of the PRIM algorithm.
 
         That is, find one box, starting from the current state of Prim.
@@ -1304,7 +1305,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
 
         if self.yi_remaining.shape[0] == 0:
             _logger.info("no data remaining, exiting")
-            return None
+            return
 
         self._log_progress()
 
@@ -1319,12 +1320,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
         box = self._paste(box)
         _logger.debug("pasting completed")
 
-        # fixme make specific for regression vs. normal
-        # something like box.message
-        # _logger.info(
-        #     f"mean: {box.mean}, mass: {box.mass}, coverage: {box.coverage}, "
-        #     f"density: {box.density} restricted_dimensions: {box.res_dim}"
-        # )
+        _logger.info(" ".join([f"{k}: {v}," for k, v in box.stats.items()]))
         self._boxes.append(box)
         return box
 
@@ -1424,12 +1420,14 @@ class BasePrim(sdutil.OutputFormatterMixin):
                 i = 1
 
             box_peel = get_quantile(xj, peel_alpha)
-            if direction == "lower":
-                logical = xj >= box_peel
-                indices = box.yi[logical]
-            if direction == "upper":
-                logical = xj <= box_peel
-                indices = box.yi[logical]
+
+            match direction:
+                case "lower":
+                    logical = xj >= box_peel
+                    indices = box.yi[logical]
+                case "upper":
+                    logical = xj <= box_peel
+                    indices = box.yi[logical]
             temp_box = copy.deepcopy(box.box_lims[-1])
             temp_box.loc[i, u] = box_peel
             peels.append((indices, temp_box))
@@ -1940,5 +1938,3 @@ class RegressionPrim(BasePrim):
     _update_functions = {"default": BasePrim._update_yi_remaining_default}
 
     # fixme we need to have maximizing mean and minimizing mean, so we need custom objective functions here
-    # fixme we need other stats calculations here
-    # fixme, we need two versions of the prim box class: one for regression and one for binary

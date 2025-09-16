@@ -136,9 +136,9 @@ class Logit:
 
     # TODO:: peeling trajectory is a misnomer, requires fix to CurEntry
 
-    coverage = CurEntry("coverage", float)
-    density = CurEntry("density", float)
-    res_dim = CurEntry("res_dim", int)
+    coverage = CurEntry(float)
+    density = CurEntry(float)
+    res_dim = CurEntry(int)
 
     sep = "!?!"
 

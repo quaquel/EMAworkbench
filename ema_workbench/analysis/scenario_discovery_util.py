@@ -141,7 +141,7 @@ def _normalize(box_lim, box_init, uncertainties):
     return norm_box_lim
 
 
-def _determine_restricted_dims(box_limits, box_init):
+def _determine_restricted_dims(box_limits:pd.DataFrame, box_init:pd.DataFrame)->np.ndarray:
     """Returns a list of dimensions that is restricted.
 
     Parameters
@@ -151,7 +151,7 @@ def _determine_restricted_dims(box_limits, box_init):
 
     Returns:
     -------
-    list of str
+    np.ndarray
 
     """
     cols = box_init.columns.values
@@ -163,7 +163,7 @@ def _determine_restricted_dims(box_limits, box_init):
     return restricted_dims
 
 
-def _determine_nr_restricted_dims(box_lims, box_init):
+def _determine_nr_restricted_dims(box_lims:pd.DataFrame, box_init:pd.DataFrame)->int:
     """Determine the number of restricted dimensions of a box.
 
     Parameters
@@ -921,13 +921,12 @@ class OutputFormatterMixin(abc.ABC):
     @abc.abstractmethod
     def boxes(self):
         """Property for getting a list of box limits."""
-        raise NotImplementedError
+
 
     @property
     @abc.abstractmethod
     def stats(self):
         """Property for getting a list of dicts containing the statistics for each box."""
-        raise NotImplementedError
 
     def boxes_to_dataframe(self):
         """Convert boxes to pandas dataframe."""

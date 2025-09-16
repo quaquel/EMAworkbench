@@ -175,7 +175,7 @@ class TestPrimBox:
         y = flu_classify(outcomes)
 
         alg = prim.Prim(experiments, y)
-        box = alg.find_box()
+        box = alg.find_box
 
         box.resample()
 
@@ -227,7 +227,7 @@ class TestPrim:
         prim_obj = prim.setup_prim(
             utilities.load_flu_data(), flu_classify
         )
-        prim_obj.find_box()
+        prim_obj.find_box
         boxes = prim_obj.boxes
         assert len(boxes) == 1, "box length not correct"
 
@@ -301,13 +301,13 @@ class TestPrim:
         classify = flu_classify
 
         prim_obj = prim.setup_prim(results, classify)
-        box_1 = prim_obj.find_box()
+        box_1 = prim_obj.find_box
         prim_obj._update_yi_remaining(prim_obj)
 
         after_find = box_1.yi.shape[0] + prim_obj.yi_remaining.shape[0]
         assert after_find, prim_obj.y.shape[0]
 
-        box_2 = prim_obj.find_box()
+        box_2 = prim_obj.find_box
         prim_obj._update_yi_remaining(prim_obj)
 
         after_find = (
@@ -479,5 +479,5 @@ class TestRegressionPrim:
         y = outcomes["deceased_population_region_1"][:, -1]
 
         alg = prim.RegressionPrim(experiments, y)
-        box = alg.find_box()
+        box = alg.find_box
 
