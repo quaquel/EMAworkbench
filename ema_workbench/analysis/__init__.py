@@ -7,7 +7,6 @@
 __all__ = [
     "CART",
     "Density",
-    "DiagKind",
     "Logit",
     "PlotType",
     "Prim",
@@ -39,5 +38,4 @@ from .logistic_regression import Logit
 from .plotting import envelopes, kde_over_time, lines, multiple_densities
 from .plotting_util import Density, PlotType
 from .prim import Prim, pca_preprocess, run_constrained_prim
-from .prim_util import DiagKind
 from .scenario_discovery_util import RuleInductionType

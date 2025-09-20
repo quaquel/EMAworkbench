@@ -41,7 +41,6 @@ from ..util import INFO, EMAError, get_module_logger, temporary_filter
 from . import scenario_discovery_util as sdutil
 from .prim_util import (
     CurEntry,
-    DiagKind,
     NotSeen,
     PrimException,
     PRIMObjectiveFunctions,
@@ -484,16 +483,69 @@ class BasePrimBox(abc.ABC):
         """Show the peeling and pasting trajectory in a figure."""
         return sdutil.plot_ppt(self.peeling_trajectory)
 
-    @abc.abstractmethod
     def show_pairs_scatter(
         self,
         i: int | None = None,
         dims: list[str] | None = None,
-        diag_kind: Literal[DiagKind.KDE, DiagKind.CDF] = DiagKind.KDE,
-        upper: str = "scatter",
-        lower: str = "contour",
+        diag:Literal["kde", "cdf", "regression"]|None = "kde",
+        upper:Literal["scatter", "hexbin", "hist", "contour"]|None = "scatter",
+        lower:Literal["scatter", "hexbin", "hist", "contour"]|None = "contour",
         fill_subplots: bool = True,
-    ): ...
+        legend=True,
+    ):
+        """Make a pair wise scatter plot of all the restricted dimensions.
+
+        Color denotes whether a given point is of
+        interest or not and the boxlims superimposed on top.
+
+        Parameters
+        ----------
+        i : int, optional
+        dims : list of str, optional
+               dimensions to show, defaults to all restricted dimensions
+        diag : {"kde", "cdf", "regression"}
+               Plot diagonal as kernel density estimate ('kde'),
+               cumulative density function ('cdf'), or regression ('regression')
+        upper, lower: string, optional
+               Use either 'scatter', 'contour', or 'hist' (bivariate
+               histogram) plots for upper and lower triangles. Upper triangle
+               can also be 'none' to eliminate redundancy. Legend uses
+               lower triangle style for markers.
+        fill_subplots: Boolean, optional
+                       if True, subplots are resized to fill their respective axes.
+                       This removes unnecessary whitespace, but may be undesirable
+                       for some variable combinations.
+
+        Returns
+        -------
+        seaborn PairGrid
+
+        """
+        if i is None:
+            i = self._cur_box
+
+        if dims is None:
+            dims = sdutil._determine_restricted_dims(
+                self.box_lims[i], self.prim.box_init
+            )
+
+        if diag not in {"kde", "cdf", "regression"}:
+            raise ValueError(
+                f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag}"
+            )
+
+        return sdutil.plot_pair_wise_scatter(
+            self.prim.x.iloc[self.yi_initial, :],
+            self.prim.y[self.yi_initial],
+            self.box_lims[i],
+            self.prim.box_init,
+            dims,
+            diag=diag,
+            upper=upper,
+            lower=lower,
+            fill_subplots=fill_subplots,
+            legend=legend
+        )
 
     def write_ppt_to_stdout(self):
         """Write the peeling and pasting trajectory to stdout."""
@@ -920,69 +972,6 @@ class PrimBox(BasePrimBox):
         self.qp.append(qp)
         self._cur_box = len(self.peeling_trajectory) - 1
 
-    def show_pairs_scatter(
-        self,
-        i: int | None = None,
-        dims: list[str] | None = None,
-        diag_kind: Literal[DiagKind.KDE, DiagKind.CDF] = DiagKind.KDE,
-        upper: str = "scatter",
-        lower: str = "contour",
-        fill_subplots: bool = True,
-    ):
-        """Make a pair wise scatter plot of all the restricted dimensions.
-
-        Color denotes whether a given point is of
-        interest or not and the boxlims superimposed on top.
-
-        Parameters
-        ----------
-        i : int, optional
-        dims : list of str, optional
-               dimensions to show, defaults to all restricted dimensions
-        diag_kind : {DiagKind.KDE, DiagKind.CDF}
-               Plot diagonal as kernel density estimate ('kde') or
-               cumulative density function ('cdf').
-        upper, lower: string, optional
-               Use either 'scatter', 'contour', or 'hist' (bivariate
-               histogram) plots for upper and lower triangles. Upper triangle
-               can also be 'none' to eliminate redundancy. Legend uses
-               lower triangle style for markers.
-        fill_subplots: Boolean, optional
-                       if True, subplots are resized to fill their respective axes.
-                       This removes unnecessary whitespace, but may be undesirable
-                       for some variable combinations.
-
-        Returns
-        -------
-        seaborn PairGrid
-
-        """
-        if i is None:
-            i = self._cur_box
-
-        if dims is None:
-            dims = sdutil._determine_restricted_dims(
-                self.box_lims[i], self.prim.box_init
-            )
-
-        if diag_kind not in DiagKind:
-            raise ValueError(
-                f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag_kind}"
-            )
-        diag = diag_kind.value
-
-        return sdutil.plot_pair_wise_scatter(
-            self.prim.x.iloc[self.yi_initial, :],
-            self.prim.y[self.yi_initial],
-            self.box_lims[i],
-            self.prim.box_init,
-            dims,
-            diag=diag,
-            upper=upper,
-            lower=lower,
-            fill_subplots=fill_subplots,
-        )
-
     def show_tradeoff(
         self, cmap=mpl.cm.viridis, annotated: bool = False
     ):  # @UndefinedVariable
@@ -1091,12 +1080,14 @@ class RegressionPrimBox(BasePrimBox):
         self,
         i: int | None = None,
         dims: list[str] | None = None,
-        diag_kind: Literal[DiagKind.KDE, DiagKind.CDF] = DiagKind.KDE,
-        upper: str = "scatter",
-        lower: str = "contour",
+        diag:Literal["kde", "cdf", "regression"]|None = "regression",
+        upper:Literal["scatter", "hexbin", "hist", "contour"]|None = "hexbin",
+        lower:Literal["scatter", "hexbin", "hist", "contour"]|None = "scatter",
         fill_subplots: bool = True,
+        legend=False,
     ):
-        raise NotImplementedError
+        return super().show_pairs_scatter(
+        i=i, dims=dims, diag=diag, upper=upper, lower=lower, fill_subplots=fill_subplots, legend=legend)
 
 
     def update(self, box_lims: pd.DataFrame, indices: np.ndarray):
