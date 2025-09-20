@@ -1,7 +1,5 @@
 """Tests for Prim."""
 
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -16,6 +14,7 @@ from test import utilities
 # Created on Mar 13, 2012
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 
 def flu_classify(data):
     """Helper function for test data."""
@@ -46,7 +45,7 @@ class TestPrimBox:
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
         y = np.array([1, 1, 0])
 
-        prim_obj =  prim.Prim(x, y)
+        prim_obj = prim.Prim(x, y)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
         new_box_lim = pd.DataFrame([(0, 1, 1), (2, 5, 6)], columns=["a", "b", "c"])
@@ -122,7 +121,7 @@ class TestPrimBox:
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
         y = np.array([1, 1, 0])
 
-        prim_obj = prim.Prim(x,y)
+        prim_obj = prim.Prim(x, y)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
         new_box_lim = pd.DataFrame([(0, 1, 1), (2, 5, 6)], columns=["a", "b", "c"])
@@ -139,7 +138,7 @@ class TestPrimBox:
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
         y = np.array([1, 1, 0])
 
-        prim_obj = prim.Prim(x,y)
+        prim_obj = prim.Prim(x, y)
         box = PrimBox(prim_obj, prim_obj.box_init, prim_obj.yi)
 
         new_box_lim = pd.DataFrame([(0, 1, 1), (2, 2, 6)], columns=["a", "b", "c"])
@@ -166,7 +165,7 @@ class TestPrimBox:
     def test_calculate_quasi_p(self):
         pass
 
-    def test_resample(self  ):
+    def test_resample(self):
         experiments, outcomes = utilities.load_flu_data()
         y = flu_classify(outcomes)
 
@@ -174,6 +173,32 @@ class TestPrimBox:
         box = alg.find_box()
 
         box.resample()
+
+    def test_resample(self):
+        experiments, outcomes = utilities.load_flu_data()
+        y = flu_classify(outcomes)
+
+        alg = prim.Prim(experiments, y)
+        box = alg.find_box()
+
+        box.show_pairs_scatter(i=10)
+        plt.draw()
+        box.show_pairs_scatter(diag="cdf", upper="hist")
+        plt.draw()
+        box.show_pairs_scatter(diag="cdf", upper="contour")
+        plt.draw()
+
+        with pytest.raises(ValueError):
+            box.show_pairs_scatter(diag="wrong value", upper="contour")
+
+    def test_inspect_tradeoff(self):
+        experiments, outcomes = utilities.load_flu_data()
+        y = flu_classify(outcomes)
+
+        alg = prim.Prim(experiments, y)
+        box = alg.find_box()
+        box.inspect_tradeoff()
+
 
 class TestPrim:
     # def test_setup_prim(self):
@@ -213,7 +238,7 @@ class TestPrim:
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
         y = np.array([0, 1, 1])
 
-        prim_obj = prim.Prim(x,y)
+        prim_obj = prim.Prim(x, y)
         boxes = prim_obj.boxes
 
         assert len(boxes) == 1, "box length not correct"
@@ -383,7 +408,7 @@ class TestPrim:
         y = np.random.randint(0, 1, (10,))
         y = y.astype(int)
 
-        prim_obj = prim.Prim(x,y)
+        prim_obj = prim.Prim(x, y)
         box_lims = pd.DataFrame([(0, {"a", "b"}), (1, {"a", "b"})], columns=["a", "b"])
         box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
 
@@ -409,7 +434,7 @@ class TestPrim:
         y = np.random.randint(0, 2, (10,))
         y = y.astype(int)
 
-        prim_obj = prim.Prim(x, y )
+        prim_obj = prim.Prim(x, y)
         box_lims = prim_obj.box_init
         box = prim.PrimBox(prim_obj, box_lims, prim_obj.yi)
 
@@ -434,7 +459,7 @@ class TestPrim:
         y = np.random.randint(0, 2, (10,))
         y = y.astype(int)
 
-        prim_obj = prim.Prim(x,y)
+        prim_obj = prim.Prim(x, y)
         box_lims = pd.DataFrame([(0, {"a"}), (1, {"a"})], columns=x.columns)
 
         yi = np.where(x.loc[:, "b"] == "a")
@@ -461,10 +486,9 @@ class TestPrim:
 
 class TestRegressionPrim:
 
-    def test_find_box(self  ):
+    def test_find_box(self):
         experiments, outcomes = utilities.load_flu_data()
         y = outcomes["deceased_population_region_1"][:, -1]
 
         alg = prim.RegressionPrim(experiments, y)
         box = alg.find_box
-
