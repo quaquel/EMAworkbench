@@ -284,11 +284,12 @@ def run_constrained_prim(
     return box
 
 
-
 class BasePrimBox(abc.ABC):
     _frozen = False
 
-    mean = CurEntry(float)  # fixme, can't we use __get_name__ to get rid of name in CurEntry init?
+    mean = CurEntry(
+        float
+    )  # fixme, can't we use __get_name__ to get rid of name in CurEntry init?
     res_dim = CurEntry(int)
     mass = CurEntry(float)
 
@@ -335,8 +336,7 @@ class BasePrimBox(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def stats(self):
-        ...
+    def stats(self): ...
 
     def inspect(
         self,
@@ -487,9 +487,9 @@ class BasePrimBox(abc.ABC):
         self,
         i: int | None = None,
         dims: list[str] | None = None,
-        diag:Literal["kde", "cdf", "regression"]|None = "kde",
-        upper:Literal["scatter", "hexbin", "hist", "contour"]|None = "scatter",
-        lower:Literal["scatter", "hexbin", "hist", "contour"]|None = "contour",
+        diag: Literal["kde", "cdf", "regression"] | None = "kde",
+        upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
+        lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "contour",
         fill_subplots: bool = True,
         legend=True,
     ):
@@ -544,7 +544,7 @@ class BasePrimBox(abc.ABC):
             upper=upper,
             lower=lower,
             fill_subplots=fill_subplots,
-            legend=legend
+            legend=legend,
         )
 
     def write_ppt_to_stdout(self):
@@ -1059,7 +1059,7 @@ class RegressionPrimBox(BasePrimBox):
 
     @property
     def stats(self):
-        return {k:getattr(self, k) for k in ["rmse", "mean", "mass", "res_dim"]}
+        return {k: getattr(self, k) for k in ["rmse", "mean", "mass", "res_dim"]}
 
     def _inspect(self, i: int | None = None, style="table", **kwargs):
         """Helper method for inspecting one or more boxes on the peeling trajectory.
@@ -1075,20 +1075,25 @@ class RegressionPrimBox(BasePrimBox):
         """
         raise NotImplementedError
 
-
     def show_pairs_scatter(
         self,
         i: int | None = None,
         dims: list[str] | None = None,
-        diag:Literal["kde", "cdf", "regression"]|None = "regression",
-        upper:Literal["scatter", "hexbin", "hist", "contour"]|None = "hexbin",
-        lower:Literal["scatter", "hexbin", "hist", "contour"]|None = "scatter",
+        diag: Literal["kde", "cdf", "regression"] | None = "regression",
+        upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "hexbin",
+        lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
         fill_subplots: bool = True,
         legend=False,
     ):
         return super().show_pairs_scatter(
-        i=i, dims=dims, diag=diag, upper=upper, lower=lower, fill_subplots=fill_subplots, legend=legend)
-
+            i=i,
+            dims=dims,
+            diag=diag,
+            upper=upper,
+            lower=lower,
+            fill_subplots=fill_subplots,
+            legend=legend,
+        )
 
     def update(self, box_lims: pd.DataFrame, indices: np.ndarray):
         """Update the box to the provided box limits.
@@ -1227,7 +1232,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
         return boxes
 
     @property
-    def stats(self)->list[dict[str, numbers.Number]]:
+    def stats(self) -> list[dict[str, numbers.Number]]:
         """Return all stats."""
         return [box.stats for box in self._boxes]
 

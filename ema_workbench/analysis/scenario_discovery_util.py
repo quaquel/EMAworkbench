@@ -144,7 +144,9 @@ def _normalize(box_lim, box_init, uncertainties):
     return norm_box_lim
 
 
-def _determine_restricted_dims(box_limits:pd.DataFrame, box_init:pd.DataFrame)->np.ndarray:
+def _determine_restricted_dims(
+    box_limits: pd.DataFrame, box_init: pd.DataFrame
+) -> np.ndarray:
     """Returns a list of dimensions that is restricted.
 
     Parameters
@@ -166,7 +168,9 @@ def _determine_restricted_dims(box_limits:pd.DataFrame, box_init:pd.DataFrame)->
     return restricted_dims
 
 
-def _determine_nr_restricted_dims(box_lims:pd.DataFrame, box_init:pd.DataFrame)->int:
+def _determine_nr_restricted_dims(
+    box_lims: pd.DataFrame, box_init: pd.DataFrame
+) -> int:
     """Determine the number of restricted dimensions of a box.
 
     Parameters
@@ -233,12 +237,12 @@ def _in_box(x, boxlim):
 
         if not_present:
             # what other options do we have here....
-            l = pd.isnull(x[column].cat.remove_categories(list(entries))) # noqa: E741
+            l = pd.isnull(x[column].cat.remove_categories(list(entries)))  # noqa: E741
             logical = l & logical
     return logical
 
 
-def _calculate_quasip(x, y, box, Hbox, Tbox):  #noqa: N803
+def _calculate_quasip(x, y, box, Hbox, Tbox):  # noqa: N803
     """Calculate quasi-p values.
 
     Parameters
@@ -254,16 +258,16 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):  #noqa: N803
     yi = y[logical]
 
     # total nr. of cases in box with one restriction removed
-    Tj = yi.shape[0]  #noqa: N806
+    Tj = yi.shape[0]  # noqa: N806
 
     # total nr. of cases of interest in box with one restriction
     # removed
-    Hj = np.sum(yi)  #noqa: N806
+    Hj = np.sum(yi)  # noqa: N806
 
     p = Hj / Tj
 
-    Hbox = int(Hbox)  #noqa: N806
-    Tbox = int(Tbox)  #noqa: N806
+    Hbox = int(Hbox)  # noqa: N806
+    Tbox = int(Tbox)  # noqa: N806
 
     # force one sided
     qp = sp.stats.binomtest(Hbox, Tbox, p, alternative="greater")  # @UndefinedVariable
@@ -272,14 +276,14 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):  #noqa: N803
 
 
 def plot_pair_wise_scatter(
-    x:pd.DataFrame,
-    y:np.array,
-    boxlim:pd.DataFrame,
-    box_init:pd.DataFrame,
-    restricted_dims:list[str],
-    diag:Literal["kde", "cdf", "regression"]|None="kde",
-    upper:Literal["scatter", "hexbin", "hist", "contour"]|None="scatter",
-    lower:Literal["scatter", "hexbin", "hist", "contour"]|None ="hist",
+    x: pd.DataFrame,
+    y: np.array,
+    boxlim: pd.DataFrame,
+    box_init: pd.DataFrame,
+    restricted_dims: list[str],
+    diag: Literal["kde", "cdf", "regression"] | None = "kde",
+    upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
+    lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "hist",
     fill_subplots=True,
     legend=True,
 ):
@@ -351,11 +355,20 @@ def plot_pair_wise_scatter(
         # upper triangle
         match style:
             case "hexbin":
+
                 def hexbin(x, y, *args, hue=None, **kwargs):
                     a = pd.DataFrame({"x": x, "y": y, "z": data.y})
-                    a.plot.hexbin("x", "y", C="z", reduce_C_function=np.mean, ax=plt.gca(), gridsize=10,
-                                  colorbar=False, cmap=sns.cubehelix_palette(as_cmap=True),
-                                  norm=colors.Normalize(vmin=data.y.min(), vmax=data.y.max()))
+                    a.plot.hexbin(
+                        "x",
+                        "y",
+                        C="z",
+                        reduce_C_function=np.mean,
+                        ax=plt.gca(),
+                        gridsize=10,
+                        colorbar=False,
+                        cmap=sns.cubehelix_palette(as_cmap=True),
+                        norm=colors.Normalize(vmin=data.y.min(), vmax=data.y.max()),
+                    )
 
                 # draw contours twice to get different fill and line alphas, more interpretable
                 func(hexbin, hue=None)
@@ -396,10 +409,12 @@ def plot_pair_wise_scatter(
     # diagonal
     match diag:
         case "regression":
+
             def my_custom_func(x, *args, hue=None, **kwargs):
                 ax = plt.gca()
                 sns.scatterplot(x=x, y=data.y, hue=data.y, palette=grid._orig_palette)
                 sns.regplot(x=x, y=data.y, ax=ax, scatter=False)
+
             grid.map_diag(my_custom_func, hue=None)
         case "cdf":
             grid.map_diag(sns.ecdfplot)
@@ -494,8 +509,8 @@ def plot_pair_wise_scatter(
                         lower = data[xlabel].min()
 
                         pad_rel = (
-                                          upper - lower
-                                  ) * 0.1  # padding relative to range of data points
+                            upper - lower
+                        ) * 0.1  # padding relative to range of data points
 
                         subplot.set_xlim(lower - pad_rel, upper + pad_rel)
 
@@ -504,8 +519,8 @@ def plot_pair_wise_scatter(
                         lower = data[ylabel].min()
 
                         pad_rel = (
-                                          upper - lower
-                                  ) * 0.1  # padding relative to range of data points
+                            upper - lower
+                        ) * 0.1  # padding relative to range of data points
 
                         subplot.set_ylim(lower - pad_rel, upper + pad_rel)
     if legend:
@@ -588,7 +603,7 @@ def plot_box(
         y = xj
 
         # fixme don't know how to fix this ruff issue
-        if dtype == object: # noqa: E721
+        if dtype == object:  # noqa: E721
             elements = sorted(box_init[u][0])
             max_value = len(elements) - 1
             values = boxlim.loc[0, u]
@@ -670,7 +685,7 @@ def plot_box(
         # set y labels
         qp_formatted = {}
         for key, values in qp_values.items():
-            values = [vi for vi in values if vi != -1] # noqa: PLW2901
+            values = [vi for vi in values if vi != -1]  # noqa: PLW2901
 
             if len(values) == 1:
                 value = f"{values[0]:.2g}"
@@ -774,9 +789,7 @@ def plot_tradeoff(
     return fig
 
 
-def plot_unc(
-    box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=None
-):
+def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=None):
     """Plot a given uncertainty.
 
     Parameters:
@@ -880,7 +893,6 @@ class OutputFormatterMixin(abc.ABC):
     def boxes(self):
         """Property for getting a list of box limits."""
 
-
     @property
     @abc.abstractmethod
     def stats(self):
@@ -898,7 +910,7 @@ class OutputFormatterMixin(abc.ABC):
         index = [f"box {i + 1}" for i in range(nr_boxes)]
         for value in box_lims[0].dtypes:
             # fixme don't know how to fix this ruff issue
-            if value == object: # noqa E721
+            if value == object:  # noqa E721
                 dtype = object
                 break
 

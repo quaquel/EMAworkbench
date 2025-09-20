@@ -28,7 +28,6 @@ class PRIMObjectiveFunctions(Enum):
     ORIGINAL = "original"
 
 
-
 def get_quantile(data, quantile):
     """Quantile calculation modeled on the implementation used in sdtoolkit.
 
