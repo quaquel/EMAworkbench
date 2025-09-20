@@ -3,10 +3,14 @@
 import abc
 import enum
 import itertools
+from collections.abc import Callable
+from typing import Literal
 
 import matplotlib as mpl
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+
 import numpy as np
 import pandas as pd
 import scipy as sp
@@ -140,7 +144,9 @@ def _normalize(box_lim, box_init, uncertainties):
     return norm_box_lim
 
 
-def _determine_restricted_dims(box_limits, box_init):
+def _determine_restricted_dims(
+    box_limits: pd.DataFrame, box_init: pd.DataFrame
+) -> np.ndarray:
     """Returns a list of dimensions that is restricted.
 
     Parameters
@@ -150,7 +156,7 @@ def _determine_restricted_dims(box_limits, box_init):
 
     Returns:
     -------
-    list of str
+    np.ndarray
 
     """
     cols = box_init.columns.values
@@ -162,7 +168,9 @@ def _determine_restricted_dims(box_limits, box_init):
     return restricted_dims
 
 
-def _determine_nr_restricted_dims(box_lims, box_init):
+def _determine_nr_restricted_dims(
+    box_lims: pd.DataFrame, box_init: pd.DataFrame
+) -> int:
     """Determine the number of restricted dimensions of a box.
 
     Parameters
@@ -229,54 +237,12 @@ def _in_box(x, boxlim):
 
         if not_present:
             # what other options do we have here....
-            l = pd.isnull(x[column].cat.remove_categories(list(entries))) # noqa: E741
+            l = pd.isnull(x[column].cat.remove_categories(list(entries)))  # noqa: E741
             logical = l & logical
     return logical
 
 
-def _setup(results, classify, incl_unc=None):
-    """Helper function for setting up CART or PRIM.
-
-    Parameters
-    ----------
-    results : tuple of DataFrame and dict with numpy arrays
-              the return from :meth:`perform_experiments`.
-    classify : string, function or callable
-               either a string denoting the outcome of interest to
-               use or a function.
-    incl_unc : list of strings
-
-    Notes:
-    -----
-    CART, PRIM, and feature scoring only work for a 1D numpy array
-    for the dependent variable
-
-    Raises:
-    ------
-    TypeError
-        if classify is not a string or a callable.
-
-    """
-    x, outcomes = results
-
-    if incl_unc:
-        drop_names = set(x.columns.values.tolist()) - set(incl_unc)
-        x = x.drop(drop_names, axis=1)
-    if isinstance(classify, str):
-        y = outcomes[classify]
-        mode = RuleInductionType.REGRESSION
-    elif callable(classify):
-        y = classify(outcomes)
-        mode = RuleInductionType.BINARY
-    else:
-        raise TypeError("unknown type for classify")
-
-    assert y.ndim == 1
-
-    return x, y, mode
-
-
-def _calculate_quasip(x, y, box, Hbox, Tbox):  #noqa: N803
+def _calculate_quasip(x, y, box, Hbox, Tbox):  # noqa: N803
     """Calculate quasi-p values.
 
     Parameters
@@ -292,16 +258,16 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):  #noqa: N803
     yi = y[logical]
 
     # total nr. of cases in box with one restriction removed
-    Tj = yi.shape[0]  #noqa: N806
+    Tj = yi.shape[0]  # noqa: N806
 
     # total nr. of cases of interest in box with one restriction
     # removed
-    Hj = np.sum(yi)  #noqa: N806
+    Hj = np.sum(yi)  # noqa: N806
 
     p = Hj / Tj
 
-    Hbox = int(Hbox)  #noqa: N806
-    Tbox = int(Tbox)  #noqa: N806
+    Hbox = int(Hbox)  # noqa: N806
+    Tbox = int(Tbox)  # noqa: N806
 
     # force one sided
     qp = sp.stats.binomtest(Hbox, Tbox, p, alternative="greater")  # @UndefinedVariable
@@ -310,15 +276,16 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):  #noqa: N803
 
 
 def plot_pair_wise_scatter(
-    x,
-    y,
-    boxlim,
-    box_init,
-    restricted_dims,
-    diag="kde",
-    upper="scatter",
-    lower="hist",
+    x: pd.DataFrame,
+    y: np.array,
+    boxlim: pd.DataFrame,
+    box_init: pd.DataFrame,
+    restricted_dims: list[str],
+    diag: Literal["kde", "cdf", "regression"] | None = "kde",
+    upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
+    lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "hist",
     fill_subplots=True,
+    legend=True,
 ):
     """Helper function for pair wise scatter plotting.
 
@@ -334,10 +301,10 @@ def plot_pair_wise_scatter(
     restricted_dims : collection of strings
                       list of uncertainties that define the boxlims
     diag : string, optional
-           Plot diagonal as kernel density estimate ('kde') or
-           cumulative density function ('cdf').
+           Plot diagonal as kernel density estimate ('kde'),
+           cumulative density function ('cdf'), or regression ('regression')
     upper, lower: string, optional
-           Use either 'scatter', 'contour', or 'hist' (bivariate
+           Use either 'scatter', 'contour', hexbin, or 'hist' (bivariate
            histogram) plots for upper and lower triangles. Upper triangle
            can also be 'none' to eliminate redundancy. Legend uses
            lower triangle style for markers.
@@ -345,6 +312,8 @@ def plot_pair_wise_scatter(
                    if True, subplots are resized to fill their respective axes.
                    This removes unnecessary whitespace, but may be undesirable
                    for some variable combinations.
+    legend: Boolean, optional
+
     """
     x = x[restricted_dims]
     data = x.copy()
@@ -380,79 +349,81 @@ def plot_pair_wise_scatter(
         data=data, hue="y", vars=x.columns.values, diag_sharey=False
     )  # enables different plots in upper and lower triangles
 
-    # upper triangle
-    if upper == "contour":
-        # draw contours twice to get different fill and line alphas, more interpretable
-        grid.map_upper(
-            sns.kdeplot,
-            fill=True,
-            alpha=0.8,
-            bw_adjust=1.2,
-            levels=5,
-            common_norm=False,
-            cut=0,
-        )  # cut = 0
-        grid.map_upper(
-            sns.kdeplot,
-            fill=False,
-            alpha=1,
-            bw_adjust=1.2,
-            levels=5,
-            common_norm=False,
-            cut=0,
-        )
-    elif upper == "hist":
-        grid.map_upper(sns.histplot)
-    elif upper == "scatter":
-        grid.map_upper(sns.scatterplot)
-    elif upper == "none":
-        pass
-    else:
-        raise NotImplementedError(
-            f"upper = {upper} not implemented. Use either 'scatter', 'contour', 'hist' (bivariate histogram) or None plots for upper triangle."
-        )
+    def _plot_triangle(which, style):
+        func = grid.map_upper if which == "upper" else grid.map_lower
 
-    # lower triangle
-    if lower == "contour":
-        # draw contours twice to get different fill and line alphas, more interpretable
-        grid.map_lower(
-            sns.kdeplot,
-            fill=True,
-            alpha=0.8,
-            bw_adjust=1.2,
-            levels=5,
-            common_norm=False,
-            cut=0,
-        )  # cut = 0
-        grid.map_lower(
-            sns.kdeplot,
-            fill=False,
-            alpha=1,
-            bw_adjust=1.2,
-            levels=5,
-            common_norm=False,
-            cut=0,
-        )
-    elif lower == "hist":
-        grid.map_lower(sns.histplot)
-    elif lower == "scatter":
-        grid.map_lower(sns.scatterplot)
-    elif lower == "none":
-        raise ValueError("Lower triangle cannot be none.")
-    else:
-        raise NotImplementedError(
-            f"lower = {lower} not implemented. Use either 'scatter', 'contour' or 'hist' (bivariate histogram) plots for lower triangle."
-        )
+        # upper triangle
+        match style:
+            case "hexbin":
+
+                def hexbin(x, y, *args, hue=None, **kwargs):
+                    a = pd.DataFrame({"x": x, "y": y, "z": data.y})
+                    a.plot.hexbin(
+                        "x",
+                        "y",
+                        C="z",
+                        reduce_C_function=np.mean,
+                        ax=plt.gca(),
+                        gridsize=10,
+                        colorbar=False,
+                        cmap=sns.cubehelix_palette(as_cmap=True),
+                        norm=colors.Normalize(vmin=data.y.min(), vmax=data.y.max()),
+                    )
+
+                # draw contours twice to get different fill and line alphas, more interpretable
+                func(hexbin, hue=None)
+            case "contour":
+                # draw contours twice to get different fill and line alphas, more interpretable
+                func(
+                    sns.kdeplot,
+                    fill=True,
+                    alpha=0.8,
+                    bw_adjust=1.2,
+                    levels=5,
+                    common_norm=False,
+                    cut=0,
+                )  # cut = 0
+                func(
+                    sns.kdeplot,
+                    fill=False,
+                    alpha=1,
+                    bw_adjust=1.2,
+                    levels=5,
+                    common_norm=False,
+                    cut=0,
+                )
+            case "hist":
+                func(sns.histplot)
+            case "scatter":
+                func(sns.scatterplot)
+            case "None":
+                pass
+            case _:
+                raise NotImplementedError(
+                    f"upper = {upper} not implemented. Use either 'scatter', 'contour', 'hist' (bivariate histogram) or None plots for upper triangle."
+                )
+
+    _plot_triangle("upper", upper)
+    _plot_triangle("lower", lower)
 
     # diagonal
-    if diag == "cdf":
-        grid.map_diag(sns.ecdfplot)
-    elif diag == "kde":
-        grid.map_diag(sns.kdeplot, fill=False, common_norm=False, cut=0)
-    else:
-        raise NotImplementedError(
-            f"diag = {diag} not implemented. Use either 'kde' (kernel density estimate) or 'cdf' (cumulative density function)."
-        )
+    match diag:
+        case "regression":
+
+            def my_custom_func(x, *args, hue=None, **kwargs):
+                ax = plt.gca()
+                sns.scatterplot(x=x, y=data.y, hue=data.y, palette=grid._orig_palette)
+                sns.regplot(x=x, y=data.y, ax=ax, scatter=False)
+
+            grid.map_diag(my_custom_func, hue=None)
+        case "cdf":
+            grid.map_diag(sns.ecdfplot)
+        case "kde":
+            grid.map_diag(sns.scatterplot, y=data.y)
+        case _:
+            raise NotImplementedError(
+                f"diag = {diag} not implemented. Use either 'kde' (kernel density estimate) or 'cdf' (cumulative density function)."
+            )
 
     # draw box
     pad = 0.1
@@ -528,29 +499,32 @@ def plot_pair_wise_scatter(
 
     # fit subplot to data ranges, with some padding for aesthetics
     if fill_subplots:
+        # for row, ylabel in zip(grid.axes, grid.y_vars):
+        #     for ax, xlabel in zip(row, grid.x_vars):
         for axis in grid.axes:
-            for subplot in axis:
-                if subplot.get_xlabel() != "":
-                    upper = data[subplot.get_xlabel()].max()
-                    lower = data[subplot.get_xlabel()].min()
+            for row, ylabel in zip(grid.axes, grid.y_vars):
+                for subplot, xlabel in zip(row, grid.x_vars):
+                    if xlabel != "":
+                        upper = data[xlabel].max()
+                        lower = data[xlabel].min()
 
-                    pad_rel = (
-                        upper - lower
-                    ) * 0.1  # padding relative to range of data points
+                        pad_rel = (
+                            upper - lower
+                        ) * 0.1  # padding relative to range of data points
 
-                    subplot.set_xlim(lower - pad_rel, upper + pad_rel)
+                        subplot.set_xlim(lower - pad_rel, upper + pad_rel)
 
-                if subplot.get_ylabel() != "":
-                    upper = data[subplot.get_ylabel()].max()
-                    lower = data[subplot.get_ylabel()].min()
+                    if ylabel != "":
+                        upper = data[ylabel].max()
+                        lower = data[ylabel].min()
 
-                    pad_rel = (
-                        upper - lower
-                    ) * 0.1  # padding relative to range of data points
+                        pad_rel = (
+                            upper - lower
+                        ) * 0.1  # padding relative to range of data points
 
-                    subplot.set_ylim(lower - pad_rel, upper + pad_rel)
-
-    grid.add_legend()
+                        subplot.set_ylim(lower - pad_rel, upper + pad_rel)
+    if legend:
+        grid.add_legend()
 
     return grid
 
@@ -629,7 +603,7 @@ def plot_box(
         y = xj
 
         # fixme don't know how to fix this ruff issue
-        if dtype == object: # noqa: E721
+        if dtype == object:  # noqa: E721
             elements = sorted(box_init[u][0])
             max_value = len(elements) - 1
             values = boxlim.loc[0, u]
@@ -711,7 +685,7 @@ def plot_box(
         # set y labels
         qp_formatted = {}
         for key, values in qp_values.items():
-            values = [vi for vi in values if vi != -1] # noqa: PLW2901
+            values = [vi for vi in values if vi != -1]  # noqa: PLW2901
 
             if len(values) == 1:
                 value = f"{values[0]:.2g}"
@@ -815,9 +789,7 @@ def plot_tradeoff(
     return fig
 
 
-def plot_unc(
-    box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=None
-):
+def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=None):
     """Plot a given uncertainty.
 
     Parameters:
@@ -920,13 +892,11 @@ class OutputFormatterMixin(abc.ABC):
     @abc.abstractmethod
     def boxes(self):
         """Property for getting a list of box limits."""
-        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def stats(self):
         """Property for getting a list of dicts containing the statistics for each box."""
-        raise NotImplementedError
 
     def boxes_to_dataframe(self):
         """Convert boxes to pandas dataframe."""
@@ -940,7 +910,7 @@ class OutputFormatterMixin(abc.ABC):
         index = [f"box {i + 1}" for i in range(nr_boxes)]
         for value in box_lims[0].dtypes:
             # fixme don't know how to fix this ruff issue
-            if value == object: # noqa E721
+            if value == object:  # noqa E721
                 dtype = object
                 break
 
