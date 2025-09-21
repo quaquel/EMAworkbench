@@ -183,7 +183,7 @@ def determine_dimres(box, issignificant=True, significance_threshold=0.1):
                 return True
 
     all_dims = set()
-    for qp in box.qp:
+    for qp in box.p_values:
         if issignificant:
             dims = [k for k, v in qp.items() if is_significant(v)]
         else:
@@ -227,7 +227,7 @@ class NotSeen:
 
 def is_significant(box, i, alpha=0.05):
     """Check if quasi-p values are significant."""
-    qp = box.qp[i]
+    qp = box.p_values[i]
     return not any(value > alpha for values in qp.values() for value in values)
 
 

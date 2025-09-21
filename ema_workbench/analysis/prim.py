@@ -26,6 +26,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy as sp
 import seaborn as sns
 from sklearn.metrics import root_mean_squared_error as rmse
 
@@ -247,7 +248,7 @@ def run_constrained_prim(
             logical[i] = boolean
             if boolean:
                 merged_lims.append(boxlim)
-                merged_qp.append(box.qp[i])
+                merged_qp.append(box.p_values[i])
         frontier.append(peeling[logical])
 
     frontier = pd.concat(frontier)
@@ -279,7 +280,7 @@ def run_constrained_prim(
     box = PrimBox(boxn.prim, boxn.prim.box_init, boxn.prim.yi)
     box.peeling_trajectory = pt
     box.box_lims = sorted_lims
-    box.qp = sorted_qps
+    box.p_values = sorted_qps
     return box
 
 
@@ -317,6 +318,7 @@ class BasePrimBox(abc.ABC):
         self.peeling_trajectory = pd.DataFrame(columns)
 
         self.box_lims = []
+        self.p_values = []
         self.yi_initial = indices[:]
         self._cur_box = -1
         self.yi = None
@@ -428,6 +430,31 @@ class BasePrimBox(abc.ABC):
                 raise ValueError(
                     f"style must be one of 'graph', 'table' or 'data', not {style}."
                 )
+
+    def _inspect_data(self, i: int, uncs: list[str]):
+        """Helper method for inspecting boxes.
+
+        This one returns a tuple with a series with overall statistics, and a
+        DataFrame containing the boxlims and qp values
+
+        """
+        p_values = self.p_values[i]
+
+        # make the descriptive statistics for the box
+        stats = self.peeling_trajectory.iloc[i]
+
+        # make the box definition
+        columns = pd.MultiIndex.from_product(
+            [[f"box {i}"], ["min", "max", "qp value", "qp value"]]
+        )
+        box_lim = pd.DataFrame(np.zeros((len(uncs), 4)), index=uncs, columns=columns)
+
+        for unc in uncs:
+            values = self.box_lims[i][unc]
+            box_lim.loc[unc] = values.values.tolist() + p_values[unc]
+            box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.nan)
+
+        return stats, box_lim
 
     def _inspect_table(self, i: int, uncs: list[str]):
         """Helper method for visualizing box statistics in table form."""
@@ -625,7 +652,6 @@ class PrimBox(BasePrimBox):
 
         """
         super().__init__(prim, box_lims, indices)
-        self.qp = []
         self._resampled = []
 
         # indices van data in box
@@ -633,7 +659,7 @@ class PrimBox(BasePrimBox):
 
     @property
     def stats(self):
-        """Return stats of this box"""
+        """Return stats of this box."""
         return {k: getattr(self, k) for k in ["coverage", "density", "mass", "res_dim"]}
 
     def inspect_tradeoff(self):
@@ -651,7 +677,7 @@ class PrimBox(BasePrimBox):
 
         box_zero = self.box_lims[0]
 
-        for i, (entry, qp) in enumerate(zip(self.box_lims, self.qp)):
+        for i, (entry, qp) in enumerate(zip(self.box_lims, self.p_values)):
             qp = pd.DataFrame(qp, index=["qp_lower", "qp_upper"])  # noqa: PLW2901
             dims = qp.columns.tolist()
             quantitative_res_dim = [e for e in dims if e in quantitative_dims]
@@ -849,7 +875,7 @@ class PrimBox(BasePrimBox):
             coverage_index = (box.peeling_trajectory.coverage - coverage).abs().idxmin()
             density_index = (box.peeling_trajectory.density - density).abs().idxmin()
             for counter, index in zip(counters, [coverage_index, density_index]):
-                for unc in box.qp[index]:
+                for unc in box.p_values[index]:
                     counter[unc] += 1 / iterations
 
         scores = (
@@ -864,31 +890,6 @@ class PrimBox(BasePrimBox):
             by=["reproduce coverage", "reproduce density"], ascending=False
         )
 
-    def _inspect_data(self, i: int, uncs: list[str]):
-        """Helper method for inspecting boxes.
-
-        This one returns a tuple with a series with overall statistics, and a
-        DataFrame containing the boxlims and qp values
-
-        """
-        qp_values = self.qp[i]
-
-        # make the descriptive statistics for the box
-        stats = self.peeling_trajectory.iloc[i]
-
-        # make the box definition
-        columns = pd.MultiIndex.from_product(
-            [[f"box {i}"], ["min", "max", "qp value", "qp value"]]
-        )
-        box_lim = pd.DataFrame(np.zeros((len(uncs), 4)), index=uncs, columns=columns)
-
-        for unc in uncs:
-            values = self.box_lims[i][unc]
-            box_lim.loc[unc] = values.values.tolist() + qp_values[unc]
-            box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.nan)
-
-        return stats, box_lim
-
     def _inspect_graph(
         self,
         i: int,
@@ -901,7 +902,7 @@ class PrimBox(BasePrimBox):
         """Helper method for visualizing box statistics in graph form."""
         return sdutil.plot_box(
             self.box_lims[i],
-            self.qp[i],
+            self.p_values[i],
             self.prim.box_init,
             uncs,
             self.peeling_trajectory.at[i, "coverage"],
@@ -953,7 +954,7 @@ class PrimBox(BasePrimBox):
 
         # boxlims
         qp = self._calculate_quasi_p(i, restricted_dims)
-        self.qp.append(qp)
+        self.p_values.append(qp)
         self._cur_box = len(self.peeling_trajectory) - 1
 
     def show_tradeoff(
@@ -1038,7 +1039,6 @@ class RegressionPrimBox(BasePrimBox):
 
         """
         super().__init__(prim, box_lims, indices)
-        # indices van data in box
         self.update(box_lims, indices)
 
     @property
@@ -1098,6 +1098,83 @@ class RegressionPrimBox(BasePrimBox):
             legend=legend,
         )
 
+    def _calculate_ks(self, i: int, restricted_dims: list[str]) -> dict:
+        """Helper function for calculating ks values.
+
+        The KS is based on comparing the distribution of y within the box with
+        the distribution of y with a given limit removed.
+
+        Parameters
+        ----------
+        i : int
+            the specific box in the peeling trajectory for which the
+            ks values are to be calculated.
+        restricted_dims : list of str
+
+        Returns
+        -------
+        dict
+
+        """
+        box_lim = self.box_lims[i]
+        box_lim = box_lim[restricted_dims]
+
+        x = self.prim.x.loc[self.prim.yi_remaining, restricted_dims]
+        y = self.prim.y[self.prim.yi_remaining]
+        y_with_limits = self.prim.y[self.yi]
+
+        # TODO use apply on df?
+        def calculate_ks(
+            data,
+            x: pd.DataFrame,
+            y: np.ndarray,
+            box_lim: pd.DataFrame,
+            initial_boxlim: pd.DataFrame,
+        ):
+            """Helper function for calculating quasi p-values."""
+            if data.size == 0:
+                return [-1, -1]
+
+            u = data.name
+            dtype = data.dtype
+
+            unlimited = initial_boxlim[u]
+
+            if np.issubdtype(dtype, np.number):
+                ks_values = []
+                for direction, (limit, unlimit) in enumerate(zip(data, unlimited)):
+                    ks = -1
+                    if unlimit != limit:
+                        temp_box = box_lim.copy()
+                        temp_box.at[direction, u] = unlimit
+
+                        logical = sdutil._in_box(x, temp_box)
+                        y_without_limit = y[logical]
+
+                        ks = sp.stats.kstest(y_with_limits, y_without_limit).pvalue
+                    ks_values.append(ks)
+            else:
+                temp_box = box_lim.copy()
+                temp_box.loc[:, u] = unlimited
+                logical = sdutil._in_box(x, temp_box)
+                y_without_limit = y[logical]
+
+                ks = sp.stats.kstest(y, y_without_limit).pvalue
+
+                ks_values = [ks, -1]
+
+            return ks_values
+
+        ks_values = box_lim.apply(
+            calculate_ks,
+            axis=0,
+            result_type="expand",
+            args=[x, y, box_lim, self.box_lims[0]],
+        )
+
+        ks_values = ks_values.to_dict(orient="list")
+        return ks_values
+
     def update(self, box_lims: pd.DataFrame, indices: np.ndarray):
         """Update the box to the provided box limits.
 
@@ -1136,6 +1213,10 @@ class RegressionPrimBox(BasePrimBox):
         self.peeling_trajectory = pd.concat(
             [self.peeling_trajectory, new_row], ignore_index=True, sort=True
         )
+
+        # boxlims
+        ks = self._calculate_ks(i, restricted_dims)
+        self.p_values.append(ks)
 
         self._cur_box = len(self.peeling_trajectory) - 1
 

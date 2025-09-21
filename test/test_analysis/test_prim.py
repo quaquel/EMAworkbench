@@ -174,7 +174,7 @@ class TestPrimBox:
 
         box.resample()
 
-    def test_resample(self):
+    def test_show_pairs_scatter(self):
         experiments, outcomes = utilities.load_flu_data()
         y = flu_classify(outcomes)
 
@@ -491,4 +491,4 @@ class TestRegressionPrim:
         y = outcomes["deceased_population_region_1"][:, -1]
 
         alg = prim.RegressionPrim(experiments, y)
-        box = alg.find_box
+        box = alg.find_box()
