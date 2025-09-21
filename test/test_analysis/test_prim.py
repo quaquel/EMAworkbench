@@ -7,9 +7,7 @@ import pytest
 
 from ema_workbench.analysis import prim
 from ema_workbench.analysis.prim import PrimBox
-from ema_workbench.analysis.scenario_discovery_util import RuleInductionType
 from test import utilities
-
 
 # Created on Mar 13, 2012
 #
@@ -18,7 +16,6 @@ from test import utilities
 
 def flu_classify(data):
     """Helper function for test data."""
-
     # get the output for deceased population
     result = data["deceased_population_region_1"]
 
@@ -32,6 +29,8 @@ def flu_classify(data):
 
 
 class TestPrimBox:
+    """Test for prim box."""
+
     def test_init(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
         y = np.array([0, 1, 0])
@@ -41,16 +40,14 @@ class TestPrimBox:
 
         assert box.peeling_trajectory.shape == (1, 8)
 
-
         with pytest.raises(ValueError):
             x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
             y = np.array([[0, 0], [0, 0], [0, 0]])
             prim.Prim(x, y)
         with pytest.raises(ValueError):
             x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
-            y = np.array([0,0])
+            y = np.array([0, 0])
             prim.Prim(x, y)
-
 
     def test_select(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
@@ -212,38 +209,7 @@ class TestPrimBox:
 
 
 class TestPrim:
-    # def test_setup_prim(self):
-    #     # fixme this is all for prim regression not prim binary
-    #
-    #     results = utilities.load_flu_data()
-    #     experiments, outcomes = results
-    #
-    #     # test initialization, including t_coi calculation in case of searching
-    #     # for results equal to or higher than the threshold
-    #     outcomes["death toll"] = outcomes["deceased_population_region_1"][:, -1]
-    #     results = experiments, outcomes
-    #     prim_obj = prim.setup_prim(
-    #         results,
-    #         classify="death toll",
-    #     )
-    #
-    #     value = np.ones((experiments.shape[0],))
-    #     value = value[outcomes["death toll"] >= threshold].shape[0]
-    #     assert prim_obj.t_coi == value
-    #
-    #     # test initialization, including t_coi calculation in case of searching
-    #     # for results equal to or lower  than the threshold
-    #     threshold = 1000
-    #     prim_obj = prim.setup_prim(
-    #         results,
-    #         classify="death toll",
-    #     )
-    #
-    #     value = np.ones((experiments.shape[0],))
-    #     value = value[outcomes["death toll"] <= threshold].shape[0]
-    #     assert prim_obj.t_coi == value
-    #
-    #     prim.setup_prim(self.results, self.classify)
+    """Test for prim algorithm."""
 
     def test_boxes(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
@@ -492,10 +458,11 @@ class TestPrim:
         experiments, outcomes = utilities.load_flu_data()
         y = flu_classify(outcomes)
 
-        box = prim.run_constrained_prim(experiments, y, issignificant=True)
+        prim.run_constrained_prim(experiments, y, issignificant=True)
 
 
 class TestRegressionPrim:
+    """Test prim in regression mode."""
 
     def test_all(self):
         experiments, outcomes = utilities.load_flu_data()
@@ -512,3 +479,50 @@ class TestRegressionPrim:
 
         box.show_pairs_scatter()
         plt.draw()
+
+
+def test_pca():
+    experiments, outcomes = utilities.load_flu_data()
+    y = outcomes["deceased_population_region_1"][:, -1]
+
+    # fail on non numeric columns
+    with pytest.raises(ValueError):
+        prim.pca_preprocess(experiments, y)
+    experiments = experiments.drop(['scenario', 'policy', 'model'], axis=1)
+
+    # fail on y not being binary
+    with pytest.raises(ValueError):
+        prim.pca_preprocess(experiments, y)
+
+    # behave correctly
+    y = y > 1e6
+    rotated_experiments, rotation = prim.pca_preprocess(experiments, y)
+
+    assert rotated_experiments.shape == experiments.shape
+
+    subsets = {
+        "region 1": [
+            "additional_seasonal_immune_population_fraction_R1",
+            "fatality_ratio_region_1",
+            "infection_ratio_region_1",
+            "initial_immune_fraction_of_the_population_of_region_1",
+            "normal_contact_rate_region_1",
+            "permanent_immune_population_fraction_R1",
+            "recovery_time_region_1",
+            "root_contact_rate_region_1",
+            "susceptible_to_immune_population_delay_time_region_1",
+        ],
+        "region 2": [
+            "additional_seasonal_immune_population_fraction_R2",
+            "fatality_rate_region_2",
+            "infection_rate_region_2",
+            "initial_immune_fraction_of_the_population_of_region_2",
+            "normal_contact_rate_region_2",
+            "permanent_immune_population_fraction_R2",
+            "recovery_time_region_2",
+            "root_contact_ratio_region_2",
+            "susceptible_to_immune_population_delay_time_region_2"],
+    }
+    experiments = experiments.drop("normal_interregional_contact_rate", axis=1)
+    rotated_experiments, rotation = prim.pca_preprocess(experiments, y, subsets)
+    assert rotated_experiments.shape == experiments.shape

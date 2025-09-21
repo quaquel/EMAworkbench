@@ -78,12 +78,12 @@ def pca_preprocess(
     y: np.ndarray,
     subsets: dict | None = None,
     exclude: list[str] | None = None,
-):
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Perform PCA to preprocess experiments before running PRIM.
 
     Pre-process the data by performing a pca based rotation on it.
     This effectively turns the algorithm into PCA-PRIM as described
-    in `Dalal et al (2013) <https://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
+    in `Dalal et al. (2013) <https://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
 
     Parameters
     ----------
@@ -118,10 +118,11 @@ def pca_preprocess(
     x = experiments.drop(exclude, axis=1)
 
     #
-    if not x.select_dtypes(exclude=np.number).empty:
-        raise RuntimeError("X includes non numeric columns")
+    non_numerical_columns = x.select_dtypes(exclude=np.number)
+    if not non_numerical_columns.empty:
+        raise ValueError(f"X includes non numeric columns: {non_numerical_columns.columns.values.tolist()}")
     if not set(np.unique(y)) == {0, 1}:
-        raise RuntimeError(
+        raise ValueError(
             f"y should only contain 0s and 1s, currently y contains {set(np.unique(y))}."
         )
 
@@ -132,6 +133,7 @@ def pca_preprocess(
     else:
         # TODO:: should we check on double counting in subsets?
         #        should we check all uncertainties are in x?
+        #        also, subsets cannot be a single uncertainty,
         pass
 
     # prepare the dtypes for the new rotated experiments dataframe
@@ -171,7 +173,7 @@ def pca_preprocess(
         for i in range(len(value)):
             name = f"{key}_{i}"
             rotated_experiments[name] = subset_experiments[:, i]
-            [column_names.append(name)]
+            column_names.append(name)
 
     rotation_matrix = pd.DataFrame(
         rotation_matrix, index=row_names, columns=column_names
@@ -182,7 +184,7 @@ def pca_preprocess(
 
 def run_constrained_prim(
     experiments: pd.DataFrame, y: np.ndarray, issignificant: bool = True, **kwargs
-):
+)-> "PrimBox":
     """Run PRIM repeatedly while constraining the maximum number of dimensions available in x.
 
     Improved usage of PRIM as described in `Kwakkel (2019) <https://onlinelibrary.wiley.com/doi/full/10.1002/ffo2.8>`_.
