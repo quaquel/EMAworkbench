@@ -73,7 +73,7 @@ class CurEntry:
         """Init."""
         self.dtype = dtype
 
-    def __set_name__(self, owner, name):
+    def __set_name__(self, owner, name): # noqa: D105
         self.name = name
 
     def __get__(self, instance, _):  # noqa: D105
@@ -120,7 +120,7 @@ def rotate_subset(experiments, y):
     experiments_subset : DataFrame
     y : ndarray
 
-    Returns:
+    Returns
     -------
     rotation_matrix
         DataFrame
@@ -151,7 +151,7 @@ def determine_rotation(experiments):
     ----------
     experiments : pd.DataFrame
 
-    Returns:
+    Returns
     -------
     ndarray
 

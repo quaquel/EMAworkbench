@@ -3,14 +3,12 @@
 import abc
 import enum
 import itertools
-from collections.abc import Callable
 from typing import Literal
 
 import matplotlib as mpl
+import matplotlib.colors as colors
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-
 import numpy as np
 import pandas as pd
 import scipy as sp
@@ -51,7 +49,7 @@ def _get_sorted_box_lims(boxes, box_init):
     boxes : list of DataFrames
     box_init : DataFrmae
 
-    Returns:
+    Returns
     -------
     tuple
         with the sorted boxes, and the list of restricted uncertainties
@@ -85,7 +83,7 @@ def _make_box(x):
     ----------
     x : DataFrame
 
-    Returns:
+    Returns
     -------
     DataFrame
 
@@ -117,7 +115,7 @@ def _normalize(box_lim, box_init, uncertainties):
     uncertainties : list of strings
                     valid names of columns that exist in both DataFrames
 
-    Returns:
+    Returns
     -------
     ndarray
         a numpy array of the shape (2, len(uncertainties) with the
@@ -154,7 +152,7 @@ def _determine_restricted_dims(
     box_limits : pd.DataFrame
     box_init : pd.DataFrame
 
-    Returns:
+    Returns
     -------
     np.ndarray
 
@@ -181,7 +179,7 @@ def _determine_nr_restricted_dims(
                the initial box containing all data points
 
 
-    Returns:
+    Returns
     -------
     int
 
@@ -212,12 +210,12 @@ def _in_box(x, boxlim):
     x : pd.DataFrame
     boxlim : pd.DataFrame
 
-    Returns:
+    Returns
     -------
     ndarray
         boolean 1D array
 
-    Raises:
+    Raises
     ------
     Attribute error if not numbered columns are not pandas
     category dtype
@@ -501,28 +499,27 @@ def plot_pair_wise_scatter(
     if fill_subplots:
         # for row, ylabel in zip(grid.axes, grid.y_vars):
         #     for ax, xlabel in zip(row, grid.x_vars):
-        for axis in grid.axes:
-            for row, ylabel in zip(grid.axes, grid.y_vars):
-                for subplot, xlabel in zip(row, grid.x_vars):
-                    if xlabel != "":
-                        upper = data[xlabel].max()
-                        lower = data[xlabel].min()
+        for row, ylabel in zip(grid.axes, grid.y_vars):
+            for subplot, xlabel in zip(row, grid.x_vars):
+                if xlabel != "":
+                    upper = data[xlabel].max()
+                    lower = data[xlabel].min()
 
-                        pad_rel = (
-                            upper - lower
-                        ) * 0.1  # padding relative to range of data points
+                    pad_rel = (
+                        upper - lower
+                    ) * 0.1  # padding relative to range of data points
 
-                        subplot.set_xlim(lower - pad_rel, upper + pad_rel)
+                    subplot.set_xlim(lower - pad_rel, upper + pad_rel)
 
-                    if ylabel != "":
-                        upper = data[ylabel].max()
-                        lower = data[ylabel].min()
+                if ylabel != "":
+                    upper = data[ylabel].max()
+                    lower = data[ylabel].min()
 
-                        pad_rel = (
-                            upper - lower
-                        ) * 0.1  # padding relative to range of data points
+                    pad_rel = (
+                        upper - lower
+                    ) * 0.1  # padding relative to range of data points
 
-                        subplot.set_ylim(lower - pad_rel, upper + pad_rel)
+                    subplot.set_ylim(lower - pad_rel, upper + pad_rel)
     if legend:
         grid.add_legend()
 
@@ -559,9 +556,9 @@ def plot_box(
     uncs: list[str],
     stats: dict,
     ax: plt.Axes,
-    ticklabel_formatter:str="{} ({})",
-    boxlim_formatter:str="{: .2g}",
-    table_formatter:str="{:.3g}",
+    ticklabel_formatter: str = "{} ({})",
+    boxlim_formatter: str = "{: .2g}",
+    table_formatter: str = "{:.3g}",
 ):
     """Helper function for parallel coordinate style visualization of a box.
 
@@ -577,7 +574,7 @@ def plot_box(
     table_formatter : str
     ax : Axes instance
 
-    Returns:
+    Returns
     -------
     a Figure instance
 
@@ -753,7 +750,7 @@ def plot_tradeoff(
     cmap : valid matplotlib colormap
     annotated : bool, optional. Shows point labels if True.
 
-    Returns:
+    Returns
     -------
     a Figure instance
 
@@ -791,7 +788,7 @@ def plot_tradeoff(
 def plot_unc(box_init, xi, i, j, norm_box_lim, box_lim, u, ax, color=None):
     """Plot a given uncertainty.
 
-    Parameters:
+    Parameters
     ----------
     xi : int
          the row at which to plot

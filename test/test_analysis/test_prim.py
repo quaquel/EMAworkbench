@@ -41,6 +41,17 @@ class TestPrimBox:
 
         assert box.peeling_trajectory.shape == (1, 8)
 
+
+        with pytest.raises(ValueError):
+            x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
+            y = np.array([[0, 0], [0, 0], [0, 0]])
+            prim.Prim(x, y)
+        with pytest.raises(ValueError):
+            x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
+            y = np.array([0,0])
+            prim.Prim(x, y)
+
+
     def test_select(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
         y = np.array([1, 1, 0])

@@ -1111,7 +1111,6 @@ class RegressionPrimBox(BasePrimBox):
         y = self.prim.y[self.prim.yi_remaining]
         y_with_limits = self.prim.y[self.yi]
 
-        # TODO use apply on df?
         def calculate_ks(
             data,
             x: pd.DataFrame,
@@ -1147,7 +1146,7 @@ class RegressionPrimBox(BasePrimBox):
                 logical = sdutil._in_box(x, temp_box)
                 y_without_limit = y[logical]
 
-                ks = sp.stats.kstest(y, y_without_limit).pvalue
+                ks = sp.stats.kstest(y_with_limits, y_without_limit).pvalue
 
                 ks_values = [ks, -1]
 
