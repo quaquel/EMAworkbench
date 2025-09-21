@@ -905,8 +905,7 @@ class PrimBox(BasePrimBox):
             self.p_values[i],
             self.prim.box_init,
             uncs,
-            self.peeling_trajectory.at[i, "coverage"],
-            self.peeling_trajectory.at[i, "density"],
+            self.peeling_trajectory.loc[i, ["coverage", "density"]].to_dict(),
             ax,
             ticklabel_formatter=ticklabel_formatter,
             boxlim_formatter=boxlim_formatter,
@@ -1045,27 +1044,6 @@ class RegressionPrimBox(BasePrimBox):
     def stats(self):
         return {k: getattr(self, k) for k in ["rmse", "mean", "mass", "res_dim"]}
 
-    def _inspect_data(self, i: int, uncs: list[str]):
-        """Helper method for inspecting boxes.
-
-        This one returns a tuple with a series with overall statistics, and a
-        DataFrame containing the boxlims and qp values
-
-        """
-        # make the descriptive statistics for the box
-        stats = self.peeling_trajectory.iloc[i]
-
-        # make the box definition
-        columns = pd.MultiIndex.from_product([[f"box {i}"], ["min", "max"]])
-        box_lim = pd.DataFrame(np.zeros((len(uncs), 2)), index=uncs, columns=columns)
-
-        for unc in uncs:
-            values = self.box_lims[i][unc]
-            box_lim.loc[unc] = values.values.tolist()
-            box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.nan)
-
-        return stats, box_lim
-
     def _inspect_graph(
         self,
         i: int,
@@ -1075,8 +1053,18 @@ class RegressionPrimBox(BasePrimBox):
         table_formatter: str = "{:.3g}",
         ax=None,
     ):
-        """Helper method for inspecting boxes."""
-        raise NotImplementedError
+        """Helper method for visualizing box statistics in graph form."""
+        return sdutil.plot_box(
+            self.box_lims[i],
+            self.p_values[i],
+            self.prim.box_init,
+            uncs,
+            self.peeling_trajectory.loc[i, ["rmse", "mean"]].to_dict(),
+            ax,
+            ticklabel_formatter=ticklabel_formatter,
+            boxlim_formatter=boxlim_formatter,
+            table_formatter=table_formatter,
+        )
 
     def show_pairs_scatter(
         self,

@@ -553,27 +553,25 @@ def _setup_figure(uncs, ax):
 
 
 def plot_box(
-    boxlim,
-    qp_values,
-    box_init,
-    uncs,
-    coverage,
-    density,
-    ax,
-    ticklabel_formatter="{} ({})",
-    boxlim_formatter="{: .2g}",
-    table_formatter="{:.3g}",
+    boxlim: pd.DataFrame,
+    p_values: dict,
+    box_init: pd.DataFrame,
+    uncs: list[str],
+    stats: dict,
+    ax: plt.Axes,
+    ticklabel_formatter:str="{} ({})",
+    boxlim_formatter:str="{: .2g}",
+    table_formatter:str="{:.3g}",
 ):
     """Helper function for parallel coordinate style visualization of a box.
 
     Parameters
     ----------
     boxlim : DataFrame
-    qp_values : dict
+    p_values : dict
     box_init : DataFrame
     uncs : list
-    coverage : float
-    density : float
+    stats: dict
     ticklabel_formatter : str
     boxlim_formatter : str
     table_formatter : str
@@ -684,7 +682,7 @@ def plot_box(
 
         # set y labels
         qp_formatted = {}
-        for key, values in qp_values.items():
+        for key, values in p_values.items():
             values = [vi for vi in values if vi != -1]  # noqa: PLW2901
 
             if len(values) == 1:
@@ -701,14 +699,15 @@ def plot_box(
         # remove x tick labels
         ax.set_xticklabels([])
 
-    coverage = table_formatter.format(coverage)
-    density = table_formatter.format(density)
+    cell_text = []
+    for v in stats.values():
+        cell_text.append([table_formatter.format(v)])
 
     # add table to the left
     ax.table(
-        cellText=[[coverage], [density]],
-        colWidths=[0.1] * 2,
-        rowLabels=["coverage", "density"],
+        cellText=cell_text,
+        colWidths=[0.1] * len(cell_text),
+        rowLabels=list(stats.keys()),
         colLabels=None,
         loc="right",
         bbox=[1.2, 0.9, 0.1, 0.1],

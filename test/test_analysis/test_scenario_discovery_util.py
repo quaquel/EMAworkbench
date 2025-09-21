@@ -203,7 +203,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         qp_values = {"a": [0.05, 0.9], "c": [0.05, -1]}
 
         fig, ax = plt.subplots()
-        sdutil.plot_box(boxlim, qp_values, box_init, restricted_dims, 1, 1, ax)
+        sdutil.plot_box(boxlim, qp_values, box_init, restricted_dims, {"coverage":1, "density":1}, ax)
         plt.draw()
         plt.close("all")
 

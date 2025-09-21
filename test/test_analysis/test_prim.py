@@ -486,9 +486,18 @@ class TestPrim:
 
 class TestRegressionPrim:
 
-    def test_find_box(self):
+    def test_all(self):
         experiments, outcomes = utilities.load_flu_data()
         y = outcomes["deceased_population_region_1"][:, -1]
 
         alg = prim.RegressionPrim(experiments, y)
         box = alg.find_box()
+
+        box.inspect(10)
+        box.inspect(10, style="graph")
+        plt.draw()
+        ret = box.inspect(10, style="data")[0]
+        assert len(ret) == 2
+
+        box.show_pairs_scatter()
+        plt.draw()
