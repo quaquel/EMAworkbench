@@ -1,4 +1,4 @@
-""" """
+"""Example of using logit regression with the workbench. """
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -13,7 +13,7 @@ from ema_workbench import load_results
 
 experiments, outcomes = load_results("./data/1000 flu cases no policy.tar.gz")
 
-x = experiments.drop(["model", "policy"], axis=1)
+x = experiments.drop(["model", "policy", "scenario"], axis=1)
 y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
 logit = logistic_regression.Logit(x, y)
