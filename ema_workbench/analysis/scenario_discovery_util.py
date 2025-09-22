@@ -231,12 +231,16 @@ def _in_box(x, boxlim):
     # TODO:: how to speed this up
     for column, values in x.select_dtypes(exclude=np.number).items():
         entries = boxlim.loc[0, column]
-        not_present = set(values.cat.categories.values) - entries
+        if values.dtype == np.dtype(np.bool):
+            l = x[column] == entries
+            logical = logical & l
+        else:
+            not_present  = set(values.cat.categories.values) - entries
 
-        if not_present:
-            # what other options do we have here....
-            l = pd.isnull(x[column].cat.remove_categories(list(entries)))  # noqa: E741
-            logical = l & logical
+            if not_present:
+                # what other options do we have here....
+                l = pd.isnull(x[column].cat.remove_categories(list(entries)))  # noqa: E741
+                logical = l & logical
     return logical
 
 
