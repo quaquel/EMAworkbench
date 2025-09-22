@@ -186,6 +186,9 @@ class TestPrimBox:
         experiments, outcomes = utilities.load_flu_data()
         y = flu_classify(outcomes)
 
+        experiments = experiments.iloc[::2]
+        y = y[::2]
+
         alg = prim.Prim(experiments, y)
         box = alg.find_box()
 
@@ -195,6 +198,9 @@ class TestPrimBox:
         plt.draw()
         box.show_pairs_scatter(diag="cdf", upper="contour")
         plt.draw()
+        grid = box.show_pairs_scatter(dims=["normal_contact_rate_region_1", "infection_ratio_region_1"])
+        plt.draw()
+        assert grid.axes.shape == (2,2)
 
         with pytest.raises(ValueError):
             box.show_pairs_scatter(diag="wrong value", upper="contour")
@@ -479,6 +485,13 @@ class TestRegressionPrim:
 
         box.show_pairs_scatter()
         plt.draw()
+
+        alg = prim.RegressionPrim(experiments, y, maximization=False)
+        assert alg._maximization is False
+        box = alg.find_box()
+
+        column = box.peeling_trajectory["mean"]
+        assert column.iloc[0] > column.iloc[-1]
 
 
 def test_pca():

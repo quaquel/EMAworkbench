@@ -284,7 +284,7 @@ def plot_pair_wise_scatter(
     lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "hist",
     fill_subplots=True,
     legend=True,
-):
+)-> sns.PairGrid:
     """Helper function for pair wise scatter plotting.
 
     Parameters
@@ -559,7 +559,7 @@ def plot_box(
     ticklabel_formatter: str = "{} ({})",
     boxlim_formatter: str = "{: .2g}",
     table_formatter: str = "{:.3g}",
-):
+) -> plt.Figure:
     """Helper function for parallel coordinate style visualization of a box.
 
     Parameters

@@ -120,7 +120,9 @@ def pca_preprocess(
     #
     non_numerical_columns = x.select_dtypes(exclude=np.number)
     if not non_numerical_columns.empty:
-        raise ValueError(f"X includes non numeric columns: {non_numerical_columns.columns.values.tolist()}")
+        raise ValueError(
+            f"X includes non numeric columns: {non_numerical_columns.columns.values.tolist()}"
+        )
     if not set(np.unique(y)) == {0, 1}:
         raise ValueError(
             f"y should only contain 0s and 1s, currently y contains {set(np.unique(y))}."
@@ -184,7 +186,7 @@ def pca_preprocess(
 
 def run_constrained_prim(
     experiments: pd.DataFrame, y: np.ndarray, issignificant: bool = True, **kwargs
-)-> "PrimBox":
+) -> "PrimBox":
     """Run PRIM repeatedly while constraining the maximum number of dimensions available in x.
 
     Improved usage of PRIM as described in `Kwakkel (2019) <https://onlinelibrary.wiley.com/doi/full/10.1002/ffo2.8>`_.
@@ -433,7 +435,9 @@ class BasePrimBox(abc.ABC):
                     f"style must be one of 'graph', 'table' or 'data', not {style}."
                 )
 
-    def _inspect_data(self, i: int, uncs: list[str]):
+    def _inspect_data(
+        self, i: int, uncs: list[str] | np.ndarray
+    ) -> tuple[pd.Series, pd.DataFrame]:
         """Helper method for inspecting boxes.
 
         This one returns a tuple with a series with overall statistics, and a
@@ -550,7 +554,7 @@ class BasePrimBox(abc.ABC):
         lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "contour",
         fill_subplots: bool = True,
         legend=True,
-    ):
+    ) -> sns.PairGrid:
         """Make a pair wise scatter plot of all the restricted dimensions.
 
         Color denotes whether a given point is of
@@ -900,7 +904,7 @@ class PrimBox(BasePrimBox):
         boxlim_formatter: str = "{: .2g}",
         table_formatter: str = "{:.3g}",
         ax=None,
-    ):
+    ) ->plt.Figure:
         """Helper method for visualizing box statistics in graph form."""
         return sdutil.plot_box(
             self.box_lims[i],
@@ -960,7 +964,7 @@ class PrimBox(BasePrimBox):
 
     def show_tradeoff(
         self, cmap=mpl.cm.viridis, annotated: bool = False
-    ):  # @UndefinedVariable
+    ) -> plt.Figure:  # @UndefinedVariable
         """Visualize the trade-off between coverage and density.
 
         Color is used to denote the number of restricted dimensions.
@@ -979,7 +983,7 @@ class PrimBox(BasePrimBox):
             self.peeling_trajectory, cmap=cmap, annotated=annotated
         )
 
-    def _calculate_quasi_p(self, i: int, restricted_dims: list[str]) -> dict:
+    def _calculate_quasi_p(self, i: int, restricted_dims: list[str]) -> dict[str, float|np.float64]:
         """Helper function for calculating quasi-p values as discussed in Bryant and Lempert (2010).
 
         This is a one-sided binomial test.
@@ -1026,6 +1030,7 @@ class PrimBox(BasePrimBox):
 
 
 class RegressionPrimBox(BasePrimBox):
+    """Prim box for regression version of the Prim Algorithm."""
     rmse = CurEntry(float)
 
     def __init__(self, prim: "BasePrim", box_lims: pd.DataFrame, indices: np.ndarray):
@@ -1054,7 +1059,7 @@ class RegressionPrimBox(BasePrimBox):
         boxlim_formatter: str = "{: .2g}",
         table_formatter: str = "{:.3g}",
         ax=None,
-    ):
+    )->plt.Figure:
         """Helper method for visualizing box statistics in graph form."""
         return sdutil.plot_box(
             self.box_lims[i],
@@ -1077,7 +1082,7 @@ class RegressionPrimBox(BasePrimBox):
         lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
         fill_subplots: bool = True,
         legend=False,
-    ):
+    )-> sns.PairGrid:
         return super().show_pairs_scatter(
             i=i,
             dims=dims,
@@ -1088,7 +1093,7 @@ class RegressionPrimBox(BasePrimBox):
             legend=legend,
         )
 
-    def _calculate_ks(self, i: int, restricted_dims: list[str]) -> dict:
+    def _calculate_ks(self, i: int, restricted_dims: list[str]|np.ndarray) -> dict[str, float]:
         """Helper function for calculating ks values.
 
         The KS is based on comparing the distribution of y within the box with
@@ -1227,6 +1232,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
         mass_min: float = 0.05,
         update_function: str = "default",
     ):
+        """Init. """
         if y.ndim != 1:
             raise ValueError("y must be one-dimensional")
         if y.shape[0] != x.shape[0]:
@@ -1353,7 +1359,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
             logical[box.yi] = False
         self.yi_remaining = self.yi[logical]
 
-    def _peel(self, box):
+    def _peel(self, box:pd.DataFrame):
         """Executes the peeling phase of the PRIM algorithm.
 
         Delegates peeling to data type specific helper methods.
@@ -1401,14 +1407,14 @@ class BasePrim(sdutil.OutputFormatterMixin):
 
         mass_new = self.y[indices].shape[0] / self.n
 
-        if (mass_new >= self.mass_min) & (mass_new < mass_old) & (obj_score > 0):
+        if (mass_new >= self.mass_min) & (mass_new < mass_old) & (obj_score > 0 if self._maximization else obj_score < 0):
             box.update(box_new, indices)
             return self._peel(box)
         else:
             # else return received box
             return box
 
-    def _real_peel(self, box, u, j, x):
+    def _real_peel(self, box: BasePrimBox, u: str, j: int, x: np.ndarray):
         """Returns two candidate new boxes by peeling upper and lower limit.
 
         Parameters
@@ -1560,7 +1566,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
             # no peels possible, return empty list
             return []
 
-    def _paste(self, box):
+    def _paste(self, box:pd.DataFrame):
         """Executes the pasting phase of the PRIM.
 
         Delegates pasting to data type specific helper methods.
@@ -1606,7 +1612,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
 
         scores.sort(key=itemgetter(0, 1), reverse=self._maximization)
         entry = scores[0]
-        obj, _, box_new, indices = entry
+        obj_score, _, box_new, indices = entry
         mass_new = self.y[indices].shape[0] / self.n
 
         mean_old = np.mean(self.y[box.yi])
@@ -1615,8 +1621,8 @@ class BasePrim(sdutil.OutputFormatterMixin):
         if (
             (mass_new >= self.mass_min)
             & (mass_new > mass_old)
-            & (obj > 0)
-            & (mean_new > mean_old)
+            & (obj_score > 0 if self._maximization else obj_score < 0)
+            & (mean_new > mean_old if self._maximization else mean_old < mean_new)
         ):
             box.update(box_new, indices)
             return self._paste(box)
@@ -1753,15 +1759,16 @@ class BasePrim(sdutil.OutputFormatterMixin):
 
         """
         mean_old = np.mean(y_old)
-
         mean_new = np.mean(y_new) if y_new.shape[0] > 0 else 0
+
+        delta = mean_new - mean_old
 
         obj = 0
         if mean_old != mean_new:
             if y_old.shape[0] > y_new.shape[0]:
-                obj = (mean_new - mean_old) / (y_old.shape[0] - y_new.shape[0])
+                obj = delta / (y_old.shape[0] - y_new.shape[0])
             elif y_old.shape[0] < y_new.shape[0]:
-                obj = (mean_new - mean_old) / (y_new.shape[0] - y_old.shape[0])
+                obj = delta / (y_new.shape[0] - y_old.shape[0])
             else:
                 raise PrimException(
                     f"""mean is different {mean_old} vs {mean_new}, while shape is the same,
@@ -1774,6 +1781,8 @@ class BasePrim(sdutil.OutputFormatterMixin):
         mean_old = np.mean(y_old)
         mean_new = np.mean(y_new) if y_new.shape[0] > 0 else 0
 
+        delta = mean_new - mean_old
+
         obj = 0
         if mean_old != mean_new:
             if y_old.shape == y_new.shape:
@@ -1782,11 +1791,10 @@ class BasePrim(sdutil.OutputFormatterMixin):
                                        this cannot be the case"""
                 )
 
-            change_mean = mean_new - mean_old
             change_mass = abs(y_old.shape[0] - y_new.shape[0])
             mass_new = y_new.shape[0]
 
-            obj = mass_new * change_mean / change_mass
+            obj = mass_new * delta / change_mass
 
         return obj
 
@@ -1826,7 +1834,7 @@ class Prim(BasePrim):
     """Patient rule induction algorithm.
 
     The implementation of Prim is tailored to interactive use in the
-    context of scenario discovery
+    context of scenario discovery.
 
     Parameters
     ----------
@@ -1844,16 +1852,11 @@ class Prim(BasePrim):
                   parameter controlling the pasting stage (default = 0.05).
     mass_min : float, optional
                minimum mass of a box (default = 0.05).
-    threshold_type : {ABOVE, BELOW}
-                     whether to look above or below the threshold value
-    mode : {RuleInductionType.BINARY, RuleInductionType.REGRESSION}, optional
-            indicated whether PRIM is used for regression, or for scenario
-            classification in which case y should be a binary vector
     update_function = {'default', 'guivarch'}, optional
                       controls behavior of PRIM after having found a
                       first box. use either the default behavior were
                       all points are removed, or the procedure
-                      suggested by guivarch et al (2016)
+                      suggested by Guivarch et al (2016)
                       doi:10.1016/j.envsoft.2016.03.006 to simply set
                       all points to be no longer of interest (only
                       valid in binary mode).
@@ -1877,7 +1880,7 @@ class Prim(BasePrim):
         peel_alpha: float = 0.05,
         paste_alpha: float = 0.05,
         mass_min: float = 0.05,
-        update_function: str = "default",
+        update_function: Literal["default", "guivarch"] = "default",
     ):
         """Init."""
         super().__init__(
@@ -1895,6 +1898,7 @@ class Prim(BasePrim):
         self.t_coi = np.sum(y)
 
     def _log_progress(self):
+        """Helper method to log progress."""
         _logger.info(
             f"{self.yi_remaining.shape[0]} points remaining, containing {np.sum(self.yi_remaining)} cases of interest"
         )
@@ -1918,6 +1922,29 @@ class Prim(BasePrim):
 
 
 class RegressionPrim(BasePrim):
+    """Prim for regression.
+
+    Parameters
+    ----------
+    x : DataFrame
+    the independent variables
+    y : 1d ndarray
+        the dependent variable
+    obj_function : {LENIENT1, LENIENT2, ORIGINAL}
+    peel_alpha : float, optional
+                 parameter controlling the peeling stage (default = 0.05).
+    paste_alpha : float, optional
+                  parameter controlling the pasting stage (default = 0.05).
+    mass_min : float, optional
+                minimum mass of a box (default = 0.05).
+    update_function : {'default', 'guivarch'}, optional
+                    controls behavior of PRIM after having found a first box. use either the
+                    default behavior were the all points are removed, or the procedure
+                    suggested by guivarch et al (2016)
+    maximization: bool
+
+    """
+
     def __init__(
         self,
         x: pd.DataFrame,
@@ -1933,7 +1960,7 @@ class RegressionPrim(BasePrim):
         update_function: str = "default",
         maximization: bool = True,
     ):
-
+        """Init."""
         # is there a meaning of guivarch in regression mode
         super().__init__(
             x,
@@ -1946,13 +1973,12 @@ class RegressionPrim(BasePrim):
         )
 
         self._prim_box_klass = RegressionPrimBox
-        self._maaximization = maximization
+        self._maximization = maximization # fixme this is not working correctly
 
     def _log_progress(self):
+        """Helper method to log progress."""
         _logger.info(
             f"{self.yi_remaining.shape[0]} points remaining, with mean of {np.mean(self.yi_remaining)}"
         )
 
     _update_functions = {"default": BasePrim._update_yi_remaining_default}
-
-    # fixme we need to have maximizing mean and minimizing mean, so we need custom objective functions here
