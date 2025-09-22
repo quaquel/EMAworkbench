@@ -19,6 +19,8 @@ fn = "./data/5000 runs WCM.tar.gz"
 results = load_results(fn)
 x, outcomes = results
 
+x = x.drop(["scenario", "model", "policy"], axis=1)
+
 ooi = "throughput_Rotterdam"
 outcome = outcomes[ooi] / default_flow
 y = outcome < 1
