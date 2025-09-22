@@ -1,5 +1,4 @@
-"""This file illustrated the use of the workbench for doing
-a PRIM analysis.
+"""A basic example of using PRIM for scenario discovery.
 
 The data was generated using a system dynamics models implemented in Vensim.
 See flu_example.py for the code.
@@ -26,10 +25,11 @@ def classify(data):
 
 # load data
 fn = r"./data/1000 flu cases no policy.tar.gz"
-results = load_results(fn)
+x, outcomes = load_results(fn)
+y = classify(outcomes)
 
 # perform prim on modified results tuple
-prim_obj = prim.setup_prim(results, classify, threshold=0.8, threshold_type=1)
+prim_obj = prim.Prim(x, y)
 
 box_1 = prim_obj.find_box()
 box_1.show_ppt()

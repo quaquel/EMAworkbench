@@ -34,11 +34,10 @@ new_outcomes = {}
 for key, value in outcomes.items():
     new_outcomes[key] = value[logical]
 
-results = (new_experiments, new_outcomes)
+x = new_experiments
+y = classify(new_outcomes)
 
-# perform cart on modified results tuple
-
-cart_alg = cart.setup_cart(results, classify, mass_min=0.05)
+cart_alg = cart.CART(x, y, mass_min=0.05)
 cart_alg.build_tree()
 
 # print cart to std_out

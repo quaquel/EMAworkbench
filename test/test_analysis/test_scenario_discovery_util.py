@@ -89,6 +89,32 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         result = x.loc[logical]
         self.assertTrue(np.all(correct_result == result))
 
+        x = pd.DataFrame(
+            [
+                (0.1, 0, "a", True),
+                (1.1, 1, "a", True),
+                (2.1, 2, "b", True),
+                (3.1, 3, "b", True),
+                (4.1, 4, "c", False),
+                (5.1, 5, "c", False),
+                (6.1, 6, "d", False),
+                (7.1, 7, "d", False),
+                (8.1, 8, "e", False),
+                (9.1, 9, "e", False),
+            ],
+            columns=["a", "b", "c", "d"],
+        )
+        boxlim = pd.DataFrame(
+            [(1.2, 0, {"a", "b", "c"}, True), (8.0, 7, {"a", "b", "c"}, True)], columns=["a", "b", "c", "d"]
+        )
+        x["c"] = x["c"].astype("category")
+
+        correct_result = x.loc[[2, 3], :]
+        logical = sdutil._in_box(x, boxlim)
+        result = x.loc[logical]
+        self.assertTrue(np.all(correct_result == result))
+
+
     def test_make_box(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
 
@@ -203,7 +229,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         qp_values = {"a": [0.05, 0.9], "c": [0.05, -1]}
 
         fig, ax = plt.subplots()
-        sdutil.plot_box(boxlim, qp_values, box_init, restricted_dims, 1, 1, ax)
+        sdutil.plot_box(boxlim, qp_values, box_init, restricted_dims, {"coverage":1, "density":1}, ax)
         plt.draw()
         plt.close("all")
 

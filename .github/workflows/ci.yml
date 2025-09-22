@@ -44,7 +44,7 @@ jobs:
     - run: pip install uv
     - name: Install dependencies
       run: |
-        uv pip install .[dev,cov] --system ${{ matrix.pip-pre }}
+        uv pip install .[dev,cov,graph] --system ${{ matrix.pip-pre }}
     - name: Install MPI and mpi4py
       if: matrix.test-mpi == true
       run: |

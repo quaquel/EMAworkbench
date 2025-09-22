@@ -1,7 +1,8 @@
-"""Created on 12 Nov 2018
+"""Replication of scenario discovery results from Bryant et al. 2010."""
 
-@author: jhkwakkel
-"""
+# Created on 12 Nov 2018
+#
+# @author: jhkwakkel
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -15,7 +16,7 @@ data = pd.read_csv("./data/bryant et al 2010 data.csv", index_col=False)
 x = data.iloc[:, 2:11]
 y = data.iloc[:, 15].values
 
-prim_alg = prim.Prim(x, y, threshold=0.8, peel_alpha=0.1)
+prim_alg = prim.Prim(x, y, peel_alpha=0.1)
 box1 = prim_alg.find_box()
 
 box1.show_tradeoff()

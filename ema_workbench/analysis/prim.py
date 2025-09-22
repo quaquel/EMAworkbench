@@ -11,29 +11,37 @@ The implementation is designed for interactive use in combination with
 the jupyter notebook.
 
 """
+
+import abc
 import contextlib
 import copy
 import itertools
+import numbers
 import warnings
+from collections.abc import Sequence
 from operator import itemgetter
+from typing import Literal
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy as sp
 import seaborn as sns
+from sklearn.metrics import root_mean_squared_error as rmse
 
 try:
     import altair as alt
 except ImportError:
     alt = None
-    warnings.warn("altair based interactive inspection not available", ImportWarning, stacklevel=2)
+    warnings.warn(
+        "altair based interactive inspection not available", ImportWarning, stacklevel=2
+    )
 
 from ..util import INFO, EMAError, get_module_logger, temporary_filter
 from . import scenario_discovery_util as sdutil
 from .prim_util import (
     CurEntry,
-    DiagKind,
     NotSeen,
     PrimException,
     PRIMObjectiveFunctions,
@@ -49,30 +57,33 @@ from .prim_util import (
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
+SeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
+RNGLike = np.random.Generator | np.random.BitGenerator
+
 
 __all__ = [
-    "ABOVE",
-    "BELOW",
     "PRIMObjectiveFunctions",
     "Prim",
     "PrimBox",
     "pca_preprocess",
     "run_constrained_prim",
-    "setup_prim",
 ]
 _logger = get_module_logger(__name__)
 
-ABOVE = 1
-BELOW = -1
 PRECISION = ".2f"
 
 
-def pca_preprocess(experiments, y, subsets=None, exclude=None):
+def pca_preprocess(
+    experiments: pd.DataFrame,
+    y: np.ndarray,
+    subsets: dict | None = None,
+    exclude: list[str] | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Perform PCA to preprocess experiments before running PRIM.
 
     Pre-process the data by performing a pca based rotation on it.
     This effectively turns the algorithm into PCA-PRIM as described
-    in `Dalal et al (2013) <https://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
+    in `Dalal et al. (2013) <https://www.sciencedirect.com/science/article/pii/S1364815213001345>`_
 
     Parameters
     ----------
@@ -86,14 +97,14 @@ def pca_preprocess(experiments, y, subsets=None, exclude=None):
     exclude : list of str, optional
               the uncertainties that should be excluded from the rotation
 
-    Returns:
+    Returns
     -------
     rotated_experiments
         DataFrame
     rotation_matrix
         DataFrame
 
-    Raises:
+    Raises
     ------
     RuntimeError
         if mode is not binary (i.e. y is not a binary classification).
@@ -107,10 +118,13 @@ def pca_preprocess(experiments, y, subsets=None, exclude=None):
     x = experiments.drop(exclude, axis=1)
 
     #
-    if not x.select_dtypes(exclude=np.number).empty:
-        raise RuntimeError("X includes non numeric columns")
+    non_numerical_columns = x.select_dtypes(exclude=np.number)
+    if not non_numerical_columns.empty:
+        raise ValueError(
+            f"X includes non numeric columns: {non_numerical_columns.columns.values.tolist()}"
+        )
     if not set(np.unique(y)) == {0, 1}:
-        raise RuntimeError(
+        raise ValueError(
             f"y should only contain 0s and 1s, currently y contains {set(np.unique(y))}."
         )
 
@@ -121,6 +135,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=None):
     else:
         # TODO:: should we check on double counting in subsets?
         #        should we check all uncertainties are in x?
+        #        also, subsets cannot be a single uncertainty,
         pass
 
     # prepare the dtypes for the new rotated experiments dataframe
@@ -160,7 +175,7 @@ def pca_preprocess(experiments, y, subsets=None, exclude=None):
         for i in range(len(value)):
             name = f"{key}_{i}"
             rotated_experiments[name] = subset_experiments[:, i]
-            [column_names.append(name)]
+            column_names.append(name)
 
     rotation_matrix = pd.DataFrame(
         rotation_matrix, index=row_names, columns=column_names
@@ -169,14 +184,16 @@ def pca_preprocess(experiments, y, subsets=None, exclude=None):
     return rotated_experiments, rotation_matrix
 
 
-def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
+def run_constrained_prim(
+    experiments: pd.DataFrame, y: np.ndarray, issignificant: bool = True, **kwargs
+) -> "PrimBox":
     """Run PRIM repeatedly while constraining the maximum number of dimensions available in x.
 
     Improved usage of PRIM as described in `Kwakkel (2019) <https://onlinelibrary.wiley.com/doi/full/10.1002/ffo2.8>`_.
 
     Parameters
     ----------
-    x : DataFrame
+    experiments : DataFrame
     y : numpy array
     issignificant : bool, optional
                     if True, run prim only on subsets of dimensions
@@ -185,7 +202,7 @@ def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
     **kwargs : any additional keyword arguments are passed on to PRIM
 
 
-    Returns:
+    Returns
     -------
     PrimBox instance
 
@@ -194,7 +211,7 @@ def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
     merged_lims = []
     merged_qp = []
 
-    alg = Prim(experiments, y, threshold=0.1, **kwargs)
+    alg = Prim(experiments, y, **kwargs)
     boxn = alg.find_box()
 
     dims = determine_dimres(boxn, issignificant=issignificant)
@@ -210,7 +227,7 @@ def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
     for subset in subsets:
         with temporary_filter(__name__, INFO):
             x = experiments.loc[:, subset].copy()
-            alg = Prim(x, y, threshold=0.1, **kwargs)
+            alg = Prim(x, y, **kwargs)
             box = alg.find_box()
             boxes.append(box)
 
@@ -235,7 +252,7 @@ def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
             logical[i] = boolean
             if boolean:
                 merged_lims.append(boxlim)
-                merged_qp.append(box.qp[i])
+                merged_qp.append(box.p_values[i])
         frontier.append(peeling[logical])
 
     frontier = pd.concat(frontier)
@@ -267,82 +284,20 @@ def run_constrained_prim(experiments, y, issignificant=True, **kwargs):
     box = PrimBox(boxn.prim, boxn.prim.box_init, boxn.prim.yi)
     box.peeling_trajectory = pt
     box.box_lims = sorted_lims
-    box.qp = sorted_qps
+    box.p_values = sorted_qps
     return box
 
 
-def setup_prim(results, classify, threshold, incl_unc=None, **kwargs):
-    """Helper function for setting up the prim algorithm.
-
-    Parameters
-    ----------
-    results : tuple
-              tuple of DataFrame and dict with numpy arrays
-              the return from :meth:`perform_experiments`.
-    classify : str or callable
-               either a string denoting the outcome of interest to
-               use or a function.
-    threshold : double
-                the minimum score on the density of the last box
-                on the peeling trajectory. In case of a binary
-                classification, this should be between 0 and 1.
-    incl_unc : list of str, optional
-               list of uncertainties to include in prim analysis
-    kwargs : dict
-             valid keyword arguments for prim.Prim
-
-    Returns:
-    -------
-    a Prim instance
-
-    Raises:
-    ------
-    PrimException
-        if data resulting from classify is not a 1-d array.
-    TypeError
-        if classify is not a string or a callable.
-    """
-    x, y, mode = sdutil._setup(results, classify, incl_unc)
-
-    return Prim(x, y, threshold=threshold, mode=mode, **kwargs)
-
-
-class PrimBox:
-    """A class that holds information for a specific box.
-
-    Attributes:
-    ----------
-    coverage : float
-               coverage of currently selected box
-    density : float
-               density of currently selected box
-    mean : float
-           mean of currently selected box
-    res_dim : int
-              number of restricted dimensions of currently selected box
-    mass : float
-           mass of currently selected box
-    peeling_trajectory : DataFrame
-                         stats for each box in peeling trajectory
-    box_lims : list
-               list of box lims for each box in peeling trajectory
-
-
-    by default, the currently selected box is the last box on the
-    peeling trajectory, unless this is changed via
-    :meth:`PrimBox.select`.
-
-    """
-
-    coverage = CurEntry("coverage")
-    density = CurEntry("density")
-    mean = CurEntry("mean")
-    res_dim = CurEntry("res_dim")
-    mass = CurEntry("mass")
-
+class BasePrimBox(abc.ABC):
     _frozen = False
 
-    def __init__(self, prim, box_lims, indices):
+    mean = CurEntry(
+        float
+    )  # fixme, can't we use __get_name__ to get rid of name in CurEntry init?
+    res_dim = CurEntry(int)
+    mass = CurEntry(float)
+
+    def __init__(self, prim: "BasePrim", box_lims: pd.DataFrame, indices: np.ndarray):
         """Init.
 
         Parameters
@@ -357,44 +312,22 @@ class PrimBox:
 
         # peeling and pasting trajectory
         columns = {
-            "coverage": pd.Series(dtype=float),
-            "density": pd.Series(dtype=float),
-            "mean": pd.Series(dtype=float),
-            "res_dim": pd.Series(dtype=int),
-            "mass": pd.Series(dtype=float),
             "id": pd.Series(dtype=int),
             "n": pd.Series(dtype=int),  # items in box
-            "k": pd.Series(dtype=int),  # items of interest in box
         }
-
+        for klass in type(self).__mro__:
+            for name, value in vars(klass).items():
+                if isinstance(value, CurEntry):
+                    columns[name] = pd.Series(dtype=value.dtype)
         self.peeling_trajectory = pd.DataFrame(columns)
 
         self.box_lims = []
-        self.qp = []
-        self._resampled = []
+        self.p_values = []
         self.yi_initial = indices[:]
-
-        columns = [
-            "name",
-            "lower",
-            "upper",
-            "minimum",
-            "maximum",
-            "qp_lower",
-            "qp_upper",
-            "id",
-        ]
-        self.boxes_quantitative = pd.DataFrame(columns=columns)
-
-        columns = ["item", "name", "n_items", "x", "id"]
-        self.boxes_nominal = pd.DataFrame(columns=columns)
-
         self._cur_box = -1
+        self.yi = None
 
-        # indices van data in box
-        self.update(box_lims, indices)
-
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """Small override for attribute access of box_lims.
 
         Used here to give box_lim same behaviour as coverage, density,
@@ -406,7 +339,17 @@ class PrimBox:
         else:
             raise AttributeError
 
-    def inspect(self, i=None, style="table", ax=None, **kwargs):
+    @property
+    @abc.abstractmethod
+    def stats(self): ...
+
+    def inspect(
+        self,
+        i: int | None = None,
+        style: Literal["table", "graph", "data"] = "table",
+        ax=None,
+        **kwargs,
+    ):
         """Write the stats and box limits of the user specified box to standard out.
 
         If it is not provided, the last box will be printed
@@ -457,7 +400,12 @@ class PrimBox:
         else:
             return [self._inspect(entry, style=style, **kwargs) for entry in i]
 
-    def _inspect(self, i=None, style="table", **kwargs):
+    def _inspect(
+        self,
+        i: int | None = None,
+        style: Literal["table", "graph", "data"] = "table",
+        **kwargs,
+    ):
         """Helper method for inspecting one or more boxes on the peeling trajectory.
 
         Parameters
@@ -469,39 +417,35 @@ class PrimBox:
         generates the table or graph
 
         """
-        stats = self.peeling_trajectory.iloc[i].to_dict()
-        stats["restricted_dim"] = stats["res_dim"]
+        uncs = sdutil._determine_restricted_dims(self.box_lims[i], self.box_lims[0])
 
-        qp_values = self.qp[i]
+        match style:
+            case "table":
+                return self._inspect_table(i, uncs)
+            case "graph":
+                try:
+                    ax = kwargs.pop("ax")
+                except KeyError:
+                    fig, ax = plt.subplots()
+                return self._inspect_graph(i, uncs, ax=ax, **kwargs)
+            case "data":
+                return self._inspect_data(i, uncs)
+            case _:
+                raise ValueError(
+                    f"style must be one of 'graph', 'table' or 'data', not {style}."
+                )
 
-        uncs = [(key, value) for key, value in qp_values.items()]
-        uncs.sort(key=itemgetter(1))
-        uncs = [uncs[0] for uncs in uncs]
-
-        if style == "table":
-            return self._inspect_table(i, uncs, qp_values)
-        elif style == "graph":
-            # makes it possible to use _inspect to plot multiple
-            # boxes into a single figure
-            try:
-                ax = kwargs.pop("ax")
-            except KeyError:
-                fig, ax = plt.subplots()
-            return self._inspect_graph(i, uncs, qp_values, ax=ax, **kwargs)
-        elif style == "data":
-            return self._inspect_data(i, uncs, qp_values)
-        else:
-            raise ValueError(
-                f"style must be one of 'graph', 'table' or 'data', not {style}."
-            )
-
-    def _inspect_data(self, i, uncs, qp_values):
+    def _inspect_data(
+        self, i: int, uncs: list[str] | np.ndarray
+    ) -> tuple[pd.Series, pd.DataFrame]:
         """Helper method for inspecting boxes.
 
         This one returns a tuple with a series with overall statistics, and a
         DataFrame containing the boxlims and qp values
 
         """
+        p_values = self.p_values[i]
+
         # make the descriptive statistics for the box
         stats = self.peeling_trajectory.iloc[i]
 
@@ -513,47 +457,219 @@ class PrimBox:
 
         for unc in uncs:
             values = self.box_lims[i][unc]
-            box_lim.loc[unc] = values.values.tolist() + qp_values[unc]
+            box_lim.loc[unc] = values.values.tolist() + p_values[unc]
             box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.nan)
 
         return stats, box_lim
 
-    def _inspect_table(self, i, uncs, qp_values):
+    def _inspect_table(self, i: int, uncs: list[str]):
         """Helper method for visualizing box statistics in table form."""
         # make the descriptive statistics for the box
-        stats, box_lim = self._inspect_data(i, uncs, qp_values)
+        stats, box_lim = self._inspect_data(i, uncs)
 
         print(stats)
         print()
         print(box_lim)
         print()
 
-    def _inspect_graph(
-        self,
-        i,
-        uncs,
-        qp_values,
-        ticklabel_formatter="{} ({})",
-        boxlim_formatter="{: .2g}",
-        table_formatter="{:.3g}",
-        ax=None,
-    ):
-        """Helper method for visualizing box statistics in graph form."""
-        return sdutil.plot_box(
-            self.box_lims[i],
-            qp_values,
-            self.prim.box_init,
-            uncs,
-            self.peeling_trajectory.at[i, "coverage"],
-            self.peeling_trajectory.at[i, "density"],
-            ax,
-            ticklabel_formatter=ticklabel_formatter,
-            boxlim_formatter=boxlim_formatter,
-            table_formatter=table_formatter,
+    def select(self, i: int):
+        """Select an entry from the peeling and pasting trajectory.
+
+        The prim box will be updated to this selected box.
+
+        Parameters
+        ----------
+        i : int
+            the index of the box to select.
+
+        """
+        if self._frozen:
+            raise PrimException(
+                "box has been frozen because PRIM "
+                "has found at least one more recent "
+                "box"
+            )
+
+        res_dim = sdutil._determine_restricted_dims(
+            self.box_lims[i], self.prim.box_init
         )
 
+        indices = sdutil._in_box(
+            self.prim.x.loc[self.prim.yi_remaining, res_dim], self.box_lims[i][res_dim]
+        )
+        self.yi = self.prim.yi_remaining[indices]
+        self._cur_box = i
+
+    def drop_restriction(self, uncertainty: str = "", i: int | None = None):
+        """Drop the restriction on the specified dimension for box i.
+
+        Parameters
+        ----------
+        i : int, optional
+            defaults to the currently selected box, which
+            defaults to the latest box on the trajectory
+        uncertainty : str
+
+
+        Replace the limits in box i with a new box where
+        for the specified uncertainty the limits of the initial box are
+        being used. The resulting box is added to the peeling trajectory.
+
+        """
+        if i is None:
+            i = self._cur_box
+
+        new_box_lim = self.box_lims[i].copy()
+        new_box_lim.loc[:, uncertainty] = self.box_lims[0].loc[:, uncertainty]
+        indices = sdutil._in_box(
+            self.prim.x.loc[self.prim.yi_remaining, :], new_box_lim
+        )
+        indices = self.prim.yi_remaining[indices]
+        self.update(new_box_lim, indices)
+
+    @abc.abstractmethod
+    def update(self, box_lims: pd.DataFrame, indices: np.ndarray):
+        """Update the box to the provided box limits.
+
+        Parameters
+        ----------
+        box_lims: DataFrame
+                  the new box_lims
+        indices: ndarray
+                 the indices of y that are inside the box
+
+        """
+        ...
+
+    def show_ppt(self):
+        """Show the peeling and pasting trajectory in a figure."""
+        return sdutil.plot_ppt(self.peeling_trajectory)
+
+    def show_pairs_scatter(
+        self,
+        i: int | None = None,
+        dims: list[str] | None = None,
+        diag: Literal["kde", "cdf", "regression"] | None = "kde",
+        upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
+        lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "contour",
+        fill_subplots: bool = True,
+        legend=True,
+    ) -> sns.PairGrid:
+        """Make a pair wise scatter plot of all the restricted dimensions.
+
+        Color denotes whether a given point is of
+        interest or not and the boxlims superimposed on top.
+
+        Parameters
+        ----------
+        i : int, optional
+        dims : list of str, optional
+               dimensions to show, defaults to all restricted dimensions
+        diag : {"kde", "cdf", "regression"}
+               Plot diagonal as kernel density estimate ('kde'),
+               cumulative density function ('cdf'), or regression ('regression')
+        upper, lower: string, optional
+               Use either 'scatter', 'contour', or 'hist' (bivariate
+               histogram) plots for upper and lower triangles. Upper triangle
+               can also be 'none' to eliminate redundancy. Legend uses
+               lower triangle style for markers.
+        fill_subplots: Boolean, optional
+                       if True, subplots are resized to fill their respective axes.
+                       This removes unnecessary whitespace, but may be undesirable
+                       for some variable combinations.
+
+        Returns
+        -------
+        seaborn PairGrid
+
+        """
+        if i is None:
+            i = self._cur_box
+
+        if dims is None:
+            dims = sdutil._determine_restricted_dims(
+                self.box_lims[i], self.prim.box_init
+            )
+
+        if diag not in {"kde", "cdf", "regression"}:
+            raise ValueError(
+                f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag}"
+            )
+
+        return sdutil.plot_pair_wise_scatter(
+            self.prim.x.iloc[self.yi_initial, :],
+            self.prim.y[self.yi_initial],
+            self.box_lims[i],
+            self.prim.box_init,
+            dims,
+            diag=diag,
+            upper=upper,
+            lower=lower,
+            fill_subplots=fill_subplots,
+            legend=legend,
+        )
+
+    def write_ppt_to_stdout(self):
+        """Write the peeling and pasting trajectory to stdout."""
+        print(self.peeling_trajectory)
+        print("\n")
+
+
+class PrimBox(BasePrimBox):
+    """A class that holds information for a specific box.
+
+    Attributes
+    ----------
+    coverage : float
+               coverage of currently selected box
+    density : float
+               density of currently selected box
+    mean : float
+           mean of currently selected box
+    res_dim : int
+              number of restricted dimensions of currently selected box
+    mass : float
+           mass of currently selected box
+    peeling_trajectory : DataFrame
+                         stats for each box in peeling trajectory
+    box_lims : list
+               list of box lims for each box in peeling trajectory
+
+
+    by default, the currently selected box is the last box on the
+    peeling trajectory, unless this is changed via
+    :meth:`PrimBox.select`.
+
+    """
+
+    coverage = CurEntry(float)
+    density = CurEntry(float)
+    k = CurEntry(int)
+
+    def __init__(self, prim: "BasePrim", box_lims: pd.DataFrame, indices: np.ndarray):
+        """Init.
+
+        Parameters
+        ----------
+        prim : Prim instance
+        box_lims : DataFrame
+        indices : ndarray
+
+
+        """
+        super().__init__(prim, box_lims, indices)
+        self._resampled = []
+
+        # indices van data in box
+        self.update(box_lims, indices)
+
+    @property
+    def stats(self):
+        """Return stats of this box."""
+        return {k: getattr(self, k) for k in ["coverage", "density", "mass", "res_dim"]}
+
     def inspect_tradeoff(self):
-        """Inpsecting tradeoff using altair."""
+        """Inspecting tradeoff using altair."""
         # TODO::
         # make legend with res_dim color code a selector as well?
         # https://medium.com/dataexplorations/focus-generating-an-interactive-legend-in-altair-9a92b5714c55
@@ -567,8 +683,8 @@ class PrimBox:
 
         box_zero = self.box_lims[0]
 
-        for i, (entry, qp) in enumerate(zip(self.box_lims, self.qp)):
-            qp = pd.DataFrame(qp, index=["qp_lower", "qp_upper"]) # noqa: PLW2901
+        for i, (entry, qp) in enumerate(zip(self.box_lims, self.p_values)):
+            qp = pd.DataFrame(qp, index=["qp_lower", "qp_upper"])  # noqa: PLW2901
             dims = qp.columns.tolist()
             quantitative_res_dim = [e for e in dims if e in quantitative_dims]
             nominal_res_dims = [e for e in dims if e in nominal_dims]
@@ -596,11 +712,11 @@ class PrimBox:
                     # unless we can force a selection?
                     name = f"{dim}, {qp.loc[qp.index[0], dim]: .2g}"
                     tick_info = {
-                        "name":name,
-                        "n_items":len(items) + 1,
-                        "item":item,
-                        "id":int(i),
-                        "x":j / len(items),
+                        "name": name,
+                        "n_items": len(items) + 1,
+                        "item": item,
+                        "id": int(i),
+                        "x": j / len(items),
                     }
                     nominal_vars.append(tick_info)
 
@@ -684,7 +800,7 @@ class PrimBox:
             )
         )
 
-        data = pd.DataFrame([{"start":0, "end":1}])
+        data = pd.DataFrame([{"start": 0, "end": 1}])
         rect = alt.Chart(data).mark_rect(opacity=0.05).encode(x="start:Q", x2="end:Q")
 
         # TODO:: for qp can we do something with the y encoding here and
@@ -707,7 +823,13 @@ class PrimBox:
 
         return chart & layered
 
-    def resample(self, i=None, iterations=10, p=1 / 2):
+    def resample(
+        self,
+        i: int | None = None,
+        iterations: int = 10,
+        p: float = 1 / 2,
+        rng: RNGLike | SeedLike | None = None,
+    ) -> pd.DataFrame:
         """Calculate resample statistics for candidate box i.
 
         Parameters
@@ -715,13 +837,16 @@ class PrimBox:
         i : int, optional
         iterations : int, optional
         p : float, optional
+        rng : seed or random number generator, optional
 
 
-        Returns:
+        Returns
         -------
         DataFrame
 
         """
+        rng = np.random.default_rng(rng)
+
         if i is None:
             i = self._cur_box
 
@@ -732,16 +857,13 @@ class PrimBox:
             with temporary_filter(__name__, INFO, "find_box"):
                 for j in range(len(self._resampled), iterations):
                     _logger.info(f"resample {j}")
-                    index = np.random.choice(
-                        x.index, size=int(x.shape[0] * p), replace=False
-                    )
+                    index = rng.choice(x.index, size=int(x.shape[0] * p), replace=False)
                     x_temp = x.loc[index, :].reset_index(drop=True)
                     y_temp = y[index]
 
                     box = Prim(
                         x_temp,
                         y_temp,
-                        threshold=0.1,
                         peel_alpha=self.prim.peel_alpha,
                         paste_alpha=self.prim.paste_alpha,
                     ).find_box()
@@ -759,7 +881,7 @@ class PrimBox:
             coverage_index = (box.peeling_trajectory.coverage - coverage).abs().idxmin()
             density_index = (box.peeling_trajectory.density - density).abs().idxmin()
             for counter, index in zip(counters, [coverage_index, density_index]):
-                for unc in box.qp[index]:
+                for unc in box.p_values[index]:
                     counter[unc] += 1 / iterations
 
         scores = (
@@ -774,62 +896,29 @@ class PrimBox:
             by=["reproduce coverage", "reproduce density"], ascending=False
         )
 
-    def select(self, i):
-        """Select an entry from the peeling and pasting trajectory.
-
-        The prim box will be updated to this selected box.
-
-        Parameters
-        ----------
-        i : int
-            the index of the box to select.
-
-        """
-        if self._frozen:
-            raise PrimException(
-                "box has been frozen because PRIM "
-                "has found at least one more recent "
-                "box"
-            )
-
-        res_dim = sdutil._determine_restricted_dims(
-            self.box_lims[i], self.prim.box_init
+    def _inspect_graph(
+        self,
+        i: int,
+        uncs: list[str],
+        ticklabel_formatter: str = "{} ({})",
+        boxlim_formatter: str = "{: .2g}",
+        table_formatter: str = "{:.3g}",
+        ax=None,
+    ) ->plt.Figure:
+        """Helper method for visualizing box statistics in graph form."""
+        return sdutil.plot_box(
+            self.box_lims[i],
+            self.p_values[i],
+            self.prim.box_init,
+            uncs,
+            self.peeling_trajectory.loc[i, ["coverage", "density"]].to_dict(),
+            ax,
+            ticklabel_formatter=ticklabel_formatter,
+            boxlim_formatter=boxlim_formatter,
+            table_formatter=table_formatter,
         )
 
-        indices = sdutil._in_box(
-            self.prim.x.loc[self.prim.yi_remaining, res_dim], self.box_lims[i][res_dim]
-        )
-        self.yi = self.prim.yi_remaining[indices]
-        self._cur_box = i
-
-    def drop_restriction(self, uncertainty="", i=-1):
-        """Drop the restriction on the specified dimension for box i.
-
-        Parameters
-        ----------
-        i : int, optional
-            defaults to the currently selected box, which
-            defaults to the latest box on the trajectory
-        uncertainty : str
-
-
-        Replace the limits in box i with a new box where
-        for the specified uncertainty the limits of the initial box are
-        being used. The resulting box is added to the peeling trajectory.
-
-        """
-        if i == -1:
-            i = self._cur_box
-
-        new_box_lim = self.box_lims[i].copy()
-        new_box_lim.loc[:, uncertainty] = self.box_lims[0].loc[:, uncertainty]
-        indices = sdutil._in_box(
-            self.prim.x.loc[self.prim.yi_remaining, :], new_box_lim
-        )
-        indices = self.prim.yi_remaining[indices]
-        self.update(new_box_lim, indices)
-
-    def update(self, box_lims, indices):
+    def update(self, box_lims: pd.DataFrame, indices: np.ndarray):
         """Update the box to the provided box limits.
 
         Parameters
@@ -846,14 +935,14 @@ class PrimBox:
         # peeling trajectory
         i = self.peeling_trajectory.shape[0]
         y = self.prim.y[self.yi]
-        coi = self.prim.determine_coi(self.yi)
+        coi = np.sum(y)
 
         restricted_dims = sdutil._determine_restricted_dims(
             self.box_lims[-1], self.prim.box_init
         )
 
         data = {
-            "coverage": coi / self.prim.t_coi,
+            "coverage": coi / np.sum(self.prim.y),
             "density": coi / y.shape[0],
             "mean": np.mean(y),
             "res_dim": restricted_dims.shape[0],
@@ -863,8 +952,6 @@ class PrimBox:
             "k": coi,
         }
         new_row = pd.DataFrame([data])
-        # self.peeling_trajectory = self.peeling_trajectory.append(
-        #     new_row, ignore_index=True, sort=True)
 
         self.peeling_trajectory = pd.concat(
             [self.peeling_trajectory, new_row], ignore_index=True, sort=True
@@ -872,14 +959,12 @@ class PrimBox:
 
         # boxlims
         qp = self._calculate_quasi_p(i, restricted_dims)
-        self.qp.append(qp)
+        self.p_values.append(qp)
         self._cur_box = len(self.peeling_trajectory) - 1
 
-    def show_ppt(self):
-        """Show the peeling and pasting trajectory in a figure."""
-        return sdutil.plot_ppt(self.peeling_trajectory)
-
-    def show_tradeoff(self, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
+    def show_tradeoff(
+        self, cmap=mpl.cm.viridis, annotated: bool = False
+    ) -> plt.Figure:  # @UndefinedVariable
         """Visualize the trade-off between coverage and density.
 
         Color is used to denote the number of restricted dimensions.
@@ -889,7 +974,7 @@ class PrimBox:
         cmap : valid matplotlib colormap
         annotated : bool, optional. Shows point labels if True.
 
-        Returns:
+        Returns
         -------
         a Figure instance
 
@@ -898,75 +983,7 @@ class PrimBox:
             self.peeling_trajectory, cmap=cmap, annotated=annotated
         )
 
-    def show_pairs_scatter(
-        self,
-        i=None,
-        dims=None,
-        diag_kind=DiagKind.KDE,
-        upper="scatter",
-        lower="contour",
-        fill_subplots=True,
-    ):
-        """Make a pair wise scatter plot of all the restricted dimensions.
-
-        Color denotes whether a given point is of
-        interest or not and the boxlims superimposed on top.
-
-        Parameters
-        ----------
-        i : int, optional
-        dims : list of str, optional
-               dimensions to show, defaults to all restricted dimensions
-        diag_kind : {DiagKind.KDE, DiagKind.CDF}
-               Plot diagonal as kernel density estimate ('kde') or
-               cumulative density function ('cdf').
-        upper, lower: string, optional
-               Use either 'scatter', 'contour', or 'hist' (bivariate
-               histogram) plots for upper and lower triangles. Upper triangle
-               can also be 'none' to eliminate redundancy. Legend uses
-               lower triangle style for markers.
-        fill_subplots: Boolean, optional
-                       if True, subplots are resized to fill their respective axes.
-                       This removes unnecessary whitespace, but may be undesirable
-                       for some variable combinations.
-
-        Returns:
-        -------
-        seaborn PairGrid
-
-        """
-        if i is None:
-            i = self._cur_box
-
-        if dims is None:
-            dims = sdutil._determine_restricted_dims(
-                self.box_lims[i], self.prim.box_init
-            )
-
-        if diag_kind not in DiagKind:
-            raise ValueError(
-                f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag_kind}"
-            )
-        diag = diag_kind.value
-
-        return sdutil.plot_pair_wise_scatter(
-            self.prim.x.iloc[self.yi_initial, :],
-            self.prim.y[self.yi_initial],
-            self.box_lims[i],
-            self.prim.box_init,
-            dims,
-            diag=diag,
-            upper=upper,
-            lower=lower,
-            fill_subplots=fill_subplots,
-        )
-
-    def write_ppt_to_stdout(self):
-        """Write the peeling and pasting trajectory to stdout."""
-        print(self.peeling_trajectory)
-        print("\n")
-
-    def _calculate_quasi_p(self, i, restricted_dims):
+    def _calculate_quasi_p(self, i: int, restricted_dims: list[str]) -> dict[str, float|np.float64]:
         """Helper function for calculating quasi-p values as discussed in Bryant and Lempert (2010).
 
         This is a one-sided binomial test.
@@ -976,8 +993,9 @@ class PrimBox:
         i : int
             the specific box in the peeling trajectory for which the
             quasi-p values are to be calculated.
+        restricted_dims : list of str
 
-        Returns:
+        Returns
         -------
         dict
 
@@ -986,10 +1004,10 @@ class PrimBox:
         box_lim = box_lim[restricted_dims]
 
         # total nr. of cases in box
-        Tbox = self.peeling_trajectory.loc[i, "n"] # noqa: N806
+        Tbox = self.peeling_trajectory.loc[i, "n"]  # noqa: N806
 
         # total nr. of cases of interest in box
-        Hbox = self.peeling_trajectory.loc[i, "k"] # noqa: N806
+        Hbox = self.peeling_trajectory.loc[i, "k"]  # noqa: N806
 
         x = self.prim.x.loc[self.prim.yi_remaining, restricted_dims]
         y = self.prim.y[self.prim.yi_remaining]
@@ -1011,75 +1029,217 @@ class PrimBox:
         return qp_values
 
 
-class Prim(sdutil.OutputFormatterMixin):
-    """Patient rule induction algorithm.
+class RegressionPrimBox(BasePrimBox):
+    """Prim box for regression version of the Prim Algorithm."""
+    rmse = CurEntry(float)
 
-    The implementation of Prim is tailored to interactive use in the
-    context of scenario discovery
+    def __init__(self, prim: "BasePrim", box_lims: pd.DataFrame, indices: np.ndarray):
+        """Init.
 
-    Parameters
-    ----------
-    x : DataFrame
-        the independent variables
-    y : 1d ndarray
-        the dependent variable
-    threshold : float
-                the density threshold that a box has to meet
-    obj_function : {LENIENT1, LENIENT2, ORIGINAL}
-                   the objective function used by PRIM. Defaults to a
-                   lenient objective function based on the gain of mean
-                   divided by the loss of mass.
-    peel_alpha : float, optional
-                 parameter controlling the peeling stage (default = 0.05).
-    paste_alpha : float, optional
-                  parameter controlling the pasting stage (default = 0.05).
-    mass_min : float, optional
-               minimum mass of a box (default = 0.05).
-    threshold_type : {ABOVE, BELOW}
-                     whether to look above or below the threshold value
-    mode : {RuleInductionType.BINARY, RuleInductionType.REGRESSION}, optional
-            indicated whether PRIM is used for regression, or for scenario
-            classification in which case y should be a binary vector
-    update_function = {'default', 'guivarch'}, optional
-                      controls behavior of PRIM after having found a
-                      first box. use either the default behavior were
-                      all points are removed, or the procedure
-                      suggested by guivarch et al (2016)
-                      doi:10.1016/j.envsoft.2016.03.006 to simply set
-                      all points to be no longer of interest (only
-                      valid in binary mode).
-
-    See Also:
-    --------
-    :mod:`cart`
+        Parameters
+        ----------
+        prim : Prim instance
+        box_lims : DataFrame
+        indices : ndarray
 
 
-    """
+        """
+        super().__init__(prim, box_lims, indices)
+        self.update(box_lims, indices)
 
-    message = "{0} points remaining, containing {1} cases of interest"
+    @property
+    def stats(self):
+        return {k: getattr(self, k) for k in ["rmse", "mean", "mass", "res_dim"]}
+
+    def _inspect_graph(
+        self,
+        i: int,
+        uncs: list[str],
+        ticklabel_formatter: str = "{} ({})",
+        boxlim_formatter: str = "{: .2g}",
+        table_formatter: str = "{:.3g}",
+        ax=None,
+    )->plt.Figure:
+        """Helper method for visualizing box statistics in graph form."""
+        return sdutil.plot_box(
+            self.box_lims[i],
+            self.p_values[i],
+            self.prim.box_init,
+            uncs,
+            self.peeling_trajectory.loc[i, ["rmse", "mean"]].to_dict(),
+            ax,
+            ticklabel_formatter=ticklabel_formatter,
+            boxlim_formatter=boxlim_formatter,
+            table_formatter=table_formatter,
+        )
+
+    def show_pairs_scatter(
+        self,
+        i: int | None = None,
+        dims: list[str] | None = None,
+        diag: Literal["kde", "cdf", "regression"] | None = "regression",
+        upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "hexbin",
+        lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
+        fill_subplots: bool = True,
+        legend=False,
+    )-> sns.PairGrid:
+        return super().show_pairs_scatter(
+            i=i,
+            dims=dims,
+            diag=diag,
+            upper=upper,
+            lower=lower,
+            fill_subplots=fill_subplots,
+            legend=legend,
+        )
+
+    def _calculate_ks(self, i: int, restricted_dims: list[str]|np.ndarray) -> dict[str, float]:
+        """Helper function for calculating ks values.
+
+        The KS is based on comparing the distribution of y within the box with
+        the distribution of y with a given limit removed.
+
+        Parameters
+        ----------
+        i : int
+            the specific box in the peeling trajectory for which the
+            ks values are to be calculated.
+        restricted_dims : list of str
+
+        Returns
+        -------
+        dict
+
+        """
+        box_lim = self.box_lims[i]
+        box_lim = box_lim[restricted_dims]
+
+        x = self.prim.x.loc[self.prim.yi_remaining, restricted_dims]
+        y = self.prim.y[self.prim.yi_remaining]
+        y_with_limits = self.prim.y[self.yi]
+
+        def calculate_ks(
+            data,
+            x: pd.DataFrame,
+            y: np.ndarray,
+            box_lim: pd.DataFrame,
+            initial_boxlim: pd.DataFrame,
+        ):
+            """Helper function for calculating quasi p-values."""
+            if data.size == 0:
+                return [-1, -1]
+
+            u = data.name
+            dtype = data.dtype
+
+            unlimited = initial_boxlim[u]
+
+            if np.issubdtype(dtype, np.number):
+                ks_values = []
+                for direction, (limit, unlimit) in enumerate(zip(data, unlimited)):
+                    ks = -1
+                    if unlimit != limit:
+                        temp_box = box_lim.copy()
+                        temp_box.at[direction, u] = unlimit
+
+                        logical = sdutil._in_box(x, temp_box)
+                        y_without_limit = y[logical]
+
+                        ks = sp.stats.kstest(y_with_limits, y_without_limit).pvalue
+                    ks_values.append(ks)
+            else:
+                temp_box = box_lim.copy()
+                temp_box.loc[:, u] = unlimited
+                logical = sdutil._in_box(x, temp_box)
+                y_without_limit = y[logical]
+
+                ks = sp.stats.kstest(y_with_limits, y_without_limit).pvalue
+
+                ks_values = [ks, -1]
+
+            return ks_values
+
+        ks_values = box_lim.apply(
+            calculate_ks,
+            axis=0,
+            result_type="expand",
+            args=[x, y, box_lim, self.box_lims[0]],
+        )
+
+        ks_values = ks_values.to_dict(orient="list")
+        return ks_values
+
+    def update(self, box_lims: pd.DataFrame, indices: np.ndarray):
+        """Update the box to the provided box limits.
+
+        Parameters
+        ----------
+        box_lims: DataFrame
+                  the new box_lims
+        indices: ndarray
+                 the indices of y that are inside the box
+
+        """
+        self.yi = indices
+        self.box_lims.append(box_lims)
+
+        # peeling trajectory
+        i = self.peeling_trajectory.shape[0]
+        y = self.prim.y[self.yi]
+
+        restricted_dims = sdutil._determine_restricted_dims(
+            self.box_lims[-1], self.prim.box_init
+        )
+
+        a = np.zeros(y.shape)
+        a[:] = np.mean(y)
+
+        data = {
+            "rmse": rmse(a, y),
+            "mean": np.mean(y),
+            "res_dim": restricted_dims.shape[0],
+            "mass": y.shape[0] / self.prim.n,
+            "id": i,
+            "n": y.shape[0],
+        }
+        new_row = pd.DataFrame([data])
+
+        self.peeling_trajectory = pd.concat(
+            [self.peeling_trajectory, new_row], ignore_index=True, sort=True
+        )
+
+        # boxlims
+        ks = self._calculate_ks(i, restricted_dims)
+        self.p_values.append(ks)
+
+        self._cur_box = len(self.peeling_trajectory) - 1
+
+
+class BasePrim(sdutil.OutputFormatterMixin):
+    """Abstract base class for the prim algorithm."""
 
     def __init__(
         self,
-        x,
-        y,
-        threshold,
-        obj_function=PRIMObjectiveFunctions.LENIENT1,
-        peel_alpha=0.05,
-        paste_alpha=0.05,
-        mass_min=0.05,
-        threshold_type=ABOVE,
-        mode=sdutil.RuleInductionType.BINARY,
-        update_function="default",
+        x: pd.DataFrame,
+        y: np.ndarray,
+        obj_function: Literal[
+            PRIMObjectiveFunctions.LENIENT1,
+            PRIMObjectiveFunctions.LENIENT2,
+            PRIMObjectiveFunctions.ORIGINAL,
+        ] = PRIMObjectiveFunctions.LENIENT1,
+        peel_alpha: float = 0.05,
+        paste_alpha: float = 0.05,
+        mass_min: float = 0.05,
+        update_function: str = "default",
     ):
-        """Init."""
-        assert mode in {
-            sdutil.RuleInductionType.BINARY,
-            sdutil.RuleInductionType.REGRESSION,
-        }
-        assert self._assert_mode(y, mode, update_function)
+        """Init. """
+        if y.ndim != 1:
+            raise ValueError("y must be one-dimensional")
+        if y.shape[0] != x.shape[0]:
+            raise ValueError(f"len(y) != len(x): {y.shape[0]} != {x.shape[0]}")
+
         # preprocess x
         x = x.copy()
-
         with contextlib.suppress(KeyError):
             x.drop(columns="scenario", inplace=True)
         x = x.reset_index(drop=True)
@@ -1117,21 +1277,13 @@ class Prim(sdutil.OutputFormatterMixin):
 
         self.x = x
         self.y = y
-        self.mode = mode
 
         self._update_yi_remaining = self._update_functions[update_function]
-
-        if len(self.y.shape) > 1:
-            raise PrimException(f"y is not a 1-d array, but has shape {self.y.shape}")
-        if self.y.shape[0] != len(self.x):
-            raise PrimException(f"len(y) != len(x): {self.y.shape[0]} != {len(self.x)}")
 
         # store the remainder of the parameters
         self.paste_alpha = paste_alpha
         self.peel_alpha = peel_alpha
         self.mass_min = mass_min
-        self.threshold = threshold
-        self.threshold_type = threshold_type
         self.obj_func = self._obj_functions[obj_function]
 
         # set the indices
@@ -1140,16 +1292,14 @@ class Prim(sdutil.OutputFormatterMixin):
         # how many data points do we have
         self.n = self.y.shape[0]
 
-        # how many cases of interest do we have?
-        self.t_coi = self.determine_coi(self.yi)
-
         # initial box that contains all data
         self.box_init = sdutil._make_box(self.x)
 
         # make a list in which the identified boxes can be put
         self._boxes = []
-
         self._update_yi_remaining(self)
+        self._prim_box_klass = None
+        self._maximization = True
 
     @property
     def boxes(self):
@@ -1161,15 +1311,11 @@ class Prim(sdutil.OutputFormatterMixin):
         return boxes
 
     @property
-    def stats(self):
+    def stats(self) -> list[dict[str, numbers.Number]]:
         """Return all stats."""
-        stats = []
-        items = ["coverage", "density", "mass", "res_dim"]
-        for box in self._boxes:
-            stats.append({key: getattr(box, key) for key in items})
-        return stats
+        return [box.stats for box in self._boxes]
 
-    def find_box(self):
+    def find_box(self) -> BasePrimBox | None:
         """Execute one iteration of the PRIM algorithm.
 
         That is, find one box, starting from the current state of Prim.
@@ -1185,15 +1331,10 @@ class Prim(sdutil.OutputFormatterMixin):
             _logger.info("no data remaining, exiting")
             return
 
-        # log how much data and how many coi are remaining
-        _logger.info(
-            self.message.format(
-                self.yi_remaining.shape[0], self.determine_coi(self.yi_remaining)
-            )
-        )
+        self._log_progress()
 
         # make a new box that contains all the remaining data points
-        box = PrimBox(self, self.box_init, self.yi_remaining[:])
+        box = self._prim_box_klass(self, self.box_init, self.yi_remaining[:])
 
         #  perform peeling phase
         box = self._peel(box)
@@ -1203,56 +1344,12 @@ class Prim(sdutil.OutputFormatterMixin):
         box = self._paste(box)
         _logger.debug("pasting completed")
 
-        message = "mean: {0}, mass: {1}, coverage: {2}, density: {3} restricted_dimensions: {4}"
-        message = message.format(
-            box.mean, box.mass, box.coverage, box.density, box.res_dim
-        )
+        _logger.info(" ".join([f"{k}: {v}," for k, v in box.stats.items()]))
+        self._boxes.append(box)
+        return box
 
-        if (self.threshold_type == ABOVE) & (box.mean >= self.threshold) or (
-            self.threshold_type == BELOW
-        ) & (box.mean <= self.threshold):
-            _logger.info(message)
-            self._boxes.append(box)
-            return box
-        else:
-            # make a dump box
-            _logger.info(
-                f"box mean ({box.mean}) does not meet threshold criteria ({self.threshold_type} {self.threshold}),"
-                f"returning dump box"
-            )
-            box = PrimBox(self, self.box_init, self.yi_remaining[:])
-            self._boxes.append(box)
-            return box
-
-    def determine_coi(self, indices):
-        """Given a set of indices on y, how many cases of interest are there in this set.
-
-        Parameters
-        ----------
-        indices: ndarray
-                 a valid index for y
-
-        Returns:
-        -------
-        int
-            the number of cases of interest.
-
-        Raises:
-        ------
-        ValueError
-            if threshold_type is not either ABOVE or BELOW
-
-        """
-        y = self.y[indices]
-
-        if self.threshold_type == ABOVE:
-            coi = y[y >= self.threshold].shape[0]
-        elif self.threshold_type == BELOW:
-            coi = y[y <= self.threshold].shape[0]
-        else:
-            raise ValueError("threshold type is not one of ABOVE or BELOW")
-
-        return coi
+    @abc.abstractmethod
+    def _log_progress(self): ...
 
     def _update_yi_remaining_default(self):
         """Update yi_remaining."""
@@ -1262,19 +1359,7 @@ class Prim(sdutil.OutputFormatterMixin):
             logical[box.yi] = False
         self.yi_remaining = self.yi[logical]
 
-    def _update_yi_remaining_guivarch(self):
-        """Update yi_remaining.
-
-        Used the modified version from Guivarch et al (2016) doi:10.1016/j.envsoft.2016.03.006
-
-        """
-        # set the indices
-        for box in self._boxes:
-            self.y[box.yi] = 0
-
-        self.yi_remaining = self.yi
-
-    def _peel(self, box):
+    def _peel(self, box:pd.DataFrame):
         """Executes the peeling phase of the PRIM algorithm.
 
         Delegates peeling to data type specific helper methods.
@@ -1314,7 +1399,7 @@ class Prim(sdutil.OutputFormatterMixin):
             score = (obj, non_res_dim, box_lim, i)
             scores.append(score)
 
-        scores.sort(key=itemgetter(0, 1), reverse=True)
+        scores.sort(key=itemgetter(0, 1), reverse=self._maximization)
         entry = scores[0]
 
         obj_score = entry[0]
@@ -1322,14 +1407,14 @@ class Prim(sdutil.OutputFormatterMixin):
 
         mass_new = self.y[indices].shape[0] / self.n
 
-        if (mass_new >= self.mass_min) & (mass_new < mass_old) & (obj_score > 0):
+        if (mass_new >= self.mass_min) & (mass_new < mass_old) & (obj_score > 0 if self._maximization else obj_score < 0):
             box.update(box_new, indices)
             return self._peel(box)
         else:
             # else return received box
             return box
 
-    def _real_peel(self, box, u, j, x):
+    def _real_peel(self, box: BasePrimBox, u: str, j: int, x: np.ndarray):
         """Returns two candidate new boxes by peeling upper and lower limit.
 
         Parameters
@@ -1341,7 +1426,7 @@ class Prim(sdutil.OutputFormatterMixin):
             column for which to peel
         x : ndarray
 
-        Returns:
+        Returns
         -------
         tuple
             two box lims and the associated indices
@@ -1359,12 +1444,14 @@ class Prim(sdutil.OutputFormatterMixin):
                 i = 1
 
             box_peel = get_quantile(xj, peel_alpha)
-            if direction == "lower":
-                logical = xj >= box_peel
-                indices = box.yi[logical]
-            if direction == "upper":
-                logical = xj <= box_peel
-                indices = box.yi[logical]
+
+            match direction:
+                case "lower":
+                    logical = xj >= box_peel
+                    indices = box.yi[logical]
+                case "upper":
+                    logical = xj <= box_peel
+                    indices = box.yi[logical]
             temp_box = copy.deepcopy(box.box_lims[-1])
             temp_box.loc[i, u] = box_peel
             peels.append((indices, temp_box))
@@ -1383,7 +1470,7 @@ class Prim(sdutil.OutputFormatterMixin):
             column for which to peel
         x : ndarray
 
-        Returns:
+        Returns
         -------
         tuple
             two box lims and the associated indices
@@ -1419,7 +1506,9 @@ class Prim(sdutil.OutputFormatterMixin):
             if xj[logical].shape[0] == 0:
                 new_limit = np.max(xj) if direction == "upper" else np.min(xj)
             else:
-                new_limit = np.max(xj[logical]) if direction == "upper" else np.min(xj[logical])
+                new_limit = (
+                    np.max(xj[logical]) if direction == "upper" else np.min(xj[logical])
+                )
 
             indices = box.yi[logical]
             temp_box = copy.deepcopy(box_lim)
@@ -1443,7 +1532,7 @@ class Prim(sdutil.OutputFormatterMixin):
             column for which to peel
         x : ndarray
 
-        Returns:
+        Returns
         -------
         tuple
             a list of box lims and the associated indices
@@ -1477,7 +1566,7 @@ class Prim(sdutil.OutputFormatterMixin):
             # no peels possible, return empty list
             return []
 
-    def _paste(self, box):
+    def _paste(self, box:pd.DataFrame):
         """Executes the pasting phase of the PRIM.
 
         Delegates pasting to data type specific helper methods.
@@ -1521,9 +1610,9 @@ class Prim(sdutil.OutputFormatterMixin):
             score = (obj, non_res_dim, box_lim, i)
             scores.append(score)
 
-        scores.sort(key=itemgetter(0, 1), reverse=True)
+        scores.sort(key=itemgetter(0, 1), reverse=self._maximization)
         entry = scores[0]
-        obj, _, box_new, indices = entry
+        obj_score, _, box_new, indices = entry
         mass_new = self.y[indices].shape[0] / self.n
 
         mean_old = np.mean(self.y[box.yi])
@@ -1532,8 +1621,8 @@ class Prim(sdutil.OutputFormatterMixin):
         if (
             (mass_new >= self.mass_min)
             & (mass_new > mass_old)
-            & (obj > 0)
-            & (mean_new > mean_old)
+            & (obj_score > 0 if self._maximization else obj_score < 0)
+            & (mean_new > mean_old if self._maximization else mean_old < mean_new)
         ):
             box.update(box_new, indices)
             return self._paste(box)
@@ -1552,7 +1641,7 @@ class Prim(sdutil.OutputFormatterMixin):
         x : ndarray
 
 
-        Returns:
+        Returns
         -------
         tuple
             two box lims and the associated indices
@@ -1614,7 +1703,7 @@ class Prim(sdutil.OutputFormatterMixin):
         x : ndarray
 
 
-        Returns:
+        Returns
         -------
         tuple
             a list of box lims and the associated indices
@@ -1670,16 +1759,16 @@ class Prim(sdutil.OutputFormatterMixin):
 
         """
         mean_old = np.mean(y_old)
-
         mean_new = np.mean(y_new) if y_new.shape[0] > 0 else 0
 
+        delta = mean_new - mean_old
 
         obj = 0
         if mean_old != mean_new:
             if y_old.shape[0] > y_new.shape[0]:
-                obj = (mean_new - mean_old) / (y_old.shape[0] - y_new.shape[0])
+                obj = delta / (y_old.shape[0] - y_new.shape[0])
             elif y_old.shape[0] < y_new.shape[0]:
-                obj = (mean_new - mean_old) / (y_new.shape[0] - y_old.shape[0])
+                obj = delta / (y_new.shape[0] - y_old.shape[0])
             else:
                 raise PrimException(
                     f"""mean is different {mean_old} vs {mean_new}, while shape is the same,
@@ -1692,6 +1781,8 @@ class Prim(sdutil.OutputFormatterMixin):
         mean_old = np.mean(y_old)
         mean_new = np.mean(y_new) if y_new.shape[0] > 0 else 0
 
+        delta = mean_new - mean_old
+
         obj = 0
         if mean_old != mean_new:
             if y_old.shape == y_new.shape:
@@ -1700,11 +1791,10 @@ class Prim(sdutil.OutputFormatterMixin):
                                        this cannot be the case"""
                 )
 
-            change_mean = mean_new - mean_old
             change_mass = abs(y_old.shape[0] - y_new.shape[0])
             mass_new = y_new.shape[0]
 
-            obj = mass_new * change_mean / change_mass
+            obj = mass_new * delta / change_mass
 
         return obj
 
@@ -1739,7 +1829,156 @@ class Prim(sdutil.OutputFormatterMixin):
         PRIMObjectiveFunctions.ORIGINAL: _original_obj_func,
     }
 
+
+class Prim(BasePrim):
+    """Patient rule induction algorithm.
+
+    The implementation of Prim is tailored to interactive use in the
+    context of scenario discovery.
+
+    Parameters
+    ----------
+    x : DataFrame
+        the independent variables
+    y : 1d ndarray
+        the dependent variable
+    obj_function : {LENIENT1, LENIENT2, ORIGINAL}
+                   the objective function used by PRIM. Defaults to a
+                   lenient objective function based on the gain of mean
+                   divided by the loss of mass.
+    peel_alpha : float, optional
+                 parameter controlling the peeling stage (default = 0.05).
+    paste_alpha : float, optional
+                  parameter controlling the pasting stage (default = 0.05).
+    mass_min : float, optional
+               minimum mass of a box (default = 0.05).
+    update_function = {'default', 'guivarch'}, optional
+                      controls behavior of PRIM after having found a
+                      first box. use either the default behavior were
+                      all points are removed, or the procedure
+                      suggested by Guivarch et al (2016)
+                      doi:10.1016/j.envsoft.2016.03.006 to simply set
+                      all points to be no longer of interest (only
+                      valid in binary mode).
+
+    See Also
+    --------
+    :mod:`cart`
+
+
+    """
+
+    def __init__(
+        self,
+        x: pd.DataFrame,
+        y: np.ndarray,
+        obj_function: Literal[
+            PRIMObjectiveFunctions.LENIENT1,
+            PRIMObjectiveFunctions.LENIENT2,
+            PRIMObjectiveFunctions.ORIGINAL,
+        ] = PRIMObjectiveFunctions.LENIENT1,
+        peel_alpha: float = 0.05,
+        paste_alpha: float = 0.05,
+        mass_min: float = 0.05,
+        update_function: Literal["default", "guivarch"] = "default",
+    ):
+        """Init."""
+        super().__init__(
+            x,
+            y,
+            obj_function=obj_function,
+            peel_alpha=peel_alpha,
+            paste_alpha=paste_alpha,
+            mass_min=mass_min,
+            update_function=update_function,
+        )
+        self._prim_box_klass = PrimBox
+
+        # how many cases of interest do we have?
+        self.t_coi = np.sum(y)
+
+    def _log_progress(self):
+        """Helper method to log progress."""
+        _logger.info(
+            f"{self.yi_remaining.shape[0]} points remaining, containing {np.sum(self.yi_remaining)} cases of interest"
+        )
+
+    def _update_yi_remaining_guivarch(self):
+        """Update yi_remaining.
+
+        Used the modified version from Guivarch et al (2016) doi:10.1016/j.envsoft.2016.03.006
+
+        """
+        # set the indices
+        for box in self._boxes:
+            self.y[box.yi] = 0
+
+        self.yi_remaining = self.yi
+
     _update_functions = {
-        "default": _update_yi_remaining_default,
+        "default": BasePrim._update_yi_remaining_default,
         "guivarch": _update_yi_remaining_guivarch,
     }
+
+
+class RegressionPrim(BasePrim):
+    """Prim for regression.
+
+    Parameters
+    ----------
+    x : DataFrame
+    the independent variables
+    y : 1d ndarray
+        the dependent variable
+    obj_function : {LENIENT1, LENIENT2, ORIGINAL}
+    peel_alpha : float, optional
+                 parameter controlling the peeling stage (default = 0.05).
+    paste_alpha : float, optional
+                  parameter controlling the pasting stage (default = 0.05).
+    mass_min : float, optional
+                minimum mass of a box (default = 0.05).
+    update_function : {'default', 'guivarch'}, optional
+                    controls behavior of PRIM after having found a first box. use either the
+                    default behavior were the all points are removed, or the procedure
+                    suggested by guivarch et al (2016)
+    maximization: bool
+
+    """
+
+    def __init__(
+        self,
+        x: pd.DataFrame,
+        y: np.ndarray,
+        obj_function: Literal[
+            PRIMObjectiveFunctions.LENIENT1,
+            PRIMObjectiveFunctions.LENIENT2,
+            PRIMObjectiveFunctions.ORIGINAL,
+        ] = PRIMObjectiveFunctions.LENIENT1,
+        peel_alpha: float = 0.05,
+        paste_alpha: float = 0.05,
+        mass_min: float = 0.05,
+        update_function: str = "default",
+        maximization: bool = True,
+    ):
+        """Init."""
+        # is there a meaning of guivarch in regression mode
+        super().__init__(
+            x,
+            y,
+            obj_function=obj_function,
+            peel_alpha=peel_alpha,
+            paste_alpha=paste_alpha,
+            mass_min=mass_min,
+            update_function=update_function,
+        )
+
+        self._prim_box_klass = RegressionPrimBox
+        self._maximization = maximization # fixme this is not working correctly
+
+    def _log_progress(self):
+        """Helper method to log progress."""
+        _logger.info(
+            f"{self.yi_remaining.shape[0]} points remaining, with mean of {np.mean(self.yi_remaining)}"
+        )
+
+    _update_functions = {"default": BasePrim._update_yi_remaining_default}

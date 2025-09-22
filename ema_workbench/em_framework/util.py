@@ -3,7 +3,7 @@
 # Created on Jul 16, 2016
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
+import warnings
 
 import itertools
 from collections import OrderedDict, UserDict
@@ -65,9 +65,10 @@ class Variable(NamedObject):
 
     def __init__(self, name:str, variable_name:str|list[str]|None=None):
         if not name.isidentifier():
-            raise DeprecationWarning(
-                f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers"
-            )
+            warnings.warn(f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers", DeprecationWarning, stacklevel=2)
+            # raise DeprecationWarning(
+
+            # )
         super().__init__(name)
         self.variable_name = variable_name
 

@@ -1,4 +1,4 @@
-""" """
+"""Using boosted trees with the workbench."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +14,7 @@ ema_logging.log_to_stderr(ema_logging.INFO)
 
 
 def plot_factormap(x1, x2, ax, bdt, nominal):
-    """Helper function for plotting a 2d factor map"""
+    """Helper function for plotting a 2d factor map."""
     x_min, x_max = x[:, x1].min(), x[:, x1].max()
     y_min, y_max = x[:, x2].min(), x[:, x2].max()
     xx, yy = np.meshgrid(np.linspace(x_min, x_max, 500), np.linspace(y_min, y_max, 500))
@@ -23,8 +23,8 @@ def plot_factormap(x1, x2, ax, bdt, nominal):
     grid[:, x1] = xx.ravel()
     grid[:, x2] = yy.ravel()
 
-    Z = bdt.predict(grid)
-    Z = Z.reshape(xx.shape)
+    Z = bdt.predict(grid)  # noqa N806
+    Z = Z.reshape(xx.shape)  # noqa N806
 
     ax.contourf(xx, yy, Z, cmap=plt.cm.Paired, alpha=0.5)  # @UndefinedVariable
 
@@ -36,6 +36,7 @@ def plot_factormap(x1, x2, ax, bdt, nominal):
 
 
 def plot_diag(x1, ax):
+    """Plot diagonal in pair grid."""
     x_min, x_max = x[:, x1].min(), x[:, x1].max()
     for i in (0, 1):
         idx = y == i
@@ -47,7 +48,7 @@ experiments, outcomes = load_results("./data/1000 flu cases with policies.tar.gz
 
 # transform to numpy array with proper recoding of cateogorical variables
 x, columns = feature_scoring._prepare_experiments(experiments)
-y = outcomes["deceased_population_region 1"][:, -1] > 1000000
+y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
 # establish mean case for factor maps
 # this is questionable in particular in case of categorical dimensions
@@ -56,9 +57,7 @@ maxima = x.max(axis=0)
 nominal = minima + (maxima - minima) / 2
 
 # fit the boosted tree
-bdt = AdaBoostClassifier(
-    DecisionTreeClassifier(max_depth=3), algorithm="SAMME", n_estimators=200
-)
+bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=3), n_estimators=200)
 bdt.fit(x, y)
 
 # determine which dimensions are most important
