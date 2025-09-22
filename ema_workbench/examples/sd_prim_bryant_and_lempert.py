@@ -1,7 +1,8 @@
-"""Created on 12 Nov 2018
+"""Replication of scenario discovery results from Bryant et al. 2010."""
 
-@author: jhkwakkel
-"""
+# Created on 12 Nov 2018
+#
+# @author: jhkwakkel
 
 import matplotlib.pyplot as plt
 import pandas as pd
