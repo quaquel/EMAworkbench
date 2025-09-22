@@ -5,9 +5,9 @@ As well as associated helper functions
 """
 
 import itertools
-import random
 from collections import ChainMap
 from collections.abc import Iterable
+from typing import Literal
 
 from ema_workbench.em_framework.util import Counter, NamedDict, NamedObject, combine
 from ema_workbench.util import get_module_logger
@@ -19,7 +19,6 @@ __all__ = [
     "Policy",
     "Scenario",
     "combine_cases_factorial",
-    "combine_cases_sampling",
     "experiment_generator",
 ]
 _logger = get_module_logger(__name__)
@@ -40,8 +39,9 @@ class Point(NamedDict):
         super().__init__(name, **kwargs)
         self.unique_id = unique_id
 
-    def __repr__(self): # noqa D105
+    def __repr__(self):  # noqa D105
         return f"Point({super().__repr__()})"
+
 
 class Policy(Point):
     """Helper class representing a policy.
@@ -66,7 +66,7 @@ class Policy(Point):
     #
     #     return [self[param.name] for param in parameters]
 
-    def __repr__(self): # noqa D105
+    def __repr__(self):  # noqa D105
         return f"Policy({super().__repr__()})"
 
 
@@ -88,7 +88,7 @@ class Scenario(Point):
     def __init__(self, name=None, **kwargs):
         super().__init__(name, unique_id=Scenario.id_counter(), **kwargs)
 
-    def __repr__(self): # noqa: D105
+    def __repr__(self):  # noqa: D105
         return f"Scenario({super().__repr__()})"
 
 
@@ -105,14 +105,21 @@ class Experiment(NamedObject):
 
     """
 
-    def  __init__(self, name, model_name, policy, scenario, experiment_id):
+    def __init__(
+        self,
+        name: str,
+        model_name: str,
+        policy: Policy,
+        scenario: Scenario,
+        experiment_id: int,
+    ):
         super().__init__(name)
         self.experiment_id = experiment_id
         self.policy = policy
         self.model_name = model_name
         self.scenario = scenario
 
-    def __repr__(self): # noqa: D105
+    def __repr__(self):  # noqa: D105
         return (
             f"Experiment(name={self.name!r}, model_name={self.model_name!r}, "
             f"policy={self.policy!r}, scenario={self.scenario!r}, "
@@ -161,36 +168,6 @@ def zip_cycle(*args):
     return itertools.islice(zip(*(itertools.cycle(a) for a in args)), max_len)
 
 
-def combine_cases_sampling(*point_collection):
-    """Helper function for combining cases sampling.
-
-    Combine collections of cases by iterating over the longest collection
-    while sampling with replacement from the others.
-
-    Parameters
-    ----------
-    point_collection : collection of collection of Point instances
-
-    Yields
-    ------
-    Point
-
-    """
-
-    # figure out the longest
-    def exhaust_cases(cases):
-        return list(cases)
-
-    point_collection = [exhaust_cases(case) for case in point_collection]
-    longest_cases = max(point_collection, key=len)
-    other_cases = [case for case in point_collection if case is not longest_cases]
-
-    for case in longest_cases:
-        other = (random.choice(entry) for entry in other_cases)
-
-        yield Point(**ChainMap(case, *other))
-
-
 def combine_cases_factorial(*point_collections):
     """Combine collections of cases in a full factorial manner.
 
@@ -234,7 +211,12 @@ def combine_cases_factorial(*point_collections):
 #     return combined_cases
 
 
-def experiment_generator(models:Iterable["AbstractModel"], scenarios:Iterable[Scenario], policies:Iterable[Policy], combine:str="factorial"):
+def experiment_generator(
+    models: Iterable["AbstractModel"],
+    scenarios: Iterable[Scenario],
+    policies: Iterable[Policy],
+    combine: Literal["factorial", "sample"] = "factorial",
+):
     """Generator function which yields experiments.
 
     Parameters

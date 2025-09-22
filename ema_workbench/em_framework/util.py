@@ -201,7 +201,7 @@ class NamedDict(UserDict, NamedObject):
         self.name = name
 
 
-def combine(*args):
+def combine(*args)->dict:
     """Combine scenario and policy into a single experiment dict.
 
     Parameters
