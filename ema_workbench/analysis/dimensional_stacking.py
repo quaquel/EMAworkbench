@@ -411,7 +411,7 @@ def create_pivot_plot(
 
     x_y_concat = pd.concat([discretized_x, ooi], axis=1)
     pvt = pd.pivot_table(
-        x_y_concat, values=ooi_label, index=rows, columns=columns, dropna=False
+        x_y_concat, values=ooi_label, index=rows, columns=columns, dropna=False, observed=False
     )
 
     fig = plot_pivot_table(pvt, plot_labels=labels, plot_cats=categories)
