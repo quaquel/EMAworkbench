@@ -1,7 +1,6 @@
-"""Created on Feb 13, 2014
+"""Example demonstrates the use of PRIM for port of Rotterdam.
 
-This example demonstrates the use of PRIM. The dataset was generated
-using the world container model
+The dataset was generated using the world container model
 
 (Tavasszy et al 2011; https://dx.doi.org/10.1016/j.jtrangeo.2011.05.005)
 
@@ -13,24 +12,19 @@ import matplotlib.pyplot as plt
 from ema_workbench import ema_logging, load_results
 from ema_workbench.analysis import prim
 
+# Created on Feb 13, 2014
+
+
 ema_logging.log_to_stderr(ema_logging.INFO)
 
 default_flow = 2.178849944502783e7
 
 
-def classify(outcomes):
-    ooi = "throughput Rotterdam"
-    outcome = outcomes[ooi]
-    outcome = outcome / default_flow
-
-    classes = outcome < 1
-    return classes
-
-
 fn = r"./data/5000 runs WCM.tar.gz"
-results = load_results(fn)
+x, outcomes = load_results(fn)
+y = (outcomes["throughput_Rotterdam"] / default_flow) < 1
 
-prim_obj = prim.setup_prim(results, classify, mass_min=0.05, threshold=0.75)
+prim_obj = prim.Prim(x, y)
 
 # let's find a first box
 box1 = prim_obj.find_box()

@@ -1,9 +1,7 @@
-"""This file illustrated the use of the workbench for doing
-a PRIM analysis with PCA preprocessing
+"""An example of doing PRIM with PCA preprocessing.
 
 The data was generated using a system dynamics models implemented in Vensim.
 See flu_example.py for the code.
-
 
 """
 
@@ -25,11 +23,11 @@ x, outcomes = load_results(fn)
 y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
 rotated_experiments, rotation_matrix = prim.pca_preprocess(
-    x, y, exclude=["model", "policy"]
+    x, y, exclude=["model", "policy", "scenario"]
 )
 
 # perform prim on modified results tuple
-prim_obj = prim.Prim(rotated_experiments, y, threshold=0.8)
+prim_obj = prim.Prim(rotated_experiments, y)
 box = prim_obj.find_box()
 
 box.show_tradeoff()
