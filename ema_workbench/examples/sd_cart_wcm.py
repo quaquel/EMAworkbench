@@ -1,7 +1,9 @@
-"""Created on May 26, 2015
+"""Simple CART example."""
 
-@author: jhkwakkel
-"""
+# Created on May 26, 2015
+#
+# @author: jhkwakkel
+
 
 import matplotlib.pyplot as plt
 
@@ -17,7 +19,7 @@ fn = "./data/5000 runs WCM.tar.gz"
 results = load_results(fn)
 x, outcomes = results
 
-ooi = "throughput Rotterdam"
+ooi = "throughput_Rotterdam"
 outcome = outcomes[ooi] / default_flow
 y = outcome < 1
 
