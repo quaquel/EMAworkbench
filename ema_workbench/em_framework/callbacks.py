@@ -18,8 +18,9 @@ import shutil
 import numpy as np
 import pandas as pd
 
+from .outcomes import AbstractOutcome
 from ..util import ema_exceptions, get_module_logger
-from .parameters import BooleanParameter, CategoricalParameter, IntegerParameter
+from .parameters import BooleanParameter, CategoricalParameter, IntegerParameter, Parameter
 from .util import ProgressTrackingMixIn
 
 #
@@ -157,13 +158,13 @@ class DefaultCallback(AbstractCallback):
 
     def __init__(
         self,
-        uncertainties,
-        levers,
-        outcomes,
-        nr_experiments,
-        reporting_interval=100,
-        reporting_frequency=10,
-        log_progress=False,
+        uncertainties:list[Parameter],
+        levers:list[Parameter],
+        outcomes:list[AbstractOutcome],
+        nr_experiments:int,
+        reporting_interval:int=100,
+        reporting_frequency:int=10,
+        log_progress:bool=False,
     ):
         """Init.
 
