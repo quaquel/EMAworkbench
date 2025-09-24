@@ -8,8 +8,10 @@ Monte Carlo sampling.
 
 import abc
 import itertools
+import math
 import numbers
 from collections.abc import Iterable, Sequence
+from typing import Literal
 
 import numpy as np
 import scipy.stats as stats
@@ -45,6 +47,7 @@ __all__ = [
 SeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
 RNGLike = np.random.Generator | np.random.BitGenerator
 
+
 class AbstractSampler(metaclass=abc.ABCMeta):
     """Abstract base class from which different samplers can be derived.
 
@@ -55,7 +58,13 @@ class AbstractSampler(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:SeedLike|RNGLike|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(
+        self,
+        parameters: list[Parameter],
+        size: int,
+        rng: SeedLike | RNGLike | None = None,
+        **kwargs,
+    ) -> np.ndarray:
         """Generate n samples from the parameters.
 
         Parameters
@@ -76,7 +85,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 
         """
 
-    def _rescale(self, parameters:list[Parameter], samples) -> np.ndarray:
+    def _rescale(self, parameters: list[Parameter], samples) -> np.ndarray:
         """Rescale uniform samples using dist and process integers."""
         for j, p in enumerate(parameters):
             samples_j = samples[:, j]
@@ -92,7 +101,13 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 class LHSSampler(AbstractSampler):
     """generates a Latin Hypercube sample over the parameters."""
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:SeedLike|RNGLike|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(
+        self,
+        parameters: list[Parameter],
+        size: int,
+        rng: SeedLike | RNGLike | None = None,
+        **kwargs,
+    ) -> np.ndarray:
         """Generate samples using latin hypercube sampling.
 
         Parameters
@@ -128,7 +143,13 @@ class LHSSampler(AbstractSampler):
 class MonteCarloSampler(AbstractSampler):
     """Monte Carlo sampler for each of the parameters."""
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:SeedLike|RNGLike|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(
+        self,
+        parameters: list[Parameter],
+        size: int,
+        rng: SeedLike | RNGLike | None = None,
+        **kwargs,
+    ) -> np.ndarray:
         """Generate samples using Monte Carlo sampling.
 
         Parameters
@@ -160,7 +181,13 @@ class FullFactorialSampler(AbstractSampler):
 
     """
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:SeedLike|RNGLike|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(
+        self,
+        parameters: list[Parameter],
+        size: int,
+        rng: SeedLike | RNGLike | None = None,
+        **kwargs,
+    ) -> np.ndarray:
         """Generate samples using full factorial sampling.
 
         Parameters
@@ -214,7 +241,13 @@ def determine_parameters(models, attribute, union=True):
     return util.determine_objects(models, attribute, union=union)
 
 
-def sample_parameters(parameters:list[Parameter], n_samples: int, sampler:AbstractSampler|None=None, kind=Point, **kwargs):
+def sample_parameters(
+    parameters: list[Parameter],
+    n_samples: int,
+    sampler: AbstractSampler | None = None,
+    kind=Point,
+    **kwargs,
+):
     """Generate cases by sampling over the parameters.
 
     Parameters
@@ -238,7 +271,9 @@ def sample_parameters(parameters:list[Parameter], n_samples: int, sampler:Abstra
     return DesignIterator(samples, parameters, kind)
 
 
-def sample_levers(models, n_samples:int, sampler:AbstractSampler|None=None, **kwargs):
+def sample_levers(
+    models, n_samples: int, sampler: AbstractSampler | None = None, **kwargs
+):
     """Generate policies by sampling over the levers.
 
     Parameters
@@ -268,7 +303,13 @@ def sample_levers(models, n_samples:int, sampler:AbstractSampler|None=None, **kw
 
     return sample_parameters(levers, n_samples, sampler, Policy, **kwargs)
 
-def sample_uncertainties(models, n_samples: numbers.Integral, sampler: AbstractSampler | None = None, **kwargs):
+
+def sample_uncertainties(
+    models,
+    n_samples: numbers.Integral,
+    sampler: AbstractSampler | None = None,
+    **kwargs,
+):
     """Generate scenarios by sampling over the uncertainties.
 
     Parameters
@@ -295,6 +336,7 @@ def sample_uncertainties(models, n_samples: numbers.Integral, sampler: AbstractS
         )
 
     return sample_parameters(uncertainties, n_samples, sampler, Scenario, **kwargs)
+
 
 def from_experiments(models, experiments):
     """Generate scenarios from an existing experiments DataFrame.
@@ -337,7 +379,9 @@ class DesignIterator:
 
     # the construction with a class and the generator ensures we can repeatedly iterate over the samples.
 
-    def __init__(self, samples:np.ndarray, parameters:list[Parameter],  kind:type[Point]):
+    def __init__(
+        self, samples: np.ndarray, parameters: list[Parameter], kind: type[Point]
+    ):
         self.samples = samples
         self.parameters = parameters
         self.kind = kind
@@ -350,11 +394,75 @@ class DesignIterator:
     def __str__(self):  # noqa: D105
         return f"ema_workbench.DesignIterator, {self.n} designs on {len(self.params)} parameters"
 
+    def combine(
+        self,
+        other: "DesignIterator",
+        combine: Literal["full_factorial", "sample", "cycle"],
+        kind: type[Point]|None = None,
+        rng: SeedLike | RNGLike | None = None,
+    ) -> "DesignIterator":
+        """Combine 2 design iterators into a new design iterator..
 
-def design_generator(samples:np.ndarray, params:list[Parameter], kind:type[Point]):
+        Parameters
+        ----------
+        other : the iterator to combine with this one
+        combine : how to combine the designs.
+        kind : type[Point]|None
+               the Point sublcass to use for the return iterator
+               in case of None, it will use the same kind if both iterators have the same otherwise
+               it will just fall back on using Point.
+        rng : RNG or None, only relevant in case combine is "sample"
+
+        Returns
+        -------
+        a new DesignIterator instance
+
+        """
+        combined_samples = None
+        samples_1 = self.samples
+        samples_2 = other.samples
+
+        match combine:
+            case "full_factorial":
+                samples_1_repeated = np.repeat(
+                    samples_1, repeats=samples_2.shape[0], axis=0
+                )
+                samples_2_tiled = np.tile(samples_2, (samples_1.shape[0], 1))
+                combined_samples = np.hstack((samples_1_repeated, samples_2_tiled))
+            case "sample" | "cycle":
+                if samples_1.shape[0] == samples_2.shape[0]:
+                    combined_samples = np.hstack((samples_1, samples_2))
+                else:
+                    longest, shortest = (
+                        (samples_1, samples_2)
+                        if samples_1.shape[0] > samples_2.shape[0]
+                        else (samples_2, samples_1)
+                    )
+                    if combine == "sample":
+                        rng = np.random.default_rng(rng)
+                        indices = rng.integers(0, shortest.shape[0], longest.shape[0])
+                        upsampled = shortest[indices]
+                    else:
+                        n = int(math.ceil(longest.shape[0] / shortest.shape[0]))
+                        upsampled = np.tile(shortest, (n, 1))[0 : longest.shape[0], :]
+                    combined_samples = np.hstack((longest, upsampled))
+            case _:
+                raise ValueError(
+                    f"unknown value for combine, got {combine}, should be one of full_factorial, sample"
+                )
+
+        combined_parameters = self.parameters + other.parameters
+
+        if kind is None:
+            kind = self.kind if self.kind == other.kind else Point
+
+        return DesignIterator(combined_samples, combined_parameters, kind)
+
+
+def design_generator(samples: np.ndarray, params: list[Parameter], kind: type[Point]):
     """Return a generator yielding points instances.
 
-    This generator iterates over the samples, and turns each row into a Point and ensures datatypes are corrrectly handled.
+    This generator iterates over the samples, and turns each row into a Point and ensures datatypes are correctly handled.
 
     Parameters
     ----------
@@ -372,13 +480,13 @@ def design_generator(samples:np.ndarray, params:list[Parameter], kind:type[Point
         design_dict = {}
         for param, value in zip(params, sample):
             if isinstance(param, IntegerParameter):
-                value = int(value) # noqa: PLW2901
+                value = int(value)  # noqa: PLW2901
             if isinstance(param, BooleanParameter):
-                value = bool(value) # noqa: PLW2901
+                value = bool(value)  # noqa: PLW2901
             if isinstance(param, CategoricalParameter):
                 # categorical parameter is an integer parameter, so
                 # conversion to int is already done
-                value = param.cat_for_index(value).value # noqa: PLW2901
+                value = param.cat_for_index(value).value  # noqa: PLW2901
 
             design_dict[param.name] = value
 

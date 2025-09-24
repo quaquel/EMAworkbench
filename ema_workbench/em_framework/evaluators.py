@@ -337,7 +337,7 @@ def perform_experiments(
     lever_sampling_kwargs:dict|None=None,
     callback:type[AbstractCallback]|None=None,
     return_callback:bool=False,
-    combine:str="factorial",
+    combine:Literal["factorial", "sample"]="factorial",
     log_progress:bool=False,
     **kwargs,
 ) -> DefaultCallback:
@@ -382,7 +382,7 @@ def perform_experiments(
 
     """
     # TODO:: break up in to helper functions
-    # unreadable in this form
+    #        unreadable in this form
 
     if not scenarios and not policies:
         raise EMAError(
@@ -430,7 +430,7 @@ def perform_experiments(
                 f"{nr_of_exp} experiments"
             )
         case _:
-            raise ValueError(f'unknown value for combine, got {combine}, should be one of "zipover" or "factorial"')
+            raise ValueError(f'unknown value for combine, got {combine}, should be one of "sample" or "factorial"')
 
     callback = setup_callback(
         callback,
