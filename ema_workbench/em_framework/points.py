@@ -148,7 +148,11 @@ def combine_cases_factorial(*point_collections):
 
 
 class SampleCollection:
-    """iterable for the experimental designs."""
+    """Collection of sample instances.
+
+    A Sample is a point in a parameter space.
+
+    """
 
     # the construction with a class and the generator ensures we can repeatedly iterate over the samples.
 
