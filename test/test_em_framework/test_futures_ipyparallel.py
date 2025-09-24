@@ -353,7 +353,6 @@ class TestEngine(unittest.TestCase):
             NotImplementedError, ema.update_cwd_on_all_engines, mock_client
         )
 
-
     @mock.patch("ema_workbench.em_framework.futures_ipyparallel.socket")
     def test_get_engines_by_host(self, mock_socket):
         mock_client = mock.create_autospec(ipyparallel.Client)
@@ -434,7 +433,9 @@ class TestIpyParallelEvaluator(unittest.TestCase):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"
 
-        mocked_generator = mock.Mock("ema_workbench.em_framework.points.experiment_generator")
+        mocked_generator = mock.Mock(
+            "ema_workbench.em_framework.points.experiment_generator"
+        )
         mocked_generator.return_value = [1]
         mocked_start.return_value = mocked_start, None
 

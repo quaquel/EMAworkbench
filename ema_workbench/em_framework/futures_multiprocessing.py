@@ -16,9 +16,7 @@ from ..util import ema_logging, get_module_logger
 from .evaluators import BaseEvaluator
 from .experiment_runner import ExperimentRunner
 from .futures_util import determine_rootdir, finalizer, setup_working_directories
-from .model import AbstractModel
 from .points import Experiment
-from .util import NamedObjectMap
 
 # Created on 22 Feb 2017
 #
@@ -261,7 +259,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
                 if max_processes < n_processes:
                     warnings.warn(
                         f"The number of processes cannot be more then {max_processes}",
-                        UserWarning, stacklevel=2
+                        UserWarning,
+                        stacklevel=2,
                     )
                 self.n_processes = min(n_processes, max_processes)
             else:
@@ -321,6 +320,8 @@ class MultiprocessingEvaluator(BaseEvaluator):
         if self.root_dir:
             shutil.rmtree(self.root_dir)
 
-    def evaluate_experiments(self, experiments:Iterable[Experiment], callback:Callable, **kwargs):
+    def evaluate_experiments(
+        self, experiments: Iterable[Experiment], callback: Callable, **kwargs
+    ):
         """Evaluate experiments."""
         add_tasks(self.n_processes, self._pool, experiments, callback)

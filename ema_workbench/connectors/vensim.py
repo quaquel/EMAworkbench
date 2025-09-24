@@ -13,7 +13,7 @@ import numpy as np
 
 from ..em_framework import FileModel, TimeSeriesOutcome
 from ..em_framework.model import SingleReplication
-from ..em_framework.points import Experiment, Policy
+from ..em_framework.points import Experiment, Sample
 from ..em_framework.util import Variable
 from ..util import CaseError, EMAWarning, get_module_logger
 from ..util.ema_logging import method_logger
@@ -239,7 +239,7 @@ class VensimModel(SingleReplication, FileModel):
 
         _logger.debug("vensim interface init completed")
 
-    def model_init(self, policy: Policy):
+    def model_init(self, policy: Sample):
         """Init of the model.
 
         Parameters

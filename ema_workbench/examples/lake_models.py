@@ -10,6 +10,7 @@ __all__ = [
     "lake_problem_intertemporal",
 ]
 
+
 def lake_problem_intertemporal(
     b=0.42,  # decay rate for P in lake (0.42 = irreversible)
     q=2.0,  # recycling exponent
@@ -18,7 +19,7 @@ def lake_problem_intertemporal(
     delta=0.98,  # standard deviation of natural inflows
     alpha=0.4,  # utility from pollution
     nsamples=100,  # Monte Carlo sampling of natural inflows
-    rng = 42,
+    rng=42,
     **kwargs,
 ):
     """Run the intertemporal version of the shallow lake model."""
@@ -44,7 +45,7 @@ def lake_problem_intertemporal(
     )
 
     # Initialize the pollution level matrix X
-    X = np.zeros((nsamples, nvars)) # noqa: N806
+    X = np.zeros((nsamples, nvars))  # noqa: N806
 
     # Loop through time to compute the pollution levels
     for t in range(1, nvars):
@@ -73,7 +74,9 @@ def lake_problem_intertemporal(
     return max_p, utility, inertia, reliability
 
 
-def get_antropogenic_release(xt:float, c1:float, c2:float, r1:float, r2:float, w1:float):
+def get_antropogenic_release(
+    xt: float, c1: float, c2: float, r1: float, r2: float, w1: float
+):
     """Return anthropogenic release at xt.
 
     Parameters
@@ -122,7 +125,7 @@ def lake_problem_dps(
 
     rng = np.random.default_rng(rng)
 
-    X = np.zeros(myears) # noqa: N806
+    X = np.zeros(myears)  # noqa: N806
     average_daily_p = np.zeros(myears)
     reliability = 0.0
     inertia = 0
@@ -157,7 +160,7 @@ def lake_problem_dps(
         reliability += np.sum(p_crit > X) / (n_samples * myears)
         inertia += np.sum(np.absolute(np.diff(decisions) < 0.02)) / (n_samples * myears)
         utility += (
-                np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / n_samples
+            np.sum(alpha * decisions * np.power(delta, np.arange(myears))) / n_samples
         )
     max_p = np.max(average_daily_p)
 

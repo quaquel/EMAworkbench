@@ -5,7 +5,6 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-
 import pandas as pd
 from lake_models import lake_problem_intertemporal
 from SALib.analyze import sobol
@@ -14,7 +13,7 @@ from ema_workbench import (
     Constant,
     Model,
     MultiprocessingEvaluator,
-    Policy,
+    Sample,
     RealParameter,
     ScalarOutcome,
     ema_logging,
@@ -78,13 +77,16 @@ if __name__ == "__main__":
     lake_model.constants = [Constant("alpha", 0.41), Constant("n_samples", 150)]
 
     # generate sa single default no release policy
-    policy = Policy("no release", **{f"l{i}": 0.1 for i in range(100)})
+    policy = Sample("no release", **{f"l{i}": 0.1 for i in range(100)})
 
     n_scenarios = 1000
 
     with MultiprocessingEvaluator(lake_model, n_processes=4) as evaluator:
         results = evaluator.perform_experiments(
-            n_scenarios, policy, uncertainty_sampling=Samplers.SOBOL, uncertainty_sampling_kwargs={"calc_second_order":True}
+            n_scenarios,
+            policy,
+            uncertainty_sampling=Samplers.SOBOL,
+            uncertainty_sampling_kwargs={"calc_second_order": True},
         )
 
     sobol_stats, s2, s2_conf = analyze(results, "max_p")

@@ -14,7 +14,7 @@ from ..util import EMAError
 from ..util.ema_logging import get_module_logger, method_logger
 from .outcomes import AbstractOutcome
 from .parameters import CategoricalParameter, Constant, Parameter, Variable
-from .points import ExperimentReplication, Point, Policy, Scenario
+from .points import ExperimentReplication, Sample
 from .util import NamedObject, NamedObjectMapDescriptor, combine
 
 # Created on 23 dec. 2010
@@ -101,7 +101,7 @@ class AbstractModel(NamedObject):
         if not name.isidentifier():
             raise EMAError(
                 f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench,"
-                 " the name of model must be valid python identifiers"
+                " the name of model must be valid python identifiers"
             )
 
         super().__init__(name)
@@ -112,7 +112,7 @@ class AbstractModel(NamedObject):
         self.policy = None
 
     @method_logger(__name__)
-    def model_init(self, policy: Policy):
+    def model_init(self, policy: Sample):
         """Initialize the model.
 
         Parameters
@@ -133,7 +133,7 @@ class AbstractModel(NamedObject):
             del policy[k]
 
     @method_logger(__name__)
-    def _transform(self, sampled_parameters: Point, parameters: list[Variable]):
+    def _transform(self, sampled_parameters: Sample, parameters: list[Variable]):
         """Transform the sampled parameters."""
         if not parameters:
             # no parameters defined, so nothing to transform, mainly
@@ -172,13 +172,14 @@ class AbstractModel(NamedObject):
         sampled_parameters.data = temp
 
     @method_logger(__name__)
-    def run_model(self, scenario: Scenario, policy: Policy, constants: Point):
+    def run_model(self, scenario: Sample, policy: Sample, constants: Sample):
         """Run the model for the specified scenario, policy, and constants.
 
         Parameters
         ----------
-        scenario : Scenario instance
-        policy : Policy instance
+        scenario : Sample instance
+        policy : Sample instance
+        constants : Sample instance
 
         """
         if not self.initialized(policy):
@@ -189,12 +190,12 @@ class AbstractModel(NamedObject):
         self._transform(constants, self.constants)
 
     @method_logger(__name__)
-    def initialized(self, policy: Policy):
+    def initialized(self, policy: Sample):
         """Check if model has been initialized.
 
         Parameters
         ----------
-        policy : a Policy instance
+        policy : a Sample instance
 
         """
         try:
@@ -258,6 +259,7 @@ class AbstractModel(NamedObject):
 
 class MyDict(dict):
     """Hacky helper class."""
+
     # bit of a dirty hack to be able to assign attributes to a dict
     # in a replication context
 
@@ -271,7 +273,7 @@ class Replicator(AbstractModel):
         return self._replications
 
     @replications.setter
-    def replications(self, replications: int|list[dict]):
+    def replications(self, replications: int | list[dict]):
         """Setter for replications."""
         # int
         if isinstance(replications, int):
@@ -290,14 +292,14 @@ class Replicator(AbstractModel):
             )
 
     @method_logger(__name__)
-    def run_model(self, scenario:Scenario, policy:Policy, constants:Point):
+    def run_model(self, scenario: Sample, policy: Sample, constants: Sample):
         """Run the model for the specified scenario, policy, and constants.
 
         Parameters
         ----------
-        scenario : Scenario instance
-        policy : Policy instance
-        constants : ??
+        scenario : Sample instance
+        policy : Sample instance
+        constants : Sample instance
 
         """
         super().run_model(scenario, policy, constants)
@@ -326,14 +328,14 @@ class SingleReplication(AbstractModel):
     """Base class for models that require only a single replication."""
 
     @method_logger(__name__)
-    def run_model(self, scenario:Scenario, policy:Policy, constants:Point):
+    def run_model(self, scenario: Sample, policy: Sample, constants: Sample):
         """Run the model for the specified scenario, policy, and constants.
 
         Parameters
         ----------
-        scenario : Scenario instance
-        policy : Policy instance
-        constants : ??
+        scenario : Sample instance
+        policy : Sample instance
+        constants : Sample instance
 
         """
         super().run_model(scenario, policy, constants)
@@ -370,7 +372,7 @@ class BaseModel(AbstractModel):
 
     """
 
-    def __init__(self, name:str, function:Callable|None=None):
+    def __init__(self, name: str, function: Callable | None = None):
         """Init."""
         super().__init__(name)
 
@@ -380,7 +382,7 @@ class BaseModel(AbstractModel):
         self.function = function
 
     @method_logger(__name__)
-    def run_experiment(self, experiment:ExperimentReplication):
+    def run_experiment(self, experiment: ExperimentReplication):
         """Run the model for the specified single replication of an experiment.
 
         Parameters
@@ -406,7 +408,7 @@ class BaseModel(AbstractModel):
             results[variable] = value
         return results
 
-    def as_dict(self)->dict:
+    def as_dict(self) -> dict:
         """Return a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["function"] = self.function
@@ -417,18 +419,18 @@ class WorkingDirectoryModel(AbstractModel):
     """Base class for a model that needs its dedicated working directory."""
 
     @property
-    def working_directory(self)->str:
+    def working_directory(self) -> str:
         """Getter for working directory."""
         return self._working_directory
 
     @working_directory.setter
-    def working_directory(self, path:str):
+    def working_directory(self, path: str):
         """Setter for working directory."""
         wd = os.path.abspath(path)
         _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
-    def __init__(self, name:str, wd:str|None=None):
+    def __init__(self, name: str, wd: str | None = None):
         """Interface to the model.
 
         Parameters
@@ -454,7 +456,7 @@ class WorkingDirectoryModel(AbstractModel):
                 f"Working directory {self.working_directory} does not exist"
             )
 
-    def as_dict(self)->dict:
+    def as_dict(self) -> dict:
         """Return a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["working_directory"] = self.working_directory
@@ -465,18 +467,18 @@ class FileModel(WorkingDirectoryModel):
     """Base class for a model that uses underlying files."""
 
     @property
-    def working_directory(self)->str:
+    def working_directory(self) -> str:
         """Getter for working directory."""
         return self._working_directory
 
     @working_directory.setter
-    def working_directory(self, path:str):
+    def working_directory(self, path: str):
         """Setter for working directory."""
         wd = os.path.abspath(path)
         _logger.debug(f"setting working directory to {wd}")
         self._working_directory = wd
 
-    def __init__(self, name, wd:str|None=None, model_file:str|None=None):
+    def __init__(self, name, wd: str | None = None, model_file: str | None = None):
         """Interface to the model.
 
         Parameters
@@ -523,7 +525,7 @@ class FileModel(WorkingDirectoryModel):
 
         self.model_file = model_file
 
-    def as_dict(self)->dict:
+    def as_dict(self) -> dict:
         """Return a dict representation of the model."""
         model_specs = super().as_dict()
         model_specs["model_file"] = self.model_file

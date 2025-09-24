@@ -5,8 +5,6 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-
-
 from lake_models import lake_problem_intertemporal
 
 from ema_workbench import (
@@ -59,7 +57,6 @@ if __name__ == "__main__":
         )
     ]
 
-
     with MultiprocessingEvaluator(lake_model) as evaluator:
         results, convergence = evaluator.optimize(
             nfe=5000,
@@ -67,5 +64,5 @@ if __name__ == "__main__":
             epsilons=[0.125, 0.05, 0.01, 0.01],
             convergence=convergence_metrics,
             constraints=constraints,
-            rng=42
+            rng=42,
         )
