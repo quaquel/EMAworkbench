@@ -24,7 +24,7 @@ from ema_workbench import (
     ScalarOutcome,
     ema_logging,
 )
-from ema_workbench.em_framework.samplers import sample_uncertainties
+from ema_workbench.em_framework.samplers import LHSSampler
 
 from lake_models import lake_problem_dps
 
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         ),
     ]
     n_scenarios = 10
-    scenarios = sample_uncertainties(lake_model, n_scenarios, rng=42)
+    scenarios = LHSSampler().generate_samples(lake_model.uncertainties, n_scenarios, rng=42)
     nfe = 1000
 
     with MultiprocessingEvaluator(lake_model) as evaluator:

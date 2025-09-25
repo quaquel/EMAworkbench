@@ -12,7 +12,7 @@ import numpy as np
 
 from ema_workbench import (
     MultiprocessingEvaluator,
-    Policy,
+    Sample,
     ScalarOutcome,
     TimeSeriesOutcome,
     ema_logging,
@@ -59,9 +59,9 @@ if __name__ == "__main__":
 
     # add policies
     policies = [
-        Policy("no policy", model_file="FLUvensimV1basecase.vpm"),
-        Policy("static policy", model_file="FLUvensimV1static.vpm"),
-        Policy("adaptive policy", model_file="FLUvensimV1dynamic.vpm"),
+        Sample("no policy", model_file="FLUvensimV1basecase.vpm"),
+        Sample("static policy", model_file="FLUvensimV1static.vpm"),
+        Sample("adaptive policy", model_file="FLUvensimV1dynamic.vpm"),
     ]
 
     with MultiprocessingEvaluator(model, n_processes=-1) as evaluator:

@@ -1,4 +1,5 @@
 """Samplers for working with SALib."""
+
 # Created on 12 Jan 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -9,6 +10,7 @@ import warnings
 import numpy as np
 
 from .parameters import Parameter
+from .points import SampleCollection
 from .samplers import AbstractSampler
 
 try:
@@ -20,9 +22,9 @@ except ImportError:
 __all__ = ["FASTSampler", "MorrisSampler", "SobolSampler", "get_SALib_problem"]
 
 
-def get_SALib_problem(parameters:list[Parameter]):
+def get_SALib_problem(parameters: list[Parameter]):
     """Returns a dict with a problem specification as required by SALib."""
-    bounds = [(0,1)] * len(parameters)
+    bounds = [(0, 1)] * len(parameters)
 
     problem = {
         "num_vars": len(parameters),
@@ -35,7 +37,13 @@ def get_SALib_problem(parameters:list[Parameter]):
 class SALibSampler(AbstractSampler):
     """Base wrapper class for SALib samplers."""
 
-    def generate_samples(self, parameters:list[Parameter], size:int, rng:np.random.Generator|None = None, **kwargs) -> np.ndarray:
+    def generate_samples(
+        self,
+        parameters: list[Parameter],
+        size: int,
+        rng: np.random.Generator | None = None,
+        **kwargs,
+    ) -> SampleCollection:
         """Generate samples.
 
         The main method of :class: `~sampler.Sampler` and its
@@ -66,10 +74,12 @@ class SALibSampler(AbstractSampler):
         problem = get_SALib_problem(parameters)
         samples = self.sample(problem, size, rng=rng, **kwargs)
         samples = self._rescale(parameters, samples)
-        return samples
+        return SampleCollection(samples, parameters)
 
     @abc.abstractmethod
-    def sample(self, problem:dict, size:int, rng:np.random.Generator|None, **kwargs) -> np.ndarray:
+    def sample(
+        self, problem: dict, size: int, rng: np.random.Generator | None, **kwargs
+    ) -> np.ndarray:
         """Call the underlying salib sampling method and return the samples.
 
         Any additional keyword arguments will be passed to the underlying salib sampling method
@@ -94,7 +104,9 @@ class SALibSampler(AbstractSampler):
 class SobolSampler(SALibSampler):
     """Sampler generating a Sobol design using SALib."""
 
-    def sample(self, problem:dict, size:int, rng:np.random.Generator|None, **kwargs) -> np.ndarray:
+    def sample(
+        self, problem: dict, size: int, rng: np.random.Generator | None, **kwargs
+    ) -> np.ndarray:
         """Call the underlying salib sampling method and return the samples.
 
         Any additional keyword arguments will be passed to the underlying salib sampling method
@@ -125,7 +137,9 @@ class SobolSampler(SALibSampler):
 class MorrisSampler(SALibSampler):
     """Sampler generating a morris design using SALib."""
 
-    def sample(self, problem:dict, size:int, rng:np.random.Generator|None, **kwargs) -> np.ndarray:
+    def sample(
+        self, problem: dict, size: int, rng: np.random.Generator | None, **kwargs
+    ) -> np.ndarray:
         """Call the underlying salib sampling method and return the samples.
 
         Any additional keyword arguments will be passed to the underlying salib sampling method
@@ -150,18 +164,15 @@ class MorrisSampler(SALibSampler):
             Stating this variable to be true causes the function to ignore gurobi.
 
         """
-        return morris.sample(
-            problem,
-            size,
-            seed=rng,
-            **kwargs
-        )
+        return morris.sample(problem, size, seed=rng, **kwargs)
 
 
 class FASTSampler(SALibSampler):
     """Sampler generating a Fourier Amplitude Sensitivity Test (FAST)."""
 
-    def sample(self, problem:dict, size:int, rng:np.random.Generator|None, **kwargs) -> np.ndarray:
+    def sample(
+        self, problem: dict, size: int, rng: np.random.Generator | None, **kwargs
+    ) -> np.ndarray:
         """Call the underlying salib sampling method and return the samples.
 
         Any additional keyword arguments will be passed to the underlying salib sampling method

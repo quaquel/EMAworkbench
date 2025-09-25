@@ -12,7 +12,6 @@ Software 89, 159-171.
 
 """
 
-
 import numpy as np
 from lake_models import lake_problem_dps
 
@@ -31,9 +30,6 @@ from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgre
 # Created on 1 Jun 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
-
-
 
 
 if __name__ == "__main__":
@@ -81,7 +77,7 @@ if __name__ == "__main__":
     convergence_metrics = [
         ArchiveLogger(
             "./data",
-            [l.name for l in lake_model.levers], # noqa E741
+            [l.name for l in lake_model.levers],  # noqa E741
             [o.name for o in lake_model.outcomes],
             base_filename="lake_model_dps_archive.tar.gz",
         ),

@@ -20,7 +20,12 @@ import pandas as pd
 
 from .outcomes import AbstractOutcome
 from ..util import ema_exceptions, get_module_logger
-from .parameters import BooleanParameter, CategoricalParameter, IntegerParameter, Parameter
+from .parameters import (
+    BooleanParameter,
+    CategoricalParameter,
+    IntegerParameter,
+    Parameter,
+)
 from .util import ProgressTrackingMixIn
 
 #
@@ -158,13 +163,13 @@ class DefaultCallback(AbstractCallback):
 
     def __init__(
         self,
-        uncertainties:list[Parameter],
-        levers:list[Parameter],
-        outcomes:list[AbstractOutcome],
-        nr_experiments:int,
-        reporting_interval:int=100,
-        reporting_frequency:int=10,
-        log_progress:bool=False,
+        uncertainties: list[Parameter],
+        levers: list[Parameter],
+        outcomes: list[AbstractOutcome],
+        nr_experiments: int,
+        reporting_interval: int = 100,
+        reporting_frequency: int = 10,
+        log_progress: bool = False,
     ):
         """Init.
 
@@ -203,7 +208,7 @@ class DefaultCallback(AbstractCallback):
             (entry.name, "") for entry in uncertainties + levers
         ]
         self.uncertainties = [u.name for u in uncertainties]
-        self.levers = [l.name for l in levers] # noqa: E741
+        self.levers = [l.name for l in levers]  # noqa: E741
         self.results = {}
 
         dtypes = []
@@ -379,7 +384,9 @@ class FileBasedCallback(AbstractCallback):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
 
-        self.experiments_fh = open(os.path.join(self.directory, "experiments.csv"), "w") # noqa SIM115
+        self.experiments_fh = open(
+            os.path.join(self.directory, "experiments.csv"), "w"
+        )  # noqa SIM115
 
         # write experiments.csv header row
         header = [p.name for p in self.parameters] + ["scenario_id", "policy", "model"]
@@ -389,7 +396,9 @@ class FileBasedCallback(AbstractCallback):
         self.outcome_fhs = {}
         for outcome in self.outcomes:
             name = outcome.name
-            self.outcome_fhs[name] = open(os.path.join(self.directory, f"{name}.csv"), "w") # noqa SIM115
+            self.outcome_fhs[name] = open(
+                os.path.join(self.directory, f"{name}.csv"), "w"
+            )  # noqa SIM115
 
     def _store_case(self, experiment):
         """Helper method for storing a single experiment."""

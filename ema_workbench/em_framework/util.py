@@ -3,9 +3,8 @@
 # Created on Jul 16, 2016
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-import warnings
-
 import itertools
+import warnings
 from collections import OrderedDict, UserDict
 
 import tqdm
@@ -28,8 +27,8 @@ __all__ = [
 class NamedObject:
     """Base object with a name attribute."""
 
-    def __init__(self, name:str):
-        self.name:str = name
+    def __init__(self, name: str):
+        self.name: str = name
 
 
 class Counter:
@@ -38,7 +37,7 @@ class Counter:
     def __init__(self, startfrom=0):
         self._counter = itertools.count(startfrom)
 
-    def __call__(self, *args):# noqa: D102
+    def __call__(self, *args):  # noqa: D102
         return next(self._counter)
 
 
@@ -63,9 +62,13 @@ class Variable(NamedObject):
             name = [name]
         self._variable_name = name
 
-    def __init__(self, name:str, variable_name:str|list[str]|None=None):
+    def __init__(self, name: str, variable_name: str | list[str] | None = None):
         if not name.isidentifier():
-            warnings.warn(f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers", DeprecationWarning, stacklevel=2)
+            warnings.warn(
+                f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             # raise DeprecationWarning(
 
             # )
@@ -86,19 +89,19 @@ class NamedObjectMap:
                 f"Type must be a (subclass of a) NamedObject, not {type(kind)}"
             )
 
-    def clear(self): # noqa: D102
+    def clear(self):  # noqa: D102
         self._data = OrderedDict()
 
-    def copy(self): # noqa: D102
+    def copy(self):  # noqa: D102
         copy = NamedObjectMap(self.kind)
         copy._data = self._data.copy()
 
         return copy
 
-    def __len__(self): # noqa: D105
+    def __len__(self):  # noqa: D105
         return len(self._data)
 
-    def __getitem__(self, key): # noqa: D105
+    def __getitem__(self, key):  # noqa: D105
         if isinstance(key, int):
             for i, (_, v) in enumerate(self._data.items()):
                 if i == key:
@@ -107,7 +110,7 @@ class NamedObjectMap:
         else:
             return self._data[key]
 
-    def __setitem__(self, key, value): # noqa: D105
+    def __setitem__(self, key, value):  # noqa: D105
         if not isinstance(value, self.kind):
             raise TypeError(
                 f"Can only add {self.kind.__name__} objects, not {type(value)}"
@@ -128,16 +131,16 @@ class NamedObjectMap:
 
             self._data[key] = value
 
-    def __delitem__(self, key): # noqa: D105
+    def __delitem__(self, key):  # noqa: D105
         del self._data[key]
 
-    def __iter__(self): # noqa: D105
+    def __iter__(self):  # noqa: D105
         return iter(self._data.values())
 
-    def __contains__(self, item): # noqa: D105
+    def __contains__(self, item):  # noqa: D105
         return item in self._data
 
-    def extend(self, value): # noqa: D102
+    def extend(self, value):  # noqa: D102
         if isinstance(value, NamedObject):
             self._data[value.name] = value
         elif hasattr(value, "__iter__"):
@@ -146,16 +149,16 @@ class NamedObjectMap:
         else:
             raise TypeError(f"Can only add {type!s} objects")
 
-    def __add__(self, value): # noqa: D105
+    def __add__(self, value):  # noqa: D105
         data = self.copy()
         data.extend(value)
         return data
 
-    def __iadd__(self, value): # noqa: D105
+    def __iadd__(self, value):  # noqa: D105
         self.extend(value)
         return self
 
-    def keys(self): # noqa: D102
+    def keys(self):  # noqa: D102
         return self._data.keys()
 
 
@@ -165,7 +168,7 @@ class NamedObjectMapDescriptor:
     def __init__(self, kind):
         self.kind = kind
 
-    def __get__(self, instance, owner): # noqa: D105
+    def __get__(self, instance, owner):  # noqa: D105
         if instance is None:
             return self
         try:
@@ -175,7 +178,7 @@ class NamedObjectMapDescriptor:
             setattr(instance, self.internal_name, mapping)
             return mapping
 
-    def __set__(self, instance, values): # noqa: D105
+    def __set__(self, instance, values):  # noqa: D105
         try:
             mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
@@ -184,7 +187,7 @@ class NamedObjectMapDescriptor:
 
         mapping.extend(values)
 
-    def __set_name__(self, owner, name): # noqa: D105
+    def __set_name__(self, owner, name):  # noqa: D105
         self.name = name
         self.internal_name = "_" + name
 
@@ -201,7 +204,7 @@ class NamedDict(UserDict, NamedObject):
         self.name = name
 
 
-def combine(*args)->dict:
+def combine(*args) -> dict:
     """Combine scenario and policy into a single experiment dict.
 
     Parameters
@@ -301,7 +304,7 @@ class ProgressTrackingMixIn:
 
     def __init__(
         self,
-        N, # noqa: N803
+        N,  # noqa: N803
         reporting_interval,
         logger,
         log_progress=False,
@@ -320,7 +323,7 @@ class ProgressTrackingMixIn:
         if not log_progress:
             self.pbar = tqdm.tqdm(total=N, ncols=79)
 
-    def __call__(self, n): # noqa: D102
+    def __call__(self, n):  # noqa: D102
         self.i += n
         self._logger.debug(f"{self.i} experiments performed")
 
@@ -333,7 +336,7 @@ class ProgressTrackingMixIn:
             if self.i % self.reporting_interval == 0:
                 self.log_func(self)
 
-    def close(self): # noqa: D102
+    def close(self):  # noqa: D102
         try:
             self.pbar.__exit__(None, None, None)
         except AttributeError:

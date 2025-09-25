@@ -21,9 +21,7 @@ from ..util import ema_exceptions, ema_logging, get_module_logger
 from . import experiment_runner
 from .evaluators import BaseEvaluator
 from .futures_util import setup_working_directories
-from .model import AbstractModel
 from .points import Experiment
-from .util import NamedObjectMap
 
 # Created on Jul 16, 2015
 #
@@ -332,13 +330,13 @@ def _run_experiment(experiment):
 
 def _initialize_engine(engine_id, msis, cwd):
     """Wrapper function for initializing an engine."""
-    global engine # noqa PLW0603
+    global engine  # noqa PLW0603
     engine = Engine(engine_id, msis, cwd)
 
 
 def _cleanup():
     """Wrapper function for engine.cleanup_working_directory."""
-    global engine #noqa: PLW0603
+    global engine  # noqa: PLW0603
     engine.cleanup_working_directory()
     del engine
 
@@ -358,7 +356,7 @@ class IpyparallelEvaluator(BaseEvaluator):
         _logger.debug("starting ipyparallel pool")
 
         try:
-            TIMEOUT_MAX = threading.TIMEOUT_MAX # noqa: N806
+            TIMEOUT_MAX = threading.TIMEOUT_MAX  # noqa: N806
         except AttributeError:
             TIMEOUT_MAX = 1e10  # noqa: N806
         ipyparallel.client.asyncresult._FOREVER = TIMEOUT_MAX
@@ -381,7 +379,7 @@ class IpyparallelEvaluator(BaseEvaluator):
         cleanup(self.client)
 
     def evaluate_experiments(
-        self, experiments:Iterable[Experiment], callback:Callable, **kwargs
+        self, experiments: Iterable[Experiment], callback: Callable, **kwargs
     ):
         """Evaluate experiments."""
         lb_view = self.client.load_balanced_view()

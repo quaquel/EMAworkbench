@@ -22,7 +22,9 @@ class TestEvaluators(unittest.TestCase):
     ):
         model = mock.Mock(spec=ema_workbench.Model)
         model.name = "test"
-        mocked_generator = mock.Mock("ema_workbench.em_framework.points.experiment_generator")
+        mocked_generator = mock.Mock(
+            "ema_workbench.em_framework.points.experiment_generator"
+        )
         mocked_generator.return_value = [1]
         mocked_multiprocessing.cpu_count.return_value = 4
 

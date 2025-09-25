@@ -3,9 +3,9 @@
 from ema_workbench.util.ema_logging import method_logger
 
 from ..util import CaseError, EMAError, get_module_logger
-from .points import Point
-from .util import NamedObjectMap
 from .model import AbstractModel
+from .points import Sample
+from .util import NamedObjectMap
 
 # Created on Aug 11, 2015
 #
@@ -89,7 +89,7 @@ class ExperimentRunner:
         scenario = experiment.scenario.copy()
         scenario_id = experiment.scenario.name
 
-        constants = Point(**{c.name:c.value for c in model.constants})
+        constants = Sample(**{c.name: c.value for c in model.constants})
 
         _logger.debug(
             self.log_message.format(
@@ -109,7 +109,9 @@ class ExperimentRunner:
                 raise e2
 
             errortype = type(e).__name__
-            raise EMAError(f"Exception in run_model\nCaused by: {errortype}: {e!s}") from e
+            raise EMAError(
+                f"Exception in run_model\nCaused by: {errortype}: {e!s}"
+            ) from e
 
         outcomes = model.outcomes_output
         model.reset_model()

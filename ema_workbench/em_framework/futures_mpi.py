@@ -14,9 +14,8 @@ from ..util import get_module_logger, get_rootlogger, method_logger
 from .evaluators import BaseEvaluator
 from .experiment_runner import ExperimentRunner
 from .futures_util import determine_rootdir, finalizer, setup_working_directories
-from .model import AbstractModel
 from .points import Experiment
-from .util import NamedObjectMap
+
 
 __all__ = ["MPIEvaluator"]
 
@@ -41,7 +40,7 @@ class RankFilter(logging.Filter):
 
 def mpi_initializer(models, log_level, root_dir):
     """Initalizer."""
-    global experiment_runner # noqa: PLW0603
+    global experiment_runner  # noqa: PLW0603
     from mpi4py import MPI
 
     rank = MPI.COMM_WORLD.Get_rank()
@@ -123,7 +122,7 @@ def run_experiment_mpi(experiment):
 
 def send_sentinel():
     """Send sentinel to ensure logging is closed down."""
-    record = logging.makeLogRecord({"level":logging.CRITICAL, "msg":None, "name":42})
+    record = logging.makeLogRecord({"level": logging.CRITICAL, "msg": None, "name": 42})
 
     for handler in get_rootlogger().handlers:
         if isinstance(handler, MPIHandler):
@@ -160,7 +159,8 @@ class MPIEvaluator(BaseEvaluator):
         warnings.warn(
             "The MPIEvaluator is experimental. Its interface and functionality might change in future releases.\n"
             "We welcome your feedback at: https://github.com/quaquel/EMAworkbench/discussions/311",
-            FutureWarning, stacklevel=2,
+            FutureWarning,
+            stacklevel=2,
         )
         self._pool = None
         self.root_dir = None
@@ -222,7 +222,7 @@ class MPIEvaluator(BaseEvaluator):
 
     @method_logger(__name__)
     def evaluate_experiments(
-        self, experiments:Iterable[Experiment], callback:Callable, **kwargs
+        self, experiments: Iterable[Experiment], callback: Callable, **kwargs
     ):
         """Evaluate experiments using MPIPoolExecutor."""
         experiments = list(experiments)

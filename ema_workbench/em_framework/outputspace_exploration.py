@@ -171,7 +171,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         problem,
         grid_spec=None,
         population_size=100,
-        generator=RandomGenerator(), # noqa: B008
+        generator=RandomGenerator(),  # noqa: B008
         variator=None,
         **kwargs,
     ):
@@ -307,7 +307,7 @@ class OutputSpaceExploration(AdaptiveTimeContinuation):
         problem,
         grid_spec=None,
         population_size=100,
-        generator=RandomGenerator(), # noqa: B008
+        generator=RandomGenerator(),  # noqa: B008
         variator=None,
         **kwargs,
     ):
@@ -376,7 +376,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
         problem,
         grid_spec=None,
         population_size=100,
-        generator=RandomGenerator(), # noqa: B008
+        generator=RandomGenerator(),  # noqa: B008
         variator=None,
         **kwargs,
     ):

@@ -1,7 +1,5 @@
 """Unit tests for model classes."""
 
-
-
 # Created on Jul 28, 2015
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -16,7 +14,7 @@ from ema_workbench.em_framework.parameters import (
     Category,
     RealParameter,
 )
-from ema_workbench.em_framework.points import Policy, Scenario, Point
+from ema_workbench.em_framework.points import Sample
 from ema_workbench.util import EMAError
 
 
@@ -45,7 +43,7 @@ class TestFileModel(unittest.TestCase):
         with mock.patch("ema_workbench.em_framework.model.os") as patch:
             patch.os.is_file.set_return_value(True)
             model = FileModelTest(model_name, ".", model_file)
-            model.run_model(Scenario(a=1), Policy("test", b=2), Point())
+            model.run_model(Sample(a=1), Sample("test", b=2), Sample())
             self.assertEqual(model.policy.name, "test")
 
 
@@ -69,7 +67,7 @@ class TestModel(unittest.TestCase):
         def policy_func(a=1):
             return a
 
-        policy = Policy("test", function=policy_func, unknown="a")
+        policy = Sample("test", function=policy_func, unknown="a")
         model.model_init(policy)
 
         self.assertEqual(policy, model.policy)
@@ -85,7 +83,7 @@ class TestModel(unittest.TestCase):
 
         model = Model(model_name, function)
         model.uncertainties = [RealParameter("a", 0, 1)]
-        model.run_model(Scenario(a=0.1, b=1), Policy("test"), Point())
+        model.run_model(Sample(a=0.1, b=1), Sample("test"), Sample())
         function.assert_called_once_with(a=0.1)
 
         # test complete translation of scenario
@@ -93,8 +91,8 @@ class TestModel(unittest.TestCase):
         model = Model(model_name, function)
         model.uncertainties = [RealParameter("a", 0, 1, variable_name=["a", "b"])]
 
-        scenario = Scenario(a=0.1)
-        model.run_model(scenario, Policy("test"), Point())
+        scenario = Sample(a=0.1)
+        model.run_model(scenario, Sample("test"), Sample())
 
         self.assertIn("a", scenario.keys())
         self.assertIn("b", scenario.keys())
@@ -105,16 +103,16 @@ class TestModel(unittest.TestCase):
             CategoricalParameter("a", cats, variable_name=["a", "b"], multivalue=True)
         ]
 
-        scenario = Scenario(a=cats[0].value)
-        model.run_model(scenario, Policy("test"), Point())
+        scenario = Sample(a=cats[0].value)
+        model.run_model(scenario, Sample("test"), Sample())
 
         self.assertIn("a", scenario.keys())
         self.assertIn("b", scenario.keys())
         self.assertEqual(scenario["a"], 1)
         self.assertEqual(scenario["b"], 2)
 
-        scenario = Scenario(a=cats[1].value)
-        model.run_model(scenario, Policy("test"), Point())
+        scenario = Sample(a=cats[1].value)
+        model.run_model(scenario, Sample("test"), Sample())
 
         self.assertIn("a", scenario.keys())
         self.assertIn("b", scenario.keys())
@@ -127,7 +125,7 @@ class TestModel(unittest.TestCase):
 
         model = Model(model_name, function)
         model.uncertainties = [RealParameter("a", 0, 1)]
-        model.run_model(Scenario(a=0.1, b=1), Policy("test"), Point())
+        model.run_model(Sample(a=0.1, b=1), Sample("test"), Sample())
         function.assert_called_once_with(a=0.1)
 
         # test complete translation of scenario
@@ -135,8 +133,8 @@ class TestModel(unittest.TestCase):
         model = Model(model_name, function)
         model.uncertainties = [RealParameter("a", 0, 1, variable_name=["a", "b"])]
 
-        scenario = Scenario(a=0.1)
-        model.run_model(scenario, Policy("test"), Point())
+        scenario = Sample(a=0.1)
+        model.run_model(scenario, Sample("test"), Sample())
 
         self.assertIn("a", scenario.keys())
         self.assertIn("b", scenario.keys())
@@ -147,16 +145,16 @@ class TestModel(unittest.TestCase):
             CategoricalParameter("a", cats, variable_name=["a", "b"], multivalue=True)
         ]
 
-        scenario = Scenario(a=cats[0].value)
-        model.run_model(scenario, Policy("test"), Point())
+        scenario = Sample(a=cats[0].value)
+        model.run_model(scenario, Sample("test"), Sample())
 
         self.assertIn("a", scenario.keys())
         self.assertIn("b", scenario.keys())
         self.assertEqual(scenario["a"], 1)
         self.assertEqual(scenario["b"], 2)
 
-        scenario = Scenario(a=cats[1].value)
-        model.run_model(scenario, Policy("test"), Point())
+        scenario = Sample(a=cats[1].value)
+        model.run_model(scenario, Sample("test"), Sample())
 
         self.assertIn("a", scenario.keys())
         self.assertIn("b", scenario.keys())
@@ -213,7 +211,7 @@ class TestReplicatorModel(unittest.TestCase):
         model.outcomes = [ArrayOutcome("outcome")]
         model.replications = 2
 
-        model.run_model(Scenario(a=0.1, b=1), Policy("test"), Point())
+        model.run_model(Sample(a=0.1, b=1), Sample("test"), Sample())
         self.assertEqual(function.call_count, 2)
         self.assertEqual({"outcome": [2, 2]}, model.outcomes_output)
 
