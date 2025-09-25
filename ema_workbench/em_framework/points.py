@@ -117,34 +117,6 @@ class ExperimentReplication(NamedDict):
         super().__init__(name, **combine(scenario, policy, constants))
 
 
-def zip_cycle(*args):
-    """Helper function for cycling over zips."""
-    # zipover
-    #     taken from jpn
-    #     getting the max might by tricky
-    #     policies and scenarios are generators themselves?
-    # TODO to be replaced with sample based combining
-
-    max_len = max(len(list(a)) for a in args)
-    return itertools.islice(zip(*(itertools.cycle(a) for a in args)), max_len)
-
-
-def combine_cases_factorial(*point_collections):
-    """Combine collections of cases in a full factorial manner.
-
-    Parameters
-    ----------
-    point_collections : collection of collections of Sample instances
-
-    Yields
-    ------
-    Sample
-
-    """
-    combined_cases = itertools.product(*point_collections)
-
-    for entry in combined_cases:
-        yield Sample(**ChainMap(*entry))
 
 
 class SampleCollection:
@@ -176,6 +148,35 @@ class SampleCollection:
 
     def __str__(self):  # noqa: D105
         return f"ema_workbench.SampleCollection, {self.n} designs on {len(self.parameters)} parameters"
+
+    def __len__(self):
+        """Return the number of samples in the collection."""
+        return self.samples.shape[0]
+
+    def __getitem__(self, key):
+        """Return the samples for the index or slice.
+
+        This method also supports column wise slicing so you can get samples which
+        ignore specific parameters.
+
+        """
+        samples = self.samples[key]
+
+        try:
+            index = key[1]
+        except IndexError:
+            parameters = self.parameters
+
+            if not isinstance(key, slice):
+                samples = samples.reshape((1, samples.shape[0]))
+        else:
+            parameters = self.parameters[index]
+            if not isinstance(index, slice):
+                parameters = [parameters]
+                samples = samples.reshape((samples.shape[0], 1))
+
+        samples = list(sample_generator(samples, parameters))
+        return samples
 
     def combine(
         self,
@@ -274,26 +275,27 @@ def experiment_generator(
     scenarios: Iterable[Sample],
     policies: Iterable[Sample],
     combine: Literal["full_factorial", "sample", "cycle"] = "full_factorial",
+    rng: SeedLike | RNGLike | None = None,
 ) -> Generator[Experiment, None, None]:
     """Generator function which yields experiments.
 
     Parameters
     ----------
-    scenarios : iterable of experiments
     models : list
-    policies : list
-    combine = {'factorial, sample'}
+    scenarios : iterable of scenarios
+    policies : iterable of policies
+    combine = {'full_factorial, sample', "cycle"}
               controls how to combine scenarios, policies, and models
               into experiments.
 
     Notes
     -----
-    if combine is 'factorial' then this generator is essentially three nested
+    if combine is full_factorial' then this generator is essentially three nested
     loops: for each model, for each policy, for each scenario,
-    return the experiment. This means that designs should not be a generator
+    return the experiment. This means that scenarios should not be a generator
     because this will be exhausted after the running the first policy on the
     first model.
-    if combine is 'zipover' then this generator cycles over scenarios, policies
+    if combine is 'cycle' then this generator cycles over scenarios, policies
     and models until the longest of the three collections is
     exhausted.
 
@@ -306,7 +308,7 @@ def experiment_generator(
         case "full_factorial":
             jobs = itertools.product(models, policies, scenarios)
         case "sample":
-            raise NotImplementedError()
+            sample(models, policies, scenarios, rng=rng)
         case "cycle":
             jobs = zip_cycle(models, policies, scenarios)
         case _:
@@ -319,3 +321,28 @@ def experiment_generator(
         name = f"{model.name} {policy.name} {i}"
         experiment = Experiment(name, model.name, policy, scenario, i)
         yield experiment
+
+
+
+def zip_cycle(*args):
+    """Helper function for cycling over zips."""
+    max_len = max(len(a) for a in args)
+    return itertools.islice(zip(*(itertools.cycle(a) for a in args)), max_len)
+
+
+def sample(models, policies, scenarios, rng=None):
+    rng = np.random.default_rng(rng)
+    max_length = max(len(models), len(policies), len(scenarios))
+
+    def upsample(collection, size):
+        indices = rng.integers(0, len(collection), size)
+        return [collection[i] for i in indices]
+
+    if len(models) != max_length:
+        models = upsample(models, max_length)
+    if len(policies) != max_length:
+        policies = upsample(policies, max_length)
+    if len(scenarios) != max_length:
+        scenarios = upsample(scenarios, max_length)
+
+    return zip(models, policies, scenarios)
