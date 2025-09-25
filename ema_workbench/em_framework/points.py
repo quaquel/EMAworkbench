@@ -164,7 +164,7 @@ class SampleCollection:
 
         try:
             index = key[1]
-        except IndexError:
+        except TypeError:
             parameters = self.parameters
 
             if not isinstance(key, slice):
@@ -259,7 +259,7 @@ def sample_generator(
             if isinstance(param, IntegerParameter):
                 value = int(value)  # noqa: PLW2901
             if isinstance(param, BooleanParameter):
-                value = bool(value)  # noqa: PLW2901
+                value = bool(value)# noqa: PLW2901
             if isinstance(param, CategoricalParameter):
                 # categorical parameter is an integer parameter, so
                 # conversion to int is already done

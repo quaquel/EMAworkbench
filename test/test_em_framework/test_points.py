@@ -2,13 +2,14 @@ import numpy as np
 
 import pytest
 
-from ema_workbench.em_framework.parameters import RealParameter
-from ema_workbench.em_framework.points import SampleCollection, Sample
+from ema_workbench import BooleanParameter
+from ema_workbench.em_framework.parameters import RealParameter, IntegerParameter, CategoricalParameter
+from ema_workbench.em_framework.points import SampleCollection, Sample, sample_generator
 from ema_workbench.em_framework import points
 from ema_workbench.em_framework.util import NamedObject
 
 
-def test_experiment_gemerator():
+def test_experiment_generator():
     scenarios = [NamedObject("scen_1"), NamedObject("scen_2")]
     model = [NamedObject("model")]
     policies = [NamedObject("1"), NamedObject("2"), NamedObject("3")]
@@ -31,6 +32,29 @@ def test_experiment_gemerator():
             scenarios, model, policies, combine="adf"
         )
         _ = list(experiments)
+
+
+def test_sample_generator():
+    rng = np.random.default_rng(42)
+
+    samples = rng.uniform(size=(10, 4))
+    samples[:, 1] = np.floor(samples[:, 1]*10)
+    samples[:, 2] = np.floor(samples[:, 2] * 2)
+    samples[:, 3] = np.round(samples[:, 3])
+    parameters = [RealParameter("a", 0, 1),
+                  IntegerParameter("b", 0, 10),
+                  CategoricalParameter("c", ["a", "b", "c"]),
+                  BooleanParameter("d")]
+
+    generator = sample_generator(samples, parameters)
+
+    for i, sample in enumerate(generator):
+        a, b, c, d= samples[i]
+
+        assert sample["a"] == a
+        assert sample["b"] == int(b)
+        assert sample["c"] == parameters[2].cat_for_index(int(c)).value
+        assert sample["d"] == bool(d)
 
 
 def test_sample_collection():
@@ -95,5 +119,34 @@ def test_sample_collection():
         it1.combine(it2, "wrong value")
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_sample_collection_getitem():
+    rng = np.random.default_rng(42)
+
+    samples = rng.uniform(size=(10, 3))
+    parameters = [RealParameter(entry, 0, 1) for entry in "abc"]
+    sample_collection = SampleCollection(samples, parameters)
+
+    sample = sample_collection[0][0]
+    assert isinstance(sample, Sample)
+    assert np.all(np.asarray(list(sample.values()))==samples[0,:])
+
+
+    sub_samples = sample_collection[0:2]
+    for i, sample in enumerate(sub_samples):
+        assert isinstance(sample, Sample)
+        assert np.all(np.asarray(list(sample.values()))==samples[i,:])
+
+    sub_samples = sample_collection[0:2, :]
+    for i, sample in enumerate(sub_samples):
+        assert isinstance(sample, Sample)
+        assert np.all(np.asarray(list(sample.values()))==samples[i,:])
+
+    sub_samples = sample_collection[0:2, 0:2]
+    for i, sample in enumerate(sub_samples):
+        assert isinstance(sample, Sample)
+        assert np.all(np.asarray(list(sample.values()))==samples[i,0:2])
+
+    sub_samples = sample_collection[0:2, 0]
+    for i, sample in enumerate(sub_samples):
+        assert isinstance(sample, Sample)
+        assert np.all(np.asarray(list(sample.values()))==samples[i,0])
