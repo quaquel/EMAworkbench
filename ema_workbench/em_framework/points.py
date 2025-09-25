@@ -258,11 +258,11 @@ def sample_generator(
         for param, value in zip(params, sample):
             if isinstance(param, IntegerParameter):
                 value = int(value)  # noqa: PLW2901
-            if isinstance(param, BooleanParameter):
-                value = bool(value)# noqa: PLW2901
             if isinstance(param, CategoricalParameter):
                 # categorical parameter is an integer parameter, so
                 # conversion to int is already done
+                # boolean is a subclass of categorical with False and True as categories, so this is handled
+                # via this route as well
                 value = param.cat_for_index(value).value  # noqa: PLW2901
 
             design_dict[param.name] = value

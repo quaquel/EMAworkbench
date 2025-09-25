@@ -492,7 +492,7 @@ class BooleanParameter(CategoricalParameter):
         """Init."""
         super().__init__(
             name,
-            categories=[True, False],
+            categories=[False, True],
             default=default,
             variable_name=variable_name,
         )
