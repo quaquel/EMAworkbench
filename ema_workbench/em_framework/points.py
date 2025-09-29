@@ -184,11 +184,19 @@ class SampleCollection:
         how: Literal["full_factorial", "sample", "cycle"],
         rng: SeedLike | RNGLike | None = None,
     ) -> "SampleCollection":
-        """Combine 2 design iterators into a new design iterator.
+        """Combine two SampleCollections into a new SampleCollection.
+
+        Use this if you have two sets of samples for different parameters that
+        you want to combine into a bigger set of samples across the combined set
+        of parameters.
+
+        If you want to simple combine two sets of samples for the same parameters,
+        use `concat` instead.
+
 
         Parameters
         ----------
-        other : the iterator to combine with this one
+        other : the SampleCollection to combine with this one
         how : how to combine the designs.
         rng : RNG or None, only relevant in case combine is "sample"
 
@@ -196,15 +204,23 @@ class SampleCollection:
         -------
         a new SampleCollection instance
 
+        Raises
+        ------
+        ValueError if one or more parameters with the same name are present in both collections
+
         """
-        # fixme assumes that there is no overlap in parameters
-        #    should raise ValueError if this assumption does not hold
-        #    what about combining row wise samples?
+        combined_parameters = self.parameters + other.parameters
+        own_names = {p.name for p in self.parameters}
+        other_names = {p.name for p in other.parameters}
+        overlap = own_names & other_names
+        if overlap:
+            raise ValueError(
+                f"the parameters {overlap} exist in both SampleCollections"
+            )
 
         combined_samples = None
         samples_1 = self.samples
         samples_2 = other.samples
-
         match how:
             case "full_factorial":
                 samples_1_repeated = np.repeat(
@@ -234,9 +250,36 @@ class SampleCollection:
                     f"unknown value for combine, got {how}, should be one of full_factorial, sample, or cycle"
                 )
 
-        combined_parameters = self.parameters + other.parameters
-
         return SampleCollection(combined_samples, combined_parameters)
+
+    def concat(self, other: "SampleCollection") -> "SampleCollection":
+        """Concatenate two SampleCollections.
+
+        Parameters
+        ----------
+        other : the SampleCollection to combine with this one
+
+        Returns
+        -------
+        a new SampleCollection instance
+
+        Raises
+        ------
+        ValueError if one or more parameters with the same name are present in both collections
+
+        """
+        own_names = {p.name for p in self.parameters}
+        other_names = {p.name for p in other.parameters}
+        missing = own_names - other_names
+        if missing:
+            raise ValueError(
+                f"the parameters {missing} do not exist in both SampleCollections"
+            )
+
+        samples_1 = self.samples
+        samples_2 = other.samples
+        combined_samples = np.hstack((samples_1, samples_2))
+        return SampleCollection(combined_samples, self.parameters[:])
 
 
 def sample_generator(
@@ -351,7 +394,9 @@ def sample(models, policies, scenarios, rng=None):
     return zip(models, policies, scenarios)
 
 
-def from_experiments(experiments: pd.DataFrame, drop_defaults:bool=True) -> list["Sample"]:
+def from_experiments(
+    experiments: pd.DataFrame, drop_defaults: bool = True
+) -> list["Sample"]:
     """Generate scenarios from an existing experiments DataFrame.
 
     This function takes a pandas DataFrame and turns it into a list of Sample instances.
@@ -372,7 +417,9 @@ def from_experiments(experiments: pd.DataFrame, drop_defaults:bool=True) -> list
 
     """
     if drop_defaults:
-        experiments = experiments.drop(["model", "scenario", "policy"], axis=1, inplace=False)
+        experiments = experiments.drop(
+            ["model", "scenario", "policy"], axis=1, inplace=False
+        )
 
     samples = []
     for record in experiments.to_dict(orient="records"):
