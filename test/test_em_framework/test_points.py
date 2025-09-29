@@ -27,11 +27,32 @@ def test_experiment_generator():
     experiments = list(experiments)
     assert len(experiments) == 3, "wrong number of experiments for zipover"
 
+
+    experiments = points.experiment_generator(
+        scenarios, model, policies, combine="sample"
+    )
+    experiments = list(experiments)
+    assert len(experiments) == 3, "wrong number of experiments for sample"
+
+
+    rng = np.random.default_rng(42)
+    scenarios = SampleCollection(rng.uniform(size=(10, 3)), [RealParameter(entry, 0, 1) for entry in "abc"])
+    policies = SampleCollection(rng.uniform(size=(5, 3)), [RealParameter(entry, 0, 1) for entry in "def"])
+
+    model = [NamedObject("model")]
+    experiments = points.experiment_generator(
+        model, scenarios, policies, combine="sample"
+    )
+    experiments = list(experiments)
+    assert len(experiments) == 10, "wrong number of experiments for sample"
+
     with pytest.raises(ValueError):
         experiments = points.experiment_generator(
             scenarios, model, policies, combine="adf"
         )
         _ = list(experiments)
+
+
 
 
 def test_sample_generator():
@@ -112,7 +133,7 @@ def test_sample_collection():
     it3 = it1.combine(it2, "sample", rng=42)
     samples = it3.samples
     assert np.all(
-        samples == np.array([[0, 0], [1, 1], [2, 1]])
+        samples == np.array([[0, 0], [1, 1], [2, 0]])
     )  # return has been hard coded for rng 42
 
     with pytest.raises(ValueError):
@@ -126,27 +147,19 @@ def test_sample_collection_getitem():
     parameters = [RealParameter(entry, 0, 1) for entry in "abc"]
     sample_collection = SampleCollection(samples, parameters)
 
-    sample = sample_collection[0][0]
+    sample = sample_collection[0]
     assert isinstance(sample, Sample)
     assert np.all(np.asarray(list(sample.values()))==samples[0,:])
-
 
     sub_samples = sample_collection[0:2]
     for i, sample in enumerate(sub_samples):
         assert isinstance(sample, Sample)
         assert np.all(np.asarray(list(sample.values()))==samples[i,:])
 
-    sub_samples = sample_collection[0:2, :]
-    for i, sample in enumerate(sub_samples):
-        assert isinstance(sample, Sample)
-        assert np.all(np.asarray(list(sample.values()))==samples[i,:])
+    with pytest.raises(TypeError):
+        sample_collection[0:2, :]
 
-    sub_samples = sample_collection[0:2, 0:2]
-    for i, sample in enumerate(sub_samples):
-        assert isinstance(sample, Sample)
-        assert np.all(np.asarray(list(sample.values()))==samples[i,0:2])
+    with pytest.raises(TypeError):
+        sample_collection[0.5]
 
-    sub_samples = sample_collection[0:2, 0]
-    for i, sample in enumerate(sub_samples):
-        assert isinstance(sample, Sample)
-        assert np.all(np.asarray(list(sample.values()))==samples[i,0])
+

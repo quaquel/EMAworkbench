@@ -5,22 +5,19 @@ As well as associated helper functions
 """
 
 import itertools
-from collections import ChainMap
-from collections.abc import Iterable
 import math
-from typing import Literal
-from collections.abc import Sequence, Generator
+from collections.abc import Generator, Iterable, Sequence
+from typing import Literal, overload
 
 import numpy as np
 
+from ..util import get_module_logger
 from .parameters import (
-    Parameter,
-    IntegerParameter,
-    BooleanParameter,
     CategoricalParameter,
+    IntegerParameter,
+    Parameter,
 )
 from .util import Counter, NamedDict, NamedObject, combine
-from ..util import get_module_logger
 
 __all__ = [
     "Experiment",
@@ -117,8 +114,6 @@ class ExperimentReplication(NamedDict):
         super().__init__(name, **combine(scenario, policy, constants))
 
 
-
-
 class SampleCollection:
     """Collection of sample instances.
 
@@ -138,6 +133,10 @@ class SampleCollection:
         samples: np.ndarray,
         parameters: list[Parameter],
     ):
+        if samples.shape[1] != len(parameters):
+            raise ValueError(
+                "the number of columsn in samples does not match the number of parameters"
+            )
         self.samples = samples
         self.parameters = parameters
         self.n = self.samples.shape[0]
@@ -153,43 +152,36 @@ class SampleCollection:
         """Return the number of samples in the collection."""
         return self.samples.shape[0]
 
+    @overload
+    def __getitem__(self, key: int) -> Sample: ...
+
+    @overload
+    def __getitem__(self, key: slice) -> "SampleCollection": ...
+
     def __getitem__(self, key):
-        """Return the samples for the index or slice.
+        """Return the samples for the index or slice."""
+        if not isinstance(key, int|slice|np.integer):
+            raise TypeError(f"SampleCollection indices must be integers or slices, not {type(key)}")
 
-        This method also supports column wise slicing so you can get samples which
-        ignore specific parameters.
-
-        """
         samples = self.samples[key]
 
-        try:
-            index = key[1]
-        except TypeError:
-            parameters = self.parameters
+        if np.issubdtype(type(key), np.integer):
+            return next(sample_generator(samples.reshape((1, samples.shape[0])), self.parameters))
 
-            if not isinstance(key, slice):
-                samples = samples.reshape((1, samples.shape[0]))
-        else:
-            parameters = self.parameters[index]
-            if not isinstance(index, slice):
-                parameters = [parameters]
-                samples = samples.reshape((samples.shape[0], 1))
-
-        samples = list(sample_generator(samples, parameters))
-        return samples
+        return SampleCollection(samples, self.parameters[:])
 
     def combine(
         self,
         other: "SampleCollection",
-        combine: Literal["full_factorial", "sample", "cycle"],
+        how: Literal["full_factorial", "sample", "cycle"],
         rng: SeedLike | RNGLike | None = None,
     ) -> "SampleCollection":
-        """Combine 2 design iterators into a new design iterator..
+        """Combine 2 design iterators into a new design iterator.
 
         Parameters
         ----------
         other : the iterator to combine with this one
-        combine : how to combine the designs.
+        how : how to combine the designs.
         rng : RNG or None, only relevant in case combine is "sample"
 
         Returns
@@ -197,11 +189,15 @@ class SampleCollection:
         a new SampleCollection instance
 
         """
+        # fixme assumes that there is no overlap in parameters
+        #    should raise ValueError if this assumption does not hold
+        #    what about combining row wise samples?
+
         combined_samples = None
         samples_1 = self.samples
         samples_2 = other.samples
 
-        match combine:
+        match how:
             case "full_factorial":
                 samples_1_repeated = np.repeat(
                     samples_1, repeats=samples_2.shape[0], axis=0
@@ -227,7 +223,7 @@ class SampleCollection:
                     combined_samples = np.hstack((longest, upsampled))
             case _:
                 raise ValueError(
-                    f"unknown value for combine, got {combine}, should be one of full_factorial, sample"
+                    f"unknown value for combine, got {how}, should be one of full_factorial, sample, or cycle"
                 )
 
         combined_parameters = self.parameters + other.parameters
@@ -271,7 +267,7 @@ def sample_generator(
 
 
 def experiment_generator(
-    models: Iterable["AbstractModel"],
+    models: Iterable["AbstractModel"], # noqa: F821
     scenarios: Iterable[Sample],
     policies: Iterable[Sample],
     combine: Literal["full_factorial", "sample", "cycle"] = "full_factorial",
@@ -308,7 +304,7 @@ def experiment_generator(
         case "full_factorial":
             jobs = itertools.product(models, policies, scenarios)
         case "sample":
-            sample(models, policies, scenarios, rng=rng)
+            jobs = sample(models, policies, scenarios, rng=rng)
         case "cycle":
             jobs = zip_cycle(models, policies, scenarios)
         case _:
@@ -321,7 +317,6 @@ def experiment_generator(
         name = f"{model.name} {policy.name} {i}"
         experiment = Experiment(name, model.name, policy, scenario, i)
         yield experiment
-
 
 
 def zip_cycle(*args):
