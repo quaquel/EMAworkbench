@@ -281,6 +281,10 @@ class SampleCollection:
         combined_samples = np.hstack((samples_1, samples_2))
         return SampleCollection(combined_samples, self.parameters[:])
 
+    def __add__(self, other: "SampleCollection") -> "SampleCollection":
+        """Add a SampleCollections to this one."""
+        return self.concat(other)
+
 
 def sample_generator(
     samples: np.ndarray, params: list[Parameter]
