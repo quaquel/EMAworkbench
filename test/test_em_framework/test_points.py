@@ -138,7 +138,7 @@ def test_sample_collection():
     it3 = it1.combine(it2, "sample", rng=42)
     samples = it3.samples
     assert np.all(
-        samples == np.array([[0, 0], [1, 1], [2, 0]])
+        samples == np.array([[0, 0], [1, 1], [2, 1]])
     )  # return has been hard coded for rng 42
 
     with pytest.raises(ValueError):

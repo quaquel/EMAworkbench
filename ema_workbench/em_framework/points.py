@@ -221,7 +221,7 @@ class SampleCollection:
                         if samples_1.shape[0] > samples_2.shape[0]
                         else (samples_2, samples_1)
                     )
-                    if combine == "sample":
+                    if how == "sample":
                         rng = np.random.default_rng(rng)
                         indices = rng.integers(0, shortest.shape[0], longest.shape[0])
                         upsampled = shortest[indices]
