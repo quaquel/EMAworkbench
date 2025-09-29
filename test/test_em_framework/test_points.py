@@ -88,13 +88,13 @@ def test_sample_collection():
 
     samples = rng.uniform(size=(10, 3))
     parameters = [RealParameter(entry, 0, 1) for entry in "abc"]
-    iterator = SampleCollection(samples, parameters)
+    samples_collection = SampleCollection(samples, parameters)
 
     # basic intit
-    assert iterator.n == samples.shape[0]
+    assert samples_collection.n == samples.shape[0]
 
     # iteration
-    it = iter(iterator)
+    it = iter(samples_collection)
     for i, entry in enumerate(it):
         values = np.array([entry[k] for k in "abc"])
         assert np.all(values == samples[i])
@@ -105,7 +105,7 @@ def test_sample_collection():
     samples2 = np.array([0, 1]).reshape(2, 1)
 
     it1 = SampleCollection(samples1, [RealParameter("a", 0, 1)])
-    it2 = SampleCollection(samples2, [RealParameter("a", 0, 1)])
+    it2 = SampleCollection(samples2, [RealParameter("b", 0, 1)])
 
     it3 = it1.combine(it2, "full_factorial")
     samples = it3.samples
@@ -117,7 +117,7 @@ def test_sample_collection():
     samples2 = np.array([0, 1]).reshape(2, 1)
 
     it1 = SampleCollection(samples1, [RealParameter("a", 0, 1)])
-    it2 = SampleCollection(samples2, [RealParameter("a", 0, 1)])
+    it2 = SampleCollection(samples2, [RealParameter("b", 0, 1)])
 
     it3 = it1.combine(it2, "cycle")
     samples = it3.samples
@@ -128,7 +128,7 @@ def test_sample_collection():
     samples2 = np.array([0, 1]).reshape(2, 1)
 
     it1 = SampleCollection(samples1, [RealParameter("a", 0, 1)])
-    it2 = SampleCollection(samples2, [RealParameter("a", 0, 1)])
+    it2 = SampleCollection(samples2, [RealParameter("b", 0, 1)])
 
     it3 = it1.combine(it2, "cycle")
     samples = it3.samples
@@ -143,6 +143,9 @@ def test_sample_collection():
 
     with pytest.raises(ValueError):
         it1.combine(it2, "wrong value")
+
+    with pytest.raises(ValueError):
+        it1.combine(SampleCollection(samples2, [RealParameter("a", 0, 1)]), "wrong value")
 
 
 def test_sample_collection_getitem():

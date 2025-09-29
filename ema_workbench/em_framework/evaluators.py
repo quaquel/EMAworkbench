@@ -394,15 +394,21 @@ def perform_experiments(
             "no experiments possible since both scenarios and policies are 0"
         )
 
-    scenarios, uncertainties, n_scenarios = setup_scenarios(
+    scenarios, uncertainties, n_scenarios = _setup(
         scenarios,
         uncertainty_sampling,
         uncertainty_sampling_kwargs,
         models,
+        parameter_type="uncertainties",
         union=uncertainty_union,
     )
-    policies, levers, n_policies = setup_policies(
-        policies, lever_sampling, lever_sampling_kwargs, models, union=lever_union
+    policies, levers, n_policies = _setup(
+        policies,
+        lever_sampling,
+        lever_sampling_kwargs,
+        models,
+        union=lever_union,
+        parameter_type="levers",
     )
 
     try:
@@ -512,81 +518,119 @@ def setup_callback(
     return callback
 
 
-def setup_policies(
-    policies: int | Iterable[Sample] | Sample,
+def _setup(
+    samples: int | Iterable[Sample] | Sample | None,
     sampler: AbstractSampler | SamplerTypes | None,
-    lever_sampling_kwargs,
+    sampler_kwargs: dict | None,
     models,
     union: bool = True,
-):
-    # todo fix sampler type hints by adding Literal[all fields of sampler enum]
-    if lever_sampling_kwargs is None:
-        lever_sampling_kwargs = {}
-
-    if not policies:
-        policies = [Sample("None")]
-        levers = []
-        n_policies = 1
-    elif isinstance(policies, numbers.Integral):
-        if not isinstance(sampler, AbstractSampler):
-            sampler = sampler.value
-        parameters = determine_objects(models, "uncertainties", union=union)
-        policies = sampler.generate_samples(
-            parameters, policies, **lever_sampling_kwargs
-        )
-        levers = policies.parameters
-        n_policies = policies.n
-    else:
-        try:
-            levers = policies.parameters
-            n_policies = policies.n
-        except AttributeError:
-            levers = determine_objects(models, "levers", union=True)
-            if isinstance(policies, Sample):
-                policies = [policies]
-
-            levers = [l for l in levers if l.name in policies[0]]  # noqa: E741
-            n_policies = len(policies)
-    return policies, levers, n_policies
-
-
-def setup_scenarios(
-    scenarios: int | Iterable[Sample] | Sample,
-    sampler: AbstractSampler | SamplerTypes | None,
-    uncertainty_sampling_kwargs,
-    models,
-    union: bool = True,
+    parameter_type: Literal["uncertainties", "levers"] = "uncertainties",
 ):
     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
 
-    if uncertainty_sampling_kwargs is None:
-        uncertainty_sampling_kwargs = {}
+    if sampler_kwargs is None:
+        sampler_kwargs = {}
 
-    if not scenarios:
-        scenarios = [Sample("None")]
-        uncertainties = []
-        n_scenarios = 1
-    elif isinstance(scenarios, numbers.Integral):
+    if not samples:
+        samples = [Sample("None")]
+        parameters = []
+        n_samples = 1
+    elif isinstance(samples, numbers.Integral):
         if not isinstance(sampler, AbstractSampler):
             sampler = sampler.value
-        parameters = determine_objects(models, "uncertainties", union=union)
-        scenarios = sampler.generate_samples(
-            parameters, scenarios, **uncertainty_sampling_kwargs
-        )
-        uncertainties = scenarios.parameters
-        n_scenarios = scenarios.n
+        parameters = determine_objects(models, parameter_type, union=union)
+        samples = sampler.generate_samples(parameters, samples, **sampler_kwargs)
+        parameters = samples.parameters
+        n_samples = len(samples)
     else:
         try:
-            uncertainties = scenarios.parameters
-            n_scenarios = scenarios.n
+            parameters = samples.parameters
+            n_samples = len(samples)
         except AttributeError:
-            uncertainties = determine_objects(models, "uncertainties", union=True)
-            if isinstance(scenarios, Sample):
-                scenarios = [scenarios]
+            parameters = determine_objects(models, parameter_type, union=True)
+            if isinstance(samples, Sample):
+                samples = [samples]
 
-            uncertainties = [u for u in uncertainties if u.name in scenarios[0]]
-            n_scenarios = len(scenarios)
-    return scenarios, uncertainties, n_scenarios
+            uncertainties = [p for p in parameters if p.name in samples[0]]
+            n_samples = len(samples)
+    return samples, parameters, n_samples
+
+
+# def setup_policies(
+#     policies: int | Iterable[Sample] | Sample,
+#     sampler: AbstractSampler | SamplerTypes | None,
+#     lever_sampling_kwargs,
+#     models,
+#     union: bool = True,
+# ):
+#     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
+#     if lever_sampling_kwargs is None:
+#         lever_sampling_kwargs = {}
+#
+#     if not policies:
+#         policies = [Sample("None")]
+#         levers = []
+#         n_policies = 1
+#     elif isinstance(policies, numbers.Integral):
+#         if not isinstance(sampler, AbstractSampler):
+#             sampler = sampler.value
+#         parameters = determine_objects(models, "levers", union=union)
+#         policies = sampler.generate_samples(
+#             parameters, policies, **lever_sampling_kwargs
+#         )
+#         levers = policies.parameters
+#         n_policies = policies.n
+#     else:
+#         try:
+#             levers = policies.parameters
+#             n_policies = policies.n
+#         except AttributeError:
+#             levers = determine_objects(models, "levers", union=True)
+#             if isinstance(policies, Sample):
+#                 policies = [policies]
+#
+#             levers = [l for l in levers if l.name in policies[0]]  # noqa: E741
+#             n_policies = len(policies)
+#     return policies, levers, n_policies
+#
+#
+# def setup_scenarios(
+#     scenarios: int | Iterable[Sample] | Sample,
+#     sampler: AbstractSampler | SamplerTypes | None,
+#     uncertainty_sampling_kwargs,
+#     models,
+#     union: bool = True,
+# ):
+#     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
+#
+#     if uncertainty_sampling_kwargs is None:
+#         uncertainty_sampling_kwargs = {}
+#
+#     if not scenarios:
+#         scenarios = [Sample("None")]
+#         uncertainties = []
+#         n_scenarios = 1
+#     elif isinstance(scenarios, numbers.Integral):
+#         if not isinstance(sampler, AbstractSampler):
+#             sampler = sampler.value
+#         parameters = determine_objects(models, "uncertainties", union=union)
+#         scenarios = sampler.generate_samples(
+#             parameters, scenarios, **uncertainty_sampling_kwargs
+#         )
+#         uncertainties = scenarios.parameters
+#         n_scenarios = scenarios.n
+#     else:
+#         try:
+#             uncertainties = scenarios.parameters
+#             n_scenarios = scenarios.n
+#         except AttributeError:
+#             uncertainties = determine_objects(models, "uncertainties", union=True)
+#             if isinstance(scenarios, Sample):
+#                 scenarios = [scenarios]
+#
+#             uncertainties = [u for u in uncertainties if u.name in scenarios[0]]
+#             n_scenarios = len(scenarios)
+#     return scenarios, uncertainties, n_scenarios
 
 
 def optimize(
