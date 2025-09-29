@@ -10,6 +10,7 @@ from collections.abc import Generator, Iterable, Sequence
 from typing import Literal, overload
 
 import numpy as np
+import pandas as pd
 
 from ..util import get_module_logger
 from .parameters import (
@@ -24,6 +25,7 @@ __all__ = [
     "ExperimentReplication",
     "Sample",
     "SampleCollection",
+    "from_experiments",
 ]
 _logger = get_module_logger(__name__)
 
@@ -160,13 +162,19 @@ class SampleCollection:
 
     def __getitem__(self, key):
         """Return the samples for the index or slice."""
-        if not isinstance(key, int|slice|np.integer):
-            raise TypeError(f"SampleCollection indices must be integers or slices, not {type(key)}")
+        if not isinstance(key, int | slice | np.integer):
+            raise TypeError(
+                f"SampleCollection indices must be integers or slices, not {type(key)}"
+            )
 
         samples = self.samples[key]
 
         if np.issubdtype(type(key), np.integer):
-            return next(sample_generator(samples.reshape((1, samples.shape[0])), self.parameters))
+            return next(
+                sample_generator(
+                    samples.reshape((1, samples.shape[0])), self.parameters
+                )
+            )
 
         return SampleCollection(samples, self.parameters[:])
 
@@ -267,7 +275,7 @@ def sample_generator(
 
 
 def experiment_generator(
-    models: Iterable["AbstractModel"], # noqa: F821
+    models: Iterable["AbstractModel"],  # noqa: F821
     scenarios: Iterable[Sample],
     policies: Iterable[Sample],
     combine: Literal["full_factorial", "sample", "cycle"] = "full_factorial",
@@ -341,3 +349,33 @@ def sample(models, policies, scenarios, rng=None):
         scenarios = upsample(scenarios, max_length)
 
     return zip(models, policies, scenarios)
+
+
+def from_experiments(experiments: pd.DataFrame, drop_defaults:bool=True) -> list["Sample"]:
+    """Generate scenarios from an existing experiments DataFrame.
+
+    This function takes a pandas DataFrame and turns it into a list of Sample instances.
+    There is no further processing done, so it is up to the user to ensure that the columsn in the
+    dataframe map to parameters in the model.
+
+
+    Parameters
+    ----------
+    experiments : DataFrame
+    drop_defaults : bool
+                    By default, an experiments dataframe as returned by the workbench after performing experiments contains
+                    a 'model', 'scenario' and 'policy' column. If drop_defaults is True, these columns are automatically ignored.
+
+    Returns
+    -------
+    list of Sample instances
+
+    """
+    if drop_defaults:
+        experiments = experiments.drop(["model", "scenario", "policy"], axis=1, inplace=False)
+
+    samples = []
+    for record in experiments.to_dict(orient="records"):
+        samples.append(Sample(**record))
+
+    return samples

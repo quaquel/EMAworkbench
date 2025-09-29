@@ -69,3 +69,7 @@ def test_ff_sampler():
     for i, u in enumerate(uncertainties):
         assert np.all(samples.samples[:, i] >= u.lower_bound)
         assert np.all(samples.samples[:, i] <= u.upper_bound)
+
+
+
+

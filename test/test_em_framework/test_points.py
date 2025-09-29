@@ -2,10 +2,21 @@ import numpy as np
 
 import pytest
 
+from test import utilities
+
 from ema_workbench import BooleanParameter
-from ema_workbench.em_framework.parameters import RealParameter, IntegerParameter, CategoricalParameter
-from ema_workbench.em_framework.points import SampleCollection, Sample, sample_generator
-from ema_workbench.em_framework import points
+from ema_workbench.em_framework.parameters import (
+    RealParameter,
+    IntegerParameter,
+    CategoricalParameter,
+)
+from ema_workbench.em_framework.points import (
+    SampleCollection,
+    Sample,
+    sample_generator,
+    from_experiments,
+    experiment_generator,
+)
 from ema_workbench.em_framework.util import NamedObject
 
 
@@ -14,63 +25,57 @@ def test_experiment_generator():
     model = [NamedObject("model")]
     policies = [NamedObject("1"), NamedObject("2"), NamedObject("3")]
 
-    experiments = points.experiment_generator(
+    experiments = experiment_generator(
         scenarios, model, policies, combine="full_factorial"
     )
     experiments = list(experiments)
 
     assert len(experiments) == 6, "wrong number of experiments for factorial"
 
-    experiments = points.experiment_generator(
-        scenarios, model, policies, combine="cycle"
-    )
+    experiments = experiment_generator(scenarios, model, policies, combine="cycle")
     experiments = list(experiments)
     assert len(experiments) == 3, "wrong number of experiments for zipover"
 
-
-    experiments = points.experiment_generator(
-        scenarios, model, policies, combine="sample"
-    )
+    experiments = experiment_generator(scenarios, model, policies, combine="sample")
     experiments = list(experiments)
     assert len(experiments) == 3, "wrong number of experiments for sample"
 
-
     rng = np.random.default_rng(42)
-    scenarios = SampleCollection(rng.uniform(size=(10, 3)), [RealParameter(entry, 0, 1) for entry in "abc"])
-    policies = SampleCollection(rng.uniform(size=(5, 3)), [RealParameter(entry, 0, 1) for entry in "def"])
+    scenarios = SampleCollection(
+        rng.uniform(size=(10, 3)), [RealParameter(entry, 0, 1) for entry in "abc"]
+    )
+    policies = SampleCollection(
+        rng.uniform(size=(5, 3)), [RealParameter(entry, 0, 1) for entry in "def"]
+    )
 
     model = [NamedObject("model")]
-    experiments = points.experiment_generator(
-        model, scenarios, policies, combine="sample"
-    )
+    experiments = experiment_generator(model, scenarios, policies, combine="sample")
     experiments = list(experiments)
     assert len(experiments) == 10, "wrong number of experiments for sample"
 
     with pytest.raises(ValueError):
-        experiments = points.experiment_generator(
-            scenarios, model, policies, combine="adf"
-        )
+        experiments = experiment_generator(scenarios, model, policies, combine="adf")
         _ = list(experiments)
-
-
 
 
 def test_sample_generator():
     rng = np.random.default_rng(42)
 
     samples = rng.uniform(size=(10, 4))
-    samples[:, 1] = np.floor(samples[:, 1]*10)
+    samples[:, 1] = np.floor(samples[:, 1] * 10)
     samples[:, 2] = np.floor(samples[:, 2] * 2)
     samples[:, 3] = np.round(samples[:, 3])
-    parameters = [RealParameter("a", 0, 1),
-                  IntegerParameter("b", 0, 10),
-                  CategoricalParameter("c", ["a", "b", "c"]),
-                  BooleanParameter("d")]
+    parameters = [
+        RealParameter("a", 0, 1),
+        IntegerParameter("b", 0, 10),
+        CategoricalParameter("c", ["a", "b", "c"]),
+        BooleanParameter("d"),
+    ]
 
     generator = sample_generator(samples, parameters)
 
     for i, sample in enumerate(generator):
-        a, b, c, d= samples[i]
+        a, b, c, d = samples[i]
 
         assert sample["a"] == a
         assert sample["b"] == int(b)
@@ -149,12 +154,12 @@ def test_sample_collection_getitem():
 
     sample = sample_collection[0]
     assert isinstance(sample, Sample)
-    assert np.all(np.asarray(list(sample.values()))==samples[0,:])
+    assert np.all(np.asarray(list(sample.values())) == samples[0, :])
 
     sub_samples = sample_collection[0:2]
     for i, sample in enumerate(sub_samples):
         assert isinstance(sample, Sample)
-        assert np.all(np.asarray(list(sample.values()))==samples[i,:])
+        assert np.all(np.asarray(list(sample.values())) == samples[i, :])
 
     with pytest.raises(TypeError):
         sample_collection[0:2, :]
@@ -163,3 +168,13 @@ def test_sample_collection_getitem():
         sample_collection[0.5]
 
 
+def test_from_experiments():
+    experiments, _ = utilities.load_scarcity_data()
+
+    samples = from_experiments(experiments)
+
+    assert len(samples) == experiments.shape[0]
+
+    for sample, (_, row) in zip(samples[0:10], experiments.iloc[0:10, :].iterrows()):
+        for k, v in sample.items():
+            assert row[k] == v

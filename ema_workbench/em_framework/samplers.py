@@ -8,22 +8,17 @@ Monte Carlo sampling.
 
 import abc
 import itertools
-import math
-import numbers
-from collections.abc import Iterable, Sequence
-from typing import Literal
+from collections.abc import Sequence
 
 import numpy as np
 import scipy.stats as stats
 import scipy.stats.qmc as qmc
 
-from ema_workbench.em_framework import util
 from ema_workbench.em_framework.parameters import (
     IntegerParameter,
     Parameter,
 )
-from ema_workbench.em_framework.points import Sample, SampleCollection
-
+from ema_workbench.em_framework.points import SampleCollection
 
 # Created on 16 aug. 2011
 #
@@ -213,39 +208,3 @@ class FullFactorialSampler(AbstractSampler):
         samples = np.asarray(list(itertools.product(*samples)))
 
         return SampleCollection(samples, parameters)
-
-
-def from_experiments(models, experiments):
-    """Generate scenarios from an existing experiments DataFrame.
-
-    Parameters
-    ----------
-    models : collection of AbstractModel instances
-    experiments : DataFrame
-
-    Returns
-    -------
-     generator
-        yielding Scenario instances
-
-    """
-    # fixme
-
-    policy_names = np.unique(experiments["policy"])
-    model_names = np.unique(experiments["model"])
-
-    # we sample ff over models and policies so we need to ensure
-    # we only get the experiments for a single model policy combination
-    logical = (experiments["model"] == model_names[0]) & (
-        experiments["policy"] == policy_names[0]
-    )
-
-    experiments = experiments[logical]
-
-    uncertainties = util.determine_objects(models, "uncertainties", union=True)
-    samples = {unc.name: experiments[:, unc.name] for unc in uncertainties}
-
-    scenarios = SampleCollection(samples, uncertainties, experiments.shape[0])
-    scenarios.kind = Sample
-
-    return scenarios
