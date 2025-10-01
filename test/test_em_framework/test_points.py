@@ -147,6 +147,19 @@ def test_sample_collection():
     with pytest.raises(ValueError):
         it1.combine(SampleCollection(samples2, [RealParameter("a", 0, 1)]), "wrong value")
 
+    it1 = SampleCollection(samples1, [RealParameter("a", 0, 1)])
+    it2 = SampleCollection(samples2, [RealParameter("a", 0, 1)])
+    combined_samples = np.vstack((samples1, samples2))
+
+    it3 = it1 + it2
+    for i, sample in enumerate(it3):
+        np.all(np.asarray(sample.values) == combined_samples[i])
+
+    with pytest.raises(ValueError):
+        it1 = SampleCollection(samples1, [RealParameter("a", 0, 1)])
+        it2 = SampleCollection(samples2, [RealParameter("b", 0, 1)])
+        it3 = it1 + it2
+
 
 def test_sample_collection_getitem():
     rng = np.random.default_rng(42)

@@ -265,7 +265,7 @@ class SampleCollection:
 
         Raises
         ------
-        ValueError if one or more parameters with the same name are present in both collections
+        ValueError if one or more parameters are present in only one of the two SampleCollections.
 
         """
         own_names = {p.name for p in self.parameters}
@@ -278,7 +278,7 @@ class SampleCollection:
 
         samples_1 = self.samples
         samples_2 = other.samples
-        combined_samples = np.hstack((samples_1, samples_2))
+        combined_samples = np.vstack((samples_1, samples_2))
         return SampleCollection(combined_samples, self.parameters[:])
 
     def __add__(self, other: "SampleCollection") -> "SampleCollection":
