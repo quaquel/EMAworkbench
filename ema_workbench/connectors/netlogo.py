@@ -41,7 +41,7 @@ class BaseNetLogoModel(FileModel):
     """Base class for interfacing with netlogo models. This class
     extends :class:`em_framework.ModelStructureInterface`.
 
-    Attributes:
+    Attributes
     ----------
     model_file : str
                  a relative path from the working directory to the model
@@ -94,7 +94,7 @@ class BaseNetLogoModel(FileModel):
                If true, displays the NetLogo GUI (not supported on Mac)
         jvm_args : list, optional
 
-        Raises:
+        Raises
         ------
         EMAError if name contains non alpha-numerical characters
 
@@ -150,7 +150,7 @@ class BaseNetLogoModel(FileModel):
         experiment : dict like
 
 
-        Raises:
+        Raises
         ------
         jpype.JavaException if there is any exception thrown by the netlogo
         model
@@ -224,7 +224,7 @@ class BaseNetLogoModel(FileModel):
     def retrieve_output(self):
         """Method for retrieving output after a model run.
 
-        Returns:
+        Returns
         -------
         dict with the results of a model run.
 

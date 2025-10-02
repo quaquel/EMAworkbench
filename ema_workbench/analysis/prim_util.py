@@ -73,7 +73,7 @@ class CurEntry:
         """Init."""
         self.dtype = dtype
 
-    def __set_name__(self, owner, name): # noqa: D105
+    def __set_name__(self, owner, name):  # noqa: D105
         self.name = name
 
     def __get__(self, instance, _):  # noqa: D105

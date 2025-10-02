@@ -904,7 +904,7 @@ class PrimBox(BasePrimBox):
         boxlim_formatter: str = "{: .2g}",
         table_formatter: str = "{:.3g}",
         ax=None,
-    ) ->plt.Figure:
+    ) -> plt.Figure:
         """Helper method for visualizing box statistics in graph form."""
         return sdutil.plot_box(
             self.box_lims[i],
@@ -983,7 +983,9 @@ class PrimBox(BasePrimBox):
             self.peeling_trajectory, cmap=cmap, annotated=annotated
         )
 
-    def _calculate_quasi_p(self, i: int, restricted_dims: list[str]) -> dict[str, float|np.float64]:
+    def _calculate_quasi_p(
+        self, i: int, restricted_dims: list[str]
+    ) -> dict[str, float | np.float64]:
         """Helper function for calculating quasi-p values as discussed in Bryant and Lempert (2010).
 
         This is a one-sided binomial test.
@@ -1031,6 +1033,7 @@ class PrimBox(BasePrimBox):
 
 class RegressionPrimBox(BasePrimBox):
     """Prim box for regression version of the Prim Algorithm."""
+
     rmse = CurEntry(float)
 
     def __init__(self, prim: "BasePrim", box_lims: pd.DataFrame, indices: np.ndarray):
@@ -1059,7 +1062,7 @@ class RegressionPrimBox(BasePrimBox):
         boxlim_formatter: str = "{: .2g}",
         table_formatter: str = "{:.3g}",
         ax=None,
-    )->plt.Figure:
+    ) -> plt.Figure:
         """Helper method for visualizing box statistics in graph form."""
         return sdutil.plot_box(
             self.box_lims[i],
@@ -1082,7 +1085,7 @@ class RegressionPrimBox(BasePrimBox):
         lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
         fill_subplots: bool = True,
         legend=False,
-    )-> sns.PairGrid:
+    ) -> sns.PairGrid:
         return super().show_pairs_scatter(
             i=i,
             dims=dims,
@@ -1093,7 +1096,9 @@ class RegressionPrimBox(BasePrimBox):
             legend=legend,
         )
 
-    def _calculate_ks(self, i: int, restricted_dims: list[str]|np.ndarray) -> dict[str, float]:
+    def _calculate_ks(
+        self, i: int, restricted_dims: list[str] | np.ndarray
+    ) -> dict[str, float]:
         """Helper function for calculating ks values.
 
         The KS is based on comparing the distribution of y within the box with
@@ -1232,7 +1237,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
         mass_min: float = 0.05,
         update_function: str = "default",
     ):
-        """Init. """
+        """Init."""
         if y.ndim != 1:
             raise ValueError("y must be one-dimensional")
         if y.shape[0] != x.shape[0]:
@@ -1359,7 +1364,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
             logical[box.yi] = False
         self.yi_remaining = self.yi[logical]
 
-    def _peel(self, box:pd.DataFrame):
+    def _peel(self, box: pd.DataFrame):
         """Executes the peeling phase of the PRIM algorithm.
 
         Delegates peeling to data type specific helper methods.
@@ -1407,7 +1412,11 @@ class BasePrim(sdutil.OutputFormatterMixin):
 
         mass_new = self.y[indices].shape[0] / self.n
 
-        if (mass_new >= self.mass_min) & (mass_new < mass_old) & (obj_score > 0 if self._maximization else obj_score < 0):
+        if (
+            (mass_new >= self.mass_min)
+            & (mass_new < mass_old)
+            & (obj_score > 0 if self._maximization else obj_score < 0)
+        ):
             box.update(box_new, indices)
             return self._peel(box)
         else:
@@ -1566,7 +1575,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
             # no peels possible, return empty list
             return []
 
-    def _paste(self, box:pd.DataFrame):
+    def _paste(self, box: pd.DataFrame):
         """Executes the pasting phase of the PRIM.
 
         Delegates pasting to data type specific helper methods.
@@ -1973,7 +1982,7 @@ class RegressionPrim(BasePrim):
         )
 
         self._prim_box_klass = RegressionPrimBox
-        self._maximization = maximization # fixme this is not working correctly
+        self._maximization = maximization  # fixme this is not working correctly
 
     def _log_progress(self):
         """Helper method to log progress."""

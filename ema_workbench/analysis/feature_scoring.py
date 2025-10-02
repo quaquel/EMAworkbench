@@ -1,4 +1,5 @@
 """Feature scoring functionality."""
+
 import contextlib
 import math
 from operator import itemgetter
@@ -48,7 +49,7 @@ def _prepare_experiments(experiments):
     ----------
     experiments :DataFrame
 
-    Returns:
+    Returns
     -------
     ndarray, list
 
@@ -83,15 +84,15 @@ def _prepare_outcomes(outcomes, classify):
     classify : callable or str
                a classify function or variable analogous to PRIM
 
-    Returns:
+    Returns
     -------
     1d ndarray
         the return from classify
     bool
         data is categorical (True) or continuous (False)
 
-    Raises:
-    --------
+    Raises
+    ------
     TypeError
         if classify is neither a StringType nor a callable
     KeyError
@@ -127,7 +128,7 @@ def get_univariate_feature_scores(x, y, score_func=F_CLASSIFICATION):
                 the score function to use, one of f_regression (regression), or
                 f_classification or chi2 (classification).
 
-    Returns:
+    Returns
     -------
     pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature
@@ -187,7 +188,7 @@ def get_rf_feature_scores(
     random_state : int, optional
                    see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
 
-    Returns:
+    Returns
     -------
     pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature
@@ -280,7 +281,7 @@ def get_ex_feature_scores(
     random_state : int, optional
                    see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
 
-    Returns:
+    Returns
     -------
     pandas DataFrame
         sorted in descending order of tuples with uncertainty and feature
@@ -362,7 +363,7 @@ def get_feature_scores_all(
              any remaining keyword arguments will be passed to the specific
              feature scoring algorithm
 
-    Returns:
+    Returns
     -------
     DataFrame instance
 

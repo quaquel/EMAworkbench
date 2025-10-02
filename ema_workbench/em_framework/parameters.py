@@ -21,6 +21,7 @@ __all__ = [
     "IntegerParameter",
     "Parameter",
     "RealParameter",
+    "Variable",
     "parameters_from_csv",
     "parameters_to_csv",
 ]
@@ -81,7 +82,7 @@ class Constant(Variable):
         super().__init__(name, variable_name=variable_name)
         self.value = value
 
-    def __repr__(self, *args, **kwargs): # noqa: D105
+    def __repr__(self, *args, **kwargs):  # noqa: D105
         return f"{self.__class__.__name__}('{self.name}', {self.value})"
 
 
@@ -134,7 +135,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     @resolution.setter
     def resolution(self, value):
         """Setter for resolution."""
-        if value: # noqa: SIM102
+        if value:  # noqa: SIM102
             if (min(value) < self.lower_bound) or (max(value) > self.upper_bound):
                 raise ValueError(
                     f"Resolution ({value}) not consistent with lower ({self.lower_bound}) and upper bound ({self.upper_bound})."
@@ -143,12 +144,12 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
     def __init__(
         self,
-        name:str,
+        name: str,
         lower_bound,
         upper_bound,
         resolution=None,
         default=None,
-        variable_name:str|list[str]|None=None,
+        variable_name: str | list[str] | None = None,
     ):
         """Init."""
         super().__init__(name, variable_name=variable_name)
@@ -157,8 +158,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.resolution = resolution
         self.default = default
         self.dist = None
-        self.uniform=True
-
+        self.uniform = True
 
     @classmethod
     def from_dist(cls, name, dist, **kwargs):
@@ -191,7 +191,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
         return self
 
-    def __eq__(self, other): # noqa: D105
+    def __eq__(self, other):  # noqa: D105
         if not isinstance(self, other.__class__):
             return False
 
@@ -215,7 +215,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
             return True
 
-    def __str__(self): # noqa: D105
+    def __str__(self):  # noqa: D105
         return self.name
 
 
@@ -242,12 +242,12 @@ class RealParameter(Parameter):
 
     def __init__(
         self,
-        name:str,
+        name: str,
         lower_bound,
         upper_bound,
         resolution=None,
         default=None,
-        variable_name:str|list[str]|None=None,
+        variable_name: str | list[str] | None = None,
     ):
         """Init."""
         super().__init__(
@@ -264,14 +264,14 @@ class RealParameter(Parameter):
         )  # @UndefinedVariable
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs): # noqa: D102
+    def from_dist(cls, name, dist, **kwargs):  # noqa: D102
         if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
             raise ValueError(
                 f"dist should be instance of rv_continouos, not {dist.dist}"
             )
         return super().from_dist(name, dist, **kwargs)
 
-    def __repr__(self): # noqa: D105
+    def __repr__(self):  # noqa: D105
         if isinstance(self.dist, sp.stats._distn_infrastructure.rv_continuous_frozen):
             return (
                 f"RealParameter('{self.name}', {self.lower_bound}, {self.upper_bound}, "
@@ -351,12 +351,12 @@ class IntegerParameter(Parameter):
             pass
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs): # noqa: D102
+    def from_dist(cls, name, dist, **kwargs):  # noqa: D102
         if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
             raise ValueError(f"dist should be instance of rv_discrete, not {dist.dist}")
         return super().from_dist(name, dist, **kwargs)
 
-    def __repr__(self): # noqa: D105
+    def __repr__(self):  # noqa: D105
         if isinstance(self.dist, sp.stats._distn_infrastructure.rv_discrete_frozen):
             return (
                 f"IntegerParameter('{self.name}', {self.lower_bound}, {self.upper_bound}, "
@@ -383,7 +383,7 @@ class CategoricalParameter(IntegerParameter):
     """
 
     @property
-    def categories(self): # noqa: D102
+    def categories(self):  # noqa: D102
         return self._categories
 
     @categories.setter
@@ -455,7 +455,7 @@ class CategoricalParameter(IntegerParameter):
         """
         return self.categories[index]
 
-    def __repr__(self, *args, **kwargs): # noqa: D105
+    def __repr__(self, *args, **kwargs):  # noqa: D105
         template1 = "CategoricalParameter('{}', {}, default={})"
         template2 = "CategoricalParameter('{}', {})"
 
@@ -492,12 +492,12 @@ class BooleanParameter(CategoricalParameter):
         """Init."""
         super().__init__(
             name,
-            categories=[True, False],
+            categories=[False, True],
             default=default,
             variable_name=variable_name,
         )
 
-    def __repr__(self): # noqa: D105
+    def __repr__(self):  # noqa: D105
         return (
             f"BooleanParameter('{self.name}', default={self.default}, "
             f"variable_name={self.variable_name})"
@@ -625,7 +625,7 @@ def parameters_from_csv(uncertainties, **kwargs):
             if len(values) != 2:
                 type = "cat"  # @ReservedAssignment
             else:
-                l, u = values # noqa: E741
+                l, u = values  # noqa: E741
 
                 if isinstance(l, numbers.Integral) and isinstance(u, numbers.Integral):
                     type = "int"  # @ReservedAssignment

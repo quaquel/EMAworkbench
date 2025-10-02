@@ -77,7 +77,7 @@ class Register:
         return stream, f"{name}.{extension}"
 
     def deserialize(self, name, filename, archive):
-        """"Serialize the given outcome."""
+        """Serialize the given outcome."""
         return self.outcomes[name].from_disk(filename, archive)
 
 
@@ -142,7 +142,7 @@ class AbstractOutcome(Variable):
 
         if function is not None and not callable(function):
             raise ValueError("function must be a callable")
-        if variable_name: # noqa: SIM102
+        if variable_name:  # noqa: SIM102
             if (not isinstance(variable_name, str)) and (
                 not all(isinstance(elem, str) for elem in variable_name)
             ):
@@ -198,7 +198,7 @@ class AbstractOutcome(Variable):
 
             return values[0]
 
-    def __eq__(self, other): # noqa: D105
+    def __eq__(self, other):  # noqa: D105
         comparison = [
             all(
                 hasattr(self, key) == hasattr(other, key)
@@ -261,7 +261,7 @@ class AbstractOutcome(Variable):
         raise NotImplementedError
 
     @classmethod
-    def get_subclasses(cls): # noqa: D102
+    def get_subclasses(cls):  # noqa: D102
         # fixme can be handled more cleanly using python built in stuff
         for subclass in cls.__subclasses__():
             yield from subclass.get_subclasses()
@@ -303,7 +303,7 @@ class ScalarOutcome(AbstractOutcome):
     """
 
     @property
-    def expected_range(self): #noqa: D102
+    def expected_range(self):  # noqa: D102
         if self._expected_range is None:
             raise ValueError(
                 f"No expected_range is set for variable {self.variable_name}"
@@ -337,7 +337,7 @@ class ScalarOutcome(AbstractOutcome):
         )
         self.expected_range = expected_range
 
-    def process(self, values): #noqa: D102
+    def process(self, values):  # noqa: D102
         values = super().process(values)
         if not isinstance(values, numbers.Number):
             raise EMAError(
@@ -367,7 +367,7 @@ class ScalarOutcome(AbstractOutcome):
         return fh, "cls"
 
     @classmethod
-    def from_disk(cls, filename, archive): #noqa: D102
+    def from_disk(cls, filename, archive):  # noqa: D102
         f = archive.extractfile(filename)
         values = pd.read_csv(f, index_col=False, header=None).values
         values = np.reshape(values, (values.shape[0],))
@@ -432,7 +432,7 @@ class ArrayOutcome(AbstractOutcome):
             dtype=dtype,
         )
 
-    def process(self, values):# noqa: D102
+    def process(self, values):  # noqa: D102
         values = super().process(values)
         if not isinstance(values, collections.abc.Iterable):
             raise TypeError(
@@ -468,7 +468,7 @@ class ArrayOutcome(AbstractOutcome):
         return fh, extension
 
     @classmethod
-    def from_disk(cls, filename, archive): #noqa: D102
+    def from_disk(cls, filename, archive):  # noqa: D102
         f = archive.extractfile(filename)
 
         if filename.endswith("csv"):
@@ -561,14 +561,16 @@ class TimeSeriesOutcome(ArrayOutcome):
         filename
 
         """
-        warnings.warn("Timeseries outcome seralization still to be tested!!", stacklevel=2)
+        warnings.warn(
+            "Timeseries outcome seralization still to be tested!!", stacklevel=2
+        )
         fh = BytesIO()
         data = pd.DataFrame(values)
         fh.write(data.to_csv(header=True, index=False, encoding="UTF-8").encode())
         return fh, "csv"
 
     @classmethod
-    def from_disk(cls, filename, archive): #noqa: D102
+    def from_disk(cls, filename, archive):  # noqa: D102
         f = archive.extractfile(filename)
 
         if filename.endswith("csv"):
@@ -629,7 +631,7 @@ class Constraint(ScalarOutcome):
         self.parameter_names = parameter_names
         self.outcome_names = outcome_names
 
-    def process(self, values): #noqa: D102
+    def process(self, values):  # noqa: D102
         value = super().process(values)
         assert value >= 0
         return value

@@ -8,6 +8,7 @@ with any other feature scoring or factor prioritization technique instead, or
 by simply selecting uncertain factors in some other manner.
 
 """
+
 import contextlib
 
 import matplotlib as mpl
@@ -37,7 +38,7 @@ def discretize(data, nbins=3, with_labels=False):
             the number of bins to use (default is 3)
     with_labels : bool, optional
 
-    Returns:
+    Returns
     -------
     discretized
         the discretized data frame
@@ -132,7 +133,6 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
 
     Parameters
     ----------
-
     ax : Axes instance
          the axes on which to plot the hierarchical index
     ax_plot : Axes instance
@@ -220,7 +220,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True, plot_cats=True):
             plot_category(ax, axis, 0 + offsets[p] * len(index), last[p], pos, p)
 
     for i, entry in enumerate(indices[1::]):
-        i += 1  #noqa:PLW2901
+        i += 1  # noqa:PLW2901
         comparison = map(lambda a, b: a == b, entry, last)
 
         for j, item in enumerate(comparison):
@@ -264,7 +264,7 @@ def plot_pivot_table(
     kwargs : other keyword arguments
              All other keyword arguments are passed to ax.pcolormesh.
 
-    Returns:
+    Returns
     -------
     Figure
 
@@ -333,7 +333,7 @@ def _prepare_experiments(experiments):
     ----------
     experiments :DataFrame
 
-    Returns:
+    Returns
     -------
     ndarray, list
 
@@ -382,7 +382,7 @@ def create_pivot_plot(
                  if True show bin interval / name, otherwise show
                  only a number
 
-    Returns:
+    Returns
     -------
     Figure
 
@@ -411,7 +411,12 @@ def create_pivot_plot(
 
     x_y_concat = pd.concat([discretized_x, ooi], axis=1)
     pvt = pd.pivot_table(
-        x_y_concat, values=ooi_label, index=rows, columns=columns, dropna=False, observed=False
+        x_y_concat,
+        values=ooi_label,
+        index=rows,
+        columns=columns,
+        dropna=False,
+        observed=False,
     )
 
     fig = plot_pivot_table(pvt, plot_labels=labels, plot_cats=categories)

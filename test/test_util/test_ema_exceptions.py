@@ -6,7 +6,7 @@
 import sys
 import unittest
 
-from ema_workbench.util.ema_exceptions import CaseError, EMAError
+from ema_workbench.util.ema_exceptions import ExperimentError, EMAError
 
 
 class TestEMAError(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestEMAError(unittest.TestCase):
 
 class TestCaseError(unittest.TestCase):
     def test_caseerror(self):
-        error = CaseError("a message", {"a": 1, "b": 2})
+        error = ExperimentError("a message", {"a": 1, "b": 2})
 
         self.assertEqual(str(error), "a message case: {a:1, b:2, policy:None}")
 

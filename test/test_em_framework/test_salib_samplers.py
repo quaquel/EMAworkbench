@@ -26,16 +26,16 @@ def test_sobol():
     samples = sampler.generate_samples(parameters, 100)
 
     N = 100 * (2 * 2 + 2)
-    assert samples.shape == (N, len(parameters))
+    assert samples.samples.shape == (N, len(parameters))
     for i, p in enumerate(parameters):
-        assert np.all(p.lower_bound <= samples[:,i])
-        assert np.all(p.upper_bound >= samples[:,i])
+        assert np.all(p.lower_bound <= samples.samples[:, i])
+        assert np.all(p.upper_bound >= samples.samples[:, i])
 
     sampler = SobolSampler()
     samples = sampler.generate_samples(parameters, 100, calc_second_order=False)
 
     N = 100 * (2 + 2)
-    assert samples.shape == (N, len(parameters))
+    assert samples.samples.shape == (N, len(parameters))
 
     parameters = [
         RealParameter("a", 0, 10),
@@ -54,7 +54,13 @@ def test_morris():
     parameters = [RealParameter("a", 0, 10), RealParameter("b", 0, 5)]
 
     sampler = MorrisSampler()
-    samples = sampler.generate_samples(parameters, 100, num_levels=4, optimal_trajectories=None, local_optimization=True)
+    samples = sampler.generate_samples(
+        parameters,
+        100,
+        num_levels=4,
+        optimal_trajectories=None,
+        local_optimization=True,
+    )
 
     G = 4
     D = len(parameters)
@@ -63,6 +69,7 @@ def test_morris():
     N = (G / D + 1) * N
     assert samples.shape == (N, len(parameters))
 
+
 def test_FAST():
     parameters = [RealParameter("a", 0, 10), RealParameter("b", 0, 5)]
 
@@ -70,7 +77,8 @@ def test_FAST():
     samples = sampler.generate_samples(parameters, 100, M=4)
 
     N = 100 * 2
-    assert samples.shape == (N, len(parameters))
+    assert samples.samples.shape == (N, len(parameters))
+
 
 def test_get_salib_problem():
     uncertainties = [
@@ -82,6 +90,3 @@ def test_get_salib_problem():
     problem = get_SALib_problem(uncertainties)
     assert len(uncertainties) == problem["num_vars"]
     assert [u.name for u in uncertainties] == problem["names"]
-
-
-

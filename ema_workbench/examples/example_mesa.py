@@ -59,7 +59,7 @@ class VirusOnNetwork(mesa.Model):
         virus_check_frequency=0.4,
         recovery_chance=0.3,
         gain_resistance_chance=0.5,
-        rng=None
+        rng=None,
     ):
         super().__init__(rng=rng)
         self.num_nodes = num_nodes
@@ -130,9 +130,9 @@ class VirusAgent(mesa.discrete_space.FixedAgent):
         virus_check_frequency,
         recovery_chance,
         gain_resistance_chance,
-        cell
+        cell,
     ):
-        super().__init__( model)
+        super().__init__(model)
 
         self.state = initial_state
 
@@ -197,7 +197,7 @@ def model_virus_on_network(
         virus_check_frequency=virus_check_frequency,
         recovery_chance=recovery_chance,
         gain_resistance_chance=gain_resistance_chance,
-        rng=rng
+        rng=rng,
     )
 
     # Run the model steps times
@@ -243,8 +243,10 @@ if __name__ == "__main__":
 
     # Define the number of replications and the seed for each of then
     n_replications = 10
-    model.replications = [{"rng": i} for i in np.random.default_rng().integers(sys.maxsize, size=n_replications)]
+    model.replications = [
+        {"rng": i}
+        for i in np.random.default_rng().integers(sys.maxsize, size=n_replications)
+    ]
 
     # Run experiments with the aforementioned parameters and outputs
-    experiments, outcomes  = perform_experiments(models=model, scenarios=20)
-
+    experiments, outcomes = perform_experiments(models=model, scenarios=20)

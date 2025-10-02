@@ -5,7 +5,7 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-
+from lake_models import lake_problem_intertemporal
 
 from ema_workbench import (
     Constant,
@@ -16,7 +16,6 @@ from ema_workbench import (
     ema_logging,
 )
 from ema_workbench.em_framework.evaluators import Samplers
-from lake_models import lake_problem_intertemporal
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -56,7 +55,9 @@ if __name__ == "__main__":
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         res = evaluator.perform_experiments(
-            n_scenarios, n_policies, lever_sampling=Samplers.MC,
-            lever_sampling_kwargs={"rng":42},
-            uncertainty_sampling_kwargs={"rng":42},
+            n_scenarios,
+            n_policies,
+            lever_sampling=Samplers.MC,
+            lever_sampling_kwargs={"rng": 42},
+            uncertainty_sampling_kwargs={"rng": 42},
         )

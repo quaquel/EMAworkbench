@@ -17,12 +17,11 @@ __all__ = [
     "Model",
     "MultiprocessingEvaluator",
     "OutputSpaceExploration",
-    "Policy",
     "RealParameter",
     "ReplicatorModel",
+    "Sample",
     "Samplers",
     "ScalarOutcome",
-    "Scenario",
     "SequentialEvaluator",
     "SpacingMetric",
     "TimeSeriesOutcome",
@@ -35,7 +34,7 @@ __all__ = [
     "process_replications",
     "save_results",
     "util",
-    ]
+]
 
 
 from . import em_framework, util
@@ -55,12 +54,11 @@ from .em_framework import (
     MPIEvaluator,
     MultiprocessingEvaluator,
     OutputSpaceExploration,
-    Policy,
     RealParameter,
     ReplicatorModel,
+    Sample,
     Samplers,
     ScalarOutcome,
-    Scenario,
     SequentialEvaluator,
     SpacingMetric,
     TimeSeriesOutcome,

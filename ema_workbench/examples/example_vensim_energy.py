@@ -6,8 +6,8 @@
 from ema_workbench import (
     CategoricalParameter,
     MultiprocessingEvaluator,
-    Policy,
     RealParameter,
+    Sample,
     TimeSeriesOutcome,
     ema_logging,
 )
@@ -252,9 +252,9 @@ if __name__ == "__main__":
     model = get_energy_model()
 
     policies = [
-        Policy("no policy", model_file="RB_V25_ets_1_extended_outcomes.vpm"),
-        Policy("static policy", model_file="ETSPolicy.vpm"),
-        Policy(
+        Sample("no policy", model_file="RB_V25_ets_1_extended_outcomes.vpm"),
+        Sample("static policy", model_file="ETSPolicy.vpm"),
+        Sample(
             "adaptive policy",
             model_file="RB_V25_ets_1_policy_modified_adaptive_extended_outcomes.vpm",
         ),

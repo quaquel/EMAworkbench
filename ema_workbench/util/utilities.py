@@ -1,4 +1,4 @@
-"""This module provides various convenience functions and classes."""
+"""Convenience functions and classes used throughout the package."""
 
 import configparser
 import json
@@ -20,15 +20,16 @@ _logger = get_module_logger(__name__)
 
 
 def load_results(file_name):
-    """Load the specified bz2 file. the file is assumed to be saves
-    using save_results.
+    """Load the specified tar.gz file.
+
+    the file is assumed to be saves using save_results.
 
     Parameters
     ----------
     file_name : str
                 the path to the file
 
-    Raises:
+    Raises
     ------
     IOError if file not found
 
@@ -54,9 +55,9 @@ def load_results(file_name):
 
         for name, dtype in metadata["experiments"].items():
             try:
-                dtype = np.dtype(dtype)
+                dtype = np.dtype(dtype)  # noqa: PLW2901
             except TypeError:
-                dtype = pd.api.types.pandas_dtype(dtype)
+                dtype = pd.api.types.pandas_dtype(dtype)  # noqa: PLW2901
 
             if experiments[name].dtype is not dtype:
                 experiments[name] = experiments[name].astype(dtype)
@@ -70,7 +71,7 @@ def load_results(file_name):
             entry.__name__: entry for entry in AbstractOutcome.get_subclasses()
         }
         for outcome_type, name, filename in metadata["outcomes"]:
-            outcome = known_outcome_classes[outcome_type](name)
+            outcome = known_outcome_classes[outcome_type](name)  #  noqa F841
 
             values = register.deserialize(name, filename, archive)
             outcomes[name] = values
@@ -80,14 +81,15 @@ def load_results(file_name):
 
 
 def load_results_old(archive):
-    """Load the specified bz2 file. the file is assumed to be saves
-    using save_results.
+    """Load the specified bz2 file.
+
+    The file is assumed to be saves using save_results.
 
     Parameters
     ----------
     file_name : TarFile
 
-    Raises:
+    Raises
     ------
     IOError if file not found
 
@@ -107,9 +109,9 @@ def load_results_old(archive):
     metadata = archive.extractfile("experiments metadata.csv").readlines()
 
     for entry in metadata:
-        entry = entry.decode("UTF-8")
-        entry = entry.strip()
-        entry = entry.split(",")
+        entry = entry.decode("UTF-8")  # noqa: PLW2901
+        entry = entry.strip()  # noqa: PLW2901
+        entry = entry.split(",")  # noqa: PLW2901
         name, dtype = (str(item) for item in entry)
 
         try:
@@ -129,7 +131,7 @@ def load_results_old(archive):
 
     # load outcomes
     for outcome, shape in metadata.items():
-        shape = list(shape)
+        shape = list(shape)  # noqa: PLW2901
         shape[0] = shape[0][1:]
         shape[-1] = shape[-1][0:-1]
 
@@ -140,7 +142,7 @@ def load_results_old(archive):
                     temp_shape.append(int(entry))
                 except ValueError:
                     temp_shape.append(int(entry[0:-1]))
-        shape = tuple(temp_shape)
+        shape = tuple(temp_shape)  # noqa: PLW2901
 
         if len(shape) > 2:
             nr_files = shape[-1]
@@ -161,10 +163,7 @@ def load_results_old(archive):
     # reformat outcomes from generic dict to new style OutcomesDict
     outcomes_new = {}
     for k, v in outcomes.items():
-        if v.ndim == 1:
-            outcome = ScalarOutcome(k)
-        else:
-            outcome = ArrayOutcome(k)
+        outcome = ScalarOutcome(k) if v.ndim == 1 else ArrayOutcome(k)
 
         outcomes_new[outcome.name] = v
 
@@ -185,14 +184,14 @@ def save_results(results, file_name):
     file_name : str
                 the path of the file
 
-    Raises:
+    Raises
     ------
     IOError if file not found
 
     """
     from ..em_framework.outcomes import register
 
-    VERSION = 0.1
+    VERSION = 0.1  # noqa: N806
     file_name = os.path.abspath(file_name)
 
     def add_file(tararchive, stream, filename):
@@ -233,8 +232,7 @@ def save_results(results, file_name):
 
 
 def merge_results(results1, results2):
-    """Convenience function for merging the return from
-    :meth:`~modelEnsemble.ModelEnsemble.perform_experiments`.
+    """Convenience function for merging results from the workbench.
 
     The function merges results2 with results1. For the experiments,
     it generates an empty array equal to the size of the sum of the
@@ -255,7 +253,7 @@ def merge_results(results1, results2):
     results2 : tuple
                second results to be merged
 
-    Returns:
+    Returns
     -------
     the merged results
 
@@ -308,8 +306,7 @@ def get_ema_project_home_dir():
 
 
 def process_replications(data, aggregation_func=np.mean):
-    """Convenience function for processing the replications of a stochastic
-    model's outcomes.
+    """Convenience function for processing the replications of a stochastic model outcomes.
 
     The default behavior is to take the mean of the replications. This reduces
     the dimensionality of the outcomes from
@@ -328,7 +325,7 @@ def process_replications(data, aggregation_func=np.mean):
     aggregation_func : callabale, optional
         aggregation function to be applied, defaults to np.mean.
 
-    Returns:
+    Returns
     -------
     dict, tuple
 
@@ -336,9 +333,7 @@ def process_replications(data, aggregation_func=np.mean):
     """
     if isinstance(data, dict):
         # replications are the second dimension of the outcome arrays
-        outcomes_processed = {
-            key: aggregation_func(data[key], axis=1) for key in data.keys()
-        }
+        outcomes_processed = {key: aggregation_func(data[key], axis=1) for key in data}
         return outcomes_processed
     elif (
         isinstance(data, tuple)
@@ -347,7 +342,7 @@ def process_replications(data, aggregation_func=np.mean):
     ):
         experiments, outcomes = data  # split results
         outcomes_processed = {
-            key: aggregation_func(outcomes[key], axis=1) for key in outcomes.keys()
+            key: aggregation_func(outcomes[key], axis=1) for key in outcomes
         }
         results_processed = (experiments.copy(deep=True), outcomes_processed)
         return results_processed

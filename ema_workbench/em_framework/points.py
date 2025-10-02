@@ -5,26 +5,35 @@ As well as associated helper functions
 """
 
 import itertools
-from collections import ChainMap
-from collections.abc import Iterable
-from typing import Literal
+import math
+from collections.abc import Generator, Iterable, Sequence
+from typing import Literal, overload
 
-from ema_workbench.em_framework.util import Counter, NamedDict, NamedObject, combine
-from ema_workbench.util import get_module_logger
+import numpy as np
+import pandas as pd
+
+from ..util import get_module_logger
+from .parameters import (
+    CategoricalParameter,
+    IntegerParameter,
+    Parameter,
+)
+from .util import Counter, NamedDict, NamedObject, combine
 
 __all__ = [
     "Experiment",
     "ExperimentReplication",
-    "Point",
-    "Policy",
-    "Scenario",
-    "combine_cases_factorial",
-    "experiment_generator",
+    "Sample",
+    "SampleCollection",
+    "from_experiments",
 ]
 _logger = get_module_logger(__name__)
 
+SeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
+RNGLike = np.random.Generator | np.random.BitGenerator
 
-class Point(NamedDict):
+
+class Sample(NamedDict):
     """A point in parameter space."""
 
     id_counter = Counter(1)
@@ -32,64 +41,15 @@ class Point(NamedDict):
 
     def __init__(self, name=None, unique_id=None, **kwargs):
         if name is None:
-            name = Point.name_counter()
+            name = Sample.name_counter()
         if unique_id is None:
-            unique_id = Point.id_counter()
+            unique_id = Sample.id_counter()
 
         super().__init__(name, **kwargs)
         self.unique_id = unique_id
 
     def __repr__(self):  # noqa D105
-        return f"Point({super().__repr__()})"
-
-
-class Policy(Point):
-    """Helper class representing a policy.
-
-    Attributes
-    ----------
-    name : str, int, or float
-    id : int
-
-    all keyword arguments are wrapped into a dict.
-
-    """
-
-    id_counter = Counter(1)
-
-    def __init__(self, name=None, **kwargs):
-        super().__init__(name, unique_id=Policy.id_counter(), **kwargs)
-
-    # def to_list(self, parameters):
-    #     """get list like representation of policy where the
-    #     parameters are in the order of levers"""
-    #
-    #     return [self[param.name] for param in parameters]
-
-    def __repr__(self):  # noqa D105
-        return f"Policy({super().__repr__()})"
-
-
-class Scenario(Point):
-    """Helper class representing a scenario.
-
-    Attributes
-    ----------
-    name : str, int, or float
-    id : int
-
-    all keyword arguments are wrapped into a dict.
-
-    """
-
-    # we need to start from 1 so scenario id is known
-    id_counter = Counter(1)
-
-    def __init__(self, name=None, **kwargs):
-        super().__init__(name, unique_id=Scenario.id_counter(), **kwargs)
-
-    def __repr__(self):  # noqa: D105
-        return f"Scenario({super().__repr__()})"
+        return f"Sample({super().__repr__()})"
 
 
 class Experiment(NamedObject):
@@ -99,8 +59,8 @@ class Experiment(NamedObject):
     ----------
     name : str
     model_name : str
-    policy : Policy instance
-    scenario : Scenario instance
+    policy : Sample instance
+    scenario : Sample instance
     experiment_id : int
 
     """
@@ -109,8 +69,8 @@ class Experiment(NamedObject):
         self,
         name: str,
         model_name: str,
-        policy: Policy,
-        scenario: Scenario,
+        policy: Sample,
+        scenario: Sample,
         experiment_id: int,
     ):
         super().__init__(name)
@@ -156,86 +116,237 @@ class ExperimentReplication(NamedDict):
         super().__init__(name, **combine(scenario, policy, constants))
 
 
-def zip_cycle(*args):
-    """Helper function for cycling over zips."""
-    # zipover
-    #     taken from jpn
-    #     getting the max might by tricky
-    #     policies and scenarios are generators themselves?
-    # TODO to be replaced with sample based combining
+class SampleCollection:
+    """Collection of sample instances.
 
-    max_len = max(len(list(a)) for a in args)
-    return itertools.islice(zip(*(itertools.cycle(a) for a in args)), max_len)
+    A Sample is a point in a parameter space.
+
+    """
+
+    # the construction with a class and the generator ensures we can repeatedly iterate over the samples.
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        """Shape of the samples."""
+        return self.samples.shape
+
+    def __init__(
+        self,
+        samples: np.ndarray,
+        parameters: list[Parameter],
+    ):
+        if samples.shape[1] != len(parameters):
+            raise ValueError(
+                "the number of columns in samples does not match the number of parameters"
+            )
+        self.samples = samples
+        self.parameters = parameters
+        self.n = self.samples.shape[0]
+
+    def __iter__(self) -> Iterable[Sample]:
+        """Return an iterator yielding Points instances."""
+        return sample_generator(self.samples, self.parameters)
+
+    def __str__(self):  # noqa: D105
+        return f"ema_workbench.SampleCollection, {self.n} samples on {len(self.parameters)} parameters"
+
+    def __len__(self):
+        """Return the number of samples in the collection."""
+        return self.samples.shape[0]
+
+    @overload
+    def __getitem__(self, key: int) -> Sample: ...
+
+    @overload
+    def __getitem__(self, key: slice) -> "SampleCollection": ...
+
+    def __getitem__(self, key):
+        """Return the samples for the index or slice."""
+        if not isinstance(key, int | slice | np.integer):
+            raise TypeError(
+                f"SampleCollection indices must be integers or slices, not {type(key)}"
+            )
+
+        samples = self.samples[key]
+
+        if np.issubdtype(type(key), np.integer):
+            return next(
+                sample_generator(
+                    samples.reshape((1, samples.shape[0])), self.parameters
+                )
+            )
+
+        return SampleCollection(samples, self.parameters[:])
+
+    def combine(
+        self,
+        other: "SampleCollection",
+        how: Literal["full_factorial", "sample", "cycle"],
+        rng: SeedLike | RNGLike | None = None,
+    ) -> "SampleCollection":
+        """Combine two SampleCollections into a new SampleCollection.
+
+        Use this if you have two sets of samples for different parameters that
+        you want to combine into a bigger set of samples across the combined set
+        of parameters.
+
+        If you want to simple combine two sets of samples for the same parameters,
+        use `concat` instead.
 
 
-def combine_cases_factorial(*point_collections):
-    """Combine collections of cases in a full factorial manner.
+        Parameters
+        ----------
+        other : the SampleCollection to combine with this one
+        how : how to combine the designs.
+        rng : RNG or None, only relevant in case combine is "sample"
+
+        Returns
+        -------
+        a new SampleCollection instance
+
+        Raises
+        ------
+        ValueError if one or more parameters with the same name are present in both collections
+
+        """
+        combined_parameters = self.parameters + other.parameters
+        own_names = {p.name for p in self.parameters}
+        other_names = {p.name for p in other.parameters}
+        overlap = own_names & other_names
+        if overlap:
+            raise ValueError(
+                f"the parameters {overlap} exist in both SampleCollections"
+            )
+
+        combined_samples = None
+        samples_1 = self.samples
+        samples_2 = other.samples
+        match how:
+            case "full_factorial":
+                samples_1_repeated = np.repeat(
+                    samples_1, repeats=samples_2.shape[0], axis=0
+                )
+                samples_2_tiled = np.tile(samples_2, (samples_1.shape[0], 1))
+                combined_samples = np.hstack((samples_1_repeated, samples_2_tiled))
+            case "sample" | "cycle":
+                if samples_1.shape[0] == samples_2.shape[0]:
+                    combined_samples = np.hstack((samples_1, samples_2))
+                else:
+                    longest, shortest = (
+                        (samples_1, samples_2)
+                        if samples_1.shape[0] > samples_2.shape[0]
+                        else (samples_2, samples_1)
+                    )
+                    if how == "sample":
+                        rng = np.random.default_rng(rng)
+                        indices = rng.integers(0, shortest.shape[0], longest.shape[0])
+                        upsampled = shortest[indices]
+                    else:
+                        n = int(math.ceil(longest.shape[0] / shortest.shape[0]))
+                        upsampled = np.tile(shortest, (n, 1))[0 : longest.shape[0], :]
+                    combined_samples = np.hstack((longest, upsampled))
+            case _:
+                raise ValueError(
+                    f"unknown value for combine, got {how}, should be one of full_factorial, sample, or cycle"
+                )
+
+        return SampleCollection(combined_samples, combined_parameters)
+
+    def concat(self, other: "SampleCollection") -> "SampleCollection":
+        """Concatenate two SampleCollections.
+
+        Parameters
+        ----------
+        other : the SampleCollection to combine with this one
+
+        Returns
+        -------
+        a new SampleCollection instance
+
+        Raises
+        ------
+        ValueError if one or more parameters are present in only one of the two SampleCollections.
+
+        """
+        own_names = {p.name for p in self.parameters}
+        other_names = {p.name for p in other.parameters}
+        missing = own_names - other_names
+        if missing:
+            raise ValueError(
+                f"the parameters {missing} do not exist in both SampleCollections"
+            )
+
+        samples_1 = self.samples
+        samples_2 = other.samples
+        combined_samples = np.vstack((samples_1, samples_2))
+        return SampleCollection(combined_samples, self.parameters[:])
+
+    def __add__(self, other: "SampleCollection") -> "SampleCollection":
+        """Add a SampleCollections to this one."""
+        return self.concat(other)
+
+
+def sample_generator(
+    samples: np.ndarray, params: list[Parameter]
+) -> Generator[Sample, None, None]:
+    """Return a generator yielding points instances.
+
+    This generator iterates over the samples, and turns each row into a Sample and ensures datatypes are correctly handled.
 
     Parameters
     ----------
-    point_collections : collection of collections of Point instances
+    samples : The samples taken for the parameters
+    params : the Parameter instances that have been sampled
 
     Yields
     ------
-    Point
+    Sample
+
 
     """
-    combined_cases = itertools.product(*point_collections)
+    for sample in samples:
+        design_dict = {}
+        for param, value in zip(params, sample):
+            if isinstance(param, IntegerParameter):
+                value = int(value)  # noqa: PLW2901
+            if isinstance(param, CategoricalParameter):
+                # categorical parameter is an integer parameter, so
+                # conversion to int is already done
+                # boolean is a subclass of categorical with False and True as categories, so this is handled
+                # via this route as well
+                value = param.cat_for_index(value).value  # noqa: PLW2901
 
-    for entry in combined_cases:
-        yield Point(**ChainMap(*entry))
+            design_dict[param.name] = value
 
-
-# def combine_cases(method, *cases):
-#     """
-#
-#     generator function which yields experiments
-#
-#     Parameters
-#     ----------
-#     combine = {'factorial, sample'}
-#               controls how to combine scenarios, policies, and model_structures
-#               into experiments.
-#     cases
-#
-#     """
-#
-#     if method == 'sample':
-#         combined_cases = zip_cycle(cases)
-#     elif method == 'factorial':
-#         # full factorial
-#         combined_cases = itertools.product(*cases)
-#     else:
-#         ValueError(f"{combine} is unknown value for combine")
-#
-#     return combined_cases
+        yield Sample(**design_dict)
 
 
 def experiment_generator(
-    models: Iterable["AbstractModel"],
-    scenarios: Iterable[Scenario],
-    policies: Iterable[Policy],
-    combine: Literal["factorial", "sample"] = "factorial",
-):
+    models: Iterable["AbstractModel"],  # noqa: F821
+    scenarios: Iterable[Sample],
+    policies: Iterable[Sample],
+    combine: Literal["full_factorial", "sample", "cycle"] = "full_factorial",
+    rng: SeedLike | RNGLike | None = None,
+) -> Generator[Experiment, None, None]:
     """Generator function which yields experiments.
 
     Parameters
     ----------
-    scenarios : iterable of dicts
     models : list
-    policies : list
-    combine = {'factorial, sample'}
+    scenarios : iterable of scenarios
+    policies : iterable of policies
+    combine = {'full_factorial, sample', "cycle"}
               controls how to combine scenarios, policies, and models
               into experiments.
 
     Notes
     -----
-    if combine is 'factorial' then this generator is essentially three nested
+    if combine is full_factorial' then this generator is essentially three nested
     loops: for each model, for each policy, for each scenario,
-    return the experiment. This means that designs should not be a generator
+    return the experiment. This means that scenarios should not be a generator
     because this will be exhausted after the running the first policy on the
     first model.
-    if combine is 'zipover' then this generator cycles over scenarios, policies
+    if combine is 'cycle' then this generator cycles over scenarios, policies
     and models until the longest of the three collections is
     exhausted.
 
@@ -244,18 +355,78 @@ def experiment_generator(
     # basically combine any collection
     # wrap around to yield specific type of class (e.g. point)
 
-    if combine == "sample":
-        jobs = zip_cycle(models, policies, scenarios)
-    elif combine == "factorial":
-        # full factorial
-        jobs = itertools.product(models, policies, scenarios)
-    else:
-        raise ValueError(
-            f"{combine} is unknown value for combine, use 'factorial' or 'sample'"
-        )
+    match combine:
+        case "full_factorial":
+            jobs = itertools.product(models, policies, scenarios)
+        case "sample":
+            jobs = sample(models, policies, scenarios, rng=rng)
+        case "cycle":
+            jobs = zip_cycle(models, policies, scenarios)
+        case _:
+            raise ValueError(
+                f"{combine} is unknown value for combine, use 'full_factorial', 'cycle', or 'sample'"
+            )
 
     for i, job in enumerate(jobs):
         model, policy, scenario = job
         name = f"{model.name} {policy.name} {i}"
         experiment = Experiment(name, model.name, policy, scenario, i)
         yield experiment
+
+
+def zip_cycle(*args):
+    """Helper function for cycling over zips."""
+    max_len = max(len(a) for a in args)
+    return itertools.islice(zip(*(itertools.cycle(a) for a in args)), max_len)
+
+
+def sample(models, policies, scenarios, rng=None):
+    rng = np.random.default_rng(rng)
+    max_length = max(len(models), len(policies), len(scenarios))
+
+    def upsample(collection, size):
+        indices = rng.integers(0, len(collection), size)
+        return [collection[i] for i in indices]
+
+    if len(models) != max_length:
+        models = upsample(models, max_length)
+    if len(policies) != max_length:
+        policies = upsample(policies, max_length)
+    if len(scenarios) != max_length:
+        scenarios = upsample(scenarios, max_length)
+
+    return zip(models, policies, scenarios)
+
+
+def from_experiments(
+    experiments: pd.DataFrame, drop_defaults: bool = True
+) -> list["Sample"]:
+    """Generate scenarios from an existing experiments DataFrame.
+
+    This function takes a pandas DataFrame and turns it into a list of Sample instances.
+    There is no further processing done, so it is up to the user to ensure that the columsn in the
+    dataframe map to parameters in the model.
+
+
+    Parameters
+    ----------
+    experiments : DataFrame
+    drop_defaults : bool
+                    By default, an experiments dataframe as returned by the workbench after performing experiments contains
+                    a 'model', 'scenario' and 'policy' column. If drop_defaults is True, these columns are automatically ignored.
+
+    Returns
+    -------
+    list of Sample instances
+
+    """
+    if drop_defaults:
+        experiments = experiments.drop(
+            ["model", "scenario", "policy"], axis=1, inplace=False
+        )
+
+    samples = []
+    for record in experiments.to_dict(orient="records"):
+        samples.append(Sample(**record))
+
+    return samples

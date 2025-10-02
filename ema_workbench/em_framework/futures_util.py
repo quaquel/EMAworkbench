@@ -18,7 +18,7 @@ def determine_rootdir(msis):
     """Determine common root directory for all models."""
     for model in msis:
         try:
-            model.working_directory # noqa: B018
+            model.working_directory  # noqa: B018
         except AttributeError:
             root_dir = None
             break

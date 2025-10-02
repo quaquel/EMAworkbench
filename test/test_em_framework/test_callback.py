@@ -1,7 +1,4 @@
-"""Created on 22 Jan 2013
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-"""
+"""Tests for callback."""
 
 import random
 
@@ -21,9 +18,13 @@ from ema_workbench.em_framework.parameters import (
     IntegerParameter,
     RealParameter,
 )
-from ema_workbench.em_framework.points import Experiment, Policy, Scenario
+from ema_workbench.em_framework.points import Experiment, Sample
 from ema_workbench.em_framework.util import NamedObject
 from ema_workbench.util import EMAError
+
+# Created on 22 Jan 2013
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
 def test_store_results(mocker):
@@ -32,7 +33,7 @@ def test_store_results(mocker):
     outcomes = [TimeSeriesOutcome("test")]
     model = NamedObject("test")
 
-    experiment = Experiment(0, model, Policy("policy"), Scenario(a=1, b=0), 0)
+    experiment = Experiment(0, model, Sample("policy"), Sample(a=1, b=0), 0)
 
     # case 1 scalar shape = (1)
     callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
@@ -160,8 +161,8 @@ def test_store_cases():
     case["e"] = True
 
     model = NamedObject("test")
-    policy = Policy("policy")
-    scenario = Scenario(**case)
+    policy = Sample("policy")
+    scenario = Sample(**case)
     experiment = Experiment(0, model.name, policy, scenario, 0)
 
     callback = DefaultCallback(
@@ -191,8 +192,8 @@ def test_store_cases():
     case = {unc.name: random.random() for unc in uncs}
 
     model = NamedObject("test")
-    policy = Policy("policy", c=1, d=1)
-    scenario = Scenario(**case)
+    policy = Sample("policy", c=1, d=1)
+    scenario = Sample(**case)
     experiment = Experiment(0, model.name, policy, scenario, 0)
 
     callback = DefaultCallback(
@@ -241,9 +242,9 @@ def test_get_results(mocker):
     cases = []
     for i in range(nr_experiments):
         model = NamedObject("test")
-        policy = Policy("policy")
+        policy = Sample("policy")
         case = {"a": i * 0.15, "b": f"{i}", "c": i, "d": True if i % 2 == 0 else False}
-        scenario = Scenario(**case)
+        scenario = Sample(**case)
         experiment = Experiment(0, model.name, policy, scenario, i)
         model_outcomes = {outcomes[0].name: i * 1.25}
         callback(experiment, model_outcomes)
@@ -273,8 +274,8 @@ def test_get_results(mocker):
 def test_filebasedcallback(mocker):
     # only most basic assertions are checked
 
-    mock_os = mocker.patch("ema_workbench.em_framework.callbacks.os")
-    mock_shutil = mocker.patch("ema_workbench.em_framework.callbacks.shutil")
+    mocker.patch("ema_workbench.em_framework.callbacks.os")
+    mocker.patch("ema_workbench.em_framework.callbacks.shutil")
     mock_open = mocker.patch("builtins.open")
 
     nr_experiments = 3
@@ -289,8 +290,8 @@ def test_filebasedcallback(mocker):
     outcomes = [ScalarOutcome("other"), TimeSeriesOutcome("time")]
 
     model = NamedObject("test")
-    scenario = Scenario(a=random.random())
-    policy = Policy(name="policy", b=random.random())
+    scenario = Sample(a=random.random())
+    policy = Sample(name="policy", b=random.random())
     experiment = Experiment(0, model.name, policy, scenario, 0)
 
     callback = FileBasedCallback(
@@ -299,8 +300,8 @@ def test_filebasedcallback(mocker):
 
     # we should have opened 3 files: experiments and 2 outcome files
     assert mock_open.call_count == 3
-    assert "other" in callback.outcome_fhs.keys()
-    assert "time" in callback.outcome_fhs.keys()
+    assert "other" in callback.outcome_fhs
+    assert "time" in callback.outcome_fhs
 
     callback(experiment, {"other": 1, "time": [1, 2, 3, 4]})
 

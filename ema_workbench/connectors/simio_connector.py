@@ -10,7 +10,7 @@ import clr  # @UnresolvedImport
 import numpy as np
 
 from ema_workbench.em_framework import FileModel, SingleReplication
-from ema_workbench.util import CaseError, EMAError
+from ema_workbench.util import EMAError, ExperimentError
 from ema_workbench.util.ema_logging import get_module_logger, method_logger
 
 # TODO:: do some auto discovery here analogue to netlogo?
@@ -34,7 +34,7 @@ _logger = get_module_logger(__name__)
 class SimioModel(FileModel, SingleReplication):
     """Connector for Simio models
 
-     Parameters
+    Parameters
     ----------
     name : str
            name of the modelInterface. The name should contain only
@@ -46,7 +46,7 @@ class SimioModel(FileModel, SingleReplication):
     main_model : str
     n_replications : int, optional
 
-    Attributes:
+    Attributes
     ----------
     name : str
     wd : str
@@ -55,7 +55,7 @@ class SimioModel(FileModel, SingleReplication):
     output : dict
     n_replications : int
 
-    Notes:
+    Notes
     -----
     responses are stored for each replication. It is up to the user
     to specify on the Python side what descriptive statistics need to be saved
@@ -81,7 +81,7 @@ class SimioModel(FileModel, SingleReplication):
         main_model : str
         n_replications : int, optional
 
-        Raises:
+        Raises
         ------
         EMAError
             if name contains non alpha-numerical characters
@@ -187,7 +187,7 @@ class SimioModel(FileModel, SingleReplication):
                 if ret:
                     _logger.debug(f"{key} set successfully")
                 else:
-                    raise CaseError(f"failed to set {key}", self.case)
+                    raise ExperimentError(f"failed to set {key}", self.case)
 
         _logger.debug("SIMIO scenario setup completed")
 
@@ -255,7 +255,7 @@ class SimioModel(FileModel, SingleReplication):
                 if success:
                     replication_scores.append(value)
                 else:
-                    error = CaseError("error in simio replication", self.case)
+                    error = ExperimentError("error in simio replication", self.case)
                     _logger.exception(str(error))
                     raise error
 

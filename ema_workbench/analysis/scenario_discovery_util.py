@@ -233,7 +233,7 @@ def _in_box(x, boxlim):
 
     for column, values in x.select_dtypes(exclude=number_like).items():
         entries = boxlim.loc[0, column]
-        not_present  = set(values.cat.categories.values) - entries
+        not_present = set(values.cat.categories.values) - entries
 
         if not_present:
             # what other options do we have here....
@@ -286,7 +286,7 @@ def plot_pair_wise_scatter(
     lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "hist",
     fill_subplots=True,
     legend=True,
-)-> sns.PairGrid:
+) -> sns.PairGrid:
     """Helper function for pair wise scatter plotting.
 
     Parameters

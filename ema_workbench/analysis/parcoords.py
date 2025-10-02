@@ -42,7 +42,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
 
     # we need one axes less than the shape
     for i, label in enumerate(labels[:-1]):
-        i += 1 # noqa: PLW2901
+        i += 1  # noqa: PLW2901
         ax = fig.add_subplot(1, nr_columns - 1, i, ylim=(-0.1, 1.1))
         axes.append(ax)
         ax.set_xlim([i, i + 1])
@@ -107,7 +107,7 @@ def get_limits(data):
     ----------
     data : DataFrame
 
-    Returns:
+    Returns
     -------
     DataFrame
 
@@ -140,7 +140,7 @@ class ParallelAxes:
     rot : float, optional
           rotation of axis labels
 
-    Attributes:
+    Attributes
     ----------
     limits : DataFrame
              A DataFrame specifying the limits for each dimension in the
@@ -158,7 +158,7 @@ class ParallelAxes:
     datalabels : list of str
                  labels associated with lines
 
-    Notes:
+    Notes
     -----
     The basic setup of the Parallel Axis plot is a row of mpl Axes instances, with all whitespace
     in between removed. The number of Axes is the number of columns - 1.

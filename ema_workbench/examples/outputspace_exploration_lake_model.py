@@ -5,16 +5,14 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
-
-
 from lake_models import lake_problem_intertemporal
 
 from ema_workbench import (
     Constant,
     Model,
     MultiprocessingEvaluator,
-    Policy,
     RealParameter,
+    Sample,
     ScalarOutcome,
     ema_logging,
 )
@@ -55,7 +53,7 @@ if __name__ == "__main__":
 
     # generate a reference policy
     n_scenarios = 1000
-    reference = Policy("nopolicy", **{l.name: 0.02 for l in lake_model.levers})
+    reference = Sample("no_policy", **{l.name: 0.02 for l in lake_model.levers})
 
     # we are doing output space exploration given a reference
     # policy, so we are exploring the output space over the uncertainties

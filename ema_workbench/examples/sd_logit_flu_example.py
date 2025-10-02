@@ -1,4 +1,4 @@
-"""Example of using logit regression with the workbench. """
+"""Example of using logit regression with the workbench."""
 
 import matplotlib.pyplot as plt
 import seaborn as sns

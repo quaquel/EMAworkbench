@@ -11,10 +11,8 @@ Software 92, 125-141.
 
 """
 
-import math
-
 import numpy as np
-from scipy.optimize import brentq
+from lake_models import lake_problem_dps
 
 from ema_workbench import (
     Constant,
@@ -24,9 +22,7 @@ from ema_workbench import (
     ScalarOutcome,
     ema_logging,
 )
-from ema_workbench.em_framework.samplers import sample_uncertainties
-
-from lake_models import lake_problem_dps
+from ema_workbench.em_framework.samplers import LHSSampler
 
 # Created on 1 Jun 2017
 #
@@ -91,7 +87,9 @@ if __name__ == "__main__":
         ),
     ]
     n_scenarios = 10
-    scenarios = sample_uncertainties(lake_model, n_scenarios, rng=42)
+    scenarios = LHSSampler().generate_samples(
+        lake_model.uncertainties, n_scenarios, rng=42
+    )
     nfe = 1000
 
     with MultiprocessingEvaluator(lake_model) as evaluator:

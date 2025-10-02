@@ -144,8 +144,8 @@ class BaseExcelModel(FileModel):
         ----------
         experiment : Experiment instance
 
-        Returns:
-        ------
+        Returns
+        -------
         dict
 
         """
@@ -236,7 +236,7 @@ class BaseExcelModel(FileModel):
             given, the default sheet (if one is set) is assumed.  If no default sheet
             is set, an exception will be raised.
 
-        Returns:
+        Returns
         -------
         Number or str
         """

@@ -325,7 +325,7 @@ def set_fig_to_bw(fig, style=HATCHING, line_style="continuous"):
     line_style: str, {'continuous', 'black', None}
 
     """
-    #FIXME it would be nice if for lines you can select either markers, gray
+    # FIXME it would be nice if for lines you can select either markers, gray
     # FIXMEscale, or simple black
 
     all_colors = _identify_colors(fig)
