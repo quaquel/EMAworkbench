@@ -551,7 +551,7 @@ def _setup(
             if isinstance(samples, Sample):
                 samples = [samples]
 
-            uncertainties = [p for p in parameters if p.name in samples[0]]
+            parameters = [p for p in parameters if p.name in samples[0]]
             n_samples = len(samples)
     return samples, parameters, n_samples
 
