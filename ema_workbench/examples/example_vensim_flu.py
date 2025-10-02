@@ -14,8 +14,8 @@ is the same as used in example_flu.py
 import numpy as np
 
 from ema_workbench import (
-    Sample,
     RealParameter,
+    Sample,
     ScalarOutcome,
     TimeSeriesOutcome,
     ema_logging,

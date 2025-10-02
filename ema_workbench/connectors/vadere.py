@@ -68,7 +68,7 @@ def update_vadere_scenario(model_file, experiment, output_file):
 class BaseVadereModel(FileModel):
     """Base class for interfacing with Vadere models.
 
-    Attributes:
+    Attributes
     ----------
     model_file : str
                 a relative path from the working directory
@@ -96,7 +96,7 @@ class BaseVadereModel(FileModel):
                     on set processors. A .csv file is assumed for timeseries output,
                     and a .txt for a scaler output.
 
-        Raises:
+        Raises
         ------
         EMAError if name contains non alpha-numerical characters
 
@@ -135,7 +135,7 @@ class BaseVadereModel(FileModel):
         ----------
         experiment : dict like
 
-        Raises:
+        Raises
         ------
         EMAError if the Vadere run returns no results
 

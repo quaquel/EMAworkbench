@@ -15,7 +15,7 @@ from ..em_framework import FileModel, TimeSeriesOutcome
 from ..em_framework.model import SingleReplication
 from ..em_framework.points import Experiment, Sample
 from ..em_framework.util import Variable
-from ..util import CaseError, EMAWarning, get_module_logger
+from ..util import EMAWarning, ExperimentError, get_module_logger
 from ..util.ema_logging import method_logger
 from . import vensimDLLwrapper
 from .vensimDLLwrapper import VensimError, VensimWarning, command, get_val
@@ -188,7 +188,13 @@ class VensimModel(SingleReplication, FileModel):
         """Return path to results file."""
         return os.path.join(self.working_directory, self._result_file)
 
-    def __init__(self, name:str, wd:str|None=None, model_file:str|None=None, replace_underscores:bool=True):
+    def __init__(
+        self,
+        name: str,
+        wd: str | None = None,
+        model_file: str | None = None,
+        replace_underscores: bool = True,
+    ):
         """Interface to the model.
 
         Parameters
@@ -253,14 +259,15 @@ class VensimModel(SingleReplication, FileModel):
 
             def handle_underscores(variables: list[Variable]):
                 for variable in variables:
-                    if (len(variable.variable_name) == 1) and (variable.variable_name[0] == variable.name):
+                    if (len(variable.variable_name) == 1) and (
+                        variable.variable_name[0] == variable.name
+                    ):
                         variable.variable_name = variable.name.replace("_", " ")
 
             handle_underscores(self.uncertainties)
             handle_underscores(self.outcomes)
             handle_underscores(self.constants)
             handle_underscores(self.levers)
-
 
         fn = os.path.join(self.working_directory, self.model_file)
         load_model(fn)  # load the model
@@ -346,7 +353,7 @@ class VensimModel(SingleReplication, FileModel):
 
         _logger.debug("setting results to output")
         if error:
-            raise CaseError("run not completed", experiment)
+            raise ExperimentError("run not completed", experiment)
 
         return results
 
@@ -404,7 +411,7 @@ def create_model_for_debugging(path_to_existing_model, path_to_new_model, error)
     with open(path_to_new_model, "wb") as new_model:
         skip_next_line = False
 
-        for line in open(path_to_existing_model, "rb"): # noqa: SIM115
+        for line in open(path_to_existing_model, "rb"):  # noqa: SIM115
             if skip_next_line:
                 skip_next_line = False
                 lin_to_write = b"\n"

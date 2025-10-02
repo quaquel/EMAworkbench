@@ -18,8 +18,8 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from .outcomes import AbstractOutcome
 from ..util import ema_exceptions, get_module_logger
+from .outcomes import AbstractOutcome
 from .parameters import (
     BooleanParameter,
     CategoricalParameter,
@@ -384,9 +384,7 @@ class FileBasedCallback(AbstractCallback):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
 
-        self.experiments_fh = open(
-            os.path.join(self.directory, "experiments.csv"), "w"
-        )  # noqa SIM115
+        self.experiments_fh = open(os.path.join(self.directory, "experiments.csv"), "w")
 
         # write experiments.csv header row
         header = [p.name for p in self.parameters] + ["scenario_id", "policy", "model"]
@@ -398,7 +396,7 @@ class FileBasedCallback(AbstractCallback):
             name = outcome.name
             self.outcome_fhs[name] = open(
                 os.path.join(self.directory, f"{name}.csv"), "w"
-            )  # noqa SIM115
+            )
 
     def _store_case(self, experiment):
         """Helper method for storing a single experiment."""

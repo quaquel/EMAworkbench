@@ -6,8 +6,8 @@
 from ema_workbench import (
     CategoricalParameter,
     MultiprocessingEvaluator,
-    Sample,
     RealParameter,
+    Sample,
     TimeSeriesOutcome,
     ema_logging,
 )

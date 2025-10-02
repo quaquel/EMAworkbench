@@ -4,6 +4,7 @@ It essentially is a wrapper around scikit-learn's version of CART, with some scn
 discovery specific functionality.
 
 """
+
 import contextlib
 import io
 import math
@@ -49,20 +50,20 @@ class CART(sdutil.OutputFormatterMixin):
            binary classification, classification is multiclass, and regression
            is regression.
 
-    Attributes:
+    Attributes
     ----------
     boxes : list
             list of DataFrame box lims
     stats : list
             list of dicts with stats
 
-    Notes:
+    Notes
     -----
     This class is a wrapper around scikit-learn's CART algorithm. It provides
     an interface to CART that is more oriented towards scenario discovery, and
     shared some methods with PRIM
 
-    See Also:
+    See Also
     --------
     :mod:`prim`
 
@@ -99,7 +100,7 @@ class CART(sdutil.OutputFormatterMixin):
     def boxes(self):
         """Return a list with the box limits for each terminal leaf.
 
-        Returns:
+        Returns
         -------
         list with boxlims for each terminal leaf
 
@@ -178,7 +179,7 @@ class CART(sdutil.OutputFormatterMixin):
     def stats(self):
         """Returns list with the scenario discovery statistics for each terminal leaf.
 
-        Returns:
+        Returns
         -------
         list with scenario discovery statistics for each terminal leaf
 

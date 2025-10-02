@@ -5,6 +5,8 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
+from lake_models import lake_problem_intertemporal
+
 from ema_workbench import (
     Constant,
     Model,
@@ -14,7 +16,6 @@ from ema_workbench import (
     ema_logging,
 )
 from ema_workbench.em_framework.evaluators import Samplers
-from lake_models import lake_problem_intertemporal
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)

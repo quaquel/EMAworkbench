@@ -5,6 +5,7 @@ uncertainties specified in the experiment array, as well as the ability to
 zoom in on any given uncertainty in more detail.
 
 """
+
 import contextlib
 import math
 import operator
@@ -78,7 +79,7 @@ def plot_discrete_cdf(ax, unc, x, y, xticklabels_on, ccdf):
             freq = cum_freq  # noqa: PLW2901
 
             if ccdf:
-                freq = 1 - cum_freq # noqa: PLW2901
+                freq = 1 - cum_freq  # noqa: PLW2901
 
             x_plot = [j * 1, j * 1 + 1]
             y_plot = [freq] * 2
@@ -225,7 +226,7 @@ def plot_cdfs(x, y, ccdf=False):
            if true, plot a complementary cdf instead of a normal cdf.
 
 
-    Returns:
+    Returns
     -------
     a matplotlib Figure instance
 

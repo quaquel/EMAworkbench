@@ -34,7 +34,7 @@ __all__ = [
     "process_replications",
     "save_results",
     "util",
-    ]
+]
 
 
 from . import em_framework, util

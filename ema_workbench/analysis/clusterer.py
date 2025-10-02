@@ -38,7 +38,7 @@ def calculate_cid(data, condensed_form=False):
     data : 2d ndarray
     condensed_form : bool, optional
 
-    Returns:
+    Returns
     -------
     distances
         a 2D ndarray with the distances between all time series, or condensed
@@ -95,7 +95,7 @@ def apply_agglomerative_clustering(
     metric : str, optional. The distance metric to use. The default is 'precomputed'. For a list of available metrics, see the documentation of scipy.spatial.distance.pdist.
     linkage : {'average', 'complete', 'single'}
 
-    Returns:
+    Returns
     -------
     1D ndarray with cluster assignment
 

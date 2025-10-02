@@ -160,7 +160,7 @@ def method_logger(name):
 def get_rootlogger():
     """Returns root logger used by the EMA workbench
 
-    Returns:
+    Returns
     -------
     the logger of the EMA workbench
 

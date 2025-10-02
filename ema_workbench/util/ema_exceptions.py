@@ -1,12 +1,13 @@
-"""Exceptions and warning used internally by the EMA workbench. In line with
-advice given in `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_.
+"""Exceptions and warning used internally by the EMA workbench.
+
+In line with advice given in `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_.
 """
 
 # Created on 31 mei 2011
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["CaseError", "EMAError", "EMAParallelError", "EMAWarning"]
+__all__ = ["EMAError", "EMAParallelError", "EMAWarning", "ExperimentError"]
 
 
 class EMAError(BaseException):
@@ -29,9 +30,10 @@ class EMAWarning(EMAError):
     """base EMA warning class"""
 
 
-class CaseError(EMAError):
-    """error to be used when a particular run creates an error. The character of
-    the error can be specified as the message, and the actual case that
+class ExperimentError(EMAError):
+    """error to be used when a particular run creates an error.
+
+    The character of the error can be specified as the message, and the actual experiment that
     gave rise to the error.
 
     """

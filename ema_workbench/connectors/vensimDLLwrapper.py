@@ -150,7 +150,7 @@ def get_data(filename, variable_name, tname="Time"):
             the name of the time axis against which to pull the data,
             by default this is Time
 
-    Returns:
+    Returns
     -------
     a tuple with an  for an array for varname and and array for tname.
 
@@ -270,7 +270,7 @@ def get_varattrib(varname, attribute):
     attribute : int
                 attribute you want
 
-    Notes:
+    Notes
     -----
     ====== =============
     number meaning
@@ -331,11 +331,11 @@ def get_varnames(filter=b"*", vartype=0):  # @ReservedAssignment
               variable type to retrieve. See table
 
 
-    Returns:
+    Returns
     -------
     a list with the variable names
 
-    Notes:
+    Notes
     -----
     ====== =============
     number meaning

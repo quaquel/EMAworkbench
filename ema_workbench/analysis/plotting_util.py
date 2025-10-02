@@ -181,7 +181,7 @@ def plot_boxplots(ax, values, log, group_labels=None):
 
     dfs = []
     for k, v in zip(group_labels, values):
-        v = pd.DataFrame(v) # noqa:PLW2901
+        v = pd.DataFrame(v)  # noqa:PLW2901
         v["id_var"] = k
         dfs.append(v)
     data = pd.concat(dfs)
@@ -251,7 +251,7 @@ def group_density(
     log : bool, optional
     index : int, optional
 
-    Raises:
+    Raises
     ------
     EMAError
         if density is unknown
@@ -405,7 +405,9 @@ def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
             )
 
         some_identifiers.append(artist)
-        label = "%.2f - %.2f" % category if isinstance(category, tuple) else category # noqa: UP031
+        label = (
+            "%.2f - %.2f" % category if isinstance(category, tuple) else category
+        )  # noqa: UP031
         labels.append(str(label))
 
     ax.legend(
@@ -429,7 +431,7 @@ def determine_kde(data, size_kde=1000, ymin=None, ymax=None):
     ymin : float, optional
     ymax : float, optional
 
-    Returns:
+    Returns
     -------
     ndarray
         x values for kde
@@ -471,7 +473,7 @@ def filter_scalar_outcomes(outcomes):
     ----------
     outcomes : dict
 
-    Returns:
+    Returns
     -------
     dict
         the filtered outcomes
@@ -494,7 +496,7 @@ def determine_time_dimension(outcomes):
     ----------
     outcomes : dict
 
-    Returns:
+    Returns
     -------
     ndarray
 
@@ -544,7 +546,7 @@ def group_results(
                     with the name for each group as key and the value being a
                     valid index for numpy.ndarray.
 
-    Returns:
+    Returns
     -------
     dict
         A dictionary with the experiments and results for each group, the
@@ -585,7 +587,7 @@ def group_results(
 
         group_outcomes = {}
         for key, value in outcomes.items():
-            value = value[logical] # noqa: PLW2901
+            value = value[logical]  # noqa: PLW2901
             group_outcomes[key] = value
         groups[label] = (experiments.loc[logical, :], group_outcomes)
 
@@ -603,7 +605,7 @@ def make_continuous_grouping_specifiers(array, nr_of_groups=5):
             a 1-d array that is to be turned into discrete intervals.
     nr_of_groups : int, optional
 
-    Returns:
+    Returns
     -------
     list of tuples
         list of tuples with the lower and upper bound of the intervals.

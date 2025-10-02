@@ -2,7 +2,7 @@
 
 from ema_workbench.util.ema_logging import method_logger
 
-from ..util import CaseError, EMAError, get_module_logger
+from ..util import EMAError, ExperimentError, get_module_logger
 from .model import AbstractModel
 from .points import Sample
 from .util import NamedObjectMap
@@ -99,7 +99,7 @@ class ExperimentRunner:
 
         try:
             model.run_model(scenario, policy, constants)
-        except CaseError as e:
+        except ExperimentError as e:
             _logger.warning(str(e))
         except Exception as e:
             _logger.exception(str(e))

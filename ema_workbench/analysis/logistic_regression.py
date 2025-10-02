@@ -77,7 +77,9 @@ def contours(ax, model, xlabel, ylabel, levels):
     levels : list of floats in interval [0, 1]
 
     """
-    Xgrid, Ygrid = np.meshgrid(np.arange(-0.1, 1.1, 0.01), np.arange(-0.1, 1.1, 0.01)) # noqa:N806
+    Xgrid, Ygrid = np.meshgrid(
+        np.arange(-0.1, 1.1, 0.01), np.arange(-0.1, 1.1, 0.01)
+    )  # noqa:N806
 
     xflatten = Xgrid.flatten()
     yflatten = Ygrid.flatten()
@@ -90,12 +92,12 @@ def contours(ax, model, xlabel, ylabel, levels):
     base_data = data.copy()
     base_data.loc[:, cols] = data.loc[:, cols].multiply(0.5)
 
-    X = base_data.copy() # noqa: N806
+    X = base_data.copy()  # noqa: N806
     X[xlabel] = xflatten
     X[ylabel] = yflatten
 
     z = model.predict(X)
-    Zgrid = np.reshape(z.values, Xgrid.shape) # noqa: N806
+    Zgrid = np.reshape(z.values, Xgrid.shape)  # noqa: N806
 
     # rgb = [255*entry for entry in sns.color_palette()[0]]
     # hsl = 244, 80.9, 39
@@ -118,7 +120,7 @@ class Logit:
     threshold : float
 
 
-    Attributes:
+    Attributes
     ----------
     coverage : float
                coverage of currently selected model
@@ -267,7 +269,7 @@ class Logit:
         cmap : valid matplotlib colormap
         annotated : bool, optional. Shows point labels if True.
 
-        Returns:
+        Returns
         -------
         a Figure instance
 
@@ -286,7 +288,7 @@ class Logit:
         cmap : valid matplotlib colormap
         step : float, optional
 
-        Returns:
+        Returns
         -------
         a Figure instance
 
@@ -345,7 +347,7 @@ class Logit:
         i : int
         threshold : float
 
-        Returns:
+        Returns
         -------
         Figure instance
 

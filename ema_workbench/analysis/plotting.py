@@ -89,7 +89,7 @@ def envelopes(
     log : bool, optional
           log scale density plot
 
-    Returns:
+    Returns
     -------
     Figure : Figure instance
     axes : dict
@@ -102,7 +102,7 @@ def envelopes(
     of group_by, categories, and/or discretesize. This limit is due to the colors
     specified in COLOR_LIST.
 
-    Examples:
+    Examples
     --------
     >>> import util as util
     >>> data = util.load_results('1000 flu cases.tar.gz')
@@ -320,7 +320,7 @@ def lines(
     log : bool, optional
           log scale density plot
 
-    Returns:
+    Returns
     -------
     fig : Figure instance
     axes : dict
@@ -459,7 +459,7 @@ def plot_lines_with_envelopes(
                           defaults to None.
     log : bool, optional
 
-    Returns:
+    Returns
     -------
     Figure
         a figure instance
@@ -634,7 +634,7 @@ def kde_over_time(
                valid matplotlib color map name
     log : bool, optional
 
-    Returns:
+    Returns
     -------
     list of Figure instances
         a figure instance for each group for each outcome
@@ -738,7 +738,7 @@ def multiple_densities(
     plot_type : {PlotType.ENVELOPE, PlotType.ENV_LIN, PlotType.LINES}, optional
     log : bool, optional
 
-    Returns:
+    Returns
     -------
     fig : Figure instance
     axes : dict

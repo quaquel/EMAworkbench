@@ -14,7 +14,6 @@ from .util import NamedObject, NamedObjectMap, Variable
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "Variable",
     "BooleanParameter",
     "CategoricalParameter",
     "Category",
@@ -22,6 +21,7 @@ __all__ = [
     "IntegerParameter",
     "Parameter",
     "RealParameter",
+    "Variable",
     "parameters_from_csv",
     "parameters_to_csv",
 ]

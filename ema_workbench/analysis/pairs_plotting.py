@@ -59,7 +59,7 @@ def pairs_lines(
                     None is provided (default), the end states are used.
                     point_in_time should be a valid value on time
 
-    Returns:
+    Returns
     -------
     fig
         the figure instance
@@ -203,7 +203,7 @@ def pairs_density(
     filter_scalar: bool, optional
                    remove the non-time-series outcomes. Defaults to True.
 
-    Returns:
+    Returns
     -------
     fig
         the figure instance
@@ -282,7 +282,7 @@ def determine_extents(outcomes, outcomes_to_show):
     outcomes : dict
     outcomes_to_show : list of str
 
-    Returns:
+    Returns
     -------
     dict
         tuple of str as key, and 4-tuple with extent
@@ -436,7 +436,7 @@ def pairs_scatter(
     filter_scalar: bool, optional
                    remove the non-time-series outcomes. Defaults to True.
 
-    Returns:
+    Returns
     -------
     fig : Figure instance
           the figure instance

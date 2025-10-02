@@ -77,7 +77,7 @@ class Register:
         return stream, f"{name}.{extension}"
 
     def deserialize(self, name, filename, archive):
-        """ "Serialize the given outcome."""
+        """Serialize the given outcome."""
         return self.outcomes[name].from_disk(filename, archive)
 
 

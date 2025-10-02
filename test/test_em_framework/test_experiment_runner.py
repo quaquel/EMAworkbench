@@ -13,7 +13,7 @@ from ema_workbench.em_framework.model import AbstractModel, Model
 from ema_workbench.em_framework.parameters import RealParameter
 from ema_workbench.em_framework.points import Experiment, Sample
 from ema_workbench.em_framework.util import NamedObjectMap
-from ema_workbench.util import CaseError, EMAError
+from ema_workbench.util import ExperimentError, EMAError
 
 
 class ExperimentRunnerTestCase(unittest.TestCase):
@@ -64,7 +64,7 @@ class ExperimentRunnerTestCase(unittest.TestCase):
         # assert handling of case error
         mock_msi = mock.Mock(spec=Model)
         mock_msi.name = "test"
-        mock_msi.run_model.side_effect = CaseError("message", {})
+        mock_msi.run_model.side_effect = ExperimentError("message", {})
         msis = NamedObjectMap(AbstractModel)
         msis["test"] = mock_msi
         mock_msi.constants = []
