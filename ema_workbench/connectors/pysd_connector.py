@@ -47,14 +47,14 @@ class BasePysdModel(AbstractModel):
         self.py_model_name = mdl_file.replace(".mdl", ".py")
         self._mdl_file = mdl_file
 
-    def __init__(self, name:str, mdl_file:str|None=None):
+    def __init__(self, name: str, mdl_file: str | None = None):
         """Init."""
         super().__init__(name)
         self.mdl_file = mdl_file
         self.model = None
 
     @method_logger(__name__)
-    def model_init(self, policy:Sample, **kwargs):
+    def model_init(self, policy: Sample, **kwargs):
         """Initialize the model."""
         super().model_init(policy)
 
@@ -84,4 +84,3 @@ class BasePysdModel(AbstractModel):
 
 class PysdModel(SingleReplication, BasePysdModel):
     """Pysd model."""
-

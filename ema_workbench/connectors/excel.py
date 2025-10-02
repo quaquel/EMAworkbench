@@ -29,7 +29,6 @@ class NoDefaultSheetError(EMAError):
     """Custom excel error."""
 
 
-
 class BaseExcelModel(FileModel):
     """Base class for connecting the EMA workbench to models in Excel.
 
@@ -254,7 +253,9 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError as e:
-            raise EMAError(f"no default sheet while trying to read from '{name}'") from e
+            raise EMAError(
+                f"no default sheet while trying to read from '{name}'"
+            ) from e
 
         try:
             value = sheet.Range(this_range).Value
@@ -292,7 +293,9 @@ class BaseExcelModel(FileModel):
         try:
             sheet = self.get_sheet(this_sheet)
         except NoDefaultSheetError as err:
-            raise EMAError(f"no default sheet while trying to write to '{name}'") from err
+            raise EMAError(
+                f"no default sheet while trying to write to '{name}'"
+            ) from err
 
         try:
             sheet.Range(this_range).Value = value
@@ -314,4 +317,3 @@ class BaseExcelModel(FileModel):
 
 class ExcelModel(SingleReplication, BaseExcelModel):
     """Excel model."""
-

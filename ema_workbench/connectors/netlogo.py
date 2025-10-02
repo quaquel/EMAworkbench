@@ -72,13 +72,13 @@ class BaseNetLogoModel(FileModel):
 
     def __init__(
         self,
-        name:str,
-        wd:str|None=None,
-        model_file:str|None=None,
-        netlogo_home:str|None=None,
-        jvm_path:str|None=None,
-        gui:bool=False,
-        jvm_args:list[str]|None=None,
+        name: str,
+        wd: str | None = None,
+        model_file: str | None = None,
+        netlogo_home: str | None = None,
+        jvm_path: str | None = None,
+        gui: bool = False,
+        jvm_args: list[str] | None = None,
     ):
         """Init of class.
 
@@ -123,7 +123,7 @@ class BaseNetLogoModel(FileModel):
         self.jvm_args = jvm_args
 
     @method_logger(__name__)
-    def model_init(self, policy:Sample):
+    def model_init(self, policy: Sample):
         """Method called to initialize the model.
 
         Parameters
@@ -148,7 +148,7 @@ class BaseNetLogoModel(FileModel):
         _logger.debug("model opened")
 
     @method_logger(__name__)
-    def run_experiment(self, experiment:Experiment):
+    def run_experiment(self, experiment: Experiment):
         """Method for running an experiment..
 
         Parameters
@@ -277,7 +277,5 @@ class NetLogoModel(Replicator, BaseNetLogoModel):
     """Base netlogo model with replications."""
 
 
-
 class SingleReplicationNetLogoModel(SingleReplication, BaseNetLogoModel):
     """Base netlogo model without replications."""
-

@@ -36,7 +36,9 @@ try:
 except ImportError:
     warnings.warn("simio connector not available", ImportWarning, stacklevel=2)
 except EMAError:
-    warnings.warn("simio not found, connector not available", ImportWarning, stacklevel=2)
+    warnings.warn(
+        "simio not found, connector not available", ImportWarning, stacklevel=2
+    )
 
 
 with catch_and_ignore_import_warning():
