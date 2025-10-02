@@ -1,4 +1,4 @@
-"""This module implements logistic regression for scenario discovery.
+"""Logistic regression for scenario discovery.
 
 The module draws its inspiration from Quinn et al (2018) 10.1029/2018WR022743
 and Lamontagne et al (2019). The implementation here generalizes their work
@@ -77,14 +77,14 @@ def contours(ax, model, xlabel, ylabel, levels):
     levels : list of floats in interval [0, 1]
 
     """
-    Xgrid, Ygrid = np.meshgrid(
+    x_grid, y_grid = np.meshgrid(
         np.arange(-0.1, 1.1, 0.01), np.arange(-0.1, 1.1, 0.01)
     )
 
-    xflatten = Xgrid.flatten()
-    yflatten = Ygrid.flatten()
+    x_flatten = x_grid.flatten()
+    y_flatten = y_grid.flatten()
 
-    shape = xflatten.shape[0], len(model.params.index)
+    shape = x_flatten.shape[0], len(model.params.index)
     data = pd.DataFrame(np.ones(shape), columns=model.params.index)
     cols = model.params.index.values.tolist()
     cols.remove("Intercept")
@@ -92,12 +92,12 @@ def contours(ax, model, xlabel, ylabel, levels):
     base_data = data.copy()
     base_data.loc[:, cols] = data.loc[:, cols].multiply(0.5)
 
-    X = base_data.copy()  # noqa: N806
-    X[xlabel] = xflatten
-    X[ylabel] = yflatten
+    x = base_data.copy()
+    x[xlabel] = x_flatten
+    x[ylabel] = y_flatten
 
-    z = model.predict(X)
-    Zgrid = np.reshape(z.values, Xgrid.shape)  # noqa: N806
+    z = model.predict(x)
+    z_grid = np.reshape(z.values, x_grid.shape)
 
     # rgb = [255*entry for entry in sns.color_palette()[0]]
     # hsl = 244, 80.9, 39
@@ -107,7 +107,7 @@ def contours(ax, model, xlabel, ylabel, levels):
     cmap = sns.diverging_palette(
         244, 28, s=99.9, l=52.7, n=len(levels) - 1, as_cmap=True
     )
-    ax.contourf(Xgrid, Ygrid, Zgrid, levels, cmap=cmap, zorder=0)
+    ax.contourf(x_grid, y_grid, z_grid, levels, cmap=cmap, zorder=0)
 
 
 class Logit:

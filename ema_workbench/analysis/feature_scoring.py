@@ -300,9 +300,9 @@ def get_ex_feature_scores(
     # then proportional based on sqrt of N
     # dus sqrt(N) / Sqrt(1000) met 1 also minimumd
     if max_features is None:
-        max_features = int(round(x.shape[1] / 3))
+        max_features = round(x.shape[1] / 3)
     if min_samples_leaf is None:
-        min_samples_leaf = max(1, int(round(math.sqrt(x.shape[0]) / math.sqrt(1000))))
+        min_samples_leaf = max(1, round(math.sqrt(x.shape[0]) / math.sqrt(1000)))
 
     if mode == RuleInductionType.CLASSIFICATION:
         etc = ExtraTreesClassifier
