@@ -429,12 +429,16 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
         job_outcomes = [job_outputs[key] for key in outcome_names]
 
         if job_constraints:
-            job.solution.problem.function = lambda _: (
-                job_outcomes,
-                job_constraints,
+            job.solution.problem.function = (
+                lambda _, job_outcomes=job_outcomes, job_constraints=job_constraints: (
+                    job_outcomes,
+                    job_constraints,
+                )
             )
         else:
-            job.solution.problem.function = lambda _: job_outcomes  # noqa: B023
+            job.solution.problem.function = (
+                lambda _, job_outcomes=job_outcomes: job_outcomes
+            )
         job.solution.evaluate()
 
 
@@ -461,12 +465,16 @@ def evaluate_robust(jobs_collection, experiments, outcomes, problem):
         )
 
         if job_constraints:
-            job.solution.problem.function = lambda _: (
-                job_outcomes,
-                job_constraints,
+            job.solution.problem.function = (
+                lambda _, job_outcomes=job_outcomes, job_constraints=job_constraints: (
+                    job_outcomes,
+                    job_constraints,
+                )
             )
         else:
-            job.solution.problem.function = lambda _: job_outcomes  # noqa: B023
+            job.solution.problem.function = (
+                lambda _, job_outcomes=job_outcomes: job_outcomes
+            )
 
         job.solution.evaluate()
 
