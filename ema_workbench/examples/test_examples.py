@@ -27,17 +27,16 @@ def run_exectests(test_dir, log_path="exectests.log"):
     test_files = sorted(ex for ex in test_files if ex[0] != "_")
     passed = []
     failed = []
-    with open(log_path, "w") as f:
-        with redirected_output(new_stdout=f, new_stderr=f):
-            for fname in test_files:
-                print(f">> Executing '{fname}'")
-                try:
-                    code = compile(set_backend + open(fname).read(), fname, "exec")
-                    exec(code, {"__name__": "__main__"}, {})
-                    passed.append(fname)
-                except BaseException:
-                    traceback.print_exc()
-                    failed.append(fname)
+    with open(log_path, "w") as f, redirected_output(new_stdout=f, new_stderr=f):
+        for fname in test_files:
+            print(f">> Executing '{fname}'")
+            try:
+                code = compile(set_backend + open(fname).read(), fname, "exec")
+                exec(code, {"__name__": "__main__"}, {})
+                passed.append(fname)
+            except BaseException:
+                traceback.print_exc()
+                failed.append(fname)
 
     print(f">> Passed {len(passed)}/{len(test_files)} tests: ")
     print("Passed: " + ", ".join(passed))
