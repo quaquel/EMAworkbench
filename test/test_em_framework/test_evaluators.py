@@ -2,10 +2,13 @@
 
 import pytest
 
+import numpy as np
+
 import ema_workbench
-from ema_workbench import RealParameter, ScalarOutcome
-from ema_workbench.em_framework import evaluators
-from ema_workbench.em_framework.points import Experiment, Sample
+
+from ema_workbench import RealParameter, ScalarOutcome, Model, Sample
+from ema_workbench.em_framework import evaluators, LHSSampler
+from ema_workbench.em_framework.points import Experiment, SampleCollection
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
 from ema_workbench import EMAError
 
@@ -192,3 +195,85 @@ def test_robust_optimize(mocker):
             robustness_functions, scenarios=scenarios, nfe=nfe, epsilons=[0.1, 0.1]
         )
     assert mocked_optimize.call_count == 1
+
+
+def test_setup(mocker):
+
+    my_model = Model("some_model", function=mocker.Mock(return_value={"d": 1, "e": 1}))
+    my_model.uncertainties = [RealParameter("a", 0, 1)]
+
+    samples, parameters, n_samples = evaluators._setup(
+        None,
+        None,
+        {},
+        [
+            my_model,
+        ],
+        union=True,
+        parameter_type="uncertainties",
+    )
+    assert n_samples == 1
+    for p in parameters:
+        assert p in my_model.uncertainties
+
+    n = 10
+    samples, parameters, n_samples = evaluators._setup(
+        n,
+        LHSSampler(),
+        None,
+        [
+            my_model,
+        ],
+        union=True,
+        parameter_type="uncertainties",
+    )
+    assert n_samples == n
+    for p in parameters:
+        assert p.name in my_model.uncertainties
+
+    samples = [
+        Sample(1, a=0.5),
+    ]
+    samples, parameters, n_samples = evaluators._setup(
+        samples,
+        LHSSampler(),
+        None,
+        [
+            my_model,
+        ],
+        union=True,
+        parameter_type="uncertainties",
+    )
+    assert n_samples == len(samples)
+    for p in parameters:
+        assert p.name in my_model.uncertainties
+
+    samples = Sample(1, a=0.5)
+    samples, parameters, n_samples = evaluators._setup(
+        samples,
+        LHSSampler(),
+        None,
+        [
+            my_model,
+        ],
+        union=True,
+        parameter_type="uncertainties",
+    )
+    assert n_samples == 1
+    for p in parameters:
+        assert p.name in my_model.uncertainties
+
+    rng = np.random.default_rng(42)
+    n = 100
+    samples = SampleCollection(rng.random((n, 1)), my_model.uncertainties)
+    samples, parameters, n_samples = evaluators._setup(
+        samples,
+        None,
+        None,
+        [
+            my_model,
+        ],
+        union=True,
+        parameter_type="uncertainties",
+    )
+    assert n_samples == n

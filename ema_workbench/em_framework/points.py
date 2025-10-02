@@ -137,7 +137,7 @@ class SampleCollection:
     ):
         if samples.shape[1] != len(parameters):
             raise ValueError(
-                "the number of columsn in samples does not match the number of parameters"
+                "the number of columns in samples does not match the number of parameters"
             )
         self.samples = samples
         self.parameters = parameters
@@ -148,7 +148,7 @@ class SampleCollection:
         return sample_generator(self.samples, self.parameters)
 
     def __str__(self):  # noqa: D105
-        return f"ema_workbench.SampleCollection, {self.n} designs on {len(self.parameters)} parameters"
+        return f"ema_workbench.SampleCollection, {self.n} samples on {len(self.parameters)} parameters"
 
     def __len__(self):
         """Return the number of samples in the collection."""

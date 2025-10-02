@@ -10,7 +10,6 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-
 from platypus import Algorithm
 
 from ema_workbench.em_framework.samplers import AbstractSampler
@@ -33,7 +32,8 @@ from .optimization import (
     to_robust_problem,
 )
 from .outcomes import AbstractOutcome, Constraint, ScalarOutcome
-from .points import Experiment, Sample, experiment_generator
+from .parameters import Parameter
+from .points import Experiment, Sample, SampleCollection, experiment_generator
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
 from .samplers import (
     FullFactorialSampler,
@@ -519,14 +519,32 @@ def setup_callback(
 
 
 def _setup(
-    samples: int | Iterable[Sample] | Sample | None,
+    samples: int | Iterable[Sample] | Sample | SampleCollection | None,
     sampler: AbstractSampler | SamplerTypes | None,
     sampler_kwargs: dict | None,
-    models,
+    models: Iterable[AbstractModel],
     union: bool = True,
     parameter_type: Literal["uncertainties", "levers"] = "uncertainties",
-):
-    # todo fix sampler type hints by adding Literal[all fields of sampler enum]
+) -> tuple[Iterable[Sample], list[Parameter], int]:
+    """Helper function.
+
+    Parameters
+    ----------
+    samples : int | Iterable[Sample] | Sample | SampleCollection | None
+    sampler: AbstractSampler | SamplerTypes| None
+             sampler to use, only relevant if samples is an int
+    sampler_kwargs: dict
+                    kwargs for sampler, only relevant if sampler is not None
+    models : Iterable[AbstractModel]
+             models to consider
+    union: bool
+            only relevant if len(model)s > 1, how to handle the parameters across multiple models
+            if true, use union, if false use intersection.
+    parameter_type: Literal["uncertainties", "levers"]
+            which parameters to consider on models.
+
+    """
+    # todo fix sampler type hints by adding Literal[all fields of sampler enum].
 
     if sampler_kwargs is None:
         sampler_kwargs = {}
@@ -589,7 +607,7 @@ def _setup(
 #             if isinstance(policies, Sample):
 #                 policies = [policies]
 #
-#             levers = [l for l in levers if l.name in policies[0]]  # noqa: E741
+#             levers = [l for l in levers if l.name in policies[0]]
 #             n_policies = len(policies)
 #     return policies, levers, n_policies
 #
