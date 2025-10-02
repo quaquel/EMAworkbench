@@ -407,7 +407,7 @@ def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
         some_identifiers.append(artist)
         label = (
             "%.2f - %.2f" % category if isinstance(category, tuple) else category
-        )  # noqa: UP031
+        )
         labels.append(str(label))
 
     ax.legend(

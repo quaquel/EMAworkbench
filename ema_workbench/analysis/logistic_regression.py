@@ -79,7 +79,7 @@ def contours(ax, model, xlabel, ylabel, levels):
     """
     Xgrid, Ygrid = np.meshgrid(
         np.arange(-0.1, 1.1, 0.01), np.arange(-0.1, 1.1, 0.01)
-    )  # noqa:N806
+    )
 
     xflatten = Xgrid.flatten()
     yflatten = Ygrid.flatten()
