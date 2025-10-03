@@ -1,13 +1,7 @@
-"""Created on 20 dec. 2010
+"""An illustration of the use of the workbench for a model specified in Python itself.
 
-This file illustrated the use of the workbench for a model
-specified in Python itself. The example is based on `Pruyt & Hamarat <https://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
-For comparison, run both this model and the flu_vensim_no_policy_example.py and
-compare the results.
-
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-                chamarat <c.hamarat  (at) tudelft (dot) nl>
+The example is based on `Pruyt & Hamarat <https://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
+For comparison, run both this model and example_flu_vensim_no_policy.py.
 
 """
 
@@ -24,6 +18,12 @@ from ema_workbench import (
     perform_experiments,
 )
 from ema_workbench.analysis import Density, lines
+
+# Created on 20 dec. 2010
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#                 chamarat <c.hamarat  (at) tudelft (dot) nl>
+
+
 
 # =============================================================================
 #
