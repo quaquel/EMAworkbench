@@ -1,4 +1,4 @@
-"""A illustrationo of how to use the workbench with models in python."""
+"""An illustrationo of how to use the workbench with models in python."""
 
 from ema_workbench import (
     Model,
@@ -15,7 +15,7 @@ from ema_workbench import (
 
 
 def some_model(x1=None, x2=None, x3=None):
-    """some model."""
+    """Some model."""
     return {"y": x1 * x2 + x3}
 
 

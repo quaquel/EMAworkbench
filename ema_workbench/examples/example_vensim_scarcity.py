@@ -24,22 +24,22 @@ from ema_workbench.util import ema_logging
 
 class ScarcityModel(VensimModel):
     def returns_to_scale(self, x, speed, scale):
-        """translate uncertainties to lookup."""
+        """Translate uncertainties to lookup."""
         return (x * 1000, scale * 1 / (1 + exp(-1 * speed * (x - 50))))
 
     def approx_learning(self, x, speed, scale, start):
-        """translate uncertainties to lookup."""
+        """Translate uncertainties to lookup."""
         x = x - start
         loc = 1 - scale
         a = (x * 10000, scale * 1 / (1 + exp(speed * x)) + loc)
         return a
 
     def f(self, x, speed, loc):
-        """translate uncertainties to lookup."""
+        """Translate uncertainties to lookup."""
         return (x / 10, loc * 1 / (1 + exp(speed * x)))
 
     def price_substite(self, x, speed, begin, end):
-        """translate uncertainties to lookup."""
+        """Translate uncertainties to lookup."""
         scale = 2 * end
         start = begin - scale / 2
 
