@@ -1,4 +1,4 @@
-""" """
+"""A simple pysd example."""
 
 # Created on Jul 23, 2016
 #
