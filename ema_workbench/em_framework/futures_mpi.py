@@ -40,7 +40,7 @@ class RankFilter(logging.Filter):
 def mpi_initializer(models, log_level, root_dir):
     """Initalizer."""
     global experiment_runner  # noqa: PLW0603
-    from mpi4py import MPI
+    from mpi4py import MPI  # noqa: PLC0415
 
     rank = MPI.COMM_WORLD.Get_rank()
 
@@ -71,7 +71,7 @@ def mpi_initializer(models, log_level, root_dir):
 
 def logwatcher(start_event, stop_event):
     """Logwatcher function."""
-    from mpi4py import MPI
+    from mpi4py import MPI  # noqa: PLC0415
 
     rank = MPI.COMM_WORLD.Get_rank()
 
@@ -170,7 +170,7 @@ class MPIEvaluator(BaseEvaluator):
     def initialize(self):
         """Initialize the MPI pool."""
         # Only import mpi4py if the MPIEvaluator is used, to avoid unnecessary dependencies.
-        from mpi4py.futures import MPIPoolExecutor
+        from mpi4py.futures import MPIPoolExecutor  # noqa: PLC0415
 
         start_event = threading.Event()
         self.stop_event = threading.Event()

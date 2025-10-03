@@ -1,4 +1,4 @@
-"""This module offers a general purpose matplotlib-based parallel coordinate plotting Class."""
+"""A general purpose matplotlib-based parallel coordinate plotting Class."""
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker

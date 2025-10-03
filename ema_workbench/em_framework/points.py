@@ -242,7 +242,7 @@ class SampleCollection:
                         indices = rng.integers(0, shortest.shape[0], longest.shape[0])
                         upsampled = shortest[indices]
                     else:
-                        n = int(math.ceil(longest.shape[0] / shortest.shape[0]))
+                        n = math.ceil(longest.shape[0] / shortest.shape[0])
                         upsampled = np.tile(shortest, (n, 1))[0 : longest.shape[0], :]
                     combined_samples = np.hstack((longest, upsampled))
             case _:

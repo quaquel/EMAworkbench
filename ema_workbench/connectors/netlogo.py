@@ -1,5 +1,4 @@
-"""This module specifies a generic Model class for controlling
-NetLogo models.
+"""Base Model classes for controlling NetLogo models.
 
 ScalarOutcomes and ArrayOutcomes are assumed to be reporters on the
 NetLogo model that return a scalar and list respectively. These will be
@@ -16,6 +15,9 @@ from pynetlogo.core import NetLogoException
 from ema_workbench.em_framework.model import Replicator, SingleReplication
 from ema_workbench.em_framework.outcomes import ArrayOutcome
 from ema_workbench.util.ema_logging import get_module_logger
+
+from .. import Sample
+from ..em_framework.points import Experiment
 
 try:
     import jpype
@@ -38,8 +40,9 @@ _logger = get_module_logger(__name__)
 
 
 class BaseNetLogoModel(FileModel):
-    """Base class for interfacing with netlogo models. This class
-    extends :class:`em_framework.ModelStructureInterface`.
+    """Base class for interfacing with netlogo models.
+
+    This class extends :class:`em_framework.model.FileModel`.
 
     Attributes
     ----------
@@ -69,15 +72,15 @@ class BaseNetLogoModel(FileModel):
 
     def __init__(
         self,
-        name,
-        wd=None,
-        model_file=None,
-        netlogo_home=None,
-        jvm_path=None,
-        gui=False,
-        jvm_args=[],
+        name: str,
+        wd: str | None = None,
+        model_file: str | None = None,
+        netlogo_home: str | None = None,
+        jvm_path: str | None = None,
+        gui: bool = False,
+        jvm_args: list[str] | None = None,
     ):
-        """Init of class
+        """Init of class.
 
         Parameters
         ----------
@@ -109,6 +112,9 @@ class BaseNetLogoModel(FileModel):
         """
         super().__init__(name, wd=wd, model_file=model_file)
 
+        if jvm_args is None:
+            jvm_args = []
+
         self.run_length = None
         self.netlogo_home = netlogo_home
         self.jvm_path = jvm_path
@@ -117,12 +123,12 @@ class BaseNetLogoModel(FileModel):
         self.jvm_args = jvm_args
 
     @method_logger(__name__)
-    def model_init(self, policy):
+    def model_init(self, policy: Sample):
         """Method called to initialize the model.
 
         Parameters
         ----------
-        policy : dict
+        policy : Sample
                  policy to be run.
 
 
@@ -142,8 +148,8 @@ class BaseNetLogoModel(FileModel):
         _logger.debug("model opened")
 
     @method_logger(__name__)
-    def run_experiment(self, experiment):
-        """Method for running an instantiated model structure.
+    def run_experiment(self, experiment: Experiment):
+        """Method for running an experiment..
 
         Parameters
         ----------
@@ -176,9 +182,12 @@ class BaseNetLogoModel(FileModel):
         commands = []
         fns = {}
         for variable in self.ts_output_variables:
-            fn = r"{0}{3}{1}{2}".format(
-                self.working_directory, variable, ".txt", os.sep
-            )
+
+            fn = f"{self.working_directory}{os.sep}{variable}.txt"
+
+            # fn = r"{0}{3}{1}{2}".format(
+            #     self.working_directory, variable, ".txt", os.sep
+            # )
             fns[variable] = fn
             fn = f'"{fn}"'
             fn = fn.replace(os.sep, "/")
@@ -233,9 +242,9 @@ class BaseNetLogoModel(FileModel):
 
     @method_logger(__name__)
     def cleanup(self):
-        """This model is called after finishing all the experiments, but
-        just prior to returning the results. This method gives a hook for
-        doing any cleanup, such as closing applications.
+        """Cleanup after finishing all the experiments, but just prior to returning the results.
+
+        This method gives a hook for doing any cleanup, such as closing applications.
 
         In case of running in parallel, this method is called during
         the cleanup of the pool, just prior to removing the temporary
@@ -251,7 +260,7 @@ class BaseNetLogoModel(FileModel):
     #         self.netlogo = None
 
     def _handle_outcomes(self, fns):
-        """Helper function for parsing outcomes"""
+        """Helper function for parsing outcomes."""
         results = {}
         for key, value in fns.items():
             with open(value) as fh:
@@ -265,8 +274,8 @@ class BaseNetLogoModel(FileModel):
 
 
 class NetLogoModel(Replicator, BaseNetLogoModel):
-    pass
+    """Base netlogo model with replications."""
 
 
 class SingleReplicationNetLogoModel(SingleReplication, BaseNetLogoModel):
-    pass
+    """Base netlogo model without replications."""

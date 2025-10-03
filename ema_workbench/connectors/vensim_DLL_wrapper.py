@@ -1,4 +1,4 @@
-r"""this is a first draft for wrapping the vensim dll in a pythonic way
+r"""A partial wrapper of the vensim dll.
 
 by default it is assumed the dll is readily available. If this generates an
 VensimError, you have to find the location of the dll and either copy it to
@@ -20,7 +20,7 @@ import numpy as np
 from ..util import EMAError, EMAWarning, get_module_logger
 
 try:
-    WindowsError  # @UndefinedVariable
+    WindowsError  # noqa: B018  @UndefinedVariable
 except NameError:
     WindowsError = None
 
@@ -31,11 +31,11 @@ _logger = get_module_logger(__name__)
 
 
 class VensimWarning(EMAWarning):
-    """base vensim warning"""
+    """base vensim warning."""
 
 
 class VensimError(EMAError):
-    """base Vensim error"""
+    """base Vensim error."""
 
 
 try:
@@ -82,7 +82,9 @@ del sys, struct
 
 
 def be_quiet(quietflag):
-    """This allows you to turn off the work in progress dialog that Vensim
+    """Turn off vensim dialogs.
+
+    This allows you to turn off the work in progress dialog that Vensim
     displays during simulation and other activities, and also prevent the
     appearance of yes or no dialogs.
 
@@ -97,14 +99,15 @@ def be_quiet(quietflag):
 
 
 def check_status():
-    """Check status is used to check the current status of the Vensim DLL, for
-    details on the return values check DSS reference chapter 12
+    """Check status is used to check the current status of the Vensim DLL.
+
+    for details on the return values check DSS reference chapter 12
     """
     return vensim.vensim_check_status()
 
 
 def command(command):
-    """Execute a command, for details see chapter 5 of the vensim DSS manual"""
+    """Execute a command, for details see chapter 5 of the vensim DSS manual."""
     return_val = vensim.vensim_command(command.encode("utf-8"))
     if return_val == 0:
         raise VensimWarning("command failed " + command)
@@ -112,7 +115,7 @@ def command(command):
 
 
 def continue_simulation(num_inter):
-    """This method continues the simulation for num_inter Time steps.
+    """Continue the simulation for num_inter Time steps.
 
     Parameters
     ----------
@@ -128,7 +131,7 @@ def continue_simulation(num_inter):
 
 
 def finish_simulation():
-    """Completes a simulation started with start simulation"""
+    """Completes a simulation started with start simulation."""
     return_val = vensim.vensim_finish_simulation()
     if return_val == 0:
         raise VensimWarning("failure to finish simulation")
@@ -136,9 +139,10 @@ def finish_simulation():
 
 
 def get_data(filename, variable_name, tname="Time"):
-    """Retrieves data from simulation runs or imported data sets. In contrast
-    to the Vensim DLL, this method retrieves all the data, and not only the
-    data for the specified length.
+    """Retrieves data from simulation runs or imported data sets.
+
+    In contrast to the Vensim DLL, this method retrieves all the data,
+    and not only the data for the specified length.
 
     Parameters
     ----------
@@ -181,9 +185,9 @@ def get_data(filename, variable_name, tname="Time"):
 
 
 def get_dpval(name, varval):
-    """Use this to get the value of a variable during a simulation, as a game
-    is progressing, or during simulation setup. This function is only useful
-    if you are using the double precision Vensim DLL
+    """Get the value of a variable during a simulation, as a game is progressing, or during simulation setup.
+
+    This function is only useful if you are using the double precision Vensim DLL
 
     currently not implemented
     """
@@ -191,29 +195,31 @@ def get_dpval(name, varval):
 
 
 def get_dpvecvals(vecoff, dpvals, veclen):
-    """This is the same as get_vecvals except it takes a double vector to store
-    values. This method is only meaningful in case of the double precision DLL
+    """Same as get_vecvals except it takes a double vector to store values.
+
+    This method is only meaningful in case of the double precision DLL
 
     currently not implemented
     """
     raise NotImplementedError
 
 
-def get_info(infowanted):
-    """Use this function to get information about vensim, for details see DSS
-    reference chapter 12
+def get_info(info_wanted):
+    """Use this function to get information about vensim.
+
+    For details see DSS reference chapter 12
 
     Parameters
     ----------
-    infowanted : int
+    info_wanted : int
                  field that specifies the info wanted
     """
     buf = ctypes.create_string_buffer(b"", 512)
-    maxBuf = ctypes.c_int(512)
-    a = vensim.vensim_get_info(infowanted, buf, maxBuf)
+    max_buf = ctypes.c_int(512)
+    a = vensim.vensim_get_info(info_wanted, buf, max_buf)
     buf = ctypes.create_string_buffer(b"", int(a))
-    maxBuf = ctypes.c_int(int(a))
-    vensim.vensim_get_info(infowanted, buf, maxBuf)
+    max_buf = ctypes.c_int(int(a))
+    vensim.vensim_get_info(info_wanted, buf, max_buf)
 
     result = repr(buf.raw)
     result = result.strip()
@@ -225,8 +231,7 @@ def get_info(infowanted):
 
 
 def get_sens_at_time(filename, varname, timename, attime, vals, maxn):
-    """Get results from a sensitivity run at a specific type and across
-    sensitivity runs.
+    """Get results from a sensitivity run at a specific type and across sensitivity runs.
 
     currently not implemented
     """
@@ -234,8 +239,7 @@ def get_sens_at_time(filename, varname, timename, attime, vals, maxn):
 
 
 def get_substring():
-    """Utility function that is designed to make it easier to work with
-    get_varnames, get_info, and get_varattribs.
+    """Utility function that is designed to make it easier to work with get_varnames, get_info, and get_varattribs.
 
     currently not implemented
     """
@@ -243,8 +247,7 @@ def get_substring():
 
 
 def get_val(name):
-    """This function returns the value of a variable during a simulation, as a
-    game is progressing, or during simulation setup
+    """Returns the value of a variable during a simulation, as a game is progressing, or during simulation setup.
 
     Parameters
     ----------
@@ -261,7 +264,7 @@ def get_val(name):
 
 
 def get_varattrib(varname, attribute):
-    """This function can be used to access the attributes of a variable.
+    """Access the attributes of a variable.
 
     Parameters
     ----------
@@ -294,17 +297,17 @@ def get_varattrib(varname, attribute):
 
     """
     buf = ctypes.create_string_buffer(b"", 10)
-    maxBuf = ctypes.c_int(10)
+    max_buf = ctypes.c_int(10)
 
     bufferlength = vensim.vensim_get_varattrib(
-        varname.encode("utf-8"), attribute, buf, maxBuf
+        varname.encode("utf-8"), attribute, buf, max_buf
     )
     if bufferlength == -1:
         raise VensimWarning(f"variable {varname} not found")
 
     buf = ctypes.create_string_buffer(b"", int(bufferlength))
-    maxBuf = ctypes.c_int(int(bufferlength))
-    vensim.vensim_get_varattrib(varname.encode("utf-8"), attribute, buf, maxBuf)
+    max_buf = ctypes.c_int(int(bufferlength))
+    vensim.vensim_get_varattrib(varname.encode("utf-8"), attribute, buf, max_buf)
 
     result = repr(buf.raw)
     result = result.strip()
@@ -317,11 +320,12 @@ def get_varattrib(varname, attribute):
 
 
 def get_varnames(filter=b"*", vartype=0):  # @ReservedAssignment
-    r"""This function returns variable names in the model a filter can be specified
-    in the same way as Vensim variable Selection filter  (use * for all),
+    r"""Get variable names in the model.
+
+    A filter can be specified in the same way as Vensim variable Selection filter  (use * for all),
+
     vartype is an integer that specifies the types of variables you want to
-    see.
-    (see DSS reference chapter 12 for details)
+    see. (see DSS reference chapter 12 for details)
 
     Parameters
     ----------
@@ -359,12 +363,12 @@ def get_varnames(filter=b"*", vartype=0):  # @ReservedAssignment
     filter = ctypes.c_char_p(filter)  # @ReservedAssignment
     vartype = ctypes.c_int(vartype)
     buf = ctypes.create_string_buffer(b"", 512)
-    maxBuf = ctypes.c_int(512)
+    max_buf = ctypes.c_int(512)
 
-    a = vensim.vensim_get_varnames(filter, vartype, buf, maxBuf)
+    a = vensim.vensim_get_varnames(filter, vartype, buf, max_buf)
     buf = ctypes.create_string_buffer(b"", int(a))
-    maxBuf = ctypes.c_int(int(a))
-    vensim.vensim_get_varnames(filter, vartype, buf, maxBuf)
+    max_buf = ctypes.c_int(int(a))
+    vensim.vensim_get_varnames(filter, vartype, buf, max_buf)
 
     varnames = repr(buf.raw)
     varnames = varnames.strip()
@@ -377,8 +381,9 @@ def get_varnames(filter=b"*", vartype=0):  # @ReservedAssignment
 
 
 def get_varoff(varname):
-    """This function is intended for use with get_vecvals. By filling up a
-    vector of offsets you can speed the retrieval of multiple values
+    """Intended for use with get_vecvals.
+
+    By filling up a vector of offsets you can speed the retrieval of multiple values
 
     currently not implemented
     """
@@ -394,8 +399,7 @@ def get_vecvals(vecoff, vals, nvals):
 
 
 def set_parent_window(window, r1, r2):
-    """This is used to set a window that will be the owner of an dialogs or
-    message boxes that Vensim presents.
+    """Set a window that will be the owner of any dialogs or message boxes of Vensim.
 
     currently not implemented
     """
@@ -403,7 +407,7 @@ def set_parent_window(window, r1, r2):
 
 
 def show_sketch(sketchnum, wantscroll, zoompercent, pwindow):
-    """Use this function to display a model diagram
+    """Use this function to display a model diagram.
 
     currently not implemented
     """
@@ -434,8 +438,7 @@ def start_simulation(loadfirst, game, overwrite):
 
 
 def synthesim_vals(offset, tval, varval):
-    """This is a specialized function that uses memory managed by Vensim
-    to give access to values while SyntheSim is active.
+    """A specialized function that uses memory managed by Vensim to give access to values while SyntheSim is active.
 
     currently not implemented
     """
@@ -443,8 +446,7 @@ def synthesim_vals(offset, tval, varval):
 
 
 def tool_command(command, window, aswiptool):
-    """Perform a command that will cause output to be created, or the printing or
-    exporting of the contents of a currently displayed item.
+    """Perform a command that will cause output to be created, or the printing or exporting of the contents of a currently displayed item.
 
     currently not implemented
     """
@@ -452,7 +454,7 @@ def tool_command(command, window, aswiptool):
 
 
 def contextAdd(wantcleanup):
-    """Creates a new context for the server version of Vensim
+    """Creates a new context for the server version of Vensim.
 
     currently not implemented
     """
@@ -460,7 +462,7 @@ def contextAdd(wantcleanup):
 
 
 def contextDrop(context):
-    """Drops a context that was created by contextAdd
+    """Drops a context that was created by contextAdd.
 
     currently not implemented
     """
@@ -468,17 +470,15 @@ def contextDrop(context):
 
 
 def use_double_precision():
-    """Convenience function for changing reference to dll to dll for double
-    precision.
+    """Convenience function for changing reference to dll to dll for double precision.
 
-
-    In order to ensure that double precision is used when running in parallel,
+    To ensure that double precision is used when running in parallel,
     call this function at the top of the module in which you define the model
     interface.
 
     """
-    global vensim
+    global vensim  # noqa: PLW0603
     try:
         vensim = ctypes.windll.LoadLibrary(r"C:\Windows\SysWOW64\VdpDLL32.dll")
-    except OSError:
-        raise EMAError("double precision vensim dll not found")
+    except OSError as e:
+        raise EMAError("double precision vensim dll not found") from e

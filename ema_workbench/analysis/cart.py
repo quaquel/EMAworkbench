@@ -277,7 +277,7 @@ class CART(sdutil.OutputFormatterMixin):
 
         """
         assert self.clf
-        import pydot  # dirty hack for read the docs
+        import pydot  # noqa: PLC0415 dirty hack for read the docs
 
         dot_data = StringIO()
         tree.export_graphviz(

@@ -1,4 +1,4 @@
-"""This module provides functionality for doing dimensional stacking.
+"""Functionality for dimensional stacking based scenario discovery.
 
 It is inspired by the work reported `here <https://www.onepetro.org/conference-paper/SPE-174774-MS>`_
 with one deviation. Rather than using association rules to identify the

@@ -215,6 +215,10 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
             return True
 
+    def __hash__(self):
+        """Hashing function."""
+        return hash(tuple(self.__dict__.items()))
+
     def __str__(self):  # noqa: D105
         return self.name
 

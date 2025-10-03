@@ -1,3 +1,5 @@
+"""Connector for Vadere models."""
+
 import json
 import operator
 import os
@@ -23,7 +25,10 @@ __all__ = [
 
 
 def change_vadere_scenario(model_file, variable, value):
-    """Change variable in vadere .scenario file structure. Note that a vadere scenario takes the format of a nested directory.
+    """Change variable in vadere .scenario file structure.
+
+    Note that a vadere scenario takes the format of a nested directory.
+
     This function enables to modify any variable in the .scenario file, given the exact level of nesting.
 
     Parameters
@@ -79,7 +84,7 @@ class BaseVadereModel(FileModel):
     """
 
     def __init__(self, name, vadere_jar, processor_files, wd, model_file):
-        """Init of class
+        """Init of class.
 
         Parameters
         ----------
@@ -129,7 +134,7 @@ class BaseVadereModel(FileModel):
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """Method for running an instantiated model structure.
+        """Run the experiment.
 
         Parameters
         ----------
@@ -179,7 +184,7 @@ class BaseVadereModel(FileModel):
         # results are stored inside a temp dir
         # get path to nested result dir
         output_dir = ""
-        for root, dirs, files in os.walk(os.path.join(self.working_directory, "temp")):
+        for root, dirs, _ in os.walk(os.path.join(self.working_directory, "temp")):
             # should only be one subdir
             # if for any reason multiple subdirs exist, only one will be
             # selected
@@ -230,9 +235,9 @@ class BaseVadereModel(FileModel):
         return res
 
     def cleanup(self):
-        """This model is called after finishing all the experiments, but
-        just prior to returning the results. This method gives a hook for
-        doing any cleanup, such as closing applications.
+        """Cleanup after performing all experiments.
+
+        This method gives a hook for doing any cleanup, such as closing applications.
 
         In case of running in parallel, this method is called during
         the cleanup of the pool, just prior to removing the temporary
@@ -244,8 +249,8 @@ class BaseVadereModel(FileModel):
 
 
 class VadereModel(Replicator, BaseVadereModel):
-    pass
+    """Vadere model with replications."""
 
 
 class SingleReplicationVadereModel(SingleReplication, BaseVadereModel):
-    pass
+    """Vadere model without replications."""
