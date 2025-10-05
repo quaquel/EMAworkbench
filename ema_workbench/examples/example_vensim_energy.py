@@ -14,6 +14,7 @@ from ema_workbench.connectors.vensim import VensimModel
 #
 # @author: jhkwakkel
 
+
 def get_energy_model():
     """Teturn the model instance."""
     model = VensimModel(

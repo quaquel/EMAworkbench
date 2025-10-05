@@ -33,9 +33,7 @@ def time_of_max(infected_fraction, time):
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
-    model = VensimModel(
-        "flu", wd="./models/flu", model_file="FLUvensimV1basecase.vpm"
-    )
+    model = VensimModel("flu", wd="./models/flu", model_file="FLUvensimV1basecase.vpm")
 
     # outcomes
     model.outcomes = [

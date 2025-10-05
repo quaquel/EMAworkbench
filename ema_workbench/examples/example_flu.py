@@ -483,7 +483,9 @@ if __name__ == "__main__":
     nr_experiments = 500
 
     with SequentialEvaluator(model) as evaluator:
-        experiments, outcomes = perform_experiments(model, nr_experiments, evaluator=evaluator)
+        experiments, outcomes = perform_experiments(
+            model, nr_experiments, evaluator=evaluator
+        )
 
     lines(
         experiments,

@@ -56,14 +56,14 @@ class VirusOnNetwork(mesa.Model):
 
     def __init__(
         self,
-        num_nodes:int=10,
-        avg_node_degree:int=3,
-        initial_outbreak_size:int=1,
-        virus_spread_chance:float=0.4,
-        virus_check_frequency:float=0.4,
-        recovery_chance:float=0.3,
-        gain_resistance_chance:float=0.5,
-        rng:int|None=None,
+        num_nodes: int = 10,
+        avg_node_degree: int = 3,
+        initial_outbreak_size: int = 1,
+        virus_spread_chance: float = 0.4,
+        virus_check_frequency: float = 0.4,
+        recovery_chance: float = 0.3,
+        gain_resistance_chance: float = 0.5,
+        rng: int | None = None,
     ):
         """Init."""
         super().__init__(rng=rng)

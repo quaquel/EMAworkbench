@@ -1,7 +1,4 @@
-"""Created on 30 Oct 2018
-
-@author: jhkwakkel
-"""
+"""Feature scoring over time."""
 
 import matplotlib.pyplot as plt
 import pandas as pd

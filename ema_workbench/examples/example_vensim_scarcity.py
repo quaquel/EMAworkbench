@@ -23,6 +23,8 @@ from ema_workbench.util import ema_logging
 
 
 class ScarcityModel(VensimModel):
+    """Scarcity model."""
+
     def returns_to_scale(self, x, speed, scale):
         """Translate uncertainties to lookup."""
         return (x * 1000, scale * 1 / (1 + exp(-1 * speed * (x - 50))))
@@ -46,7 +48,7 @@ class ScarcityModel(VensimModel):
         return (x + 2000, scale * 1 / (1 + exp(-1 * speed * x)) + start)
 
     def run_model(self, scenario, policy, constants):
-        """Method for running an instantiated model structure"""
+        """Method for running an instantiated model structure."""
         kwargs = scenario
         loc = kwargs.pop("lookup_shortage_loc")
         speed = kwargs.pop("lookup_shortage_speed")

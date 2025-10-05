@@ -1,7 +1,4 @@
-"""Created on 30 Oct 2018
-
-@author: jhkwakkel
-"""
+"""Basic feature scoring example."""
 
 import matplotlib.pyplot as plt
 import numpy as np

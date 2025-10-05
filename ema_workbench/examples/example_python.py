@@ -13,7 +13,6 @@ from ema_workbench import (
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 
-
 def some_model(x1=None, x2=None, x3=None):
     """Some model."""
     return {"y": x1 * x2 + x3}
