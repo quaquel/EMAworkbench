@@ -1,6 +1,7 @@
-"""An example of the lake problem using the ema workbench. This example
-illustrated how you can control more finely how samples are being generated.
-In this particular case, we want to apply Sobol analysis over both the
+"""An example of the lake problem using the ema workbench.
+
+This example illustrated how you can control more finely how samples are being
+generated. In this particular case, we want to apply Sobol analysis over both the
 uncertainties and levers at the same time.
 
 """
@@ -15,7 +16,6 @@ from ema_workbench import (
     MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
-    Scenario,
     ema_logging,
 )
 from ema_workbench.em_framework import (
@@ -25,7 +25,7 @@ from ema_workbench.em_framework import (
 
 
 def analyze(results, ooi):
-    """Analyze results using SALib sobol, returns a dataframe"""
+    """Analyze results using SALib sobol, returns a dataframe."""
     _, outcomes = results
 
     parameters = lake_model.uncertainties.copy() + lake_model.levers.copy()
@@ -89,9 +89,11 @@ if __name__ == "__main__":
     ]
 
     # combine parameters and uncertainties prior to sampling
-    n_scenarios = 1000
+    n_scenarios = 1024
     parameters = lake_model.uncertainties + lake_model.levers
-    scenarios = sample_parameters(parameters, n_scenarios, SobolSampler(), Scenario)
+    scenarios = SobolSampler().generate_samples(
+        parameters, n_scenarios, 42, calc_second_order=True
+    )
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         results = evaluator.perform_experiments(scenarios)

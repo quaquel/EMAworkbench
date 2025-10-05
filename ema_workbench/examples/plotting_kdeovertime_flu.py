@@ -1,7 +1,8 @@
-"""Created on Jul 8, 2014
+"""Basic example of kde over time plot based on Flu model."""
 
-@author: jhkwakkel@tudelft.net
-"""
+# Created on Jul 8, 2014
+#
+# @author: jhkwakkel@tudelft.net
 
 import matplotlib.pyplot as plt
 

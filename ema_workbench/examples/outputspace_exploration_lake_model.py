@@ -53,7 +53,9 @@ if __name__ == "__main__":
 
     # generate a reference policy
     n_scenarios = 1000
-    reference = Sample("no_policy", **{l.name: 0.02 for l in lake_model.levers})  # noqa: E741
+    reference = Sample(
+        "no_policy", **{l.name: 0.02 for l in lake_model.levers}
+    )  # noqa: E741
 
     # we are doing output space exploration given a reference
     # policy, so we are exploring the output space over the uncertainties
