@@ -6,7 +6,7 @@
 import sys
 import unittest
 
-from ema_workbench.util.ema_exceptions import ExperimentError, EMAError
+from ema_workbench.util.ema_exceptions import EMAError, ExperimentError
 
 
 class TestEMAError(unittest.TestCase):

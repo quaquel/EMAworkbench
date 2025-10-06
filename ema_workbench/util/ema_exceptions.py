@@ -40,7 +40,7 @@ class ExperimentError(EMAError):
 
     """
 
-    def __init__(self, message:str, experiment, policy=None):
+    def __init__(self, message: str, experiment, policy=None):
         """Init."""
         self.message = message
         self.experiment = experiment

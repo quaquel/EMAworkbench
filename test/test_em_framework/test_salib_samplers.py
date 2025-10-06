@@ -1,7 +1,6 @@
 """embedding SALib sampling within the workbench"""
 
 import numpy as np
-import pytest
 
 from ema_workbench import RealParameter
 from ema_workbench.em_framework.parameters import IntegerParameter

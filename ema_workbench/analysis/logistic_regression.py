@@ -77,9 +77,7 @@ def contours(ax, model, xlabel, ylabel, levels):
     levels : list of floats in interval [0, 1]
 
     """
-    x_grid, y_grid = np.meshgrid(
-        np.arange(-0.1, 1.1, 0.01), np.arange(-0.1, 1.1, 0.01)
-    )
+    x_grid, y_grid = np.meshgrid(np.arange(-0.1, 1.1, 0.01), np.arange(-0.1, 1.1, 0.01))
 
     x_flatten = x_grid.flatten()
     y_flatten = y_grid.flatten()

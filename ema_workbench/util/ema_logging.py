@@ -102,7 +102,9 @@ def temporary_filter(
     # might filter multiple log message from different functions
     names = [name] if isinstance(name, str) else name
     levels = [level] if isinstance(level, int) else level
-    func_names = [func_name] if (isinstance(func_name, str) or func_name is None) else func_name
+    func_names = (
+        [func_name] if (isinstance(func_name, str) or func_name is None) else func_name
+    )
 
     # get logger
     # add filter

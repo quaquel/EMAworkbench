@@ -1,4 +1,5 @@
 """Runs all examples."""
+
 import glob
 import os
 import sys
@@ -34,8 +35,10 @@ def run_exectests(test_dir, log_path="exectests.log"):
         for fname in test_files:
             print(f">> Executing '{fname}'")
             try:
-                code = compile(set_backend + open(fname).read(), fname, "exec") # noqa: SIM115
-                exec(code, {"__name__": "__main__"}, {}) # noqa: S102
+                code = compile(
+                    set_backend + open(fname).read(), fname, "exec"
+                )  # noqa: SIM115
+                exec(code, {"__name__": "__main__"}, {})  # noqa: S102
                 passed.append(fname)
             except BaseException:
                 traceback.print_exc()
@@ -51,7 +54,6 @@ def run_exectests(test_dir, log_path="exectests.log"):
 
 if __name__ == "__main__":
     # fixme: do we want to keep doing this and in this way?
-
 
     try:
         run_exectests(*sys.argv[1:])

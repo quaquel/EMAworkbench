@@ -19,6 +19,7 @@ __test__ = True
 if os.name != "nt":
     __test__ = False
 
+
 class VensimTest(unittest.TestCase):
     def test_be_quiet(self):
         pass
@@ -48,9 +49,10 @@ class VensimMSITest(unittest.TestCase):
         model.outcomes = [TimeSeriesOutcome("a")]
 
         # specify your uncertainties
-        model.uncertainties = [RealParameter("x11", 0, 2.5),
-                               RealParameter("x12", -2.5, 2.5)]
-
+        model.uncertainties = [
+            RealParameter("x11", 0, 2.5),
+            RealParameter("x12", -2.5, 2.5),
+        ]
 
         nr_runs = 10
         experiments, outcomes = perform_experiments(model, nr_runs)
