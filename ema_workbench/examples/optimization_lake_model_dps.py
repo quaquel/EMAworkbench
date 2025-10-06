@@ -74,16 +74,6 @@ if __name__ == "__main__":
     # Watson and Kasprzyk (2017)
     reference = Sample("reference", b=0.4, q=2, mean=0.02, stdev=0.01)
 
-    # convergence_metrics = [
-    #     ArchiveLogger(
-    #         "./data",
-    #         [l.name for l in lake_model.levers],  # noqa E741
-    #         [o.name for o in lake_model.outcomes],
-    #         base_filename="lake_model_dps_archive.tar.gz",
-    #     ),
-    #     EpsilonProgress(),
-    # ]
-
     with MultiprocessingEvaluator(lake_model) as evaluator:
         results = evaluator.optimize(
             searchover="levers",
@@ -92,4 +82,5 @@ if __name__ == "__main__":
             reference=reference,
             filename="lake_model_dps_archive.tar.gz",
             directory="./data",
+            rng=42
         )

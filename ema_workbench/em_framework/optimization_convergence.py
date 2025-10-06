@@ -29,35 +29,35 @@ __all__ = [
 
 _logger = get_module_logger(__name__)
 
-# class AbstractConvergenceMetric(abc.ABC):
-#     """Base convergence metric class."""
-#
-#     def __init__(self, name):
-#         """Init."""
-#         super().__init__()
-#         self.name = name
-#         self.results = []
-#
-#     @abc.abstractmethod
-#     def __call__(self, optimizer):
-#         """Call the convergence metric."""
-#
-#     def reset(self):
-#         self.results = []
-#
-#     def get_results(self):
-#         return self.results
+class AbstractConvergenceMetric(abc.ABC):
+    """Base convergence metric class."""
+
+    def __init__(self, name):
+        """Init."""
+        super().__init__()
+        self.name = name
+        self.results = []
+
+    @abc.abstractmethod
+    def __call__(self, optimizer):
+        """Call the convergence metric."""
+
+    def reset(self):
+        self.results = []
+
+    def get_results(self):
+        return self.results
 
 
-# class EpsilonProgress(AbstractConvergenceMetric):
-#     """Epsilon progress convergence metric class."""
-#
-#     def __init__(self):
-#         """Init."""
-#         super().__init__("epsilon_progress")
-#
-#     def __call__(self, optimizer):  # noqa: D102
-#         self.results.append(optimizer.archive.improvements)
+class EpsilonProgress(AbstractConvergenceMetric):
+    """Epsilon progress convergence metric class."""
+
+    def __init__(self):
+        """Init."""
+        super().__init__("epsilon_progress")
+
+    def __call__(self, optimizer):  # noqa: D102
+        self.results.append(optimizer.archive.improvements)
 
 
 class MetricWrapper:

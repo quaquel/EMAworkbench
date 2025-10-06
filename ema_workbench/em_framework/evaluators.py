@@ -23,9 +23,7 @@ from .optimization import (
     _optimize,
     evaluate,
     evaluate_robust,
-    process_levers,
-    process_robust,
-    process_uncertainties,
+    process_jobs,
     to_problem,
     to_robust_problem,
 )
@@ -135,8 +133,6 @@ class BaseEvaluator(abc.ABC):
 
     def evaluate_all(self, jobs, **kwargs):
         """Makes ema_workbench evaluators compatible with platypus evaluators."""
-        # self.callback()
-
         try:
             problem = jobs[0].solution.problem
         except IndexError:
@@ -146,16 +142,13 @@ class BaseEvaluator(abc.ABC):
         searchover = problem.searchover
 
         jobs_collection, scenarios, policies = (None,) * 3
+        scenarios, policies = process_jobs(jobs, searchover)
+
         match searchover:
-            case "levers":
-                scenarios, policies = process_levers(jobs)
+            case "levers"|"robust":
                 jobs_collection = zip(policies, jobs)
             case "uncertainties":
-                scenarios, policies = process_uncertainties(jobs)
                 jobs_collection = zip(scenarios, jobs)
-            case "robust":
-                scenarios, policies = process_robust(jobs)
-                jobs_collection = zip(policies, jobs)
             case _:
                 raise NotImplementedError()
 
