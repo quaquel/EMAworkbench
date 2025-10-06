@@ -19,8 +19,8 @@ from ema_workbench import (
     Model,
     MultiprocessingEvaluator,
     RealParameter,
-    ScalarOutcome,
     Sample,
+    ScalarOutcome,
     ema_logging,
 )
 
