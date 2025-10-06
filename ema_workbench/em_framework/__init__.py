@@ -9,7 +9,6 @@ __all__ = [
     "Category",
     "Constant",
     "Constraint",
-    "Convergence",
     "EpsilonIndicatorMetric",
     "EpsilonProgress",
     "ExperimentReplication",
@@ -67,7 +66,6 @@ from .optimization import (
     to_robust_problem,
 )
 from .optimization_convergence import (
-    Convergence,
     EpsilonIndicatorMetric,
     EpsilonProgress,
     GenerationalDistanceMetric,
@@ -75,7 +73,6 @@ from .optimization_convergence import (
     InvertedGenerationalDistanceMetric,
     SpacingMetric,
 )
-
 from .outcomes import ArrayOutcome, Constraint, ScalarOutcome, TimeSeriesOutcome
 from .parameters import (
     BooleanParameter,

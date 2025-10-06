@@ -10,7 +10,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from platypus import Algorithm, EpsNSGAII
+from platypus import AbstractGeneticAlgorithm, EpsNSGAII
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
@@ -27,7 +27,7 @@ from .optimization import (
     to_problem,
     to_robust_problem,
 )
-from .outcomes import Outcome, Constraint, ScalarOutcome
+from .outcomes import Constraint, Outcome, ScalarOutcome
 from .parameters import Parameter
 from .points import Experiment, Sample, SampleCollection, experiment_generator
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
@@ -145,7 +145,7 @@ class BaseEvaluator(abc.ABC):
         scenarios, policies = process_jobs(jobs, searchover)
 
         match searchover:
-            case "levers"|"robust":
+            case "levers" | "robust":
                 jobs_collection = zip(policies, jobs)
             case "uncertainties":
                 jobs_collection = zip(scenarios, jobs)
@@ -216,7 +216,7 @@ class BaseEvaluator(abc.ABC):
 
     def optimize(
         self,
-        algorithm: type[Algorithm] = EpsNSGAII,
+        algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
         nfe: int = 10000,
         searchover: str = "levers",
         reference: Sample | None = None,
@@ -258,7 +258,7 @@ class BaseEvaluator(abc.ABC):
         self,
         robustness_functions: list[ScalarOutcome],
         scenarios: int | Iterable[Sample],
-        algorithm: type[Algorithm] = EpsNSGAII,
+        algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
         nfe: int = 10000,
         convergence_freq: int = 1000,
         logging_freq: int = 5,
@@ -644,7 +644,7 @@ def _setup(
 
 def optimize(
     model: AbstractModel,
-    algorithm: type[Algorithm] = EpsNSGAII,
+    algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
     nfe: int = 10000,
     searchover: str = "levers",
     evaluator: BaseEvaluator | None = None,
@@ -669,7 +669,6 @@ def optimize(
                 overwrite the default scenario in case of searching over
                 levers, or default policy in case of searching over
                 uncertainties
-    convergence : function or collection of functions, optional
     constraints : list, optional
     convergence_freq :  int
                         nfe between convergence check
@@ -689,11 +688,11 @@ def optimize(
 
     Raises
     ------
-    EMAError if searchover is not one of 'uncertainties' or 'levers'
+    ValueError if searchover is not one of 'uncertainties' or 'levers'
 
     """
     if searchover not in ("levers", "uncertainties"):
-        raise EMAError(
+        raise ValueError(
             f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
         )
 
@@ -724,7 +723,7 @@ def robust_optimize(
     robustness_functions: list[ScalarOutcome],
     scenarios: int | Iterable[Sample],
     evaluator: BaseEvaluator | None = None,
-    algorithm: type[Algorithm] = EpsNSGAII,
+    algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
     nfe: int = 10000,
     constraints: Iterable[Constraint] | None = None,
     convergence_freq: int = 1000,
@@ -742,8 +741,6 @@ def robust_optimize(
     evaluator : Evaluator instance
     algorithm : platypus Algorithm instance
     nfe : int
-    convergence : list
-                  list of convergence metrics
     constraints : list
     convergence_freq :  int
                         nfe between convergence check

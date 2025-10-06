@@ -1,23 +1,19 @@
-import abc
-import warnings
+"""helper stuff for analyzing converngence of optimization results."""
 
-import numpy as np
-import pandas as pd
+import abc
 
 from platypus import (
-    Hypervolume,
-    GenerationalDistance,
-    InvertedGenerationalDistance,
     EpsilonIndicator,
+    GenerationalDistance,
+    Hypervolume,
+    InvertedGenerationalDistance,
     Spacing,
 )
 
-from .optimization import rebuild_platypus_population
-from .util import ProgressTrackingMixIn
 from ..util import get_module_logger
+from .optimization import rebuild_platypus_population
 
 __all__ = [
-    "Convergence",
     "EpsilonIndicatorMetric",
     "EpsilonProgress",
     "GenerationalDistanceMetric",
@@ -28,6 +24,7 @@ __all__ = [
 ]
 
 _logger = get_module_logger(__name__)
+
 
 class AbstractConvergenceMetric(abc.ABC):
     """Base convergence metric class."""
@@ -253,92 +250,3 @@ class OperatorProbabilities(AbstractConvergenceMetric):
             self.results.append(props[self.index])
         except AttributeError:
             pass
-
-
-class Convergence(ProgressTrackingMixIn):
-    """helper class for tracking convergence of optimization."""
-
-    valid_metrics = {"hypervolume", "epsilon_progress", "archive_logger"}
-
-    def __init__(
-        self,
-        metrics,
-        max_nfe,
-        convergence_freq=1000,
-        logging_freq=5,
-        log_progress=False,
-    ):
-        """Init."""
-        super().__init__(
-            max_nfe,
-            logging_freq,
-            _logger,
-            log_progress=log_progress,
-            log_func=lambda self: f"generation"
-            f" {self.generation}, {self.i}/{self.max_nfe}",
-        )
-
-        self.max_nfe = max_nfe
-        self.generation = -1
-        self.index = []
-        self.last_check = 0
-
-        if metrics is None:
-            metrics = []
-
-        self.metrics = metrics
-        self.convergence_freq = convergence_freq
-        self.logging_freq = logging_freq
-
-        # TODO what is the point of this code?
-        for metric in metrics:
-            assert isinstance(metric, AbstractConvergenceMetric)
-            metric.reset()
-
-    def __call__(self, optimizer, force=False):
-        """Stores convergences information given specified convergence frequency.
-
-        Parameters
-        ----------
-        optimizer : platypus optimizer instance
-        force : boolean, optional
-                if True, convergence information will always be stored
-                if False, converge information will be stored if the
-                the number of nfe since the last time of storing is equal to
-                or higher then convergence_freq
-
-
-        the primary use case for force is to force convergence frequency information
-        to be stored once the stopping condition of the optimizer has been reached
-        so that the final convergence information is kept.
-
-        """
-        nfe = optimizer.nfe
-        super().__call__(nfe - self.i)
-
-        self.generation += 1
-
-        if (
-            (nfe >= self.last_check + self.convergence_freq)
-            or (self.last_check == 0)
-            or force
-        ):
-            self.index.append(nfe)
-            self.last_check = nfe
-
-            for metric in self.metrics:
-                metric(optimizer)
-
-    def to_dataframe(self):  # noqa: D102
-        progress = {
-            metric.name: result
-            for metric in self.metrics
-            if (result := metric.get_results())
-        }
-
-        progress = pd.DataFrame.from_dict(progress)
-
-        if not progress.empty:
-            progress["nfe"] = self.index
-
-        return progress

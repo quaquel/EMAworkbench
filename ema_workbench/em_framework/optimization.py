@@ -1,29 +1,14 @@
 """Wrapper around platypus-opt."""
 
 import copy
+import io
 import os
 import random
 import tarfile
 import time
-import io
 from typing import Literal
 
 import pandas as pd
-
-from ..util import INFO, EMAError, get_module_logger, temporary_filter
-from . import callbacks, evaluators
-from .model import AbstractModel
-from .outcomes import Outcome
-from .parameters import (
-    Parameter,
-    BooleanParameter,
-    CategoricalParameter,
-    IntegerParameter,
-    RealParameter,
-)
-from .points import Sample
-from .util import determine_objects, ProgressTrackingMixIn
-
 import platypus
 from platypus import (
     NSGAII,
@@ -33,10 +18,8 @@ from platypus import (
     SPX,
     UM,
     UNDX,
-    Algorithm,
     DifferentialEvolution,
     EpsilonBoxArchive,
-    EpsilonProgressContinuation,
     GAOperator,
     Integer,
     Multimethod,
@@ -47,9 +30,21 @@ from platypus import (
     TournamentSelector,
     Variator,
 )
-
 from platypus import Problem as PlatypusProblem
 
+from ..util import INFO, EMAError, get_module_logger, temporary_filter
+from . import callbacks, evaluators
+from .model import AbstractModel
+from .outcomes import Outcome
+from .parameters import (
+    BooleanParameter,
+    CategoricalParameter,
+    IntegerParameter,
+    Parameter,
+    RealParameter,
+)
+from .points import Sample
+from .util import ProgressTrackingMixIn, determine_objects
 
 # Created on 5 Jun 2017
 #
@@ -421,7 +416,7 @@ class ProgressBarExtension(platypus.extensions.FixedFrequencyExtension):
         )
 
     def do_action(self, algorithm):
-        """update the progress bar."""
+        """Update the progress bar."""
         nfe = algorithm.nfe
         self.progress_tracker(nfe - self.progress_tracker.i)
 
@@ -468,15 +463,20 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
                 f"The envisioned file {self.tar_filename} for storing the archives already exists."
             )
 
-    def do_action(self, algorithm):
+    def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
         """Add the current archive to the tarball."""
+        # broadens the algorithms in platypus we can support automagically
+        try:
+            data = algorithm.archive
+        except AttributeError:
+            data = algorithm.result
 
         # fixme, this opens and closes the tarball everytime
         #   can't we open in in the init and have a clean way to close it
         #   on any exit?
         with tarfile.open(self.tar_filename, "a") as f:
             archive = to_dataframe(
-                algorithm.archive, self.decision_variable_names, self.outcome_names
+                data, self.decision_variable_names, self.outcome_names
             )
             stream = io.BytesIO()
             archive.to_csv(stream, encoding="UTF-8", index=False)
@@ -723,7 +723,7 @@ class CombinedVariator(Variator):
 def _optimize(
     problem: Problem,
     evaluator: "BaseEvaluator",  # noqa: F821
-    algorithm: type[Algorithm],
+    algorithm: type[platypus.algorithms.AbstractGeneticAlgorithm],
     nfe: int,
     convergence_freq: int,
     logging_freq: int,
@@ -739,7 +739,9 @@ def _optimize(
         pass
     else:
         if len(eps_values) != len(problem.outcome_names):
-            raise EMAError("Number of epsilon values does not match number of outcomes")
+            raise ValueError(
+                "Number of epsilon values does not match number of outcomes"
+            )
 
     if variator is None:
         if all(isinstance(t, klass) for t in problem.types):
@@ -772,11 +774,14 @@ def _optimize(
         None, None, None
     )  # ensure progress bar is closed correctly
 
-    results = to_dataframe(
-        optimizer.archive, problem.parameter_names, problem.outcome_names
-    )
+    try:
+        data = optimizer.archive
+    except AttributeError:
+        data = optimizer.result
 
-    _logger.info(f"optimization completed, found {len(optimizer.archive)} solutions")
+    results = to_dataframe(data, problem.parameter_names, problem.outcome_names)
+
+    _logger.info(f"optimization completed, found {len(data)} solutions")
 
     return results
 

@@ -5,18 +5,15 @@ Direct policy search for robust multi-objective management of deeply
 uncertain socio-ecological tipping points. Environmental Modelling &
 Software 92, 125-141.
 
-It also show cases how the workbench can be used to apply the MORDM extension
+It also showcases how the workbench can be used to apply the MORDM extension
 suggested by Watson, A.A., Kasprzyk, J.R. (2017) Incorporating deeply uncertain
 factors into the many objective search process. Environmental Modelling &
 Software 89, 159-171.
 
 """
-
-import numpy as np
 from lake_models import lake_problem_dps
 
 from ema_workbench import (
-    CategoricalParameter,
     Constant,
     Model,
     MultiprocessingEvaluator,
@@ -25,7 +22,6 @@ from ema_workbench import (
     Sample,
     ema_logging,
 )
-# from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgress
 
 # Created on 1 Jun 2017
 #
@@ -52,7 +48,7 @@ if __name__ == "__main__":
         RealParameter("c2", -2, 2),
         RealParameter("r1", 0, 2),
         RealParameter("r2", 0, 2),
-        CategoricalParameter("w1", np.linspace(0, 1, 10)),
+        RealParameter("w1",0, 1),
     ]
     # specify outcomes
     lake_model.outcomes = [

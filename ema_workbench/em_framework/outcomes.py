@@ -19,9 +19,9 @@ from .util import Variable
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "Outcome",
     "ArrayOutcome",
     "Constraint",
+    "Outcome",
     "ScalarOutcome",
     "TimeSeriesOutcome",
     "register",
