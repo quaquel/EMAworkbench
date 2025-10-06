@@ -1,6 +1,4 @@
-"""Python model 'Teacup.py'
-Translated using PySD
-"""
+"""Python model 'Teacup.py' Translated using PySD."""
 
 from pathlib import Path
 
@@ -93,6 +91,7 @@ def time_step():
     comp_subtype="Normal",
 )
 def characteristic_time():
+    """Characteristic time for the simulation."""
     return 10
 
 
@@ -108,12 +107,13 @@ def characteristic_time():
     },
 )
 def heat_loss_to_room():
-    """This is the rate at which heat flows from the cup into the room. We can ignore it at this point."""
+    """The rate at which heat flows from the cup into the room. We can ignore it at this point."""
     return (teacup_temperature() - room_temperature()) / characteristic_time()
 
 
 @component.add(name="Room Temperature", comp_type="Constant", comp_subtype="Normal")
 def room_temperature():
+    """Room temperature."""
     return 70
 
 
@@ -128,6 +128,7 @@ def room_temperature():
     },
 )
 def teacup_temperature():
+    """Teacup temperature."""
     return _integ_teacup_temperature()
 
 

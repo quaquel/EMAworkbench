@@ -1,3 +1,4 @@
+"""Runs all examples."""
 import glob
 import os
 import sys
@@ -9,6 +10,7 @@ set_backend = "import matplotlib\nmatplotlib.use('Agg')\n"
 
 @contextmanager
 def redirected_output(new_stdout=None, new_stderr=None):
+    """Redirects standard output and standard error to stdout."""
     save_stdout = sys.stdout
     save_stderr = sys.stderr
     if new_stdout is not None:
@@ -23,6 +25,7 @@ def redirected_output(new_stdout=None, new_stderr=None):
 
 
 def run_exectests(test_dir, log_path="exectests.log"):
+    """Run all examples."""
     test_files = glob.glob(os.path.join(test_dir, "*.py"))
     test_files = sorted(ex for ex in test_files if ex[0] != "_")
     passed = []
@@ -31,8 +34,8 @@ def run_exectests(test_dir, log_path="exectests.log"):
         for fname in test_files:
             print(f">> Executing '{fname}'")
             try:
-                code = compile(set_backend + open(fname).read(), fname, "exec")
-                exec(code, {"__name__": "__main__"}, {})
+                code = compile(set_backend + open(fname).read(), fname, "exec") # noqa: SIM115
+                exec(code, {"__name__": "__main__"}, {}) # noqa: S102
                 passed.append(fname)
             except BaseException:
                 traceback.print_exc()
@@ -47,6 +50,9 @@ def run_exectests(test_dir, log_path="exectests.log"):
 
 
 if __name__ == "__main__":
+    # fixme: do we want to keep doing this and in this way?
+
+
     try:
         run_exectests(*sys.argv[1:])
     except BaseException:
