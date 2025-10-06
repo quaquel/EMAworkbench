@@ -426,7 +426,7 @@ class BasePrimBox(abc.ABC):
                 try:
                     ax = kwargs.pop("ax")
                 except KeyError:
-                    fig, ax = plt.subplots()
+                    _, ax = plt.subplots()
                 return self._inspect_graph(i, uncs, ax=ax, **kwargs)
             case "data":
                 return self._inspect_data(i, uncs)

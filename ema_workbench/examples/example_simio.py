@@ -1,7 +1,4 @@
-"""Created on 27 Jun 2019
-
-@author: jhkwakkel
-"""
+"""A demonstrationo of using the workbench with Simio."""
 
 from ema_workbench import (
     CategoricalParameter,
@@ -10,6 +7,10 @@ from ema_workbench import (
     ema_logging,
 )
 from ema_workbench.connectors.simio_connector import SimioModel
+
+# Created on 27 Jun 2019
+#
+# @author: jhkwakkel
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)

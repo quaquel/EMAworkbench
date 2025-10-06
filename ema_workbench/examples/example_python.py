@@ -1,10 +1,4 @@
-"""Created on 20 dec. 2010
-
-This file illustrated the use the EMA classes for a contrived example
-It's main purpose has been to test the parallel processing functionality
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-"""
+"""An illustrationo of how to use the workbench with models in python."""
 
 from ema_workbench import (
     Model,
@@ -14,8 +8,13 @@ from ema_workbench import (
     perform_experiments,
 )
 
+# Created on 20 dec. 2010
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 
 def some_model(x1=None, x2=None, x3=None):
+    """Some model."""
     return {"y": x1 * x2 + x3}
 
 

@@ -1,23 +1,21 @@
 import numpy as np
-
 import pytest
-
-from test import utilities
 
 from ema_workbench import BooleanParameter
 from ema_workbench.em_framework.parameters import (
-    RealParameter,
-    IntegerParameter,
     CategoricalParameter,
+    IntegerParameter,
+    RealParameter,
 )
 from ema_workbench.em_framework.points import (
-    SampleCollection,
     Sample,
-    sample_generator,
-    from_experiments,
+    SampleCollection,
     experiment_generator,
+    from_experiments,
+    sample_generator,
 )
 from ema_workbench.em_framework.util import NamedObject
+from test import utilities
 
 
 def test_experiment_generator():
@@ -145,7 +143,9 @@ def test_sample_collection():
         it1.combine(it2, "wrong value")
 
     with pytest.raises(ValueError):
-        it1.combine(SampleCollection(samples2, [RealParameter("a", 0, 1)]), "wrong value")
+        it1.combine(
+            SampleCollection(samples2, [RealParameter("a", 0, 1)]), "wrong value"
+        )
 
     it1 = SampleCollection(samples1, [RealParameter("a", 0, 1)])
     it2 = SampleCollection(samples2, [RealParameter("a", 0, 1)])

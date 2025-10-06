@@ -3,11 +3,10 @@
 The data was generated using a system dynamics models implemented in Vensim.
 See flu_example.py for the code.
 
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-                chamarat <c.hamarat  (at) tudelft (dot) nl>
-
 """
+
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#                 chamarat <c.hamarat  (at) tudelft (dot) nl>
 
 import matplotlib.pyplot as plt
 
@@ -17,16 +16,10 @@ from ema_workbench import ema_logging, load_results
 ema_logging.log_to_stderr(level=ema_logging.INFO)
 
 
-def classify(data):
-    # get the output for deceased population
-    ooi = data["deceased_population_region_1"]
-    return ooi[:, -1] > 1000000
-
-
 # load data
-fn = r"./data/1000 flu cases no policy.tar.gz"
+fn = "./data/1000 flu cases no policy.tar.gz"
 x, outcomes = load_results(fn)
-y = classify(outcomes)
+y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
 # perform prim on modified results tuple
 prim_obj = prim.Prim(x, y)

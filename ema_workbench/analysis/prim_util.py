@@ -45,8 +45,8 @@ def get_quantile(data, quantile):
     data = np.sort(data)
 
     i = (len(data) - 1) * quantile
-    index_lower = int(math.floor(i))
-    index_higher = int(math.ceil(i))
+    index_lower = math.floor(i)
+    index_higher = math.ceil(i)
 
     value = 0
 

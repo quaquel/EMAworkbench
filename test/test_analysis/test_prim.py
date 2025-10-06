@@ -198,9 +198,11 @@ class TestPrimBox:
         plt.draw()
         box.show_pairs_scatter(diag="cdf", upper="contour")
         plt.draw()
-        grid = box.show_pairs_scatter(dims=["normal_contact_rate_region_1", "infection_ratio_region_1"])
+        grid = box.show_pairs_scatter(
+            dims=["normal_contact_rate_region_1", "infection_ratio_region_1"]
+        )
         plt.draw()
-        assert grid.axes.shape == (2,2)
+        assert grid.axes.shape == (2, 2)
 
         with pytest.raises(ValueError):
             box.show_pairs_scatter(diag="wrong value", upper="contour")
@@ -501,7 +503,7 @@ def test_pca():
     # fail on non numeric columns
     with pytest.raises(ValueError):
         prim.pca_preprocess(experiments, y)
-    experiments = experiments.drop(['scenario', 'policy', 'model'], axis=1)
+    experiments = experiments.drop(["scenario", "policy", "model"], axis=1)
 
     # fail on y not being binary
     with pytest.raises(ValueError):
@@ -534,7 +536,8 @@ def test_pca():
             "permanent_immune_population_fraction_R2",
             "recovery_time_region_2",
             "root_contact_ratio_region_2",
-            "susceptible_to_immune_population_delay_time_region_2"],
+            "susceptible_to_immune_population_delay_time_region_2",
+        ],
     }
     experiments = experiments.drop("normal_interregional_contact_rate", axis=1)
     rotated_experiments, rotation = prim.pca_preprocess(experiments, y, subsets)

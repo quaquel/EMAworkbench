@@ -1,10 +1,4 @@
-"""This file illustrated the use of the workbench for using dimensional
-stacking for scenario discovery
-
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
-"""
+"""Dimensional stacking for scenario discovery."""
 
 import matplotlib.pyplot as plt
 

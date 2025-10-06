@@ -34,7 +34,7 @@ def load_results(file_name):
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import AbstractOutcome, register
+    from ..em_framework.outcomes import AbstractOutcome, register  # noqa: PLC0415
 
     file_name = os.path.abspath(file_name)
 
@@ -94,7 +94,7 @@ def load_results_old(archive):
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import ArrayOutcome, ScalarOutcome
+    from ..em_framework.outcomes import ArrayOutcome, ScalarOutcome  # noqa: PLC0415
 
     outcomes = {}
 
@@ -189,7 +189,7 @@ def save_results(results, file_name):
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import register
+    from ..em_framework.outcomes import register  # noqa: PLC0415
 
     VERSION = 0.1  # noqa: N806
     file_name = os.path.abspath(file_name)

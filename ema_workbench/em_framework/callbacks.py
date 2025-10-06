@@ -95,9 +95,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         self.parameters = uncertainties + levers
 
         if reporting_interval is None:
-            reporting_interval = max(
-                1, int(round(nr_experiments / reporting_frequency))
-            )
+            reporting_interval = max(1, round(nr_experiments / reporting_frequency))
 
         self.reporting_interval = reporting_interval
 
@@ -384,7 +382,9 @@ class FileBasedCallback(AbstractCallback):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
 
-        self.experiments_fh = open(os.path.join(self.directory, "experiments.csv"), "w")
+        self.experiments_fh = open(  # noqa: SIM115
+            os.path.join(self.directory, "experiments.csv"), "w"
+        )
 
         # write experiments.csv header row
         header = [p.name for p in self.parameters] + ["scenario_id", "policy", "model"]
@@ -394,7 +394,7 @@ class FileBasedCallback(AbstractCallback):
         self.outcome_fhs = {}
         for outcome in self.outcomes:
             name = outcome.name
-            self.outcome_fhs[name] = open(
+            self.outcome_fhs[name] = open(  # noqa: SIM115
                 os.path.join(self.directory, f"{name}.csv"), "w"
             )
 

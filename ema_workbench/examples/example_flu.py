@@ -1,13 +1,7 @@
-"""Created on 20 dec. 2010
+"""An illustration of the use of the workbench for a model specified in Python itself.
 
-This file illustrated the use of the workbench for a model
-specified in Python itself. The example is based on `Pruyt & Hamarat <https://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
-For comparison, run both this model and the flu_vensim_no_policy_example.py and
-compare the results.
-
-
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-                chamarat <c.hamarat  (at) tudelft (dot) nl>
+The example is based on `Pruyt & Hamarat <https://www.systemdynamics.org/conferences/2010/proceed/papers/P1253.pdf>`_.
+For comparison, run both this model and example_flu_vensim_no_policy.py.
 
 """
 
@@ -25,6 +19,11 @@ from ema_workbench import (
 )
 from ema_workbench.analysis import Density, lines
 
+# Created on 20 dec. 2010
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#                 chamarat <c.hamarat  (at) tudelft (dot) nl>
+
+
 # =============================================================================
 #
 #    the model itself
@@ -41,7 +40,8 @@ switch_deaths = 1.0
 switch_immunity_cap = 1.0
 
 
-def LookupFunctionX(variable, start, end, step, skew, growth, v=0.5):
+def lookup_function_x(variable, start, end, step, skew, growth, v=0.5):
+    """A basic lookup function."""
     return start + (
         (end - start) / ((1 + skew * exp(-growth * (variable - step))) ** (1 / v))
     )
@@ -66,9 +66,10 @@ def flu_model(
     x101=0,
     x102=0,
 ):
+    """The overall model."""
     # Assigning initial values
-    additional_seasonal_immune_population_fraction_R1 = float(x11)
-    additional_seasonal_immune_population_fraction_R2 = float(x12)
+    additional_seasonal_immune_population_fraction_r1 = float(x11)
+    additional_seasonal_immune_population_fraction_r2 = float(x12)
 
     fatality_rate_region_1 = float(x21)
     fatality_rate_region_2 = float(x22)
@@ -79,8 +80,8 @@ def flu_model(
     normal_interregional_contact_rate = float(x41)
     interregional_contact_rate = switch_regions * normal_interregional_contact_rate
 
-    permanent_immune_population_fraction_R1 = float(x51)
-    permanent_immune_population_fraction_R2 = float(x52)
+    permanent_immune_population_fraction_r1 = float(x51)
+    permanent_immune_population_fraction_r2 = float(x52)
 
     recovery_time_region_1 = float(x61)
     recovery_time_region_2 = float(x62)
@@ -140,14 +141,14 @@ def flu_model(
 
     deceased_population_region_1 = [0.0]
     deceased_population_region_2 = [0.0]
-    runTime = [INITIAL_TIME]
+    run_time = [INITIAL_TIME]
 
     # --End of Initialization--
 
-    Max_infected = 0.0
+    max_infected = 0.0
 
     for time in range(int(INITIAL_TIME / TIME_STEP), int(FINAL_TIME / TIME_STEP)):
-        runTime.append(runTime[-1] + TIME_STEP)
+        run_time.append(run_time[-1] + TIME_STEP)
         total_population_region_1 = (
             infected_population_region_1
             + recovered_population_region_1
@@ -183,7 +184,7 @@ def flu_model(
         #        else:normal_contact_rate_region_1 = float(x101)
 
         normal_contact_rate_region_1 = float(x101) * (
-            1 - LookupFunctionX(infected_fraction_region_1, 0, 1, 0.15, 0.75, 15)
+            1 - lookup_function_x(infected_fraction_region_1, 0, 1, 0.15, 0.75, 15)
         )
 
         contact_rate_region_1 = (
@@ -242,25 +243,25 @@ def flu_model(
             * infected_fraction_region_1
         )
 
-        infected_population_region_1_NEXT = infected_population_region_1 + (
+        infected_population_region_1_next = infected_population_region_1 + (
             TIME_STEP
             * (infections_region_1 - flu_deaths_region_1 - recoveries_region_1)
         )
-        infected_population_region_2_NEXT = infected_population_region_2 + (
+        infected_population_region_2_next = infected_population_region_2 + (
             TIME_STEP
             * (infections_region_2 - flu_deaths_region_2 - recoveries_region_2)
         )
 
         if (
-            infected_population_region_1_NEXT < 0
-            or infected_population_region_2_NEXT < 0
+            infected_population_region_1_next < 0
+            or infected_population_region_2_next < 0
         ):
             pass
 
-        recovered_population_region_1_NEXT = recovered_population_region_1 + (
+        recovered_population_region_1_next = recovered_population_region_1 + (
             TIME_STEP * recoveries_region_1
         )
-        recovered_population_region_2_NEXT = recovered_population_region_2 + (
+        recovered_population_region_2_next = recovered_population_region_2 + (
             TIME_STEP * recoveries_region_2
         )
 
@@ -277,11 +278,11 @@ def flu_model(
 
         if (time * TIME_STEP) <= 10:
             normal_immune_population_fraction_region_1 = (
-                additional_seasonal_immune_population_fraction_R1 / 2
+                additional_seasonal_immune_population_fraction_r1 / 2
             ) * sin(4.5 + (time * TIME_STEP / 2)) + (
                 (
-                    (2 * permanent_immune_population_fraction_R1)
-                    + additional_seasonal_immune_population_fraction_R1
+                    (2 * permanent_immune_population_fraction_r1)
+                    + additional_seasonal_immune_population_fraction_r1
                 )
                 / 2
             )
@@ -289,12 +290,12 @@ def flu_model(
             normal_immune_population_fraction_region_1 = max(
                 (
                     float(qw),
-                    (additional_seasonal_immune_population_fraction_R1 / 2)
+                    (additional_seasonal_immune_population_fraction_r1 / 2)
                     * sin(4.5 + (time * TIME_STEP / 2))
                     + (
                         (
-                            (2 * permanent_immune_population_fraction_R1)
-                            + additional_seasonal_immune_population_fraction_R1
+                            (2 * permanent_immune_population_fraction_r1)
+                            + additional_seasonal_immune_population_fraction_r1
                         )
                         / 2
                     ),
@@ -305,19 +306,19 @@ def flu_model(
             (
                 (
                     sin((time * TIME_STEP / 2) + 1.5)
-                    * additional_seasonal_immune_population_fraction_R2
+                    * additional_seasonal_immune_population_fraction_r2
                     / 2
                 )
                 + (
                     (
-                        (2 * permanent_immune_population_fraction_R2)
-                        + additional_seasonal_immune_population_fraction_R2
+                        (2 * permanent_immune_population_fraction_r2)
+                        + additional_seasonal_immune_population_fraction_r2
                     )
                     / 2
                 ),
                 (
-                    permanent_immune_population_fraction_R1
-                    + additional_seasonal_immune_population_fraction_R1
+                    permanent_immune_population_fraction_r1
+                    + additional_seasonal_immune_population_fraction_r1
                 ),
             ),
         ) + (
@@ -325,13 +326,13 @@ def flu_model(
             * (
                 (
                     sin((time * TIME_STEP / 2) + 1.5)
-                    * additional_seasonal_immune_population_fraction_R2
+                    * additional_seasonal_immune_population_fraction_r2
                     / 2
                 )
                 + (
                     (
-                        (2 * permanent_immune_population_fraction_R2)
-                        + additional_seasonal_immune_population_fraction_R2
+                        (2 * permanent_immune_population_fraction_r2)
+                        + additional_seasonal_immune_population_fraction_r2
                     )
                     / 2
                 )
@@ -387,65 +388,65 @@ def flu_model(
         else:
             susceptible_to_immune_population_flow_region_2 = 0
 
-        susceptible_population_region_1_NEXT = susceptible_population_region_1 - (
+        susceptible_population_region_1_next = susceptible_population_region_1 - (
             TIME_STEP
             * (infections_region_1 + susceptible_to_immune_population_flow_region_1)
         )
-        susceptible_population_region_2_NEXT = susceptible_population_region_2 - (
+        susceptible_population_region_2_next = susceptible_population_region_2 - (
             TIME_STEP
             * (infections_region_2 + susceptible_to_immune_population_flow_region_2)
         )
 
-        immune_population_region_1_NEXT = immune_population_region_1 + (
+        immune_population_region_1_next = immune_population_region_1 + (
             TIME_STEP * susceptible_to_immune_population_flow_region_1
         )
-        immune_population_region_2_NEXT = immune_population_region_2 + (
+        immune_population_region_2_next = immune_population_region_2 + (
             TIME_STEP * susceptible_to_immune_population_flow_region_2
         )
 
-        deceased_population_region_1_NEXT = deceased_population_region_1[-1] + (
+        deceased_population_region_1_next = deceased_population_region_1[-1] + (
             TIME_STEP * flu_deaths_region_1
         )
-        deceased_population_region_2_NEXT = deceased_population_region_2[-1] + (
+        deceased_population_region_2_next = deceased_population_region_2[-1] + (
             TIME_STEP * flu_deaths_region_2
         )
 
         # Updating integral values
-        if Max_infected < (
-            infected_population_region_1_NEXT
+        if max_infected < (
+            infected_population_region_1_next
             / (
-                infected_population_region_1_NEXT
-                + recovered_population_region_1_NEXT
-                + susceptible_population_region_1_NEXT
-                + immune_population_region_1_NEXT
+                infected_population_region_1_next
+                + recovered_population_region_1_next
+                + susceptible_population_region_1_next
+                + immune_population_region_1_next
             )
         ):
-            Max_infected = infected_population_region_1_NEXT / (
-                infected_population_region_1_NEXT
-                + recovered_population_region_1_NEXT
-                + susceptible_population_region_1_NEXT
-                + immune_population_region_1_NEXT
+            max_infected = infected_population_region_1_next / (
+                infected_population_region_1_next
+                + recovered_population_region_1_next
+                + susceptible_population_region_1_next
+                + immune_population_region_1_next
             )
 
-        recovered_population_region_1 = recovered_population_region_1_NEXT
-        recovered_population_region_2 = recovered_population_region_2_NEXT
+        recovered_population_region_1 = recovered_population_region_1_next
+        recovered_population_region_2 = recovered_population_region_2_next
 
-        infected_population_region_1 = infected_population_region_1_NEXT
-        infected_population_region_2 = infected_population_region_2_NEXT
+        infected_population_region_1 = infected_population_region_1_next
+        infected_population_region_2 = infected_population_region_2_next
 
-        susceptible_population_region_1 = susceptible_population_region_1_NEXT
-        susceptible_population_region_2 = susceptible_population_region_2_NEXT
+        susceptible_population_region_1 = susceptible_population_region_1_next
+        susceptible_population_region_2 = susceptible_population_region_2_next
 
-        immune_population_region_1 = immune_population_region_1_NEXT
-        immune_population_region_2 = immune_population_region_2_NEXT
+        immune_population_region_1 = immune_population_region_1_next
+        immune_population_region_2 = immune_population_region_2_next
 
-        deceased_population_region_1.append(deceased_population_region_1_NEXT)
-        deceased_population_region_2.append(deceased_population_region_2_NEXT)
+        deceased_population_region_1.append(deceased_population_region_1_next)
+        deceased_population_region_2.append(deceased_population_region_2_next)
 
         # End of main code
 
     return {
-        "TIME": runTime,
+        "TIME": run_time,
         "deceased_population_region_1": deceased_population_region_1,
     }
 
@@ -482,12 +483,13 @@ if __name__ == "__main__":
     nr_experiments = 500
 
     with SequentialEvaluator(model) as evaluator:
-        results = perform_experiments(model, nr_experiments, evaluator=evaluator)
-
-    print("laat")
+        experiments, outcomes = perform_experiments(
+            model, nr_experiments, evaluator=evaluator
+        )
 
     lines(
-        results,
+        experiments,
+        outcomes,
         outcomes_to_show="deceased_population_region_1",
         show_envelope=True,
         density=Density.KDE,

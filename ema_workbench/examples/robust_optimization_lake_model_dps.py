@@ -69,6 +69,7 @@ if __name__ == "__main__":
 
     # setup and execute the robust optimization
     def signal_to_noise(data):
+        """Signal to Noise calcuation."""
         mean = np.mean(data)
         std = np.std(data)
         sn = mean / std

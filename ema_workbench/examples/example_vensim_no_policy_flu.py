@@ -1,11 +1,9 @@
-"""Created on 20 May, 2011
+"""No policy example of flu model.
 
 This module shows how you can use vensim models directly
 instead of coding the model in Python. The underlying case
 is the same as used in fluExample
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-                epruyt <e.pruyt (at) tudelft (dot) nl>
 """
 
 from ema_workbench import (
@@ -18,11 +16,17 @@ from ema_workbench import (
 )
 from ema_workbench.connectors.vensim import VensimModel
 
+# Created on 20 May, 2011
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#                 epruyt <e.pruyt (at) tudelft (dot) nl>
+
+
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     model = VensimModel(
-        "fluCase", wd=r"./models/flu", model_file=r"FLUvensimV1basecase.vpm"
+        "flu", wd=r"./models/flu", model_file=r"FLUvensimV1basecase.vpm"
     )
 
     # outcomes

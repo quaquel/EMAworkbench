@@ -32,18 +32,22 @@ class State(Enum):
 
 
 def number_state(model, state):
+    """Helper function."""
     return sum(1 for a in model.grid.agents if a.state is state)
 
 
 def number_infected(model):
+    """Helper function."""
     return number_state(model, State.INFECTED)
 
 
 def number_susceptible(model):
+    """Helper function."""
     return number_state(model, State.SUSCEPTIBLE)
 
 
 def number_resistant(model):
+    """Helper function."""
     return number_state(model, State.RESISTANT)
 
 
@@ -52,15 +56,16 @@ class VirusOnNetwork(mesa.Model):
 
     def __init__(
         self,
-        num_nodes=10,
-        avg_node_degree=3,
-        initial_outbreak_size=1,
-        virus_spread_chance=0.4,
-        virus_check_frequency=0.4,
-        recovery_chance=0.3,
-        gain_resistance_chance=0.5,
-        rng=None,
+        num_nodes: int = 10,
+        avg_node_degree: int = 3,
+        initial_outbreak_size: int = 1,
+        virus_spread_chance: float = 0.4,
+        virus_check_frequency: float = 0.4,
+        recovery_chance: float = 0.3,
+        gain_resistance_chance: float = 0.5,
+        rng: int | None = None,
     ):
+        """Init."""
         super().__init__(rng=rng)
         self.num_nodes = num_nodes
         prob = avg_node_degree / self.num_nodes
@@ -104,6 +109,7 @@ class VirusOnNetwork(mesa.Model):
         self.datacollector.collect(self)
 
     def resistant_susceptible_ratio(self):
+        """Calculate ratio of resistant to susceptible."""
         try:
             return number_state(self, State.RESISTANT) / number_state(
                 self, State.SUSCEPTIBLE
@@ -112,16 +118,20 @@ class VirusOnNetwork(mesa.Model):
             return math.inf
 
     def step(self):
+        """A single step of the model."""
         # collect data
         self.agents.shuffle_do("step")
         self.datacollector.collect(self)
 
     def run_model(self, n):
+        """Run the model for n steps."""
         for _ in range(n):
             self.step()
 
 
 class VirusAgent(mesa.discrete_space.FixedAgent):
+    """A VirusAgent."""
+
     def __init__(
         self,
         model,
@@ -132,6 +142,7 @@ class VirusAgent(mesa.discrete_space.FixedAgent):
         gain_resistance_chance,
         cell,
     ):
+        """Init."""
         super().__init__(model)
 
         self.state = initial_state
@@ -143,6 +154,7 @@ class VirusAgent(mesa.discrete_space.FixedAgent):
         self.cell = cell
 
     def try_infect_neighbors(self):
+        """Try to infect neighbors."""
         for agent in self.cell.neighborhood.agents:
             if (agent.state is State.SUSCEPTIBLE) and (
                 self.random.random() < self.virus_spread_chance
@@ -150,10 +162,12 @@ class VirusAgent(mesa.discrete_space.FixedAgent):
                 agent.state = State.INFECTED
 
     def try_gain_resistance(self):
+        """Try to gain resistance."""
         if self.random.random() < self.gain_resistance_chance:
             self.state = State.RESISTANT
 
     def try_remove_infection(self):
+        """Try to remove infection."""
         # Try to remove
         if self.random.random() < self.recovery_chance:
             # Success
@@ -164,12 +178,14 @@ class VirusAgent(mesa.discrete_space.FixedAgent):
             self.state = State.INFECTED
 
     def check_situation(self):
+        """Check if the agent is infected and if so, see if she is cured."""
         if (self.random.random() < self.virus_check_frequency) and (
             self.state is State.INFECTED
         ):
             self.try_remove_infection()
 
     def step(self):
+        """A single step of the model."""
         if self.state is State.INFECTED:
             self.try_infect_neighbors()
         self.check_situation()

@@ -1,7 +1,4 @@
-"""Created on 27 Jan 2014
-
-@author: jhkwakkel
-"""
+"""Another vensim example."""
 
 from ema_workbench import (
     CategoricalParameter,
@@ -13,10 +10,15 @@ from ema_workbench import (
 )
 from ema_workbench.connectors.vensim import VensimModel
 
+# Created on 27 Jan 2014
+#
+# @author: jhkwakkel
+
 
 def get_energy_model():
+    """Teturn the model instance."""
     model = VensimModel(
-        "energyTransition",
+        "energy_transition",
         wd="./models",
         model_file="RB_V25_ets_1_policy_modified_adaptive_extended_outcomes.vpm",
     )

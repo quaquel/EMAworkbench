@@ -1,6 +1,6 @@
-"""This module provides a base class that can be used to perform EMA on
-Excel models. It relies on `win32com <https://python.net/crew/mhammond/win32/Downloads.html>`_
+"""A base model class for performing EMA on Excel models.
 
+It relies on `win32com <https://python.net/crew/mhammond/win32/Downloads.html>`_
 """
 
 import os
@@ -26,12 +26,13 @@ _logger = get_module_logger(__name__)
 
 
 class NoDefaultSheetError(EMAError):
-    pass
+    """Custom excel error."""
 
 
 class BaseExcelModel(FileModel):
-    """Base class for connecting the EMA workbench to models in Excel. To
-    automate this connection as much as possible. This implementation relies
+    """Base class for connecting the EMA workbench to models in Excel.
+
+    To automate this connection as much as possible, this implementation relies
     on naming cells in Excel. These names can then be used here as names
     for the uncertainties and the outcomes. See e.g. `this site <https://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
     for details on naming cells and sets of cells.
@@ -117,7 +118,7 @@ class BaseExcelModel(FileModel):
                 self.xl = win32com.client.Dispatch("Excel.Application")
                 _logger.debug("Excel started")
             except com_error as e:
-                raise EMAError(str(e))
+                raise EMAError() from e
 
         # check for self.xl.Workbooks==0 allows us to see if wb was previously closed
         # and needs to be reopened.
@@ -130,8 +131,9 @@ class BaseExcelModel(FileModel):
 
     @method_logger(__name__)
     def run_experiment(self, experiment):
-        """Method for running an instantiated model structures. This
-        implementation assumes that the names of the uncertainties correspond
+        """Method for running an experiment.
+
+        This implementation assumes that the names of the uncertainties correspond
         to the name of the cells in Excel. See e.g. `this site <https://spreadsheets.about.com/od/exceltips/qt/named_range.htm>`_
         for details or use Google and search on 'named range'. One of the
         requirements on the names is that they cannot contains spaces.
@@ -173,8 +175,9 @@ class BaseExcelModel(FileModel):
 
     @method_logger(__name__)
     def cleanup(self):
-        """Cleaning up prior to finishing performing experiments. This will
-        close the workbook and close Excel
+        """Cleaning up prior to finishing performing experiments.
+
+        This will close the workbook and close Excel
         """
         # TODO:: if we know the pid for the associated excel process
         # we might forcefully close that process, helps in case of errors
@@ -197,7 +200,7 @@ class BaseExcelModel(FileModel):
         self.wb = None
 
     def get_sheet(self, sheetname=None):
-        """Get a named worksheet, or the default worksheet if set
+        """Get a named worksheet, or the default worksheet if set.
 
         Parameters
         ----------
@@ -225,7 +228,7 @@ class BaseExcelModel(FileModel):
         return sheet
 
     def get_wb_value(self, name):
-        """Extract a value from a cell of the excel workbook
+        """Extract a value from a cell of the excel workbook.
 
         Parameters
         ----------
@@ -249,8 +252,10 @@ class BaseExcelModel(FileModel):
 
         try:
             sheet = self.get_sheet(this_sheet)
-        except NoDefaultSheetError:
-            raise EMAError(f"no default sheet while trying to read from '{name}'")
+        except NoDefaultSheetError as e:
+            raise EMAError(
+                f"no default sheet while trying to read from '{name}'"
+            ) from e
 
         try:
             value = sheet.Range(this_range).Value
@@ -263,7 +268,7 @@ class BaseExcelModel(FileModel):
         return value
 
     def set_wb_value(self, name, value):
-        """Inject a value into a cell of the excel workbook
+        """Inject a value into a cell of the excel workbook.
 
         Parameters
         ----------
@@ -287,8 +292,10 @@ class BaseExcelModel(FileModel):
 
         try:
             sheet = self.get_sheet(this_sheet)
-        except NoDefaultSheetError:
-            raise EMAError(f"no default sheet while trying to write to '{name}'")
+        except NoDefaultSheetError as err:
+            raise EMAError(
+                f"no default sheet while trying to write to '{name}'"
+            ) from err
 
         try:
             sheet.Range(this_range).Value = value
@@ -298,7 +305,7 @@ class BaseExcelModel(FileModel):
             )
 
     def get_wb_sheetnames(self):
-        """Get the names of all the workbook's worksheets"""
+        """Get the names of all the workbook's worksheets."""
         if self.wb:
             try:
                 return [sh.Name for sh in self.wb.Sheets]
@@ -309,4 +316,4 @@ class BaseExcelModel(FileModel):
 
 
 class ExcelModel(SingleReplication, BaseExcelModel):
-    pass
+    """Excel model."""

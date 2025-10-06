@@ -1,7 +1,4 @@
-"""Created on 30 Oct 2018
-
-@author: jhkwakkel
-"""
+"""Feature scoring with confidence intervals."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +21,7 @@ x = x.drop(["model", "policy"], axis=1)
 y = np.max(outcomes["infected_fraction_R1"], axis=1)
 
 all_scores = []
-for i in range(100):
+for _ in range(100):
     indices = np.random.choice(np.arange(0, x.shape[0]), size=x.shape[0])
     selected_x = x.iloc[indices, :]
     selected_y = y[indices]

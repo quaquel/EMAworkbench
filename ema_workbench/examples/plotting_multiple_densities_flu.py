@@ -1,7 +1,9 @@
-"""Created on Jul 8, 2014
+"""Basic example of multiple densities plot based on Flu model."""
 
-@author: jhkwakkel@tudelft.net
-"""
+# Created on Jul 8, 2014
+#
+# @author: jhkwakkel@tudelft.net
+
 
 import math
 

@@ -13,7 +13,7 @@ from ema_workbench.em_framework.model import AbstractModel, Model
 from ema_workbench.em_framework.parameters import RealParameter
 from ema_workbench.em_framework.points import Experiment, Sample
 from ema_workbench.em_framework.util import NamedObjectMap
-from ema_workbench.util import ExperimentError, EMAError
+from ema_workbench.util import EMAError, ExperimentError
 
 
 class ExperimentRunnerTestCase(unittest.TestCase):

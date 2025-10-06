@@ -351,7 +351,7 @@ class IpyparallelEvaluator(BaseEvaluator):
 
     def initialize(self):
         """Initialize the pool."""
-        import ipyparallel
+        import ipyparallel  # noqa: PLC0415
 
         _logger.debug("starting ipyparallel pool")
 

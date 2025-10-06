@@ -1,7 +1,8 @@
-"""Created on 8 mrt. 2011
+"""A resource scarcity model in vensim.
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-                epruyt <e.pruyt (at) tudelft (dot) nl>
+This is a slightly more sophisticated example where we translate some of the uncertainties
+on the python side, prior to running the vensim model.
+
 """
 
 from math import exp
@@ -15,28 +16,39 @@ from ema_workbench.em_framework import (
 )
 from ema_workbench.util import ema_logging
 
+# Created on 8 mrt. 2011
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+#                 epruyt <e.pruyt (at) tudelft (dot) nl>
+
 
 class ScarcityModel(VensimModel):
-    def returnsToScale(self, x, speed, scale):
+    """Scarcity model."""
+
+    def returns_to_scale(self, x, speed, scale):
+        """Translate uncertainties to lookup."""
         return (x * 1000, scale * 1 / (1 + exp(-1 * speed * (x - 50))))
 
-    def approxLearning(self, x, speed, scale, start):
+    def approx_learning(self, x, speed, scale, start):
+        """Translate uncertainties to lookup."""
         x = x - start
         loc = 1 - scale
         a = (x * 10000, scale * 1 / (1 + exp(speed * x)) + loc)
         return a
 
     def f(self, x, speed, loc):
+        """Translate uncertainties to lookup."""
         return (x / 10, loc * 1 / (1 + exp(speed * x)))
 
-    def priceSubstite(self, x, speed, begin, end):
+    def price_substite(self, x, speed, begin, end):
+        """Translate uncertainties to lookup."""
         scale = 2 * end
         start = begin - scale / 2
 
         return (x + 2000, scale * 1 / (1 + exp(-1 * speed * x)) + start)
 
     def run_model(self, scenario, policy, constants):
-        """Method for running an instantiated model structure"""
+        """Method for running an instantiated model structure."""
         kwargs = scenario
         loc = kwargs.pop("lookup_shortage_loc")
         speed = kwargs.pop("lookup_shortage_speed")
@@ -46,19 +58,19 @@ class ScarcityModel(VensimModel):
         speed = kwargs.pop("lookup_price_substitute_speed")
         begin = kwargs.pop("lookup_price_substitute_begin")
         end = kwargs.pop("lookup_price_substitute_end")
-        lookup = [self.priceSubstite(x, speed, begin, end) for x in range(0, 100, 10)]
+        lookup = [self.price_substite(x, speed, begin, end) for x in range(0, 100, 10)]
         kwargs["relative price substitute lookup"] = lookup
 
         scale = kwargs.pop("lookup_returns_to_scale_speed")
         speed = kwargs.pop("lookup_returns_to_scale_scale")
-        lookup = [self.returnsToScale(x, speed, scale) for x in range(0, 101, 10)]
+        lookup = [self.returns_to_scale(x, speed, scale) for x in range(0, 101, 10)]
         kwargs["returns to scale lookup"] = lookup
 
         scale = kwargs.pop("lookup_approximated_learning_speed")
         speed = kwargs.pop("lookup_approximated_learning_scale")
         start = kwargs.pop("lookup_approximated_learning_start")
         lookup = [
-            self.approxLearning(x, speed, scale, start) for x in range(0, 101, 10)
+            self.approx_learning(x, speed, scale, start) for x in range(0, 101, 10)
         ]
         kwargs["approximated learning effect lookup"] = lookup
 

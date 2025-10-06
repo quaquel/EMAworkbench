@@ -1,13 +1,10 @@
-"""Created on 27 Jul. 2011
+"""Illustration of the use the EMA classes for a model in Excel.
 
-This file illustrated the use the EMA classes for a model in Excel.
-
-It used the excel file provided by
+It uses the excel file provided by
 `A. Sharov <https://home.comcast.net/~sharov/PopEcol/lec10/fullmod.html>`_
 
 This excel file implements a simple predator prey model.
 
-.. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
 from ema_workbench import (
@@ -18,6 +15,11 @@ from ema_workbench import (
 )
 from ema_workbench.connectors.excel import ExcelModel
 from ema_workbench.em_framework.evaluators import MultiprocessingEvaluator
+
+# Created on 27 Jul. 2011
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(level=ema_logging.INFO)

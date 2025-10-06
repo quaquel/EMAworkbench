@@ -1,4 +1,4 @@
-"""An example of using output space exploration on the lake problem
+"""An example of using output space exploration on the lake problem.
 
 The lake problem itself is adapted from the Rhodium example by Dave Hadka,
 see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # set levers, one for each time step
     lake_model.levers = [
-        RealParameter(str(i), 0, 0.1) for i in range(lake_model.time_horizon)
+        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
     ]
 
     # specify outcomes
@@ -53,7 +53,9 @@ if __name__ == "__main__":
 
     # generate a reference policy
     n_scenarios = 1000
-    reference = Sample("no_policy", **{l.name: 0.02 for l in lake_model.levers})
+    reference = Sample(
+        "no_policy", **{l.name: 0.02 for l in lake_model.levers}  # noqa: E741
+    )
 
     # we are doing output space exploration given a reference
     # policy, so we are exploring the output space over the uncertainties

@@ -1,16 +1,13 @@
 """ """
 
+import numpy as np
 import pytest
 
-import numpy as np
-
 import ema_workbench
-
-from ema_workbench import RealParameter, ScalarOutcome, Model, Sample
-from ema_workbench.em_framework import evaluators, LHSSampler
-from ema_workbench.em_framework.points import Experiment, SampleCollection
+from ema_workbench import EMAError, Model, RealParameter, Sample, ScalarOutcome
+from ema_workbench.em_framework import LHSSampler, evaluators
 from ema_workbench.em_framework.experiment_runner import ExperimentRunner
-from ema_workbench import EMAError
+from ema_workbench.em_framework.points import Experiment, SampleCollection
 
 # Created on 14 Mar 2017
 #

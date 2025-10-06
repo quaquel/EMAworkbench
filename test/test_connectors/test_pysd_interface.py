@@ -22,7 +22,7 @@ class TestPySDConnector(unittest.TestCase):
     def test_connector_basic(self):
         """Test that the connector can instantiate the pysd interface object
 
-        Returns:
+        Returns
         -------
 
         """
@@ -36,7 +36,7 @@ class TestPySDConnector(unittest.TestCase):
     def test_parallel_experiment(self):
         """Test running an experiment in parallel
 
-        Returns:
+        Returns
         -------
 
         """
@@ -56,7 +56,7 @@ class TestPySDConnector(unittest.TestCase):
     def test_sequential_experiment(self):
         """Test running an experiment in parallel
 
-        Returns:
+        Returns
         -------
 
         """
@@ -76,7 +76,7 @@ class TestPySDConnector(unittest.TestCase):
     def test_multiple_models(self):
         """Test running running with two different pysd models
 
-        Returns:
+        Returns
         -------
 
         """
