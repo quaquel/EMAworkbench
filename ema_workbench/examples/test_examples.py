@@ -36,8 +36,8 @@ def run_exectests(test_dir, log_path="exectests.log"):
             print(f">> Executing '{fname}'")
             try:
                 code = compile(
-                    set_backend + open(fname).read(), fname, "exec"
-                )  # noqa: SIM115
+                    set_backend + open(fname).read(), fname, "exec"  # noqa: SIM115
+                )
                 exec(code, {"__name__": "__main__"}, {})  # noqa: S102
                 passed.append(fname)
             except BaseException:
