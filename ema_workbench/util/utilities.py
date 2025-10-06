@@ -34,7 +34,7 @@ def load_results(file_name):
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import AbstractOutcome, register  # noqa: PLC0415
+    from ..em_framework.outcomes import Outcome, register  # noqa: PLC0415
 
     file_name = os.path.abspath(file_name)
 
@@ -68,7 +68,7 @@ def load_results(file_name):
         # load outcomes
         outcomes = {}
         known_outcome_classes = {
-            entry.__name__: entry for entry in AbstractOutcome.get_subclasses()
+            entry.__name__: entry for entry in Outcome.get_subclasses()
         }
         for outcome_type, name, filename in metadata["outcomes"]:
             outcome = known_outcome_classes[outcome_type](name)  #  noqa F841

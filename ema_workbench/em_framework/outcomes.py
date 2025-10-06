@@ -19,7 +19,7 @@ from .util import Variable
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "AbstractOutcome",
+    "Outcome",
     "ArrayOutcome",
     "Constraint",
     "ScalarOutcome",
@@ -84,7 +84,7 @@ class Register:
 register = Register()
 
 
-class AbstractOutcome(Variable):
+class Outcome(Variable, metaclass=abc.ABCMeta):
     """Base Outcome class.
 
     Parameters
@@ -268,7 +268,7 @@ class AbstractOutcome(Variable):
             yield subclass
 
 
-class ScalarOutcome(AbstractOutcome):
+class ScalarOutcome(Outcome):
     """Scalar Outcome class.
 
     Parameters
@@ -317,7 +317,7 @@ class ScalarOutcome(AbstractOutcome):
     def __init__(
         self,
         name,
-        kind=AbstractOutcome.INFO,
+        kind=Outcome.INFO,
         variable_name=None,
         function=None,
         expected_range=None,
@@ -375,7 +375,7 @@ class ScalarOutcome(AbstractOutcome):
         return values
 
 
-class ArrayOutcome(AbstractOutcome):
+class ArrayOutcome(Outcome):
     """Array Outcome class for n-dimensional arrays.
 
     Parameters
@@ -623,7 +623,7 @@ class Constraint(ScalarOutcome):
 
         super().__init__(
             name,
-            kind=AbstractOutcome.INFO,
+            kind=Outcome.INFO,
             variable_name=variable_names,
             function=function,
         )

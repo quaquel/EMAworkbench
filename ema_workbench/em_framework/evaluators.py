@@ -10,7 +10,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from platypus import Algorithm
+from platypus import Algorithm, EpsNSGAII
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
@@ -19,8 +19,6 @@ from .callbacks import AbstractCallback, DefaultCallback
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (
-    AbstractConvergenceMetric,
-    EpsNSGAII,
     Variator,
     _optimize,
     evaluate,
@@ -31,7 +29,7 @@ from .optimization import (
     to_problem,
     to_robust_problem,
 )
-from .outcomes import AbstractOutcome, Constraint, ScalarOutcome
+from .outcomes import Outcome, Constraint, ScalarOutcome
 from .parameters import Parameter
 from .points import Experiment, Sample, SampleCollection, experiment_generator
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
@@ -137,7 +135,7 @@ class BaseEvaluator(abc.ABC):
 
     def evaluate_all(self, jobs, **kwargs):
         """Makes ema_workbench evaluators compatible with platypus evaluators."""
-        self.callback()
+        # self.callback()
 
         try:
             problem = jobs[0].solution.problem
@@ -658,7 +656,6 @@ def optimize(
     searchover: str = "levers",
     evaluator: BaseEvaluator | None = None,
     reference: Sample | None = None,
-    convergence: Iterable[AbstractConvergenceMetric] | None = None,
     constraints: Iterable[Constraint] | None = None,
     convergence_freq: int = 1000,
     logging_freq: int = 5,
@@ -721,7 +718,6 @@ def optimize(
         problem,
         evaluator,
         algorithm,
-        convergence,
         nfe,
         convergence_freq,
         logging_freq,
@@ -737,7 +733,6 @@ def robust_optimize(
     evaluator: BaseEvaluator | None = None,
     algorithm: type[Algorithm] = EpsNSGAII,
     nfe: int = 10000,
-    convergence: Iterable[AbstractConvergenceMetric] | None = None,
     constraints: Iterable[Constraint] | None = None,
     convergence_freq: int = 1000,
     logging_freq: int = 5,
@@ -778,7 +773,7 @@ def robust_optimize(
     """
     for rf in robustness_functions:
         assert isinstance(rf, ScalarOutcome)
-        assert rf.kind != AbstractOutcome.INFO
+        assert rf.kind != Outcome.INFO
         assert rf.function is not None
 
     problem = to_robust_problem(
@@ -798,7 +793,6 @@ def robust_optimize(
         problem,
         evaluator,
         algorithm,
-        convergence,
         int(nfe),
         convergence_freq,
         logging_freq,

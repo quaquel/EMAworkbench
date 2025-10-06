@@ -1,6 +1,6 @@
 r"""A partial wrapper of the vensim dll.
 
-by default it is assumed the dll is readily available. If this generates an
+by default, it is assumed the dll is readily available. If this generates an
 VensimError, you have to find the location of the dll and either copy it to
 C:\Windows\System32 and/or C:\Windows\SysWOW64, or use::
 
@@ -10,7 +10,9 @@ Typically, the dll can be found in ../AppData/Local/Vensim/vendll32.dll
 
 
 """
-
+# Created on 21 okt. 2010
+#
+# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 import ctypes
 import struct
 import sys
@@ -24,9 +26,7 @@ try:
 except NameError:
     WindowsError = None
 
-# Created on 21 okt. 2010
-#
-# .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+
 _logger = get_module_logger(__name__)
 
 
@@ -46,7 +46,7 @@ except OSError:
     vensim_single = None
 
 try:
-    vensim_double = ctypes.windll.LoadLibrary(r"C:\Windows\SysWOW64\VdpDLL32.dll")
+    vensim_double = ctypes.windll.LoadLibrary("C:/Windows/SysWOW64/VdpDLL32.dll")
 except AttributeError:
     vensim_double = None
 except OSError:

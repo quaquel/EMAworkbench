@@ -1,115 +1,62 @@
 """Wrapper around platypus-opt."""
 
-import abc
 import copy
-import functools
 import os
 import random
-import shutil
 import tarfile
-import warnings
-from collections.abc import Callable, Iterable
+import time
+import io
+from typing import Literal
 
-import numpy as np
 import pandas as pd
 
 from ..util import INFO, EMAError, get_module_logger, temporary_filter
 from . import callbacks, evaluators
 from .model import AbstractModel
-from .outcomes import AbstractOutcome
+from .outcomes import Outcome
 from .parameters import (
+    Parameter,
     BooleanParameter,
     CategoricalParameter,
     IntegerParameter,
     RealParameter,
 )
 from .points import Sample
-from .util import ProgressTrackingMixIn, determine_objects
+from .util import determine_objects, ProgressTrackingMixIn
 
-try:
-    import platypus
-    from platypus import (
-        NSGAII,
-        PCX,
-        PM,
-        SBX,
-        SPX,
-        UM,
-        UNDX,
-        Algorithm,
-        DifferentialEvolution,
-        EpsilonBoxArchive,
-        EpsilonIndicator,
-        EpsilonProgressContinuation,
-        EpsNSGAII,
-        GAOperator,
-        GenerationalDistance,
-        Hypervolume,
-        Integer,
-        InvertedGenerationalDistance,
-        Multimethod,
-        RandomGenerator,
-        Real,
-        Solution,
-        Spacing,
-        Subset,
-        TournamentSelector,
-        Variator,
-    )  # @UnresolvedImport
-    from platypus import Problem as PlatypusProblem
+import platypus
+from platypus import (
+    NSGAII,
+    PCX,
+    PM,
+    SBX,
+    SPX,
+    UM,
+    UNDX,
+    Algorithm,
+    DifferentialEvolution,
+    EpsilonBoxArchive,
+    EpsilonProgressContinuation,
+    GAOperator,
+    Integer,
+    Multimethod,
+    RandomGenerator,
+    Real,
+    Solution,
+    Subset,
+    TournamentSelector,
+    Variator)
 
+from platypus import Problem as PlatypusProblem
 
-except ImportError:
-    warnings.warn(
-        "Platypus based optimization not available. Install with `pip install platypus-opt`",
-        ImportWarning,
-        stacklevel=2,
-    )
-
-    class PlatypusProblem:
-        constraints = []
-
-        def __init__(self, *args, **kwargs):
-            pass
-
-    class Variator:
-        def __init__(self, *args, **kwargs):
-            pass
-
-    class RandomGenerator:
-        def __call__(self, *args, **kwargs):
-            pass
-
-    class TournamentSelector:
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def __call__(self, *args, **kwargs):
-            pass
-
-    class EpsilonProgressContinuation:
-        pass
-
-    EpsNSGAII = None
-    platypus = None
-    Real = Integer = Subset = None
 
 # Created on 5 Jun 2017
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
-    "ArchiveLogger",
-    "Convergence",
-    "EpsilonIndicatorMetric",
-    "EpsilonProgress",
-    "GenerationalDistanceMetric",
-    "HypervolumeMetric",
-    "InvertedGenerationalDistanceMetric",
-    "OperatorProbabilities",
     "Problem",
     "RobustProblem",
-    "SpacingMetric",
     "epsilon_nondominated",
     "rebuild_platypus_population",
     "to_problem",
@@ -126,25 +73,26 @@ class Problem(PlatypusProblem):
     """
 
     @property
-    def parameter_names(self):
+    def parameter_names(self) -> list[str]:
         """Getter for parameter names."""
         return [e.name for e in self.parameters]
 
     def __init__(
-        self, searchover, parameters, outcome_names, constraints, reference=None
+        self,
+        searchover: Literal["levers", "uncertainties", "robust"],
+        parameters: list[Parameter],
+        outcome_names: list[str],
+        constraints: list | None,
+        reference: Sample | None = None,
     ):
         """Init."""
         if constraints is None:
             constraints = []
 
         super().__init__(len(parameters), len(outcome_names), nconstrs=len(constraints))
-        #         assert len(parameters) == len(parameter_names)
-        assert searchover in ("levers", "uncertainties", "robust")
 
-        if searchover == "levers" or searchover == "uncertainties":
-            assert not reference or isinstance(reference, Sample)
-        else:
-            assert not reference
+        if searchover == "robust" and reference is not None:
+            raise ValueError("you cannot use a single reference for robust search")
 
         self.searchover = searchover
         self.parameters = parameters
@@ -197,7 +145,7 @@ def to_problem(
     decision_variables = determine_objects(model, searchover, union=True)
 
     outcomes = determine_objects(model, "outcomes")
-    outcomes = [outcome for outcome in outcomes if outcome.kind != AbstractOutcome.INFO]
+    outcomes = [outcome for outcome in outcomes if outcome.kind != Outcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
@@ -234,7 +182,7 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
     decision_variables = determine_objects(model, "levers", union=True)
 
     outcomes = robustness_functions
-    outcomes = [outcome for outcome in outcomes if outcome.kind != AbstractOutcome.INFO]
+    outcomes = [outcome for outcome in outcomes if outcome.kind != Outcome.INFO]
     outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
@@ -276,7 +224,9 @@ def to_platypus_types(decision_variables):
     return types
 
 
-def to_dataframe(solutions, dvnames, outcome_names):
+def to_dataframe(
+    solutions: list[platypus.Solution], dvnames: list[str], outcome_names: list[str]
+):
     """Helper function to turn a collection of platypus Solution instances into a pandas DataFrame.
 
     Parameters
@@ -490,301 +440,85 @@ def _evaluate_constraints(job_experiment, job_outcomes, constraints):
     return job_constraints
 
 
-class AbstractConvergenceMetric(abc.ABC):
-    """Base convergence metric class."""
+class ProgressBarExtension(platypus.extensions.FixedFrequencyExtension):
+    """Small platypus extension showing a progress bar."""
 
-    def __init__(self, name):
+    def __init__(self, total_nfe: int, frequency: int = 100):
         """Init."""
-        super().__init__()
-        self.name = name
-        self.results = []
-
-    @abc.abstractmethod
-    def __call__(self, optimizer):
-        """Call the convergence metric."""
-
-    def reset(self):
-        self.results = []
-
-    def get_results(self):
-        return self.results
-
-
-class EpsilonProgress(AbstractConvergenceMetric):
-    """Epsilon progress convergence metric class."""
-
-    def __init__(self):
-        """Init."""
-        super().__init__("epsilon_progress")
-
-    def __call__(self, optimizer):  # noqa: D102
-        self.results.append(optimizer.archive.improvements)
-
-
-class MetricWrapper:
-    """Wrapper class for wrapping platypus indicators.
-
-    Parameters
-    ----------
-    reference_set : DataFrame
-    problem : PlatypusProblem instance
-    kwargs : dict
-             any additional keyword arguments to be passed
-             on to the wrapper platypus indicator class
-
-    Notes
-    -----
-    this class relies on multi-inheritance and careful consideration
-    of the MRO to conveniently wrap the convergence metrics provided
-    by platypus.
-
-    """
-
-    def __init__(self, reference_set, problem, **kwargs):
-        self.problem = problem
-        reference_set = rebuild_platypus_population(reference_set, self.problem)
-        super().__init__(reference_set=reference_set, **kwargs)
-
-    def calculate(self, archive):
-        solutions = rebuild_platypus_population(archive, self.problem)
-        return super().calculate(solutions)
-
-
-class HypervolumeMetric(MetricWrapper, Hypervolume):
-    """Hypervolume metric.
-
-    Parameters
-    ----------
-    reference_set : DataFrame
-    problem : PlatypusProblem instance
-
-    this is a thin wrapper around Hypervolume as provided
-    by platypus to make it easier to use in conjunction with the
-    workbench.
-
-    """
-
-
-class GenerationalDistanceMetric(MetricWrapper, GenerationalDistance):
-    """GenerationalDistance metric.
-
-    Parameters
-    ----------
-    reference_set : DataFrame
-    problem : PlatypusProblem instance
-    d : int, default=1
-        the power in the intergenerational distance function
-
-
-    This is a thin wrapper around GenerationalDistance as provided
-    by platypus to make it easier to use in conjunction with the
-    workbench.
-
-    see https://link.springer.com/content/pdf/10.1007/978-3-319-15892-1_8.pdf
-    for more information
-
-    """
-
-
-class InvertedGenerationalDistanceMetric(MetricWrapper, InvertedGenerationalDistance):
-    """InvertedGenerationalDistance metric.
-
-    Parameters
-    ----------
-    reference_set : DataFrame
-    problem : PlatypusProblem instance
-    d : int, default=1
-        the power in the inverted intergenerational distance function
-
-
-    This is a thin wrapper around InvertedGenerationalDistance as provided
-    by platypus to make it easier to use in conjunction with the
-    workbench.
-
-    see https://link.springer.com/content/pdf/10.1007/978-3-319-15892-1_8.pdf
-    for more information
-
-    """
-
-
-class EpsilonIndicatorMetric(MetricWrapper, EpsilonIndicator):
-    """EpsilonIndicator metric.
-
-    Parameters
-    ----------
-    reference_set : DataFrame
-    problem : PlatypusProblem instance
-
-
-    this is a thin wrapper around EpsilonIndicator as provided
-    by platypus to make it easier to use in conjunction with the
-    workbench.
-
-    """
-
-
-class SpacingMetric(MetricWrapper, Spacing):
-    """Spacing metric.
-
-    Parameters
-    ----------
-    problem : PlatypusProblem instance
-
-
-    this is a thin wrapper around Spacing as provided
-    by platypus to make it easier to use in conjunction with the
-    workbench.
-
-    """
-
-    def __init__(self, problem):
-        self.problem = problem
-
-
-class HyperVolume(AbstractConvergenceMetric):
-    """Hypervolume convergence metric class.
-
-    This metric is derived from a hyper-volume measure, which describes the
-    multi-dimensional volume of space contained within the pareto front. When
-    computed with minimum and maximums, it describes the ratio of dominated
-    outcomes to all possible outcomes in the extent of the space.  Getting this
-    number to be high or low is not necessarily important, as not all outcomes
-    within the min-max range will be feasible.  But, having the hypervolume remain
-    fairly stable over multiple generations of the evolutionary algorithm provides
-    an indicator of convergence.
-
-    Parameters
-    ----------
-    minimum : numpy array
-    maximum : numpy array
-
-
-    This class is deprecated and will be removed in version 3.0 of the EMAworkbench.
-    Use ArchiveLogger instead and calculate hypervolume in post using HypervolumeMetric
-    as also shown in the directed search tutorial.
-
-    """
-
-    def __init__(self, minimum, maximum):
-        super().__init__("hypervolume")
-        warnings.warn(
-            "HyperVolume is deprecated and will be removed in version 3.0 of the EMAworkbench."
-            "Use ArchiveLogger and HypervolumeMetric instead",
-            DeprecationWarning,
-            stacklevel=2,
+        super().__init__(frequency=frequency)
+        self.progress_tracker = ProgressTrackingMixIn(
+            total_nfe,
+            frequency,
+            _logger,
+            log_func=lambda self: f"generation"
+            f" {self.generation}, {self.i}/{self.max_nfe}",
         )
-        self.hypervolume_func = Hypervolume(minimum=minimum, maximum=maximum)
 
-    def __call__(self, optimizer):
-        self.results.append(self.hypervolume_func.calculate(optimizer.archive))
-
-    @classmethod
-    def from_outcomes(cls, outcomes):
-        ranges = [o.expected_range for o in outcomes if o.kind != o.INFO]
-        minimum, maximum = np.asarray(list(zip(*ranges)))
-        return cls(minimum, maximum)
+    def do_action(self, algorithm):
+        """update the progress bar."""
+        nfe = algorithm.nfe
+        self.progress_tracker(nfe - self.progress_tracker.i)
 
 
-class ArchiveLogger(AbstractConvergenceMetric):
-    """Helper class to write the archive to disk at each iteration.
+class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
+    """Extension that stores the archive to a tarball at a fixed frequency.
 
     Parameters
     ----------
     directory : str
-    decision_varnames : list of str
-    outcome_varnames : list of str
-    base_filename : str, optional
+    decision_variable_names : list of the names of the decision variables
+    outcome_names : list of names of the outcomes of interest
+    filename : the name of the tarball
+    frequency : int
+        The frequency the action occurs.
+    by_nfe : bool
+        If :code:`True`, the frequency is given in number of function
+        evaluations.  If :code:`False`, the frequency is given in the number
+        of iterations.
+
+    Raises
+    ------
+    FileExistsError if tarfile already exists.
+
     """
 
     def __init__(
         self,
-        directory,
-        decision_varnames,
-        outcome_varnames,
-        base_filename="archives.tar.gz",
+        directory: str,
+        decision_variable_names: list[str],
+        outcome_names: list[str],
+        filename="archives.tar.gz",
+        frequency: int = 1000,
+        by_nfe: bool = True,
     ):
-        """Init."""
-        super().__init__("archive_logger")
+        super().__init__(frequency=frequency, by_nfe=by_nfe)
+        self.decision_variable_names = decision_variable_names
+        self.outcome_names = outcome_names
+        self.temp = os.path.join(directory, "tmp")
+        self.tar_filename = os.path.join(os.path.abspath(directory), filename)
 
-        self.directory = os.path.abspath(directory)
-        self.temp = os.path.join(self.directory, "tmp")
-        os.makedirs(self.temp, exist_ok=True)
+        if os.path.exists(self.tar_filename):
+            raise FileExistsError(
+                f"The envisioned file {self.tar_filename} for storing the archives already exists."
+            )
 
-        self.base = base_filename
-        self.decision_varnames = decision_varnames
-        self.outcome_varnames = outcome_varnames
-        self.tarfilename = os.path.join(self.directory, base_filename)
+    def do_action(self, algorithm):
+        """Add the current archive to the tarball."""
 
-        # self.index = 0
-
-    def __call__(self, optimizer):  # noqa: D102
-        archive = to_dataframe(
-            optimizer.result, self.decision_varnames, self.outcome_varnames
-        )
-        archive.to_csv(os.path.join(self.temp, f"{optimizer.nfe}.csv"), index=False)
-
-    def reset(self):  # noqa: D102
-        # FIXME what needs to go here?
-        pass
-
-    def get_results(self):  # noqa: D102
-        with tarfile.open(self.tarfilename, "w:gz") as z:
-            z.add(self.temp, arcname=os.path.basename(self.temp))
-
-        shutil.rmtree(self.temp)
-        return None
-
-    @classmethod
-    def load_archives(cls, filename):
-        """Load the archives stored with the ArchiveLogger.
-
-        Parameters
-        ----------
-        filename : str
-                   relative path to file
-
-        Returns
-        -------
-        dict with nfe as key and dataframe as vlaue
-        """
-        archives = {}
-        with tarfile.open(os.path.abspath(filename)) as fh:
-            for entry in fh.getmembers():
-                if entry.name.endswith("csv"):
-                    key = entry.name.split("/")[1][:-4]
-                    archives[int(key)] = pd.read_csv(fh.extractfile(entry))
-        return archives
-
-
-class OperatorProbabilities(AbstractConvergenceMetric):
-    """OperatorProbabiliy convergence tracker for use with auto adaptive operator selection.
-
-    Parameters
-    ----------
-    name : str
-    index : int
-
-
-    State of the art MOEAs like Borg (and GenerationalBorg provided by the workbench)
-    use autoadaptive operator selection. The algorithm has multiple different evolutionary
-    operators. Over the run, it tracks how well each operator is doing in producing fitter
-    offspring. The probability of the algorithm using a given evolutionary operator is
-    proportional to how well this operator has been doing in producing fitter offspring in
-    recent generations. This class can be used to track these probabilities over the
-    run of the algorithm.
-
-    """
-
-    def __init__(self, name, index):
-        super().__init__(name)
-        self.index = index
-
-    def __call__(self, optimizer):  # noqa: D102
-        try:
-            props = optimizer.algorithm.variator.probabilities
-            self.results.append(props[self.index])
-        except AttributeError:
-            pass
+        # fixme, this opens and closes the tarball everytime
+        #   can't we open in in the init and have a clean way to close it
+        #   on any exit?
+        with tarfile.open(self.tar_filename, "a") as f:
+            archive = to_dataframe(
+                algorithm.archive, self.decision_variable_names, self.outcome_names
+            )
+            stream = io.BytesIO()
+            archive.to_csv(stream, encoding="UTF-8", index=False)
+            stream.seek(0)
+            tarinfo = tarfile.TarInfo(f"{algorithm.nfe}.csv")
+            tarinfo.size = len(stream.getbuffer())
+            tarinfo.mtime = time.time()
+            f.addfile(tarinfo, stream)
 
 
 def epsilon_nondominated(results, epsilons, problem):
@@ -815,95 +549,6 @@ def epsilon_nondominated(results, epsilons, problem):
     archive += solutions
 
     return to_dataframe(archive, problem.parameter_names, problem.outcome_names)
-
-
-class Convergence(ProgressTrackingMixIn):
-    """helper class for tracking convergence of optimization."""
-
-    valid_metrics = {"hypervolume", "epsilon_progress", "archive_logger"}
-
-    def __init__(
-        self,
-        metrics,
-        max_nfe,
-        convergence_freq=1000,
-        logging_freq=5,
-        log_progress=False,
-    ):
-        """Init."""
-        super().__init__(
-            max_nfe,
-            logging_freq,
-            _logger,
-            log_progress=log_progress,
-            log_func=lambda self: f"generation"
-            f" {self.generation}, {self.i}/{self.max_nfe}",
-        )
-
-        self.max_nfe = max_nfe
-        self.generation = -1
-        self.index = []
-        self.last_check = 0
-
-        if metrics is None:
-            metrics = []
-
-        self.metrics = metrics
-        self.convergence_freq = convergence_freq
-        self.logging_freq = logging_freq
-
-        # TODO what is the point of this code?
-        for metric in metrics:
-            assert isinstance(metric, AbstractConvergenceMetric)
-            metric.reset()
-
-    def __call__(self, optimizer, force=False):
-        """Stores convergences information given specified convergence frequency.
-
-        Parameters
-        ----------
-        optimizer : platypus optimizer instance
-        force : boolean, optional
-                if True, convergence information will always be stored
-                if False, converge information will be stored if the
-                the number of nfe since the last time of storing is equal to
-                or higher then convergence_freq
-
-
-        the primary use case for force is to force convergence frequency information
-        to be stored once the stopping condition of the optimizer has been reached
-        so that the final convergence information is kept.
-
-        """
-        nfe = optimizer.nfe
-        super().__call__(nfe - self.i)
-
-        self.generation += 1
-
-        if (
-            (nfe >= self.last_check + self.convergence_freq)
-            or (self.last_check == 0)
-            or force
-        ):
-            self.index.append(nfe)
-            self.last_check = nfe
-
-            for metric in self.metrics:
-                metric(optimizer)
-
-    def to_dataframe(self):  # noqa: D102
-        progress = {
-            metric.name: result
-            for metric in self.metrics
-            if (result := metric.get_results())
-        }
-
-        progress = pd.DataFrame.from_dict(progress)
-
-        if not progress.empty:
-            progress["nfe"] = self.index
-
-        return progress
 
 
 def rebuild_platypus_population(archive, problem):
@@ -1110,10 +755,9 @@ class CombinedVariator(Variator):
 
 
 def _optimize(
-    problem: PlatypusProblem,
+    problem: Problem,
     evaluator: "BaseEvaluator",  # noqa: F821
     algorithm: type[Algorithm],
-    convergence: Iterable[Callable],
     nfe: int,
     convergence_freq: int,
     logging_freq: int,
@@ -1136,38 +780,44 @@ def _optimize(
             variator = None
         else:
             variator = CombinedVariator()
-    # mutator = CombinedMutator()
 
     optimizer = algorithm(
         problem, evaluator=evaluator, variator=variator, log_frequency=500, **kwargs
     )
-    # optimizer.mutator = mutator
-
-    convergence = Convergence(
-        convergence, nfe, convergence_freq=convergence_freq, logging_freq=logging_freq
+    optimizer.add_extension(
+        ArchiveStorageExtension(
+            kwargs["directory"],
+            decision_variable_names=problem.parameter_names,
+            outcome_names=problem.outcome_names,
+            filename=kwargs["filename"],
+            frequency=convergence_freq,
+            by_nfe=True,
+        )
     )
-    callback = functools.partial(convergence, optimizer)
-    evaluator.callback = callback
+    optimizer.add_extension(ProgressBarExtension(nfe, frequency=logging_freq))
+
+    # convergence = Convergence(
+    #     convergence, nfe, convergence_freq=convergence_freq, logging_freq=logging_freq
+    # )
+    # callback = functools.partial(convergence, optimizer)
+    # evaluator.callback = callback
 
     with temporary_filter(name=[callbacks.__name__, evaluators.__name__], level=INFO):
         optimizer.run(nfe)
 
-    convergence(optimizer, force=True)
+    # convergence(optimizer, force=True)
 
     # convergence.pbar.__exit__(None, None, None)
 
     results = to_dataframe(
         optimizer.result, problem.parameter_names, problem.outcome_names
     )
-    convergence = convergence.to_dataframe()
+    # convergence = convergence.to_dataframe()
 
     message = "optimization completed, found {} solutions"
     _logger.info(message.format(len(optimizer.archive)))
 
-    if convergence.empty:
-        return results
-    else:
-        return results, convergence
+    return results
 
 
 class BORGDefaultDescriptor:

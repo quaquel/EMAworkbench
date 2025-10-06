@@ -3,7 +3,6 @@
 import warnings
 
 __all__ = [
-    "ArchiveLogger",
     "ArrayOutcome",
     "BooleanParameter",
     "CategoricalParameter",
@@ -62,7 +61,12 @@ from .evaluators import (
 )
 from .model import FileModel, Model, ReplicatorModel
 from .optimization import (
-    ArchiveLogger,
+    epsilon_nondominated,
+    rebuild_platypus_population,
+    to_problem,
+    to_robust_problem,
+)
+from .optimization_convergence import (
     Convergence,
     EpsilonIndicatorMetric,
     EpsilonProgress,
@@ -70,11 +74,8 @@ from .optimization import (
     HypervolumeMetric,
     InvertedGenerationalDistanceMetric,
     SpacingMetric,
-    epsilon_nondominated,
-    rebuild_platypus_population,
-    to_problem,
-    to_robust_problem,
 )
+
 from .outcomes import ArrayOutcome, Constraint, ScalarOutcome, TimeSeriesOutcome
 from .parameters import (
     BooleanParameter,

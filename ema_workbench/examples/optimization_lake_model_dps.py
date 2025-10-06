@@ -22,10 +22,10 @@ from ema_workbench import (
     MultiprocessingEvaluator,
     RealParameter,
     ScalarOutcome,
-    Scenario,
+    Sample,
     ema_logging,
 )
-from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgress
+# from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgress
 
 # Created on 1 Jun 2017
 #
@@ -72,23 +72,24 @@ if __name__ == "__main__":
     # reference is optional, but can be used to implement search for
     # various user specified scenarios along the lines suggested by
     # Watson and Kasprzyk (2017)
-    reference = Scenario("reference", b=0.4, q=2, mean=0.02, stdev=0.01)
+    reference = Sample("reference", b=0.4, q=2, mean=0.02, stdev=0.01)
 
-    convergence_metrics = [
-        ArchiveLogger(
-            "./data",
-            [l.name for l in lake_model.levers],  # noqa E741
-            [o.name for o in lake_model.outcomes],
-            base_filename="lake_model_dps_archive.tar.gz",
-        ),
-        EpsilonProgress(),
-    ]
+    # convergence_metrics = [
+    #     ArchiveLogger(
+    #         "./data",
+    #         [l.name for l in lake_model.levers],  # noqa E741
+    #         [o.name for o in lake_model.outcomes],
+    #         base_filename="lake_model_dps_archive.tar.gz",
+    #     ),
+    #     EpsilonProgress(),
+    # ]
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        results, convergence = evaluator.optimize(
+        results = evaluator.optimize(
             searchover="levers",
-            nfe=100000,
+            nfe=10000,
             epsilons=[0.1] * len(lake_model.outcomes),
             reference=reference,
-            convergence=convergence_metrics,
+            filename="lake_model_dps_archive.tar.gz",
+            directory="./data",
         )
