@@ -11,6 +11,7 @@ factors into the many objective search process. Environmental Modelling &
 Software 89, 159-171.
 
 """
+
 from lake_models import lake_problem_dps
 
 from ema_workbench import (
@@ -48,7 +49,7 @@ if __name__ == "__main__":
         RealParameter("c2", -2, 2),
         RealParameter("r1", 0, 2),
         RealParameter("r2", 0, 2),
-        RealParameter("w1",0, 1),
+        RealParameter("w1", 0, 1),
     ]
     # specify outcomes
     lake_model.outcomes = [
@@ -78,5 +79,5 @@ if __name__ == "__main__":
             reference=reference,
             filename="lake_model_dps_archive.tar.gz",
             directory="./data",
-            rng=42
+            rng=42,
         )
