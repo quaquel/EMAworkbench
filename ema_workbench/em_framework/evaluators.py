@@ -225,8 +225,8 @@ class BaseEvaluator(abc.ABC):
         variator: type[Variator] | None = None,
         rng: int | None = None,
         initial_population: Iterable[Sample] | None = None,
-        filename:str | None = None,
-        directory:str | None = None,
+        filename: str | None = None,
+        directory: str | None = None,
         **kwargs,
     ):
         """Convenience method for outcome optimization.

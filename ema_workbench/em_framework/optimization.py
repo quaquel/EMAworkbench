@@ -6,8 +6,8 @@ import os
 import random
 import tarfile
 import time
-from typing import Literal
 from collections.abc import Iterable
+from typing import Literal
 
 import pandas as pd
 import platypus
@@ -22,6 +22,7 @@ from platypus import (
     DifferentialEvolution,
     EpsilonBoxArchive,
     GAOperator,
+    InjectedPopulation,
     Integer,
     Multimethod,
     RandomGenerator,
@@ -29,7 +30,7 @@ from platypus import (
     Solution,
     Subset,
     TournamentSelector,
-    Variator, InjectedPopulation,
+    Variator,
 )
 from platypus import Problem as PlatypusProblem
 
@@ -86,7 +87,9 @@ class Problem(PlatypusProblem):
         if constraints is None:
             constraints = []
 
-        super().__init__(len(decision_variables), len(outcomes), nconstrs=len(constraints))
+        super().__init__(
+            len(decision_variables), len(outcomes), nconstrs=len(constraints)
+        )
 
         if searchover == "robust" and reference is not None:
             raise ValueError("you cannot use a single reference for robust search")
@@ -285,7 +288,7 @@ def process_jobs(jobs, searchover):
 #         processed_job = {}
 #         for param, var in zip(problem.parameters, variables):
 #             try:
-#                 var = var.value  # noqa: PLW2901
+#                 var = var.value
 #             except AttributeError:
 #                 pass
 #             processed_job[param.name] = var
@@ -423,8 +426,8 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
         self,
         decision_variable_names: list[str],
         outcome_names: list[str],
-        directory: str|None = None,
-        filename:str|None = None,
+        directory: str | None = None,
+        filename: str | None = None,
         frequency: int = 1000,
         by_nfe: bool = True,
     ):
@@ -728,10 +731,21 @@ def _optimize(
         else:
             variator = CombinedVariator()
 
-    generator = RandomGenerator() if initial_population is None else InjectedPopulation([sample._to_platypus_solution(problem) for sample in initial_population])
+    generator = (
+        RandomGenerator()
+        if initial_population is None
+        else InjectedPopulation(
+            [sample._to_platypus_solution(problem) for sample in initial_population]
+        )
+    )
 
     optimizer = algorithm(
-        problem, evaluator=evaluator, variator=variator, log_frequency=500, generator=generator, **kwargs
+        problem,
+        evaluator=evaluator,
+        variator=variator,
+        log_frequency=500,
+        generator=generator,
+        **kwargs,
     )
     storage = ArchiveStorageExtension(
         problem.parameter_names,
