@@ -37,7 +37,7 @@ from platypus import Problem as PlatypusProblem
 from ..util import INFO, EMAError, get_module_logger, temporary_filter
 from . import callbacks, evaluators
 from .model import AbstractModel
-from .outcomes import Outcome, ScalarOutcome, Constraint
+from .outcomes import Constraint, Outcome, ScalarOutcome
 from .parameters import (
     BooleanParameter,
     CategoricalParameter,
@@ -197,7 +197,7 @@ def to_robust_problem(model, scenarios, objectives, constraints=None):
     # extract the levers and the outcomes
     decision_variables = determine_objects(model, "levers", union=True)
 
-    outcomes = robustness_functions
+    outcomes = objectives
     outcomes = [outcome for outcome in outcomes if outcome.kind != Outcome.INFO]
 
     if not outcomes:
@@ -206,7 +206,7 @@ def to_robust_problem(model, scenarios, objectives, constraints=None):
         )
 
     problem = RobustProblem(
-        decision_variables, outcomes, scenarios, robustness_functions, constraints
+        decision_variables, objectives, scenarios, constraints
     )
 
     return problem
