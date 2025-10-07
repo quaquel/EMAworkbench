@@ -1,11 +1,12 @@
 import numpy as np
 import pytest
 
+from ema_workbench.em_framework.optimization import Problem
 from ema_workbench.em_framework.parameters import (
+    BooleanParameter,
     CategoricalParameter,
     IntegerParameter,
     RealParameter,
-    BooleanParameter
 )
 from ema_workbench.em_framework.points import (
     Sample,
@@ -15,8 +16,6 @@ from ema_workbench.em_framework.points import (
     sample_generator,
 )
 from ema_workbench.em_framework.util import NamedObject
-from ema_workbench.em_framework.optimization import Problem
-
 from test import utilities
 
 
@@ -201,9 +200,11 @@ def test_from_experiments():
 def test_sample_platypus():
     rng = np.random.default_rng(42)
 
-    parameters = [RealParameter("a", 0, 1),
-                  IntegerParameter("b", 1, 4),
-                  CategoricalParameter("c", ["a", "b", "c"])]
+    parameters = [
+        RealParameter("a", 0, 1),
+        IntegerParameter("b", 1, 4),
+        CategoricalParameter("c", ["a", "b", "c"]),
+    ]
 
     problem = Problem("levers", parameters, [], [])
 

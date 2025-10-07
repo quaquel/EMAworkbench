@@ -37,7 +37,7 @@ from platypus import Problem as PlatypusProblem
 from ..util import INFO, EMAError, get_module_logger, temporary_filter
 from . import callbacks, evaluators
 from .model import AbstractModel
-from .outcomes import Outcome
+from .outcomes import Outcome, ScalarOutcome, Constraint
 from .parameters import (
     BooleanParameter,
     CategoricalParameter,
@@ -75,12 +75,17 @@ class Problem(PlatypusProblem):
         """Getter for parameter names."""
         return [e.name for e in self.decision_variables]
 
+    @property
+    def outcome_names(self) -> list[str]:
+        """Getter for outcome names."""
+        return [e.name for e in self.objectives]
+
     def __init__(
         self,
         searchover: Literal["levers", "uncertainties", "robust"],
         decision_variables: list[Parameter],
-        outcomes: list[Outcome],
-        constraints: list | None,
+        objectives: list[ScalarOutcome],
+        constraints: list[Constraint] | None,
         reference: Sample | None = None,
     ):
         """Init."""
@@ -88,22 +93,25 @@ class Problem(PlatypusProblem):
             constraints = []
 
         super().__init__(
-            len(decision_variables), len(outcomes), nconstrs=len(constraints)
+            len(decision_variables), len(objectives), nconstrs=len(constraints)
         )
 
         if searchover == "robust" and reference is not None:
             raise ValueError("you cannot use a single reference for robust search")
+        for obj in objectives:
+            if obj.kind == obj.INFO:
+                raise ValueError(f"you need to specify the direction for objective {obj.name}, cannot be INFO")
 
         self.searchover = searchover
         self.decision_variables = decision_variables
-        self.outcomes = outcomes
-        self.outcome_names = [o.name for o in outcomes]
+        self.objectives = objectives
+
         self.ema_constraints = constraints
         self.constraint_names = [c.name for c in constraints]
         self.reference = reference if reference else 0
 
         self.types[:] = to_platypus_types(decision_variables)
-        self.directions[:] = [outcome.kind for outcome in outcomes]
+        self.directions[:] = [outcome.kind for outcome in objectives]
         self.constraints[:] = "==0"
 
 
@@ -114,14 +122,20 @@ class RobustProblem(Problem):
     """
 
     def __init__(
-        self, decision_variables, outcomes, scenarios, robustness_functions, constraints
+        self,
+        decision_variables: list[Parameter],
+        objectives: list[ScalarOutcome],
+        scenarios: Iterable[Sample]|int,
+        constraints: list[Constraint] | None=None,
     ):
         """Init."""
-        # fixme, we should be able to get rid of robust problem all together.
-        super().__init__("robust", decision_variables, outcomes, constraints)
-        assert len(robustness_functions) == len(outcomes)
+        # fixme, we should be able to get rid of robust problem all together?
+        for objective in objectives:
+            if objective.function is None:
+                raise ValueError(f"no robustness function defined for {objective.name}")
+
+        super().__init__("robust", decision_variables, objectives, constraints)
         self.scenarios = scenarios
-        self.robustness_functions = robustness_functions
 
 
 def to_problem(
@@ -165,7 +179,7 @@ def to_problem(
     return problem
 
 
-def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
+def to_robust_problem(model, scenarios, objectives, constraints=None):
     """Helper function to create RobustProblem object.
 
     Parameters
