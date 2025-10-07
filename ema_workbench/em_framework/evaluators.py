@@ -780,8 +780,8 @@ def robust_optimize(
     problem = to_robust_problem(
         model,
         scenarios,
+        robustness_functions,
         constraints=constraints,
-        robustness_functions=robustness_functions,
     )
 
     random.seed(rng)
