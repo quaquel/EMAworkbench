@@ -151,7 +151,7 @@ def test_optimize(mocker):
     with pytest.raises(NotImplementedError):
         with evaluators.SequentialEvaluator([model, model]) as evaluator:
             evaluator.optimize(nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1])
-    with pytest.raises(EMAError):
+    with pytest.raises(ValueError):
         with evaluators.SequentialEvaluator(model) as evaluator:
             evaluator.optimize(nfe=nfe, searchover="unknown value", epsilons=[0.1, 0.1])
 

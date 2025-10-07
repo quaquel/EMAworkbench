@@ -348,7 +348,7 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
 
 def evaluate_robust(jobs_collection, experiments, outcomes, problem):
     """Helper function for mapping the results from perform_experiments back to what Platypus needs."""
-    robustness_functions = problem.robustness_functions
+    robustness_functions = problem.objectives
     constraints = problem.ema_constraints
 
     for entry, job in jobs_collection:
