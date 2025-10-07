@@ -15,7 +15,6 @@ from ema_workbench import (
     ScalarOutcome,
     ema_logging,
 )
-from ema_workbench.em_framework.optimization import EpsilonProgress
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -49,8 +48,6 @@ if __name__ == "__main__":
         ),
     ]
 
-    convergence_metrics = [EpsilonProgress()]
-
     constraints = [
         Constraint(
             "max_pollution", outcome_names="max_p", function=lambda x: max(0, x - 5)
@@ -62,7 +59,8 @@ if __name__ == "__main__":
             nfe=5000,
             searchover="levers",
             epsilons=[0.125, 0.05, 0.01, 0.01],
-            convergence=convergence_metrics,
             constraints=constraints,
             rng=42,
+            filename="lake_model_intertemporal_archive.tar.gz",
+            directory="./data",
         )

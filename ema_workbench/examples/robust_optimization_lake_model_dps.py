@@ -100,4 +100,6 @@ if __name__ == "__main__":
             nfe=nfe,
             epsilons=[0.1] * len(robustness_functions),
             population_size=5,
+            filename="lake_model_robust_archive.tar.gz",
+            directory="./data",
         )
