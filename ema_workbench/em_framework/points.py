@@ -8,10 +8,12 @@ import itertools
 import math
 from collections.abc import Generator, Iterable, Sequence
 from typing import Literal, overload
+import platypus
 
 import numpy as np
 import pandas as pd
 
+# from .optimization import Problem
 from ..util import get_module_logger
 from .parameters import (
     CategoricalParameter,
@@ -50,6 +52,29 @@ class Sample(NamedDict):
 
     def __repr__(self):  # noqa D105
         return f"Sample({super().__repr__()})"
+
+    def _to_platypus_solution(self, problem:"Problem")->platypus.Solution:
+        """Turn a Sample into a Platypus solution."""
+        solution = platypus.Solution(problem)
+
+        values = []
+        for dtype, parameter in zip(problem.types, problem.decision_variables):
+            value = self[parameter.name]
+            converted_value = dtype.encode(value)
+            values.append(converted_value)
+        solution.variables[:] = values
+
+        return solution
+
+    @classmethod
+    def _from_platypus_solution(cls, solution:platypus.Solution)->"Sample":
+        """Create a Sample from a Platypus solution."""
+        problem = solution.problem
+        converted_vars = {}
+        for (dtype, parameter, value) in zip(problem.types, problem.decision_variables, solution.variables):  # @ReservedAssignment
+            converted_value = dtype.decode(value)  # noqa: PLW2901
+            converted_vars[parameter.name] = converted_value
+        return Sample(**converted_vars)
 
 
 class Experiment(NamedObject):

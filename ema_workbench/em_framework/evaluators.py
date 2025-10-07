@@ -141,7 +141,6 @@ class BaseEvaluator(abc.ABC):
 
         searchover = problem.searchover
 
-        jobs_collection, scenarios, policies = (None,) * 3
         scenarios, policies = process_jobs(jobs, searchover)
 
         match searchover:
@@ -225,6 +224,9 @@ class BaseEvaluator(abc.ABC):
         logging_freq: int = 5,
         variator: type[Variator] | None = None,
         rng: int | None = None,
+        initial_population: Iterable[Sample] | None = None,
+        filename:str | None = None,
+        directory:str | None = None,
         **kwargs,
     ):
         """Convenience method for outcome optimization.
@@ -251,6 +253,9 @@ class BaseEvaluator(abc.ABC):
             logging_freq=logging_freq,
             variator=variator,
             rng=rng,
+            filename=filename,
+            directory=directory,
+            initial_population=initial_population,
             **kwargs,
         )
 
@@ -654,6 +659,9 @@ def optimize(
     logging_freq: int = 5,
     variator: Variator = None,
     rng: int | None = None,
+    initial_population: Iterable[Sample] | None = None,
+    filename: str | None = None,
+    directory: str | None = None,
     **kwargs,
 ):
     """Optimize the model.
@@ -714,6 +722,9 @@ def optimize(
         convergence_freq,
         logging_freq,
         variator=variator,
+        filename=filename,
+        directory=directory,
+        initial_population=initial_population,
         **kwargs,
     )
 

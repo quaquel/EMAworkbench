@@ -11,7 +11,6 @@ factors into the many objective search process. Environmental Modelling &
 Software 89, 159-171.
 
 """
-
 from lake_models import lake_problem_dps
 
 from ema_workbench import (
@@ -23,6 +22,7 @@ from ema_workbench import (
     ScalarOutcome,
     ema_logging,
 )
+from ema_workbench.em_framework import LHSSampler
 
 # Created on 1 Jun 2017
 #
@@ -71,6 +71,8 @@ if __name__ == "__main__":
     # Watson and Kasprzyk (2017)
     reference = Sample("reference", b=0.4, q=2, mean=0.02, stdev=0.01)
 
+    population = LHSSampler().generate_samples(lake_model.levers, 20)
+
     with MultiprocessingEvaluator(lake_model) as evaluator:
         results = evaluator.optimize(
             searchover="levers",
@@ -80,4 +82,5 @@ if __name__ == "__main__":
             filename="lake_model_dps_archive.tar.gz",
             directory="./data",
             rng=42,
+            initial_population=population,
         )

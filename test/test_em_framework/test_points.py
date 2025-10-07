@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
 
-from ema_workbench import BooleanParameter
 from ema_workbench.em_framework.parameters import (
     CategoricalParameter,
     IntegerParameter,
     RealParameter,
+    BooleanParameter
 )
 from ema_workbench.em_framework.points import (
     Sample,
@@ -15,6 +15,8 @@ from ema_workbench.em_framework.points import (
     sample_generator,
 )
 from ema_workbench.em_framework.util import NamedObject
+from ema_workbench.em_framework.optimization import Problem
+
 from test import utilities
 
 
@@ -194,3 +196,21 @@ def test_from_experiments():
     for sample, (_, row) in zip(samples[0:10], experiments.iloc[0:10, :].iterrows()):
         for k, v in sample.items():
             assert row[k] == v
+
+
+def test_sample_platypus():
+    rng = np.random.default_rng(42)
+
+    parameters = [RealParameter("a", 0, 1),
+                  IntegerParameter("b", 1, 4),
+                  CategoricalParameter("c", ["a", "b", "c"])]
+
+    problem = Problem("levers", parameters, [], [])
+
+    sample = Sample(a=0.5, b=2, c="b")
+    solution = sample._to_platypus_solution(problem)
+
+    new_sample = Sample._from_platypus_solution(solution)
+
+    for k in sample:
+        assert sample[k] == new_sample[k]

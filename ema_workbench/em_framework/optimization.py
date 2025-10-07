@@ -7,6 +7,7 @@ import random
 import tarfile
 import time
 from typing import Literal
+from collections.abc import Iterable
 
 import pandas as pd
 import platypus
@@ -28,7 +29,7 @@ from platypus import (
     Solution,
     Subset,
     TournamentSelector,
-    Variator,
+    Variator, InjectedPopulation,
 )
 from platypus import Problem as PlatypusProblem
 
@@ -71,13 +72,13 @@ class Problem(PlatypusProblem):
     @property
     def parameter_names(self) -> list[str]:
         """Getter for parameter names."""
-        return [e.name for e in self.parameters]
+        return [e.name for e in self.decision_variables]
 
     def __init__(
         self,
         searchover: Literal["levers", "uncertainties", "robust"],
-        parameters: list[Parameter],
-        outcome_names: list[str],
+        decision_variables: list[Parameter],
+        outcomes: list[Outcome],
         constraints: list | None,
         reference: Sample | None = None,
     ):
@@ -85,17 +86,22 @@ class Problem(PlatypusProblem):
         if constraints is None:
             constraints = []
 
-        super().__init__(len(parameters), len(outcome_names), nconstrs=len(constraints))
+        super().__init__(len(decision_variables), len(outcomes), nconstrs=len(constraints))
 
         if searchover == "robust" and reference is not None:
             raise ValueError("you cannot use a single reference for robust search")
 
         self.searchover = searchover
-        self.parameters = parameters
-        self.outcome_names = outcome_names
+        self.decision_variables = decision_variables
+        self.outcomes = outcomes
+        self.outcome_names = [o.name for o in outcomes]
         self.ema_constraints = constraints
         self.constraint_names = [c.name for c in constraints]
         self.reference = reference if reference else 0
+
+        self.types[:] = to_platypus_types(decision_variables)
+        self.directions[:] = [outcome.kind for outcome in outcomes]
+        self.constraints[:] = "==0"
 
 
 class RobustProblem(Problem):
@@ -105,11 +111,12 @@ class RobustProblem(Problem):
     """
 
     def __init__(
-        self, parameters, outcome_names, scenarios, robustness_functions, constraints
+        self, decision_variables, outcomes, scenarios, robustness_functions, constraints
     ):
         """Init."""
-        super().__init__("robust", parameters, outcome_names, constraints)
-        assert len(robustness_functions) == len(outcome_names)
+        # fixme, we should be able to get rid of robust problem all together.
+        super().__init__("robust", decision_variables, outcomes, constraints)
+        assert len(robustness_functions) == len(outcomes)
         self.scenarios = scenarios
         self.robustness_functions = robustness_functions
 
@@ -142,7 +149,6 @@ def to_problem(
 
     outcomes = determine_objects(model, "outcomes")
     outcomes = [outcome for outcome in outcomes if outcome.kind != Outcome.INFO]
-    outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
         raise EMAError(
@@ -150,11 +156,8 @@ def to_problem(
         )
 
     problem = Problem(
-        searchover, decision_variables, outcome_names, constraints, reference=reference
+        searchover, decision_variables, outcomes, constraints, reference=reference
     )
-    problem.types[:] = to_platypus_types(decision_variables)
-    problem.directions[:] = [outcome.kind for outcome in outcomes]
-    problem.constraints[:] = "==0"
 
     return problem
 
@@ -179,7 +182,6 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
 
     outcomes = robustness_functions
     outcomes = [outcome for outcome in outcomes if outcome.kind != Outcome.INFO]
-    outcome_names = [outcome.name for outcome in outcomes]
 
     if not outcomes:
         raise EMAError(
@@ -187,12 +189,8 @@ def to_robust_problem(model, scenarios, robustness_functions, constraints=None):
         )
 
     problem = RobustProblem(
-        decision_variables, outcome_names, scenarios, robustness_functions, constraints
+        decision_variables, outcomes, scenarios, robustness_functions, constraints
     )
-
-    problem.types[:] = to_platypus_types(decision_variables)
-    problem.directions[:] = [outcome.kind for outcome in outcomes]
-    problem.constraints[:] = "==0"
 
     return problem
 
@@ -237,11 +235,8 @@ def to_dataframe(
     """
     results = []
     for solution in platypus.unique(solutions):
-        vars = transform_variables(
-            solution.problem, solution.variables
-        )  # @ReservedAssignment
+        decision_vars = Sample._from_platypus_solution(solution)
 
-        decision_vars = dict(zip(dvnames, vars))
         decision_out = dict(zip(outcome_names, solution.objectives))
 
         result = decision_vars.copy()
@@ -266,12 +261,7 @@ def process_jobs(jobs, searchover):
 
     """
     problem = jobs[0].solution.problem
-    samples = []
-    jobs = _process(jobs, problem)
-    for i, job in enumerate(jobs):
-        name = str(i)
-        policy = Sample(name=name, **job)
-        samples.append(policy)
+    samples = [Sample._from_platypus_solution(job.solution) for job in jobs]
 
     references = problem.reference
     match searchover:
@@ -287,34 +277,20 @@ def process_jobs(jobs, searchover):
             )
 
 
-def _process(jobs, problem):
-    """Helper function to transform platypus job to dict with correct values for workbench."""
-    processed_jobs = []
-    for job in jobs:
-        variables = transform_variables(problem, job.solution.variables)
-        processed_job = {}
-        for param, var in zip(problem.parameters, variables):
-            try:
-                var = var.value  # noqa: PLW2901
-            except AttributeError:
-                pass
-            processed_job[param.name] = var
-        processed_jobs.append(processed_job)
-    return processed_jobs
-
-
-def transform_variables(problem, variables):
-    """Helper function for transforming platypus variables."""
-    converted_vars = []
-    for type, var in zip(problem.types, variables):  # @ReservedAssignment
-        var = type.decode(var)  # noqa: PLW2901
-        try:
-            var = var[0]  # noqa: PLW2901
-        except TypeError:
-            pass
-
-        converted_vars.append(var)
-    return converted_vars
+# def _process(jobs, problem):
+#     """Helper function to transform platypus job to dict with correct values for workbench."""
+#     processed_jobs = []
+#     for job in jobs:
+#         variables = transform_variables(problem, job.solution.variables)
+#         processed_job = {}
+#         for param, var in zip(problem.parameters, variables):
+#             try:
+#                 var = var.value  # noqa: PLW2901
+#             except AttributeError:
+#                 pass
+#             processed_job[param.name] = var
+#         processed_jobs.append(processed_job)
+#     return processed_jobs
 
 
 def evaluate(jobs_collection, experiments, outcomes, problem):
@@ -445,10 +421,10 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
 
     def __init__(
         self,
-        directory: str,
         decision_variable_names: list[str],
         outcome_names: list[str],
-        filename="archives.tar.gz",
+        directory: str|None = None,
+        filename:str|None = None,
         frequency: int = 1000,
         by_nfe: bool = True,
     ):
@@ -460,7 +436,7 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
 
         if os.path.exists(self.tar_filename):
             raise FileExistsError(
-                f"The envisioned file {self.tar_filename} for storing the archives already exists."
+                f"File {self.tar_filename} for storing the archives already exists."
             )
 
     def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
@@ -728,6 +704,9 @@ def _optimize(
     convergence_freq: int,
     logging_freq: int,
     variator: Variator = None,
+    initial_population: Iterable[Sample] | None = None,
+    filename: str | None = None,
+    directory: str | None = None,
     **kwargs,
 ):
     """Helper function for optimization."""
@@ -749,14 +728,16 @@ def _optimize(
         else:
             variator = CombinedVariator()
 
+    generator = RandomGenerator() if initial_population is None else InjectedPopulation([sample._to_platypus_solution(problem) for sample in initial_population])
+
     optimizer = algorithm(
-        problem, evaluator=evaluator, variator=variator, log_frequency=500, **kwargs
+        problem, evaluator=evaluator, variator=variator, log_frequency=500, generator=generator, **kwargs
     )
     storage = ArchiveStorageExtension(
-        kwargs["directory"],
-        decision_variable_names=problem.parameter_names,
-        outcome_names=problem.outcome_names,
-        filename=kwargs["filename"],
+        problem.parameter_names,
+        problem.outcome_names,
+        directory=directory,
+        filename=filename,
         frequency=convergence_freq,
         by_nfe=True,
     )
