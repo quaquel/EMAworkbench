@@ -10,8 +10,8 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from platypus import AbstractGeneticAlgorithm, EpsNSGAII
 import platypus
+from platypus import AbstractGeneticAlgorithm, EpsNSGAII
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
