@@ -2,7 +2,6 @@
 
 from ema_workbench.em_framework.optimization import (
     Problem,
-    RobustProblem,
 )
 from ema_workbench import Constraint, ScalarOutcome, RealParameter, IntegerParameter, BooleanParameter, CategoricalParameter
 
@@ -43,8 +42,6 @@ def test_problem(mocker):
     assert constraints == problem.ema_constraints
     assert [c.name for c in constraints] == problem.constraint_names
 
-
-def test_robust_problem(mocker):
     """Test robust problem class."""
     parameters = [RealParameter("a", 0, 1),
                   IntegerParameter("b", 1, 10),
@@ -59,9 +56,8 @@ def test_robust_problem(mocker):
 
     constraints = [Constraint("n", function=lambda x: x)]
 
-    problem = RobustProblem(
-        parameters, robustness_functions, scenarios, constraints
-    )
+    searchover = "robust"
+    problem = Problem(searchover, parameters, robustness_functions, constraints, 10)
 
     assert problem.searchover == "robust"
     assert parameters == problem.decision_variables

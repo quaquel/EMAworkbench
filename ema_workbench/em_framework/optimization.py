@@ -54,7 +54,6 @@ from .util import ProgressTrackingMixIn, determine_objects
 
 __all__ = [
     "Problem",
-    "RobustProblem",
     "epsilon_nondominated",
     "rebuild_platypus_population",
     "to_problem",
@@ -80,24 +79,34 @@ class Problem(PlatypusProblem):
         """Getter for outcome names."""
         return [e.name for e in self.objectives]
 
+    @property
+    def constraint_names(self) -> list[str]:
+        """Getter for outcome names."""
+        return [c.name for c in self.ema_constraints]
+
     def __init__(
         self,
         searchover: Literal["levers", "uncertainties", "robust"],
         decision_variables: list[Parameter],
         objectives: list[ScalarOutcome],
         constraints: list[Constraint] | None,
-        reference: Sample | None = None,
+        reference: Sample | Iterable[Sample] | int | None = None,
     ):
         """Init."""
         if constraints is None:
             constraints = []
+        if reference is None:
+            reference = 1
 
         super().__init__(
             len(decision_variables), len(objectives), nconstrs=len(constraints)
         )
 
-        if searchover == "robust" and reference is not None:
-            raise ValueError("you cannot use a single reference for robust search")
+        # fixme we can probably get rid of robust
+        #    just flip to robust is reference is an iterable
+        #    handle most value error checks inside optimize and robust_optimize instead of here
+        if searchover == "robust" and (reference == 1) or isinstance(reference, Sample):
+            raise ValueError("you cannot use a no or a  single reference scenario for robust optimization")
         for obj in objectives:
             if obj.kind == obj.INFO:
                 raise ValueError(f"you need to specify the direction for objective {obj.name}, cannot be INFO")
@@ -107,35 +116,11 @@ class Problem(PlatypusProblem):
         self.objectives = objectives
 
         self.ema_constraints = constraints
-        self.constraint_names = [c.name for c in constraints]
-        self.reference = reference if reference else 0
+        self.reference = reference
 
         self.types[:] = to_platypus_types(decision_variables)
         self.directions[:] = [outcome.kind for outcome in objectives]
         self.constraints[:] = "==0"
-
-
-class RobustProblem(Problem):
-    """Small extension to Problem object for robust optimization.
-
-    adds the scenarios and the robustness functions
-    """
-
-    def __init__(
-        self,
-        decision_variables: list[Parameter],
-        objectives: list[ScalarOutcome],
-        scenarios: Iterable[Sample]|int,
-        constraints: list[Constraint] | None=None,
-    ):
-        """Init."""
-        # fixme, we should be able to get rid of robust problem all together?
-        for objective in objectives:
-            if objective.function is None:
-                raise ValueError(f"no robustness function defined for {objective.name}")
-
-        super().__init__("robust", decision_variables, objectives, constraints)
-        self.scenarios = scenarios
 
 
 def to_problem(
@@ -198,15 +183,13 @@ def to_robust_problem(model, scenarios, objectives, constraints=None):
     decision_variables = determine_objects(model, "levers", union=True)
 
     outcomes = objectives
-    outcomes = [outcome for outcome in outcomes if outcome.kind != Outcome.INFO]
 
-    if not outcomes:
-        raise EMAError(
-            "No outcomes specified to optimize over, all outcomes are of kind=INFO"
-        )
+    for objective in objectives:
+        if objective.function is None:
+            raise ValueError(f"no robustness function defined for {objective.name}")
 
-    problem = RobustProblem(
-        decision_variables, objectives, scenarios, constraints
+    problem = Problem('robust',
+        decision_variables, objectives, constraints, reference=scenarios
     )
 
     return problem
@@ -287,27 +270,11 @@ def process_jobs(jobs, searchover):
         case "uncertainties":
             return samples, references
         case "robust":
-            return jobs[0].solution.problem.scenarios, samples
+            return references, samples
         case _:
-            raise NotImplementedError(
+            raise ValueError(
                 f"unknown value for searchover, got {searchover} should be one of 'levers', 'uncertainties', or 'robust'"
             )
-
-
-# def _process(jobs, problem):
-#     """Helper function to transform platypus job to dict with correct values for workbench."""
-#     processed_jobs = []
-#     for job in jobs:
-#         variables = transform_variables(problem, job.solution.variables)
-#         processed_job = {}
-#         for param, var in zip(problem.parameters, variables):
-#             try:
-#                 var = var.value
-#             except AttributeError:
-#                 pass
-#             processed_job[param.name] = var
-#         processed_jobs.append(processed_job)
-#     return processed_jobs
 
 
 def evaluate(jobs_collection, experiments, outcomes, problem):
@@ -523,6 +490,8 @@ def rebuild_platypus_population(archive, problem):
     list of platypus Solutions
 
     """
+    # fixme, might this be easier via Sample._to_platypus_solution?
+    # we can just turn each row into a Sample instance directly and then go to a Solution instance
     expected_columns = problem.nvars + problem.nobjs
     actual_columns = len(archive.columns)
 
