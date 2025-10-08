@@ -24,9 +24,7 @@ from .optimization import (
     evaluate,
     evaluate_robust,
     process_jobs,
-    to_problem,
-    to_robust_problem,
-)
+    Problem)
 from .outcomes import Constraint, Outcome, ScalarOutcome
 from .parameters import Parameter
 from .points import Experiment, Sample, SampleCollection, experiment_generator
@@ -706,9 +704,8 @@ def optimize(
 
     random.seed(rng)
 
-    problem = to_problem(
-        model, searchover, constraints=constraints, reference=reference
-    )
+    decision_variables = model.levers if searchover == "levers" else model.uncertainties
+    problem = Problem(searchover, decision_variables, model.outcomes,constraints, reference=reference)
 
     # solve the optimization problem
     if not evaluator:
@@ -777,11 +774,9 @@ def robust_optimize(
         assert rf.kind != Outcome.INFO
         assert rf.function is not None
 
-    problem = to_robust_problem(
-        model,
-        scenarios,
-        robustness_functions,
-        constraints=constraints,
+
+    problem = Problem("robust",
+        model.levers, robustness_functions, constraints, reference=scenarios
     )
 
     random.seed(rng)

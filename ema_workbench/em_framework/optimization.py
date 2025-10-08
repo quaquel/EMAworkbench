@@ -65,8 +65,9 @@ _logger = get_module_logger(__name__)
 class Problem(PlatypusProblem):
     """Small extension to Platypus problem object.
 
-    Includes information on the names of the decision variables, the names of the outcomes,
-    and the type of search.
+    Includes the decision variables, outcomes, and constraints,
+    any reference Sample(s), and the type of search.
+
     """
 
     @property
@@ -81,7 +82,7 @@ class Problem(PlatypusProblem):
 
     @property
     def constraint_names(self) -> list[str]:
-        """Getter for outcome names."""
+        """Getter for constraint names."""
         return [c.name for c in self.ema_constraints]
 
     def __init__(
@@ -105,7 +106,7 @@ class Problem(PlatypusProblem):
         # fixme we can probably get rid of robust
         #    just flip to robust is reference is an iterable
         #    handle most value error checks inside optimize and robust_optimize instead of here
-        if searchover == "robust" and (reference == 1) or isinstance(reference, Sample):
+        if (searchover == "robust" and (reference == 1)) or isinstance(reference, Sample):
             raise ValueError("you cannot use a no or a  single reference scenario for robust optimization")
         for obj in objectives:
             if obj.kind == obj.INFO:
@@ -121,78 +122,6 @@ class Problem(PlatypusProblem):
         self.types[:] = to_platypus_types(decision_variables)
         self.directions[:] = [outcome.kind for outcome in objectives]
         self.constraints[:] = "==0"
-
-
-def to_problem(
-    model: AbstractModel,
-    searchover: str,
-    reference: Sample | None = None,
-    constraints=None,
-):
-    """Helper function to create Problem object.
-
-    Parameters
-    ----------
-    model : AbstractModel instance
-    searchover : str
-    reference : Sample instance, optional
-                overwrite the default scenario in case of searching over
-                levers, or default policy in case of searching over
-                uncertainties
-    constraints : list, optional
-
-    Returns
-    -------
-    Problem instance
-
-    """
-    # extract the levers and the outcomes
-    decision_variables = determine_objects(model, searchover, union=True)
-
-    outcomes = determine_objects(model, "outcomes")
-    outcomes = [outcome for outcome in outcomes if outcome.kind != Outcome.INFO]
-
-    if not outcomes:
-        raise EMAError(
-            "No outcomes specified to optimize over, all outcomes are of kind=INFO"
-        )
-
-    problem = Problem(
-        searchover, decision_variables, outcomes, constraints, reference=reference
-    )
-
-    return problem
-
-
-def to_robust_problem(model, scenarios, objectives, constraints=None):
-    """Helper function to create RobustProblem object.
-
-    Parameters
-    ----------
-    model : AbstractModel instance
-    scenarios : collection
-    robustness_functions : iterable of ScalarOutcomes
-    constraints : list, optional
-
-    Returns
-    -------
-    RobustProblem instance
-
-    """
-    # extract the levers and the outcomes
-    decision_variables = determine_objects(model, "levers", union=True)
-
-    outcomes = objectives
-
-    for objective in objectives:
-        if objective.function is None:
-            raise ValueError(f"no robustness function defined for {objective.name}")
-
-    problem = Problem('robust',
-        decision_variables, objectives, constraints, reference=scenarios
-    )
-
-    return problem
 
 
 def to_platypus_types(decision_variables):

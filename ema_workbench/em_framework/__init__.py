@@ -48,8 +48,6 @@ __all__ = [
     "perform_experiments",
     "rebuild_platypus_population",
     "samplers",
-    "to_problem",
-    "to_robust_problem",
 ]
 
 from .evaluators import (
@@ -62,8 +60,6 @@ from .model import FileModel, Model, ReplicatorModel
 from .optimization import (
     epsilon_nondominated,
     rebuild_platypus_population,
-    to_problem,
-    to_robust_problem,
 )
 from .optimization_convergence import (
     EpsilonIndicatorMetric,

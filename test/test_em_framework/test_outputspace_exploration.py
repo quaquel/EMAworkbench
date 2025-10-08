@@ -6,7 +6,7 @@ from ema_workbench.em_framework import (
     ScalarOutcome,
     outputspace_exploration,
 )
-from ema_workbench.em_framework.optimization import to_problem
+from ema_workbench.em_framework.optimization import Problem
 from ema_workbench.util import EMAError
 
 
@@ -106,7 +106,8 @@ def test_core_algorithm(mocker):
     def some_callable(vars):
         return min(vars), max(vars)
 
-    problem = to_problem(model, searchover="uncertainties")
+    problem = Problem("uncertainties", model.uncertainties, model.outcomes, [])
+
     problem.function = some_callable
     grid_spec = [
         (0, 1, 0.1),
@@ -157,7 +158,7 @@ def test_user_facing_algorithms(mocker):
         ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE),
     ]
 
-    problem = to_problem(model, searchover="uncertainties")
+    problem = Problem("uncertainties", model.uncertainties, model.outcomes, [])
     grid_spec = [
         (0, 1, 0.1),
         (0, 1, 0.1),
