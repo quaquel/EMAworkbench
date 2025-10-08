@@ -53,7 +53,9 @@ class Sample(NamedDict):
     def __repr__(self):  # noqa D105
         return f"Sample({super().__repr__()})"
 
-    def _to_platypus_solution(self, problem: "Problem") -> platypus.Solution:  # noqa: F821
+    def _to_platypus_solution(
+        self, problem: "Problem"
+    ) -> platypus.Solution:  # noqa: F821
         """Turn a Sample into a Platypus solution."""
         solution = platypus.Solution(problem)
 

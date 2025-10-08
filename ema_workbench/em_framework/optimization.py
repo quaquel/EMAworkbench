@@ -36,8 +36,7 @@ from platypus import Problem as PlatypusProblem
 
 from ..util import INFO, EMAError, get_module_logger, temporary_filter
 from . import callbacks, evaluators
-from .model import AbstractModel
-from .outcomes import Constraint, Outcome, ScalarOutcome
+from .outcomes import Constraint, ScalarOutcome
 from .parameters import (
     BooleanParameter,
     CategoricalParameter,
@@ -46,7 +45,7 @@ from .parameters import (
     RealParameter,
 )
 from .points import Sample
-from .util import ProgressTrackingMixIn, determine_objects
+from .util import ProgressTrackingMixIn
 
 # Created on 5 Jun 2017
 #
@@ -56,8 +55,6 @@ __all__ = [
     "Problem",
     "epsilon_nondominated",
     "rebuild_platypus_population",
-    "to_problem",
-    "to_robust_problem",
 ]
 _logger = get_module_logger(__name__)
 
@@ -106,11 +103,17 @@ class Problem(PlatypusProblem):
         # fixme we can probably get rid of robust
         #    just flip to robust is reference is an iterable
         #    handle most value error checks inside optimize and robust_optimize instead of here
-        if (searchover == "robust" and (reference == 1)) or isinstance(reference, Sample):
-            raise ValueError("you cannot use a no or a  single reference scenario for robust optimization")
+        if (searchover == "robust" and (reference == 1)) or isinstance(
+            reference, Sample
+        ):
+            raise ValueError(
+                "you cannot use a no or a  single reference scenario for robust optimization"
+            )
         for obj in objectives:
             if obj.kind == obj.INFO:
-                raise ValueError(f"you need to specify the direction for objective {obj.name}, cannot be INFO")
+                raise ValueError(
+                    f"you need to specify the direction for objective {obj.name}, cannot be INFO"
+                )
 
         self.searchover = searchover
         self.decision_variables = decision_variables
