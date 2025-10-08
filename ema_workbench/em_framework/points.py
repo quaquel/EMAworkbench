@@ -13,7 +13,6 @@ import numpy as np
 import pandas as pd
 import platypus
 
-# from .optimization import Problem
 from ..util import get_module_logger
 from .parameters import (
     CategoricalParameter,
@@ -54,8 +53,8 @@ class Sample(NamedDict):
         return f"Sample({super().__repr__()})"
 
     def _to_platypus_solution(
-        self, problem: "Problem"
-    ) -> platypus.Solution:  # noqa: F821
+        self, problem: "Problem"  # noqa: F821
+    ) -> platypus.Solution:
         """Turn a Sample into a Platypus solution."""
         solution = platypus.Solution(problem)
 

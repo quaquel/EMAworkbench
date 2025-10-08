@@ -11,6 +11,7 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 from platypus import AbstractGeneticAlgorithm, EpsNSGAII
+import platypus
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
@@ -130,7 +131,7 @@ class BaseEvaluator(abc.ABC):
     ):
         """Used by ema_workbench."""
 
-    def evaluate_all(self, jobs, **kwargs):
+    def evaluate_all(self, jobs: list[platypus.core.EvaluateSolution], **kwargs):
         """Makes ema_workbench evaluators compatible with platypus evaluators."""
         try:
             problem = jobs[0].solution.problem
@@ -140,7 +141,7 @@ class BaseEvaluator(abc.ABC):
 
         searchover = problem.searchover
 
-        scenarios, policies = process_jobs(jobs, searchover)
+        scenarios, policies = process_jobs(jobs)
 
         match searchover:
             case "levers" | "robust":
