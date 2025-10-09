@@ -24,7 +24,6 @@ from .optimization import (
     Variator,
     _optimize,
     evaluate,
-    evaluate_robust,
     process_jobs,
 )
 from .outcomes import Constraint, Outcome, ScalarOutcome
@@ -164,10 +163,7 @@ class BaseEvaluator(abc.ABC):
 
         experiments, outcomes = callback.get_results()
 
-        if searchover in ("levers", "uncertainties"):
-            evaluate(jobs_collection, experiments, outcomes, problem)
-        else:
-            evaluate_robust(jobs_collection, experiments, outcomes, problem)
+        evaluate(jobs_collection, experiments, outcomes, problem)
 
         return jobs
 

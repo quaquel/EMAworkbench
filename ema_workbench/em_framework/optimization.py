@@ -9,6 +9,7 @@ import time
 from collections.abc import Iterable
 from typing import Literal
 
+import numpy as np
 import pandas as pd
 import platypus
 from platypus import (
@@ -103,8 +104,8 @@ class Problem(PlatypusProblem):
         # fixme we can probably get rid of robust
         #    just flip to robust is reference is an iterable
         #    handle most value error checks inside optimize and robust_optimize instead of here
-        if (searchover == "robust" and (reference == 1)) or isinstance(
-            reference, Sample
+        if (searchover == "robust") and (
+            (reference == 1) or isinstance(reference, Sample)
         ):
             raise ValueError(
                 "you cannot use a no or a  single reference scenario for robust optimization"
@@ -210,26 +211,43 @@ def process_jobs(jobs: list[platypus.core.EvaluateSolution]):
             )
 
 
-def evaluate(jobs_collection, experiments, outcomes, problem):
+def evaluate(
+    jobs_collection: Iterable[tuple[Sample, platypus.core.EvaluateSolution]],
+    experiments: pd.DataFrame,
+    outcomes: dict[str, np.ndarray],
+    problem: Problem,
+):
     """Helper function for mapping the results from perform_experiments back to what platypus needs."""
     searchover = problem.searchover
     outcome_names = problem.outcome_names
     constraints = problem.ema_constraints
 
-    column = "policy" if searchover == "levers" else "scenario"
+    column = "scenario" if searchover == "uncertainties" else "policy"
 
-    for entry, job in jobs_collection:
-        logical = experiments[column] == entry.name
+    for sample, job in jobs_collection:
+        logical = experiments[column] == sample.name
 
         job_outputs = {}
         for k, v in outcomes.items():
-            job_outputs[k] = v[logical][0]
+            job_outputs[k] = v[logical]
 
-        # TODO:: only retain uncertainties
+        # TODO:: only retain decision variables
         job_experiment = experiments[logical]
-        job_constraints = _evaluate_constraints(
-            job_experiment, job_outputs, constraints
-        )
+
+        if searchover == "levers" or searchover == "uncertainties":
+            job_outputs = {k: v[0] for k, v in job_outputs.items()}
+        else:
+            robustness_scores = {}
+            for obj in problem.objectives:
+                data = [outcomes[var_name] for var_name in obj.variable_name]
+                score = obj.function(*data)
+                robustness_scores[obj.name] = score
+            job_outputs = robustness_scores
+            job_experiment = job_experiment.iloc[
+                0
+            ]  # we only need a single row with the levers here
+
+        job_constraints = _evaluate_constraints(job_experiment, job_outputs, constraints)
         job_outcomes = [job_outputs[key] for key in outcome_names]
 
         if job_constraints:
@@ -246,44 +264,48 @@ def evaluate(jobs_collection, experiments, outcomes, problem):
         job.solution.evaluate()
 
 
-def evaluate_robust(jobs_collection, experiments, outcomes, problem):
-    """Helper function for mapping the results from perform_experiments back to what Platypus needs."""
-    robustness_functions = problem.objectives
-    constraints = problem.ema_constraints
+# def evaluate_robust(jobs_collection, experiments, outcomes, problem):
+#     """Helper function for mapping the results from perform_experiments back to what Platypus needs."""
+#     robustness_functions = problem.objectives
+#     constraints = problem.ema_constraints
+#
+#     for entry, job in jobs_collection:
+#         logical = experiments["policy"] == entry.name
+#
+#         job_outcomes_dict = {}
+#         job_outcomes = []
+#         for rf in robustness_functions:
+#             data = [outcomes[var_name][logical] for var_name in rf.variable_name]
+#             score = rf.function(*data)
+#             job_outcomes_dict[rf.name] = score
+#             job_outcomes.append(score)
+#
+#         # TODO:: only retain levers
+#         job_experiment = experiments[logical].iloc[0]
+#         job_constraints = _evaluate_constraints(
+#             job_experiment, job_outcomes_dict, constraints
+#         )
+#
+#         if job_constraints:
+#             job.solution.problem.function = (
+#                 lambda _, job_outcomes=job_outcomes, job_constraints=job_constraints: (
+#                     job_outcomes,
+#                     job_constraints,
+#                 )
+#             )
+#         else:
+#             job.solution.problem.function = (
+#                 lambda _, job_outcomes=job_outcomes: job_outcomes
+#             )
+#
+#         job.solution.evaluate()
 
-    for entry, job in jobs_collection:
-        logical = experiments["policy"] == entry.name
 
-        job_outcomes_dict = {}
-        job_outcomes = []
-        for rf in robustness_functions:
-            data = [outcomes[var_name][logical] for var_name in rf.variable_name]
-            score = rf.function(*data)
-            job_outcomes_dict[rf.name] = score
-            job_outcomes.append(score)
-
-        # TODO:: only retain levers
-        job_experiment = experiments[logical].iloc[0]
-        job_constraints = _evaluate_constraints(
-            job_experiment, job_outcomes_dict, constraints
-        )
-
-        if job_constraints:
-            job.solution.problem.function = (
-                lambda _, job_outcomes=job_outcomes, job_constraints=job_constraints: (
-                    job_outcomes,
-                    job_constraints,
-                )
-            )
-        else:
-            job.solution.problem.function = (
-                lambda _, job_outcomes=job_outcomes: job_outcomes
-            )
-
-        job.solution.evaluate()
-
-
-def _evaluate_constraints(job_experiment, job_outcomes, constraints):
+def _evaluate_constraints(
+    job_experiment: pd.Series,
+    job_outcomes: dict[str, np.ndarray],
+    constraints: list[Constraint],
+):
     """Helper function for evaluating the constraints for a given job."""
     job_constraints = []
     for constraint in constraints:

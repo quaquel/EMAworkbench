@@ -1,5 +1,7 @@
 """Tests for optimization functionality."""
 
+import numpy as np
+import pandas as pd
 import pytest
 
 from ema_workbench import (
@@ -11,7 +13,13 @@ from ema_workbench import (
     Sample,
     ScalarOutcome,
 )
-from ema_workbench.em_framework.optimization import Problem, process_jobs, to_dataframe
+from ema_workbench.em_framework.optimization import (
+    Problem,
+    evaluate,
+    process_jobs,
+    to_dataframe,
+)
+from ema_workbench.em_framework.points import SampleCollection
 
 # Created on 6 Jun 2017
 #
@@ -202,7 +210,142 @@ def test_process_jobs(mocker):
             ]
             jobs.append(job)
 
-        scenarios, policies = process_jobs(jobs)
+        process_jobs(jobs)
+
+
+def test_evaluate(mocker):
+    """Test evaluate function."""
+    decision_variables = [
+        RealParameter("a", 0, 1),
+        RealParameter("b", 0, 1),
+    ]
+    objectives = [
+        ScalarOutcome("x", kind=ScalarOutcome.MAXIMIZE),
+        ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE),
+    ]
+
+    rng = np.random.default_rng(42)
+    samples = rng.random((10, 2))
+    samples_collection = SampleCollection(samples, decision_variables)
+
+    # search over levers
+    problem = Problem("levers", decision_variables, objectives)
+
+    jobs = []
+    scenario_names = []
+    for sample in samples_collection:
+        job = mocker.Mock()
+        job.solution = sample._to_platypus_solution(problem)
+        jobs.append((sample, job))
+        scenario_names.append(sample.name)
+
+    experiments = pd.DataFrame(
+        {
+            "a": samples[:, 0],
+            "b": samples[:, 1],
+            "scenario": np.zeros(
+                10,
+            ),
+            "policy": scenario_names,
+        }
+    )
+    outcomes = {
+        "x": rng.random((10,)),
+        "y": rng.random((10,)),
+    }
+
+    evaluate(jobs, experiments, outcomes, problem)
+
+    # check if all jobs are evaluated
+    for i, (_, job) in enumerate(jobs):
+        assert job.solution.evaluated
+        assert np.all(
+            np.isclose(job.solution.objectives, [v[i] for v in outcomes.values()])
+        )
+
+    # search over uncertainties
+    problem = Problem("uncertainties", decision_variables, objectives)
+    jobs = []
+    scenario_names = []
+    for sample in samples_collection:
+        job = mocker.Mock()
+        job.solution = sample._to_platypus_solution(problem)
+        jobs.append((sample, job))
+        scenario_names.append(sample.name)
+
+    experiments = pd.DataFrame(
+        {
+            "a": samples[:, 0],
+            "b": samples[:, 1],
+            "scenario": scenario_names,
+            "policy": np.zeros(
+                10,
+            ),
+        }
+    )
+    outcomes = {
+        "x": rng.random((10,)),
+        "y": rng.random((10,)),
+    }
+
+    evaluate(jobs, experiments, outcomes, problem)
+
+    # check if all jobs are evaluated
+    for i, (_, job) in enumerate(jobs):
+        assert job.solution.evaluated
+        assert np.all(
+            np.isclose(job.solution.objectives, [v[i] for v in outcomes.values()])
+        )
+
+    # robust optimization
+    n_scenarios = 2
+    n_solutions = 10
+
+    objectives = [
+        ScalarOutcome(
+            "x_robust",
+            kind=ScalarOutcome.MAXIMIZE,
+            variable_name="x",
+            function=lambda x: np.mean(x),
+        ),
+        ScalarOutcome(
+            "y_robust",
+            kind=ScalarOutcome.MAXIMIZE,
+            variable_name="y",
+            function=lambda x: np.mean(x),
+        ),
+    ]
+
+    reference = pd.DataFrame(
+        {
+            "u_1": rng.random((n_scenarios,)),
+            "u_2": rng.random((n_scenarios,)),
+            "scenario": np.arange(n_scenarios),
+        }
+    )
+    problem = Problem("robust", decision_variables, objectives, reference=n_scenarios)
+    jobs = []
+    sample_experiments = []
+    for sample in samples_collection:
+        job = mocker.Mock()
+        job.solution = sample._to_platypus_solution(problem)
+        jobs.append((sample, job))
+
+        a = reference.copy()
+        a["policy"] = sample.name
+        sample_experiments.append(a)
+
+    experiments = pd.concat(sample_experiments)
+    outcomes = {
+        "x": rng.random((n_scenarios * n_solutions,)),
+        "y": rng.random((n_scenarios * n_solutions,)),
+    }
+
+    evaluate(jobs, experiments, outcomes, problem)
+
+    # check if all jobs are evaluated
+    for _, job in jobs:
+        assert job.solution.evaluated
 
 
 # @mock.patch("ema_workbench.em_framework.optimization.platypus")
