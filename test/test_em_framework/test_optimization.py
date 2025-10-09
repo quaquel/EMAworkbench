@@ -15,6 +15,7 @@ from ema_workbench import (
 )
 from ema_workbench.em_framework.optimization import (
     Problem,
+    _evaluate_constraints,
     evaluate,
     process_jobs,
     to_dataframe,
@@ -43,7 +44,7 @@ def test_problem(mocker):
         ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE),
     ]
 
-    constraints = [Constraint("n", function=lambda x: x)]
+    constraints = [Constraint("n", lambda x: x, parameter_names="n")]
 
     problem = Problem(searchover, parameters, outcomes, constraints)
 
@@ -79,7 +80,7 @@ def test_problem(mocker):
         ScalarOutcome("y_prime", kind=ScalarOutcome.MAXIMIZE, function=mocker.Mock()),
     ]
 
-    constraints = [Constraint("n", function=lambda x: x)]
+    constraints = [Constraint("n", lambda x: x, parameter_names="n")]
 
     searchover = "robust"
     problem = Problem(
@@ -346,6 +347,24 @@ def test_evaluate(mocker):
     # check if all jobs are evaluated
     for _, job in jobs:
         assert job.solution.evaluated
+
+
+def test_evaluate_constraints():
+    """Tests for _evaluate_constraints."""
+    experiment = pd.Series({"a": 1, "b": 2})
+    outcomes = {"x": 0.5, "y": 2}
+
+    def constraint_func(data):
+        return data - 0.5
+
+    constraints = [
+        Constraint("c_a", constraint_func, parameter_names="a"),
+        Constraint("c_x", constraint_func, outcome_names="x"),
+    ]
+
+    scores = _evaluate_constraints(experiment, outcomes, constraints)
+
+    assert scores == [0.5, 0]
 
 
 # @mock.patch("ema_workbench.em_framework.optimization.platypus")

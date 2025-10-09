@@ -4,6 +4,7 @@ import abc
 import collections
 import numbers
 import warnings
+from collections.abc import Callable
 from io import BytesIO
 
 import numpy as np
@@ -594,21 +595,29 @@ class Constraint(ScalarOutcome):
     Attributes
     ----------
     name : str
+    function : callable
+               The function should return the distance from the feasibility
+               threshold, given the model outputs with a variable name. The
+               distance should be 0 if the constraint is met.
     parameter_names : str, list of str
                       name(s) of the uncertain parameter(s) and/or
                       lever parameter(s) to which the constraint applies
     outcome_names : str, list of str
                     name(s) of the outcome(s) to which the constraint applies
-    function : callable
-               The function should return the distance from the feasibility
-               threshold, given the model outputs with a variable name. The
-               distance should be 0 if the constraint is met.
 
     """
 
-    def __init__(self, name, parameter_names=None, outcome_names=None, function=None):
+    def __init__(
+        self,
+        name,
+        function: Callable,
+        parameter_names: list[str] | str | None = None,
+        outcome_names: list[str] | str | None = None,
+    ):
         """Init."""
-        assert callable(function)
+        if not callable(function):
+            raise ValueError("function must be a callable")
+
         if not parameter_names:
             parameter_names = []
         elif isinstance(parameter_names, str):
@@ -620,6 +629,10 @@ class Constraint(ScalarOutcome):
             outcome_names = [outcome_names]
 
         variable_names = parameter_names + outcome_names
+        if len(variable_names) == 0:
+            raise ValueError(
+                "No decision variable names or objective names to which constraint applies provided"
+            )
 
         super().__init__(
             name,

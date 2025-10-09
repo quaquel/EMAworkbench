@@ -247,7 +247,9 @@ def evaluate(
                 0
             ]  # we only need a single row with the levers here
 
-        job_constraints = _evaluate_constraints(job_experiment, job_outputs, constraints)
+        job_constraints = _evaluate_constraints(
+            job_experiment, job_outputs, constraints
+        )
         job_outcomes = [job_outputs[key] for key in outcome_names]
 
         if job_constraints:
@@ -264,46 +266,9 @@ def evaluate(
         job.solution.evaluate()
 
 
-# def evaluate_robust(jobs_collection, experiments, outcomes, problem):
-#     """Helper function for mapping the results from perform_experiments back to what Platypus needs."""
-#     robustness_functions = problem.objectives
-#     constraints = problem.ema_constraints
-#
-#     for entry, job in jobs_collection:
-#         logical = experiments["policy"] == entry.name
-#
-#         job_outcomes_dict = {}
-#         job_outcomes = []
-#         for rf in robustness_functions:
-#             data = [outcomes[var_name][logical] for var_name in rf.variable_name]
-#             score = rf.function(*data)
-#             job_outcomes_dict[rf.name] = score
-#             job_outcomes.append(score)
-#
-#         # TODO:: only retain levers
-#         job_experiment = experiments[logical].iloc[0]
-#         job_constraints = _evaluate_constraints(
-#             job_experiment, job_outcomes_dict, constraints
-#         )
-#
-#         if job_constraints:
-#             job.solution.problem.function = (
-#                 lambda _, job_outcomes=job_outcomes, job_constraints=job_constraints: (
-#                     job_outcomes,
-#                     job_constraints,
-#                 )
-#             )
-#         else:
-#             job.solution.problem.function = (
-#                 lambda _, job_outcomes=job_outcomes: job_outcomes
-#             )
-#
-#         job.solution.evaluate()
-
-
 def _evaluate_constraints(
     job_experiment: pd.Series,
-    job_outcomes: dict[str, np.ndarray],
+    job_outcomes: dict[str, float|int],
     constraints: list[Constraint],
 ):
     """Helper function for evaluating the constraints for a given job."""
