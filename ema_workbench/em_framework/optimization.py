@@ -56,6 +56,7 @@ __all__ = [
     "Problem",
     "epsilon_nondominated",
     "rebuild_platypus_population",
+    "GenerationalBorg"
 ]
 _logger = get_module_logger(__name__)
 

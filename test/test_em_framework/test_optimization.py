@@ -22,6 +22,7 @@ from ema_workbench.em_framework.optimization import (
     Problem,
     ProgressBarExtension,
     _evaluate_constraints,
+    epsilon_nondominated,
     evaluate,
     process_jobs,
     rebuild_platypus_population,
@@ -460,6 +461,41 @@ def test_archive_storage_extension(mocker):
             frequency=frequency,
             by_nfe=by_nfe,
         )
+
+
+def test_epsilon_dominated():
+    """Tests for epsilon_dominated."""
+    rng = np.random.default_rng(42)
+    n = 10
+
+    results = []
+    for _ in range(5):
+        results.append(
+            pd.DataFrame(
+                {
+                    "u1": rng.random(n),
+                    "o1": rng.random(n),
+                    "o2": rng.random(n),
+                }
+            )
+        )
+
+    decision_variables = [
+        RealParameter("u1", 0, 1),
+    ]
+    objectives = [
+        ScalarOutcome("o1", kind=ScalarOutcome.MAXIMIZE),
+        ScalarOutcome("o2", kind=ScalarOutcome.MAXIMIZE),
+    ]
+
+    problem = Problem("uncertainties", decision_variables, objectives)
+
+    dataframe = epsilon_nondominated(results, [0.05, 0.05], problem)
+
+    assert dataframe.columns.tolist() == ["u1", "o1", "o2"]
+
+    with pytest.raises(ValueError):
+        dataframe = epsilon_nondominated(results, [0.05, 0.05, 0.05], problem)
 
 
 def test_rebuild_platypus_population():
