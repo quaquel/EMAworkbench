@@ -17,8 +17,10 @@ from ema_workbench import (
     Sample,
     ScalarOutcome,
 )
+from ema_workbench.em_framework import Category
 from ema_workbench.em_framework.optimization import (
     ArchiveStorageExtension,
+    CombinedVariator,
     Problem,
     ProgressBarExtension,
     _evaluate_constraints,
@@ -487,15 +489,13 @@ def test_epsilon_dominated():
         ScalarOutcome("o1", kind=ScalarOutcome.MAXIMIZE),
         ScalarOutcome("o2", kind=ScalarOutcome.MAXIMIZE),
     ]
-
     problem = Problem("uncertainties", decision_variables, objectives)
 
     dataframe = epsilon_nondominated(results, [0.05, 0.05], problem)
-
     assert dataframe.columns.tolist() == ["u1", "o1", "o2"]
 
     with pytest.raises(ValueError):
-        dataframe = epsilon_nondominated(results, [0.05, 0.05, 0.05], problem)
+        epsilon_nondominated(results, [0.05, 0.05, 0.05], problem)
 
 
 def test_rebuild_platypus_population():
@@ -560,83 +560,36 @@ def test_rebuild_platypus_population():
         rebuild_platypus_population(data, problem)
 
 
-# @mock.patch("ema_workbench.em_framework.optimization.platypus")
-# def test_to_platypus_types(self, mocked_platypus):
-#     dv = [
-#         RealParameter("real", 0, 1),
-#         IntegerParameter("integer", 0, 10),
-#         CategoricalParameter("categorical", ["a", "b"]),
-#     ]
-#
-#     types = to_platypus_types(dv)
-#     self.assertTrue(str(types[0]).find("platypus.Real") != -1)
-#     self.assertTrue(str(types[1]).find("platypus.Integer") != -1)
-#     self.assertTrue(str(types[2]).find("platypus.Subset") != -1)
-#
-#     @mock.patch("ema_workbench.em_framework.optimization.platypus")
-#     def test_to_problem(self, mocked_platypus):
-#         mocked_model = Model("test", function=mock.Mock())
-#         mocked_model.levers = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-#         mocked_model.uncertainties = [
-#             RealParameter("c", 0, 1),
-#             RealParameter("d", 0, 1),
-#         ]
-#         mocked_model.outcomes = [ScalarOutcome("x", kind=1), ScalarOutcome("y", kind=1)]
-#
-#         searchover = "levers"
-#         problem = to_problem(mocked_model, searchover)
-#         assert searchover, problem.searchover)
-#
-#         for entry in problem.parameters:
-#             self.assertIn(entry.name, mocked_model.levers.keys())
-#             self.assertIn(entry, list(mocked_model.levers))
-#         for entry in problem.outcome_names:
-#             self.assertIn(entry, mocked_model.outcomes.keys())
-#
-#         searchover = "uncertainties"
-#         problem = to_problem(mocked_model, searchover)
-#
-#         assert searchover, problem.searchover)
-#         for entry in problem.parameters:
-#             self.assertIn(entry.name, mocked_model.uncertainties.keys())
-#             self.assertIn(entry, list(mocked_model.uncertainties))
-#         for entry in problem.outcome_names:
-#             self.assertIn(entry, mocked_model.outcomes.keys())
-#
-#     def test_process_levers(self):
-#         pass
-#
-#     def test_process_uncertainties(self):
-#         pass
-#
-#
-# class TestRobustOptimization(unittest.TestCase):
-#     @mock.patch("ema_workbench.em_framework.optimization.platypus")
-#     def test_to_robust_problem(self, mocked_platypus):
-#         mocked_model = Model("test", function=mock.Mock())
-#         mocked_model.levers = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
-#         mocked_model.uncertainties = [
-#             RealParameter("c", 0, 1),
-#             RealParameter("d", 0, 1),
-#         ]
-#         mocked_model.outcomes = [ScalarOutcome("x"), ScalarOutcome("y")]
-#
-#         scenarios = 5
-#         robustness_functions = [
-#             ScalarOutcome(
-#                 "mean_x", variable_name="x", function=mock.Mock(), kind="maximize"
-#             ),
-#             ScalarOutcome(
-#                 "mean_y", variable_name="y", function=mock.Mock(), kind="maximize"
-#             ),
-#         ]
-#
-#         problem = to_robust_problem(mocked_model, scenarios, robustness_functions)
-#
-#         assert "robust", problem.searchover)
-#         for entry in problem.parameters:
-#             self.assertIn(entry.name, mocked_model.levers.keys())
-#         assert ["mean_x", "mean_y"], problem.outcome_names)
-#
-#     def test_process_robust(self):
-#         pass
+def test_combined_variator(mocker):
+    """Tests for CombinedVariator."""
+    # this test only ensures everything runs, not
+    # that it's correct, but code has been taken from platypus
+    mocked_random = mocker.patch("ema_workbench.em_framework.optimization.random")
+    mocked_random.random.return_value = 0.1
+    mocked_random.choice.return_value = Category("some_value", "some value")
+
+    decision_variables = [
+        RealParameter("a", 0, 1),
+        IntegerParameter("b", 1, 10),
+        CategoricalParameter("c", [1, 6, "c"]),
+    ]
+    objectives = [
+        ScalarOutcome("c", kind=ScalarOutcome.MAXIMIZE),
+    ]
+
+    problem = Problem("uncertainties", decision_variables, objectives)
+    solution_1 = Sample(a=0.1, b=2, c=1)._to_platypus_solution(problem)
+    solution_2 = Sample(a=0.1, b=8, c="c")._to_platypus_solution(problem)
+
+    variator = CombinedVariator()
+    s1, s2 = variator.evolve([solution_1, solution_2])
+
+    assert s1.variables[2] == "some value"
+    assert s2.variables[2] == "some value"
+
+    variator = CombinedVariator(crossover_prob=0.7)
+    mocked_random.random.return_value = 0.6
+    variator.evolve([solution_1, solution_2])
+
+    assert s1.variables[2] == "some value"
+    assert s2.variables[2] == "some value"

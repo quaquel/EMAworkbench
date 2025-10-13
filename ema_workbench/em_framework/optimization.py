@@ -53,10 +53,10 @@ from .util import ProgressTrackingMixIn
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = [
+    "GenerationalBorg",
     "Problem",
     "epsilon_nondominated",
     "rebuild_platypus_population",
-    "GenerationalBorg"
 ]
 _logger = get_module_logger(__name__)
 
@@ -153,7 +153,7 @@ def to_platypus_types(decision_variables):
 
 
 def to_dataframe(
-    solutions: list[platypus.Solution], dvnames: list[str], outcome_names: list[str]
+    solutions: Iterable[platypus.Solution], dvnames: list[str], outcome_names: list[str]
 ):
     """Helper function to turn a collection of platypus Solution instances into a pandas DataFrame.
 
@@ -269,7 +269,7 @@ def evaluate(
 
 def _evaluate_constraints(
     job_experiment: pd.Series,
-    job_outcomes: dict[str, float|int],
+    job_outcomes: dict[str, float | int],
     constraints: list[Constraint],
 ):
     """Helper function for evaluating the constraints for a given job."""
@@ -398,7 +398,7 @@ def epsilon_nondominated(results, epsilons, problem):
     return to_dataframe(archive, problem.parameter_names, problem.outcome_names)
 
 
-def rebuild_platypus_population(archive:pd.DataFrame, problem:Problem):
+def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem):
     """Rebuild a population of platypus Solution instances.
 
     Parameters
@@ -465,7 +465,8 @@ class CombinedVariator(Variator):
         self.crossover_prob = crossover_prob
         self.mutation_prob = mutation_prob
 
-    def evolve(self, parents):
+    def evolve(self, parents: list[Solution]) -> tuple[Solution, Solution]:
+        """Evolve the provided parents."""
         child1 = copy.deepcopy(parents[0])
         child2 = copy.deepcopy(parents[1])
         problem = child1.problem
@@ -483,9 +484,9 @@ class CombinedVariator(Variator):
         for child in [child1, child2]:
             self.mutate(child)
 
-        return [child1, child2]
+        return child1, child2
 
-    def mutate(self, child):
+    def mutate(self, child: Solution):
         problem = child.problem
 
         for i, kind in enumerate(problem.types):  # @ReservedAssignment
@@ -494,7 +495,9 @@ class CombinedVariator(Variator):
                 child = self._mutate[klass](self, child, i, kind)
                 child.evaluated = False
 
-    def crossover_real(self, child1, child2, i, type):  # @ReservedAssignment
+    def crossover_real(
+        self, child1: Solution, child2: Solution, i: int, type: platypus.Real
+    ) -> tuple[Solution, Solution]:  # @ReservedAssignment
         # sbx
         x1 = float(child1.variables[i])
         x2 = float(child2.variables[i])
@@ -508,7 +511,9 @@ class CombinedVariator(Variator):
 
         return child1, child2
 
-    def crossover_integer(self, child1, child2, i, type):  # @ReservedAssignment
+    def crossover_integer(
+        self, child1: Solution, child2: Solution, i: int, type: platypus.Integer
+    ) -> tuple[Solution, Solution]:  # @ReservedAssignment
         # HUX()
         for j in range(type.nbits):
             if child1.variables[i][j] != child2.variables[i][j]:  # noqa: SIM102
@@ -517,27 +522,22 @@ class CombinedVariator(Variator):
                     child2.variables[i][j] = not child2.variables[i][j]
         return child1, child2
 
-    def crossover_categorical(self, child1, child2, i, type):  # @ReservedAssignment
+    def crossover_categorical(
+        self, child1: Solution, child2: Solution, i: int, type: platypus.Subset
+    ) -> tuple[Solution, Solution]:  # @ReservedAssignment
         # SSX()
-        # can probably be implemented in a simple manner, since size
-        # of subset is fixed to 1
+        # Implemented in a simplified manner, since size of subset is 1
 
-        s1 = set(child1.variables[i])
-        s2 = set(child2.variables[i])
-
-        for j in range(type.size):
-            if (
-                (child2.variables[i][j] not in s1)
-                and (child1.variables[i][j] not in s2)
-                and (random.random() < 0.5)
-            ):
-                temp = child1.variables[i][j]
-                child1.variables[i][j] = child2.variables[i][j]
-                child2.variables[i][j] = temp
+        if (child2.variables[i] != child1.variables[i]) and (random.random() < 0.5):
+            temp = child1.variables[i]
+            child1.variables[i] = child2.variables[i]
+            child2.variables[i] = temp
 
         return child1, child2
 
-    def mutate_real(self, child, i, type, distribution_index=20):  # @ReservedAssignment
+    def mutate_real(
+        self, child: Solution, i: int, type: platypus.Real, distribution_index: int = 20
+    ) -> Solution:  # @ReservedAssignment
         # PM
         x = child.variables[i]
         lower = type.min_value
@@ -563,30 +563,24 @@ class CombinedVariator(Variator):
         child.variables[i] = x
         return child
 
-    def mutate_integer(self, child, i, type, probability=1):  # @ReservedAssignment
+    def mutate_integer(
+        self, child: Solution, i: int, type: platypus.Integer, probability: float = 1
+    ) -> Solution:  # @ReservedAssignment
         # bitflip
         for j in range(type.nbits):
             if random.random() <= probability:
                 child.variables[i][j] = not child.variables[i][j]
         return child
 
-    def mutate_categorical(self, child, i, type):  # @ReservedAssignment
-        # replace
-        probability = 1 / type.size
-
-        if random.random() <= probability:
-            subset = child.variables[i]
-
-            if len(subset) < len(type.elements):
-                j = random.randrange(len(subset))
-
-                nonmembers = list(set(type.elements) - set(subset))
-                k = random.randrange(len(nonmembers))
-                subset[j] = nonmembers[k]
-
-            len(subset)
-
-            child.variables[i] = subset
+    def mutate_categorical(
+        self, child: Solution, i: int, type: platypus.Subset
+    ) -> Solution:  # @ReservedAssignment
+        # replace, again simplified because len(subset) is 1
+        non_members = [
+            entry for entry in type.elements if entry.value != child.variables[i]
+        ]
+        new_value = random.choice(non_members)
+        child.variables[i] = new_value.value
 
         return child
 
