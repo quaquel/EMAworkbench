@@ -397,7 +397,7 @@ def epsilon_nondominated(results, epsilons, problem):
     return to_dataframe(archive, problem.parameter_names, problem.outcome_names)
 
 
-def rebuild_platypus_population(archive, problem):
+def rebuild_platypus_population(archive:pd.DataFrame, problem:Problem):
     """Rebuild a population of platypus Solution instances.
 
     Parameters

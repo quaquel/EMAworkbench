@@ -1,26 +1,34 @@
 """Tests for optimization functionality."""
 
+import tarfile
+
 import numpy as np
 import pandas as pd
+import platypus
 import pytest
 
 from ema_workbench import (
     BooleanParameter,
     CategoricalParameter,
     Constraint,
+    EMAError,
     IntegerParameter,
     RealParameter,
     Sample,
     ScalarOutcome,
 )
 from ema_workbench.em_framework.optimization import (
+    ArchiveStorageExtension,
     Problem,
+    ProgressBarExtension,
     _evaluate_constraints,
     evaluate,
     process_jobs,
+    rebuild_platypus_population,
     to_dataframe,
 )
 from ema_workbench.em_framework.points import SampleCollection
+from ema_workbench.em_framework.util import ProgressTrackingMixIn
 
 # Created on 6 Jun 2017
 #
@@ -365,6 +373,141 @@ def test_evaluate_constraints():
     scores = _evaluate_constraints(experiment, outcomes, constraints)
 
     assert scores == [0.5, 0]
+
+
+def test_progress_bar_extension(mocker):
+    """Tests for ProgressBarExtension   ."""
+    mocked_pb = mocker.patch(
+        "ema_workbench.em_framework.optimization.ProgressTrackingMixIn"
+    )
+    mocked_mixin = mocker.Mock(spec=ProgressTrackingMixIn)
+    mocked_mixin.i = 0
+    mocked_pb.return_value = mocked_mixin
+
+    progress_bar = ProgressBarExtension(1000, frequency=100)
+
+    algorithm = mocker.Mock(spec=platypus.EpsNSGAII)
+    algorithm.nfe = 100
+
+    progress_bar.do_action(algorithm)
+
+    assert mocked_mixin.call_count == 1
+    assert mocked_mixin.call_args_list[0][0] == (100,)
+
+
+def test_archive_storage_extension(mocker):
+    """Tests for ArchiveStorageExtension."""
+    mocked_tarfile = mocker.patch("ema_workbench.em_framework.optimization.tarfile")
+    mocked_archive = mocker.Mock(spec=tarfile.TarFile)
+    mocked_tarfile.open.return_value.__enter__.return_value = mocked_archive
+
+    mocked_to_dataframe = mocker.patch(
+        "ema_workbench.em_framework.optimization.to_dataframe"
+    )
+    mocked_to_dataframe.return_value = pd.DataFrame(
+        {"u1": [0, 1], "u2": [1, 2], "o1": [3, 4]}
+    )
+
+    decision_variables = ["u1", "u2"]
+    outcome_names = ["o1"]
+    directory = "."
+    filename = "sometarbal.tar.gz"
+    frequency = 100
+    by_nfe = True
+
+    storage_extension = ArchiveStorageExtension(
+        decision_variables,
+        outcome_names,
+        directory,
+        filename,
+        frequency=frequency,
+        by_nfe=by_nfe,
+    )
+
+    algorithm = mocker.Mock(spec=platypus.EpsNSGAII)
+    algorithm.nfe = 100
+    algorithm.archive = []
+    storage_extension.do_action(algorithm)
+
+    assert mocked_archive.addfile.call_count == 1
+
+    # test for algorithms without an archive
+    mocked_archive.reset_mock()
+    algorithm = mocker.Mock(spec=platypus.NSGAII)
+    algorithm.nfe = 100
+    algorithm.result = []
+    storage_extension.do_action(algorithm)
+    assert mocked_archive.addfile.call_count == 1
+
+    # test FileExistError
+    mocked_os = mocker.patch("ema_workbench.em_framework.optimization.os")
+
+    mocked_os.path.exists.return_value = True
+
+    with pytest.raises(FileExistsError):
+        decision_variables = ["u1", "u2"]
+        outcome_names = ["o1"]
+        directory = "."
+        filename = "sometarbal.tar.gz"
+        frequency = 100
+        by_nfe = True
+
+        ArchiveStorageExtension(
+            decision_variables,
+            outcome_names,
+            directory,
+            filename,
+            frequency=frequency,
+            by_nfe=by_nfe,
+        )
+
+
+def test_rebuild_platypus_population():
+    """Tests for rebuild_platypus_population."""
+    rng = np.random.default_rng(42)
+
+    n = 10
+    data = pd.DataFrame(
+        {"a": rng.random(n), "b": 1 + rng.random(n), "c": 2 + rng.random(n)}
+    )
+
+    decision_variables = [
+        RealParameter("a", 0, 1),
+        RealParameter("b", 1, 2),
+    ]
+    objectives = [
+        ScalarOutcome("c", kind=ScalarOutcome.MAXIMIZE),
+    ]
+
+    problem = Problem("uncertainties", decision_variables, objectives)
+
+    population = rebuild_platypus_population(data, problem)
+    assert len(population) == n
+
+    for i, row in data.iterrows():
+        solution = population[i]
+        assert row["a"] == solution.variables[0]
+        assert row["b"] == solution.variables[1]
+        assert row["c"] == solution.objectives[0]
+
+    with pytest.raises(EMAError):
+        decision_variables = [
+            RealParameter("a", 0, 1),
+            RealParameter("b", 1, 2),
+            RealParameter("x", 1, 2),
+        ]
+
+        problem = Problem("uncertainties", decision_variables, objectives)
+        rebuild_platypus_population(data, problem)
+
+    with pytest.raises(EMAError):
+        objectives = [
+            ScalarOutcome("c", kind=ScalarOutcome.MAXIMIZE),
+            ScalarOutcome("d", kind=ScalarOutcome.MAXIMIZE),
+        ]
+
+        problem = Problem("uncertainties", decision_variables, objectives)
+        rebuild_platypus_population(data, problem)
 
 
 # @mock.patch("ema_workbench.em_framework.optimization.platypus")
