@@ -102,7 +102,7 @@ class Problem(PlatypusProblem):
         )
 
         # fixme we can probably get rid of robust
-        #    just flip to robust is reference is an iterable
+        #    just flip to robust if reference is an iterable
         #    handle most value error checks inside optimize and robust_optimize instead of here
         if (searchover == "robust") and (
             (reference == 1) or isinstance(reference, Sample)

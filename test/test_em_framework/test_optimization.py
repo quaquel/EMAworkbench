@@ -490,6 +490,7 @@ def test_rebuild_platypus_population():
         assert row["b"] == solution.variables[1]
         assert row["c"] == solution.objectives[0]
 
+    # 4 columns expected but data only contains 3
     with pytest.raises(EMAError):
         decision_variables = [
             RealParameter("a", 0, 1),
@@ -500,13 +501,26 @@ def test_rebuild_platypus_population():
         problem = Problem("uncertainties", decision_variables, objectives)
         rebuild_platypus_population(data, problem)
 
+    # decision variable in problem but not in data
+    with pytest.raises(EMAError):
+        decision_variables = [
+            RealParameter("a", 0, 1),
+            RealParameter("b", 1, 2),
+            RealParameter("x", 1, 2),
+        ]
+
+        problem = Problem("uncertainties", decision_variables, [])
+        rebuild_platypus_population(data, problem)
+
+    # objective in problem but not in data
     with pytest.raises(EMAError):
         objectives = [
             ScalarOutcome("c", kind=ScalarOutcome.MAXIMIZE),
             ScalarOutcome("d", kind=ScalarOutcome.MAXIMIZE),
+            ScalarOutcome("e", kind=ScalarOutcome.MAXIMIZE),
         ]
 
-        problem = Problem("uncertainties", decision_variables, objectives)
+        problem = Problem("uncertainties", [], objectives)
         rebuild_platypus_population(data, problem)
 
 
