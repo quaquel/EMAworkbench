@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import platypus
 import pytest
+from platypus import AbstractGeneticAlgorithm
 
 from ema_workbench import (
     BooleanParameter,
@@ -16,6 +17,7 @@ from ema_workbench import (
     RealParameter,
     Sample,
     ScalarOutcome,
+    SequentialEvaluator,
 )
 from ema_workbench.em_framework import Category
 from ema_workbench.em_framework.optimization import (
@@ -24,6 +26,7 @@ from ema_workbench.em_framework.optimization import (
     Problem,
     ProgressBarExtension,
     _evaluate_constraints,
+    _optimize,
     epsilon_nondominated,
     evaluate,
     process_jobs,
@@ -593,3 +596,56 @@ def test_combined_variator(mocker):
 
     assert s1.variables[2] == "some value"
     assert s2.variables[2] == "some value"
+
+
+def test_optimize(mocker):
+    """Tests for _optimize."""
+    mocker.patch("ema_workbench.em_framework.optimization.ArchiveStorageExtension", spec=ArchiveStorageExtension)
+
+    algorithm = mocker.Mock(spec=AbstractGeneticAlgorithm)
+    optimizer = mocker.Mock(spec=AbstractGeneticAlgorithm)
+    algorithm.return_value = optimizer
+    type(algorithm.return_value).archive = mocker.PropertyMock(return_value=[])
+
+    decision_variables = [
+        RealParameter("a", 0, 1),
+        IntegerParameter("b", 1, 10),
+        CategoricalParameter("c", [1, 6, "c"]),
+    ]
+    objectives = [
+        ScalarOutcome("c", kind=ScalarOutcome.MAXIMIZE),
+    ]
+    problem = Problem("uncertainties", decision_variables, objectives)
+    nfe = 1000
+    convergence_freq = 100
+    logging_freq = 100
+    evaluator = mocker.Mock(spec=SequentialEvaluator)
+
+    _optimize(problem, evaluator, algorithm, nfe, convergence_freq, logging_freq)
+
+    assert isinstance(algorithm.call_args.kwargs["variator"], CombinedVariator)
+    assert isinstance(algorithm.call_args.kwargs["generator"], platypus.RandomGenerator)
+    assert optimizer.add_extension.call_count == 2
+    assert optimizer.run.call_args.args == (nfe,)
+
+    decision_variables = [
+        RealParameter("a", 0, 1),
+        RealParameter("b", 0, 1),
+        RealParameter("c", 0, 1),
+    ]
+    objectives = [
+        ScalarOutcome("c", kind=ScalarOutcome.MAXIMIZE),
+    ]
+    problem = Problem("uncertainties", decision_variables, objectives)
+    _optimize(problem, evaluator, algorithm, nfe, convergence_freq, logging_freq)
+
+    assert algorithm.call_args.kwargs["variator"] is None
+    assert isinstance(algorithm.call_args.kwargs["generator"], platypus.RandomGenerator)
+
+    with pytest.raises(ValueError):
+        _optimize(problem, evaluator, algorithm, nfe, convergence_freq, logging_freq, epsilons=[0.1, 0.1,])
+
+
+    type(algorithm.return_value).archive = mocker.PropertyMock(return_value=[], side_effect=AttributeError())
+    type(algorithm.return_value).result = mocker.PropertyMock(return_value=[])
+    _optimize(problem, evaluator, algorithm, nfe, convergence_freq, logging_freq)
