@@ -103,7 +103,7 @@ class Problem(PlatypusProblem):
             len(decision_variables), len(objectives), nconstrs=len(constraints)
         )
 
-        # fixme we can probably get rid of robust
+        # fixme we can probably get rid of 'robust'
         #    just flip to robust if reference is an iterable
         #    handle most value error checks inside optimize and robust_optimize instead of here
         if (searchover == "robust") and (
@@ -130,7 +130,7 @@ class Problem(PlatypusProblem):
         self.constraints[:] = "==0"
 
 
-def to_platypus_types(decision_variables):
+def to_platypus_types(decision_variables:Iterable[Parameter]) -> list[platypus.Type]:
     """Helper function for mapping from workbench parameter types to platypus parameter types."""
     # TODO:: should categorical not be platypus.Subset, with size == 1?
     _type_mapping = {
@@ -450,7 +450,7 @@ def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem):
 
     """
     # fixme, might this be easier via Sample._to_platypus_solution?
-    # we can just turn each row into a Sample instance directly and then go to a Solution instance
+    #   we can just turn each row into a Sample instance directly and then go to a Solution instance
     expected_columns = problem.nvars + problem.nobjs
     actual_columns = len(archive.columns)
 
