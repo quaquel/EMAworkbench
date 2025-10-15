@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import platypus
 import pytest
-from platypus import AbstractGeneticAlgorithm
+from platypus import AbstractGeneticAlgorithm, Variator
 
 from ema_workbench import (
     BooleanParameter,
@@ -600,13 +600,20 @@ def test_combined_variator(mocker):
 
 def test_optimize(mocker):
     """Tests for _optimize."""
-    mocker.patch("ema_workbench.em_framework.optimization.ArchiveStorageExtension", spec=ArchiveStorageExtension)
+    mocker.patch(
+        "ema_workbench.em_framework.optimization.ArchiveStorageExtension",
+        spec=ArchiveStorageExtension,
+    )
 
+    # mocking the algorithm
     algorithm = mocker.Mock(spec=AbstractGeneticAlgorithm)
     optimizer = mocker.Mock(spec=AbstractGeneticAlgorithm)
     algorithm.return_value = optimizer
     type(algorithm.return_value).archive = mocker.PropertyMock(return_value=[])
+    type(algorithm.return_value).variator = mocker.PropertyMock(return_value=mocker.Mock(spec=Variator))
+    type(algorithm.return_value).nfe = mocker.PropertyMock(return_value=100)
 
+    # setup a test problem
     decision_variables = [
         RealParameter("a", 0, 1),
         IntegerParameter("b", 1, 10),
@@ -621,11 +628,12 @@ def test_optimize(mocker):
     logging_freq = 100
     evaluator = mocker.Mock(spec=SequentialEvaluator)
 
+    # the actual call
     _optimize(problem, evaluator, algorithm, nfe, convergence_freq, logging_freq)
 
     assert isinstance(algorithm.call_args.kwargs["variator"], CombinedVariator)
     assert isinstance(algorithm.call_args.kwargs["generator"], platypus.RandomGenerator)
-    assert optimizer.add_extension.call_count == 2
+    assert optimizer.add_extension.call_count == 3
     assert optimizer.run.call_args.args == (nfe,)
 
     decision_variables = [
@@ -643,9 +651,35 @@ def test_optimize(mocker):
     assert isinstance(algorithm.call_args.kwargs["generator"], platypus.RandomGenerator)
 
     with pytest.raises(ValueError):
-        _optimize(problem, evaluator, algorithm, nfe, convergence_freq, logging_freq, epsilons=[0.1, 0.1,])
+        _optimize(
+            problem,
+            evaluator,
+            algorithm,
+            nfe,
+            convergence_freq,
+            logging_freq,
+            epsilons=[
+                0.1,
+                0.1,
+            ],
+        )
 
-
-    type(algorithm.return_value).archive = mocker.PropertyMock(return_value=[], side_effect=AttributeError())
+    type(algorithm.return_value).archive = mocker.PropertyMock(
+        return_value=[], side_effect=AttributeError()
+    )
     type(algorithm.return_value).result = mocker.PropertyMock(return_value=[])
     _optimize(problem, evaluator, algorithm, nfe, convergence_freq, logging_freq)
+
+    initial_population = [Sample(a=0.1, b=0.5, c=0.5) for _ in range(100)]
+    _optimize(
+        problem,
+        evaluator,
+        algorithm,
+        nfe,
+        convergence_freq,
+        logging_freq,
+        initial_population=initial_population,
+    )
+    assert isinstance(
+        algorithm.call_args.kwargs["generator"], platypus.InjectedPopulation
+    )

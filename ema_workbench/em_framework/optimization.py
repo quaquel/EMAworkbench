@@ -1,5 +1,6 @@
 """Wrapper around platypus-opt."""
 
+import contextlib
 import copy
 import io
 import os
@@ -368,6 +369,43 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
             f.addfile(tarinfo, stream)
 
 
+class RuntimeConvergenceTracking(platypus.extensions.FixedFrequencyExtension):
+    """Platypus Extension for tracking runtime convergence information.
+
+    This extension tracks runtime information that cannot be retrieved from the archives that are stored. Specifically,
+    it automatically tries to track epsilon progress and the operator probabilities in case of a MultiMethod
+    variator.
+
+    """
+
+    def __init__(
+        self,
+        frequency: int = 1000,
+        by_nfe: bool = True,
+    ):
+        super().__init__(frequency=frequency, by_nfe=by_nfe)
+        self.data = []
+        self.attributes_to_try = ["nfe"]
+
+    def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
+        """Retrieve the runtime convergence information."""
+        runtime_info = {}
+        runtime_info["nfe"] = algorithm.nfe
+
+        with contextlib.suppress(AttributeError):
+            runtime_info["epsilon_progress"] = algorithm.archive.improvements
+
+        variator = algorithm.variator
+        if isinstance(variator, Multimethod):
+            for method, prob in zip(variator.variators, variator.probabilities):
+                runtime_info[method.__class__.__name__] = prob
+
+        self.data.append(runtime_info)
+
+    def to_dataframe(self):
+        return pd.DataFrame(self.data)
+
+
 def epsilon_nondominated(results, epsilons, problem):
     """Merge the list of results into a single set of non dominated results using the provided epsilon values.
 
@@ -609,7 +647,7 @@ def _optimize(
     filename: str | None = None,
     directory: str | None = None,
     **kwargs,
-):
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Helper function for optimization."""
     klass = problem.types[0].__class__
 
@@ -654,8 +692,10 @@ def _optimize(
         by_nfe=True,
     )
     progress_bar = ProgressBarExtension(nfe, frequency=logging_freq)
+    runtime_convergence_info = RuntimeConvergenceTracking(frequency=convergence_freq)
     optimizer.add_extension(storage)
     optimizer.add_extension(progress_bar)
+    optimizer.add_extension(runtime_convergence_info)
 
     with temporary_filter(name=[callbacks.__name__, evaluators.__name__], level=INFO):
         optimizer.run(nfe)
@@ -663,6 +703,9 @@ def _optimize(
     storage.do_action(
         optimizer
     )  # ensure last archive is included in the convergence information
+    runtime_convergence_info.do_action(
+        optimizer
+    )  # ensure the last convergence information is added as well
     progress_bar.progress_tracker.pbar.__exit__(
         None, None, None
     )  # ensure progress bar is closed correctly
@@ -672,11 +715,13 @@ def _optimize(
     except AttributeError:
         data = optimizer.result
 
+    runtime_convergence = runtime_convergence_info.to_dataframe()
+
     results = to_dataframe(data, problem.parameter_names, problem.outcome_names)
 
     _logger.info(f"optimization completed, found {len(data)} solutions")
 
-    return results
+    return results, runtime_convergence
 
 
 class BORGDefaultDescriptor:

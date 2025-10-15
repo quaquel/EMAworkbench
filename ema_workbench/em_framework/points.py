@@ -26,6 +26,7 @@ __all__ = [
     "ExperimentReplication",
     "Sample",
     "SampleCollection",
+    "experiment_generator",
     "from_experiments",
 ]
 _logger = get_module_logger(__name__)

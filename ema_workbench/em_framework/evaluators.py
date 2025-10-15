@@ -11,7 +11,7 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 import platypus
-from platypus import AbstractGeneticAlgorithm, EpsNSGAII
+from platypus import AbstractGeneticAlgorithm, EpsNSGAII, Variator
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
@@ -21,7 +21,6 @@ from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (
     Problem,
-    Variator,
     _optimize,
     evaluate,
     process_jobs,
@@ -224,7 +223,7 @@ class BaseEvaluator(abc.ABC):
         filename: str | None = None,
         directory: str | None = None,
         **kwargs,
-    ):
+    )-> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for outcome optimization.
 
         A call to this method is forwarded to :func:optimize, with evaluator and models
@@ -659,7 +658,7 @@ def optimize(
     filename: str | None = None,
     directory: str | None = None,
     **kwargs,
-):
+)-> tuple[pd.DataFrame, pd.DataFrame]:
     """Optimize the model.
 
     Parameters
@@ -688,7 +687,8 @@ def optimize(
 
     Returns
     -------
-    pandas DataFrame
+    pandas DataFrame with pareto front
+    pandas DataFrame with runtime convergence information
 
     Raises
     ------
