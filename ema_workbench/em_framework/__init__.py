@@ -4,6 +4,7 @@ import warnings
 
 __all__ = [
     "ArrayOutcome",
+    "AutoAdaptiveOutputSpaceExplorationAlgorithm",
     "BooleanParameter",
     "CategoricalParameter",
     "Category",
@@ -26,7 +27,7 @@ __all__ = [
     "MonteCarloSampler",
     "MorrisSampler",
     "MultiprocessingEvaluator",
-    "OutputSpaceExploration",
+    "OutputSpaceExplorationAlgorithm",
     "RealParameter",
     "ReplicatorModel",
     "ReplicatorModel",
@@ -98,6 +99,9 @@ except ImportError:
 
 from .futures_mpi import MPIEvaluator
 from .futures_multiprocessing import MultiprocessingEvaluator
-from .outputspace_exploration import OutputSpaceExploration
+from .outputspace_exploration import (
+    AutoAdaptiveOutputSpaceExplorationAlgorithm,
+    OutputSpaceExplorationAlgorithm,
+)
 
 del warnings

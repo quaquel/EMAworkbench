@@ -264,7 +264,7 @@ class BaseEvaluator(abc.ABC):
         logging_freq: int = 5,
         rng: int | None = None,
         **kwargs,
-    )-> tuple[pd.DataFrame, pd.DataFrame]:
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for robust optimization.
 
         A call to this method is forwarded to :func:robust_optimize, with evaluator and models
@@ -565,83 +565,6 @@ def _setup(
     return samples, parameters, n_samples
 
 
-# def setup_policies(
-#     policies: int | Iterable[Sample] | Sample,
-#     sampler: AbstractSampler | SamplerTypes | None,
-#     lever_sampling_kwargs,
-#     models,
-#     union: bool = True,
-# ):
-#     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
-#     if lever_sampling_kwargs is None:
-#         lever_sampling_kwargs = {}
-#
-#     if not policies:
-#         policies = [Sample("None")]
-#         levers = []
-#         n_policies = 1
-#     elif isinstance(policies, numbers.Integral):
-#         if not isinstance(sampler, AbstractSampler):
-#             sampler = sampler.value
-#         parameters = determine_objects(models, "levers", union=union)
-#         policies = sampler.generate_samples(
-#             parameters, policies, **lever_sampling_kwargs
-#         )
-#         levers = policies.parameters
-#         n_policies = policies.n
-#     else:
-#         try:
-#             levers = policies.parameters
-#             n_policies = policies.n
-#         except AttributeError:
-#             levers = determine_objects(models, "levers", union=True)
-#             if isinstance(policies, Sample):
-#                 policies = [policies]
-#
-#             levers = [l for l in levers if l.name in policies[0]]
-#             n_policies = len(policies)
-#     return policies, levers, n_policies
-#
-#
-# def setup_scenarios(
-#     scenarios: int | Iterable[Sample] | Sample,
-#     sampler: AbstractSampler | SamplerTypes | None,
-#     uncertainty_sampling_kwargs,
-#     models,
-#     union: bool = True,
-# ):
-#     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
-#
-#     if uncertainty_sampling_kwargs is None:
-#         uncertainty_sampling_kwargs = {}
-#
-#     if not scenarios:
-#         scenarios = [Sample("None")]
-#         uncertainties = []
-#         n_scenarios = 1
-#     elif isinstance(scenarios, numbers.Integral):
-#         if not isinstance(sampler, AbstractSampler):
-#             sampler = sampler.value
-#         parameters = determine_objects(models, "uncertainties", union=union)
-#         scenarios = sampler.generate_samples(
-#             parameters, scenarios, **uncertainty_sampling_kwargs
-#         )
-#         uncertainties = scenarios.parameters
-#         n_scenarios = scenarios.n
-#     else:
-#         try:
-#             uncertainties = scenarios.parameters
-#             n_scenarios = scenarios.n
-#         except AttributeError:
-#             uncertainties = determine_objects(models, "uncertainties", union=True)
-#             if isinstance(scenarios, Sample):
-#                 scenarios = [scenarios]
-#
-#             uncertainties = [u for u in uncertainties if u.name in scenarios[0]]
-#             n_scenarios = len(scenarios)
-#     return scenarios, uncertainties, n_scenarios
-
-
 def optimize(
     model: AbstractModel,
     algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
@@ -738,7 +661,7 @@ def robust_optimize(
     logging_freq: int = 5,
     rng: int | None = None,
     **kwargs,
-)-> tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Perform robust optimization.
 
     Parameters

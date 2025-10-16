@@ -398,6 +398,9 @@ class RuntimeConvergenceTracking(platypus.extensions.FixedFrequencyExtension):
         variator = algorithm.variator
         if isinstance(variator, Multimethod):
             for method, prob in zip(variator.variators, variator.probabilities):
+                if isinstance(method, GAOperator):
+                    method = method.variation
+
                 runtime_info[method.__class__.__name__] = prob
 
         self.data.append(runtime_info)
