@@ -223,7 +223,7 @@ class BaseEvaluator(abc.ABC):
         filename: str | None = None,
         directory: str | None = None,
         **kwargs,
-    )-> tuple[pd.DataFrame, pd.DataFrame]:
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for outcome optimization.
 
         A call to this method is forwarded to :func:optimize, with evaluator and models
@@ -264,7 +264,7 @@ class BaseEvaluator(abc.ABC):
         logging_freq: int = 5,
         rng: int | None = None,
         **kwargs,
-    ):
+    )-> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for robust optimization.
 
         A call to this method is forwarded to :func:robust_optimize, with evaluator and models
@@ -658,7 +658,7 @@ def optimize(
     filename: str | None = None,
     directory: str | None = None,
     **kwargs,
-)-> tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Optimize the model.
 
     Parameters
@@ -738,7 +738,7 @@ def robust_optimize(
     logging_freq: int = 5,
     rng: int | None = None,
     **kwargs,
-):
+)-> tuple[pd.DataFrame, pd.DataFrame]:
     """Perform robust optimization.
 
     Parameters
@@ -780,10 +780,10 @@ def robust_optimize(
 
     random.seed(rng)
 
-    # solve the optimization problem
     if not evaluator:
         evaluator = SequentialEvaluator(model)
 
+    # solve the optimization problem
     return _optimize(
         problem,
         evaluator,

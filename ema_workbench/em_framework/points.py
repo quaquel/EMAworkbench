@@ -145,7 +145,7 @@ class ExperimentReplication(NamedDict):
         super().__init__(name, **combine(scenario, policy, constants))
 
 
-class SampleCollection:
+class SampleCollection(Iterable):
     """Collection of sample instances.
 
     A Sample is a point in a parameter space.

@@ -55,7 +55,7 @@ if __name__ == "__main__":
     ]
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        results = evaluator.optimize(
+        results, convergence_info = evaluator.optimize(
             nfe=5000,
             searchover="levers",
             epsilons=[0.125, 0.05, 0.01, 0.01],

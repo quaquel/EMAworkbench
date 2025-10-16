@@ -130,7 +130,7 @@ class Problem(PlatypusProblem):
         self.constraints[:] = "==0"
 
 
-def to_platypus_types(decision_variables:Iterable[Parameter]) -> list[platypus.Type]:
+def to_platypus_types(decision_variables: Iterable[Parameter]) -> list[platypus.Type]:
     """Helper function for mapping from workbench parameter types to platypus parameter types."""
     # TODO:: should categorical not be platypus.Subset, with size == 1?
     _type_mapping = {
@@ -724,21 +724,6 @@ def _optimize(
     return results, runtime_convergence
 
 
-class BORGDefaultDescriptor:
-    """Descriptor used by Borg."""
-
-    # this treats defaults as class level attributes!
-
-    def __init__(self, default_function):
-        self.default_function = default_function
-
-    def __get__(self, instance, owner):
-        return self.default_function(instance.problem.nvars)
-
-    def __set_name__(self, owner, name):
-        self.name = name
-
-
 class GenerationalBorg(NSGAII):
     """A generational implementation of the BORG Framework.
 
@@ -754,7 +739,7 @@ class GenerationalBorg(NSGAII):
 
     """
 
-    pm_p = BORGDefaultDescriptor(lambda x: 1 / x)
+    pm_p = None
     pm_dist = 20
 
     sbx_prop = 1
@@ -763,7 +748,7 @@ class GenerationalBorg(NSGAII):
     de_rate = 0.1
     de_stepsize = 0.5
 
-    um_p = BORGDefaultDescriptor(lambda x: 1 / x)
+    um_p = None
 
     spx_nparents = 10
     spx_noffspring = 2
@@ -789,6 +774,9 @@ class GenerationalBorg(NSGAII):
         **kwargs,
     ):
         """Init."""
+        self.pm_p = 1 / problem.nvars
+        self.um_p = 1 / problem.nvars
+
         # Parameterization taken from
         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed
         variators = [
@@ -831,14 +819,13 @@ class GenerationalBorg(NSGAII):
             UM(probability=self.um_p),
         ]
 
-        variator = Multimethod(self, variators)
+        kwargs["variator"] = Multimethod(self, variators)
         super().__init__(
             problem,
-            population_size,
-            generator,
-            selector,
-            variator,
-            EpsilonBoxArchive(epsilons),
+            population_size=population_size,
+            generator=generator,
+            selector=selector,
+            archive=EpsilonBoxArchive(epsilons),
             **kwargs,
         )
         self.add_extension(platypus.extensions.EpsilonProgressContinuationExtension())

@@ -38,7 +38,6 @@ from platypus import (
 )
 
 from ..util.ema_exceptions import EMAError
-from .optimization import BORGDefaultDescriptor
 
 __all__ = ["AutoAdaptiveOutputSpaceExploration", "OutputSpaceExploration"]
 
@@ -346,7 +345,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
 
     """
 
-    pm_p = BORGDefaultDescriptor(lambda x: 1 / x)
+    pm_p = None
     pm_dist = 20
 
     sbx_prop = 1
@@ -355,7 +354,7 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
     de_rate = 0.1
     de_stepsize = 0.5
 
-    um_p = BORGDefaultDescriptor(lambda x: x / 1)
+    um_p = None
 
     spx_nparents = 10
     spx_noffspring = 2
@@ -381,7 +380,9 @@ class AutoAdaptiveOutputSpaceExploration(AdaptiveTimeContinuation):
         **kwargs,
     ):
         """Init."""
-        self.problem = problem
+        # self.problem = problem
+        self.pm_p = 1 / problem.nvars
+        self.um_p = 1 / problem.nvars
 
         # Parameterization taken from
         # Borg: An Auto-Adaptive MOEA Framework - Hadka, Reed

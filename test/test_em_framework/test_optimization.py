@@ -31,7 +31,7 @@ from ema_workbench.em_framework.optimization import (
     evaluate,
     process_jobs,
     rebuild_platypus_population,
-    to_dataframe,
+    to_dataframe, GenerationalBorg,
 )
 from ema_workbench.em_framework.points import SampleCollection
 from ema_workbench.em_framework.util import ProgressTrackingMixIn
@@ -683,3 +683,17 @@ def test_optimize(mocker):
     assert isinstance(
         algorithm.call_args.kwargs["generator"], platypus.InjectedPopulation
     )
+
+
+    with mocker.patch.object(GenerationalBorg, "run"):
+        _optimize(
+            problem,
+            evaluator,
+            GenerationalBorg,
+            nfe,
+            convergence_freq,
+            logging_freq,
+            epsilons=[
+                0.1,
+            ],
+        )

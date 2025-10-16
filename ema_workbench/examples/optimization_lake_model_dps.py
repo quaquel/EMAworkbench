@@ -23,6 +23,7 @@ from ema_workbench import (
     ema_logging,
 )
 from ema_workbench.em_framework import LHSSampler
+from ema_workbench.em_framework.optimization import GenerationalBorg
 
 # Created on 1 Jun 2017
 #
@@ -74,8 +75,9 @@ if __name__ == "__main__":
     population = LHSSampler().generate_samples(lake_model.levers, 20)
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        results = evaluator.optimize(
+        results, convergence_info = evaluator.optimize(
             searchover="levers",
+            algorithm=GenerationalBorg,
             nfe=10000,
             epsilons=[0.1] * len(lake_model.outcomes),
             reference=reference,
