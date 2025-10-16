@@ -16,7 +16,9 @@ from ema_workbench import (
     ScalarOutcome,
     ema_logging,
 )
-from ema_workbench.em_framework.outputspace_exploration import OutputSpaceExplorationAlgorithm
+from ema_workbench.em_framework.outputspace_exploration import (
+    OutputSpaceExplorationAlgorithm,
+)
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -75,5 +77,5 @@ if __name__ == "__main__":
             reference=reference,
             filename="lake_model_output_space_exploration.tar.gz",
             directory="./data",
-            rng=42
+            rng=42,
         )

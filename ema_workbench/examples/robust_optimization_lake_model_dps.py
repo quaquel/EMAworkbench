@@ -94,7 +94,7 @@ if __name__ == "__main__":
     nfe = 1000
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        results, convergence_info  = evaluator.robust_optimize(
+        results, convergence_info = evaluator.robust_optimize(
             robustness_functions,
             scenarios,
             nfe=nfe,
