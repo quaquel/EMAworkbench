@@ -12,6 +12,8 @@ Software 89, 159-171.
 
 """
 
+import time
+
 from lake_models import lake_problem_dps
 
 from ema_workbench import (
@@ -76,14 +78,21 @@ if __name__ == "__main__":
     population = LHSSampler().generate_samples(lake_model.levers, 20)
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        results, convergence_info = evaluator.optimize(
-            searchover="levers",
-            algorithm=GenerationalBorg,
-            nfe=10000,
-            epsilons=[0.1] * len(lake_model.outcomes),
-            reference=reference,
-            filename="lake_model_dps_archive.tar.gz",
-            directory="./data",
-            rng=42,
-            initial_population=population,
-        )
+        for _ in range(5):
+            seed = time.time()
+            results, convergence_info = evaluator.optimize(
+                searchover="levers",
+                algorithm=GenerationalBorg,
+                nfe=10000,
+                convergence_freq=250,
+                epsilons=[0.1] * len(lake_model.outcomes),
+                reference=reference,
+                filename=f"lake_model_dps_archive_{seed}.tar.gz",
+                directory="./data/convergences",
+                rng=seed,
+                initial_population=population,
+            )
+            results.to_csv(f"./data/convergences/final_archive_{seed}.csv")
+            convergence_info.to_csv(
+                f"./data/convergences/runtime_convergence_info_{seed}.csv"
+            )

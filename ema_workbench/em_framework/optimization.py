@@ -57,6 +57,7 @@ __all__ = [
     "GenerationalBorg",
     "Problem",
     "epsilon_nondominated",
+    "load_archives",
     "rebuild_platypus_population",
 ]
 _logger = get_module_logger(__name__)
@@ -399,7 +400,7 @@ class RuntimeConvergenceTracking(platypus.extensions.FixedFrequencyExtension):
         if isinstance(variator, Multimethod):
             for method, prob in zip(variator.variators, variator.probabilities):
                 if isinstance(method, GAOperator):
-                    method = method.variation
+                    method = method.variation  # noqa: PLW2901
 
                 runtime_info[method.__class__.__name__] = prob
 
@@ -407,6 +408,29 @@ class RuntimeConvergenceTracking(platypus.extensions.FixedFrequencyExtension):
 
     def to_dataframe(self):
         return pd.DataFrame(self.data)
+
+
+def load_archives(path_to_file: str) -> list[tuple[int, pd.DataFrame]]:
+    """Returns a list of stored archives.
+
+    Each entry in the list is a tuple. The first element is the number of
+    nfe, the second is the archive at that number of nfe.
+
+    Parameters
+    ----------
+    path_to_file : the path to the archive
+
+    """
+    with tarfile.open(path_to_file, "r") as archive:
+        content = archive.getnames()
+        archives = []
+        for fn in content:
+            f = archive.extractfile(fn)
+            data = pd.read_csv(f)
+            nfe = int(fn.split(".")[0])
+            archives.append((nfe, data))
+
+    return archives
 
 
 def epsilon_nondominated(results, epsilons, problem):

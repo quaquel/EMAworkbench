@@ -11,7 +11,6 @@ __all__ = [
     "Constant",
     "Constraint",
     "EpsilonIndicatorMetric",
-    "EpsilonProgress",
     "ExperimentReplication",
     "FASTSampler",
     "FileModel",
@@ -28,6 +27,7 @@ __all__ = [
     "MorrisSampler",
     "MultiprocessingEvaluator",
     "OutputSpaceExplorationAlgorithm",
+    "Problem",
     "RealParameter",
     "ReplicatorModel",
     "ReplicatorModel",
@@ -40,6 +40,7 @@ __all__ = [
     "TimeSeriesOutcome",
     "epsilon_nondominated",
     "get_SALib_problem",
+    "load_archives",
     "model",
     "optimize",
     "outcomes",
@@ -59,12 +60,13 @@ from .evaluators import (
 )
 from .model import FileModel, Model, ReplicatorModel
 from .optimization import (
+    Problem,
     epsilon_nondominated,
+    load_archives,
     rebuild_platypus_population,
 )
 from .optimization_convergence import (
     EpsilonIndicatorMetric,
-    EpsilonProgress,
     GenerationalDistanceMetric,
     HypervolumeMetric,
     InvertedGenerationalDistanceMetric,
