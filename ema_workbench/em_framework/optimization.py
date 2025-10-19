@@ -433,7 +433,7 @@ def load_archives(path_to_file: str) -> list[tuple[int, pd.DataFrame]]:
     return archives
 
 
-def epsilon_nondominated(results, epsilons, problem):
+def epsilon_nondominated(results:list[pd.DataFrame], epsilons:list[float], problem:Problem)->pd.DataFrame:
     """Merge the list of results into a single set of non dominated results using the provided epsilon values.
 
     Parameters

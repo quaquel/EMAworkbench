@@ -5,7 +5,7 @@ from platypus import (
     GenerationalDistance,
     Hypervolume,
     InvertedGenerationalDistance,
-    Spacing,
+    Spacing, PlatypusError,
 )
 
 from ..util import get_module_logger
@@ -44,12 +44,15 @@ class MetricWrapper:
     def __init__(self, reference_set, problem, **kwargs):
         reference_set = rebuild_platypus_population(reference_set, problem)
         try:
+            # spacing,
             super().__init__(**kwargs)
+        except PlatypusError:
+            # hypervolume
+            super().__init__(reference_set=reference_set, **kwargs)
         except TypeError:
+            # rest
             super().__init__(reference_set, **kwargs)
         self.problem = problem
-
-        # super().__init__(reference_set=reference_set, **kwargs)
 
     def calculate(self, archive):
         solutions = rebuild_platypus_population(archive, self.problem)
