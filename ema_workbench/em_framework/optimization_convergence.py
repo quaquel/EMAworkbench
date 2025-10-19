@@ -5,7 +5,8 @@ from platypus import (
     GenerationalDistance,
     Hypervolume,
     InvertedGenerationalDistance,
-    Spacing, PlatypusError,
+    PlatypusError,
+    Spacing,
 )
 
 from ..util import get_module_logger
@@ -72,6 +73,7 @@ class HypervolumeMetric(MetricWrapper, Hypervolume):
     workbench.
 
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -95,6 +97,7 @@ class GenerationalDistanceMetric(MetricWrapper, GenerationalDistance):
     for more information
 
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -118,8 +121,10 @@ class InvertedGenerationalDistanceMetric(MetricWrapper, InvertedGenerationalDist
     for more information
 
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
 
 class EpsilonIndicatorMetric(MetricWrapper, EpsilonIndicator):
     """EpsilonIndicator metric.
@@ -135,8 +140,10 @@ class EpsilonIndicatorMetric(MetricWrapper, EpsilonIndicator):
     workbench.
 
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
 
 class SpacingMetric(MetricWrapper, Spacing):
     """Spacing metric.
@@ -151,5 +158,6 @@ class SpacingMetric(MetricWrapper, Spacing):
     workbench.
 
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

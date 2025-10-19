@@ -3,37 +3,22 @@
 import numpy as np
 import pandas as pd
 
-
 from ema_workbench import (
-    HypervolumeMetric,
-    SpacingMetric,
-    GenerationalDistanceMetric,
-    Problem,
-    InvertedGenerationalDistanceMetric,
     EpsilonIndicatorMetric,
+    GenerationalDistanceMetric,
+    HypervolumeMetric,
+    InvertedGenerationalDistanceMetric,
+    Problem,
     RealParameter,
-    ScalarOutcome, epsilon_nondominated,
+    ScalarOutcome,
+    SpacingMetric,
+    epsilon_nondominated,
 )
-from ema_workbench.em_framework.points import SampleCollection
-
-
-# def create_solutions(n, rng):
-#     """Helper function to create a set of solutions"""
-#     parameters =
-#     samples = SampleCollection(rng.random((n, 4)), parameters)
-#
-#
-#
-#     solutions = [sample._to_platypus_solution(problem) for sample in samples]
-#
-#     for solution, value in zip(solutions, rng.random((n, 2))):
-#         solution.objectives[:] = value
-#     return solutions
 
 
 def test_metrics():
     """Test convergence metrics."""
-
+    # fixme currently only ensures it runs, but no further assertions
     rng = np.random.default_rng(42)
 
     problem = Problem(
@@ -44,13 +29,16 @@ def test_metrics():
             ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE),
         ],
     )
+    columns = list("abcdxy")
 
-    solutions = [pd.DataFrame(rng.random((100, 6)), columns=["a", "b", "c", "d", "x", "y"]),
-                 pd.DataFrame(rng.random((100, 6)), columns=["a", "b", "c", "d", "x", "y"]),
-                 pd.DataFrame(rng.random((100, 6)), columns=["a", "b", "c", "d", "x", "y"])]
+    solutions = [
+        pd.DataFrame(rng.random((100, 6)), columns=columns),
+        pd.DataFrame(rng.random((100, 6)), columns=columns),
+        pd.DataFrame(rng.random((100, 6)), columns=columns),
+    ]
     reference_set = epsilon_nondominated(solutions, [0.01, 0.01], problem)
 
-    archive = pd.DataFrame(rng.random((100, 6)), columns=["a", "b", "c", "d", "x", "y"])
+    archive = pd.DataFrame(rng.random((100, 6)), columns=columns)
 
     hv = HypervolumeMetric(reference_set, problem)
     hv.calculate(archive)
@@ -66,4 +54,3 @@ def test_metrics():
 
     ei = EpsilonIndicatorMetric(reference_set, problem)
     ei.calculate(archive)
-
