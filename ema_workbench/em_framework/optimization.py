@@ -133,7 +133,6 @@ class Problem(PlatypusProblem):
 
 def to_platypus_types(decision_variables: Iterable[Parameter]) -> list[platypus.Type]:
     """Helper function for mapping from workbench parameter types to platypus parameter types."""
-    # TODO:: should categorical not be platypus.Subset, with size == 1?
     _type_mapping = {
         RealParameter: platypus.Real,
         IntegerParameter: platypus.Integer,
@@ -433,7 +432,9 @@ def load_archives(path_to_file: str) -> list[tuple[int, pd.DataFrame]]:
     return archives
 
 
-def epsilon_nondominated(results:list[pd.DataFrame], epsilons:list[float], problem:Problem)->pd.DataFrame:
+def epsilon_nondominated(
+    results: list[pd.DataFrame], epsilons: list[float], problem: Problem
+) -> pd.DataFrame:
     """Merge the list of results into a single set of non dominated results using the provided epsilon values.
 
     Parameters

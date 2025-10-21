@@ -1,5 +1,6 @@
 """helper stuff for analyzing converngence of optimization results."""
 
+import pandas as pd
 from platypus import (
     EpsilonIndicator,
     GenerationalDistance,
@@ -10,7 +11,7 @@ from platypus import (
 )
 
 from ..util import get_module_logger
-from .optimization import rebuild_platypus_population
+from .optimization import Problem, rebuild_platypus_population
 
 __all__ = [
     "EpsilonIndicatorMetric",
@@ -42,7 +43,7 @@ class MetricWrapper:
 
     """
 
-    def __init__(self, reference_set, problem, **kwargs):
+    def __init__(self, reference_set: pd.DataFrame, problem: Problem, **kwargs):
         reference_set = rebuild_platypus_population(reference_set, problem)
         try:
             # spacing,
@@ -74,8 +75,8 @@ class HypervolumeMetric(MetricWrapper, Hypervolume):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, reference_set: pd.DataFrame, problem: Problem, *args, **kwargs):
+        super().__init__(reference_set, problem, *args, **kwargs)
 
 
 class GenerationalDistanceMetric(MetricWrapper, GenerationalDistance):
@@ -98,8 +99,8 @@ class GenerationalDistanceMetric(MetricWrapper, GenerationalDistance):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, reference_set: pd.DataFrame, problem: Problem, *args, **kwargs):
+        super().__init__(reference_set, problem, *args, **kwargs)
 
 
 class InvertedGenerationalDistanceMetric(MetricWrapper, InvertedGenerationalDistance):
@@ -122,8 +123,8 @@ class InvertedGenerationalDistanceMetric(MetricWrapper, InvertedGenerationalDist
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, reference_set: pd.DataFrame, problem: Problem, *args, **kwargs):
+        super().__init__(reference_set, problem, *args, **kwargs)
 
 
 class EpsilonIndicatorMetric(MetricWrapper, EpsilonIndicator):
@@ -141,8 +142,8 @@ class EpsilonIndicatorMetric(MetricWrapper, EpsilonIndicator):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, reference_set: pd.DataFrame, problem: Problem, *args, **kwargs):
+        super().__init__(reference_set, problem, *args, **kwargs)
 
 
 class SpacingMetric(MetricWrapper, Spacing):
@@ -159,5 +160,5 @@ class SpacingMetric(MetricWrapper, Spacing):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, reference_set: pd.DataFrame, problem: Problem, *args, **kwargs):
+        super().__init__(reference_set, problem, *args, **kwargs)
