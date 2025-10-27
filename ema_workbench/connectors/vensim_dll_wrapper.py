@@ -221,11 +221,12 @@ def get_info(info_wanted):
     max_buf = ctypes.c_int(int(a))
     vensim.vensim_get_info(info_wanted, buf, max_buf)
 
-    result = repr(buf.raw)
+
+    result = buf.raw.decode()
     result = result.strip()
-    result = result.rstrip(b"'")
-    result = result.lstrip(b"'")
-    result = result.split(r"\x00")
+    result = result.rstrip("'")
+    result = result.lstrip("'")
+    result = result.split("\x00")
     result = result[0:-2]
     return result
 
@@ -309,11 +310,11 @@ def get_varattrib(varname, attribute):
     max_buf = ctypes.c_int(int(bufferlength))
     vensim.vensim_get_varattrib(varname.encode("utf-8"), attribute, buf, max_buf)
 
-    result = repr(buf.raw)
+    result = buf.raw.decode()
     result = result.strip()
-    result = result.rstrip(b"'")
-    result = result.lstrip(b"'")
-    result = result.split(r"\x00")
+    result = result.rstrip("'")
+    result = result.lstrip("'")
+    result = result.split("\x00")
     result = [varname for varname in result if len(varname) != 0]
 
     return result
