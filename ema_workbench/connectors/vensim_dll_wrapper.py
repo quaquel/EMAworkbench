@@ -370,11 +370,11 @@ def get_varnames(filter=b"*", vartype=0):  # @ReservedAssignment
     max_buf = ctypes.c_int(int(a))
     vensim.vensim_get_varnames(filter, vartype, buf, max_buf)
 
-    varnames = repr(buf.raw)
+    varnames = buf.raw.decode()
     varnames = varnames.strip()
-    varnames = varnames.rstrip(b"'")
-    varnames = varnames.lstrip(b"'")
-    varnames = varnames.split(r"\x00")
+    varnames = varnames.rstrip("'")
+    varnames = varnames.lstrip("'")
+    varnames = varnames.split("\x00")
     varnames = [varname for varname in varnames if len(varname) != 0]
 
     return varnames
