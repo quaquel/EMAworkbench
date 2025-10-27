@@ -221,7 +221,6 @@ def get_info(info_wanted):
     max_buf = ctypes.c_int(int(a))
     vensim.vensim_get_info(info_wanted, buf, max_buf)
 
-
     result = buf.raw.decode()
     result = result.strip()
     result = result.rstrip("'")
