@@ -32,7 +32,7 @@ jobs:
 
       - name: Upload package as artifact to GitHub
         if: github.repository == 'quaquel/EMAworkbench'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: package
           path: dist/
