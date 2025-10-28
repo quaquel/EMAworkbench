@@ -3,7 +3,7 @@
 Most importantly, it specifies a generic ModelStructureInterface class
 for controlling vensim models. In addition, this module contains frequently
 used functions with error checking. For more fine grained control, the
-:mod:`vensimDLLwrapper` can also be used directly.
+:mod:`vensim_dll_wrapper` can also be used directly.
 
 """
 
@@ -17,8 +17,8 @@ from ..em_framework.points import Experiment, Sample
 from ..em_framework.util import Variable
 from ..util import EMAWarning, ExperimentError, get_module_logger
 from ..util.ema_logging import method_logger
-from . import vensimDLLwrapper
-from .vensimDLLwrapper import VensimError, VensimWarning, command, get_val
+from . import vensim_dll_wrapper
+from .vensim_dll_wrapper import VensimError, VensimWarning, command, get_val
 
 # Created on 25 mei 2011
 #
@@ -40,9 +40,9 @@ def be_quiet():
     """Turn off the work in progress dialog of Vensim.
 
     Defaults to 2, suppressing all windows, for more fine-grained control, use
-    :mod:`vensimDLLwrapper` directly .
+    :mod:`vensim_dll_wrapper` directly .
     """
-    vensimDLLwrapper.be_quiet(2)
+    vensim_dll_wrapper.be_quiet(2)
 
 
 def load_model(file_name):
@@ -165,7 +165,7 @@ def get_data(filename, varname, step=1):
     """
     vval = []
     try:
-        vval, _ = vensimDLLwrapper.get_data(filename, str(varname))
+        vval, _ = vensim_dll_wrapper.get_data(filename, str(varname))
     except VensimWarning as w:
         _logger.warning(str(w))
 
@@ -220,7 +220,7 @@ class VensimModel(SingleReplication, FileModel):
           separate working directory prior to calling `model_init`.
 
         """
-        if vensimDLLwrapper.vensim_64 is not None:
+        if vensim_dll_wrapper.vensim_64 is not None:
             if not model_file.endswith(".vpmx") and not model_file.endswith(".vpm"):
                 raise ValueError("model file should be a .vpm or .vpmx file")
             self._result_file = "Current.vdfx"
