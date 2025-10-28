@@ -11,6 +11,7 @@ from typing import Literal, overload
 
 import numpy as np
 import pandas as pd
+import platypus
 
 from ..util import get_module_logger
 from .parameters import (
@@ -25,6 +26,7 @@ __all__ = [
     "ExperimentReplication",
     "Sample",
     "SampleCollection",
+    "experiment_generator",
     "from_experiments",
 ]
 _logger = get_module_logger(__name__)
@@ -50,6 +52,33 @@ class Sample(NamedDict):
 
     def __repr__(self):  # noqa D105
         return f"Sample({super().__repr__()})"
+
+    def _to_platypus_solution(
+        self, problem: "Problem"  # noqa: F821
+    ) -> platypus.Solution:
+        """Turn a Sample into a Platypus solution."""
+        solution = platypus.Solution(problem)
+
+        values = []
+        for dtype, parameter in zip(problem.types, problem.decision_variables):
+            value = self[parameter.name]
+            converted_value = dtype.encode(value)
+            values.append(converted_value)
+        solution.variables[:] = values
+
+        return solution
+
+    @classmethod
+    def _from_platypus_solution(cls, solution: platypus.Solution) -> "Sample":
+        """Create a Sample from a Platypus solution."""
+        problem = solution.problem
+        converted_vars = {}
+        for dtype, parameter, value in zip(
+            problem.types, problem.decision_variables, solution.variables
+        ):  # @ReservedAssignment
+            converted_value = dtype.decode(value)
+            converted_vars[parameter.name] = converted_value
+        return Sample(**converted_vars)
 
 
 class Experiment(NamedObject):
@@ -116,7 +145,7 @@ class ExperimentReplication(NamedDict):
         super().__init__(name, **combine(scenario, policy, constants))
 
 
-class SampleCollection:
+class SampleCollection(Iterable):
     """Collection of sample instances.
 
     A Sample is a point in a parameter space.

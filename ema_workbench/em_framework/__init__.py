@@ -3,16 +3,14 @@
 import warnings
 
 __all__ = [
-    "ArchiveLogger",
     "ArrayOutcome",
+    "AutoAdaptiveOutputSpaceExplorationAlgorithm",
     "BooleanParameter",
     "CategoricalParameter",
     "Category",
     "Constant",
     "Constraint",
-    "Convergence",
     "EpsilonIndicatorMetric",
-    "EpsilonProgress",
     "ExperimentReplication",
     "FASTSampler",
     "FileModel",
@@ -28,7 +26,8 @@ __all__ = [
     "MonteCarloSampler",
     "MorrisSampler",
     "MultiprocessingEvaluator",
-    "OutputSpaceExploration",
+    "OutputSpaceExplorationAlgorithm",
+    "Problem",
     "RealParameter",
     "ReplicatorModel",
     "ReplicatorModel",
@@ -41,6 +40,7 @@ __all__ = [
     "TimeSeriesOutcome",
     "epsilon_nondominated",
     "get_SALib_problem",
+    "load_archives",
     "model",
     "optimize",
     "outcomes",
@@ -50,8 +50,6 @@ __all__ = [
     "perform_experiments",
     "rebuild_platypus_population",
     "samplers",
-    "to_problem",
-    "to_robust_problem",
 ]
 
 from .evaluators import (
@@ -62,18 +60,17 @@ from .evaluators import (
 )
 from .model import FileModel, Model, ReplicatorModel
 from .optimization import (
-    ArchiveLogger,
-    Convergence,
+    Problem,
+    epsilon_nondominated,
+    load_archives,
+    rebuild_platypus_population,
+)
+from .optimization_convergence import (
     EpsilonIndicatorMetric,
-    EpsilonProgress,
     GenerationalDistanceMetric,
     HypervolumeMetric,
     InvertedGenerationalDistanceMetric,
     SpacingMetric,
-    epsilon_nondominated,
-    rebuild_platypus_population,
-    to_problem,
-    to_robust_problem,
 )
 from .outcomes import ArrayOutcome, Constraint, ScalarOutcome, TimeSeriesOutcome
 from .parameters import (
@@ -104,6 +101,9 @@ except ImportError:
 
 from .futures_mpi import MPIEvaluator
 from .futures_multiprocessing import MultiprocessingEvaluator
-from .outputspace_exploration import OutputSpaceExploration
+from .outputspace_exploration import (
+    AutoAdaptiveOutputSpaceExplorationAlgorithm,
+    OutputSpaceExplorationAlgorithm,
+)
 
 del warnings

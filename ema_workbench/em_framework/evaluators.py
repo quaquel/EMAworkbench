@@ -10,7 +10,8 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from platypus import Algorithm
+import platypus
+from platypus import AbstractGeneticAlgorithm, EpsNSGAII, Variator
 
 from ema_workbench.em_framework.samplers import AbstractSampler
 
@@ -19,19 +20,12 @@ from .callbacks import AbstractCallback, DefaultCallback
 from .experiment_runner import ExperimentRunner
 from .model import AbstractModel
 from .optimization import (
-    AbstractConvergenceMetric,
-    EpsNSGAII,
-    Variator,
+    Problem,
     _optimize,
     evaluate,
-    evaluate_robust,
-    process_levers,
-    process_robust,
-    process_uncertainties,
-    to_problem,
-    to_robust_problem,
+    process_jobs,
 )
-from .outcomes import AbstractOutcome, Constraint, ScalarOutcome
+from .outcomes import Constraint, Outcome, ScalarOutcome
 from .parameters import Parameter
 from .points import Experiment, Sample, SampleCollection, experiment_generator
 from .salib_samplers import FASTSampler, MorrisSampler, SobolSampler
@@ -135,10 +129,8 @@ class BaseEvaluator(abc.ABC):
     ):
         """Used by ema_workbench."""
 
-    def evaluate_all(self, jobs, **kwargs):
+    def evaluate_all(self, jobs: list[platypus.core.EvaluateSolution], **kwargs):
         """Makes ema_workbench evaluators compatible with platypus evaluators."""
-        self.callback()
-
         try:
             problem = jobs[0].solution.problem
         except IndexError:
@@ -147,17 +139,13 @@ class BaseEvaluator(abc.ABC):
 
         searchover = problem.searchover
 
-        jobs_collection, scenarios, policies = (None,) * 3
+        scenarios, policies = process_jobs(jobs)
+
         match searchover:
-            case "levers":
-                scenarios, policies = process_levers(jobs)
+            case "levers" | "robust":
                 jobs_collection = zip(policies, jobs)
             case "uncertainties":
-                scenarios, policies = process_uncertainties(jobs)
                 jobs_collection = zip(scenarios, jobs)
-            case "robust":
-                scenarios, policies = process_robust(jobs)
-                jobs_collection = zip(policies, jobs)
             case _:
                 raise NotImplementedError()
 
@@ -174,10 +162,7 @@ class BaseEvaluator(abc.ABC):
 
         experiments, outcomes = callback.get_results()
 
-        if searchover in ("levers", "uncertainties"):
-            evaluate(jobs_collection, experiments, outcomes, problem)
-        else:
-            evaluate_robust(jobs_collection, experiments, outcomes, problem)
+        evaluate(jobs_collection, experiments, outcomes, problem)
 
         return jobs
 
@@ -225,7 +210,7 @@ class BaseEvaluator(abc.ABC):
 
     def optimize(
         self,
-        algorithm: type[Algorithm] = EpsNSGAII,
+        algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
         nfe: int = 10000,
         searchover: str = "levers",
         reference: Sample | None = None,
@@ -234,8 +219,11 @@ class BaseEvaluator(abc.ABC):
         logging_freq: int = 5,
         variator: type[Variator] | None = None,
         rng: int | None = None,
+        initial_population: Iterable[Sample] | None = None,
+        filename: str | None = None,
+        directory: str | None = None,
         **kwargs,
-    ):
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for outcome optimization.
 
         A call to this method is forwarded to :func:optimize, with evaluator and models
@@ -260,6 +248,9 @@ class BaseEvaluator(abc.ABC):
             logging_freq=logging_freq,
             variator=variator,
             rng=rng,
+            filename=filename,
+            directory=directory,
+            initial_population=initial_population,
             **kwargs,
         )
 
@@ -267,13 +258,13 @@ class BaseEvaluator(abc.ABC):
         self,
         robustness_functions: list[ScalarOutcome],
         scenarios: int | Iterable[Sample],
-        algorithm: type[Algorithm] = EpsNSGAII,
+        algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
         nfe: int = 10000,
         convergence_freq: int = 1000,
         logging_freq: int = 5,
         rng: int | None = None,
         **kwargs,
-    ):
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for robust optimization.
 
         A call to this method is forwarded to :func:robust_optimize, with evaluator and models
@@ -574,98 +565,23 @@ def _setup(
     return samples, parameters, n_samples
 
 
-# def setup_policies(
-#     policies: int | Iterable[Sample] | Sample,
-#     sampler: AbstractSampler | SamplerTypes | None,
-#     lever_sampling_kwargs,
-#     models,
-#     union: bool = True,
-# ):
-#     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
-#     if lever_sampling_kwargs is None:
-#         lever_sampling_kwargs = {}
-#
-#     if not policies:
-#         policies = [Sample("None")]
-#         levers = []
-#         n_policies = 1
-#     elif isinstance(policies, numbers.Integral):
-#         if not isinstance(sampler, AbstractSampler):
-#             sampler = sampler.value
-#         parameters = determine_objects(models, "levers", union=union)
-#         policies = sampler.generate_samples(
-#             parameters, policies, **lever_sampling_kwargs
-#         )
-#         levers = policies.parameters
-#         n_policies = policies.n
-#     else:
-#         try:
-#             levers = policies.parameters
-#             n_policies = policies.n
-#         except AttributeError:
-#             levers = determine_objects(models, "levers", union=True)
-#             if isinstance(policies, Sample):
-#                 policies = [policies]
-#
-#             levers = [l for l in levers if l.name in policies[0]]
-#             n_policies = len(policies)
-#     return policies, levers, n_policies
-#
-#
-# def setup_scenarios(
-#     scenarios: int | Iterable[Sample] | Sample,
-#     sampler: AbstractSampler | SamplerTypes | None,
-#     uncertainty_sampling_kwargs,
-#     models,
-#     union: bool = True,
-# ):
-#     # todo fix sampler type hints by adding Literal[all fields of sampler enum]
-#
-#     if uncertainty_sampling_kwargs is None:
-#         uncertainty_sampling_kwargs = {}
-#
-#     if not scenarios:
-#         scenarios = [Sample("None")]
-#         uncertainties = []
-#         n_scenarios = 1
-#     elif isinstance(scenarios, numbers.Integral):
-#         if not isinstance(sampler, AbstractSampler):
-#             sampler = sampler.value
-#         parameters = determine_objects(models, "uncertainties", union=union)
-#         scenarios = sampler.generate_samples(
-#             parameters, scenarios, **uncertainty_sampling_kwargs
-#         )
-#         uncertainties = scenarios.parameters
-#         n_scenarios = scenarios.n
-#     else:
-#         try:
-#             uncertainties = scenarios.parameters
-#             n_scenarios = scenarios.n
-#         except AttributeError:
-#             uncertainties = determine_objects(models, "uncertainties", union=True)
-#             if isinstance(scenarios, Sample):
-#                 scenarios = [scenarios]
-#
-#             uncertainties = [u for u in uncertainties if u.name in scenarios[0]]
-#             n_scenarios = len(scenarios)
-#     return scenarios, uncertainties, n_scenarios
-
-
 def optimize(
     model: AbstractModel,
-    algorithm: type[Algorithm] = EpsNSGAII,
+    algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
     nfe: int = 10000,
     searchover: str = "levers",
     evaluator: BaseEvaluator | None = None,
     reference: Sample | None = None,
-    convergence: Iterable[AbstractConvergenceMetric] | None = None,
     constraints: Iterable[Constraint] | None = None,
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     variator: Variator = None,
     rng: int | None = None,
+    initial_population: Iterable[Sample] | None = None,
+    filename: str | None = None,
+    directory: str | None = None,
     **kwargs,
-):
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Optimize the model.
 
     Parameters
@@ -679,7 +595,6 @@ def optimize(
                 overwrite the default scenario in case of searching over
                 levers, or default policy in case of searching over
                 uncertainties
-    convergence : function or collection of functions, optional
     constraints : list, optional
     convergence_freq :  int
                         nfe between convergence check
@@ -695,22 +610,24 @@ def optimize(
 
     Returns
     -------
-    pandas DataFrame
+    pandas DataFrame with pareto front
+    pandas DataFrame with runtime convergence information
 
     Raises
     ------
-    EMAError if searchover is not one of 'uncertainties' or 'levers'
+    ValueError if searchover is not one of 'uncertainties' or 'levers'
 
     """
     if searchover not in ("levers", "uncertainties"):
-        raise EMAError(
+        raise ValueError(
             f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
         )
 
     random.seed(rng)
 
-    problem = to_problem(
-        model, searchover, constraints=constraints, reference=reference
+    decision_variables = model.levers if searchover == "levers" else model.uncertainties
+    problem = Problem(
+        searchover, decision_variables, model.outcomes, constraints, reference=reference
     )
 
     # solve the optimization problem
@@ -721,11 +638,13 @@ def optimize(
         problem,
         evaluator,
         algorithm,
-        convergence,
         nfe,
         convergence_freq,
         logging_freq,
         variator=variator,
+        filename=filename,
+        directory=directory,
+        initial_population=initial_population,
         **kwargs,
     )
 
@@ -735,15 +654,14 @@ def robust_optimize(
     robustness_functions: list[ScalarOutcome],
     scenarios: int | Iterable[Sample],
     evaluator: BaseEvaluator | None = None,
-    algorithm: type[Algorithm] = EpsNSGAII,
+    algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
     nfe: int = 10000,
-    convergence: Iterable[AbstractConvergenceMetric] | None = None,
     constraints: Iterable[Constraint] | None = None,
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     rng: int | None = None,
     **kwargs,
-):
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Perform robust optimization.
 
     Parameters
@@ -754,8 +672,6 @@ def robust_optimize(
     evaluator : Evaluator instance
     algorithm : platypus Algorithm instance
     nfe : int
-    convergence : list
-                  list of convergence metrics
     constraints : list
     convergence_freq :  int
                         nfe between convergence check
@@ -778,27 +694,23 @@ def robust_optimize(
     """
     for rf in robustness_functions:
         assert isinstance(rf, ScalarOutcome)
-        assert rf.kind != AbstractOutcome.INFO
+        assert rf.kind != Outcome.INFO
         assert rf.function is not None
 
-    problem = to_robust_problem(
-        model,
-        scenarios,
-        constraints=constraints,
-        robustness_functions=robustness_functions,
+    problem = Problem(
+        "robust", model.levers, robustness_functions, constraints, reference=scenarios
     )
 
     random.seed(rng)
 
-    # solve the optimization problem
     if not evaluator:
         evaluator = SequentialEvaluator(model)
 
+    # solve the optimization problem
     return _optimize(
         problem,
         evaluator,
         algorithm,
-        convergence,
         int(nfe),
         convergence_freq,
         logging_freq,

@@ -1,7 +1,7 @@
 """An example of performing robust many objective optimization with the workbench.
 
 This example takes the direct policy search formulation of the lake problem as
-found in Quinn et al (2017), but embeds in in a robust optimization.
+found in Quinn et al (2017), but embeds it in a robust optimization.
 
 Quinn, J.D., Reed, P.M., Keller, K. (2017)
 Direct policy search for robust multi-objective management of deeply
@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     # setup and execute the robust optimization
     def signal_to_noise(data):
-        """Signal to Noise calcuation."""
+        """Signal to Noise calculation."""
         mean = np.mean(data)
         std = np.std(data)
         sn = mean / std
@@ -94,10 +94,12 @@ if __name__ == "__main__":
     nfe = 1000
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        evaluator.robust_optimize(
+        results, convergence_info = evaluator.robust_optimize(
             robustness_functions,
             scenarios,
             nfe=nfe,
             epsilons=[0.1] * len(robustness_functions),
             population_size=5,
+            filename="lake_model_robust_archive.tar.gz",
+            directory="./data",
         )

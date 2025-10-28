@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 from ..util import ema_exceptions, get_module_logger
-from .outcomes import AbstractOutcome
+from .outcomes import Outcome
 from .parameters import (
     BooleanParameter,
     CategoricalParameter,
@@ -163,7 +163,7 @@ class DefaultCallback(AbstractCallback):
         self,
         uncertainties: list[Parameter],
         levers: list[Parameter],
-        outcomes: list[AbstractOutcome],
+        outcomes: list[Outcome],
         nr_experiments: int,
         reporting_interval: int = 100,
         reporting_frequency: int = 10,

@@ -16,7 +16,9 @@ from ema_workbench import (
     ScalarOutcome,
     ema_logging,
 )
-from ema_workbench.em_framework.outputspace_exploration import OutputSpaceExploration
+from ema_workbench.em_framework.outputspace_exploration import (
+    OutputSpaceExplorationAlgorithm,
+)
 
 if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -52,7 +54,6 @@ if __name__ == "__main__":
     lake_model.constants = [Constant("alpha", 0.41), Constant("n_samples", 150)]
 
     # generate a reference policy
-    n_scenarios = 1000
     reference = Sample(
         "no_policy", **{l.name: 0.02 for l in lake_model.levers}  # noqa: E741
     )
@@ -63,8 +64,8 @@ if __name__ == "__main__":
     # each tuple is associated with an outcome. It gives the minimum
     # maximum, and epsilon value.
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        res = evaluator.optimize(
-            algorithm=OutputSpaceExploration,
+        res, convergence_info = evaluator.optimize(
+            algorithm=OutputSpaceExplorationAlgorithm,
             grid_spec=[
                 (0, 12, 0.5),
                 (0, 1, 0.05),
@@ -74,4 +75,7 @@ if __name__ == "__main__":
             nfe=1000,
             searchover="uncertainties",
             reference=reference,
+            filename="lake_model_output_space_exploration.tar.gz",
+            directory="./data",
+            rng=42,
         )

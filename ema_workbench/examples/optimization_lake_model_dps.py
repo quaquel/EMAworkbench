@@ -5,27 +5,28 @@ Direct policy search for robust multi-objective management of deeply
 uncertain socio-ecological tipping points. Environmental Modelling &
 Software 92, 125-141.
 
-It also show cases how the workbench can be used to apply the MORDM extension
+It also showcases how the workbench can be used to apply the MORDM extension
 suggested by Watson, A.A., Kasprzyk, J.R. (2017) Incorporating deeply uncertain
 factors into the many objective search process. Environmental Modelling &
 Software 89, 159-171.
 
 """
 
-import numpy as np
+import time
+
 from lake_models import lake_problem_dps
 
 from ema_workbench import (
-    CategoricalParameter,
     Constant,
     Model,
     MultiprocessingEvaluator,
     RealParameter,
+    Sample,
     ScalarOutcome,
-    Scenario,
     ema_logging,
 )
-from ema_workbench.em_framework.optimization import ArchiveLogger, EpsilonProgress
+from ema_workbench.em_framework import LHSSampler
+from ema_workbench.em_framework.optimization import GenerationalBorg
 
 # Created on 1 Jun 2017
 #
@@ -52,7 +53,7 @@ if __name__ == "__main__":
         RealParameter("c2", -2, 2),
         RealParameter("r1", 0, 2),
         RealParameter("r2", 0, 2),
-        CategoricalParameter("w1", np.linspace(0, 1, 10)),
+        RealParameter("w1", 0, 1),
     ]
     # specify outcomes
     lake_model.outcomes = [
@@ -72,23 +73,26 @@ if __name__ == "__main__":
     # reference is optional, but can be used to implement search for
     # various user specified scenarios along the lines suggested by
     # Watson and Kasprzyk (2017)
-    reference = Scenario("reference", b=0.4, q=2, mean=0.02, stdev=0.01)
+    reference = Sample("reference", b=0.4, q=2, mean=0.02, stdev=0.01)
 
-    convergence_metrics = [
-        ArchiveLogger(
-            "./data",
-            [l.name for l in lake_model.levers],  # noqa E741
-            [o.name for o in lake_model.outcomes],
-            base_filename="lake_model_dps_archive.tar.gz",
-        ),
-        EpsilonProgress(),
-    ]
+    population = LHSSampler().generate_samples(lake_model.levers, 20)
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        results, convergence = evaluator.optimize(
-            searchover="levers",
-            nfe=100000,
-            epsilons=[0.1] * len(lake_model.outcomes),
-            reference=reference,
-            convergence=convergence_metrics,
-        )
+        for _ in range(5):
+            seed = time.time()
+            results, convergence_info = evaluator.optimize(
+                searchover="levers",
+                algorithm=GenerationalBorg,
+                nfe=10000,
+                convergence_freq=250,
+                epsilons=[0.1] * len(lake_model.outcomes),
+                reference=reference,
+                filename=f"lake_model_dps_archive_{seed}.tar.gz",
+                directory="./data/convergences",
+                rng=seed,
+                initial_population=population,
+            )
+            results.to_csv(f"./data/convergences/final_archive_{seed}.csv")
+            convergence_info.to_csv(
+                f"./data/convergences/runtime_convergence_info_{seed}.csv"
+            )

@@ -1,3 +1,5 @@
+"""Unit tests for outputspace_exploration.py."""
+
 import pytest
 
 from ema_workbench.em_framework import (
@@ -6,12 +8,13 @@ from ema_workbench.em_framework import (
     ScalarOutcome,
     outputspace_exploration,
 )
-from ema_workbench.em_framework.optimization import to_problem
+from ema_workbench.em_framework.optimization import Problem
 from ema_workbench.util import EMAError
 
 
 def test_novelty(mocker):
-    algorithm = mocker.patch(
+    """Test novelty function."""
+    mocker.patch(
         "ema_workbench.em_framework.outputspace_exploration.HitBox.get_novelty_score",
         return_value=1,
     )
@@ -26,6 +29,7 @@ def test_novelty(mocker):
 
 
 def test_hitbox(mocker):
+    """Test HitBox."""
     grid_spec = [
         (0, 1, 0.1),
         (0, 1, 0.1),
@@ -87,6 +91,7 @@ def test_hitbox(mocker):
 
 
 def test_core_algorithm(mocker):
+    """Test OutputSpaceExplorationAlgorithm."""
     function = mocker.Mock()
     model = Model("A", function)
     model.uncertainties = [
@@ -106,7 +111,8 @@ def test_core_algorithm(mocker):
     def some_callable(vars):
         return min(vars), max(vars)
 
-    problem = to_problem(model, searchover="uncertainties")
+    problem = Problem("uncertainties", model.uncertainties, model.outcomes, [])
+
     problem.function = some_callable
     grid_spec = [
         (0, 1, 0.1),
@@ -145,6 +151,7 @@ def test_core_algorithm(mocker):
 
 
 def test_user_facing_algorithms(mocker):
+    """Test both algorithms."""
     function = mocker.Mock()
     model = Model("A", function)
     model.uncertainties = [
@@ -157,14 +164,14 @@ def test_user_facing_algorithms(mocker):
         ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE),
     ]
 
-    problem = to_problem(model, searchover="uncertainties")
+    problem = Problem("uncertainties", model.uncertainties, model.outcomes, [])
     grid_spec = [
         (0, 1, 0.1),
         (0, 1, 0.1),
     ]
 
-    outputspace_exploration.OutputSpaceExploration(problem, grid_spec=grid_spec)
+    outputspace_exploration.OutputSpaceExplorationAlgorithm(problem, grid_spec=grid_spec)
 
-    outputspace_exploration.AutoAdaptiveOutputSpaceExploration(
+    outputspace_exploration.AutoAdaptiveOutputSpaceExplorationAlgorithm(
         problem, grid_spec=grid_spec
     )
