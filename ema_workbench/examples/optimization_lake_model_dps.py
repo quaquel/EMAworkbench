@@ -84,9 +84,9 @@ if __name__ == "__main__":
         all_results = evaluator.optimize(
             searchover="levers",
             algorithm=GenerationalBorg,
-            nfe=100000,
-            convergence_freq=1000,
-            epsilons=[0.1] * len(lake_model.outcomes),
+            nfe=150000,
+            convergence_freq=5000,
+            epsilons=[0.05] * len(lake_model.outcomes),
             reference=reference,
             filename="lake_model_dps_archive.tar.gz",
             directory="./data/convergences",
