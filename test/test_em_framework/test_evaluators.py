@@ -1,4 +1,4 @@
-""" """
+"""Tests for evaluators.py."""
 
 import numpy as np
 import pytest
@@ -15,6 +15,7 @@ from ema_workbench.em_framework.points import Experiment, SampleCollection
 
 
 def test_sequential_evalutor(mocker):
+    """Test SequentialEvaluator."""
     model = mocker.Mock(spec=ema_workbench.Model)
     model.name = "test"
 
@@ -47,6 +48,8 @@ def test_sequential_evalutor(mocker):
 
 
 def test_perform_experiments(mocker):
+    """Tests for perform_experiments."""
+
     mocked_function = mocker.Mock(return_value={"c": 1})
     model = ema_workbench.Model("test", function=mocked_function)
     model.uncertainties = [RealParameter("a", 0, 1)]
@@ -121,6 +124,8 @@ def test_perform_experiments(mocker):
 
 
 def test_optimize(mocker):
+    """Tests for optimize."""
+
     mocked_function = mocker.Mock(return_value={"d": 1, "e": 1})
     model = ema_workbench.Model("test", function=mocked_function)
     model.uncertainties = [RealParameter("a", 0, 1)]
@@ -145,6 +150,11 @@ def test_optimize(mocker):
     assert mocked_optimize.call_count == 1
 
     mocked_optimize.reset_mock()
+    with evaluators.SequentialEvaluator(model) as evaluator:
+        evaluator.optimize(nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1], rng=[1,2,3])
+    assert mocked_optimize.call_count == 3
+
+    mocked_optimize.reset_mock()
     evaluators.optimize(model, nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1])
     assert mocked_optimize.call_count == 1
 
@@ -157,6 +167,8 @@ def test_optimize(mocker):
 
 
 def test_robust_optimize(mocker):
+    """Tests for robust_optimize."""
+
     mocked_function = mocker.Mock(return_value={"d": 1, "e": 1})
     model = ema_workbench.Model("test", function=mocked_function)
     model.uncertainties = [RealParameter("a", 0, 1)]
@@ -193,8 +205,16 @@ def test_robust_optimize(mocker):
         )
     assert mocked_optimize.call_count == 1
 
+    mocked_optimize.reset_mock()
+    with evaluators.SequentialEvaluator(model) as evaluator:
+        evaluator.robust_optimize(
+            robustness_functions, scenarios=scenarios, nfe=nfe, epsilons=[0.1, 0.1], rng=[1,2,3]
+        )
+    assert mocked_optimize.call_count == 3
+
 
 def test_setup(mocker):
+    """Test for _setup helper function."""
 
     my_model = Model("some_model", function=mocker.Mock(return_value={"d": 1, "e": 1}))
     my_model.uncertainties = [RealParameter("a", 0, 1)]

@@ -63,6 +63,9 @@ __all__ = [
 _logger = get_module_logger(__name__)
 
 
+SeedLike = int | float | str | bytes | bytearray  # seedlike for stdlib random.seed
+
+
 class Problem(PlatypusProblem):
     """Small extension to Platypus problem object.
 
@@ -674,10 +677,13 @@ def _optimize(
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
+    rng: None | SeedLike = None,
     **kwargs,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+):
     """Helper function for optimization."""
     klass = problem.types[0].__class__
+
+    random.seed(rng)
 
     try:
         eps_values = kwargs["epsilons"]

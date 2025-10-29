@@ -12,7 +12,7 @@ Software 89, 159-171.
 
 """
 
-import time
+import random
 
 from lake_models import lake_problem_dps
 
@@ -51,8 +51,8 @@ if __name__ == "__main__":
     lake_model.levers = [
         RealParameter("c1", -2, 2),
         RealParameter("c2", -2, 2),
-        RealParameter("r1", 0, 2),
-        RealParameter("r2", 0, 2),
+        RealParameter("r1", 0.00000001, 2),
+        RealParameter("r2", 0.00000001, 2),
         RealParameter("w1", 0, 1),
     ]
     # specify outcomes
@@ -77,22 +77,25 @@ if __name__ == "__main__":
 
     population = LHSSampler().generate_samples(lake_model.levers, 20)
 
+    random.seed(42)
+    seeds = [random.randint(0, 1000) for _ in range(5)]
+
     with MultiprocessingEvaluator(lake_model) as evaluator:
-        for _ in range(5):
-            seed = time.time()
-            results, convergence_info = evaluator.optimize(
-                searchover="levers",
-                algorithm=GenerationalBorg,
-                nfe=10000,
-                convergence_freq=250,
-                epsilons=[0.1] * len(lake_model.outcomes),
-                reference=reference,
-                filename=f"lake_model_dps_archive_{seed}.tar.gz",
-                directory="./data/convergences",
-                rng=seed,
-                initial_population=population,
-            )
-            results.to_csv(f"./data/convergences/final_archive_{seed}.csv")
-            convergence_info.to_csv(
-                f"./data/convergences/runtime_convergence_info_{seed}.csv"
-            )
+        all_results = evaluator.optimize(
+            searchover="levers",
+            algorithm=GenerationalBorg,
+            nfe=150000,
+            convergence_freq=5000,
+            epsilons=[0.05] * len(lake_model.outcomes),
+            reference=reference,
+            filename="lake_model_dps_archive.tar.gz",
+            directory="./data/convergences",
+            rng=seeds,
+            initial_population=population,
+        )
+
+    for (result, convergence_info), seed in zip(all_results, seeds):
+        result.to_csv(f"./data/convergences/{seed}_final_archive.csv")
+        convergence_info.to_csv(
+            f"./data/convergences/{seed}_runtime_convergence_info.csv"
+        )
