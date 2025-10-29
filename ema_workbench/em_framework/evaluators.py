@@ -6,7 +6,7 @@ import numbers
 import os
 import random
 from collections.abc import Callable, Iterable
-from typing import Literal
+from typing import Literal, overload
 
 import numpy as np
 import pandas as pd
@@ -567,6 +567,46 @@ def _setup(
     return samples, parameters, n_samples
 
 
+@overload
+def optimize(
+    model: AbstractModel,
+    algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
+    nfe: int = 10000,
+    searchover: str = "levers",
+    evaluator: BaseEvaluator | None = None,
+    reference: Sample | None = None,
+    constraints: Iterable[Constraint] | None = None,
+    convergence_freq: int = 1000,
+    logging_freq: int = 5,
+    variator: Variator = None,
+    rng: Iterable[SeedLike] | None = None,
+    initial_population: Iterable[Sample] | None = None,
+    filename: str | None = None,
+    directory: str | None = None,
+    **kwargs,
+) -> list[tuple[pd.DataFrame, pd.DataFrame]]: ...
+
+
+@overload
+def optimize(
+    model: AbstractModel,
+    algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
+    nfe: int = 10000,
+    searchover: str = "levers",
+    evaluator: BaseEvaluator | None = None,
+    reference: Sample | None = None,
+    constraints: Iterable[Constraint] | None = None,
+    convergence_freq: int = 1000,
+    logging_freq: int = 5,
+    variator: Variator = None,
+    rng: SeedLike | None = None,
+    initial_population: Iterable[Sample] | None = None,
+    filename: str | None = None,
+    directory: str | None = None,
+    **kwargs,
+) -> tuple[pd.DataFrame, pd.DataFrame]: ...
+
+
 def optimize(
     model: AbstractModel,
     algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
@@ -583,7 +623,7 @@ def optimize(
     filename: str | None = None,
     directory: str | None = None,
     **kwargs,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+):
     """Optimize the model.
 
     Parameters
@@ -641,20 +681,42 @@ def optimize(
     if not evaluator:
         evaluator = SequentialEvaluator(model)
 
-    return _optimize(
-        problem,
-        evaluator,
-        algorithm,
-        nfe,
-        convergence_freq,
-        logging_freq,
-        variator=variator,
-        filename=filename,
-        directory=directory,
-        initial_population=initial_population,
-        rng=rng,
-        **kwargs,
-    )
+    if isinstance(rng, Iterable):
+        all_results = []
+        for entry in rng:
+            new_filename = f"{entry}_{filename}"
+
+            result = _optimize(
+                problem,
+                evaluator,
+                algorithm,
+                nfe,
+                convergence_freq,
+                logging_freq,
+                variator=variator,
+                initial_population=initial_population,
+                filename=new_filename,
+                directory=directory,
+                rng=entry,
+                **kwargs,
+            )
+            all_results.append(result)
+        return all_results
+    else:
+        return _optimize(
+            problem,
+            evaluator,
+            algorithm,
+            nfe,
+            convergence_freq,
+            logging_freq,
+            variator=variator,
+            filename=filename,
+            directory=directory,
+            initial_population=initial_population,
+            rng=rng,
+            **kwargs,
+        )
 
 
 def robust_optimize(

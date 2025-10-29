@@ -8,7 +8,7 @@ import random
 import tarfile
 import time
 from collections.abc import Iterable
-from typing import Literal, overload
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -666,7 +666,6 @@ class CombinedVariator(Variator):
     }
 
 
-@overload
 def _optimize(
     problem: Problem,
     evaluator: "BaseEvaluator",  # noqa: F821
@@ -680,67 +679,11 @@ def _optimize(
     directory: str | None = None,
     rng: None | SeedLike = None,
     **kwargs,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Helper function for optimization."""
-
-@overload
-def _optimize(
-    problem: Problem,
-    evaluator: "BaseEvaluator",  # noqa: F821
-    algorithm: type[platypus.algorithms.AbstractGeneticAlgorithm],
-    nfe: int,
-    convergence_freq: int,
-    logging_freq: int,
-    variator: Variator = None,
-    initial_population: Iterable[Sample] | None = None,
-    filename: str | None = None,
-    directory: str | None = None,
-    rng: Iterable[SeedLike] = None,
-    **kwargs,
-) -> list[tuple[pd.DataFrame, pd.DataFrame]]:
-    """Helper function for optimization."""
-
-
-def _optimize(
-    problem: Problem,
-    evaluator: "BaseEvaluator",  # noqa: F821
-    algorithm: type[platypus.algorithms.AbstractGeneticAlgorithm],
-    nfe: int,
-    convergence_freq: int,
-    logging_freq: int,
-    variator: Variator = None,
-    initial_population: Iterable[Sample] | None = None,
-    filename: str | None = None,
-    directory: str | None = None,
-    rng: None | SeedLike | Iterable[SeedLike] = None,
-    **kwargs,
 ):
     """Helper function for optimization."""
     klass = problem.types[0].__class__
 
-    if isinstance(rng, Iterable):
-        all_results = []
-        for entry in rng:
-            new_filename = f"{entry}_{filename}"
-
-            result =  _optimize(
-                    problem,
-                    evaluator,
-                    algorithm,
-                    nfe,
-                    convergence_freq,
-                    logging_freq,
-                    variator=variator,
-                    initial_population=initial_population,
-                    filename=new_filename,
-                    directory=directory,
-                    rng=entry,
-                    **kwargs,
-                )
-            all_results.append(result)
-        return all_results
-    else:
-        random.seed(rng)
+    random.seed(rng)
 
     try:
         eps_values = kwargs["epsilons"]

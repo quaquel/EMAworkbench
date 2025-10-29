@@ -51,8 +51,8 @@ if __name__ == "__main__":
     lake_model.levers = [
         RealParameter("c1", -2, 2),
         RealParameter("c2", -2, 2),
-        RealParameter("r1", 0, 2),
-        RealParameter("r2", 0, 2),
+        RealParameter("r1", 0.00000001, 2),
+        RealParameter("r2", 0.00000001, 2),
         RealParameter("w1", 0, 1),
     ]
     # specify outcomes
@@ -78,14 +78,14 @@ if __name__ == "__main__":
     population = LHSSampler().generate_samples(lake_model.levers, 20)
 
     random.seed(42)
-    seeds = [os.urandom(7) for _ in range(5)]
+    seeds = [random.randint(0, 1000) for _ in range(5)]
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         all_results = evaluator.optimize(
             searchover="levers",
             algorithm=GenerationalBorg,
-            nfe=1000,
-            convergence_freq=250,
+            nfe=100000,
+            convergence_freq=1000,
             epsilons=[0.1] * len(lake_model.outcomes),
             reference=reference,
             filename="lake_model_dps_archive.tar.gz",
