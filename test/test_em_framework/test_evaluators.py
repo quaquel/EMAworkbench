@@ -145,6 +145,11 @@ def test_optimize(mocker):
     assert mocked_optimize.call_count == 1
 
     mocked_optimize.reset_mock()
+    with evaluators.SequentialEvaluator(model) as evaluator:
+        evaluator.optimize(nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1], rng=[1,2,3])
+    assert mocked_optimize.call_count == 3
+
+    mocked_optimize.reset_mock()
     evaluators.optimize(model, nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1])
     assert mocked_optimize.call_count == 1
 
