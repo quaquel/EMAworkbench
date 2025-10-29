@@ -677,7 +677,7 @@ def optimize(
     )
 
     # solve the optimization problem
-    if not evaluator:
+    if evaluator is None:
         evaluator = SequentialEvaluator(model)
 
     if isinstance(rng, Iterable):
@@ -800,7 +800,7 @@ def robust_optimize(
         "robust", model.levers, robustness_functions, constraints, reference=scenarios
     )
 
-    if not evaluator:
+    if evaluator is None:
         evaluator = SequentialEvaluator(model)
 
     # solve the optimization problem
