@@ -50,6 +50,8 @@ __all__ = [
 
 _logger = get_module_logger(__name__)
 
+SeedLike = int | float | str | bytes | bytearray  # seedlike for stdlib random.seed
+
 
 class Samplers(enum.Enum):
     """Enum for different kinds of samplers."""
@@ -218,7 +220,7 @@ class BaseEvaluator(abc.ABC):
         convergence_freq: int = 1000,
         logging_freq: int = 5,
         variator: type[Variator] | None = None,
-        rng: int | None = None,
+        rng: SeedLike | Iterable[SeedLike] | None = None,
         initial_population: Iterable[Sample] | None = None,
         filename: str | None = None,
         directory: str | None = None,
@@ -576,7 +578,7 @@ def optimize(
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     variator: Variator = None,
-    rng: int | None = None,
+    rng: SeedLike | Iterable[SeedLike] | None = None,
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
@@ -606,6 +608,13 @@ def optimize(
     rng : seed for initializing the global python random number generator as used by platypus-opt
           because platypus-opt uses the global random number generator, full reproducibility cannot
           be guaranteed in case of threading.
+          If seed is an iterable, the optimization is run for each seed. The seed is added to the filename
+          to ensure separate tarballs for each run of the optimization.
+    initial_population : A collection of samples with which to initialize the optimization algorithm
+    filename : filename for storing intermediate archives/results
+               Every convergence_freq, the archive or results at that moment are added to this file.
+               The file itself will be a tarball.
+    directory : directory in which to store tarball of intermediate archives/results.
     kwargs : any additional arguments will be passed on to algorithm
 
     Returns
@@ -622,8 +631,6 @@ def optimize(
         raise ValueError(
             f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
         )
-
-    random.seed(rng)
 
     decision_variables = model.levers if searchover == "levers" else model.uncertainties
     problem = Problem(
@@ -645,6 +652,7 @@ def optimize(
         filename=filename,
         directory=directory,
         initial_population=initial_population,
+        rng=rng,
         **kwargs,
     )
 
