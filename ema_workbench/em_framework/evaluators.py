@@ -4,7 +4,6 @@ import abc
 import enum
 import numbers
 import os
-import random
 from collections.abc import Callable, Iterable
 from typing import Literal, overload
 
@@ -264,7 +263,7 @@ class BaseEvaluator(abc.ABC):
         nfe: int = 10000,
         convergence_freq: int = 1000,
         logging_freq: int = 5,
-        rng: int | None = None,
+        rng: SeedLike| Iterable[SeedLike] | None = None,
         **kwargs,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for robust optimization.
@@ -283,7 +282,7 @@ class BaseEvaluator(abc.ABC):
             model,
             robustness_functions,
             scenarios,
-            self,
+            evaluator=self,
             algorithm=algorithm,
             nfe=nfe,
             convergence_freq=convergence_freq,
@@ -718,20 +717,61 @@ def optimize(
             **kwargs,
         )
 
+@overload
+def robust_optimize(
+    model: AbstractModel,
+    robustness_functions: list[ScalarOutcome],
+    scenarios: int | Iterable[Sample],
+    algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
+    nfe: int = 10000,
+    evaluator: BaseEvaluator | None = None,
+    constraints: Iterable[Constraint] | None = None,
+    convergence_freq: int = 1000,
+    logging_freq: int = 5,
+    variator: Variator = None,
+    rng: SeedLike | None = None,
+    initial_population: Iterable[Sample] | None = None,
+    filename: str | None = None,
+    directory: str | None = None,
+    **kwargs
+) -> tuple[pd.DataFrame, pd.DataFrame]: ...
+
+@overload
+def robust_optimize(
+    model: AbstractModel,
+    robustness_functions: list[ScalarOutcome],
+    scenarios: int | Iterable[Sample],
+    algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
+    nfe: int = 10000,
+    evaluator: BaseEvaluator | None = None,
+    constraints: Iterable[Constraint] | None = None,
+    convergence_freq: int = 1000,
+    logging_freq: int = 5,
+    variator: Variator = None,
+    rng: Iterable[SeedLike] | None = None,
+    initial_population: Iterable[Sample] | None = None,
+    filename: str | None = None,
+    directory: str | None = None,
+    **kwargs
+) -> tuple[pd.DataFrame, pd.DataFrame]: ...
 
 def robust_optimize(
     model: AbstractModel,
     robustness_functions: list[ScalarOutcome],
     scenarios: int | Iterable[Sample],
-    evaluator: BaseEvaluator | None = None,
     algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
     nfe: int = 10000,
+    evaluator: BaseEvaluator | None = None,
     constraints: Iterable[Constraint] | None = None,
     convergence_freq: int = 1000,
     logging_freq: int = 5,
-    rng: int | None = None,
-    **kwargs,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+    variator: Variator = None,
+    rng: SeedLike | Iterable[SeedLike] | None = None,
+    initial_population: Iterable[Sample] | None = None,
+    filename: str | None = None,
+    directory: str | None = None,
+    **kwargs
+):
     """Perform robust optimization.
 
     Parameters
@@ -739,17 +779,6 @@ def robust_optimize(
     model : model instance
     robustness_functions : collection of ScalarOutcomes
     scenarios : int, or collection
-    evaluator : Evaluator instance
-    algorithm : platypus Algorithm instance
-    nfe : int
-    constraints : list
-    convergence_freq :  int
-                        nfe between convergence check
-    logging_freq : int
-                   number of generations between logging of progress
-    rng : seed for initializing the global python random number generator as used by platypus-opt
-          because platypus-opt uses the global random number generator, full reproducibility cannot
-          be guaranteed in case of threading.
     kwargs : any additional arguments will be passed on to algorithm
 
     Raises
@@ -771,18 +800,43 @@ def robust_optimize(
         "robust", model.levers, robustness_functions, constraints, reference=scenarios
     )
 
-    random.seed(rng)
-
     if not evaluator:
         evaluator = SequentialEvaluator(model)
 
     # solve the optimization problem
-    return _optimize(
-        problem,
-        evaluator,
-        algorithm,
-        int(nfe),
-        convergence_freq,
-        logging_freq,
-        **kwargs,
-    )
+    if isinstance(rng, Iterable):
+        all_results = []
+        for entry in rng:
+            new_filename = f"{entry}_{filename}"
+
+            result = _optimize(
+                problem,
+                evaluator,
+                algorithm,
+                nfe,
+                convergence_freq,
+                logging_freq,
+                variator=variator,
+                initial_population=initial_population,
+                filename=new_filename,
+                directory=directory,
+                rng=entry,
+                **kwargs,
+            )
+            all_results.append(result)
+        return all_results
+    else:
+        return _optimize(
+            problem,
+            evaluator,
+            algorithm,
+            nfe,
+            convergence_freq,
+            logging_freq,
+            variator=variator,
+            filename=filename,
+            directory=directory,
+            initial_population=initial_population,
+            rng=rng,
+            **kwargs,
+        )
