@@ -11,7 +11,7 @@ factors into the many objective search process. Environmental Modelling &
 Software 89, 159-171.
 
 """
-import os
+
 import random
 
 from lake_models import lake_problem_dps
