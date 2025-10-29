@@ -101,9 +101,6 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
     function : callable, optional
                a callable to perform postprocessing on data retrieved
                from model
-    expected_range : 2 tuple, optional
-                     expected min and max value for outcome,
-                     used by HyperVolume convergence metric
     shape : {tuple, None} optional
             must be used in conjunction with dtype. Enables pre-allocation
             of data structure for storing results.
@@ -134,7 +131,6 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
         kind=INFO,
         variable_name=None,
         function=None,
-        expected_range=None,
         shape=None,
         dtype=None,
     ):
@@ -148,8 +144,6 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
                 not all(isinstance(elem, str) for elem in variable_name)
             ):
                 raise ValueError("variable name must be a string or list of strings")
-        if expected_range is not None and len(expected_range) != 2:
-            raise ValueError("expected_range must be a min-max tuple")
         if (shape is not None and dtype is None) or (
             dtype is not None and shape is None
         ):
@@ -168,7 +162,6 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
             self.variable_name = variable_name
 
         self.function = function
-        self._expected_range = expected_range
         self.shape = shape
         self.dtype = dtype
 
@@ -226,7 +219,7 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
         return rep
 
     def __hash__(self):  # noqa: D105
-        items = [self.name, self._variable_name, self._expected_range, self.shape]
+        items = [self.name, self._variable_name, self.shape]
         items = tuple(entry for entry in items if entry is not None)
 
         return hash(items)
@@ -285,9 +278,6 @@ class ScalarOutcome(Outcome):
     function : callable, optional
                a callable to perform post processing on data retrieved
                from model
-    expected_range : collection, optional
-                     expected min and max value for outcome,
-                     used by HyperVolume convergence metric
     dtype : datatype, optional
             Enables pre-allocation of data structure for storing results.
 
@@ -298,22 +288,9 @@ class ScalarOutcome(Outcome):
     variable_name : str
     function : callable
     shape : tuple
-    expected_range : tuple
     dtype : datatype
 
     """
-
-    @property
-    def expected_range(self):  # noqa: D102
-        if self._expected_range is None:
-            raise ValueError(
-                f"No expected_range is set for variable {self.variable_name}"
-            )
-        return self._expected_range
-
-    @expected_range.setter
-    def expected_range(self, expected_range):
-        self._expected_range = expected_range
 
     def __init__(
         self,
@@ -321,7 +298,6 @@ class ScalarOutcome(Outcome):
         kind=Outcome.INFO,
         variable_name=None,
         function=None,
-        expected_range=None,
         dtype=None,
     ):
         """Init."""
@@ -336,7 +312,6 @@ class ScalarOutcome(Outcome):
             dtype=dtype,
             shape=shape,
         )
-        self.expected_range = expected_range
 
     def process(self, values):  # noqa: D102
         values = super().process(values)
@@ -391,9 +366,6 @@ class ArrayOutcome(Outcome):
     function : callable, optional
                a callable to perform postprocessing on data retrieved
                from model
-    expected_range : 2 tuple, optional
-                     expected min and max value for outcome,
-                     used by HyperVolume convergence metric
     shape : {tuple, None} optional
             must be used in conjunction with dtype. Enables pre-allocation
             of data structure for storing results.
@@ -408,7 +380,6 @@ class ArrayOutcome(Outcome):
     variable_name : str
     function : callable
     shape : tuple
-    expected_range : tuple
     dtype : datatype
 
 
@@ -419,7 +390,6 @@ class ArrayOutcome(Outcome):
         name,
         variable_name=None,
         function=None,
-        expected_range=None,
         shape=None,
         dtype=None,
     ):
@@ -428,7 +398,6 @@ class ArrayOutcome(Outcome):
             name,
             variable_name=variable_name,
             function=function,
-            expected_range=expected_range,
             shape=shape,
             dtype=dtype,
         )
@@ -500,9 +469,6 @@ class TimeSeriesOutcome(ArrayOutcome):
     function : callable, optional
                a callable to perform postprocessing on data retrieved
                from model
-    expected_range : 2 tuple, optional
-                     expected min and max value for outcome,
-                     used by HyperVolume convergence metric
     shape : {tuple, None} optional
             must be used in conjunction with dtype. Enables pre-allocation
             of data structure for storing results.
@@ -517,7 +483,6 @@ class TimeSeriesOutcome(ArrayOutcome):
     variable_name : str
     function : callable
     shape : tuple
-    expected_range : tuple
     dtype : datatype
 
     Notes
@@ -533,7 +498,6 @@ class TimeSeriesOutcome(ArrayOutcome):
         name,
         variable_name=None,
         function=None,
-        expected_range=None,
         shape=None,
         dtype=None,
     ):
@@ -542,7 +506,6 @@ class TimeSeriesOutcome(ArrayOutcome):
             name,
             variable_name=variable_name,
             function=function,
-            expected_range=expected_range,
             shape=shape,
             dtype=dtype,
         )

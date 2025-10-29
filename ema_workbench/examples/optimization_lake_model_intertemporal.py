@@ -38,14 +38,11 @@ if __name__ == "__main__":
     ]
 
     # specify outcomes
-    # specify outcomes
     lake_model.outcomes = [
-        ScalarOutcome("max_p", kind=ScalarOutcome.MINIMIZE, expected_range=(0, 5)),
-        ScalarOutcome("utility", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 2)),
-        ScalarOutcome("inertia", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)),
-        ScalarOutcome(
-            "reliability", kind=ScalarOutcome.MAXIMIZE, expected_range=(0, 1)
-        ),
+        ScalarOutcome("max_p", kind=ScalarOutcome.MINIMIZE),
+        ScalarOutcome("utility", kind=ScalarOutcome.MAXIMIZE),
+        ScalarOutcome("inertia", kind=ScalarOutcome.MAXIMIZE),
+        ScalarOutcome("reliability", kind=ScalarOutcome.MAXIMIZE),
     ]
 
     constraints = [
