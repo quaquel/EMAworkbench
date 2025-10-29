@@ -263,7 +263,7 @@ class BaseEvaluator(abc.ABC):
         nfe: int = 10000,
         convergence_freq: int = 1000,
         logging_freq: int = 5,
-        rng: SeedLike| Iterable[SeedLike] | None = None,
+        rng: SeedLike | Iterable[SeedLike] | None = None,
         **kwargs,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for robust optimization.
@@ -672,8 +672,9 @@ def optimize(
         )
 
     decision_variables = model.levers if searchover == "levers" else model.uncertainties
+    objectives = [obj for obj in model.outcomes if obj.kind != obj.INFO]
     problem = Problem(
-        searchover, decision_variables, model.outcomes, constraints, reference=reference
+        searchover, decision_variables, objectives, constraints, reference=reference
     )
 
     # solve the optimization problem
@@ -717,6 +718,7 @@ def optimize(
             **kwargs,
         )
 
+
 @overload
 def robust_optimize(
     model: AbstractModel,
@@ -733,8 +735,9 @@ def robust_optimize(
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
-    **kwargs
+    **kwargs,
 ) -> tuple[pd.DataFrame, pd.DataFrame]: ...
+
 
 @overload
 def robust_optimize(
@@ -752,8 +755,9 @@ def robust_optimize(
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
-    **kwargs
+    **kwargs,
 ) -> tuple[pd.DataFrame, pd.DataFrame]: ...
+
 
 def robust_optimize(
     model: AbstractModel,
@@ -770,7 +774,7 @@ def robust_optimize(
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
-    **kwargs
+    **kwargs,
 ):
     """Perform robust optimization.
 
