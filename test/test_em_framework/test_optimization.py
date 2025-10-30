@@ -23,6 +23,7 @@ from ema_workbench.em_framework import Category
 from ema_workbench.em_framework.optimization import (
     ArchiveStorageExtension,
     CombinedVariator,
+    GenerationalBorg,
     Problem,
     ProgressBarExtension,
     _evaluate_constraints,
@@ -31,7 +32,7 @@ from ema_workbench.em_framework.optimization import (
     evaluate,
     process_jobs,
     rebuild_platypus_population,
-    to_dataframe, GenerationalBorg,
+    to_dataframe,
 )
 from ema_workbench.em_framework.points import SampleCollection
 from ema_workbench.em_framework.util import ProgressTrackingMixIn

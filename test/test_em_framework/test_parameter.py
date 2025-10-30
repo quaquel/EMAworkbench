@@ -194,7 +194,7 @@ class CategoricalParameterTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             par1.index_for_cat("c")
 
-    def test_cat_for_indext(self):
+    def test_cat_for_index(self):
         name = "test"
         values = ("a", "b")
         par1 = parameters.CategoricalParameter(name, values)
@@ -202,7 +202,7 @@ class CategoricalParameterTestCase(unittest.TestCase):
         self.assertEqual(par1.cat_for_index(0).name, "a")
         self.assertEqual(par1.cat_for_index(1).name, "b")
 
-        with self.assertRaises(KeyError):
+        with self.assertRaises(IndexError):
             par1.cat_for_index(3)
 
     def test_from_dist(self):
