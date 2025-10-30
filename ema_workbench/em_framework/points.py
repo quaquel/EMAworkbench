@@ -367,6 +367,7 @@ def experiment_generator(
     combine = {'full_factorial, sample', "cycle"}
               controls how to combine scenarios, policies, and models
               into experiments.
+    rng : a numpy random number generator, or a value to seed a generator.
 
     Notes
     -----

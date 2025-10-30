@@ -2,6 +2,7 @@
 
 import abc
 import numbers
+from typing import Any
 
 import pandas as pd
 import scipy as sp
@@ -42,7 +43,7 @@ class Bound(metaclass=abc.ABCMeta):
     def __set__(self, instance, value):
         instance.__dict__[self.internal_name] = value
 
-    def __set_name__(self, cls, name):
+    def __set_name__(self, cls, name:str):
         self.name = name
         self.internal_name = "_" + name
 
@@ -77,7 +78,9 @@ class Constant(Variable):
 
     """
 
-    def __init__(self, name, value, variable_name=None):
+    def __init__(
+        self, name: str, value: Any, variable_name: str | list[str] | None = None
+    ):
         """Init."""
         super().__init__(name, variable_name=variable_name)
         self.value = value
@@ -89,7 +92,7 @@ class Constant(Variable):
 class Category(NamedObject):
     """Category class."""
 
-    def __init__(self, name, value):
+    def __init__(self, name:str, value:Any):
         """Init."""
         super().__init__(name)
         self.value = value
@@ -161,7 +164,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.uniform = True
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs):
+    def from_dist(cls, name:str, dist, **kwargs):
         """Factory method for creating a Parameter from a scipy distribution.
 
         Alternative constructor for creating a parameter from a frozen
@@ -169,6 +172,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
         Parameters
         ----------
+        name : the name for the parameter
         dist : scipy stats frozen dist
         **kwargs : valid keyword arguments for Parameter instance
 
@@ -247,10 +251,10 @@ class RealParameter(Parameter):
     def __init__(
         self,
         name: str,
-        lower_bound,
-        upper_bound,
+        lower_bound:float,
+        upper_bound:float,
         resolution=None,
-        default=None,
+        default:float|None=None,
         variable_name: str | list[str] | None = None,
     ):
         """Init."""
@@ -268,7 +272,7 @@ class RealParameter(Parameter):
         )  # @UndefinedVariable
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs):  # noqa: D102
+    def from_dist(cls, name:str, dist, **kwargs):  # noqa: D102
         if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
             raise ValueError(
                 f"dist should be instance of rv_continouos, not {dist.dist}"
@@ -311,11 +315,11 @@ class IntegerParameter(Parameter):
     def __init__(
         self,
         name,
-        lower_bound,
-        upper_bound,
+        lower_bound:int,
+        upper_bound:int,
         resolution=None,
-        default=None,
-        variable_name=None,
+        default:int|None=None,
+        variable_name:str|list[str]|None=None,
     ):
         """Init."""
         super().__init__(
@@ -355,7 +359,7 @@ class IntegerParameter(Parameter):
             pass
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs):  # noqa: D102
+    def from_dist(cls, name:str, dist, **kwargs):  # noqa: D102
         if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
             raise ValueError(f"dist should be instance of rv_discrete, not {dist.dist}")
         return super().from_dist(name, dist, **kwargs)
@@ -399,8 +403,8 @@ class CategoricalParameter(IntegerParameter):
         name,
         categories,
         default=None,
-        variable_name=None,
-        multivalue=False,
+        variable_name:str|list[str]|None=None,
+        multivalue:bool=False,
     ):
         """Init."""
         lower_bound = 0
@@ -445,7 +449,7 @@ class CategoricalParameter(IntegerParameter):
                 return i
         raise ValueError(f"Category {category} not found")
 
-    def cat_for_index(self, index):
+    def cat_for_index(self, index:int):
         """Return category given index.
 
         Parameters
@@ -470,7 +474,7 @@ class CategoricalParameter(IntegerParameter):
 
         return representation
 
-    def from_dist(self, name, dist):  # noqa: D102
+    def from_dist(self, name:str, dist, **kwargs):  # noqa: D102
         # TODO:: how to handle this
         # probably need to pass categories as list and zip
         # categories to integers implied by dist
@@ -492,7 +496,7 @@ class BooleanParameter(CategoricalParameter):
 
     """
 
-    def __init__(self, name, default=None, variable_name=None):
+    def __init__(self, name, default:bool|None=None, variable_name:str|list[str]|None=None):
         """Init."""
         super().__init__(
             name,
