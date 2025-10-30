@@ -13,7 +13,7 @@ from collections.abc import Callable
 from ..util import EMAError
 from ..util.ema_logging import get_module_logger, method_logger
 from .outcomes import Outcome
-from .parameters import CategoricalParameter, Constant, Parameter, Variable
+from .parameters import CategoricalParameter, Constant, Parameter, Variable, ParameterMapDescriptor
 from .points import ExperimentReplication, Sample
 from .util import NamedObject, NamedObjectMapDescriptor, combine
 
@@ -80,8 +80,8 @@ class AbstractModel(NamedObject):
 
         return self._output_variables
 
-    uncertainties = NamedObjectMapDescriptor(Parameter)
-    levers = NamedObjectMapDescriptor(Parameter)
+    uncertainties = ParameterMapDescriptor()
+    levers = ParameterMapDescriptor()
     outcomes = NamedObjectMapDescriptor(Outcome)
     constants = NamedObjectMapDescriptor(Constant)
 

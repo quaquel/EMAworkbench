@@ -21,7 +21,7 @@ if __name__ == "__main__":
     ema_logging.log_to_stderr(ema_logging.INFO)
 
     # instantiate the model
-    lake_model = Model("lakeproblem", function=lake_problem_intertemporal)
+    lake_model = Model("lake_problem", function=lake_problem_intertemporal)
     lake_model.time_horizon = 100
 
     # specify uncertainties
@@ -34,9 +34,7 @@ if __name__ == "__main__":
     ]
 
     # set levers, one for each time step
-    lake_model.levers = [
-        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
-    ]
+    lake_model.levers = [RealParameter("decisions", 0, 0.1, shape=(100,)),]
 
     # specify outcomes
     lake_model.outcomes = [

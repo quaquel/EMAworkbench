@@ -6,8 +6,8 @@
 import itertools
 import warnings
 from collections import UserDict
-from collections.abc import MutableMapping, Iterable, KeysView
-from typing import Generic, TypeVar
+from collections.abc import Iterable, KeysView, MutableMapping
+from typing import Generic, TypeVar, Literal
 
 import tqdm
 
@@ -20,6 +20,7 @@ __all__ = [
     "NamedObjectMap",
     "NamedObjectMapDescriptor",
     "ProgressTrackingMixIn",
+    "Variable",
     "combine",
     "determine_objects",
     "representation",
@@ -66,7 +67,12 @@ class Variable(NamedObject):
             name = [name]
         self._variable_name = name
 
-    def __init__(self, name: str, variable_name: str | list[str] | None = None):
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
         if not name.isidentifier():
             warnings.warn(
                 f"'{name}' is not a valid Python identifier. Starting from version 3.0 of the EMAworkbench, names must be valid python identifiers",
@@ -76,6 +82,10 @@ class Variable(NamedObject):
             # raise DeprecationWarning(
 
             # )
+        self._name = name
+
+
+    def __init__(self, name: str, variable_name: str | list[str] | None = None):
         super().__init__(name)
         self.variable_name = variable_name
 
@@ -97,7 +107,7 @@ class NamedObjectMap(MutableMapping, Generic[T]):
         self._data = {}
 
     def copy(self)->"NamedObjecMap":  # noqa: D102
-        copy = NamedObjectMap(self.kind)
+        copy = self.__class__(self.kind)
         copy._data = self._data.copy()
 
         return copy
@@ -172,11 +182,14 @@ class NamedObjectMap(MutableMapping, Generic[T]):
         return self._data.keys()
 
 
+
+
 class NamedObjectMapDescriptor:
     """Descriptor class for named objects."""
 
-    def __init__(self, kind):
+    def __init__(self, kind, map_type_klass=NamedObjectMap):
         self.kind = kind
+        self.map_type_klass = map_type_klass
 
     def __get__(self, instance, owner):  # noqa: D105
         if instance is None:
@@ -184,7 +197,7 @@ class NamedObjectMapDescriptor:
         try:
             return getattr(instance, self.internal_name)
         except AttributeError:
-            mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
+            mapping = self.map_type_klass(self.kind)  # @ReservedAssignment
             setattr(instance, self.internal_name, mapping)
             return mapping
 
@@ -192,7 +205,7 @@ class NamedObjectMapDescriptor:
         try:
             mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
-            mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
+            mapping = self.map_type_klass(self.kind)  # @ReservedAssignment
             setattr(instance, self.internal_name, mapping)
 
         mapping.extend(values)
@@ -200,6 +213,7 @@ class NamedObjectMapDescriptor:
     def __set_name__(self, owner, name):  # noqa: D105
         self.name = name
         self.internal_name = "_" + name
+
 
 
 class NamedDict(UserDict, NamedObject):
@@ -243,7 +257,7 @@ def combine(*args) -> dict:
     return experiment
 
 
-def determine_objects(models, attribute, union=True):
+def determine_objects(models, attribute:Literal["uncertainties", "levers", "outcomes"], union=True):
     """Determine the parameters over which to sample.
 
     Parameters

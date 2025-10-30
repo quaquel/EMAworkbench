@@ -17,7 +17,7 @@ from ..util import get_module_logger
 from .parameters import (
     CategoricalParameter,
     IntegerParameter,
-    Parameter,
+    Parameter, ParameterMap,
 )
 from .util import Counter, NamedDict, NamedObject, combine
 
@@ -162,9 +162,9 @@ class SampleCollection(Iterable):
     def __init__(
         self,
         samples: np.ndarray,
-        parameters: list[Parameter],
+        parameters: ParameterMap,
     ):
-        if samples.shape[1] != len(parameters):
+        if samples.shape[1] != len(parameters.latent_parameters):
             raise ValueError(
                 "the number of columns in samples does not match the number of parameters"
             )

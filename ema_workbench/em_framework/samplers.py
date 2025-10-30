@@ -16,7 +16,7 @@ import scipy.stats.qmc as qmc
 
 from ema_workbench.em_framework.parameters import (
     IntegerParameter,
-    Parameter,
+    Parameter, ParameterMap,
 )
 from ema_workbench.em_framework.points import SampleCollection
 
@@ -48,7 +48,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap,
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -91,7 +91,7 @@ class LHSSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap,
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -122,9 +122,10 @@ class LHSSampler(AbstractSampler):
         numpy array with samples
 
         """
-        lhs = qmc.LatinHypercube(d=len(parameters), rng=rng, **kwargs)
+        latent_parameters = parameters.latent_parameters
+        lhs = qmc.LatinHypercube(d=len(latent_parameters), rng=rng, **kwargs)
         samples = lhs.random(size)
-        samples = self._rescale(parameters, samples)
+        samples = self._rescale(latent_parameters, samples)
         return SampleCollection(samples, parameters)
 
 
@@ -133,7 +134,7 @@ class MonteCarloSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap,
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -155,8 +156,9 @@ class MonteCarloSampler(AbstractSampler):
         There are no additional valid keyword arguments for the Monte Carlo sampler.
 
         """
-        samples = stats.uniform.rvs(size=(size, len(parameters)), random_state=rng)
-        samples = self._rescale(parameters, samples)
+        latent_parameters = parameters.latent_parameters
+        samples = stats.uniform.rvs(size=(size, len(latent_parameters)), random_state=rng)
+        samples = self._rescale(latent_parameters, samples)
         return SampleCollection(samples, parameters)
 
 
@@ -171,7 +173,7 @@ class FullFactorialSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap,
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -193,8 +195,10 @@ class FullFactorialSampler(AbstractSampler):
         There are no additional valid keyword arguments for the Monte Carlo sampler.
 
         """
+        latent_parameters = parameters.latent_parameters
+
         samples = []
-        for param in parameters:
+        for param in latent_parameters:
             cats = param.resolution
             if not cats:
                 cats = np.linspace(param.lower_bound, param.upper_bound, size)

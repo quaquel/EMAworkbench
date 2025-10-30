@@ -12,20 +12,18 @@ __all__ = [
 
 
 def lake_problem_intertemporal(
-    b=0.42,  # decay rate for P in lake (0.42 = irreversible)
-    q=2.0,  # recycling exponent
-    mean=0.02,  # mean of natural inflows
-    stdev=0.001,  # future utility discount rate
-    delta=0.98,  # standard deviation of natural inflows
-    alpha=0.4,  # utility from pollution
-    nsamples=100,  # Monte Carlo sampling of natural inflows
-    rng=42,
-    **kwargs,
+    b:float=0.42,  # decay rate for P in lake (0.42 = irreversible)
+    q:float=2.0,  # recycling exponent
+    mean:float=0.02,  # mean of natural inflows
+    stdev:float=0.001,  # future utility discount rate
+    delta:float=0.98,  # standard deviation of natural inflows
+    alpha:float=0.4,  # utility from pollution
+    nsamples:int=100,  # Monte Carlo sampling of natural inflows
+    rng:int|None=42,
+    decisions:np.ndarray|None=None
 ):
     """Run the intertemporal version of the shallow lake model."""
-    try:
-        decisions = [kwargs[f"l{i}"] for i in range(100)]
-    except KeyError:
+    if decisions is None:
         decisions = [0] * 100
         print("No valid decisions found, using 0 pollution release per year as default")
 
