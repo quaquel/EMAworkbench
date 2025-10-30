@@ -5,7 +5,9 @@
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 import itertools
 import warnings
-from collections import OrderedDict, UserDict
+from collections import UserDict
+from collections.abc import MutableMapping, Iterable, KeysView
+from typing import Generic, TypeVar
 
 import tqdm
 
@@ -22,6 +24,8 @@ __all__ = [
     "determine_objects",
     "representation",
 ]
+
+T = TypeVar("T")
 
 
 class NamedObject:
@@ -76,13 +80,13 @@ class Variable(NamedObject):
         self.variable_name = variable_name
 
 
-class NamedObjectMap:
+class NamedObjectMap(MutableMapping, Generic[T]):
     """A named object mapping class."""
 
-    def __init__(self, kind):
+    def __init__(self, kind:type[T]) -> None:
         super().__init__()
-        self.kind = kind
-        self._data = OrderedDict()
+        self.kind: type[T] = kind
+        self._data : dict[str, T] = {}
 
         if not issubclass(kind, NamedObject):
             raise TypeError(
@@ -90,48 +94,54 @@ class NamedObjectMap:
             )
 
     def clear(self):  # noqa: D102
-        self._data = OrderedDict()
+        self._data = {}
 
-    def copy(self):  # noqa: D102
+    def copy(self)->"NamedObjecMap":  # noqa: D102
         copy = NamedObjectMap(self.kind)
         copy._data = self._data.copy()
 
         return copy
 
-    def __len__(self):  # noqa: D105
+    def __len__(self) -> int:  # noqa: D105
         return len(self._data)
 
-    def __getitem__(self, key):  # noqa: D105
+    def __getitem__(self, key:str|int)->T:  # noqa: D105
         if isinstance(key, int):
-            for i, (_, v) in enumerate(self._data.items()):
-                if i == key:
-                    return v
-            raise KeyError(key)
-        else:
-            return self._data[key]
+            key = list(self._data.keys())[key]
 
-    def __setitem__(self, key, value):  # noqa: D105
+        return self._data[key]
+
+    def __setitem__(self, key:str|int, value:T)->None:  # noqa: D105
         if not isinstance(value, self.kind):
             raise TypeError(
                 f"Can only add {self.kind.__name__} objects, not {type(value)}"
             )
 
         if isinstance(key, int):
-            self._data = OrderedDict(
-                [
-                    (value.name, value) if i == key else (k, v)
-                    for i, (k, v) in enumerate(self._data.items())
-                ]
-            )
+            if len(self._data) < key:
+                # we try to add out of bounds
+                raise IndexError("assignment index out of range")
+            if len(self._data) == key:
+                # we add it at the end
+                self._data[value] = value
+            else:
+                # we replace something
+                self._data = {
+                        value.name: value if i == key else (k, v)
+                        for i, (k, v) in enumerate(self._data.items())
+                }
         else:
             if value.name != key:
-                raise ValueError(
+                raise KeyError(
                     f"Key ({key}) does not match name of {self.kind.__name__}"
                 )
 
             self._data[key] = value
 
-    def __delitem__(self, key):  # noqa: D105
+    def __delitem__(self, key:str|int)->None:  # noqa: D105
+        if isinstance(key, int):
+            key = list(self._data.keys())[key]
+
         del self._data[key]
 
     def __iter__(self):  # noqa: D105
@@ -140,25 +150,25 @@ class NamedObjectMap:
     def __contains__(self, item):  # noqa: D105
         return item in self._data
 
-    def extend(self, value):  # noqa: D102
+    def extend(self, value:T|Iterable[T]):  # noqa: D102
         if isinstance(value, NamedObject):
             self._data[value.name] = value
         elif hasattr(value, "__iter__"):
             for item in value:
                 self._data[item.name] = item
         else:
-            raise TypeError(f"Can only add {type!s} objects")
+            raise TypeError(f"Can only add {self.kind.__name__} objects")
 
-    def __add__(self, value):  # noqa: D105
+    def __add__(self, value:T|Iterable[T]):  # noqa: D105
         data = self.copy()
         data.extend(value)
         return data
 
-    def __iadd__(self, value):  # noqa: D105
+    def __iadd__(self, value:T|Iterable[T]):  # noqa: D105
         self.extend(value)
         return self
 
-    def keys(self):  # noqa: D102
+    def keys(self) -> KeysView[str]:  # noqa: D102
         return self._data.keys()
 
 
