@@ -12,6 +12,7 @@ progress, always call super.
 
 import abc
 import csv
+import math
 import os
 import shutil
 
@@ -26,6 +27,7 @@ from .parameters import (
     IntegerParameter,
     Parameter,
 )
+from .points import flatten_sample
 from .util import ProgressTrackingMixIn
 
 #
@@ -218,7 +220,13 @@ class DefaultCallback(AbstractCallback):
                 dtype = "object"
             elif isinstance(parameter, IntegerParameter):
                 dtype = "int"
-            dtypes.append((parameter.name, dtype))
+
+            if parameter.shape is None:
+                dtypes.append((parameter.name, dtype))
+            else:
+                for i in range(math.prod(parameter.shape)):
+                    name = f"{parameter.name}_{i}"
+                    dtypes.append((name, dtype))
 
         dtypes.extend(
             [
@@ -244,10 +252,18 @@ class DefaultCallback(AbstractCallback):
         policy = experiment.policy
         index = experiment.experiment_id
 
+        combined = scenario | policy
+
+        # self.cases[index] = (
+        #     tuple([scenario[u] for u in self.uncertainties])
+        #     + tuple([policy[l] for l in self.levers])
+        #     + (scenario.name, policy.name, experiment.model_name)
+        # )
         self.cases[index] = (
-            tuple([scenario[u] for u in self.uncertainties])
-            + tuple([policy[l] for l in self.levers])  # noqa: E741
-            + (scenario.name, policy.name, experiment.model_name)
+            *flatten_sample(combined, self.parameters),
+            scenario.name,
+            policy.name,
+            experiment.model_name,
         )
 
     def _store_outcomes(self, case_id, outcomes):

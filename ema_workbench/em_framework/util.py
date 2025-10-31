@@ -3,11 +3,11 @@
 # Created on Jul 16, 2016
 #
 # .. codeauthor::jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
+import copy
 import itertools
 import warnings
-from collections import UserDict
-from collections.abc import Iterable, KeysView, MutableMapping
-from typing import Generic, TypeVar, Literal
+from collections.abc import Iterable, Iterator, KeysView, Mapping, MutableMapping
+from typing import Generic, Literal, TypeVar
 
 import tqdm
 
@@ -32,7 +32,8 @@ T = TypeVar("T")
 class NamedObject:
     """Base object with a name attribute."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, **kwargs):
+        super().__init__(**kwargs)
         self.name: str = name
 
 
@@ -55,7 +56,7 @@ class Variable(NamedObject):
     """Root class for input parameters and outcomes."""
 
     @property
-    def variable_name(self):
+    def variable_name(self):  # noqa: D102
         if self._variable_name is None:
             return [self.name]
         else:
@@ -68,7 +69,7 @@ class Variable(NamedObject):
         self._variable_name = name
 
     @property
-    def name(self):
+    def name(self):  # noqa: D102
         return self._name
 
     @name.setter
@@ -84,7 +85,6 @@ class Variable(NamedObject):
             # )
         self._name = name
 
-
     def __init__(self, name: str, variable_name: str | list[str] | None = None):
         super().__init__(name)
         self.variable_name = variable_name
@@ -93,10 +93,10 @@ class Variable(NamedObject):
 class NamedObjectMap(MutableMapping, Generic[T]):
     """A named object mapping class."""
 
-    def __init__(self, kind:type[T]) -> None:
+    def __init__(self, kind: type[T]) -> None:
         super().__init__()
         self.kind: type[T] = kind
-        self._data : dict[str, T] = {}
+        self._data: dict[str, T] = {}
 
         if not issubclass(kind, NamedObject):
             raise TypeError(
@@ -106,7 +106,7 @@ class NamedObjectMap(MutableMapping, Generic[T]):
     def clear(self):  # noqa: D102
         self._data = {}
 
-    def copy(self)->"NamedObjecMap":  # noqa: D102
+    def copy(self):  # noqa: D102
         copy = self.__class__(self.kind)
         copy._data = self._data.copy()
 
@@ -115,13 +115,13 @@ class NamedObjectMap(MutableMapping, Generic[T]):
     def __len__(self) -> int:  # noqa: D105
         return len(self._data)
 
-    def __getitem__(self, key:str|int)->T:  # noqa: D105
+    def __getitem__(self, key: str | int) -> T:  # noqa: D105
         if isinstance(key, int):
             key = list(self._data.keys())[key]
 
         return self._data[key]
 
-    def __setitem__(self, key:str|int, value:T)->None:  # noqa: D105
+    def __setitem__(self, key: str | int, value: T) -> None:  # noqa: D105
         if not isinstance(value, self.kind):
             raise TypeError(
                 f"Can only add {self.kind.__name__} objects, not {type(value)}"
@@ -137,8 +137,8 @@ class NamedObjectMap(MutableMapping, Generic[T]):
             else:
                 # we replace something
                 self._data = {
-                        value.name: value if i == key else (k, v)
-                        for i, (k, v) in enumerate(self._data.items())
+                    value.name: value if i == key else (k, v)  # noqa: B035
+                    for i, (k, v) in enumerate(self._data.items())
                 }
         else:
             if value.name != key:
@@ -148,7 +148,7 @@ class NamedObjectMap(MutableMapping, Generic[T]):
 
             self._data[key] = value
 
-    def __delitem__(self, key:str|int)->None:  # noqa: D105
+    def __delitem__(self, key: str | int) -> None:  # noqa: D105
         if isinstance(key, int):
             key = list(self._data.keys())[key]
 
@@ -160,7 +160,7 @@ class NamedObjectMap(MutableMapping, Generic[T]):
     def __contains__(self, item):  # noqa: D105
         return item in self._data
 
-    def extend(self, value:T|Iterable[T]):  # noqa: D102
+    def extend(self, value: T | Iterable[T]):  # noqa: D102
         if isinstance(value, NamedObject):
             self._data[value.name] = value
         elif hasattr(value, "__iter__"):
@@ -169,19 +169,17 @@ class NamedObjectMap(MutableMapping, Generic[T]):
         else:
             raise TypeError(f"Can only add {self.kind.__name__} objects")
 
-    def __add__(self, value:T|Iterable[T]):  # noqa: D105
+    def __add__(self, value: T | Iterable[T]):  # noqa: D105
         data = self.copy()
         data.extend(value)
         return data
 
-    def __iadd__(self, value:T|Iterable[T]):  # noqa: D105
+    def __iadd__(self, value: T | Iterable[T]):  # noqa: D105
         self.extend(value)
         return self
 
     def keys(self) -> KeysView[str]:  # noqa: D102
         return self._data.keys()
-
-
 
 
 class NamedObjectMapDescriptor:
@@ -215,17 +213,47 @@ class NamedObjectMapDescriptor:
         self.internal_name = "_" + name
 
 
-
-class NamedDict(UserDict, NamedObject):
+class NamedDict(MutableMapping, NamedObject):
     """Named dictionary class."""
 
     def __init__(self, name=representation, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(name)
+        self._data = {**kwargs}
         if name is None:
             raise ValueError()
         elif callable(name):
             name = name(self)
         self.name = name
+
+    def copy(self):
+        """Return a shallow copy of this object."""
+        return copy.copy(self)
+
+    def __getitem__(self, key) -> T:  # noqa: D105
+        return self._data[key]
+
+    def __setitem__(self, key, value):  # noqa: D105
+        self._data[key] = value
+
+    def __delitem__(self, key):  # noqa: D105
+        del self._data[key]
+
+    def __iter__(self) -> Iterator[T]:  # noqa: D105
+        return iter(self._data)
+
+    def __len__(self) -> int:  # noqa: D105
+        return len(self._data)
+
+    def __or__(self, other):  # noqa: D105
+        if not isinstance(other, Mapping | dict):
+            raise NotImplementedError
+        new = self.copy()
+        new.update(other)
+        return new
+
+    def __ior__(self, other):  # noqa: D105
+        self.update(other)
+        return self
 
 
 def combine(*args) -> dict:
@@ -257,7 +285,9 @@ def combine(*args) -> dict:
     return experiment
 
 
-def determine_objects(models, attribute:Literal["uncertainties", "levers", "outcomes"], union=True):
+def determine_objects(
+    models, attribute: Literal["uncertainties", "levers", "outcomes"], union=True
+):
     """Determine the parameters over which to sample.
 
     Parameters

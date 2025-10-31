@@ -16,7 +16,8 @@ import scipy.stats.qmc as qmc
 
 from ema_workbench.em_framework.parameters import (
     IntegerParameter,
-    Parameter, ParameterMap,
+    Parameter,
+    ParameterMap,
 )
 from ema_workbench.em_framework.points import SampleCollection
 
@@ -157,7 +158,9 @@ class MonteCarloSampler(AbstractSampler):
 
         """
         latent_parameters = parameters.latent_parameters
-        samples = stats.uniform.rvs(size=(size, len(latent_parameters)), random_state=rng)
+        samples = stats.uniform.rvs(
+            size=(size, len(latent_parameters)), random_state=rng
+        )
         samples = self._rescale(latent_parameters, samples)
         return SampleCollection(samples, parameters)
 

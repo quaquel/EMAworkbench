@@ -13,7 +13,12 @@ from collections.abc import Callable
 from ..util import EMAError
 from ..util.ema_logging import get_module_logger, method_logger
 from .outcomes import Outcome
-from .parameters import CategoricalParameter, Constant, Parameter, Variable, ParameterMapDescriptor
+from .parameters import (
+    CategoricalParameter,
+    Constant,
+    ParameterMapDescriptor,
+    Variable,
+)
 from .points import ExperimentReplication, Sample
 from .util import NamedObject, NamedObjectMapDescriptor, combine
 

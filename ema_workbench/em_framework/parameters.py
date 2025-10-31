@@ -152,7 +152,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         name: str,
         lower_bound,
         upper_bound,
-        shape:tuple[int]=None,
+        shape: tuple[int] | None = None,
         resolution=None,
         default=None,
         variable_name: str | list[str] | None = None,
@@ -190,7 +190,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.resolution = None
         self.variable_name = None
         self.uniform = False
-        self.shape=None
+        self.shape = None
 
         for k, v in kwargs.items():
             if k in {"default", "resolution", "variable_name", "shape"}:
@@ -259,7 +259,7 @@ class RealParameter(Parameter):
         name: str,
         lower_bound: float,
         upper_bound: float,
-        shape: tuple[int] = None,
+        shape: tuple[int] | None = None,
         resolution=None,
         default: float | None = None,
         variable_name: str | list[str] | None = None,
@@ -325,7 +325,7 @@ class IntegerParameter(Parameter):
         name,
         lower_bound: int,
         upper_bound: int,
-        shape: tuple = None,
+        shape: tuple[int] | None = None,
         resolution=None,
         default: int | None = None,
         variable_name: str | list[str] | None = None,
@@ -413,7 +413,7 @@ class CategoricalParameter(IntegerParameter):
         self,
         name,
         categories,
-        shape: tuple = None,
+        shape: tuple[int] | None = None,
         default=None,
         variable_name: str | list[str] | None = None,
         multivalue: bool = False,
@@ -513,7 +513,7 @@ class BooleanParameter(CategoricalParameter):
     def __init__(
         self,
         name,
-        shape=None,
+        shape: tuple[int] | None = None,
         default: bool | None = None,
         variable_name: str | list[str] | None = None,
     ):
@@ -691,7 +691,7 @@ class ParameterMap(NamedObjectMap):
                     latent_parameter = parameter.__new__(parameter.__class__)
                     for k, v in parameter.__dict__.items():
                         if k == "_name":
-                            v = f"{v}_0"
+                            v = f"{v}_{i}"  # noqa: PLW2901
                         setattr(latent_parameter, k, v)
                     parameters.append(latent_parameter)
         return parameters

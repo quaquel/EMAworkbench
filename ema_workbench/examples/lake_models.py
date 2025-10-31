@@ -12,15 +12,15 @@ __all__ = [
 
 
 def lake_problem_intertemporal(
-    b:float=0.42,  # decay rate for P in lake (0.42 = irreversible)
-    q:float=2.0,  # recycling exponent
-    mean:float=0.02,  # mean of natural inflows
-    stdev:float=0.001,  # future utility discount rate
-    delta:float=0.98,  # standard deviation of natural inflows
-    alpha:float=0.4,  # utility from pollution
-    nsamples:int=100,  # Monte Carlo sampling of natural inflows
-    rng:int|None=42,
-    decisions:np.ndarray|None=None
+    b: float = 0.42,  # decay rate for P in lake (0.42 = irreversible)
+    q: float = 2.0,  # recycling exponent
+    mean: float = 0.02,  # mean of natural inflows
+    stdev: float = 0.001,  # future utility discount rate
+    delta: float = 0.98,  # standard deviation of natural inflows
+    alpha: float = 0.4,  # utility from pollution
+    n_samples: int = 100,  # Monte Carlo sampling of natural inflows
+    rng: int | None = 42,
+    decisions: np.ndarray | None = None,
 ):
     """Run the intertemporal version of the shallow lake model."""
     if decisions is None:
@@ -39,11 +39,11 @@ def lake_problem_intertemporal(
     natural_inflows = rng.lognormal(
         mean=math.log(mean**2 / math.sqrt(stdev**2 + mean**2)),
         sigma=math.sqrt(math.log(1.0 + stdev**2 / mean**2)),
-        size=(nsamples, nvars),
+        size=(n_samples, nvars),
     )
 
     # Initialize the pollution level matrix X
-    X = np.zeros((nsamples, nvars))  # noqa: N806
+    X = np.zeros((n_samples, nvars))  # noqa: N806
 
     # Loop through time to compute the pollution levels
     for t in range(1, nvars):
@@ -58,7 +58,7 @@ def lake_problem_intertemporal(
     average_daily_p = np.mean(X, axis=0)
 
     # Calculate the reliability (probability of the pollution level being below Pcrit)
-    reliability = np.sum(p_crit > X) / float(nsamples * nvars)
+    reliability = np.sum(p_crit > X) / float(n_samples * nvars)
 
     # Calculate the maximum pollution level (max_P)
     max_p = np.max(average_daily_p)

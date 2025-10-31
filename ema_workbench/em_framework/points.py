@@ -17,7 +17,8 @@ from ..util import get_module_logger
 from .parameters import (
     CategoricalParameter,
     IntegerParameter,
-    Parameter, ParameterMap,
+    Parameter,
+    ParameterMap,
 )
 from .util import Counter, NamedDict, NamedObject, combine
 
@@ -335,16 +336,23 @@ def sample_generator(
     """
     for sample in samples:
         design_dict = {}
-        for param, value in zip(params, sample):
+        offset = 0
+
+        for param in params:
+            length = 1 if param.shape is None else math.prod(param.shape)
+            value = sample[offset : offset + length]
+            offset += length
+
             if isinstance(param, IntegerParameter):
-                value = int(value)  # noqa: PLW2901
+                value = value.astype(int)
             if isinstance(param, CategoricalParameter):
                 # categorical parameter is an integer parameter, so
                 # conversion to int is already done
                 # boolean is a subclass of categorical with False and True as categories, so this is handled
                 # via this route as well
-                value = param.cat_for_index(value).value  # noqa: PLW2901
+                value = [param.cat_for_index(entry).value for entry in value]
 
+            value = value[0] if param.shape is None else value
             design_dict[param.name] = value
 
         yield Sample(**design_dict)
@@ -460,3 +468,17 @@ def from_experiments(
         samples.append(Sample(**record))
 
     return samples
+
+
+def flatten_sample(sample: Sample, parameters: Iterable[Parameter]) -> tuple:
+    """Returns a flattened tuple of the sample."""
+    values = []
+    for parameter in parameters:
+        value = sample[parameter.name]
+
+        if parameter.shape is not None:
+            value = value.flatten().tolist()
+            values.extend(value)
+        else:
+            values.append(value)
+    return tuple(values)
