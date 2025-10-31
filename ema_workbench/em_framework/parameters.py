@@ -9,7 +9,7 @@ import pandas as pd
 import scipy as sp
 
 from ..util import get_module_logger
-from .util import NamedObject, NamedObjectMap, NamedObjectMapDescriptor, Variable
+from .util import NamedObject, NamedObjectMap, Variable
 
 # Created on Jul 14, 2016
 #
@@ -679,6 +679,9 @@ def parameters_from_csv(uncertainties, **kwargs):
 class ParameterMap(NamedObjectMap):
     """A NamedObjectMap specifically for parameters."""
 
+    def __init__(self) -> None:
+        super().__init__(Parameter)
+
     @property
     def latent_parameters(self) -> list[Parameter]:
         """Return the latent parameters."""
@@ -696,9 +699,35 @@ class ParameterMap(NamedObjectMap):
                     parameters.append(latent_parameter)
         return parameters
 
+    def copy(self):
+        copy = self.__class__()
+        copy._data = self._data.copy()
 
-class ParameterMapDescriptor(NamedObjectMapDescriptor):
+        return copy
+
+
+class ParameterMapDescriptor:
     """A NamedObjectMapDescriptor specifically for parameters."""
 
-    def __init__(self):
-        super().__init__(Parameter, map_type_klass=ParameterMap)
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        try:
+            return getattr(instance, self.internal_name)
+        except AttributeError:
+            mapping = ParameterMap()  # @ReservedAssignment
+            setattr(instance, self.internal_name, mapping)
+            return mapping
+
+    def __set__(self, instance, values):
+        try:
+            mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
+        except AttributeError:
+            mapping = ParameterMap() # @ReservedAssignment
+            setattr(instance, self.internal_name, mapping)
+
+        mapping.extend(values)
+
+    def __set_name__(self, owner, name):
+        self.name = name
+        self.internal_name = "_" + name

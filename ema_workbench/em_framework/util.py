@@ -185,9 +185,8 @@ class NamedObjectMap(MutableMapping, Generic[T]):
 class NamedObjectMapDescriptor:
     """Descriptor class for named objects."""
 
-    def __init__(self, kind, map_type_klass=NamedObjectMap):
+    def __init__(self, kind):
         self.kind = kind
-        self.map_type_klass = map_type_klass
 
     def __get__(self, instance, owner):  # noqa: D105
         if instance is None:
@@ -195,7 +194,7 @@ class NamedObjectMapDescriptor:
         try:
             return getattr(instance, self.internal_name)
         except AttributeError:
-            mapping = self.map_type_klass(self.kind)  # @ReservedAssignment
+            mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
             setattr(instance, self.internal_name, mapping)
             return mapping
 
@@ -203,7 +202,7 @@ class NamedObjectMapDescriptor:
         try:
             mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
-            mapping = self.map_type_klass(self.kind)  # @ReservedAssignment
+            mapping = NamedObjectMap(self.kind)  # @ReservedAssignment
             setattr(instance, self.internal_name, mapping)
 
         mapping.extend(values)
@@ -218,7 +217,7 @@ class NamedDict(MutableMapping, NamedObject):
 
     def __init__(self, name=representation, **kwargs):
         super().__init__(name)
-        self._data = {**kwargs}
+        self.data = {**kwargs}
         if name is None:
             raise ValueError()
         elif callable(name):
@@ -230,19 +229,19 @@ class NamedDict(MutableMapping, NamedObject):
         return copy.copy(self)
 
     def __getitem__(self, key) -> T:  # noqa: D105
-        return self._data[key]
+        return self.data[key]
 
     def __setitem__(self, key, value):  # noqa: D105
-        self._data[key] = value
+        self.data[key] = value
 
     def __delitem__(self, key):  # noqa: D105
-        del self._data[key]
+        del self.data[key]
 
     def __iter__(self) -> Iterator[T]:  # noqa: D105
-        return iter(self._data)
+        return iter(self.data)
 
     def __len__(self) -> int:  # noqa: D105
-        return len(self._data)
+        return len(self.data)
 
     def __or__(self, other):  # noqa: D105
         if not isinstance(other, Mapping | dict):
@@ -255,6 +254,8 @@ class NamedDict(MutableMapping, NamedObject):
         self.update(other)
         return self
 
+    def __repr__(self):  # noqa: D105
+        return repr(self.data)
 
 def combine(*args) -> dict:
     """Combine scenario and policy into a single experiment dict.

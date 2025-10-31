@@ -14,7 +14,7 @@ class RealParameterTestCase(unittest.TestCase):
         resolution = [0, 1, 2]
         lower_bound = 0
         upper_bound = 2.1
-        par = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+        par = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
 
         self.assertEqual(par.name, name)
         self.assertEqual(par.resolution, resolution)
@@ -27,30 +27,30 @@ class RealParameterTestCase(unittest.TestCase):
         upper_bound = 0
 
         with self.assertRaises(ValueError):
-            par = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+            par = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
 
         with self.assertRaises(ValueError):
             resolution = [-1, 0]
-            par = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+            par = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
 
             resolution = [0, 1, 3]
-            par = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+            par = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
 
     def test_comparison(self):
         name = "test"
         resolution = [0, 1, 2]
         lower_bound = 0
         upper_bound = 2.0
-        par1 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
-        par2 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+        par1 = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
+        par2 = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
 
         self.assertTrue(par1 == par2)
 
         name = "test"
-        par1 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+        par1 = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
 
         name = "what"
-        par2 = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+        par2 = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
         self.assertFalse(par1 == par2)
 
     def test_dist(self):
@@ -58,7 +58,7 @@ class RealParameterTestCase(unittest.TestCase):
         resolution = [0, 1, 2]
         lower_bound = 0
         upper_bound = 2.1
-        par = parameters.RealParameter(name, lower_bound, upper_bound, resolution)
+        par = parameters.RealParameter(name, lower_bound, upper_bound, resolution=resolution)
 
         self.assertEqual(par.dist.dist.name, "uniform")
         self.assertEqual(par.lower_bound, lower_bound)
@@ -94,7 +94,7 @@ class IntegerParameterTestCase(unittest.TestCase):
         resolution = [0, 1, 2]
         lower_bound = 0
         upper_bound = 2
-        par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution)
+        par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution=resolution)
 
         self.assertEqual(par.name, name)
         self.assertEqual(par.resolution, resolution)
@@ -108,28 +108,28 @@ class IntegerParameterTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
+                name, lower_bound, upper_bound, resolution=resolution
             )
 
         with self.assertRaises(ValueError):
             resolution = [-1, 0]
             par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
+                name, lower_bound, upper_bound, resolution=resolution
             )
 
             resolution = [0, 1, 3]
             par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, resolution
+                name, lower_bound, upper_bound, resolution=resolution
             )
 
         with self.assertRaises(ValueError):
-            par = parameters.IntegerParameter(name, lower_bound, 2.1, resolution)
+            par = parameters.IntegerParameter(name, lower_bound, 2.1, resolution=resolution)
 
-            par = parameters.IntegerParameter(name, 0.0, 2, resolution)
+            par = parameters.IntegerParameter(name, 0.0, 2, resolution=resolution)
 
         with self.assertRaises(ValueError):
             par = parameters.IntegerParameter(
-                name, lower_bound, upper_bound, [0, 1.5, 2]
+                name, lower_bound, upper_bound, resolution=[0, 1.5, 2]
             )
 
     def test_dist(self):
@@ -137,7 +137,7 @@ class IntegerParameterTestCase(unittest.TestCase):
         resolution = [0, 1, 2]
         lower_bound = 0
         upper_bound = 2
-        par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution)
+        par = parameters.IntegerParameter(name, lower_bound, upper_bound, resolution=resolution)
 
         self.assertEqual(par.dist.dist.name, "randint")
         self.assertEqual(par.lower_bound, lower_bound)

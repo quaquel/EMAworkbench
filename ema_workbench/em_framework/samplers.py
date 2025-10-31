@@ -8,7 +8,7 @@ Monte Carlo sampling.
 
 import abc
 import itertools
-from collections.abc import Sequence
+from collections.abc import Sequence, Iterable
 
 import numpy as np
 import scipy.stats as stats
@@ -49,7 +49,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def generate_samples(
         self,
-        parameters: ParameterMap,
+        parameters: ParameterMap|Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -74,7 +74,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 
         """
 
-    def _rescale(self, parameters: list[Parameter], samples) -> np.ndarray:
+    def _rescale(self, parameters: Iterable[Parameter], samples) -> np.ndarray:
         """Rescale uniform samples using dist and process integers."""
         for j, p in enumerate(parameters):
             samples_j = samples[:, j]
@@ -85,6 +85,15 @@ class AbstractSampler(metaclass=abc.ABCMeta):
                 samples_j = np.floor(samples_j)
             samples[:, j] = samples_j
         return samples
+
+    def _process_parameters(self, parameters: Iterable[Parameter]|ParameterMap) -> list[Parameter]:
+        """Helper method to process the parameters."""
+        if not isinstance(parameters, ParameterMap):
+            p = ParameterMap()
+            p.extend(parameters)
+            parameters = p
+
+        return parameters.latent_parameters
 
 
 class LHSSampler(AbstractSampler):
@@ -123,7 +132,7 @@ class LHSSampler(AbstractSampler):
         numpy array with samples
 
         """
-        latent_parameters = parameters.latent_parameters
+        latent_parameters = self._process_parameters(parameters)
         lhs = qmc.LatinHypercube(d=len(latent_parameters), rng=rng, **kwargs)
         samples = lhs.random(size)
         samples = self._rescale(latent_parameters, samples)
@@ -135,7 +144,7 @@ class MonteCarloSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: ParameterMap,
+        parameters: ParameterMap|Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -157,7 +166,7 @@ class MonteCarloSampler(AbstractSampler):
         There are no additional valid keyword arguments for the Monte Carlo sampler.
 
         """
-        latent_parameters = parameters.latent_parameters
+        latent_parameters = self._process_parameters(parameters)
         samples = stats.uniform.rvs(
             size=(size, len(latent_parameters)), random_state=rng
         )
@@ -176,7 +185,7 @@ class FullFactorialSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: ParameterMap,
+        parameters: ParameterMap|Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -198,7 +207,7 @@ class FullFactorialSampler(AbstractSampler):
         There are no additional valid keyword arguments for the Monte Carlo sampler.
 
         """
-        latent_parameters = parameters.latent_parameters
+        latent_parameters = self._process_parameters(parameters)
 
         samples = []
         for param in latent_parameters:

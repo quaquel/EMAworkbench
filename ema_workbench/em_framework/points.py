@@ -163,8 +163,13 @@ class SampleCollection(Iterable):
     def __init__(
         self,
         samples: np.ndarray,
-        parameters: ParameterMap,
+        parameters: ParameterMap|Iterable[Parameter],
     ):
+        if not isinstance(parameters, ParameterMap):
+            p = ParameterMap()
+            p.extend(parameters)
+            parameters = p
+
         if samples.shape[1] != len(parameters.latent_parameters):
             raise ValueError(
                 "the number of columns in samples does not match the number of parameters"
@@ -206,7 +211,7 @@ class SampleCollection(Iterable):
                 )
             )
 
-        return SampleCollection(samples, self.parameters[:])
+        return SampleCollection(samples, self.parameters.copy())
 
     def combine(
         self,
@@ -309,7 +314,7 @@ class SampleCollection(Iterable):
         samples_1 = self.samples
         samples_2 = other.samples
         combined_samples = np.vstack((samples_1, samples_2))
-        return SampleCollection(combined_samples, self.parameters[:])
+        return SampleCollection(combined_samples, self.parameters.copy())
 
     def __add__(self, other: "SampleCollection") -> "SampleCollection":
         """Add a SampleCollections to this one."""
@@ -350,7 +355,7 @@ def sample_generator(
                 # conversion to int is already done
                 # boolean is a subclass of categorical with False and True as categories, so this is handled
                 # via this route as well
-                value = [param.cat_for_index(entry).value for entry in value]
+                value = [param.cat_for_index(int(entry)).value for entry in value]
 
             value = value[0] if param.shape is None else value
             design_dict[param.name] = value
