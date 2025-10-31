@@ -40,7 +40,7 @@ class SALibSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: ParameterMap|list[Parameter],
+        parameters: ParameterMap | list[Parameter],
         size: int,
         rng: np.random.Generator | None = None,
         **kwargs,

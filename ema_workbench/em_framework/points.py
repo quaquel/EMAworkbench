@@ -163,7 +163,7 @@ class SampleCollection(Iterable):
     def __init__(
         self,
         samples: np.ndarray,
-        parameters: ParameterMap|Iterable[Parameter],
+        parameters: ParameterMap | Iterable[Parameter],
     ):
         if not isinstance(parameters, ParameterMap):
             p = ParameterMap()

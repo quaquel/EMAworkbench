@@ -257,6 +257,7 @@ class NamedDict(MutableMapping, NamedObject):
     def __repr__(self):  # noqa: D105
         return repr(self.data)
 
+
 def combine(*args) -> dict:
     """Combine scenario and policy into a single experiment dict.
 

@@ -8,7 +8,7 @@ Monte Carlo sampling.
 
 import abc
 import itertools
-from collections.abc import Sequence, Iterable
+from collections.abc import Iterable, Sequence
 
 import numpy as np
 import scipy.stats as stats
@@ -49,7 +49,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def generate_samples(
         self,
-        parameters: ParameterMap|Iterable[Parameter],
+        parameters: ParameterMap | Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -86,7 +86,9 @@ class AbstractSampler(metaclass=abc.ABCMeta):
             samples[:, j] = samples_j
         return samples
 
-    def _process_parameters(self, parameters: Iterable[Parameter]|ParameterMap) -> list[Parameter]:
+    def _process_parameters(
+        self, parameters: Iterable[Parameter] | ParameterMap
+    ) -> list[Parameter]:
         """Helper method to process the parameters."""
         if not isinstance(parameters, ParameterMap):
             p = ParameterMap()
@@ -144,7 +146,7 @@ class MonteCarloSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: ParameterMap|Iterable[Parameter],
+        parameters: ParameterMap | Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -185,7 +187,7 @@ class FullFactorialSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: ParameterMap|Iterable[Parameter],
+        parameters: ParameterMap | Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,

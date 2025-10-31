@@ -723,7 +723,7 @@ class ParameterMapDescriptor:
         try:
             mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
         except AttributeError:
-            mapping = ParameterMap() # @ReservedAssignment
+            mapping = ParameterMap()  # @ReservedAssignment
             setattr(instance, self.internal_name, mapping)
 
         mapping.extend(values)
