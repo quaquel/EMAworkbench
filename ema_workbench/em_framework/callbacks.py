@@ -365,7 +365,7 @@ class FileBasedCallback(AbstractCallback):
                    if true, progress is logged, if false, use
                    tqdm progress bar.
 
-    Warnings:
+    Warnings
     --------
     This class is still in beta.
     the data is stored in ./temp, relative to the current
