@@ -62,4 +62,3 @@ if __name__ == "__main__":
             uncertainty_sampling_kwargs={"rng": 42},
         )
 
-    print("blaat")

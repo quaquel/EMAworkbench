@@ -198,7 +198,6 @@ def test_from_experiments():
 
 
 def test_sample_platypus():
-    rng = np.random.default_rng(42)
 
     parameters = [
         RealParameter("a", 0, 1),

@@ -64,7 +64,7 @@ def test_problem(mocker):
     problem = Problem(searchover, parameters, outcomes, constraints)
 
     assert searchover == problem.searchover
-    assert parameters == problem.decision_variables
+    assert parameters == list(problem.decision_variables)
     assert outcomes == problem.objectives
     assert constraints == problem.ema_constraints
     assert [c.name for c in constraints] == problem.constraint_names
@@ -75,7 +75,7 @@ def test_problem(mocker):
     problem = Problem(searchover, parameters, outcomes, constraints)
 
     assert searchover == problem.searchover
-    assert parameters == problem.decision_variables
+    assert parameters == list(problem.decision_variables)
     assert outcomes == problem.objectives
     assert constraints == problem.ema_constraints
     assert [c.name for c in constraints] == problem.constraint_names
@@ -103,7 +103,7 @@ def test_problem(mocker):
     )
 
     assert problem.searchover == "robust"
-    assert parameters == problem.decision_variables
+    assert parameters == list(problem.decision_variables)
     assert robustness_functions == problem.objectives
     assert constraints == problem.ema_constraints
     assert [c.name for c in constraints] == problem.constraint_names
