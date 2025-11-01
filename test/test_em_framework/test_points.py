@@ -1,3 +1,4 @@
+"""Tests for em_framework/em_framework/points.py."""
 import numpy as np
 import pytest
 
@@ -20,6 +21,7 @@ from test import utilities
 
 
 def test_experiment_generator():
+    """Tests for experiment_generator."""
     scenarios = [NamedObject("scen_1"), NamedObject("scen_2")]
     model = [NamedObject("model")]
     policies = [NamedObject("1"), NamedObject("2"), NamedObject("3")]
@@ -58,6 +60,7 @@ def test_experiment_generator():
 
 
 def test_sample_generator():
+    """Tests for sample_generator."""
     rng = np.random.default_rng(42)
 
     samples = rng.uniform(size=(10, 4))
@@ -83,6 +86,7 @@ def test_sample_generator():
 
 
 def test_sample_collection():
+    """Tests for SampleCollection."""
     rng = np.random.default_rng(42)
 
     samples = rng.uniform(size=(10, 3))
@@ -163,6 +167,7 @@ def test_sample_collection():
 
 
 def test_sample_collection_getitem():
+    """Test SampleCollection.__getitem__."""
     rng = np.random.default_rng(42)
 
     samples = rng.uniform(size=(10, 3))
@@ -186,6 +191,7 @@ def test_sample_collection_getitem():
 
 
 def test_from_experiments():
+    """Test from_experiments."""
     experiments, _ = utilities.load_scarcity_data()
 
     samples = from_experiments(experiments)
@@ -198,19 +204,23 @@ def test_from_experiments():
 
 
 def test_sample_platypus():
-
+    """Tests for converting samples to platypus solutions and vice versa."""
     parameters = [
         RealParameter("a", 0, 1),
         IntegerParameter("b", 1, 4),
         CategoricalParameter("c", ["a", "b", "c"]),
+        CategoricalParameter("d", ["a", "b", "c"], shape=(2,)),
     ]
 
     problem = Problem("levers", parameters, [], [])
 
-    sample = Sample(a=0.5, b=2, c="b")
+    sample = Sample(a=0.5, b=2, c="b", d=np.asarray(["a", "b",]))
     solution = sample._to_platypus_solution(problem)
 
     new_sample = Sample._from_platypus_solution(solution)
 
-    for k in sample:
-        assert sample[k] == new_sample[k]
+    assert sample["a"] == new_sample["a"]
+    assert sample["b"] == new_sample["b"]
+    assert sample["c"] == new_sample["c"]
+    assert np.all(sample["d"] == new_sample["d"])
+

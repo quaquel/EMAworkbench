@@ -22,7 +22,6 @@ from .parameters import (
 )
 from .util import Counter, NamedDict, NamedObject, combine
 
-
 __all__ = [
     "Experiment",
     "ExperimentReplication",
@@ -30,6 +29,7 @@ __all__ = [
     "SampleCollection",
     "experiment_generator",
     "from_experiments",
+    "sample_generator"
 ]
 _logger = get_module_logger(__name__)
 
@@ -62,11 +62,8 @@ class Sample(NamedDict):
         # fixme needs to handle latent variables correctly
         solution = platypus.Solution(problem)
 
-        values = []
-        for dtype, parameter in zip(problem.types, problem.decision_variables):
-            value = self[parameter.name]
-            converted_value = dtype.encode(value)
-            values.append(converted_value)
+        values = flatten_sample(self, problem.decision_variables)
+        values = [dtype.encode(value) for dtype, value in zip(problem.types, values)]
         solution.variables[:] = values
 
         return solution
