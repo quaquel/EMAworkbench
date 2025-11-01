@@ -63,26 +63,27 @@ def test_sample_generator():
     """Tests for sample_generator."""
     rng = np.random.default_rng(42)
 
-    samples = rng.uniform(size=(10, 4))
+    samples = rng.uniform(size=(10, 5))
     samples[:, 1] = np.floor(samples[:, 1] * 10)
     samples[:, 2] = np.floor(samples[:, 2] * 2)
     samples[:, 3] = np.round(samples[:, 3])
+    samples[:, 3] = np.round(samples[:, 4])
     parameters = [
         RealParameter("a", 0, 1),
         IntegerParameter("b", 0, 10),
         CategoricalParameter("c", ["a", "b", "c"]),
-        BooleanParameter("d"),
+        BooleanParameter("d", shape=(2,)),
     ]
 
     generator = sample_generator(samples, parameters)
 
     for i, sample in enumerate(generator):
-        a, b, c, d = samples[i]
+        a, b, c, d, e = samples[i]
 
         assert sample["a"] == a
         assert sample["b"] == int(b)
         assert sample["c"] == parameters[2].cat_for_index(int(c)).value
-        assert sample["d"] == bool(d)
+        assert np.all(sample["d"] == np.asarray([int(d), int(e)], dtype=bool))
 
 
 def test_sample_collection():
