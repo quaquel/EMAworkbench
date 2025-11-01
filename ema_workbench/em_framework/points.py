@@ -18,6 +18,7 @@ from .parameters import (
     CategoricalParameter,
     IntegerParameter,
     Parameter,
+    ParameterMap,
 )
 from .util import Counter, NamedDict, NamedObject, combine
 
@@ -28,6 +29,7 @@ __all__ = [
     "SampleCollection",
     "experiment_generator",
     "from_experiments",
+    "sample_generator"
 ]
 _logger = get_module_logger(__name__)
 
@@ -54,16 +56,14 @@ class Sample(NamedDict):
         return f"Sample({super().__repr__()})"
 
     def _to_platypus_solution(
-        self, problem: "Problem"  # noqa: F821
+        self, problem: "Problem"
     ) -> platypus.Solution:
         """Turn a Sample into a Platypus solution."""
+        # fixme needs to handle latent variables correctly
         solution = platypus.Solution(problem)
 
-        values = []
-        for dtype, parameter in zip(problem.types, problem.decision_variables):
-            value = self[parameter.name]
-            converted_value = dtype.encode(value)
-            values.append(converted_value)
+        values = flatten_sample(self, problem.decision_variables)
+        values = [dtype.encode(value) for dtype, value in zip(problem.types, values)]
         solution.variables[:] = values
 
         return solution
@@ -71,14 +71,27 @@ class Sample(NamedDict):
     @classmethod
     def _from_platypus_solution(cls, solution: platypus.Solution) -> "Sample":
         """Create a Sample from a Platypus solution."""
+        # fixme idea, can't we do platypus also in numbers and just use
+        #   the same transformation as we do with the sampling?
         problem = solution.problem
-        converted_vars = {}
-        for dtype, parameter, value in zip(
-            problem.types, problem.decision_variables, solution.variables
+        sample = []
+
+        for dtype, value in zip(
+            problem.types, solution.variables
         ):  # @ReservedAssignment
             converted_value = dtype.decode(value)
-            converted_vars[parameter.name] = converted_value
-        return Sample(**converted_vars)
+            sample.append(converted_value)
+
+        design_dict = {}
+        offset = 0
+        for param in problem.decision_variables:
+            length = 1 if param.shape is None else math.prod(param.shape)
+            value = np.asarray(sample[offset: offset + length])
+            offset += length
+            value = value[0] if param.shape is None else value
+            design_dict[param.name] = value
+
+        return Sample(**design_dict)
 
 
 class Experiment(NamedObject):
@@ -162,9 +175,14 @@ class SampleCollection(Iterable):
     def __init__(
         self,
         samples: np.ndarray,
-        parameters: list[Parameter],
+        parameters: ParameterMap | Iterable[Parameter],
     ):
-        if samples.shape[1] != len(parameters):
+        if not isinstance(parameters, ParameterMap):
+            p = ParameterMap()
+            p.extend(parameters)
+            parameters = p
+
+        if samples.shape[1] != len(parameters.latent_parameters):
             raise ValueError(
                 "the number of columns in samples does not match the number of parameters"
             )
@@ -205,7 +223,7 @@ class SampleCollection(Iterable):
                 )
             )
 
-        return SampleCollection(samples, self.parameters[:])
+        return SampleCollection(samples, self.parameters.copy())
 
     def combine(
         self,
@@ -308,7 +326,7 @@ class SampleCollection(Iterable):
         samples_1 = self.samples
         samples_2 = other.samples
         combined_samples = np.vstack((samples_1, samples_2))
-        return SampleCollection(combined_samples, self.parameters[:])
+        return SampleCollection(combined_samples, self.parameters.copy())
 
     def __add__(self, other: "SampleCollection") -> "SampleCollection":
         """Add a SampleCollections to this one."""
@@ -316,7 +334,7 @@ class SampleCollection(Iterable):
 
 
 def sample_generator(
-    samples: np.ndarray, params: list[Parameter]
+    samples: np.ndarray, params: Iterable[Parameter]
 ) -> Generator[Sample, None, None]:
     """Return a generator yielding points instances.
 
@@ -335,16 +353,23 @@ def sample_generator(
     """
     for sample in samples:
         design_dict = {}
-        for param, value in zip(params, sample):
+        offset = 0
+
+        for param in params:
+            length = 1 if param.shape is None else math.prod(param.shape)
+            value = sample[offset : offset + length]
+            offset += length
+
             if isinstance(param, IntegerParameter):
-                value = int(value)  # noqa: PLW2901
+                value = [entry.astype(int) for entry in value]
             if isinstance(param, CategoricalParameter):
                 # categorical parameter is an integer parameter, so
                 # conversion to int is already done
                 # boolean is a subclass of categorical with False and True as categories, so this is handled
                 # via this route as well
-                value = param.cat_for_index(value).value  # noqa: PLW2901
+                value = [param.cat_for_index(int(entry)).value for entry in value]
 
+            value = value[0] if param.shape is None else value
             design_dict[param.name] = value
 
         yield Sample(**design_dict)
@@ -367,6 +392,7 @@ def experiment_generator(
     combine = {'full_factorial, sample', "cycle"}
               controls how to combine scenarios, policies, and models
               into experiments.
+    rng : a numpy random number generator, or a value to seed a generator.
 
     Notes
     -----
@@ -459,3 +485,17 @@ def from_experiments(
         samples.append(Sample(**record))
 
     return samples
+
+
+def flatten_sample(sample: Sample, parameters: Iterable[Parameter]) -> tuple:
+    """Returns a flattened tuple of the sample."""
+    values = []
+    for parameter in parameters:
+        value = sample[parameter.name]
+
+        if parameter.shape is not None:
+            value = value.flatten().tolist()
+            values.extend(value)
+        else:
+            values.append(value)
+    return tuple(values)

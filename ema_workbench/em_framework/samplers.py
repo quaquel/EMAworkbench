@@ -8,7 +8,7 @@ Monte Carlo sampling.
 
 import abc
 import itertools
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 
 import numpy as np
 import scipy.stats as stats
@@ -17,6 +17,7 @@ import scipy.stats.qmc as qmc
 from ema_workbench.em_framework.parameters import (
     IntegerParameter,
     Parameter,
+    ParameterMap,
 )
 from ema_workbench.em_framework.points import SampleCollection
 
@@ -48,7 +49,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap | Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -73,7 +74,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
 
         """
 
-    def _rescale(self, parameters: list[Parameter], samples) -> np.ndarray:
+    def _rescale(self, parameters: Iterable[Parameter], samples) -> np.ndarray:
         """Rescale uniform samples using dist and process integers."""
         for j, p in enumerate(parameters):
             samples_j = samples[:, j]
@@ -85,13 +86,24 @@ class AbstractSampler(metaclass=abc.ABCMeta):
             samples[:, j] = samples_j
         return samples
 
+    def _process_parameters(
+        self, parameters: Iterable[Parameter] | ParameterMap
+    ) -> list[Parameter]:
+        """Helper method to process the parameters."""
+        if not isinstance(parameters, ParameterMap):
+            p = ParameterMap()
+            p.extend(parameters)
+            parameters = p
+
+        return parameters.latent_parameters
+
 
 class LHSSampler(AbstractSampler):
     """generates a Latin Hypercube sample over the parameters."""
 
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap,
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -122,9 +134,10 @@ class LHSSampler(AbstractSampler):
         numpy array with samples
 
         """
-        lhs = qmc.LatinHypercube(d=len(parameters), rng=rng, **kwargs)
+        latent_parameters = self._process_parameters(parameters)
+        lhs = qmc.LatinHypercube(d=len(latent_parameters), rng=rng, **kwargs)
         samples = lhs.random(size)
-        samples = self._rescale(parameters, samples)
+        samples = self._rescale(latent_parameters, samples)
         return SampleCollection(samples, parameters)
 
 
@@ -133,7 +146,7 @@ class MonteCarloSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap | Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -155,8 +168,11 @@ class MonteCarloSampler(AbstractSampler):
         There are no additional valid keyword arguments for the Monte Carlo sampler.
 
         """
-        samples = stats.uniform.rvs(size=(size, len(parameters)), random_state=rng)
-        samples = self._rescale(parameters, samples)
+        latent_parameters = self._process_parameters(parameters)
+        samples = stats.uniform.rvs(
+            size=(size, len(latent_parameters)), random_state=rng
+        )
+        samples = self._rescale(latent_parameters, samples)
         return SampleCollection(samples, parameters)
 
 
@@ -171,7 +187,7 @@ class FullFactorialSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap | Iterable[Parameter],
         size: int,
         rng: SeedLike | RNGLike | None = None,
         **kwargs,
@@ -193,8 +209,10 @@ class FullFactorialSampler(AbstractSampler):
         There are no additional valid keyword arguments for the Monte Carlo sampler.
 
         """
+        latent_parameters = self._process_parameters(parameters)
+
         samples = []
-        for param in parameters:
+        for param in latent_parameters:
             cats = param.resolution
             if not cats:
                 cats = np.linspace(param.lower_bound, param.upper_bound, size)
