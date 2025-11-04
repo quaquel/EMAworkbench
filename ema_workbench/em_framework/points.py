@@ -3,11 +3,12 @@
 As well as associated helper functions
 
 """
+from __future__ import annotations
 
 import itertools
 import math
 from collections.abc import Generator, Iterable, Sequence
-from typing import Literal, overload
+from typing import TYPE_CHECKING, Literal, overload
 
 import numpy as np
 import pandas as pd
@@ -21,6 +22,9 @@ from .parameters import (
     ParameterMap,
 )
 from .util import Counter, NamedDict, NamedObject, combine
+
+if TYPE_CHECKING:
+    from .optimization import Problem
 
 __all__ = [
     "Experiment",
@@ -56,7 +60,7 @@ class Sample(NamedDict):
         return f"Sample({super().__repr__()})"
 
     def _to_platypus_solution(
-        self, problem: "Problem"
+        self, problem: Problem
     ) -> platypus.Solution:
         """Turn a Sample into a Platypus solution."""
         # fixme needs to handle latent variables correctly
@@ -69,7 +73,7 @@ class Sample(NamedDict):
         return solution
 
     @classmethod
-    def _from_platypus_solution(cls, solution: platypus.Solution) -> "Sample":
+    def _from_platypus_solution(cls, solution: platypus.Solution) -> Sample:
         """Create a Sample from a Platypus solution."""
         # fixme idea, can't we do platypus also in numbers and just use
         #   the same transformation as we do with the sampling?
@@ -205,7 +209,7 @@ class SampleCollection(Iterable):
     def __getitem__(self, key: int) -> Sample: ...
 
     @overload
-    def __getitem__(self, key: slice) -> "SampleCollection": ...
+    def __getitem__(self, key: slice) -> SampleCollection: ...
 
     def __getitem__(self, key):
         """Return the samples for the index or slice."""
@@ -227,10 +231,10 @@ class SampleCollection(Iterable):
 
     def combine(
         self,
-        other: "SampleCollection",
+        other: SampleCollection,
         how: Literal["full_factorial", "sample", "cycle"],
         rng: SeedLike | RNGLike | None = None,
-    ) -> "SampleCollection":
+    ) -> SampleCollection:
         """Combine two SampleCollections into a new SampleCollection.
 
         Use this if you have two sets of samples for different parameters that
@@ -299,7 +303,7 @@ class SampleCollection(Iterable):
 
         return SampleCollection(combined_samples, combined_parameters)
 
-    def concat(self, other: "SampleCollection") -> "SampleCollection":
+    def concat(self, other: SampleCollection) -> SampleCollection:
         """Concatenate two SampleCollections.
 
         Parameters
@@ -328,14 +332,14 @@ class SampleCollection(Iterable):
         combined_samples = np.vstack((samples_1, samples_2))
         return SampleCollection(combined_samples, self.parameters.copy())
 
-    def __add__(self, other: "SampleCollection") -> "SampleCollection":
+    def __add__(self, other: SampleCollection) -> SampleCollection:
         """Add a SampleCollections to this one."""
         return self.concat(other)
 
 
 def sample_generator(
     samples: np.ndarray, params: Iterable[Parameter]
-) -> Generator[Sample, None, None]:
+) -> Generator[Sample]:
     """Return a generator yielding points instances.
 
     This generator iterates over the samples, and turns each row into a Sample and ensures datatypes are correctly handled.
@@ -376,12 +380,12 @@ def sample_generator(
 
 
 def experiment_generator(
-    models: Iterable["AbstractModel"],  # noqa: F821
+    models: Iterable[AbstractModel],  # noqa: F821
     scenarios: Iterable[Sample],
     policies: Iterable[Sample],
     combine: Literal["full_factorial", "sample", "cycle"] = "full_factorial",
     rng: SeedLike | RNGLike | None = None,
-) -> Generator[Experiment, None, None]:
+) -> Generator[Experiment]:
     """Generator function which yields experiments.
 
     Parameters
@@ -455,7 +459,7 @@ def sample(models, policies, scenarios, rng=None):
 
 def from_experiments(
     experiments: pd.DataFrame, drop_defaults: bool = True
-) -> list["Sample"]:
+) -> list[Sample]:
     """Generate scenarios from an existing experiments DataFrame.
 
     This function takes a pandas DataFrame and turns it into a list of Sample instances.

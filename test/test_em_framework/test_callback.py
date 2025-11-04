@@ -28,6 +28,7 @@ from ema_workbench.util import EMAError
 
 
 def test_store_results(mocker):
+    """Tests store_results."""
     nr_experiments = 3
     uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
     outcomes = [TimeSeriesOutcome("test")]
@@ -82,6 +83,7 @@ def test_store_results(mocker):
 
 
 def test_init():
+    """Test DefaultCallback initialization."""
     # let's add some uncertainties to this
     uncs = [RealParameter("a", 0, 1), RealParameter("b", 0, 1)]
     outcomes = [
@@ -146,6 +148,7 @@ def test_init():
 
 
 def test_store_cases():
+    """Test DefaultCallback store_cases."""
     nr_experiments = 3
     uncs = [
         RealParameter("a", 0, 1),
@@ -153,12 +156,14 @@ def test_store_cases():
         CategoricalParameter("c", [0, 1, 2]),
         IntegerParameter("d", 0, 1),
         BooleanParameter("e"),
+        RealParameter("f", 0, 1, shape=(2,)),
     ]
     outcomes = [TimeSeriesOutcome("test")]
     case = {unc.name: random.random() for unc in uncs}
     case["c"] = int(round(case["c"] * 2))
     case["d"] = int(round(case["d"]))
     case["e"] = True
+    case["f"] = np.array([random.random(), random.random()])
 
     model = NamedObject("test")
     policy = Sample("policy")
@@ -172,17 +177,20 @@ def test_store_cases():
     callback(experiment, model_outcomes)
 
     experiments, _ = callback.get_results()
-    # design = case
     case["policy"] = policy.name
     case["model"] = model.name
     case["scenario"] = scenario.name
 
     names = experiments.columns.values.tolist()
     for name in names:
-        entry_a = experiments[name][0]
-        entry_b = case[name]
-
-        assert entry_a == entry_b, "failed for " + name
+        if not name.startswith("f"):
+            entry_b = case[name]
+            entry_a = experiments[name][0]
+            assert entry_a == entry_b, "failed for " + name
+        else:
+            entry_b = case["f"]
+            entry_a = experiments[name][0]
+            assert entry_a == entry_b[int(name[-1])], "failed for " + name
 
     # with levers
     nr_experiments = 3
@@ -216,6 +224,7 @@ def test_store_cases():
 
 
 def test_get_results(mocker):
+    """Test DefaultCallback get_results."""
     nr_experiments = 3
     uncs = [
         RealParameter("a", 0, 1),
@@ -271,7 +280,8 @@ def test_get_results(mocker):
         assert experiments.loc[:, u.name].dtype == dtype_mapping[u.__class__]
 
 
-def test_filebasedcallback(mocker):
+def test_file_based_callback(mocker):
+    """Test FileBasedCallback."""
     # only most basic assertions are checked
 
     mocker.patch("ema_workbench.em_framework.callbacks.os")
