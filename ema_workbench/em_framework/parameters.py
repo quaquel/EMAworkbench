@@ -1,7 +1,9 @@
 """parameters and related helper classes and functions."""
 
 import abc
+import math
 import numbers
+from typing import Any
 
 import pandas as pd
 import scipy as sp
@@ -21,7 +23,6 @@ __all__ = [
     "IntegerParameter",
     "Parameter",
     "RealParameter",
-    "Variable",
     "parameters_from_csv",
     "parameters_to_csv",
 ]
@@ -42,7 +43,7 @@ class Bound(metaclass=abc.ABCMeta):
     def __set__(self, instance, value):
         instance.__dict__[self.internal_name] = value
 
-    def __set_name__(self, cls, name):
+    def __set_name__(self, cls, name: str):
         self.name = name
         self.internal_name = "_" + name
 
@@ -77,7 +78,9 @@ class Constant(Variable):
 
     """
 
-    def __init__(self, name, value, variable_name=None):
+    def __init__(
+        self, name: str, value: Any, variable_name: str | list[str] | None = None
+    ):
         """Init."""
         super().__init__(name, variable_name=variable_name)
         self.value = value
@@ -89,7 +92,7 @@ class Constant(Variable):
 class Category(NamedObject):
     """Category class."""
 
-    def __init__(self, name, value):
+    def __init__(self, name: str, value: Any):
         """Init."""
         super().__init__(name)
         self.value = value
@@ -111,7 +114,9 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     name : str
     lower_bound : int or float
     upper_bound : int or float
+    shape : int or tuple
     resolution : collection
+
 
     Raises
     ------
@@ -147,6 +152,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         name: str,
         lower_bound,
         upper_bound,
+        shape: tuple[int] | None = None,
         resolution=None,
         default=None,
         variable_name: str | list[str] | None = None,
@@ -155,13 +161,14 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         super().__init__(name, variable_name=variable_name)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
+        self.shape = shape
         self.resolution = resolution
         self.default = default
         self.dist = None
         self.uniform = True
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs):
+    def from_dist(cls, name: str, dist, **kwargs):
         """Factory method for creating a Parameter from a scipy distribution.
 
         Alternative constructor for creating a parameter from a frozen
@@ -169,6 +176,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
 
         Parameters
         ----------
+        name : the name for the parameter
         dist : scipy stats frozen dist
         **kwargs : valid keyword arguments for Parameter instance
 
@@ -182,9 +190,10 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.resolution = None
         self.variable_name = None
         self.uniform = False
+        self.shape = None
 
         for k, v in kwargs.items():
-            if k in {"default", "resolution", "variable_name"}:
+            if k in {"default", "resolution", "variable_name", "shape"}:
                 setattr(self, k, v)
             else:
                 raise ValueError(f"Unknown property {k} for Parameter")
@@ -231,6 +240,7 @@ class RealParameter(Parameter):
     name : str
     lower_bound : int or float
     upper_bound : int or float
+    shape : tuple
     resolution : iterable
     variable_name : str, or list of str
 
@@ -247,10 +257,11 @@ class RealParameter(Parameter):
     def __init__(
         self,
         name: str,
-        lower_bound,
-        upper_bound,
+        lower_bound: float,
+        upper_bound: float,
+        shape: tuple[int] | None = None,
         resolution=None,
-        default=None,
+        default: float | None = None,
         variable_name: str | list[str] | None = None,
     ):
         """Init."""
@@ -258,6 +269,7 @@ class RealParameter(Parameter):
             name,
             lower_bound,
             upper_bound,
+            shape=shape,
             resolution=resolution,
             default=default,
             variable_name=variable_name,
@@ -268,7 +280,7 @@ class RealParameter(Parameter):
         )  # @UndefinedVariable
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs):  # noqa: D102
+    def from_dist(cls, name: str, dist, **kwargs):  # noqa: D102
         if not isinstance(dist.dist, sp.stats.rv_continuous):  # @UndefinedVariable
             raise ValueError(
                 f"dist should be instance of rv_continouos, not {dist.dist}"
@@ -311,17 +323,19 @@ class IntegerParameter(Parameter):
     def __init__(
         self,
         name,
-        lower_bound,
-        upper_bound,
+        lower_bound: int,
+        upper_bound: int,
+        shape: tuple[int] | None = None,
         resolution=None,
-        default=None,
-        variable_name=None,
+        default: int | None = None,
+        variable_name: str | list[str] | None = None,
     ):
         """Init."""
         super().__init__(
             name,
             lower_bound,
             upper_bound,
+            shape=shape,
             resolution=resolution,
             default=default,
             variable_name=variable_name,
@@ -355,7 +369,7 @@ class IntegerParameter(Parameter):
             pass
 
     @classmethod
-    def from_dist(cls, name, dist, **kwargs):  # noqa: D102
+    def from_dist(cls, name: str, dist, **kwargs):  # noqa: D102
         if not isinstance(dist.dist, sp.stats.rv_discrete):  # @UndefinedVariable
             raise ValueError(f"dist should be instance of rv_discrete, not {dist.dist}")
         return super().from_dist(name, dist, **kwargs)
@@ -377,6 +391,7 @@ class CategoricalParameter(IntegerParameter):
     ----------
     name : str
     categories : collection of obj
+    shape : tuple
     variable_name : str, or list of str
     multivalue : boolean
                  if categories have a set of values, for each variable_name
@@ -398,9 +413,10 @@ class CategoricalParameter(IntegerParameter):
         self,
         name,
         categories,
+        shape: tuple[int] | None = None,
         default=None,
-        variable_name=None,
-        multivalue=False,
+        variable_name: str | list[str] | None = None,
+        multivalue: bool = False,
     ):
         """Init."""
         lower_bound = 0
@@ -415,6 +431,7 @@ class CategoricalParameter(IntegerParameter):
             name,
             lower_bound,
             upper_bound,
+            shape=shape,
             resolution=None,
             default=default,
             variable_name=variable_name,
@@ -445,7 +462,7 @@ class CategoricalParameter(IntegerParameter):
                 return i
         raise ValueError(f"Category {category} not found")
 
-    def cat_for_index(self, index):
+    def cat_for_index(self, index: int):
         """Return category given index.
 
         Parameters
@@ -470,7 +487,7 @@ class CategoricalParameter(IntegerParameter):
 
         return representation
 
-    def from_dist(self, name, dist):  # noqa: D102
+    def from_dist(self, name: str, dist, **kwargs):  # noqa: D102
         # TODO:: how to handle this
         # probably need to pass categories as list and zip
         # categories to integers implied by dist
@@ -488,14 +505,22 @@ class BooleanParameter(CategoricalParameter):
     Parameters
     ----------
     name : str
+    shape : tuple
     variable_name : str, or list of str
 
     """
 
-    def __init__(self, name, default=None, variable_name=None):
+    def __init__(
+        self,
+        name,
+        shape: tuple[int] | None = None,
+        default: bool | None = None,
+        variable_name: str | list[str] | None = None,
+    ):
         """Init."""
         super().__init__(
             name,
+            shape=shape,
             categories=[False, True],
             default=default,
             variable_name=variable_name,
@@ -649,3 +674,60 @@ def parameters_from_csv(uncertainties, **kwargs):
         else:
             uncs.append(parameter_map[type](name, *values))
     return uncs
+
+
+class ParameterMap(NamedObjectMap):
+    """A NamedObjectMap specifically for parameters."""
+
+    def __init__(self) -> None:
+        super().__init__(Parameter)
+
+    @property
+    def latent_parameters(self) -> list[Parameter]:
+        """Return the latent parameters."""
+        parameters = []
+        for parameter in self:
+            if parameter.shape is None:
+                parameters.append(parameter)
+            else:
+                for i in range(math.prod(parameter.shape)):
+                    latent_parameter = parameter.__new__(parameter.__class__)
+                    for k, v in parameter.__dict__.items():
+                        if k == "_name":
+                            v = f"{v}_{i}"  # noqa: PLW2901
+                        setattr(latent_parameter, k, v)
+                    parameters.append(latent_parameter)
+        return parameters
+
+    def copy(self):
+        copy = self.__class__()
+        copy._data = self._data.copy()
+
+        return copy
+
+
+class ParameterMapDescriptor:
+    """A NamedObjectMapDescriptor specifically for parameters."""
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        try:
+            return getattr(instance, self.internal_name)
+        except AttributeError:
+            mapping = ParameterMap()  # @ReservedAssignment
+            setattr(instance, self.internal_name, mapping)
+            return mapping
+
+    def __set__(self, instance, values):
+        try:
+            mapping = getattr(instance, self.internal_name)  # @ReservedAssignment
+        except AttributeError:
+            mapping = ParameterMap()  # @ReservedAssignment
+            setattr(instance, self.internal_name, mapping)
+
+        mapping.extend(values)
+
+    def __set_name__(self, owner, name):
+        self.name = name
+        self.internal_name = "_" + name

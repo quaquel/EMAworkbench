@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     # set levers, one for each time step
     lake_model.levers = [
-        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
+        RealParameter("decisions", 0, 0.1, shape=(100,))
     ]
 
     # specify outcomes

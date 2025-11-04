@@ -6,10 +6,11 @@
 
 import abc
 import warnings
+from collections.abc import Collection
 
 import numpy as np
 
-from .parameters import Parameter
+from .parameters import Parameter, ParameterMap
 from .points import SampleCollection
 from .samplers import AbstractSampler
 
@@ -22,7 +23,7 @@ except ImportError:
 __all__ = ["FASTSampler", "MorrisSampler", "SobolSampler", "get_SALib_problem"]
 
 
-def get_SALib_problem(parameters: list[Parameter]):
+def get_SALib_problem(parameters: Collection[Parameter]):
     """Returns a dict with a problem specification as required by SALib."""
     bounds = [(0, 1)] * len(parameters)
 
@@ -39,7 +40,7 @@ class SALibSampler(AbstractSampler):
 
     def generate_samples(
         self,
-        parameters: list[Parameter],
+        parameters: ParameterMap | list[Parameter],
         size: int,
         rng: np.random.Generator | None = None,
         **kwargs,
@@ -71,7 +72,8 @@ class SALibSampler(AbstractSampler):
         adapt the value passed to rng accordingly.
 
         """
-        problem = get_SALib_problem(parameters)
+        latent_parameters = self._process_parameters(parameters)
+        problem = get_SALib_problem(latent_parameters)
         samples = self.sample(problem, size, rng=rng, **kwargs)
         samples = self._rescale(parameters, samples)
         return SampleCollection(samples, parameters)

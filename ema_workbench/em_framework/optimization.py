@@ -44,9 +44,10 @@ from .parameters import (
     CategoricalParameter,
     IntegerParameter,
     Parameter,
+    ParameterMap,
     RealParameter,
 )
-from .points import Sample
+from .points import Sample, SampleCollection
 from .util import ProgressTrackingMixIn
 
 # Created on 5 Jun 2017
@@ -92,7 +93,7 @@ class Problem(PlatypusProblem):
     def __init__(
         self,
         searchover: Literal["levers", "uncertainties", "robust"],
-        decision_variables: list[Parameter],
+        decision_variables: ParameterMap|list[Parameter],
         objectives: list[ScalarOutcome],
         constraints: list[Constraint] | None = None,
         reference: Sample | Iterable[Sample] | int | None = None,
@@ -103,8 +104,14 @@ class Problem(PlatypusProblem):
         if reference is None:
             reference = 1
 
+        if not isinstance(decision_variables, ParameterMap):
+            dv = ParameterMap()
+            dv.extend(decision_variables)
+            decision_variables = dv
+        latent_decision_variables = decision_variables.latent_parameters
+
         super().__init__(
-            len(decision_variables), len(objectives), nconstrs=len(constraints)
+            len(latent_decision_variables), len(objectives), nconstrs=len(constraints)
         )
 
         # fixme we can probably get rid of 'robust'
@@ -129,7 +136,7 @@ class Problem(PlatypusProblem):
         self.ema_constraints = constraints
         self.reference = reference
 
-        self.types[:] = to_platypus_types(decision_variables)
+        self.types[:] = to_platypus_types(latent_decision_variables)
         self.directions[:] = [outcome.kind for outcome in objectives]
         self.constraints[:] = "==0"
 
@@ -150,7 +157,7 @@ def to_platypus_types(decision_variables: Iterable[Parameter]) -> list[platypus.
         if not isinstance(dv, (CategoricalParameter | BooleanParameter)):
             decision_variable = klass(dv.lower_bound, dv.upper_bound)
         else:
-            decision_variable = klass(dv.categories, 1)
+            decision_variable = klass(list(range(len(dv.categories))), 1)
 
         types.append(decision_variable)
     return types
@@ -202,7 +209,12 @@ def process_jobs(jobs: list[platypus.core.EvaluateSolution]):
     searchover = problem.searchover
     references = problem.reference
 
-    samples = [Sample._from_platypus_solution(job.solution) for job in jobs]
+    samples = []
+    for job in jobs:
+        sample = [type.decode(value) for type, value in zip(problem.types, job.solution.variables)]
+        samples.append(sample)
+    samples = list(SampleCollection(np.array(samples), problem.decision_variables))
+
     match searchover:
         case "levers":
             return references, samples
@@ -646,7 +658,7 @@ class CombinedVariator(Variator):
     ) -> Solution:  # @ReservedAssignment
         # replace, again simplified because len(subset) is 1
         non_members = [
-            entry for entry in type.elements if entry.value != child.variables[i]
+            entry for entry in type.elements if entry != child.variables[i]
         ]
         new_value = random.choice(non_members)
         child.variables[i] = new_value.value
