@@ -17,10 +17,7 @@ class TestEMAError(unittest.TestCase):
 
         error = EMAError("a message", "another message")
 
-        if sys.version_info[0] < 3:
-            self.assertEqual(str(error), "(u'a message', u'another message')")
-        else:
-            self.assertEqual(str(error), "('a message', 'another message')")
+        self.assertEqual(str(error), "('a message', 'another message')")
 
 
 class TestCaseError(unittest.TestCase):
