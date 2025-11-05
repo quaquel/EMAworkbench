@@ -357,7 +357,6 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
                 def stats(self):
                     pass
 
-
             formatter = WrongTestFormatter()
             formatter.boxes = [boxlim1, boxlim2]
             formatter.stats = [
