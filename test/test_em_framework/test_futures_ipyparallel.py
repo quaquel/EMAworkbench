@@ -144,9 +144,6 @@ def tearDownModule():
                 print("couldn't shutdown process: ", p)
 
 
-#     blackhole.close()
-
-
 class TestEngineLoggerAdapter(unittest.TestCase):
     def tearDown(self):
         ema_logging._logger = None

@@ -361,7 +361,7 @@ class TestPrim:
             assert isinstance(tempbox, pd.DataFrame)
 
         # have modified boxlims as starting point
-        x.a[x.a > 5] = 5
+        x.loc[x.a > 5, "a"] = 5
         primalg = prim.Prim(x, y)
         boxlims = primalg.box_init
         boxlims.a = [5, 8]
@@ -370,7 +370,7 @@ class TestPrim:
         peels = primalg._discrete_peel(box, "a", 0, primalg.x_int)
         assert len(peels) == 2
 
-        x.a[x.a < 5] = 5
+        x.loc[x.a < 5, "a"] = 5
         primalg = prim.Prim(x, y)
         boxlims = primalg.box_init
         boxlims.a = [5, 8]

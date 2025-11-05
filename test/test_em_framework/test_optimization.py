@@ -686,15 +686,15 @@ def test_optimize(mocker):
     )
 
 
-    with mocker.patch.object(GenerationalBorg, "run"):
-        _optimize(
-            problem,
-            evaluator,
-            GenerationalBorg,
-            nfe,
-            convergence_freq,
-            logging_freq,
-            epsilons=[
-                0.1,
-            ],
-        )
+    mocker.patch.object(GenerationalBorg, "run")
+    _optimize(
+        problem,
+        evaluator,
+        GenerationalBorg,
+        nfe,
+        convergence_freq,
+        logging_freq,
+        epsilons=[
+            0.1,
+        ],
+    )

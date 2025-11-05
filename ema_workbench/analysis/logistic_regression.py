@@ -60,7 +60,7 @@ def calculate_covden_for_treshold(predicted, y, threshold):
     fp = np.sum((predicted > threshold) & (np.logical_not(y)))
     fn = np.sum((np.logical_not(predicted > threshold)) & y)
 
-    precision = tp / (tp + fp)
+    precision = tp / max((tp + fp), 1)
     recall = tp / (tp + fn)
 
     return precision, recall
