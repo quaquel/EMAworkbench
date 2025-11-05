@@ -18,10 +18,9 @@ import copy
 import itertools
 import numbers
 import warnings
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from operator import itemgetter
 from typing import Literal
-from collections.abc import Iterable
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
