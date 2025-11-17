@@ -545,7 +545,7 @@ def _setup_figure(uncs, ax):
     )
     ax.add_patch(rect)
     ax.set_xlim(left=-0.2, right=1.2)
-    ax.set_ylim(top=-0.5, bottom=nr_unc - 0.5)
+    ax.set_ylim(top=-0.5, bottom=max(nr_unc, 1) - 0.5)
     ax.yaxis.set_ticks(list(range(nr_unc)))
     ax.xaxis.set_ticks([0, 0.25, 0.5, 0.75, 1])
     ax.set_yticklabels(uncs[::-1])

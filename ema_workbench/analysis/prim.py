@@ -18,7 +18,7 @@ import copy
 import itertools
 import numbers
 import warnings
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from operator import itemgetter
 from typing import Literal
 
@@ -345,7 +345,7 @@ class BasePrimBox(abc.ABC):
 
     def inspect(
         self,
-        i: int | None = None,
+        i: int | Iterable[int] | None = None,
         style: Literal["table", "graph", "data"] = "table",
         ax=None,
         **kwargs,
@@ -942,7 +942,7 @@ class PrimBox(BasePrimBox):
         )
 
         data = {
-            "coverage": coi / np.sum(self.prim.y),
+            "coverage": coi / max(np.sum(self.prim.y), 1),
             "density": coi / y.shape[0],
             "mean": np.mean(y),
             "res_dim": restricted_dims.shape[0],

@@ -610,7 +610,7 @@ def optimize(
     model: AbstractModel,
     algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
     nfe: int = 10000,
-    searchover: str = "levers",
+    searchover: Literal["levers", "uncertainties"] = "levers",
     evaluator: BaseEvaluator | None = None,
     reference: Sample | None = None,
     constraints: Iterable[Constraint] | None = None,
