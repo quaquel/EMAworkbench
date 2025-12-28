@@ -101,7 +101,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
 
 
 def get_limits(data):
-    """Helper function to get limits of a FataFrame that can serve as input to ParallelAxis.
+    """Helper function to get limits of a DataFrame that can serve as input to ParallelAxis.
 
     Parameters
     ----------
@@ -110,11 +110,9 @@ def get_limits(data):
     Returns
     -------
     DataFrame
-
     """
-
     def limits(x):
-        if x.dtype == "object":
+        if x.dtype == "object" or pd.api.types.is_string_dtype(x.dtype):
             return pd.Series([set(x), set(x)])
         else:
             return pd.Series([x.min(), x.max()])
