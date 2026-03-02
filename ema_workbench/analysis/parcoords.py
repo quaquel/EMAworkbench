@@ -114,7 +114,7 @@ def get_limits(data):
     """
 
     def limits(x):
-        if x.dtype == "object":
+        if x.dtype == "object" or x.dtype == "str":
             return pd.Series([set(x), set(x)])
         else:
             return pd.Series([x.min(), x.max()])
@@ -189,7 +189,7 @@ class ParallelAxes:
 
         # recode data
         for column, dtype in limits.dtypes.items():
-            if dtype == "object":
+            if dtype == "object" or dtype == "str":
                 cats = limits[column][0]
                 self.recoding[column] = CategoricalDtype(categories=cats, ordered=False)
                 self.limits.loc[:, column] = [0, len(cats) - 1]
