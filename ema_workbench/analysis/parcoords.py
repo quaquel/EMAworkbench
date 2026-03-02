@@ -114,7 +114,7 @@ def get_limits(data):
     """
 
     def limits(x):
-        if x.dtype == "object":
+        if x.dtype == "object" or x.dtype == "str":
             return pd.Series([set(x), set(x)])
         else:
             return pd.Series([x.min(), x.max()])
