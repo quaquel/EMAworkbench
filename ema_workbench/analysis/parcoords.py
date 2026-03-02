@@ -189,7 +189,7 @@ class ParallelAxes:
 
         # recode data
         for column, dtype in limits.dtypes.items():
-            if dtype == "object":
+            if dtype == "object" or dtype == "str":
                 cats = limits[column][0]
                 self.recoding[column] = CategoricalDtype(categories=cats, ordered=False)
                 self.limits.loc[:, column] = [0, len(cats) - 1]
