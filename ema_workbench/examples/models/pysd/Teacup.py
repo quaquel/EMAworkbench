@@ -23,7 +23,7 @@ _control_vars = {
     "initial_time": lambda: 0,
     "final_time": lambda: 30,
     "time_step": lambda: 0.125,
-    "saveper": lambda: time_step(),
+    "saveper": lambda: time_step(),  # noqa: PLW0108
 }
 
 
