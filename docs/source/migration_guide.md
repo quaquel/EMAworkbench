@@ -5,14 +5,14 @@
 ## Workbench 3.0
 Version 3.0 is an extensive update of the workbench, drawing on developments in the python
 ecosystem over the last decade. A large part of the API has remained the same, but there
-are a number of backward incompatible changes. The minimum python version currently supported is 
+are a number of backward incompatible changes. The minimum python version currently supported is
 Python 3.12. When upgrading, start with addressing the naming of parameters as outlined below. Next
 ensure that basic experimentation (i.e., perform_experiments) works before moving on to updating
 any optimization code. On the analysis side, the most important changes are in convergence
 analysis (see the notebook example on this) and the removal of `threshold` from PRIM.
 
 ### naming of parameters
-Perhaps the biggest change is that parameter names, outcomes names, constraint names, and model names now need to be valid 
+Perhaps the biggest change is that parameter names, outcomes names, constraint names, and model names now need to be valid
 python identifiers. That is, you cannot simply use a number or have spaces in the names of your parameters. For
 those connecting to models in python, this change is not a big deal because their
 parameter names were already valid python identifiers.
@@ -48,11 +48,11 @@ one command, and control the initial population with which the optimization star
 Moreover, the way in which optimization convergence is to be assessed has changed. The workbench
 now will always store intermediate results in a tarball while `optimize` will return the final results
 and any runtime convergence information coming from the algorithm. This means that `ArchiveLogger`
-is no longer used and replaced with `filename`, `directory`, and `convergence_freq` keyword arguments. 
+is no longer used and replaced with `filename`, `directory`, and `convergence_freq` keyword arguments.
 
 Other metrics (e.g., hypervolume) can no longer be calculated during the run but have to be done afterwards in a post processing step.
-For this, the stored archives can be loaded using the new `load_archives` helper function. See the 
-convergence analysis notebook example for full details on how to do convergence analysis. 
+For this, the stored archives can be loaded using the new `load_archives` helper function. See the
+convergence analysis notebook example for full details on how to do convergence analysis.
 
 ```python
 # old
@@ -104,7 +104,7 @@ with MultiprocessingEvaluator(lake_model) as evaluator:
 ### replacing `Policy` and `Scenario` classes with `Sample` class
 In 2.x, the workbench made a distinction between a `Policy` and a `Scenario`. Under the hood, however, these objects were
 identical. So, in 3.x, the distinction is dropped and, instead, it is called a Sample. We also introduced a new
-`SampleCollection` class which is a collection of `Sample` instances. Likewise, `perform_experiments`, `optimize`, and 
+`SampleCollection` class which is a collection of `Sample` instances. Likewise, `perform_experiments`, `optimize`, and
 `robust_optimize` have been updated to accept `Sample`, or an iterable returning `Sample` instances.
 
 ```python
@@ -122,16 +122,16 @@ policy = Sample("some policy", x=1, y=2)
 ```
 
 ### Fine-grained control over sampling
-3.x offers more fine-grained control over sampling and samplers. First, there are new keyword arguments, 
-`uncertainty_sampling_kwargs` and `lever_sampling_kwargs`, which are passed on to the various sampler classes. 
-Second, there is more fine-grained control for combining scenarios and policies in `perform_experiments`, which 
-now supports `full_factorial`, `cycle`, and `sample`. `full_factorial` is the default and runs all policies for all 
-scenarios. `cycle` will repeat the shortest of the two deterministically until it matches the length of the longest. `sample` will 
-upsample with replacement the shortest of the two to match the length of the longest. Last, the SALib samplers are 
+3.x offers more fine-grained control over sampling and samplers. First, there are new keyword arguments,
+`uncertainty_sampling_kwargs` and `lever_sampling_kwargs`, which are passed on to the various sampler classes.
+Second, there is more fine-grained control for combining scenarios and policies in `perform_experiments`, which
+now supports `full_factorial`, `cycle`, and `sample`. `full_factorial` is the default and runs all policies for all
+scenarios. `cycle` will repeat the shortest of the two deterministically until it matches the length of the longest. `sample` will
+upsample with replacement the shortest of the two to match the length of the longest. Last, the SALib samplers are
 now directly available from the `Samplers` enum.
 
-### PRIM update 
+### PRIM update
 The `threshold` argument has been removed from PRIM. This was causing confusion to users and was typically
 not needed anyway. PRIM now always returns a box and any decision on whether the density is adequate is left
 to the user. That is, a user should inspect the trade-off curve between coverage, density, and restricted dimensions and
-assess which candidate box best balances these three objectives. 
+assess which candidate box best balances these three objectives.
