@@ -5,6 +5,8 @@ discovery specific functionality.
 
 """
 
+from __future__ import annotations
+
 import contextlib
 import io
 import math
@@ -13,6 +15,7 @@ from io import StringIO
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from sklearn import tree
 
@@ -71,7 +74,13 @@ class CART(sdutil.OutputFormatterMixin):
 
     sep = "!?!"
 
-    def __init__(self, x, y, mass_min=0.05, mode=sdutil.RuleInductionType.BINARY):
+    def __init__(
+        self,
+        x: pd.DataFrame,
+        y: npt.NDArray,
+        mass_min: float = 0.05,
+        mode: sdutil.RuleInductionType = sdutil.RuleInductionType.BINARY,
+    ) -> None:
         """Init."""
         with contextlib.suppress(KeyError):
             x = x.drop(["scenario"], axis=1)

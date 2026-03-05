@@ -1,12 +1,18 @@
 """Plotting utility functions."""
 
+from __future__ import annotations
+
 import copy
 import enum
+from typing import Any
 
 import matplotlib as mpl
+import matplotlib.axes
+import matplotlib.figure
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import scipy.stats as stats
 import seaborn as sns
@@ -74,7 +80,7 @@ class PlotType(enum.Enum):
     """constant for plotting envelopes with lines."""
 
 
-def plot_envelope(ax, j, time, value, fill=False):
+def plot_envelope(ax: matplotlib.axes.Axes, j: int, time: npt.NDArray, value: npt.NDArray, fill: bool = False) -> None:
     """Helper function, responsible for plotting an envelope.
 
     Parameters
@@ -102,7 +108,7 @@ def plot_envelope(ax, j, time, value, fill=False):
         ax.plot(time, maximum, c=color)
 
 
-def plot_histogram(ax, values, log):
+def plot_histogram(ax: matplotlib.axes.Axes, values: npt.NDArray | list[npt.NDArray], log: bool) -> Any:
     """Helper function, responsible for plotting a histogram.
 
     Parameters

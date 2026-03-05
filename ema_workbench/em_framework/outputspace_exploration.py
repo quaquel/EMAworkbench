@@ -15,6 +15,8 @@ Just pass an OutputSpaceExploration instance as algorithm to optimize.
 
 """
 
+from __future__ import annotations
+
 import functools
 import math
 
@@ -34,6 +36,7 @@ from platypus import (
     Multimethod,
     PlatypusConfig,
     RandomGenerator,
+    Solution,
     TournamentSelector,
 )
 
@@ -54,11 +57,11 @@ class Novelty(Dominance):
 
     """
 
-    def __init__(self, algorithm):
+    def __init__(self, algorithm: OutputSpaceExplorationAlgorithm) -> None:
         super().__init__()
         self.algorithm = algorithm
 
-    def compare(self, winner, candidate):
+    def compare(self, winner: Solution, candidate: Solution) -> int:
         """Compare two solutions.
 
         Returns -1 if the first solution dominates the second, 1 if the

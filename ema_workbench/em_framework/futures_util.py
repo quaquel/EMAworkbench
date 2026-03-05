@@ -1,20 +1,27 @@
 """Utilities for futures modules."""
 
+from __future__ import annotations
+
 import os
 import random
 import shutil
 import string
 import time
 from collections import defaultdict
+from collections.abc import Collection
+from typing import TYPE_CHECKING
 
 from ..util import get_module_logger
+
+if TYPE_CHECKING:
+    from .model import AbstractModel
 
 __all__ = ["determine_rootdir", "finalizer", "setup_working_directories"]
 
 _logger = get_module_logger(__name__)
 
 
-def determine_rootdir(msis):
+def determine_rootdir(msis: Collection[AbstractModel]) -> str | None:
     """Determine common root directory for all models."""
     for model in msis:
         try:

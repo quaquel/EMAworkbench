@@ -1,5 +1,7 @@
 """A general purpose matplotlib-based parallel coordinate plotting Class."""
 
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd

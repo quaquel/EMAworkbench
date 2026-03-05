@@ -74,7 +74,7 @@ exclude = [
     "build",
 ]
 
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
