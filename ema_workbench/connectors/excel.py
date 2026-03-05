@@ -69,8 +69,8 @@ class BaseExcelModel(FileModel):
     com_warning_msg = "com error: no cell(s) named %s found"
 
     def __init__(
-        self, name, wd=None, model_file=None, default_sheet=None, pointers=None
-    ):
+        self, name: str, wd: str | None = None, model_file: str | None = None, default_sheet: str | None = None, pointers: dict[str, str] | None = None
+    ) -> None:
         super().__init__(name, wd=wd, model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until
         #: model_init has been invoked.
@@ -91,11 +91,11 @@ class BaseExcelModel(FileModel):
         self.pointers = pointers
 
     @property
-    def workbook(self):
+    def workbook(self) -> str:
         return self.model_file
 
     @method_logger(__name__)
-    def model_init(self, policy):
+    def model_init(self, policy) -> None:
         """Method called to initialize the model.
 
         Parameters
@@ -130,7 +130,7 @@ class BaseExcelModel(FileModel):
             _logger.debug(self.working_directory)
 
     @method_logger(__name__)
-    def run_experiment(self, experiment):
+    def run_experiment(self, experiment) -> dict:
         """Method for running an experiment.
 
         This implementation assumes that the names of the uncertainties correspond
@@ -174,7 +174,7 @@ class BaseExcelModel(FileModel):
         return results
 
     @method_logger(__name__)
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Cleaning up prior to finishing performing experiments.
 
         This will close the workbook and close Excel
@@ -199,7 +199,7 @@ class BaseExcelModel(FileModel):
         self.xl = None
         self.wb = None
 
-    def get_sheet(self, sheetname=None):
+    def get_sheet(self, sheetname: str | None = None):
         """Get a named worksheet, or the default worksheet if set.
 
         Parameters
@@ -227,7 +227,7 @@ class BaseExcelModel(FileModel):
 
         return sheet
 
-    def get_wb_value(self, name):
+    def get_wb_value(self, name: str):
         """Extract a value from a cell of the excel workbook.
 
         Parameters
@@ -267,7 +267,7 @@ class BaseExcelModel(FileModel):
 
         return value
 
-    def set_wb_value(self, name, value):
+    def set_wb_value(self, name: str, value) -> None:
         """Inject a value into a cell of the excel workbook.
 
         Parameters
@@ -304,7 +304,7 @@ class BaseExcelModel(FileModel):
                 f"com error: no cell(s) named {this_range} found on sheet {this_sheet}"
             )
 
-    def get_wb_sheetnames(self):
+    def get_wb_sheetnames(self) -> list[str]:
         """Get the names of all the workbook's worksheets."""
         if self.wb:
             try:

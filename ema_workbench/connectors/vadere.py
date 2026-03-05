@@ -24,7 +24,7 @@ __all__ = [
 ]
 
 
-def change_vadere_scenario(model_file, variable, value):
+def change_vadere_scenario(model_file: dict, variable: str, value: float) -> None:
     """Change variable in vadere .scenario file structure.
 
     Note that a vadere scenario takes the format of a nested directory.
@@ -47,7 +47,7 @@ def change_vadere_scenario(model_file, variable, value):
     reduce(operator.getitem, index[:-1], model_file)[index[-1]] = value
 
 
-def update_vadere_scenario(model_file, experiment, output_file):
+def update_vadere_scenario(model_file: str, experiment: dict, output_file: str) -> None:
     """Load a vadere .scenario file, change it depending on the passed experiment, and save it again as .scenario file.
 
     Parameters
@@ -83,7 +83,7 @@ class BaseVadereModel(FileModel):
 
     """
 
-    def __init__(self, name, vadere_jar, processor_files, wd, model_file):
+    def __init__(self, name: str, vadere_jar: str, processor_files: list[str], wd: str, model_file: str) -> None:
         """Init of class.
 
         Parameters
@@ -120,7 +120,7 @@ class BaseVadereModel(FileModel):
         self.processor_files = processor_files
 
     @method_logger(__name__)
-    def model_init(self, policy):
+    def model_init(self, policy) -> None:
         """Method called to initialize the model.
 
         Parameters
@@ -133,7 +133,7 @@ class BaseVadereModel(FileModel):
         super().model_init(policy)
 
     @method_logger(__name__)
-    def run_experiment(self, experiment):
+    def run_experiment(self, experiment) -> dict:
         """Run the experiment.
 
         Parameters
@@ -234,7 +234,7 @@ class BaseVadereModel(FileModel):
             pass
         return res
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Cleanup after performing all experiments.
 
         This method gives a hook for doing any cleanup, such as closing applications.

@@ -16,7 +16,7 @@ from sklearn import preprocessing
 __all__ = ["ParallelAxes", "get_limits"]
 
 
-def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
+def setup_parallel_plot(labels: list[str], minima: pd.Series, maxima: pd.Series, formatter: dict[str, str] | None = None, fs: int = 14, rot: float = 90) -> tuple[plt.Figure, list[plt.Axes], dict]:
     """Helper function for setting up the parallel axes plot.
 
     Parameters
@@ -102,7 +102,7 @@ def setup_parallel_plot(labels, minima, maxima, formatter=None, fs=14, rot=90):
     return fig, axes, tick_labels
 
 
-def get_limits(data):
+def get_limits(data: pd.DataFrame) -> pd.DataFrame:
     """Helper function to get limits of a FataFrame that can serve as input to ParallelAxis.
 
     Parameters
@@ -167,7 +167,7 @@ class ParallelAxes:
 
     """
 
-    def __init__(self, limits, formatter=None, fontsize=14, rot=90):
+    def __init__(self, limits: pd.DataFrame, formatter: dict[str, str] | None = None, fontsize: int = 14, rot: float = 90):
         """Init.
 
         Parameters
@@ -218,7 +218,7 @@ class ParallelAxes:
         plt.tight_layout(h_pad=0, w_pad=0)
         plt.subplots_adjust(wspace=0)
 
-    def plot(self, data, color=None, label=None, **kwargs):
+    def plot(self, data: pd.DataFrame | pd.Series, color=None, label: str | None = None, **kwargs) -> None:
         """Plot data on parallel axes.
 
         Parameters
@@ -259,7 +259,7 @@ class ParallelAxes:
         # plot the data
         self._plot(normalized_data, color=color, **kwargs)
 
-    def legend(self):
+    def legend(self) -> None:
         """Add a legend to the figure."""
         artists = []
         labels = []
@@ -301,7 +301,7 @@ class ParallelAxes:
             if label_j in self.flipped_axes:
                 self._update_plot_data(ax, 1, lines=lines)
 
-    def invert_axis(self, axis):
+    def invert_axis(self, axis: str | list[str]) -> None:
         """Flip direction for specified axis.
 
         Parameters

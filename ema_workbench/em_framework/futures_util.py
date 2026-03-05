@@ -39,10 +39,10 @@ def determine_rootdir(msis: Collection[AbstractModel]) -> str | None:
     return root_dir
 
 
-def finalizer(experiment_runner):
+def finalizer(experiment_runner: AbstractModel) -> callable:
     """Cleanup."""
 
-    def finalizer(tmpdir):
+    def finalizer(tmpdir: str | None) -> None:
         _logger.info("finalizing")
 
         experiment_runner.cleanup()
@@ -59,7 +59,7 @@ def finalizer(experiment_runner):
     return finalizer
 
 
-def setup_working_directories(models, root_dir):
+def setup_working_directories(models: Collection[AbstractModel], root_dir: str) -> str | None:
     """Setup working directories when running in parallel.
 
     Copies the working directory of each model to a process specific

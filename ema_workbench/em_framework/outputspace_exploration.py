@@ -104,7 +104,7 @@ class HitBox(Archive):
 
     """
 
-    def __init__(self, grid_spec):
+    def __init__(self, grid_spec: list[tuple[float, float, float]]) -> None:
         """Init."""
         super().__init__(None)
         self.archive = {}
@@ -114,7 +114,7 @@ class HitBox(Archive):
         self.improvements = 0
         self.overall_novelty = 0
 
-    def add(self, solution):
+    def add(self, solution: Solution) -> bool:
         """Add a solution to the archive."""
         key = get_index_for_solution(solution, self.grid_spec)
 
@@ -149,7 +149,7 @@ class HitBox(Archive):
 
         return True
 
-    def get_novelty_score(self, solution):
+    def get_novelty_score(self, solution: Solution) -> float:
         """Return the novelty score of the solution."""
         key = get_index_for_solution(solution, self.grid_spec)
         return 1 / self.grid_counter[key]
@@ -215,7 +215,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         self.comparator = Novelty(self)
         self.add_extension(AdaptiveTimeContinuationExtension())
 
-    def step(self):
+    def step(self) -> None:
         """A single step of the algorithm."""
         if self.nfe == 0:
             self.initialize()
@@ -224,7 +224,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
 
         self.result = self.archive
 
-    def initialize(self):
+    def initialize(self) -> None:
         """Initialize the algorithm."""
         super().initialize()
 
@@ -234,7 +234,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         if self.variator is None:
             self.variator = PlatypusConfig.default_variator(self.problem)
 
-    def iterate(self):
+    def iterate(self) -> None:
         """A signle iteration of the algorithm."""
         offspring = []
 
@@ -252,7 +252,7 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         self.population = offspring[: self.population_size]
 
 
-def get_index_for_solution(solution, grid_spec):
+def get_index_for_solution(solution: Solution, grid_spec: list[tuple[float, float, float]]) -> tuple[int, ...]:
     """Maps the objectives to the key for the grid cell into which this solution falls.
 
     Parameters
@@ -274,7 +274,7 @@ def get_index_for_solution(solution, grid_spec):
     return key
 
 
-def get_bin_index(value, minumum_value, epsilon):
+def get_bin_index(value: float, minumum_value: float, epsilon: float) -> int:
     """Maps the value for a single objective to the index of the grid cell along that dimension.
 
     Parameters

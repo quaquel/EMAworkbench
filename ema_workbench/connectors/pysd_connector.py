@@ -31,11 +31,11 @@ class BasePysdModel(AbstractModel):
     """
 
     @property
-    def mdl_file(self):
+    def mdl_file(self) -> str:
         return self._mdl_file
 
     @mdl_file.setter
-    def mdl_file(self, mdl_file):
+    def mdl_file(self, mdl_file: str) -> None:
         if not mdl_file.endswith(".mdl"):
             raise ValueError("model file needs to be a vensim .mdl file")
         if not os.path.isfile(mdl_file):
@@ -54,7 +54,7 @@ class BasePysdModel(AbstractModel):
         self.model = None
 
     @method_logger(__name__)
-    def model_init(self, policy: Sample, **kwargs):
+    def model_init(self, policy: Sample, **kwargs) -> None:
         """Initialize the model."""
         super().model_init(policy)
 
@@ -63,7 +63,7 @@ class BasePysdModel(AbstractModel):
         self.model = pysd.read_vensim(self.mdl_file)
 
     @method_logger(__name__)
-    def run_experiment(self, experiment):
+    def run_experiment(self, experiment) -> dict:
         """Run the experiment."""
         res = self.model.run(params=experiment, return_columns=self.output_variables)
 
@@ -71,7 +71,7 @@ class BasePysdModel(AbstractModel):
         output = {col: series.values for col, series in res.items()}
         return output
 
-    def reset_model(self):
+    def reset_model(self) -> None:
         """Method for resetting the model to its initial state.
 
         The default implementation only sets the outputs to an empty dict.
