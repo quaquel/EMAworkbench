@@ -36,7 +36,7 @@ __all__ = [
 _logger = get_module_logger(__name__)
 
 
-def be_quiet():
+def be_quiet() -> None:
     """Turn off the work in progress dialog of Vensim.
 
     Defaults to 2, suppressing all windows, for more fine-grained control, use
@@ -45,7 +45,7 @@ def be_quiet():
     vensim_dll_wrapper.be_quiet(2)
 
 
-def load_model(file_name):
+def load_model(file_name: str) -> None:
     """Load the model.
 
     Parameters
@@ -68,7 +68,7 @@ def load_model(file_name):
         raise VensimError("vensim file not found") from w
 
 
-def read_cin_file(file_name):
+def read_cin_file(file_name: str) -> None:
     """Read a .cin file.
 
     Parameters
@@ -89,7 +89,7 @@ def read_cin_file(file_name):
         raise w
 
 
-def set_value(variable, value):
+def set_value(variable: str, value: int | float | list) -> None:
     """Set the value of a variable to value.
 
     current implementation only works for lookups and normal values. In case
@@ -117,7 +117,7 @@ def set_value(variable, value):
             _logger.warning("variable: '" + variable + "' not found")
 
 
-def run_simulation(file_name):
+def run_simulation(file_name: str) -> None:
     """Rn a model and store the results of the run in the specified .vdf file.
 
     The specified output file will be overwritten by default
@@ -145,7 +145,7 @@ def run_simulation(file_name):
         raise VensimError(str(w)) from w
 
 
-def get_data(filename, varname, step=1):
+def get_data(filename: str, varname: str, step: int = 1) -> list:
     """Retrieve data from simulation runs or imported data sets.
 
     Parameters
@@ -184,7 +184,7 @@ class VensimModel(SingleReplication, FileModel):
     """
 
     @property
-    def result_file(self):
+    def result_file(self) -> str:
         """Return path to results file."""
         return os.path.join(self.working_directory, self._result_file)
 
@@ -245,7 +245,7 @@ class VensimModel(SingleReplication, FileModel):
 
         _logger.debug("vensim interface init completed")
 
-    def model_init(self, policy: Sample):
+    def model_init(self, policy: Sample) -> None:
         """Init of the model.
 
         Parameters
@@ -290,7 +290,7 @@ class VensimModel(SingleReplication, FileModel):
             raise EMAWarning(str(VensimWarning)) from w
 
     @method_logger(__name__)
-    def run_experiment(self, experiment: Experiment):
+    def run_experiment(self, experiment: Experiment) -> dict:
         """Run the experiment.
 
         The provided implementation assumes that the keys (i.e., the parameter names) in the
@@ -358,7 +358,7 @@ class VensimModel(SingleReplication, FileModel):
         return results
 
 
-def create_model_for_debugging(path_to_existing_model, path_to_new_model, error):
+def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: str, error: str) -> None:
     """Create a vensim mdl file parameterized according to the experiment.
 
     To be able to debug the Vensim model, a few steps are needed:

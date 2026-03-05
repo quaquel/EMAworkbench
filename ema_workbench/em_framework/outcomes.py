@@ -3,9 +3,11 @@
 import abc
 import collections
 import numbers
+import tarfile
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from io import BytesIO
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -56,7 +58,7 @@ class Register:
         else:
             pass  # multiple instances of the same class and name is fine
 
-    def serialize(self, name, values):
+    def serialize(self, name: str, values: np.ndarray | pd.DataFrame) -> tuple[BytesIO, str]:
         """Serialize the given outcome.
 
         Parameters
@@ -77,7 +79,7 @@ class Register:
 
         return stream, f"{name}.{extension}"
 
-    def deserialize(self, name, filename, archive):
+    def deserialize(self, name: str, filename: str, archive: tarfile.TarFile) -> np.ndarray:
         """Serialize the given outcome."""
         return self.outcomes[name].from_disk(filename, archive)
 
@@ -127,13 +129,13 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
 
     def __init__(
         self,
-        name,
-        kind=INFO,
-        variable_name=None,
-        function=None,
-        shape=None,
-        dtype=None,
-    ):
+        name: str,
+        kind: int = INFO,
+        variable_name: str | Sequence[str] | None = None,
+        function: Callable[..., Any] | None = None,
+        shape: tuple[int, ...] | None = None,
+        dtype: np.dtype | type | None = None,
+    ) -> None:
         """Init."""
         super().__init__(name)
 
@@ -165,7 +167,7 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
         self.shape = shape
         self.dtype = dtype
 
-    def process(self, values):
+    def process(self, values: list[Any]) -> Any:
         """Process the values."""
         if self.function:
             var_names = self.variable_name
@@ -226,7 +228,7 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def to_disk(cls, values):
+    def to_disk(cls, values: np.ndarray | pd.DataFrame) -> tuple[BytesIO, str]:
         """Helper function for writing outcome to disk.
 
         Parameters
@@ -243,7 +245,7 @@ class Outcome(Variable, metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def from_disk(cls, filename, archive):
+    def from_disk(cls, filename: str, archive: tarfile.TarFile) -> np.ndarray:
         """Helper function for loading from disk.
 
         Parameters
@@ -294,12 +296,12 @@ class ScalarOutcome(Outcome):
 
     def __init__(
         self,
-        name,
-        kind=Outcome.INFO,
-        variable_name=None,
-        function=None,
-        dtype=None,
-    ):
+        name: str,
+        kind: int = Outcome.INFO,
+        variable_name: str | Sequence[str] | None = None,
+        function: Callable[..., Any] | None = None,
+        dtype: np.dtype | type | None = None,
+    ) -> None:
         """Init."""
         shape = None
         if dtype is not None:

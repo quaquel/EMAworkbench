@@ -123,7 +123,7 @@ class BaseNetLogoModel(FileModel):
         self.jvm_args = jvm_args
 
     @method_logger(__name__)
-    def model_init(self, policy: Sample):
+    def model_init(self, policy: Sample) -> None:
         """Method called to initialize the model.
 
         Parameters
@@ -148,7 +148,7 @@ class BaseNetLogoModel(FileModel):
         _logger.debug("model opened")
 
     @method_logger(__name__)
-    def run_experiment(self, experiment: Experiment):
+    def run_experiment(self, experiment: Experiment) -> dict:
         """Method for running an experiment..
 
         Parameters
@@ -230,7 +230,7 @@ class BaseNetLogoModel(FileModel):
 
         return results
 
-    def retrieve_output(self):
+    def retrieve_output(self) -> dict:
         """Method for retrieving output after a model run.
 
         Returns
@@ -241,7 +241,7 @@ class BaseNetLogoModel(FileModel):
         return self.output
 
     @method_logger(__name__)
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Cleanup after finishing all the experiments, but just prior to returning the results.
 
         This method gives a hook for doing any cleanup, such as closing applications.
@@ -259,7 +259,7 @@ class BaseNetLogoModel(FileModel):
     #         jpype.shutdownJVM()
     #         self.netlogo = None
 
-    def _handle_outcomes(self, fns):
+    def _handle_outcomes(self, fns: dict[str, str]) -> dict:
         """Helper function for parsing outcomes."""
         results = {}
         for key, value in fns.items():

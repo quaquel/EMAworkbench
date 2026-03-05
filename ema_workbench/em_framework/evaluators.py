@@ -33,7 +33,7 @@ from .samplers import (
     LHSSampler,
     MonteCarloSampler,
 )
-from .util import determine_objects
+from .util import StdlibSeedLike, determine_objects
 
 # Created on 5 Mar 2017
 #
@@ -48,8 +48,6 @@ __all__ = [
 ]
 
 _logger = get_module_logger(__name__)
-
-SeedLike = int | float | str | bytes | bytearray  # seedlike for stdlib random.seed
 
 
 class Samplers(enum.Enum):
@@ -66,7 +64,7 @@ class Samplers(enum.Enum):
     MORRIS = MorrisSampler()
 
 
-SamplerTypes = Literal[
+type SamplerTypes = Literal[
     Samplers.MC,
     Samplers.LHS,
     Samplers.FF,
@@ -209,6 +207,44 @@ class BaseEvaluator(abc.ABC):
             **kwargs,
         )
 
+    @overload
+    def optimize(
+            self,
+            algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
+            nfe: int = 10000,
+            searchover: str = "levers",
+            reference: Sample | None = None,
+            constraints: Iterable[Constraint] | None = None,
+            convergence_freq: int = 1000,
+            logging_freq: int = 5,
+            variator: type[Variator] | None = None,
+            rng: Iterable[StdlibSeedLike] | None = None,
+            initial_population: Iterable[Sample] | None = None,
+            filename: str | None = None,
+            directory: str | None = None,
+            **kwargs,
+    ) -> list[tuple[pd.DataFrame, pd.DataFrame]]:
+        ...
+
+    @overload
+    def optimize(
+            self,
+            algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
+            nfe: int = 10000,
+            searchover: str = "levers",
+            reference: Sample | None = None,
+            constraints: Iterable[Constraint] | None = None,
+            convergence_freq: int = 1000,
+            logging_freq: int = 5,
+            variator: type[Variator] | None = None,
+            rng: StdlibSeedLike | None = None,
+            initial_population: Iterable[Sample] | None = None,
+            filename: str | None = None,
+            directory: str | None = None,
+            **kwargs,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        ...
+
     def optimize(
         self,
         algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
@@ -219,12 +255,12 @@ class BaseEvaluator(abc.ABC):
         convergence_freq: int = 1000,
         logging_freq: int = 5,
         variator: type[Variator] | None = None,
-        rng: SeedLike | Iterable[SeedLike] | None = None,
+        rng: StdlibSeedLike | Iterable[StdlibSeedLike] | None = None,
         initial_population: Iterable[Sample] | None = None,
         filename: str | None = None,
         directory: str | None = None,
         **kwargs,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ):
         """Convenience method for outcome optimization.
 
         A call to this method is forwarded to :func:optimize, with evaluator and models
@@ -263,7 +299,7 @@ class BaseEvaluator(abc.ABC):
         nfe: int = 10000,
         convergence_freq: int = 1000,
         logging_freq: int = 5,
-        rng: SeedLike | Iterable[SeedLike] | None = None,
+        rng: StdlibSeedLike | Iterable[StdlibSeedLike] | None = None,
         **kwargs,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Convenience method for robust optimization.
@@ -578,7 +614,7 @@ def optimize(
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     variator: Variator = None,
-    rng: Iterable[SeedLike] | None = None,
+    rng: Iterable[StdlibSeedLike] | None = None,
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
@@ -598,7 +634,7 @@ def optimize(
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     variator: Variator = None,
-    rng: SeedLike | None = None,
+    rng: StdlibSeedLike | None = None,
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
@@ -617,7 +653,7 @@ def optimize(
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     variator: Variator = None,
-    rng: SeedLike | Iterable[SeedLike] | None = None,
+    rng: StdlibSeedLike | Iterable[StdlibSeedLike] | None = None,
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
@@ -731,7 +767,7 @@ def robust_optimize(
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     variator: Variator = None,
-    rng: SeedLike | None = None,
+    rng: StdlibSeedLike | None = None,
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
@@ -751,7 +787,7 @@ def robust_optimize(
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     variator: Variator = None,
-    rng: Iterable[SeedLike] | None = None,
+    rng: Iterable[StdlibSeedLike] | None = None,
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
@@ -770,7 +806,7 @@ def robust_optimize(
     convergence_freq: int = 1000,
     logging_freq: int = 5,
     variator: Variator = None,
-    rng: SeedLike | Iterable[SeedLike] | None = None,
+    rng: StdlibSeedLike | Iterable[StdlibSeedLike] | None = None,
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
