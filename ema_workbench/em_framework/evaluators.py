@@ -218,7 +218,7 @@ class BaseEvaluator(abc.ABC):
             convergence_freq: int = 1000,
             logging_freq: int = 5,
             variator: type[Variator] | None = None,
-            rng: Iterable[StdlibSeedLike] = None,
+            rng: Iterable[StdlibSeedLike] | None = None,
             initial_population: Iterable[Sample] | None = None,
             filename: str | None = None,
             directory: str | None = None,
