@@ -1,20 +1,27 @@
 """Utilities for futures modules."""
 
+from __future__ import annotations
+
 import os
 import random
 import shutil
 import string
 import time
 from collections import defaultdict
+from collections.abc import Collection
+from typing import TYPE_CHECKING
 
 from ..util import get_module_logger
+
+if TYPE_CHECKING:
+    from .model import AbstractModel
 
 __all__ = ["determine_rootdir", "finalizer", "setup_working_directories"]
 
 _logger = get_module_logger(__name__)
 
 
-def determine_rootdir(msis):
+def determine_rootdir(msis: Collection[AbstractModel]) -> str | None:
     """Determine common root directory for all models."""
     for model in msis:
         try:
@@ -32,10 +39,10 @@ def determine_rootdir(msis):
     return root_dir
 
 
-def finalizer(experiment_runner):
+def finalizer(experiment_runner: AbstractModel) -> callable:
     """Cleanup."""
 
-    def finalizer(tmpdir):
+    def finalizer(tmpdir: str | None) -> None:
         _logger.info("finalizing")
 
         experiment_runner.cleanup()
@@ -52,7 +59,7 @@ def finalizer(experiment_runner):
     return finalizer
 
 
-def setup_working_directories(models, root_dir):
+def setup_working_directories(models: Collection[AbstractModel], root_dir: str) -> str | None:
     """Setup working directories when running in parallel.
 
     Copies the working directory of each model to a process specific

@@ -98,7 +98,7 @@ class Category(NamedObject):
         self.value = value
 
 
-def create_category(cat):
+def create_category(cat: Any) -> Category:
     """Helper function for creating a Category object."""
     if isinstance(cat, Category):
         return cat
@@ -133,7 +133,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     default = None
 
     @property
-    def resolution(self):
+    def resolution(self) -> list | None:
         """Getter for resolution."""
         return self._resolution
 
@@ -168,7 +168,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.uniform = True
 
     @classmethod
-    def from_dist(cls, name: str, dist, **kwargs):
+    def from_dist(cls, name: str, dist: sp.stats.rv_continuous | sp.stats.rv_discrete, **kwargs: Any) -> "Parameter":
         """Factory method for creating a Parameter from a scipy distribution.
 
         Alternative constructor for creating a parameter from a frozen
@@ -444,7 +444,7 @@ class CategoricalParameter(IntegerParameter):
         self.resolution = list(range(len(self.categories)))
         self.multivalue = multivalue
 
-    def index_for_cat(self, category):
+    def index_for_cat(self, category: str) -> int:
         """Return index of category.
 
         Parameters
@@ -462,7 +462,7 @@ class CategoricalParameter(IntegerParameter):
                 return i
         raise ValueError(f"Category {category} not found")
 
-    def cat_for_index(self, index: int):
+    def cat_for_index(self, index: int) -> Category:
         """Return category given index.
 
         Parameters
@@ -699,7 +699,7 @@ class ParameterMap(NamedObjectMap):
                     parameters.append(latent_parameter)
         return parameters
 
-    def copy(self):
+    def copy(self) -> "ParameterMap":
         copy = self.__class__()
         copy._data = self._data.copy()
 
