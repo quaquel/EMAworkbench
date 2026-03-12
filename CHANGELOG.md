@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 3.0
 
 ### Highlights
-This is the 3.0 release of the workbench. It updates the workbench, drawing on developments in the wider python econsystem such as type hinting and scipy.stats.qmc. The changes are backward incompatible, but the API changes are kept to a minimum. See the migration guide for details. Also, the minimum required version of python is now 3.12. 
+This is the 3.0 release of the workbench. It updates the workbench, drawing on developments in the wider python econsystem such as type hinting and scipy.stats.qmc. The changes are backward incompatible, but the API changes are kept to a minimum. See the migration guide for details. Also, the minimum required version of python is now 3.12.
 
 ### 🎉 New features added
 * Overhaul of sampling to draw on developments in scientific python ecosystem by @quaquel in https://github.com/quaquel/EMAworkbench/pull/410
