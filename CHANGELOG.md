@@ -6,6 +6,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
 
+<!-- Release notes generated using configuration in .github/release.yml at master -->
+
+## 3.0
+
+### Highlights
+This is the 3.0 release of the workbench. It updates the workbench, drawing on developments in the wider python econsystem such as type hinting and scipy.stats.qmc. The changes are backward incompatible, but the API changes are kept to a minimum. See the migration guide for details. Also, the minimum required version of python is now 3.12. 
+
+### 🎉 New features added
+* Overhaul of sampling to draw on developments in scientific python ecosystem by @quaquel in https://github.com/quaquel/EMAworkbench/pull/410
+* remove threshold and threshold type from PRIM by @quaquel in https://github.com/quaquel/EMAworkbench/pull/418
+* More fine-grained control for custom sampling schemes by @quaquel in https://github.com/quaquel/EMAworkbench/pull/419
+* Simplifcation of classses and functions related to sampling by @quaquel in https://github.com/quaquel/EMAworkbench/pull/420
+* Optimization improvements by @quaquel in https://github.com/quaquel/EMAworkbench/pull/424
+* Support for multiple seeds  by @quaquel in https://github.com/quaquel/EMAworkbench/pull/429
+* Shape by @quaquel in https://github.com/quaquel/EMAworkbench/pull/431
+
+### 🛠 Enhancements made
+* minor fix to avoid error of directory already exists while using Mult… by @pollockDeVis in https://github.com/quaquel/EMAworkbench/pull/388
+* Add a flag to VensimModel to change underscores to white space in Variable names by @quaquel in https://github.com/quaquel/EMAworkbench/pull/405
+* Evaluator overhaul by @quaquel in https://github.com/quaquel/EMAworkbench/pull/415
+
+### 🐛 Bugs fixed
+* Fix finalizer dependency on global experiment_runner by @quaquel in https://github.com/quaquel/EMAworkbench/pull/346
+* bug fix in MPI evaluator by @quaquel in https://github.com/quaquel/EMAworkbench/pull/349
+* Replace deprecated np.NaN with np.nan by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/361
+* Use PlatypusConfig.default_variator by @dhadka in https://github.com/quaquel/EMAworkbench/pull/369
+* Minor bug fixes to mpi support  by @quaquel in https://github.com/quaquel/EMAworkbench/pull/390
+* Fix for #389 bug in pca_preprocess by @quaquel in https://github.com/quaquel/EMAworkbench/pull/392
+* vensim dll wrapper fixes by @quaquel in https://github.com/quaquel/EMAworkbench/pull/427
+* bugfixes in optimization by @quaquel in https://github.com/quaquel/EMAworkbench/pull/430
+
+### 📜 Documentation improvements
+* Clear up DelftBlue tutorial by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/359
+* Switch from Black to Ruff by @quaquel in https://github.com/quaquel/EMAworkbench/pull/401
+
+### 🔧 Maintenance
+* CI: Uses uv pip to speed up workflows by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/362
+* Drop Python 3.9 support, require 3.10+ by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/353
+* Switch from Black to Ruff as linter by @quaquel in https://github.com/quaquel/EMAworkbench/pull/393
+* Revert "Switch from Black to Ruff as linter" by @quaquel in https://github.com/quaquel/EMAworkbench/pull/400
+* Add python 3.13 and 3.14 to CI by @quaquel in https://github.com/quaquel/EMAworkbench/pull/434
+* Update parcoords.py by @quaquel in https://github.com/quaquel/EMAworkbench/pull/444
+* ci: cancel in-progress runs for same PR/branch by @EwoutH in https://github.com/quaquel/EMAworkbench/pull/442
+
+### Other changes
+* shift model name from alphanumerical to valid python identifier by @quaquel in https://github.com/quaquel/EMAworkbench/pull/402
+* Remove lookup uncertainty by @quaquel in https://github.com/quaquel/EMAworkbench/pull/408
+* Integration tests by @quaquel in https://github.com/quaquel/EMAworkbench/pull/413
+* fixes for warnings by @quaquel in https://github.com/quaquel/EMAworkbench/pull/433
+* Typing Fixes by @quaquel in https://github.com/quaquel/EMAworkbench/pull/446
+* Migration guide by @quaquel in https://github.com/quaquel/EMAworkbench/pull/445
+
+## New Contributors
+* @dhadka made their first contribution in https://github.com/quaquel/EMAworkbench/pull/369
+* @pollockDeVis made their first contribution in https://github.com/quaquel/EMAworkbench/pull/388
+
+**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/2.5.0...3.0
+
 ## 2.5.2
 2.5.2 is a small patch release that makes the EMAworkbench compatible with NumPy 2.0 and improves the MPIEvaluator tutorial.
 
