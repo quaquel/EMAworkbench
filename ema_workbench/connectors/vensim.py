@@ -358,7 +358,7 @@ class VensimModel(SingleReplication, FileModel):
         return results
 
 
-def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: str, error: str) -> None:
+def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: str, error: str|dict) -> None:
     """Create a vensim mdl file parameterized according to the experiment.
 
     To be able to debug the Vensim model, a few steps are needed:
@@ -386,26 +386,32 @@ def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: s
                              path to the original mdl file
     path_to_new_model : str
                         path for the new mdl file
-    error : str
+    error : str or dict
             the case error, only containing the parameterization
+            or an experiment dictionary
 
     """
     # we assume the case specification was copied from the logger
-    experiment = error.split(",")
-    variables = {}
+    if isinstance(error, str):
+        experiment = error.split(",")
+        variables = {}
 
-    # -1 because policy entry needs to be removed
-    for entry in experiment[0:-1]:
-        variable, value = entry.split(":")
+        # -1 because policy entry needs to be removed
+        for entry in experiment[0:-1]:
+            variable, value = entry.split(":")
 
-        # Delete the spaces and other rubish on the sides of the variable name
-        variable = variable.strip()
-        variable = variable.lstrip("'")
-        variable = variable.rstrip("'")
-        value = value.strip()
+            # Delete the spaces and other rubish on the sides of the variable name
+            variable = variable.strip()
+            variable = variable.lstrip("'")
+            variable = variable.rstrip("'")
+            value = value.strip()
 
-        # vensim model is in bytes, so we go from unicode to bytes
-        variables[variable.encode("utf8")] = value.encode("utf8")
+            # vensim model is in bytes, so we go from unicode to bytes
+            variables[variable.encode("utf8")] = value.encode("utf8")
+    elif isinstance(error, dict):
+        variables = error
+    else:
+        raise ValueError(f"error must be a string or dict, not of type{type(error)}")
 
     # This generates a new (text-formatted) model
     with open(path_to_new_model, "wb") as new_model:
@@ -414,7 +420,7 @@ def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: s
         for line in open(path_to_existing_model, "rb"):  # noqa: SIM115
             if skip_next_line:
                 skip_next_line = False
-                lin_to_write = b"\n"
+                line_to_write = b"\n"
             elif line.find(b"=") != -1:
                 variable = line.split(b"=")[0]
                 variable = variable.strip()
@@ -422,12 +428,14 @@ def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: s
                 try:
                     value = variables.pop(variable)
                 except KeyError:
-                    pass
+                    line_to_write = line
                 else:
-                    lin_to_write = variable + b" = " + value
+                    line_to_write = variable + b" = " + value
                     skip_next_line = True
+            else:
+                line_to_write = line
 
-            new_model.write(lin_to_write)
+            new_model.write(line_to_write)
 
     _logger.info("parameters not set:")
     _logger.info(set(variables.keys()))
