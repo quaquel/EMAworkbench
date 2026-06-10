@@ -407,22 +407,22 @@ def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: s
             value = value.strip()
 
             # vensim model is in bytes, so we go from unicode to bytes
-            variables[variable.encode("utf8")] = value.encode("utf8")
+            variables[variable] = value
     elif isinstance(error, dict):
         variables = error
     else:
         raise ValueError(f"error must be a string or dict, not of type{type(error)}")
 
     # This generates a new (text-formatted) model
-    with open(path_to_new_model, "wb") as new_model:
+    with open(path_to_new_model, "w") as new_model:
         skip_next_line = False
 
-        for line in open(path_to_existing_model, "rb"):  # noqa: SIM115
+        for line in open(path_to_existing_model):  # noqa: SIM115
             if skip_next_line:
                 skip_next_line = False
-                line_to_write = b"\n"
-            elif line.find(b"=") != -1:
-                variable = line.split(b"=")[0]
+                line_to_write = "\n"
+            elif line.find("=") != -1:
+                variable = line.split("=")[0]
                 variable = variable.strip()
 
                 try:
@@ -430,7 +430,7 @@ def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: s
                 except KeyError:
                     line_to_write = line
                 else:
-                    line_to_write = variable + b" = " + value
+                    line_to_write = variable + " = " + str(value)
                     skip_next_line = True
             else:
                 line_to_write = line
