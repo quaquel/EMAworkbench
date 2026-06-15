@@ -1688,8 +1688,8 @@ class BasePrim(sdutil.OutputFormatterMixin):
                 assert paste_value >= box.box_lims[-1].loc[i, u]
 
             dtype = box_paste[u].dtype
-            if dtype == np.int32:
-                paste_value = np.int(paste_value)
+            if isinstance(paste_value, np.integer):
+                paste_value = int(paste_value)
 
             box_paste.loc[i, u] = paste_value
             logical = sdutil._in_box(x[resdim], box_paste[resdim])
