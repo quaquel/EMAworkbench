@@ -686,7 +686,7 @@ def _optimize(
     initial_population: Iterable[Sample] | None = None,
     filename: str | None = None,
     directory: str | None = None,
-    rng: None | StdlibSeedLike = None,
+    rng: StdlibSeedLike | None = None,
     **kwargs,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Helper function for optimization."""
