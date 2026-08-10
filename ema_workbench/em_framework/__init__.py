@@ -30,7 +30,6 @@ __all__ = [
     "Problem",
     "RealParameter",
     "ReplicatorModel",
-    "ReplicatorModel",
     "Sample",
     "Samplers",
     "ScalarOutcome",
