@@ -17,7 +17,6 @@ import scipy as sp
 import seaborn as sns
 from mpl_toolkits.axes_grid1 import host_subplot  # @UnresolvedImports
 
-from ..util import EMAError, get_module_logger
 from .plotting_util import COLOR_LIST, make_legend
 
 # Created on May 24, 2015
@@ -25,8 +24,6 @@ from .plotting_util import COLOR_LIST, make_legend
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
 __all__ = ["RuleInductionType"]
-
-_logger = get_module_logger(__name__)
 
 
 class RuleInductionType(enum.Enum):
@@ -79,48 +76,6 @@ def _get_sorted_box_lims(boxes, box_init):
     box_lims = list(boxes)
 
     return box_lims, uncs.tolist()
-
-
-def _drop_uninformative_columns(
-    x: pd.DataFrame, exclude: tuple[str, ...] = ("scenario",)
-) -> pd.DataFrame:
-    """Drop columns that cannot be used to describe a subset of the experiments.
-
-    Drops the columns named in exclude (by default the scenario id column),
-    and any column with fewer than two distinct values, numeric or not.
-    Missing values count as a value, so a column with a single value and
-    missing values is kept, while an entirely missing column is dropped.
-    Every dropped column with fewer than two distinct values is logged at
-    info level.
-
-    Parameters
-    ----------
-    x : DataFrame
-    exclude : tuple of str, optional
-              columns to drop if present
-
-    Returns
-    -------
-    DataFrame
-        a new DataFrame without the dropped columns
-
-    Raises
-    ------
-    EMAError
-        if no column is left
-
-    """
-    x = x.drop(columns=[c for c in exclude if c in x.columns])
-    constant = [c for c in x.columns if x[c].nunique(dropna=False) < 2]
-    for column in constant:
-        _logger.info(
-            f"column {column} dropped from analysis because it has fewer than "
-            "two distinct values"
-        )
-    x = x.drop(columns=constant)
-    if x.shape[1] == 0:
-        raise EMAError("no column with at least two distinct values left to analyze")
-    return x
 
 
 def _make_box(x):

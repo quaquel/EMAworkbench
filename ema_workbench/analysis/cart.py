@@ -7,6 +7,7 @@ discovery specific functionality.
 
 from __future__ import annotations
 
+import contextlib
 import io
 from io import StringIO
 
@@ -80,7 +81,8 @@ class CART(sdutil.OutputFormatterMixin):
         mode: sdutil.RuleInductionType = sdutil.RuleInductionType.BINARY,
     ) -> None:
         """Init."""
-        x = sdutil._drop_uninformative_columns(x)
+        with contextlib.suppress(KeyError):
+            x = x.drop(["scenario"], axis=1)
 
         self.x = x
         self.y = y

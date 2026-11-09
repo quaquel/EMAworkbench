@@ -6,7 +6,6 @@ import pandas as pd
 import pytest
 
 from ema_workbench.analysis import prim
-from ema_workbench.util import EMAError
 from ema_workbench.analysis.prim import PrimBox
 from test import utilities
 
@@ -218,21 +217,6 @@ class TestPrimBox:
 
 
 class TestPrim:
-    def test_uninformative_columns_dropped(self):
-        rng = np.random.default_rng(0)
-        x = pd.DataFrame(
-            {
-                "scenario": np.arange(100),
-                "a": rng.random(100),
-                "constant": 2.0,
-                "model": pd.Categorical(["m"] * 100),
-                "lever": pd.Categorical(rng.choice(["p", "q"], 100)),
-            }
-        )
-        prim_obj = prim.Prim(x, (x.a > 0.5).astype(int).values)
-        assert prim_obj.x.columns.tolist() == ["a", "lever"]
-        assert prim_obj.box_init.columns.tolist() == ["a", "lever"]
-
     """Test for prim algorithm."""
 
     def test_boxes(self):
@@ -386,11 +370,14 @@ class TestPrim:
         peels = primalg._discrete_peel(box, "a", 0, primalg.x_int)
         assert len(peels) == 2
 
-        # a constant column is dropped before peeling, so it never reaches
-        # _discrete_peel; with no informative column left, Prim refuses
         x.loc[x.a < 5, "a"] = 5
-        with pytest.raises(EMAError):
-            prim.Prim(x, y)
+        primalg = prim.Prim(x, y)
+        boxlims = primalg.box_init
+        boxlims.a = [5, 8]
+        box = prim.PrimBox(primalg, boxlims, primalg.yi)
+
+        peels = primalg._discrete_peel(box, "a", 0, primalg.x_int)
+        assert len(peels) == 2
 
     def test_categorical_peel(self):
         x = pd.DataFrame(

@@ -166,20 +166,6 @@ class CartTestCase(unittest.TestCase):
 #         self.assertTrue(isinstance(bytestream, bytes))
 
 
-    def test_uninformative_columns_dropped(self):
-        rng = np.random.default_rng(0)
-        x = pd.DataFrame(
-            {
-                "scenario": np.arange(100),
-                "a": rng.random(100),
-                "constant": 2.0,
-                "model": pd.Categorical(["m"] * 100),
-            }
-        )
-        alg = cart.CART(x, (x.a > 0.5).astype(int).values)
-        self.assertEqual(alg.x.columns.tolist(), ["a"])
-        self.assertEqual(alg.feature_names, ["a"])
-
 if __name__ == "__main__":
     unittest.main()
 
