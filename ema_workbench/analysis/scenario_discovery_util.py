@@ -3,6 +3,8 @@
 import abc
 import enum
 import itertools
+import math
+from collections.abc import Callable, Hashable
 from typing import Literal
 
 import matplotlib as mpl
@@ -240,6 +242,226 @@ def _in_box(x, boxlim):
             l = pd.isnull(x[column].cat.remove_categories(list(entries)))  # noqa: E741
             logical = l & logical
     return logical
+
+
+def _extract_tree_boxes(
+    clf,
+    x: pd.DataFrame,
+    feature_names: list[str],
+    dummies_map: dict[str, dict[str, object]] | None = None,
+    sep: str = "!?!",
+    merge_key: Callable[[int], Hashable] | None = None,
+) -> list[tuple[int, pd.DataFrame]]:
+    """Extract box limits from a fitted scikit-learn decision tree.
+
+    The tree is walked top-down. Box limits use closed intervals, following the
+    convention of the rest of the workbench: the left child of a split
+    x <= threshold gets upper limit threshold, the right child gets lower
+    limit threshold. For integer (and boolean) columns the limits are rounded
+    to the nearest admissible integers (floor for an upper limit, ceil for a
+    lower limit), so the boxes of different leaves do not overlap.
+
+    Categorical columns are expected to be dummy encoded as
+    ``f"{column}{sep}{category}"`` (as done by pd.get_dummies). The left child
+    of a split on a dummy excludes the category, the right child keeps only
+    that category.
+
+    Parameters
+    ----------
+    clf : fitted DecisionTreeClassifier or DecisionTreeRegressor
+    x : DataFrame
+        the (unencoded) data the tree describes; used for the initial box and
+        the column dtypes
+    feature_names : list of str
+                    the names of the features the tree was fitted on, in order
+    dummies_map : dict, optional
+                  for each categorical column, a mapping from the string of a
+                  category (as it appears in the dummy column name) to the
+                  category itself
+    sep : str, optional
+          separator between column name and category in dummy column names
+    merge_key : callable, optional
+                maps a leaf node id to a key. If given, a subtree whose leaves
+                all share the same key is returned as a single box, at the
+                root of that subtree. Leaves whose key is None are never
+                merged with other leaves.
+
+    Returns
+    -------
+    list of tuples
+        (node id, box limits) in depth-first order, left before right. Without
+        merge_key there is one entry per leaf, in the same order as the leaf
+        ids of the tree.
+
+    """
+    tree_ = clf.tree_
+    left, right = tree_.children_left, tree_.children_right
+    box_init = _make_box(x)
+    dummies_map = {} if dummies_map is None else dummies_map
+    integer_like = {
+        c
+        for c in x.columns
+        if pd.api.types.is_integer_dtype(x[c].dtype)
+        or pd.api.types.is_bool_dtype(x[c].dtype)
+    }
+
+    # common key per subtree (only needed when merging)
+    unmerged = object()
+    keys: dict[int, object] = {}
+
+    def assign_keys(node: int) -> object:
+        if left[node] == -1:
+            keys[node] = merge_key(node)
+        else:
+            key_left, key_right = assign_keys(left[node]), assign_keys(right[node])
+            keys[node] = (
+                key_left
+                if key_left is not unmerged
+                and key_left is not None
+                and key_left == key_right
+                else unmerged
+            )
+        return keys[node]
+
+    if merge_key is not None:
+        assign_keys(0)
+
+    def make_box_lims(limits: dict[str, list]) -> pd.DataFrame:
+        box = pd.DataFrame({c: list(v) for c, v in limits.items()})
+        for c in box.columns:
+            if c in integer_like or pd.api.types.is_numeric_dtype(box_init[c].dtype):
+                box[c] = box[c].astype(box_init[c].dtype)
+        return box
+
+    boxes: list[tuple[int, pd.DataFrame]] = []
+
+    def walk(node: int, limits: dict[str, list]) -> None:
+        is_leaf = left[node] == -1
+        if is_leaf or (merge_key is not None and keys[node] is not unmerged):
+            boxes.append((node, make_box_lims(limits)))
+            return
+
+        feature = feature_names[tree_.feature[node]]
+        threshold = tree_.threshold[node]
+        limits_left = dict(limits)
+        limits_right = dict(limits)
+
+        if feature in box_init.columns:
+            lower, upper = limits[feature]
+            if feature in integer_like:
+                limits_left[feature] = [lower, min(upper, math.floor(threshold))]
+                limits_right[feature] = [max(lower, math.ceil(threshold)), upper]
+            else:
+                limits_left[feature] = [lower, min(upper, threshold)]
+                limits_right[feature] = [max(lower, threshold), upper]
+        else:
+            column, category = feature.split(sep, 1)
+            category = dummies_map[column][category]
+            categories = limits[column][0]
+            excluded = categories - {category}  # dummy <= 0.5: not this category
+            kept = categories & {category}  # dummy > 0.5: this category
+            limits_left[column] = [excluded, excluded]
+            limits_right[column] = [kept, kept]
+
+        walk(left[node], limits_left)
+        walk(right[node], limits_right)
+
+    initial = {
+        c: (
+            [set(box_init.at[0, c]), set(box_init.at[0, c])]
+            if c not in integer_like and not pd.api.types.is_numeric_dtype(box_init[c])
+            else [box_init.at[0, c], box_init.at[1, c]]
+        )
+        for c in box_init.columns
+    }
+    walk(0, initial)
+    return boxes
+
+
+def _compute_purity(counts: np.ndarray) -> float:
+    """Normalized entropy based purity of a class composition.
+
+    purity = 1 - H(p) / log(K), with p the class shares and K the number of
+    classes: 1 if all members are of one class, 0 for a uniform composition.
+
+    Parameters
+    ----------
+    counts : 1D array like
+             number of members per class
+
+    Returns
+    -------
+    float
+
+    """
+    counts = np.asarray(counts, dtype=float)
+    total = counts.sum()
+    if counts.size < 2 or total == 0:
+        return 1.0
+    p = counts[counts > 0] / total
+    return float(1 + np.sum(p * np.log(p)) / np.log(counts.size))
+
+
+def _determine_effective_restricted_dims(
+    x: pd.DataFrame,
+    boxes: list[pd.DataFrame],
+    box_init: pd.DataFrame,
+    tolerance: float = 0.0,
+) -> list[str]:
+    """Determine the dimensions that actually shape the union of boxes.
+
+    In contrast to :func:`_determine_restricted_dims`, which checks whether a
+    box limit differs from the initial box, this checks whether the limit
+    matters for which data points are inside the union of the boxes. A
+    dimension restricted by some box is dropped if resetting it to the
+    initial box limits in every box changes the membership of at most
+    tolerance times the number of points inside the union. This filters
+    dimensions on which, for instance, a tree split without the split
+    mattering for the union of boxes, as well as near vacuous limits.
+
+    Parameters
+    ----------
+    x : DataFrame
+    boxes : list of DataFrame
+            box limits
+    box_init : DataFrame
+    tolerance : float, optional
+                share of points inside the union whose membership may change
+
+    Returns
+    -------
+    list of str
+        the effectively restricted dimensions, in the column order of x
+
+    """
+    if not boxes:
+        return []
+
+    candidates = set()
+    for box in boxes:
+        candidates.update(_determine_restricted_dims(box, box_init))
+
+    def membership(boxes_: list[pd.DataFrame]) -> np.ndarray:
+        inside = np.zeros(x.shape[0], dtype=bool)
+        for box in boxes_:
+            inside |= np.asarray(_in_box(x, box))
+        return inside
+
+    base = membership(boxes)
+    allowed = tolerance * max(int(base.sum()), 1)
+
+    restricted = []
+    for column in x.columns:
+        if column not in candidates:
+            continue
+        relaxed = []
+        for box in boxes:
+            box = box.copy()  # noqa: PLW2901
+            box[column] = box_init[column].values
+            relaxed.append(box)
+        if np.sum(membership(relaxed) != base) > allowed:
+            restricted.append(column)
+    return restricted
 
 
 def _calculate_quasip(x, y, box, Hbox, Tbox):  # noqa: N803

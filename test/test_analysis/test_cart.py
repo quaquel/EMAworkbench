@@ -54,6 +54,31 @@ class CartTestCase(unittest.TestCase):
 
         self.assertEqual(len(boxes), 3)
 
+    def test_boxes_mixed_dtypes(self):
+        # integer and categorical inputs: boxes must partition the data like the
+        # leaves of the tree (previously integers raised and categorical splits
+        # were only applied on one side, so boxes overlapped)
+        rng = np.random.default_rng(0)
+        n = 1000
+        x = pd.DataFrame(
+            {
+                "a": rng.random(n),
+                "i": rng.integers(0, 10, n),
+                "c": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+            }
+        )
+        y = (((x.c == "q") & (x.a > 0.5)) | (x.i > 6)).astype(int).values
+        alg = cart.CART(x, y)
+        alg.build_tree()
+
+        from ema_workbench.analysis import scenario_discovery_util as sdutil
+
+        covered = np.zeros(n, dtype=int)
+        for box in alg.boxes:
+            covered += np.asarray(sdutil._in_box(x, box))
+        np.testing.assert_array_equal(covered, 1)
+        self.assertEqual(len(alg.boxes), (alg.clf.tree_.children_left == -1).sum())
+
     def test_stats(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
 
@@ -67,7 +92,7 @@ class CartTestCase(unittest.TestCase):
 
         self.assertEqual(stats["coverage"], 0.5)
         self.assertEqual(stats["density"], 0.5)
-        self.assertEqual(stats["res dim"], 1)
+        self.assertEqual(stats["res_dim"], 1)
         self.assertEqual(stats["mass"], 2 / 3)
 
         y = np.array([0, 1, 2])
@@ -77,7 +102,7 @@ class CartTestCase(unittest.TestCase):
         stats = alg.stats[0]
 
         self.assertEqual(stats["mean"], 1)
-        self.assertEqual(stats["res dim"], 1)
+        self.assertEqual(stats["res_dim"], 1)
         self.assertEqual(stats["mass"], 2 / 3)
 
         y = np.array([0, 1, 2])
@@ -87,8 +112,9 @@ class CartTestCase(unittest.TestCase):
         stats = alg.stats[0]
 
         self.assertEqual(stats["gini"], 0.5)
+        self.assertAlmostEqual(stats["purity"], 1 - np.log(2) / np.log(3))
         self.assertEqual(stats["box_composition"], [1, 0, 1])
-        self.assertEqual(stats["res dim"], 1)
+        self.assertEqual(stats["res_dim"], 1)
         self.assertEqual(stats["mass"], 2 / 3)
 
         self.assertEqual(stats, alg.stats[0])
