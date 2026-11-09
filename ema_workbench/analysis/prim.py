@@ -13,7 +13,6 @@ the jupyter notebook.
 """
 
 import abc
-import contextlib
 import copy
 import itertools
 import numbers
@@ -1242,9 +1241,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
             raise ValueError(f"len(y) != len(x): {y.shape[0]} != {x.shape[0]}")
 
         # preprocess x
-        x = x.copy()
-        with contextlib.suppress(KeyError):
-            x.drop(columns="scenario", inplace=True)
+        x = sdutil._drop_uninformative_columns(x)
         x = x.reset_index(drop=True)
 
         x_float = x.select_dtypes([np.float64, float])
@@ -1258,16 +1255,6 @@ class BasePrim(sdutil.OutputFormatterMixin):
         self.x_numeric_columns = np.concatenate(
             [self.x_float_colums, self.x_int_columns]
         )
-
-        x_nominal = x.select_dtypes(exclude=np.number)
-
-        # filter out dimensions with only single value
-        for column in x_nominal.columns.values:
-            if np.unique(x[column]).shape == (1,):
-                x = x.drop(column, axis=1)
-                _logger.info(
-                    f"column {column} dropped from analysis because it has only one category"
-                )
 
         x_nominal = x.select_dtypes(exclude=np.number)
         self.x_nominal = x_nominal.values
