@@ -64,7 +64,7 @@ class AbstractModel(NamedObject):
     """
 
     @property
-    def outcomes_output(self):
+    def outcomes_output(self) -> dict:
         """Getter for outcomes output."""
         return self._outcomes_output
 
@@ -76,7 +76,7 @@ class AbstractModel(NamedObject):
             self._outcomes_output[outcome.name] = outcome.process(data)
 
     @property
-    def output_variables(self):
+    def output_variables(self) -> list[str]:
         """Getter for output variables."""
         if self._output_variables is None:
             self._output_variables = [
@@ -177,7 +177,7 @@ class AbstractModel(NamedObject):
         sampled_parameters.data = temp
 
     @method_logger(__name__)
-    def run_model(self, scenario: Sample, policy: Sample, constants: Sample):
+    def run_model(self, scenario: Sample, policy: Sample, constants: Sample) -> None:
         """Run the model for the specified scenario, policy, and constants.
 
         Parameters
@@ -195,7 +195,7 @@ class AbstractModel(NamedObject):
         self._transform(constants, self.constants)
 
     @method_logger(__name__)
-    def initialized(self, policy: Sample):
+    def initialized(self, policy: Sample) -> bool:
         """Check if model has been initialized.
 
         Parameters
@@ -297,7 +297,7 @@ class Replicator(AbstractModel):
             )
 
     @method_logger(__name__)
-    def run_model(self, scenario: Sample, policy: Sample, constants: Sample):
+    def run_model(self, scenario: Sample, policy: Sample, constants: Sample) -> None:
         """Run the model for the specified scenario, policy, and constants.
 
         Parameters
@@ -333,7 +333,7 @@ class SingleReplication(AbstractModel):
     """Base class for models that require only a single replication."""
 
     @method_logger(__name__)
-    def run_model(self, scenario: Sample, policy: Sample, constants: Sample):
+    def run_model(self, scenario: Sample, policy: Sample, constants: Sample) -> None:
         """Run the model for the specified scenario, policy, and constants.
 
         Parameters

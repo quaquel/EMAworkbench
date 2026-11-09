@@ -1,12 +1,18 @@
 """Plotting utility functions."""
 
+from __future__ import annotations
+
 import copy
 import enum
+from typing import Any
 
 import matplotlib as mpl
+import matplotlib.axes
+import matplotlib.figure
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import scipy.stats as stats
 import seaborn as sns
@@ -74,7 +80,7 @@ class PlotType(enum.Enum):
     """constant for plotting envelopes with lines."""
 
 
-def plot_envelope(ax, j, time, value, fill=False):
+def plot_envelope(ax: matplotlib.axes.Axes, j: int, time: npt.NDArray, value: npt.NDArray, fill: bool = False) -> None:
     """Helper function, responsible for plotting an envelope.
 
     Parameters
@@ -102,7 +108,7 @@ def plot_envelope(ax, j, time, value, fill=False):
         ax.plot(time, maximum, c=color)
 
 
-def plot_histogram(ax, values, log):
+def plot_histogram(ax: matplotlib.axes.Axes, values: npt.NDArray | list[npt.NDArray], log: bool) -> Any:
     """Helper function, responsible for plotting a histogram.
 
     Parameters
@@ -131,7 +137,7 @@ def plot_histogram(ax, values, log):
     return a
 
 
-def plot_kde(ax, values, log):
+def plot_kde(ax: matplotlib.axes.Axes, values: list[npt.NDArray], log: bool) -> None:
     """Helper function, responsible for plotting a KDE.
 
     Parameters
@@ -155,7 +161,7 @@ def plot_kde(ax, values, log):
             ax.set_xticklabels(labels)
 
 
-def plot_boxplots(ax, values, log, group_labels=None):
+def plot_boxplots(ax: matplotlib.axes.Axes, values: list[npt.NDArray], log: bool, group_labels: list[str] | None = None) -> None:
     """Helper function for plotting a boxplot.
 
     Parameters
@@ -189,7 +195,7 @@ def plot_boxplots(ax, values, log, group_labels=None):
     sns.boxplot(x="id_var", y=0, data=data, order=group_labels, ax=ax)
 
 
-def plot_violinplot(ax, values, log, group_labels=None):
+def plot_violinplot(ax: matplotlib.axes.Axes, values: list[npt.NDArray], log: bool, group_labels: list[str] | None = None) -> None:
     """Helper function for plotting violin plots on axes.
 
     Parameters
@@ -214,7 +220,7 @@ def plot_violinplot(ax, values, log, group_labels=None):
     sns.violinplot(x="variable", y="value", data=data, order=group_labels, ax=ax)
 
 
-def plot_boxenplot(ax, values, log, group_labels=None):
+def plot_boxenplot(ax: matplotlib.axes.Axes, values: list[npt.NDArray], log: bool, group_labels: list[str] | None = None) -> None:
     """Helper function for plotting boxenplot plots on axes.
 
     Parameters
@@ -237,8 +243,8 @@ def plot_boxenplot(ax, values, log, group_labels=None):
 
 
 def group_density(
-    ax_d, density, outcomes, outcome_to_plot, group_labels, log=False, index=-1
-):
+    ax_d: matplotlib.axes.Axes, density: Density, outcomes: dict, outcome_to_plot: str, group_labels: list[str], log: bool = False, index: int = -1
+) -> None:
     """Helper function for plotting densities in case of grouped data.
 
     Parameters
@@ -276,7 +282,7 @@ def group_density(
     ax_d.set_ylabel("")
 
 
-def simple_density(density, value, ax_d, ax, log):
+def simple_density(density: Density, value: npt.NDArray, ax_d: matplotlib.axes.Axes, ax: matplotlib.axes.Axes, log: bool) -> None:
     """Helper function, responsible for producing a density plot.
 
     Parameters
@@ -313,7 +319,7 @@ def simple_density(density, value, ax_d, ax, log):
     ax_d.set_ylabel("")
 
 
-def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
+def simple_kde(outcomes: dict[str, npt.NDArray], outcomes_to_show: list[str], colormap: str, log: bool, minima: dict[str, float], maxima: dict[str, float]) -> tuple[matplotlib.figure.Figure, dict[str, matplotlib.axes.Axes]]:
     """Helper function for generating a density heatmap over time.
 
     Parameters
@@ -360,7 +366,7 @@ def simple_kde(outcomes, outcomes_to_show, colormap, log, minima, maxima):
     return fig, axes_dict
 
 
-def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
+def make_legend(categories: list[str], ax: matplotlib.axes.Axes, ncol: int = 3, legend_type: LegendEnum = LegendEnum.LINE, alpha: float = 1) -> None:
     """Helper function responsible for making the legend.
 
     Parameters
@@ -423,7 +429,7 @@ def make_legend(categories, ax, ncol=3, legend_type=LegendEnum.LINE, alpha=1):
     )
 
 
-def determine_kde(data, size_kde=1000, ymin=None, ymax=None):
+def determine_kde(data: npt.NDArray, size_kde: int = 1000, ymin: float | None = None, ymax: float | None = None) -> tuple[npt.NDArray, npt.NDArray]:
     """Helper function responsible for performing a KDE.
 
     Parameters
@@ -468,7 +474,7 @@ def determine_kde(data, size_kde=1000, ymin=None, ymax=None):
     return kde_x, kde_y
 
 
-def filter_scalar_outcomes(outcomes):
+def filter_scalar_outcomes(outcomes: dict[str, npt.NDArray]) -> dict[str, npt.NDArray]:
     """Helper function that removes non time series outcomes from all the utcomes.
 
     Parameters
@@ -491,7 +497,7 @@ def filter_scalar_outcomes(outcomes):
     return temp
 
 
-def determine_time_dimension(outcomes):
+def determine_time_dimension(outcomes: dict[str, npt.NDArray]) -> tuple[npt.NDArray | None, dict[str, npt.NDArray]]:
     """Helper function for determining or creating time dimension.
 
     Parameters
@@ -522,8 +528,8 @@ def determine_time_dimension(outcomes):
 
 
 def group_results(
-    experiments, outcomes, group_by, grouping_specifiers, grouping_labels
-):
+    experiments: pd.DataFrame, outcomes: dict[str, npt.NDArray], group_by: str, grouping_specifiers, grouping_labels: list[str]
+) -> dict:
     """Helper function that takes the experiments and results and returns a list based on groupoing.
 
     Each element in the dictionary contains the experiments
@@ -596,7 +602,7 @@ def group_results(
     return groups
 
 
-def make_continuous_grouping_specifiers(array, nr_of_groups=5):
+def make_continuous_grouping_specifiers(array: npt.NDArray, nr_of_groups: int = 5) -> list[tuple[float, float]]:
     """Helper function for discretizing a continuous array.
 
     By default, the array is split into 5 equally wide intervals.
@@ -630,13 +636,13 @@ def make_continuous_grouping_specifiers(array, nr_of_groups=5):
 
 
 def prepare_pairs_data(
-    experiments,
-    outcomes,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    outcomes: dict[str, npt.NDArray],
+    outcomes_to_show: list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    point_in_time=-1,
-    filter_scalar=True,
+    point_in_time: int = -1,
+    filter_scalar: bool = True,
 ):
     """Helper function to prepare the data for pairs plotting.
 
@@ -696,13 +702,13 @@ def prepare_pairs_data(
 
 
 def prepare_data(
-    experiments,
-    experiments_to_show,
-    outcomes,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    experiments_to_show: npt.NDArray | None,
+    outcomes: dict[str, npt.NDArray],
+    outcomes_to_show: str | list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    filter_scalar=True,
+    filter_scalar: bool = True,
 ):
     """Helper function for preparing datasets prior to plotting.
 
@@ -787,7 +793,7 @@ def prepare_data(
     return experiments, outcomes, outcomes_to_show, time, grouping_labels
 
 
-def do_titles(ax, titles, outcome):
+def do_titles(ax: matplotlib.axes.Axes, titles: dict[str, str] | None, outcome: str) -> None:
     """Helper function for setting the title on an ax.
 
     Parameters
@@ -812,7 +818,7 @@ def do_titles(ax, titles, outcome):
                 ax.set_title(outcome)
 
 
-def do_ylabels(ax, ylabels, outcome):
+def do_ylabels(ax: matplotlib.axes.Axes, ylabels: dict[str, str] | None, outcome: str) -> None:
     """Helper function for setting the y labels on an ax.
 
     Parameters
@@ -837,7 +843,7 @@ def do_ylabels(ax, ylabels, outcome):
                 ax.set_ylabel(outcome)
 
 
-def make_grid(outcomes_to_show, density=False):
+def make_grid(outcomes_to_show: list[str], density: bool = False) -> tuple[matplotlib.figure.Figure, gridspec.GridSpec]:
     """Helper function for making the grid that specifies the size and location of all axes.
 
     Parameters
@@ -858,7 +864,7 @@ def make_grid(outcomes_to_show, density=False):
     return figure, grid
 
 
-def get_color(index):
+def get_color(index: int):
     """Helper function for cycling over color list.
 
     Useful if the number of items is higher than the length of the color list.

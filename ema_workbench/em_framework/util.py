@@ -6,12 +6,24 @@
 import copy
 import itertools
 import warnings
-from collections.abc import Iterable, Iterator, KeysView, Mapping, MutableMapping
-from typing import Generic, Literal, TypeVar
+from collections.abc import (
+    Iterable,
+    Iterator,
+    KeysView,
+    Mapping,
+    MutableMapping,
+    Sequence,
+)
+from typing import Literal
 
+import numpy as np
 import tqdm
 
 from ..util import EMAError
+
+type NumpySeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
+type RNGLike = np.random.Generator | np.random.BitGenerator
+type StdlibSeedLike = int | float | str | bytes | bytearray
 
 __all__ = [
     "Counter",
@@ -19,15 +31,15 @@ __all__ = [
     "NamedObject",
     "NamedObjectMap",
     "NamedObjectMapDescriptor",
+    "NumpySeedLike",
     "ProgressTrackingMixIn",
+    "RNGLike",
+    "StdlibSeedLike",
     "Variable",
     "combine",
     "determine_objects",
     "representation",
 ]
-
-T = TypeVar("T")
-
 
 class NamedObject:
     """Base object with a name attribute."""
@@ -90,7 +102,7 @@ class Variable(NamedObject):
         self.variable_name = variable_name
 
 
-class NamedObjectMap(MutableMapping, Generic[T]):
+class NamedObjectMap[T](MutableMapping):
     """A named object mapping class."""
 
     def __init__(self, kind: type[T]) -> None:
@@ -228,7 +240,7 @@ class NamedDict(MutableMapping, NamedObject):
         """Return a shallow copy of this object."""
         return copy.copy(self)
 
-    def __getitem__(self, key) -> T:  # noqa: D105
+    def __getitem__(self, key):  # noqa: D105
         return self.data[key]
 
     def __setitem__(self, key, value):  # noqa: D105
@@ -237,7 +249,7 @@ class NamedDict(MutableMapping, NamedObject):
     def __delitem__(self, key):  # noqa: D105
         del self.data[key]
 
-    def __iter__(self) -> Iterator[T]:  # noqa: D105
+    def __iter__(self) -> Iterator:  # noqa: D105
         return iter(self.data)
 
     def __len__(self) -> int:  # noqa: D105

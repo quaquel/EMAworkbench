@@ -30,9 +30,6 @@ Since the Vensim DLL does not have a way to save a model, we cannot use
 the DLL. Instead, we can use the fact that one can save a Vensim model as a
 text file. By changing the required parameters in this text file via the
 workbench, we can then open the modified model in Vensim and spot the error.
+To make this easy, you can use `ema_worbench.connectors.vensim.create_model_for_debugging`
 
-The following script can be used for this purpose.
-
-.. literalinclude:: ../../ema_workbench/examples/model_debugger.py
-   :linenos:
 

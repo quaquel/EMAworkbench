@@ -4,6 +4,7 @@ import configparser
 import json
 import os
 import tarfile
+from collections.abc import Callable
 from io import BytesIO
 
 import numpy as np
@@ -19,7 +20,7 @@ __all__ = ["load_results", "merge_results", "process_replications", "save_result
 _logger = get_module_logger(__name__)
 
 
-def load_results(file_name):
+def load_results(file_name: str) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
     """Load the specified tar.gz file.
 
     the file is assumed to be saves using save_results.
@@ -170,7 +171,7 @@ def load_results_old(archive):
     return experiments, outcomes_new
 
 
-def save_results(results, file_name):
+def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name: str) -> None:
     """Save the results to the specified tar.gz file.
 
     The way in which results are stored depends. Experiments are saved
@@ -231,7 +232,10 @@ def save_results(results, file_name):
     _logger.info(f"results saved successfully to {file_name}")
 
 
-def merge_results(results1, results2):
+def merge_results(
+    results1: tuple[pd.DataFrame, dict[str, np.ndarray]],
+    results2: tuple[pd.DataFrame, dict[str, np.ndarray]],
+) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
     """Convenience function for merging results from the workbench.
 
     The function merges results2 with results1. For the experiments,
@@ -285,7 +289,7 @@ def merge_results(results1, results2):
     return mr
 
 
-def get_ema_project_home_dir():
+def get_ema_project_home_dir() -> str:
     try:
         config_file_name = "expworkbench.cfg"
         directory = os.path.dirname(__file__)
@@ -305,7 +309,10 @@ def get_ema_project_home_dir():
         return os.getcwd()
 
 
-def process_replications(data, aggregation_func=np.mean):
+def process_replications(
+    data: dict[str, np.ndarray] | tuple[pd.DataFrame, dict[str, np.ndarray]],
+    aggregation_func: Callable[..., np.ndarray] = np.mean,
+) -> dict[str, np.ndarray] | tuple[pd.DataFrame, dict[str, np.ndarray]]:
     """Convenience function for processing the replications of a stochastic model outcomes.
 
     The default behavior is to take the mean of the replications. This reduces

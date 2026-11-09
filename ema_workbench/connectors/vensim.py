@@ -36,7 +36,7 @@ __all__ = [
 _logger = get_module_logger(__name__)
 
 
-def be_quiet():
+def be_quiet() -> None:
     """Turn off the work in progress dialog of Vensim.
 
     Defaults to 2, suppressing all windows, for more fine-grained control, use
@@ -45,7 +45,7 @@ def be_quiet():
     vensim_dll_wrapper.be_quiet(2)
 
 
-def load_model(file_name):
+def load_model(file_name: str) -> None:
     """Load the model.
 
     Parameters
@@ -68,7 +68,7 @@ def load_model(file_name):
         raise VensimError("vensim file not found") from w
 
 
-def read_cin_file(file_name):
+def read_cin_file(file_name: str) -> None:
     """Read a .cin file.
 
     Parameters
@@ -89,7 +89,7 @@ def read_cin_file(file_name):
         raise w
 
 
-def set_value(variable, value):
+def set_value(variable: str, value: int | float | list) -> None:
     """Set the value of a variable to value.
 
     current implementation only works for lookups and normal values. In case
@@ -117,7 +117,7 @@ def set_value(variable, value):
             _logger.warning("variable: '" + variable + "' not found")
 
 
-def run_simulation(file_name):
+def run_simulation(file_name: str) -> None:
     """Rn a model and store the results of the run in the specified .vdf file.
 
     The specified output file will be overwritten by default
@@ -145,7 +145,7 @@ def run_simulation(file_name):
         raise VensimError(str(w)) from w
 
 
-def get_data(filename, varname, step=1):
+def get_data(filename: str, varname: str, step: int = 1) -> list:
     """Retrieve data from simulation runs or imported data sets.
 
     Parameters
@@ -184,7 +184,7 @@ class VensimModel(SingleReplication, FileModel):
     """
 
     @property
-    def result_file(self):
+    def result_file(self) -> str:
         """Return path to results file."""
         return os.path.join(self.working_directory, self._result_file)
 
@@ -245,7 +245,7 @@ class VensimModel(SingleReplication, FileModel):
 
         _logger.debug("vensim interface init completed")
 
-    def model_init(self, policy: Sample):
+    def model_init(self, policy: Sample) -> None:
         """Init of the model.
 
         Parameters
@@ -290,7 +290,7 @@ class VensimModel(SingleReplication, FileModel):
             raise EMAWarning(str(VensimWarning)) from w
 
     @method_logger(__name__)
-    def run_experiment(self, experiment: Experiment):
+    def run_experiment(self, experiment: Experiment) -> dict:
         """Run the experiment.
 
         The provided implementation assumes that the keys (i.e., the parameter names) in the
@@ -358,7 +358,7 @@ class VensimModel(SingleReplication, FileModel):
         return results
 
 
-def create_model_for_debugging(path_to_existing_model, path_to_new_model, error):
+def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: str, error: str|dict) -> None:
     """Create a vensim mdl file parameterized according to the experiment.
 
     To be able to debug the Vensim model, a few steps are needed:
@@ -386,48 +386,56 @@ def create_model_for_debugging(path_to_existing_model, path_to_new_model, error)
                              path to the original mdl file
     path_to_new_model : str
                         path for the new mdl file
-    error : str
+    error : str or dict
             the case error, only containing the parameterization
+            or an experiment dictionary
 
     """
     # we assume the case specification was copied from the logger
-    experiment = error.split(",")
-    variables = {}
+    if isinstance(error, str):
+        experiment = error.split(",")
+        variables = {}
 
-    # -1 because policy entry needs to be removed
-    for entry in experiment[0:-1]:
-        variable, value = entry.split(":")
+        # -1 because policy entry needs to be removed
+        for entry in experiment[0:-1]:
+            variable, value = entry.split(":")
 
-        # Delete the spaces and other rubish on the sides of the variable name
-        variable = variable.strip()
-        variable = variable.lstrip("'")
-        variable = variable.rstrip("'")
-        value = value.strip()
+            # Delete the spaces and other rubish on the sides of the variable name
+            variable = variable.strip()
+            variable = variable.lstrip("'")
+            variable = variable.rstrip("'")
+            value = value.strip()
 
-        # vensim model is in bytes, so we go from unicode to bytes
-        variables[variable.encode("utf8")] = value.encode("utf8")
+            # vensim model is in bytes, so we go from unicode to bytes
+            variables[variable] = value
+    elif isinstance(error, dict):
+        variables = error
+    else:
+        raise ValueError(f"error must be a string or dict, not of type{type(error)}")
 
     # This generates a new (text-formatted) model
-    with open(path_to_new_model, "wb") as new_model:
+    with open(path_to_new_model, "w") as new_model:
         skip_next_line = False
 
-        for line in open(path_to_existing_model, "rb"):  # noqa: SIM115
+        for line in open(path_to_existing_model):  # noqa: SIM115
             if skip_next_line:
                 skip_next_line = False
-                lin_to_write = b"\n"
-            elif line.find(b"=") != -1:
-                variable = line.split(b"=")[0]
+                line_to_write = "\n"
+            elif line.find("=") != -1:
+                variable = line.split("=")[0]
                 variable = variable.strip()
 
                 try:
                     value = variables.pop(variable)
                 except KeyError:
-                    pass
+                    line_to_write = line
                 else:
-                    lin_to_write = variable + b" = " + value
+                    line_to_write = variable + " = " + str(value)
                     skip_next_line = True
+            else:
+                line_to_write = line
 
-            new_model.write(lin_to_write)
+            new_model.write(line_to_write)
 
     _logger.info("parameters not set:")
     _logger.info(set(variables.keys()))

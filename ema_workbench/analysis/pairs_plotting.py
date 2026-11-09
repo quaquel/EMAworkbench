@@ -1,9 +1,13 @@
 """R-style pairs plotting functionality."""
 
+from __future__ import annotations
+
+import matplotlib.axes
 import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from ..util import get_module_logger
 
@@ -17,15 +21,15 @@ _logger = get_module_logger(__name__)
 
 
 def pairs_lines(
-    experiments,
-    outcomes,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    outcomes: dict[str, np.ndarray],
+    outcomes_to_show: list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    ylabels=None,
-    legend=True,
+    ylabels: dict[str, str] | None = None,
+    legend: bool = True,
     **kwargs,
-):
+) -> tuple[plt.Figure, dict[str, matplotlib.axes.Axes]]:
     """Generate a pairs lines multiplot.
 
     It shows the behavior of two outcomes over time against
@@ -147,18 +151,18 @@ def simple_pairs_lines(ax, y_data, x_data, color):
 
 
 def pairs_density(
-    experiments,
-    outcomes,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    outcomes: dict[str, np.ndarray],
+    outcomes_to_show: list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    ylabels=None,
-    point_in_time=-1,
-    log=True,
-    gridsize=50,
-    colormap="coolwarm",
-    filter_scalar=True,
-):
+    ylabels: dict[str, str] | None = None,
+    point_in_time: int = -1,
+    log: bool = True,
+    gridsize: int = 50,
+    colormap: str = "coolwarm",
+    filter_scalar: bool = True,
+) -> tuple[plt.Figure, dict[str, matplotlib.axes.Axes]]:
     """Generate a pairs hexbin density multiplot.
 
     In case of time-series data, the end states are used.
@@ -392,17 +396,17 @@ def simple_pairs_density(
 
 
 def pairs_scatter(
-    experiments,
-    outcomes,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    outcomes: dict[str, np.ndarray],
+    outcomes_to_show: list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    ylabels=None,
-    legend=True,
-    point_in_time=-1,
-    filter_scalar=False,
+    ylabels: dict[str, str] | None = None,
+    legend: bool = True,
+    point_in_time: int = -1,
+    filter_scalar: bool = False,
     **kwargs,
-):
+) -> tuple[plt.Figure, dict[str, matplotlib.axes.Axes]]:
     """Generate a pairs scatter multiplot.
 
     In case of time-series data, the end states are used.

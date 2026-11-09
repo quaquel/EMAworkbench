@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import itertools
 import math
-from collections.abc import Generator, Iterable, Sequence
+from collections.abc import Generator, Iterable
 from typing import TYPE_CHECKING, Literal, overload
 
 import numpy as np
@@ -21,7 +21,7 @@ from .parameters import (
     Parameter,
     ParameterMap,
 )
-from .util import Counter, NamedDict, NamedObject, combine
+from .util import Counter, NamedDict, NamedObject, NumpySeedLike, RNGLike, combine
 
 if TYPE_CHECKING:
     from .optimization import Problem
@@ -36,9 +36,6 @@ __all__ = [
     "sample_generator"
 ]
 _logger = get_module_logger(__name__)
-
-SeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
-RNGLike = np.random.Generator | np.random.BitGenerator
 
 
 class Sample(NamedDict):
@@ -233,7 +230,7 @@ class SampleCollection(Iterable):
         self,
         other: SampleCollection,
         how: Literal["full_factorial", "sample", "cycle"],
-        rng: SeedLike | RNGLike | None = None,
+        rng: NumpySeedLike | RNGLike | None = None,
     ) -> SampleCollection:
         """Combine two SampleCollections into a new SampleCollection.
 
@@ -384,7 +381,7 @@ def experiment_generator(
     scenarios: Iterable[Sample],
     policies: Iterable[Sample],
     combine: Literal["full_factorial", "sample", "cycle"] = "full_factorial",
-    rng: SeedLike | RNGLike | None = None,
+    rng: NumpySeedLike | RNGLike | None = None,
 ) -> Generator[Experiment]:
     """Generator function which yields experiments.
 

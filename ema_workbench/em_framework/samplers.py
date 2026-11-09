@@ -8,7 +8,7 @@ Monte Carlo sampling.
 
 import abc
 import itertools
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 
 import numpy as np
 import scipy.stats as stats
@@ -20,6 +20,7 @@ from ema_workbench.em_framework.parameters import (
     ParameterMap,
 )
 from ema_workbench.em_framework.points import SampleCollection
+from ema_workbench.em_framework.util import NumpySeedLike, RNGLike
 
 # Created on 16 aug. 2011
 #
@@ -31,10 +32,6 @@ __all__ = [
     "LHSSampler",
     "MonteCarloSampler",
 ]
-
-
-SeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
-RNGLike = np.random.Generator | np.random.BitGenerator
 
 
 class AbstractSampler(metaclass=abc.ABCMeta):
@@ -51,7 +48,7 @@ class AbstractSampler(metaclass=abc.ABCMeta):
         self,
         parameters: ParameterMap | Iterable[Parameter],
         size: int,
-        rng: SeedLike | RNGLike | None = None,
+        rng: NumpySeedLike | RNGLike | None = None,
         **kwargs,
     ) -> "SampleCollection":
         """Generate n samples from the parameters.
@@ -105,7 +102,7 @@ class LHSSampler(AbstractSampler):
         self,
         parameters: ParameterMap,
         size: int,
-        rng: SeedLike | RNGLike | None = None,
+        rng: NumpySeedLike | RNGLike | None = None,
         **kwargs,
     ) -> "SampleCollection":
         """Generate samples using latin hypercube sampling.
@@ -148,7 +145,7 @@ class MonteCarloSampler(AbstractSampler):
         self,
         parameters: ParameterMap | Iterable[Parameter],
         size: int,
-        rng: SeedLike | RNGLike | None = None,
+        rng: NumpySeedLike | RNGLike | None = None,
         **kwargs,
     ) -> "SampleCollection":
         """Generate samples using Monte Carlo sampling.
@@ -189,7 +186,7 @@ class FullFactorialSampler(AbstractSampler):
         self,
         parameters: ParameterMap | Iterable[Parameter],
         size: int,
-        rng: SeedLike | RNGLike | None = None,
+        rng: NumpySeedLike | RNGLike | None = None,
         **kwargs,
     ) -> "SampleCollection":
         """Generate samples using full factorial sampling.

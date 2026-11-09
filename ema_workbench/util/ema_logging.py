@@ -44,7 +44,7 @@ def create_module_logger(name: str | None = None) -> logging.Logger:
     return logger
 
 
-def get_module_logger(name) -> logging.Logger:
+def get_module_logger(name: str) -> logging.Logger:
     """Return a module logger with the given name."""
     try:
         logger = _module_loggers[name]
@@ -64,7 +64,7 @@ LOG_FORMAT = "[%(processName)s/%(levelname)s] %(message)s"
 class TemporaryFilter(logging.Filter):
     """Helper class to temporarily log messages."""
 
-    def __init__(self, *args, level: int = 0, func_name=None, **kwargs):
+    def __init__(self, *args, level: int = 0, func_name: str | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.level = level
         self.func_name = func_name
@@ -141,7 +141,7 @@ def temporary_filter(
         v.removeFilter(k)
 
 
-def method_logger(name):
+def method_logger(name: str) -> callable:
     """Wrap method so that every call to it is logged."""
     logger = get_module_logger(name)
     classname = inspect.getouterframes(inspect.currentframe())[1][3]
@@ -180,7 +180,7 @@ def get_rootlogger() -> logging.Logger:
     return _rootlogger
 
 
-def log_to_stderr(level=None, pass_root_logger_level=False):
+def log_to_stderr(level: int | None = None, pass_root_logger_level: bool = False) -> logging.Logger:
     """Turn on logging and add a handler which prints to stderr.
 
     Parameters

@@ -11,6 +11,10 @@ on:
   schedule:
     - cron: '0 6 * * 1'
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.run_id }}"
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -21,10 +25,6 @@ jobs:
         python-version: ["3.12"]
         name: [""]
         include:
-          - os: ubuntu-latest
-            python-version: "3.10"
-          - os: ubuntu-latest
-            python-version: "3.11"
           - os: ubuntu-latest
             python-version: "3.12"
             pip-pre: "--pre"  # Installs pre-release versions of pip dependencies
@@ -40,9 +40,9 @@ jobs:
             python-version: "3.14"
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - run: pip install uv
@@ -70,8 +70,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
       with:
         python-version: "3.12"
     - uses: astral-sh/ruff-action@v3

@@ -5,6 +5,8 @@ discovery specific functionality.
 
 """
 
+from __future__ import annotations
+
 import contextlib
 import io
 import math
@@ -13,6 +15,7 @@ from io import StringIO
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from sklearn import tree
 
@@ -71,7 +74,13 @@ class CART(sdutil.OutputFormatterMixin):
 
     sep = "!?!"
 
-    def __init__(self, x, y, mass_min=0.05, mode=sdutil.RuleInductionType.BINARY):
+    def __init__(
+        self,
+        x: pd.DataFrame,
+        y: npt.NDArray,
+        mass_min: float = 0.05,
+        mode: sdutil.RuleInductionType = sdutil.RuleInductionType.BINARY,
+    ) -> None:
         """Init."""
         with contextlib.suppress(KeyError):
             x = x.drop(["scenario"], axis=1)
@@ -97,7 +106,7 @@ class CART(sdutil.OutputFormatterMixin):
         self._stats = None
 
     @property
-    def boxes(self):
+    def boxes(self) -> list[pd.DataFrame]:
         """Return a list with the box limits for each terminal leaf.
 
         Returns
@@ -176,7 +185,7 @@ class CART(sdutil.OutputFormatterMixin):
         return self._boxes
 
     @property
-    def stats(self):
+    def stats(self) -> list[dict]:
         """Returns list with the scenario discovery statistics for each terminal leaf.
 
         Returns
@@ -197,7 +206,7 @@ class CART(sdutil.OutputFormatterMixin):
             self._stats.append(boxstats)
         return self._stats
 
-    def _binary_stats(self, box, box_init):
+    def _binary_stats(self, box: pd.DataFrame, box_init: pd.DataFrame) -> dict:
         indices = sdutil._in_box(self.x, box)
 
         y_in_box = self.y[indices]
@@ -211,7 +220,7 @@ class CART(sdutil.OutputFormatterMixin):
         }
         return boxstats
 
-    def _regression_stats(self, box, box_init):
+    def _regression_stats(self, box: pd.DataFrame, box_init: pd.DataFrame) -> dict:
         indices = sdutil._in_box(self.x, box)
 
         y_in_box = self.y[indices]
@@ -223,7 +232,7 @@ class CART(sdutil.OutputFormatterMixin):
         }
         return boxstats
 
-    def _classification_stats(self, box, box_init):
+    def _classification_stats(self, box: pd.DataFrame, box_init: pd.DataFrame) -> dict:
         indices = sdutil._in_box(self.x, box)
 
         y_in_box = self.y[indices]
@@ -252,7 +261,7 @@ class CART(sdutil.OutputFormatterMixin):
         sdutil.RuleInductionType.CLASSIFICATION: _classification_stats,
     }
 
-    def build_tree(self):
+    def build_tree(self) -> None:
         """Train CART on the data."""
         min_samples = int(self.mass_min * self.x.shape[0])
 
@@ -262,7 +271,7 @@ class CART(sdutil.OutputFormatterMixin):
             self.clf = tree.DecisionTreeClassifier(min_samples_leaf=min_samples)
         self.clf.fit(self._x, self.y)
 
-    def show_tree(self, mplfig=True, format="png"):
+    def show_tree(self, mplfig: bool = True, format: str = "png"):
         """Return a png (defaults) or svg of the tree.
 
         On Windows, graphviz needs to be installed with conda.

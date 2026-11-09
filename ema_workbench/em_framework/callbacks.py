@@ -10,11 +10,14 @@ progress, always call super.
 
 """
 
+from __future__ import annotations
+
 import abc
 import csv
 import math
 import os
 import shutil
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -27,8 +30,11 @@ from .parameters import (
     IntegerParameter,
     Parameter,
 )
-from .points import flatten_sample
+from .points import Experiment, flatten_sample
 from .util import ProgressTrackingMixIn
+
+if TYPE_CHECKING:
+    from typing import Any
 
 #
 # Created on 22 Jan 2013
@@ -80,13 +86,13 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
 
     def __init__(
         self,
-        uncertainties,
-        levers,
-        outcomes,
-        nr_experiments,
-        reporting_interval=None,
-        reporting_frequency=10,
-        log_progress=False,
+        uncertainties: list[Parameter],
+        levers: list[Parameter],
+        outcomes: list[Outcome],
+        nr_experiments: int,
+        reporting_interval: int | None = None,
+        reporting_frequency: int = 10,
+        log_progress: bool = False,
     ):
         """Init."""
         super().__init__(nr_experiments, reporting_frequency, _logger, log_progress)
@@ -102,7 +108,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         self.reporting_interval = reporting_interval
 
     @abc.abstractmethod
-    def __call__(self, experiment, outcomes):
+    def __call__(self, experiment: Experiment, outcomes: dict[str, Any]) -> None:
         """Method responsible for storing results.
 
         The implementation in this class only keeps track of how many runs
@@ -120,7 +126,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         super().__call__(1)
 
     @abc.abstractmethod
-    def get_results(self):
+    def get_results(self) -> Any:
         """Method for retrieving the results.
 
         Called after all experiments have been completed. Any extension of AbstractCallback needs to
@@ -294,7 +300,7 @@ class DefaultCallback(AbstractCallback):
                     )
                     self.results[outcome_name][case_id,] = outcome_res
 
-    def __call__(self, experiment, outcomes):
+    def __call__(self, experiment: Experiment, outcomes: dict[str, Any]) -> None:
         """Method responsible for storing results.
 
         This method calls :meth:`super` first, thus utilizing the logging provided there.
@@ -310,7 +316,7 @@ class DefaultCallback(AbstractCallback):
         self._store_case(experiment)
         self._store_outcomes(experiment.experiment_id, outcomes)
 
-    def get_results(self):
+    def get_results(self) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
         """Return the experiments and their results."""
         results = {}
         for k, v in self.results.items():
@@ -376,12 +382,12 @@ class FileBasedCallback(AbstractCallback):
 
     def __init__(
         self,
-        uncertainties,
-        levers,
-        outcomes,
-        nr_experiments,
-        reporting_interval=100,
-        reporting_frequency=10,
+        uncertainties: list[Parameter],
+        levers: list[Parameter],
+        outcomes: list[Outcome],
+        nr_experiments: int,
+        reporting_interval: int = 100,
+        reporting_frequency: int = 10,
     ):
         """Init."""
         super().__init__(

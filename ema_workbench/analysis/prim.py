@@ -18,7 +18,7 @@ import copy
 import itertools
 import numbers
 import warnings
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from operator import itemgetter
 from typing import Literal
 
@@ -38,6 +38,7 @@ except ImportError:
         "altair based interactive inspection not available", ImportWarning, stacklevel=2
     )
 
+from ..em_framework.util import NumpySeedLike, RNGLike
 from ..util import INFO, EMAError, get_module_logger, temporary_filter
 from . import scenario_discovery_util as sdutil
 from .prim_util import (
@@ -56,9 +57,6 @@ from .prim_util import (
 # Created on 22 feb. 2013
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
-
-SeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
-RNGLike = np.random.Generator | np.random.BitGenerator
 
 
 __all__ = [
@@ -828,7 +826,7 @@ class PrimBox(BasePrimBox):
         i: int | None = None,
         iterations: int = 10,
         p: float = 1 / 2,
-        rng: RNGLike | SeedLike | None = None,
+        rng: RNGLike | NumpySeedLike | None = None,
     ) -> pd.DataFrame:
         """Calculate resample statistics for candidate box i.
 
@@ -1690,8 +1688,8 @@ class BasePrim(sdutil.OutputFormatterMixin):
                 assert paste_value >= box.box_lims[-1].loc[i, u]
 
             dtype = box_paste[u].dtype
-            if dtype == np.int32:
-                paste_value = np.int(paste_value)
+            if np.issubdtype(dtype, np.integer):
+                paste_value = int(paste_value)
 
             box_paste.loc[i, u] = paste_value
             logical = sdutil._in_box(x[resdim], box_paste[resdim])

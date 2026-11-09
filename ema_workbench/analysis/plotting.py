@@ -6,6 +6,7 @@ The code can be used as is, or serve as an example for writing your own code.
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from matplotlib.patches import ConnectionPatch
 
 from ..util import EMAError, get_module_logger
@@ -36,18 +37,18 @@ TIME_LABEL = "Time"
 
 
 def envelopes(
-    experiments,
-    outcomes,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    outcomes: dict[str, np.ndarray],
+    outcomes_to_show: str | list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    density=None,
-    fill=False,
-    legend=True,
-    titles=None,
-    ylabels=None,
-    log=False,
-):
+    density: Density | None = None,
+    fill: bool = False,
+    legend: bool = True,
+    titles: dict[str, str] | None = None,
+    ylabels: dict[str, str] | None = None,
+    log: bool = False,
+) -> tuple[plt.Figure, dict[str, plt.Axes]]:
     """Make envelop plots.
 
     An envelope shows over time the minimum and maximum  value for a set
@@ -260,19 +261,19 @@ def single_envelope(outcomes, outcome_to_plot, time, density, ax, ax_d, fill, lo
 
 
 def lines(
-    experiments,
-    outcomes,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    outcomes: dict[str, np.ndarray],
+    outcomes_to_show: str | list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    density="",
-    legend=True,
-    titles=None,
-    ylabels=None,
-    experiments_to_show=None,
-    show_envelope=False,
-    log=False,
-):
+    density: Density | str = "",
+    legend: bool = True,
+    titles: dict[str, str] | None = None,
+    ylabels: dict[str, str] | None = None,
+    experiments_to_show: np.ndarray | None = None,
+    show_envelope: bool = False,
+    log: bool = False,
+) -> tuple[plt.Figure, dict[str, plt.Axes]]:
     """Visualize results from experiments as line plots.
 
     It is thus to be used in case of time
@@ -601,13 +602,13 @@ def simple_lines(outcomes, outcome_to_plot, time, density, ax, ax_d, log):
 
 
 def kde_over_time(
-    experiments,
-    outcomes,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    outcomes: dict[str, np.ndarray],
+    outcomes_to_show: str | list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    colormap="viridis",
-    log=True,
+    colormap: str = "viridis",
+    log: bool = True,
 ):
     """Plot a KDE over time. The KDE is visualized through a heatmap.
 
@@ -679,21 +680,21 @@ def kde_over_time(
 
 
 def multiple_densities(
-    experiments,
-    outcomes,
-    points_in_time=None,
-    outcomes_to_show=None,
-    group_by=None,
+    experiments: pd.DataFrame,
+    outcomes: dict[str, np.ndarray],
+    points_in_time: list[float] | None = None,
+    outcomes_to_show: str | list[str] | None = None,
+    group_by: str | None = None,
     grouping_specifiers=None,
-    density=Density.KDE,
-    legend=True,
-    titles=None,
-    ylabels=None,
-    experiments_to_show=None,
-    plot_type=PlotType.ENVELOPE,
-    log=False,
+    density: Density = Density.KDE,
+    legend: bool = True,
+    titles: dict[str, str] | None = None,
+    ylabels: dict[str, str] | None = None,
+    experiments_to_show: np.ndarray | None = None,
+    plot_type: PlotType = PlotType.ENVELOPE,
+    log: bool = False,
     **kwargs,
-):
+) -> tuple[list[plt.Figure], dict[str, dict[str, plt.Axes]]]:
     """Make an envelope plot with multiple density plots over the run time.
 
     Parameters
