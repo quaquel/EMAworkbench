@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from ema_workbench.analysis import scenario_discovery_util as sdutil
+from ema_workbench.util import EMAError
 
 
 class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
@@ -559,3 +560,26 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
 #     suite = unittest.TestSuite()
 #     suite.addTest(PrimTestCase("test_write_boxes_to_stdout"))
 #     unittest.TextTestRunner().run(suite)
+
+    def test_drop_uninformative_columns(self):
+        x = pd.DataFrame(
+            {
+                "scenario": np.arange(4),
+                "a": [0.1, 0.5, 0.2, 0.9],
+                "constant_float": 1.0,
+                "constant_int": 3,
+                "model": pd.Categorical(["m"] * 4),
+                "policy": pd.Categorical([np.nan] * 4),
+                "with_missing": pd.Categorical(["p", np.nan, "p", np.nan]),
+                "lever": pd.Categorical(["p", "q", "p", "q"]),
+            }
+        )
+        dropped = sdutil._drop_uninformative_columns(x)
+        self.assertEqual(dropped.columns.tolist(), ["a", "with_missing", "lever"])
+        self.assertIn("scenario", x.columns)  # input left untouched
+
+        kept = sdutil._drop_uninformative_columns(x, exclude=())
+        self.assertIn("scenario", kept.columns)
+
+        with self.assertRaises(EMAError):
+            sdutil._drop_uninformative_columns(x[["scenario", "constant_float"]])
