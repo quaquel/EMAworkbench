@@ -453,6 +453,119 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             sdutil._determine_effective_restricted_dims(x, [], box_init), []
         )
 
+    def test_build_tree_rule(self):
+        x, y = self._make_mixed_data(n=2000)
+        clf, names, dummies_map = self._fit_tree(x, y)
+        x_encoded = pd.get_dummies(x, prefix_sep="!?!").values
+        leaf_of_point = clf.apply(x_encoded)
+        leaves = np.flatnonzero(clf.tree_.children_left == -1)
+
+        for klass in (0, 1):
+            target = {n for n in leaves if np.argmax(clf.tree_.value[n]) == klass}
+            rule = sdutil._build_tree_rule(
+                clf, x, x_encoded, names, target, dummies_map
+            )
+            # exact: the rule selects exactly the points in the target leaves
+            np.testing.assert_array_equal(
+                rule.evaluate(x), np.isin(leaf_of_point, list(target))
+            )
+            # factoring never makes the rule longer than the boxes' limits combined
+            boxes = sdutil._extract_tree_boxes(clf, x, names, dummies_map)
+            box_init = sdutil._make_box(x)
+            n_limits = sum(
+                sdutil._determine_nr_restricted_dims(b, box_init)
+                for n, b in boxes
+                if n in target
+            )
+            self.assertLessEqual(rule.length, n_limits)
+            self.assertTrue(set(rule.dimensions) <= set(x.columns))
+
+        # all leaves: TRUE, no leaves: FALSE
+        rule = sdutil._build_tree_rule(clf, x, x_encoded, names, set(leaves), dummies_map)
+        self.assertEqual(rule.length, 0)
+        self.assertTrue(np.all(rule.evaluate(x)))
+        rule = sdutil._build_tree_rule(clf, x, x_encoded, names, set(), dummies_map)
+        self.assertFalse(np.any(rule.evaluate(x)))
+        self.assertEqual(str(rule), "FALSE (empty)")
+
+    def test_build_tree_rule_tolerance(self):
+        from sklearn.tree import DecisionTreeClassifier
+
+        # two bands on a; the tree also splits on b without b mattering,
+        # with slightly different thresholds on a in each subtree
+        rng = np.random.default_rng(3)
+        x = pd.DataFrame(rng.random((3000, 2)), columns=["a", "b"])
+        y = ((x.a < 0.3) | (x.a > 0.8)).astype(int).to_numpy().copy()
+        y[(x.b > 0.5) & (x.a > 0.795) & (x.a <= 0.8)] = 1  # sliver
+        x_encoded = x.values
+        clf = DecisionTreeClassifier(random_state=0).fit(x_encoded, y)
+        leaves = np.flatnonzero(clf.tree_.children_left == -1)
+        target = {n for n in leaves if np.argmax(clf.tree_.value[n]) == 1}
+
+        exact = sdutil._build_tree_rule(clf, x, x_encoded, ["a", "b"], target)
+        np.testing.assert_array_equal(
+            exact.evaluate(x), np.isin(clf.apply(x_encoded), list(target))
+        )
+        approximate = sdutil._build_tree_rule(
+            clf, x, x_encoded, ["a", "b"], target, tolerance=0.01
+        )
+        self.assertEqual(approximate.dimensions, ["a"])
+        self.assertEqual(approximate.length, 2)
+        mismatch = np.sum(approximate.evaluate(x) != exact.evaluate(x))
+        self.assertLessEqual(mismatch, 0.01 * exact.evaluate(x).sum() * 2)
+
+    def test_rule_expression_algebra(self):
+        a_low = sdutil._Interval("a", upper=0.3)
+        a_high = sdutil._Interval("a", lower=0.3)
+        b_low = sdutil._Interval("b", upper=0.5)
+
+        # complementary intervals unite to TRUE, disjoint ones intersect to FALSE
+        self.assertIs(sdutil._make_or(a_low, a_high), True)
+        self.assertIs(
+            sdutil._make_and(a_low, sdutil._Interval("a", lower=0.5)), False
+        )
+        # intervals on one input merge into one condition
+        self.assertEqual(
+            sdutil._make_and(a_high, sdutil._Interval("a", upper=0.8)),
+            sdutil._Interval("a", 0.3, 0.8),
+        )
+        # adjacent integer intervals merge, adjacent float intervals do not
+        i_low = sdutil._Interval("i", upper=3, kind="integer")
+        i_mid = sdutil._Interval("i", lower=4, upper=6, kind="integer")
+        self.assertEqual(
+            sdutil._make_or(i_low, i_mid), sdutil._Interval("i", upper=6, kind="integer")
+        )
+        # categories: union of all categories is TRUE
+        everything = frozenset("pqr")
+        p = sdutil._Membership("c", frozenset("p"), everything)
+        qr = sdutil._Membership("c", frozenset("qr"), everything)
+        self.assertIs(sdutil._make_or(p, qr), True)
+        self.assertIs(sdutil._make_and(p, qr), False)
+
+        # distribution: a <= 0.8 AND (a <= 0.3 OR (a >= 0.3 AND b <= 0.5))
+        a_upper = sdutil._Interval("a", upper=0.8)
+        expression = sdutil._make_and(
+            a_upper, sdutil._make_or(a_low, sdutil._make_and(a_high, b_low))
+        )
+        rule = sdutil.Rule(expression)
+        self.assertEqual(rule.length, 3)
+        self.assertEqual(
+            str(rule), "   a <= 0.3\nOR 0.3 <= a <= 0.8 AND b <= 0.5"
+        )
+
+    def test_rule_formatting(self):
+        everything = frozenset("pqr")
+        expression = sdutil._make_and(
+            sdutil._Interval("b", lower=1, kind="boolean"),
+            sdutil._Interval("i", lower=7, kind="integer"),
+            sdutil._Membership("c", frozenset("rp"), everything),
+        )
+        rule = sdutil.Rule(expression)
+        self.assertEqual(str(rule), "b == True AND i >= 7 AND c in {p, r}")
+        self.assertEqual(repr(rule), "Rule(b == True AND i >= 7 AND c in {p, r})")
+        self.assertEqual(rule.dimensions, ["b", "c", "i"])
+        self.assertEqual(str(sdutil.Rule(True)), "TRUE (entire space)")
+
     def test_OutputFormatterMixin(self):
         x = pd.DataFrame(
             [

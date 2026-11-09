@@ -203,6 +203,55 @@ class CART(sdutil.OutputFormatterMixin):
         sdutil.RuleInductionType.CLASSIFICATION: _classification_stats,
     }
 
+    def extract_rules(self, tolerance: float = 0.0) -> dict:
+        """Return, for each class, the region where the tree predicts it as one rule.
+
+        Each rule is the union of the boxes of the leaves that predict the
+        class, written with shared conditions factored out. With the default
+        tolerance of 0, a rule selects exactly the points in those leaves.
+
+        Parameters
+        ----------
+        tolerance : float, optional
+                    drop near vacuous splits from a rule if that changes the
+                    membership of at most this share of the points the rule
+                    describes. Gives shorter rules that are no longer exactly
+                    equivalent to the boxes.
+
+        Returns
+        -------
+        dict
+            class -> :class:`~ema_workbench.analysis.scenario_discovery_util.Rule`
+
+        Raises
+        ------
+        EMAError
+            in regression mode, where leaves do not predict classes
+
+        """
+        assert self.clf
+        if self.mode == sdutil.RuleInductionType.REGRESSION:
+            raise EMAError("rules are only available in (binary) classification mode")
+
+        tree_ = self.clf.tree_
+        leaves = np.flatnonzero(tree_.children_left == -1)
+        predicted = {
+            leaf: self.clf.classes_[np.argmax(tree_.value[leaf][0])] for leaf in leaves
+        }
+        return {
+            klass: sdutil._build_tree_rule(
+                self.clf,
+                self.x,
+                self._x,
+                self.feature_names,
+                {leaf for leaf in leaves if predicted[leaf] == klass},
+                self.dummiesmap,
+                self.sep,
+                tolerance,
+            )
+            for klass in self.clf.classes_
+        }
+
     def build_tree(self) -> None:
         """Train CART on the data."""
         min_samples = int(self.mass_min * self.x.shape[0])
