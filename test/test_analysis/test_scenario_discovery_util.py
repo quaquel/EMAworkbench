@@ -312,6 +312,147 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         plt.draw()
         plt.close("all")
 
+    def _make_mixed_data(self, n=1000, seed=0):
+        rng = np.random.default_rng(seed)
+        x = pd.DataFrame(
+            {
+                "a": rng.random(n),
+                "i": rng.integers(0, 10, n),
+                "b": rng.random(n) > 0.5,
+                "c": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+            }
+        )
+        y = (((x.c == "q") & (x.a > 0.5)) | ((x.i > 6) & x.b)).astype(int).values
+        return x, y
+
+    def _fit_tree(self, x, y, sep="!?!"):
+        from sklearn.tree import DecisionTreeClassifier
+
+        dummies = pd.get_dummies(x, prefix_sep=sep)
+        dummies_map = {
+            c: {str(v): v for v in x[c].unique()}
+            for c in x.select_dtypes(exclude=np.number).columns
+        }
+        clf = DecisionTreeClassifier(min_samples_leaf=20, random_state=0)
+        clf.fit(dummies.values, y)
+        return clf, dummies.columns.tolist(), dummies_map
+
+    def test_extract_tree_boxes(self):
+        x, y = self._make_mixed_data()
+        box_init_before = sdutil._make_box(x)
+        clf, names, dummies_map = self._fit_tree(x, y)
+
+        boxes = sdutil._extract_tree_boxes(clf, x, names, dummies_map)
+        leaves = np.flatnonzero(clf.tree_.children_left == -1)
+        self.assertEqual([node for node, _ in boxes], leaves.tolist())
+
+        # the boxes partition the data exactly as the leaves of the tree do
+        leaf_of_point = clf.apply(pd.get_dummies(x, prefix_sep="!?!").values)
+        for node, box in boxes:
+            inside = np.asarray(sdutil._in_box(x, box))
+            np.testing.assert_array_equal(inside, leaf_of_point == node)
+
+        # integer and boolean limits stay integer and boolean
+        for _, box in boxes:
+            self.assertTrue(pd.api.types.is_integer_dtype(box["i"].dtype))
+            self.assertTrue(pd.api.types.is_bool_dtype(box["b"].dtype))
+
+        # a categorical split restricts both children; nothing is mutated
+        categories = [box.at[0, "c"] for _, box in boxes]
+        self.assertTrue(any(c == {"q"} for c in categories))
+        pd.testing.assert_frame_equal(sdutil._make_box(x), box_init_before)
+
+    def test_extract_tree_boxes_merge_key(self):
+        x, y = self._make_mixed_data()
+        clf, names, dummies_map = self._fit_tree(x, y)
+        tree_ = clf.tree_
+        leaf_of_point = clf.apply(pd.get_dummies(x, prefix_sep="!?!").values)
+
+        def leaves_below(node):
+            if tree_.children_left[node] == -1:
+                return {node}
+            return leaves_below(tree_.children_left[node]) | leaves_below(
+                tree_.children_right[node]
+            )
+
+        # key = side of the root split: exactly the two children of the root
+        left_leaves = leaves_below(tree_.children_left[0])
+        merged = sdutil._extract_tree_boxes(
+            clf, x, names, dummies_map, merge_key=lambda n: n in left_leaves
+        )
+        self.assertEqual(
+            [node for node, _ in merged],
+            [tree_.children_left[0], tree_.children_right[0]],
+        )
+        for node, box in merged:
+            inside = np.asarray(sdutil._in_box(x, box))
+            np.testing.assert_array_equal(
+                inside, np.isin(leaf_of_point, list(leaves_below(node)))
+            )
+
+        # one key for all leaves: a single box, the initial box
+        merged = sdutil._extract_tree_boxes(
+            clf, x, names, dummies_map, merge_key=lambda n: 0
+        )
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(merged[0][0], 0)
+        self.assertTrue(np.all(sdutil._in_box(x, merged[0][1])))
+
+        # key None never merges
+        merged = sdutil._extract_tree_boxes(
+            clf, x, names, dummies_map, merge_key=lambda n: None
+        )
+        self.assertEqual(len(merged), len(leaves_below(0)))
+
+    def test_compute_purity(self):
+        self.assertEqual(sdutil._compute_purity([10, 0, 0]), 1)
+        self.assertAlmostEqual(sdutil._compute_purity([5, 5, 5]), 0)
+        self.assertAlmostEqual(sdutil._compute_purity([5, 5]), 0)
+        self.assertEqual(sdutil._compute_purity([7]), 1)
+        self.assertEqual(sdutil._compute_purity([0, 0]), 1)
+        p = sdutil._compute_purity([8, 1, 1])
+        self.assertTrue(0 < p < 1)
+
+    def test_determine_effective_restricted_dims(self):
+        rng = np.random.default_rng(2)
+        x = pd.DataFrame(rng.random((2000, 3)), columns=["a", "b", "c"])
+        box_init = sdutil._make_box(x)
+
+        def make(**limits):
+            box = box_init.copy()
+            for column, (lower, upper) in limits.items():
+                box[column] = [lower, upper]
+            return box
+
+        # L-shape: both a and b matter jointly
+        l_shape = [make(a=(0, 0.5)), make(a=(0.5, 1), b=(0, 0.4))]
+        self.assertEqual(
+            sdutil._determine_effective_restricted_dims(x, l_shape, box_init),
+            ["a", "b"],
+        )
+
+        # split on b on both sides with identical a limits: b is irrelevant
+        redundant = [make(a=(0, 0.3), b=(0, 0.5)), make(a=(0, 0.3), b=(0.5, 1))]
+        self.assertEqual(
+            sdutil._determine_effective_restricted_dims(x, redundant, box_init), ["a"]
+        )
+
+        # near vacuous limit: only dropped with a tolerance
+        nearly = [make(a=(0, 0.5), c=(0, 0.995))]
+        self.assertEqual(
+            sdutil._determine_effective_restricted_dims(x, nearly, box_init),
+            ["a", "c"],
+        )
+        self.assertEqual(
+            sdutil._determine_effective_restricted_dims(
+                x, nearly, box_init, tolerance=0.02
+            ),
+            ["a"],
+        )
+        self.assertEqual(
+            sdutil._determine_effective_restricted_dims(x, [], box_init), []
+        )
+
     def test_OutputFormatterMixin(self):
         x = pd.DataFrame(
             [

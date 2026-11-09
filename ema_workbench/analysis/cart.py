@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import contextlib
 import io
-import math
 from io import StringIO
 
 import matplotlib.image as mpimg
@@ -117,71 +116,13 @@ class CART(sdutil.OutputFormatterMixin):
         if self._boxes:
             return self._boxes
 
-        # based on
-        # http://stackoverflow.com/questions/20224526/how-to-extract-the-
-        # decision-rules-from-scikit-learn-decision-tree
         assert self.clf
-
-        left = self.clf.tree_.children_left
-        right = self.clf.tree_.children_right
-        threshold = self.clf.tree_.threshold
-        features = [self.feature_names[i] for i in self.clf.tree_.feature]
-
-        # get ids of leaf nodes
-        leafs = np.argwhere(left == -1)[:, 0]
-
-        def recurse(left, right, child, lineage=None):
-            if lineage is None:
-                # lineage = [self.clf.tree_.value[child]]
-                lineage = []
-
-            if child in left:
-                parent = np.where(left == child)[0].item()
-                split = "l"
-            else:
-                parent = np.where(right == child)[0].item()
-                split = "r"
-
-            lineage.append((parent, split, threshold[parent], features[parent]))
-
-            if parent == 0:
-                lineage.reverse()
-                return lineage
-            else:
-                return recurse(left, right, parent, lineage)
-
-        box_init = sdutil._make_box(self.x)
-        boxes = []
-        for leaf in leafs:
-            branch = recurse(left, right, leaf)
-            box = box_init.copy()
-            for node in branch:
-                direction = node[1]
-                value = node[2]
-                unc = node[3]
-
-                if direction == "l":
-                    if unc in box_init.columns:
-                        box.loc[1, unc] = value
-                    else:
-                        unc, cat = unc.split(self.sep)
-                        cats = box.loc[0, unc]
-                        # TODO:: cat is a str needs casting?
-                        # what about a lookup table mapping
-                        # each str cat to the associate actual cat
-                        # object
-                        # can be created when making the dummy variables
-
-                        cats.discard(self.dummiesmap[unc][cat])
-                        box.loc[:, unc] = [set(cats), set(cats)]
-                else:
-                    if unc in box_init.columns:
-                        if box[unc].dtype == np.int32:
-                            value = math.ceil(value)
-                        box.loc[0, unc] = value
-
-            boxes.append(box)
-        self._boxes = boxes
+        self._boxes = [
+            box
+            for _, box in sdutil._extract_tree_boxes(
+                self.clf, self.x, self.feature_names, self.dummiesmap, self.sep
+            )
+        ]
         return self._boxes
 
     @property
@@ -215,7 +156,7 @@ class CART(sdutil.OutputFormatterMixin):
         boxstats = {
             "coverage": box_coi / np.sum(self.y),
             "density": box_coi / y_in_box.shape[0],
-            "res dim": sdutil._determine_nr_restricted_dims(box, box_init),
+            "res_dim": sdutil._determine_nr_restricted_dims(box, box_init),
             "mass": y_in_box.shape[0] / self.y.shape[0],
         }
         return boxstats
@@ -228,7 +169,7 @@ class CART(sdutil.OutputFormatterMixin):
         boxstats = {
             "mean": np.mean(y_in_box),
             "mass": y_in_box.shape[0] / self.y.shape[0],
-            "res dim": sdutil._determine_nr_restricted_dims(box, box_init),
+            "res_dim": sdutil._determine_nr_restricted_dims(box, box_init),
         }
         return boxstats
 
@@ -248,9 +189,10 @@ class CART(sdutil.OutputFormatterMixin):
 
         boxstats = {
             "gini": gini,
+            "purity": sdutil._compute_purity(counts),
             "mass": y_in_box.shape[0] / self.y.shape[0],
             "box_composition": counts,
-            "res dim": sdutil._determine_nr_restricted_dims(box, box_init),
+            "res_dim": sdutil._determine_nr_restricted_dims(box, box_init),
         }
 
         return boxstats
