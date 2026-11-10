@@ -983,27 +983,46 @@ def plot_box(
     return fig
 
 
-def plot_ppt(peeling_trajectory):
-    """Show the peeling and pasting trajectory in a figure."""
-    ax = host_subplot(111)
+_PPT_STATS = ["mean", "rmse", "mass", "coverage", "density"]
+
+
+def plot_ppt(peeling_trajectory, stats: list[str] | None = None):
+    """Show the peeling and pasting trajectory in a figure.
+
+    Parameters
+    ----------
+    peeling_trajectory : DataFrame
+    stats : list of str, optional
+            the statistics to plot against the left axis. By default, those of
+            mean, rmse, mass, coverage, and density that are in the
+            trajectory, so binary and regression PRIM both work. The number of
+            restricted dimensions is always plotted against the right axis.
+
+    Returns
+    -------
+    a Figure instance
+
+    """
+    if stats is None:
+        stats = [s for s in _PPT_STATS if s in peeling_trajectory.columns]
+
+    fig = plt.figure()  # a new figure, rather than drawing into the current one
+    ax = host_subplot(111, figure=fig)
     ax.set_xlabel("peeling and pasting trajectory")
 
     par = ax.twinx()
     par.set_ylabel("nr. restricted dimensions")
 
-    ax.plot(peeling_trajectory["mean"], label="mean")
-    ax.plot(peeling_trajectory["mass"], label="mass")
-    ax.plot(peeling_trajectory["coverage"], label="coverage")
-    ax.plot(peeling_trajectory["density"], label="density")
+    for stat in stats:
+        ax.plot(peeling_trajectory[stat], label=stat)
     par.plot(peeling_trajectory["res_dim"], label="restricted dims")
     ax.grid(True, which="both")
-    ax.set_ylim(bottom=0, top=1)
+    if peeling_trajectory[stats].to_numpy().max() <= 1:
+        ax.set_ylim(bottom=0, top=1)  # shares, e.g. coverage and density
+    else:
+        ax.set_ylim(bottom=0)
 
-    fig = plt.gcf()
-
-    make_legend(
-        ["mean", "mass", "coverage", "density", "restricted_dim"], ax, ncol=5, alpha=1
-    )
+    make_legend([*stats, "restricted_dim"], ax, ncol=len(stats) + 1, alpha=1)
     return fig
 
 
