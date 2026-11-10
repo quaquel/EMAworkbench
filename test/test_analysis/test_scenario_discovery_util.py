@@ -376,8 +376,8 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         plt.close(fig)
 
     def test_merge_code_runs(self):
-        self.assertEqual(sdutil._merge_code_runs([3, 0, 1, 5]), [(0, 1), (3, 3), (5, 5)])
-        self.assertEqual(sdutil._merge_code_runs([]), [])
+        self.assertEqual(sdutil._find_contiguous_ranges([3, 0, 1, 5]), [(0, 1), (3, 3), (5, 5)])
+        self.assertEqual(sdutil._find_contiguous_ranges([]), [])
 
     def test_plot_boxes(self):
         x = pd.DataFrame(

@@ -542,7 +542,7 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):  # noqa: N803
     return qp.pvalue
 
 
-def _merge_code_runs(codes: list[int]) -> list[tuple[int, int]]:
+def _find_contiguous_ranges(codes: list[int]) -> list[tuple[int, int]]:
     """Contiguous runs of sorted integer codes as (first, last) pairs."""
     runs = []
     for code in sorted(codes):
@@ -568,7 +568,7 @@ def _project_box(
     if mapping is None:
         return [(float(boxlim.at[0, column]), float(boxlim.at[1, column]))]
     codes = [mapping[c] for c in boxlim.at[0, column]]
-    return [(first - pad, last + pad) for first, last in _merge_code_runs(codes)]
+    return [(first - pad, last + pad) for first, last in _find_contiguous_ranges(codes)]
 
 
 def _draw_union_outline(
