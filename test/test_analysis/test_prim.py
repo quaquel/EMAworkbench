@@ -209,6 +209,7 @@ class TestPrimBox:
             box.show_pairs_scatter(diag="wrong value", upper="contour")
 
     def test_inspect_tradeoff(self):
+        pytest.importorskip("altair")
         experiments, outcomes = utilities.load_flu_data()
         y = flu_classify(outcomes)
 
@@ -577,3 +578,70 @@ def test_pca():
     experiments = experiments.drop("normal_interregional_contact_rate", axis=1)
     rotated_experiments, rotation = prim.pca_preprocess(experiments, y, subsets)
     assert rotated_experiments.shape == experiments.shape
+
+
+class TestRegressionPrim:
+    """Tests for prim in regression mode."""
+
+    def _load(self):
+        x, outcomes = utilities.load_flu_data()
+        y = outcomes["deceased_population_region_1"][:, -1]
+        return x, y / y.max()
+
+    def test_minimization(self):
+        # minimizing y must give exactly the boxes of maximizing -y, pastes
+        # included (pastes used to require the mean to get worse)
+        x, y = self._load()
+        box_min = prim.RegressionPrim(x, y, maximization=False, peel_alpha=0.1).find_box()
+        box_max = prim.RegressionPrim(x, -y, peel_alpha=0.1).find_box()
+
+        assert len(box_min.box_lims) == len(box_max.box_lims)
+        for lims_min, lims_max in zip(box_min.box_lims, box_max.box_lims):
+            pd.testing.assert_frame_equal(lims_min, lims_max)
+        assert box_min.mean < np.mean(y)
+        assert np.any(np.diff(box_min.peeling_trajectory["mass"].values) > 0)  # pasted
+
+    def test_rank_candidate(self):
+        x, y = self._load()
+        # equal objective: the box with more unrestricted dimensions ranks first
+        for maximization in (True, False):
+            alg = prim.RegressionPrim(x, y, maximization=maximization)
+            scores = [(0.5, 3, "fewer unrestricted"), (0.5, 7, "more unrestricted")]
+            scores.sort(key=alg._rank_candidate, reverse=True)
+            assert scores[0][2] == "more unrestricted"
+        # different objective: best objective first, in either direction
+        scores = [(0.2, 9, "low"), (0.8, 1, "high")]
+        alg = prim.RegressionPrim(x, y)
+        assert sorted(scores, key=alg._rank_candidate, reverse=True)[0][2] == "high"
+        alg = prim.RegressionPrim(x, y, maximization=False)
+        assert sorted(scores, key=alg._rank_candidate, reverse=True)[0][2] == "low"
+
+    def test_show_ppt(self):
+        x, y = self._load()
+        box = prim.RegressionPrim(x, y).find_box()
+        fig = box.show_ppt()
+        labels = [t.get_text() for t in fig.axes[0].get_legend().get_texts()]
+        assert labels == ["mean", "rmse", "mass", "restricted_dim"]
+        plt.close("all")
+
+    def test_binary_only_methods(self):
+        x, y = self._load()
+        box = prim.RegressionPrim(x, y).find_box()
+        for method in ("resample", "show_tradeoff", "inspect_tradeoff"):
+            with pytest.raises(NotImplementedError, match="binary PRIM"):
+                getattr(box, method)()
+        with pytest.raises(AttributeError, match="RegressionPrimBox.*no_such_thing"):
+            _ = box.no_such_thing
+
+    def test_update_function(self):
+        x, y = self._load()
+        with pytest.raises(ValueError, match="guivarch"):
+            prim.RegressionPrim(x, y, update_function="guivarch")
+
+
+def test_inspect_tradeoff_without_altair(monkeypatch):
+    experiments, outcomes = utilities.load_flu_data()
+    box = prim.Prim(experiments, flu_classify(outcomes)).find_box()
+    monkeypatch.setattr(prim, "alt", None)
+    with pytest.raises(ImportError, match="ema_workbench\\[graph\\]"):
+        box.inspect_tradeoff()
