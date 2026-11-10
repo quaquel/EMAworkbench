@@ -795,7 +795,7 @@ def plot_pair_wise_scatter(
         case "cdf":
             grid.map_diag(sns.ecdfplot)
         case "kde":
-            grid.map_diag(sns.scatterplot, y=data.y)
+            grid.map_diag(sns.kdeplot, fill=False, common_norm=False, cut=0)
         case "hist":
             grid.map_diag(sns.histplot, element="step", common_norm=False)
         case _:

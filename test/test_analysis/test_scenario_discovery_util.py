@@ -344,6 +344,26 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             )
         plt.close("all")
 
+    def test_plot_pair_wise_scatter_kde_diagonal(self):
+        # diag="kde" draws a kernel density estimate per class on the diagonal,
+        # not a scatter of the uncertainty against y
+        from matplotlib.collections import PathCollection
+
+        rng = np.random.default_rng(1)
+        x = pd.DataFrame({"a": rng.random(200), "b": rng.random(200)})
+        y = (x.a > 0.5).astype(int).values
+        box_init = sdutil._make_box(x)
+        boxlim = box_init.copy()
+        boxlim["a"] = [0.5, 1.0]
+
+        grid = sdutil.plot_pair_wise_scatter(
+            x, y, boxlim, box_init, ["a", "b"], diag="kde", lower="scatter"
+        )
+        for ax in grid.diag_axes:
+            self.assertGreaterEqual(len(ax.get_lines()), 2)  # one density per class
+            self.assertFalse(any(isinstance(c, PathCollection) for c in ax.collections))
+        plt.close("all")
+
     def test_draw_union_outline(self):
         fig, ax = plt.subplots()
         # two touching squares form one rectangle: 4 outer edges, each split once
