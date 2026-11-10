@@ -1894,7 +1894,7 @@ class Prim(BasePrim):
     def _log_progress(self):
         """Helper method to log progress."""
         _logger.info(
-            f"{self.yi_remaining.shape[0]} points remaining, containing {np.sum(self.yi_remaining)} cases of interest"
+            f"{self.yi_remaining.shape[0]} points remaining, containing {np.sum(self.y[self.yi_remaining])} cases of interest"
         )
 
     def _update_yi_remaining_guivarch(self):
@@ -1972,7 +1972,7 @@ class RegressionPrim(BasePrim):
     def _log_progress(self):
         """Helper method to log progress."""
         _logger.info(
-            f"{self.yi_remaining.shape[0]} points remaining, with mean of {np.mean(self.yi_remaining)}"
+            f"{self.yi_remaining.shape[0]} points remaining, with mean of {np.mean(self.y[self.yi_remaining])}"
         )
 
     _update_functions = {"default": BasePrim._update_yi_remaining_default}
