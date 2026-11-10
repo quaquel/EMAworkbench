@@ -219,6 +219,28 @@ class TestPrimBox:
 
 
 class TestPrim:
+    def test_log_progress(self):
+        # the progress message reports the outcome of the remaining points,
+        # not their indices
+        from unittest import mock
+
+        rng = np.random.default_rng(0)
+        x = pd.DataFrame({"a": rng.random(200), "b": rng.random(200)})
+        y = (x.a > 0.7).astype(int).values
+
+        prim_obj = prim.Prim(x, y)
+        with mock.patch.object(prim._logger, "info") as info:
+            prim_obj._log_progress()
+        message = info.call_args[0][0]
+        assert message == f"200 points remaining, containing {y.sum()} cases of interest"
+
+        y_continuous = x.a.values * 10
+        regression_obj = prim.RegressionPrim(x, y_continuous)
+        with mock.patch.object(prim._logger, "info") as info:
+            regression_obj._log_progress()
+        message = info.call_args[0][0]
+        assert message == f"200 points remaining, with mean of {np.mean(y_continuous)}"
+
     def test_uninformative_columns_dropped(self):
         rng = np.random.default_rng(0)
         x = pd.DataFrame(
