@@ -18,7 +18,6 @@ import itertools
 import numbers
 import warnings
 from collections.abc import Iterable
-from operator import itemgetter
 from typing import Literal
 
 import matplotlib as mpl
@@ -334,7 +333,9 @@ class BasePrimBox(abc.ABC):
         if name == "box_lim":
             return self.box_lims[self._cur_box]
         else:
-            raise AttributeError
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{name}'"
+            )
 
     @property
     @abc.abstractmethod
@@ -667,6 +668,11 @@ class PrimBox(BasePrimBox):
 
     def inspect_tradeoff(self):
         """Inspecting tradeoff using altair."""
+        if alt is None:
+            raise ImportError(
+                "inspect_tradeoff requires altair, install it with "
+                "pip install ema_workbench[graph]"
+            )
         # TODO::
         # make legend with res_dim color code a selector as well?
         # https://medium.com/dataexplorations/focus-generating-an-interactive-legend-in-altair-9a92b5714c55
@@ -1051,6 +1057,24 @@ class RegressionPrimBox(BasePrimBox):
     def stats(self):
         return {k: getattr(self, k) for k in ["rmse", "mean", "mass", "res_dim"]}
 
+    def _raise_binary_only(self, method: str):
+        raise NotImplementedError(
+            f"{method} is only available for binary PRIM (PrimBox), "
+            "it relies on coverage and density"
+        )
+
+    def resample(self, *args, **kwargs):
+        """Not available for regression PRIM."""
+        self._raise_binary_only("resample")
+
+    def show_tradeoff(self, *args, **kwargs):
+        """Not available for regression PRIM."""
+        self._raise_binary_only("show_tradeoff")
+
+    def inspect_tradeoff(self, *args, **kwargs):
+        """Not available for regression PRIM."""
+        self._raise_binary_only("inspect_tradeoff")
+
     def _inspect_graph(
         self,
         i: int,
@@ -1349,6 +1373,17 @@ class BasePrim(sdutil.OutputFormatterMixin):
             logical[box.yi] = False
         self.yi_remaining = self.yi[logical]
 
+    def _rank_candidate(self, score: tuple) -> tuple:
+        """Sort key for candidate boxes: best objective first, then fewest restrictions.
+
+        score is (objective, number of unrestricted dimensions, ...). When
+        minimizing, the objective is negated, so sorting in descending order
+        puts the best objective first in both directions, and ties are always
+        broken in favor of the box with more unrestricted dimensions.
+        """
+        objective, n_unrestricted = score[0], score[1]
+        return (objective if self._maximization else -objective, n_unrestricted)
+
     def _peel(self, box: pd.DataFrame):
         """Executes the peeling phase of the PRIM algorithm.
 
@@ -1389,7 +1424,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
             score = (obj, non_res_dim, box_lim, i)
             scores.append(score)
 
-        scores.sort(key=itemgetter(0, 1), reverse=self._maximization)
+        scores.sort(key=self._rank_candidate, reverse=True)
         entry = scores[0]
 
         obj_score = entry[0]
@@ -1604,7 +1639,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
             score = (obj, non_res_dim, box_lim, i)
             scores.append(score)
 
-        scores.sort(key=itemgetter(0, 1), reverse=self._maximization)
+        scores.sort(key=self._rank_candidate, reverse=True)
         entry = scores[0]
         obj_score, _, box_new, indices = entry
         mass_new = self.y[indices].shape[0] / self.n
@@ -1616,7 +1651,7 @@ class BasePrim(sdutil.OutputFormatterMixin):
             (mass_new >= self.mass_min)
             & (mass_new > mass_old)
             & (obj_score > 0 if self._maximization else obj_score < 0)
-            & (mean_new > mean_old if self._maximization else mean_old < mean_new)
+            & (mean_new > mean_old if self._maximization else mean_new < mean_old)
         ):
             box.update(box_new, indices)
             return self._paste(box)
@@ -1894,7 +1929,7 @@ class Prim(BasePrim):
     def _log_progress(self):
         """Helper method to log progress."""
         _logger.info(
-            f"{self.yi_remaining.shape[0]} points remaining, containing {np.sum(self.yi_remaining)} cases of interest"
+            f"{self.yi_remaining.shape[0]} points remaining, containing {np.sum(self.y[self.yi_remaining])} cases of interest"
         )
 
     def _update_yi_remaining_guivarch(self):
@@ -1931,11 +1966,13 @@ class RegressionPrim(BasePrim):
                   parameter controlling the pasting stage (default = 0.05).
     mass_min : float, optional
                 minimum mass of a box (default = 0.05).
-    update_function : {'default', 'guivarch'}, optional
-                    controls behavior of PRIM after having found a first box. use either the
-                    default behavior were the all points are removed, or the procedure
-                    suggested by guivarch et al (2016)
-    maximization: bool
+    update_function : {'default'}, optional
+                      controls behavior of PRIM after having found a first box. For
+                      regression only the default behavior, where all points in the
+                      box are removed, is available.
+    maximization: bool, optional
+                  look for a box with a high mean (True, default) or a low mean
+                  (False)
 
     """
 
@@ -1955,7 +1992,11 @@ class RegressionPrim(BasePrim):
         maximization: bool = True,
     ):
         """Init."""
-        # is there a meaning of guivarch in regression mode
+        if update_function not in self._update_functions:
+            raise ValueError(
+                f"update_function {update_function!r} is not available for "
+                f"regression PRIM, use one of {list(self._update_functions)}"
+            )
         super().__init__(
             x,
             y,
@@ -1967,12 +2008,12 @@ class RegressionPrim(BasePrim):
         )
 
         self._prim_box_klass = RegressionPrimBox
-        self._maximization = maximization  # fixme this is not working correctly
+        self._maximization = maximization
 
     def _log_progress(self):
         """Helper method to log progress."""
         _logger.info(
-            f"{self.yi_remaining.shape[0]} points remaining, with mean of {np.mean(self.yi_remaining)}"
+            f"{self.yi_remaining.shape[0]} points remaining, with mean of {np.mean(self.y[self.yi_remaining])}"
         )
 
     _update_functions = {"default": BasePrim._update_yi_remaining_default}

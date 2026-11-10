@@ -932,17 +932,89 @@ def _calculate_quasip(x, y, box, Hbox, Tbox):  # noqa: N803
     return qp.pvalue
 
 
+def _find_contiguous_ranges(codes: list[int]) -> list[tuple[int, int]]:
+    """Contiguous runs of sorted integer codes as (first, last) pairs."""
+    runs = []
+    for code in sorted(codes):
+        if runs and code == runs[-1][1] + 1:
+            runs[-1] = (runs[-1][0], code)
+        else:
+            runs.append((code, code))
+    return runs
+
+
+def _project_box(
+    boxlim: pd.DataFrame,
+    column: str,
+    mapping: dict[object, int] | None,
+    pad: float,
+) -> list[tuple[float, float]]:
+    """The extent of a box on one axis, as a list of (low, high) intervals.
+
+    mapping is None for a numeric column; for a categorical column it maps
+    each category to its plotting code, and the box covers one interval per
+    contiguous run of codes, padded by pad on either side.
+    """
+    if mapping is None:
+        return [(float(boxlim.at[0, column]), float(boxlim.at[1, column]))]
+    codes = [mapping[c] for c in boxlim.at[0, column]]
+    return [(first - pad, last + pad) for first, last in _find_contiguous_ranges(codes)]
+
+
+def _draw_union_outline(
+    ax, rectangles: list[tuple[float, float, float, float]], **kwargs
+) -> None:
+    """Draw the outline of the union of axis-aligned rectangles (x0, x1, y0, y1).
+
+    Builds the grid spanned by all rectangle edges, marks the covered cells,
+    and draws only the edges between a covered and an uncovered cell, so the
+    result is a single outline per connected region. kwargs are passed to
+    LineCollection.
+    """
+    rectangles = [r for r in rectangles if r[1] > r[0] and r[3] > r[2]]
+    if not rectangles:
+        return
+    xs = np.unique([v for r in rectangles for v in r[:2]])
+    ys = np.unique([v for r in rectangles for v in r[2:]])
+    x_centres, y_centres = (xs[:-1] + xs[1:]) / 2, (ys[:-1] + ys[1:]) / 2
+    covered = np.zeros((x_centres.size, y_centres.size), dtype=bool)
+    for x0, x1, y0, y1 in rectangles:
+        covered |= ((x_centres > x0) & (x_centres < x1))[:, None] & (
+            (y_centres > y0) & (y_centres < y1)
+        )[None, :]
+
+    padded = np.pad(covered, 1)  # uncovered border, so outer edges are found
+    segments = []
+    for a, b in zip(*np.nonzero(covered)):
+        pa, pb = a + 1, b + 1
+        if not padded[pa - 1, pb]:
+            segments.append([(xs[a], ys[b]), (xs[a], ys[b + 1])])
+        if not padded[pa + 1, pb]:
+            segments.append([(xs[a + 1], ys[b]), (xs[a + 1], ys[b + 1])])
+        if not padded[pa, pb - 1]:
+            segments.append([(xs[a], ys[b]), (xs[a + 1], ys[b])])
+        if not padded[pa, pb + 1]:
+            segments.append([(xs[a], ys[b + 1]), (xs[a + 1], ys[b + 1])])
+    ax.add_collection(mpl.collections.LineCollection(segments, **kwargs))
+
+
 def plot_pair_wise_scatter(
     x: pd.DataFrame,
     y: np.array,
-    boxlim: pd.DataFrame,
+    boxlim: pd.DataFrame | list[pd.DataFrame],
     box_init: pd.DataFrame,
     restricted_dims: list[str],
-    diag: Literal["kde", "cdf", "regression"] | None = "kde",
+    diag: Literal["kde", "cdf", "regression", "hist"] | None = "kde",
     upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
     lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "hist",
     fill_subplots=True,
     legend=True,
+    *,
+    outline: Literal["union", "boxes"] = "union",
+    secondary_boxlims: list[pd.DataFrame] | None = None,
+    box_color="red",
+    palette=None,
+    plot_kws: dict | None = None,
 ) -> sns.PairGrid:
     """Helper function for pair wise scatter plotting.
 
@@ -951,15 +1023,19 @@ def plot_pair_wise_scatter(
     x : DataFrame
         the experiments
     y : numpy array
-        the outcome of interest
-    box_lim : DataFrame
-              a boxlim
+        the outcome of interest. A categorical outcome (a pandas Categorical,
+        or strings) is shown with a discrete hue; the categories are plotted
+        in their order, so the last category ends up on top.
+    boxlim : DataFrame or list of DataFrame
+             a boxlim, or the boxlims of several boxes that together describe
+             one region (e.g., the boxes of the leaves of a tree)
     box_init : DataFrame
     restricted_dims : collection of strings
                       list of uncertainties that define the boxlims
     diag : string, optional
            Plot diagonal as kernel density estimate ('kde'),
-           cumulative density function ('cdf'), or regression ('regression')
+           cumulative density function ('cdf'), regression ('regression'), or
+           histogram ('hist'). Use 'hist' or 'cdf' for a categorical y.
     upper, lower: string, optional
            Use either 'scatter', 'contour', hexbin, or 'hist' (bivariate
            histogram) plots for upper and lower triangles. Upper triangle
@@ -970,26 +1046,60 @@ def plot_pair_wise_scatter(
                    This removes unnecessary whitespace, but may be undesirable
                    for some variable combinations.
     legend: Boolean, optional
+    outline : {"union", "boxes"}, optional
+              with several boxes, draw the outline of their union in each
+              panel, or every box separately. For a single box both are the
+              same.
+    secondary_boxlims : list of DataFrame, optional
+                        boxes of a second region, drawn as a dashed grey
+                        outline (e.g., a region where no outcome dominates)
+    box_color : color, optional
+                color of the box outline
+    palette : optional
+              passed to seaborn as the hue palette, e.g. a dict mapping each
+              category of y to a color
+    plot_kws : dict, optional
+               keyword arguments for the scatter plots, e.g. marker size
+
+    Returns
+    -------
+    seaborn PairGrid
+
+    Notes
+    -----
+    Each panel shows the projection of the region onto two dimensions. The
+    projection of a union of boxes is the union of the projected boxes, so
+    boxes that differ only in dimensions outside a panel merge into one
+    region there.
 
     """
+    boxlims = [boxlim] if isinstance(boxlim, pd.DataFrame) else list(boxlim)
+    secondary_boxlims = [] if secondary_boxlims is None else list(secondary_boxlims)
+    plot_kws = {} if plot_kws is None else plot_kws
+
     x = x[restricted_dims]
     data = x.copy()
 
     categorical_columns = data.select_dtypes("category").columns.values
-    categorical_mappings = {}
+    categorical_mappings = {}  # code -> category, for the tick labels
+    category_codes = {}  # category -> code, for drawing the boxes
     for column in categorical_columns:
-        # reorder categorical data so we
-        # can capture the categories that are part of the box within a
-        # single rectangular patch
-        categories_inbox = boxlim.at[0, column]
+        # reorder categorical data so that the categories that are part of
+        # the box(es) come first, so a single box is a single rectangle
         categories_all = box_init.at[0, column]
-        missing = categories_all - categories_inbox
-        categories = list(categories_inbox) + list(missing)
+        categories_inbox = []
+        for box in boxlims:
+            categories_inbox += [
+                c for c in box.at[0, column] if c not in categories_inbox
+            ]
+        missing = [c for c in categories_all if c not in categories_inbox]
+        categories = categories_inbox + missing
 
         data[column] = data[column].cat.set_categories(categories)
 
         # keep the mapping for updating ticklabels
         categorical_mappings[column] = dict(enumerate(data[column].cat.categories))
+        category_codes[column] = {c: i for i, c in categorical_mappings[column].items()}
 
         # replace column with codes
         data[column] = data[column].cat.codes
@@ -1001,9 +1111,8 @@ def plot_pair_wise_scatter(
     data.sort_values("y", inplace=True)
 
     # main plot body
-
     grid = sns.PairGrid(
-        data=data, hue="y", vars=x.columns.values, diag_sharey=False
+        data=data, hue="y", vars=x.columns.values, diag_sharey=False, palette=palette
     )  # enables different plots in upper and lower triangles
 
     def _plot_triangle(which, style):
@@ -1052,8 +1161,8 @@ def plot_pair_wise_scatter(
             case "hist":
                 func(sns.histplot)
             case "scatter":
-                func(sns.scatterplot)
-            case "None":
+                func(sns.scatterplot, **plot_kws)
+            case None | "None" | "none":
                 pass
             case _:
                 raise NotImplementedError(
@@ -1076,50 +1185,72 @@ def plot_pair_wise_scatter(
         case "cdf":
             grid.map_diag(sns.ecdfplot)
         case "kde":
-            grid.map_diag(sns.scatterplot, y=data.y)
+            grid.map_diag(sns.kdeplot, fill=False, common_norm=False, cut=0)
+        case "hist":
+            grid.map_diag(sns.histplot, element="step", common_norm=False)
         case _:
             raise NotImplementedError(
-                f"diag = {diag} not implemented. Use either 'kde' (kernel density estimate) or 'cdf' (cumulative density function)."
+                f"diag = {diag} not implemented. Use either 'kde' (kernel density estimate), 'cdf' (cumulative density function), 'regression', or 'hist'."
             )
 
-    # draw box
+    # draw box(es)
     pad = 0.1
-
     cats = set(categorical_columns)
+    styles = [
+        (boxlims, {"colors": [box_color], "linewidths": 3, "linestyles": "solid"})
+    ]
+    if secondary_boxlims:
+        styles.append(
+            (
+                secondary_boxlims,
+                {"colors": ["dimgrey"], "linewidths": 2, "linestyles": "dashed"},
+            )
+        )
+
     for row, ylabel in zip(grid.axes, grid.y_vars):
         for ax, xlabel in zip(row, grid.x_vars):
             if ylabel == xlabel:
+                continue
+            if (
+                not ax.has_data()
+            ):  # keeps box from being drawn in upper triangle if empty
+                ax.set_axis_off()
                 continue
 
             xrange = ax.get_xlim()[1] - ax.get_xlim()[0]
             yrange = ax.get_ylim()[1] - ax.get_ylim()[0]
 
-            ylim = boxlim[ylabel]
-
-            if ylabel in cats:
-                height = (len(ylim[0]) - 1) + pad * yrange
-                y = -yrange * pad / 2
-            else:
-                y = ylim[0]
-                height = ylim[1] - ylim[0]
-
-            if xlabel in cats:
-                xlim = boxlim.at[0, xlabel]
-                width = (len(xlim) - 1) + pad * xrange
-                x = -xrange * pad / 2
-            else:
-                xlim = boxlim[xlabel]
-                x = xlim[0]
-                width = xlim[1] - xlim[0]
-
-            xy = x, y
-            box = patches.Rectangle(
-                xy, width, height, edgecolor="red", facecolor="none", lw=3, zorder=100
-            )
-            if ax.has_data():  # keeps box from being drawn in upper triangle if empty
-                ax.add_patch(box)
-            else:
-                ax.set_axis_off()
+            for boxes, style in styles:
+                rectangles = [
+                    (x0, x1, y0, y1)
+                    for box in boxes
+                    for x0, x1 in _project_box(
+                        box, xlabel, category_codes.get(xlabel), xrange * pad / 2
+                    )
+                    for y0, y1 in _project_box(
+                        box, ylabel, category_codes.get(ylabel), yrange * pad / 2
+                    )
+                ]
+                if outline == "union":
+                    _draw_union_outline(ax, rectangles, zorder=100, **style)
+                elif outline == "boxes":
+                    for x0, x1, y0, y1 in rectangles:
+                        ax.add_patch(
+                            patches.Rectangle(
+                                (x0, y0),
+                                x1 - x0,
+                                y1 - y0,
+                                edgecolor=style["colors"][0],
+                                facecolor="none",
+                                lw=style["linewidths"],
+                                ls=style["linestyles"],
+                                zorder=100,
+                            )
+                        )
+                else:
+                    raise ValueError(
+                        f"outline must be 'union' or 'boxes', not {outline!r}"
+                    )
 
     # do the yticklabeling for categorical rows
     for row, ylabel in zip(grid.axes, grid.y_vars):
@@ -1373,27 +1504,46 @@ def plot_box(
     return fig
 
 
-def plot_ppt(peeling_trajectory):
-    """Show the peeling and pasting trajectory in a figure."""
-    ax = host_subplot(111)
+_PPT_STATS = ["mean", "rmse", "mass", "coverage", "density"]
+
+
+def plot_ppt(peeling_trajectory, stats: list[str] | None = None):
+    """Show the peeling and pasting trajectory in a figure.
+
+    Parameters
+    ----------
+    peeling_trajectory : DataFrame
+    stats : list of str, optional
+            the statistics to plot against the left axis. By default, those of
+            mean, rmse, mass, coverage, and density that are in the
+            trajectory, so binary and regression PRIM both work. The number of
+            restricted dimensions is always plotted against the right axis.
+
+    Returns
+    -------
+    a Figure instance
+
+    """
+    if stats is None:
+        stats = [s for s in _PPT_STATS if s in peeling_trajectory.columns]
+
+    fig = plt.figure()  # a new figure, rather than drawing into the current one
+    ax = host_subplot(111, figure=fig)
     ax.set_xlabel("peeling and pasting trajectory")
 
     par = ax.twinx()
     par.set_ylabel("nr. restricted dimensions")
 
-    ax.plot(peeling_trajectory["mean"], label="mean")
-    ax.plot(peeling_trajectory["mass"], label="mass")
-    ax.plot(peeling_trajectory["coverage"], label="coverage")
-    ax.plot(peeling_trajectory["density"], label="density")
+    for stat in stats:
+        ax.plot(peeling_trajectory[stat], label=stat)
     par.plot(peeling_trajectory["res_dim"], label="restricted dims")
     ax.grid(True, which="both")
-    ax.set_ylim(bottom=0, top=1)
+    if peeling_trajectory[stats].to_numpy().max() <= 1:
+        ax.set_ylim(bottom=0, top=1)  # shares, e.g. coverage and density
+    else:
+        ax.set_ylim(bottom=0)
 
-    fig = plt.gcf()
-
-    make_legend(
-        ["mean", "mass", "coverage", "density", "restricted_dim"], ax, ncol=5, alpha=1
-    )
+    make_legend([*stats, "restricted_dim"], ax, ncol=len(stats) + 1, alpha=1)
     return fig
 
 

@@ -274,6 +274,111 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         plt.draw()
         plt.close("all")
 
+    def test_plot_pair_wise_scatter_multiple_boxes(self):
+        from matplotlib.collections import LineCollection
+
+        rng = np.random.default_rng(0)
+        n = 300
+        x = pd.DataFrame(
+            {
+                "a": rng.random(n),
+                "b": rng.random(n),
+                "c": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+            }
+        )
+        box_init = sdutil._make_box(x)
+
+        def make(**limits):
+            box = box_init.copy()
+            for column, value in limits.items():
+                box[column] = value
+            return box
+
+        # an L-shaped region from two boxes, plus a secondary region
+        boxes = [make(a=[0, 0.5], c=[{"p"}] * 2), make(a=[0.5, 1], b=[0, 0.4], c=[{"r"}] * 2)]
+        secondary = [make(a=[0.5, 1], b=[0.4, 1])]
+        labels = pd.Categorical(
+            np.where(x.a < 0.5, "inside", "other"), categories=["other", "inside"]
+        )
+        palette = {"other": "lightgrey", "inside": "tab:blue"}
+
+        grid = sdutil.plot_pair_wise_scatter(
+            x,
+            labels,
+            boxes,
+            box_init,
+            ["a", "b", "c"],
+            diag="hist",
+            upper=None,
+            lower="scatter",
+            secondary_boxlims=secondary,
+            box_color="tab:blue",
+            palette=palette,
+            plot_kws={"s": 5},
+        )
+        ax = grid.axes[1, 0]  # b against a
+        outlines = [c for c in ax.collections if isinstance(c, LineCollection)]
+        self.assertEqual(len(outlines), 2)  # the union, and the dashed secondary region
+        # the union of the two boxes is a single L-shaped outline: six edges,
+        # drawn as more segments where the grid splits an edge
+        self.assertGreaterEqual(len(outlines[0].get_segments()), 6)
+        self.assertEqual(outlines[1].get_linestyle()[0][1] is not None, True)
+        self.assertFalse(grid.axes[0, 1].axison)  # empty upper triangle switched off
+
+        # categorical axis: categories of the boxes come first, p and r are
+        # not adjacent in the box, so each box covers its own interval
+        ax = grid.axes[2, 0]  # c against a
+        self.assertEqual(
+            [t.get_text() for t in ax.get_yticklabels()][1:3], ["p", "r"]
+        )
+
+        grid = sdutil.plot_pair_wise_scatter(
+            x, labels, boxes, box_init, ["a", "b"], diag="hist", outline="boxes"
+        )
+        rectangles = [p for p in grid.axes[1, 0].patches if p.get_facecolor()[3] == 0]
+        self.assertEqual(len(rectangles), 2)
+
+        with self.assertRaises(ValueError):
+            sdutil.plot_pair_wise_scatter(
+                x, labels, boxes, box_init, ["a", "b"], diag="hist", outline="other"
+            )
+        plt.close("all")
+
+    def test_plot_pair_wise_scatter_kde_diagonal(self):
+        # diag="kde" draws a kernel density estimate per class on the diagonal,
+        # not a scatter of the uncertainty against y
+        from matplotlib.collections import PathCollection
+
+        rng = np.random.default_rng(1)
+        x = pd.DataFrame({"a": rng.random(200), "b": rng.random(200)})
+        y = (x.a > 0.5).astype(int).values
+        box_init = sdutil._make_box(x)
+        boxlim = box_init.copy()
+        boxlim["a"] = [0.5, 1.0]
+
+        grid = sdutil.plot_pair_wise_scatter(
+            x, y, boxlim, box_init, ["a", "b"], diag="kde", lower="scatter"
+        )
+        for ax in grid.diag_axes:
+            self.assertGreaterEqual(len(ax.get_lines()), 2)  # one density per class
+            self.assertFalse(any(isinstance(c, PathCollection) for c in ax.collections))
+        plt.close("all")
+
+    def test_draw_union_outline(self):
+        fig, ax = plt.subplots()
+        # two touching squares form one rectangle: 4 outer edges, each split once
+        sdutil._draw_union_outline(ax, [(0, 1, 0, 1), (1, 2, 0, 1)], colors=["k"])
+        segments = ax.collections[0].get_segments()
+        self.assertEqual(len(segments), 6)
+        self.assertFalse(
+            any(np.allclose(seg, [[1, 0], [1, 1]]) for seg in segments)
+        )  # the shared edge is not drawn
+        plt.close(fig)
+
+    def test_merge_code_runs(self):
+        self.assertEqual(sdutil._find_contiguous_ranges([3, 0, 1, 5]), [(0, 1), (3, 3), (5, 5)])
+        self.assertEqual(sdutil._find_contiguous_ranges([]), [])
+
     def test_plot_boxes(self):
         x = pd.DataFrame(
             [
