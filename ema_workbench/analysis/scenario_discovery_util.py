@@ -5,6 +5,7 @@ import enum
 import itertools
 import math
 from collections.abc import Callable, Hashable
+from dataclasses import dataclass, field
 from typing import Literal
 
 import matplotlib as mpl
@@ -24,7 +25,7 @@ from .plotting_util import COLOR_LIST, make_legend
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-__all__ = ["RuleInductionType"]
+__all__ = ["Rule", "RuleInductionType"]
 
 _logger = get_module_logger(__name__)
 
@@ -507,6 +508,395 @@ def _determine_effective_restricted_dims(
         if np.sum(membership(relaxed) != base) > allowed:
             restricted.append(column)
     return restricted
+
+
+# ---------------------------------------------------------------------------
+# Rules: a set of tree leaves as one factored logical expression
+#
+# An expression is True, False, an _Interval, a _Membership, an _And or an _Or.
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class _Interval:
+    """Closed interval condition lower <= x <= upper on a numeric column.
+
+    kind is "float", "integer", or "boolean"; integer and boolean intervals
+    that are adjacent (upper + 1 == lower) are merged when united.
+    """
+
+    column: str
+    lower: float = -np.inf
+    upper: float = np.inf
+    kind: str = "float"
+
+
+@dataclass(frozen=True)
+class _Membership:
+    """Condition x in categories on a categorical column.
+
+    all_categories holds every category of the column, so a membership that
+    covers all of them can be recognized as no restriction.
+    """
+
+    column: str
+    categories: frozenset
+    all_categories: frozenset
+
+
+@dataclass(frozen=True)
+class _And:
+    terms: tuple
+
+
+@dataclass(frozen=True)
+class _Or:
+    terms: tuple
+
+
+def _is_condition(term) -> bool:
+    return isinstance(term, _Interval | _Membership)
+
+
+def _intersect_conditions(terms: list) -> list | bool:
+    """Merge conditions on the same column (intersection); False if empty."""
+    merged: dict[str, _Interval | _Membership] = {}
+    rest = []
+    for term in terms:
+        if not _is_condition(term):
+            rest.append(term)
+            continue
+        condition = term
+        if term.column in merged:
+            m = merged[term.column]
+            if isinstance(term, _Interval):
+                condition = _Interval(
+                    term.column,
+                    max(m.lower, term.lower),
+                    min(m.upper, term.upper),
+                    term.kind,
+                )
+                if condition.lower > condition.upper:
+                    return False
+            else:
+                condition = _Membership(
+                    term.column, m.categories & term.categories, term.all_categories
+                )
+                if not condition.categories:
+                    return False
+        merged[term.column] = condition
+    conditions = [c for c in merged.values() if not _is_unrestricted(c)]
+    return conditions + rest
+
+
+def _is_unrestricted(condition) -> bool:
+    if isinstance(condition, _Interval):
+        return not np.isfinite(condition.lower) and not np.isfinite(condition.upper)
+    return condition.categories >= condition.all_categories
+
+
+def _unite_conditions(terms: list) -> list | bool:
+    """Merge conditions on the same column (union); True if one is unrestricted."""
+    by_column: dict[str, list] = {}
+    rest = []
+    for t in terms:
+        if _is_condition(t):
+            by_column.setdefault(t.column, []).append(t)
+        else:
+            rest.append(t)
+
+    conditions = []
+    for column, cs in by_column.items():
+        if isinstance(cs[0], _Membership):
+            categories = frozenset().union(*(c.categories for c in cs))
+            conditions.append(_Membership(column, categories, cs[0].all_categories))
+            continue
+        cs = sorted(cs, key=lambda c: c.lower)  # noqa: PLW2901
+        gap = 0 if cs[0].kind == "float" else 1  # adjacent integers touch
+        current = cs[0]
+        for c in cs[1:]:
+            if c.lower <= current.upper + gap:
+                current = _Interval(
+                    column, current.lower, max(current.upper, c.upper), c.kind
+                )
+            else:
+                conditions.append(current)
+                current = c
+        conditions.append(current)
+    if any(_is_unrestricted(c) for c in conditions):
+        return True
+    return conditions + rest
+
+
+def _count_conditions(expression) -> int:
+    if expression is True or expression is False:
+        return 0
+    if _is_condition(expression):
+        return 1
+    return sum(_count_conditions(t) for t in expression.terms)
+
+
+def _make_and(*terms):
+    flat = []
+    for t in terms:
+        if t is False:
+            return False
+        if t is True:
+            continue
+        flat.extend(t.terms if isinstance(t, _And) else [t])
+    flat = _intersect_conditions(flat)
+    if flat is False:
+        return False
+    # distribute a condition over an OR when that does not lengthen the rule:
+    # c AND (A OR B) -> (c AND A) OR (c AND B), worthwhile when c merges with
+    # conditions on the same column inside A and B
+    for c in [t for t in flat if _is_condition(t)]:
+        for alternatives in [t for t in flat if isinstance(t, _Or)]:
+            pushed = _make_or(*[_make_and(c, a) for a in alternatives.terms])
+            if _count_conditions(pushed) <= _count_conditions(alternatives):
+                rest = [t for t in flat if t is not c and t is not alternatives]
+                return _make_and(*rest, pushed)
+    if not flat:
+        return True
+    return flat[0] if len(flat) == 1 else _And(tuple(flat))
+
+
+def _make_or(*terms):
+    flat = []
+    for t in terms:
+        if t is True:
+            return True
+        if t is False:
+            continue
+        flat.extend(t.terms if isinstance(t, _Or) else [t])
+    flat = _unite_conditions(flat)
+    if flat is True:
+        return True
+    if not flat:
+        return False
+    return flat[0] if len(flat) == 1 else _Or(tuple(flat))
+
+
+def _evaluate_expression(expression, x: pd.DataFrame) -> np.ndarray:
+    if expression is True or expression is False:
+        return np.full(x.shape[0], expression)
+    if isinstance(expression, _Interval):
+        values = x[expression.column].to_numpy()
+        return (values >= expression.lower) & (values <= expression.upper)
+    if isinstance(expression, _Membership):
+        return x[expression.column].isin(expression.categories).to_numpy()
+    parts = [_evaluate_expression(t, x) for t in expression.terms]
+    if isinstance(expression, _And):
+        return np.logical_and.reduce(parts)
+    return np.logical_or.reduce(parts)
+
+
+def _format_value(value, kind: str) -> str:
+    if kind == "boolean":
+        return str(bool(value))
+    if kind == "integer":
+        return str(int(value))
+    return f"{value:.3g}"
+
+
+def _format_expression(expression, top: bool = True) -> str:
+    if expression is True:
+        return "TRUE (entire space)"
+    if expression is False:
+        return "FALSE (empty)"
+    if isinstance(expression, _Membership):
+        categories = ", ".join(sorted(str(c) for c in expression.categories))
+        return f"{expression.column} in {{{categories}}}"
+    if isinstance(expression, _Interval):
+        c, lower, upper = expression.column, expression.lower, expression.upper
+        if expression.kind == "boolean":
+            # a restricted boolean holds a single value
+            return f"{c} == {bool(lower >= 1)}"
+        if np.isfinite(lower) and np.isfinite(upper):
+            lo = _format_value(lower, expression.kind)
+            if lower == upper:
+                return f"{c} == {lo}"
+            return f"{lo} <= {c} <= {_format_value(upper, expression.kind)}"
+        if np.isfinite(lower):
+            return f"{c} >= {_format_value(lower, expression.kind)}"
+        return f"{c} <= {_format_value(upper, expression.kind)}"
+    if isinstance(expression, _And):
+        return " AND ".join(_format_expression(t, top=False) for t in expression.terms)
+    parts = [_format_expression(t, top=False) for t in expression.terms]
+    if top:
+        return "\n".join(("   " if i == 0 else "OR ") + p for i, p in enumerate(parts))
+    return "(" + " OR ".join(parts) + ")"
+
+
+def _collect_columns(expression) -> set[str]:
+    if expression is True or expression is False:
+        return set()
+    if _is_condition(expression):
+        return {expression.column}
+    return set().union(*(_collect_columns(t) for t in expression.terms))
+
+
+@dataclass(frozen=True)
+class Rule:
+    """A region of the input space as one factored logical rule.
+
+    Typically the union of the boxes of a set of tree leaves, written with
+    shared conditions factored out, e.g.
+    ``a <= 0.3 AND (b <= 0.5 OR c >= 0.2)``. Conditions use closed intervals,
+    consistent with box limits.
+
+    Use :func:`str` for a readable version (top-level alternatives on
+    separate lines).
+    """
+
+    _expression: object = field(repr=False)
+
+    @property
+    def length(self) -> int:
+        """Number of conditions in the rule; an interval on one input counts as one."""
+        return _count_conditions(self._expression)
+
+    @property
+    def dimensions(self) -> list[str]:
+        """The inputs the rule restricts, sorted by name."""
+        return sorted(_collect_columns(self._expression))
+
+    def evaluate(self, x: pd.DataFrame) -> np.ndarray:
+        """Return a boolean array indicating which rows of x satisfy the rule."""
+        return _evaluate_expression(self._expression, x)
+
+    def __str__(self) -> str:
+        """Return the rule with top-level alternatives on separate lines."""
+        return _format_expression(self._expression)
+
+    def __repr__(self) -> str:
+        """Return the rule on a single line."""
+        lines = _format_expression(self._expression).splitlines()
+        return f"Rule({' '.join(line.strip() for line in lines)})"
+
+
+def _build_tree_rule(
+    clf,
+    x: pd.DataFrame,
+    x_encoded: np.ndarray,
+    feature_names: list[str],
+    target_leaves: set[int],
+    dummies_map: dict[str, dict[str, object]] | None = None,
+    sep: str = "!?!",
+    tolerance: float = 0.0,
+) -> Rule:
+    """Write the union of a set of tree leaves as one factored rule.
+
+    The rule is built bottom-up over the tree,
+    rule(node) = (c AND rule(left)) OR (not c AND rule(right)),
+    and simplified with exact identities: equal branches make the split
+    irrelevant, a FALSE branch drops out, and c OR (not c AND g) = c OR g.
+    Conditions on the same input are merged into one interval or category
+    set, and a condition is distributed over an OR when that does not
+    lengthen the rule.
+
+    With tolerance > 0, a split is also dropped if replacing the node by one
+    of its branches changes the membership of at most tolerance times the
+    number of points in the target leaves. This removes near vacuous splits,
+    e.g. thresholds close to the data bounds, or slivers between slightly
+    different thresholds in different subtrees.
+
+    Parameters
+    ----------
+    clf : fitted DecisionTreeClassifier or DecisionTreeRegressor
+    x : DataFrame
+        the unencoded data
+    x_encoded : ndarray
+                the data as the tree was fitted on (dummy encoded)
+    feature_names : list of str
+                    names of the columns of x_encoded
+    target_leaves : set of int
+                    the leaf node ids whose union the rule describes
+    dummies_map : dict, optional
+                  see :func:`_extract_tree_boxes`
+    sep : str, optional
+          see :func:`_extract_tree_boxes`
+    tolerance : float, optional
+                share of the points in the target leaves whose membership
+                may change by dropping near vacuous splits
+
+    Returns
+    -------
+    Rule
+
+    """
+    tree_ = clf.tree_
+    left, right = tree_.children_left, tree_.children_right
+    dummies_map = {} if dummies_map is None else dummies_map
+
+    def kind_of(column: str) -> str:
+        dtype = x[column].dtype
+        if pd.api.types.is_bool_dtype(dtype):
+            return "boolean"
+        if pd.api.types.is_integer_dtype(dtype):
+            return "integer"
+        return "float"
+
+    all_categories = {column: frozenset(x[column].unique()) for column in dummies_map}
+    leaf_of_point = clf.apply(x_encoded)
+    in_target = np.isin(leaf_of_point, list(target_leaves))
+    allowed = tolerance * max(int(in_target.sum()), 1)
+
+    def split_conditions(node: int):
+        feature = feature_names[tree_.feature[node]]
+        threshold = tree_.threshold[node]
+        if feature in x.columns:
+            kind = kind_of(feature)
+            if kind == "float":
+                return (
+                    _Interval(feature, upper=threshold, kind=kind),
+                    _Interval(feature, lower=threshold, kind=kind),
+                )
+            return (
+                _Interval(feature, upper=math.floor(threshold), kind=kind),
+                _Interval(feature, lower=math.ceil(threshold), kind=kind),
+            )
+        column, category = feature.split(sep, 1)
+        category = dummies_map[column][category]
+        everything = all_categories[column]
+        return (
+            _Membership(column, everything - {category}, everything),
+            _Membership(column, frozenset({category}), everything),
+        )
+
+    def build(node: int, points: np.ndarray):
+        if left[node] == -1:
+            return node in target_leaves
+        go_left = x_encoded[points, tree_.feature[node]] <= tree_.threshold[node]
+        rule_left = build(left[node], points[go_left])
+        rule_right = build(right[node], points[~go_left])
+        if rule_left == rule_right:
+            return rule_left
+
+        c_left, c_right = split_conditions(node)
+        if rule_left is True:
+            exact = _make_or(c_left, rule_right)
+        elif rule_right is True:
+            exact = _make_or(c_right, rule_left)
+        else:
+            exact = _make_or(
+                _make_and(c_left, rule_left), _make_and(c_right, rule_right)
+            )
+
+        if tolerance > 0 and points.size:
+            # try dropping the split: one branch's rule for all points at this node
+            x_node = x.iloc[points]
+            truth = _evaluate_expression(exact, x_node)
+            best = None
+            for candidate in (rule_left, rule_right):
+                mismatch = int(np.sum(_evaluate_expression(candidate, x_node) != truth))
+                if mismatch <= allowed and (best is None or mismatch < best[0]):
+                    best = (mismatch, candidate)
+            if best is not None:
+                return best[1]
+        return exact
+
+    return Rule(build(0, np.arange(x.shape[0])))
 
 
 def _calculate_quasip(x, y, box, Hbox, Tbox):  # noqa: N803

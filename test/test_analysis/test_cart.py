@@ -138,6 +138,39 @@ class CartTestCase(unittest.TestCase):
         stats = alg.stats_to_dataframe()
         print(stats)
 
+    def test_extract_rules(self):
+        rng = np.random.default_rng(0)
+        n = 2000
+        x = pd.DataFrame(
+            {
+                "a": rng.random(n),
+                "i": rng.integers(0, 10, n),
+                "c": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+            }
+        )
+        y = (((x.c == "q") & (x.a > 0.5)) | (x.i > 6)).astype(int).values
+        alg = cart.CART(x, y)
+        alg.build_tree()
+
+        rules = alg.extract_rules()
+        self.assertEqual(set(rules), {0, 1})
+        predicted = alg.clf.predict(alg._x)
+        for klass, rule in rules.items():
+            np.testing.assert_array_equal(rule.evaluate(x), predicted == klass)
+
+        # classification mode: one rule per class, the rules partition the data
+        y = rng.integers(0, 3, n)
+        alg = cart.CART(x, y, mode=RuleInductionType.CLASSIFICATION)
+        alg.build_tree()
+        rules = alg.extract_rules(tolerance=0.01)
+        self.assertEqual(set(rules), {0, 1, 2})
+
+        # regression: no classes, no rules
+        alg = cart.CART(x, rng.random(n), mode=RuleInductionType.REGRESSION)
+        alg.build_tree()
+        with self.assertRaises(cart.EMAError):
+            alg.extract_rules()
+
     def test_build_tree(self):
         x, outcomes = utilities.load_flu_data()
 
