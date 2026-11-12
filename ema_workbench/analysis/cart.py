@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import io
 from io import StringIO
+from typing import Literal
 
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+import seaborn as sns
 from sklearn import tree
 
 from ema_workbench.util.ema_exceptions import EMAError
@@ -259,6 +261,119 @@ class CART(sdutil.OutputFormatterMixin):
         else:
             self.clf = tree.DecisionTreeClassifier(min_samples_leaf=min_samples)
         self.clf.fit(self._x, self.y)
+
+    def show_pairs_scatter(
+        self,
+        i: int | None = None,
+        klass=None,
+        dims: list[str] | None = None,
+        diag: Literal["kde", "cdf", "regression", "hist"] = "kde",
+        upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
+        lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "contour",
+        fill_subplots: bool = True,
+        legend: bool = True,
+    ) -> sns.PairGrid:
+        """Make a pair wise scatter plot of the restricted dimensions of a region.
+
+        The region is either a single leaf (box i), or all leaves where the
+        tree predicts a class, outlined as one region. Color denotes y.
+
+        Parameters
+        ----------
+        i : int, optional
+            index of the box (terminal leaf) to show
+        klass : optional
+                show the leaves where the tree predicts this class. Defaults
+                to 1, the cases of interest, in binary mode. In
+                classification mode, pass klass or i; in regression mode,
+                pass i.
+        dims : list of str, optional
+               dimensions to show, defaults to the restricted dimensions of
+               the region
+        diag : {"kde", "cdf", "regression", "hist"}
+               Plot diagonal as kernel density estimate ('kde'), cumulative
+               density function ('cdf'), regression ('regression'), or
+               histogram ('hist'; one bar per category for categorical
+               uncertainties)
+        upper, lower: string, optional
+               Use either 'scatter', 'contour', or 'hist' (bivariate
+               histogram) plots for upper and lower triangles. Upper triangle
+               can also be 'none' to eliminate redundancy. Legend uses
+               lower triangle style for markers.
+        fill_subplots: Boolean, optional
+                       if True, subplots are resized to fill their respective axes.
+                       This removes unnecessary whitespace, but may be undesirable
+                       for some variable combinations.
+        legend : bool, optional
+
+        Returns
+        -------
+        seaborn PairGrid
+
+        """
+        assert self.clf
+        if diag not in {"kde", "cdf", "regression", "hist"}:
+            raise ValueError(
+                f"diag should be one of 'kde', 'cdf', 'regression', or 'hist', not {diag}"
+            )
+        if i is not None and klass is not None:
+            raise ValueError("pass either a box index i or a class klass, not both")
+
+        box_init = sdutil._make_box(self.x)
+        if i is not None:
+            boxes = [self.boxes[i]]
+        else:
+            if self.mode == sdutil.RuleInductionType.REGRESSION:
+                raise EMAError("in regression mode, pass a box index i")
+            if klass is None:
+                if self.mode == sdutil.RuleInductionType.CLASSIFICATION:
+                    raise ValueError(
+                        "in classification mode, pass a class klass or a box index i"
+                    )
+                klass = 1  # the cases of interest
+            if klass not in self.clf.classes_:
+                raise ValueError(
+                    f"klass must be one of {list(self.clf.classes_)}, not {klass}"
+                )
+            tree_ = self.clf.tree_
+            boxes = [
+                box
+                for leaf, box in sdutil._extract_tree_boxes(
+                    self.clf, self.x, self.feature_names, self.dummiesmap, self.sep
+                )
+                if self.clf.classes_[np.argmax(tree_.value[leaf][0])] == klass
+            ]
+
+        if dims is None:
+            restricted = set()
+            for box in boxes:
+                restricted.update(sdutil._determine_restricted_dims(box, box_init))
+            dims = [column for column in self.x.columns if column in restricted]
+        if not dims:
+            raise EMAError("the region has no restricted dimensions to show")
+
+        # plot_pair_wise_scatter recognizes categorical uncertainties by dtype
+        x = self.x.copy()
+        for column in x.columns:
+            if not pd.api.types.is_numeric_dtype(x[column].dtype):
+                x[column] = x[column].astype("category")
+
+        y = np.asarray(self.y)
+        if self.mode == sdutil.RuleInductionType.CLASSIFICATION:
+            y = pd.Categorical(y)  # classes as categories, not a color scale
+
+        return sdutil.plot_pair_wise_scatter(
+            x,
+            y,
+            boxes,
+            box_init,
+            dims,
+            diag=diag,
+            upper=upper,
+            lower=lower,
+            fill_subplots=fill_subplots,
+            legend=legend,
+        )
 
     def show_tree(self, mplfig: bool = True, format: str = "png"):
         """Return a png (defaults) or svg of the tree.
