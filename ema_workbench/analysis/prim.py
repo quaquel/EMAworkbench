@@ -547,7 +547,7 @@ class BasePrimBox(abc.ABC):
         self,
         i: int | None = None,
         dims: list[str] | None = None,
-        diag: Literal["kde", "cdf", "regression"] | None = "kde",
+        diag: Literal["kde", "cdf", "regression", "hist"] | None = "kde",
         upper: Literal["scatter", "hexbin", "hist", "contour"] | None = "scatter",
         lower: Literal["scatter", "hexbin", "hist", "contour"] | None = "contour",
         fill_subplots: bool = True,
@@ -563,9 +563,11 @@ class BasePrimBox(abc.ABC):
         i : int, optional
         dims : list of str, optional
                dimensions to show, defaults to all restricted dimensions
-        diag : {"kde", "cdf", "regression"}
+        diag : {"kde", "cdf", "regression", "hist"}
                Plot diagonal as kernel density estimate ('kde'),
-               cumulative density function ('cdf'), or regression ('regression')
+               cumulative density function ('cdf'), regression ('regression'),
+               or histogram ('hist'; one bar per category for categorical
+               uncertainties)
         upper, lower: string, optional
                Use either 'scatter', 'contour', or 'hist' (bivariate
                histogram) plots for upper and lower triangles. Upper triangle
@@ -589,9 +591,9 @@ class BasePrimBox(abc.ABC):
                 self.box_lims[i], self.prim.box_init
             )
 
-        if diag not in {"kde", "cdf", "regression"}:
+        if diag not in {"kde", "cdf", "regression", "hist"}:
             raise ValueError(
-                f"diag_kind should be one of DiagKind.KDE or DiagKind.CDF, not {diag}"
+                f"diag should be one of 'kde', 'cdf', 'regression', or 'hist', not {diag}"
             )
 
         return sdutil.plot_pair_wise_scatter(

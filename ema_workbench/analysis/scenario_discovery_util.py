@@ -1036,6 +1036,7 @@ def plot_pair_wise_scatter(
            Plot diagonal as kernel density estimate ('kde'),
            cumulative density function ('cdf'), regression ('regression'), or
            histogram ('hist'). Use 'hist' or 'cdf' for a categorical y.
+           With 'hist', categorical uncertainties get one bar per category.
     upper, lower: string, optional
            Use either 'scatter', 'contour', hexbin, or 'hist' (bivariate
            histogram) plots for upper and lower triangles. Upper triangle
@@ -1059,7 +1060,11 @@ def plot_pair_wise_scatter(
               passed to seaborn as the hue palette, e.g. a dict mapping each
               category of y to a color
     plot_kws : dict, optional
-               keyword arguments for the scatter plots, e.g. marker size
+               keyword arguments for the scatter plots, e.g. marker size.
+               Above 1000 points, marker size and transparency shrink with
+               the number of points n, by a factor sqrt(1000 / n), so large
+               ensembles do not overplot; s and alpha in plot_kws take
+               precedence.
 
     Returns
     -------
@@ -1109,6 +1114,18 @@ def plot_pair_wise_scatter(
 
     # ensures cases of interest are plotted on top
     data.sort_values("y", inplace=True)
+
+    # smaller and more transparent markers for large ensembles, so they do not
+    # overplot; up to 1000 points the seaborn defaults are kept
+    n_points = data.shape[0]
+    if n_points > 1000:
+        factor = np.sqrt(1000 / n_points)
+        size = mpl.rcParams["lines.markersize"] ** 2  # seaborn's default
+        plot_kws = {
+            "s": max(size * factor, 2.0),
+            "alpha": max(factor, 0.05),
+            "linewidth": 0,
+        } | plot_kws
 
     # main plot body
     grid = sns.PairGrid(
@@ -1187,7 +1204,19 @@ def plot_pair_wise_scatter(
         case "kde":
             grid.map_diag(sns.kdeplot, fill=False, common_norm=False, cut=0)
         case "hist":
-            grid.map_diag(sns.histplot, element="step", common_norm=False)
+
+            def histogram(x, **kwargs):
+                # one bar per category for categorical uncertainties, which
+                # are plotted as their codes
+                sns.histplot(
+                    x=x,
+                    discrete=x.name in category_codes,
+                    element="step",
+                    common_norm=False,
+                    **kwargs,
+                )
+
+            grid.map_diag(histogram)
         case _:
             raise NotImplementedError(
                 f"diag = {diag} not implemented. Use either 'kde' (kernel density estimate), 'cdf' (cumulative density function), 'regression', or 'hist'."
@@ -1312,6 +1341,15 @@ def plot_pair_wise_scatter(
                     subplot.set_ylim(lower - pad_rel, upper + pad_rel)
     if legend:
         grid.add_legend()
+        # legend markers at full size and opacity, however small and
+        # transparent the markers in the plot
+        legend_handles = getattr(grid.legend, "legend_handles", None)
+        if legend_handles is None:  # matplotlib < 3.7
+            legend_handles = grid.legend.legendHandles
+        for handle in legend_handles:
+            handle.set_alpha(1)
+            if hasattr(handle, "set_markersize"):  # seaborn uses Line2D handles
+                handle.set_markersize(mpl.rcParams["lines.markersize"])
 
     return grid
 
