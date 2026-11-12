@@ -295,7 +295,10 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             return box
 
         # an L-shaped region from two boxes, plus a secondary region
-        boxes = [make(a=[0, 0.5], c=[{"p"}] * 2), make(a=[0.5, 1], b=[0, 0.4], c=[{"r"}] * 2)]
+        boxes = [
+            make(a=[0, 0.5], c=[{"p"}] * 2),
+            make(a=[0.5, 1], b=[0, 0.4], c=[{"r"}] * 2),
+        ]
         secondary = [make(a=[0.5, 1], b=[0.4, 1])]
         labels = pd.Categorical(
             np.where(x.a < 0.5, "inside", "other"), categories=["other", "inside"]
@@ -328,9 +331,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         # categorical axis: categories of the boxes come first, p and r are
         # not adjacent in the box, so each box covers its own interval
         ax = grid.axes[2, 0]  # c against a
-        self.assertEqual(
-            [t.get_text() for t in ax.get_yticklabels()][1:3], ["p", "r"]
-        )
+        self.assertEqual([t.get_text() for t in ax.get_yticklabels()][1:3], ["p", "r"])
 
         grid = sdutil.plot_pair_wise_scatter(
             x, labels, boxes, box_init, ["a", "b"], diag="hist", outline="boxes"
@@ -364,6 +365,92 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             self.assertFalse(any(isinstance(c, PathCollection) for c in ax.collections))
         plt.close("all")
 
+    def test_plot_pair_wise_scatter_marker_scaling(self):
+        from matplotlib.collections import PathCollection
+
+        def make_data(n):
+            rng = np.random.default_rng(3)
+            x = pd.DataFrame(
+                {
+                    "a": rng.random(n),
+                    "c": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+                }
+            )
+            y = (x.a > 0.5).astype(int).values
+            box_init = sdutil._make_box(x)
+            boxlim = box_init.copy()
+            boxlim["a"] = [0.5, 1.0]
+            return x, y, boxlim, box_init
+
+        def markers(grid):
+            ax = grid.axes[1, 0]
+            return [c for c in ax.collections if isinstance(c, PathCollection)]
+
+        default_size = plt.rcParams["lines.markersize"] ** 2
+
+        # up to 1000 points: seaborn's defaults
+        x, y, boxlim, box_init = make_data(500)
+        grid = sdutil.plot_pair_wise_scatter(
+            x, y, boxlim, box_init, ["a", "c"], lower="scatter"
+        )
+        for collection in markers(grid):
+            self.assertAlmostEqual(collection.get_sizes()[0], default_size)
+            self.assertIn(collection.get_alpha(), (None, 1))
+
+        # 4000 points: size and alpha shrink by sqrt(1000 / 4000) = 0.5
+        x, y, boxlim, box_init = make_data(4000)
+        grid = sdutil.plot_pair_wise_scatter(
+            x, y, boxlim, box_init, ["a", "c"], lower="scatter"
+        )
+        for collection in markers(grid):
+            self.assertAlmostEqual(collection.get_sizes()[0], default_size / 2)
+            self.assertAlmostEqual(collection.get_alpha(), 0.5)
+        # legend markers stay fully opaque
+        for handle in grid.legend.legend_handles:
+            self.assertEqual(handle.get_alpha(), 1)
+
+        # explicit values take precedence
+        grid = sdutil.plot_pair_wise_scatter(
+            x,
+            y,
+            boxlim,
+            box_init,
+            ["a", "c"],
+            lower="scatter",
+            plot_kws={"s": 10, "alpha": 0.9},
+        )
+        for collection in markers(grid):
+            self.assertAlmostEqual(collection.get_sizes()[0], 10)
+            self.assertAlmostEqual(collection.get_alpha(), 0.9)
+        plt.close("all")
+
+    def test_plot_pair_wise_scatter_categorical_histogram(self):
+        # diag="hist" draws one bar per category for a categorical uncertainty
+        rng = np.random.default_rng(4)
+        n = 300
+        x = pd.DataFrame(
+            {
+                "a": rng.random(n),
+                "c": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+            }
+        )
+        y = (x.a > 0.5).astype(int).values
+        box_init = sdutil._make_box(x)
+        boxlim = box_init.copy()
+        boxlim["a"] = [0.5, 1.0]
+
+        grid = sdutil.plot_pair_wise_scatter(
+            x, y, boxlim, box_init, ["a", "c"], diag="hist", lower="scatter"
+        )
+        ax = grid.diag_axes[1]
+        # step outlines span whole categories: from code - 0.5 to code + 0.5
+        xs = np.concatenate(
+            [path.vertices[:, 0] for c in ax.collections for path in c.get_paths()]
+        )
+        self.assertAlmostEqual(xs.min(), -0.5)
+        self.assertAlmostEqual(xs.max(), 2.5)
+        plt.close("all")
+
     def test_draw_union_outline(self):
         fig, ax = plt.subplots()
         # two touching squares form one rectangle: 4 outer edges, each split once
@@ -376,7 +463,9 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         plt.close(fig)
 
     def test_merge_code_runs(self):
-        self.assertEqual(sdutil._find_contiguous_ranges([3, 0, 1, 5]), [(0, 1), (3, 3), (5, 5)])
+        self.assertEqual(
+            sdutil._find_contiguous_ranges([3, 0, 1, 5]), [(0, 1), (3, 3), (5, 5)]
+        )
         self.assertEqual(sdutil._find_contiguous_ranges([]), [])
 
     def test_plot_boxes(self):
@@ -587,7 +676,9 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             self.assertTrue(set(rule.dimensions) <= set(x.columns))
 
         # all leaves: TRUE, no leaves: FALSE
-        rule = sdutil._build_tree_rule(clf, x, x_encoded, names, set(leaves), dummies_map)
+        rule = sdutil._build_tree_rule(
+            clf, x, x_encoded, names, set(leaves), dummies_map
+        )
         self.assertEqual(rule.length, 0)
         self.assertTrue(np.all(rule.evaluate(x)))
         rule = sdutil._build_tree_rule(clf, x, x_encoded, names, set(), dummies_map)
@@ -627,9 +718,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
 
         # complementary intervals unite to TRUE, disjoint ones intersect to FALSE
         self.assertIs(sdutil._make_or(a_low, a_high), True)
-        self.assertIs(
-            sdutil._make_and(a_low, sdutil._Interval("a", lower=0.5)), False
-        )
+        self.assertIs(sdutil._make_and(a_low, sdutil._Interval("a", lower=0.5)), False)
         # intervals on one input merge into one condition
         self.assertEqual(
             sdutil._make_and(a_high, sdutil._Interval("a", upper=0.8)),
@@ -639,7 +728,8 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         i_low = sdutil._Interval("i", upper=3, kind="integer")
         i_mid = sdutil._Interval("i", lower=4, upper=6, kind="integer")
         self.assertEqual(
-            sdutil._make_or(i_low, i_mid), sdutil._Interval("i", upper=6, kind="integer")
+            sdutil._make_or(i_low, i_mid),
+            sdutil._Interval("i", upper=6, kind="integer"),
         )
         # categories: union of all categories is TRUE
         everything = frozenset("pqr")
@@ -655,9 +745,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         )
         rule = sdutil.Rule(expression)
         self.assertEqual(rule.length, 3)
-        self.assertEqual(
-            str(rule), "   a <= 0.3\nOR 0.3 <= a <= 0.8 AND b <= 0.5"
-        )
+        self.assertEqual(str(rule), "   a <= 0.3\nOR 0.3 <= a <= 0.8 AND b <= 0.5")
 
     def test_rule_formatting(self):
         everything = frozenset("pqr")
@@ -725,7 +813,6 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
             ]
 
         class TestFormatter(sdutil.OutputFormatterMixin):
-
             @property
             def boxes(self):
                 return self._boxes
@@ -770,14 +857,13 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
 
         self.assertTrue(expected_stats.equals(stats))
 
+    #
+    # if __name__ == "__main__":
+    #     unittest.main()
 
-#
-# if __name__ == "__main__":
-#     unittest.main()
-
-#     suite = unittest.TestSuite()
-#     suite.addTest(PrimTestCase("test_write_boxes_to_stdout"))
-#     unittest.TextTestRunner().run(suite)
+    #     suite = unittest.TestSuite()
+    #     suite.addTest(PrimTestCase("test_write_boxes_to_stdout"))
+    #     unittest.TextTestRunner().run(suite)
 
     def test_drop_uninformative_columns(self):
         x = pd.DataFrame(
