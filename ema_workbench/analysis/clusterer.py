@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 import sklearn.cluster as cluster
+from numpy.typing import DTypeLike
 
 from ..util import get_module_logger
 
@@ -40,6 +41,7 @@ def calculate_cid(
     condensed_form: bool = False,
     chunk_size: int = 1000,
     rel_floor: float = 1e-3,
+    dtype: DTypeLike = np.float64,
 ) -> np.ndarray:
     """Calculate the complex invariant distance between all rows.
 
@@ -53,14 +55,19 @@ def calculate_cid(
            one time series per row, all on the same time grid
     condensed_form : bool, optional
                      if True, return the condensed form, similar to
-                     scipy.spatial.distance.pdist
+                     scipy.spatial.distance.pdist.
     chunk_size : int, optional
-                 number of rows processed at once; bounds peak memory
+                 number of rows processed at once; bounds the memory needed
+                 on top of the result
     rel_floor : float, optional
                 complexity estimates are floored at rel_floor times the
                 median positive complexity estimate. This keeps distances
                 involving flat (constant) series finite, while keeping them
                 large relative to non-flat series.
+    dtype : floating dtype, optional
+            dtype of the returned distances. Distances are always computed in
+            float64; np.float32 halves the memory of the result, e.g. 3.6 GB
+            instead of 7.2 GB for the square form of 30,000 series.
 
     Returns
     -------
@@ -68,37 +75,61 @@ def calculate_cid(
         a 2D ndarray with the distances between all time series, or condensed
         form similar to scipy.spatial.distance.pdist
 
+    Notes
+    -----
+    Only the upper triangle is computed, block by block, and mirrored into the
+    lower triangle, so the result is exactly symmetric without a second
+    n by n array. Peak memory is the result plus a few chunk_size by n blocks.
+
     """
     data = np.asarray(data, dtype=float)
+    dtype = np.dtype(dtype)
+    if not np.issubdtype(dtype, np.floating):
+        raise ValueError(f"dtype must be a floating dtype, not {dtype}")
     n = data.shape[0]
 
     ce = np.sqrt(np.sum(np.diff(data, axis=1) ** 2, axis=1))
     positive = ce[ce > 0]
     floor = rel_floor * np.median(positive) if positive.size else 1.0
     ce = np.maximum(ce, floor)
-
     sq_norms = np.sum(data**2, axis=1)
-    cid = np.empty((n, n))
+
+    if condensed_form:
+        cid = np.empty(n * (n - 1) // 2, dtype=dtype)
+    else:
+        cid = np.empty((n, n), dtype=dtype)
+
     for start in range(0, n, chunk_size):
         stop = min(start + chunk_size, n)
-        # squared Euclidean distance via |a|^2 + |b|^2 - 2ab, clipped for round-off
+        # distances between rows start:stop and rows start:n, i.e. the
+        # upper triangle of this block row; |a|^2 + |b|^2 - 2ab is clipped
+        # for round-off
         ed2 = (
             sq_norms[start:stop, None]
-            + sq_norms[None, :]
-            - 2 * data[start:stop] @ data.T
+            + sq_norms[None, start:]
+            - 2 * data[start:stop] @ data[start:].T
         )
         ed = np.sqrt(np.maximum(ed2, 0))
         ce_block = ce[start:stop, None]
-        cf = np.maximum(ce_block, ce[None, :]) / np.minimum(ce_block, ce[None, :])
-        cid[start:stop] = ed * cf
+        ce_rest = ce[None, start:]
+        block = ed * (np.maximum(ce_block, ce_rest) / np.minimum(ce_block, ce_rest))
 
-    np.fill_diagonal(cid, 0)
-    cid = np.minimum(cid, cid.T)  # exact symmetry despite round-off
+        # the diagonal square of the block must be symmetric before mirroring
+        size = stop - start
+        square = block[:, :size]
+        square[...] = np.minimum(square, square.T)
+        np.fill_diagonal(square, 0)
 
-    if not condensed_form:
-        return cid
-    else:
-        return sp.spatial.distance.squareform(cid, checks=False)
+        if condensed_form:
+            # row i holds the distances to rows i + 1, ..., n - 1
+            for i in range(start, stop):
+                offset = i * n - i * (i + 1) // 2
+                cid[offset : offset + n - i - 1] = block[i - start, i - start + 1 :]
+        else:
+            cid[start:stop, start:] = block
+            cid[start:, start:stop] = block.T
+
+    return cid
 
 
 def normalize_distances(
@@ -106,6 +137,7 @@ def normalize_distances(
     method: Literal["exact", "sample"] = "exact",
     sample_size: int = 200_000,
     seed: int | None = None,
+    copy: bool = True,
 ) -> tuple[np.ndarray, float]:
     """Divide distances by the median pairwise distance.
 
@@ -118,7 +150,7 @@ def normalize_distances(
     ----------
     distances : ndarray
                 square (n, n) distance matrix with zero diagonal, or the
-                condensed form
+                condensed form. A floating dtype (e.g. float32) is kept.
     method : {"exact", "sample"}, optional
              "exact" uses all n(n-1)/2 distinct pairs. "sample" uses
              sample_size random pairs, which bounds memory and time for very
@@ -128,6 +160,9 @@ def normalize_distances(
                   number of pairs drawn when method="sample"
     seed : int, optional
            random seed for method="sample"
+    copy : bool, optional
+           if False and distances is a floating ndarray, divide it in place
+           instead of returning a new array, which saves a full copy
 
     Returns
     -------
@@ -136,7 +171,9 @@ def normalize_distances(
         distance that was divided out
 
     """
-    distances = np.asarray(distances, dtype=float)
+    distances = np.asarray(distances)
+    if not np.issubdtype(distances.dtype, np.floating):
+        distances = distances.astype(float)
 
     if distances.ndim == 1:
         scale = float(np.median(distances))
@@ -151,6 +188,7 @@ def normalize_distances(
             # whose two index arrays are 4x larger than the values themselves
             upper = np.concatenate([distances[i, i + 1 :] for i in range(n - 1)])
             scale = float(np.median(upper, overwrite_input=True))
+            del upper
         elif method == "sample":
             rng = np.random.default_rng(seed)
             i = rng.integers(0, n, sample_size)
@@ -165,7 +203,10 @@ def normalize_distances(
             f"median pairwise distance is {scale}; items are (nearly) identical "
             "or distances contain non-finite values"
         )
-    return distances / scale, scale
+    if copy:
+        return distances / scale, scale
+    distances /= scale
+    return distances, scale
 
 
 def plot_dendrogram(distances):
