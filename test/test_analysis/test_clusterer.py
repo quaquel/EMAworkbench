@@ -85,6 +85,69 @@ class ClusterTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             clusterer.normalize_distances(np.zeros((5, 5)))
 
+    def test_calculate_cid_memory_options(self):
+        rng = np.random.default_rng(7)
+        data = rng.normal(size=(23, 30)).cumsum(axis=1)
+        reference = clusterer.calculate_cid(data)
+
+        # chunking does not change the result, and the result is exactly symmetric
+        for chunk_size in (1, 5, 23, 100):
+            distances = clusterer.calculate_cid(data, chunk_size=chunk_size)
+            np.testing.assert_allclose(distances, reference, rtol=1e-12)
+            np.testing.assert_array_equal(distances, distances.T)
+            np.testing.assert_array_equal(np.diag(distances), 0)
+
+        # condensed form is built directly and matches the square form; exactly
+        # for the same chunks, up to round-off of the matrix product otherwise
+        for chunk_size in (1, 5, 100):
+            square = clusterer.calculate_cid(data, chunk_size=chunk_size)
+            condensed = clusterer.calculate_cid(
+                data, condensed_form=True, chunk_size=chunk_size
+            )
+            np.testing.assert_array_equal(
+                condensed, sp.spatial.distance.squareform(square, checks=False)
+            )
+            np.testing.assert_allclose(
+                condensed,
+                sp.spatial.distance.squareform(reference, checks=False),
+                rtol=1e-12,
+            )
+
+        # float32 results
+        distances = clusterer.calculate_cid(data, dtype=np.float32, chunk_size=5)
+        self.assertEqual(distances.dtype, np.float32)
+        np.testing.assert_allclose(distances, reference, rtol=1e-6)
+        np.testing.assert_array_equal(distances, distances.T)
+        condensed = clusterer.calculate_cid(data, condensed_form=True, dtype=np.float32)
+        self.assertEqual(condensed.dtype, np.float32)
+
+        with self.assertRaises(ValueError):
+            clusterer.calculate_cid(data, dtype=np.int64)
+
+    def test_normalize_distances_memory_options(self):
+        rng = np.random.default_rng(2)
+        data = rng.normal(size=(50, 20)).cumsum(axis=1)
+        distances = clusterer.calculate_cid(data, dtype=np.float32)
+
+        normalized, scale = clusterer.normalize_distances(distances)
+        self.assertEqual(normalized.dtype, np.float32)
+        self.assertIsNot(normalized, distances)
+
+        original = distances.copy()
+        normalized, scale_in_place = clusterer.normalize_distances(
+            distances, copy=False
+        )
+        self.assertIs(normalized, distances)
+        self.assertAlmostEqual(scale_in_place, scale)
+        np.testing.assert_allclose(distances, original / scale, rtol=1e-6)
+
+        # integer input is converted, never divided in place
+        integers = np.array([[0, 2, 4], [2, 0, 6], [4, 6, 0]])
+        normalized, scale = clusterer.normalize_distances(integers, copy=False)
+        self.assertEqual(scale, 4)
+        np.testing.assert_array_equal(integers[0], [0, 2, 4])
+        np.testing.assert_allclose(normalized[0], [0, 0.5, 1])
+
 
 if __name__ == "__main__":
     unittest.main()
