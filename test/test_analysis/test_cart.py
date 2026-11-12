@@ -42,7 +42,6 @@ def scarcity_classify(outcomes):
 
 
 class CartTestCase(unittest.TestCase):
-
     def test_boxes(self):
         np.random.seed(42)
         x = pd.DataFrame(np.random.rand(1000, 2), columns=["a", "b"])
@@ -184,20 +183,64 @@ class CartTestCase(unittest.TestCase):
         alg.build_tree()
         self.assertTrue(isinstance(alg.clf, cart.tree.DecisionTreeRegressor))
 
+    def test_show_pairs_scatter(self):
+        import matplotlib.pyplot as plt
 
-#     def test_show_tree(self):
-#         results = utilities.load_flu_data()
-#
-#         alg = cart.setup_cart(results, flu_classify,
-#                               mass_min=0.05)
-#         alg.build_tree()
-#
-#         fig = alg.show_tree(mplfig=True)
-#         bytestream = alg.show_tree(mplfig=False)
-#
-#         self.assertTrue(isinstance(fig, mpl.figure.Figure))
-#         self.assertTrue(isinstance(bytestream, bytes))
+        rng = np.random.default_rng(1)
+        n = 1000
+        x = pd.DataFrame(
+            {
+                "a": rng.random(n),
+                "b": rng.random(n),
+                "c": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+            }
+        )
+        y = ((x.a > 0.5) & (x.c == "q")).astype(int).values
+        alg = cart.CART(x, y)
+        alg.build_tree()
 
+        # default: the region where the tree predicts the cases of interest
+        grid = alg.show_pairs_scatter()
+        self.assertEqual(list(grid.x_vars), ["a", "c"])
+        grid = alg.show_pairs_scatter(i=0, diag="hist", upper=None, lower="scatter")
+        grid = alg.show_pairs_scatter(klass=1, dims=["a", "b"])
+        self.assertEqual(list(grid.x_vars), ["a", "b"])
+
+        with self.assertRaises(ValueError):
+            alg.show_pairs_scatter(i=0, klass=1)
+        with self.assertRaises(ValueError):
+            alg.show_pairs_scatter(klass=5)
+        with self.assertRaises(ValueError):
+            alg.show_pairs_scatter(diag="wrong value")
+
+        # classification: a class or a box index is required
+        y = np.where(x.a > 0.5, 2, np.where(x.c == "q", 1, 0))
+        alg = cart.CART(x, y, mode=RuleInductionType.CLASSIFICATION)
+        alg.build_tree()
+        grid = alg.show_pairs_scatter(klass=2, diag="hist", lower="scatter")
+        self.assertEqual(list(grid.x_vars), ["a"])
+        with self.assertRaises(ValueError):
+            alg.show_pairs_scatter()
+
+        # regression: a box index is required
+        alg = cart.CART(x, x.a.values, mode=RuleInductionType.REGRESSION)
+        alg.build_tree()
+        with self.assertRaises(cart.EMAError):
+            alg.show_pairs_scatter()
+        plt.close("all")
+
+    #     def test_show_tree(self):
+    #         results = utilities.load_flu_data()
+    #
+    #         alg = cart.setup_cart(results, flu_classify,
+    #                               mass_min=0.05)
+    #         alg.build_tree()
+    #
+    #         fig = alg.show_tree(mplfig=True)
+    #         bytestream = alg.show_tree(mplfig=False)
+    #
+    #         self.assertTrue(isinstance(fig, mpl.figure.Figure))
+    #         self.assertTrue(isinstance(bytestream, bytes))
 
     def test_uninformative_columns_dropped(self):
         rng = np.random.default_rng(0)
@@ -212,6 +255,7 @@ class CartTestCase(unittest.TestCase):
         alg = cart.CART(x, (x.a > 0.5).astype(int).values)
         self.assertEqual(alg.x.columns.tolist(), ["a"])
         self.assertEqual(alg.feature_names, ["a"])
+
 
 if __name__ == "__main__":
     unittest.main()
