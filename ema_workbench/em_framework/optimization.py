@@ -208,7 +208,13 @@ def process_jobs(jobs: list[platypus.core.EvaluateSolution]) -> tuple[Sample | S
 
     samples = []
     for job in jobs:
-        sample = [type.decode(value) for type, value in zip(problem.types, job.solution.variables)]
+        sample = [
+            # Subset decodes to a list of size 1 holding the category index
+            type.decode(value)[0]
+            if isinstance(type, platypus.Subset)
+            else type.decode(value)
+            for type, value in zip(problem.types, job.solution.variables)
+        ]
         samples.append(sample)
     samples = list(SampleCollection(np.array(samples), problem.decision_variables))
 
@@ -654,11 +660,11 @@ class CombinedVariator(Variator):
         self, child: Solution, i: int, type: platypus.Subset
     ) -> Solution:  # @ReservedAssignment
         # replace, again simplified because len(subset) is 1
-        non_members = [
-            entry for entry in type.elements if entry != child.variables[i]
-        ]
-        new_value = random.choice(non_members)
-        child.variables[i] = new_value.value
+        # variables are a list of size 1 holding the category index
+        current = child.variables[i][0]
+        non_members = [entry for entry in type.elements if entry != current]
+        if non_members:
+            child.variables[i] = [random.choice(non_members)]
 
         return child
 
