@@ -290,3 +290,50 @@ def test_setup(mocker):
         parameter_type="uncertainties",
     )
     assert n_samples == n
+
+
+def test_perform_experiments_no_uncertainties_multiple_policies():
+    """Regression test: model without uncertainties and multiple policies.
+
+    Previously, lever values leaked into the shared (empty) scenario, causing
+    an EMAError on the second policy.
+    """
+
+    def some_model(x=0.0):
+        return {"y": x}
+
+    model = Model("simple", function=some_model)
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    policies = [Sample(x=0.1), Sample(x=0.2), Sample(x=0.3)]
+    experiments, outcomes = evaluators.perform_experiments(
+        model, scenarios=1, policies=policies
+    )
+
+    np.testing.assert_allclose(outcomes["y"], [0.1, 0.2, 0.3])
+    np.testing.assert_allclose(experiments["x"], [0.1, 0.2, 0.3])
+
+
+def test_perform_experiments_does_not_modify_user_samples():
+    """Regression test: user-supplied scenarios must not get lever values."""
+
+    def some_model(x=0.0, u=0.0):
+        return {"y": x + u}
+
+    model = Model("simple", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    scenarios = [Sample(u=0.5), Sample(u=0.7)]
+    policies = [Sample(x=0.1), Sample(x=0.2)]
+    _, outcomes = evaluators.perform_experiments(
+        model, scenarios=scenarios, policies=policies
+    )
+
+    for scenario in scenarios:
+        assert set(scenario.keys()) == {"u"}
+    for policy in policies:
+        assert set(policy.keys()) == {"x"}
+    np.testing.assert_allclose(outcomes["y"], [0.6, 0.8, 0.7, 0.9])

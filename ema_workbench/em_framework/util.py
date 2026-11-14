@@ -237,8 +237,14 @@ class NamedDict(MutableMapping, NamedObject):
         self.name = name
 
     def copy(self):
-        """Return a shallow copy of this object."""
-        return copy.copy(self)
+        """Return a shallow copy of this object.
+
+        The underlying dict is copied as well, so modifying the copy does
+        not modify the original.
+        """
+        new = copy.copy(self)
+        new.data = self.data.copy()
+        return new
 
     def __getitem__(self, key):  # noqa: D105
         return self.data[key]
