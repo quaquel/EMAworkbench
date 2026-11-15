@@ -1925,6 +1925,11 @@ class Prim(BasePrim):
         )
         self._prim_box_klass = PrimBox
 
+        if update_function == "guivarch":
+            # this update function sets cases of interest in y to zero, which
+            # should not change the y of the user
+            self.y = self.y.copy()
+
         # how many cases of interest do we have?
         self.t_coi = np.sum(y)
 
