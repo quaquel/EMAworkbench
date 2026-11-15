@@ -160,15 +160,11 @@ class Logit:
 
     def __init__(self, x, y, threshold=0.95):
         """Init."""
-        try:
-            # x = x.drop(["scenario"], axis=1)
-            columns_to_drop = ["scenario"]
-            for entry in ["model", "policy"]:
-                if x[entry].unique().shape[0] == 1:
-                    columns_to_drop.append(entry)
-            x = x.drop(columns_to_drop, axis=1)
-        except KeyError:
-            pass
+        # drop the id of the scenario, and any column with fewer than two distinct
+        # values, such as model or policy if there is only one of each, as in
+        # the other scenario discovery techniques. A column with a single value
+        # cannot be normalized.
+        x = sdutil._drop_uninformative_columns(x)
 
         self.x = x
         self.y = y
