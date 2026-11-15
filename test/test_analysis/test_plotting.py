@@ -92,6 +92,28 @@ class TestPlotting(unittest.TestCase):
         for entry in ["a", "b", "c"]:
             self.assertIn(entry, outcomes.keys())
 
+    def test_boxenplot_with_groups_of_different_size(self):
+        """Regression test: boxenplot density with groups that differ in size.
+
+        Previously, this raised a ValueError because the groups were put in a
+        DataFrame with one column for each group.
+        """
+        import pandas as pd
+
+        rng = np.random.default_rng(42)
+        n = 100
+        experiments = pd.DataFrame(
+            {"category": pd.Categorical(["p"] * 50 + ["q"] * 30 + ["r"] * 20)}
+        )
+        outcomes = {"a": rng.random((n, 20)), "b": rng.random((n, 20))}
+
+        for plot_function in (lines, envelopes):
+            plot_function(
+                experiments, outcomes, group_by="category", density=Density.BOXENPLOT
+            )
+            plot_function(experiments, outcomes, density=Density.BOXENPLOT)
+            plt.close("all")
+
     def test_group_results(self):
         results = utilities.load_eng_trans_data()
         experiments, outcomes = results

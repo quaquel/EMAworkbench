@@ -232,12 +232,17 @@ def plot_boxenplot(ax: matplotlib.axes.Axes, values: list[npt.NDArray], log: boo
 
     """
     if log:
-        _logger.warning("log option ignored for violin plot")
+        _logger.warning("log option ignored for boxenplot")
     if not group_labels:
         group_labels = [""]
 
-    data = pd.DataFrame.from_records(dict(zip(group_labels, values)))
-    data = pd.melt(data)
+    # the groups can differ in size, so build a long format dataframe per group
+    data = pd.concat(
+        [
+            pd.DataFrame({"variable": label, "value": np.asarray(value)})
+            for label, value in zip(group_labels, values)
+        ]
+    )
 
     sns.boxenplot(x="variable", y="value", data=data, order=group_labels, ax=ax)
 
