@@ -726,6 +726,11 @@ class ParameterMapDescriptor:
             mapping = ParameterMap()  # @ReservedAssignment
             setattr(instance, self.internal_name, mapping)
 
+        # assignment replaces the existing content. Materialize the values
+        # first, because values can be the mapping itself (e.g. with +=)
+        if not isinstance(values, NamedObject) and hasattr(values, "__iter__"):
+            values = list(values)
+        mapping.clear()
         mapping.extend(values)
 
     def __set_name__(self, owner, name):
