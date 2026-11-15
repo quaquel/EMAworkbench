@@ -190,7 +190,11 @@ def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name:
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import register  # noqa: PLC0415
+    from ..em_framework.outcomes import (  # noqa: PLC0415
+        ArrayOutcome,
+        ScalarOutcome,
+        register,
+    )
 
     VERSION = 0.1  # noqa: N806
     file_name = os.path.abspath(file_name)
@@ -213,8 +217,17 @@ def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name:
         # store outcomes
         outcomes_metadata = []
         for key, value in outcomes.items():
-            klass = register.outcomes[key]
-            stream, filename = register.serialize(key, value)
+            try:
+                klass = register.outcomes[key]
+            except KeyError:
+                # the outcome has not been defined as an Outcome in this
+                # session, so we infer how to store it from the data
+                klass = ScalarOutcome if np.ndim(value) == 1 else ArrayOutcome
+                _logger.info(
+                    f"outcome {key} not defined, storing it as {klass.__name__}"
+                )
+            stream, extension = klass.to_disk(value)
+            filename = f"{key}.{extension}"
             add_file(z, stream, filename)
             outcomes_metadata.append((klass.__name__, key, filename))
 

@@ -84,6 +84,32 @@ class SaveResultsTestCase(unittest.TestCase):
         os.remove(fn)
 
 
+def test_save_results_undeclared_outcome(tmp_path):
+    """Regression test: saving outcomes that were never declared as an Outcome.
+
+    Previously, this raised a KeyError, for example when a derived outcome
+    was added to the outcomes dict before saving.
+    """
+    experiments = pd.DataFrame({"x": [0.1, 0.2, 0.3]})
+    outcomes = {
+        "undeclared_scalar": np.array([1.0, 2.0, 3.0]),
+        "undeclared_timeseries": np.arange(12.0).reshape(3, 4),
+        "undeclared_array": np.arange(24.0).reshape(3, 2, 4),
+    }
+    for key in outcomes:
+        assert key not in register.outcomes
+
+    file_name = tmp_path / "results.tar.gz"
+    save_results((experiments, outcomes), file_name)
+    loaded_experiments, loaded_outcomes = load_results(file_name)
+
+    pd.testing.assert_frame_equal(experiments, loaded_experiments)
+    assert set(loaded_outcomes) == set(outcomes)
+    for key, value in outcomes.items():
+        assert loaded_outcomes[key].shape == value.shape
+        np.testing.assert_allclose(loaded_outcomes[key], value)
+
+
 class LoadResultsTestCase(unittest.TestCase):
     def test_load_results(self):
         nr_experiments = 10000
