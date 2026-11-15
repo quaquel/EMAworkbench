@@ -352,6 +352,7 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
         self.outcome_names = outcome_names
         self.temp = os.path.join(directory, "tmp")
         self.tar_filename = os.path.join(os.path.abspath(directory), filename)
+        self.last_nfe = None
 
         if os.path.exists(self.tar_filename):
             raise FileExistsError(
@@ -364,6 +365,8 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
 
     def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
         """Add the current archive to the tarball."""
+        self.last_nfe = algorithm.nfe
+
         # broadens the algorithms in platypus we can support automagically
         try:
             data = algorithm.archive
@@ -424,9 +427,11 @@ class RuntimeConvergenceTracking(platypus.extensions.FixedFrequencyExtension):
         super().__init__(frequency=frequency, by_nfe=by_nfe)
         self.data = []
         self.attributes_to_try = ["nfe"]
+        self.last_nfe = None
 
     def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
         """Retrieve the runtime convergence information."""
+        self.last_nfe = algorithm.nfe
         runtime_info = {}
         runtime_info["nfe"] = algorithm.nfe
 
@@ -791,12 +796,13 @@ def _optimize(
     with temporary_filter(name=[callbacks.__name__, evaluators.__name__], level=INFO):
         optimizer.run(nfe)
 
-    storage.do_action(
-        optimizer
-    )  # ensure last archive is included in the convergence information
-    runtime_convergence_info.do_action(
-        optimizer
-    )  # ensure the last convergence information is added as well
+    # ensure the last archive is included in the convergence information,
+    # unless it has just been stored
+    if getattr(storage, "last_nfe", None) != optimizer.nfe:
+        storage.do_action(optimizer)
+    # ensure the last convergence information is added as well
+    if getattr(runtime_convergence_info, "last_nfe", None) != optimizer.nfe:
+        runtime_convergence_info.do_action(optimizer)
     progress_bar.progress_tracker.pbar.__exit__(
         None, None, None
     )  # ensure progress bar is closed correctly

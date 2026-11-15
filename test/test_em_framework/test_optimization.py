@@ -647,6 +647,43 @@ def test_archive_storage_extension(mocker):
         )
 
 
+def test_final_archive_is_stored_once(tmp_path):
+    """Regression test: the last archive is not stored twice.
+
+    Previously, the archive and the convergence information were stored again
+    after the optimization, also if they had just been stored because the number of function evaluations was a
+    multiple of the convergence frequency.
+    """
+    from ema_workbench import Model
+    from ema_workbench.em_framework.optimization import load_archives
+
+    def some_model(x=0.0):
+        return {"archive_test_y": x}
+
+    model = Model("archivemodel", function=some_model)
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("archive_test_y", kind=ScalarOutcome.MAXIMIZE)]
+
+    for nfe, expected in [(100, [50, 100]), (70, [50, 70])]:
+        filename = f"archive_{nfe}.tar.gz"
+        with SequentialEvaluator(model) as evaluator:
+            _, convergence = evaluator.optimize(
+                nfe=nfe,
+                searchover="levers",
+                epsilons=[0.1],
+                population_size=10,
+                convergence_freq=50,
+                reference=Sample("reference"),
+                filename=filename,
+                directory=tmp_path,
+                rng=42,
+            )
+
+        archives = load_archives(tmp_path / filename)
+        assert [entry[0] for entry in archives] == expected
+        assert convergence["nfe"].tolist() == expected
+
+
 def test_epsilon_dominated():
     """Tests for epsilon_dominated."""
     rng = np.random.default_rng(42)
