@@ -5,6 +5,7 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
+import numpy as np
 import pandas as pd
 from lake_models import lake_problem_intertemporal
 from SALib.analyze import sobol
@@ -60,9 +61,9 @@ if __name__ == "__main__":
         RealParameter("delta", 0.93, 0.99),
     ]
 
-    # set levers, one for each time step
+    # set levers, a single lever with a value for each time step
     lake_model.levers = [
-        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
+        RealParameter("decisions", 0, 0.1, shape=(lake_model.time_horizon,))
     ]
 
     # specify outcomes
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     lake_model.constants = [Constant("alpha", 0.41), Constant("n_samples", 150)]
 
     # generate sa single default no release policy
-    policy = Sample("no release", **{f"l{i}": 0.1 for i in range(100)})
+    policy = Sample("no release", decisions=np.full(lake_model.time_horizon, 0.1))
 
     n_scenarios = 1000
 

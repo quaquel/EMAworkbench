@@ -12,6 +12,7 @@ Software 89, 159-171.
 
 """
 
+import os
 import random
 
 from lake_models import lake_problem_dps
@@ -79,6 +80,12 @@ if __name__ == "__main__":
 
     random.seed(42)
     seeds = [random.randint(0, 1000) for _ in range(5)]
+
+    # the archives are not overwritten, so remove the ones from a previous run
+    for seed in seeds:
+        archive = f"./data/convergences/{seed}_lake_model_dps_archive.tar.gz"
+        if os.path.exists(archive):
+            os.remove(archive)
 
     with MultiprocessingEvaluator(lake_model) as evaluator:
         all_results = evaluator.optimize(

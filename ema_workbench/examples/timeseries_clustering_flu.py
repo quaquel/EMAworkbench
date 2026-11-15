@@ -32,11 +32,11 @@ sns.pairplot(
     x,
     hue="clusters",
     vars=[
-        "infection ratio region 1",
-        "root contact rate region 1",
-        "normal contact rate region 1",
-        "recovery time region 1",
-        "permanent immune population fraction R1",
+        "infection_ratio_region_1",
+        "root_contact_rate_region_1",
+        "normal_contact_rate_region_1",
+        "recovery_time_region_1",
+        "permanent_immune_population_fraction_R1",
     ],
     plot_kws={"s": 7},
 )
