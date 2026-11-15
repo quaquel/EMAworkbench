@@ -221,9 +221,18 @@ def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name:
     file_name : str
                 the path of the file
 
+    Outcomes are stored in the way that matches their outcome class. An
+    outcome that has not been declared as an Outcome, for example an outcome
+    derived after running the experiments, is skipped. The results are saved
+    first, and an EMAError listing the skipped outcomes is raised afterwards,
+    so nothing that can be saved is lost.
+
     Raises
     ------
     IOError if file not found
+    EMAError
+        after saving, if one or more outcomes were skipped because they have
+        not been declared as an Outcome
 
     """
     from ..em_framework.outcomes import register  # noqa: PLC0415
@@ -253,9 +262,17 @@ def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name:
 
         # store outcomes
         outcomes_metadata = []
+        skipped = []
         for key, value in outcomes.items():
-            klass = register.outcomes[key]
-            stream, filename = register.serialize(key, value)
+            try:
+                klass = register.outcomes[key]
+            except KeyError:
+                # without a declared outcome class, we don't know how this
+                # outcome should be stored and loaded, so we skip it
+                skipped.append(key)
+                continue
+            stream, extension = klass.to_disk(value)
+            filename = f"{key}.{extension}"
             add_file(z, stream, filename)
             outcomes_metadata.append((klass.__name__, key, filename))
 
@@ -269,6 +286,14 @@ def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name:
         stream = BytesIO()
         stream.write(json.dumps(metadata).encode())
         add_file(z, stream, "metadata.json")
+
+    if skipped:
+        names = ", ".join(skipped)
+        raise EMAError(
+            f"results saved to {file_name}, except for the outcomes {names}, "
+            "because they have not been declared as an Outcome. Declare them, "
+            "for example as ScalarOutcome(name), and save the results again"
+        )
 
     _logger.info(f"results saved successfully to {file_name}")
 

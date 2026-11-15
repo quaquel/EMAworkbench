@@ -71,11 +71,9 @@ class Register:
         BytesIO, str
 
         """
-        try:
-            stream, extension = self.outcomes[name].to_disk(values)
-        except KeyError:
-            _logger.warning("outcome not defined, falling back on ArrayOutcome.to_disk")
-            stream, extension = ArrayOutcome.to_disk(values)
+        # an outcome that has not been declared raises a KeyError, rather than
+        # guessing how it should be stored
+        stream, extension = self.outcomes[name].to_disk(values)
 
         return stream, f"{name}.{extension}"
 

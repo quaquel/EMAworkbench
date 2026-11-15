@@ -85,6 +85,62 @@ class SaveResultsTestCase(unittest.TestCase):
         os.remove(fn)
 
 
+def test_save_results_undeclared_outcome(tmp_path):
+    """Regression test: saving outcomes that were never declared as an Outcome.
+
+    Previously, this raised a KeyError before anything was saved, for example
+    when a derived outcome was added to the outcomes dict before saving. Now,
+    everything that can be saved is saved, and an EMAError listing the
+    skipped outcomes is raised afterwards.
+    """
+    import pytest  # noqa: PLC0415
+
+    from ema_workbench.util import EMAError  # noqa: PLC0415
+
+    experiments = pd.DataFrame({"x": [0.1, 0.2, 0.3]})
+    ScalarOutcome("declared_scalar")
+    ArrayOutcome("declared_array")
+    declared = {
+        "declared_scalar": np.array([1.0, 2.0, 3.0]),
+        "declared_array": np.arange(24.0).reshape(3, 2, 4),
+    }
+    undeclared = {
+        "undeclared_scalar": np.array([1.0, 2.0, 3.0]),
+        "undeclared_timeseries": np.arange(12.0).reshape(3, 4),
+    }
+    for key in undeclared:
+        assert key not in register.outcomes
+
+    file_name = tmp_path / "results.tar.gz"
+    with pytest.raises(EMAError) as excinfo:
+        save_results((experiments, {**declared, **undeclared}), file_name)
+    assert "the outcomes undeclared_scalar, undeclared_timeseries, because" in str(
+        excinfo.value
+    )
+
+    # the experiments and the declared outcomes are saved
+    loaded_experiments, loaded_outcomes = load_results(file_name)
+    pd.testing.assert_frame_equal(experiments, loaded_experiments)
+    assert set(loaded_outcomes) == set(declared)
+    for key, value in declared.items():
+        np.testing.assert_array_equal(loaded_outcomes[key], value)
+
+    # nothing is registered for the skipped outcomes
+    for key in undeclared:
+        assert key not in register.outcomes
+
+    # with only undeclared outcomes, the experiments are still saved
+    file_name = tmp_path / "only_undeclared.tar.gz"
+    with pytest.raises(EMAError):
+        save_results((experiments, undeclared), file_name)
+    loaded_experiments, loaded_outcomes = load_results(file_name)
+    pd.testing.assert_frame_equal(experiments, loaded_experiments)
+    assert loaded_outcomes == {}
+
+    # declared outcomes only, no error
+    save_results((experiments, declared), tmp_path / "declared.tar.gz")
+
+
 class LoadResultsTestCase(unittest.TestCase):
     def test_load_results(self):
         nr_experiments = 10000
