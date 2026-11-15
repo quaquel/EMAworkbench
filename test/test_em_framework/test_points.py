@@ -86,6 +86,63 @@ def test_sample_generator():
         assert np.all(sample["d"] == np.asarray([int(d), int(e)], dtype=bool))
 
 
+def test_parameters_with_shape():
+    """Regression test: integer and categorical parameters with a shape.
+
+    Previously, the values for these parameters were a list rather than an
+    array, which resulted in an AttributeError when storing the experiment.
+    """
+    from ema_workbench import Model, ScalarOutcome, perform_experiments
+    from ema_workbench.em_framework.points import flatten_sample
+    from ema_workbench.em_framework.samplers import LHSSampler
+
+    parameters = [
+        RealParameter("a", 0, 1, shape=(2,)),
+        IntegerParameter("b", 0, 5, shape=(3,)),
+        CategoricalParameter("c", ["x", "y", "z"], shape=(2,)),
+    ]
+
+    samples = LHSSampler().generate_samples(parameters, 5, rng=42)
+    for sample in samples:
+        assert isinstance(sample["a"], np.ndarray)
+        assert isinstance(sample["b"], np.ndarray)
+        assert isinstance(sample["c"], np.ndarray)
+        assert sample["a"].shape == (2,)
+        assert sample["b"].shape == (3,)
+        assert sample["c"].shape == (2,)
+        assert np.issubdtype(sample["b"].dtype, np.integer)
+        assert set(sample["c"]) <= {"x", "y", "z"}
+        assert len(flatten_sample(sample, parameters)) == 7
+
+    received = []
+
+    def some_model(a=None, b=None, c=None):
+        received.append((a, b, c))
+        return {"y": float(np.sum(a) + np.sum(b))}
+
+    model = Model("simple", function=some_model)
+    model.uncertainties = parameters
+    model.outcomes = [ScalarOutcome("y")]
+
+    experiments, outcomes = perform_experiments(model, scenarios=4)
+
+    assert list(experiments.columns[:7]) == [
+        "a_0",
+        "a_1",
+        "b_0",
+        "b_1",
+        "b_2",
+        "c_0",
+        "c_1",
+    ]
+    expected = (
+        experiments[["a_0", "a_1", "b_0", "b_1", "b_2"]].astype(float).sum(axis=1)
+    )
+    np.testing.assert_allclose(outcomes["y"], expected)
+    for i, (_, _, c) in enumerate(received):
+        assert list(c) == [experiments.loc[i, "c_0"], experiments.loc[i, "c_1"]]
+
+
 def test_sample_collection():
     """Tests for SampleCollection."""
     rng = np.random.default_rng(42)
@@ -165,6 +222,36 @@ def test_sample_collection():
         it1 = SampleCollection(samples1, [RealParameter("a", 0, 1)])
         it2 = SampleCollection(samples2, [RealParameter("b", 0, 1)])
         it3 = it1 + it2
+
+
+def test_sample_collection_concat_parameter_order():
+    """Regression test: concat with parameters in a different order.
+
+    Previously, the samples were stacked column by column, so values ended
+    up under the wrong parameter.
+    """
+    a = RealParameter("a", 0, 1)
+    b = RealParameter("b", 10, 11, shape=(2,))
+    c = IntegerParameter("c", 100, 110)
+
+    first = SampleCollection(np.array([[0.1, 10.1, 10.2, 101]]), [a, b, c])
+    second = SampleCollection(np.array([[102, 10.3, 10.4, 0.2]]), [c, b, a])
+
+    combined = first.concat(second)
+    assert [p.name for p in combined.parameters] == ["a", "b", "c"]
+    np.testing.assert_allclose(
+        combined.samples, [[0.1, 10.1, 10.2, 101], [0.2, 10.3, 10.4, 102]]
+    )
+    samples = list(combined)
+    assert samples[1]["a"] == 0.2
+    assert samples[1]["c"] == 102
+    np.testing.assert_allclose(samples[1]["b"], [10.3, 10.4])
+
+    # parameters missing in either of the two collections
+    with pytest.raises(ValueError):
+        first.concat(SampleCollection(np.array([[0.1]]), [a]))
+    with pytest.raises(ValueError):
+        SampleCollection(np.array([[0.1]]), [a]).concat(first)
 
 
 def test_sample_collection_getitem():

@@ -316,9 +316,9 @@ class SampleCollection(Iterable):
         ValueError if one or more parameters are present in only one of the two SampleCollections.
 
         """
-        own_names = {p.name for p in self.parameters}
-        other_names = {p.name for p in other.parameters}
-        missing = own_names - other_names
+        own_names = [p.name for p in self.parameters]
+        other_names = [p.name for p in other.parameters]
+        missing = set(own_names) ^ set(other_names)
         if missing:
             raise ValueError(
                 f"the parameters {missing} do not exist in both SampleCollections"
@@ -326,6 +326,19 @@ class SampleCollection(Iterable):
 
         samples_1 = self.samples
         samples_2 = other.samples
+
+        if own_names != other_names:
+            # the parameters are in a different order, so reorder the columns
+            # of the other samples to match the order of this collection
+            columns = {}
+            offset = 0
+            for parameter in other.parameters:
+                length = 1 if parameter.shape is None else math.prod(parameter.shape)
+                columns[parameter.name] = list(range(offset, offset + length))
+                offset += length
+            order = [i for name in own_names for i in columns[name]]
+            samples_2 = samples_2[:, order]
+
         combined_samples = np.vstack((samples_1, samples_2))
         return SampleCollection(combined_samples, self.parameters.copy())
 
@@ -370,7 +383,9 @@ def sample_generator(
                 # via this route as well
                 value = [param.cat_for_index(int(entry)).value for entry in value]
 
-            value = value[0] if param.shape is None else value
+            # integer and categorical values are a list at this point, while
+            # the values of a parameter with a shape should be an array
+            value = value[0] if param.shape is None else np.asarray(value)
             design_dict[param.name] = value
 
         yield Sample(**design_dict)
@@ -495,7 +510,7 @@ def flatten_sample(sample: Sample, parameters: Iterable[Parameter]) -> tuple:
         value = sample[parameter.name]
 
         if parameter.shape is not None:
-            value = value.flatten().tolist()
+            value = np.asarray(value).flatten().tolist()
             values.extend(value)
         else:
             values.append(value)

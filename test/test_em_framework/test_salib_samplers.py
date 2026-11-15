@@ -69,6 +69,33 @@ def test_morris():
     assert samples.shape == (N, len(parameters))
 
 
+def test_morris_integer_and_categorical_within_bounds():
+    """Regression test: integer and categorical samples stay within bounds.
+
+    Morris samples contain exact zeros. The ppf of a discrete distribution at
+    zero is the lower bound minus one, which resulted in integers below the
+    lower bound and categorical index -1.
+    """
+    from ema_workbench import CategoricalParameter, IntegerParameter, RealParameter
+    from ema_workbench.em_framework.salib_samplers import MorrisSampler
+
+    parameters = [
+        RealParameter("a", 5, 6),
+        IntegerParameter("b", 2, 5),
+        CategoricalParameter("c", ["x", "y", "z"]),
+    ]
+    samples = MorrisSampler().generate_samples(parameters, 8, rng=42)
+
+    assert samples.samples[:, 0].min() >= 5
+    assert samples.samples[:, 0].max() <= 6
+    assert set(samples.samples[:, 1]) == {2, 3, 4, 5}
+    assert set(samples.samples[:, 2]) <= {0, 1, 2}
+
+    for sample in samples:
+        assert 2 <= sample["b"] <= 5
+        assert sample["c"] in {"x", "y", "z"}
+
+
 def test_FAST():
     parameters = [RealParameter("a", 0, 10), RealParameter("b", 0, 5)]
 

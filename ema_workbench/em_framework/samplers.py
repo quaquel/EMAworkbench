@@ -79,7 +79,9 @@ class AbstractSampler(metaclass=abc.ABCMeta):
             samples[:, j] = p.dist.ppf(samples_j)
 
             if isinstance(p, IntegerParameter):
-                samples_j = np.floor(samples_j)
+                # ppf(0) of a discrete distribution is lower bound - 1, so
+                # we need to clip to stay within the bounds
+                samples_j = np.clip(np.floor(samples_j), p.lower_bound, p.upper_bound)
             samples[:, j] = samples_j
         return samples
 
