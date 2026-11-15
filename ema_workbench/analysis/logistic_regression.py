@@ -173,10 +173,13 @@ class Logit:
         self.x = x
         self.y = y
         self.models = []
+        self._cur_box = -1
         self.threshold = threshold
 
         # prepare data
-        dummies = pd.get_dummies(x, prefix_sep=self.sep)
+        # ensure everything is a float. By default, the dummies are boolean,
+        # as are any boolean columns in x, which cannot be normalized.
+        dummies = pd.get_dummies(x, prefix_sep=self.sep, dtype=float).astype(float)
 
         self.dummiesmap = {}
         for column, values in self.x.select_dtypes(exclude=np.number).items():
@@ -256,6 +259,8 @@ class Logit:
         self.peeling_trajectory = pd.concat(
             [self.peeling_trajectory, new_row], ignore_index=True, sort=True
         )
+        # coverage, density, and res_dim are those of the latest model
+        self._cur_box = i
 
     def show_tradeoff(self, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
         """Visualize the trade-off between coverage and density.
