@@ -203,12 +203,20 @@ class NamedObjectMap[T](MutableMapping):
 
     def extend(self, value: T | Iterable[T]):  # noqa: D102
         if isinstance(value, NamedObject):
-            self._data[value.name] = value
+            items = [value]
         elif hasattr(value, "__iter__"):
-            for item in value:
-                self._data[item.name] = item
+            items = list(value)
         else:
             raise TypeError(f"Can only add {self.kind.__name__} objects")
+
+        # check all items first, so nothing is added if one item is invalid
+        for item in items:
+            if not isinstance(item, self.kind):
+                raise TypeError(
+                    f"Can only add {self.kind.__name__} objects, not {type(item)}"
+                )
+        for item in items:
+            self._data[item.name] = item
 
     def __add__(self, value: T | Iterable[T]):  # noqa: D105
         data = self.copy()

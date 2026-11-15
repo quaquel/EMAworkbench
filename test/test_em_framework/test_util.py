@@ -174,6 +174,39 @@ def test_named_object_map():
         assert entry == map[entry.name]
 
 
+def test_named_object_map_extend_checks_type():
+    """Regression test: extend only accepts objects of the kind of the map.
+
+    Previously, any named object was accepted, so for example an outcome
+    could be added to the uncertainties of a model.
+    """
+
+    class OtherVariable(util.NamedObject):
+        pass
+
+    map = NamedObjectMap(Variable)
+    map.extend(Variable("a"))
+
+    with pytest.raises(TypeError):
+        map.extend(OtherVariable("b"))
+    with pytest.raises(TypeError):
+        map.extend([Variable("c"), OtherVariable("d")])
+    with pytest.raises(TypeError):
+        map.extend(["e"])
+    with pytest.raises(TypeError):
+        map += OtherVariable("f")
+
+    # nothing is added if one of the items is invalid
+    assert list(map.keys()) == ["a"]
+
+    # subclasses are fine
+    class SubVariable(Variable):
+        pass
+
+    map.extend([SubVariable("g")])
+    assert list(map.keys()) == ["a", "g"]
+
+
 
 def test_namedict_copy_is_independent():
     """Regression test: a copy of a NamedDict must not share its data."""
