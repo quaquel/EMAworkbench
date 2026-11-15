@@ -215,7 +215,7 @@ class AbstractModel(NamedObject):
         The default implementation only sets the outputs to an empty dict.
 
         """
-        self._outcome_output = {}
+        self._outcomes_output = {}
         self._constraints_output = {}
 
     @method_logger(__name__)

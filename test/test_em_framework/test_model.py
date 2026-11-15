@@ -199,6 +199,39 @@ class TestModel(unittest.TestCase):
             self.assertIn(key, dict_)
 
 
+def test_reset_model_gives_new_outcomes_output():
+    """Regression test: reset_model should reset the outcomes.
+
+    Previously, a typo meant the same dict was reused and updated for every
+    experiment, so the outcomes of an earlier experiment changed when a later
+    experiment was run.
+    """
+    from ema_workbench.em_framework.experiment_runner import ExperimentRunner
+    from ema_workbench.em_framework.outcomes import ScalarOutcome
+    from ema_workbench.em_framework.points import Experiment
+
+    def some_model(u=0.0):
+        return {"reset_test_y": u}
+
+    model = Model("resetmodel", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.outcomes = [ScalarOutcome("reset_test_y")]
+
+    runner = ExperimentRunner([model])
+    policy = Sample("no_policy")
+    first = runner.run_experiment(
+        Experiment("first", model.name, policy, Sample("s1", u=0.1), 0)
+    )
+    second = runner.run_experiment(
+        Experiment("second", model.name, policy, Sample("s2", u=0.9), 1)
+    )
+
+    assert first is not second
+    assert first == {"reset_test_y": 0.1}
+    assert second == {"reset_test_y": 0.9}
+    assert model.outcomes_output == {}
+
+
 class TestReplicatorModel(unittest.TestCase):
     def test_run_model(self):
         model_name = "modelname"
