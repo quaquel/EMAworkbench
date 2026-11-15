@@ -164,6 +164,92 @@ def test_optimize(mocker):
             evaluator.optimize(nfe=nfe, searchover="unknown value", epsilons=[0.1, 0.1])
 
 
+@pytest.mark.parametrize("rng", ["some seed", b"some seed", 42, None])
+def test_optimize_single_seed(tmp_path, rng):
+    """Regression test: a str or bytes seed is a single seed.
+
+    Previously, a str or bytes was treated as a collection of seeds, so the
+    optimization was run once for every character.
+    """
+    import pandas as pd
+
+    def some_model(x=0.0):
+        return {"seed_test_y": x}
+
+    model = Model("seedmodel", function=some_model)
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("seed_test_y", kind=ScalarOutcome.MAXIMIZE)]
+    scenarios = [Sample("s1"), Sample("s2")]
+    robustness_functions = [
+        ScalarOutcome(
+            "seed_test_mean",
+            kind=ScalarOutcome.MAXIMIZE,
+            variable_name="seed_test_y",
+            function=np.mean,
+        )
+    ]
+
+    with evaluators.SequentialEvaluator(model) as evaluator:
+        results = evaluator.optimize(
+            nfe=20,
+            searchover="levers",
+            epsilons=[0.1],
+            population_size=10,
+            reference=Sample("reference"),
+            filename="optimize.tar.gz",
+            directory=tmp_path,
+            rng=rng,
+        )
+        robust_results = evaluator.robust_optimize(
+            robustness_functions,
+            scenarios,
+            nfe=20,
+            epsilons=[0.1],
+            population_size=10,
+            filename="robust.tar.gz",
+            directory=tmp_path,
+            rng=rng,
+        )
+
+    for result in (results, robust_results):
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+        assert isinstance(result[0], pd.DataFrame)
+    assert sorted(p.name for p in tmp_path.iterdir()) == [
+        "optimize.tar.gz",
+        "robust.tar.gz",
+    ]
+
+
+def test_optimize_multiple_seeds(tmp_path):
+    """A collection of seeds results in one optimization for each seed."""
+
+    def some_model(x=0.0):
+        return {"seed_test_y": x}
+
+    model = Model("seedmodel", function=some_model)
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("seed_test_y", kind=ScalarOutcome.MAXIMIZE)]
+
+    with evaluators.SequentialEvaluator(model) as evaluator:
+        results = evaluator.optimize(
+            nfe=20,
+            searchover="levers",
+            epsilons=[0.1],
+            population_size=10,
+            reference=Sample("reference"),
+            filename="optimize.tar.gz",
+            directory=tmp_path,
+            rng=[1, "a"],
+        )
+    assert isinstance(results, list)
+    assert len(results) == 2
+    assert sorted(p.name for p in tmp_path.iterdir()) == [
+        "1_optimize.tar.gz",
+        "a_optimize.tar.gz",
+    ]
+
+
 def test_robust_optimize(mocker):
     """Tests for robust_optimize."""
     mocked_function = mocker.Mock(return_value={"d": 1, "e": 1})
