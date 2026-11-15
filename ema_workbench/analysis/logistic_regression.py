@@ -173,6 +173,7 @@ class Logit:
         self.x = x
         self.y = y
         self.models = []
+        self._cur_box = -1
         self.threshold = threshold
 
         # prepare data
@@ -258,6 +259,8 @@ class Logit:
         self.peeling_trajectory = pd.concat(
             [self.peeling_trajectory, new_row], ignore_index=True, sort=True
         )
+        # coverage, density, and res_dim are those of the latest model
+        self._cur_box = i
 
     def show_tradeoff(self, cmap=mpl.cm.viridis, annotated=False):  # @UndefinedVariable
         """Visualize the trade-off between coverage and density.

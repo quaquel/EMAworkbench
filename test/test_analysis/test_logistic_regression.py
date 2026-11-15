@@ -17,6 +17,34 @@ def flu_classify(data):
     return result > 1000000
 
 
+def test_logit_coverage_density_res_dim():
+    """Regression test: the coverage, density, and res_dim attributes.
+
+    Previously, accessing these attributes raised an AttributeError.
+    """
+    import numpy as np
+    import pandas as pd
+
+    rng = np.random.default_rng(42)
+    n = 500
+    x = pd.DataFrame({"a": rng.random(n), "b": rng.random(n), "c": rng.random(n)})
+    y = ((x.a > 0.6) & (x.b < 0.4)).values
+
+    logitmodel = lr.Logit(x, y, threshold=0.5)
+    logitmodel.run(disp=0)
+
+    last = logitmodel.peeling_trajectory.iloc[-1]
+    assert logitmodel.coverage == last["coverage"]
+    assert logitmodel.density == last["density"]
+    assert logitmodel.res_dim == last["res_dim"]
+    assert logitmodel.res_dim == len(logitmodel.models)
+
+    # changing the threshold changes coverage and density
+    logitmodel.threshold = 0.9
+    assert logitmodel.coverage == logitmodel.peeling_trajectory.iloc[-1]["coverage"]
+    assert logitmodel.coverage < last["coverage"]
+
+
 def test_logit():
     """Test logit."""
     experiments, outcomes = utilities.load_flu_data()
