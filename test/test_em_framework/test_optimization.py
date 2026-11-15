@@ -671,6 +671,80 @@ def test_rebuild_platypus_population():
         rebuild_platypus_population(data, problem)
 
 
+def test_combined_variator_default_mutation():
+    """Regression test: by default, mutation changes only part of a solution.
+
+    Previously, every decision variable was mutated in every child, and all
+    bits of an integer were flipped, so children never kept the integer
+    value of their parents.
+    """
+    import copy
+    import random
+
+    random.seed(42)
+
+    decision_variables = [RealParameter("a", 0, 1), IntegerParameter("i", 0, 15)]
+    objectives = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+    problem = Problem("levers", decision_variables, objectives)
+
+    parent = Sample(a=0.5, i=5)._to_platypus_solution(problem)
+    variator = CombinedVariator()
+
+    children = []
+    for _ in range(200):
+        for child in variator.evolve([parent, copy.deepcopy(parent)]):
+            children.append(Sample._from_platypus_solution(child))
+
+    share_same_integer = sum(c["i"] == 5 for c in children) / len(children)
+    share_same_real = sum(c["a"] == 0.5 for c in children) / len(children)
+
+    # with identical parents, crossover changes nothing, and on average a
+    # single decision variable is mutated
+    assert 0.3 < share_same_integer < 0.95
+    assert 0.3 < share_same_real < 0.95
+    assert len({int(c["i"]) for c in children}) > 2
+
+    # explicit probability of 1 mutates all real decision variables
+    variator = CombinedVariator(mutation_prob=1)
+    children = [
+        Sample._from_platypus_solution(child)
+        for _ in range(20)
+        for child in variator.evolve([parent, copy.deepcopy(parent)])
+    ]
+    assert all(c["a"] != 0.5 for c in children)
+
+
+def test_optimize_mixed_real_and_integer_levers(tmp_path):
+    """Regression test: optimization with mixed lever types converges."""
+    from ema_workbench import Model
+
+    def some_model(a=0.0, i=0, j=0):
+        return {"y": -abs(i - 37) - abs(j - 11) - abs(a - 0.3)}
+
+    model = Model("simple", function=some_model)
+    model.levers = [
+        RealParameter("a", 0, 1),
+        IntegerParameter("i", 0, 63),
+        IntegerParameter("j", 0, 63),
+    ]
+    model.outcomes = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.optimize(
+            nfe=2000,
+            searchover="levers",
+            epsilons=[0.05],
+            population_size=50,
+            reference=Sample("reference"),
+            filename="archive.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+
+    # the optimum is 0, the old variator got stuck around -4 or worse
+    assert results["y"].max() > -1
+
+
 def test_combined_variator(mocker):
     """Tests for CombinedVariator."""
     # this test only ensures everything runs, not

@@ -561,9 +561,20 @@ def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem) -> list
 
 
 class CombinedVariator(Variator):
-    """Combined variator."""
+    """Combined variator for problems with a mix of parameter types.
 
-    def __init__(self, crossover_prob=0.5, mutation_prob=1):
+    Parameters
+    ----------
+    crossover_prob : float, optional
+                     the probability of applying crossover to a decision variable
+    mutation_prob : float, optional
+                    the probability of mutating a decision variable. Defaults
+                    to 1 divided by the number of decision variables, so on
+                    average one decision variable is mutated per solution.
+
+    """
+
+    def __init__(self, crossover_prob=0.5, mutation_prob=None):
         super().__init__(2)
         self.SBX = platypus.SBX()
         self.crossover_prob = crossover_prob
@@ -593,8 +604,12 @@ class CombinedVariator(Variator):
     def mutate(self, child: Solution):
         problem = child.problem
 
+        mutation_prob = self.mutation_prob
+        if mutation_prob is None:
+            mutation_prob = 1 / len(problem.types)
+
         for i, kind in enumerate(problem.types):  # @ReservedAssignment
-            if random.random() <= self.mutation_prob:
+            if random.random() <= mutation_prob:
                 klass = kind.__class__
                 child = self._mutate[klass](self, child, i, kind)
                 child.evaluated = False
@@ -668,9 +683,16 @@ class CombinedVariator(Variator):
         return child
 
     def mutate_integer(
-        self, child: Solution, i: int, type: platypus.Integer, probability: float = 1
+        self,
+        child: Solution,
+        i: int,
+        type: platypus.Integer,
+        probability: float | None = None,
     ) -> Solution:  # @ReservedAssignment
-        # bitflip
+        # bitflip, by default on average a single bit is flipped
+        if probability is None:
+            probability = 1 / type.nbits
+
         for j in range(type.nbits):
             if random.random() <= probability:
                 child.variables[i][j] = not child.variables[i][j]
