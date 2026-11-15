@@ -100,7 +100,7 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         self.i = 0
         self.nr_experiments = nr_experiments
         self.outcomes = outcomes
-        self.parameters = uncertainties + levers
+        self.parameters = [*uncertainties, *levers]
 
         if reporting_interval is None:
             reporting_interval = max(1, round(nr_experiments / reporting_frequency))
@@ -211,7 +211,7 @@ class DefaultCallback(AbstractCallback):
             (nr_experiments, len(uncertainties) + len(levers)), dtype=object
         )
         self.uncertainty_and_lever_labels = [
-            (entry.name, "") for entry in uncertainties + levers
+            (entry.name, "") for entry in self.parameters
         ]
         self.uncertainties = [u.name for u in uncertainties]
         self.levers = [l.name for l in levers]  # noqa: E741

@@ -122,6 +122,49 @@ def test_perform_experiments(mocker):
         )
 
 
+def test_perform_experiments_mixing_samples_and_numbers():
+    """Regression test: combine user specified samples with a number of samples.
+
+    Previously, specifying scenarios as samples and policies as a number, or
+    no scenarios and a number of policies, raised a TypeError.
+    """
+
+    def some_model(x=0.0, u=0.0):
+        return {"y": x + u}
+
+    model = Model("simple", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    # reference scenario with sampled policies
+    experiments, outcomes = evaluators.perform_experiments(
+        model, scenarios=[Sample("s", u=0.5)], policies=3
+    )
+    assert experiments.shape[0] == 3
+    np.testing.assert_allclose(outcomes["y"], experiments["x"] + 0.5)
+
+    # no scenarios with sampled policies
+    experiments, outcomes = evaluators.perform_experiments(
+        model, scenarios=0, policies=3
+    )
+    assert experiments.shape[0] == 3
+    assert "u" not in experiments.columns
+    np.testing.assert_allclose(outcomes["y"], experiments["x"])
+
+    # sampled scenarios with a reference policy
+    experiments, outcomes = evaluators.perform_experiments(
+        model, scenarios=3, policies=[Sample("p", x=0.5)]
+    )
+    np.testing.assert_allclose(outcomes["y"], experiments["u"] + 0.5)
+
+    # sampled scenarios without policies
+    experiments, outcomes = evaluators.perform_experiments(
+        model, scenarios=3, policies=0
+    )
+    np.testing.assert_allclose(outcomes["y"], experiments["u"])
+
+
 def test_optimize(mocker):
     """Tests for optimize."""
     mocked_function = mocker.Mock(return_value={"d": 1, "e": 1})
