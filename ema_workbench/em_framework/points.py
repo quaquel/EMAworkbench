@@ -370,7 +370,9 @@ def sample_generator(
                 # via this route as well
                 value = [param.cat_for_index(int(entry)).value for entry in value]
 
-            value = value[0] if param.shape is None else value
+            # integer and categorical values are a list at this point, while
+            # the values of a parameter with a shape should be an array
+            value = value[0] if param.shape is None else np.asarray(value)
             design_dict[param.name] = value
 
         yield Sample(**design_dict)
@@ -495,7 +497,7 @@ def flatten_sample(sample: Sample, parameters: Iterable[Parameter]) -> tuple:
         value = sample[parameter.name]
 
         if parameter.shape is not None:
-            value = value.flatten().tolist()
+            value = np.asarray(value).flatten().tolist()
             values.extend(value)
         else:
             values.append(value)

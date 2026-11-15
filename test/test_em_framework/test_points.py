@@ -86,6 +86,63 @@ def test_sample_generator():
         assert np.all(sample["d"] == np.asarray([int(d), int(e)], dtype=bool))
 
 
+def test_parameters_with_shape():
+    """Regression test: integer and categorical parameters with a shape.
+
+    Previously, the values for these parameters were a list rather than an
+    array, which resulted in an AttributeError when storing the experiment.
+    """
+    from ema_workbench import Model, ScalarOutcome, perform_experiments
+    from ema_workbench.em_framework.points import flatten_sample
+    from ema_workbench.em_framework.samplers import LHSSampler
+
+    parameters = [
+        RealParameter("a", 0, 1, shape=(2,)),
+        IntegerParameter("b", 0, 5, shape=(3,)),
+        CategoricalParameter("c", ["x", "y", "z"], shape=(2,)),
+    ]
+
+    samples = LHSSampler().generate_samples(parameters, 5, rng=42)
+    for sample in samples:
+        assert isinstance(sample["a"], np.ndarray)
+        assert isinstance(sample["b"], np.ndarray)
+        assert isinstance(sample["c"], np.ndarray)
+        assert sample["a"].shape == (2,)
+        assert sample["b"].shape == (3,)
+        assert sample["c"].shape == (2,)
+        assert np.issubdtype(sample["b"].dtype, np.integer)
+        assert set(sample["c"]) <= {"x", "y", "z"}
+        assert len(flatten_sample(sample, parameters)) == 7
+
+    received = []
+
+    def some_model(a=None, b=None, c=None):
+        received.append((a, b, c))
+        return {"y": float(np.sum(a) + np.sum(b))}
+
+    model = Model("simple", function=some_model)
+    model.uncertainties = parameters
+    model.outcomes = [ScalarOutcome("y")]
+
+    experiments, outcomes = perform_experiments(model, scenarios=4)
+
+    assert list(experiments.columns[:7]) == [
+        "a_0",
+        "a_1",
+        "b_0",
+        "b_1",
+        "b_2",
+        "c_0",
+        "c_1",
+    ]
+    expected = (
+        experiments[["a_0", "a_1", "b_0", "b_1", "b_2"]].astype(float).sum(axis=1)
+    )
+    np.testing.assert_allclose(outcomes["y"], expected)
+    for i, (_, _, c) in enumerate(received):
+        assert list(c) == [experiments.loc[i, "c_0"], experiments.loc[i, "c_1"]]
+
+
 def test_sample_collection():
     """Tests for SampleCollection."""
     rng = np.random.default_rng(42)
