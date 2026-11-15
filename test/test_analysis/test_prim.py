@@ -718,6 +718,31 @@ def test_pca():
     assert rotated_experiments.shape == experiments.shape
 
 
+def test_pca_rotation_is_real():
+    """Regression test: the rotated experiments are real numbers.
+
+    Previously, the rotation was determined with np.linalg.eig, which can
+    return complex numbers. PRIM cannot peel on complex columns, so PCA-PRIM
+    returned a single box covering all experiments.
+    """
+    experiments, outcomes = utilities.load_flu_data()
+    experiments = experiments.drop(["scenario", "policy", "model"], axis=1)
+    y = outcomes["deceased_population_region_1"][:, -1] > 1e6
+
+    rotated_experiments, rotation = prim.pca_preprocess(experiments, y)
+
+    assert all(dtype == float for dtype in rotated_experiments.dtypes)
+    assert all(dtype == float for dtype in rotation.dtypes)
+    # the rotation is orthonormal
+    np.testing.assert_allclose(
+        rotation.values.T @ rotation.values, np.eye(rotation.shape[0]), atol=1e-10
+    )
+
+    box = prim.Prim(rotated_experiments, y).find_box()
+    assert len(box.peeling_trajectory) > 1
+    assert box.density > 0.9
+
+
 class TestRegressionPrim:
     """Tests for prim in regression mode."""
 
