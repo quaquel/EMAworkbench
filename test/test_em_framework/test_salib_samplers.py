@@ -79,6 +79,28 @@ def test_FAST():
     assert samples.samples.shape == (N, len(parameters))
 
 
+def test_salib_shaped_parameters():
+    """Regression test: every column is rescaled with its own parameter.
+
+    Previously, the samples of parameters with a shape were rescaled using
+    the bounds of the wrong parameter.
+    """
+    from ema_workbench.em_framework.salib_samplers import SobolSampler
+
+    parameters = [
+        RealParameter("a", 5, 6, shape=(2,)),
+        RealParameter("z", 100, 101),
+    ]
+    samples = SobolSampler().generate_samples(parameters, 16, rng=42)
+
+    assert samples.samples.shape[1] == 3
+    for column in (0, 1):
+        assert samples.samples[:, column].min() >= 5
+        assert samples.samples[:, column].max() <= 6
+    assert samples.samples[:, 2].min() >= 100
+    assert samples.samples[:, 2].max() <= 101
+
+
 def test_get_salib_problem():
     uncertainties = [
         RealParameter("a", 0, 10),
