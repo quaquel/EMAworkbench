@@ -213,12 +213,12 @@ class TestPrimBox:
 
         box.resample()
 
-    def test_resample_fewer_iterations(self):
-        """Regression test: resample with fewer iterations than a previous call.
+    def test_resample_cache(self):
+        """Regression test: the cache of resampled boxes.
 
-        Previously, all boxes from the earlier call were counted, while the
-        scores were scaled by the new number of iterations, resulting in
-        scores above 100 percent.
+        Previously, the cached boxes were reused regardless of the settings,
+        so calling resample again with fewer iterations resulted in scores
+        above 100 percent, and a different p or rng was ignored.
         """
         rng = np.random.default_rng(42)
         n = 1000
@@ -227,13 +227,38 @@ class TestPrimBox:
 
         box = prim.Prim(x, y).find_box()
 
-        scores = box.resample(iterations=6, rng=42)
-        assert scores.max().max() <= 100.0 + 1e-9
-        assert scores.loc["a"].max() > 99
+        def check(scores):
+            assert scores.max().max() <= 100.0 + 1e-9
+            assert scores.loc["a"].max() > 99
 
-        scores = box.resample(iterations=3, rng=42)
-        assert scores.max().max() <= 100.0 + 1e-9
-        assert scores.loc["a"].max() > 99
+        # same settings without an explicit rng reuse the resampled boxes,
+        # also for another candidate box
+        check(box.resample(iterations=6))
+        cached = list(box._resampled)
+        assert len(cached) == 6
+        box.resample(iterations=6, i=len(box.peeling_trajectory) - 2)
+        assert box._resampled == cached
+
+        # different settings result in new resampled boxes
+        check(box.resample(iterations=3))
+        assert len(box._resampled) == 3
+        assert not set(map(id, box._resampled)) & set(map(id, cached))
+
+        cached = list(box._resampled)
+        box.resample(iterations=3, p=0.8)
+        assert len(box._resampled) == 3
+        assert not set(map(id, box._resampled)) & set(map(id, cached))
+
+        # an explicit rng always results in new resampled boxes, and is
+        # reproducible
+        cached = list(box._resampled)
+        first = box.resample(iterations=4, rng=42)
+        assert not set(map(id, box._resampled)) & set(map(id, cached))
+        cached = list(box._resampled)
+        second = box.resample(iterations=4, rng=42)
+        assert not set(map(id, box._resampled)) & set(map(id, cached))
+        pd.testing.assert_frame_equal(first, second)
+        check(second)
 
     def test_show_pairs_scatter(self):
         experiments, outcomes = utilities.load_flu_data()
