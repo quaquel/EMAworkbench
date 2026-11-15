@@ -44,5 +44,28 @@ class TestEmaLogging(unittest.TestCase):
         self.assertEqual(logger.level, ema_logging.DEFAULT_LEVEL)
 
 
+def test_temporary_filter_removed_after_exception():
+    """Regression test: the filter is also removed if an exception is raised.
+
+    Previously, the filter stayed in place, so messages kept being filtered
+    for the remainder of the session.
+    """
+    name = "ema_workbench.test_temporary_filter"
+    logger = ema_logging.get_module_logger(name)
+    assert logger.filters == []
+
+    with ema_logging.temporary_filter(name=name, level=logging.INFO):
+        assert len(logger.filters) == 1
+    assert logger.filters == []
+
+    try:
+        with ema_logging.temporary_filter(name=name, level=logging.INFO):
+            assert len(logger.filters) == 1
+            raise RuntimeError("some error")
+    except RuntimeError:
+        pass
+    assert logger.filters == []
+
+
 if __name__ == "__main__":
     unittest.main()
