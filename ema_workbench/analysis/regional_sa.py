@@ -6,13 +6,14 @@ zoom in on any given uncertainty in more detail.
 
 """
 
-import contextlib
 import math
 import operator
 
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+
+from . import scenario_discovery_util as sdutil
 
 # Created on Aug 18, 2015
 #
@@ -231,16 +232,10 @@ def plot_cdfs(x, y, ccdf=False):
     a matplotlib Figure instance
 
     """
-    x = x.copy()
-
-    with contextlib.suppress(KeyError):
-        x = x.drop("scenario_id", axis=1)
-
-    for entry in ["model", "policy"]:
-        if x.loc[:, entry].unique().shape != (1,):
-            continue
-        with contextlib.suppress(KeyError):
-            x = x.drop(entry, axis=1)
+    # drop the id of the scenario, and any column with fewer than two distinct
+    # values, such as model or policy if there is only one of each, as in the
+    # other scenario discovery techniques
+    x = sdutil._drop_uninformative_columns(x)
 
     uncs = x.columns.tolist()
     # cp = sns.color_palette() # FIXME?? should this be used?
