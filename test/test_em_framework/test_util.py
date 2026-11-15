@@ -187,3 +187,39 @@ def test_namedict_copy_is_independent():
     combined = original | {"z": 3}
     assert "z" not in original
     assert combined["z"] == 3
+
+
+def test_named_object_map_slicing():
+    """Tests for slicing a NamedObjectMap."""
+    map = NamedObjectMap(Variable)
+    map.extend([Variable(entry) for entry in "abcde"])
+
+    # getitem with a slice returns a new map of the same class
+    subset = map[1:3]
+    assert isinstance(subset, NamedObjectMap)
+    assert subset is not map
+    assert subset.kind is map.kind
+    assert list(subset.keys()) == ["b", "c"]
+    assert subset["b"] is map["b"]  # objects are not copied
+
+    # negative indices, steps, and empty slices
+    assert list(map[-2:].keys()) == ["d", "e"]
+    assert list(map[::2].keys()) == ["a", "c", "e"]
+    assert list(map[::-1].keys()) == ["e", "d", "c", "b", "a"]
+    assert len(map[10:]) == 0
+
+    # the subset is independent of the original
+    subset["f"] = Variable("f")
+    del subset["b"]
+    assert list(map.keys()) == ["a", "b", "c", "d", "e"]
+
+    # delitem with a slice
+    del map[1:3]
+    assert list(map.keys()) == ["a", "d", "e"]
+
+    # slice assignment is not supported
+    with pytest.raises(TypeError):
+        map[0:2] = [Variable("x"), Variable("y")]
+
+    # negative int indexing
+    assert map[-1].name == "e"
