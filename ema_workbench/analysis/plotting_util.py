@@ -628,10 +628,10 @@ def make_continuous_grouping_specifiers(array: npt.NDArray, nr_of_groups: int = 
     """
     minimum = np.min(array)
     maximum = np.max(array)
-    step = (maximum - minimum) / nr_of_groups
-    a = [(minimum + step * x, minimum + step * (x + 1)) for x in range(nr_of_groups)]
-    assert a[0][0] == minimum
-    assert a[-1][1] == maximum
+    # linspace ensures the first and last limit are exactly the minimum and
+    # maximum, which is not guaranteed when adding up steps
+    limits = np.linspace(minimum, maximum, nr_of_groups + 1)
+    a = [(limits[i], limits[i + 1]) for i in range(nr_of_groups)]
     return a
 
 
@@ -760,12 +760,16 @@ def prepare_data(
                 )
             else:
                 column_to_group_by = experiments[group_by]
-                if column_to_group_by.dtype in (object, "category"):
-                    grouping_specifiers = set(column_to_group_by)
-                else:
+                is_continuous = pd.api.types.is_numeric_dtype(
+                    column_to_group_by
+                ) and not pd.api.types.is_bool_dtype(column_to_group_by)
+                if is_continuous:
+                    # split into the default number of intervals
                     grouping_specifiers = make_continuous_grouping_specifiers(
-                        column_to_group_by, grouping_specifiers
+                        column_to_group_by
                     )
+                else:
+                    grouping_specifiers = set(column_to_group_by)
             grouping_labels = grouping_specifiers = sorted(grouping_specifiers)
         else:
             if isinstance(grouping_specifiers, str):
