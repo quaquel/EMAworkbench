@@ -7,12 +7,14 @@ import copy
 import itertools
 import warnings
 from collections.abc import (
+    ItemsView,
     Iterable,
     Iterator,
     KeysView,
     Mapping,
     MutableMapping,
     Sequence,
+    ValuesView,
 )
 from typing import Literal
 
@@ -199,16 +201,27 @@ class NamedObjectMap[T](MutableMapping):
         return iter(self._data.values())
 
     def __contains__(self, item):  # noqa: D105
+        if isinstance(item, NamedObject):
+            # check for the object itself, not just its name
+            return self._data.get(item.name) is item
         return item in self._data
 
     def extend(self, value: T | Iterable[T]):  # noqa: D102
         if isinstance(value, NamedObject):
-            self._data[value.name] = value
+            items = [value]
         elif hasattr(value, "__iter__"):
-            for item in value:
-                self._data[item.name] = item
+            items = list(value)
         else:
             raise TypeError(f"Can only add {self.kind.__name__} objects")
+
+        # check all items first, so nothing is added if one item is invalid
+        for item in items:
+            if not isinstance(item, self.kind):
+                raise TypeError(
+                    f"Can only add {self.kind.__name__} objects, not {type(item)}"
+                )
+        for item in items:
+            self._data[item.name] = item
 
     def __add__(self, value: T | Iterable[T]):  # noqa: D105
         data = self.copy()
@@ -221,6 +234,22 @@ class NamedObjectMap[T](MutableMapping):
 
     def keys(self) -> KeysView[str]:  # noqa: D102
         return self._data.keys()
+
+    # iterating over the map yields the objects rather than their names, so the
+    # default implementations of the methods below, which assume that
+    # iteration yields the keys, do not work.
+    def values(self) -> ValuesView[T]:  # noqa: D102
+        return self._data.values()
+
+    def items(self) -> ItemsView[str, T]:  # noqa: D102
+        return self._data.items()
+
+    def __eq__(self, other):  # noqa: D105
+        if not isinstance(other, NamedObjectMap):
+            return NotImplemented
+        return self.kind == other.kind and self._data == other._data
+
+    __hash__ = None
 
 
 class NamedObjectMapDescriptor:

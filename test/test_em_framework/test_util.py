@@ -174,6 +174,39 @@ def test_named_object_map():
         assert entry == map[entry.name]
 
 
+def test_named_object_map_extend_checks_type():
+    """Regression test: extend only accepts objects of the kind of the map.
+
+    Previously, any named object was accepted, so for example an outcome
+    could be added to the uncertainties of a model.
+    """
+
+    class OtherVariable(util.NamedObject):
+        pass
+
+    map = NamedObjectMap(Variable)
+    map.extend(Variable("a"))
+
+    with pytest.raises(TypeError):
+        map.extend(OtherVariable("b"))
+    with pytest.raises(TypeError):
+        map.extend([Variable("c"), OtherVariable("d")])
+    with pytest.raises(TypeError):
+        map.extend(["e"])
+    with pytest.raises(TypeError):
+        map += OtherVariable("f")
+
+    # nothing is added if one of the items is invalid
+    assert list(map.keys()) == ["a"]
+
+    # subclasses are fine
+    class SubVariable(Variable):
+        pass
+
+    map.extend([SubVariable("g")])
+    assert list(map.keys()) == ["a", "g"]
+
+
 
 def test_namedict_copy_is_independent():
     """Regression test: a copy of a NamedDict must not share its data."""
@@ -187,6 +220,36 @@ def test_namedict_copy_is_independent():
     combined = original | {"z": 3}
     assert "z" not in original
     assert combined["z"] == 3
+
+
+def test_named_object_map_mapping_methods():
+    """Regression test: values, items, comparison, and membership.
+
+    Previously, values, items, and comparing two maps raised a KeyError,
+    and checking if an object is in the map was always False.
+    """
+    a, b = Variable("a"), Variable("b")
+    map = NamedObjectMap(Variable)
+    map.extend([a, b])
+
+    assert list(map.values()) == [a, b]
+    assert list(map.items()) == [("a", a), ("b", b)]
+    assert dict(map.items()) == {"a": a, "b": b}
+
+    # membership by name and by object
+    assert "a" in map
+    assert "c" not in map
+    assert a in map
+    assert Variable("a") not in map  # same name, different object
+
+    # comparison
+    other = map.copy()
+    assert map == other
+    assert not (map != other)
+    other.extend(Variable("c"))
+    assert map != other
+    assert map != {"a": a, "b": b}
+    assert map != NamedObjectMap(util.NamedObject)
 
 
 def test_named_object_map_slicing():
