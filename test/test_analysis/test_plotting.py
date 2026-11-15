@@ -39,6 +39,48 @@ class TestPlotting(unittest.TestCase):
             a = tuple(limits[i : i + 2])
             self.assertEqual(entry, a)
 
+    def test_group_by_without_grouping_specifiers(self):
+        """Regression test: grouping without explicit grouping specifiers.
+
+        Previously, grouping by a numeric column raised a TypeError, and a
+        column with strings or booleans was handled as if it was numeric.
+        """
+        import pandas as pd
+
+        from ema_workbench.analysis.plotting_util import prepare_data
+
+        rng = np.random.default_rng(42)
+        n = 100
+        experiments = pd.DataFrame(
+            {
+                "real": rng.random(n),
+                "integer": rng.integers(0, 10, n),
+                "category": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+                "text": rng.choice(["u", "v"], n),
+                "flag": rng.random(n) > 0.5,
+            }
+        )
+        outcomes = {"a": rng.random((n, 20)), "b": rng.random((n, 20))}
+
+        for column, n_groups in [
+            ("real", 5),
+            ("integer", 5),
+            ("category", 3),
+            ("text", 2),
+            ("flag", 2),
+        ]:
+            _, grouped, _, _, labels = prepare_data(
+                experiments, None, outcomes, group_by=column
+            )
+            self.assertEqual(len(labels), n_groups)
+            self.assertEqual(len(grouped), n_groups)
+            # every experiment is in exactly one group
+            self.assertEqual(sum(group["a"].shape[0] for group in grouped.values()), n)
+
+            lines(experiments, outcomes, group_by=column)
+            envelopes(experiments, outcomes, group_by=column, density=Density.KDE)
+            plt.close("all")
+
     def test_filter_scalar_outcomes(self):
         outcomes = {}
         for entry in ["a", "b", "c"]:
