@@ -1,6 +1,7 @@
 """Tests for logistic_regression.py."""
 
 import matplotlib.pyplot as plt
+import pytest
 
 from ema_workbench.analysis import logistic_regression as lr
 from test import utilities
@@ -121,3 +122,49 @@ def test_logit_non_numeric_columns():
     logitmodel.show_tradeoff()
     logitmodel.show_threshold_tradeoff(len(logitmodel.models) - 1)
     plt.close("all")
+
+
+def test_logit_drops_uninformative_columns():
+    """Regression test: the columns that are dropped before the analysis.
+
+    Previously, the scenario column was used as a feature when there was no
+    model or policy column, and a column with a single value resulted in an
+    error when running, because it cannot be normalized.
+    """
+    import numpy as np
+    import pandas as pd
+
+    from ema_workbench.util import EMAError
+
+    rng = np.random.default_rng(42)
+    n = 500
+    x = pd.DataFrame({"a": rng.random(n), "b": rng.random(n)})
+    y = (x.a > 0.5).values
+
+    # scenario is dropped, also without a model or policy column
+    logitmodel = lr.Logit(x.assign(scenario=np.arange(n)), y)
+    assert logitmodel.feature_names == ["a", "b"]
+
+    # as returned by perform_experiments, with a single policy and model
+    experiments = x.assign(
+        scenario=np.arange(n),
+        policy=pd.Categorical(["p"] * n),
+        model=pd.Categorical(["m"] * n),
+    )
+    logitmodel = lr.Logit(experiments, y)
+    assert logitmodel.feature_names == ["a", "b"]
+
+    # with more than one policy, the policy is included
+    experiments["policy"] = pd.Categorical(rng.choice(["p", "q"], n))
+    logitmodel = lr.Logit(experiments, y)
+    assert set(logitmodel.feature_names) == {"a", "b", "policy!?!p", "policy!?!q"}
+
+    # a column with a single value is dropped, so the analysis can run
+    logitmodel = lr.Logit(x.assign(constant=1.0), y)
+    assert logitmodel.feature_names == ["a", "b"]
+    assert not logitmodel._normalized.isna().any().any()
+    logitmodel.run(disp=0)
+    assert len(logitmodel.models) > 0
+
+    with pytest.raises(EMAError):
+        lr.Logit(experiments[["scenario", "model"]], y)
