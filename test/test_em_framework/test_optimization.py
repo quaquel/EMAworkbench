@@ -381,7 +381,7 @@ def test_robust_optimize_scores_each_policy_separately(tmp_path):
     model.outcomes = [ScalarOutcome("y")]
 
     u_values = [0.0, 0.25, 0.5, 0.75, 1.0]
-    scenarios = [Sample(name=i, u=u) for i, u in enumerate(u_values)]
+    scenarios = [Sample(name=f"{i}", u=u) for i, u in enumerate(u_values)]
     robustness_functions = [
         ScalarOutcome(
             "mean_y", kind=ScalarOutcome.MAXIMIZE, variable_name="y", function=np.mean
