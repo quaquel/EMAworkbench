@@ -222,6 +222,36 @@ def test_namedict_copy_is_independent():
     assert combined["z"] == 3
 
 
+def test_named_object_map_mapping_methods():
+    """Regression test: values, items, comparison, and membership.
+
+    Previously, values, items, and comparing two maps raised a KeyError,
+    and checking if an object is in the map was always False.
+    """
+    a, b = Variable("a"), Variable("b")
+    map = NamedObjectMap(Variable)
+    map.extend([a, b])
+
+    assert list(map.values()) == [a, b]
+    assert list(map.items()) == [("a", a), ("b", b)]
+    assert dict(map.items()) == {"a": a, "b": b}
+
+    # membership by name and by object
+    assert "a" in map
+    assert "c" not in map
+    assert a in map
+    assert Variable("a") not in map  # same name, different object
+
+    # comparison
+    other = map.copy()
+    assert map == other
+    assert not (map != other)
+    other.extend(Variable("c"))
+    assert map != other
+    assert map != {"a": a, "b": b}
+    assert map != NamedObjectMap(util.NamedObject)
+
+
 def test_named_object_map_slicing():
     """Tests for slicing a NamedObjectMap."""
     map = NamedObjectMap(Variable)
