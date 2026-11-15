@@ -4,6 +4,7 @@ import abc
 import enum
 import numbers
 import os
+from collections import Counter
 from collections.abc import Callable, Iterable
 from typing import Literal, overload
 
@@ -438,6 +439,7 @@ def perform_experiments(
         union=lever_union,
         parameter_type="levers",
     )
+    _check_policy_names(policies)
 
     try:
         n_models = len(models)
@@ -511,6 +513,37 @@ def perform_experiments(
 
     results = callback.get_results()
     return results
+
+
+def _check_policy_names(policies: Iterable[Sample]) -> None:
+    """Check that the names of the policies are unique.
+
+    The name of a policy is its unique identifier. A model is only initialized
+    again if the name of the policy differs from the name of the policy with
+    which it was last initialized. So, two different policies with the same
+    name would be run with the levers of only one of them.
+
+    Parameters
+    ----------
+    policies : the policies to check
+
+    Raises
+    ------
+    EMAError
+        if two or more policies have the same name
+
+    """
+    if isinstance(policies, SampleCollection):
+        # the names of sampled policies are generated and thus unique
+        return
+
+    counts = Counter(policy.name for policy in policies)
+    duplicates = sorted(str(name) for name, count in counts.items() if count > 1)
+    if duplicates:
+        raise EMAError(
+            f"the names of policies must be unique, but {', '.join(duplicates)} "
+            "occur more than once"
+        )
 
 
 def setup_callback(

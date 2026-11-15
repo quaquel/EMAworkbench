@@ -476,6 +476,85 @@ def test_setup(mocker):
     assert n_samples == n
 
 
+def test_perform_experiments_rejects_policies_with_same_name():
+    """Regression test: the name of a policy is its unique identifier.
+
+    A model is only initialized again if the name of the policy changes.
+    Previously, two different policies with the same name were accepted, and
+    the second one was silently run with the levers of the first one.
+    """
+
+    def some_model(x=0.0, u=0.0):
+        return {"y": x + u}
+
+    model = Model("simple", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    scenarios = [Sample("s", u=0.0)]
+
+    with pytest.raises(EMAError, match="same"):
+        evaluators.perform_experiments(
+            model,
+            scenarios=scenarios,
+            policies=[
+                Sample("same", x=0.2),
+                Sample("other", x=0.3),
+                Sample("same", x=0.4),
+            ],
+        )
+
+    # unique names, explicit or generated, are fine
+    _, outcomes = evaluators.perform_experiments(
+        model,
+        scenarios=scenarios,
+        policies=[Sample("a", x=0.2), Sample("b", x=0.4), Sample(x=0.6)],
+    )
+    np.testing.assert_allclose(outcomes["y"], [0.2, 0.4, 0.6])
+
+    experiments, _ = evaluators.perform_experiments(model, scenarios=2, policies=3)
+    assert experiments["policy"].nunique() == 3
+
+    # scenarios are not affected
+    _, outcomes = evaluators.perform_experiments(
+        model,
+        scenarios=[Sample("s", u=0.1), Sample("s", u=0.2)],
+        policies=[Sample("a", x=0.2)],
+    )
+    np.testing.assert_allclose(outcomes["y"], [0.3, 0.4])
+
+
+def test_model_is_initialized_once_for_a_policy():
+    """A model is not initialized again as long as the policy has the same name.
+
+    Initializing a model can be expensive, so this should also hold across
+    calls to perform_experiments.
+    """
+    initialized = []
+
+    class CountingModel(Model):
+        def model_init(self, policy):
+            initialized.append(policy.name)
+            super().model_init(policy)
+
+    def some_model(x=0.0, u=0.0):
+        return {"y": x + u}
+
+    model = CountingModel("counting", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    policies = [Sample("a", x=0.2), Sample("b", x=0.4)]
+    evaluators.perform_experiments(model, scenarios=5, policies=policies)
+    assert initialized == ["a", "b"]
+
+    evaluators.perform_experiments(model, scenarios=5, policies=[policies[1]])
+    evaluators.perform_experiments(model, scenarios=5, policies=[policies[1]])
+    assert initialized == ["a", "b"]
+
+
 def test_perform_experiments_no_uncertainties_multiple_policies():
     """Regression test: model without uncertainties and multiple policies.
 
