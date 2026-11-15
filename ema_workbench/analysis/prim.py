@@ -451,12 +451,13 @@ class BasePrimBox(abc.ABC):
         columns = pd.MultiIndex.from_product(
             [[f"box {i}"], ["min", "max", "qp value", "qp value"]]
         )
-        box_lim = pd.DataFrame(np.zeros((len(uncs), 4)), index=uncs, columns=columns)
-
-        for unc in uncs:
-            values = self.box_lims[i][unc]
-            box_lim.loc[unc] = values.values.tolist() + p_values[unc]
-            box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.nan)
+        # build the rows first, so the min and max column can also contain
+        # the sets of categories for categorical uncertainties
+        rows = [
+            self.box_lims[i][unc].values.tolist() + list(p_values[unc]) for unc in uncs
+        ]
+        box_lim = pd.DataFrame(rows, index=uncs, columns=columns)
+        box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].astype(float).replace(-1, np.nan)
 
         return stats, box_lim
 
@@ -668,6 +669,7 @@ class PrimBox(BasePrimBox):
         """
         super().__init__(prim, box_lims, indices)
         self._resampled = []
+        self._resample_settings = None
 
         # indices van data in box
         self.update(box_lims, indices)
@@ -846,30 +848,50 @@ class PrimBox(BasePrimBox):
     ) -> pd.DataFrame:
         """Calculate resample statistics for candidate box i.
 
+        PRIM is applied to `iterations` random subsets of the data, and the
+        result shows how often each uncertainty is restricted in the boxes found
+        on these subsets that come closest to the coverage and density of box i.
+
+        The boxes found on the subsets are cached, so that different candidate
+        boxes can be scored cheaply against the same subsets. They are reused
+        if `iterations` and `p` are the same as in the previous call and `rng`
+        is None. Otherwise, new subsets are drawn.
+
         Parameters
         ----------
         i : int, optional
+            the index of the candidate box, defaults to the current box
         iterations : int, optional
+            the number of random subsets
         p : float, optional
+            the fraction of the data in each subset
         rng : seed or random number generator, optional
-
+            if given, new subsets are always drawn
 
         Returns
         -------
         DataFrame
 
         """
-        rng = np.random.default_rng(rng)
-
         if i is None:
             i = self._cur_box
 
         x = self.prim.x.loc[self.yi_initial, :]
         y = self.prim.y[self.yi_initial]
 
-        if len(self._resampled) < iterations:
+        # the resampled boxes are cached, so different boxes on the peeling
+        # trajectory can be scored against the same resamples. They are only
+        # reused if they were made with the same settings, and an explicit rng
+        # always results in new resamples.
+        settings = (iterations, p)
+        if rng is not None or settings != self._resample_settings:
+            self._resampled = []
+            self._resample_settings = settings
+        rng = np.random.default_rng(rng)
+
+        if not self._resampled:
             with temporary_filter(__name__, INFO, "find_box"):
-                for j in range(len(self._resampled), iterations):
+                for j in range(iterations):
                     _logger.info(f"resample {j}")
                     index = rng.choice(x.index, size=int(x.shape[0] * p), replace=False)
                     x_temp = x.loc[index, :].reset_index(drop=True)
@@ -1278,6 +1300,15 @@ class BasePrim(sdutil.OutputFormatterMixin):
         # preprocess x
         x = sdutil._drop_uninformative_columns(x)
         x = x.reset_index(drop=True)
+
+        # ensure all numeric columns are float64 or int64, otherwise columns
+        # with another precision are ignored or result in errors
+        for column in x.select_dtypes("floating").columns:
+            if x[column].dtype != np.float64:
+                x[column] = x[column].astype(np.float64)
+        for column in x.select_dtypes("integer").columns:
+            if x[column].dtype != np.int64:
+                x[column] = x[column].astype(np.int64)
 
         x_float = x.select_dtypes([np.float64, float])
         self.x_float = x_float.values
