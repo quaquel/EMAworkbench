@@ -70,24 +70,25 @@ def initializer(*args):
 def setup_logging(queue, log_level):
     """Helper function for enabling logging from the workers to the main process.
 
+    All loggers of the workbench, including module loggers created with
+    get_module_logger, are children of the root logger of the workbench. So,
+    the handler that puts records on the queue is attached to this root logger.
+    Any handlers inherited from the main process, which happens when forking,
+    are removed, so that records are not written twice.
+
     Parameters
     ----------
     queue : multiprocessing.Queue instance
     log_level : int
 
     """
-    # create a logger
-    logger = logging.getLogger(ema_logging.LOGGER_NAME + ".subprocess")
-    ema_logging._logger = logger
+    logger = logging.getLogger(ema_logging.LOGGER_NAME)
     logger.handlers = []
-
-    # add the handler
-    handler = handlers.QueueHandler(queue)
-    handler.setFormatter(ema_logging.LOG_FORMAT)
-    logger.addHandler(handler)
-
-    # set the log_level
+    # The QueueHandler merges the message and its arguments into a string, the
+    # handlers in the main process apply the format, including processName
+    logger.addHandler(handlers.QueueHandler(queue))
     logger.setLevel(log_level)
+    logger.propagate = False
 
 
 def worker(experiment):
