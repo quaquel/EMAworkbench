@@ -357,6 +357,16 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
                 f"File {self.tar_filename} for storing the archives already exists."
             )
 
+        # the compression to use follows from the extension of the filename
+        self._compression = None
+        for extensions, compression in [
+            ((".tar.gz", ".tgz"), "gz"),
+            ((".tar.bz2", ".tbz2"), "bz2"),
+            ((".tar.xz", ".txz"), "xz"),
+        ]:
+            if filename.lower().endswith(extensions):
+                self._compression = compression
+
     def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
         """Add the current archive to the tarball."""
         # broadens the algorithms in platypus we can support automagically
@@ -365,20 +375,41 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
         except AttributeError:
             data = algorithm.result
 
-        # fixme, this opens and closes the tarball everytime
-        #   can't we open in in the init and have a clean way to close it
-        #   on any exit?
-        with tarfile.open(self.tar_filename, "a") as f:
-            archive = to_dataframe(
-                data, self.decision_variable_names, self.outcome_names
-            )
-            stream = io.BytesIO()
-            archive.to_csv(stream, encoding="UTF-8", index=False)
-            stream.seek(0)
-            tarinfo = tarfile.TarInfo(f"{algorithm.nfe}.csv")
-            tarinfo.size = len(stream.getbuffer())
-            tarinfo.mtime = time.time()
-            f.addfile(tarinfo, stream)
+        archive = to_dataframe(data, self.decision_variable_names, self.outcome_names)
+        stream = io.BytesIO()
+        archive.to_csv(stream, encoding="UTF-8", index=False)
+        stream.seek(0)
+        tarinfo = tarfile.TarInfo(f"{algorithm.nfe}.csv")
+        tarinfo.size = len(stream.getbuffer())
+        tarinfo.mtime = time.time()
+
+        if self._compression is None:
+            # fixme, this opens and closes the tarball everytime
+            #   can't we open in in the init and have a clean way to close it
+            #   on any exit?
+            with tarfile.open(self.tar_filename, "a") as f:
+                f.addfile(tarinfo, stream)
+        else:
+            self._add_to_compressed_tarball(tarinfo, stream)
+
+    def _add_to_compressed_tarball(self, tarinfo: tarfile.TarInfo, stream: io.BytesIO):
+        """Add a file to the compressed tarball.
+
+        It is not possible to append to a compressed tarball. So, a new tarball
+        is written with the files stored so far and the new file, which then
+        replaces the existing tarball. The tarball is thus valid at all times.
+
+        """
+        temp_filename = f"{self.tar_filename}.tmp"
+        with tarfile.open(temp_filename, f"w:{self._compression}") as new:
+            if os.path.exists(self.tar_filename):
+                with tarfile.open(
+                    self.tar_filename, f"r:{self._compression}"
+                ) as existing:
+                    for member in existing.getmembers():
+                        new.addfile(member, existing.extractfile(member))
+            new.addfile(tarinfo, stream)
+        os.replace(temp_filename, self.tar_filename)
 
 
 class RuntimeConvergenceTracking(platypus.extensions.FixedFrequencyExtension):
