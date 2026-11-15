@@ -47,6 +47,44 @@ class TestFileModel(unittest.TestCase):
             self.assertEqual(model.policy.name, "test")
 
 
+def test_assignment_replaces_parameters_and_outcomes():
+    """Regression test: assigning to an attribute of a model replaces its content.
+
+    Previously, assignment added to what was already there, so assigning
+    levers twice resulted in the levers of both assignments.
+    """
+    from ema_workbench.em_framework.outcomes import ScalarOutcome
+    from ema_workbench.em_framework.parameters import Constant
+
+    model = Model("assignment", function=lambda **kwargs: {})
+
+    for attribute, first, second in [
+        ("uncertainties", [RealParameter("a", 0, 1)], [RealParameter("b", 0, 1)]),
+        ("levers", [RealParameter("c", 0, 1)], [RealParameter("d", 0, 1)]),
+        ("outcomes", [ScalarOutcome("assign_e")], [ScalarOutcome("assign_f")]),
+        ("constants", [Constant("g", 1)], [Constant("h", 2)]),
+    ]:
+        setattr(model, attribute, first)
+        assert list(getattr(model, attribute).keys()) == [first[0].name]
+
+        setattr(model, attribute, second)
+        assert list(getattr(model, attribute).keys()) == [second[0].name]
+
+        # a single object can be assigned as well
+        setattr(model, attribute, first[0])
+        assert list(getattr(model, attribute).keys()) == [first[0].name]
+
+    # augmented assignment and extend still add
+    model.levers += [RealParameter("d", 0, 1)]
+    assert list(model.levers.keys()) == ["c", "d"]
+    model.levers.extend(RealParameter("i", 0, 1))
+    assert list(model.levers.keys()) == ["c", "d", "i"]
+
+    # assigning the mapping to itself keeps the content
+    model.levers = model.levers
+    assert list(model.levers.keys()) == ["c", "d", "i"]
+
+
 class TestModel(unittest.TestCase):
     def test_init(self):
         model_name = "modelname"
