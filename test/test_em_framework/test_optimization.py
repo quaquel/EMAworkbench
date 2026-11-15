@@ -452,6 +452,8 @@ def test_archive_storage_extension(mocker):
     mocked_tarfile = mocker.patch("ema_workbench.em_framework.optimization.tarfile")
     mocked_archive = mocker.Mock(spec=tarfile.TarFile)
     mocked_tarfile.open.return_value.__enter__.return_value = mocked_archive
+    # the compressed tarball is written to a temporary file that replaces the tarball
+    mocker.patch("ema_workbench.em_framework.optimization.os.replace")
 
     mocked_to_dataframe = mocker.patch(
         "ema_workbench.em_framework.optimization.to_dataframe"
@@ -545,6 +547,66 @@ def test_epsilon_dominated():
 
     with pytest.raises(ValueError):
         epsilon_nondominated(results, [0.05, 0.05, 0.05], problem)
+
+
+@pytest.mark.parametrize(
+    "filename, magic",
+    [
+        ("archives.tar.gz", b"\x1f\x8b"),
+        ("archives.tgz", b"\x1f\x8b"),
+        ("archives.tar.bz2", b"BZh"),
+        ("archives.tar.xz", b"\xfd7zXZ"),
+        ("archives.tar", None),
+    ],
+)
+def test_archive_tarball_is_compressed(tmp_path, filename, magic):
+    """Regression test: the tarball is compressed as its extension indicates.
+
+    Previously, the tarball was never compressed, also not if the filename
+    ended with .tar.gz.
+    """
+    from ema_workbench import Model
+    from ema_workbench.em_framework.optimization import load_archives
+
+    def some_model(x=0.0):
+        return {"compression_test_y": x}
+
+    model = Model("compressionmodel", function=some_model)
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [
+        ScalarOutcome("compression_test_y", kind=ScalarOutcome.MAXIMIZE)
+    ]
+
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.optimize(
+            nfe=95,
+            searchover="levers",
+            epsilons=[0.1],
+            population_size=10,
+            convergence_freq=30,
+            reference=Sample("reference"),
+            filename=filename,
+            directory=tmp_path,
+            rng=42,
+        )
+
+    # only the tarball is left in the directory
+    assert [p.name for p in tmp_path.iterdir()] == [filename]
+
+    with open(tmp_path / filename, "rb") as fh:
+        start = fh.read(6)
+    if magic is None:
+        with tarfile.open(tmp_path / filename, "r:") as archive:
+            assert len(archive.getnames()) == 4
+    else:
+        assert start.startswith(magic)
+
+    # all intermediate archives and the final archive are stored, in order
+    archives = load_archives(tmp_path / filename)
+    assert [nfe for nfe, _ in archives] == [30, 60, 90, 100]
+    for _, archive in archives:
+        assert list(archive.columns) == ["x", "compression_test_y"]
+    pd.testing.assert_frame_equal(archives[-1][1], results)
 
 
 def test_rebuild_platypus_population():
