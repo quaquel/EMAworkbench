@@ -176,7 +176,9 @@ class Logit:
         self.threshold = threshold
 
         # prepare data
-        dummies = pd.get_dummies(x, prefix_sep=self.sep)
+        # ensure everything is a float. By default, the dummies are boolean,
+        # as are any boolean columns in x, which cannot be normalized.
+        dummies = pd.get_dummies(x, prefix_sep=self.sep, dtype=float).astype(float)
 
         self.dummiesmap = {}
         for column, values in self.x.select_dtypes(exclude=np.number).items():

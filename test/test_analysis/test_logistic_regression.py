@@ -45,3 +45,51 @@ def test_logit():
 
     plt.draw()
     plt.close("all")
+
+
+def test_logit_non_numeric_columns():
+    """Regression test: categorical, boolean, and string columns.
+
+    Previously, this raised a TypeError when normalizing the data, because
+    the dummy variables for these columns are boolean.
+    """
+    import numpy as np
+    import pandas as pd
+
+    rng = np.random.default_rng(42)
+    n = 500
+    x = pd.DataFrame(
+        {
+            "a": rng.random(n),
+            "b": rng.random(n),
+            "category": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+            "flag": rng.random(n) > 0.5,
+            "text": rng.choice(["u", "v"], n),
+        }
+    )
+    y = ((x.a > 0.5) & x.flag).values
+
+    logitmodel = lr.Logit(x, y)
+    assert set(logitmodel.feature_names) == {
+        "a",
+        "b",
+        "flag",
+        "category!?!p",
+        "category!?!q",
+        "category!?!r",
+        "text!?!u",
+        "text!?!v",
+    }
+    normalized = logitmodel._normalized.drop(columns="Intercept")
+    assert all(dtype == float for dtype in normalized.dtypes)
+    assert normalized.min().min() == 0
+    assert normalized.max().max() == 1
+
+    logitmodel.run(disp=0)
+    assert len(logitmodel.models) > 0
+    selected = set(logitmodel.models[-1].params.index)
+    assert {"a", "flag"} <= selected
+
+    logitmodel.show_tradeoff()
+    logitmodel.show_threshold_tradeoff(len(logitmodel.models) - 1)
+    plt.close("all")
