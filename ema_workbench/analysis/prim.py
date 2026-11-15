@@ -488,6 +488,15 @@ class BasePrimBox(abc.ABC):
                 "box"
             )
 
+        n_boxes = len(self.box_lims)
+        if not -n_boxes <= i < n_boxes:
+            raise IndexError(
+                f"box {i} does not exist, the trajectory contains {n_boxes} boxes"
+            )
+        if i < 0:
+            # negative indices count from the end of the trajectory
+            i += n_boxes
+
         res_dim = sdutil._determine_restricted_dims(
             self.box_lims[i], self.prim.box_init
         )
