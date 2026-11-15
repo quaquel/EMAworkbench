@@ -583,6 +583,46 @@ class TestRegressionPrim:
         assert column.iloc[0] > column.iloc[-1]
 
 
+def test_inspect_categorical_restriction():
+    """Regression test: inspect a box with a restricted categorical dimension.
+
+    Previously, this raised a TypeError with pandas 3 because the sets of
+    categories were assigned into a DataFrame of floats.
+    """
+    rng = np.random.default_rng(42)
+    n = 1000
+    x = pd.DataFrame(
+        {
+            "a": rng.random(n),
+            "b": rng.random(n),
+            "c": pd.Categorical(rng.choice(["p", "q", "r"], n)),
+        }
+    )
+    y = ((x.a > 0.6) & (x.c != "r")).values
+
+    box = prim.Prim(x, y).find_box()
+    assert box.box_lim["c"][0] == {"p", "q"}
+
+    stats, box_lim = box.inspect(style="data")[0]
+    assert box_lim.loc["c"].iloc[0] == {"p", "q"}
+    assert box_lim.loc["c"].iloc[1] == {"p", "q"}
+    assert box_lim.loc["a"].iloc[0] > 0.5
+    # qp values, -1 is replaced by nan
+    assert box_lim.loc["a"].iloc[2] < 0.05
+    assert np.isnan(box_lim.loc["a"].iloc[3])
+    assert box_lim.loc["c"].iloc[2] < 0.05
+
+    # table and graph style
+    box.inspect(style="table")
+    box.inspect(style="graph")
+    plt.close("all")
+
+    # numeric only still gives floats
+    box = prim.Prim(x[["a", "b"]], y).find_box()
+    stats, box_lim = box.inspect(style="data")[0]
+    assert all(dtype == float for dtype in box_lim.dtypes)
+
+
 def test_pca():
     experiments, outcomes = utilities.load_flu_data()
     y = outcomes["deceased_population_region_1"][:, -1]

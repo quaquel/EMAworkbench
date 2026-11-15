@@ -451,12 +451,13 @@ class BasePrimBox(abc.ABC):
         columns = pd.MultiIndex.from_product(
             [[f"box {i}"], ["min", "max", "qp value", "qp value"]]
         )
-        box_lim = pd.DataFrame(np.zeros((len(uncs), 4)), index=uncs, columns=columns)
-
-        for unc in uncs:
-            values = self.box_lims[i][unc]
-            box_lim.loc[unc] = values.values.tolist() + p_values[unc]
-            box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].replace(-1, np.nan)
+        # build the rows first, so the min and max column can also contain
+        # the sets of categories for categorical uncertainties
+        rows = [
+            self.box_lims[i][unc].values.tolist() + list(p_values[unc]) for unc in uncs
+        ]
+        box_lim = pd.DataFrame(rows, index=uncs, columns=columns)
+        box_lim.iloc[:, 2::] = box_lim.iloc[:, 2::].astype(float).replace(-1, np.nan)
 
         return stats, box_lim
 
