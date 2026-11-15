@@ -530,11 +530,9 @@ def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem) -> list
                 f"Outcome names {missing_outcomes} not found in archive'"
             ) from e
 
-        solution = Solution(problem)
-        solution.variables[:] = [
-            platypus_type.encode(value)
-            for platypus_type, value in zip(problem.types, decision_variables)
-        ]
+        # go via Sample so categorical values are mapped to category indices
+        sample = Sample(**dict(zip(problem.parameter_names, decision_variables)))
+        solution = sample._to_platypus_solution(problem)
         solution.objectives[:] = objectives
         solutions.append(solution)
     return solutions

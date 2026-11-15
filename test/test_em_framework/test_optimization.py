@@ -786,3 +786,30 @@ def test_optimize_categorical_and_boolean_levers(tmp_path):
     best = results.loc[results["y"].idxmax()]
     assert best["c"] == "c"
     assert bool(best["b"]) is True
+
+
+def test_epsilon_nondominated_categorical():
+    """Regression test: archives with categorical and boolean levers can be rebuilt."""
+    decision_variables = [
+        RealParameter("a", 0, 1),
+        CategoricalParameter("c", ["x", "y", "z"]),
+        BooleanParameter("b"),
+    ]
+    objectives = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+    problem = Problem("levers", decision_variables, objectives)
+
+    archive = pd.DataFrame(
+        {"a": [0.1, 0.9], "c": ["x", "z"], "b": [True, False], "y": [1.0, 2.0]}
+    )
+
+    solutions = rebuild_platypus_population(archive, problem)
+    assert solutions[0].variables[1] == [0]
+    assert solutions[1].variables[1] == [2]
+    assert solutions[0].variables[2] == [1]
+    assert solutions[1].variables[2] == [0]
+
+    merged = epsilon_nondominated([archive, archive], [0.1], problem)
+    assert len(merged) == 1
+    assert merged["c"].iloc[0] == "z"
+    assert not merged["b"].iloc[0]
+    assert merged["y"].iloc[0] == 2.0
