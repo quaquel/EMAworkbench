@@ -213,6 +213,28 @@ class TestPrimBox:
 
         box.resample()
 
+    def test_resample_fewer_iterations(self):
+        """Regression test: resample with fewer iterations than a previous call.
+
+        Previously, all boxes from the earlier call were counted, while the
+        scores were scaled by the new number of iterations, resulting in
+        scores above 100 percent.
+        """
+        rng = np.random.default_rng(42)
+        n = 1000
+        x = pd.DataFrame({"a": rng.random(n), "b": rng.random(n), "c": rng.random(n)})
+        y = ((x.a > 0.6) & (x.b < 0.4)).values
+
+        box = prim.Prim(x, y).find_box()
+
+        scores = box.resample(iterations=6, rng=42)
+        assert scores.max().max() <= 100.0 + 1e-9
+        assert scores.loc["a"].max() > 99
+
+        scores = box.resample(iterations=3, rng=42)
+        assert scores.max().max() <= 100.0 + 1e-9
+        assert scores.loc["a"].max() > 99
+
     def test_show_pairs_scatter(self):
         experiments, outcomes = utilities.load_flu_data()
         y = flu_classify(outcomes)

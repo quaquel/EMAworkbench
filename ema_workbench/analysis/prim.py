@@ -892,7 +892,9 @@ class PrimBox(BasePrimBox):
         coverage = self.peeling_trajectory.coverage[i]
         density = self.peeling_trajectory.density[i]
 
-        for box in self._resampled:
+        # there can be more resampled boxes from a previous call with a
+        # higher number of iterations
+        for box in self._resampled[:iterations]:
             coverage_index = (box.peeling_trajectory.coverage - coverage).abs().idxmin()
             density_index = (box.peeling_trajectory.density - density).abs().idxmin()
             for counter, index in zip(counters, [coverage_index, density_index]):
