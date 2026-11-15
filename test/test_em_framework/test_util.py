@@ -173,3 +173,17 @@ def test_named_object_map():
     for entry in map:
         assert entry == map[entry.name]
 
+
+
+def test_namedict_copy_is_independent():
+    """Regression test: a copy of a NamedDict must not share its data."""
+    original = util.NamedDict("a", x=1)
+    copied = original.copy()
+    copied["y"] = 2
+
+    assert "y" not in original
+    assert copied.name == original.name
+
+    combined = original | {"z": 3}
+    assert "z" not in original
+    assert combined["z"] == 3
