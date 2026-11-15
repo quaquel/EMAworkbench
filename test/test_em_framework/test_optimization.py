@@ -118,6 +118,84 @@ def test_problem(mocker):
         Problem(searchover, parameters, robustness_functions, constraints, 10)
 
 
+def test_optimize_uses_fixed_reference(tmp_path):
+    """Regression test: all solutions are evaluated on the same scenario(s).
+
+    Previously, without a reference, optimize sampled a new random scenario
+    for every generation, and robust_optimize with a number of scenarios
+    sampled new scenarios for every generation.
+    """
+    from ema_workbench import Model
+
+    seen = []
+
+    def some_model(x=0.0, u=0.5):
+        seen.append(u)
+        return {"y": x + u}
+
+    model = Model("simple", function=some_model)
+    model.levers = [RealParameter("x", 0, 1)]
+    model.uncertainties = [RealParameter("u", 0, 100)]
+    model.outcomes = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+
+    # no reference: default values of the model
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.optimize(
+            nfe=50,
+            searchover="levers",
+            epsilons=[0.1],
+            population_size=10,
+            filename="archive.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+    assert set(seen) == {0.5}
+    np.testing.assert_allclose(results["y"], results["x"] + 0.5)
+
+    # explicit reference
+    seen.clear()
+    with SequentialEvaluator(model) as evaluator:
+        evaluator.optimize(
+            nfe=50,
+            searchover="levers",
+            epsilons=[0.1],
+            population_size=10,
+            reference=Sample("ref", u=10),
+            filename="archive_ref.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+    assert set(seen) == {10}
+
+    # robust optimization with a number of scenarios
+    seen.clear()
+    robustness_functions = [
+        ScalarOutcome(
+            "mean_y", kind=ScalarOutcome.MAXIMIZE, variable_name="y", function=np.mean
+        )
+    ]
+    with SequentialEvaluator(model) as evaluator:
+        evaluator.robust_optimize(
+            robustness_functions,
+            4,
+            nfe=50,
+            population_size=10,
+            epsilons=[0.1],
+            filename="archive_robust.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+    assert len(set(seen)) == 4
+
+
+def test_problem_robust_requires_scenarios():
+    """Robust optimization without scenarios is not possible."""
+    decision_variables = [RealParameter("a", 0, 1)]
+    objectives = [ScalarOutcome("x", kind=ScalarOutcome.MAXIMIZE)]
+    with pytest.raises(ValueError):
+        Problem("robust", decision_variables, objectives)
+
+
 def test_to_dataframe(mocker):
     """Test to_dataframe function."""
     mocked_platypus = mocker.patch("ema_workbench.em_framework.optimization.platypus")
@@ -181,7 +259,8 @@ def test_process_jobs(mocker):
         jobs.append(job)
 
     scenarios, policies = process_jobs(jobs)
-    assert scenarios == 1
+    assert isinstance(scenarios, Sample)
+    assert len(scenarios) == 0
     assert len(policies) == len(jobs)
 
     problem = Problem("uncertainties", decision_variables, outcomes)
@@ -197,7 +276,8 @@ def test_process_jobs(mocker):
 
     scenarios, policies = process_jobs(jobs)
     assert len(scenarios) == len(jobs)
-    assert policies == 1
+    assert isinstance(policies, Sample)
+    assert len(policies) == 0
 
     problem = Problem("robust", decision_variables, outcomes, reference=10)
     jobs = []

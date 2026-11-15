@@ -99,8 +99,10 @@ class Problem(PlatypusProblem):
         """Init."""
         if constraints is None:
             constraints = []
-        if reference is None:
-            reference = 1
+        no_reference = reference is None
+        if no_reference:
+            # an empty sample, so the default values of the model are used
+            reference = Sample("reference")
 
         if not isinstance(decision_variables, ParameterMap):
             dv = ParameterMap()
@@ -116,7 +118,7 @@ class Problem(PlatypusProblem):
         #    just flip to robust if reference is an iterable
         #    handle most value error checks inside optimize and robust_optimize instead of here
         if (searchover == "robust") and (
-            (reference == 1) or isinstance(reference, Sample)
+            no_reference or (reference == 1) or isinstance(reference, Sample)
         ):
             raise ValueError(
                 "you cannot use a no or a  single reference scenario for robust optimization"

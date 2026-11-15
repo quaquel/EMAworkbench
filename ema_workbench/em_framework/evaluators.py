@@ -671,7 +671,9 @@ def optimize(
     reference : Sample instance, optional
                 overwrite the default scenario in case of searching over
                 levers, or default policy in case of searching over
-                uncertainties
+                uncertainties. If no reference is provided, the default
+                values of the model are used for all parameters that are
+                not searched over.
     constraints : list, optional
     convergence_freq :  int
                         nfe between convergence check
@@ -820,6 +822,9 @@ def robust_optimize(
     model : model instance
     robustness_functions : collection of ScalarOutcomes
     scenarios : int, or collection
+                if int, this number of scenarios is sampled once using
+                latin hypercube sampling. The same scenarios are used
+                for evaluating all candidate solutions.
     kwargs : any additional arguments will be passed on to algorithm
 
     Raises
@@ -836,6 +841,11 @@ def robust_optimize(
         assert isinstance(rf, ScalarOutcome)
         assert rf.kind != Outcome.INFO
         assert rf.function is not None
+
+    if isinstance(scenarios, numbers.Integral):
+        # sample the scenarios once, so all candidate solutions in all generations
+        # are evaluated on the same set of scenarios
+        scenarios = LHSSampler().generate_samples(model.uncertainties, scenarios)
 
     problem = Problem(
         "robust", model.levers, robustness_functions, constraints, reference=scenarios
