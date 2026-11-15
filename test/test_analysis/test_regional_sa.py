@@ -8,6 +8,7 @@ import unittest
 import matplotlib.pyplot as plt
 
 from ema_workbench.analysis import regional_sa
+from ema_workbench.util import EMAError
 from test import utilities
 
 
@@ -57,6 +58,14 @@ class Test(unittest.TestCase):
         # with more than one policy, the policy is included
         experiments["policy"] = pd.Categorical(rng.choice(["p", "q"], n))
         self.assertEqual(count_plots(regional_sa.plot_cdfs(experiments, y)), 3)
+
+        # like in the other scenario discovery techniques, columns with a
+        # single value are dropped
+        experiments["constant"] = 1.0
+        self.assertEqual(count_plots(regional_sa.plot_cdfs(experiments, y)), 3)
+
+        with self.assertRaises(EMAError):
+            regional_sa.plot_cdfs(experiments[["scenario", "model", "constant"]], y)
         plt.close("all")
 
     def test_plot__individual_cdf(self):

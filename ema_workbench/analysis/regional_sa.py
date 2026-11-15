@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+from . import scenario_discovery_util as sdutil
+
 # Created on Aug 18, 2015
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
@@ -230,15 +232,10 @@ def plot_cdfs(x, y, ccdf=False):
     a matplotlib Figure instance
 
     """
-    x = x.copy()
-
-    # the id of the scenario is not an uncertain factor
-    x = x.drop(columns=[c for c in ("scenario", "scenario_id") if c in x.columns])
-
-    # model and policy are only relevant if there is more than one
-    for entry in ["model", "policy"]:
-        if entry in x.columns and x[entry].nunique() == 1:
-            x = x.drop(columns=entry)
+    # drop the id of the scenario, and any column with fewer than two distinct
+    # values, such as model or policy if there is only one of each, as in the
+    # other scenario discovery techniques
+    x = sdutil._drop_uninformative_columns(x)
 
     uncs = x.columns.tolist()
     # cp = sns.color_palette() # FIXME?? should this be used?
