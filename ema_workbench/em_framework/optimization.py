@@ -37,6 +37,7 @@ from platypus import (
 from platypus import Problem as PlatypusProblem
 
 from ..util import INFO, EMAError, get_module_logger, temporary_filter
+from ..util.utilities import determine_compression
 from . import callbacks, evaluators
 from .outcomes import Constraint, ScalarOutcome
 from .parameters import (
@@ -357,15 +358,9 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
                 f"File {self.tar_filename} for storing the archives already exists."
             )
 
-        # the compression to use follows from the extension of the filename
-        self._compression = None
-        for extensions, compression in [
-            ((".tar.gz", ".tgz"), "gz"),
-            ((".tar.bz2", ".tbz2"), "bz2"),
-            ((".tar.xz", ".txz"), "xz"),
-        ]:
-            if filename.lower().endswith(extensions):
-                self._compression = compression
+        # the compression to use follows from the extension of the filename.
+        # Without a recognized compression the tarball is not compressed.
+        self._compression = determine_compression(filename) or None
 
     def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
         """Add the current archive to the tarball."""

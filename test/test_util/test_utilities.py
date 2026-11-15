@@ -4,6 +4,7 @@
 """
 
 import os
+import tarfile
 import unittest
 
 import numpy as np
@@ -143,6 +144,89 @@ class LoadResultsTestCase(unittest.TestCase):
         self.assertTrue(np.all(np.allclose(outcomes["b"], outcome_b)))
         self.assertTrue(np.all(np.allclose(experiments["x"], loaded_experiments["x"])))
         self.assertTrue(np.all(np.allclose(experiments["y"], loaded_experiments["y"])))
+
+
+def test_save_results_compression(tmp_path):
+    """Regression test: the compression follows from the extension.
+
+    Previously, results were always saved with gzip, and load_results could
+    only read gzip compressed tarballs.
+    """
+    import pytest  # noqa: PLC0415
+
+    experiments = pd.DataFrame(
+        {
+            "x": [0.1, 0.2, 0.3],
+            "c": pd.Categorical(["a", "b", "a"]),
+            "i": [1, 2, 3],
+        }
+    )
+    ScalarOutcome("compression_scalar")
+    ArrayOutcome("compression_array")
+    outcomes = {
+        "compression_scalar": np.array([1.0, 2.0, 3.0]),
+        "compression_array": np.arange(24.0).reshape(3, 2, 4),
+    }
+
+    for name, magic in [
+        ("results.tar.gz", b"\x1f\x8b"),
+        ("results.tgz", b"\x1f\x8b"),
+        ("results.tar.bz2", b"BZh"),
+        ("results.tbz2", b"BZh"),
+        ("results.tar.xz", b"\xfd7zXZ"),
+        ("results.txz", b"\xfd7zXZ"),
+        ("RESULTS.TAR.XZ", b"\xfd7zXZ"),
+        ("results.tar", None),
+        # an extension that is not recognized uses gzip, as before
+        ("results", b"\x1f\x8b"),
+        ("results.dat", b"\x1f\x8b"),
+    ]:
+        file_name = tmp_path / name
+        save_results((experiments, outcomes), file_name)
+
+        with open(file_name, "rb") as fh:
+            start = fh.read(6)
+        if magic is None:
+            assert not start.startswith((b"\x1f\x8b", b"BZh", b"\xfd7zXZ"))
+            with tarfile.open(file_name, "r:") as archive:
+                assert "metadata.json" in archive.getnames()
+        else:
+            assert start.startswith(magic), name
+
+        loaded_experiments, loaded_outcomes = load_results(file_name)
+        pd.testing.assert_frame_equal(experiments, loaded_experiments)
+        assert set(loaded_outcomes) == set(outcomes)
+        for key, value in outcomes.items():
+            np.testing.assert_array_equal(loaded_outcomes[key], value)
+
+        file_name.unlink()
+
+    # load_results detects the compression, regardless of the extension
+    save_results((experiments, outcomes), tmp_path / "results.tar.bz2")
+    os.rename(tmp_path / "results.tar.bz2", tmp_path / "misnamed.tar.gz")
+    loaded_experiments, _ = load_results(tmp_path / "misnamed.tar.gz")
+    pd.testing.assert_frame_equal(experiments, loaded_experiments)
+
+    with pytest.raises(FileNotFoundError):
+        load_results(tmp_path / "does_not_exist.tar.gz")
+
+
+def test_determine_compression():
+    """Tests for determine_compression."""
+    from pathlib import Path  # noqa: PLC0415
+
+    from ema_workbench.util.utilities import determine_compression  # noqa: PLC0415
+
+    assert determine_compression("a.tar.gz") == "gz"
+    assert determine_compression("a.TGZ") == "gz"
+    assert determine_compression(Path("dir") / "a.tar.bz2") == "bz2"
+    assert determine_compression("a.tbz2") == "bz2"
+    assert determine_compression("a.tar.xz") == "xz"
+    assert determine_compression("a.txz") == "xz"
+    assert determine_compression("a.tar") == ""
+    assert determine_compression("a.gz") is None
+    assert determine_compression("a.zip") is None
+    assert determine_compression("a") is None
 
 
 class ExperimentsToScenariosTestCase(unittest.TestCase):

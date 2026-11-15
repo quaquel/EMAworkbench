@@ -19,11 +19,42 @@ from . import EMAError, get_module_logger
 __all__ = ["load_results", "merge_results", "process_replications", "save_results"]
 _logger = get_module_logger(__name__)
 
+# file extensions and the compression they indicate for tarfile
+_COMPRESSION_EXTENSIONS = [
+    ((".tar.gz", ".tgz"), "gz"),
+    ((".tar.bz2", ".tbz2"), "bz2"),
+    ((".tar.xz", ".txz"), "xz"),
+    ((".tar",), ""),
+]
+
+
+def determine_compression(file_name: str | os.PathLike) -> str | None:
+    """Determine the compression of a tarball from the extension of its name.
+
+    Parameters
+    ----------
+    file_name : the name or path of the tarball
+
+    Returns
+    -------
+    str or None
+        "gz", "bz2", or "xz" for a compressed tarball, an empty string for an
+        uncompressed tarball (.tar), and None if the extension is not
+        recognized
+
+    """
+    name = os.fspath(file_name).lower()
+    for extensions, compression in _COMPRESSION_EXTENSIONS:
+        if name.endswith(extensions):
+            return compression
+    return None
+
 
 def load_results(file_name: str) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
-    """Load the specified tar.gz file.
+    """Load the results from the specified tarball.
 
-    the file is assumed to be saves using save_results.
+    The file is assumed to be saved using save_results. The compression of
+    the tarball (gzip, bzip2, lzma, or none) is detected automatically.
 
     Parameters
     ----------
@@ -39,7 +70,8 @@ def load_results(file_name: str) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
 
     file_name = os.path.abspath(file_name)
 
-    with tarfile.open(file_name, "r:gz", encoding="UTF8") as archive:
+    # detect the compression automatically, regardless of the extension
+    with tarfile.open(file_name, "r:*", encoding="UTF8") as archive:
         try:
             f = archive.extractfile("metadata.json")
         except KeyError:
@@ -172,11 +204,15 @@ def load_results_old(archive):
 
 
 def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name: str) -> None:
-    """Save the results to the specified tar.gz file.
+    """Save the results to the specified tarball.
 
     The way in which results are stored depends. Experiments are saved
     as csv. Outcomes depend on the outcome type. Scalar, and <3D arrays are
     saved as csv files. Higher dimensional arrays are stored as .npy files.
+
+    The compression follows from the extension of the file name: .tar.gz or
+    .tgz for gzip, .tar.bz2 or .tbz2 for bzip2, .tar.xz or .txz for lzma, and
+    .tar for no compression. Any other extension uses gzip.
 
     Parameters
     ----------
@@ -201,8 +237,13 @@ def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name:
         tarinfo.size = len(stream.getbuffer())
         tararchive.addfile(tarinfo, stream)
 
+    compression = determine_compression(file_name)
+    if compression is None:
+        # extension not recognized, so use gzip as before
+        compression = "gz"
+
     experiments, outcomes = results
-    with tarfile.open(file_name, "w:gz") as z:
+    with tarfile.open(file_name, f"w:{compression}") as z:
         # store experiments
         stream = BytesIO()
         stream.write(
