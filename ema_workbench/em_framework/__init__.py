@@ -1,7 +1,5 @@
 """em_framework namespace."""
 
-import warnings
-
 __all__ = [
     "ArrayOutcome",
     "AutoAdaptiveOutputSpaceExplorationAlgorithm",
@@ -93,10 +91,16 @@ from .samplers import (
 try:
     from .futures_ipyparallel import IpyparallelEvaluator
 except ImportError:
-    warnings.warn(
-        "ipyparallel not installed - IpyparalleEvaluator not available", stacklevel=2
-    )
-    IpyparallelEvaluator = None
+    # no warning at import, which every worker process would repeat when
+    # running experiments in parallel. Instead, using it raises an ImportError.
+    class IpyparallelEvaluator:
+        """Placeholder for the IpyparallelEvaluator, ipyparallel is not installed."""
+
+        def __init__(self, *args, **kwargs):
+            raise ImportError(
+                "IpyparallelEvaluator requires ipyparallel, install it with "
+                "pip install ema_workbench[parallel]"
+            )
 
 from .futures_mpi import MPIEvaluator
 from .futures_multiprocessing import MultiprocessingEvaluator
@@ -104,5 +108,3 @@ from .outputspace_exploration import (
     AutoAdaptiveOutputSpaceExplorationAlgorithm,
     OutputSpaceExplorationAlgorithm,
 )
-
-del warnings

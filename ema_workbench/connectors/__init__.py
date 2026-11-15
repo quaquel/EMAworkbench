@@ -1,11 +1,26 @@
-"""Connectors for various modeling packages."""
+"""Connectors for various modeling packages.
 
+Each connector is a module of this package, for example
+``ema_workbench.connectors.vensim``, which is imported on first use. A
+connector of which the dependencies are not installed raises an ImportError
+when it is imported, so there are no warnings for connectors that are not
+used. This also avoids that every worker process repeats such warnings when
+running experiments in parallel.
+
+"""
+
+import importlib
 import warnings
 from contextlib import contextmanager
 
-from ema_workbench import EMAError
-
-warnings.simplefilter("once", ImportWarning)
+__all__ = [
+    "excel",
+    "netlogo",
+    "pysd_connector",
+    "simio_connector",
+    "vadere",
+    "vensim",
+]
 
 
 @contextmanager
@@ -16,33 +31,8 @@ def catch_and_ignore_import_warning():
         yield
 
 
-try:
-    from . import vensim  # noqa F401
-except ImportError:
-    warnings.warn("vensim connector not available", ImportWarning, stacklevel=2)
-
-try:
-    from . import excel  # noqa F401
-except ImportError:
-    warnings.warn("excel connector not available", ImportWarning, stacklevel=2)
-
-try:
-    from . import netlogo  # noqa F401
-except ImportError:
-    warnings.warn("netlogo connector not available", ImportWarning, stacklevel=2)
-
-try:
-    from . import simio_connector  # noqa F401
-except ImportError:
-    warnings.warn("simio connector not available", ImportWarning, stacklevel=2)
-except EMAError:
-    warnings.warn(
-        "simio not found, connector not available", ImportWarning, stacklevel=2
-    )
-
-
-with catch_and_ignore_import_warning():
-    try:
-        from . import pysd_connector  # noqa F401
-    except ImportError:
-        warnings.warn("pysd connector not available", ImportWarning, stacklevel=2)
+def __getattr__(name):
+    """Import a connector on first use, e.g. ``connectors.vensim``."""
+    if name in __all__:
+        return importlib.import_module(f".{name}", __name__)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
