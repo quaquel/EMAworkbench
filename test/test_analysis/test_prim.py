@@ -390,6 +390,27 @@ class TestPrim:
         )
         assert after_find, prim_obj.y.shape[0]
 
+    def test_guivarch_does_not_change_y(self):
+        """Regression test: the guivarch update function should not change y.
+
+        Previously, the cases of interest in the boxes that were found were
+        set to zero in the y array of the user.
+        """
+        rng = np.random.default_rng(42)
+        n = 1000
+        x = pd.DataFrame({"a": rng.random(n), "b": rng.random(n), "c": rng.random(n)})
+        y = ((x.a > 0.6) & (x.b < 0.4)).values
+        y_original = y.copy()
+
+        prim_obj = prim.Prim(x, y, update_function="guivarch")
+        box_1 = prim_obj.find_box()
+        prim_obj.find_box()
+
+        np.testing.assert_array_equal(y, y_original)
+        # cases of interest in the first box are no longer of interest
+        assert box_1.yi.shape[0] > 0
+        assert not prim_obj.y[box_1.yi].any()
+
     def test_discrete_peel(self):
         x = pd.DataFrame(
             np.random.randint(0, 10, size=(100,), dtype=int), columns=["a"]
