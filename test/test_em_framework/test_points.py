@@ -224,6 +224,36 @@ def test_sample_collection():
         it3 = it1 + it2
 
 
+def test_sample_collection_concat_parameter_order():
+    """Regression test: concat with parameters in a different order.
+
+    Previously, the samples were stacked column by column, so values ended
+    up under the wrong parameter.
+    """
+    a = RealParameter("a", 0, 1)
+    b = RealParameter("b", 10, 11, shape=(2,))
+    c = IntegerParameter("c", 100, 110)
+
+    first = SampleCollection(np.array([[0.1, 10.1, 10.2, 101]]), [a, b, c])
+    second = SampleCollection(np.array([[102, 10.3, 10.4, 0.2]]), [c, b, a])
+
+    combined = first.concat(second)
+    assert [p.name for p in combined.parameters] == ["a", "b", "c"]
+    np.testing.assert_allclose(
+        combined.samples, [[0.1, 10.1, 10.2, 101], [0.2, 10.3, 10.4, 102]]
+    )
+    samples = list(combined)
+    assert samples[1]["a"] == 0.2
+    assert samples[1]["c"] == 102
+    np.testing.assert_allclose(samples[1]["b"], [10.3, 10.4])
+
+    # parameters missing in either of the two collections
+    with pytest.raises(ValueError):
+        first.concat(SampleCollection(np.array([[0.1]]), [a]))
+    with pytest.raises(ValueError):
+        SampleCollection(np.array([[0.1]]), [a]).concat(first)
+
+
 def test_sample_collection_getitem():
     """Test SampleCollection.__getitem__."""
     rng = np.random.default_rng(42)
