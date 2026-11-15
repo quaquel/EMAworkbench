@@ -64,6 +64,36 @@ class TestPrimBox:
         box.select(0)
         assert np.all(box.yi == prim_obj.yi)
 
+    def test_select_negative_index(self):
+        """Regression test: selecting a box with a negative index.
+
+        Previously, the box limits were updated, but accessing coverage,
+        density, or inspecting the box raised a KeyError.
+        """
+        rng = np.random.default_rng(42)
+        n = 1000
+        x = pd.DataFrame({"a": rng.random(n), "b": rng.random(n), "c": rng.random(n)})
+        y = ((x.a > 0.6) & (x.b < 0.4)).values
+
+        box = prim.Prim(x, y).find_box()
+        n_boxes = len(box.peeling_trajectory)
+
+        box.select(-1)
+        assert box.coverage == box.peeling_trajectory["coverage"].iloc[-1]
+        assert box.density == box.peeling_trajectory["density"].iloc[-1]
+        assert box.box_lim.equals(box.box_lims[-1])
+
+        box.select(-3)
+        assert box._cur_box == n_boxes - 3
+        assert box.coverage == box.peeling_trajectory["coverage"].iloc[-3]
+        box.inspect()
+
+        with pytest.raises(IndexError):
+            box.select(n_boxes)
+        with pytest.raises(IndexError):
+            box.select(-n_boxes - 1)
+        assert box._cur_box == n_boxes - 3
+
     def test_inspect(self):
         x = pd.DataFrame([(0, 1, 2), (2, 5, 6), (3, 2, 1)], columns=["a", "b", "c"])
         y = np.array([1, 1, 0])
