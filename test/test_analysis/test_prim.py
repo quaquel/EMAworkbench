@@ -690,6 +690,43 @@ class TestRegressionPrim:
             prim.RegressionPrim(x, y, update_function="guivarch")
 
 
+def test_numeric_dtypes():
+    """Regression test: numeric columns that are not float64 or int64.
+
+    Previously, a float32 column raised a TypeError with pandas 3, and
+    integer columns other than int32 and int64 were silently ignored.
+    """
+    rng = np.random.default_rng(42)
+    n = 1000
+    x = pd.DataFrame(
+        {
+            "a": rng.random(n).astype(np.float32),
+            "b": rng.random(n),
+            "i": rng.integers(0, 10, n).astype(np.int16),
+            "j": rng.integers(0, 10, n).astype(np.uint8),
+        }
+    )
+    x_original = x.copy()
+
+    # depends only on the float32 column
+    box = prim.Prim(x, (x.a > 0.6).values).find_box()
+    assert box.density > 0.95
+    assert box.box_lim["a"][0] > 0.5
+
+    # depends only on the int16 column
+    box = prim.Prim(x, (x.i > 6).values).find_box()
+    assert box.density > 0.95
+    assert box.box_lim["i"][0] > 6
+
+    # depends only on the uint8 column
+    box = prim.Prim(x, (x.j < 3).values).find_box()
+    assert box.density > 0.95
+    assert box.box_lim["j"][1] < 3
+
+    # the data of the user is not changed
+    pd.testing.assert_frame_equal(x, x_original)
+
+
 def test_inspect_tradeoff_without_altair(monkeypatch):
     experiments, outcomes = utilities.load_flu_data()
     box = prim.Prim(experiments, flu_classify(outcomes)).find_box()

@@ -1279,6 +1279,15 @@ class BasePrim(sdutil.OutputFormatterMixin):
         x = sdutil._drop_uninformative_columns(x)
         x = x.reset_index(drop=True)
 
+        # ensure all numeric columns are float64 or int64, otherwise columns
+        # with another precision are ignored or result in errors
+        for column in x.select_dtypes("floating").columns:
+            if x[column].dtype != np.float64:
+                x[column] = x[column].astype(np.float64)
+        for column in x.select_dtypes("integer").columns:
+            if x[column].dtype != np.int64:
+                x[column] = x[column].astype(np.int64)
+
         x_float = x.select_dtypes([np.float64, float])
         self.x_float = x_float.values
         self.x_float_colums = x_float.columns.values
