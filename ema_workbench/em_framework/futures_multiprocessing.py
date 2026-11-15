@@ -152,51 +152,60 @@ class LogQueueReader(threading.Thread):
 class ExperimentFeeder(threading.Thread):
     """Thread for feeding experiments to pool."""
 
-    def __init__(self, pool, results_queue, experiments):
+    def __init__(self, pool, results_queue, experiments, stop_event):
         """Init."""
         threading.Thread.__init__(self, name="task feeder")
         self.pool = pool
         self.experiments = experiments
         self.results_queue = results_queue
-
+        self.stop_event = stop_event
         self.daemon = True
 
     def run(self):
         """Run the task feeder."""
         for experiment in self.experiments:
+            if self.stop_event.is_set():
+                # an experiment has failed, so no need to submit the rest
+                break
             result = self.pool.apply_async(worker, [experiment])
             self.results_queue.put(result)
 
 
 class ResultsReader(threading.Thread):
-    """Thread for reading results from the results queue."""
+    """Thread for reading results from the results queue.
 
-    def __init__(self, queue, callback):
+    If retrieving a result or handling it in the callback raises an exception,
+    the first exception is stored on the exception attribute and the stop
+    event is set. The reader keeps emptying the queue, so the feeder can never
+    block on a full queue.
+
+    """
+
+    def __init__(self, queue, callback, stop_event):
         """Init."""
         threading.Thread.__init__(self, name="results reader")
         self.queue = queue
         self.callback = callback
+        self.stop_event = stop_event
+        self.exception = None
         self.daemon = True
 
     def run(self):
         """Run the results reader."""
         while True:
-            try:
-                result = self.queue.get()
-                # get the logger for this record
-                if result is None:
-                    _logger.debug("no record received from queue")
-                    break
+            result = self.queue.get()
+            if result is None:
+                _logger.debug("no record received from queue")
+                break
+            if self.exception is not None:
+                # we only drain the queue after a failure
+                continue
 
+            try:
                 self.callback(*result.get())
-            except (KeyboardInterrupt, SystemExit):
-                raise
-            except EOFError:
-                break
-            except TypeError:
-                break
-            except BaseException:
-                traceback.print_exc(file=sys.stderr)
+            except BaseException as e:
+                self.exception = e
+                self.stop_event.set()
 
 
 def add_tasks(n_processes, pool, experiments, callback):
@@ -209,19 +218,29 @@ def add_tasks(n_processes, pool, experiments, callback):
     experiments : collection
     callback : callable
 
+    Raises
+    ------
+    Exception
+        the first exception raised while running an experiment or while
+        handling its results in the callback.
+
     """
     # by limiting task queue, we avoid putting all experiments on queue in
     # one go
     results_queue = queue.Queue(maxsize=5 * n_processes)
+    stop_event = threading.Event()
 
-    feeder = ExperimentFeeder(pool, results_queue, experiments)
-    reader = ResultsReader(results_queue, callback)
+    feeder = ExperimentFeeder(pool, results_queue, experiments, stop_event)
+    reader = ResultsReader(results_queue, callback, stop_event)
     feeder.start()
     reader.start()
 
     feeder.join()
     results_queue.put(None)
     reader.join()
+
+    if reader.exception is not None:
+        raise reader.exception
 
 
 class MultiprocessingEvaluator(BaseEvaluator):

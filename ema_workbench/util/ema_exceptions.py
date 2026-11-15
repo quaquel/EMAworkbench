@@ -10,7 +10,7 @@ In line with advice given in `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`
 __all__ = ["EMAError", "EMAParallelError", "EMAWarning", "ExperimentError"]
 
 
-class EMAError(BaseException):
+class EMAError(Exception):
     """Base EMA error."""
 
     def __init__(self, *args):

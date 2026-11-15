@@ -101,6 +101,9 @@ class ExperimentRunner:
             model.run_model(scenario, policy, constants)
         except ExperimentError as e:
             _logger.warning(str(e))
+        except EMAError:
+            # EMAErrors raised by the model are reraised as is
+            raise
         except Exception as e:
             _logger.exception(str(e))
             try:
