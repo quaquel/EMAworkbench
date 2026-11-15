@@ -545,28 +545,41 @@ def parameters_to_csv(parameters, file_name):
     The function iterates over the collection and turns these into a data
     frame prior to storing them. The resulting csv can be loaded using the
     parameters_from_csv function. Note that currently we don't store resolution
-    and default attributes.
+    and default attributes. The values of the categories of a categorical
+    parameter are read back as strings.
 
     """
     params = {}
 
     for i, param in enumerate(parameters):
-        if isinstance(param, CategoricalParameter):
-            values = param.resolution
+        if isinstance(param, BooleanParameter):
+            kind = "bool"
+            values = ()
+        elif isinstance(param, CategoricalParameter):
+            kind = "cat"
+            values = [category.value for category in param.categories]
+        elif isinstance(param, IntegerParameter):
+            kind = "int"
+            values = param.lower_bound, param.upper_bound
         else:
+            kind = "real"
             values = param.lower_bound, param.upper_bound
 
         dict_repr = dict(enumerate(values))
         dict_repr["name"] = param.name
+        dict_repr["type"] = kind
 
         params[i] = dict_repr
 
     params = pd.DataFrame.from_dict(params, orient="index")
+    # keep the order of the parameters
+    params = params.sort_index()
 
-    # for readability it is nice if name is the first column, so let's
-    # ensure this
+    # for readability it is nice if name and type are the first columns, so
+    # let's ensure this
     cols = params.columns.tolist()
-    cols.insert(0, cols.pop(cols.index("name")))
+    for entry in ["type", "name"]:
+        cols.insert(0, cols.pop(cols.index(entry)))
     params = params.reindex(columns=cols)
 
     # we can now safely write the dataframe to a csv
@@ -616,13 +629,6 @@ def parameters_from_csv(uncertainties, **kwargs):
     else:
         uncertainties = uncertainties.copy()
 
-    parameter_map = {
-        "int": IntegerParameter,
-        "real": RealParameter,
-        "cat": CategoricalParameter,
-        "bool": BooleanParameter,
-    }
-
     # check if names column is there
     if ("NAME" not in uncertainties) and ("name" not in uncertainties):
         raise IndexError("name column missing")
@@ -659,20 +665,37 @@ def parameters_from_csv(uncertainties, **kwargs):
                 if isinstance(l, numbers.Integral) and isinstance(u, numbers.Integral):
                     type = "int"  # @ReservedAssignment
                 else:
-                    type = "real"  # @ReservedAssignment
+                    try:
+                        float(l), float(u)
+                    except ValueError:
+                        # two values that are not numbers
+                        type = "cat"  # @ReservedAssignment
+                    else:
+                        type = "real"  # @ReservedAssignment
 
         else:
             type = types[i]  # @ReservedAssignment
 
-            if (type != "cat") and (len(values) != 2):
+            if (type not in {"cat", "bool"}) and (len(values) != 2):
                 raise ValueError(
-                    f"Too many values specified for {name}, is {values.shape[0]}, should be 2"
+                    f"Wrong number of values specified for {name}, is {values.shape[0]}, should be 2"
                 )
 
+        # if any of the parameters is categorical, the columns with values
+        # contain strings, so numbers have to be converted explicitly
         if type == "cat":
-            uncs.append(parameter_map[type](name, values))
+            uncs.append(CategoricalParameter(name, values.tolist()))
+        elif type == "bool":
+            uncs.append(BooleanParameter(name))
+        elif type == "int":
+            lower, upper = (float(value) for value in values)
+            if not (lower.is_integer() and upper.is_integer()):
+                raise ValueError(
+                    f"Lower bound and upper bound of {name} must be integers"
+                )
+            uncs.append(IntegerParameter(name, int(lower), int(upper)))
         else:
-            uncs.append(parameter_map[type](name, *values))
+            uncs.append(RealParameter(name, *(float(value) for value in values)))
     return uncs
 
 

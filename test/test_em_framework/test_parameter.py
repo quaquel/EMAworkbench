@@ -228,6 +228,68 @@ if __name__ == "__main__":
     unittest.main()
 
 
+def test_parameters_csv_round_trip(tmp_path):
+    """Regression test: parameters written to csv can be read back.
+
+    Previously, the type of the parameter was not stored, the indices
+    rather than the values of the categories were stored, and reading a
+    csv with a categorical parameter failed.
+    """
+    params = [
+        parameters.RealParameter("a", 0, 1.5),
+        parameters.IntegerParameter("b", 1, 9),
+        parameters.CategoricalParameter("c", ["x", "y", "z"]),
+        parameters.BooleanParameter("d"),
+        parameters.RealParameter("e", 1, 2),
+    ]
+    file_name = str(tmp_path / "parameters.csv")
+    parameters.parameters_to_csv(params, file_name)
+    loaded = parameters.parameters_from_csv(file_name)
+
+    assert [type(p) for p in loaded] == [type(p) for p in params]
+    assert [p.name for p in loaded] == [p.name for p in params]
+    for original, new in zip(params, loaded):
+        assert new.lower_bound == original.lower_bound
+        assert new.upper_bound == original.upper_bound
+    assert [c.value for c in loaded[2].categories] == ["x", "y", "z"]
+    assert [c.value for c in loaded[3].categories] == [False, True]
+    assert isinstance(loaded[1].lower_bound, int)
+
+
+def test_parameters_from_csv_docstring_example(tmp_path):
+    """Regression test: the example from the docstring of parameters_from_csv."""
+    import pytest
+
+    file_name = tmp_path / "parameters.csv"
+    file_name.write_text(
+        "NAME,TYPE,,,\n"
+        "a_real,real,0,1.1,\n"
+        "an_int,int,1,9,\n"
+        "a_categorical,cat,a,b,c\n"
+    )
+    loaded = parameters.parameters_from_csv(str(file_name))
+
+    assert isinstance(loaded[0], parameters.RealParameter)
+    assert (loaded[0].lower_bound, loaded[0].upper_bound) == (0, 1.1)
+    assert isinstance(loaded[1], parameters.IntegerParameter)
+    assert (loaded[1].lower_bound, loaded[1].upper_bound) == (1, 9)
+    assert isinstance(loaded[2], parameters.CategoricalParameter)
+    assert [c.value for c in loaded[2].categories] == ["a", "b", "c"]
+
+    # without a type column, the type is inferred
+    file_name.write_text("name,,,\na_real,0,1.1,\na_categorical,a,b,c\ntwo_cats,a,b,\n")
+    loaded = parameters.parameters_from_csv(str(file_name))
+    assert [type(p) for p in loaded] == [
+        parameters.RealParameter,
+        parameters.CategoricalParameter,
+        parameters.CategoricalParameter,
+    ]
+
+    with pytest.raises(ValueError):
+        file_name.write_text("name,type,,,\na_real,real,0,1.1,2\n")
+        parameters.parameters_from_csv(str(file_name))
+
+
 def test_parameter_map_slicing():
     """Slicing a ParameterMap returns a ParameterMap."""
     parameter_map = parameters.ParameterMap()
