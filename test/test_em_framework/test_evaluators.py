@@ -296,6 +296,61 @@ def test_robust_optimize(mocker):
     assert mocked_optimize.call_count == 3
 
 
+def test_perform_experiments_samples_with_different_parameters():
+    """Regression test: all parameters in the samples end up in the experiments.
+
+    Previously, only the parameters in the first sample were used for the
+    columns of the experiments, so values in later samples were used by the
+    model but not recorded.
+    """
+    from ema_workbench import IntegerParameter
+
+    def some_model(x=-1.0, z=-1.0, i=0, u=0.0):
+        return {"y": x + z}
+
+    model = Model("simple", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.levers = [RealParameter("x", 0, 1), RealParameter("z", 0, 1)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    policies = [Sample("a", x=0.5), Sample("b", x=0.2, z=0.3)]
+    experiments, outcomes = evaluators.perform_experiments(
+        model, scenarios=[Sample("s", u=0.5)], policies=policies
+    )
+
+    assert "z" in experiments.columns
+    np.testing.assert_allclose(experiments["x"], [0.5, 0.2])
+    # no value and no default: the model uses its own default
+    assert np.isnan(experiments["z"][0])
+    assert experiments["z"][1] == 0.3
+    np.testing.assert_allclose(outcomes["y"], [-0.5, 0.5])
+
+    # with a default on the parameter, the default is used and stored
+    model = Model("simple", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.levers = [RealParameter("x", 0, 1), RealParameter("z", 0, 1, default=0.7)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    experiments, outcomes = evaluators.perform_experiments(
+        model, scenarios=[Sample("s", u=0.5)], policies=policies
+    )
+    np.testing.assert_allclose(experiments["z"], [0.7, 0.3])
+    np.testing.assert_allclose(outcomes["y"], [1.2, 0.5])
+
+    # an integer parameter cannot be missing without a default
+    model = Model("simple", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.levers = [RealParameter("x", 0, 1), IntegerParameter("i", 0, 5)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    with pytest.raises(EMAError):
+        evaluators.perform_experiments(
+            model,
+            scenarios=[Sample("s", u=0.5)],
+            policies=[Sample("a", x=0.5), Sample("b", x=0.2, i=3)],
+        )
+
+
 def test_setup(mocker):
     """Test for _setup helper function."""
     my_model = Model("some_model", function=mocker.Mock(return_value={"d": 1, "e": 1}))

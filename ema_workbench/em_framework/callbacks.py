@@ -260,6 +260,11 @@ class DefaultCallback(AbstractCallback):
 
         combined = scenario | policy
 
+        # user specified samples can lack a value for some of the parameters
+        for parameter in self.parameters:
+            if parameter.name not in combined:
+                combined[parameter.name] = self._get_missing_value(parameter)
+
         # self.cases[index] = (
         #     tuple([scenario[u] for u in self.uncertainties])
         #     + tuple([policy[l] for l in self.levers])
@@ -271,6 +276,28 @@ class DefaultCallback(AbstractCallback):
             policy.name,
             experiment.model_name,
         )
+
+    def _get_missing_value(self, parameter):
+        """Helper method for the value to store if a sample has no value for a parameter.
+
+        This mirrors what is used when running the model: the default of the
+        parameter if there is one. Otherwise, the model falls back on its own
+        default, which is unknown here, so we store nan. This is only possible
+        for real valued parameters.
+
+        """
+        value = parameter.default
+        if value is None:
+            if isinstance(parameter, IntegerParameter):
+                raise ema_exceptions.EMAError(
+                    f"no value for parameter {parameter.name} in sample, and the "
+                    "parameter has no default"
+                )
+            value = np.nan
+
+        if parameter.shape is not None:
+            value = np.full(parameter.shape, value)
+        return value
 
     def _store_outcomes(self, case_id, outcomes):
         """Helper method for storing outcomes."""

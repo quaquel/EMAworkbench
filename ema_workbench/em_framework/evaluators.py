@@ -597,7 +597,9 @@ def _setup(
             if isinstance(samples, Sample):
                 samples = [samples]
 
-            parameters = [p for p in parameters if p.name in samples[0]]
+            # samples can differ in the parameters they contain
+            names = set().union(*(sample.keys() for sample in samples))
+            parameters = [p for p in parameters if p.name in names]
             n_samples = len(samples)
     return samples, parameters, n_samples
 
