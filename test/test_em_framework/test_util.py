@@ -187,3 +187,83 @@ def test_namedict_copy_is_independent():
     combined = original | {"z": 3}
     assert "z" not in original
     assert combined["z"] == 3
+
+
+def test_named_object_map_slicing():
+    """Tests for slicing a NamedObjectMap."""
+    map = NamedObjectMap(Variable)
+    map.extend([Variable(entry) for entry in "abcde"])
+
+    # getitem with a slice returns a new map of the same class
+    subset = map[1:3]
+    assert isinstance(subset, NamedObjectMap)
+    assert subset is not map
+    assert subset.kind is map.kind
+    assert list(subset.keys()) == ["b", "c"]
+    assert subset["b"] is map["b"]  # objects are not copied
+
+    # negative indices, steps, and empty slices
+    assert list(map[-2:].keys()) == ["d", "e"]
+    assert list(map[::2].keys()) == ["a", "c", "e"]
+    assert list(map[::-1].keys()) == ["e", "d", "c", "b", "a"]
+    assert len(map[10:]) == 0
+
+    # the subset is independent of the original
+    subset["f"] = Variable("f")
+    del subset["b"]
+    assert list(map.keys()) == ["a", "b", "c", "d", "e"]
+
+    # delitem with a slice
+    del map[1:3]
+    assert list(map.keys()) == ["a", "d", "e"]
+
+    # slice assignment is not supported
+    with pytest.raises(TypeError):
+        map[0:2] = [Variable("x"), Variable("y")]
+
+    # negative int indexing
+    assert map[-1].name == "e"
+
+
+def test_named_object_map_setitem_by_position():
+    """Regression test: assigning by integer position.
+
+    Previously, appending stored the object under itself instead of its name,
+    and replacing an entry in a map with more than one entry collapsed the
+    map into a single entry.
+    """
+    map = NamedObjectMap(Variable)
+    map.extend([Variable(entry) for entry in "abc"])
+
+    # append at the end
+    map[3] = Variable("d")
+    assert list(map.keys()) == ["a", "b", "c", "d"]
+    assert map["d"].name == "d"
+
+    # replace in the middle, keeping the order
+    map[1] = Variable("x")
+    assert list(map.keys()) == ["a", "x", "c", "d"]
+    assert all(isinstance(entry, Variable) for entry in map)
+
+    # replace with the same name
+    new_c = Variable("c")
+    map[2] = new_c
+    assert map["c"] is new_c
+    assert list(map.keys()) == ["a", "x", "c", "d"]
+
+    # negative positions
+    map[-1] = Variable("y")
+    assert list(map.keys()) == ["a", "x", "c", "y"]
+
+    # out of range
+    with pytest.raises(IndexError):
+        map[5] = Variable("z")
+    with pytest.raises(IndexError):
+        map[-6] = Variable("z")
+
+    # a name already used at another position is not allowed
+    with pytest.raises(KeyError):
+        map[0] = Variable("x")
+    with pytest.raises(KeyError):
+        map[4] = Variable("a")
+    assert list(map.keys()) == ["a", "x", "c", "y"]

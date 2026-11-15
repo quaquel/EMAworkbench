@@ -226,3 +226,29 @@ class ParametersTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_parameter_map_slicing():
+    """Slicing a ParameterMap returns a ParameterMap."""
+    parameter_map = parameters.ParameterMap()
+    parameter_map.extend(
+        [
+            parameters.RealParameter("a", 0, 1),
+            parameters.IntegerParameter("b", 0, 10, shape=(2,)),
+            parameters.CategoricalParameter("c", ["x", "y"]),
+        ]
+    )
+
+    subset = parameter_map[1:]
+    assert isinstance(subset, parameters.ParameterMap)
+    assert list(subset.keys()) == ["b", "c"]
+    assert [p.name for p in subset.latent_parameters] == ["b_0", "b_1", "c"]
+
+    # copy and extend still return a ParameterMap
+    assert isinstance(subset.copy(), parameters.ParameterMap)
+    assert isinstance(
+        subset + parameters.RealParameter("d", 0, 1), parameters.ParameterMap
+    )
+
+    # original is unchanged
+    assert list(parameter_map.keys()) == ["a", "b", "c"]

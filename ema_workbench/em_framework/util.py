@@ -127,29 +127,54 @@ class NamedObjectMap[T](MutableMapping):
     def __len__(self) -> int:  # noqa: D105
         return len(self._data)
 
-    def __getitem__(self, key: str | int) -> T:  # noqa: D105
+    def __getitem__(self, key: str | int | slice) -> "T | NamedObjectMap[T]":
+        """Return an item by name or position, or a new map for a slice.
+
+        Slicing follows the insertion order of the map and returns a new map
+        of the same class (e.g., a ParameterMap) containing the selected
+        objects. The objects themselves are not copied.
+
+        """
+        if isinstance(key, slice):
+            new = self.copy()
+            new._data = dict(list(self._data.items())[key])
+            return new
         if isinstance(key, int):
             key = list(self._data.keys())[key]
 
         return self._data[key]
 
     def __setitem__(self, key: str | int, value: T) -> None:  # noqa: D105
+        if isinstance(key, slice):
+            raise TypeError(
+                f"{self.__class__.__name__} does not support slice assignment"
+            )
         if not isinstance(value, self.kind):
             raise TypeError(
                 f"Can only add {self.kind.__name__} objects, not {type(value)}"
             )
 
         if isinstance(key, int):
-            if len(self._data) < key:
-                # we try to add out of bounds
+            keys = list(self._data.keys())
+            index = key + len(keys) if key < 0 else key
+            if not 0 <= index <= len(keys):
                 raise IndexError("assignment index out of range")
-            if len(self._data) == key:
+
+            # the name may not be used by an entry at another position
+            if value.name in self._data and (
+                index == len(keys) or keys[index] != value.name
+            ):
+                raise KeyError(
+                    f"{self.kind.__name__} with name {value.name} already exists"
+                )
+
+            if index == len(keys):
                 # we add it at the end
-                self._data[value] = value
+                self._data[value.name] = value
             else:
-                # we replace something
+                # we replace an entry, keeping the order
                 self._data = {
-                    value.name: value if i == key else (k, v)  # noqa: B035
+                    (value.name if i == index else k): (value if i == index else v)
                     for i, (k, v) in enumerate(self._data.items())
                 }
         else:
@@ -160,7 +185,11 @@ class NamedObjectMap[T](MutableMapping):
 
             self._data[key] = value
 
-    def __delitem__(self, key: str | int) -> None:  # noqa: D105
+    def __delitem__(self, key: str | int | slice) -> None:  # noqa: D105
+        if isinstance(key, slice):
+            for k in list(self._data.keys())[key]:
+                del self._data[k]
+            return
         if isinstance(key, int):
             key = list(self._data.keys())[key]
 
