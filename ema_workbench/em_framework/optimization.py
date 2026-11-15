@@ -253,7 +253,7 @@ def evaluate(
         else:
             robustness_scores = {}
             for obj in problem.objectives:
-                data = [outcomes[var_name] for var_name in obj.variable_name]
+                data = [job_outputs[var_name] for var_name in obj.variable_name]
                 score = obj.function(*data)
                 robustness_scores[obj.name] = score
             job_outputs = robustness_scores

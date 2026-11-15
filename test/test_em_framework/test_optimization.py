@@ -364,6 +364,51 @@ def test_evaluate(mocker):
         assert job.solution.evaluated
 
 
+def test_robust_optimize_scores_each_policy_separately(tmp_path):
+    """Regression test: robustness must be computed per policy.
+
+    Previously, the robustness function was applied to the outcomes of all
+    experiments in a generation, so every policy got the same score.
+    """
+    from ema_workbench import Model
+
+    def some_model(x=0.0, u=0.0):
+        return {"y": x + u}
+
+    model = Model("simple", function=some_model)
+    model.levers = [RealParameter("x", 0, 10)]
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.outcomes = [ScalarOutcome("y")]
+
+    u_values = [0.0, 0.25, 0.5, 0.75, 1.0]
+    scenarios = [Sample(name=f"{i}", u=u) for i, u in enumerate(u_values)]
+    robustness_functions = [
+        ScalarOutcome(
+            "mean_y", kind=ScalarOutcome.MAXIMIZE, variable_name="y", function=np.mean
+        )
+    ]
+
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.robust_optimize(
+            robustness_functions,
+            scenarios,
+            nfe=200,
+            population_size=10,
+            epsilons=[0.01],
+            filename="archive.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+
+    # the score of each policy should be the mean over the scenarios for that
+    # policy only, i.e., x + mean(u)
+    expected = results["x"] + np.mean(u_values)
+    np.testing.assert_allclose(results["mean_y"], expected)
+
+    # and maximizing should push x toward its upper bound
+    assert results["x"].max() > 8
+
+
 def test_evaluate_constraints():
     """Tests for _evaluate_constraints."""
     experiment = pd.Series({"a": 1, "b": 2})
