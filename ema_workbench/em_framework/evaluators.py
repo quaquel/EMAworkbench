@@ -717,7 +717,8 @@ def optimize(
     if evaluator is None:
         evaluator = SequentialEvaluator(model)
 
-    if isinstance(rng, Iterable):
+    # a str or bytes is a single seed, not a collection of seeds
+    if isinstance(rng, Iterable) and not isinstance(rng, str | bytes | bytearray):
         all_results = []
         for entry in rng:
             new_filename = f"{entry}_{filename}"
@@ -844,7 +845,8 @@ def robust_optimize(
         evaluator = SequentialEvaluator(model)
 
     # solve the optimization problem
-    if isinstance(rng, Iterable):
+    # a str or bytes is a single seed, not a collection of seeds
+    if isinstance(rng, Iterable) and not isinstance(rng, str | bytes | bytearray):
         all_results = []
         for entry in rng:
             new_filename = f"{entry}_{filename}"
