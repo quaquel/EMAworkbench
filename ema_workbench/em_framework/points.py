@@ -63,7 +63,16 @@ class Sample(NamedDict):
         # fixme needs to handle latent variables correctly
         solution = platypus.Solution(problem)
 
-        values = flatten_sample(self, problem.decision_variables)
+        values = []
+        for param in problem.decision_variables:
+            value = self[param.name]
+            value = [value] if param.shape is None else np.asarray(value).flatten().tolist()
+            if isinstance(param, CategoricalParameter):
+                # categorical parameters are a platypus Subset of size 1 over
+                # the category indices, so map values to [index]
+                category_values = [cat.value for cat in param.categories]
+                value = [[category_values.index(v)] for v in value]
+            values.extend(value)
         values = [dtype.encode(value) for dtype, value in zip(problem.types, values)]
         solution.variables[:] = values
 
@@ -81,15 +90,20 @@ class Sample(NamedDict):
             problem.types, solution.variables
         ):  # @ReservedAssignment
             converted_value = dtype.decode(value)
+            if isinstance(dtype, platypus.Subset):
+                converted_value = converted_value[0]  # subset of size 1
             sample.append(converted_value)
 
         design_dict = {}
         offset = 0
         for param in problem.decision_variables:
             length = 1 if param.shape is None else math.prod(param.shape)
-            value = np.asarray(sample[offset: offset + length])
+            value = sample[offset : offset + length]
             offset += length
-            value = value[0] if param.shape is None else value
+            if isinstance(param, CategoricalParameter):
+                # map category indices back to category values
+                value = [param.cat_for_index(int(v)).value for v in value]
+            value = value[0] if param.shape is None else np.asarray(value)
             design_dict[param.name] = value
 
         return Sample(**design_dict)
