@@ -249,7 +249,8 @@ def evaluate(
             job_outputs[k] = v[logical]
 
         # TODO:: only retain decision variables
-        job_experiment = experiments[logical]
+        # we only need a single row with the decision variables here
+        job_experiment = experiments[logical].iloc[0]
 
         if searchover == "levers" or searchover == "uncertainties":
             job_outputs = {k: v[0] for k, v in job_outputs.items()}
@@ -260,9 +261,6 @@ def evaluate(
                 score = obj.function(*data)
                 robustness_scores[obj.name] = score
             job_outputs = robustness_scores
-            job_experiment = job_experiment.iloc[
-                0
-            ]  # we only need a single row with the levers here
 
         job_constraints = _evaluate_constraints(
             job_experiment, job_outputs, constraints

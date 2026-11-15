@@ -507,6 +507,57 @@ def test_evaluate_constraints():
     assert scores == [0.5, 0]
 
 
+@pytest.mark.parametrize("searchover", ["levers", "uncertainties"])
+def test_optimize_with_constraint_on_parameter(tmp_path, searchover):
+    """Regression test: a constraint on a decision variable.
+
+    Previously, the constraint function received a pandas Series instead of
+    a single value when searching over levers or uncertainties.
+    """
+    from ema_workbench import Model
+
+    def some_model(x=0.0, z=0.0):
+        return {"y": x + z}
+
+    model = Model("simple", function=some_model)
+    parameters = [RealParameter("x", 0, 1), RealParameter("z", 0, 1)]
+    if searchover == "levers":
+        model.levers = parameters
+    else:
+        model.uncertainties = parameters
+    model.outcomes = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+
+    received = []
+
+    def constraint_function(x):
+        received.append(x)
+        return max(0, x - 0.5)
+
+    constraints = [
+        Constraint(
+            "constraint_on_x", parameter_names="x", function=constraint_function
+        )
+    ]
+
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.optimize(
+            nfe=500,
+            searchover=searchover,
+            epsilons=[0.01],
+            population_size=20,
+            constraints=constraints,
+            reference=Sample("reference"),
+            filename="archive.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+
+    assert all(isinstance(value, float) for value in received)
+    # all solutions meet the constraint, and the constraint is binding
+    assert (results["x"] <= 0.5).all()
+    assert results["y"].max() > 1.4
+
+
 def test_progress_bar_extension(mocker):
     """Tests for ProgressBarExtension   ."""
     mocked_pb = mocker.patch(
