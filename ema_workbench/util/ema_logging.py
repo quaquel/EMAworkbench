@@ -135,10 +135,12 @@ def temporary_filter(
             logger.addFilter(filter)
             filters[filter] = logger
 
-    yield
-
-    for k, v in filters.items():
-        v.removeFilter(k)
+    try:
+        yield
+    finally:
+        # also remove the filters if an exception is raised
+        for k, v in filters.items():
+            v.removeFilter(k)
 
 
 def method_logger(name: str) -> callable:
