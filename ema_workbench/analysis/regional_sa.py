@@ -6,7 +6,6 @@ zoom in on any given uncertainty in more detail.
 
 """
 
-import contextlib
 import math
 import operator
 
@@ -233,14 +232,13 @@ def plot_cdfs(x, y, ccdf=False):
     """
     x = x.copy()
 
-    with contextlib.suppress(KeyError):
-        x = x.drop("scenario_id", axis=1)
+    # the id of the scenario is not an uncertain factor
+    x = x.drop(columns=[c for c in ("scenario", "scenario_id") if c in x.columns])
 
+    # model and policy are only relevant if there is more than one
     for entry in ["model", "policy"]:
-        if x.loc[:, entry].unique().shape != (1,):
-            continue
-        with contextlib.suppress(KeyError):
-            x = x.drop(entry, axis=1)
+        if entry in x.columns and x[entry].nunique() == 1:
+            x = x.drop(columns=entry)
 
     uncs = x.columns.tolist()
     # cp = sns.color_palette() # FIXME?? should this be used?

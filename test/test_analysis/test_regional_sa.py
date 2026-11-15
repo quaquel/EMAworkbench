@@ -22,6 +22,43 @@ class Test(unittest.TestCase):
         x = x.drop("scenario", axis=1)
         regional_sa.plot_cdfs(x, y, ccdf=True)
 
+    def test_plot_cdfs_columns(self):
+        """Regression test: the columns for which a cdf is plotted.
+
+        Previously, a cdf was also plotted for the scenario column, and a
+        DataFrame without a model or policy column raised a KeyError.
+        """
+        import numpy as np
+        import pandas as pd
+
+        def count_plots(fig):
+            return sum(
+                1
+                for ax in fig.axes
+                if ax.get_visible() and (ax.lines or ax.patches)
+            )
+
+        rng = np.random.default_rng(42)
+        n = 200
+        x = pd.DataFrame({"a": rng.random(n), "b": rng.random(n)})
+        y = (x.a > 0.5).values
+
+        # no scenario, policy, or model column
+        self.assertEqual(count_plots(regional_sa.plot_cdfs(x, y)), 2)
+
+        # as returned by perform_experiments, with a single policy and model
+        experiments = x.assign(
+            scenario=np.arange(n),
+            policy=pd.Categorical(["p"] * n),
+            model=pd.Categorical(["m"] * n),
+        )
+        self.assertEqual(count_plots(regional_sa.plot_cdfs(experiments, y)), 2)
+
+        # with more than one policy, the policy is included
+        experiments["policy"] = pd.Categorical(rng.choice(["p", "q"], n))
+        self.assertEqual(count_plots(regional_sa.plot_cdfs(experiments, y)), 3)
+        plt.close("all")
+
     def test_plot__individual_cdf(self):
         x, outcomes = utilities.load_flu_data()
         y = outcomes["deceased_population_region_1"][:, -1] > 1000000
