@@ -118,6 +118,84 @@ def test_problem(mocker):
         Problem(searchover, parameters, robustness_functions, constraints, 10)
 
 
+def test_optimize_uses_fixed_reference(tmp_path):
+    """Regression test: all solutions are evaluated on the same scenario(s).
+
+    Previously, without a reference, optimize sampled a new random scenario
+    for every generation, and robust_optimize with a number of scenarios
+    sampled new scenarios for every generation.
+    """
+    from ema_workbench import Model
+
+    seen = []
+
+    def some_model(x=0.0, u=0.5):
+        seen.append(u)
+        return {"y": x + u}
+
+    model = Model("simple", function=some_model)
+    model.levers = [RealParameter("x", 0, 1)]
+    model.uncertainties = [RealParameter("u", 0, 100)]
+    model.outcomes = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+
+    # no reference: default values of the model
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.optimize(
+            nfe=50,
+            searchover="levers",
+            epsilons=[0.1],
+            population_size=10,
+            filename="archive.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+    assert set(seen) == {0.5}
+    np.testing.assert_allclose(results["y"], results["x"] + 0.5)
+
+    # explicit reference
+    seen.clear()
+    with SequentialEvaluator(model) as evaluator:
+        evaluator.optimize(
+            nfe=50,
+            searchover="levers",
+            epsilons=[0.1],
+            population_size=10,
+            reference=Sample("ref", u=10),
+            filename="archive_ref.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+    assert set(seen) == {10}
+
+    # robust optimization with a number of scenarios
+    seen.clear()
+    robustness_functions = [
+        ScalarOutcome(
+            "mean_y", kind=ScalarOutcome.MAXIMIZE, variable_name="y", function=np.mean
+        )
+    ]
+    with SequentialEvaluator(model) as evaluator:
+        evaluator.robust_optimize(
+            robustness_functions,
+            4,
+            nfe=50,
+            population_size=10,
+            epsilons=[0.1],
+            filename="archive_robust.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+    assert len(set(seen)) == 4
+
+
+def test_problem_robust_requires_scenarios():
+    """Robust optimization without scenarios is not possible."""
+    decision_variables = [RealParameter("a", 0, 1)]
+    objectives = [ScalarOutcome("x", kind=ScalarOutcome.MAXIMIZE)]
+    with pytest.raises(ValueError):
+        Problem("robust", decision_variables, objectives)
+
+
 def test_to_dataframe(mocker):
     """Test to_dataframe function."""
     mocked_platypus = mocker.patch("ema_workbench.em_framework.optimization.platypus")
@@ -181,7 +259,8 @@ def test_process_jobs(mocker):
         jobs.append(job)
 
     scenarios, policies = process_jobs(jobs)
-    assert scenarios == 1
+    assert isinstance(scenarios, Sample)
+    assert len(scenarios) == 0
     assert len(policies) == len(jobs)
 
     problem = Problem("uncertainties", decision_variables, outcomes)
@@ -197,7 +276,8 @@ def test_process_jobs(mocker):
 
     scenarios, policies = process_jobs(jobs)
     assert len(scenarios) == len(jobs)
-    assert policies == 1
+    assert isinstance(policies, Sample)
+    assert len(policies) == 0
 
     problem = Problem("robust", decision_variables, outcomes, reference=10)
     jobs = []
@@ -427,6 +507,57 @@ def test_evaluate_constraints():
     assert scores == [0.5, 0]
 
 
+@pytest.mark.parametrize("searchover", ["levers", "uncertainties"])
+def test_optimize_with_constraint_on_parameter(tmp_path, searchover):
+    """Regression test: a constraint on a decision variable.
+
+    Previously, the constraint function received a pandas Series instead of
+    a single value when searching over levers or uncertainties.
+    """
+    from ema_workbench import Model
+
+    def some_model(x=0.0, z=0.0):
+        return {"y": x + z}
+
+    model = Model("simple", function=some_model)
+    parameters = [RealParameter("x", 0, 1), RealParameter("z", 0, 1)]
+    if searchover == "levers":
+        model.levers = parameters
+    else:
+        model.uncertainties = parameters
+    model.outcomes = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+
+    received = []
+
+    def constraint_function(x):
+        received.append(x)
+        return max(0, x - 0.5)
+
+    constraints = [
+        Constraint(
+            "constraint_on_x", parameter_names="x", function=constraint_function
+        )
+    ]
+
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.optimize(
+            nfe=500,
+            searchover=searchover,
+            epsilons=[0.01],
+            population_size=20,
+            constraints=constraints,
+            reference=Sample("reference"),
+            filename="archive.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+
+    assert all(isinstance(value, float) for value in received)
+    # all solutions meet the constraint, and the constraint is binding
+    assert (results["x"] <= 0.5).all()
+    assert results["y"].max() > 1.4
+
+
 def test_progress_bar_extension(mocker):
     """Tests for ProgressBarExtension   ."""
     mocked_pb = mocker.patch(
@@ -514,6 +645,43 @@ def test_archive_storage_extension(mocker):
             frequency=frequency,
             by_nfe=by_nfe,
         )
+
+
+def test_final_archive_is_stored_once(tmp_path):
+    """Regression test: the last archive is not stored twice.
+
+    Previously, the archive and the convergence information were stored again
+    after the optimization, also if they had just been stored because the number of function evaluations was a
+    multiple of the convergence frequency.
+    """
+    from ema_workbench import Model
+    from ema_workbench.em_framework.optimization import load_archives
+
+    def some_model(x=0.0):
+        return {"archive_test_y": x}
+
+    model = Model("archivemodel", function=some_model)
+    model.levers = [RealParameter("x", 0, 1)]
+    model.outcomes = [ScalarOutcome("archive_test_y", kind=ScalarOutcome.MAXIMIZE)]
+
+    for nfe, expected in [(100, [50, 100]), (70, [50, 70])]:
+        filename = f"archive_{nfe}.tar.gz"
+        with SequentialEvaluator(model) as evaluator:
+            _, convergence = evaluator.optimize(
+                nfe=nfe,
+                searchover="levers",
+                epsilons=[0.1],
+                population_size=10,
+                convergence_freq=50,
+                reference=Sample("reference"),
+                filename=filename,
+                directory=tmp_path,
+                rng=42,
+            )
+
+        archives = load_archives(tmp_path / filename)
+        assert [entry[0] for entry in archives] == expected
+        assert convergence["nfe"].tolist() == expected
 
 
 def test_epsilon_dominated():
@@ -669,6 +837,80 @@ def test_rebuild_platypus_population():
 
         problem = Problem("uncertainties", [], objectives)
         rebuild_platypus_population(data, problem)
+
+
+def test_combined_variator_default_mutation():
+    """Regression test: by default, mutation changes only part of a solution.
+
+    Previously, every decision variable was mutated in every child, and all
+    bits of an integer were flipped, so children never kept the integer
+    value of their parents.
+    """
+    import copy
+    import random
+
+    random.seed(42)
+
+    decision_variables = [RealParameter("a", 0, 1), IntegerParameter("i", 0, 15)]
+    objectives = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+    problem = Problem("levers", decision_variables, objectives)
+
+    parent = Sample(a=0.5, i=5)._to_platypus_solution(problem)
+    variator = CombinedVariator()
+
+    children = []
+    for _ in range(200):
+        for child in variator.evolve([parent, copy.deepcopy(parent)]):
+            children.append(Sample._from_platypus_solution(child))
+
+    share_same_integer = sum(c["i"] == 5 for c in children) / len(children)
+    share_same_real = sum(c["a"] == 0.5 for c in children) / len(children)
+
+    # with identical parents, crossover changes nothing, and on average a
+    # single decision variable is mutated
+    assert 0.3 < share_same_integer < 0.95
+    assert 0.3 < share_same_real < 0.95
+    assert len({int(c["i"]) for c in children}) > 2
+
+    # explicit probability of 1 mutates all real decision variables
+    variator = CombinedVariator(mutation_prob=1)
+    children = [
+        Sample._from_platypus_solution(child)
+        for _ in range(20)
+        for child in variator.evolve([parent, copy.deepcopy(parent)])
+    ]
+    assert all(c["a"] != 0.5 for c in children)
+
+
+def test_optimize_mixed_real_and_integer_levers(tmp_path):
+    """Regression test: optimization with mixed lever types converges."""
+    from ema_workbench import Model
+
+    def some_model(a=0.0, i=0, j=0):
+        return {"y": -abs(i - 37) - abs(j - 11) - abs(a - 0.3)}
+
+    model = Model("simple", function=some_model)
+    model.levers = [
+        RealParameter("a", 0, 1),
+        IntegerParameter("i", 0, 63),
+        IntegerParameter("j", 0, 63),
+    ]
+    model.outcomes = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.optimize(
+            nfe=2000,
+            searchover="levers",
+            epsilons=[0.05],
+            population_size=50,
+            reference=Sample("reference"),
+            filename="archive.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+
+    # the optimum is 0, the old variator got stuck around -4 or worse
+    assert results["y"].max() > -1
 
 
 def test_combined_variator(mocker):

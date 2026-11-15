@@ -99,8 +99,10 @@ class Problem(PlatypusProblem):
         """Init."""
         if constraints is None:
             constraints = []
-        if reference is None:
-            reference = 1
+        no_reference = reference is None
+        if no_reference:
+            # an empty sample, so the default values of the model are used
+            reference = Sample("reference")
 
         if not isinstance(decision_variables, ParameterMap):
             dv = ParameterMap()
@@ -116,7 +118,7 @@ class Problem(PlatypusProblem):
         #    just flip to robust if reference is an iterable
         #    handle most value error checks inside optimize and robust_optimize instead of here
         if (searchover == "robust") and (
-            (reference == 1) or isinstance(reference, Sample)
+            no_reference or (reference == 1) or isinstance(reference, Sample)
         ):
             raise ValueError(
                 "you cannot use a no or a  single reference scenario for robust optimization"
@@ -247,7 +249,8 @@ def evaluate(
             job_outputs[k] = v[logical]
 
         # TODO:: only retain decision variables
-        job_experiment = experiments[logical]
+        # we only need a single row with the decision variables here
+        job_experiment = experiments[logical].iloc[0]
 
         if searchover == "levers" or searchover == "uncertainties":
             job_outputs = {k: v[0] for k, v in job_outputs.items()}
@@ -258,9 +261,6 @@ def evaluate(
                 score = obj.function(*data)
                 robustness_scores[obj.name] = score
             job_outputs = robustness_scores
-            job_experiment = job_experiment.iloc[
-                0
-            ]  # we only need a single row with the levers here
 
         job_constraints = _evaluate_constraints(
             job_experiment, job_outputs, constraints
@@ -352,6 +352,7 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
         self.outcome_names = outcome_names
         self.temp = os.path.join(directory, "tmp")
         self.tar_filename = os.path.join(os.path.abspath(directory), filename)
+        self.last_nfe = None
 
         if os.path.exists(self.tar_filename):
             raise FileExistsError(
@@ -364,6 +365,8 @@ class ArchiveStorageExtension(platypus.extensions.FixedFrequencyExtension):
 
     def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
         """Add the current archive to the tarball."""
+        self.last_nfe = algorithm.nfe
+
         # broadens the algorithms in platypus we can support automagically
         try:
             data = algorithm.archive
@@ -424,9 +427,11 @@ class RuntimeConvergenceTracking(platypus.extensions.FixedFrequencyExtension):
         super().__init__(frequency=frequency, by_nfe=by_nfe)
         self.data = []
         self.attributes_to_try = ["nfe"]
+        self.last_nfe = None
 
     def do_action(self, algorithm: platypus.algorithms.AbstractGeneticAlgorithm):
         """Retrieve the runtime convergence information."""
+        self.last_nfe = algorithm.nfe
         runtime_info = {}
         runtime_info["nfe"] = algorithm.nfe
 
@@ -561,9 +566,20 @@ def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem) -> list
 
 
 class CombinedVariator(Variator):
-    """Combined variator."""
+    """Combined variator for problems with a mix of parameter types.
 
-    def __init__(self, crossover_prob=0.5, mutation_prob=1):
+    Parameters
+    ----------
+    crossover_prob : float, optional
+                     the probability of applying crossover to a decision variable
+    mutation_prob : float, optional
+                    the probability of mutating a decision variable. Defaults
+                    to 1 divided by the number of decision variables, so on
+                    average one decision variable is mutated per solution.
+
+    """
+
+    def __init__(self, crossover_prob=0.5, mutation_prob=None):
         super().__init__(2)
         self.SBX = platypus.SBX()
         self.crossover_prob = crossover_prob
@@ -593,8 +609,12 @@ class CombinedVariator(Variator):
     def mutate(self, child: Solution):
         problem = child.problem
 
+        mutation_prob = self.mutation_prob
+        if mutation_prob is None:
+            mutation_prob = 1 / len(problem.types)
+
         for i, kind in enumerate(problem.types):  # @ReservedAssignment
-            if random.random() <= self.mutation_prob:
+            if random.random() <= mutation_prob:
                 klass = kind.__class__
                 child = self._mutate[klass](self, child, i, kind)
                 child.evaluated = False
@@ -668,9 +688,16 @@ class CombinedVariator(Variator):
         return child
 
     def mutate_integer(
-        self, child: Solution, i: int, type: platypus.Integer, probability: float = 1
+        self,
+        child: Solution,
+        i: int,
+        type: platypus.Integer,
+        probability: float | None = None,
     ) -> Solution:  # @ReservedAssignment
-        # bitflip
+        # bitflip, by default on average a single bit is flipped
+        if probability is None:
+            probability = 1 / type.nbits
+
         for j in range(type.nbits):
             if random.random() <= probability:
                 child.variables[i][j] = not child.variables[i][j]
@@ -769,12 +796,13 @@ def _optimize(
     with temporary_filter(name=[callbacks.__name__, evaluators.__name__], level=INFO):
         optimizer.run(nfe)
 
-    storage.do_action(
-        optimizer
-    )  # ensure last archive is included in the convergence information
-    runtime_convergence_info.do_action(
-        optimizer
-    )  # ensure the last convergence information is added as well
+    # ensure the last archive is included in the convergence information,
+    # unless it has just been stored
+    if getattr(storage, "last_nfe", None) != optimizer.nfe:
+        storage.do_action(optimizer)
+    # ensure the last convergence information is added as well
+    if getattr(runtime_convergence_info, "last_nfe", None) != optimizer.nfe:
+        runtime_convergence_info.do_action(optimizer)
     progress_bar.progress_tracker.pbar.__exit__(
         None, None, None
     )  # ensure progress bar is closed correctly
