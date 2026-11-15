@@ -75,7 +75,7 @@ class SALibSampler(AbstractSampler):
         latent_parameters = self._process_parameters(parameters)
         problem = get_SALib_problem(latent_parameters)
         samples = self.sample(problem, size, rng=rng, **kwargs)
-        samples = self._rescale(parameters, samples)
+        samples = self._rescale(latent_parameters, samples)
         return SampleCollection(samples, parameters)
 
     @abc.abstractmethod
