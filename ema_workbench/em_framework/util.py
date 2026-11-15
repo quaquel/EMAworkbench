@@ -155,16 +155,26 @@ class NamedObjectMap[T](MutableMapping):
             )
 
         if isinstance(key, int):
-            if len(self._data) < key:
-                # we try to add out of bounds
+            keys = list(self._data.keys())
+            index = key + len(keys) if key < 0 else key
+            if not 0 <= index <= len(keys):
                 raise IndexError("assignment index out of range")
-            if len(self._data) == key:
+
+            # the name may not be used by an entry at another position
+            if value.name in self._data and (
+                index == len(keys) or keys[index] != value.name
+            ):
+                raise KeyError(
+                    f"{self.kind.__name__} with name {value.name} already exists"
+                )
+
+            if index == len(keys):
                 # we add it at the end
-                self._data[value] = value
+                self._data[value.name] = value
             else:
-                # we replace something
+                # we replace an entry, keeping the order
                 self._data = {
-                    value.name: value if i == key else (k, v)  # noqa: B035
+                    (value.name if i == index else k): (value if i == index else v)
                     for i, (k, v) in enumerate(self._data.items())
                 }
         else:

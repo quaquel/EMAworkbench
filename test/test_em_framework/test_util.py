@@ -223,3 +223,47 @@ def test_named_object_map_slicing():
 
     # negative int indexing
     assert map[-1].name == "e"
+
+
+def test_named_object_map_setitem_by_position():
+    """Regression test: assigning by integer position.
+
+    Previously, appending stored the object under itself instead of its name,
+    and replacing an entry in a map with more than one entry collapsed the
+    map into a single entry.
+    """
+    map = NamedObjectMap(Variable)
+    map.extend([Variable(entry) for entry in "abc"])
+
+    # append at the end
+    map[3] = Variable("d")
+    assert list(map.keys()) == ["a", "b", "c", "d"]
+    assert map["d"].name == "d"
+
+    # replace in the middle, keeping the order
+    map[1] = Variable("x")
+    assert list(map.keys()) == ["a", "x", "c", "d"]
+    assert all(isinstance(entry, Variable) for entry in map)
+
+    # replace with the same name
+    new_c = Variable("c")
+    map[2] = new_c
+    assert map["c"] is new_c
+    assert list(map.keys()) == ["a", "x", "c", "d"]
+
+    # negative positions
+    map[-1] = Variable("y")
+    assert list(map.keys()) == ["a", "x", "c", "y"]
+
+    # out of range
+    with pytest.raises(IndexError):
+        map[5] = Variable("z")
+    with pytest.raises(IndexError):
+        map[-6] = Variable("z")
+
+    # a name already used at another position is not allowed
+    with pytest.raises(KeyError):
+        map[0] = Variable("x")
+    with pytest.raises(KeyError):
+        map[4] = Variable("a")
+    assert list(map.keys()) == ["a", "x", "c", "y"]
