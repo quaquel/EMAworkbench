@@ -291,6 +291,40 @@ def test_from_experiments():
             assert row[k] == v
 
 
+def test_from_experiments_with_parameters():
+    """Shaped parameters are turned back into arrays."""
+    import pandas as pd  # noqa: PLC0415
+
+    parameters = [
+        RealParameter("a", 0, 1, shape=(2, 2)),
+        CategoricalParameter("c", ["lo", "hi"], shape=(2,)),
+        IntegerParameter("k", 0, 3),
+    ]
+    experiments = pd.DataFrame(
+        {
+            "a_0": [0.1],
+            "a_1": [0.2],
+            "a_2": [0.3],
+            "a_3": [0.4],
+            "c_0": ["lo"],
+            "c_1": ["hi"],
+            "k": [2],
+            "y": [1.0],
+            "scenario": [0],
+            "policy": ["p"],
+            "model": ["m"],
+        }
+    )
+    (sample,) = from_experiments(experiments, parameters=parameters)
+    assert set(sample) == {"a", "c", "k"}
+    np.testing.assert_allclose(sample["a"], [[0.1, 0.2], [0.3, 0.4]])
+    assert list(sample["c"]) == ["lo", "hi"]
+    assert sample["k"] == 2
+
+    with pytest.raises(ValueError, match="a_3"):
+        from_experiments(experiments.drop(columns="a_3"), parameters=parameters)
+
+
 def test_sample_platypus():
     """Tests for converting samples to platypus solutions and vice versa."""
     parameters = [

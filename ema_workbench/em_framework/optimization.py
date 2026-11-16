@@ -48,7 +48,7 @@ from .parameters import (
     ParameterMap,
     RealParameter,
 )
-from .points import Sample, SampleCollection
+from .points import Sample, SampleCollection, _unflatten_record, flatten_sample
 from .util import ProgressTrackingMixIn, StdlibSeedLike
 
 # Created on 5 Jun 2017
@@ -77,6 +77,16 @@ class Problem(PlatypusProblem):
     def parameter_names(self) -> list[str]:
         """Getter for parameter names."""
         return [e.name for e in self.decision_variables]
+
+    @property
+    def latent_parameter_names(self) -> list[str]:
+        """Getter for the names of the decision variables as used by platypus.
+
+        A decision variable with a shape is one platypus variable for each
+        element, named ``<name>_<index>``. These are the column names of the
+        decision variables in the archives.
+        """
+        return [e.name for e in self.decision_variables.latent_parameters]
 
     @property
     def outcome_names(self) -> list[str]:
@@ -168,10 +178,17 @@ def to_dataframe(
 ) -> pd.DataFrame:
     """Helper function to turn a collection of platypus Solution instances into a pandas DataFrame.
 
+    A decision variable with a shape is stored as one column for each element,
+    as for the experiments returned by perform_experiments. Use
+    ``from_experiments(archive, parameters=...)`` to turn the rows back into
+    Sample instances.
+
     Parameters
     ----------
     solutions : collection of Solution instances
     dvnames : list of str
+              the names of the columns for the decision variables, see
+              Problem.latent_parameter_names
     outcome_names : list of str
 
     Returns
@@ -180,12 +197,11 @@ def to_dataframe(
     """
     results = []
     for solution in platypus.unique(solutions):
-        decision_vars = Sample._from_platypus_solution(solution)
+        sample = Sample._from_platypus_solution(solution)
+        values = flatten_sample(sample, solution.problem.decision_variables)
 
-        decision_out = dict(zip(outcome_names, solution.objectives))
-
-        result = decision_vars.copy()
-        result.update(decision_out)
+        result = dict(zip(dvnames, values))
+        result.update(zip(outcome_names, solution.objectives))
 
         results.append(result)
 
@@ -510,7 +526,7 @@ def epsilon_nondominated(
     archive = EpsilonBoxArchive(epsilons)
     archive += solutions
 
-    return to_dataframe(archive, problem.parameter_names, problem.outcome_names)
+    return to_dataframe(archive, problem.latent_parameter_names, problem.outcome_names)
 
 
 def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem) -> list[Solution]:
@@ -526,8 +542,6 @@ def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem) -> list
     list of platypus Solutions
 
     """
-    # fixme, might this be easier via Sample._to_platypus_solution?
-    #   we can just turn each row into a Sample instance directly and then go to a Solution instance
     expected_columns = problem.nvars + problem.nobjs
     actual_columns = len(archive.columns)
 
@@ -537,34 +551,25 @@ def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem) -> list
             f"expected number of decision variables and objectives ({expected_columns})."
         )
 
+    missing_parameters = [
+        name for name in problem.latent_parameter_names if name not in archive.columns
+    ]
+    if missing_parameters:
+        raise EMAError(f"Parameter names {missing_parameters} not found in archive")
+
+    missing_outcomes = [
+        name for name in problem.outcome_names if name not in archive.columns
+    ]
+    if missing_outcomes:
+        raise EMAError(f"Outcome names {missing_outcomes} not found in archive")
+
     solutions = []
-    for row in archive.itertuples():
-        try:
-            decision_variables = [
-                getattr(row, attr) for attr in problem.parameter_names
-            ]
-        except AttributeError as e:
-            missing_parameters = [
-                attr for attr in problem.parameter_names if not hasattr(row, attr)
-            ]
-            raise EMAError(
-                f"Parameter names {missing_parameters} not found in archive"
-            ) from e
-
-        try:
-            objectives = [getattr(row, attr) for attr in problem.outcome_names]
-        except AttributeError as e:
-            missing_outcomes = [
-                attr for attr in problem.outcome_names if not hasattr(row, attr)
-            ]
-            raise EMAError(
-                f"Outcome names {missing_outcomes} not found in archive'"
-            ) from e
-
-        # go via Sample so categorical values are mapped to category indices
-        sample = Sample(**dict(zip(problem.parameter_names, decision_variables)))
+    for record in archive.to_dict(orient="records"):
+        # go via Sample so values of shaped decision variables are turned back
+        # into arrays, and categorical values are mapped to category indices
+        sample = Sample(**_unflatten_record(record, problem.decision_variables))
         solution = sample._to_platypus_solution(problem)
-        solution.objectives[:] = objectives
+        solution.objectives[:] = [record[name] for name in problem.outcome_names]
         solutions.append(solution)
     return solutions
 
@@ -784,7 +789,7 @@ def _optimize(
         **kwargs,
     )
     storage = ArchiveStorageExtension(
-        problem.parameter_names,
+        problem.latent_parameter_names,
         problem.outcome_names,
         directory=directory,
         filename=filename,
@@ -818,7 +823,7 @@ def _optimize(
 
     runtime_convergence = runtime_convergence_info.to_dataframe()
 
-    results = to_dataframe(data, problem.parameter_names, problem.outcome_names)
+    results = to_dataframe(data, problem.latent_parameter_names, problem.outcome_names)
 
     _logger.info(f"optimization completed, found {len(data)} solutions")
 
