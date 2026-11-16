@@ -20,7 +20,6 @@ from ema_workbench.em_framework.parameters import (
 )
 from ema_workbench.em_framework.points import Experiment, Sample
 from ema_workbench.em_framework.util import NamedObject
-from ema_workbench.util import EMAError
 
 # Created on 22 Jan 2013
 #
@@ -64,11 +63,16 @@ def test_store_results(mocker):
     assert outcomes[0].name in out.keys()
     assert out[outcomes[0].name].shape == (3, 2, 2)
 
-    # case 4 assert raises EMAError
+    # case 4 arrays with more dimensions, shape = (x, y, z)
     callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
-    model_outcomes = {outcomes[0].name: np.random.rand(2, 2, 2)}
-    with pytest.raises(EMAError):
-        callback(experiment, model_outcomes)
+    model_outcomes = {outcomes[0].name: np.random.rand(2, 3, 4)}
+    callback(experiment, model_outcomes)
+
+    _, out = callback.get_results()
+    assert out[outcomes[0].name].shape == (3, 2, 3, 4)
+    np.testing.assert_array_equal(
+        out[outcomes[0].name][0], model_outcomes[outcomes[0].name]
+    )
 
     # case 5 assert raises KeyError
     callback = DefaultCallback(uncs, [], outcomes, nr_experiments=nr_experiments)
@@ -316,3 +320,47 @@ def test_file_based_callback(mocker):
     callback(experiment, {"other": 1, "time": [1, 2, 3, 4]})
 
     callback.get_results()
+
+
+@pytest.mark.parametrize(
+    ("shape", "replications"),
+    [((2, 3, 4), None), ((2, 3, 4, 5), None), ((2, 3), 2), ((2, 3, 4), 2)],
+)
+def test_array_outcome_with_any_number_of_dimensions(tmp_path, shape, replications):
+    """Regression test: arrays with more than 2 dimensions were rejected.
+
+    The shape of an outcome is inferred from the first result if it is not
+    declared. In that case, an outcome with more than two dimensions for a
+    single experiment raised "can only save up to 2d arrays", although it
+    worked with a declared shape and dtype. So, a 2d array outcome could not
+    be used with replications either.
+    """
+    from ema_workbench import (  # noqa: PLC0415
+        ArrayOutcome,
+        Model,
+        ReplicatorModel,
+        load_results,
+        perform_experiments,
+        save_results,
+    )
+
+    def function(a=1.0):
+        return {"array": np.full(shape, a)}
+
+    model = (ReplicatorModel if replications else Model)("model", function=function)
+    model.uncertainties = [RealParameter("a", 0, 1)]
+    model.outcomes = [ArrayOutcome("array")]
+    expected_shape = (3, *shape)
+    if replications:
+        model.replications = replications
+        expected_shape = (3, replications, *shape)
+
+    experiments, outcomes = perform_experiments(model, 3)
+    assert outcomes["array"].shape == expected_shape
+    np.testing.assert_array_equal(
+        outcomes["array"].reshape(3, -1)[:, 0], experiments["a"].values
+    )
+
+    save_results((experiments, outcomes), tmp_path / "results.tar.gz")
+    _, loaded = load_results(tmp_path / "results.tar.gz")
+    np.testing.assert_array_equal(loaded["array"], outcomes["array"])
