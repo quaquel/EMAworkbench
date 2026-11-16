@@ -82,6 +82,8 @@ if __name__ == "__main__":
     seeds = [random.randint(0, 1000) for _ in range(5)]
 
     # the archives are not overwritten, so remove the ones from a previous run
+    # this is just a convenience here. In practice, this might be a bad idea
+    # because you are removing earlier results.
     for seed in seeds:
         archive = f"./data/convergences/{seed}_lake_model_dps_archive.tar.gz"
         if os.path.exists(archive):
