@@ -103,7 +103,11 @@ class Sample(NamedDict):
             if isinstance(param, CategoricalParameter):
                 # map category indices back to category values
                 value = [param.cat_for_index(int(v)).value for v in value]
-            value = value[0] if param.shape is None else np.asarray(value)
+            value = (
+                value[0]
+                if param.shape is None
+                else np.asarray(value).reshape(param.shape)
+            )
             design_dict[param.name] = value
 
         return Sample(**design_dict)
@@ -398,8 +402,13 @@ def sample_generator(
                 value = [param.cat_for_index(int(entry)).value for entry in value]
 
             # integer and categorical values are a list at this point, while
-            # the values of a parameter with a shape should be an array
-            value = value[0] if param.shape is None else np.asarray(value)
+            # the values of a parameter with a shape should be an array of
+            # that shape
+            value = (
+                value[0]
+                if param.shape is None
+                else np.asarray(value).reshape(param.shape)
+            )
             design_dict[param.name] = value
 
         yield Sample(**design_dict)
