@@ -13,6 +13,7 @@ import numpy as np
 
 from ..em_framework import FileModel, TimeSeriesOutcome
 from ..em_framework.model import SingleReplication
+from ..em_framework.outcomes import _ignore_missing_time_index
 from ..em_framework.points import Experiment, Sample
 from ..em_framework.util import Variable
 from ..util import EMAWarning, ExperimentError, get_module_logger
@@ -230,7 +231,9 @@ class VensimModel(SingleReplication, FileModel):
             self._result_file = "Current.vdf"
 
         super().__init__(name, wd=wd, model_file=model_file)
-        self.outcomes.extend(TimeSeriesOutcome("TIME", variable_name="Time"))
+        # this outcome is the time index itself
+        with _ignore_missing_time_index():
+            self.outcomes.extend(TimeSeriesOutcome("TIME", variable_name="Time"))
 
         #: attribute that can be set when one wants to load a cin file
         self.cin_file = None

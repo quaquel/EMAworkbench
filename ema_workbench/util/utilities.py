@@ -68,7 +68,11 @@ def load_results(file_name: str) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import Outcome, register  # noqa: PLC0415
+    from ..em_framework.outcomes import (  # noqa: PLC0415
+        Outcome,
+        _ignore_missing_time_index,
+        register,
+    )
 
     file_name = os.path.abspath(file_name)
 
@@ -106,7 +110,9 @@ def load_results(file_name: str) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
             entry.__name__: entry for entry in Outcome.get_subclasses()
         }
         for outcome_type, name, filename in metadata["outcomes"]:
-            outcome = known_outcome_classes[outcome_type](name)  #  noqa F841
+            # only created to register how the outcome is stored
+            with _ignore_missing_time_index():
+                outcome = known_outcome_classes[outcome_type](name)  #  noqa F841
 
             values = register.deserialize(name, filename, archive)
             outcomes[name] = values

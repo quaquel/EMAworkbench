@@ -6,6 +6,7 @@ import numbers
 import tarfile
 import warnings
 from collections.abc import Callable, Sequence
+from contextlib import contextmanager
 from io import BytesIO
 from typing import Any
 
@@ -101,6 +102,20 @@ def _dataarray_from_disk(filename: str, archive: tarfile.TarFile) -> xr.DataArra
     """Read a DataArray that has been stored as netCDF."""
     f = archive.extractfile(filename)
     return xr.load_dataarray(BytesIO(f.read()), engine="h5netcdf")
+
+
+@contextmanager
+def _ignore_missing_time_index():
+    """Create a TimeSeriesOutcome without the warning for a missing time index.
+
+    For code of the workbench itself that creates a TimeSeriesOutcome without a
+    time index, e.g., when loading results, so the user cannot act on the warning.
+    """
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", message=".*has no time index", category=DeprecationWarning
+        )
+        yield
 
 
 def _values_equal(a: Any, b: Any) -> bool:
@@ -682,6 +697,8 @@ class TimeSeriesOutcome(ArrayOutcome):
     dimensions are ("experiment", "replication", "time").
 
     Without time or time_variable, the results are returned as a numpy array.
+    This is deprecated: from version 4.0 of the workbench, the results of all
+    time series outcomes are returned as a DataArray.
 
     All time series of an outcome need to have the same length and the same
     time index.
@@ -711,6 +728,16 @@ class TimeSeriesOutcome(ArrayOutcome):
             coords = {"time": time}
         elif time_variable is not None:
             dims = ("time",)
+        else:
+            warnings.warn(
+                f"TimeSeriesOutcome '{name}' has no time index, so its results are "
+                f"returned as a numpy array. This is deprecated: from version 4.0, "
+                f"the results of all time series outcomes are returned as an xarray "
+                f"DataArray. Specify the time index with time or time_variable to "
+                f"switch now.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         super().__init__(
             name,
@@ -926,7 +953,9 @@ def create_outcomes(outcomes, **kwargs):
         if kind == "scalar":
             outcome = ScalarOutcome(name)
         elif kind == "timeseries":
-            outcome = TimeSeriesOutcome(name)
+            # the time index cannot be specified here
+            with _ignore_missing_time_index():
+                outcome = TimeSeriesOutcome(name)
         else:
             raise ValueError(
                 f"Unknown type for outcome {name}: {kind}. Should be 'scalar' or 'timeseries'"

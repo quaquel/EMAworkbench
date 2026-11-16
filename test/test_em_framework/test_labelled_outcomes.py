@@ -4,6 +4,7 @@ import os
 import pickle
 import subprocess
 import sys
+import warnings
 
 import numpy as np
 import pytest
@@ -248,6 +249,7 @@ def model(a=1.0):
 _PARALLEL_SCRIPT = """
 import multiprocessing
 import sys
+import warnings
 
 import numpy as np
 
@@ -519,3 +521,45 @@ def test_merge_results_with_different_index():
     replicated.replications = 2
     with pytest.raises(EMAError, match="has dimensions"):
         merge_results(declared, perform_experiments(replicated, 2))
+
+
+# deprecation of time series outcomes without a time index
+
+
+def test_time_series_outcome_without_time_index_is_deprecated():
+    with pytest.warns(DeprecationWarning, match="'x' has no time index") as record:
+        TimeSeriesOutcome("x")
+    # the warning points to the code that declares the outcome
+    assert record[0].filename == __file__
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        TimeSeriesOutcome("x", time=TIME)
+        TimeSeriesOutcome("x", time_variable="TIME")
+        # other outcomes are not affected
+        ArrayOutcome("grid")
+        ScalarOutcome("scalar")
+
+
+def test_no_deprecation_warning_from_the_workbench_itself(tmp_path):
+    """The user can only act on the warning for outcomes they declare."""
+    import pandas as pd  # noqa: PLC0415
+
+    from ema_workbench import load_results, save_results  # noqa: PLC0415
+    from ema_workbench.em_framework.outcomes import create_outcomes  # noqa: PLC0415
+
+    with pytest.warns(DeprecationWarning, match="has no time index"):
+        model = make_model([TimeSeriesOutcome("plain", variable_name="x")])
+    results = perform_experiments(model, 2)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        with pytest.warns(UserWarning, match="Timeseries outcome seralization"):
+            save_results(results, tmp_path / "results.tar.gz")
+        register.outcomes.clear()
+        _, outcomes = load_results(tmp_path / "results.tar.gz")
+        assert type(outcomes["plain"]) is np.ndarray
+
+        create_outcomes(
+            pd.DataFrame({"name": ["a", "b"], "type": ["scalar", "timeseries"]})
+        )
