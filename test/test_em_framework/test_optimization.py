@@ -1162,3 +1162,124 @@ def test_epsilon_nondominated_categorical():
     assert merged["c"].iloc[0] == "z"
     assert not merged["b"].iloc[0]
     assert merged["y"].iloc[0] == 2.0
+
+
+def _shaped_lever_model(a=None, c=None, k=0):
+    return {
+        "y": float(np.sum(a) + sum(value == "hi" for value in c) + k),
+        "z": float(-np.sum(a)),
+    }
+
+
+def test_optimize_with_shaped_levers(tmp_path):
+    """Regression test: archives of an optimization with shaped levers.
+
+    Previously, the archive had a column holding an array for each shaped
+    lever. epsilon_nondominated and the convergence metrics could not use it,
+    and the stored archives contained these arrays as strings.
+    """
+    from ema_workbench import Model  # noqa: PLC0415
+    from ema_workbench.em_framework.optimization import load_archives  # noqa: PLC0415
+    from ema_workbench.em_framework.optimization_convergence import (  # noqa: PLC0415
+        HypervolumeMetric,
+    )
+    from ema_workbench.em_framework.points import from_experiments  # noqa: PLC0415
+
+    model = Model("shaped", function=_shaped_lever_model)
+    model.levers = [
+        RealParameter("a", 0, 1, shape=(3,)),
+        CategoricalParameter("c", ["lo", "hi"], shape=(2,)),
+        IntegerParameter("k", 0, 3),
+    ]
+    model.outcomes = [
+        ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE),
+        ScalarOutcome("z", kind=ScalarOutcome.MAXIMIZE),
+    ]
+    epsilons = [0.05, 0.05]
+
+    with SequentialEvaluator(model) as evaluator:
+        results = evaluator.optimize(
+            nfe=100,
+            searchover="levers",
+            epsilons=epsilons,
+            population_size=10,
+            reference=Sample("reference"),
+            filename="archives.tar.gz",
+            directory=str(tmp_path),
+            rng=[1, 2],
+        )
+    archives = [archive for archive, _ in results]
+
+    # one column for each element, as for the experiments
+    expected_columns = ["a_0", "a_1", "a_2", "c_0", "c_1", "k", "y", "z"]
+    assert all(list(archive.columns) == expected_columns for archive in archives)
+
+    problem = Problem("levers", model.levers, list(model.outcomes))
+    merged = epsilon_nondominated(archives, epsilons, problem)
+    assert list(merged.columns) == expected_columns
+    assert 0 < len(merged) <= sum(len(archive) for archive in archives)
+
+    HypervolumeMetric(merged, problem).calculate(archives[0])
+
+    # the stored archives can be used as well
+    stored = [
+        load_archives(tmp_path / f"{seed}_archives.tar.gz")[-1][1] for seed in (1, 2)
+    ]
+    for archive, returned in zip(stored, archives):
+        assert list(archive.columns) == expected_columns
+        assert archive["a_0"].dtype == float
+        pd.testing.assert_frame_equal(
+            archive.sort_values(["y", "z"]).reset_index(drop=True),
+            returned.sort_values(["y", "z"]).reset_index(drop=True),
+            check_dtype=False,
+        )
+    epsilon_nondominated(stored, epsilons, problem)
+
+    # the rows can be turned back into policies
+    policies = from_experiments(merged, parameters=model.levers)
+    assert policies[0]["a"].shape == (3,)
+    assert set(policies[0]["c"]) <= {"lo", "hi"}
+    with SequentialEvaluator(model) as evaluator:
+        experiments, outcomes = evaluator.perform_experiments(
+            scenarios=1, policies=policies
+        )
+    np.testing.assert_allclose(outcomes["y"], merged["y"])
+
+
+def test_rebuild_platypus_population_with_shaped_decision_variables():
+    decision_variables = [
+        RealParameter("a", 0, 1, shape=(2,)),
+        CategoricalParameter("c", ["lo", "hi"], shape=(2,)),
+    ]
+    objectives = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+    problem = Problem("levers", decision_variables, objectives)
+    assert problem.latent_parameter_names == ["a_0", "a_1", "c_0", "c_1"]
+
+    archive = pd.DataFrame(
+        {
+            "a_0": [0.1, 0.5],
+            "a_1": [0.2, 0.6],
+            "c_0": ["lo", "hi"],
+            "c_1": ["hi", "hi"],
+            "y": [1.0, 2.0],
+        }
+    )
+    solutions = rebuild_platypus_population(archive, problem)
+    rebuilt = to_dataframe(solutions, problem.latent_parameter_names, ["y"])
+    pd.testing.assert_frame_equal(
+        rebuilt.sort_values("y").reset_index(drop=True), archive, check_dtype=False
+    )
+
+    # the arrays themselves are not accepted
+    with pytest.raises(EMAError, match="does not match"):
+        rebuild_platypus_population(
+            pd.DataFrame(
+                {
+                    "a": [np.zeros(2)],
+                    "c": [np.array(["lo", "lo"])],
+                    "x": [0],
+                    "y": [1.0],
+                }
+            ),
+            problem,
+        )

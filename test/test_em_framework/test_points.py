@@ -291,6 +291,40 @@ def test_from_experiments():
             assert row[k] == v
 
 
+def test_from_experiments_with_parameters():
+    """Shaped parameters are turned back into arrays."""
+    import pandas as pd  # noqa: PLC0415
+
+    parameters = [
+        RealParameter("a", 0, 1, shape=(2, 2)),
+        CategoricalParameter("c", ["lo", "hi"], shape=(2,)),
+        IntegerParameter("k", 0, 3),
+    ]
+    experiments = pd.DataFrame(
+        {
+            "a_0": [0.1],
+            "a_1": [0.2],
+            "a_2": [0.3],
+            "a_3": [0.4],
+            "c_0": ["lo"],
+            "c_1": ["hi"],
+            "k": [2],
+            "y": [1.0],
+            "scenario": [0],
+            "policy": ["p"],
+            "model": ["m"],
+        }
+    )
+    (sample,) = from_experiments(experiments, parameters=parameters)
+    assert set(sample) == {"a", "c", "k"}
+    np.testing.assert_allclose(sample["a"], [[0.1, 0.2], [0.3, 0.4]])
+    assert list(sample["c"]) == ["lo", "hi"]
+    assert sample["k"] == 2
+
+    with pytest.raises(ValueError, match="a_3"):
+        from_experiments(experiments.drop(columns="a_3"), parameters=parameters)
+
+
 def test_sample_platypus():
     """Tests for converting samples to platypus solutions and vice versa."""
     parameters = [
@@ -312,3 +346,56 @@ def test_sample_platypus():
     assert sample["c"] == new_sample["c"]
     assert np.all(sample["d"] == new_sample["d"])
 
+
+
+@pytest.mark.parametrize("sampler", ["MC", "LHS", "FF", "SOBOL"])
+def test_multidimensional_shape_reaches_model(sampler):
+    """Regression test: a parameter with a 2d shape was passed flattened."""
+    from ema_workbench import Model, ScalarOutcome, perform_experiments  # noqa: PLC0415
+    from ema_workbench.em_framework.evaluators import Samplers  # noqa: PLC0415
+
+    seen = []
+
+    def function(a=None, c=None, k=None):
+        seen.append((np.shape(a), np.shape(c), np.shape(k)))
+        return {"y": 0.0}
+
+    model = Model("model", function=function)
+    model.uncertainties = [
+        RealParameter("a", 0, 1, shape=(2, 3)),
+        CategoricalParameter("c", ["x", "y"], shape=(2, 1)),
+        IntegerParameter("k", 0, 5, shape=(1, 2)),
+    ]
+    model.outcomes = [ScalarOutcome("y")]
+
+    kwargs = {"resolution": [2]} if sampler == "FF" else {}
+    n = 2 if sampler == "FF" else 4
+    experiments, _ = perform_experiments(
+        model,
+        n,
+        uncertainty_sampling=Samplers[sampler],
+        uncertainty_sampling_kwargs=kwargs or None,
+    )
+    assert set(seen) == {((2, 3), (2, 1), (1, 2))}
+    # the experiments still have one column for each element
+    assert [f"a_{i}" for i in range(6)] == [
+        c for c in experiments.columns if c.startswith("a_")
+    ]
+
+
+def test_multidimensional_shape_from_platypus_solution():
+    """Regression test: a decision variable with a 2d shape was flattened."""
+    from ema_workbench import ScalarOutcome  # noqa: PLC0415
+
+    parameters = [
+        RealParameter("a", 0, 1, shape=(2, 2)),
+        CategoricalParameter("c", ["x", "y"], shape=(1, 2)),
+    ]
+    problem = Problem(
+        "levers", parameters, [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+    )
+    sample = Sample(a=np.array([[0.1, 0.2], [0.3, 0.4]]), c=np.array([["y", "x"]]))
+    result = Sample._from_platypus_solution(sample._to_platypus_solution(problem))
+    np.testing.assert_allclose(result["a"], sample["a"])
+    assert result["a"].shape == (2, 2)
+    assert result["c"].tolist() == [["y", "x"]]

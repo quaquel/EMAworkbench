@@ -103,7 +103,11 @@ class Sample(NamedDict):
             if isinstance(param, CategoricalParameter):
                 # map category indices back to category values
                 value = [param.cat_for_index(int(v)).value for v in value]
-            value = value[0] if param.shape is None else np.asarray(value)
+            value = (
+                value[0]
+                if param.shape is None
+                else np.asarray(value).reshape(param.shape)
+            )
             design_dict[param.name] = value
 
         return Sample(**design_dict)
@@ -398,8 +402,13 @@ def sample_generator(
                 value = [param.cat_for_index(int(entry)).value for entry in value]
 
             # integer and categorical values are a list at this point, while
-            # the values of a parameter with a shape should be an array
-            value = value[0] if param.shape is None else np.asarray(value)
+            # the values of a parameter with a shape should be an array of
+            # that shape
+            value = (
+                value[0]
+                if param.shape is None
+                else np.asarray(value).reshape(param.shape)
+            )
             design_dict[param.name] = value
 
         yield Sample(**design_dict)
@@ -484,14 +493,14 @@ def sample(models, policies, scenarios, rng=None):
 
 
 def from_experiments(
-    experiments: pd.DataFrame, drop_defaults: bool = True
+    experiments: pd.DataFrame,
+    drop_defaults: bool = True,
+    parameters: Iterable[Parameter] | None = None,
 ) -> list[Sample]:
-    """Generate scenarios from an existing experiments DataFrame.
+    """Generate samples from an existing experiments DataFrame.
 
-    This function takes a pandas DataFrame and turns it into a list of Sample instances.
-    There is no further processing done, so it is up to the user to ensure that the columsn in the
-    dataframe map to parameters in the model.
-
+    This function takes a pandas DataFrame and turns it into a list of Sample
+    instances. This also works for the archives returned by optimization.
 
     Parameters
     ----------
@@ -499,12 +508,33 @@ def from_experiments(
     drop_defaults : bool
                     By default, an experiments dataframe as returned by the workbench after performing experiments contains
                     a 'model', 'scenario' and 'policy' column. If drop_defaults is True, these columns are automatically ignored.
+                    Only relevant if parameters is None.
+    parameters : collection of Parameter instances, optional
+                 If provided, only the columns of these parameters are used,
+                 and a parameter with a shape, which is stored as one column
+                 for each element (``<name>_0``, ``<name>_1``, ...), is turned
+                 back into an array of that shape. If not provided, there is no
+                 further processing done, so it is up to the user to ensure
+                 that the columns in the dataframe map to parameters in the
+                 model.
 
     Returns
     -------
     list of Sample instances
 
     """
+    if parameters is not None:
+        parameters = list(parameters)
+        missing = [
+            name for name in _flat_names(parameters) if name not in experiments.columns
+        ]
+        if missing:
+            raise ValueError(f"columns {missing} not found in experiments")
+        return [
+            Sample(**_unflatten_record(record, parameters))
+            for record in experiments.to_dict(orient="records")
+        ]
+
     if drop_defaults:
         experiments = experiments.drop(
             ["model", "scenario", "policy"], axis=1, inplace=False
@@ -515,6 +545,40 @@ def from_experiments(
         samples.append(Sample(**record))
 
     return samples
+
+
+def _flat_names(parameters: Iterable[Parameter]) -> list[str]:
+    """Return the names of the columns of the parameters in a DataFrame.
+
+    A parameter with a shape is stored as one column for each element, named
+    ``<name>_<index>``, with the index in C order.
+    """
+    names = []
+    for parameter in parameters:
+        if parameter.shape is None:
+            names.append(parameter.name)
+        else:
+            names.extend(
+                f"{parameter.name}_{i}" for i in range(math.prod(parameter.shape))
+            )
+    return names
+
+
+def _unflatten_record(record: dict, parameters: Iterable[Parameter]) -> dict:
+    """Turn a flat record, e.g., a row of a DataFrame, into parameter values.
+
+    This is the inverse of flatten_sample: the values of the elements of a
+    parameter with a shape are turned back into an array of that shape.
+    """
+    values = {}
+    for parameter in parameters:
+        if parameter.shape is None:
+            values[parameter.name] = record[parameter.name]
+        else:
+            n = math.prod(parameter.shape)
+            elements = [record[f"{parameter.name}_{i}"] for i in range(n)]
+            values[parameter.name] = np.asarray(elements).reshape(parameter.shape)
+    return values
 
 
 def flatten_sample(sample: Sample, parameters: Iterable[Parameter]) -> tuple:
