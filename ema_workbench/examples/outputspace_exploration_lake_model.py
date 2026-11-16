@@ -5,6 +5,7 @@ see https://gist.github.com/dhadka/a8d7095c98130d8f73bc
 
 """
 
+import numpy as np
 from lake_models import lake_problem_intertemporal
 
 from ema_workbench import (
@@ -36,9 +37,9 @@ if __name__ == "__main__":
         RealParameter("delta", 0.93, 0.99),
     ]
 
-    # set levers, one for each time step
+    # set levers, a single lever with a value for each time step
     lake_model.levers = [
-        RealParameter(f"l{i}", 0, 0.1) for i in range(lake_model.time_horizon)
+        RealParameter("decisions", 0, 0.1, shape=(lake_model.time_horizon,))
     ]
 
     # specify outcomes
@@ -54,9 +55,7 @@ if __name__ == "__main__":
     lake_model.constants = [Constant("alpha", 0.41), Constant("n_samples", 150)]
 
     # generate a reference policy
-    reference = Sample(
-        "no_policy", **{l.name: 0.02 for l in lake_model.levers}  # noqa: E741
-    )
+    reference = Sample("no_policy", decisions=np.full(lake_model.time_horizon, 0.02))
 
     # we are doing output space exploration given a reference
     # policy, so we are exploring the output space over the uncertainties

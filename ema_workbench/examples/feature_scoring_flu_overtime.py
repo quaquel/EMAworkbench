@@ -31,7 +31,7 @@ for i in range(2, y.shape[1], 8):
     all_scores.append(scores)
 
 all_scores = pd.concat(all_scores, axis=1, sort=False)
-all_scores = all_scores.loc[top_5, :]
+all_scores = all_scores.loc[list(top_5), :]
 
 fig, ax = plt.subplots()
 sns.heatmap(all_scores, ax=ax, cmap="viridis")

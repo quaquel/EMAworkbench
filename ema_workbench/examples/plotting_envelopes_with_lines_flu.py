@@ -18,7 +18,7 @@ experiments, outcomes = load_results(file_name)
 # let's specify a few scenarios that we want to show for
 # each of the policies
 scenario_ids = np.arange(0, 1000, 100)
-experiments_to_show = experiments["scenario_id"].isin(scenario_ids)
+experiments_to_show = experiments["scenario"].isin(scenario_ids)
 
 # the plotting functions return the figure and a dict of axes
 fig, axes = lines(

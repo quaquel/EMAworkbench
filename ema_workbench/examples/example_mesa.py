@@ -260,7 +260,7 @@ if __name__ == "__main__":
     # Define the number of replications and the seed for each of then
     n_replications = 10
     model.replications = [
-        {"rng": i}
+        {"rng": int(i)}
         for i in np.random.default_rng().integers(sys.maxsize, size=n_replications)
     ]
 
