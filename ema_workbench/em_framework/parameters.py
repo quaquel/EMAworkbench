@@ -114,7 +114,11 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
     name : str
     lower_bound : int or float
     upper_bound : int or float
-    shape : int or tuple
+    shape : tuple of int, optional
+            the shape of the parameter, e.g., (3,) or (2, 2). Each element
+            is sampled separately, and the model receives the value as an
+            array of this shape. A single dimension is also given as a
+            tuple, e.g., (3,) and not 3.
     resolution : collection
 
 
@@ -152,7 +156,7 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         name: str,
         lower_bound,
         upper_bound,
-        shape: tuple[int] | None = None,
+        shape: tuple[int, ...] | None = None,
         resolution=None,
         default=None,
         variable_name: str | list[str] | None = None,
@@ -240,7 +244,11 @@ class RealParameter(Parameter):
     name : str
     lower_bound : int or float
     upper_bound : int or float
-    shape : tuple
+    shape : tuple of int, optional
+            the shape of the parameter, e.g., (3,) or (2, 2). Each element
+            is sampled separately, and the model receives the value as an
+            array of this shape. A single dimension is also given as a
+            tuple, e.g., (3,) and not 3.
     resolution : iterable
     variable_name : str, or list of str
 
@@ -259,7 +267,7 @@ class RealParameter(Parameter):
         name: str,
         lower_bound: float,
         upper_bound: float,
-        shape: tuple[int] | None = None,
+        shape: tuple[int, ...] | None = None,
         resolution=None,
         default: float | None = None,
         variable_name: str | list[str] | None = None,
@@ -305,6 +313,11 @@ class IntegerParameter(Parameter):
     name : str
     lower_bound : int
     upper_bound : int
+    shape : tuple of int, optional
+            the shape of the parameter, e.g., (3,) or (2, 2). Each element
+            is sampled separately, and the model receives the value as an
+            array of this shape. A single dimension is also given as a
+            tuple, e.g., (3,) and not 3.
     resolution : iterable
     variable_name : str, or list of str
 
@@ -325,7 +338,7 @@ class IntegerParameter(Parameter):
         name,
         lower_bound: int,
         upper_bound: int,
-        shape: tuple[int] | None = None,
+        shape: tuple[int, ...] | None = None,
         resolution=None,
         default: int | None = None,
         variable_name: str | list[str] | None = None,
@@ -391,7 +404,11 @@ class CategoricalParameter(IntegerParameter):
     ----------
     name : str
     categories : collection of obj
-    shape : tuple
+    shape : tuple of int, optional
+            the shape of the parameter, e.g., (3,) or (2, 2). Each element
+            is sampled separately, and the model receives the value as an
+            array of this shape. A single dimension is also given as a
+            tuple, e.g., (3,) and not 3.
     variable_name : str, or list of str
     multivalue : boolean
                  if categories have a set of values, for each variable_name
@@ -413,7 +430,7 @@ class CategoricalParameter(IntegerParameter):
         self,
         name,
         categories,
-        shape: tuple[int] | None = None,
+        shape: tuple[int, ...] | None = None,
         default=None,
         variable_name: str | list[str] | None = None,
         multivalue: bool = False,
@@ -505,7 +522,11 @@ class BooleanParameter(CategoricalParameter):
     Parameters
     ----------
     name : str
-    shape : tuple
+    shape : tuple of int, optional
+            the shape of the parameter, e.g., (3,) or (2, 2). Each element
+            is sampled separately, and the model receives the value as an
+            array of this shape. A single dimension is also given as a
+            tuple, e.g., (3,) and not 3.
     variable_name : str, or list of str
 
     """
@@ -513,7 +534,7 @@ class BooleanParameter(CategoricalParameter):
     def __init__(
         self,
         name,
-        shape: tuple[int] | None = None,
+        shape: tuple[int, ...] | None = None,
         default: bool | None = None,
         variable_name: str | list[str] | None = None,
     ):
