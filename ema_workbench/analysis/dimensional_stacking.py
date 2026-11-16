@@ -394,6 +394,9 @@ def create_pivot_plot(
     code in this function as a template.
 
     """
+    # y can be a DataArray or Series, e.g., derived from a time series outcome
+    y = np.asarray(y)
+
     x = _prepare_experiments(x)
     scores = feature_scoring.get_ex_feature_scores(x, y)[0]
     x = x[scores.index]

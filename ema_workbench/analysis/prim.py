@@ -105,6 +105,9 @@ def pca_preprocess(
 
 
     """
+    # y can be a DataArray or Series, e.g., derived from a time series outcome
+    y = np.asarray(y)
+
     # experiments to rotate
     exclude = set() if exclude is None else exclude
 
@@ -1289,6 +1292,9 @@ class BasePrim(sdutil.OutputFormatterMixin):
         update_function: str = "default",
     ):
         """Init."""
+        # y can be a DataArray or Series, e.g., derived from a time series outcome
+        y = np.asarray(y)
+
         if y.ndim != 1:
             raise ValueError("y must be one-dimensional")
         if y.shape[0] != x.shape[0]:

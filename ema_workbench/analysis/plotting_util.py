@@ -16,6 +16,7 @@ import numpy.typing as npt
 import pandas as pd
 import scipy.stats as stats
 import seaborn as sns
+import xarray as xr
 
 from ..util import EMAError, get_module_logger
 
@@ -587,6 +588,63 @@ def determine_time_dimension(
     return time, outcomes
 
 
+def determine_time_indices(
+    outcomes: dict[str, npt.NDArray | xr.DataArray],
+) -> tuple[dict[str, npt.NDArray | None], dict[str, npt.NDArray]]:
+    """Helper function for determining the time index of each outcome.
+
+    The time index of an outcome is, in order of preference,
+
+    1. the coordinates of the last dimension, if the outcome is a DataArray,
+       e.g., the results of a TimeSeriesOutcome with a time index
+    2. the outcome named "TIME", if there is one of the same length. This
+       outcome is removed from the outcomes.
+    3. the position of the time steps: 0, 1, 2, ...
+
+    Parameters
+    ----------
+    outcomes : dict
+
+    Returns
+    -------
+    dict
+        the time index for each outcome, or None for outcomes that are not
+        time series
+    dict
+        the outcomes as numpy arrays, without "TIME"
+
+    """
+    outcomes = dict(outcomes)
+
+    shared_time = None
+    if TIME in outcomes:
+        shared_time = np.asarray(outcomes.pop(TIME))[0, :]
+
+    times = {}
+    arrays = {}
+    for key, value in outcomes.items():
+        time = None
+        if value.ndim == 2:
+            if isinstance(value, xr.DataArray) and value.dims[-1] in value.coords:
+                time = value.coords[value.dims[-1]].values
+            elif (
+                not isinstance(value, xr.DataArray)
+                and shared_time is not None
+                and shared_time.size == value.shape[1]
+            ):
+                time = shared_time
+            else:
+                time = np.arange(0, value.shape[1])
+        times[key] = time
+
+        # the plotting functions work with numpy arrays
+        arrays[key] = value.values if isinstance(value, xr.DataArray) else value
+
+    if all(time is None for time in times.values()):
+        _logger.info("no time dimension found in results")
+    return times, arrays
+
+
 def group_results(
     experiments: pd.DataFrame,
     outcomes: dict[str, npt.NDArray],
@@ -748,15 +806,16 @@ def prepare_pairs_data(
         new_outcomes = {}
         for key, value in outcomes.items():
             if len(value.shape) == 2:
-                new_outcomes[key] = value[:, point_in_time]
+                index = point_in_time
+                if index != -1:
+                    # each outcome has its own time index
+                    index = np.where(time[key] == point_in_time)
+                new_outcomes[key] = value[:, index]
             else:
                 new_outcomes[key] = value
         return new_outcomes
 
     if point_in_time:
-        if point_in_time != -1:
-            point_in_time = np.where(time == point_in_time)
-
         if group_by:
             new_outcomes = {}
             for key, value in outcomes.items():
@@ -783,22 +842,33 @@ def prepare_data(
     experiments : DataFrame
     experiments_to_show : ndarray
     outcomes : dict
+               the outcomes as numpy arrays or DataArrays
     outcomes_to_show : list of str, optional
     group_by : str, optional
     grouping_specifiers : iterable, optional
     filter_scalar : bool, optional
 
+    Returns
+    -------
+    experiments : DataFrame
+    outcomes : dict
+               the outcomes as numpy arrays, grouped if group_by is used
+    outcomes_to_show : list of str
+    time : dict
+           the time index for each outcome, see determine_time_indices
+    grouping_labels : list
+
     """
     experiments = experiments.copy()
     outcomes = copy.deepcopy(outcomes)
+
+    time, outcomes = determine_time_indices(outcomes)
 
     if experiments_to_show is not None:
         experiments = experiments.loc[experiments_to_show, :]
 
         for k, v in outcomes.items():
             outcomes[k] = v[experiments_to_show]
-
-    time, outcomes = determine_time_dimension(outcomes)
 
     # remove outcomes that are not to be shown
     if outcomes_to_show:
@@ -813,6 +883,14 @@ def prepare_data(
     # filter the outcomes to exclude scalar values
     if filter_scalar:
         outcomes = filter_scalar_outcomes(outcomes)
+
+    for key, value in outcomes.items():
+        if value.ndim > 2:
+            raise EMAError(
+                f"outcome '{key}' has {value.ndim} dimensions, while only time "
+                f"series with the dimensions (experiment, time) can be shown. "
+                f"Reduce it first, e.g., by taking the mean over the replications"
+            )
     if not outcomes_to_show:
         outcomes_to_show = list(outcomes.keys())
 

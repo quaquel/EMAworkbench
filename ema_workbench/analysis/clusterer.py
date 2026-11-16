@@ -51,7 +51,7 @@ def calculate_cid(
 
     Parameters
     ----------
-    data : 2d ndarray
+    data : 2d ndarray or DataArray
            one time series per row, all on the same time grid
     condensed_form : bool, optional
                      if True, return the condensed form, similar to
@@ -83,6 +83,12 @@ def calculate_cid(
 
     """
     data = np.asarray(data, dtype=float)
+    if data.ndim != 2:
+        raise ValueError(
+            f"data should be 2d, with one time series per row, but has {data.ndim} "
+            f"dimensions. Time series for each replication need to be reduced "
+            f"first, e.g., by taking the mean over the replications"
+        )
     dtype = np.dtype(dtype)
     if not np.issubdtype(dtype, np.floating):
         raise ValueError(f"dtype must be a floating dtype, not {dtype}")
