@@ -19,6 +19,7 @@ classifiers=[
 dependencies = [
     "numpy",
     "pandas",
+    "xarray",
     "scikit-learn",
     "salib>=1.4.6",
     "platypus-opt>=1.3.0",

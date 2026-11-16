@@ -270,7 +270,9 @@ def evaluate(
 
         job_outputs = {}
         for k, v in outcomes.items():
-            job_outputs[k] = v[logical]
+            # outcomes with declared dimensions are DataArrays, while the
+            # objectives and robustness functions work with numpy arrays
+            job_outputs[k] = np.asarray(v)[logical]
 
         # TODO:: only retain decision variables
         # we only need a single row with the decision variables here

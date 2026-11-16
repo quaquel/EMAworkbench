@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 from ..util import ema_exceptions, get_module_logger
 from .outcomes import Outcome
@@ -100,6 +101,9 @@ class AbstractCallback(ProgressTrackingMixIn, metaclass=abc.ABCMeta):
         self.i = 0
         self.nr_experiments = nr_experiments
         self.outcomes = outcomes
+        # the names of the outcomes of models with replications, which is set
+        # by perform_experiments. Used for outcomes with declared dimensions.
+        self.replicated_outcomes = set()
         self.parameters = [*uncertainties, *levers]
 
         if reporting_interval is None:
@@ -241,6 +245,12 @@ class DefaultCallback(AbstractCallback):
         self.dtypes = dtypes
         self.cases = np.empty(nr_experiments, dtype=dtypes)
 
+        # coordinates returned by the model, e.g., the time index of a time
+        # series, by outcome name. These have to be the same for all experiments
+        self._coords = {}
+        # outcomes with declared dimensions for which the shape has been checked
+        self._checked_outcomes = set()
+
         for outcome in self.outcomes:
             shape = outcome.shape
             if shape is not None:
@@ -307,6 +317,23 @@ class DefaultCallback(AbstractCallback):
                 message = f"outcome {outcome_name} not specified as outcome in model(s)"
                 _logger.debug(message)
             else:
+                if isinstance(outcome_res, xr.DataArray):
+                    self._store_coords(outcome_name, outcome_res)
+                    outcome_res = outcome_res.values
+
+                if (
+                    getattr(outcome, "dims", None) is not None
+                    and outcome_name not in self._checked_outcomes
+                ):
+                    # check once, with the first result, so a problem is
+                    # reported before all experiments have been run
+                    outcome.check_shape(
+                        np.shape(outcome_res),
+                        replicated=outcome_name in self.replicated_outcomes,
+                        coords=self._coords.get(outcome_name),
+                    )
+                    self._checked_outcomes.add(outcome_name)
+
                 try:
                     self.results[outcome_name][case_id,] = outcome_res
                 except KeyError:
@@ -320,6 +347,26 @@ class DefaultCallback(AbstractCallback):
                         shape, data.dtype
                     )
                     self.results[outcome_name][case_id,] = outcome_res
+
+    def _store_coords(self, outcome_name: str, outcome_res: xr.DataArray) -> None:
+        """Helper method for storing the coordinates returned by the model.
+
+        The coordinates, e.g., the time index of a time series, are stored for
+        the first experiment. For all other experiments, they have to be the
+        same.
+        """
+        stored = self._coords.setdefault(outcome_name, {})
+        for dim in outcome_res.dims:
+            if dim not in outcome_res.coords:
+                continue
+            values = outcome_res.coords[dim].values
+            if dim not in stored:
+                stored[dim] = values
+            elif not np.array_equal(stored[dim], values):
+                raise ema_exceptions.EMAError(
+                    f"the {dim} index of outcome '{outcome_name}' differs between "
+                    f"experiments. All experiments need to have the same {dim} index."
+                )
 
     def __call__(self, experiment: Experiment, outcomes: dict[str, Any]) -> None:
         """Method responsible for storing results.
@@ -337,8 +384,17 @@ class DefaultCallback(AbstractCallback):
         self._store_case(experiment)
         self._store_outcomes(experiment.experiment_id, outcomes)
 
-    def get_results(self) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
-        """Return the experiments and their results."""
+    def get_results(
+        self,
+    ) -> tuple[pd.DataFrame, dict[str, np.ndarray | xr.DataArray]]:
+        """Return the experiments and their results.
+
+        The results of an outcome with declared dimensions, e.g., a
+        TimeSeriesOutcome with a time index, are returned as a DataArray. All
+        other results are returned as numpy arrays.
+        """
+        outcomes_by_name = {outcome.name: outcome for outcome in self.outcomes}
+
         results = {}
         for k, v in self.results.items():
             if not np.ma.is_masked(v):
@@ -348,6 +404,15 @@ class DefaultCallback(AbstractCallback):
                     "some experiments have failed, returning masked result arrays"
                 )
                 results[k] = v
+
+            outcome = outcomes_by_name[k]
+            if getattr(outcome, "dims", None) is not None:
+                # for a DataArray, the results of failed experiments are nan
+                results[k] = outcome.label_results(
+                    results[k],
+                    replicated=k in self.replicated_outcomes,
+                    coords=self._coords.get(k),
+                )
 
         cases = pd.DataFrame.from_records(self.cases)
 
