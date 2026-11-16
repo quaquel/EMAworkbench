@@ -90,6 +90,19 @@ class Register:
 register = Register()
 
 
+def _dataarray_to_disk(values: xr.DataArray) -> tuple[BytesIO, str]:
+    """Write a DataArray as netCDF, which keeps the dimensions and coordinates."""
+    fh = BytesIO()
+    values.to_netcdf(fh, engine="h5netcdf")
+    return fh, "nc"
+
+
+def _dataarray_from_disk(filename: str, archive: tarfile.TarFile) -> xr.DataArray:
+    """Read a DataArray that has been stored as netCDF."""
+    f = archive.extractfile(filename)
+    return xr.load_dataarray(BytesIO(f.read()), engine="h5netcdf")
+
+
 def _values_equal(a: Any, b: Any) -> bool:
     """Compare two attribute values, which can be or contain numpy arrays."""
     if isinstance(a, dict) and isinstance(b, dict):
@@ -569,9 +582,13 @@ class ArrayOutcome(Outcome):
     def to_disk(cls, values):
         """Helper function for writing outcome to disk.
 
+        A numpy array is stored as csv, or as npy if it has more than two
+        dimensions. A DataArray is stored as netCDF, which keeps its
+        dimensions and coordinates.
+
         Parameters
         ----------
-        values : ND array
+        values : ND array or DataArray
 
         Returns
         -------
@@ -579,6 +596,9 @@ class ArrayOutcome(Outcome):
         filename
 
         """
+        if isinstance(values, xr.DataArray):
+            return _dataarray_to_disk(values)
+
         if values.ndim < 3:
             fh = BytesIO()
             data = pd.DataFrame(values)
@@ -593,6 +613,9 @@ class ArrayOutcome(Outcome):
 
     @classmethod
     def from_disk(cls, filename, archive):  # noqa: D102
+        if filename.endswith(".nc"):
+            return _dataarray_from_disk(filename, archive)
+
         f = archive.extractfile(filename)
 
         if filename.endswith("csv"):
@@ -604,7 +627,7 @@ class ArrayOutcome(Outcome):
             return np.load(array_file)
         else:
             raise EMAError(
-                f"Unknown file extension {filename}. Only .csv and .npy are supported."
+                f"Unknown file extension {filename}. Only .csv, .npy, and .nc are supported."
             )
 
 
@@ -759,17 +782,29 @@ class TimeSeriesOutcome(ArrayOutcome):
     def to_disk(cls, values):
         """Helper function for writing outcome to disk.
 
+        A numpy array is stored as csv, or as npy if it has more than two
+        dimensions. A DataArray, which is what the results are if the outcome
+        has a time index, is stored as netCDF, which keeps its dimensions and
+        the time index.
+
         Parameters
         ----------
-        values : DataFrame
+        values : 2D array or DataArray
 
 
         Returns
         -------
-        StringIO
+        BytesIO
         filename
 
         """
+        if isinstance(values, xr.DataArray):
+            return _dataarray_to_disk(values)
+
+        if values.ndim > 2:
+            # time series for each replication, which do not fit in a csv
+            return super().to_disk(values)
+
         warnings.warn(
             "Timeseries outcome seralization still to be tested!!", stacklevel=2
         )
@@ -780,13 +815,16 @@ class TimeSeriesOutcome(ArrayOutcome):
 
     @classmethod
     def from_disk(cls, filename, archive):  # noqa: D102
+        if filename.endswith((".nc", ".npy")):
+            return super().from_disk(filename, archive)
+
         f = archive.extractfile(filename)
 
         if filename.endswith("csv"):
             return pd.read_csv(f, index_col=False, header=0).values
         else:
             raise EMAError(
-                f"Unknown file extension {filename}. Only .csv and .npy are supported."
+                f"Unknown file extension {filename}. Only .csv, .npy, and .nc are supported."
             )
 
 

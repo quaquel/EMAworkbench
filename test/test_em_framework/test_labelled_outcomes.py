@@ -410,3 +410,112 @@ def test_robustness_functions_get_numpy_arrays(tmp_path):
         )
     assert set(received) == {np.ndarray}
     assert archive["mean_end"].dtype == float
+
+
+# saving, loading and merging
+
+
+def _replicated_results(n_experiments=4):
+    """Results with DataArrays, including replications, and numpy arrays."""
+    model = make_model(
+        [
+            TimeSeriesOutcome("x", time_variable="TIME"),
+            TimeSeriesOutcome("plain", variable_name="x"),
+            ArrayOutcome(
+                "mean_grid",
+                variable_name="grid",
+                dims=("row", "col"),
+                coords={"col": [10, 20, 30]},
+                function=lambda values: np.mean(values, axis=0),
+            ),
+            ScalarOutcome("scalar", function=np.mean),
+        ],
+        klass=ReplicatorModel,
+    )
+    model.replications = [{"seed": 1}, {"seed": 2}, {"seed": 3}]
+    return perform_experiments(model, n_experiments)
+
+
+def test_save_and_load_results(tmp_path):
+    """DataArrays keep their dimensions and coordinates when saved."""
+    import tarfile  # noqa: PLC0415
+
+    from ema_workbench import load_results, save_results  # noqa: PLC0415
+
+    experiments, outcomes = _replicated_results()
+    file_name = tmp_path / "results.tar.gz"
+    save_results((experiments, outcomes), file_name)
+
+    with tarfile.open(file_name) as archive:
+        names = set(archive.getnames())
+    assert {"x.nc", "mean_grid.nc", "plain.npy", "scalar.cls"} <= names
+
+    loaded_experiments, loaded = load_results(file_name)
+    assert set(loaded) == set(outcomes)
+    assert len(loaded_experiments) == len(experiments)
+
+    # identical includes name, dimensions, coordinates, and values
+    xr.testing.assert_identical(loaded["x"], outcomes["x"])
+    xr.testing.assert_identical(loaded["mean_grid"], outcomes["mean_grid"])
+    assert loaded["x"].dims == ("experiment", "replication", "time")
+    assert loaded["x"].dtype == outcomes["x"].dtype
+
+    assert type(loaded["plain"]) is np.ndarray
+    np.testing.assert_array_equal(loaded["plain"], outcomes["plain"])
+    np.testing.assert_allclose(loaded["scalar"], outcomes["scalar"])
+
+    # loaded results can be saved again
+    save_results((loaded_experiments, loaded), tmp_path / "again.tar.gz")
+    _, again = load_results(tmp_path / "again.tar.gz")
+    xr.testing.assert_identical(again["x"], outcomes["x"])
+
+
+def test_save_and_load_time_series_without_replications(tmp_path):
+    from ema_workbench import load_results, save_results  # noqa: PLC0415
+
+    model = make_model([TimeSeriesOutcome("x", time=TIME)])
+    experiments, outcomes = perform_experiments(model, 3)
+    save_results((experiments, outcomes), tmp_path / "results.tar.gz")
+    _, loaded = load_results(tmp_path / "results.tar.gz")
+    xr.testing.assert_identical(loaded["x"], outcomes["x"])
+
+
+def test_merge_results():
+    from ema_workbench.util.utilities import merge_results  # noqa: PLC0415
+
+    results1 = _replicated_results(4)
+    results2 = _replicated_results(2)
+    experiments, outcomes = merge_results(results1, results2)
+
+    assert len(experiments) == 6
+    x = outcomes["x"]
+    assert isinstance(x, xr.DataArray)
+    assert x.dims == ("experiment", "replication", "time")
+    assert x.shape == (6, 3, TIME.size)
+    np.testing.assert_array_equal(x.time.values, TIME)
+    np.testing.assert_array_equal(x.values[:4], results1[1]["x"].values)
+    np.testing.assert_array_equal(x.values[4:], results2[1]["x"].values)
+    # experiments stay positional
+    assert "experiment" not in x.coords
+
+    assert type(outcomes["plain"]) is np.ndarray
+    assert outcomes["plain"].shape == (6, 3, TIME.size)
+
+
+def test_merge_results_with_different_index():
+    from ema_workbench.util.utilities import merge_results  # noqa: PLC0415
+
+    def results(outcome):
+        return perform_experiments(make_model([outcome]), 2)
+
+    declared = results(TimeSeriesOutcome("x", time=TIME))
+
+    with pytest.raises(EMAError, match="different time index"):
+        merge_results(declared, results(TimeSeriesOutcome("x", time=TIME + 1)))
+    with pytest.raises(EMAError, match="DataArray in one of the results"):
+        merge_results(declared, results(TimeSeriesOutcome("x")))
+
+    replicated = make_model([TimeSeriesOutcome("x", time=TIME)], klass=ReplicatorModel)
+    replicated.replications = 2
+    with pytest.raises(EMAError, match="has dimensions"):
+        merge_results(declared, perform_experiments(replicated, 2))

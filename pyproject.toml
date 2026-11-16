@@ -20,6 +20,8 @@ dependencies = [
     "numpy",
     "pandas",
     "xarray",
+    "h5netcdf",
+    "h5py",
     "scikit-learn",
     "salib>=1.4.6",
     "platypus-opt>=1.3.0",
