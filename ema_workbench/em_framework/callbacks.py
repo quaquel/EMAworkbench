@@ -164,9 +164,6 @@ class DefaultCallback(AbstractCallback):
     or write them to a text file.
     """
 
-    shape_error_msg = "can only save up to 2d arrays, this array is {}d"
-    constraint_error_msg = "can only save 1d arrays for constraint, this array is {}d"
-
     def __init__(
         self,
         uncertainties: list[Parameter],
@@ -312,14 +309,11 @@ class DefaultCallback(AbstractCallback):
             else:
                 try:
                     self.results[outcome_name][case_id,] = outcome_res
-                except KeyError as e:
+                except KeyError:
+                    # the first result for this outcome, which can have any
+                    # number of dimensions
                     data = np.asarray(outcome_res)
-                    shape = data.shape
-                    if len(shape) > 2:
-                        message = self.shape_error_msg.format(len(shape))
-                        raise ema_exceptions.EMAError(message) from e
-
-                    shape = list(shape)
+                    shape = list(data.shape)
                     shape.insert(0, self.nr_experiments)
 
                     self.results[outcome_name] = self._setup_outcomes_array(
