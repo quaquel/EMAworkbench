@@ -603,33 +603,6 @@ class TestPrim:
         prim.run_constrained_prim(experiments, y, issignificant=True)
 
 
-class TestRegressionPrim:
-    """Test prim in regression mode."""
-
-    def test_all(self):
-        experiments, outcomes = utilities.load_flu_data()
-        y = outcomes["deceased_population_region_1"][:, -1]
-
-        alg = prim.RegressionPrim(experiments, y)
-        box = alg.find_box()
-
-        box.inspect(10)
-        box.inspect(10, style="graph")
-        plt.draw()
-        ret = box.inspect(10, style="data")[0]
-        assert len(ret) == 2
-
-        box.show_pairs_scatter()
-        plt.draw()
-
-        alg = prim.RegressionPrim(experiments, y, maximization=False)
-        assert alg._maximization is False
-        box = alg.find_box()
-
-        column = box.peeling_trajectory["mean"]
-        assert column.iloc[0] > column.iloc[-1]
-
-
 def test_inspect_categorical_restriction():
     """Regression test: inspect a box with a restricted categorical dimension.
 
@@ -745,6 +718,29 @@ def test_pca_rotation_is_real():
 
 class TestRegressionPrim:
     """Tests for prim in regression mode."""
+
+    def test_all(self):
+        experiments, outcomes = utilities.load_flu_data()
+        y = outcomes["deceased_population_region_1"][:, -1]
+
+        alg = prim.RegressionPrim(experiments, y)
+        box = alg.find_box()
+
+        box.inspect(10)
+        box.inspect(10, style="graph")
+        plt.draw()
+        ret = box.inspect(10, style="data")[0]
+        assert len(ret) == 2
+
+        box.show_pairs_scatter()
+        plt.draw()
+
+        alg = prim.RegressionPrim(experiments, y, maximization=False)
+        assert alg._maximization is False
+        box = alg.find_box()
+
+        column = box.peeling_trajectory["mean"]
+        assert column.iloc[0] > column.iloc[-1]
 
     def _load(self):
         x, outcomes = utilities.load_flu_data()
