@@ -5,6 +5,7 @@ an instance of an extension of this abstract base class.
 
 """
 
+import math
 import operator
 import os
 from collections import defaultdict
@@ -193,6 +194,60 @@ class AbstractModel(NamedObject):
         self._transform(scenario, self.uncertainties)
         self._transform(policy, self.levers)
         self._transform(constants, self.constants)
+
+    def _validate_parameter_names(self) -> None:
+        """Check that the names of uncertainties, levers, and constants are unique.
+
+        The values of uncertainties, levers, and constants are combined into
+        a single set of keyword arguments for the model, and into a single
+        row of experiments. So, a name may be used only once across all three,
+        and, for a model with replications, not as a key of a replication.
+        A shaped parameter is also stored as one column for each element, named
+        ``<name>_<index>``, so these names may not be used either.
+
+        This is checked once before running, rather than when parameters are
+        added, so the order in which uncertainties, levers, and constants are
+        specified does not matter.
+
+        Raises
+        ------
+        EMAError
+            if a name is used more than once
+
+        """
+        owners = defaultdict(list)
+        for kind, parameters in (
+            ("uncertainty", self.uncertainties),
+            ("lever", self.levers),
+            ("constant", self.constants),
+        ):
+            for parameter in parameters:
+                description = f"{kind} '{parameter.name}'"
+                names = {parameter.name}
+                shape = getattr(parameter, "shape", None)
+                if shape is not None:
+                    names.update(
+                        f"{parameter.name}_{i}" for i in range(math.prod(shape))
+                    )
+                for name in names:
+                    owners[name].append(description)
+
+        # the keys of the replications of a Replicator are passed to the model
+        # as well. The keys can differ between replications, so use all of them
+        replications = getattr(self, "_replications", None) or []
+        for key in sorted({key for replication in replications for key in replication}):
+            owners[key].append(f"replication key '{key}'")
+
+        clashes = {name: users for name, users in owners.items() if len(users) > 1}
+        if clashes:
+            details = "; ".join(
+                f"'{name}' is used by {' and '.join(users)}"
+                for name, users in sorted(clashes.items())
+            )
+            raise EMAError(
+                f"the names of uncertainties, levers, and constants of model "
+                f"'{self.name}' must be unique: {details}"
+            )
 
     @method_logger(__name__)
     def initialized(self, policy: Sample) -> bool:

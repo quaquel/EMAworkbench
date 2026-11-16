@@ -16,7 +16,6 @@ import abc
 import copy
 import itertools
 import numbers
-import warnings
 from collections.abc import Iterable
 from typing import Literal
 
@@ -31,10 +30,8 @@ from sklearn.metrics import root_mean_squared_error as rmse
 try:
     import altair as alt
 except ImportError:
+    # inspect_tradeoff raises an ImportError when used without altair
     alt = None
-    warnings.warn(
-        "altair based interactive inspection not available", ImportWarning, stacklevel=2
-    )
 
 from ..em_framework.util import NumpySeedLike, RNGLike
 from ..util import INFO, EMAError, get_module_logger, temporary_filter

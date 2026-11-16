@@ -19,7 +19,6 @@ from ema_workbench import (
     ScalarOutcome,
     SequentialEvaluator,
 )
-from ema_workbench.em_framework import Category
 from ema_workbench.em_framework.optimization import (
     ArchiveStorageExtension,
     CombinedVariator,
@@ -919,7 +918,7 @@ def test_combined_variator(mocker):
     # that it's correct, but code has been taken from platypus
     mocked_random = mocker.patch("ema_workbench.em_framework.optimization.random")
     mocked_random.random.return_value = 0.1
-    mocked_random.choice.return_value = Category("some_value", "some value")
+    mocked_random.choice.return_value = 2
 
     decision_variables = [
         RealParameter("a", 0, 1),
@@ -937,15 +936,15 @@ def test_combined_variator(mocker):
     variator = CombinedVariator()
     s1, s2 = variator.evolve([solution_1, solution_2])
 
-    assert s1.variables[2] == "some value"
-    assert s2.variables[2] == "some value"
+    assert s1.variables[2] == [2]
+    assert s2.variables[2] == [2]
 
     variator = CombinedVariator(crossover_prob=0.7)
     mocked_random.random.return_value = 0.6
     variator.evolve([solution_1, solution_2])
 
-    assert s1.variables[2] == "some value"
-    assert s2.variables[2] == "some value"
+    assert s1.variables[2] == [2]
+    assert s2.variables[2] == [2]
 
 
 def test_optimize(mocker):
@@ -1047,3 +1046,119 @@ def test_optimize(mocker):
             0.1,
         ],
     )
+
+
+def test_sample_platypus_round_trip_categorical():
+    """Regression test: categorical and boolean values survive a round trip."""
+    decision_variables = [
+        RealParameter("a", 0, 1),
+        CategoricalParameter("c", [1, 6, "c"]),
+        BooleanParameter("d"),
+    ]
+    objectives = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+    problem = Problem("levers", decision_variables, objectives)
+
+    for c, d in [(1, False), (6, True), ("c", True)]:
+        sample = Sample(a=0.5, c=c, d=d)
+        solution = sample._to_platypus_solution(problem)
+        # platypus Subset of size 1 over the category indices
+        category_values = [cat.value for cat in decision_variables[1].categories]
+        assert solution.variables[1] == [category_values.index(c)]
+        decoded = Sample._from_platypus_solution(solution)
+        assert decoded["a"] == 0.5
+        assert decoded["c"] == c
+        assert decoded["d"] == d
+
+
+def test_mutate_categorical():
+    """Regression test: mutation yields a different category index as a list."""
+    decision_variables = [CategoricalParameter("c", ["a", "b", "c"])]
+    objectives = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+    problem = Problem("levers", decision_variables, objectives)
+
+    variator = CombinedVariator()
+    for value in ["a", "b", "c"]:
+        solution = Sample(c=value)._to_platypus_solution(problem)
+        current = solution.variables[0]
+        mutated = variator.mutate_categorical(solution, 0, problem.types[0])
+        new = mutated.variables[0]
+        assert isinstance(new, list)
+        assert len(new) == 1
+        assert new != current
+        assert new[0] in problem.types[0].elements
+
+
+def test_optimize_categorical_and_boolean_levers(tmp_path):
+    """Regression test for optimizing over categorical and boolean levers.
+
+    Previously, this failed because platypus Subset values were not unwrapped
+    and results contained category indices instead of values (issue #453).
+    """
+    from ema_workbench import Model
+
+    seen = []
+
+    def some_model(x=0.0, c="a", b=False, u=0.0):
+        seen.append((c, b))
+        return {"y": x + {"a": 0, "b": 5, "c": 10}[c] + (2 if b else 0) + u}
+
+    model = Model("simple", function=some_model)
+    model.uncertainties = [RealParameter("u", 0, 1)]
+    model.levers = [
+        RealParameter("x", 0, 1),
+        CategoricalParameter("c", ["a", "b", "c"]),
+        BooleanParameter("b"),
+    ]
+    model.outcomes = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+
+    with SequentialEvaluator(model) as evaluator:
+        results, _ = evaluator.optimize(
+            nfe=300,
+            searchover="levers",
+            epsilons=[0.1],
+            population_size=10,
+            reference=Sample(u=0.5),
+            filename="archive.tar.gz",
+            directory=tmp_path,
+            rng=42,
+        )
+
+    # the model only ever received actual category values
+    assert {c for c, _ in seen} <= {"a", "b", "c"}
+    assert {b for _, b in seen} <= {False, True}
+
+    # results contain category values, not indices
+    assert set(results["c"]) <= {"a", "b", "c"}
+    assert set(results["b"]) <= {False, True}
+
+    # the optimum is c="c" and b=True
+    best = results.loc[results["y"].idxmax()]
+    assert best["c"] == "c"
+    assert bool(best["b"]) is True
+
+
+def test_epsilon_nondominated_categorical():
+    """Regression test: archives with categorical and boolean levers can be rebuilt."""
+    decision_variables = [
+        RealParameter("a", 0, 1),
+        CategoricalParameter("c", ["x", "y", "z"]),
+        BooleanParameter("b"),
+    ]
+    objectives = [ScalarOutcome("y", kind=ScalarOutcome.MAXIMIZE)]
+    problem = Problem("levers", decision_variables, objectives)
+
+    archive = pd.DataFrame(
+        {"a": [0.1, 0.9], "c": ["x", "z"], "b": [True, False], "y": [1.0, 2.0]}
+    )
+
+    solutions = rebuild_platypus_population(archive, problem)
+    assert solutions[0].variables[1] == [0]
+    assert solutions[1].variables[1] == [2]
+    assert solutions[0].variables[2] == [1]
+    assert solutions[1].variables[2] == [0]
+
+    merged = epsilon_nondominated([archive, archive], [0.1], problem)
+    assert len(merged) == 1
+    assert merged["c"].iloc[0] == "z"
+    assert not merged["b"].iloc[0]
+    assert merged["y"].iloc[0] == 2.0

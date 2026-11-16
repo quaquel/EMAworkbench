@@ -158,18 +158,14 @@ def determine_rotation(experiments):
     """
     covariance = np.cov(experiments.T)
 
-    eigen_vals, eigen_vectors = np.linalg.eig(covariance)
+    # the covariance matrix is symmetric, so eigh gives real eigen values and
+    # orthonormal (unit length) eigen vectors. eig can return complex numbers,
+    # which PRIM cannot peel on.
+    eigen_vals, eigen_vectors = np.linalg.eigh(covariance)
 
-    indices = np.argsort(eigen_vals)
-    indices = indices[::-1]
+    # order the eigen vectors from largest to smallest eigen value
+    indices = np.argsort(eigen_vals)[::-1]
     eigen_vectors = eigen_vectors[:, indices]
-    eigen_vals = eigen_vals[indices]
-
-    # make the eigen vectors unit length
-    for i in range(eigen_vectors.shape[1]):
-        eigen_vectors[:, i] / np.linalg.norm(eigen_vectors[:, i]) * np.sqrt(
-            eigen_vals[i]
-        )
 
     return eigen_vectors
 

@@ -211,7 +211,13 @@ def process_jobs(jobs: list[platypus.core.EvaluateSolution]) -> tuple[Sample | S
 
     samples = []
     for job in jobs:
-        sample = [type.decode(value) for type, value in zip(problem.types, job.solution.variables)]
+        sample = [
+            # Subset decodes to a list of size 1 holding the category index
+            type.decode(value)[0]
+            if isinstance(type, platypus.Subset)
+            else type.decode(value)
+            for type, value in zip(problem.types, job.solution.variables)
+        ]
         samples.append(sample)
     samples = list(SampleCollection(np.array(samples), problem.decision_variables))
 
@@ -555,11 +561,9 @@ def rebuild_platypus_population(archive: pd.DataFrame, problem: Problem) -> list
                 f"Outcome names {missing_outcomes} not found in archive'"
             ) from e
 
-        solution = Solution(problem)
-        solution.variables[:] = [
-            platypus_type.encode(value)
-            for platypus_type, value in zip(problem.types, decision_variables)
-        ]
+        # go via Sample so categorical values are mapped to category indices
+        sample = Sample(**dict(zip(problem.parameter_names, decision_variables)))
+        solution = sample._to_platypus_solution(problem)
         solution.objectives[:] = objectives
         solutions.append(solution)
     return solutions
@@ -707,11 +711,11 @@ class CombinedVariator(Variator):
         self, child: Solution, i: int, type: platypus.Subset
     ) -> Solution:  # @ReservedAssignment
         # replace, again simplified because len(subset) is 1
-        non_members = [
-            entry for entry in type.elements if entry != child.variables[i]
-        ]
-        new_value = random.choice(non_members)
-        child.variables[i] = new_value.value
+        # variables are a list of size 1 holding the category index
+        current = child.variables[i][0]
+        non_members = [entry for entry in type.elements if entry != current]
+        if non_members:
+            child.variables[i] = [random.choice(non_members)]
 
         return child
 

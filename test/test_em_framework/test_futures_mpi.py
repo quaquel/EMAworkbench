@@ -11,7 +11,9 @@ from ema_workbench.em_framework import futures_mpi
 
 # Check if mpi4py is installed and if we're on a Linux environment
 try:
-    import mpi4py  # noqa: F401
+    # import the MPI submodule as well, because the tests patch mpi4py.MPI,
+    # which only exists once it has been imported
+    import mpi4py.MPI  # noqa: F401
 except ImportError:
     MPI_AVAILABLE = False
 else:
@@ -89,9 +91,17 @@ def test_logwatcher(mocker):
     mocked_MPI.COMM_WORLD = Mock()
     mocked_MPI.COMM_WORLD.Get_rank.return_value = 0
 
-    mocked_get_logger = mocker.patch("logging.getLogger", autospec=True)
-    mocked_logger = Mock()
-    mocked_get_logger.return_value = mocked_logger
+    # use a real logger instead of patching logging.getLogger, which is global
+    # and is also used by pytest itself while the patch is active
+    received = []
+
+    class CollectingHandler(logging.Handler):
+        def emit(self, record):
+            received.append(record)
+
+    worker_logger = logging.getLogger("EMA.worker_0")
+    handler = CollectingHandler()
+    worker_logger.addHandler(handler)
 
     mocked_MPI.INFO_NULL = None
     mocked_MPI.Open_port.return_value = "somestring"
@@ -99,8 +109,9 @@ def test_logwatcher(mocker):
     comm_mock = Mock()
     mocked_MPI.COMM_WORLD.Accept.return_value = comm_mock
 
-    message = Mock()
-    message.name = "EMA.worker_0"
+    message = logging.LogRecord(
+        "EMA.worker_0", logging.INFO, __file__, 0, "a message", None, None
+    )
     comm_mock.recv.side_effect = [
         message,
     ]
@@ -112,10 +123,12 @@ def test_logwatcher(mocker):
     stop_event = Mock()
     stop_event.is_set.side_effect = [False, True]
 
-    futures_mpi.logwatcher(start_event, stop_event)
+    try:
+        futures_mpi.logwatcher(start_event, stop_event)
+    finally:
+        worker_logger.removeHandler(handler)
 
-    mocked_get_logger.assert_called_once_with(message.name)
-    mocked_logger.callHandlers.assert_called_once_with(message)
+    assert received == [message]
 
 
 @pytest.mark.skipif(
@@ -150,7 +163,13 @@ def test_mpi_initializer(mocker):
     log_level = 10
     root_dir = None
 
-    futures_mpi.mpi_initializer(models, log_level, root_dir)
+    try:
+        futures_mpi.mpi_initializer(models, log_level, root_dir)
+    finally:
+        # the initializer adds the handler to the root logger of the workbench
+        ema_workbench.util.ema_logging.get_rootlogger().removeHandler(
+            handler_mock_instance
+        )
 
     # handler_mock.handle.assert_called()
 
