@@ -9,7 +9,7 @@ fn = "./data/1000 flu cases with policies.tar.gz"
 results = load_results(fn)
 x, outcomes = results
 
-y = outcomes["deceased population region 1"][:, -1] > 1000000
+y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
 fig = regional_sa.plot_cdfs(x, y)
 
