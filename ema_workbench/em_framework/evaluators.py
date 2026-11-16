@@ -423,6 +423,13 @@ def perform_experiments(
             "no experiments possible since both scenarios and policies are 0"
         )
 
+    try:
+        models_to_check = list(models)
+    except TypeError:
+        models_to_check = [models]
+    for model in models_to_check:
+        model._validate_parameter_names()
+
     scenarios, uncertainties, n_scenarios = _setup(
         scenarios,
         uncertainty_sampling,
@@ -743,6 +750,7 @@ def optimize(
         raise ValueError(
             f"Searchover should be one of 'levers' or 'uncertainties', not {searchover}"
         )
+    model._validate_parameter_names()
 
     decision_variables = model.levers if searchover == "levers" else model.uncertainties
     objectives = [obj for obj in model.outcomes if obj.kind != obj.INFO]
@@ -872,6 +880,7 @@ def robust_optimize(
     MAXIMIZE, function is the robustness function you want to use.
 
     """
+    model._validate_parameter_names()
     for rf in robustness_functions:
         assert isinstance(rf, ScalarOutcome)
         assert rf.kind != Outcome.INFO
