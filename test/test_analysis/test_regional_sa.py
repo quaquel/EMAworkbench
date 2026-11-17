@@ -34,9 +34,7 @@ class Test(unittest.TestCase):
 
         def count_plots(fig):
             return sum(
-                1
-                for ax in fig.axes
-                if ax.get_visible() and (ax.lines or ax.patches)
+                1 for ax in fig.axes if ax.get_visible() and (ax.lines or ax.patches)
             )
 
         rng = np.random.default_rng(42)

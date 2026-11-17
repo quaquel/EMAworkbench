@@ -98,7 +98,6 @@ def test_combine_single_dict():
     assert result == expected
 
 
-
 def test_named_object_map():
     """Tests for NamedObjectMap."""
     with pytest.raises(TypeError):
@@ -205,7 +204,6 @@ def test_named_object_map_extend_checks_type():
 
     map.extend([SubVariable("g")])
     assert list(map.keys()) == ["a", "g"]
-
 
 
 def test_namedict_copy_is_independent():

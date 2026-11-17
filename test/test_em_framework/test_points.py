@@ -1,4 +1,5 @@
 """Tests for em_framework/em_framework/points.py."""
+
 import numpy as np
 import pytest
 
@@ -336,7 +337,17 @@ def test_sample_platypus():
 
     problem = Problem("levers", parameters, [], [])
 
-    sample = Sample(a=0.5, b=2, c="b", d=np.asarray(["a", "b",]))
+    sample = Sample(
+        a=0.5,
+        b=2,
+        c="b",
+        d=np.asarray(
+            [
+                "a",
+                "b",
+            ]
+        ),
+    )
     solution = sample._to_platypus_solution(problem)
 
     new_sample = Sample._from_platypus_solution(solution)
@@ -345,7 +356,6 @@ def test_sample_platypus():
     assert sample["b"] == new_sample["b"]
     assert sample["c"] == new_sample["c"]
     assert np.all(sample["d"] == new_sample["d"])
-
 
 
 @pytest.mark.parametrize("sampler", ["MC", "LHS", "FF", "SOBOL"])

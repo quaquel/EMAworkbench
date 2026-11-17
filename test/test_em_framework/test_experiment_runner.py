@@ -4,7 +4,6 @@
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-
 import unittest
 import unittest.mock as mock
 

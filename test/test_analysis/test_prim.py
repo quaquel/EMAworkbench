@@ -309,7 +309,9 @@ class TestPrim:
         with mock.patch.object(prim._logger, "info") as info:
             prim_obj._log_progress()
         message = info.call_args[0][0]
-        assert message == f"200 points remaining, containing {y.sum()} cases of interest"
+        assert (
+            message == f"200 points remaining, containing {y.sum()} cases of interest"
+        )
 
         y_continuous = x.a.values * 10
         regression_obj = prim.RegressionPrim(x, y_continuous)
@@ -751,7 +753,9 @@ class TestRegressionPrim:
         # minimizing y must give exactly the boxes of maximizing -y, pastes
         # included (pastes used to require the mean to get worse)
         x, y = self._load()
-        box_min = prim.RegressionPrim(x, y, maximization=False, peel_alpha=0.1).find_box()
+        box_min = prim.RegressionPrim(
+            x, y, maximization=False, peel_alpha=0.1
+        ).find_box()
         box_max = prim.RegressionPrim(x, -y, peel_alpha=0.1).find_box()
 
         assert len(box_min.box_lims) == len(box_max.box_lims)

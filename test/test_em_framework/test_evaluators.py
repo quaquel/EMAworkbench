@@ -192,7 +192,9 @@ def test_optimize(mocker):
 
     mocked_optimize.reset_mock()
     with evaluators.SequentialEvaluator(model) as evaluator:
-        evaluator.optimize(nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1], rng=[1,2,3])
+        evaluator.optimize(
+            nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1], rng=[1, 2, 3]
+        )
     assert mocked_optimize.call_count == 3
 
     mocked_optimize.reset_mock()
@@ -334,7 +336,11 @@ def test_robust_optimize(mocker):
     mocked_optimize.reset_mock()
     with evaluators.SequentialEvaluator(model) as evaluator:
         evaluator.robust_optimize(
-            robustness_functions, scenarios=scenarios, nfe=nfe, epsilons=[0.1, 0.1], rng=[1,2,3]
+            robustness_functions,
+            scenarios=scenarios,
+            nfe=nfe,
+            epsilons=[0.1, 0.1],
+            rng=[1, 2, 3],
         )
     assert mocked_optimize.call_count == 3
 
