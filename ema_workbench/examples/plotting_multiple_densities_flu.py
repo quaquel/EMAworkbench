@@ -4,7 +4,6 @@
 #
 # @author: jhkwakkel@tudelft.net
 
-
 import math
 
 import matplotlib.pyplot as plt

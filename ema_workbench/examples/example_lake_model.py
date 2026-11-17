@@ -61,4 +61,3 @@ if __name__ == "__main__":
             lever_sampling_kwargs={"rng": 42},
             uncertainty_sampling_kwargs={"rng": 42},
         )
-

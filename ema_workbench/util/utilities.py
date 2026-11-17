@@ -203,7 +203,9 @@ def load_results_old(archive):
     return experiments, outcomes_new
 
 
-def save_results(results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name: str) -> None:
+def save_results(
+    results: tuple[pd.DataFrame, dict[str, np.ndarray]], file_name: str
+) -> None:
     """Save the results to the specified tarball.
 
     The way in which results are stored depends. Experiments are saved

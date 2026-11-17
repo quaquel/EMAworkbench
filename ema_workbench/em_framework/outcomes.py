@@ -58,7 +58,9 @@ class Register:
         else:
             pass  # multiple instances of the same class and name is fine
 
-    def serialize(self, name: str, values: np.ndarray | pd.DataFrame) -> tuple[BytesIO, str]:
+    def serialize(
+        self, name: str, values: np.ndarray | pd.DataFrame
+    ) -> tuple[BytesIO, str]:
         """Serialize the given outcome.
 
         Parameters
@@ -77,7 +79,9 @@ class Register:
 
         return stream, f"{name}.{extension}"
 
-    def deserialize(self, name: str, filename: str, archive: tarfile.TarFile) -> np.ndarray:
+    def deserialize(
+        self, name: str, filename: str, archive: tarfile.TarFile
+    ) -> np.ndarray:
         """Serialize the given outcome."""
         return self.outcomes[name].from_disk(filename, archive)
 

@@ -182,7 +182,9 @@ def get_rootlogger() -> logging.Logger:
     return _rootlogger
 
 
-def log_to_stderr(level: int | None = None, pass_root_logger_level: bool = False) -> logging.Logger:
+def log_to_stderr(
+    level: int | None = None, pass_root_logger_level: bool = False
+) -> logging.Logger:
     """Turn on logging and add a handler which prints to stderr.
 
     Parameters

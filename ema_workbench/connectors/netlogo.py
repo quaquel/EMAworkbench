@@ -182,7 +182,6 @@ class BaseNetLogoModel(FileModel):
         commands = []
         fns = {}
         for variable in self.ts_output_variables:
-
             fn = f"{self.working_directory}{os.sep}{variable}.txt"
 
             # fn = r"{0}{3}{1}{2}".format(

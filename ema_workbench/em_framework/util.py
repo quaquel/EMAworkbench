@@ -43,6 +43,7 @@ __all__ = [
     "representation",
 ]
 
+
 class NamedObject:
     """Base object with a name attribute."""
 

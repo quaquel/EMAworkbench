@@ -210,41 +210,39 @@ class BaseEvaluator(abc.ABC):
 
     @overload
     def optimize(
-            self,
-            algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
-            nfe: int = 10000,
-            searchover: str = "levers",
-            reference: Sample | None = None,
-            constraints: Iterable[Constraint] | None = None,
-            convergence_freq: int = 1000,
-            logging_freq: int = 5,
-            variator: type[Variator] | None = None,
-            rng: Iterable[StdlibSeedLike] | None = None,
-            initial_population: Iterable[Sample] | None = None,
-            filename: str | None = None,
-            directory: str | None = None,
-            **kwargs,
-    ) -> list[tuple[pd.DataFrame, pd.DataFrame]]:
-        ...
+        self,
+        algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
+        nfe: int = 10000,
+        searchover: str = "levers",
+        reference: Sample | None = None,
+        constraints: Iterable[Constraint] | None = None,
+        convergence_freq: int = 1000,
+        logging_freq: int = 5,
+        variator: type[Variator] | None = None,
+        rng: Iterable[StdlibSeedLike] | None = None,
+        initial_population: Iterable[Sample] | None = None,
+        filename: str | None = None,
+        directory: str | None = None,
+        **kwargs,
+    ) -> list[tuple[pd.DataFrame, pd.DataFrame]]: ...
 
     @overload
     def optimize(
-            self,
-            algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
-            nfe: int = 10000,
-            searchover: str = "levers",
-            reference: Sample | None = None,
-            constraints: Iterable[Constraint] | None = None,
-            convergence_freq: int = 1000,
-            logging_freq: int = 5,
-            variator: type[Variator] | None = None,
-            rng: StdlibSeedLike | None = None,
-            initial_population: Iterable[Sample] | None = None,
-            filename: str | None = None,
-            directory: str | None = None,
-            **kwargs,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        ...
+        self,
+        algorithm: type[AbstractGeneticAlgorithm] = EpsNSGAII,
+        nfe: int = 10000,
+        searchover: str = "levers",
+        reference: Sample | None = None,
+        constraints: Iterable[Constraint] | None = None,
+        convergence_freq: int = 1000,
+        logging_freq: int = 5,
+        variator: type[Variator] | None = None,
+        rng: StdlibSeedLike | None = None,
+        initial_population: Iterable[Sample] | None = None,
+        filename: str | None = None,
+        directory: str | None = None,
+        **kwargs,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]: ...
 
     def optimize(
         self,

@@ -59,7 +59,9 @@ def finalizer(experiment_runner: AbstractModel) -> callable:
     return finalizer
 
 
-def setup_working_directories(models: Collection[AbstractModel], root_dir: str) -> str | None:
+def setup_working_directories(
+    models: Collection[AbstractModel], root_dir: str
+) -> str | None:
     """Setup working directories when running in parallel.
 
     Copies the working directory of each model to a process specific
