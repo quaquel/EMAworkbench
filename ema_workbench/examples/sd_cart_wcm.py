@@ -4,7 +4,6 @@
 #
 # @author: jhkwakkel
 
-
 import matplotlib.pyplot as plt
 
 import ema_workbench.analysis.cart as cart

@@ -172,7 +172,12 @@ class Parameter(Variable, metaclass=abc.ABCMeta):
         self.uniform = True
 
     @classmethod
-    def from_dist(cls, name: str, dist: sp.stats.rv_continuous | sp.stats.rv_discrete, **kwargs: Any) -> "Parameter":
+    def from_dist(
+        cls,
+        name: str,
+        dist: sp.stats.rv_continuous | sp.stats.rv_discrete,
+        **kwargs: Any,
+    ) -> "Parameter":
         """Factory method for creating a Parameter from a scipy distribution.
 
         Alternative constructor for creating a parameter from a frozen

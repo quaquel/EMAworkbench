@@ -69,7 +69,12 @@ class BaseExcelModel(FileModel):
     com_warning_msg = "com error: no cell(s) named %s found"
 
     def __init__(
-        self, name: str, wd: str | None = None, model_file: str | None = None, default_sheet: str | None = None, pointers: dict[str, str] | None = None
+        self,
+        name: str,
+        wd: str | None = None,
+        model_file: str | None = None,
+        default_sheet: str | None = None,
+        pointers: dict[str, str] | None = None,
     ) -> None:
         super().__init__(name, wd=wd, model_file=model_file)
         #: Reference to the Excel application. This attribute is `None` until

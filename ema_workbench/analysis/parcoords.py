@@ -16,7 +16,14 @@ from sklearn import preprocessing
 __all__ = ["ParallelAxes", "get_limits"]
 
 
-def setup_parallel_plot(labels: list[str], minima: pd.Series, maxima: pd.Series, formatter: dict[str, str] | None = None, fs: int = 14, rot: float = 90) -> tuple[plt.Figure, list[plt.Axes], dict]:
+def setup_parallel_plot(
+    labels: list[str],
+    minima: pd.Series,
+    maxima: pd.Series,
+    formatter: dict[str, str] | None = None,
+    fs: int = 14,
+    rot: float = 90,
+) -> tuple[plt.Figure, list[plt.Axes], dict]:
     """Helper function for setting up the parallel axes plot.
 
     Parameters
@@ -167,7 +174,13 @@ class ParallelAxes:
 
     """
 
-    def __init__(self, limits: pd.DataFrame, formatter: dict[str, str] | None = None, fontsize: int = 14, rot: float = 90):
+    def __init__(
+        self,
+        limits: pd.DataFrame,
+        formatter: dict[str, str] | None = None,
+        fontsize: int = 14,
+        rot: float = 90,
+    ):
         """Init.
 
         Parameters
@@ -218,7 +231,13 @@ class ParallelAxes:
         plt.tight_layout(h_pad=0, w_pad=0)
         plt.subplots_adjust(wspace=0)
 
-    def plot(self, data: pd.DataFrame | pd.Series, color=None, label: str | None = None, **kwargs) -> None:
+    def plot(
+        self,
+        data: pd.DataFrame | pd.Series,
+        color=None,
+        label: str | None = None,
+        **kwargs,
+    ) -> None:
         """Plot data on parallel axes.
 
         Parameters

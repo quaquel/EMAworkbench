@@ -3,6 +3,7 @@
 As well as associated helper functions
 
 """
+
 from __future__ import annotations
 
 import itertools
@@ -33,7 +34,7 @@ __all__ = [
     "SampleCollection",
     "experiment_generator",
     "from_experiments",
-    "sample_generator"
+    "sample_generator",
 ]
 _logger = get_module_logger(__name__)
 
@@ -56,9 +57,7 @@ class Sample(NamedDict):
     def __repr__(self):  # noqa D105
         return f"Sample({super().__repr__()})"
 
-    def _to_platypus_solution(
-        self, problem: Problem
-    ) -> platypus.Solution:
+    def _to_platypus_solution(self, problem: Problem) -> platypus.Solution:
         """Turn a Sample into a Platypus solution."""
         # fixme needs to handle latent variables correctly
         solution = platypus.Solution(problem)
@@ -66,7 +65,9 @@ class Sample(NamedDict):
         values = []
         for param in problem.decision_variables:
             value = self[param.name]
-            value = [value] if param.shape is None else np.asarray(value).flatten().tolist()
+            value = (
+                [value] if param.shape is None else np.asarray(value).flatten().tolist()
+            )
             if isinstance(param, CategoricalParameter):
                 # categorical parameters are a platypus Subset of size 1 over
                 # the category indices, so map values to [index]

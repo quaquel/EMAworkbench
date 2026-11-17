@@ -358,7 +358,9 @@ class VensimModel(SingleReplication, FileModel):
         return results
 
 
-def create_model_for_debugging(path_to_existing_model: str, path_to_new_model: str, error: str|dict) -> None:
+def create_model_for_debugging(
+    path_to_existing_model: str, path_to_new_model: str, error: str | dict
+) -> None:
     """Create a vensim mdl file parameterized according to the experiment.
 
     To be able to debug the Vensim model, a few steps are needed:

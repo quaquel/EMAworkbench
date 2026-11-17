@@ -102,6 +102,7 @@ except ImportError:
                 "pip install ema_workbench[parallel]"
             )
 
+
 from .futures_mpi import MPIEvaluator
 from .futures_multiprocessing import MultiprocessingEvaluator
 from .outputspace_exploration import (

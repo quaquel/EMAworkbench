@@ -252,7 +252,9 @@ class OutputSpaceExplorationAlgorithm(AbstractGeneticAlgorithm):
         self.population = offspring[: self.population_size]
 
 
-def get_index_for_solution(solution: Solution, grid_spec: list[tuple[float, float, float]]) -> tuple[int, ...]:
+def get_index_for_solution(
+    solution: Solution, grid_spec: list[tuple[float, float, float]]
+) -> tuple[int, ...]:
     """Maps the objectives to the key for the grid cell into which this solution falls.
 
     Parameters

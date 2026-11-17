@@ -83,7 +83,14 @@ class BaseVadereModel(FileModel):
 
     """
 
-    def __init__(self, name: str, vadere_jar: str, processor_files: list[str], wd: str, model_file: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        vadere_jar: str,
+        processor_files: list[str],
+        wd: str,
+        model_file: str,
+    ) -> None:
         """Init of class.
 
         Parameters
