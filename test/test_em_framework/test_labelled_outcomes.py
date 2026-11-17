@@ -275,7 +275,7 @@ if __name__ == "__main__":
 
 @pytest.mark.parametrize("start_method", ["fork", "spawn"])
 def test_time_variable_with_multiprocessing(tmp_path, start_method):
-    import multiprocessing  # noqa: PLC0415
+    import multiprocessing
 
     if start_method not in multiprocessing.get_all_start_methods():
         pytest.skip(f"start method {start_method} not available")
@@ -290,6 +290,7 @@ def test_time_variable_with_multiprocessing(tmp_path, start_method):
         capture_output=True,
         text=True,
         timeout=120,
+        check=False,
     )
     assert result.returncode == 0, result.stderr
     assert "RESULT OK" in result.stdout
@@ -306,7 +307,7 @@ def test_time_index_of_wrong_length():
         return {"x": a * TIME}
 
     model = make_model([TimeSeriesOutcome("x", time=np.arange(7))], function=function)
-    with pytest.raises(EMAError, match="10 values along 'time'.*have 7 values"):
+    with pytest.raises(EMAError, match=r"10 values along 'time'.*have 7 values"):
         perform_experiments(model, 5)
     # reported at the first experiment, not after running all of them
     assert len(calls) == 1
@@ -349,7 +350,7 @@ def test_time_index_does_not_match_time_series():
     model = make_model(
         [TimeSeriesOutcome("x", time_variable="TIME")], function=function
     )
-    with pytest.raises(EMAError, match="has 5 time steps.*has 6 values"):
+    with pytest.raises(EMAError, match=r"has 5 time steps.*has 6 values"):
         perform_experiments(model, 2)
 
 
@@ -440,9 +441,9 @@ def _replicated_results(n_experiments=4):
 
 def test_save_and_load_results(tmp_path):
     """DataArrays keep their dimensions and coordinates when saved."""
-    import tarfile  # noqa: PLC0415
+    import tarfile
 
-    from ema_workbench import load_results, save_results  # noqa: PLC0415
+    from ema_workbench import load_results, save_results
 
     experiments, outcomes = _replicated_results()
     file_name = tmp_path / "results.tar.gz"
@@ -473,7 +474,7 @@ def test_save_and_load_results(tmp_path):
 
 
 def test_save_and_load_time_series_without_replications(tmp_path):
-    from ema_workbench import load_results, save_results  # noqa: PLC0415
+    from ema_workbench import load_results, save_results
 
     model = make_model([TimeSeriesOutcome("x", time=TIME)])
     experiments, outcomes = perform_experiments(model, 3)
@@ -483,7 +484,7 @@ def test_save_and_load_time_series_without_replications(tmp_path):
 
 
 def test_merge_results():
-    from ema_workbench.util.utilities import merge_results  # noqa: PLC0415
+    from ema_workbench.util.utilities import merge_results
 
     results1 = _replicated_results(4)
     results2 = _replicated_results(2)
@@ -505,7 +506,7 @@ def test_merge_results():
 
 
 def test_merge_results_with_different_index():
-    from ema_workbench.util.utilities import merge_results  # noqa: PLC0415
+    from ema_workbench.util.utilities import merge_results
 
     def results(outcome):
         return perform_experiments(make_model([outcome]), 2)
@@ -543,10 +544,10 @@ def test_time_series_outcome_without_time_index_is_deprecated():
 
 def test_no_deprecation_warning_from_the_workbench_itself(tmp_path):
     """The user can only act on the warning for outcomes they declare."""
-    import pandas as pd  # noqa: PLC0415
+    import pandas as pd
 
-    from ema_workbench import load_results, save_results  # noqa: PLC0415
-    from ema_workbench.em_framework.outcomes import create_outcomes  # noqa: PLC0415
+    from ema_workbench import load_results, save_results
+    from ema_workbench.em_framework.outcomes import create_outcomes
 
     with pytest.warns(DeprecationWarning, match="has no time index"):
         model = make_model([TimeSeriesOutcome("plain", variable_name="x")])

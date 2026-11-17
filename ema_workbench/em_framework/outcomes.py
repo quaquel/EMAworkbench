@@ -484,7 +484,7 @@ class ArrayOutcome(Outcome):
                 raise ValueError(
                     f"coords are given for '{dim}', which is not in dims {dims}"
                 )
-            values = np.asarray(values) # noqa: PLW2901
+            values = np.asarray(values)  # noqa: PLW2901
             if values.ndim != 1:
                 raise ValueError(f"the coords for '{dim}' must be one dimensional")
             self.coords[dim] = values
