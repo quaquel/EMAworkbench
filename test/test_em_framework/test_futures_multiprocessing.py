@@ -90,7 +90,7 @@ def test_emaerror_is_exception():
     assert issubclass(EMAError, Exception)
 
 
-_LOGGING_MODEL = '''
+_LOGGING_MODEL = """
 from ema_workbench.util import ema_logging
 
 _logger = ema_logging.get_module_logger(__name__)
@@ -100,9 +100,9 @@ def model(x=0.0):
     _logger.info("info from worker %d", int(x * 100))
     _logger.debug("debug from worker")
     return {"y": x}
-'''
+"""
 
-_LOGGING_SCRIPT = '''
+_LOGGING_SCRIPT = """
 import multiprocessing
 import sys
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     model.outcomes = [ScalarOutcome("y")]
     with MultiprocessingEvaluator(model, n_processes=2) as evaluator:
         evaluator.perform_experiments(6)
-'''
+"""
 
 
 @pytest.mark.parametrize("start_method", ["fork", "spawn"])
@@ -131,10 +131,10 @@ def test_worker_log_messages_reach_main_process(tmp_path, start_method):
     messages were only shown because the workers inherited the handlers of
     the main process, and with spawn they were lost.
     """
-    import os  # noqa: PLC0415
-    import re  # noqa: PLC0415
-    import subprocess  # noqa: PLC0415
-    import sys  # noqa: PLC0415
+    import os
+    import re
+    import subprocess
+    import sys
 
     if start_method not in multiprocessing.get_all_start_methods():
         pytest.skip(f"start method {start_method} not available")
@@ -150,6 +150,7 @@ def test_worker_log_messages_reach_main_process(tmp_path, start_method):
         capture_output=True,
         text=True,
         timeout=120,
+        check=False,
     )
     assert result.returncode == 0, result.stderr
 

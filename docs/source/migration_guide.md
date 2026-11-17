@@ -28,17 +28,43 @@ will process parameter names and replace underscores with spaces.
 model = MyModel("flu")
 model.uncertainties = [
     RealParameter("additional seasonal immune population fraction R1", 0, 0.5),
-    RealParameter("additional seasonal immune population fraction R2", 0, 0.5,),
-    RealParameter("fatality ratio region 1", 0.0001, 0.1,),
-    RealParameter("fatality rate region 2", 0.0001, 0.1,)]
+    RealParameter(
+        "additional seasonal immune population fraction R2",
+        0,
+        0.5,
+    ),
+    RealParameter(
+        "fatality ratio region 1",
+        0.0001,
+        0.1,
+    ),
+    RealParameter(
+        "fatality rate region 2",
+        0.0001,
+        0.1,
+    ),
+]
 
 # new
 model = MyModel()
 model.uncertainties = [
     RealParameter("additional_seasonal_immune_population_fraction_R1", 0, 0.5),
-    RealParameter("additional_seasonal_immune_population_fraction_R2", 0, 0.5,),
-    RealParameter("fatality_ratio_region_1", 0.0001, 0.1,),
-    RealParameter("fatality_rate_region_2", 0.0001, 0.1,)]
+    RealParameter(
+        "additional_seasonal_immune_population_fraction_R2",
+        0,
+        0.5,
+    ),
+    RealParameter(
+        "fatality_ratio_region_1",
+        0.0001,
+        0.1,
+    ),
+    RealParameter(
+        "fatality_rate_region_2",
+        0.0001,
+        0.1,
+    ),
+]
 ```
 
 ### overhaul of optimization
@@ -82,7 +108,9 @@ with MultiprocessingEvaluator(lake_model) as evaluator:
 reference = Sample("reference", b=0.4, q=2, mean=0.02, stdev=0.01)
 
 random.seed(42)
-seeds = [random.randint(0, 1000) for _ in range(5)] # we run the optimization for 5 different seeds
+seeds = [
+    random.randint(0, 1000) for _ in range(5)
+]  # we run the optimization for 5 different seeds
 
 with MultiprocessingEvaluator(lake_model) as evaluator:
     # we run for 5 seeds, so optimize returns a list of
@@ -97,8 +125,6 @@ with MultiprocessingEvaluator(lake_model) as evaluator:
         directory="./data/convergences",
         rng=seeds,
     )
-
-
 ```
 
 ### replacing `Policy` and `Scenario` classes with `Sample` class
@@ -116,9 +142,9 @@ policy = Policy("some policy", x=1, y=2)
 
 # new
 from ema_workbench import Sample
+
 scenario = Sample("some scenario", a=1, b=2)
 policy = Sample("some policy", x=1, y=2)
-
 ```
 
 ### Fine-grained control over sampling

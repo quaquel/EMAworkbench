@@ -11,7 +11,7 @@ from test import utilities
 class ClusterTestCase(unittest.TestCase):
     def test_cluster(self):
         n = 10
-        experiments, outcomes = utilities.load_flu_data()
+        _experiments, outcomes = utilities.load_flu_data()
         data = outcomes["infected_fraction_R1"][0:n, :]
 
         distances = clusterer.calculate_cid(data)

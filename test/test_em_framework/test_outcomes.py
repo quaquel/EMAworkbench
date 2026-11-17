@@ -69,7 +69,10 @@ class TestScalarOutcome(unittest.TestCase):
 
         name = "g"
         var_name = "something else"
-        function = lambda x: x
+
+        def function(x):
+            return x
+
         outcome1 = self.outcome_class(name, variable_name=var_name, function=function)
 
         outcome2 = self.outcome_class(name, variable_name=var_name, function=function)
@@ -180,8 +183,8 @@ class CreateOutcomesTestCase(unittest.TestCase):
     def test_create_outcomes(self):
         register.outcomes = {}
         outcome_list = [
-            dict(type="scalar", name="a"),
-            dict(type="timeseries", name="b"),
+            {"type": "scalar", "name": "a"},
+            {"type": "timeseries", "name": "b"},
         ]
 
         outcomes = create_outcomes(outcome_list)
@@ -190,11 +193,11 @@ class CreateOutcomesTestCase(unittest.TestCase):
             self.assertEqual(x["name"], y.name)
 
         with self.assertRaises(ValueError):
-            outcome_list = [dict(type="unknown", name="a")]
+            outcome_list = [{"type": "unknown", "name": "a"}]
             outcomes = create_outcomes(outcome_list)
 
         with self.assertRaises(ValueError):
-            outcome_list = [dict(kind="unknown", name="a")]
+            outcome_list = [{"kind": "unknown", "name": "a"}]
             outcomes = create_outcomes(outcome_list)
 
 

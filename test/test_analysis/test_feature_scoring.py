@@ -62,7 +62,7 @@ class FeatureScoringTestCase(unittest.TestCase):
         self.assertTrue(np.all(x == correct))
 
     def test_prepare_outcomes(self):
-        experiments, outcomes = utilities.load_flu_data()
+        _experiments, outcomes = utilities.load_flu_data()
 
         # string type correct
         ooi = "nr deaths"

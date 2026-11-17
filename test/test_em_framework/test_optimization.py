@@ -108,7 +108,6 @@ def test_problem(mocker):
     assert [c.name for c in constraints] == problem.constraint_names
 
     for scenario in [1, Sample(a=1)]:
-
         with pytest.raises(ValueError):
             Problem(searchover, parameters, robustness_functions, constraints, scenario)
 
@@ -401,13 +400,13 @@ def test_evaluate(mocker):
             "x_robust",
             kind=ScalarOutcome.MAXIMIZE,
             variable_name="x",
-            function=lambda x: np.mean(x),
+            function=np.mean,
         ),
         ScalarOutcome(
             "y_robust",
             kind=ScalarOutcome.MAXIMIZE,
             variable_name="y",
-            function=lambda x: np.mean(x),
+            function=np.mean,
         ),
     ]
 
@@ -533,9 +532,7 @@ def test_optimize_with_constraint_on_parameter(tmp_path, searchover):
         return max(0, x - 0.5)
 
     constraints = [
-        Constraint(
-            "constraint_on_x", parameter_names="x", function=constraint_function
-        )
+        Constraint("constraint_on_x", parameter_names="x", function=constraint_function)
     ]
 
     with SequentialEvaluator(model) as evaluator:
@@ -740,9 +737,7 @@ def test_archive_tarball_is_compressed(tmp_path, filename, magic):
 
     model = Model("compressionmodel", function=some_model)
     model.levers = [RealParameter("x", 0, 1)]
-    model.outcomes = [
-        ScalarOutcome("compression_test_y", kind=ScalarOutcome.MAXIMIZE)
-    ]
+    model.outcomes = [ScalarOutcome("compression_test_y", kind=ScalarOutcome.MAXIMIZE)]
 
     with SequentialEvaluator(model) as evaluator:
         results, _ = evaluator.optimize(
@@ -959,7 +954,9 @@ def test_optimize(mocker):
     optimizer = mocker.Mock(spec=AbstractGeneticAlgorithm)
     algorithm.return_value = optimizer
     type(algorithm.return_value).archive = mocker.PropertyMock(return_value=[])
-    type(algorithm.return_value).variator = mocker.PropertyMock(return_value=mocker.Mock(spec=Variator))
+    type(algorithm.return_value).variator = mocker.PropertyMock(
+        return_value=mocker.Mock(spec=Variator)
+    )
     type(algorithm.return_value).nfe = mocker.PropertyMock(return_value=100)
 
     # setup a test problem
@@ -1032,7 +1029,6 @@ def test_optimize(mocker):
     assert isinstance(
         algorithm.call_args.kwargs["generator"], platypus.InjectedPopulation
     )
-
 
     mocker.patch.object(GenerationalBorg, "run")
     _optimize(
@@ -1178,12 +1174,12 @@ def test_optimize_with_shaped_levers(tmp_path):
     lever. epsilon_nondominated and the convergence metrics could not use it,
     and the stored archives contained these arrays as strings.
     """
-    from ema_workbench import Model  # noqa: PLC0415
-    from ema_workbench.em_framework.optimization import load_archives  # noqa: PLC0415
-    from ema_workbench.em_framework.optimization_convergence import (  # noqa: PLC0415
+    from ema_workbench import Model
+    from ema_workbench.em_framework.optimization import load_archives
+    from ema_workbench.em_framework.optimization_convergence import (
         HypervolumeMetric,
     )
-    from ema_workbench.em_framework.points import from_experiments  # noqa: PLC0415
+    from ema_workbench.em_framework.points import from_experiments
 
     model = Model("shaped", function=_shaped_lever_model)
     model.levers = [
@@ -1240,7 +1236,7 @@ def test_optimize_with_shaped_levers(tmp_path):
     assert policies[0]["a"].shape == (3,)
     assert set(policies[0]["c"]) <= {"lo", "hi"}
     with SequentialEvaluator(model) as evaluator:
-        experiments, outcomes = evaluator.perform_experiments(
+        _experiments, outcomes = evaluator.perform_experiments(
             scenarios=1, policies=policies
         )
     np.testing.assert_allclose(outcomes["y"], merged["y"])

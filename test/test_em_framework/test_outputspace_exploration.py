@@ -170,7 +170,9 @@ def test_user_facing_algorithms(mocker):
         (0, 1, 0.1),
     ]
 
-    outputspace_exploration.OutputSpaceExplorationAlgorithm(problem, grid_spec=grid_spec)
+    outputspace_exploration.OutputSpaceExplorationAlgorithm(
+        problem, grid_spec=grid_spec
+    )
 
     outputspace_exploration.AutoAdaptiveOutputSpaceExplorationAlgorithm(
         problem, grid_spec=grid_spec

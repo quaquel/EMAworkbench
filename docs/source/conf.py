@@ -76,7 +76,7 @@ copyright = "2011-2023, J.H. Kwakkel"
 #
 # The short X.Y version.
 def establish_version():
-    import ema_workbench
+    import ema_workbench  # noqa: PLC0415
 
     version_info = ema_workbench.__version__
     version_match = re.search(r"^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)", version_info)
@@ -133,16 +133,16 @@ html_theme = "sphinx_rtd_theme"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = dict(
-    github_user="quaquel",
-    github_repo="EMAworkbench",
-    github_version="/tree/master/docs/",
+html_theme_options = {
+    "github_user": "quaquel",
+    "github_repo": "EMAworkbench",
+    "github_version": "/tree/master/docs/",
     # On master branch and new branch still in
     # pre-release status: true; else: false.
-    in_progress="true",
+    "in_progress": "true",
     # On branches previous to "latest": true; else: false.
-    outdated="false",
-)
+    "outdated": "false",
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -287,7 +287,7 @@ def setup_examples_pages():
     examples_rst = []
     for example in examples:
         base_name = os.path.basename(os.path.normpath(example))
-        base, ext = os.path.splitext(base_name)
+        base, _ext = os.path.splitext(base_name)
         if base in ignore_list:
             continue
 
@@ -299,7 +299,7 @@ def setup_examples_pages():
         if short_rst_filename not in rst_files:
             with open(os.path.join(HERE, "examples", short_rst_filename), "w") as fh:
                 content = template.substitute(
-                    dict(short_filename=short_py_filename, headerline=headerline)
+                    {"short_filename": short_py_filename, "headerline": headerline}
                 )
                 fh.write(content)
         else:
@@ -326,10 +326,10 @@ def setup_examples_pages():
 
     with open(os.path.join(HERE, "examples.rst"), "w") as fh:
         content = template.substitute(
-            dict(
-                notebooks="\n    ".join(sorted(notebook_files)),
-                python_files="\n    ".join(sorted(examples_rst)),
-            )
+            {
+                "notebooks": "\n    ".join(sorted(notebook_files)),
+                "python_files": "\n    ".join(sorted(examples_rst)),
+            }
         )
         fh.write(content)
 

@@ -1,4 +1,4 @@
-""""Unit tests for the MPI evaluator."""
+"""Unit tests for the MPI evaluator."""
 
 import logging
 import platform
@@ -34,7 +34,7 @@ def test_mpi_evaluator(mocker):
             "mpi4py is not installed. It's required for this test. Install with: pip install mpi4py"
         )
 
-    mocked_MPIPoolExecutor = mocker.patch(  # noqa: N806
+    mocked_MPIPoolExecutor = mocker.patch(
         "mpi4py.futures.MPIPoolExecutor", autospec=True
     )
     mocker.patch(
@@ -87,7 +87,7 @@ def test_mpi_evaluator(mocker):
 )
 def test_logwatcher(mocker):
     """Test log watcher."""
-    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)  # noqa: N806
+    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)
     mocked_MPI.COMM_WORLD = Mock()
     mocked_MPI.COMM_WORLD.Get_rank.return_value = 0
 
@@ -137,7 +137,7 @@ def test_logwatcher(mocker):
 )
 def test_mpi_initializer(mocker):
     """Test initializer of the MPI pool."""
-    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)  # noqa: N806
+    mocked_MPI = mocker.patch("mpi4py.MPI", autospec=True)
 
     mocker.patch(
         "ema_workbench.em_framework.points.experiment_generator", autospec=True

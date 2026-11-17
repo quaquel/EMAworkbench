@@ -34,9 +34,7 @@ class Test(unittest.TestCase):
 
         def count_plots(fig):
             return sum(
-                1
-                for ax in fig.axes
-                if ax.get_visible() and (ax.lines or ax.patches)
+                1 for ax in fig.axes if ax.get_visible() and (ax.lines or ax.patches)
             )
 
         rng = np.random.default_rng(42)
@@ -72,7 +70,7 @@ class Test(unittest.TestCase):
         x, outcomes = utilities.load_flu_data()
         y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
-        fig, ax = plt.subplots()
+        _fig, ax = plt.subplots()
         unc = "fatality_ratio_region_1"
 
         regional_sa.plot_individual_cdf(
@@ -86,7 +84,7 @@ class Test(unittest.TestCase):
             yticklabels_on=True,
         )
 
-        fig, ax = plt.subplots()
+        _fig, ax = plt.subplots()
         unc = "model"
 
         regional_sa.plot_individual_cdf(

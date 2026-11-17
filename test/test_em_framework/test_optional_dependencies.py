@@ -25,6 +25,7 @@ def run_python(code, tmp_path, *args):
         capture_output=True,
         text=True,
         timeout=120,
+        check=False,
     )
 
 
@@ -58,7 +59,7 @@ print("FILTERS", [f for f in warnings.filters if f[2] is ImportWarning and f[0] 
 
 def test_connectors_are_imported_on_first_use():
     """Connectors can still be accessed as attributes of the package."""
-    from ema_workbench import connectors  # noqa: PLC0415
+    from ema_workbench import connectors
 
     assert connectors.excel.__name__ == "ema_workbench.connectors.excel"
     with pytest.raises(AttributeError):
@@ -122,7 +123,7 @@ if __name__ == "__main__":
 @pytest.mark.parametrize("start_method", ["fork", "spawn"])
 def test_no_warnings_from_workers(tmp_path, start_method):
     """Regression test for #449: workers repeated the import warnings."""
-    import multiprocessing  # noqa: PLC0415
+    import multiprocessing
 
     if start_method not in multiprocessing.get_all_start_methods():
         pytest.skip(f"start method {start_method} not available")

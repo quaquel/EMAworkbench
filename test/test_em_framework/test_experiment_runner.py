@@ -4,7 +4,6 @@
 #
 # .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 
-
 import unittest
 import unittest.mock as mock
 
@@ -38,7 +37,7 @@ class ExperimentRunnerTestCase(unittest.TestCase):
 
         runner.run_experiment(experiment)
 
-        sc, p, c = mock_msi.run_model.call_args[0]
+        sc, p, _c = mock_msi.run_model.call_args[0]
         self.assertEqual(sc.name, experiment.scenario.name)
         self.assertEqual(p, experiment.policy)
 

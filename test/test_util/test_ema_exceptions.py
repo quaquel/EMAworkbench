@@ -3,7 +3,6 @@
 .. codeauthor:: jhkwakkel <j.h.kwakkel (at) tudelft (dot) nl>
 """
 
-import sys
 import unittest
 
 from ema_workbench.util.ema_exceptions import EMAError, ExperimentError

@@ -98,7 +98,6 @@ def test_combine_single_dict():
     assert result == expected
 
 
-
 def test_named_object_map():
     """Tests for NamedObjectMap."""
     with pytest.raises(TypeError):
@@ -207,7 +206,6 @@ def test_named_object_map_extend_checks_type():
     assert list(map.keys()) == ["a", "g"]
 
 
-
 def test_namedict_copy_is_independent():
     """Regression test: a copy of a NamedDict must not share its data."""
     original = util.NamedDict("a", x=1)
@@ -245,7 +243,7 @@ def test_named_object_map_mapping_methods():
     # comparison
     other = map.copy()
     assert map == other
-    assert not (map != other)
+    assert map == other
     other.extend(Variable("c"))
     assert map != other
     assert map != {"a": a, "b": b}

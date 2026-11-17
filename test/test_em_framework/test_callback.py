@@ -51,7 +51,7 @@ def test_store_results(mocker):
     callback(experiment, model_outcomes)
 
     _, out = callback.get_results()
-    assert outcomes[0].name in out.keys()
+    assert outcomes[0].name in out
     assert out[outcomes[0].name].shape == (3, 10)
 
     # case 3 maps etc. shape = (x,y)
@@ -60,7 +60,7 @@ def test_store_results(mocker):
     callback(experiment, model_outcomes)
 
     _, out = callback.get_results()
-    assert outcomes[0].name in out.keys()
+    assert outcomes[0].name in out
     assert out[outcomes[0].name].shape == (3, 2, 2)
 
     # case 4 arrays with more dimensions, shape = (x, y, z)
@@ -164,8 +164,8 @@ def test_store_cases():
     ]
     outcomes = [TimeSeriesOutcome("test")]
     case = {unc.name: random.random() for unc in uncs}
-    case["c"] = int(round(case["c"] * 2))
-    case["d"] = int(round(case["d"]))
+    case["c"] = round(case["c"] * 2)
+    case["d"] = round(case["d"])
     case["e"] = True
     case["f"] = np.array([random.random(), random.random()])
 
@@ -256,7 +256,7 @@ def test_get_results(mocker):
     for i in range(nr_experiments):
         model = NamedObject("test")
         policy = Sample("policy")
-        case = {"a": i * 0.15, "b": f"{i}", "c": i, "d": True if i % 2 == 0 else False}
+        case = {"a": i * 0.15, "b": f"{i}", "c": i, "d": i % 2 == 0}
         scenario = Sample(**case)
         experiment = Experiment(0, model.name, policy, scenario, i)
         model_outcomes = {outcomes[0].name: i * 1.25}
@@ -265,7 +265,7 @@ def test_get_results(mocker):
 
     mock = mocker.patch("ema_workbench.em_framework.callbacks._logger.warning")
     callback.results = {k: v.data for k, v in callback.results.items()}
-    experiments, results = callback.get_results()
+    experiments, _results = callback.get_results()
     assert mock.call_count == 0
 
     # check if experiments dataframe contains the experiments correctly
@@ -335,7 +335,7 @@ def test_array_outcome_with_any_number_of_dimensions(tmp_path, shape, replicatio
     worked with a declared shape and dtype. So, a 2d array outcome could not
     be used with replications either.
     """
-    from ema_workbench import (  # noqa: PLC0415
+    from ema_workbench import (
         ArrayOutcome,
         Model,
         ReplicatorModel,
