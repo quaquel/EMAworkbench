@@ -69,8 +69,6 @@ exclude = [
     ".venv",
     "__pypackages__",
     "venv",
-    "docs",
-    "test",
     "build",
 ]
 
@@ -119,6 +117,19 @@ extend-ignore = [
   "S311",   # Standard pseudo-random generators are not suitable for cryptographic purposes
   "SIM105", # I prefer explicit try, pass over contextlib in most cases for readability
   "D401",   # Too restrictive on how docstrings are written
+]
+
+[tool.ruff.lint.per-file-ignores]
+"test/**" = [
+  "D",       # docstrings are not required for tests
+  "PLC0415", # imports inside test functions, e.g., of optional dependencies
+  "N806",    # uppercase names for mathematical quantities, e.g., N samples
+]
+"docs/**" = [
+  "D",       # docstrings are not required for documentation and its examples
+  "N806",    # names that follow the papers the models come from, e.g., Pcrit
+  "N816",    # same, at the module level
+  "E741",    # l as the name of a lever in the lake model
 ]
 
 [tool.ruff.lint.pydocstyle]

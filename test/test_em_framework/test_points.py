@@ -294,7 +294,7 @@ def test_from_experiments():
 
 def test_from_experiments_with_parameters():
     """Shaped parameters are turned back into arrays."""
-    import pandas as pd  # noqa: PLC0415
+    import pandas as pd
 
     parameters = [
         RealParameter("a", 0, 1, shape=(2, 2)),
@@ -361,8 +361,8 @@ def test_sample_platypus():
 @pytest.mark.parametrize("sampler", ["MC", "LHS", "FF", "SOBOL"])
 def test_multidimensional_shape_reaches_model(sampler):
     """Regression test: a parameter with a 2d shape was passed flattened."""
-    from ema_workbench import Model, ScalarOutcome, perform_experiments  # noqa: PLC0415
-    from ema_workbench.em_framework.evaluators import Samplers  # noqa: PLC0415
+    from ema_workbench import Model, ScalarOutcome, perform_experiments
+    from ema_workbench.em_framework.evaluators import Samplers
 
     seen = []
 
@@ -395,7 +395,7 @@ def test_multidimensional_shape_reaches_model(sampler):
 
 def test_multidimensional_shape_from_platypus_solution():
     """Regression test: a decision variable with a 2d shape was flattened."""
-    from ema_workbench import ScalarOutcome  # noqa: PLC0415
+    from ema_workbench import ScalarOutcome
 
     parameters = [
         RealParameter("a", 0, 1, shape=(2, 2)),

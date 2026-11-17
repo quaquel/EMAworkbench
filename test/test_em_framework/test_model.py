@@ -112,7 +112,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(model.function, policy_func)
 
         with self.assertRaises(AttributeError):
-            model.unknown
+            _ = model.unknown
 
     def test_run_model(self):
         model_name = "modelname"

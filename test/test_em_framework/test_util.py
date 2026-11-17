@@ -243,7 +243,7 @@ def test_named_object_map_mapping_methods():
     # comparison
     other = map.copy()
     assert map == other
-    assert not (map != other)
+    assert map == other
     other.extend(Variable("c"))
     assert map != other
     assert map != {"a": a, "b": b}

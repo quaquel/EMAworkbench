@@ -20,7 +20,7 @@ from ema_workbench.em_framework.parameters import Policy
 
 
 def setUpModule():
-    global cwd
+    global cwd  # noqa: PLW0603
     cwd = os.getcwd()
     dir_of_module = os.path.dirname(os.path.abspath(__file__))
     os.chdir(dir_of_module)
@@ -35,7 +35,7 @@ class Test(unittest.TestCase):
         wd = r"../models"
         model_file = r"/Wolf Sheep Predation.nlogo"
 
-        model = NetLogoModel("predPreyNetlogo", wd=wd, model_file=model_file)
+        NetLogoModel("predPreyNetlogo", wd=wd, model_file=model_file)
 
     def test_run_model(self):
         wd = r"../models"

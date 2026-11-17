@@ -190,14 +190,14 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
         # all dimensions different
         a = np.array([(0, 1), (0, 1)], dtype=[("a", float), ("b", float)])
         b = np.array([(1, 1), (0, 0)], dtype=[("a", float), ("b", float)])
-        test = sdutil._compare(a, b) == False
+        test = ~sdutil._compare(a, b)
         self.assertTrue(np.all(test))
 
         # dimensions 1 different and dimension 2 the same
         a = np.array([(0, 1), (0, 1)], dtype=[("a", float), ("b", float)])
         b = np.array([(1, 1), (0, 1)], dtype=[("a", float), ("b", float)])
         test = sdutil._compare(a, b)
-        test = (test[0] == False) & (test[1] == True)
+        test = (~test[0]) & test[1]
         self.assertTrue(test)
 
     def test_plot_box(self):
@@ -229,7 +229,7 @@ class ScenarioDiscoveryUtilTestCase(unittest.TestCase):
 
         qp_values = {"a": [0.05, 0.9], "c": [0.05, -1]}
 
-        fig, ax = plt.subplots()
+        _fig, ax = plt.subplots()
         sdutil.plot_box(
             boxlim,
             qp_values,

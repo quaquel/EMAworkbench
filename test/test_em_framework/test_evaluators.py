@@ -201,12 +201,16 @@ def test_optimize(mocker):
     evaluators.optimize(model, nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1])
     assert mocked_optimize.call_count == 1
 
-    with pytest.raises(NotImplementedError):
-        with evaluators.SequentialEvaluator([model, model]) as evaluator:
-            evaluator.optimize(nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1])
-    with pytest.raises(ValueError):
-        with evaluators.SequentialEvaluator(model) as evaluator:
-            evaluator.optimize(nfe=nfe, searchover="unknown value", epsilons=[0.1, 0.1])
+    with (
+        pytest.raises(NotImplementedError),
+        evaluators.SequentialEvaluator([model, model]) as evaluator,
+    ):
+        evaluator.optimize(nfe=nfe, searchover="uncertainties", epsilons=[0.1, 0.1])
+    with (
+        pytest.raises(ValueError),
+        evaluators.SequentialEvaluator(model) as evaluator,
+    ):
+        evaluator.optimize(nfe=nfe, searchover="unknown value", epsilons=[0.1, 0.1])
 
 
 @pytest.mark.parametrize("rng", ["some seed", b"some seed", 42, None])

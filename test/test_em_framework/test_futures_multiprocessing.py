@@ -131,10 +131,10 @@ def test_worker_log_messages_reach_main_process(tmp_path, start_method):
     messages were only shown because the workers inherited the handlers of
     the main process, and with spawn they were lost.
     """
-    import os  # noqa: PLC0415
-    import re  # noqa: PLC0415
-    import subprocess  # noqa: PLC0415
-    import sys  # noqa: PLC0415
+    import os
+    import re
+    import subprocess
+    import sys
 
     if start_method not in multiprocessing.get_all_start_methods():
         pytest.skip(f"start method {start_method} not available")
@@ -150,6 +150,7 @@ def test_worker_log_messages_reach_main_process(tmp_path, start_method):
         capture_output=True,
         text=True,
         timeout=120,
+        check=False,
     )
     assert result.returncode == 0, result.stderr
 

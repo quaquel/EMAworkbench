@@ -6,8 +6,8 @@ import pandas as pd
 import pytest
 
 from ema_workbench.analysis import prim
-from ema_workbench.util import EMAError
 from ema_workbench.analysis.prim import PrimBox
+from ema_workbench.util import EMAError
 from test import utilities
 
 # Created on Mar 13, 2012
@@ -112,14 +112,14 @@ class TestPrimBox:
 
         box.inspect([0, 1])
 
-        fig, axes = plt.subplots(2)
+        _fig, axes = plt.subplots(2)
         box.inspect([0, 1], ax=axes, style="graph")
 
-        fig, ax = plt.subplots()
+        _fig, ax = plt.subplots()
         box.inspect(0, ax=ax, style="graph")
 
         with pytest.raises(ValueError):
-            fig, axes = plt.subplots(3)
+            _fig, axes = plt.subplots(3)
             box.inspect([0, 1], ax=axes, style="graph")
         with pytest.raises(ValueError):
             box.inspect(style="some unknown style")
@@ -625,7 +625,7 @@ def test_inspect_categorical_restriction():
     box = prim.Prim(x, y).find_box()
     assert box.box_lim["c"][0] == {"p", "q"}
 
-    stats, box_lim = box.inspect(style="data")[0]
+    _stats, box_lim = box.inspect(style="data")[0]
     assert box_lim.loc["c"].iloc[0] == {"p", "q"}
     assert box_lim.loc["c"].iloc[1] == {"p", "q"}
     assert box_lim.loc["a"].iloc[0] > 0.5
@@ -641,8 +641,8 @@ def test_inspect_categorical_restriction():
 
     # numeric only still gives floats
     box = prim.Prim(x[["a", "b"]], y).find_box()
-    stats, box_lim = box.inspect(style="data")[0]
-    assert all(dtype == float for dtype in box_lim.dtypes)
+    _stats, box_lim = box.inspect(style="data")[0]
+    assert all(dtype == np.dtype(float) for dtype in box_lim.dtypes)
 
 
 def test_pca():
@@ -660,7 +660,7 @@ def test_pca():
 
     # behave correctly
     y = y > 1e6
-    rotated_experiments, rotation = prim.pca_preprocess(experiments, y)
+    rotated_experiments, _rotation = prim.pca_preprocess(experiments, y)
 
     assert rotated_experiments.shape == experiments.shape
 
@@ -689,7 +689,7 @@ def test_pca():
         ],
     }
     experiments = experiments.drop("normal_interregional_contact_rate", axis=1)
-    rotated_experiments, rotation = prim.pca_preprocess(experiments, y, subsets)
+    rotated_experiments, _rotation = prim.pca_preprocess(experiments, y, subsets)
     assert rotated_experiments.shape == experiments.shape
 
 
@@ -706,8 +706,8 @@ def test_pca_rotation_is_real():
 
     rotated_experiments, rotation = prim.pca_preprocess(experiments, y)
 
-    assert all(dtype == float for dtype in rotated_experiments.dtypes)
-    assert all(dtype == float for dtype in rotation.dtypes)
+    assert all(dtype == np.dtype(float) for dtype in rotated_experiments.dtypes)
+    assert all(dtype == np.dtype(float) for dtype in rotation.dtypes)
     # the rotation is orthonormal
     np.testing.assert_allclose(
         rotation.values.T @ rotation.values, np.eye(rotation.shape[0]), atol=1e-10
@@ -793,7 +793,7 @@ class TestRegressionPrim:
         for method in ("resample", "show_tradeoff", "inspect_tradeoff"):
             with pytest.raises(NotImplementedError, match="binary PRIM"):
                 getattr(box, method)()
-        with pytest.raises(AttributeError, match="RegressionPrimBox.*no_such_thing"):
+        with pytest.raises(AttributeError, match=r"RegressionPrimBox.*no_such_thing"):
             _ = box.no_such_thing
 
     def test_update_function(self):

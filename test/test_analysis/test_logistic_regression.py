@@ -110,7 +110,7 @@ def test_logit_non_numeric_columns():
         "text!?!v",
     }
     normalized = logitmodel._normalized.drop(columns="Intercept")
-    assert all(dtype == float for dtype in normalized.dtypes)
+    assert all(dtype == np.dtype(float) for dtype in normalized.dtypes)
     assert normalized.min().min() == 0
     assert normalized.max().max() == 1
 

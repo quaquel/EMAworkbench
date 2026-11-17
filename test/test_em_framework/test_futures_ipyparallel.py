@@ -76,9 +76,10 @@ def add_engines(n=1, profile="iptest", total=False):
         n = max(n - base, 0)
 
     eps = []
-    for i in range(n):
+    for _ in range(n):
         ep = MockProcessLauncher()
-        ep.cmd_and_args = ipengine_cmd_argv + [
+        ep.cmd_and_args = [
+            *ipengine_cmd_argv,
             f"--profile={profile}",
             "--InteractiveShell.colors=nocolor",
         ]
@@ -105,7 +106,7 @@ def setUpModule():
             os.remove(json)
 
     cp = MockProcessLauncher()
-    cp.cmd_and_args = ipcontroller_cmd_argv + ["--profile=default", "--log-level=20"]
+    cp.cmd_and_args = [*ipcontroller_cmd_argv, "--profile=default", "--log-level=20"]
     cp.start()
     launchers.append(cp)
     tic = time.time()
@@ -140,7 +141,7 @@ def tearDownModule():
             try:
                 print("cleaning up test process...")
                 p.signal(SIGKILL)
-            except:
+            except Exception:
                 print("couldn't shutdown process: ", p)
 
 

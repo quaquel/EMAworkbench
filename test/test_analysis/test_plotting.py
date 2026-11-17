@@ -9,7 +9,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ema_workbench.analysis.b_and_w_plotting import set_fig_to_bw
-from ema_workbench.analysis.plotting import *
+from ema_workbench.analysis.plotting import (
+    envelopes,
+    kde_over_time,
+    lines,
+    multiple_densities,
+)
 from ema_workbench.analysis.plotting_util import (
     Density,
     PlotType,

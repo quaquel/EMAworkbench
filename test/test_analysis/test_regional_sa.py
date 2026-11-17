@@ -70,7 +70,7 @@ class Test(unittest.TestCase):
         x, outcomes = utilities.load_flu_data()
         y = outcomes["deceased_population_region_1"][:, -1] > 1000000
 
-        fig, ax = plt.subplots()
+        _fig, ax = plt.subplots()
         unc = "fatality_ratio_region_1"
 
         regional_sa.plot_individual_cdf(
@@ -84,7 +84,7 @@ class Test(unittest.TestCase):
             yticklabels_on=True,
         )
 
-        fig, ax = plt.subplots()
+        _fig, ax = plt.subplots()
         unc = "model"
 
         regional_sa.plot_individual_cdf(

@@ -24,7 +24,7 @@ from ema_workbench.util.utilities import (
 
 
 def setUpModule():
-    global cwd
+    global cwd  # noqa: PLW0603
     cwd = os.getcwd()
     dir_of_module = os.path.dirname(os.path.abspath(__file__))
     register.outcomes = {}  # reset internal dict
@@ -93,9 +93,9 @@ def test_save_results_undeclared_outcome(tmp_path):
     everything that can be saved is saved, and an EMAError listing the
     skipped outcomes is raised afterwards.
     """
-    import pytest  # noqa: PLC0415
+    import pytest
 
-    from ema_workbench.util import EMAError  # noqa: PLC0415
+    from ema_workbench.util import EMAError
 
     experiments = pd.DataFrame({"x": [0.1, 0.2, 0.3]})
     ScalarOutcome("declared_scalar")
@@ -208,7 +208,7 @@ def test_save_results_compression(tmp_path):
     Previously, results were always saved with gzip, and load_results could
     only read gzip compressed tarballs.
     """
-    import pytest  # noqa: PLC0415
+    import pytest
 
     experiments = pd.DataFrame(
         {
@@ -269,9 +269,9 @@ def test_save_results_compression(tmp_path):
 
 def test_determine_compression():
     """Tests for determine_compression."""
-    from pathlib import Path  # noqa: PLC0415
+    from pathlib import Path
 
-    from ema_workbench.util.utilities import determine_compression  # noqa: PLC0415
+    from ema_workbench.util.utilities import determine_compression
 
     assert determine_compression("a.tar.gz") == "gz"
     assert determine_compression("a.TGZ") == "gz"
