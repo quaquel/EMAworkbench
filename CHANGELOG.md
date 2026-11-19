@@ -5,8 +5,83 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 <!-- Release notes generated using configuration in .github/release.yml at master -->
+## Highlights
+3.1.0 is mostly a bug fix release. A systematic review of the code base fixed bugs in scenario discovery (PRIM, CART, logit, PCA-PRIM), sampling, optimization, parallel evaluation, and saving and loading results. Many of these appeared with pandas 3 or with the new features of 3.0, such as parameters with a shape.
 
-<!-- Release notes generated using configuration in .github/release.yml at master -->
+A few things to know when upgrading:
+- Assigning `uncertainties`, `levers`, `outcomes` or `constants` on a model now replaces the existing content instead of adding to it. Use `+=` or `extend` to add.
+- Optimization archives store a lever with a shape as one column per element (`name_0`, `name_1`, ...), as in the experiments from `perform_experiments`. Archives from several seeds can now be merged and scored, and `from_experiments(..., parameters=...)` turns rows back into samples.
+- Parameters with a multidimensional shape, e.g. `(2, 2)`, are passed to the model in that shape instead of flattened.
+- A model that uses a parameter name more than once, across uncertainties, levers and constants, is rejected with a clear error before running.
+
+Other notable improvements:
+- Rule extraction and pairwise scatter plots for CART, and many improvements to the pairwise scatter plots of PRIM.
+- Optimization over categorical and boolean levers works.
+- `MultiprocessingEvaluator` no longer hangs when a model raises, and log messages from workers are no longer lost on macOS and Windows.
+- Workers no longer repeat warnings about missing optional dependencies.
+- Array outcomes can have any number of dimensions.
+- The code base, tests and docs are formatted and linted with ruff, enforced in CI and by pre-commit hooks.
+
+## What's Changed
+### 🎉 New features added
+* Add rule extraction for CART by @quaquel in https://github.com/quaquel/EMAworkbench/pull/460
+### 🛠 Enhancements made
+* Update model debugger by @quaquel in https://github.com/quaquel/EMAworkbench/pull/450
+* Vectorize CID calculation by @quaquel in https://github.com/quaquel/EMAworkbench/pull/458
+* Move extracting boxes from cart tree into sd util by @quaquel in https://github.com/quaquel/EMAworkbench/pull/459
+* Harmonize data cleaning for scenario discovery by @quaquel in https://github.com/quaquel/EMAworkbench/pull/461
+* Various improvements and bug fixes for `plot_pair_wise_scatter` by @quaquel in https://github.com/quaquel/EMAworkbench/pull/462
+* Reduce memory use of the CID calculation by @quaquel in https://github.com/quaquel/EMAworkbench/pull/464
+* Add pair wise scatter to cart by @quaquel in https://github.com/quaquel/EMAworkbench/pull/465
+* Autoscale markers in pairwise scatter by @quaquel in https://github.com/quaquel/EMAworkbench/pull/466
+* Support slicing a ParameterMap by @quaquel in https://github.com/quaquel/EMAworkbench/pull/471
+* Compress the tarball with the archives of an optimization by @quaquel in https://github.com/quaquel/EMAworkbench/pull/476
+* Use the shared helper to drop uninformative columns in Logit by @quaquel in https://github.com/quaquel/EMAworkbench/pull/487
+* Reject models that use a parameter name more than once by @quaquel in https://github.com/quaquel/EMAworkbench/pull/498
+* Allow array outcomes with any number of dimensions by @quaquel in https://github.com/quaquel/EMAworkbench/pull/503
+### 🐛 Bugs fixed
+* Small dtype update due to pandas3 by @quaquel in https://github.com/quaquel/EMAworkbench/pull/451
+* Fix PRIM bugs introduced by merging regression and binary mode by @quaquel in https://github.com/quaquel/EMAworkbench/pull/463
+* Fix robust_optimize scoring every policy on all experiments by @quaquel in https://github.com/quaquel/EMAworkbench/pull/467
+* Fix NamedDict.copy sharing the underlying dict by @quaquel in https://github.com/quaquel/EMAworkbench/pull/468
+* Fix a str or bytes seed being used as a collection of seeds by @quaquel in https://github.com/quaquel/EMAworkbench/pull/472
+* Fix selecting a PRIM box with a negative index by @quaquel in https://github.com/quaquel/EMAworkbench/pull/473
+* Fix the guivarch update function changing y of the user by @quaquel in https://github.com/quaquel/EMAworkbench/pull/474
+* Fix typo in reset_model so outcomes are reset by @quaquel in https://github.com/quaquel/EMAworkbench/pull/475
+* Fix grouping by a column without grouping specifiers by @quaquel in https://github.com/quaquel/EMAworkbench/pull/477
+* Fix SALib samplers for parameters with a shape by @quaquel in https://github.com/quaquel/EMAworkbench/pull/478
+* Fix boxenplot density for groups that differ in size by @quaquel in https://github.com/quaquel/EMAworkbench/pull/479
+* Bug fixes in logit by @quaquel in https://github.com/quaquel/EMAworkbench/pull/480
+* Bug fixes in NamedObjectMap by @quaquel in https://github.com/quaquel/EMAworkbench/pull/481
+* Bug fixes in Prim by @quaquel in https://github.com/quaquel/EMAworkbench/pull/482
+* Bug fixes in optimization by @quaquel in https://github.com/quaquel/EMAworkbench/pull/483
+* Bug fixes in `perform_experiments` by @quaquel in https://github.com/quaquel/EMAworkbench/pull/484
+* Bug fixes related to sampling by @quaquel in https://github.com/quaquel/EMAworkbench/pull/485
+* Fix bugs in regional sa scenario column by @quaquel in https://github.com/quaquel/EMAworkbench/pull/486
+* Remove temporary log filter if an exception is raised by @quaquel in https://github.com/quaquel/EMAworkbench/pull/488
+* Make assigning parameters and outcomes on a model replace the content by @quaquel in https://github.com/quaquel/EMAworkbench/pull/492
+* Fix writing parameters to csv and reading them back by @quaquel in https://github.com/quaquel/EMAworkbench/pull/489
+* Fix MultiprocessingEvaluator hanging when a model raises by @quaquel in https://github.com/quaquel/EMAworkbench/pull/490
+* Fix save_results for outcomes not declared as an Outcome by @quaquel in https://github.com/quaquel/EMAworkbench/pull/491
+* Fix PCA-PRIM returning a single box because of complex numbers by @quaquel in https://github.com/quaquel/EMAworkbench/pull/494
+* Fix log messages from multiprocessing workers being lost with spawn by @quaquel in https://github.com/quaquel/EMAworkbench/pull/493
+* Stop warning about missing optional dependencies at import by @quaquel in https://github.com/quaquel/EMAworkbench/pull/496
+* Fix optimization over categorical and boolean levers (#453) by @quaquel in https://github.com/quaquel/EMAworkbench/pull/469
+* Fix optimization and sampling with shaped parameters by @quaquel in https://github.com/quaquel/EMAworkbench/pull/499
+### 📜 Documentation improvements
+* Fix example scripts that no longer run by @quaquel in https://github.com/quaquel/EMAworkbench/pull/495
+* Update CONTRIBUTING.md by @quaquel in https://github.com/quaquel/EMAworkbench/pull/506
+### 🔧 Maintenance
+* Bump actions/checkout from 6 to 7 by @dependabot[bot] in https://github.com/quaquel/EMAworkbench/pull/452
+* Bump actions/setup-python from 6 to 7 by @dependabot[bot] in https://github.com/quaquel/EMAworkbench/pull/454
+* Bump actions/checkout from 6 to 7 by @dependabot[bot] in https://github.com/quaquel/EMAworkbench/pull/455
+* Run the test_all test of RegressionPrim again by @quaquel in https://github.com/quaquel/EMAworkbench/pull/500
+* Fix MPI tests breaking the test session with recent pytest by @quaquel in https://github.com/quaquel/EMAworkbench/pull/501
+* Format the code base with ruff and enforce it by @quaquel in https://github.com/quaquel/EMAworkbench/pull/504
+* Include test and docs in ruff by @quaquel in https://github.com/quaquel/EMAworkbench/pull/505
+
+
+**Full Changelog**: https://github.com/quaquel/EMAworkbench/compare/3.0...3.1.0
 
 ## 3.0
 
