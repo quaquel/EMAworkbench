@@ -166,6 +166,9 @@ class Logit:
         # cannot be normalized.
         x = sdutil._drop_uninformative_columns(x)
 
+        # y can be a DataArray or Series, e.g., derived from a time series outcome
+        y = np.asarray(y)
+
         self.x = x
         self.y = y
         self.models = []

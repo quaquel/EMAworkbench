@@ -6,9 +6,11 @@ import os
 import tarfile
 from collections.abc import Callable
 from io import BytesIO
+from typing import Any
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 from . import EMAError, get_module_logger
 
@@ -66,7 +68,11 @@ def load_results(file_name: str) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
     IOError if file not found
 
     """
-    from ..em_framework.outcomes import Outcome, register  # noqa: PLC0415
+    from ..em_framework.outcomes import (  # noqa: PLC0415
+        Outcome,
+        _ignore_missing_time_index,
+        register,
+    )
 
     file_name = os.path.abspath(file_name)
 
@@ -104,7 +110,9 @@ def load_results(file_name: str) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
             entry.__name__: entry for entry in Outcome.get_subclasses()
         }
         for outcome_type, name, filename in metadata["outcomes"]:
-            outcome = known_outcome_classes[outcome_type](name)  #  noqa F841
+            # only created to register how the outcome is stored
+            with _ignore_missing_time_index():
+                outcome = known_outcome_classes[outcome_type](name)  #  noqa F841
 
             values = register.deserialize(name, filename, archive)
             outcomes[name] = values
@@ -211,6 +219,8 @@ def save_results(
     The way in which results are stored depends. Experiments are saved
     as csv. Outcomes depend on the outcome type. Scalar, and <3D arrays are
     saved as csv files. Higher dimensional arrays are stored as .npy files.
+    Outcomes that are a DataArray, e.g., a TimeSeriesOutcome with a time index,
+    are stored as netCDF files, which keep the dimensions and coordinates.
 
     The compression follows from the extension of the file name: .tar.gz or
     .tgz for gzip, .tar.bz2 or .tbz2 for bzip2, .tar.xz or .txz for lzma, and
@@ -301,9 +311,9 @@ def save_results(
 
 
 def merge_results(
-    results1: tuple[pd.DataFrame, dict[str, np.ndarray]],
-    results2: tuple[pd.DataFrame, dict[str, np.ndarray]],
-) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
+    results1: tuple[pd.DataFrame, dict[str, np.ndarray | xr.DataArray]],
+    results2: tuple[pd.DataFrame, dict[str, np.ndarray | xr.DataArray]],
+) -> tuple[pd.DataFrame, dict[str, np.ndarray | xr.DataArray]]:
     """Convenience function for merging results from the workbench.
 
     The function merges results2 with results1. For the experiments,
@@ -350,11 +360,48 @@ def merge_results(
 
         value1 = res1.get(key)
         value2 = res2.get(key)
-        merged_value = np.concatenate([value1, value2])
+        if isinstance(value1, xr.DataArray) or isinstance(value2, xr.DataArray):
+            merged_value = _merge_dataarrays(key, value1, value2)
+        else:
+            merged_value = np.concatenate([value1, value2])
         merged_res[key] = merged_value
 
     mr = (merged_exp, merged_res)
     return mr
+
+
+def _merge_dataarrays(key: str, value1: Any, value2: Any) -> xr.DataArray:
+    """Merge the results for an outcome with dimensions and coordinates.
+
+    The results are concatenated along the experiments, so all other
+    dimensions and their coordinates, e.g., the time index, have to be the
+    same.
+    """
+    if not (isinstance(value1, xr.DataArray) and isinstance(value2, xr.DataArray)):
+        raise EMAError(
+            f"outcome '{key}' is a DataArray in one of the results, but not in "
+            f"the other, so they cannot be merged"
+        )
+    if value1.dims != value2.dims:
+        raise EMAError(
+            f"outcome '{key}' has dimensions {value1.dims} in one of the results "
+            f"and {value2.dims} in the other, so they cannot be merged"
+        )
+    for dim in value1.dims[1:]:
+        if value1.sizes[dim] != value2.sizes[dim] or (dim in value1.coords) != (
+            dim in value2.coords
+        ):
+            same = False
+        elif dim in value1.coords:
+            same = np.array_equal(value1.coords[dim].values, value2.coords[dim].values)
+        else:
+            same = True
+        if not same:
+            raise EMAError(
+                f"outcome '{key}' has a different {dim} index in the two results, "
+                f"so they cannot be merged"
+            )
+    return xr.concat([value1, value2], dim=value1.dims[0])
 
 
 def get_ema_project_home_dir() -> str:

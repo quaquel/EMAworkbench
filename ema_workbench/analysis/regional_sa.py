@@ -232,6 +232,9 @@ def plot_cdfs(x, y, ccdf=False):
     a matplotlib Figure instance
 
     """
+    # y can be a DataArray or Series, e.g., derived from a time series outcome
+    y = np.asarray(y)
+
     # drop the id of the scenario, and any column with fewer than two distinct
     # values, such as model or policy if there is only one of each, as in the
     # other scenario discovery techniques

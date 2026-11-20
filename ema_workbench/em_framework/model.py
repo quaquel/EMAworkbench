@@ -74,7 +74,14 @@ class AbstractModel(NamedObject):
         """Setter for outcomes output."""
         for outcome in self.outcomes:
             data = [outputs[var] for var in outcome.variable_name]
-            self._outcomes_output[outcome.name] = outcome.process(data)
+            value = outcome.process(data)
+
+            # the time index of a time series can be an output of the model
+            time_variable = getattr(outcome, "time_variable", None)
+            if time_variable is not None:
+                value = outcome.attach_time(value, outputs[time_variable])
+
+            self._outcomes_output[outcome.name] = value
 
     @property
     def output_variables(self) -> list[str]:
@@ -83,6 +90,15 @@ class AbstractModel(NamedObject):
             self._output_variables = [
                 var for o in self.outcomes for var in o.variable_name
             ]
+            # the outputs of the model that contain the time index of a
+            # time series outcome
+            for outcome in self.outcomes:
+                time_variable = getattr(outcome, "time_variable", None)
+                if (
+                    time_variable is not None
+                    and time_variable not in self._output_variables
+                ):
+                    self._output_variables.append(time_variable)
 
         return self._output_variables
 

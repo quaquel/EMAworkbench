@@ -53,9 +53,10 @@ def envelopes(
 
     An envelope shows over time the minimum and maximum  value for a set
     of runs over time. It is thus to be used in case of time series
-    data. The function will try to find a result labeled "TIME". If this
-    is present, these values will be used on the X-axis. In case of
-    Vensim models, TIME is present by default.
+    data. The X-axis shows the time index of the outcome, if it has one,
+    e.g., the results of a TimeSeriesOutcome with a time index. Otherwise,
+    the function will try to find a result labeled "TIME". If neither is
+    available, the position of the time steps is used.
 
     Parameters
     ----------
@@ -129,13 +130,14 @@ def envelopes(
         grouping_specifiers,
         filter_scalar=True,
     )
-    experiments, outcomes, outcomes_to_show, time, grouping_labels = prepared_data
+    experiments, outcomes, outcomes_to_show, times, grouping_labels = prepared_data
 
     figure, grid = make_grid(outcomes_to_show, density)
 
     # do the plotting
     axes_dict = {}
     for i, outcome_to_plot in enumerate(outcomes_to_show):
+        time = times[outcome_to_plot]
         ax = figure.add_subplot(grid[i, 0])
         axes_dict[outcome_to_plot] = ax
 
@@ -277,9 +279,10 @@ def lines(
     """Visualize results from experiments as line plots.
 
     It is thus to be used in case of time
-    series data. The function will try to find a result labeled "TIME". If this
-    is present, these values will be used on the X-axis. In case of Vensim
-    models, TIME is present by default.
+    series data. The X-axis shows the time index of the outcome, if it has
+    one, e.g., the results of a TimeSeriesOutcome with a time index. Otherwise,
+    the function will try to find a result labeled "TIME". If neither is
+    available, the position of the time steps is used.
 
     Parameters
     ----------
@@ -362,13 +365,14 @@ def lines(
         group_by,
         grouping_specifiers,
     )
-    experiments, outcomes, outcomes_to_show, time, grouping_labels = data
+    experiments, outcomes, outcomes_to_show, times, grouping_labels = data
 
     figure, grid = make_grid(outcomes_to_show, density)
     axes_dict = {}
 
     # do the plotting
     for i, outcome_to_plot in enumerate(outcomes_to_show):
+        time = times[outcome_to_plot]
         ax = figure.add_subplot(grid[i, 0])
         axes_dict[outcome_to_plot] = ax
 
@@ -479,13 +483,14 @@ def plot_lines_with_envelopes(
         group_by,
         grouping_specifiers,
     )
-    experiments, outcomes, outcomes_to_show, time, grouping_labels = data
+    experiments, outcomes, outcomes_to_show, times, grouping_labels = data
 
     figure, grid = make_grid(outcomes_to_show, density)
     axes_dict = {}
 
     # do the plotting
     for i, outcome_to_plot in enumerate(outcomes_to_show):
+        time = times[outcome_to_plot]
         ax = figure.add_subplot(grid[i, 0])
         axes_dict[outcome_to_plot] = ax
 
@@ -648,6 +653,7 @@ def kde_over_time(
     minima = {}
     maxima = {}
     for key, value in outcomes.items():
+        value = np.asarray(value)  # noqa: PLW2901
         minima[key] = np.min(value)
         maxima[key] = np.max(value)
 
@@ -760,19 +766,19 @@ def multiple_densities(
 
     """
     if not outcomes_to_show:
-        outcomes_to_show = [k for k, v in outcomes.items() if v.ndim == 2]
-        outcomes_to_show.remove(TIME)
+        outcomes_to_show = [k for k, v in outcomes.items() if v.ndim == 2 and k != TIME]
     elif isinstance(outcomes_to_show, str):
         outcomes_to_show = [outcomes_to_show]
 
     data = prepare_data(
         experiments, None, outcomes, outcomes_to_show, group_by, grouping_specifiers
     )
-    _, outcomes, _, time, grouping_labels = data
+    _, outcomes, _, times, grouping_labels = data
 
     axes_dicts = {}
     figures = []
     for outcome_to_show in outcomes_to_show:
+        time = times[outcome_to_show]
         axes_dict = {}
         axes_dicts[outcome_to_show] = axes_dict
 

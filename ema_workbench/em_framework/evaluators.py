@@ -18,7 +18,7 @@ from ema_workbench.em_framework.samplers import AbstractSampler
 from ..util import EMAError, get_module_logger
 from .callbacks import AbstractCallback, DefaultCallback
 from .experiment_runner import ExperimentRunner
-from .model import AbstractModel
+from .model import AbstractModel, Replicator
 from .optimization import (
     Problem,
     _optimize,
@@ -427,6 +427,7 @@ def perform_experiments(
         models_to_check = [models]
     for model in models_to_check:
         model._validate_parameter_names()
+    _check_outcome_dims(models_to_check)
 
     scenarios, uncertainties, n_scenarios = _setup(
         scenarios,
@@ -499,6 +500,14 @@ def perform_experiments(
         log_progress,
     )
 
+    # needed for the dimensions of outcomes with declared dimensions
+    callback.replicated_outcomes = {
+        outcome.name
+        for model in models_to_check
+        if isinstance(model, Replicator)
+        for outcome in model.outcomes
+    }
+
     if not evaluator:
         evaluator = SequentialEvaluator(models)
 
@@ -549,6 +558,41 @@ def _check_policy_names(policies: Iterable[Sample]) -> None:
             f"the names of policies must be unique, but {', '.join(duplicates)} "
             "occur more than once"
         )
+
+
+def _check_outcome_dims(models: list[AbstractModel]) -> None:
+    """Check that outcomes with the same name have the same dimensions.
+
+    The results of all models are stored together, so an outcome that is used
+    by several models needs to have the same dimensions and coordinates, e.g.,
+    the same time index, in all of them.
+    """
+    declared = {}
+    for model in models:
+        for outcome in model.outcomes:
+            dims = getattr(outcome, "dims", None)
+            coords = getattr(outcome, "coords", {})
+            time_variable = getattr(outcome, "time_variable", None)
+            try:
+                other_model, other_dims, other_coords, other_variable = declared[
+                    outcome.name
+                ]
+            except KeyError:
+                declared[outcome.name] = (model.name, dims, coords, time_variable)
+                continue
+
+            same_coords = coords.keys() == other_coords.keys() and all(
+                np.array_equal(coords[dim], other_coords[dim]) for dim in coords
+            )
+            if (
+                dims != other_dims
+                or not same_coords
+                or (time_variable is None) != (other_variable is None)
+            ):
+                raise EMAError(
+                    f"outcome '{outcome.name}' has different dimensions or "
+                    f"coordinates in model '{other_model}' and model '{model.name}'"
+                )
 
 
 def setup_callback(
